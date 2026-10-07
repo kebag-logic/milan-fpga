@@ -1,0 +1,82 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.09 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 13ms.
+  "transmit_suite": 106 passes in 7ms.
+  "integration_suite": 371 passes in 10ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+  "milan_suite": 418 passes, 12 failures in 13ms.
+  "boundaries_suite": 2016 passes in 29ms.
+Completed "main": 4721 passes, 12 failures in 90ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.09 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

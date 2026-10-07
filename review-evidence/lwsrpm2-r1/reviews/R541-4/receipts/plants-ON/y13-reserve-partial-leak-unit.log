@@ -1,0 +1,346 @@
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 114ms.
+  "timer_suite": 14 passes in 33ms.
+  "msrp_values_suite": 23 passes in 22ms.
+  "receive_suite": 83 passes in 57ms.
+  "transmit_suite": 106 passes in 70ms.
+  "integration_suite": 371 passes in 162ms.
+  "milan_suite": 430 passes in 138ms.
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:24: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:24: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:24: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:685: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:685: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:685: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:685: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:685: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[8]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:685: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[12]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:24: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[12]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[7]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[9]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[9]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[10]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[12]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[12]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:774: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[12]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:24: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[12]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:24: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+  "boundaries_suite": 1987 passes, 29 failures in 395ms.
+Completed "main": 4704 passes, 29 failures in 998ms.
+
+=================================================================
+==2914931==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 256 byte(s) in 4 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e032ac4 in rx_on_attr $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1036
+    #6 0x7fdd6e03a8f0 in parse_pass $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:208
+    #7 0x7fdd6e03ab05 in mrpdu_parse $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:232
+    #8 0x7fdd6e03376f in mrp_rx $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1065
+    #9 0x559001a4192d in Boundaries__changed_value_allocation_failure_preserves_retry $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:529
+    #10 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+SUMMARY: AddressSanitizer: 256 byte(s) leaked in 4 allocation(s).
+
+=================================================================
+==2914939==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e032ac4 in rx_on_attr $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1036
+    #6 0x7fdd6e03a8f0 in parse_pass $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:208
+    #7 0x7fdd6e03ab05 in mrpdu_parse $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:232
+    #8 0x7fdd6e03376f in mrp_rx $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1065
+    #9 0x559001a41fa4 in Boundaries__reservation_failure_is_reported_without_partial_publication $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:551
+    #10 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+SUMMARY: AddressSanitizer: 64 byte(s) leaked in 1 allocation(s).
+
+=================================================================
+==2914943==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02f79b in on_leave_timer $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:859
+    #5 0x7fdd6e028c88 in shlan_timer_tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/ports/timer.c:32
+    #6 0x559001a39123 in tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:29
+    #7 0x559001a425b1 in Boundaries__timer_allocation_failure_rolls_back_and_retries $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:573
+    #8 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+SUMMARY: AddressSanitizer: 64 byte(s) leaked in 1 allocation(s).
+
+=================================================================
+==2914972==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 256 byte(s) in 4 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02f79b in on_leave_timer $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:859
+    #5 0x7fdd6e028c88 in shlan_timer_tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/ports/timer.c:32
+    #6 0x559001a39123 in tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:29
+    #7 0x559001a43d8e in Boundaries__flush_allocation_failures_retry_withdrawal_on_the_next_tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:667
+    #8 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+Direct leak of 256 byte(s) in 4 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e02e192 in deliver_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:740
+    #6 0x7fdd6e02e24b in broadcast_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:748
+    #7 0x7fdd6e034133 in mrp_port_role_change $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1111
+    #8 0x559001a43ca3 in Boundaries__flush_allocation_failures_retry_withdrawal_on_the_next_tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:660
+    #9 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+Indirect leak of 128 byte(s) in 2 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02f79b in on_leave_timer $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:859
+    #5 0x7fdd6e028c88 in shlan_timer_tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/ports/timer.c:32
+    #6 0x559001a39123 in tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:29
+    #7 0x559001a43d8e in Boundaries__flush_allocation_failures_retry_withdrawal_on_the_next_tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:667
+    #8 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+Indirect leak of 128 byte(s) in 2 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e02e192 in deliver_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:740
+    #6 0x7fdd6e02e24b in broadcast_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:748
+    #7 0x7fdd6e034133 in mrp_port_role_change $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1111
+    #8 0x559001a43ca3 in Boundaries__flush_allocation_failures_retry_withdrawal_on_the_next_tick $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:660
+    #9 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+SUMMARY: AddressSanitizer: 768 byte(s) leaked in 12 allocation(s).
+
+=================================================================
+==2914980==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 256 byte(s) in 4 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e0323c0 in rx_on_attr $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1008
+    #6 0x7fdd6e03a8f0 in parse_pass $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:208
+    #7 0x7fdd6e03ab05 in mrpdu_parse $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:232
+    #8 0x7fdd6e03376f in mrp_rx $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1065
+    #9 0x559001a455c5 in Boundaries__replacement_allocation_failures_keep_leave_before_join $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:754
+    #10 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+Direct leak of 256 byte(s) in 4 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e032ac4 in rx_on_attr $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1036
+    #6 0x7fdd6e03a8f0 in parse_pass $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:208
+    #7 0x7fdd6e03ab05 in mrpdu_parse $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:232
+    #8 0x7fdd6e03376f in mrp_rx $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1065
+    #9 0x559001a455c5 in Boundaries__replacement_allocation_failures_keep_leave_before_join $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:754
+    #10 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+Indirect leak of 128 byte(s) in 2 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e032ac4 in rx_on_attr $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1036
+    #6 0x7fdd6e03a8f0 in parse_pass $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:208
+    #7 0x7fdd6e03ab05 in mrpdu_parse $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:232
+    #8 0x7fdd6e03376f in mrp_rx $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1065
+    #9 0x559001a455c5 in Boundaries__replacement_allocation_failures_keep_leave_before_join $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:754
+    #10 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+Indirect leak of 128 byte(s) in 2 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e0323c0 in rx_on_attr $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1008
+    #6 0x7fdd6e03a8f0 in parse_pass $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:208
+    #7 0x7fdd6e03ab05 in mrpdu_parse $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:232
+    #8 0x7fdd6e03376f in mrp_rx $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1065
+    #9 0x559001a455c5 in Boundaries__replacement_allocation_failures_keep_leave_before_join $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:754
+    #10 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+SUMMARY: AddressSanitizer: 768 byte(s) leaked in 12 allocation(s).
+
+=================================================================
+==2914987==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 128 byte(s) in 2 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e032ac4 in rx_on_attr $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1036
+    #6 0x7fdd6e03a8f0 in parse_pass $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:208
+    #7 0x7fdd6e03ab05 in mrpdu_parse $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:232
+    #8 0x7fdd6e03376f in mrp_rx $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1065
+    #9 0x559001a45e65 in Boundaries__reservation_failure_stops_later_receive_messages $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:790
+    #10 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+Indirect leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdd6d92bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x559001a268fb in shlan_calloc $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/fault_alloc.c:31
+    #2 0x7fdd6e02aae0 in map_reserve $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:540
+    #3 0x7fdd6e02c849 in reg_event $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:635
+    #4 0x7fdd6e02deb2 in deliver_event_changed $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:716
+    #5 0x7fdd6e032ac4 in rx_on_attr $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1036
+    #6 0x7fdd6e03a8f0 in parse_pass $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:208
+    #7 0x7fdd6e03ab05 in mrpdu_parse $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_pdu.c:232
+    #8 0x7fdd6e03376f in mrp_rx $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/src/core/mrp_mad.c:1065
+    #9 0x559001a45e65 in Boundaries__reservation_failure_stops_later_receive_messages $PACKET/scratch/plants-ON/y13-reserve-partial-leak/source/tests/unit/review_test.c:790
+    #10 0x7fdd6dff4729 in run_the_test_code ($PACKET/scratch/deps/lib/libcgreen.so.1+0xc729) (BuildId: 98b07a2fb5513f70022cf74ce7d19614530fe8cf)
+
+SUMMARY: AddressSanitizer: 192 byte(s) leaked in 3 allocation(s).

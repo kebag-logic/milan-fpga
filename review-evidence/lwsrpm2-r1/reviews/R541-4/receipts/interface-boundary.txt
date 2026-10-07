@@ -1,0 +1,8 @@
+Exact source head: 0a45695db537badb8d7e9cbf578925fe5b89d647
+Changed RTL/constraints: 0. Submodule gitlinks: 0.
+The host supplies Ethernet framing, persistent transmit storage, serialized callbacks, global centisecond ticks, and the replaceable allocation port.
+The public parent mailbox contract carries a complete untagged Ethernet frame; protocol payload starts at byte 14.
+Its dispatcher handles event records, then receive records, then polls. A topology event and a receive may occur before the following tick.
+Hardware admission, media gates, and physical timing remain parent responsibilities.
+No HDL simulator, synthesis, implementation, target, or hardware execution occurred in this review.
+Parent source banks are manager-reported evidence, not a new execution here.

@@ -1,0 +1,140 @@
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/receive_test.c:74: Failure: receive_suite -> changed_registered_listener_notifies_without_duplicate_join 
+	Expected [changes] to [equal] [3]
+		actual value:			[2]
+		expected value:			[3]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/receive_test.c:75: Failure: receive_suite -> changed_registered_listener_notifies_without_duplicate_join 
+	Expected [declaration] to [equal] [MSRP_LISTENER_DECL_READY_FAILED]
+		actual value:			[1]
+		expected value:			[3]
+
+  "receive_suite": 81 passes, 2 failures in 4ms.
+  "transmit_suite": 106 passes in 6ms.
+  "integration_suite": 371 passes in 11ms.
+  "milan_suite": 442 passes in 10ms.
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/plants-OFF/y09-changed-rjoinin-only/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+  "boundaries_suite": 1992 passes, 24 failures in 29ms.
+Completed "main": 4719 passes, 26 failures in 77ms.

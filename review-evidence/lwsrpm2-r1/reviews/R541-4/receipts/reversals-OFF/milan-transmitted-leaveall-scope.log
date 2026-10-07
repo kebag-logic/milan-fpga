@@ -1,0 +1,52 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.11 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 21ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/milan_test.c:102: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/milan_test.c:319: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/milan_test.c:102: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/milan_test.c:169: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/milan_test.c:171: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/milan_test.c:102: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+  "milan_suite": 436 passes, 6 failures in 10ms.
+  "boundaries_suite": 2016 passes in 42ms.
+Completed "main": 4739 passes, 6 failures in 104ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.11 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

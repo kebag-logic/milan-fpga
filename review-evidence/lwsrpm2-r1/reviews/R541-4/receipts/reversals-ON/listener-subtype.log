@@ -1,0 +1,32 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.09 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 14ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 7ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:180: Failure: transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant 
+	Expected [subtype_value] to [equal] [MSRP_LISTENER_DECL_ASKING_FAILED]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:181: Failure: transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant 
+	Expected [frame[16]] to [equal] [64]
+		actual value:			[128]
+		expected value:			[64]
+
+  "transmit_suite": 104 passes, 2 failures in 6ms.
+  "integration_suite": 371 passes in 13ms.
+  "milan_suite": 430 passes in 9ms.
+  "boundaries_suite": 2016 passes in 30ms.
+Completed "main": 4731 passes, 2 failures in 83ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.09 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

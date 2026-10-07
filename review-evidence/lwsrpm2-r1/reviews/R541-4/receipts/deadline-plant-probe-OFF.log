@@ -1,0 +1,64 @@
+INFO f1 k=0 fault_reached=0 immediate_log=[L1@0 ] reg_after_flush=MT leave_after_ticks=0
+PASS f1-control-flush-immediate
+INFO f1 k=1 fault_reached=1 immediate_log=[] reg_after_flush=LV leave_after_ticks=2
+FAIL f1-faulted-flush-applied-or-retried-within-1-tick
+INFO f1 k=2 fault_reached=1 immediate_log=[] reg_after_flush=LV leave_after_ticks=2
+FAIL f1-faulted-flush-applied-or-retried-within-1-tick
+INFO f1 k=3 fault_reached=1 immediate_log=[] reg_after_flush=LV leave_after_ticks=2
+FAIL f1-faulted-flush-applied-or-retried-within-1-tick
+INFO f1 k=4 fault_reached=0 immediate_log=[L1@0 ] reg_after_flush=MT leave_after_ticks=0
+INFO f2 k=0 fault_reached=0 rx=0 retry=0 first=[L1@0 J2@0 ] full=[L1@0 J2@0 ]
+PASS f2-k0-leave-ta-before-join-tf
+PASS f2-k0-converges-to-control
+INFO f2 k=1 fault_reached=1 rx=-12 retry=0 first=[] full=[L1@0 J2@0 ]
+PASS f2-k1-leave-ta-before-join-tf
+PASS f2-k1-converges-to-control
+INFO f2 k=2 fault_reached=1 rx=-12 retry=0 first=[] full=[L1@0 J2@0 ]
+PASS f2-k2-leave-ta-before-join-tf
+PASS f2-k2-converges-to-control
+INFO f2 k=3 fault_reached=1 rx=-12 retry=0 first=[] full=[L1@0 J2@0 ]
+PASS f2-k3-leave-ta-before-join-tf
+PASS f2-k3-converges-to-control
+INFO f2 k=4 fault_reached=1 rx=-12 retry=0 first=[] full=[L1@0 J2@0 ]
+PASS f2-k4-leave-ta-before-join-tf
+PASS f2-k4-converges-to-control
+INFO f2 k=5 fault_reached=1 rx=-12 retry=0 first=[L1@0 ] full=[L1@0 J2@0 ]
+PASS f2-k5-leave-ta-before-join-tf
+PASS f2-k5-converges-to-control
+INFO f2 k=6 fault_reached=1 rx=-12 retry=0 first=[L1@0 ] full=[L1@0 J2@0 ]
+PASS f2-k6-leave-ta-before-join-tf
+PASS f2-k6-converges-to-control
+INFO f2 k=7 fault_reached=1 rx=-12 retry=0 first=[L1@0 ] full=[L1@0 J2@0 ]
+PASS f2-k7-leave-ta-before-join-tf
+PASS f2-k7-converges-to-control
+INFO f2 k=8 fault_reached=1 rx=0 retry=0 first=[L1@0 J2@0 ] full=[L1@0 J2@0 ]
+PASS f2-k8-leave-ta-before-join-tf
+PASS f2-k8-converges-to-control
+INFO f2 control state=[0:t2.s1.VO.IN 0:t1.s1.VO.MT 1:t2.s1.QA.MT 1:t1.s1.VO.MT 2:t2.s1.QA.MT 2:t1.s1.VO.MT ] log=[L1@0 J2@0 ]
+INFO f3 k=0 fault_reached=0 rx=0 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k0-converges-to-control
+INFO f3 k=1 fault_reached=1 rx=-12 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k1-converges-to-control
+INFO f3 k=2 fault_reached=1 rx=-12 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k2-converges-to-control
+INFO f3 k=3 fault_reached=1 rx=-12 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k3-converges-to-control
+INFO f3 k=4 fault_reached=1 rx=-12 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k4-converges-to-control
+INFO f3 k=5 fault_reached=1 rx=0 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k5-converges-to-control
+INFO f3 k=6 fault_reached=1 rx=-12 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k6-converges-to-control
+INFO f3 k=7 fault_reached=1 rx=-12 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k7-converges-to-control
+INFO f3 k=8 fault_reached=1 rx=-12 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k8-converges-to-control
+INFO f3 k=9 fault_reached=1 rx=-12 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k9-converges-to-control
+INFO f3 k=10 fault_reached=1 rx=0 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k10-converges-to-control
+INFO f3 k=11 fault_reached=1 rx=0 retry=0 log=[J3.2@0 J1@0 ]
+PASS f3-k11-converges-to-control
+INFO f3 k=12 fault_reached=0 rx=0 retry=0 log=[J3.2@0 J1@0 ]
+INFO f3 control state=[0:t1.s2.VO.IN 0:t3.s1.VO.IN 0:t1.s1.QA.MT 1:t1.s2.QA.MT 1:t3.s1.QA.MT 1:t1.s1.VO.IN 2:t1.s2.QA.MT 2:t1.s1.QA.MT ]
+probe failures: 3

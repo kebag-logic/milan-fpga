@@ -1,0 +1,295 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.21 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 12ms.
+  "milan_suite": 430 passes in 9ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_received_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:472: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:473: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [indicated_value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:474: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:477: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:478: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:481: Failure: boundaries_suite -> changed_values_after_transmitted_leaveall_are_indicated_and_propagated 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:532: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [stream_state(a, 0).value] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:533: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [stream_state(a, 0).reg] to [equal] [lv ? MRP_REG_STATE_LV : MRP_REG_STATE_IN]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:537: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:539: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [stream_state(a, 1).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:540: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [stream_state(a, 2).value] to [equal] [next]
+		actual value:			[100]
+		expected value:			[200]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:518: Exception: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Test terminated with signal: Segmentation fault
+
+  "boundaries_suite": 1929 passes, 54 failures, 1 exception in 159ms.
+Completed "main": 4646 passes, 54 failures, 1 exception in 205ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.21 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

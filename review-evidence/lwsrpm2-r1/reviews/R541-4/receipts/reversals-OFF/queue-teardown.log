@@ -1,0 +1,32 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.07 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 11ms.
+  "milan_suite": 442 passes in 8ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:612: Failure: boundaries_suite -> destroy_releases_all_queued_allocations 
+	Expected [allocation_live()] to [equal] [before]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:24: Failure: boundaries_suite -> destroy_releases_all_queued_allocations 
+	Expected [allocation_live()] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+  "boundaries_suite": 2014 passes, 2 failures in 27ms.
+Completed "main": 4743 passes, 2 failures in 69ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.07 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

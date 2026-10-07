@@ -1,0 +1,560 @@
+[
+  {
+    "label": "configure-OFF",
+    "command": [
+      "cmake",
+      "-S",
+      "$SOURCE",
+      "-B",
+      "$PACKET/scratch/build-OFF",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DCMAKE_PREFIX_PATH=$PACKET/scratch/deps",
+      "-DLWSRP_MILAN=OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "build-OFF",
+    "command": [
+      "make",
+      "-C",
+      "$PACKET/scratch/build-OFF",
+      "-j16"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "ctest-OFF",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/build-OFF",
+      "--output-on-failure"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "unit-OFF",
+    "command": [
+      "$PACKET/scratch/build-OFF/unit_tests"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "scenario-OFF",
+    "command": [
+      "behave"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "configure-ON",
+    "command": [
+      "cmake",
+      "-S",
+      "$SOURCE",
+      "-B",
+      "$PACKET/scratch/build-ON",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DCMAKE_PREFIX_PATH=$PACKET/scratch/deps",
+      "-DLWSRP_MILAN=ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "docs-sentences",
+    "command": [
+      "python3",
+      "doc/tools/check_sentences.py"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_fault-build-ON",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=1",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_fault.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "$SOURCE/tests/unit/fault_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_fault-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "docs-references",
+    "command": [
+      "python3",
+      "doc/tools/check_references.py"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_fault-ON",
+    "command": [
+      "$PACKET/scratch/probe_fault-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_fault-build-OFF",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=0",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_fault.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "$SOURCE/tests/unit/fault_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_fault-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_fault-OFF",
+    "command": [
+      "$PACKET/scratch/probe_fault-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "docs-references-selftest",
+    "command": [
+      "python3",
+      "doc/tools/check_references.py",
+      "--self-test"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "build-ON",
+    "command": [
+      "make",
+      "-C",
+      "$PACKET/scratch/build-ON",
+      "-j16"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "ctest-ON",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/build-ON",
+      "--output-on-failure"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "unit-ON",
+    "command": [
+      "$PACKET/scratch/build-ON/unit_tests"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "scenario-ON",
+    "command": [
+      "behave"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_flush-build-ON",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=1",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_flush.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "$SOURCE/tests/unit/fault_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_flush-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_flush-ON",
+    "command": [
+      "$PACKET/scratch/probe_flush-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_flush-build-OFF",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=0",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_flush.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "$SOURCE/tests/unit/fault_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_flush-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_flush-OFF",
+    "command": [
+      "$PACKET/scratch/probe_flush-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r3-build-ON",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=1",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_r3.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "$PACKET/scripts/probe_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_r3-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "docs-links",
+    "command": [
+      "python3",
+      "doc/tools/check_links.py",
+      "--github-auth"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r3-ON",
+    "command": [
+      "$PACKET/scratch/probe_r3-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r3-build-OFF",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=0",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_r3.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "$PACKET/scripts/probe_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_r3-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r3-OFF",
+    "command": [
+      "$PACKET/scratch/probe_r3-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r4-build-ON",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=1",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_r4.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "$SOURCE/tests/unit/fault_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_r4-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r4-ON",
+    "command": [
+      "$PACKET/scratch/probe_r4-ON"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "probe_r4-build-OFF",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=0",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_r4.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "$SOURCE/tests/unit/fault_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_r4-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r4-OFF",
+    "command": [
+      "$PACKET/scratch/probe_r4-OFF"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "probe_rx-build-ON",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=1",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_rx.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "src/modules/mvrp.c",
+      "src/modules/mmrp.c",
+      "$SOURCE/tests/unit/fault_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_rx-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_rx-ON",
+    "command": [
+      "$PACKET/scratch/probe_rx-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_rx-build-OFF",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=0",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "$PACKET/scripts/probe_rx.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "src/modules/mvrp.c",
+      "src/modules/mmrp.c",
+      "$SOURCE/tests/unit/fault_alloc.c",
+      "-o",
+      "$PACKET/scratch/probe_rx-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_rx-OFF",
+    "command": [
+      "$PACKET/scratch/probe_rx-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "sanitized-build-ON",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=1",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "-I$PACKET/scratch/deps/include",
+      "$SOURCE/tests/unit/integration_test.c",
+      "$SOURCE/tests/unit/milan_test.c",
+      "$SOURCE/tests/unit/mrp_pdu_test.c",
+      "$SOURCE/tests/unit/msrp_values_test.c",
+      "$SOURCE/tests/unit/receive_test.c",
+      "$SOURCE/tests/unit/review_test.c",
+      "$SOURCE/tests/unit/timer_test.c",
+      "$SOURCE/tests/unit/transmit_test.c",
+      "$SOURCE/tests/unit/main.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "tests/unit/fault_alloc.c",
+      "src/modules/mmrp.c",
+      "src/modules/mvrp.c",
+      "src/core/switch.c",
+      "-L$PACKET/scratch/deps/lib",
+      "-lcgreen",
+      "-o",
+      "$PACKET/scratch/sanitized-unit-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "sanitized-build-OFF",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-no-pie",
+      "-DLWSRP_MILAN=0",
+      "-Isrc/include",
+      "-Isrc",
+      "-Itests/unit",
+      "-I$PACKET/scratch/deps/include",
+      "$SOURCE/tests/unit/integration_test.c",
+      "$SOURCE/tests/unit/milan_test.c",
+      "$SOURCE/tests/unit/mrp_pdu_test.c",
+      "$SOURCE/tests/unit/msrp_values_test.c",
+      "$SOURCE/tests/unit/receive_test.c",
+      "$SOURCE/tests/unit/review_test.c",
+      "$SOURCE/tests/unit/timer_test.c",
+      "$SOURCE/tests/unit/transmit_test.c",
+      "$SOURCE/tests/unit/main.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/ports/timer.c",
+      "src/modules/msrp.c",
+      "tests/unit/fault_alloc.c",
+      "src/modules/mmrp.c",
+      "src/modules/mvrp.c",
+      "src/core/switch.c",
+      "-L$PACKET/scratch/deps/lib",
+      "-lcgreen",
+      "-o",
+      "$PACKET/scratch/sanitized-unit-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "sanitized-unit-ON",
+    "command": [
+      "$PACKET/scratch/sanitized-unit-ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "sanitized-unit-OFF",
+    "command": [
+      "$PACKET/scratch/sanitized-unit-OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "docs-graphs",
+    "command": [
+      "python3",
+      "doc/tools/render_mermaid.py",
+      "--output",
+      "$PACKET/scratch/graphs",
+      "--puppeteer-config",
+      "$PACKET/scratch/browser.json"
+    ],
+    "rc": 0
+  }
+]

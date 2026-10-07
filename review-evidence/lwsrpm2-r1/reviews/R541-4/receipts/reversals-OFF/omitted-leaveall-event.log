@@ -1,0 +1,32 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.08 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 16ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 8ms.
+  "milan_suite": 442 passes in 7ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:347: Failure: boundaries_suite -> full_leaveall_reports_each_required_transition 
+	Expected [local_rla] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:348: Failure: boundaries_suite -> full_leaveall_reports_each_required_transition 
+	Expected [omitted_txlaf] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 2014 passes, 2 failures in 22ms.
+Completed "main": 4743 passes, 2 failures in 78ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.08 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

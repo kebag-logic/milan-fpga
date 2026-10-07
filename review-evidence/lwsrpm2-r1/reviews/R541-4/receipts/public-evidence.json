@@ -1,0 +1,139 @@
+{
+  "original_snapshot": "eb9c5a65ef3cab26831bff8924c3ec91a5844e30",
+  "followup_snapshot": "0c6326966d964ea5400b3ac790614c873d311b19",
+  "author_packet": "review-evidence/lwsrpm2-r1/author-r5",
+  "public_records": {
+    "OFF": {
+      "published_mutation_builds": 76,
+      "failed_builds": 0,
+      "restored_commands": [
+        {
+          "label": "restored-build",
+          "command": [
+            "cmake",
+            "--build",
+            "$SCRATCH/final-published/published-reversals/build",
+            "--parallel",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "label": "restored-check",
+          "command": [
+            "ctest",
+            "--test-dir",
+            "$SCRATCH/final-published/published-reversals/build",
+            "--output-on-failure",
+            "--timeout",
+            "10"
+          ],
+          "rc": 0
+        }
+      ]
+    },
+    "ON": {
+      "published_mutation_builds": 76,
+      "failed_builds": 0,
+      "restored_commands": [
+        {
+          "label": "restored-build",
+          "command": [
+            "cmake",
+            "--build",
+            "$SCRATCH/final-published/published-milan-reversals/build",
+            "--parallel",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "label": "restored-check",
+          "command": [
+            "ctest",
+            "--test-dir",
+            "$SCRATCH/final-published/published-milan-reversals/build",
+            "--output-on-failure",
+            "--timeout",
+            "10"
+          ],
+          "rc": 0
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "name": "author-r5/ROUND5-REVERSALS-OFF.json",
+      "sha256": "3036ccb41a2ad13c97d96d0f69cb3b09f651a04edfc147fa7a1d4566fe2eea09"
+    },
+    {
+      "name": "author-r5/ROUND5-PLANTS-ON.json",
+      "sha256": "7df19e248532dfd709da042786dead3fea9ce6f2af1e2b8de5861b3ffa3cf842"
+    },
+    {
+      "name": "author-r5/ROUND5-REVERSALS-ON.json",
+      "sha256": "bd248808990bc42ea7e4132ad454690ec31cdb83eeb1a6b2e614eb87b0d7dbab"
+    },
+    {
+      "name": "author-r5/ROUND5-RESULTS.txt",
+      "sha256": "dc8305fa746680604a66356983449b4fe5cd6c9d807ec392dd676967fa61219c"
+    },
+    {
+      "name": "author-r5/ROUND5-COMMANDS.json",
+      "sha256": "1fea34f1e6cb154d648273466d260aa9e240a67465dc6371f1e47cb654c2d1df"
+    },
+    {
+      "name": "author-r5/ROUND5-PLANTS-OFF.json",
+      "sha256": "b99c3c4fb9c92b962c367877f946633b6c5f3d780e71dd281c88188c155dbe51"
+    },
+    {
+      "name": "reviews/R540-3/scripts/plants_r3.py",
+      "sha256": "d2d741399791903db50caeabae571ea1f18ddc5592985d1a0f750c445b602222"
+    },
+    {
+      "name": "reviews/R540-3/scripts/probes/probe_r3.c",
+      "sha256": "bc12aa6d0fd0bd0697b0e26fa56c76b78285cdf94cd0f304132a8f278dc6f288"
+    },
+    {
+      "name": "reviews/R541-3/scripts/run_docs.py",
+      "sha256": "dde3cda8e59f3bacdc768ef1bd0578430e90238060f325b3df61c542e580b0f1"
+    },
+    {
+      "name": "reviews/R541-3/scripts/reproduce.sh",
+      "sha256": "4dd62136495e66a2c7a0707d3347ec321dfde601126157c95996e3572f2d1c4e"
+    },
+    {
+      "name": "reviews/R541-3/scripts/audit.py",
+      "sha256": "0006174d92189a9cb4b08e093d0993786c0fd4fc2fe32bd5a82b37763456784d"
+    },
+    {
+      "name": "reviews/R541-3/scripts/run_checks.py",
+      "sha256": "d4781897c80eba6519cdb349646d941b51ccdab1fc15404d827c2ccf4dce7064"
+    },
+    {
+      "name": "reviews/R541-3/scripts/probe_fault.c",
+      "sha256": "f6c76aa601b093f189deaafb5fdb6850357940f5d50c573775c29244872459de"
+    },
+    {
+      "name": "reviews/R541-3/scripts/probe_rx.c",
+      "sha256": "4abbae67d82d46e7e454e41870221eedce81c51ab5f6e582559a70b82c97e5d1"
+    },
+    {
+      "name": "reviews/R541-3/scripts/run_reversals.py",
+      "sha256": "0e35836fe19bd06dd61abe5901e8bd6f916c6ea2c591bd58af1a75de7a403667"
+    },
+    {
+      "name": "reviews/R541-3/scripts/run_flush.py",
+      "sha256": "5dc3b1f73bdd26b92231655f85b078cedb22a4eb223c4ab0c48b9cc32298e7a7"
+    },
+    {
+      "name": "reviews/R541-3/scripts/run_faults.py",
+      "sha256": "01884f75b0a3bd0a0f26da6874770f95c6a8a7f971a9ffbc3d9f7587d94e2b6a"
+    },
+    {
+      "name": "reviews/R541-3/scripts/probe_flush.c",
+      "sha256": "919cb01fff6a6dd990a0d39d144786ad15834946119e698d42c74453f0f26ffd"
+    }
+  ]
+}

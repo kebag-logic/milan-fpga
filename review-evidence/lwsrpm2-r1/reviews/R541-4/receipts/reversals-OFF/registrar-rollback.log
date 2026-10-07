@@ -1,0 +1,467 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.07 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 10ms.
+  "milan_suite": 442 passes in 8ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:533: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [stream_state(a, 0).reg] to [equal] [lv ? MRP_REG_STATE_LV : MRP_REG_STATE_IN]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:533: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [stream_state(a, 0).reg] to [equal] [lv ? MRP_REG_STATE_LV : MRP_REG_STATE_IN]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:553: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_MT]
+		actual value:			[0]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:560: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:561: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [stream_state(a, 1).value] to [equal] [100]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:562: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [stream_state(a, 2).value] to [equal] [100]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:575: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:577: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:579: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [stream_state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:580: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [stream_state(a, 2).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:669: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:673: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:674: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:676: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:677: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 2).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:682: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:669: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:673: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:674: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:676: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:677: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 2).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:682: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:669: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:673: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:674: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:676: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:677: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 2).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:682: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:669: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:673: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:674: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:676: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:677: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 2).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:682: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:669: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:673: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:674: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:676: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:677: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 2).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:682: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:669: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:673: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:674: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [maps] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:676: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:677: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [stream_state(a, 2).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:682: Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[2]
+		expected value:			[11]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[2]
+		expected value:			[11]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[2]
+		expected value:			[11]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[1]
+		expected value:			[12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[1]
+		expected value:			[12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[1]
+		expected value:			[12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:796: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:796: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:796: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [joins] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+  "boundaries_suite": 1927 passes, 89 failures in 26ms.
+Completed "main": 4656 passes, 89 failures in 66ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.07 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

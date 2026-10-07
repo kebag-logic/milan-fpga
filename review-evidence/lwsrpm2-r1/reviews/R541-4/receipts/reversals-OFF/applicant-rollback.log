@@ -1,0 +1,27 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.07 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 10ms.
+  "milan_suite": 442 passes in 8ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:554: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [stream_state(a, 0).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[7]
+		expected value:			[0]
+
+  "boundaries_suite": 2015 passes, 1 failure in 27ms.
+Completed "main": 4744 passes, 1 failure in 69ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.07 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,112 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.08 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 11ms.
+  "milan_suite": 430 passes in 9ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:758: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[2]
+		expected value:			[11]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[11]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:758: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[2]
+		expected value:			[11]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[11]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:758: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[2]
+		expected value:			[11]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[11]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:758: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[1]
+		expected value:			[12]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[12]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:758: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[1]
+		expected value:			[12]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[12]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:758: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:769: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[0]] to [equal] [10u + old_type]
+		actual value:			[1]
+		expected value:			[12]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[12]
+		expected value:			[1]
+
+  "boundaries_suite": 1998 passes, 18 failures in 30ms.
+Completed "main": 4715 passes, 18 failures in 74ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.08 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

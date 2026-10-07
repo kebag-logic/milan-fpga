@@ -1,0 +1,10 @@
+[  4%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[  9%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 13%] Linking C shared library libshlan.so
+[ 50%] Built target shlan
+[ 54%] Linking C executable unit_tests
+[100%] Built target unit_tests
+$PACKET/scratch/reversals-ON/source/src/core/mrp_mad.c: In function ‘tx_vector’:
+$PACKET/scratch/reversals-ON/source/src/core/mrp_mad.c:1293:28: warning: unused variable ‘bytes’ [-Wunused-variable]
+ 1293 |             const uint8_t *bytes = value;
+      |                            ^~~~~

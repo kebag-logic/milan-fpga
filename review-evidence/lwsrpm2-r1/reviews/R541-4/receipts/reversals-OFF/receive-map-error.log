@@ -1,0 +1,232 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.07 sec
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 9ms.
+  "milan_suite": 442 passes in 8ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:551: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:756: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:772: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:756: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:772: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:756: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:772: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:756: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:772: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:756: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:772: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:756: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:765: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:768: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:770: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:772: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:790: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:790: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:790: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+  "boundaries_suite": 1968 passes, 42 failures in 24ms.
+Completed "main": 4697 passes, 42 failures in 64ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.07 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

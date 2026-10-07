@@ -1,0 +1,30 @@
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 117ms.
+  "timer_suite": 14 passes in 22ms.
+  "msrp_values_suite": 23 passes in 25ms.
+  "receive_suite": 83 passes in 55ms.
+  "transmit_suite": 106 passes in 90ms.
+  "integration_suite": 371 passes in 154ms.
+  "milan_suite": 430 passes in 120ms.
+$PACKET/scratch/plants-ON/y07-no-policy-still-reserves/source/tests/unit/review_test.c:826: Failure: boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+	Expected [mrp_rx(a, 0, pdu, sizeof(pdu))] to [equal] [0]
+		actual value:			[-12]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y07-no-policy-still-reserves/source/tests/unit/review_test.c:828: Failure: boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/plants-ON/y07-no-policy-still-reserves/source/tests/unit/review_test.c:829: Failure: boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+	Expected [state(a, 0).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/plants-ON/y07-no-policy-still-reserves/source/tests/unit/review_test.c:833: Failure: boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 2012 passes, 4 failures in 354ms.
+Completed "main": 4729 passes, 4 failures in 943ms.

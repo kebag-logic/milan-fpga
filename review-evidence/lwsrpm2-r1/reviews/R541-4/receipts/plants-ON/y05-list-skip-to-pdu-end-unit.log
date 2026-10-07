@@ -1,0 +1,35 @@
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 14ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 5ms.
+  "transmit_suite": 106 passes in 5ms.
+$PACKET/scratch/plants-ON/y05-list-skip-to-pdu-end/source/tests/unit/integration_test.c:388: Failure: integration_suite -> later_versions_skip_unknown_stream_messages 
+	Expected [indications] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "integration_suite": 365 passes, 1 failure in 10ms.
+  "milan_suite": 430 passes in 9ms.
+$PACKET/scratch/plants-ON/y05-list-skip-to-pdu-end/source/tests/unit/review_test.c:157: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/plants-ON/y05-list-skip-to-pdu-end/source/tests/unit/review_test.c:158: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/plants-ON/y05-list-skip-to-pdu-end/source/tests/unit/review_test.c:501: Failure: boundaries_suite -> unknown_stream_layout_uses_attribute_list_length 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/plants-ON/y05-list-skip-to-pdu-end/source/tests/unit/review_test.c:502: Failure: boundaries_suite -> unknown_stream_layout_uses_attribute_list_length 
+	Expected [indicated_value] to [equal] [2]
+		actual value:			[0]
+		expected value:			[2]
+
+  "boundaries_suite": 2012 passes, 4 failures in 31ms.
+Completed "main": 4723 passes, 5 failures in 78ms.

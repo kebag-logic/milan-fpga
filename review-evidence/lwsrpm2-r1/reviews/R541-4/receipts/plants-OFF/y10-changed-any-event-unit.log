@@ -1,0 +1,38 @@
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 6ms.
+  "integration_suite": 371 passes in 14ms.
+$PACKET/scratch/plants-OFF/y10-changed-any-event/source/tests/unit/milan_test.c:45: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [is_new] to [be true]
+
+$PACKET/scratch/plants-OFF/y10-changed-any-event/source/tests/unit/milan_test.c:142: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/plants-OFF/y10-changed-any-event/source/tests/unit/milan_test.c:146: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/plants-OFF/y10-changed-any-event/source/tests/unit/milan_test.c:45: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [is_new] to [be true]
+
+$PACKET/scratch/plants-OFF/y10-changed-any-event/source/tests/unit/milan_test.c:45: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [is_new] to [be true]
+
+$PACKET/scratch/plants-OFF/y10-changed-any-event/source/tests/unit/milan_test.c:45: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [is_new] to [be true]
+
+$PACKET/scratch/plants-OFF/y10-changed-any-event/source/tests/unit/milan_test.c:45: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [is_new] to [be true]
+
+$PACKET/scratch/plants-OFF/y10-changed-any-event/source/tests/unit/milan_test.c:45: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [is_new] to [be true]
+
+  "milan_suite": 454 passes, 8 failures in 9ms.
+  "boundaries_suite": 2016 passes in 27ms.
+Completed "main": 4757 passes, 8 failures in 81ms.

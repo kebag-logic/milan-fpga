@@ -1,0 +1,9 @@
+flush fail_slot=0 immediate reg=MT leave_indications=1
+flush fail_slot=0 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=1 immediate reg=LV leave_indications=0
+flush fail_slot=1 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=2 immediate reg=LV leave_indications=0
+flush fail_slot=2 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=3 immediate reg=LV leave_indications=0
+flush fail_slot=3 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush checks=532 failures=0 live=0
