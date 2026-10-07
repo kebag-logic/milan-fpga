@@ -1,0 +1,131 @@
+[
+  {
+    "label": "configure",
+    "command": [
+      "cmake",
+      "-S",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/source",
+      "-B",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_PREFIX_PATH=$REVIEWS/lwsrpnotes-r545-2-packet/scratch/unit-prefix",
+      "-DLWSRP_MILAN=ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "point-to-point-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "point-to-point-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "pending-point-to-point-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "pending-point-to-point-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "shared-in-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "shared-in-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "restored-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "restored-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-2-packet/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  }
+]

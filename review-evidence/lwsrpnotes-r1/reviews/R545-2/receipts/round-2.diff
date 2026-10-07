@@ -1,0 +1,28 @@
+diff --git a/doc/manager.md b/doc/manager.md
+index 4d14ca2..26bdad0 100644
+--- a/doc/manager.md
++++ b/doc/manager.md
+@@ -53,8 +53,8 @@ flowchart TD
+ ~~~
+ 
+ The [host build](../CMakeLists.txt) succeeds.
+-Its default [unit runner](../tests/unit/main.c) passes 86 tests with 19885 assertions.
+-The enabled [Milan build](tester.md#test-both-registrar-profiles) passes 86 tests with 19873 assertions.
++Its default [unit runner](../tests/unit/main.c) passes 87 tests with 19901 assertions.
++The enabled [Milan build](tester.md#test-both-registrar-profiles) passes 87 tests with 19889 assertions.
+ The [scenario harness](../tests/features/environment.py) passes three scenarios and ten steps through [test bindings](../tests/features/switch_bindings.c).
+ Both [active-state and inactive-state assertions](../tests/features/steps/switch_steps.py#L27-L37) only repeat the operation and check its return code.
+ Neither independently reads port state.
+diff --git a/doc/tester.md b/doc/tester.md
+index c595f21..cec6b9f 100644
+--- a/doc/tester.md
++++ b/doc/tester.md
+@@ -190,7 +190,7 @@ Two independent profile reversals delay withdrawal from IN and restart the LV de
+ The first must fail both immediate-indication tests while the deadline test still passes.
+ The second must fail the deadline test while the immediate-indication tests still pass.
+ Additional reversals check build selection and application scope.
+-Both profiles run all 93 reversals.
++Both profiles run all 94 reversals.
+ They also pin propagation order, recovery indications, extension handling, range errors, and all reported LeaveAll boundaries.
+ Each added behavioral reversal must fail its named regression after successful compilation.
+ The [embedded check](../tests/check_embedded.py) exercises the actual module source list with a host compiler in both profiles.

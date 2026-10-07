@@ -1,0 +1,75 @@
+{
+  "case_inventory": 94,
+  "profiles": {
+    "OFF": {
+      "tests": 87,
+      "assertions": 19901,
+      "focused_mutants": {
+        "point-to-point-condition": {
+          "build_rc": 0,
+          "check_rc": 8,
+          "actual_failing_tests": [
+            "applicant_receive_conditions_follow_link_mode",
+            "pending_applicant_joinin_obeys_note_four",
+            "propagation_obeys_talker_and_listener_policy_masks"
+          ]
+        },
+        "pending-point-to-point-condition": {
+          "build_rc": 0,
+          "check_rc": 8,
+          "actual_failing_tests": [
+            "pending_applicant_joinin_obeys_note_four"
+          ]
+        },
+        "shared-in-condition": {
+          "build_rc": 0,
+          "check_rc": 8,
+          "actual_failing_tests": [
+            "applicant_receive_conditions_follow_link_mode"
+          ]
+        }
+      },
+      "baseline_and_restored_checks": "PASS"
+    },
+    "ON": {
+      "tests": 87,
+      "assertions": 19889,
+      "focused_mutants": {
+        "point-to-point-condition": {
+          "build_rc": 0,
+          "check_rc": 8,
+          "actual_failing_tests": [
+            "applicant_receive_conditions_follow_link_mode",
+            "pending_applicant_joinin_obeys_note_four",
+            "propagation_obeys_talker_and_listener_policy_masks"
+          ]
+        },
+        "pending-point-to-point-condition": {
+          "build_rc": 0,
+          "check_rc": 8,
+          "actual_failing_tests": [
+            "pending_applicant_joinin_obeys_note_four"
+          ]
+        },
+        "shared-in-condition": {
+          "build_rc": 0,
+          "check_rc": 8,
+          "actual_failing_tests": [
+            "applicant_receive_conditions_follow_link_mode"
+          ]
+        }
+      },
+      "baseline_and_restored_checks": "PASS"
+    }
+  },
+  "documentation": {
+    "sentences": 0,
+    "references": 0,
+    "references-self-test": 0,
+    "links": 0,
+    "graphs": 0,
+    "whitespace": 0
+  },
+  "tracked_blobs_and_modes_verified": 60,
+  "gitlinks": []
+}
