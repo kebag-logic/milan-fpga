@@ -1,0 +1,21 @@
+COMMAND ["$SCRATCH/simulator", "--cc", "--exe", "--build", "--top-module", "oracle_top", "-Wno-fatal", "--Mdir", "$SCRATCH/obj_oracle", "$SCRATCH/oracle_top.sv", "$SCRATCH/candidate.v", "$SCRATCH/original.v", "$PACKET/pad_oracle.cpp"]
+%Warning-WIDTHEXPAND: $SCRATCH/candidate.v:24:40: Operator COND expects 8 bits on the Conditional True, but Conditional True's CONST '1'h0' generates 1 bits.
+                                                                                     : ... note: In instance 'oracle_top.a'
+   24 | assign source_payload_data = (rx_reset ? 1'd0 : rx_data);
+      |                                        ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+make: Entering directory '$SCRATCH/obj_oracle'
+g++  -I.  -MMD -I$SIMULATOR_ROOT/include -I$SIMULATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable      -Os  -c -o pad_oracle.o $PACKET/pad_oracle.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/include -I$SIMULATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable      -c -o verilated.o $SIMULATOR_ROOT/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/include -I$SIMULATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable      -c -o verilated_threads.o $SIMULATOR_ROOT/include/verilated_threads.cpp
+python3 $SIMULATOR_ROOT/bin/verilator_includer -DVL_INCLUDE_OPT=include Voracle_top.cpp Voracle_top___024root__0.cpp Voracle_top___024root__Slow.cpp Voracle_top___024root__0__Slow.cpp Voracle_top__Syms__Slow.cpp > Voracle_top__ALL.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/include -I$SIMULATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable      -c -o Voracle_top__ALL.o Voracle_top__ALL.cpp
+g++    pad_oracle.o verilated.o verilated_threads.o Voracle_top__ALL.a    -pthread -lpthread -latomic   -o Voracle_top
+rm Voracle_top__ALL.verilator_deplist.tmp
+make: Leaving directory '$SCRATCH/obj_oracle'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.088 MB sources in 4 modules, into 0.033 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 4.567 s (elab=0.001, cvt=0.004, bld=4.558); cpu 0.011 s on 4 threads; allocated 346.574 MB
+COMMAND ["$SCRATCH/obj_oracle/Voracle_top"]
+PASS: 65537 independent pad-oracle observations; both receiver versions; startup, both clock levels, reset pulses without edges, all byte/valid/reset transitions

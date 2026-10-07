@@ -1,0 +1,9 @@
+COMMAND ["bash", "scripts/run_litex_sims.sh", "$SCRATCH/standalone"]
+PASS     test_cpu_memory_port_cdc
+PASS     test_gmii_rx_capture
+PASS     test_gptp_tx_timestamp
+PASS     test_pp_boot_bus_freeze
+PASS     test_pp_mem_bridge
+----------------------------------------------------------------
+simulations: 5   passed: 5   failed: 0   skipped: 0   timed out: 0
+logs: $SCRATCH/standalone
