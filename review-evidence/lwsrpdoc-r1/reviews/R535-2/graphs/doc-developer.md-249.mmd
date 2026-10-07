@@ -1,0 +1,6 @@
+stateDiagram-v2
+    direction LR
+    [*] --> Active: Begin
+    Active --> Active: timer
+    Active --> Passive: disable
+    Passive --> Active: enable

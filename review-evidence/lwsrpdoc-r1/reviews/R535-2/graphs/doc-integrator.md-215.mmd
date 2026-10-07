@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant Producer
+    participant Queue
+    participant Driver as Single consumer
+    participant Bus
+    Producer->>Queue: Enqueue descriptor
+    Driver->>Queue: Dispatch
+    Driver->>Bus: Read or write
+    Bus-->>Driver: Result
+    Driver->>Producer: Completion callback

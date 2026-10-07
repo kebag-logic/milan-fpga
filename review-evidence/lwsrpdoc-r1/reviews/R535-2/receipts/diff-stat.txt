@@ -1,0 +1,21 @@
+ [removed instruction file]                        |   59 --
+ CMakeLists.txt                   |   17 +-
+ CONTRIBUTING.md                  |   64 +++
+ README.md                        |  104 ++--
+ doc/architecture.drawio          |  700 ------------------------
+ doc/architecture.md              | 1113 +++-----------------------------------
+ doc/developer.md                 |  311 +++++++++++
+ doc/integrator.md                |  248 +++++++++
+ doc/manager.md                   |   92 ++++
+ doc/tester.md                    |  123 +++++
+ doc/tools/README.md              |   57 ++
+ doc/tools/check_links.py         |  132 +++++
+ doc/tools/check_references.py    |   87 +++
+ doc/tools/check_sentences.py     |   30 +
+ doc/tools/common.py              |   92 ++++
+ doc/tools/render_mermaid.py      |   84 +++
+ tests/features/environment.py    |   27 +-
+ tests/features/switch_bindings.c |   24 +
+ tests/unit/main.c                |   15 +
+ tests/unit/placeholder.c         |   10 -
+ 20 files changed, 1506 insertions(+), 1883 deletions(-)

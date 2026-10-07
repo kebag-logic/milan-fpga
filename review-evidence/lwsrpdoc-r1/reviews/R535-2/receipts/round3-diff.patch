@@ -1,0 +1,360 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index 75c71fc..8311ba9 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -9,6 +9,7 @@ Read the [notice](NOTICE) and the [implementation status](doc/manager.md#impleme
+ 
+ Use braces for every conditional and loop body.
+ This includes bodies with one statement.
++Apply this rule to new and changed lines; existing sources may predate it.
+ Declare enums with tags.
+ Do not use typedef enums.
+ Put each enum element on its own line.
+@@ -37,7 +38,7 @@ Make every standard, file, function, issue, and tool reference a link.
+ Use small graphs with short labels.
+ Keep each graph to about 15 nodes or fewer.
+ Give each graph one purpose and nearby links to its evidence.
+-Start each new Markdown page with the existing SPDX comment.
++Start each new Markdown page with the existing [SPDX](https://spdx.dev/) comment.
+ Keep machine syntax inside fenced examples.
+ Link its references in the surrounding prose.
+ Do not include private infrastructure details or generated assets.
+diff --git a/README.md b/README.md
+index 1494bd4..f6e2d5f 100644
+--- a/README.md
++++ b/README.md
+@@ -26,7 +26,7 @@ See the [architecture guide](doc/architecture.md) for the boundaries.
+ 
+ ## Quick start
+ 
+-Use a C11 compiler and [CMake](https://cmake.org/cmake/help/latest/) version 3.20 or newer.
++Use a [C11](https://www.iso.org/standard/57853.html) compiler and [CMake](https://cmake.org/cmake/help/latest/) version 3.20 or newer.
+ Install [cgreen](https://github.com/cgreen-devs/cgreen) headers and libraries for the required host unit target.
+ Install [behave](https://behave.readthedocs.io/en/stable/) for scenarios.
+ Run these commands from the repository root.
+diff --git a/doc/architecture.md b/doc/architecture.md
+index 73a9f18..8371f0e 100644
+--- a/doc/architecture.md
++++ b/doc/architecture.md
+@@ -64,3 +64,12 @@ The [state engine](../src/core/mrp_mad.c) stores pending transmit actions.
+ No public API drains them into frames.
+ The [encoding helpers](../src/include/shish_lan/mrp_pdu.h) do not complete this boundary.
+ See the [scope matrix](manager.md#implementation-status) before making interoperability claims.
++
++## Test layout
++
++| Entry | Purpose |
++| --- | --- |
++| [Unit runner](../tests/unit/main.c) | Codec suite runner. |
++| [Scenario bindings](../tests/features/switch_bindings.c) | Switch wrapper bindings. |
++
++Use the [tester guide](tester.md) to run these checks and interpret their limits.
+diff --git a/doc/developer.md b/doc/developer.md
+index 8ae4b34..5d02af5 100644
+--- a/doc/developer.md
++++ b/doc/developer.md
+@@ -17,6 +17,7 @@ Run the [codec tests](tester.md#run-the-existing-codec-tests) before and after c
+ | Stream application | [Stream interface](../src/include/shish_lan/msrp.h), [implementation](../src/modules/msrp.c) | Talker and Listener values, plus propagation policy. |
+ | Platform services | [Allocation](../src/ports/alloc.h), [timers](../src/ports/timer.h) | Replaceable platform boundaries. |
+ | Switch control | [Switch operations](../src/include/shish_lan/switch.h), [register queue](../src/include/shish_lan/switch_ctrl.h) | Independent hardware integration surfaces. |
++| Host tests | [Runner](../tests/unit/main.c), [codec suite](../tests/unit/mrp_pdu_test.c), [scenario bindings](../tests/features/switch_bindings.c), [steps](../tests/features/steps/switch_steps.py) | Codec assertions and switch-operation scenarios. |
+ 
+ The layers use ports and adapters.
+ The [mrp_app_ops](../src/include/shish_lan/mrp.h) interface separates application meaning from protocol events.
+@@ -31,8 +32,8 @@ flowchart TD
+     Ops --> Context[Borrowed host context]
+     App --> Private[Private state]
+     Private --> Port[Port array]
+-    Port --> Timers[LeaveAll and periodic timers]
+     Port --> List[Attribute list]
++    Port --> Timers[Port timers]
+     List --> Value[Value and identity]
+     List --> Machines[Applicant and Registrar]
+     List --> Leave[Leave timer]
+@@ -40,6 +41,7 @@ flowchart TD
+ 
+ The [application handle](../src/include/shish_lan/mrp.h) owns a copied callback table and private state.
+ The [private structures](../src/core/mrp_mad.c) allocate a flexible port array and linked attribute lists.
++Port timers drive LeaveAll and periodic events; each attribute has its own Leave timer.
+ Each attribute stores up to 48 bytes.
+ The [parser](../src/core/mrp_pdu.c) uses a 64-byte temporary value buffer.
+ Keep decoded values within both limits.
+@@ -177,7 +179,7 @@ Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3, notes 1–4 and 12](htt
+ ### Registrar
+ 
+ Reference: [IEEE 802.1Q-2018, clause 10.7.8, Table 10-4](https://standards.ieee.org/ieee/802.1Q/6844/).
+-Evidence: [Registrar table](../src/core/mrp_mad.c#L311-L407) and [indication handler](../src/core/mrp_mad.c#L550-L582).
++Evidence: [Registrar table](../src/core/mrp_mad.c#L311-L395) and [indication handler](../src/core/mrp_mad.c#L550-L582).
+ 
+ ~~~mermaid
+ stateDiagram-v2
+@@ -203,8 +205,12 @@ Local Join and Leave events do not change Registrar state.
+ | --- | --- |
+ | Local New drives registration, although the table defines received New only. | [Local New row](../src/core/mrp_mad.c#L318-L323), [event delivery](../src/core/mrp_mad.c#L614-L625). |
+ | Received Join in LV emits an extra Join indication. The table stops the Leave timer and enters IN without that indication. | [Join rows](../src/core/mrp_mad.c#L343-L354), [callback](../src/core/mrp_mad.c#L571-L574). |
++| Received LeaveAll delivers rLA! across all attribute types on the port. It affects both Applicants and Registrars. | [Receive handler](../src/core/mrp_mad.c#L835-L841), [issue #7](https://github.com/kebag-logic/lwSRP/issues/7). |
+ 
+ The extra indication also invokes propagation policy.
++The standard limits received LeaveAll to the message's attribute type: [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/).
++A Listener LeaveAll therefore also moves Talker registrations from IN to LV in the current implementation.
++The [parser](../src/core/mrp_pdu.c#L154-L155) delivers LeaveAll once per marked vector.
+ 
+ ### LeaveAll
+ 
+diff --git a/doc/integrator.md b/doc/integrator.md
+index c90dba1..b487c3b 100644
+--- a/doc/integrator.md
++++ b/doc/integrator.md
+@@ -13,8 +13,8 @@ The [root build definition](../CMakeLists.txt) selects between host and embedded
+ | Setting | Current behavior |
+ | --- | --- |
+ | Host build | Produces a shared library with applications, ports, and simulation. |
+-| C language | Requires C11. |
+-| [CMAKE_BUILD_TYPE](../CMakeLists.txt) set to Debug | Adds compiler debugging information through [CMake](https://cmake.org/cmake/help/latest/). |
++| C language | Requires [C11](https://www.iso.org/standard/57853.html). |
++| [CMAKE_BUILD_TYPE](https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html) set to Debug | Adds compiler debugging information through [CMake](https://cmake.org/cmake/help/latest/). |
+ | Export compile commands | Enabled by the [build definition](../CMakeLists.txt). |
+ | Unit dependency found | Builds the [codec test runner](../tests/unit/main.c) with nine tests. |
+ | Unit dependency absent | Host configuration fails. Headers and library are required. |
+@@ -98,6 +98,11 @@ Strip Ethernet framing and select the matching application first.
+ The [application interface](../src/include/shish_lan/mrp.h) supplies protocol identifiers.
+ The library does not receive network frames itself.
+ 
++For transmit integration, the [stream destination constant](../src/modules/msrp.c#L352-L353) is currently 91-E0-F0-00-0E-80.
++MSRPDUs require 01-80-C2-00-00-0E under [IEEE 802.1Q-2018, clause 35.2.2.1 and Table 8-1](https://standards.ieee.org/ieee/802.1Q/6844/).
++Do not use the current constant for conforming transmission.
++Track the correction in [issue #6](https://github.com/kebag-logic/lwSRP/issues/6).
++
+ Register [mrp_set_observer](../src/include/shish_lan/mrp.h) before events when transition records are needed.
+ Use [mrp_attr_visit](../src/include/shish_lan/mrp.h) for current attribute state.
+ Use [mrp_port_status](../src/include/shish_lan/mrp.h) for LeaveAll and periodic state.
+@@ -110,6 +115,13 @@ A negative return does not roll back state.
+ The parser ignores protocol version differences and does not enforce the stream attribute-list length.
+ Validate untrusted inputs and review the [coverage gaps](tester.md#coverage).
+ 
++The [LeaveAll handler](../src/core/mrp_mad.c#L835-L841) ignores attribute type and delivers rLA! to every attribute instance on the port.
++This affects both Applicants and Registrars, including unrelated types.
++A Listener LeaveAll can therefore move Talker registrations from IN to LV.
++The [parser](../src/core/mrp_pdu.c#L154-L155) invokes that handler once per marked vector.
++The standard requires type-specific delivery: [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/).
++Track this receive-path limitation in [issue #7](https://github.com/kebag-logic/lwSRP/issues/7).
++
+ ## Drive time
+ 
+ ~~~mermaid
+@@ -127,10 +139,12 @@ sequenceDiagram
+ Call [shlan_timer_tick](../src/ports/timer.c) once per centisecond for the whole library.
+ Alternatively, one call to [mrp_tick](../src/core/mrp_mad.c) advances that same global list.
+ Do not call both.
++The [module help text](../Kconfig.zephyr#L5-L6) conflicts with this requirement by requesting both calls.
+ Do not call the latter once per port or application.
+ It ignores its arguments and advances all timers.
+ 
+-The [implementation](../src/core/mrp_mad.c#L639-L700) uses 20 centiseconds for periodic events, 60 for Leave, and 1000 for LeaveAll.
++The [port timer handlers](../src/core/mrp_mad.c#L639-L700) use 20 centiseconds for periodic events and 1000 for LeaveAll.
++The [Registrar timer action](../src/core/mrp_mad.c#L560-L564) arms Leave for 60 centiseconds using the [Leave interval](../src/include/shish_lan/mrp.h#L118).
+ Periodic timing differs from the one-second interval in [IEEE 802.1Q-2018, clause 10.7.4.4](https://standards.ieee.org/ieee/802.1Q/6844/).
+ LeaveAll lacks the randomization required by [IEEE 802.1Q-2018, clause 10.7.4.3](https://standards.ieee.org/ieee/802.1Q/6844/).
+ See the [state comparison](developer.md#state-machines) before relying on timer behavior.
+diff --git a/doc/manager.md b/doc/manager.md
+index f144b1b..acad597 100644
+--- a/doc/manager.md
++++ b/doc/manager.md
+@@ -18,6 +18,7 @@ Their displayed transitions match the tables; the implementation differences bel
+ | [IEEE 802.1Q-2018, clause 10.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Declaration requests and registration indications. | No complete network transmit path. | [State engine](../src/core/mrp_mad.c). |
+ | [IEEE 802.1Q-2018, clause 10.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Optional propagation callbacks and 32-bit port masks. | No topology gating; VLAN and MAC callbacks are unset. | [Core](../src/core/mrp_mad.c), [VLAN](../src/modules/mvrp.c), [MAC](../src/modules/mmrp.c). |
+ | [IEEE 802.1Q-2018, clause 10.5](https://standards.ieee.org/ieee/802.1Q/6844/) | Protocol identifiers and group addresses. | No link-layer send or receive adapter. | [Application interface](../src/include/shish_lan/mrp.h). |
++| [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/) | Received LeaveAll dispatches rLA! to Applicants and Registrars. | Delivery crosses all attribute types on the port; the standard limits it to the message's type. | [Receive handler](../src/core/mrp_mad.c#L835-L841), [parser callback](../src/core/mrp_pdu.c#L154-L155), [issue #7](https://github.com/kebag-logic/lwSRP/issues/7). |
+ | [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/) | Three graphs match the selected table paths. | Implementation differs on declaration, receive, withdrawal, recovery, and periodic events. Conditions and transmit scheduling are incomplete. | [Comparison](developer.md#applicant-declarations), [table](../src/core/mrp_mad.c#L116-L275), [handler](../src/core/mrp_mad.c#L495-L505). |
+ | [IEEE 802.1Q-2018, clause 10.7.8, Table 10-4](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed state transitions. | Local New registers; received Join in LV emits an extra indication. | [Comparison](developer.md#registrar), [New row](../src/core/mrp_mad.c#L318-L323), [Join rows](../src/core/mrp_mad.c#L343-L354). |
+ | [IEEE 802.1Q-2018, clause 10.7.9, Table 10-5](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed state transitions. | Transmit additionally restarts the timer. No LeaveAll frame is emitted. | [Comparison](developer.md#leaveall), [handler](../src/core/mrp_mad.c#L639-L673). |
+@@ -27,9 +28,11 @@ Their displayed transitions match the tables; the implementation differences bel
+ | [IEEE 802.1Q-2018, clause 10.8.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Length checks for several input fields. | Version and stream attribute-list length are ignored; callbacks can precede a later error. | [Parser](../src/core/mrp_pdu.c). |
+ | [IEEE 802.1Q-2018, clauses 10.9–10.12](https://standards.ieee.org/ieee/802.1Q/6844/) | MAC and service codecs with host callbacks. | No filtering database, mode enforcement, or propagation policy. | [MAC adapter](../src/modules/mmrp.c). |
+ | [IEEE 802.1Q-2018, clause 11.2](https://standards.ieee.org/ieee/802.1Q/6844/) | VLAN codec and registration callbacks. | No VLAN table, database flush, or propagation policy. | [VLAN adapter](../src/modules/mvrp.c). |
+-| [IEEE 802.1Q-2018, clause 35.2.1](https://standards.ieee.org/ieee/802.1Q/6844/) | Talker Advertise, Talker Failed, and Listener values. | Domain attributes and resource admission are absent. | [Stream adapter](../src/modules/msrp.c). |
++| [IEEE 802.1Q-2018, clauses 35.2.1.3, 35.2.2.4, and 35.2.2.8](https://standards.ieee.org/ieee/802.1Q/6844/) | Talker Advertise, Talker Failed, and Listener values. | Domain attributes and resource admission are absent. | [Stream adapter](../src/modules/msrp.c). |
++| [IEEE 802.1Q-2018, clause 35.2.2.1 and Table 8-1](https://standards.ieee.org/ieee/802.1Q/6844/) | Stream destination constant is 91-E0-F0-00-0E-80. | MSRPDUs require 01-80-C2-00-00-0E. The current constant deviates from the standard. | [Destination constant](../src/modules/msrp.c#L352-L353), [issue #6](https://github.com/kebag-logic/lwSRP/issues/6). |
+ | [IEEE 802.1Q-2018, clause 35.2.2.7.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Listener subtype decoding after event vectors. | Stream decoding ignores vector offsets; subtype encoding is absent. | [Codec](../src/core/mrp_pdu.c), [stream adapter](../src/modules/msrp.c). |
+-| [IEEE 802.1Q-2018, clause 35.2.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Talker flooding and Listener propagation toward registered Talkers. | No topology gating, bandwidth checks, or hardware reservation. | [Stream propagation policy](../src/modules/msrp.c). |
++| [IEEE 802.1Q-2018, clause 35.2.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Local declaration wrappers only. | Stream registration and attachment service primitives are absent. | [Public stream interface](../src/include/shish_lan/msrp.h#L78-L89). |
++| [IEEE 802.1Q-2018, clause 35.2.4](https://standards.ieee.org/ieee/802.1Q/6844/) | Talker flooding and Listener propagation toward registered Talkers. | No topology gating, bandwidth checks, or hardware reservation. | [Stream propagation policy](../src/modules/msrp.c#L132-L185). |
+ 
+ No broader conformance claim follows from these rows.
+ The [MAC interface comments](../src/include/shish_lan/mmrp.h) disagree with its constants about attribute type numbers.
+@@ -50,6 +53,10 @@ flowchart TD
+ The [host build](../CMakeLists.txt) succeeds.
+ Its configured [unit runner](../tests/unit/main.c) passes nine codec tests with 1690 assertions.
+ The [scenario harness](../tests/features/environment.py) passes three scenarios and ten steps through [test bindings](../tests/features/switch_bindings.c).
++Both [active-state and inactive-state assertions](../tests/features/steps/switch_steps.py#L26-L36) only repeat the operation and check its return code.
++Neither independently reads port state.
++A wrong disable binding that calls enable still passes all three scenarios.
++Track the coverage defect in [issue #4](https://github.com/kebag-logic/lwSRP/issues/4).
+ The [tester guide](tester.md#coverage) describes what those checks cover.
+ There is no measured coverage percentage.
+ 
+diff --git a/doc/tester.md b/doc/tester.md
+index 25bcfa2..bf61536 100644
+--- a/doc/tester.md
++++ b/doc/tester.md
+@@ -7,7 +7,7 @@ Keep each command's exit code in your test report.
+ 
+ ## Run the suites
+ 
+-Install a C11 compiler, [CMake](https://cmake.org/cmake/help/latest/), [cgreen](https://github.com/cgreen-devs/cgreen), and [behave](https://behave.readthedocs.io/en/stable/).
++Install a [C11](https://www.iso.org/standard/57853.html) compiler, [CMake](https://cmake.org/cmake/help/latest/), [cgreen](https://github.com/cgreen-devs/cgreen), and [behave](https://behave.readthedocs.io/en/stable/).
+ Make the unit framework's headers and library discoverable by the compiler and build system.
+ Run these commands from the repository root.
+ 
+@@ -84,8 +84,8 @@ Reuse matching steps or add a precise new step definition.
+ Keep setup, action, and assertion separate.
+ Run the dry-run command above to check matching.
+ Run the real suite to execute setup and assertions.
+-The current active-state assertion repeats an operation and checks success.
+-It does not independently read port state.
++Both [active-state and inactive-state assertions](../tests/features/steps/switch_steps.py#L26-L36) only repeat the operation and check its return code.
++Neither independently reads port state.
+ 
+ ## Coverage
+ 
+@@ -102,12 +102,16 @@ flowchart LR
+ | Area | Current evidence | Next useful cases |
+ | --- | --- | --- |
+ | Packed values and encoding | [Nine codec tests](../tests/unit/mrp_pdu_test.c). | Multi-value encoding and malformed lengths. |
+-| Switch operations | [Three passing scenarios](../tests/features/switch.feature). | Independent state queries and adapter failures. |
++| Switch operations | [Three passing scenarios](../tests/features/switch.feature); a wrong disable binding also passes all three. | Independent state queries and adapter failures; see [issue #4](https://github.com/kebag-logic/lwSRP/issues/4). |
+ | Parser | No parser test in the current suite. | Truncation, version handling, subtype vectors, and list boundaries. |
+ | MRP state | No wired state-machine suite. | Event tables, propagation masks, and callback order. |
+ | Timers | No timer tests. | Global ticking, expiry, cancellation, and destruction. |
+ | Hardware and network | No adapter or interoperability suite. | Target timing and packet captures after transmit implementation. |
+ 
++A [disable binding](../tests/features/switch_bindings.c) redirected to enable still passes all three scenarios.
++The active-state and inactive-state assertions repeat operations; they cannot establish port state.
++The defect is tracked in [issue #4](https://github.com/kebag-logic/lwSRP/issues/4).
++
+ The [build definition](../CMakeLists.txt) has no coverage target or instrumentation option.
+ No line or branch coverage percentage has been measured.
+ Passing codec assertions do not demonstrate protocol conformance.
+diff --git a/doc/tools/README.md b/doc/tools/README.md
+index 15c280e..a3fe0d1 100644
+--- a/doc/tools/README.md
++++ b/doc/tools/README.md
+@@ -13,6 +13,7 @@ Keep generated images and dependency installations there.
+ ~~~sh
+ python3 doc/tools/check_sentences.py
+ python3 doc/tools/check_references.py
++python3 doc/tools/check_references.py --self-test
+ python3 doc/tools/check_links.py --github-auth
+ python3 doc/tools/render_mermaid.py --output "$DOC_SCRATCH/graphs"
+ ~~~
+@@ -41,12 +42,13 @@ After publication, omit the authentication option to verify anonymous access.
+ The sentence and reference checks list every fenced block as a syntax exception.
+ Commands, graph labels, and code need literal syntax.
+ Their file, API, standard, and tool references belong in nearby links.
+-SPDX comments are metadata.
++[SPDX](https://spdx.dev/) comments are metadata.
+ There are no prose sentence exemptions.
+ 
+ The parser supports the inline links and fences used by these pages.
+ It does not implement every Markdown extension.
+ The reference finder is a heuristic; reviewers must also read the prose.
++Its self-test checks bare standard names, inline code, linked references, and identifier boundaries.
+ The graph counter supports these pages' explicit nodes and participants.
+ Rendering checks syntax.
+ Review the resulting images for readable labels and clear layout.
+diff --git a/doc/tools/check_references.py b/doc/tools/check_references.py
+index 4f83763..04ff6e1 100644
+--- a/doc/tools/check_references.py
++++ b/doc/tools/check_references.py
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: Apache-2.0
+ """Find unlinked references in prose, including inline code."""
+ 
++import argparse
+ import re
+ import sys
+ 
+@@ -8,28 +9,76 @@ sys.dont_write_bytecode = True
+ from common import ROOT, pages, plain, prose_units, syntax_exceptions
+ 
+ PATTERNS = {
+-    "standard": r"\bIEEE\b|\b802\.1[A-Za-z0-9.-]+",
++    "standard": (
++        r"\b(?:IEEE|ISO(?:/IEC)?|IEC|SPDX|POSIX)\b|\b802\.1[A-Za-z0-9.-]+"
++        r"|\bC(?:89|90|95|99|11|17|18|23|2x|2y)\b"
++        r"|\bC\+\+(?:98|03|11|14|17|20|23|26)\b"
++    ),
+     "clause": r"(?:\bclauses?\s+|§\s*)\d+(?:\.\d+)*",
+     "table": r"\bTable\s+\d+-\d+",
+     "issue": r"\b(?:issue|PR|pull request)\s*#?\d+|(?<!\w)#\d+",
+-    "file": r"\b[\w./-]+\.(?:md|c|h|py|sh|yml|yaml|ini|drawio|svg|feature)\b|\bCMakeLists\.txt\b|\b(?:LICENSE|NOTICE)\b",
++    "file": r"\b[\w./-]+\.(?:md|c|h|py|sh|yml|yaml|ini|drawio|svg|feature|zephyr)\b|\bCMakeLists\.txt\b|\b(?:LICENSE|NOTICE)\b",
+     "function": r"\b[a-zA-Z_]\w*\([^\n)]*\)|\b(?:mrp|mrpdu|mvrp|mmrp|msrp|shlan)_[a-zA-Z0-9_]+\b",
+     "tool": r"\b(?:CMake|ctest|cgreen|behave|Mermaid|mermaid-cli|mmdc|Zephyr|Python|GCC|GitHub)\b",
+     "URL": r"https?://\S+",
+ }
+ 
+ 
++def references(text):
++    text = plain(text, keep_labels=False)
++    for kind, pattern in PATTERNS.items():
++        flags = re.IGNORECASE if kind in ("clause", "issue", "table") else 0
++        for match in re.finditer(pattern, text, flags):
++            yield kind, match[0]
++
++
++def self_test():
++    """Exercise the same prose path as the checker without writing fixtures."""
++    cases = []
++    standards = (
++        "C89", "C90", "C95", "C99", "C11", "C17", "C18", "C23", "C2x", "C2y",
++        "C++98", "C++03", "C++11", "C++14", "C++17", "C++20", "C++23", "C++26",
++        "IEEE", "802.1Q-2018", "ISO/IEC 9899:2011", "IEC 61508", "POSIX", "SPDX",
++    )
++    for name in standards:
++        cases.extend([
++            (f"Use {name}.", "standard"),
++            (f"Use `{name}`.", "standard"),
++            (f"Use [{name}](https://example.org/reference).", None),
++        ])
++    cases.extend([
++        ("Use Kconfig.zephyr.", "file"),
++        ("Use `Kconfig.zephyr`.", "file"),
++        ("Use [Kconfig.zephyr](../../Kconfig.zephyr).", None),
++        ("The AC11 and C110 identifiers are ordinary prose.", None),
++        ("The C11_mode identifier is ordinary prose.", None),
++        ("Use [C11](https://www.iso.org/standard/57853.html) and C23.", "standard"),
++        ("Use [a compiler](https://example.org/C11).", None),
++    ])
++    failures = 0
++    for text, expected in cases:
++        found = list(references(text))
++        passed = (not found) if expected is None else len(found) == 1 and found[0][0] == expected
++        if not passed:
++            failures += 1
++            print(f"FAIL self-test: {text!r}: expected {expected!r}; found {found!r}")
++    print(f"Reference self-test: {len(cases)} cases; failures: {failures}")
++    return int(failures != 0)
++
++
+ def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--self-test", action="store_true", help="check detection and link exclusion")
++    if parser.parse_args().self_test:
++        return self_test()
+     errors = 0
+     for path in pages():
+         for exception in syntax_exceptions(path):
+             print(f"SYNTAX {exception}")
+         for number, text in prose_units(path):
+-            text = plain(text, keep_labels=False)
+-            for kind, pattern in PATTERNS.items():
+-                for match in re.finditer(pattern, text, re.IGNORECASE if kind in ("clause", "issue", "table") else 0):
+-                    errors += 1
+-                    print(f"FAIL {path.relative_to(ROOT)}:{number}: unlinked {kind}: {match[0]}")
++            for kind, reference in references(text):
++                errors += 1
++                print(f"FAIL {path.relative_to(ROOT)}:{number}: unlinked {kind}: {reference}")
+     print(f"Unlinked references: {errors}; prose exceptions: 0")
+     return int(errors != 0)
+ 
