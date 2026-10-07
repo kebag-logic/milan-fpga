@@ -1,0 +1,12 @@
+canonical_sha256=cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30 canonical_blob=d645695673349e3947e8e5ae42332d0ac3164cd7
+head_blob=d645695673349e3947e8e5ae42332d0ac3164cd7
+gitattributes_files=0
+PROBE cmp head expect=same cmp_rc=0 PASS
+PROBE cmp base-with-spdx expect=differ cmp_rc=1 PASS
+PROBE cmp spdx-line-only expect=differ cmp_rc=1 PASS
+PROBE cmp no-final-newline expect=differ cmp_rc=1 PASS
+PROBE cmp crlf expect=differ cmp_rc=1 PASS
+PROBE cmp filled-appendix expect=differ cmp_rc=1 PASS
+PROBE links-local control rc=0 Local links: 354; external URLs: 20; failures: 0
+PROBE links-local LICENSE-removed rc=1 4 LICENSE-lines; Local links: 354; external URLs: 20; failures: 4
+PROBE links-local LICENSE-removed PASS (checker rejects missing licence)

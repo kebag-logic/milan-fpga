@@ -1,0 +1,19 @@
+source=kebag-logic/milan-fpga archive 844b733300ed292745bb5e8996232cd05bbdcdb5 review-evidence/lwsrplicfix-r1/author/validation/ (+ author/links.log @ f15a271b1211a566ff3b163b5a8195280e8bac9e)
+PR-BODY.md sha256=eab263c2e264ddc6f6f966e573a4dc3870303241fe72119d4ad88c8656c11847 manifest_match=yes
+cfg.log sha256=bfde385fff25b5194f1bcaae691cb235c4edc8155fb2e5cc559d4ee1f9710a87 manifest_match=yes
+build.log sha256=1465dead2adecfc324dd09e9966c5c8be1b29963543e985876aef18490c4bf41 manifest_match=yes
+ctest.log sha256=9492328d98131f5a7a8c43a1622591a4d095d1349111d0eddc1b6b24e5057f2b manifest_match=yes
+behave.log sha256=5028e77862e79ead5f2f66f4789515f311e881e79db25d4c5207b58d1ff51428 manifest_match=yes
+sentences.log sha256=fb6797843deef05aa21f6ec36f389aa57db177dd2492aaf45a9e5c720ddb32d7 manifest_match=yes
+references.log sha256=816f5c007cc0eab39cab5cf07d3994478cc91734b5904a97447f6c3db05f3f2e manifest_match=yes
+references-selftest.log sha256=7e68a151a2a780cf539294ed60b0be326c24af9329a53af527c0acdfa479b6f6 manifest_match=yes
+links.log sha256=b9bfa14779575a64053ccbc8bfb3b3580d4b1c12c88c1f7d5bebd1bc0506eb67 manifest_match=yes
+own sentences.log vs manager (timing stripped): identical
+own references.log vs manager: identical
+own self-test vs manager: identical
+own anonymous links log vs author links.log: identical
+manager ctest summary: 1: Completed "main": 19885 passes in 115ms. 1/1 Test #1: unit .............................   Passed    0.12 sec 100% tests passed out of 1 
+manager behave summary: 1 feature passed, 0 failed, 0 skipped 3 scenarios passed, 0 failed, 0 skipped 10 steps passed, 0 failed, 0 skipped 
+manager render_mermaid log present: 0
+manager behave --dry-run log present: 0
+manager logs carrying an explicit rc line: 0
