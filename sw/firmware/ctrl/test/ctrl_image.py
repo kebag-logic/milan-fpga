@@ -16,12 +16,29 @@ linked by rv32_image/image.ld into one 128 KB block-RAM region at
 configuration and the entity take the shape's stream counts from its entity
 model (ctrl_arms.fabric_view, the `entity` arm's source).
 
-WHAT IT PRINTS. The image's text, rodata, data and bss from the ELF's section
-headers; every static object of 64 bytes or more from its symbol table (the
-app, the pool's arena, the binding owner, the store's stage, payload, chunk
-and state); the app's parts (sizeof each, from a probe object that is not
-linked); and the C-runtime stand-ins (rv32_image/image_rt.c), which the SoC's
-libbase replaces, apart from the firmware's bytes. The map is written beside
+NO LIBRARY. The image links no library: the pinned SDK's libgcc is built for
+its one multilib (rv32imafd, the ilp32d ABI) and cannot link into a soft-float
+RV32I image. The compiler's arithmetic helpers come from rv32_image/image_arith.c
+(every helper the rv32 arm admits; none is a floating-point one), which must
+be leaves: an object that leaves a symbol open or calls a helper is refused,
+so no helper can reach itself. The linked ELF is then audited before any
+figure is read: ELF32 little-endian RISC-V executable, e_flags 0 (no RVC, the
+soft-float ILP32 ABI, not RVE or Ztso), the one architecture attribute
+rv32i<version>, every word of every executable section an RV32I base
+instruction (no M, A, F, D, C, Zicsr or Zifencei), and no symbol that the
+objects and libraries it links reference and none defines (a weak one links
+to address 0 and leaves no trace in the image, so the inputs are read). Any
+finding refuses the measurement.
+
+WHAT IT PRINTS. The compiler's identity (its version line and its libgcc's
+sha256, which is not linked); per shape, the image's text, rodata, data and
+bss from the ELF's section headers; the audit's result; every static object
+of 64 bytes or more from its symbol table (the app, the pool's arena, the
+binding owner, the store's stage, payload, chunk and state); the app's parts
+(sizeof each, from a probe object that is not linked); and, apart from the
+firmware's bytes, the C-runtime stand-ins (rv32_image/image_rt.c), which the
+SoC's libbase replaces, and the arithmetic helpers the image reaches, which
+LiteX's libcompiler_rt supplies in the SoC image. The map is written beside
 the image.
 
 THE BASE. --base REV measures the firmware of another revision of this
@@ -32,14 +49,20 @@ ACMP links the same platform without it (image_main.c).
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_image.py [--shape NAME ...] [--base REV] [--out DIR]
 
-Exit 0 = every image linked and measured; 2 = a build, link or measure refused.
+ctrl_image_selftest.py holds the controls: helpers checked against the host's
+arithmetic, and incompatible libraries, instructions and headers refused.
+
+Exit 0 = every image linked, passed the audit and was measured; 2 = a build,
+link, audit or measure refused.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import re
+import struct
 import subprocess
 import sys
 import tarfile
@@ -69,6 +92,11 @@ NVM_SOURCES = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c")
 IMAGE_FLAGS = ("-DNDEBUG", "-ffunction-sections", "-fdata-sections", "-fno-pic", "-fno-pie")
 LINK_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-nostdlib", "-nostartfiles", "-static", "-no-pie",
               "-Wl,--gc-sections")
+#: The arithmetic helpers' source, compiled with the composition.
+HELPERS = IMAGE / "image_arith.c"
+#: Archives linked after the objects, by path: none, so every helper is HELPERS's (the self-test links an
+#: incompatible one here, with a HELPERS that defines none).
+LIBRARIES: tuple[str, ...] = ()
 #: The image's output sections (image.ld), in the order they are reported.
 SECTIONS = ("text", "rodata", "data", "bss")
 #: The C runtime the stand-ins supply.
@@ -77,6 +105,23 @@ RUNTIME = ("memset", "memcpy", "memmove", "memcmp", "vsnprintf")
 OBJECT_MIN = 64
 #: The block RAM the firmware has under the 10 % reserve (6030870481).
 BUDGET = 128 * 1024
+#: The ELF header's fields the audit reads: EM_RISCV, ET_EXEC; SHF_EXECINSTR, SHT_NOBITS.
+EM_RISCV, ET_EXEC, SHF_EXECINSTR, SHT_NOBITS = 243, 2, 0x4, 8
+#: e_flags' bits; RV32I with the soft-float ILP32 ABI sets none of them.
+E_FLAGS = ((0x1, "RVC"), (0x6, "a hardware-float ABI"), (0x8, "RVE"), (0x10, "Ztso"))
+#: RV32I's base opcodes (bits 6:0) and the funct3 values (bits 14:12) each defines; a word whose bits 1:0 are
+#: not 11 is a compressed instruction and has no entry. rv32i_word() checks OP-IMM's shifts, OP and SYSTEM further.
+RV32I_FUNCT3 = {
+    0x37: range(8), 0x17: range(8), 0x6F: range(8),  # LUI, AUIPC, JAL
+    0x67: (0,),  # JALR
+    0x63: (0, 1, 4, 5, 6, 7),  # BEQ, BNE, BLT, BGE, BLTU, BGEU
+    0x03: (0, 1, 2, 4, 5),  # LB, LH, LW, LBU, LHU
+    0x23: (0, 1, 2),  # SB, SH, SW
+    0x13: range(8),  # ADDI, SLTI, SLTIU, XORI, ORI, ANDI, SLLI, SRLI, SRAI
+    0x33: range(8),  # ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND
+    0x0F: (0,),  # FENCE (FENCE.I is Zifencei)
+    0x73: (0,),  # ECALL, EBREAK (the CSR forms are Zicsr)
+}
 
 
 @dataclass
@@ -90,6 +135,8 @@ class Image:
     objects: dict[str, int] = field(default_factory=dict)
     parts: dict[str, int] = field(default_factory=dict)
     runtime: int = 0
+    helpers: dict[str, int] = field(default_factory=dict)
+    audited: str = ""
 
 
 def run(argv: list[str], cwd: Path | None = None) -> str:
@@ -107,6 +154,11 @@ def includes(fw: Path, gen: Path) -> list[str]:
             [f"-I{gen}", f"-I{nvm}", f"-I{nvm / 'plat'}", f"-I{nvm / 'test/rv32'}"])
 
 
+def object_name(src: Path) -> str:
+    """A source's object under the shape's work directory: its directory's name and its stem."""
+    return f"{src.parent.name}_{src.stem}.o"
+
+
 def compile_all(cc: str, fw: Path, gen: Path, work: Path, shape_defs: list[str]) -> list[Path]:
     """Every source of the composition, each with its gate's flags; a ctrl source the tree lacks is not compiled."""
     runtime_inc = fw_rv32.includes(cc)
@@ -116,10 +168,11 @@ def compile_all(cc: str, fw: Path, gen: Path, work: Path, shape_defs: list[str])
     # the stand-ins' loops must stay loops, never calls to themselves
     jobs += [(IMAGE / "image_main.c", RV32_FLAGS),
              (IMAGE / "image_rt.c", (*RV32_FLAGS, "-fno-tree-loop-distribute-patterns")),
+             (HELPERS, RV32_FLAGS),
              (IMAGE / "image_start.S", ("-march=rv32i", "-mabi=ilp32"))]
     objs = []
     for src, flags in jobs:
-        obj = work / f"{src.parent.name}_{src.stem}.o"
+        obj = work / object_name(src)
         run([cc, *flags, *IMAGE_FLAGS, *runtime_inc, *inc, *shape_defs, "-c", str(src), "-o", str(obj)])
         objs.append(obj)
     return objs
@@ -148,6 +201,119 @@ def symbol_sizes(tool: str, obj: Path) -> dict[str, tuple[str, int]]:
     return found
 
 
+def helper_findings(tool: str, obj: Path) -> list[str]:
+    """The helpers must be leaves. GCC lowers an operation RV32I lacks into a call to its helper, even inside
+    that helper, so a symbol left open or a relocation naming a helper (a call to one) is a finding."""
+    found = []
+    undefined = names(run([tool + "nm", "-u", str(obj)]), 2)
+    if undefined:
+        found.append(f"{obj.name} leaves symbols open: {', '.join(sorted(undefined))}")
+    calls = set()
+    for line in run([tool + "readelf", "-r", "-W", str(obj)]).splitlines():
+        m = re.match(r"\s*[0-9a-f]+\s+[0-9a-f]+\s+\S+\s+[0-9a-f]+\s+(\S+)", line)
+        if m and m.group(1) in fw_rv32.HELPERS:
+            calls.add(m.group(1))
+    if calls:
+        found.append(f"{obj.name} calls helpers: {', '.join(sorted(calls))}")
+    return found
+
+
+def exec_sections(data: bytes) -> list[tuple[str, int, bytes]]:
+    """Each executable section of an ELF32 file that has bytes: (name, address, bytes)."""
+    shoff = struct.unpack_from("<I", data, 32)[0]
+    shentsize, shnum, shstrndx = struct.unpack_from("<HHH", data, 46)
+    headers = [struct.unpack_from("<10I", data, shoff + i * shentsize) for i in range(shnum)]
+    names = headers[shstrndx][4]
+    found = []
+    for name, kind, flags, addr, offset, size, *_ in headers:
+        if flags & SHF_EXECINSTR and kind != SHT_NOBITS:
+            label = data[names + name:data.index(b"\0", names + name)].decode()
+            found.append((label, addr, data[offset:offset + size]))
+    return found
+
+
+def rv32i_word(word: int) -> bool:
+    """One 32-bit word is an RV32I base instruction: none of M, A, F, D, C, Zicsr or Zifencei."""
+    opcode, funct3, funct7 = word & 0x7F, (word >> 12) & 0x7, word >> 25
+    if funct3 not in RV32I_FUNCT3.get(opcode, ()):
+        return False
+    if opcode == 0x13 and funct3 in (1, 5):  # SLLI, SRLI, SRAI: a 5-bit shift on RV32
+        return funct7 == 0 or (funct3 == 5 and funct7 == 0x20)
+    if opcode == 0x33:  # funct7 1 is M's
+        return funct7 == 0 or (funct7 == 0x20 and funct3 in (0, 5))
+    if opcode == 0x73:
+        return word in (0x00000073, 0x00100073)
+    return True
+
+
+def header_findings(data: bytes) -> list[str]:
+    """A RISC-V executable whose e_flags are 0; the caller has checked it is a little-endian ELF32 file."""
+    e_type, machine = struct.unpack_from("<HH", data, 16)
+    flags = struct.unpack_from("<I", data, 36)[0]
+    found = []
+    if machine != EM_RISCV:
+        found.append(f"machine {machine}, not RISC-V")
+    if e_type != ET_EXEC:
+        found.append(f"ELF type {e_type}, not an executable")
+    if flags:
+        named = [n for bit, n in E_FLAGS if flags & bit] or ["bits RV32I ILP32 does not set"]
+        found.append(f"e_flags {flags:#x}, not 0: {', '.join(named)}")
+    return found
+
+
+def names(listing: str, fields: int) -> set[str]:
+    """The symbol names of an nm listing whose symbol lines have `fields` fields (an archive's member headers
+    have one)."""
+    return {parts[-1] for parts in map(str.split, listing.splitlines()) if len(parts) == fields}
+
+
+def open_symbols(tool: str, elf: Path, inputs: list[str]) -> list[str]:
+    """Symbols the link's inputs reference and neither they nor the image (image.ld's) define. A weak one links
+    to address 0 and leaves no trace in the image, so the inputs are what is read."""
+    undefined: set[str] = set()
+    defined = names(run([tool + "nm", "-g", "--defined-only", str(elf)]), 3)
+    for path in inputs:
+        undefined |= names(run([tool + "nm", "-u", path]), 2)
+        defined |= names(run([tool + "nm", "-g", "--defined-only", path]), 3)
+    return sorted(undefined - defined)
+
+
+def audit(tool: str, elf: Path, inputs: list[str]) -> tuple[list[str], str]:
+    """The linked image and its inputs against RV32I and ILP32: the findings, and a line saying what was
+    checked."""
+    data = elf.read_bytes()
+    if len(data) < 52 or data[:6] != b"\x7fELF\x01\x01":
+        return [f"{elf.name} is not a little-endian ELF32 file"], ""
+    found = header_findings(data)
+    arches = re.findall(r'Tag_RISCV_arch: "([^"]+)"', run([tool + "readelf", "-A", str(elf)]))
+    if len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+", arches[0]):
+        found.append(f"architecture attribute {arches}, not RV32I alone")
+    words = 0
+    for name, addr, code in exec_sections(data):
+        if len(code) % 4:
+            found.append(f"{name}: {len(code)} bytes, not whole 32-bit instructions")
+        bad = []
+        for i in range(0, len(code) - 3, 4):
+            word = int.from_bytes(code[i:i + 4], "little")
+            if not rv32i_word(word):
+                bad.append((addr + i, word))
+        words += len(code) // 4
+        if bad:
+            found.append(f"{name}: {len(bad)} words outside RV32I, the first {bad[0][1]:#010x} at {bad[0][0]:#x}")
+    undefined = open_symbols(tool, elf, inputs)
+    if undefined:
+        found.append(f"symbols left undefined: {', '.join(undefined)}")
+    arch = arches[0] if arches else "none"
+    return found, f"RV32I audit: e_flags 0, {arch}, {words:,} words all RV32I base instructions, nothing undefined"
+
+
+def identity(cc: str) -> str:
+    """The compiler's version line and its libgcc's sha256 (not linked): the toolchain the figures name."""
+    libgcc = Path(run([cc, "-print-libgcc-file-name"]).strip())
+    digest = hashlib.sha256(libgcc.read_bytes()).hexdigest() if libgcc.is_file() else "absent"
+    return f"{run([cc, '--version']).splitlines()[0]}; libgcc.a sha256 {digest} (not linked)"
+
+
 def app_parts(cc: str, fw: Path, gen: Path, work: Path) -> dict[str, int]:
     """sizeof each part of struct ctrl_app, from a probe object that is never linked."""
     probe = work / "app_parts.c"
@@ -174,14 +340,23 @@ def measure(cc: str, fw: Path, shape: str, work: Path) -> Image:
     nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
     defs = [f"-DIMAGE_SINKS={image.sinks}u", f"-DIMAGE_SOURCES={image.sources}u"]
     objs = compile_all(cc, fw, gen, work, defs)
-    elf = work / "ctrl_app.elf"
-    run([cc, *LINK_FLAGS, f"-Wl,-Map={work / 'ctrl_app.map'}", "-T", str(IMAGE / "image.ld"), *map(str, objs),
-         "-lgcc", "-o", str(elf)])
     tool = cc.removesuffix("gcc")
+    helpers = work / object_name(HELPERS)
+    findings = helper_findings(tool, helpers)
+    if findings:
+        raise Refusal("; ".join(findings))
+    elf = work / "ctrl_app.elf"
+    inputs = [*map(str, objs), *LIBRARIES]
+    run([cc, *LINK_FLAGS, f"-Wl,-Map={work / 'ctrl_app.map'}", "-T", str(IMAGE / "image.ld"), *inputs, "-o",
+         str(elf)])
+    findings, image.audited = audit(tool, elf, inputs)
+    if findings:
+        raise Refusal(f"the image at {shape} is not RV32I ILP32: {'; '.join(findings)}")
     image.sections = section_sizes(tool, elf)
     symbols = symbol_sizes(tool, elf)
     image.objects = {n: s for n, (t, s) in symbols.items() if t in "bBdD" and s >= OBJECT_MIN}
     image.runtime = sum(symbols[n][1] for n in RUNTIME if n in symbols)
+    image.helpers = {n: symbols[n][1] for n in symbol_sizes(tool, helpers) if n in symbols}
     image.parts = app_parts(cc, fw, gen, work)
     return image
 
@@ -203,7 +378,10 @@ def report(head: Image, base: Image | None) -> list[str]:
         row += f"{btotal:>10,}{total - btotal:>+10,}"
     lines += [row, f"  load image (text + rodata + data) {load:,}; with bss {total:,} of the {BUDGET:,}-byte budget "
                    f"({100.0 * total / BUDGET:.1f} %), the stack not counted",
+              f"  {head.audited}",
               f"  C-runtime stand-ins in text: {head.runtime:,} bytes (libbase's in the SoC image)",
+              f"  arithmetic helpers in text: {sum(head.helpers.values()):,} bytes "
+              f"({', '.join(sorted(head.helpers))}; libcompiler_rt's in the SoC image)",
               "  static objects of 64 bytes or more:"]
     lines += [f"    {n:<24}{s:>8,}" for n, s in sorted(head.objects.items(), key=lambda kv: -kv[1])]
     lines.append("  struct ctrl_app, by part (sizeof): " +
@@ -232,7 +410,7 @@ def main(argv: list[str] | None = None) -> int:
     if cc is None:
         print("REFUSED: no RV32 compiler (the pinned SDK's riscv32-linux-gcc or MILAN_RV32_CC)")
         return 2
-    print(f"compiler: {cc}, {run([cc, '--version']).splitlines()[0]}")
+    print(f"compiler: {cc}, {identity(cc)}")
     with tempfile.TemporaryDirectory(prefix="ctrl-image-") as tmp:
         out = args.out.resolve() if args.out else Path(tmp)
         try:
