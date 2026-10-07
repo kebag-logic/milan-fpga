@@ -1,0 +1,42 @@
+Note: Google Test filter = SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+$SOURCE/sw/firmware/ctrl/test/srp_rx_retry.cpp:184: Failure
+Expected equality of these values:
+  adapter.pending_rx.len
+    Which is: 26
+  0u
+    Which is: 0
+
+  [FAIL] SrpRetry.RetainedMvrpUsesItsOriginalParticipant:     Which is: 0
+$SOURCE/sw/firmware/ctrl/test/srp_rx_retry.cpp:185: Failure
+Expected equality of these values:
+  adapter.received
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.RetainedMvrpUsesItsOriginalParticipant:     Which is: 1
+$SOURCE/sw/firmware/ctrl/test/srp_rx_retry.cpp:192: Failure
+Expected equality of these values:
+  registered
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.RetainedMvrpUsesItsOriginalParticipant:     Which is: 1
+[  FAILED  ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[----------] 1 test from SrpRetry (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+
+ 1 FAILED TEST
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

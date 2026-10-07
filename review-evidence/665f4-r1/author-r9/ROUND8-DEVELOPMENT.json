@@ -1,0 +1,170 @@
+[
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/builder.py"
+    ],
+    "rc": 1,
+    "seconds": 24.976,
+    "log": "builder.log",
+    "size": 11011,
+    "sha256": "b0f6a7a504884829bcf3a8a3ecc777e20676a4993a988ae376d765e7001924ad",
+    "label": "builder",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round8-receipts/builder.log",
+      "size": 9777,
+      "sha256": "ab2dd1d08014e8cf443158d04fab1f41a7a42fbbd85de1ae4997fd7ade2521a2"
+    },
+    "disposition": "An initial scratch helper placed the builder output outside its checkout, violating a relative-path assertion. The final unmodified driver runs in a detached scratch checkout."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--write",
+      "--jobs",
+      "4",
+      "--keep",
+      "$SCRATCH/coverage-write"
+    ],
+    "rc": 2,
+    "seconds": 118.097,
+    "log": "coverage-write.log",
+    "size": 596,
+    "sha256": "fdb5150096412112395f5e5c06b6daf70e22f54f8de5dead42a198c4cc2e302a",
+    "label": "coverage-write",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round8-receipts/coverage-write.log",
+      "size": 596,
+      "sha256": "fdb5150096412112395f5e5c06b6daf70e22f54f8de5dead42a198c4cc2e302a"
+    },
+    "disposition": "This writer invocation ran before the final F6 composition test was corrected. The final writer and independent checker both pass."
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "$SCRATCH/milan-hdl-reference"
+    ],
+    "rc": 2,
+    "seconds": 0.114,
+    "log": "docs-01.log",
+    "size": 75,
+    "sha256": "87e529936437c3ca8755956574ef3d7ff60a217e49afab898b0faf9bdda5bfe0",
+    "label": "docs-01",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round8-receipts/docs-01.log",
+      "size": 75,
+      "sha256": "87e529936437c3ca8755956574ef3d7ff60a217e49afab898b0faf9bdda5bfe0"
+    },
+    "disposition": "The HDL reference generator refused the pending merge dirty tree. docs-01-final reruns the same check at the clean committed head."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/docs.py"
+    ],
+    "rc": 1,
+    "seconds": 151.87,
+    "log": "docs-bank.log",
+    "size": 64178,
+    "sha256": "8f89544897cfd2a4a2f0d212447313c597dfefdd35d9887601fb91e1b6d0484e",
+    "label": "docs-bank",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round8-receipts/docs-bank.log",
+      "size": 63557,
+      "sha256": "f594be5999b0ebd7922d71b645b744d0d75bc03ab124afd192c2707c3f5b08ac"
+    },
+    "disposition": "The aggregate returned 1 because docs-01 refused the pending merge. All 75 final individual commands, using docs-01-final as replacement, exit 0."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 1,
+    "seconds": 15.329,
+    "log": "focused.log",
+    "size": 2238,
+    "sha256": "52eaa7276454b6a3ed48688dbbd43b178cb0245d9ed9f8e7fb68be129b93780e",
+    "label": "focused",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round8-receipts/focused.log",
+      "size": 2058,
+      "sha256": "efa1ecd8723e4235a564ecdccf5588faf4a1664e1f14f16859eb4d2eced542c5"
+    },
+    "disposition": "The additional SRP build of the ACMP suite needed its own tally label; added without changing assertions."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 1,
+    "seconds": 12.899,
+    "log": "focused2.log",
+    "size": 7662,
+    "sha256": "cc3867dd482aad5405aaf5a65595930bfa7b3fbf26f4d438f8f95bada0d7320f",
+    "label": "focused2",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round8-receipts/focused2.log",
+      "size": 7641,
+      "sha256": "af361f47e5c5bcf74d6c94615d96f15cba9ad3a15ad172d24737430d5ef4ea04"
+    },
+    "disposition": "The four-module trial mixed SRP receive backlog with the existing ACMP/MAAP completion check. The final test preserves that check per ring and asserts the separately stated SRP drain bound."
+  },
+  {
+    "command": [
+      "make",
+      "-C",
+      "$SCRATCH/mailbox/tb/verilator/mbx",
+      "-j1",
+      "VERILATOR_JOBS=1",
+      "VERILATOR=$PINNED_HDL_LIMITED"
+    ],
+    "rc": 2,
+    "seconds": 15.063,
+    "log": "mailbox.log",
+    "size": 29269,
+    "sha256": "f953223f1332ab4ae73b6a901ae9e93e0b52d6e0a02e6fa89ce5a791eb467502",
+    "label": "mailbox",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round8-receipts/mailbox.log",
+      "size": 21880,
+      "sha256": "281b8052ea90040d39d5f77362bf9e338901789a404cd1c1abd037fa2be4292f"
+    },
+    "disposition": "The initial tracked scratch export omitted the NVM header required by imported F3. The complete export includes sw/firmware/ctrl_nvm; mailbox-final runs the full suite successfully."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/positive"
+    ],
+    "rc": 2,
+    "seconds": 124.848,
+    "log": "positive.log",
+    "size": 1559,
+    "sha256": "081abdead70233d7a7da6092ebea269744a729b1be00daddf8fbd3a657dc893b",
+    "label": "positive",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round8-receipts/positive.log",
+      "size": 1433,
+      "sha256": "9e79ab7412216f16fda118f4416e50902ff995bfd52a6683f92060978649c09c"
+    },
+    "disposition": "Merged F3 configuration added fields to a C++ initializer; the initializer was updated."
+  }
+]

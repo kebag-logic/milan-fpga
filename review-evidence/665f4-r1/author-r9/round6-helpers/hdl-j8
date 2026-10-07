@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+import os,sys,fcntl,time
+args=sys.argv[1:]
+for n in range(len(args)-1):
+ if args[n]=='-j': args[n+1]='8'
+locks=[open(os.path.join(os.environ['SCRATCH'],'verilator-slot-'+str(i)),'w') for i in range(2)]
+held=None
+while held is None:
+ for lock in locks:
+  try:
+   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB);held=lock;break
+  except BlockingIOError: pass
+ if held is None: time.sleep(0.1)
+os.set_inheritable(held.fileno(),True)
+os.execv(os.environ['PINNED_VERILATOR'],['verilator',*args])

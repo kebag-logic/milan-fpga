@@ -1,0 +1,60 @@
+Note: Google Test filter = Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+$SOURCE/sw/firmware/ctrl/test/srp_fixture.hpp:162: Failure
+Failed
+loop did not settle
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset: loop did not settle
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:266: Failure
+Expected equality of these values:
+  adapter.refused
+    Which is: 1001
+  0u
+    Which is: 0
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset:     Which is: 0
+$SOURCE/sw/firmware/ctrl/test/srp_fixture.hpp:162: Failure
+Failed
+loop did not settle
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset: loop did not settle
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:268: Failure
+Expected equality of these values:
+  pool.refused
+    Which is: 12013
+  refused
+    Which is: 1
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset:     Which is: 1
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:269: Failure
+Expected: (adapter.ifs[0].msrp) != (nullptr), actual: NULL vs (nullptr)
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset: Expected: (adapter.ifs[0].msrp) != (nullptr), actual: NULL vs (nullptr)
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:269: Failure
+Expected: (adapter.ifs[0].mvrp) != (nullptr), actual: NULL vs (nullptr)
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset: Expected: (adapter.ifs[0].mvrp) != (nullptr), actual: NULL vs (nullptr)
+$SOURCE/sw/firmware/ctrl/test/srp_fixture.hpp:71: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 11
+  0u
+    Which is: 0
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset:     Which is: 0
+[  FAILED  ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
