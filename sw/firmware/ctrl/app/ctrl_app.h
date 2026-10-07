@@ -72,12 +72,25 @@ extern "C" {
 #define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX - \
     CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
 
+// One latest request per entity sink; its configured interface never changes.
+// Storage belongs to the composition, independent of the callback's lifetime.
+struct ctrl_app_srp_request {
+    struct acmp_stream stream;
+    bool bound;
+    bool pending;
+};
+
+struct srp_mbx;
 struct ctrl_app {
 	struct ctrl_pool pool;
 	struct ctrl_loop loop;
 	struct adp_mbx adp;
 	struct acmp_mbx acmp;
 	struct maap_mbx maap;
+    struct srp_mbx *srp;
+    const struct acmp_env *acmp_owner;
+    struct acmp_env acmp_delivery;
+    struct ctrl_app_srp_request srp_requests[ACMP_MAX_SINKS];
 };
 
 struct ctrl_app_config {
@@ -121,11 +134,16 @@ bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg);
 bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg,
 			 maap_allocation_fn allocation, void *ctx, uint64_t preferred);
 
-struct srp_mbx;
-// After open (or start_maap), initialize SRP on app's pool and attach it here before
+// MAAP must be composed. After open (or start_maap), initialize SRP on app's
+// pool and attach it here before
 // servicing the loop. Use the entity MAC on each SRP interface, as MAAP/ADP
 // do. A refusal leaves the ADP/ACMP/MAAP composition running and SRP unattached.
-// The caller owns SRP storage and destroys it before releasing app's pool.
+// With ACMP, attachment owns deferred SRP binding delivery and retries. The
+// supplied SRP callback remains a request observer; it must not deliver the
+// binding itself or reenter any protocol. Other environment ports retain ctx.
+// Attachment refuses an ACMP sink count larger than the generated SRP shape.
+// Keep both objects alive until loop service stops; destroy SRP before the pool.
+// Recompose the application before attaching another SRP instance.
 bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp);
 
 #ifdef __cplusplus

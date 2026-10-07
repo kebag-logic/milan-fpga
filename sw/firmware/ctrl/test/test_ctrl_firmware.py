@@ -198,7 +198,8 @@ def main(argv: list[str] | None = None) -> int:
                 failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
                 complete_srp_table = srp_mutants.DEFECTS
                 try:
-                    srp_mutants.DEFECTS = tuple(d for d in complete_srp_table if d.name.startswith("four-way-"))
+                    srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+                                              if d.name.startswith(("four-way-", "binding-", "srp-bound-")))
                     failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
                 finally:
                     srp_mutants.DEFECTS = complete_srp_table

@@ -395,7 +395,7 @@ MUTANTS = (
            "acmp", U7, "U7 the explicit MAAP entry refuses a missing stream-address port", (("maap", EXPLICIT, ""),)),
     Mutant("app-maap-entry-drops-preferred", APP, "\twith.maap_preferred = preferred;\n", "\t(void)preferred;\n",
            "maap", EXPLICIT, ""),
-    # round 6: the three-way pass bound (CTRL_APP_PASS_MAX)
+    # round 6: the three-way pass bound (CTRL_APP_THREE_PASS_MAX)
     Mutant("app-three-way-pass-overrun", "maap/maap_mbx.c", "\tmaap_rx(&m->ifs[f->interface].core",
            "\tfor (unsigned k = 0; k < 2000u; ++k) {\n\t\t(void)mbx_now_ms();\n\t}\n"
            "\tmaap_rx(&m->ifs[f->interface].core",

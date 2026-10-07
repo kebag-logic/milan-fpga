@@ -34,12 +34,6 @@ static void licence(void *ctx, unsigned interface, unsigned source, bool active)
     (void)ctx;
     image_licences[interface][source] = active;
 }
-// Retained as the exported binding entry, even without the future ACMP caller.
-bool ctrl_image_bind(unsigned interface, unsigned sink, const struct msrp_stream_id *id,
-                     const uint8_t *mac, uint16_t vid)
-{
-    return srp_mbx_bind(&image_srp,interface,sink,id,mac,vid);
-}
 #else
 // F0's reference composition uses this small pool; ADP allocates nothing.
 _Alignas(max_align_t) static unsigned char image_arena[1024];

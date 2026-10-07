@@ -79,3 +79,67 @@ TEST(SrpApp, AllThreeProtocolsShareTheLoopAndWakeSources) {
     shlan_port_bind_pool(nullptr);
 }
 } // namespace
+
+namespace {
+// Isolate callback costs from loop/ring costs, using the same registered
+// callbacks as production. The model counts every actual MMIO operation.
+template<class Fn>
+uint64_t srp_cost(mbx_model& model, Fn action) {
+    const uint64_t before=model.reads+model.writes;
+    action();
+    return model.reads+model.writes-before;
+}
+
+TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
+    settle();
+    auto cost=[&](auto action) { return srp_cost(model,action); };
+    auto check=[](const char* label,uint64_t actual,unsigned limit) {
+        std::printf("  %s: %u accesses, bound %u\n",label,static_cast<unsigned>(actual),limit);
+        EXPECT_LE(actual,limit) << label;
+    };
+    mbx_event ev{}; ev.type=MBX_EV_TYPE_LINK; ev.interface=MBX_N_IF-1u; ev.link_up=true;
+    const auto event=cost([&]{loop.sinks[0].fn(loop.sinks[0].ctx,&ev);});
+    ASSERT_GT(event,0u);
+    check("SRP event bound",event,SRP_MBX_EVENT_MAX);
+    settle();
+    const auto f=frame(4,{6,3,0,7},0);
+    mbx_frame rx{};
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),MBX_N_IF-1u));
+    ASSERT_EQ(mbx_rx_take(MBX_CH_SRP,&rx),MBX_STATUS_OK);
+    calloc_before_failure=0;
+    const auto receive=cost([&] {
+        ASSERT_TRUE(loop.rx[MBX_CH_SRP].ready(&adapter));
+        loop.rx[MBX_CH_SRP].fn(&adapter,&rx);
+    });
+    ASSERT_EQ(adapter.pending_rx.len,rx.len);
+    check("SRP refused receive bound",receive,SRP_MBX_RX_MAX);
+    const auto refused_poll=cost([&]{loop.polls[0].fn(loop.polls[0].ctx);});
+    ASSERT_GT(refused_poll,MBX_N_IF);
+    check("SRP retained receive poll bound",refused_poll,SRP_MBX_POLL_MAX);
+    calloc_before_failure=-1; settle();
+    // Mature the real Applicant's transmit opportunity without polling it.
+    for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+    const auto sent=adapter.transmitted;
+    const auto transmit_poll=cost([&]{loop.polls[0].fn(loop.polls[0].ctx);});
+    ASSERT_GT(adapter.transmitted,sent);
+    check("SRP transmitting poll bound",transmit_poll,SRP_MBX_POLL_MAX);
+    // Per-frame bound independently measures the actual TX driver, at the
+    // channel's maximum payload, so a one-access understatement is visible.
+    std::vector<uint8_t> large(MBX_CH_SRP_MAX_FRAME_BYTES);
+    const auto tx=cost([&]{ASSERT_EQ(mbx_tx_send(MBX_CH_SRP,0,large.data(),large.size()),MBX_STATUS_OK);});
+    check("SRP maximum TX record bound",tx,SRP_MBX_TX_MAX);
+    // Receive the maximum permitted wire record, through the real ring.
+    // A valid empty MVRP PDU can carry Ethernet padding up to this ceiling.
+    wire_put_be(large.data(),0x0180c2000021ull,6);
+    wire_put_be(large.data()+6,0x020304010203ull,6);
+    wire_put_be(large.data()+12,0x88f5u,2);
+    ASSERT_TRUE(mbx_model_rx(&model,large.data(),large.size(),0));
+    mbx_frame taken{};
+    const auto record=cost([&]{ASSERT_EQ(mbx_rx_take(MBX_CH_SRP,&taken),MBX_STATUS_OK);});
+    check("SRP maximum RX record bound",record,SRP_MBX_RX_RECORD_MAX);
+    ASSERT_TRUE(mbx_model_rx(&model,large.data(),large.size(),0));
+    const auto pass=cost([&]{ctrl_loop_service(&loop);});
+    ASSERT_GT(pass,record);
+    check("SRP complete pass bound",pass,SRP_MBX_PASS_MAX);
+}
+} // namespace

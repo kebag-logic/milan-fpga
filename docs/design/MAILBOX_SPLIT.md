@@ -719,7 +719,12 @@ sets of event-record reads: the eight shared records are each read once.
 `srp_bounds.h` derives SRP's 1,596 / 2,366 accesses from the maximum frame,
 two transmit calls per interface, bounded reception, link reconciliation and
 retry clocks. lwSRP sends at most one frame per call. Its centisecond callbacks
-make no mailbox access. CPU work and external port costs require separate
+make no mailbox access. The composition now queues ACMP's binding requests
+per sink and delivers them in a fifth poll after SRP service returns.
+It preserves the configured interface, retries refusals, and supersedes pending
+requests on unbind or replacement. Binding delivery makes no mailbox access,
+so these per-pass figures and the table below remain unchanged.
+CPU work and external port costs require separate
 measurement; this table bounds mailbox accesses only.
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |

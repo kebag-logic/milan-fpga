@@ -41,7 +41,7 @@ is an integration obligation, not a target-time result established here.
 | [`maap/`](maap) | the Annex B core, per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
 | [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
 | [`acmp/`](acmp) | the ACMP core (no mailbox), its mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
-| [`app/`](app) | the static composition a platform starts, in two calls: compose, then open |
+| [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
 | [`test/`](test) | the host tests and their driver |
@@ -123,17 +123,26 @@ ADP, ACMP and MAAP receive/filter bits, adds SRP's receive interrupt, and enable
 the centisecond tick. SRP uses no one-shot timer slot. Its participant timers
 share the tick; the three runs of fabric slots above remain disjoint.
 A failed attachment preserves the running three-module composition.
+With ACMP present, attachment also installs a composition-owned request per sink.
+The ACMP callback copies the latest bind or unbind, preserving its sink index.
+A fifth poll delivers requests after SRP service returns, using each sink's
+configured interface. Refusal keeps the request pending and the loop awake.
+Unbind and replacement supersede the prior request; no callback enters SRP.
+The supplied ACMP SRP callback observes intent; it must not deliver it itself.
+Other environment callbacks retain their original context.
+Keep application and adapter storage alive until loop service stops.
 
 `CTRL_APP_PASS_MAX` bounds all four modules: `ACMP_MBX_PASS_MAX` already
 includes ADP, then add `MAAP_MBX_PASS_MAX` and `SRP_MBX_PASS_MAX`, subtracting
 two copies of the shared event reads. The result is 3,128 accesses at one
 interface and 3,977 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most two calls per interface, receive readiness and
-retry clocks, plus link/reset work. It excludes CPU work and external ports.
+retry clocks, plus link/reset work. The binding-delivery poll adds no mailbox access.
+It excludes CPU work and external ports.
 The SRP arm also builds U6/F6 with all four modules at each interface count:
 exact interrupt mask, an idle HAL awakened by SRP alone, ordered attachment,
 disjoint timer slots, full receive backlogs and the algebraic pass bound.
-Each added check has a named planted defect.
+The exact-mask, SRP-only wake and algebraic-bound checks have named planted defects.
 
 MAAP's allocation reaches ACMP's talker only through the integrator's
 `source` port (`acmp.h`): the port reports `dest_mac_valid` and the stream's
@@ -332,8 +341,7 @@ reaches counts (#665, acceptance addition 6030870481). The integrator's
 owners (the lock, the sources, SRP, the notifier, every other saved group,
 the CSR window's two accesses) are stubs; the C runtime the SoC's libbase supplies is linked from byte-loop
 stand-ins, reported apart (64 bytes: `memset` and `memcpy`, the only ones the
-composition reaches); lwSRP's pool is the host tests' 256 bytes until F4
-sizes it; the stack is not counted. `--base REV` measures another revision's
+composition reaches); lwSRP's pool is the host tests' 256 bytes in this fixture; `ctrl_srp_image.py` measures the entity-sized pool; the stack is not counted. `--base REV` measures another revision's
 firmware with the same harness.
 
 No library is linked. The pinned SDK's `libgcc.a` is built for its one

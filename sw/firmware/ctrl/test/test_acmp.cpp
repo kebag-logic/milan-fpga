@@ -205,12 +205,19 @@ TEST_F(AcmpCore, A0InitRefusesWhatTheStaticSizesCannotHold) {
         i = 0;
     }
     EXPECT_FALSE(acmp_init(&b, &bad, &kPorts, &kEnv)) << "A0 more sinks than ACMP_MAX_SINKS are refused";
-    bad = cfg;
-    bad.n_sources = ACMP_MAX_SOURCES + 1u;
-    for (std::uint8_t& i : bad.source_interface) {
-        i = 0;
-    }
-    EXPECT_FALSE(acmp_init(&b, &bad, &kPorts, &kEnv)) << "A0 more sources than ACMP_MAX_SOURCES are refused";
+    // Control tail padding and following storage at the byte a relaxed
+    // source-count guard would inspect.
+    struct SourceOverflow {
+        acmp_config config;
+        std::uint8_t extra[alignof(acmp_config)]{};
+    } sources{cfg, {}};
+    static_assert(offsetof(acmp_config, source_interface) + ACMP_MAX_SOURCES < sizeof(SourceOverflow));
+    sources.config.n_sources = ACMP_MAX_SOURCES + 1u;
+    auto* storage = reinterpret_cast<unsigned char*>(&sources);
+    std::memset(storage + offsetof(acmp_config, source_interface), 0,
+                sizeof(sources) - offsetof(acmp_config, source_interface));
+    EXPECT_FALSE(acmp_init(&b, &sources.config, &kPorts, &kEnv))
+        << "A0 more sources than ACMP_MAX_SOURCES are refused";
     bad = cfg;
     bad.sink_interface[2] = 2;
     EXPECT_FALSE(acmp_init(&b, &bad, &kPorts, &kEnv)) << "A0 a sink on an interface the entity lacks is refused";

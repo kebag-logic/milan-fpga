@@ -70,7 +70,7 @@ def main() -> int:
         if findings:
             raise Refusal(str(findings))
         elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
-        ldflags=["-Wl,-u,ctrl_image_bind"] if not args.without_srp else []
+        ldflags=[]
         checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
                  "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
                  "-T",str(HERE/"ctrl_image.ld"),*ldflags,*map(str,objects),

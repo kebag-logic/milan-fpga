@@ -17,7 +17,7 @@
 //       pass in which it is committed with k frames owed ahead of it;
 //   F   the bound with full legal backlogs: both rings full, every pass and
 //       path held to the stated figures, events first in every pass; with
-//       lane F2's MAAP composed too, every pass held to CTRL_APP_PASS_MAX;
+//       lane F2's MAAP composed too, every pass held to CTRL_APP_THREE_PASS_MAX;
 //   U   the composition: ACMP after ADP, nothing read before the contract
 //       check, the boot order's two halves; ADP, ACMP and lane F2's MAAP in
 //       one app (the attach order, every channel and its interrupt opened,
@@ -1150,7 +1150,8 @@ TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelO
               mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH))
         << "U6 exact four-channel receive and event interrupt mask";
     EXPECT_TRUE(app.loop.n_sinks == 4u && app.loop.sinks[3].ctx == &srp_adapter &&
-                app.loop.n_polls == 4u && app.loop.polls[3].ctx == &srp_adapter && app.loop.n_ticks == 1u)
+                app.loop.n_polls == 5u && app.loop.polls[3].ctx == &srp_adapter &&
+                app.loop.polls[4].ctx == &app && app.loop.n_ticks == 1u)
         << "U6 SRP attaches after ADP ACMP MAAP and uses the shared tick";
 #endif
     // Four seconds: MAAP's probes and its acquisition, ADP's advertisements and
@@ -1224,3 +1225,7 @@ TEST_F(AcmpMailbox, U7TheThreeWayCompositionRefusesWithNothingOpened) {
 }
 
 }  // namespace
+
+#ifdef CTRL_APP_TEST_SRP
+#include "srp_binding.hpp"
+#endif

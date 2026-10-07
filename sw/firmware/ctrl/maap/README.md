@@ -131,7 +131,7 @@ that callback must remain bounded and nonblocking.
 A standalone MAAP loop pass costs at most
 8*(6+48) + 2*(20+48) + interfaces*48 accesses: 616 for one interface, 664 for two.
 The receive bound includes the channel's maximum 64-byte record.
-Composed with ADP and ACMP, a pass costs at most `CTRL_APP_PASS_MAX` (`ctrl_app.h`):
+Composed with ADP and ACMP, a pass costs at most `CTRL_APP_THREE_PASS_MAX` (`ctrl_app.h`):
 1,580 accesses for one interface, 1,659 for two.
 
 Tests include event and receive backlog, timer wrap, stale tags, link loss,

@@ -59,7 +59,19 @@ Attach reads each interface's current mailbox link level.
 Polling reconciles that level even without another LINK record.
 A held DOWN record can disappear when the level recovers.
 
-F3 calls `srp_mbx_bind(interface, sink, identity, destination, VID)` on the loop.
+`ctrl_app_attach_srp` wires the ACMP environment's SRP port into a static
+latest-request slot per sink. It refuses a sink count beyond the generated
+SRP shape or insufficient loop-poll capacity before attaching anything.
+The callback copies bind/unbind intent and forwards it to the original observer.
+The observer must not deliver the binding itself or reenter a protocol.
+Other ACMP environment callbacks keep their original context.
+After SRP's poll returns, a composition poll calls
+`srp_mbx_bind(interface, sink, identity, destination, VID)` for pending requests.
+The sink index and its configured interface are preserved independently.
+An accepted request retires; a refusal stays pending and keeps the loop awake.
+Unbind or replacement supersedes that sink's previous pending request.
+Keep both objects alive until loop service stops, then destroy SRP and the pool.
+Recompose the application before attaching another adapter.
 A null identity removes a binding; false leaves the old binding unchanged.
 Retry after owed transmission commits and retained reception completes or expires.
 Bindings may share a StreamID while differing in destination or VID.
@@ -173,7 +185,7 @@ Minimal freestanding headers and ELF/runtime checks prevent hosted-libc leakage.
 Object totals include the library and adapter; compiler stack frames are reported
 separately and do not establish a whole call-chain bound.
 `ctrl_srp_image.py` also links a size fixture containing the reachable control loop,
-ADP, ACMP, MAAP, mailbox, SRP, binding entry and their static storage.
+ADP, ACMP, MAAP, mailbox, SRP, binding-delivery queue and their static storage.
 `ctrl_image_runtime.py` builds its memory primitives and integer helpers with the
 same compiler from externally provisioned Picolibc, compiler-rt and LiteX sources.
 Their hashes, commands, ELF sections and symbol sizes accompany the measurement.
@@ -200,6 +212,12 @@ allocation failures, malformed inputs, declaration changes, reset, reentry,
 backpressure and timer ordering. The adapter has no coverage exclusions.
 `srp_mutants.py` ties each named case to a defect and its failed observable;
 build failures do not count as catches.
+`srp_binding.hpp` feeds real BIND_RX and PROBE_TX_RESPONSE records through
+all four modules, checks deferred delivery, refusal/recovery, expiry, unbind,
+replacement and interface/sink isolation, with named plants at both interface counts.
+`srp_app.cpp` counts actual mailbox accesses in the event, refused-receive,
+retained-receive poll, transmitting poll, maximum RX/TX record and full-pass paths.
+Each bound term has a named planted understatement at one and two interfaces.
 Poll-allocation tests exhaust storage after successful reception.
 Separate receive tests exhaust it before accepting a mailbox record.
 They cover mixed attributes, partial completion, repeated refusal and recovery.
@@ -254,7 +272,7 @@ conflicting New registrations retain Failed precedence until replacement/expiry.
 
 F3 is present in the Round 8 merge base.
 The explicit composition now runs ADP, ACMP, MAAP and SRP.
-The integrator's ACMP environment still owns binding-port delivery and retries.
+The composition owns ACMP binding-port delivery, cancellation and retries.
 Target integration still supplies live stream configuration and MAAP allocation changes.
 It also connects the existing fabric licence output.
 The desk callback proves output ordering, not a connected target licence register.
