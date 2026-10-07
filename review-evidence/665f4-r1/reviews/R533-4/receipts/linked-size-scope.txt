@@ -1,0 +1,8 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6030870481
+[A10] **Acceptance addition for every F-lane and the default flip: linked firmware size against the block-RAM budget.**
+
+With DDR3 dropped (decision D4, #640 5991591637), the Mark II firmware and its data live in block RAM. Today the F-lanes report object sizes only. Under the 10 % reserve, the XC7A100T leaves about 50 RAMB36 tiles for the firmware after Mark II's fabric changes, which is about 128 KB at 4.5 KB per tile. A firmware near 256 KB would not fit.
+
+- Each F-lane reports the linked RV32 image of the composed `ctrl_app` at its head: text, rodata, data and bss, plus the static pools sized from the entity model. Report it for the shipping shape and the largest supported shape, with the delta from its base.
+- The default flip (#664 decision 3) needs a routed Mark II image that shows LUT, FF and RAMB36 use against NFR-RES-01, with the firmware in block RAM.
+- If the linked image is heading past about 128 KB, the manager raises it with the owner before the flip. The fallback is the XC7A200T (AX7201), which needs no RTL change.
