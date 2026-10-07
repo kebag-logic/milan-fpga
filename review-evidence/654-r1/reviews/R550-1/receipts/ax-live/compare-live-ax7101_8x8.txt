@@ -1,0 +1,9 @@
+config=ax7101_8x8 mode=live/live artifacts=32/32 bytes=2092466 population_sha256=4e904a0cde271d460d3aa51044ad4cba23caecac5e56bb269140232614eb271b
+argv_equal= True
+DIFF export/csr.csv {'bytes': 9043, 'sha256': '625664da741545d92dea81d2df112ced33154f6e7afa68f4591395e0fa1a6ab1'} {'bytes': 9043, 'sha256': '83a505dd83b46307975d02e3ba180e400a53c91be16f025023d9ac43d2d0eaea'}
+DIFF export/gateware/alinx_ax7101.v {'bytes': 1764764, 'sha256': '2d77dc64e2eff37dd8bcf408a52d652cc8b00cc3c38e62a5faa06370701882ad'} {'bytes': 1764764, 'sha256': '5462d81e5675b3bc182c58bc718fb03fa857da1891053dd680979ad8bb91d661'}
+DIFF export/software/include/generated/csr.h {'bytes': 30683, 'sha256': '2496a9f9dfa798152eb2a434dd8e3820b0ea2ff86a5ebc4b5a9d7da6a8b306b1'} {'bytes': 30683, 'sha256': '56d355180e090fb9ed94de3b648b76aa10ffbd501ed7c1d6c6ac64b2225d460b'}
+DIFF export/software/include/generated/git.h {'bytes': 319, 'sha256': '3cb81bd61df2149048d52964b0f917a621ed2c50da6a56eac725910f293b7e8c'} {'bytes': 319, 'sha256': '503b33f54b0c00ea03f52cd4da90f7294d8f71096c1e1c0b60bd6e985e4a3e21'}
+DIFF export/software/include/generated/mem.h {'bytes': 2032, 'sha256': 'f976eb7852fbb48da6f5e850fbc40ac91deb13eb50069d630d423c2e8f804261'} {'bytes': 2032, 'sha256': '7e59661d1c4adcc0ccf6f1941e6caf6dd39c239d781c8e01ae8f58bac61818f5'}
+DIFF export/software/include/generated/soc.h {'bytes': 11965, 'sha256': 'deca8159f677ee6b0cb006775d5db170fb8e640492b56ec7d91b920e69609748'} {'bytes': 11965, 'sha256': '36c2feddc795b9a827b6d45270b16f452fd4aad5ba73528992e2e478a14d7379'}
+diagnostic logs differing: ['export/litex.log']

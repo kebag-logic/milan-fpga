@@ -1,0 +1,18 @@
+naxriscv-32-fpu         6207896 raw=94b79c574fb6e94c rtl=4eff948efc8347c8 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw differs, normalized differs | head: export raw==base
+naxriscv-32-l2          4853606 raw=7afcade70d9688a1 rtl=111aa4b3fe9acfb5 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw differs, normalized differs | head: export raw==base
+naxriscv-32-none        4853653 raw=89eb8f5ce7632bf5 rtl=47ffd10c7b3571fc published(raw,rtl,name)=(True, True, True) base-vs-omitted: n/a | head: export raw==base
+naxriscv-32-zero        4853653 raw=89eb8f5ce7632bf5 rtl=47ffd10c7b3571fc published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw SAME, normalized SAME | head: REFUSED: NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size
+naxriscv-64-fpu         6303392 raw=249e3e7bc3ec1c16 rtl=e7f74683d3b781bd published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw differs, normalized differs | head: export raw==base
+naxriscv-64-l2          4961618 raw=b36e843975c09ffa rtl=ee0a2accc68ea689 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw differs, normalized differs | head: export raw==base
+naxriscv-64-none        4961665 raw=e7f7af143c0ddb37 rtl=3d35153c4c454643 published(raw,rtl,name)=(True, True, True) base-vs-omitted: n/a | head: export raw==base
+naxriscv-64-zero        4961665 raw=e7f7af143c0ddb37 rtl=3d35153c4c454643 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw SAME, normalized SAME | head: REFUSED: NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size
+vexiiriscv-32-fpu        904947 raw=c78bf94d062deea0 rtl=96af1a3a04bec2c1 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw SAME, normalized SAME | head: REFUSED: --with-fpu is unsupported by the VexiiRiscv recipe; it does not enable floating-point hardware
+vexiiriscv-32-l2         904947 raw=fef96aa312b30a72 rtl=96af1a3a04bec2c1 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw differs, normalized SAME | head: REFUSED: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2
+vexiiriscv-32-none       904947 raw=c78bf94d062deea0 rtl=96af1a3a04bec2c1 published(raw,rtl,name)=(True, True, True) base-vs-omitted: n/a | head: export raw==base
+vexiiriscv-32-zero       904947 raw=c78bf94d062deea0 rtl=96af1a3a04bec2c1 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw SAME, normalized SAME | head: export raw==base
+vexiiriscv-64-fpu        976930 raw=3cbf182bcb4858a5 rtl=b73a01aed36eb9b2 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw SAME, normalized SAME | head: REFUSED: --with-fpu is unsupported by the VexiiRiscv recipe; it does not enable floating-point hardware
+vexiiriscv-64-l2         976930 raw=c42010fbf9c7fe4f rtl=b73a01aed36eb9b2 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw differs, normalized SAME | head: REFUSED: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2
+vexiiriscv-64-none       976930 raw=3cbf182bcb4858a5 rtl=b73a01aed36eb9b2 published(raw,rtl,name)=(True, True, True) base-vs-omitted: n/a | head: export raw==base
+vexiiriscv-64-zero       976930 raw=3cbf182bcb4858a5 rtl=b73a01aed36eb9b2 published(raw,rtl,name)=(True, True, True) base-vs-omitted: raw SAME, normalized SAME | head: export raw==base
+RESULT PASS
+rc=0

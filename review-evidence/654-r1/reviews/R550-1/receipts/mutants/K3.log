@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 230, in <module>
+    test_refusals()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 192, in test_refusals
+    _cli_cases(directory)
+    ~~~~~~~~~~^^^^^^^^^^^
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 153, in _cli_cases
+    _refused(_probe(directory, mode="cli", argv=argv), reason, cli=True)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 104, in _refused
+    assert result["kind"] == ("exit" if cli else "refused"), result
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'kind': 'refused', 'reason': '--with-fpu is unsupported by the VexiiRiscv recipe; it does not enable floating-point hardware'}

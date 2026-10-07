@@ -1,0 +1,8 @@
+{
+ "cpu": "vexiiriscv",
+ "xlen": 64,
+ "option": "l2",
+ "soc": "$REVIEWS/654-r550-1-packet/scratch/mut/sw/litex/milan_soc.py",
+ "kind": "refused",
+ "reason": "--l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+}

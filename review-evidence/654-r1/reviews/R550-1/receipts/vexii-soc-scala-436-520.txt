@@ -1,0 +1,85 @@
+    // address-decoded fabric to LiteDRAM and the LiteX peripheral bridge.
+    // The dedicated protocol-memory attachment joins that same non-coherent
+    // fabric directly; with no cache there is no stale CPU copy to snoop and
+    // no Hub/L2 is required.
+    val unified = !vexiiParam.lsuL1Enable generate new Area {
+      val mBus = Node()
+      mBus.forceDataWidth(mainDataWidth)
+
+      for (vexii <- vexiis) {
+        mBus << List(vexii.iBus, vexii.dBus)
+      }
+      if(c.debugSysBus) mBus << debugSysBus.filter.down
+      for (video <- video) mBus << video.ctrl.dma
+      if(dmaFilter != null) mBus << dmaFilter.down
+      if(withDma) {
+        (mBus << dma.filter.down).setDownConnection(a = StreamPipe.FULL)
+      }
+
+      if(withMem) mem.toAxi4.up << mBus
+      ioBus.setUpConnection(a = StreamPipe.HALF, d = StreamPipe.NONE)
+      ioBus << mBus
+    }
+
+    // Implement the main interconnect of the SoC when VexiiRiscv has a data cache (io and cached accesses are on independent busses)
+    val splited = vexiiParam.lsuL1Enable generate new Area{
+      val mBus = Node()
+      mBus.forceDataWidth(mainDataWidth)
+
+      ioBus.setUpConnection(a = StreamPipe.HALF, d = StreamPipe.NONE)
+      if(withMem) mem.toAxi4.up << mBus
+      peripheral.bus << mBus
+      if(!axiLiteForce32) peripheral.toAxiLite4.up << mBus
+
+      val nc = !withCoherency generate new Area {
+        for (vexii <- vexiis) {
+          mBus << List(vexii.iBus, vexii.lsuL1Bus)
+          ioBus << List(vexii.dBus)
+        }
+        if(c.debugSysBus) mBus << debugSysBus.filter.down
+      }
+
+      val wc = withCoherency generate new Area {
+        val cBus = fabric.Node()
+
+        for (vexii <- vexiis) {
+          cBus << List(vexii.iBus, vexii.lsuL1Bus)
+          ioBus << List(vexii.dBus)
+        }
+
+        if(c.debugSysBus) cBus << debugSysBus.filter.down
+
+        for (video <- video) cBus << video.ctrl.dma
+        if(dmaFilter != null) cBus << dmaFilter.down
+
+        if(withDma) {
+          (cBus << dma.filter.down).setDownConnection(a = StreamPipe.FULL)
+        }
+
+        val hub = (withCoherency && !withL2) generate new Area {
+          val hub = new HubFiber()
+          hub.up << cBus
+          hub.up.setUpConnection(a = StreamPipe.FULL, c = StreamPipe.FULL)
+          hub.down.forceDataWidth(mainDataWidth)
+          mBus << hub.down
+        }
+
+        val l2 = (withCoherency && withL2) generate new Area {
+          val cache = new CacheFiber(withCtrl = false)
+          cache.parameter.cacheWays = l2Ways
+          cache.parameter.cacheBytes = l2Bytes
+          cache.parameter.selfFlush = selfFlush
+          cache.parameter.readProcessAt = 2+(l2Bytes >= 512*1024).toInt
+          if(l2DownPending > 0) cache.parameter.downPendingMax = l2DownPending // deeper L2->DRAM path
+          if(l2GeneralSlots > 0) cache.parameter.generalSlotCount = l2GeneralSlots
+//          cache.parameter.generalSlotCount = 12
+//          cache.parameter.downPendingMax = 8
+
+          cache.up << cBus
+          cache.up.setUpConnection(a = StreamPipe.FULL, c = StreamPipe.FULL, d = StreamPipe.FULL)
+          cache.down.setDownConnection(d = StreamPipe.S2M)
+          cache.down.forceDataWidth(mainDataWidth)
+          mBus << cache.down
+        }
+
+        assert(!(!withCoherency && withL2))

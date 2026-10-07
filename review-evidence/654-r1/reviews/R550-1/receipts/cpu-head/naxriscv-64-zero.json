@@ -1,0 +1,8 @@
+{
+ "cpu": "naxriscv",
+ "xlen": 64,
+ "option": "zero",
+ "soc": "$REVIEWS/654-r550-1-packet/scratch/mut/sw/litex/milan_soc.py",
+ "kind": "refused",
+ "reason": "NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size"
+}

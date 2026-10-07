@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 230, in <module>
+    test_refusals()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 191, in test_refusals
+    count = _constructor_cases(directory)
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 135, in _constructor_cases
+    _refused(_probe(directory, cpu=cpu, xlen=xlen, options=options), reason)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 104, in _refused
+    assert result["kind"] == ("exit" if cli else "refused"), result
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'kind': 'setup'}

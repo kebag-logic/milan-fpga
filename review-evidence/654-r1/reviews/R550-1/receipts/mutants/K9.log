@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 230, in <module>
+    test_refusals()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 191, in test_refusals
+    count = _constructor_cases(directory)
+  File "$REVIEWS/654-r550-1-packet/scratch/mut/sw/builder/test_soc_options.py", line 138, in _constructor_cases
+    assert _probe(directory, cpu=cpu, xlen=xlen, options=options)["kind"] == "setup"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

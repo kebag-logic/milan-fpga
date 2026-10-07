@@ -1,0 +1,188 @@
+{
+ "config": "ax7101_8x8",
+ "mode": "live",
+ "argv": [
+  "--board",
+  "ax7101",
+  "--milan-clk-freq",
+  "50e6",
+  "--gtx-tx-invert",
+  "--floorplan",
+  "--eth-port",
+  "e1",
+  "--no-latency-taps",
+  "--no-i2s-playback",
+  "--no-render-lpf",
+  "--no-datapath-probes",
+  "--num-streams",
+  "8",
+  "--audio-interface",
+  "tdm32",
+  "--audio-interface-master",
+  "--talker-wire-chans",
+  "8",
+  "--fabric-gptp",
+  "--gptp-ingress-lat-ns",
+  "656",
+  "--gptp-egress-lat-ns",
+  "219",
+  "--cpu",
+  "vexiiriscv",
+  "--software-profile",
+  "baremetal",
+  "--xlen",
+  "32",
+  "--full",
+  "--with-spiflash",
+  "--flashboot",
+  "baremetal",
+  "--timing-opt",
+  "--l2-bytes",
+  "0",
+  "--uart-baudrate",
+  "115200",
+  "--cpu-count",
+  "1",
+  "--entity-gen-dir",
+  "$REVIEWS/654-r550-1-packet/scratch/axtree/configs/generated/endstation_ax7101_8x8",
+  "--output-dir",
+  "$REVIEWS/654-r550-1-packet/scratch/ax-live/export-ax7101_8x8",
+  "--no-compile-software"
+ ],
+ "files": {
+  "export/aem_desc.bin": {
+   "bytes": 19520,
+   "sha256": "d8296833b03fe12405e75fe6b9c9690abc968fa6c15b25e4f698c4010b8aa7bc"
+  },
+  "export/aem_desc.json": {
+   "bytes": 262,
+   "sha256": "7d09343cf923739a984575397ca5c5d461671300294cf22deec50a87fc255912"
+  },
+  "export/aem_desc.map": {
+   "bytes": 1774,
+   "sha256": "82ce26bd93df513a35ff348d4a1fa93ebf959f01766e072dd5a8ebbcbaf2b97a"
+  },
+  "export/csr.csv": {
+   "bytes": 9043,
+   "sha256": "83a505dd83b46307975d02e3ba180e400a53c91be16f025023d9ac43d2d0eaea"
+  },
+  "export/csr.json": {
+   "bytes": 15829,
+   "sha256": "8c90a60eaa718633a655c8398c7812e1875db4e569c6945ce71048001cd86026"
+  },
+  "export/flashboot_layout.json": {
+   "bytes": 715,
+   "sha256": "eb67b7a39941a3e582a9b162f75ecf9d6bc98bc58b12ccd149ecc584b1412d33"
+  },
+  "export/gateware/alinx_ax7101.tcl": {
+   "bytes": 33698,
+   "sha256": "abb85ccaeced5439c30dd13f3e927aebe3122b6772fd1cd2187948ede9304c8e"
+  },
+  "export/gateware/alinx_ax7101.v": {
+   "bytes": 1764764,
+   "sha256": "5462d81e5675b3bc182c58bc718fb03fa857da1891053dd680979ad8bb91d661"
+  },
+  "export/gateware/alinx_ax7101.xdc": {
+   "bytes": 19880,
+   "sha256": "9fccc4fdee11c847f70f90cc49eec9fe0cb7ee69546a5f4565091483f8f43096"
+  },
+  "export/gateware/alinx_ax7101_mem.init": {
+   "bytes": 147,
+   "sha256": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335"
+  },
+  "export/gateware/alinx_ax7101_rom.init": {
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "export/gateware/alinx_ax7101_sram.init": {
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "export/gateware/build_alinx_ax7101.sh": {
+   "bytes": 91,
+   "sha256": "cbbbfde27360f056256e74c8ca7d3749d554b6ad636a1cac1c0deb21c5422d56"
+  },
+  "export/software/include/generated/csr.h": {
+   "bytes": 30683,
+   "sha256": "56d355180e090fb9ed94de3b648b76aa10ffbd501ed7c1d6c6ac64b2225d460b"
+  },
+  "export/software/include/generated/git.h": {
+   "bytes": 319,
+   "sha256": "503b33f54b0c00ea03f52cd4da90f7294d8f71096c1e1c0b60bd6e985e4a3e21"
+  },
+  "export/software/include/generated/mem.h": {
+   "bytes": 2032,
+   "sha256": "7e59661d1c4adcc0ccf6f1941e6caf6dd39c239d781c8e01ae8f58bac61818f5"
+  },
+  "export/software/include/generated/output_format.ld": {
+   "bytes": 35,
+   "sha256": "14009799501c0b832653a9a146767576a62a6df1266dbdb8b2b224f111c74422"
+  },
+  "export/software/include/generated/regions.ld": {
+   "bytes": 415,
+   "sha256": "e28d856906eb49e4ba7e456a5875ecf6c1eac089199d0d821a8ed0944e8c8af6"
+  },
+  "export/software/include/generated/sdram_phy.h": {
+   "bytes": 3665,
+   "sha256": "dd0d197d6e10ffe4f00b8e4f82aff8c05a537f37afa5316f67c0a3155807ead6"
+  },
+  "export/software/include/generated/soc.h": {
+   "bytes": 11965,
+   "sha256": "36c2feddc795b9a827b6d45270b16f452fd4aad5ba73528992e2e478a14d7379"
+  },
+  "export/software/include/generated/variables.mak": {
+   "bytes": 2555,
+   "sha256": "14a7cd8a62218dbd6e5b7eeaa13abb45b7e6ab0fd72e79a8062570744d1e1478"
+  },
+  "builder/adp_shape_defaults.svh": {
+   "bytes": 9462,
+   "sha256": "e9a2a76a634501da2a0660f09074b4b54f5cc721aa55388af072f25540998535"
+  },
+  "builder/aecp_aem_rom.svh": {
+   "bytes": 91470,
+   "sha256": "f78129a09fb3c3e51b3996543c09386132f523d15b57601048264933a16ec6ff"
+  },
+  "builder/aem_overlay.json": {
+   "bytes": 21544,
+   "sha256": "d1bd64db5550a6cd0bf294dccea5646678531ccf5cb8d2dc6b4f6c43842c46b6"
+  },
+  "builder/build_plan.md": {
+   "bytes": 15192,
+   "sha256": "60f2bab6e30d8e5569ec3785d37d164619ec35f5311ee8d81452eed50be4c580"
+  },
+  "builder/gptp_ucode.hex": {
+   "bytes": 13312,
+   "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b"
+  },
+  "builder/lwsrp_csr_defaults.svh": {
+   "bytes": 2185,
+   "sha256": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4"
+  },
+  "builder/lwsrp_table.json": {
+   "bytes": 6496,
+   "sha256": "b525824ef9b4a7c52bc99946b08807708f5c7a0ac9087d20a0cc62f3b5e95266"
+  },
+  "builder/lwsrp_table.svh": {
+   "bytes": 4917,
+   "sha256": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e"
+  },
+  "builder/platform_shape.json": {
+   "bytes": 248,
+   "sha256": "a08aef1e775ecd345a7f87157f4bf3eed28306250d49003d0c5231e714e6cf17"
+  },
+  "builder/soc_params.json": {
+   "bytes": 786,
+   "sha256": "41763d46738df0e907116212b9bedb85beebba34f6a66057bee0d921321ef823"
+  },
+  "shape/gen/adp_shape_defaults.svh": {
+   "bytes": 9462,
+   "sha256": "e9a2a76a634501da2a0660f09074b4b54f5cc721aa55388af072f25540998535"
+  }
+ },
+ "logs": {
+  "export/litex.log": {
+   "bytes": 48708,
+   "sha256": "15840248947eb1c5d7f51d1bc751ff083aa9d45588fa09e60b3b02db62393eb3"
+  }
+ }
+}
