@@ -25,7 +25,7 @@ is an integration obligation, not a target-time result established here.
 - **[The ACMP module](#the-acmp-module)** -- The core, its mailbox adapter with the ADP channel's tap, and the binding owner on the saved-state store; per-interface keying, the response before its notification, the adp filter's bound-talker term, TMR_NO_RESP from the accepted send, and the boot order.
 - **[The host test](#the-host-test)** -- The thirteen arms and lwSRP's, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
 - **[Run](#run)** -- The four invocations and what each needs.
-- **[Linked size](#linked-size)** -- The composed app linked for RV32I at the shipping and the largest shape, against the block-RAM budget and dev.
+- **[Linked size](#linked-size)** -- The composed app linked with the pinned SDK and no library, audited as RV32I, at the shipping and the largest shape, against the block-RAM budget and dev.
 
 ## Layout
 
@@ -239,17 +239,66 @@ composition reaches); lwSRP's pool is the host tests' 256 bytes until F4
 sizes it; the stack is not counted. `--base REV` measures another revision's
 firmware with the same harness.
 
+No library is linked. The pinned SDK's `libgcc.a` is built for its one
+multilib, `rv32imafd` with the `ilp32d` ABI, so it cannot link into a
+soft-float RV32I image. The arithmetic helpers GCC calls on RV32I come from
+[`rv32_image/image_arith.c`](test/rv32_image/image_arith.c) instead: every
+helper the `rv32` arm admits (none is a floating-point one), each a
+shift-and-add or shift-and-subtract loop that must be a leaf. A helpers
+object that leaves a symbol open or calls a helper is refused, since GCC
+lowers a `*` inside `__mulsi3` into a call to `__mulsi3`. In the SoC image
+LiteX's `libcompiler_rt` supplies them. They are reported apart: 420 bytes,
+`__lshrdi3`, `__muldi3`, `__mulsi3`, `__udivdi3` and `__umoddi3` (the only
+ones the composition reaches) and their shared divide loop.
+
+Before any figure is read, the linked ELF is audited, and any finding
+refuses the measurement:
+
+- a little-endian ELF32 RISC-V executable whose `e_flags` are 0: no RVC, the
+  soft-float ILP32 ABI, not RVE or Ztso;
+- one architecture attribute, `rv32i` and its version alone;
+- every word of every executable section an RV32I base instruction (no M,
+  A, F, D, C, Zicsr, Zifencei or privileged instruction);
+- no symbol the linked objects reference and none defines. A weak one links
+  to address 0 and leaves no trace in the image, so the inputs are read.
+
 ```sh
 python3 sw/firmware/ctrl/test/ctrl_image.py --base d51b373ad7e8e8381af2797be3ebb8ee45c62e3c
+python3 sw/firmware/ctrl/test/ctrl_image_selftest.py --require-rv32
 ```
 
-At lane F3 round 4, with the pinned SDK's GCC 14.3.0, against dev
-`d51b373a` (the app without ACMP, the same store):
+The self-test holds the controls, 33 checks: the helpers against the host's
+own arithmetic (the edges, every shift count and 200,000 random pairs), the
+leaf rule and two helpers it refuses, a probe linked as the image is and
+every RV32I instruction form passing, eleven foreign instruction words, an
+RV32IM attribute, ten foreign header fields and a weak symbol refused, and
+the measurement itself at the shipping shape: passing, and refusing a helper
+library built for RV32IM with the soft-float ABI (by the audit), one built
+for the pinned SDK's own multilib (at the link) and a helper that calls
+itself.
+
+`ctrl_image.py` prints the compiler's identity first: its version line and
+the sha256 of its `libgcc.a`, which is not linked. That is what names the
+toolchain of a table. Another build at the SDK's path prints another
+identity.
+
+At lane F3 round 5, with the pinned SDK of `scripts/ci_rv32_sdk.py`
+(`riscv32-ilp32d--glibc--stable-2025.08-1`, archive sha256
+`d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f`), whose
+compiler reports
+`riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0`
+and whose `libgcc.a` has sha256
+`d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58`, against
+dev `d51b373a` (the app without ACMP, the same store):
 
 | Shape | STREAM_INPUTs / OUTPUTs | text | rodata | data | bss | total | of 128 KB |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| `endstation_ax7101_1x1_tdm8` (shipping) | 2 / 2 | 29,812 (+10,852) | 992 (+36) | 16 (+0) | 11,280 (+4,848) | 42,100 (+15,736) | 32.1 % |
-| `endstation_ax7101_8x8` (largest) | 9 / 9 | 29,816 (+10,852) | 992 (+36) | 16 (+0) | 21,648 (+4,864) | 52,472 (+15,752) | 40.0 % |
+| `endstation_ax7101_1x1_tdm8` (shipping) | 2 / 2 | 27,708 (+10,852) | 736 (+36) | 0 (+0) | 11,280 (+4,848) | 39,724 (+15,736) | 30.3 % |
+| `endstation_ax7101_8x8` (largest) | 9 / 9 | 27,712 (+10,852) | 736 (+36) | 0 (+0) | 21,648 (+4,864) | 50,096 (+15,752) | 38.2 % |
+
+Every image passes the audit (`rv32i2p1`, 6,927 and 6,928 words at the
+head, 4,214 and 4,215 at the base). The text includes the 64 bytes of
+runtime stand-ins and the 420 bytes of helpers, at the head and the base.
 
 The static objects: the app, 6,800 bytes at every shape (ACMP's state 4,720
 at its maxima of 16 sinks, 16 sources and four interfaces, the loop 1,748,
