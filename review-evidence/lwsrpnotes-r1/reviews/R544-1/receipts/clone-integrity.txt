@@ -1,0 +1,23 @@
+# HEAD and tree
+ced667d8ee35929ab5f9e77a1c5396e173a693d8
+52d750190ca4c8835870598900ffb751cc85a31e
+# status (porcelain, including ignored and untracked)
+?? tests/__pycache__/check_reversals.cpython-314.pyc
+status-end
+# worktree vs index
+diff rc=0
+# index vs HEAD
+cached rc=0
+# index tree
+52d750190ca4c8835870598900ffb751cc85a31e
+# gitlinks (mode 160000)
+gitlinks-end
+# .gitmodules
+ls: cannot access '.gitmodules': No such file or directory
+# blob/mode verification: hash every tracked file and compare to HEAD
+tracked files: 60
+verify-end
+# after removing reviewer-created bytecode cache (tests/__pycache__ from an import used to count CASES)
+status-end (empty = clean)
+ced667d8ee35929ab5f9e77a1c5396e173a693d8
+52d750190ca4c8835870598900ffb751cc85a31e

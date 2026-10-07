@@ -1,0 +1,27 @@
+PASS               OFF control-unmodified                         failed=[] Completed "main": 19901 passes in 129ms.
+PASS               ON  control-unmodified                         failed=[] Completed "main": 19889 passes in 116ms.
+KILLED             OFF upstream-point-to-point-condition          failed=['applicant_receive_conditions_follow_link_mode', 'pending_applicant_joinin_obeys_note_four', 'propagation_obeys_talker_and_listener_policy_masks'] Completed "main": 19897 passes, 4 failures in 126ms.
+KILLED             ON  upstream-point-to-point-condition          failed=['applicant_receive_conditions_follow_link_mode', 'pending_applicant_joinin_obeys_note_four', 'propagation_obeys_talker_and_listener_policy_masks'] Completed "main": 19885 passes, 4 failures in 112ms.
+KILLED             OFF upstream-pending-point-to-point-condition  failed=['pending_applicant_joinin_obeys_note_four'] Completed "main": 19900 passes, 1 failure in 112ms.
+KILLED             ON  upstream-pending-point-to-point-condition  failed=['pending_applicant_joinin_obeys_note_four'] Completed "main": 19888 passes, 1 failure in 112ms.
+KILLED             OFF upstream-shared-in-condition               failed=['applicant_receive_conditions_follow_link_mode'] Completed "main": 19900 passes, 1 failure in 124ms.
+KILLED             ON  upstream-shared-in-condition               failed=['applicant_receive_conditions_follow_link_mode'] Completed "main": 19888 passes, 1 failure in 122ms.
+KILLED             OFF vo-dropped-from-note4-guard                failed=['applicant_receive_conditions_follow_link_mode', 'propagation_obeys_talker_and_listener_policy_masks'] Completed "main": 19898 passes, 3 failures in 139ms.
+KILLED             ON  vo-dropped-from-note4-guard                failed=['applicant_receive_conditions_follow_link_mode', 'propagation_obeys_talker_and_listener_policy_masks'] Completed "main": 19886 passes, 3 failures in 116ms.
+KILLED             OFF note4-applied-on-shared-links              failed=['applicant_declaration_recovery_and_withdrawal_follow_the_table', 'applicant_receive_conditions_follow_link_mode', 'pending_applicant_joinin_obeys_note_four'] Completed "main": 19893 passes, 8 failures in 142ms.
+KILLED             ON  note4-applied-on-shared-links              failed=['applicant_declaration_recovery_and_withdrawal_follow_the_table', 'applicant_receive_conditions_follow_link_mode', 'pending_applicant_joinin_obeys_note_four'] Completed "main": 19881 passes, 8 failures in 116ms.
+KILLED             OFF vp-rjoinin-cell-ignored                    failed=['pending_applicant_joinin_obeys_note_four'] Completed "main": 19900 passes, 1 failure in 106ms.
+KILLED             ON  vp-rjoinin-cell-ignored                    failed=['pending_applicant_joinin_obeys_note_four'] Completed "main": 19888 passes, 1 failure in 109ms.
+KILLED             OFF vp-rjoinin-cell-to-qp                      failed=['pending_applicant_joinin_obeys_note_four'] Completed "main": 19900 passes, 1 failure in 123ms.
+KILLED             ON  vp-rjoinin-cell-to-qp                      failed=['pending_applicant_joinin_obeys_note_four'] Completed "main": 19888 passes, 1 failure in 117ms.
+KILLED             OFF vo-rjoinin-cell-ignored                    failed=['applicant_declaration_recovery_and_withdrawal_follow_the_table', 'applicant_receive_conditions_follow_link_mode'] Completed "main": 19894 passes, 7 failures in 124ms.
+KILLED             ON  vo-rjoinin-cell-ignored                    failed=['applicant_declaration_recovery_and_withdrawal_follow_the_table', 'applicant_receive_conditions_follow_link_mode'] Completed "main": 19882 passes, 7 failures in 127ms.
+KILLED             OFF note5-inverted                             failed=['applicant_receive_conditions_follow_link_mode'] Completed "main": 19899 passes, 2 failures in 118ms.
+KILLED             ON  note5-inverted                             failed=['applicant_receive_conditions_follow_link_mode'] Completed "main": 19887 passes, 2 failures in 130ms.
+KILLED             OFF note5-applied-on-p2p-links                 failed=['applicant_receive_conditions_follow_link_mode'] Completed "main": 19900 passes, 1 failure in 108ms.
+KILLED             ON  note5-applied-on-p2p-links                 failed=['applicant_receive_conditions_follow_link_mode'] Completed "main": 19888 passes, 1 failure in 106ms.
+KILLED             OFF aa-rin-cell-ignored                        failed=['applicant_receive_conditions_follow_link_mode'] Completed "main": 19900 passes, 1 failure in 117ms.
+KILLED             ON  aa-rin-cell-ignored                        failed=['applicant_receive_conditions_follow_link_mode'] Completed "main": 19888 passes, 1 failure in 115ms.
+OBSERVED-SURVIVED  OFF note4-guard-all-states                     failed=[] Completed "main": 19901 passes in 126ms.
+OBSERVED-SURVIVED  ON  note4-guard-all-states                     failed=[] Completed "main": 19889 passes in 123ms.
+probes=26 bad=0

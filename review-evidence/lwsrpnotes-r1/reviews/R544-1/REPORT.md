@@ -1,0 +1,114 @@
+[R544] NEGATIVE - exact head ced667d8ee35929ab5f9e77a1c5396e173a693d8
+
+# R544-1 independent review: kebag-logic/lwSRP PR #15 (closes issue #16)
+
+- Reviewer role: internal independent reviewer (cleared context, own detached clone).
+- Exact head: `ced667d8ee35929ab5f9e77a1c5396e173a693d8`, tree `52d750190ca4c8835870598900ffb751cc85a31e`. The remote `refs/pull/15/head` was confirmed at this head.
+- Source base: `a4cbe41de1c80d43f26e0d348cbdb45075273a4f`. Current public main: `3626f1eaca76cb0ad3e4ea4335fe34e9eb5738f2`, which differs from the base only in `LICENSE`.
+- Range: two test commits (`78e60cd8`, `72209a53`) plus the `--no-ff` merge `ced667d8` of main `a4cbe41d`.
+- Verdict: NEGATIVE. Two MINOR documentation figures are stale at this head (F1, F2). All behavioural, conformance, test and reversal checks pass.
+
+## Reconstruction (order followed)
+
+1. `CONTRIBUTING.md` (there is no `AGENTS.md` in this repository), `README.md`, `doc/tester.md`, `doc/developer.md`, `doc/manager.md` and `doc/tools/README.md`.
+2. The frozen acceptance in issue #16 has four items: a VP/VO note 4 test with both PointToPointMAC values; an AA/rIn! note 5 test with both values; a reversal that fails each test in both profiles; and no change to `src/`. The issue has no comments. The PR body was also read.
+3. Authority: IEEE 802.1Q-2018, clause 10.7.7, Table 10-3 and its notes 3, 4, 5 and 6, read from the local copy (sha256 recorded in `receipts/tool-versions.txt`). Interfaces read: `mrp_port_configure` in `src/include/shish_lan/mrp.h:307` and the Applicant handler at `src/core/mrp_mad.c:506-512`, with table rows at `src/core/mrp_mad.c:207-226`.
+4. Read `git diff a4cbe41d..ced667d8`, the combined merge diff and the history.
+5. Read the public evidence at milan-fpga `03b25f53`, `review-evidence/lwsrpnotes-r1` (`MANIFEST.json`, `author/F4-ROUND5-EXCERPT.md`, `author/PR-BODY.md`), and the review-start comment on the PR. The issue has no manager evidence comments.
+
+## Conformance check of the encoded notes (paraphrased; the standard is not quoted)
+
+| Table 10-3 cell | Standard | Test encoding at head | Result |
+| --- | --- | --- | --- |
+| VO, rJoinIn! | AO; note 4: no transition on point-to-point links | `tests/unit/integration_test.c:327-335`: shared gives AO, point-to-point stays VO | Correct |
+| VP, rJoinIn! | AP; note 4: no transition on point-to-point links | `tests/unit/integration_test.c:352-366`: declare gives VP, then shared gives AP and point-to-point stays VP; Registrar still registers on both | Correct |
+| AA, rIn! | QA; note 5: no transition when operPointToPointMAC is FALSE | `tests/unit/integration_test.c:337-345`: the AA precondition is asserted, then point-to-point gives QA and shared stays AA | Correct |
+
+The PDU bytes were decoded independently. MVRP type 1, length 2, one value (VID 2), and packed event byte 36 encode JoinIn. Byte 72 encodes In. The PointToPointMAC argument is the last parameter of `mrp_port_configure`. A zero-initialized port defaults to shared.
+
+## Executed evidence (all at the exact head unless marked)
+
+| Check | Result | Receipt |
+| --- | --- | --- |
+| Configure, build, ctest, unit runner, behave, behave dry run (profile OFF, Debug) | All rc 0; 87 tests, 19901 passes; 3 scenarios and 10 steps pass; dry run 3 untested | `receipts/profile-off/` |
+| Same for profile ON (`LWSRP_MILAN=ON`) | All rc 0; 19889 passes; 3 scenarios and 10 steps | `receipts/profile-on/` |
+| Base `a4cbe41d`, both profiles (count control) | rc 0; 19885 (OFF) and 19873 (ON) passes | `receipts/base-a4cbe41-{off,on}/` |
+| Assertion delta | +16 in each profile, which is 8 assertions × 2 link modes in the new test | derived from the rows above |
+| `tests/check_reversals.py`, profile OFF | 94/94 caught, restored build and check rc 0, rc 0 | `receipts/reversals-off.log`, `receipts/reversals-off-detail/` |
+| `tests/check_reversals.py --milan ON` | 94/94 caught, restored build and check rc 0, rc 0 | `receipts/reversals-on.log`, `receipts/reversals-on-detail/` |
+| Named failures of the three note reversals (from the driver's own logs) | `point-to-point-condition` fails both note tests (plus `propagation_obeys_talker_and_listener_policy_masks`); `pending-point-to-point-condition` fails only `pending_applicant_joinin_obeys_note_four`; `shared-in-condition` fails only `applicant_receive_conditions_follow_link_mode`. Identical in both profiles. | `receipts/reversals-*-detail/*-condition.log` |
+| Reviewer probes: 13 probes × 2 profiles | Unmodified control passes. All 3 upstream reversals and 8 reviewer faults are killed by the expected named test in both profiles. One out-of-scope observation survives (S1). Every mutation target is unique. | `receipts/probes.json`, `receipts/probes.log`, `scripts/probes.py` |
+| Embedded check; freestanding OFF and ON | rc 0; 7 sources, 0 failures | `receipts/embedded.log`, `receipts/freestanding-{off,on}.log` |
+| ASan and UBSan unit runs, both profiles (reviewer addition) | rc 0; no sanitizer report; 19901 and 19889 passes | `receipts/sanitizer/` |
+| Sentence, reference, reference self-test, link, and graph render checks | rc 0: 975 sentences with 0 over limit; 0 unlinked references; 79 self-test cases; 354 local links and 20 external, 0 failures; 27 graphs rendered | `receipts/doc-*.log` |
+| `src/` scope | No diff; `src` tree `f46e01d3` is identical at base and head | `receipts/source-diff.txt` |
+| Merge resolution | README and tester counts and REQUIRED_FAILURES conflicts resolved by keeping both sides; nothing else is added | `receipts/merge-cc.txt` |
+| Merge into current main `3626f1ea` | Clean; the merged tree differs from the head tree only in `LICENSE` | `receipts/upstream-merge-check.txt` |
+| Hosted contexts on the exact head | 0 check runs and 0 statuses; the repository has no workflow directory. Nothing hosted was executed or skipped. | `receipts/hosted-check-runs.txt` |
+| Clone integrity after all probes | HEAD and tree exact; index tree equals the head tree; all 60 tracked blobs and modes match; no gitlinks or `.gitmodules` in this repository; status clean | `receipts/clone-integrity.txt` |
+
+All probes and builds ran on copies or out-of-tree build directories. The only artifact written into the checkout was a bytecode cache from the reviewer's own module import (used to count `CASES`). It was removed, and the clean state was re-verified (see `receipts/clone-integrity.txt`).
+
+## Findings
+
+### R544-1-F1: MINOR (lenses: Docs, Tests): stale unit counts in the manager guide
+
+- Location: `doc/manager.md:56-57`.
+- Evidence: the manager guide still says the default and enabled runners pass 86 tests, with 19885 and 19873 assertions. At this head both profiles run 87 tests, with 19901 (OFF) and 19889 (ON) passes (`receipts/profile-*/unit_tests.log`). The base `a4cbe41d` measures exactly the old figures (`receipts/base-a4cbe41-*/unit_tests.log`). The PR updated the same figures in `README.md:45` and `doc/tester.md:29,70` but not here. The authority is `CONTRIBUTING.md` (record results; do not misdescribe suites).
+- Impact: the readiness page that managers read gives a test and assertion figure that no build at this head produces. It contradicts the README and the tester guide.
+- Required outcome: line 56 reads 87 tests with 19901 assertions; line 57 reads 87 tests with 19889 assertions.
+- Verification: grep `doc/manager.md` for `86 tests` (expect none) and compare against both profiles' unit runner summaries. Re-run the sentence, reference and link checks.
+
+### R544-1-F2: MINOR (lenses: Docs, Tests): stale reversal count in the tester guide
+
+- Location: `doc/tester.md:193`.
+- Evidence: the guide says both profiles run 93 reversals. This PR adds `pending-point-to-point-condition` (`tests/check_reversals.py:76-78`), giving 94 `CASES`. Both driver runs print `Reversals: 94; failures: 0` (`receipts/reversals-{off,on}.log`), and the public author evidence also reports 94/94.
+- Impact: the planted-reversal section, which is the reproduction contract for issue #16 acceptance item 3, gives a figure that the documented commands do not produce.
+- Required outcome: line 193 says both profiles run all 94 reversals.
+- Verification: `python3 -c` with `len(CASES)` equals 94, both driver runs report 94, and the documentation checks pass.
+
+### Suggestions (non-blocking)
+
+- R544-1-S1 (Tests, Conformance): replacing the note 4 state restriction with `true`, so that point-to-point links ignore rJoinIn! in every Applicant state, survives every unit test in both profiles (`receipts/probes.json`, `note4-guard-all-states`). Table 10-3 makes AA rJoinIn! → QA unconditional, so this is an undetected over-application of note 4. It is outside the frozen acceptance of issue #16, which pins only VO and VP. A future point-to-point control asserting AA rJoinIn! → QA (and a reversal) would close it.
+- R544-1-S2 (Docs): the VO and AA/rIn! cells are covered by the pre-existing `applicant_receive_conditions_follow_link_mode`, now bound by named reversals. Only the VP cell is a new test. The PR body could name which test covers which cell. This does not affect acceptance: item 1 is satisfied by the two named tests together, and the combined `point-to-point-condition` reversal requires both to fail.
+
+### Acceptance (issue #16)
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| 1. VP and VO cells, both values (note 4) | Met | `integration_test.c:327-335` (VO) and `:352-366` (VP); probes `vo-*` and `vp-*` |
+| 2. AA/rIn!, both values (note 5) | Met | `integration_test.c:337-345`; probes `note5-*` and `aa-rin-cell-ignored` |
+| 3. A reversal fails each test, in both profiles | Met | `check_reversals.py:185-188`; driver and reviewer replays, OFF and ON |
+| 4. No change in `src/` | Met | `receipts/source-diff.txt` |
+
+## Prior public review findings on this PR
+
+There is nothing to resolve or retain. The scan ran after this verdict and ledger were fixed (`receipts/prior-findings-scan.txt`). PR #15 has only the two review-start comments (R544-1 and R545-1), with no reviews and no review comments. Issue #16 has no comments. The originating parent findings (milan-fpga #690, R532-1-F2 and R533-2-F2) are other reviewers' reports and were not read. Their requested outcome is reconstructed here from the issue #16 acceptance, which this head meets.
+
+## Reviewer-owned ledger
+
+| Lens | Status | Examined artifacts | Covering round | Exact head |
+| --- | --- | --- | --- | --- |
+| Conformance | CLEAN | Table 10-3 rows and notes 3–6 against `src/core/mrp_mad.c:207-226,506-512` and the three encoded cells; PDU byte decoding; `doc/developer.md` link-mode chart | R544-1 | ced667d8ee35929ab5f9e77a1c5396e173a693d8 |
+| RTL | N/A | Not applicable: a host C library change that touches tests and docs only | R544-1 | ced667d8ee35929ab5f9e77a1c5396e173a693d8 |
+| Robustness | CLEAN | ASan and UBSan in both profiles; per-iteration create and destroy in the new test; clean merge with current main; merge resolution; checkout integrity after probes | R544-1 | ced667d8ee35929ab5f9e77a1c5396e173a693d8 |
+| Tests | UNCLEAN (F1, F2) | ctest, unit runner and behave in both profiles; base count control; 94 reversals × 2 profiles; 26 reviewer probe runs; embedded and freestanding; documented test figures | R544-1 | ced667d8ee35929ab5f9e77a1c5396e173a693d8 |
+| Docs | UNCLEAN (F1, F2) | `README.md`, `doc/tester.md`, `doc/manager.md`, `doc/developer.md`, `CONTRIBUTING.md` rules, PR body, sentence, reference, link and graph checks | R544-1 | ced667d8ee35929ab5f9e77a1c5396e173a693d8 |
+
+## Real limits
+
+- The unit framework was built by the reviewer from the cgreen 1.6.3 tag (two build-system workarounds are recorded in `receipts/tool-versions.txt`). It is not the manager's prefix. The counts match the public author evidence exactly.
+- The reversal driver uses a Release build and the profile runs use Debug. Both were exercised.
+- The probes plant single faults in `src/core/mrp_mad.c` only. They are not exhaustive mutation testing of the Applicant table.
+- Physical calibration was NOT RUN. This is a host-only library review: no target, hardware, network interoperability or field evidence, and no skipped field context counts as hardware proof.
+- The final current-dev candidate (source base a4cbe41d, live dev e21c1ca0) was not built here. Neither the parent banks nor hosted or act acceptance were run.
+- Local absolute paths in the receipts are replaced with `$PACKET` and `$CHECKOUT`.
+
+## Pending manager duties
+
+- Carry F1 and F2 to the author. A fix requires a new head and a fresh review round.
+- Build and accept the final current-dev candidate at the merge turn, and own hosted and act acceptance (this repository currently runs no hosted contexts).
+- Decide whether S1 becomes a follow-up issue.
+- Obtain the second independent review before any merge.
+
+R544-1 FINISHED

@@ -1,0 +1,416 @@
+[
+  {
+    "label": "control-unmodified",
+    "profile": "OFF",
+    "must_fail": [],
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 0,
+    "summary": "Completed \"main\": 19901 passes in 129ms.",
+    "failed_tests": [],
+    "verdict": "PASS"
+  },
+  {
+    "label": "control-unmodified",
+    "profile": "ON",
+    "must_fail": [],
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 0,
+    "summary": "Completed \"main\": 19889 passes in 116ms.",
+    "failed_tests": [],
+    "verdict": "PASS"
+  },
+  {
+    "label": "upstream-point-to-point-condition",
+    "profile": "OFF",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode",
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19897 passes, 4 failures in 126ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode",
+      "pending_applicant_joinin_obeys_note_four",
+      "propagation_obeys_talker_and_listener_policy_masks"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "upstream-point-to-point-condition",
+    "profile": "ON",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode",
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19885 passes, 4 failures in 112ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode",
+      "pending_applicant_joinin_obeys_note_four",
+      "propagation_obeys_talker_and_listener_policy_masks"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "upstream-pending-point-to-point-condition",
+    "profile": "OFF",
+    "must_fail": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19900 passes, 1 failure in 112ms.",
+    "failed_tests": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "upstream-pending-point-to-point-condition",
+    "profile": "ON",
+    "must_fail": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19888 passes, 1 failure in 112ms.",
+    "failed_tests": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "upstream-shared-in-condition",
+    "profile": "OFF",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19900 passes, 1 failure in 124ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "upstream-shared-in-condition",
+    "profile": "ON",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19888 passes, 1 failure in 122ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "vo-dropped-from-note4-guard",
+    "profile": "OFF",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19898 passes, 3 failures in 139ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode",
+      "propagation_obeys_talker_and_listener_policy_masks"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "vo-dropped-from-note4-guard",
+    "profile": "ON",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19886 passes, 3 failures in 116ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode",
+      "propagation_obeys_talker_and_listener_policy_masks"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "note4-applied-on-shared-links",
+    "profile": "OFF",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode",
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19893 passes, 8 failures in 142ms.",
+    "failed_tests": [
+      "applicant_declaration_recovery_and_withdrawal_follow_the_table",
+      "applicant_receive_conditions_follow_link_mode",
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "note4-applied-on-shared-links",
+    "profile": "ON",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode",
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19881 passes, 8 failures in 116ms.",
+    "failed_tests": [
+      "applicant_declaration_recovery_and_withdrawal_follow_the_table",
+      "applicant_receive_conditions_follow_link_mode",
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "vp-rjoinin-cell-ignored",
+    "profile": "OFF",
+    "must_fail": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19900 passes, 1 failure in 106ms.",
+    "failed_tests": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "vp-rjoinin-cell-ignored",
+    "profile": "ON",
+    "must_fail": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19888 passes, 1 failure in 109ms.",
+    "failed_tests": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "vp-rjoinin-cell-to-qp",
+    "profile": "OFF",
+    "must_fail": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19900 passes, 1 failure in 123ms.",
+    "failed_tests": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "vp-rjoinin-cell-to-qp",
+    "profile": "ON",
+    "must_fail": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19888 passes, 1 failure in 117ms.",
+    "failed_tests": [
+      "pending_applicant_joinin_obeys_note_four"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "vo-rjoinin-cell-ignored",
+    "profile": "OFF",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19894 passes, 7 failures in 124ms.",
+    "failed_tests": [
+      "applicant_declaration_recovery_and_withdrawal_follow_the_table",
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "vo-rjoinin-cell-ignored",
+    "profile": "ON",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19882 passes, 7 failures in 127ms.",
+    "failed_tests": [
+      "applicant_declaration_recovery_and_withdrawal_follow_the_table",
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "note5-inverted",
+    "profile": "OFF",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19899 passes, 2 failures in 118ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "note5-inverted",
+    "profile": "ON",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19887 passes, 2 failures in 130ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "note5-applied-on-p2p-links",
+    "profile": "OFF",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19900 passes, 1 failure in 108ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "note5-applied-on-p2p-links",
+    "profile": "ON",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19888 passes, 1 failure in 106ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "aa-rin-cell-ignored",
+    "profile": "OFF",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19900 passes, 1 failure in 117ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "aa-rin-cell-ignored",
+    "profile": "ON",
+    "must_fail": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 1,
+    "summary": "Completed \"main\": 19888 passes, 1 failure in 115ms.",
+    "failed_tests": [
+      "applicant_receive_conditions_follow_link_mode"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "label": "note4-guard-all-states",
+    "profile": "OFF",
+    "must_fail": [],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 0,
+    "summary": "Completed \"main\": 19901 passes in 126ms.",
+    "failed_tests": [],
+    "verdict": "OBSERVED-SURVIVED"
+  },
+  {
+    "label": "note4-guard-all-states",
+    "profile": "ON",
+    "must_fail": [],
+    "occurrences": 1,
+    "configure_rc": 0,
+    "build_rc": 0,
+    "unit_rc": 0,
+    "summary": "Completed \"main\": 19889 passes in 123ms.",
+    "failed_tests": [],
+    "verdict": "OBSERVED-SURVIVED"
+  }
+]
