@@ -35,7 +35,7 @@ import sys
 import subprocess
 import json
 import argparse
-import math
+from decimal import Decimal, InvalidOperation
 import binascii
 import runpy
 from pathlib import Path
@@ -2570,11 +2570,23 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
         print("[milan] --ctrl-mailbox: the CPU has no interrupt controller; firmware polls the mailbox")
 
 
-def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: float | None) -> None:
+def _parse_l2_bytes(token: str) -> Decimal:
+    """Preserve fractional CLI tokens until whole-byte validation."""
+    try:
+        return Decimal(token)
+    except InvalidOperation as exc:
+        raise argparse.ArgumentTypeError(
+            "--l2-bytes must be a finite, non-negative whole number of bytes") from exc
+
+
+def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | None) -> None:
     """Refuse CPU requests this recipe cannot honor, before CPU setup."""
-    if l2_bytes is not None and (not math.isfinite(l2_bytes) or
-                               l2_bytes < 0 or int(l2_bytes) != l2_bytes):
-        raise ValueError("--l2-bytes must be a finite, non-negative whole number of bytes")
+    if cpu not in ("vexiiriscv", "naxriscv"):
+        raise ValueError(f"unsupported CPU {cpu!r}; expected vexiiriscv or naxriscv")
+    if l2_bytes is not None:
+        size = Decimal(l2_bytes)
+        if not size.is_finite() or size < 0 or size != size.to_integral_value():
+            raise ValueError("--l2-bytes must be a finite, non-negative whole number of bytes")
     if cpu == "vexiiriscv":
         if with_fpu:
             raise ValueError("--with-fpu is unsupported by the VexiiRiscv recipe; "
@@ -3480,7 +3492,7 @@ def main() -> None:
                     help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
                          "arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, "
                          "second Milan node for AVDECC interop).")
-    ap.add_argument("--l2-bytes", default=None, type=float,
+    ap.add_argument("--l2-bytes", default=None, type=_parse_l2_bytes,
                     help="shared-L2 bytes; omit or use 0 for the cacheless VexiiRiscv product")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
                     help="separate Milan and CPU domain in Hz; must equal CPU_HZ in "

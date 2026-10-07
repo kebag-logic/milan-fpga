@@ -137,22 +137,35 @@ def _constructor_cases(directory):
             for options in valid:
                 assert _probe(directory, cpu=cpu, xlen=xlen, options=options)["kind"] == "setup"
                 count += 1
+        for cpu in ("NaxRiscv", "unknown", "", None):
+            for options in ({}, {"l2_bytes": 0}):
+                _refused(_probe(directory, cpu=cpu, xlen=xlen, options=options), "unsupported CPU")
+                count += 1
     return count
 
 
 def _cli_cases(directory):
+    count = 0
     for argv, reason in ((["--with-fpu"], "floating-point hardware"),
                          (["--l2-bytes", "8192"], "without a data cache"),
                          (["--l2-bytes", "-1"], "whole number"),
                          (["--l2-bytes", "0.5"], "whole number"),
                          (["--l2-bytes", "nan"], "whole number"),
                          (["--l2-bytes", "inf"], "whole number"),
+                         (["--l2-bytes=1e-400"], "whole number"),
+                         (["--l2-bytes=-1e-400"], "whole number"),
+                         (["--l2-bytes=1.00000000000000000000000000001"], "whole number"),
+                         (["--l2-bytes=invalid"], "whole number"),
                          (["--cpu", "naxriscv", "--l2-bytes", "0"], "keeps its nonzero default"),
                          (["--cpu", "naxriscv", "--with-fpu"], "requires --cpu vexiiriscv"),
                          (["--cpu", "naxriscv", "--l2-bytes", "8192"], "requires --cpu vexiiriscv")):
         _refused(_probe(directory, mode="cli", argv=argv), reason, cli=True)
-    for argv in ([], ["--l2-bytes", "0"]):
+        count += 1
+    for argv in ([], ["--l2-bytes", "0"], ["--l2-bytes=0.0"],
+                 ["--l2-bytes=-0"], ["--l2-bytes=0e-400"]):
         assert _probe(directory, mode="cli", argv=argv)["kind"] == "setup"
+        count += 1
+    return count
 
 
 def _refusal_controls(directory):
@@ -163,9 +176,11 @@ def _refusal_controls(directory):
          "vexiiriscv", {"l2_bytes": 8192}, "without a data cache"),
         ("remove NaxRiscv zero refusal", '    if cpu == "naxriscv" and l2_bytes == 0:', '    if False:',
          "naxriscv", {"l2_bytes": 0}, "keeps its nonzero default"),
-        ("remove byte-size validation", '    if l2_bytes is not None and (not math.isfinite(l2_bytes) or',
-         '    if False and (not math.isfinite(l2_bytes) or',
+        ("remove byte-size validation", '        if not size.is_finite() or size < 0 or size != size.to_integral_value():',
+         '        if False:',
          "naxriscv", {"l2_bytes": 0.5}, "whole number"),
+        ("remove unknown CPU refusal", '    if cpu not in ("vexiiriscv", "naxriscv"):',
+         '    if False:', "NaxRiscv", {"l2_bytes": 0}, "unsupported CPU"),
         ("remove constructor validation", '        _validate_cpu_options(cpu, with_fpu, l2_bytes)',
          '        pass', "vexiiriscv", {"with_fpu": True}, "floating-point hardware"),
     ]
@@ -182,6 +197,11 @@ def _refusal_controls(directory):
     _killed(lambda: _refused(_probe(directory, mode="cli", argv=["--with-fpu"], mutations=[
         ('        _validate_cpu_options(args.cpu, args.with_fpu, args.l2_bytes)', '        pass')]),
         "floating-point hardware", cli=True), "remove CLI validation")
+    for token in ("1e-400", "-1e-400"):
+        _killed(lambda: _refused(_probe(directory, mode="cli", argv=[f"--l2-bytes={token}"],
+            mutations=[('default=None, type=_parse_l2_bytes,', 'default=None, type=float,')]),
+            "whole number", cli=True), f"lossy byte-count parsing: {token}")
+    return len(cases) + 3
 
 
 def test_refusals() -> None:
@@ -189,9 +209,9 @@ def test_refusals() -> None:
     with tempfile.TemporaryDirectory(prefix="soc-options-") as tmp:
         directory = Path(tmp)
         count = _constructor_cases(directory)
-        _cli_cases(directory)
-        _refusal_controls(directory)
-    print(f"CPU option refusals: {count} constructor cases, 11 CLI cases, 6 killed controls")
+        cli_count = _cli_cases(directory)
+        controls = _refusal_controls(directory)
+    print(f"CPU option refusals: {count} constructor cases, {cli_count} CLI cases, {controls} killed controls")
 
 
 def _effect(base, changed):

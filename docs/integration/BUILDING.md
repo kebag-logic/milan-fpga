@@ -130,7 +130,7 @@ Until #402 the three recipes restated the design argv as shell literals,
 kept equal to the builder by the shape gate; #155 repaired ten divergences
 at once and #157 and #362 two more. `BUILD_CFG=configs/<other>.yaml` rebinds
 one named recipe to another config under `configs/` for one call, the
-`SWEEP_CFG` counterpart; the refusals below then apply to that config.
+`SWEEP_CFG` counterpart; the section 2.1 refusals then apply to that config.
 
 The CLI rejects invalid options before platform construction.
 The constructor rejects them before CPU setup or generation.
@@ -145,6 +145,8 @@ Neither AX7101 configuration changes.
 | Developer NaxRiscv constructor | `l2_bytes` | Positive sizes configure L2; omission retains the upstream default. Explicit zero is refused because upstream silently retains that default. |
 
 L2 sizes must be finite, nonnegative whole-byte values.
+CLI validation preserves decimal fractions, including `1e-400` and `-1e-400`.
+Unknown constructor CPU names are refused before CPU setup.
 NaxRiscv constructor support does not enable another product CLI profile.
 The option tests include refusal mutations and generated-netlist comparisons:
 
@@ -154,6 +156,9 @@ python3 sw/builder/test_soc_options.py --netlists
 ```
 
 The second command requires the installed NaxRiscv generator sources.
+It caches generated netlists in the installed data package.
+Pass `--nax-data-dir <isolated-data-copy>` to isolate those writes.
+That copy must include the pinned generator sources.
 It compares RTL after removing comments and generated module names.
 This prevents renaming alone from proving a hardware change.
 
