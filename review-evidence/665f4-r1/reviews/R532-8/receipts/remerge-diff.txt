@@ -1,0 +1,1209 @@
+commit a6e6916826448f81de2b779ca61a87a9f8c47278
+Merge: f74b9403b d8b355fe0
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Wed Oct 7 22:10:18 2026 +0200
+
+    Merge dev F3 and retain four protocol application composition
+
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 44085551c..0c3d9a96e 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -690,7 +690,7 @@ composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
+ with margin) needs the datapath tap and is not measured here.
+ 
+ With lane F2's MAAP composed as well, a pass costs at most 1,580 accesses
+-(`CTRL_APP_PASS_MAX`; 1,659 at two interfaces). MAAP adds its costliest
++(`CTRL_APP_THREE_PASS_MAX`; 1,659 at two interfaces). MAAP adds its costliest
+ action on each of the 8 events (48), its 2 records of the maap channel
+ (20 + 48) and its poll (48). Each input is taken by the same pass as above,
+ so each bound is that pass count, plus one, times 1,580:
+@@ -712,6 +712,35 @@ At F0's assumed 1 us per access, only the event bound still fits T_svc
+ under the ceiling (17.38 ms), and the one behind a full adp ring exceeds it
+ (34.76 ms).
+ 
++With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,128
++accesses at one interface and 3,977 at two. `ACMP_MBX_PASS_MAX` already
++includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
++sets of event-record reads: the eight shared records are each read once.
++`srp_bounds.h` derives SRP's 1,596 / 2,366 accesses from the maximum frame,
++two transmit calls per interface, bounded reception, link reconciliation and
++retry clocks. lwSRP sends at most one frame per call. Its centisecond callbacks
++make no mailbox access. CPU work and external port costs require separate
++measurement; this table bounds mailbox accesses only.
++
++| Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
++|---|---:|---:|---:|
++| an event behind 15 others | 2 | 9,384 / 11,931 | 1.06 / 0.83 us |
++| an ACMP command behind a full acmp ring | 10 | 34,408 / 43,747 | 0.29 / 0.22 us |
++| an ENTITY_AVAILABLE behind a full adp ring | 21 | 68,816 / 87,494 | 0.14 / 0.11 us |
++| a response with 7 frames owed ahead of it | 8, after room returns | 28,152 / 35,793 | 0.35 / 0.27 us |
++
++At 1 us per access, only the one-interface event envelope fits T_svc = 10 ms;
++the two-interface event envelope and the other rows do not. The 20 ms ACMP
++ceiling still covers both event envelopes, but none of the other rows.
++No target timing acceptance is claimed. Backpressure and retained SRP input
++consume their original service interval; a retry or a normative wait never
++starts a new allowance. SRP can defer its own reception behind events or owed
++output, so these inherited ACMP/ADP pass counts are not SRP delivery bounds.
++The H-SRP tests separately measure that adapter's conditional service envelope.
++The U6/F6 SRP variants in `test_acmp_mbx.cpp` exercise all four modules at one
++and two interfaces, with an exact IRQ mask and an SRP-only wake from idle.
++SRP takes the shared tick, leaving ADP, ACMP and MAAP's timer slots disjoint.
++
+ ### Differences from the processor
+ 
+ The `acmpwalk` arm runs the processor's own expectations against the
+@@ -948,14 +977,16 @@ report_timing_summary -delay_type max
+   levels and grandmaster inputs are held idle; the lanes that move a protocol
+   connect them, with the clock crossing the datapath needs.
+ - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
+-  has no PDU transmit hook yet; F4 adds one as a lwSRP pull request, and its
+-  frames then enter the SRP channel's transmit ring as header plus MRPDU.
++  has a PDU transmit hook in the public pin used by F4; its frames enter
++  the SRP channel's transmit ring as header plus MRPDU. Target integration
++  of the stream owners remains separate from the host composition.
+ - **CPU cycles.** The latency bounds are counted in mailbox accesses; the
+   cycle figure on the shipping core waits for the switch-on SoC in the CPU
+   simulation. ACMP's backlog bounds fit T_svc only at 0.89 us per access or
+   less, and H-DISC's behind a full adp ring at 0.44 us: the table's access
+   times for T_svc ([ACMP service latency](#acmp-service-latency)). With MAAP
+-  composed as well they are 0.57 us and 0.28 us.
++  composed as well they are 0.57 us and 0.28 us. With SRP they are 0.29 us
++  and 0.14 us at one interface, or 0.22 us and 0.11 us at two interfaces.
+ - **ACMP's wire round trip** (H-ACMP, under 200 ms with margin) waits for the
+   datapath tap.
+ - **The bound-talker term's area** is 57 LUTs over its target of 300
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/README.md
+index a8a486f52..dcc357d93 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -6,15 +6,9 @@ mailbox ([design](../../../docs/design/MAILBOX_SPLIT.md),
+ [contract](../../../docs/reference/MAILBOX_CONTRACT.md)). No OS, no heap, no
+ threads: one event loop, static state, and a static pool behind lwSRP's
+ allocation port. Lane F0 carries the mailbox driver, the HAL, lwSRP's port
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+-layer, the loop and the ADP slice. F2 adds the opt-in [MAAP owner](maap/README.md).
+-F4 adds the [SRP adapter](srp/README.md) on pinned lwSRP.
++layer, the loop and the ADP slice; F2 adds the opt-in [MAAP owner](maap/README.md),
++F3 the ACMP module, and F4 the [SRP adapter](srp/README.md) on pinned lwSRP.
+ Each protocol has its own core and mailbox adapter.
+-=======
+-layer, the loop and the ADP slice; lane F2 the opt-in [MAAP owner](maap/README.md);
+-lane F3 the ACMP module; the other protocols follow in F4 and F5. Each
+-protocol has its own core and mailbox adapter.
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
+ 
+ `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test`
+ is the gate: exit 0 = every arm passed and every planted defect was caught.
+@@ -45,13 +39,9 @@ is an integration obligation, not a target-time result established here.
+ | [`loop/`](loop) | the event loop: events first, bounded passes, the TICK fan-out in slices, sleep only when nothing is owed, the bring-up order, and the latency bound's assumptions |
+ | [`adp/`](adp) | the ADP core (no mailbox), its mailbox adapter with the latency bounds, and `adp_entity.py` |
+ | [`maap/`](maap) | the Annex B core, per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+ | [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
+-| [`app/`](app) | the static composition a platform starts |
+-=======
+ | [`acmp/`](acmp) | the ACMP core (no mailbox), its mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
+ | [`app/`](app) | the static composition a platform starts, in two calls: compose, then open |
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
+ | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
+ | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
+ | [`test/`](test) | the host tests and their driver |
+@@ -115,7 +105,7 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
+   refuses an entity with no talker source), and a preferred MAAP range
+   that starts outside the B.4 pool (IEEE 1722-2016 Table B.9) or runs past
+   its end. A refusal stops the composition before the later modules attach.
+-- **The pass bound.** A pass of the three costs at most `CTRL_APP_PASS_MAX`
++- **The pass bound.** A pass of the three costs at most `CTRL_APP_THREE_PASS_MAX`
+   mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,012 at
+   one interface) plus MAAP's share of 568, its costliest action on each of
+   the 8 events (48), its 2 records of the maap channel (20 + 48) and its
+@@ -127,6 +117,24 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
+   with this pass in place of its own
+   ([design page](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)).
+ 
++After the open, initialize SRP on the application's static pool and call
++`ctrl_app_attach_srp()` before entering the loop. This fourth attachment retains
++ADP, ACMP and MAAP receive/filter bits, adds SRP's receive interrupt, and enables
++the centisecond tick. SRP uses no one-shot timer slot. Its participant timers
++share the tick; the three runs of fabric slots above remain disjoint.
++A failed attachment preserves the running three-module composition.
++
++`CTRL_APP_PASS_MAX` bounds all four modules: `ACMP_MBX_PASS_MAX` already
++includes ADP, then add `MAAP_MBX_PASS_MAX` and `SRP_MBX_PASS_MAX`, subtracting
++two copies of the shared event reads. The result is 3,128 accesses at one
++interface and 3,977 at two. The SRP bound counts one maximum-size frame per
++library transmit call, at most two calls per interface, receive readiness and
++retry clocks, plus link/reset work. It excludes CPU work and external ports.
++The SRP arm also builds U6/F6 with all four modules at each interface count:
++exact interrupt mask, an idle HAL awakened by SRP alone, ordered attachment,
++disjoint timer slots, full receive backlogs and the algebraic pass bound.
++Each added check has a named planted defect.
++
+ MAAP's allocation reaches ACMP's talker only through the integrator's
+ `source` port (`acmp.h`): the port reports `dest_mac_valid` and the stream's
+ destination, and the app does not connect it to the stream-address port.
+@@ -294,25 +302,24 @@ See [the harness](../gtest/README.md#rv32-object-builds) for evidence limits.
+ The SDK distribution is `ilp32d`; the core uses RV32I/ILP32.
+ The CI firmware step also requires the control mutation campaign.
+ 
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+ Initialize `third_party/lwSRP` at its recorded gitlink before running the gate.
+ An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
+ `9197193e47a6bb1c45a56d90a18c1784123aba44`, with every compiled source unchanged.
+ Moving either pin requires a reviewed change.
+ The pin is published on public lwSRP `main`, including PR #12 and PR #15.
+ Anonymous HTTPS checkout needs no repository credentials.
+-=======
+-```sh
+-git clone https://github.com/kebag-logic/lwSRP lwSRP
+-git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
+-```
+-
+-The `lwsrp` arm refuses another HEAD, and a checkout whose `src/` (every
+-source and header it compiles) differs from that revision. Moving the pin is
+-a reviewed change to `LWSRP_REV`.
+ 
+ ## Linked size
+ 
++Two independent measurement fixtures survive the F3/F4 merge.
++`ctrl_image.py` retains F3's ADP/ACMP/MAAP and saved-state composition below.
++`ctrl_srp_image.py` measures ADP/ACMP/MAAP/SRP with the entity-sized pool,
++verified bare-metal runtime archives and an 8192-byte stack reservation;
++see the [SRP recipe](srp/README.md#evidence).
++Neither fixture is a shipping or booted image, and neither connects the
++integrator's live stream, persistence and media owners completely.
++
++
+ `ctrl_image.py` links the firmware as a Mark II platform composes it
+ ([`rv32_image/image_main.c`](test/rv32_image/image_main.c)): the app with
+ ADP, ACMP and MAAP, the binding owner, MAAP's allocation output on the
+@@ -400,4 +407,3 @@ and state (288), and the pool's arena (256). ACMP's state does not follow
+ the shape: the sinks and sources it serves are a run-time configuration
+ within those maxima, so the shape moves only the store's buffers and a few
+ bytes of code.
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
+diff --git a/sw/firmware/ctrl/app/ctrl_app.h b/sw/firmware/ctrl/app/ctrl_app.h
+index 093c5bba6..b8cd2747f 100644
+--- a/sw/firmware/ctrl/app/ctrl_app.h
++++ b/sw/firmware/ctrl/app/ctrl_app.h
+@@ -14,7 +14,9 @@
+ // the ADP channel's AVAILABLE and DEPARTING tapped for the listener's
+ // discovery, acmp_mbx.h). MAAP and ACMP are each composed only when the
+ // configuration supplies them. Each later lane (SRP through lwSRP, AECP) adds
+-// its adapter here and nowhere else.
++// its adapter here and nowhere else. F4 attaches SRP after open, before
++// servicing the loop, preserving every enabled channel and interrupt. SRP
++// uses the shared centisecond consumer and no one-shot fabric timer slot.
+ //
+ // THE ATTACH ORDER. ADP, then ACMP (it stands in front of ADP's handler of the
+ // adp channel), then MAAP, all before the open, so the open enables every
+@@ -40,6 +42,7 @@
+ #include "ctrl_loop.h"
+ #include "ctrl_pool.h"
+ #include "maap_mbx.h"
++#include "../srp/srp_bounds.h"
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -52,7 +55,7 @@ extern "C" {
+ #define CTRL_APP_ACMP_FIRST_SLOT (CTRL_APP_ADP_FIRST_SLOT + MBX_N_IF)
+ #define CTRL_APP_MAAP_FIRST_SLOT (CTRL_APP_ACMP_FIRST_SLOT + MBX_N_IF)
+ 
+-// A pass of the three-way composition costs at most CTRL_APP_PASS_MAX mailbox
++// A pass without SRP costs at most CTRL_APP_THREE_PASS_MAX mailbox
+ // accesses: a pass of ADP and ACMP (ACMP_MBX_PASS_MAX, acmp_mbx.h), whose
+ // terms already hold every event record's own words, plus MAAP's share
+ // (maap_mbx.h): its costliest action on each of the pass's events, its two
+@@ -63,7 +66,11 @@ extern "C" {
+ #define CTRL_APP_MAAP_PASS_SHARE                                                                                   \
+ 	(CTRL_LOOP_EVENTS_PER_PASS * MAAP_MBX_EVENT_MAX +                                                          \
+ 	 CTRL_LOOP_RX_PER_PASS * (CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MBX_N_IF * MAAP_MBX_POLL_MAX)
+-#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)
++#define CTRL_APP_THREE_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)
++// ACMP's published pass already includes ADP. Each additional module shares
++// the same event-record reads; all four retain their own handler/poll terms.
++#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX - \
++    CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
+ 
+ struct ctrl_app {
+ 	struct ctrl_pool pool;
+@@ -115,9 +122,9 @@ bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg
+ 			 maap_allocation_fn allocation, void *ctx, uint64_t preferred);
+ 
+ struct srp_mbx;
+-// After start_maap, initialize SRP on app's pool and attach it here before
++// After open (or start_maap), initialize SRP on app's pool and attach it here before
+ // servicing the loop. Use the entity MAC on each SRP interface, as MAAP/ADP
+-// do. A refusal leaves the ADP/MAAP composition running and SRP unattached.
++// do. A refusal leaves the ADP/ACMP/MAAP composition running and SRP unattached.
+ // The caller owns SRP storage and destroys it before releasing app's pool.
+ bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp);
+ 
+diff --git a/sw/firmware/ctrl/app/ctrl_app_srp.c b/sw/firmware/ctrl/app/ctrl_app_srp.c
+index 38a5ca208..113e16898 100644
+--- a/sw/firmware/ctrl/app/ctrl_app_srp.c
++++ b/sw/firmware/ctrl/app/ctrl_app_srp.c
+@@ -1,5 +1,5 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+-// Add SRP to the opt-in ADP/MAAP composition before entering the loop.
++// Add SRP to the opt-in ADP/ACMP/MAAP composition before entering the loop.
+ #include "ctrl_app.h"
+ #include "srp_mbx.h"
+ #include "mbx_wire.h"
+@@ -11,6 +11,9 @@ bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp)
+         return false;
+     }
+     uint32_t channels = (1u << MBX_CH_ADP) | (1u << MBX_CH_MAAP) | (1u << MBX_CH_SRP);
++    if (app->loop.rx[MBX_CH_ACMP].fn) {
++        channels |= 1u << MBX_CH_ACMP;
++    }
+     mbx_irq_enable(mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH) |
+                    mbx_place(1u,MBX_IRQ_ENABLE_EVT_LSB,MBX_IRQ_ENABLE_EVT_WIDTH));
+     mbx_tick_enable(true);
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index 5f049620d..af891b755 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -35,6 +35,7 @@ The arena includes conservative allocator overhead for each block.
+ Receive-interest filters retain every valid Class A Domain value, output Listener
+ IDs, bound input Talker IDs and required VLANs.
+ Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
++`refused` counts unsuccessful attempts, including retries, rather than records.
+ Exhaustion is counted and refused; it cannot overwrite another reservation.
+ The pool is a finite capacity, not a claim that arbitrary peer churn always fits.
+ 
+@@ -43,7 +44,11 @@ link rate, and a licence output callback.
+ The explicit application composition starts with `ctrl_app_start_maap`.
+ Initialize SRP on that application's pool using the same interface MACs.
+ Then call `ctrl_app_attach_srp` before servicing the loop.
+-It preserves ADP/MAAP, opens SRP reception and enables centisecond delivery.
++Supply ACMP through the application configuration when composing all four modules.
++Attachment follows ADP, ACMP and MAAP, retaining each receive and event enable.
++It opens SRP reception and its interrupt, and enables centisecond delivery.
++SRP owns no one-shot fabric timer slot: lwSRP timers use the shared tick.
++The other three modules retain disjoint runs of `MBX_N_IF` slots.
+ The isolated adapter uses `srp_mbx_attach` before opening its loop.
+ Only one adapter may own the library's global centisecond dispatch.
+ Each fabric TICK record counts elapsed centiseconds; NOW_MS is a separate
+@@ -56,7 +61,7 @@ A held DOWN record can disappear when the level recovers.
+ 
+ F3 calls `srp_mbx_bind(interface, sink, identity, destination, VID)` on the loop.
+ A null identity removes a binding; false leaves the old binding unchanged.
+-Retry after owed transmission commits and retained reception completes.
++Retry after owed transmission commits and retained reception completes or expires.
+ Bindings may share a StreamID while differing in destination or VID.
+ The interface reconciles one Listener declaration from all eligible bindings:
+ Ready contributes 2, AskingFailed contributes 1, and their union is ReadyFailed.
+@@ -167,8 +172,8 @@ The pinned SDK distribution is named `ilp32d`; the cacheless core build uses
+ Minimal freestanding headers and ELF/runtime checks prevent hosted-libc leakage.
+ Object totals include the library and adapter; compiler stack frames are reported
+ separately and do not establish a whole call-chain bound.
+-`ctrl_image.py` also links a size fixture containing the reachable control loop,
+-ADP, MAAP, mailbox, SRP, binding entry and their static storage.
++`ctrl_srp_image.py` also links a size fixture containing the reachable control loop,
++ADP, ACMP, MAAP, mailbox, SRP, binding entry and their static storage.
+ `ctrl_image_runtime.py` builds its memory primitives and integer helpers with the
+ same compiler from externally provisioned Picolibc, compiler-rt and LiteX sources.
+ Their hashes, commands, ELF sections and symbol sizes accompany the measurement.
+@@ -178,7 +183,7 @@ It is size evidence, not a boot or routed-resource result.
+ ```sh
+ python3 sw/firmware/ctrl/test/ctrl_image_runtime.py --picolibc "$PICOLIBC" \
+   --compiler-rt "$COMPILER_RT" --litex-software "$LITEX_SOFTWARE" --output "$RUNTIME"
+-python3 sw/firmware/ctrl/test/ctrl_image.py \
++python3 sw/firmware/ctrl/test/ctrl_srp_image.py \
+   --config configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --output "$IMAGE" \
+   --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
+ ```
+@@ -247,9 +252,9 @@ conflicting New registrations retain Failed precedence until replacement/expiry.
+ 
+ ## Integration still owed
+ 
+-F3 is absent from the assigned F2 merge base.
+-The application therefore does not call the binding port yet.
+-The explicit composition now runs ADP, MAAP and SRP.
++F3 is present in the Round 8 merge base.
++The explicit composition now runs ADP, ACMP, MAAP and SRP.
++The integrator's ACMP environment still owns binding-port delivery and retries.
+ Target integration still supplies live stream configuration and MAAP allocation changes.
+ It also connects the existing fabric licence output.
+ The desk callback proves output ordering, not a connected target licence register.
+diff --git a/sw/firmware/ctrl/srp/srp_bounds.h b/sw/firmware/ctrl/srp/srp_bounds.h
+new file mode 100644
+index 000000000..50a39b697
+--- /dev/null
++++ b/sw/firmware/ctrl/srp/srp_bounds.h
+@@ -0,0 +1,19 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Mailbox accesses per SRP pass, excluding CPU work and external port work.
++#ifndef CTRL_SRP_BOUNDS_H
++#define CTRL_SRP_BOUNDS_H
++#include "ctrl_loop.h"
++
++// LINK reset snapshots RX_HEAD once. Tick callbacks make no mailbox access.
++#define SRP_MBX_EVENT_MAX 1u
++// Readiness reads IRQ_STATUS; a refused receive reads NOW_MS once.
++#define SRP_MBX_RX_MAX 2u
++#define SRP_MBX_RX_RECORD_MAX (2u + MBX_RX_HDR_WORDS + (MBX_CH_SRP_MAX_FRAME_BYTES + 3u) / 4u)
++// Each interface reads LINK, may snapshot RX_HEAD, and may check IRQ_STATUS
++// and NOW_MS for retained reception. The transmit loop calls mrp_transmit
++// at most twice per interface; each call sends at most one bounded frame.
++#define SRP_MBX_TX_MAX (2u + MBX_TX_HDR_WORDS + (MBX_CH_SRP_MAX_FRAME_BYTES + 3u) / 4u)
++#define SRP_MBX_POLL_MAX (MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))
++#define SRP_MBX_PASS_MAX (CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \
++    CTRL_LOOP_RX_PER_PASS * (SRP_MBX_RX_RECORD_MAX + SRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX)
++#endif
+diff --git a/sw/firmware/ctrl/test/acmp_review_mutants.py b/sw/firmware/ctrl/test/acmp_review_mutants.py
+index 4a2f4eeaa..34dd3b754 100644
+--- a/sw/firmware/ctrl/test/acmp_review_mutants.py
++++ b/sw/firmware/ctrl/test/acmp_review_mutants.py
+@@ -409,8 +409,8 @@ MUTANTS = (
+            "acmpif2", U6, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"),
+     # round 7 (R530-5-S1): the three-way bound against the two published passes
+     Mutant("app-three-way-bound-drops-maap", "app/ctrl_app.h",
+-           "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)",
+-           "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX)",
++           "#define CTRL_APP_THREE_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)",
++           "#define CTRL_APP_THREE_PASS_MAX (ACMP_MBX_PASS_MAX)",
+            "acmp", F6, "F6 the three-way bound is both modules' passes",
+            (("acmpif2", F6, "F6 the three-way bound is both modules' passes"),)),
+     Mutant("app-three-way-bound-one-maap-poll", "app/ctrl_app.h",
+diff --git a/sw/firmware/ctrl/test/ctrl_image.c b/sw/firmware/ctrl/test/ctrl_image.c
+index 517942580..8c65a3848 100644
+--- a/sw/firmware/ctrl/test/ctrl_image.c
++++ b/sw/firmware/ctrl/test/ctrl_image.c
+@@ -12,6 +12,14 @@ static struct ctrl_app image_app;
+ static const struct adp_entity image_entity = ADP_ENTITY_GEN_INIT;
+ #ifdef CTRL_IMAGE_SRP
+ static struct srp_mbx image_srp;
++static struct acmp_config image_acmp;
++static bool locked(void *ctx, uint64_t *owner) { (void)ctx; *owner=0; return false; }
++static void source(void *ctx, unsigned n, struct acmp_source_state *out)
++{ (void)ctx; (void)n; out->dest_mac_valid=false; }
++static void stream(void *ctx, unsigned n, const struct acmp_stream *value)
++{ (void)ctx; (void)n; (void)value; }
++static void notice(void *ctx, unsigned n) { (void)ctx; (void)n; }
++static const struct acmp_env image_env = {NULL,locked,source,stream,notice,notice};
+ static struct srp_source image_sources[MBX_N_IF][CTRL_SRP_SOURCES];
+ static volatile bool image_licences[MBX_N_IF][CTRL_SRP_SOURCES];
+ static volatile uint64_t image_allocation[MBX_N_IF];
+@@ -44,11 +52,19 @@ int main(void)
+         .entity=&image_entity, .arena=image_arena, .arena_bytes=sizeof(image_arena),
+ #ifdef CTRL_IMAGE_SRP
+         .classes=srp_pool_classes, .n_classes=SRP_POOL_N_CLASSES,
++        .acmp=&image_acmp, .acmp_env=&image_env,
+ #else
+         .classes=image_classes, .n_classes=1,
+ #endif
+     };
+ #ifdef CTRL_IMAGE_SRP
++    image_acmp.entity_id=image_entity.entity_id;
++    image_acmp.n_interfaces=MBX_N_IF;
++    image_acmp.n_sinks=CTRL_SRP_SINKS;
++    image_acmp.n_sources=CTRL_SRP_SOURCES;
++    for (unsigned i=0;i<MBX_N_IF;++i) image_acmp.mac[i]=image_entity.mac;
++    for (unsigned n=0;n<CTRL_SRP_SINKS;++n) image_acmp.sink_interface[n]=n%MBX_N_IF;
++    for (unsigned n=0;n<CTRL_SRP_SOURCES;++n) image_acmp.source_interface[n]=n%MBX_N_IF;
+     if (!ctrl_app_start_maap(&image_app,&cfg,allocation,NULL,0)) {
+ #else
+     if (!ctrl_app_start(&image_app,&cfg)) {
+diff --git a/sw/firmware/ctrl/test/ctrl_image.py b/sw/firmware/ctrl/test/ctrl_image.py
+remerge CONFLICT (add/add): Merge conflict in sw/firmware/ctrl/test/ctrl_image.py
+index b2776704c..14b63de96 100644
+--- a/sw/firmware/ctrl/test/ctrl_image.py
++++ b/sw/firmware/ctrl/test/ctrl_image.py
+@@ -1,137 +1,4 @@
+ #!/usr/bin/env python3
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+-# SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""Link a reachable ctrl_app composition and report separate RAM sections.
+-
+-Runtime archives must be bare-metal ILP32 libraries, never the SDK's glibc.
+-Their sizes and hashes are recorded alongside the section and symbol reports.
+-The firmware objects are rebuilt with the shared CI-pinned RV32 compiler.
+-The ELF is a size fixture; it has no board reset entry or fabric licence port.
+-"""
+-from __future__ import annotations
+-import argparse
+-import hashlib
+-import json
+-import re
+-import struct
+-import sys
+-from pathlib import Path
+-from ctrl_build import CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, Tree, Refusal, run
+-from srp_arms import prepared, LWSRP_SOURCES
+-from ctrl_arms import lwsrp_pin
+-import fw_gtest
+-import fw_rv32
+-
+-
+-def checked(argv: list[str]) -> str:
+-    """Every compiler and binary inspection must succeed."""
+-    result=run(argv)
+-    if result.returncode:
+-        raise Refusal(result.stdout+result.stderr)
+-    return result.stdout
+-
+-
+-def main() -> int:
+-    """Measure one selected shape and composition."""
+-    parser=argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument("--config",type=Path,required=True)
+-    parser.add_argument("--output",type=Path,required=True)
+-    parser.add_argument("--ctrl-source",type=Path,default=CTRL)
+-    parser.add_argument("--without-srp",action="store_true")
+-    parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
+-    parser.add_argument("--libc",type=Path,required=True)
+-    parser.add_argument("--compiler-runtime",type=Path,required=True)
+-    args=parser.parse_args()
+-    out=args.output.resolve(); out.mkdir(parents=True,exist_ok=True)
+-    try:
+-        cc=fw_rv32.compiler()
+-        if cc is None:
+-            raise Refusal("the pinned RV32 compiler is required")
+-        tree=Tree(args.ctrl_source.resolve(),out,out/"reuse",fw_gtest.Build(jobs=4))
+-        variant,inc=prepared(tree,args.interfaces,out,args.config.resolve())
+-        checked([sys.executable,"-B",str(CTRL/"adp/adp_entity.py"),str(args.config),
+-                 "-o",str(out/"adp_entity_gen.h")])
+-        flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
+-        inc += [f"-I{out}",*fw_rv32.includes(cc)]
+-        sources=[(variant if name.startswith("mbx/") else tree.src)/name for name in PORTABLE]
+-        sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/"ctrl_image.c"]
+-        libraries=[args.libc.resolve(),args.compiler_runtime.resolve()]
+-        if not args.without_srp:
+-            lw=ROOT/"third_party/lwSRP"; lwsrp_pin(lw)
+-            inc += [f"-I{tree.src/'srp'}",f"-I{lw/'src/include'}",f"-I{lw/'src'}"]
+-            flags += ["-DCTRL_IMAGE_SRP","-DLWSRP_MILAN=1"]
+-            sources += [tree.src/"app/ctrl_app_srp.c",tree.src/"srp/srp_mbx.c",
+-                        *[lw/"src"/name for name in LWSRP_SOURCES]]
+-        objects=[]
+-        for index,src in enumerate(sources):
+-            obj=out/f"{index}-{src.stem}.o"
+-            checked([cc,*flags,*inc,"-c",str(src),"-o",str(obj)])
+-            objects.append(obj)
+-        findings=fw_rv32.object_findings(cc,objects)
+-        if findings:
+-            raise Refusal(str(findings))
+-        elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
+-        ldflags=["-Wl,-u,ctrl_image_bind"] if not args.without_srp else []
+-        checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
+-                 "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
+-                 "-T",str(HERE/"ctrl_image.ld"),*ldflags,*map(str,objects),
+-                 "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
+-        nm=cc.removesuffix("gcc")+"nm"
+-        data=elf.read_bytes()
+-        attributes=checked([cc.removesuffix("gcc")+"readelf","-A",str(elf)])
+-        arches=re.findall(r'Tag_RISCV_arch: "([^"]+)"',attributes)
+-        if (data[:7] != b"\x7fELF\x01\x01\x01" or
+-                struct.unpack_from("<HH",data,16) != (2,243) or
+-                struct.unpack_from("<I",data,36)[0] != 0 or
+-                len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+",arches[0])):
+-            raise Refusal("linked image must be RV32I ILP32, including runtime code")
+-        symbols=checked([nm,"-S",str(elf)])
+-        if checked([nm,"-u",str(elf)]).strip():
+-            raise Refusal("linked runtime has unresolved symbols")
+-        forbidden={"malloc","calloc","realloc","free","sbrk","_sbrk"}
+-        names={line.split()[-1] for line in symbols.splitlines() if line.split()}
+-        if names & forbidden:
+-            raise Refusal("heap dependency in composed image")
+-        required={"ctrl_app_start","ctrl_loop_run","image_app","image_arena"}
+-        if not args.without_srp:
+-            required |= {"ctrl_app_start_maap","ctrl_app_attach_srp","maap_rx","maap_poll",
+-                         "srp_mbx_init","srp_mbx_attach","srp_mbx_bind","mrp_rx",
+-                         "mrp_transmit","image_srp","image_sources"}
+-        if required-names:
+-            raise Refusal(f"composition discarded required code/storage: {sorted(required-names)}")
+-        size=checked([cc.removesuffix("gcc")+"size","-A",str(elf)])
+-        sections={name:int(count) for name,count in re.findall(r"^(\.\S+)\s+(\d+)\s+",size,re.M)}
+-        if any(name not in sections for name in (".text",".rodata",".bss",".stack")):
+-            raise Refusal("missing measured sections")
+-        storage={}
+-        addresses={}
+-        for line in symbols.splitlines():
+-            fields=line.split()
+-            if len(fields)>=3:
+-                addresses[fields[-1]]=int(fields[0],16)
+-            if len(fields)==4 and fields[3].startswith("image_"):
+-                storage[fields[3]]=int(fields[1],16)
+-        records=[]
+-        for path in [*libraries,elf,mapfile]:
+-            records.append({"name":path.name,"size":path.stat().st_size,
+-                            "sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
+-        report={"shape":args.config.stem,"interfaces":args.interfaces,"srp":not args.without_srp,
+-                "sections":sections,"static_storage":storage,"artifacts":records,
+-                "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack")),
+-                "ram_span":addresses["__image_end"]-addresses["__image_start"]}
+-        (out/"symbols.txt").write_text(symbols)
+-        (out/"size.txt").write_text(size)
+-        (out/"size.json").write_text(json.dumps(report,indent=2)+"\n")
+-        print(json.dumps(report,indent=2))
+-        return 0
+-    except (Refusal,OSError,ValueError) as error:
+-        print(f"REFUSED: {error}",file=sys.stderr)
+-        return 2
+-
+-
+-if __name__=="__main__":
+-    raise SystemExit(main())
+-=======
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """ctrl_image.py - the composed ctrl_app linked for RV32I, and its sizes (#665 acceptance addition 6030870481).
+@@ -565,4 +432,3 @@ def main(argv: list[str] | None = None) -> int:
+ 
+ if __name__ == "__main__":
+     sys.exit(main())
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
+diff --git a/sw/firmware/ctrl/test/ctrl_mutants.py b/sw/firmware/ctrl/test/ctrl_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/ctrl_mutants.py
+index 78b9a8c95..f3b5f271c 100644
+--- a/sw/firmware/ctrl/test/ctrl_mutants.py
++++ b/sw/firmware/ctrl/test/ctrl_mutants.py
+@@ -528,13 +528,6 @@ def lwsrp_pin_arms(root: Path, lwsrp: Path) -> int:
+     return escaped
+ 
+ 
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+-def campaign(root: Path, reuse: Path, jobs: int = 4) -> bool:
+-    """Plant every mutant; True when one escaped. One build serves every
+-    copy, so a test object is compiled again only where a planted header
+-    changes what it sees. A stable isolated path preserves compiler cache keys;
+-    every plant first restores pristine source bytes."""
+-=======
+ def sliced(part: tuple[int, int]) -> tuple[Mutant, ...]:
+     """Slice k of n of the table, contiguous and in table order: every mutant
+     is in exactly one slice, so n runs together plant the whole table."""
+@@ -543,12 +536,12 @@ def sliced(part: tuple[int, int]) -> tuple[Mutant, ...]:
+     return MUTANTS[(k - 1) * size:k * size]
+ 
+ 
+-def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1)) -> bool:
++def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
++             shard: list[int] | None = None) -> bool:
+     """Plant every mutant of slice `part` (k of n; the whole table by
+     default); True when one escaped. One build serves every copy, so a test
+     object is compiled again only where a planted header changes what it
+     sees."""
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
+     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
+             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "acmp": ctrl_arms.arm_acmp,
+             "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "acmpif2": ctrl_arms.arm_acmpif2,
+@@ -561,14 +554,9 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1))
+     for test in unnamed:
+         print(f"[ESCAPED] no defect names the test {test}")
+     escaped = 0
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+-    for m in MUTANTS:
+-        tree = Tree(plant(m, root), root / "work" / "build", reuse, build)
+-=======
+-    table = sliced(part)
++    table = sliced(part) if shard is None else MUTANTS[shard[0]::shard[1]]
+     for m in table:
+-        tree = Tree(plant(m, root), root / m.name / "build", reuse, build)
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
++        tree = Tree(plant(m, root), root / "work" / "build", reuse, build)
+         missed = []
+         fails: list[str] = []
+         for arm, test, needle in m.kills():
+@@ -584,14 +572,8 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1))
+         if fails:
+             print(f"    first: {fails[0]}")
+         escaped += 0 if not missed else 1
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+     shutil.rmtree(root / "work", ignore_errors=True)
+-    print(f"mutants: {len(MUTANTS) - escaped} of {len(MUTANTS)} caught")
+-    return escaped != 0
+-=======
+-        shutil.rmtree(root / m.name, ignore_errors=True)
+     where = "" if part == (1, 1) else f" (slice {part[0]} of {part[1]} of {len(MUTANTS)})"
+     print(f"mutants: {len(table) - escaped} of {len(table)} caught{where}"
+           f"{'' if not unnamed else f'; {len(unnamed)} test(s) named by no defect'}")
+     return escaped != 0 or bool(unnamed)
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
+diff --git a/sw/firmware/ctrl/test/ctrl_srp_image.py b/sw/firmware/ctrl/test/ctrl_srp_image.py
+new file mode 100644
+index 000000000..580ee004d
+--- /dev/null
++++ b/sw/firmware/ctrl/test/ctrl_srp_image.py
+@@ -0,0 +1,132 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Link a reachable ctrl_app composition and report separate RAM sections.
++
++Runtime archives must be bare-metal ILP32 libraries, never the SDK's glibc.
++Their sizes and hashes are recorded alongside the section and symbol reports.
++The firmware objects are rebuilt with the shared CI-pinned RV32 compiler.
++The ELF is a size fixture; it has no board reset entry or fabric licence port.
++"""
++from __future__ import annotations
++import argparse
++import hashlib
++import json
++import re
++import struct
++import sys
++from pathlib import Path
++from ctrl_build import CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, Tree, Refusal, run
++from srp_arms import prepared, LWSRP_SOURCES
++from ctrl_arms import lwsrp_pin
++import fw_gtest
++import fw_rv32
++
++
++def checked(argv: list[str]) -> str:
++    """Every compiler and binary inspection must succeed."""
++    result=run(argv)
++    if result.returncode:
++        raise Refusal(result.stdout+result.stderr)
++    return result.stdout
++
++
++def main() -> int:
++    """Measure one selected shape and composition."""
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--config",type=Path,required=True)
++    parser.add_argument("--output",type=Path,required=True)
++    parser.add_argument("--ctrl-source",type=Path,default=CTRL)
++    parser.add_argument("--without-srp",action="store_true")
++    parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
++    parser.add_argument("--libc",type=Path,required=True)
++    parser.add_argument("--compiler-runtime",type=Path,required=True)
++    args=parser.parse_args()
++    out=args.output.resolve(); out.mkdir(parents=True,exist_ok=True)
++    try:
++        cc=fw_rv32.compiler()
++        if cc is None:
++            raise Refusal("the pinned RV32 compiler is required")
++        tree=Tree(args.ctrl_source.resolve(),out,out/"reuse",fw_gtest.Build(jobs=4))
++        variant,inc=prepared(tree,args.interfaces,out,args.config.resolve())
++        checked([sys.executable,"-B",str(CTRL/"adp/adp_entity.py"),str(args.config),
++                 "-o",str(out/"adp_entity_gen.h")])
++        flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
++        inc += [f"-I{out}",f"-I{NVM_DIR}",*fw_rv32.includes(cc)]
++        sources=[(variant if name.startswith("mbx/") else tree.src)/name for name in PORTABLE]
++        sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/"ctrl_image.c"]
++        libraries=[args.libc.resolve(),args.compiler_runtime.resolve()]
++        if not args.without_srp:
++            lw=ROOT/"third_party/lwSRP"; lwsrp_pin(lw)
++            inc += [f"-I{tree.src/'srp'}",f"-I{lw/'src/include'}",f"-I{lw/'src'}"]
++            flags += ["-DCTRL_IMAGE_SRP","-DLWSRP_MILAN=1"]
++            sources += [tree.src/"app/ctrl_app_srp.c",tree.src/"srp/srp_mbx.c",
++                        *[lw/"src"/name for name in LWSRP_SOURCES]]
++        objects=[]
++        for index,src in enumerate(sources):
++            obj=out/f"{index}-{src.stem}.o"
++            checked([cc,*flags,*inc,"-c",str(src),"-o",str(obj)])
++            objects.append(obj)
++        findings=fw_rv32.object_findings(cc,objects)
++        if findings:
++            raise Refusal(str(findings))
++        elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
++        ldflags=["-Wl,-u,ctrl_image_bind"] if not args.without_srp else []
++        checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
++                 "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
++                 "-T",str(HERE/"ctrl_image.ld"),*ldflags,*map(str,objects),
++                 "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
++        nm=cc.removesuffix("gcc")+"nm"
++        data=elf.read_bytes()
++        attributes=checked([cc.removesuffix("gcc")+"readelf","-A",str(elf)])
++        arches=re.findall(r'Tag_RISCV_arch: "([^"]+)"',attributes)
++        if (data[:7] != b"\x7fELF\x01\x01\x01" or
++                struct.unpack_from("<HH",data,16) != (2,243) or
++                struct.unpack_from("<I",data,36)[0] != 0 or
++                len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+",arches[0])):
++            raise Refusal("linked image must be RV32I ILP32, including runtime code")
++        symbols=checked([nm,"-S",str(elf)])
++        if checked([nm,"-u",str(elf)]).strip():
++            raise Refusal("linked runtime has unresolved symbols")
++        forbidden={"malloc","calloc","realloc","free","sbrk","_sbrk"}
++        names={line.split()[-1] for line in symbols.splitlines() if line.split()}
++        if names & forbidden:
++            raise Refusal("heap dependency in composed image")
++        required={"ctrl_app_start","ctrl_loop_run","image_app","image_arena"}
++        if not args.without_srp:
++            required |= {"ctrl_app_start_maap","ctrl_app_attach_srp","maap_rx","maap_poll",
++                         "acmp_rx","acmp_poll","image_acmp","srp_mbx_init","srp_mbx_attach","srp_mbx_bind","mrp_rx",
++                         "mrp_transmit","image_srp","image_sources"}
++        if required-names:
++            raise Refusal(f"composition discarded required code/storage: {sorted(required-names)}")
++        size=checked([cc.removesuffix("gcc")+"size","-A",str(elf)])
++        sections={name:int(count) for name,count in re.findall(r"^(\.\S+)\s+(\d+)\s+",size,re.M)}
++        if any(name not in sections for name in (".text",".rodata",".bss",".stack")):
++            raise Refusal("missing measured sections")
++        storage={}
++        addresses={}
++        for line in symbols.splitlines():
++            fields=line.split()
++            if len(fields)>=3:
++                addresses[fields[-1]]=int(fields[0],16)
++            if len(fields)==4 and fields[3].startswith("image_"):
++                storage[fields[3]]=int(fields[1],16)
++        records=[]
++        for path in [*libraries,elf,mapfile]:
++            records.append({"name":path.name,"size":path.stat().st_size,
++                            "sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
++        report={"shape":args.config.stem,"interfaces":args.interfaces,"srp":not args.without_srp,
++                "sections":sections,"static_storage":storage,"artifacts":records,
++                "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack")),
++                "ram_span":addresses["__image_end"]-addresses["__image_start"]}
++        (out/"symbols.txt").write_text(symbols)
++        (out/"size.txt").write_text(size)
++        (out/"size.json").write_text(json.dumps(report,indent=2)+"\n")
++        print(json.dumps(report,indent=2))
++        return 0
++    except (Refusal,OSError,ValueError) as error:
++        print(f"REFUSED: {error}",file=sys.stderr)
++        return 2
++
++
++if __name__=="__main__":
++    raise SystemExit(main())
+diff --git a/sw/firmware/ctrl/test/srp_app.cpp b/sw/firmware/ctrl/test/srp_app.cpp
+index 94e6936d2..0814ed524 100644
+--- a/sw/firmware/ctrl/test/srp_app.cpp
++++ b/sw/firmware/ctrl/test/srp_app.cpp
+@@ -26,7 +26,7 @@ TEST(SrpApp, AllThreeProtocolsShareTheLoopAndWakeSources) {
+     adp_entity entity{};
+     entity.mac=0x020304050600ull; entity.entity_id=0x020304fffe050600ull;
+     entity.talker_stream_sources=CTRL_SRP_SOURCES;
+-    ctrl_app_config cfg{&entity,0,arena,sizeof(arena),srp_pool_classes,SRP_POOL_N_CLASSES,nullptr,nullptr};
++    ctrl_app_config cfg{&entity,0,arena,sizeof(arena),srp_pool_classes,SRP_POOL_N_CLASSES,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,0};
+     unsigned allocations=0;
+     auto allocation=[](void *ctx,unsigned,uint64_t,uint16_t,bool valid) {
+         if(valid) ++*static_cast<unsigned*>(ctx);
+diff --git a/sw/firmware/ctrl/test/srp_arms.py b/sw/firmware/ctrl/test/srp_arms.py
+index 747f072e1..34b137408 100644
+--- a/sw/firmware/ctrl/test/srp_arms.py
++++ b/sw/firmware/ctrl/test/srp_arms.py
+@@ -6,7 +6,7 @@ import shutil
+ import sys
+ from pathlib import Path
+ from ctrl_build import (CTRL, ROOT, HERE, HARNESS, C_FLAGS, HOST, INCLUDE_DIRS,
+-                        PORTABLE, RV32_FLAGS, RV32_LIBC, Outcome, Refusal, Tree, run)
++                        PORTABLE, NVM_DIR, RV32_FLAGS, RV32_LIBC, Outcome, Refusal, Tree, run)
+ import fw_gtest
+ import fw_rv32
+ from ctrl_arms import lwsrp_pin, symbols, fabric_view
+@@ -35,7 +35,7 @@ def prepared(tree: Tree, interface_count: int, out: Path, config: Path) -> tuple
+             raise Refusal(f"mailbox variant findings: {findings}")
+         shutil.copyfile(out / "contract/mbx_contract.h",include_tree / "mbx/mbx_contract.h")
+     inc = [f"-I{include_tree / d}" for d in (*INCLUDE_DIRS,"srp")]
+-    return include_tree, [*inc,f"-I{HARNESS}","-include",str(header)]
++    return include_tree, [*inc,f"-I{NVM_DIR}",f"-I{HARNESS}","-include",str(header)]
+ 
+ 
+ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
+@@ -47,6 +47,11 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
+     name = f"srp-{'debug' if debug else test.removesuffix('.cpp')}-if{interfaces}-{config.stem}"
+     out = tree.out / name
+     variant, inc = prepared(tree,interfaces,out,config)
++    if test == "test_acmp_mbx.cpp":
++        inc += ["-DCTRL_APP_TEST_SRP"]
++        from ctrl_reuse import cut_reuse
++        cut_reuse(tree.reuse)
++        inc.append(f"-I{tree.reuse}")
+     if test == "srp_shape.cpp":
+         expected = fabric_view(config)
+         inc += [f"-DSRP_EXPECT_SOURCES={expected['talker_stream_sources']}",
+diff --git a/sw/firmware/ctrl/test/srp_mutants.py b/sw/firmware/ctrl/test/srp_mutants.py
+index 5880f8587..8d3eefdf9 100644
+--- a/sw/firmware/ctrl/test/srp_mutants.py
++++ b/sw/firmware/ctrl/test/srp_mutants.py
+@@ -608,9 +608,42 @@ DEFECTS = (
+            'mbx_now_ms() >= m->pending_rx.arrival_ms + SRP_RX_RETRY_MS',
+            'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
+ 
++    Defect('four-way-srp-irq-missing',
++           'AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen',
++           'mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
++           'mbx_place(channels & ~(1u << MBX_CH_SRP),MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
++           'U6 exact four-channel receive and event interrupt mask',
++           path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
++    Defect('four-way-srp-wake-missing',
++           'AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen',
++           'mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
++           'mbx_place(channels & ~(1u << MBX_CH_SRP),MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
++           'U6 idle loop wakes for SRP alone',
++           path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
++    Defect('four-way-acmp-enable-lost',
++           'AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen',
++           'channels |= 1u << MBX_CH_ACMP;', 'channels |= 0u;',
++           'U6 four receive channels and no others', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
++    Defect('four-way-unbound-irq-enabled',
++           'AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen',
++           'mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
++           'mbx_place(channels | (1u << MBX_CH_AECP),MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
++           'U6 exact four-channel receive and event interrupt mask',
++           path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
++    Defect('four-way-bound-drops-srp',
++           'AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound',
++           '#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX -',
++           '#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + 0u -',
++           'F6 four modules count each shared event record once', path='app/ctrl_app.h', suite='test_acmp_mbx.cpp'),
++    Defect('four-way-bound-duplicates-events',
++           'AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound',
++           '#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX -',
++           '#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX +',
++           'F6 four modules count each shared event record once', path='app/ctrl_app.h', suite='test_acmp_mbx.cpp'),
++
+ )
+ 
+-def campaign(root: Path, lwsrp: Path, jobs: int = 4) -> bool:
++def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
+     """Run every mutation in a reusable isolated checkout; true means a failure."""
+     build=fw_gtest.Build(jobs=jobs)
+     failed=False
+@@ -626,7 +659,7 @@ def campaign(root: Path, lwsrp: Path, jobs: int = 4) -> bool:
+         target.write_text(source.replace(d.old,d.new))
+         selected=d.test if "." in d.test else "Srp."+d.test
+         try:
+-            result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,2,
++            result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,interfaces,
+                            debug=d.debug,test=(d.suite, selected))
+             ok=caught(selected,d.needle,result)
+             (root/(d.name+".log")).write_text(result.log)
+diff --git a/sw/firmware/ctrl/test/test_acmp_mbx.cpp b/sw/firmware/ctrl/test/test_acmp_mbx.cpp
+index 8523f1527..7ad9e0f9d 100644
+--- a/sw/firmware/ctrl/test/test_acmp_mbx.cpp
++++ b/sw/firmware/ctrl/test/test_acmp_mbx.cpp
+@@ -53,6 +53,10 @@
+ #include "mbx_model.h"
+ #include "mbx_wire.h"
+ #include "wire.h"
++#ifdef CTRL_APP_TEST_SRP
++#include "srp_fixture.hpp"
++FW_TALLY_LABEL("ctrl ADP ACMP MAAP SRP composition");
++#endif
+ 
+ using namespace acmp_test;
+ 
+@@ -62,8 +66,17 @@ const adp_entity kEntity = {kOwn, 0x99AABBCCDDEEFF01ull, kMac0, 0xC588u, 2u, 0x4
+ 
+ struct mbx_model model;
+ struct ctrl_app app;
++#ifdef CTRL_APP_TEST_SRP
++srp_mbx srp_adapter{};
++srp_source srp_sources[MBX_N_IF][CTRL_SRP_SOURCES]{};
++alignas(std::max_align_t) std::uint8_t arena[SRP_POOL_ARENA_BYTES];
++#define kClasses srp_pool_classes
++#define kClassCount SRP_POOL_N_CLASSES
++#else
+ alignas(std::max_align_t) std::uint8_t arena[1024];
+ const ctrl_pool_class kClasses[] = {{32u, 8u}};
++#define kClassCount 1u
++#endif
+ acmp_config acfg;
+ 
+ // Two sinks and two sources, each k on interface k % MBX_N_IF: at two
+@@ -90,7 +103,7 @@ constexpr unsigned slot(unsigned i) {
+ }
+ 
+ ctrl_app_config app_config() {
+-    return ctrl_app_config{&kEntity, 0, arena, sizeof arena, kClasses, 1, nullptr, nullptr, &acfg, &kEnv,
++    return ctrl_app_config{&kEntity, 0, arena, sizeof arena, kClasses, kClassCount, nullptr, nullptr, &acfg, &kEnv,
+                            nullptr, nullptr, 0};
+ }
+ 
+@@ -920,6 +933,36 @@ std::array<std::uint8_t, 60> maap_probe(std::uint16_t count) {
+     return f;
+ }
+ 
++#ifdef CTRL_APP_TEST_SRP
++void attach_srp() {
++    srp_mbx_config cfg{};
++    cfg.link_rate_bps = 1000000000u;
++    cfg.licence = [](void*, unsigned, unsigned, bool) {};
++    for (unsigned i = 0; i < MBX_N_IF; ++i) {
++        cfg.mac[i] = kEntity.mac;
++        cfg.sources[i] = srp_sources[i];
++        for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
++            auto& v = srp_sources[i][k].value;
++            wire_put_be(v.stream_id.bytes, kEntity.mac, 6);
++            wire_put_be(v.stream_id.bytes + 6, k, 2);
++            v.vlan_id = 2; v.max_frame_size = 224;
++            v.max_interval_frames = 1; v.priority_and_rank = 0x60;
++        }
++    }
++    ASSERT_TRUE(srp_mbx_init(&srp_adapter, &cfg));
++    ASSERT_TRUE(ctrl_app_attach_srp(&app, &srp_adapter));
++}
++
++std::array<std::uint8_t, 60> srp_record() {
++    // Empty MVRP PDU: protocol version zero, two-byte EndMark, Ethernet pad.
++    std::array<std::uint8_t, 60> f{};
++    wire_put_be(f.data(), 0x0180c2000021ull, 6);
++    wire_put_be(f.data() + 6, 0x060000000040ull, 6);
++    wire_put_be(f.data() + 12, 0x88f5u, 2);
++    return f;
++}
++#endif
++
+ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
+     mbx_model_reset(&model);
+     for (unsigned i = 0; i < MBX_N_IF; ++i) {
+@@ -928,6 +971,9 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
+     }
+     const ctrl_app_config cfg = three_way();
+     ASSERT_TRUE(ctrl_app_start(&app, &cfg));
++    #ifdef CTRL_APP_TEST_SRP
++    attach_srp();
++    #endif
+     settle();
+     for (unsigned k = 0; k < acfg.n_sinks; ++k) {
+         bind(k);
+@@ -950,18 +996,31 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
+         const auto f = maap_probe(static_cast<std::uint16_t>(1u + j % 8u));
+         maap_stored += mbx_model_rx(&model, f.data(), f.size(), 0) ? 1u : 0u;
+     }
++    unsigned srp_stored = 0;
++#ifdef CTRL_APP_TEST_SRP
++    for (unsigned j = 0; j < 1000u && model.ch[MBX_CH_SRP].rx_drop == 0u; ++j) {
++        const auto f = srp_record();
++        srp_stored += mbx_model_rx(&model, f.data(), f.size(), j % MBX_N_IF) ? 1u : 0u;
++    }
++    ASSERT_GT(srp_stored, 0u) << "F6 SRP backlog is present";
++#endif
+     const unsigned events = static_cast<std::uint16_t>(model.evt_head - model.evt_tail) / MBX_EV_WORDS;
+     ASSERT_TRUE(events > 0u && acmp_stored > 0u && maap_stored > 0u) << "F6 events, acmp and maap records wait";
+     std::uint64_t worst = 0;
+-    std::uint32_t rx0 = app.loop.stats.rx_records;
+     std::uint32_t events0 = app.loop.stats.events;
+     unsigned at = 0;
+-    for (unsigned q = 1; q <= 64u && at == 0u; ++q) {
++    unsigned srp_at = srp_stored == 0u ? 1u : 0u;
++    for (unsigned q = 1; q <= 64u && (at == 0u || srp_at == 0u); ++q) {
+         std::uint64_t n = pass();
+         worst = n > worst ? n : worst;
+-        at = app.loop.stats.rx_records - rx0 >= acmp_stored + maap_stored && app.loop.stats.events - events0 >= events
+-                 ? q
+-                 : 0u;
++        if (at == 0u && model.ch[MBX_CH_ACMP].rx_tail == model.ch[MBX_CH_ACMP].rx_head &&
++            model.ch[MBX_CH_MAAP].rx_tail == model.ch[MBX_CH_MAAP].rx_head &&
++            app.loop.stats.events - events0 >= events) {
++            at = q;
++        }
++        if (srp_at == 0u && model.ch[MBX_CH_SRP].rx_tail == model.ch[MBX_CH_SRP].rx_head) {
++            srp_at = q;
++        }
+     }
+     std::printf("  three-way backlog: %u event records, %u acmp and %u maap records; worst pass %u accesses\n", events,
+                 acmp_stored, maap_stored, static_cast<unsigned>(worst));
+@@ -970,10 +1029,23 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
+     // The bound is the two published passes, ADP and ACMP's (acmp_mbx.h) and
+     // MAAP's own (maap_mbx.h), with each event record's 6 accesses, which both
+     // count, taken once: the measured worst pass above cannot pin it.
+-    EXPECT_EQ(CTRL_APP_PASS_MAX,
++    EXPECT_EQ(CTRL_APP_THREE_PASS_MAX,
+               ACMP_MBX_PASS_MAX + MAAP_MBX_PASS_MAX - CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
+         << "F6 the three-way bound is both modules' passes with each event record taken once";
+-    bound("F6 the worst pass of the three-way backlog", worst, CTRL_APP_PASS_MAX);
++    #ifdef CTRL_APP_TEST_SRP
++    bound("F6 the worst pass of the four-way backlog", worst, CTRL_APP_PASS_MAX);
++#else
++    bound("F6 the worst pass of the three-way backlog", worst, CTRL_APP_THREE_PASS_MAX);
++#endif
++#ifdef CTRL_APP_TEST_SRP
++    EXPECT_EQ(CTRL_APP_PASS_MAX, ACMP_MBX_PASS_MAX + MAAP_MBX_PASS_MAX + SRP_MBX_PASS_MAX -
++              2u * CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
++        << "F6 four modules count each shared event record once";
++    EXPECT_TRUE(srp_at > 0u && srp_at <= CTRL_LOOP_EVT_PASSES + CTRL_LOOP_RX_PASSES(MBX_CH_SRP_RX_WORDS))
++        << "F6 SRP backlog drains after the event prefix";
++    EXPECT_EQ(model.ch[MBX_CH_SRP].rx_tail, model.ch[MBX_CH_SRP].rx_head) << "F6 SRP backlog drains";
++    srp_mbx_destroy(&srp_adapter);
++#endif
+     settle();
+ }
+ 
+@@ -1005,6 +1077,32 @@ TEST_F(AcmpMailbox, U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract) {
+     EXPECT_FALSE(ctrl_app_compose(&app, &cfg)) << "U5 an ACMP configuration the module refuses fails the composition";
+ }
+ 
++#ifdef CTRL_APP_TEST_SRP
++void wake_on_srp() {
++    // Quiesce, then inject from the sleeping HAL. Only an enabled interrupt
++    // permits the next loop step, so polling cannot hide a missing SRP bit.
++    settle();
++    struct Wake { unsigned waits = 0; bool irq = false; } wake;
++    mbx_model_bind(&model, [](void* ctx) {
++        auto& w = *static_cast<Wake*>(ctx);
++        ++w.waits;
++        EXPECT_FALSE(mbx_model_irq(&model)) << "U6 idle before SRP arrival";
++        const auto f = srp_record();
++        EXPECT_TRUE(mbx_model_rx(&model, f.data(), f.size(), MBX_N_IF - 1u));
++        w.irq = mbx_model_irq(&model);
++    }, &wake);
++    const unsigned received = srp_adapter.received;
++    ctrl_loop_step(&app.loop);
++    EXPECT_EQ(wake.waits, 1u) << "U6 loop really slept";
++    EXPECT_TRUE(wake.irq) << "U6 idle loop wakes for SRP alone";
++    if (wake.irq) {
++        ctrl_loop_step(&app.loop);
++    }
++    EXPECT_EQ(srp_adapter.received, received + 1u) << "U6 waking consumes the SRP record";
++    mbx_model_bind(&model, nullptr, nullptr);
++}
++#endif
++
+ TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen) {
+     mbx_model_reset(&model);
+     for (unsigned i = 0; i < MBX_N_IF; ++i) {
+@@ -1044,6 +1142,17 @@ TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelO
+     for (unsigned i = 0; i < MBX_N_IF; ++i) {
+         EXPECT_EQ(app.maap.ifs[i].core.state, MAAP_PROBE) << on_if(i, "U6 MAAP probes from the open");
+     }
++#ifdef CTRL_APP_TEST_SRP
++    attach_srp();
++    const std::uint32_t four_channels = channels | (1u << MBX_CH_SRP);
++    EXPECT_EQ(model.filter_en, four_channels) << "U6 four receive channels and no others";
++    EXPECT_EQ(model.irq_enable, mbx_place(four_channels, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH) |
++              mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH))
++        << "U6 exact four-channel receive and event interrupt mask";
++    EXPECT_TRUE(app.loop.n_sinks == 4u && app.loop.sinks[3].ctx == &srp_adapter &&
++                app.loop.n_polls == 4u && app.loop.polls[3].ctx == &srp_adapter && app.loop.n_ticks == 1u)
++        << "U6 SRP attaches after ADP ACMP MAAP and uses the shared tick";
++#endif
+     // Four seconds: MAAP's probes and its acquisition, ADP's advertisements and
+     // the restored sink's TMR_NO_ADP, each on its own slots.
+     for (unsigned ms = 0; ms < 4000u; ms += 10u) {
+@@ -1082,6 +1191,10 @@ TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelO
+     }
+     EXPECT_TRUE(published.valid && published.base == kMaapBase && published.count == kEntity.talker_stream_sources)
+         << "U6 the acquired range reaches the stream-address port";
++#ifdef CTRL_APP_TEST_SRP
++    wake_on_srp();
++    srp_mbx_destroy(&srp_adapter);
++#endif
+ }
+ 
+ TEST_F(AcmpMailbox, U7TheThreeWayCompositionRefusesWithNothingOpened) {
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+index ea0321291..994e911c9 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -1,11 +1,7 @@
+ #!/usr/bin/env python3
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+-"""Gate: the control-plane firmware of #665 lanes F0, F2 and F4, built and run on the host.
+-=======
+-"""Gate: the control-plane firmware of #665 (lanes F0 and F3), built and run on the host.
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
++"""Gate: the control-plane firmware of #665 lanes F0 to F4, built and run on the host.
+ 
+ WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
+ compiled for the host exactly as the target compiles it, against the mailbox
+@@ -76,15 +72,10 @@ Every arm but rv32 and entity's header generation is a GoogleTest binary
+ 
+ --self-test then plants each defect of ctrl_mutants.py into a COPY of the
+ firmware tree and requires the named GoogleTest test of the named arm to
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+ fail on the check's own words; srp_mutants.py does the same for SRP.
+-The pin must refuse an edited and a moved clone.
+-=======
+-fail on the check's own words; with --lwsrp it also requires the pin to
+-refuse an edited and a moved clone. --slice K/N plants only slice K of N of
+-the table (contiguous, in table order), so N runs, each its own command,
+-plant every defect once.
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
++The pin must refuse an edited and a moved clone. --slice K/N plants a contiguous
++slice of the complete control table; --mutation-shard INDEX COUNT uses interleaved
++partitions instead. Each mode covers the entire table across its partitions.
+ 
+ --coverage DIR builds the firmware with gcov's instrumentation into DIR and
+ runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
+@@ -133,7 +124,8 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
+         if lwsrp is not None:
+             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
+         for i in (1, 2):
+-            for suite in ("srp_mbx.cpp", "srp_rx_retry.cpp", "srp_app.cpp", "srp_latency.cpp", "srp_walk.cpp"):
++            for suite in ("srp_mbx.cpp", "srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
++                          "srp_latency.cpp", "srp_walk.cpp"):
+                 outcomes.append(srp_arms.arm_srp(tree, lwsrp.resolve(), i, test=suite))
+     except Refusal as exc:
+         print(f"REFUSED: {exc}")
+@@ -162,19 +154,17 @@ def main(argv: list[str] | None = None) -> int:
+                     help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
+     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
+     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+     ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
+-=======
+     ap.add_argument("--slice", type=part, default=(1, 1), metavar="K/N",
+-                    help="with --self-test: plant slice K of N of the defect table (contiguous, in table order)")
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
++                    help="with --self-test: plant slice K of N of the defect table")
+     args = ap.parse_args(argv)
+     args.jobs = min(4, max(1, args.jobs))
+     if args.mutation_shard is not None:
+         index, count = args.mutation_shard
+         if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
+             ap.error("mutation shard requires --self-test and 0 <= INDEX < COUNT <= mutant count")
+-        ctrl_mutants.MUTANTS = ctrl_mutants.MUTANTS[index::count]
++        if args.slice != (1, 1):
++            ap.error("choose either --slice or --mutation-shard")
+     if args.coverage is not None:
+         return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
+     print(f"toolchain: {fw_gtest.toolchain()}")
+@@ -194,7 +184,8 @@ def main(argv: list[str] | None = None) -> int:
+                 for i in (1, 2):
+                     outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
+                     outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
+-                    for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "srp_latency.cpp", "srp_walk.cpp"):
++                    for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
++                          "srp_latency.cpp", "srp_walk.cpp"):
+                         outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+                 outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+         except Refusal as exc:
+@@ -202,9 +193,15 @@ def main(argv: list[str] | None = None) -> int:
+             return 2
+         failed = ctrl_arms.report(outcomes)
+         if args.self_test and not failed:
+-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice)
++            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice, args.mutation_shard)
+             if args.lwsrp is not None:
+                 failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
++                complete_srp_table = srp_mutants.DEFECTS
++                try:
++                    srp_mutants.DEFECTS = tuple(d for d in complete_srp_table if d.name.startswith("four-way-"))
++                    failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
++                finally:
++                    srp_mutants.DEFECTS = complete_srp_table
+                 try:
+                     failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
+                 except Refusal as exc:
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+remerge CONFLICT (content): Merge conflict in sw/firmware/gtest/coverage.ratchet
+index fcb22e773..b4a0c2c99 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -7,22 +7,13 @@ sw/firmware/ctrl/acmp/acmp_mbx.c  lines 73/73  branches 26/26
+ sw/firmware/ctrl/acmp/acmp_nvm.c  lines 38/38  branches 10/10
+ sw/firmware/ctrl/adp/adp.c  lines 204/204  branches 95/95
+ sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38
+-<<<<<<< f74b9403b (Bound SRP receive allocation retries by original arrival)
+-sw/firmware/ctrl/app/ctrl_app.c  lines 31/31  branches 20/20
+-sw/firmware/ctrl/app/ctrl_app_srp.c  lines 10/10  branches 6/6
+-sw/firmware/ctrl/loop/ctrl_loop.c  lines 101/101  branches 62/62
+-sw/firmware/ctrl/maap/maap.c  lines 209/209  branches 140/140
+-sw/firmware/ctrl/maap/maap_csr.c  lines 39/39  branches 18/18
+-sw/firmware/ctrl/maap/maap_mbx.c  lines 98/98  branches 60/60
+-sw/firmware/ctrl/mbx/mbx.c  lines 177/177  branches 68/68
+-=======
+ sw/firmware/ctrl/app/ctrl_app.c  lines 42/42  branches 40/40
+-sw/firmware/ctrl/loop/ctrl_loop.c  lines 95/95  branches 56/56
++sw/firmware/ctrl/app/ctrl_app_srp.c  lines 12/12  branches 8/8
++sw/firmware/ctrl/loop/ctrl_loop.c  lines 101/101  branches 62/62
+ sw/firmware/ctrl/maap/maap.c  lines 209/209  branches 140/140
+ sw/firmware/ctrl/maap/maap_csr.c  lines 39/39  branches 18/18
+ sw/firmware/ctrl/maap/maap_mbx.c  lines 98/98  branches 60/60
+-sw/firmware/ctrl/mbx/mbx.c  lines 185/185  branches 68/68
+->>>>>>> d8b355fe0 (Merge PR #688: Mark II F3: bare-metal ACMP core on the mailbox)
++sw/firmware/ctrl/mbx/mbx.c  lines 189/189  branches 74/74
+ sw/firmware/ctrl/mbx/mbx_wire.h  lines 15/15  branches 12/12
+ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 10/10  branches 0/0
+ sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6

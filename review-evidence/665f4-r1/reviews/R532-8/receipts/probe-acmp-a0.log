@@ -1,0 +1,8 @@
+control gcc: rc=0 A0-sources-check-failed=False verdict: PASS (84 tests, 0 failures, exit 0)
+control gcc+asan: rc=0 A0-sources-check-failed=False verdict: PASS (84 tests, 0 failures, exit 0)
+control clang: rc=0 A0-sources-check-failed=False verdict: PASS (84 tests, 0 failures, exit 0)
+planted gcc: rc=1 A0-sources-check-failed=True verdict: FAIL (its tallies report 1 failure(s) across 84 checks, exit 1)
+planted gcc+asan: rc=1 A0-sources-check-failed=False verdict: FAIL (NOCOUNT: no tally, or a tally of nothing (the run did not finish), exit 1)
+    ==689612==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7bc37a7f2688 at pc 0x000000412081 bp 0x7ffe30a45f40 sp 0x7ffe30a45f30
+    SUMMARY: AddressSanitizer: stack-buffer-overflow ($PACKET/scratch/probe-a0/planted/build-gcc+asan/test_acmp+0x412080) (BuildId: 821b483120f491cc0e981955327794a8cffdce96
+planted clang: rc=1 A0-sources-check-failed=True verdict: FAIL (its tallies report 1 failure(s) across 84 checks, exit 1)

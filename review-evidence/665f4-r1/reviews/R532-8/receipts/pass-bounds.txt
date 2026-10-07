@@ -1,0 +1,8 @@
+== IF variant 1 ($CLONE/sw/firmware/ctrl/mbx)
+MBX_N_IF=1 ACMP_MBX_PASS_MAX=1012 MAAP_MBX_PASS_MAX=616 SRP_MBX_PASS_MAX=1596
+shared_event_reads=48 THREE=1580 PASS_MAX=3128 independent=3128
+SRP terms: EVENT=1 RX=2 RX_RECORD=383 TX=383 POLL=770 frame=1514 EVT_PASSES=2
+== IF variant 2 ($PACKET/scratch/ctrl/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/variant/mbx)
+MBX_N_IF=2 ACMP_MBX_PASS_MAX=1043 MAAP_MBX_PASS_MAX=664 SRP_MBX_PASS_MAX=2366
+shared_event_reads=48 THREE=1659 PASS_MAX=3977 independent=3977
+SRP terms: EVENT=1 RX=2 RX_RECORD=383 TX=383 POLL=1540 frame=1514 EVT_PASSES=2

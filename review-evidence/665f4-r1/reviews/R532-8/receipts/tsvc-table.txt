@@ -1,0 +1,9 @@
+ok  IF=1 an event behind 15 others: 9384 accesses (9384 published), 1.06 us (1.06 published), 9.384 ms at 1 us, fits 10 ms: True, fits 20 ms: True
+ok  IF=2 an event behind 15 others: 11931 accesses (11931 published), 0.83 us (0.83 published), 11.931 ms at 1 us, fits 10 ms: False, fits 20 ms: True
+ok  IF=1 an ACMP command behind a full acmp ring: 34408 accesses (34408 published), 0.29 us (0.29 published), 34.408 ms at 1 us, fits 10 ms: False, fits 20 ms: False
+ok  IF=2 an ACMP command behind a full acmp ring: 43747 accesses (43747 published), 0.22 us (0.22 published), 43.747 ms at 1 us, fits 10 ms: False, fits 20 ms: False
+ok  IF=1 an ENTITY_AVAILABLE behind a full adp ring: 68816 accesses (68816 published), 0.14 us (0.14 published), 68.816 ms at 1 us, fits 10 ms: False, fits 20 ms: False
+ok  IF=2 an ENTITY_AVAILABLE behind a full adp ring: 87494 accesses (87494 published), 0.11 us (0.11 published), 87.494 ms at 1 us, fits 10 ms: False, fits 20 ms: False
+ok  IF=1 a response with 7 frames owed ahead of it: 28152 accesses (28152 published), 0.35 us (0.35 published), 28.152 ms at 1 us, fits 10 ms: False, fits 20 ms: False
+ok  IF=2 a response with 7 frames owed ahead of it: 35793 accesses (35793 published), 0.27 us (0.27 published), 35.793 ms at 1 us, fits 10 ms: False, fits 20 ms: False
+open items: ACMP 0.29/0.22, ADP 0.14/0.11 match rows 2 and 3
