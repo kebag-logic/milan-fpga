@@ -1,0 +1,69 @@
+[
+  {
+    "name": "refusals",
+    "command": [
+      "<dependency-python>",
+      "sw/builder/test_soc_options.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "byte-count-underflow",
+    "command": [
+      "<dependency-python>",
+      "<packet>/scripts/byte_count_underflow.py",
+      "<source-root>"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "independent-options",
+    "command": [
+      "<dependency-python>",
+      "<packet>/scripts/independent_options.py",
+      "<source-root>"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "builder-registration",
+    "command": [
+      "<dependency-python>",
+      "-c",
+      "import sys;sys.path.insert(0,'sw/builder');import test_builder as t;assert t._litex_python();t.test_soc_option_refusals()"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "python-idiom",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "solution-docs",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  }
+]

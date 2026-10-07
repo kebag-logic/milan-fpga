@@ -1,0 +1,204 @@
+{
+  "cli": [
+    {
+      "token": "1e-400",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "-1e-400",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "1e-1000000",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "-1e-1000000",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "0.5",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "-1",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "nan",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "sNaN",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "Infinity",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "-Infinity",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "1.00000000000000000000000000001",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "invalid",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: argument --l2-bytes: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": "1e999999999999999999999",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: argument --l2-bytes: --l2-bytes must be a finite, non-negative whole number of bytes"
+    },
+    {
+      "token": null,
+      "kind": "setup"
+    },
+    {
+      "token": "0",
+      "kind": "setup"
+    },
+    {
+      "token": "-0",
+      "kind": "setup"
+    },
+    {
+      "token": "+0",
+      "kind": "setup"
+    },
+    {
+      "token": "0.0",
+      "kind": "setup"
+    },
+    {
+      "token": "-0.0",
+      "kind": "setup"
+    },
+    {
+      "token": "0e-400",
+      "kind": "setup"
+    },
+    {
+      "token": "-0e-1000000",
+      "kind": "setup"
+    },
+    {
+      "token": "8192",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+    },
+    {
+      "token": "8192.0",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+    },
+    {
+      "token": "8.192e3",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+    },
+    {
+      "token": "1e1000000",
+      "kind": "exit",
+      "rc": 2,
+      "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+    }
+  ],
+  "constructors": [
+    {
+      "cpu": "NaxRiscv",
+      "l2_bytes": null,
+      "reason": "unsupported CPU 'NaxRiscv'; expected vexiiriscv or naxriscv"
+    },
+    {
+      "cpu": "NaxRiscv",
+      "l2_bytes": 0,
+      "reason": "unsupported CPU 'NaxRiscv'; expected vexiiriscv or naxriscv"
+    },
+    {
+      "cpu": "unknown",
+      "l2_bytes": null,
+      "reason": "unsupported CPU 'unknown'; expected vexiiriscv or naxriscv"
+    },
+    {
+      "cpu": "unknown",
+      "l2_bytes": 0,
+      "reason": "unsupported CPU 'unknown'; expected vexiiriscv or naxriscv"
+    },
+    {
+      "cpu": "",
+      "l2_bytes": null,
+      "reason": "unsupported CPU ''; expected vexiiriscv or naxriscv"
+    },
+    {
+      "cpu": "",
+      "l2_bytes": 0,
+      "reason": "unsupported CPU ''; expected vexiiriscv or naxriscv"
+    },
+    {
+      "cpu": null,
+      "l2_bytes": null,
+      "reason": "unsupported CPU None; expected vexiiriscv or naxriscv"
+    },
+    {
+      "cpu": null,
+      "l2_bytes": 0,
+      "reason": "unsupported CPU None; expected vexiiriscv or naxriscv"
+    }
+  ],
+  "controls": [
+    {
+      "mutation": "restore float parser",
+      "token": "1e-400",
+      "observation": {
+        "kind": "setup"
+      },
+      "control": "killed by expected refusal"
+    },
+    {
+      "mutation": "restore float parser",
+      "token": "-1e-400",
+      "observation": {
+        "kind": "setup"
+      },
+      "control": "killed by expected refusal"
+    },
+    {
+      "mutation": "remove unknown CPU guard",
+      "observation": "setup",
+      "control": "killed by expected refusal"
+    }
+  ]
+}
+PASS: exact CLI tokens, genuine zeros, setup boundaries and three independent controls

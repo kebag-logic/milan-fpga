@@ -1,0 +1,65 @@
+{
+  "read_after": "receipts/independent-verdict.md written; independent full diff and five-lens pass complete",
+  "formal_reviews": 0,
+  "inline_comments": 0,
+  "dispositions": [
+    {
+      "id": "R551-1-F1",
+      "severity": "MINOR",
+      "lenses": [
+        "Conformance",
+        "Robustness",
+        "Tests",
+        "Docs"
+      ],
+      "comment": 6046673982,
+      "status": "RESOLVED",
+      "evidence": [
+        "receipts/byte-count-underflow.log",
+        "receipts/refusals.log",
+        "receipts/independent-options.log",
+        "receipts/ax-equivalence.json"
+      ]
+    },
+    {
+      "id": "R550-1-RESIDUE",
+      "severity": "RESIDUE",
+      "lenses": [
+        "Docs"
+      ],
+      "comment": 6046704603,
+      "status": "RESOLVED",
+      "evidence": [
+        "docs/integration/BUILDING.md:133",
+        "receipts/docs-check.log"
+      ]
+    },
+    {
+      "id": "R550-1-S1",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Docs",
+        "Tests"
+      ],
+      "comment": 6046704603,
+      "status": "RESOLVED",
+      "evidence": [
+        "docs/integration/BUILDING.md:158-163"
+      ]
+    },
+    {
+      "id": "R550-1-S2",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Robustness"
+      ],
+      "comment": 6046704603,
+      "status": "RESOLVED",
+      "evidence": [
+        "sw/litex/milan_soc.py:2584",
+        "receipts/refusals.log",
+        "receipts/independent-options.log"
+      ]
+    }
+  ]
+}
