@@ -1,0 +1,260 @@
+[
+  {
+    "label": "builder",
+    "pid": 2911618,
+    "command": [
+      "$PYTHON",
+      "-u",
+      "sw/builder/test_builder.py"
+    ],
+    "cwd": "$SCRATCH/builder-final",
+    "started_utc": "2026-10-07T16:50:57Z",
+    "rc": 0,
+    "seconds": 1220.57,
+    "peak_memory_bytes": 7977336832,
+    "min_free_bytes": 180800200704,
+    "interrupted": null
+  },
+  {
+    "label": "datapath-physical",
+    "pid": 2911623,
+    "command": [
+      "./obj_aclk/Vmilan_dp_aclk"
+    ],
+    "cwd": "$SCRATCH/gates/tb/verilator/milan_dp",
+    "started_utc": "2026-10-07T16:50:57Z",
+    "rc": 0,
+    "seconds": 586.24,
+    "peak_memory_bytes": 6251528192,
+    "min_free_bytes": 180805443584,
+    "interrupted": null
+  },
+  {
+    "label": "dev-AltSpreadLogic_high",
+    "pid": 2985348,
+    "command": [
+      "$PYTHON",
+      "$SCRATCH/round1b/implementation.py",
+      "dev",
+      "AltSpreadLogic_high"
+    ],
+    "cwd": "$SCRATCH/dev-timing/AltSpreadLogic_high",
+    "started_utc": "2026-10-07T17:21:37Z",
+    "rc": 0,
+    "seconds": 1593.8,
+    "peak_memory_bytes": 9125928960,
+    "min_free_bytes": 184624254976,
+    "interrupted": null
+  },
+  {
+    "label": "dev-ExtraPostPlacementOpt",
+    "pid": 2985347,
+    "command": [
+      "$PYTHON",
+      "$SCRATCH/round1b/implementation.py",
+      "dev",
+      "ExtraPostPlacementOpt"
+    ],
+    "cwd": "$SCRATCH/dev-timing/ExtraPostPlacementOpt",
+    "started_utc": "2026-10-07T17:21:37Z",
+    "rc": 0,
+    "seconds": 854.45,
+    "peak_memory_bytes": 9124618240,
+    "min_free_bytes": 184624254976,
+    "interrupted": null
+  },
+  {
+    "label": "dev-ExtraTimingOpt",
+    "pid": 3211023,
+    "command": [
+      "$PYTHON",
+      "$SCRATCH/round1b/implementation.py",
+      "dev",
+      "ExtraTimingOpt"
+    ],
+    "cwd": "$SCRATCH/dev-timing/ExtraTimingOpt",
+    "started_utc": "2026-10-07T17:48:28Z",
+    "rc": 0,
+    "seconds": 1920.74,
+    "peak_memory_bytes": 4992774144,
+    "min_free_bytes": 190801960960,
+    "interrupted": null
+  },
+  {
+    "label": "dev-pair",
+    "pid": 2985339,
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "python3",
+      "$SCRATCH/round1b/implementation_group.py",
+      "dev",
+      "ExtraPostPlacementOpt",
+      "AltSpreadLogic_high"
+    ],
+    "cwd": "$SCRATCH/round1b",
+    "started_utc": "2026-10-07T17:21:37Z",
+    "rc": 0,
+    "seconds": 1594.85,
+    "peak_memory_bytes": 9127632896,
+    "min_free_bytes": 184624824320,
+    "interrupted": null
+  },
+  {
+    "label": "dev-synthesis",
+    "pid": 2908905,
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "$SYNTH",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "synthesis-round1b.log",
+      "-source",
+      "synth.tcl"
+    ],
+    "cwd": "$SCRATCH/dev-build/gateware",
+    "started_utc": "2026-10-07T16:50:17Z",
+    "rc": 0,
+    "seconds": 1834.81,
+    "peak_memory_bytes": 9600475136,
+    "min_free_bytes": 180799868928,
+    "interrupted": null
+  },
+  {
+    "label": "dev-third",
+    "pid": 3211017,
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "python3",
+      "$SCRATCH/round1b/implementation_group.py",
+      "dev",
+      "ExtraTimingOpt"
+    ],
+    "cwd": "$SCRATCH/round1b",
+    "started_utc": "2026-10-07T17:48:27Z",
+    "rc": 0,
+    "seconds": 1921.8,
+    "peak_memory_bytes": 4992159744,
+    "min_free_bytes": 190803390464,
+    "interrupted": null
+  },
+  {
+    "label": "ring-AltSpreadLogic_high",
+    "pid": 3563259,
+    "command": [
+      "$PYTHON",
+      "$SCRATCH/round1b/implementation.py",
+      "ring",
+      "AltSpreadLogic_high"
+    ],
+    "cwd": "$SCRATCH/ring-timing/AltSpreadLogic_high",
+    "started_utc": "2026-10-07T18:51:03Z",
+    "rc": 0,
+    "seconds": 1428.62,
+    "peak_memory_bytes": 10261975040,
+    "min_free_bytes": 188466806784,
+    "interrupted": null
+  },
+  {
+    "label": "ring-ExtraPostPlacementOpt",
+    "pid": 3563258,
+    "command": [
+      "$PYTHON",
+      "$SCRATCH/round1b/implementation.py",
+      "ring",
+      "ExtraPostPlacementOpt"
+    ],
+    "cwd": "$SCRATCH/ring-timing/ExtraPostPlacementOpt",
+    "started_utc": "2026-10-07T18:51:03Z",
+    "rc": 0,
+    "seconds": 967.47,
+    "peak_memory_bytes": 10260926464,
+    "min_free_bytes": 188470353920,
+    "interrupted": null
+  },
+  {
+    "label": "ring-ExtraTimingOpt",
+    "pid": 3761403,
+    "command": [
+      "$PYTHON",
+      "$SCRATCH/round1b/implementation.py",
+      "ring",
+      "ExtraTimingOpt"
+    ],
+    "cwd": "$SCRATCH/ring-timing/ExtraTimingOpt",
+    "started_utc": "2026-10-07T19:16:25Z",
+    "rc": 1,
+    "seconds": 1675.62,
+    "peak_memory_bytes": 6111432704,
+    "min_free_bytes": 188288032768,
+    "interrupted": null
+  },
+  {
+    "label": "ring-pair",
+    "pid": 3563252,
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "python3",
+      "$SCRATCH/round1b/implementation_group.py",
+      "ring",
+      "ExtraPostPlacementOpt",
+      "AltSpreadLogic_high"
+    ],
+    "cwd": "$SCRATCH/round1b",
+    "started_utc": "2026-10-07T18:51:03Z",
+    "rc": 0,
+    "seconds": 1429.7,
+    "peak_memory_bytes": 10261323776,
+    "min_free_bytes": 188466806784,
+    "interrupted": null
+  },
+  {
+    "label": "ring-synthesis",
+    "pid": 3395192,
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "$SYNTH",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "synthesis-round1b.log",
+      "-source",
+      "synth.tcl"
+    ],
+    "cwd": "$SCRATCH/ring-build/gateware",
+    "started_utc": "2026-10-07T18:20:59Z",
+    "rc": 0,
+    "seconds": 1776.64,
+    "peak_memory_bytes": 10716278784,
+    "min_free_bytes": 188939182080,
+    "interrupted": null
+  },
+  {
+    "label": "ring-third",
+    "pid": 3761397,
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "python3",
+      "$SCRATCH/round1b/implementation_group.py",
+      "ring",
+      "ExtraTimingOpt"
+    ],
+    "cwd": "$SCRATCH/round1b",
+    "started_utc": "2026-10-07T19:16:25Z",
+    "rc": 1,
+    "seconds": 1675.75,
+    "peak_memory_bytes": 6112681984,
+    "min_free_bytes": 188288032768,
+    "interrupted": null
+  }
+]
