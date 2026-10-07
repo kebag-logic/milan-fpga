@@ -1,0 +1,210 @@
+[
+  {
+    "name": "run.py",
+    "original": {
+      "size": 1185,
+      "sha256": "9cb8794562b0d71737be81d47d8d3ac3291089d0727b622361a5ce33fd6426c0"
+    },
+    "normalized_source": "import hashlib,json,os,subprocess,sys,time\nfrom pathlib import Path\nroot=Path(__file__).resolve().parent\nlabel=sys.argv[1]\ncommand=sys.argv[2:]\nenv=os.environ.copy()\nenv.update(TMPDIR=str(root),PYTHONDONTWRITEBYTECODE=\"1\",PYTHONUNBUFFERED=\"1\",\n VERILATOR=str(root.parent/\"verilator-j8\"),VERILATOR_JOBS=\"2\",\n MILAN_RV32_CC=str(root.parent/\"rv32-sdk/bin/riscv32-buildroot-linux-gnu-gcc\"))\nenv[\"PATH\"]=str(root.parent/\"round3/venv/bin\")+\":$PINNED_HDL_DIR:\"+env[\"PATH\"]\nlog=root/(label+\".log\")\nstart=time.monotonic()\nprint(\"START\",label,flush=True)\nwith log.open(\"w\") as stream:\n try:\n  rc=subprocess.run(command,env=env,stdout=stream,stderr=subprocess.STDOUT,timeout=21600).returncode\n except subprocess.TimeoutExpired:\n  rc=124\nrecord=dict(command=command,cwd=os.getcwd(),rc=rc,seconds=round(time.monotonic()-start,3),log=log.name,\n size=log.stat().st_size,sha256=hashlib.sha256(log.read_bytes()).hexdigest())\n(root/(label+\".rc\")).write_text(str(rc)+\"\\n\")\n(root/(label+\".json\")).write_text(json.dumps(record,indent=2)+\"\\n\")\nprint(json.dumps(record),flush=True)\nprint(\"\\n\".join(log.read_text(errors=\"replace\").splitlines()[-18:]),flush=True)\nraise SystemExit(rc)\n"
+  },
+  {
+    "name": "images.py",
+    "original": {
+      "size": 1175,
+      "sha256": "73ab92551e5fa74c8329b3f3e14fb0a48ba2c8960bf19abcba0ccc8100a87eee"
+    },
+    "normalized_source": "import json,hashlib,subprocess,sys\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\nruntime=r.parent/\"round2/runtime-final\"\nfor item in json.loads((runtime/\"provenance.json\").read_text())[\"files\"]:\n assert hashlib.sha256(Path(item[\"path\"]).read_bytes()).hexdigest()==item[\"sha256\"]\nreports=[]\nfor version in (\"head\",):\n for shape in (\"endstation_ax7101_1x1_tdm8\",\"endstation_ax7101_8x8\"):\n  for n in (1,2):\n   out=r/f\"image-{version}-{shape}-if{n}\"\n   command=[sys.executable,str(r/\"historical_image.py\") if version!=\"head\" else \"sw/firmware/ctrl/test/ctrl_srp_image.py\",\n    \"--config\",f\"configs/{shape}.yaml\",\"--interfaces\",str(n),\"--output\",str(out),\n    \"--libc\",str(runtime/\"libc.a\"),\"--compiler-runtime\",str(runtime/\"libcompiler_rt.a\")]\n   if version==\"lane-base\": command += [\"--without-srp\",\"--ctrl-source\",str(r/\"lane-base/sw/firmware/ctrl\")]\n   if version==\"round5\": command += [\"--ctrl-source\",str(r/\"round5/sw/firmware/ctrl\")]\n   subprocess.run(command,check=True,timeout=120)\n   report=json.loads((out/\"size.json\").read_text()); report[\"version\"]=version\n   reports.append(report)\n(r/\"image-results.json\").write_text(json.dumps(reports,indent=2)+\"\\n\")\n"
+  },
+  {
+    "name": "focused.py",
+    "original": {
+      "size": 444,
+      "sha256": "591de7ceacca525b17e9a03e350ac0bf761f0338348d7cada0ab32847d07febb"
+    },
+    "normalized_source": "from pathlib import Path\nimport sys\nsys.path.insert(0, str(Path.cwd()/\"sw/firmware/ctrl/test\"))\nimport srp_arms,fw_gtest\nfrom ctrl_build import CTRL,ROOT,Tree\nr=Path(__file__).resolve().parent\nfor n in (1,2):\n for suite in (\"srp_app.cpp\",\"test_acmp_mbx.cpp\"):\n  o=srp_arms.arm_srp(Tree(CTRL,r/\"focused\",r/\"focused/reuse\",fw_gtest.Build(jobs=4)),ROOT/\"third_party/lwSRP\",n,test=suite)\n  print(o.log,flush=True)\n  if o.rc: raise SystemExit(o.rc)\n"
+  },
+  {
+    "name": "docs.py",
+    "original": {
+      "size": 447,
+      "sha256": "590ab48d85eb81fbfd1f510a5ff667cd3384371c62c6cc29a18e45a2cef96906"
+    },
+    "normalized_source": "import concurrent.futures,json,subprocess,sys\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\ncommands=json.loads((r/\"docs-commands.json\").read_text())\ndef run(pair):\n index,item=pair\n return subprocess.run([sys.executable,str(r/\"run.py\"),f\"docs-{index:02d}\",*item[\"command\"]]).returncode\nwith concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:\n results=list(pool.map(run,enumerate(commands)))\nraise SystemExit(any(results))\n"
+  },
+  {
+    "name": "final_docs.py",
+    "original": {
+      "size": 1325,
+      "sha256": "c05c7e1a31ccd487b1475d20a6d3756a51e22cbc7d085ebfc6db0dde98248191"
+    },
+    "normalized_source": "import subprocess,sys,tarfile\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\ncommands=[(\"em-dash-final\",[\"python3\",\"scripts/check_em_dash.py\",\"--base\",\"d8b355fe0f41d49dca6cae1cd8b3826e2edde364\"]),\n (\"docs-final\",[\"python3\",\"scripts/docs_check.py\"]),\n (\"docs-wire\",[\"python3\",\"scripts/check_wire_accountability.py\",\"--self-test\"]),\n (\"cpp-final\",[\"python3\",\"scripts/check_cpp_idiom.py\"]),\n (\"py-final\",[\"python3\",\"scripts/check_py_idiom.py\"]),\n (\"toc-final\",[\"python3\",\"scripts/gen_toc.py\",\"--check\"]),\n (\"doc-paths-final\",[\"python3\",\"scripts/check_doc_paths.py\"]),\n (\"doc-style-final\",[\"python3\",\"scripts/check_doc_style.py\"]),\n (\"source-diff\",[\"git\",\"diff\",\"--check\",\"edeef61c5a0cc6c18caa61db4019a8e378baf366\",\"HEAD\"])]\nfor label,command in commands:\n subprocess.run([sys.executable,str(r/\"run.py\"),label,*command],check=True,timeout=550)\na=r/\"committed-source.tar\"; dest=r/\"committed-source\"; dest.mkdir(exist_ok=True)\nsubprocess.run([\"git\",\"archive\",\"--format=tar\",\"--output\",str(a),\"HEAD\"],check=True)\nwith tarfile.open(a) as f: f.extractall(dest,filter=\"data\")\nfor label,command in [(\"docs-archive\",[\"python3\",\"scripts/docs_check.py\"]),\n (\"docs-archive-feature\",[\"python3\",\"scripts/check_feature_status.py\"])]:\n subprocess.run([sys.executable,str(r/\"run.py\"),label,*command],cwd=dest,check=True,timeout=550)\n"
+  },
+  {
+    "name": "compiler_gates.py",
+    "original": {
+      "size": 475,
+      "sha256": "21c91fd561a0b5169340a758b72e9fb6e456d040f5ae4e953ea1812790fe94bc"
+    },
+    "normalized_source": "import subprocess,sys\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\nfor label,args in ((\"compiler-pinned\",[\"--sdk-destination\",str(r.parent/\"rv32-sdk\"),\"--audit\",str(r/\"rv32-pinned.jsonl\")]),\n                   (\"compiler-absent\",[\"--absent\",\"--audit\",str(r/\"rv32-absent.jsonl\")]),\n                   (\"compiler-controls\",[\"--selftest\"])):\n subprocess.run([sys.executable,str(r/\"run.py\"),label,\"python3\",\"sw/builder/test_firmware_compiler.py\",*args],check=True)\n"
+  },
+  {
+    "name": "extra_gates.py",
+    "original": {
+      "size": 594,
+      "sha256": "e28965fc43892cf057282b6311f1a56e1dc135359d025c7fb3ebb3852e576331"
+    },
+    "normalized_source": "import subprocess,sys\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\ncommands=[\n (\"nvm-campaign\",[\"python3\",\"sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py\",\"--require-rv32\",\"--self-test\",\"--jobs\",\"4\"]),\n (\"maap-diff\",[\"python3\",\"sw/firmware/ctrl/test/maap_differential.py\",\"--self-test\",\"--keep\",str(r/\"maap-diff\")]),\n (\"image-selftest\",[\"python3\",\"sw/firmware/ctrl/test/ctrl_image_selftest.py\",\"--require-rv32\"])]\nfor label,command in commands:\n subprocess.run([sys.executable,str(r/\"run.py\"),label,*command],check=True)\nsubprocess.run([sys.executable,str(r/\"shared.py\")],check=True)\n"
+  },
+  {
+    "name": "shared.py",
+    "original": {
+      "size": 658,
+      "sha256": "3efc9152cb72929d621e47e5c83f3aee2ee877496235f430ca2d91835b923c1d"
+    },
+    "normalized_source": "import subprocess,sys\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\ncommands=[\n(\"coverage-selftest\",[\"python3\",\"sw/firmware/gtest/fw_coverage.py\",\"--selftest\"]),\n(\"rv32-selftest\",[\"python3\",\"sw/firmware/gtest/fw_rv32_selftest.py\",\"--require-rv32\"]),\n(\"tally-mutants\",[\"python3\",\"sw/firmware/gtest/tally_selftest.py\",\"--mutants\"]),\n(\"mailbox-contract\",[\"python3\",\"sw/mailbox/gen_mailbox.py\",\"--check\"]),\n(\"docs-selftest\",[\"python3\",\"scripts/docs_check.py\",\"--selftest\"])]\nfor label,command in commands:\n result=subprocess.run([sys.executable,str(r/\"run.py\"),label,*command],timeout=550)\n if result.returncode: raise SystemExit(result.returncode)\n"
+  },
+  {
+    "name": "new_plants.py",
+    "original": {
+      "size": 475,
+      "sha256": "379ebeabc41a233a321d99e7a39f08afb30ff5909bce4f8e8007200648360f1e"
+    },
+    "normalized_source": "from pathlib import Path\nimport sys\nsys.path.insert(0,str(Path.cwd()/\"sw/firmware/ctrl/test\"))\nimport srp_mutants\nr=Path(__file__).resolve().parent\nsrp_mutants.DEFECTS=tuple(d for d in srp_mutants.DEFECTS if d.name.startswith((\"binding-\",\"feedback-\",\"srp-term-\",\"srp-poll-extra\",\"srp-send-extra\",\"four-way-\",\"srp-bound-\")))\nfailed=False\nfor n in (1,2):\n failed=srp_mutants.campaign(r/f\"new-plants-if{n}\",Path.cwd()/\"third_party/lwSRP\",4,n) or failed\nraise SystemExit(failed)\n"
+  },
+  {
+    "name": "review_probes.py",
+    "original": {
+      "size": 2232,
+      "sha256": "2d86a7eb99faef28c24ebdbd20ace4a3f23e334520424b542b09fb4e1aecd644"
+    },
+    "normalized_source": "from pathlib import Path\nimport importlib.util,shutil,sys,json\nsys.path.insert(0,str(Path.cwd()/\"sw/firmware/ctrl/test\"))\nimport srp_arms,fw_gtest\nfrom ctrl_build import CTRL,ROOT,Tree\nr=Path(__file__).resolve().parent\nsrc=r/\"review-positive/ctrl\"\nshutil.copytree(CTRL,src,dirs_exist_ok=True,ignore=shutil.ignore_patterns(\"__pycache__\",\"*.pyc\"))\np=src/\"test/srp_binding.hpp\"\nwith p.open(\"a\") as f:\n for name in (\"probe_tk_registered.hpp\",\"probe_invalid_vid.hpp\"):\n  f.write(\"\\n\"+(r/\"review\"/name).read_text())\nsaved=srp_arms.HERE\nsrp_arms.HERE=src/\"test\"\nfor n in (1,2):\n o=srp_arms.arm_srp(Tree(src,r/\"review-positive/build\",r/\"review-positive/reuse\",fw_gtest.Build(jobs=4)),ROOT/\"third_party/lwSRP\",n,test=(\"test_acmp_mbx.cpp\",\"SrpBinding*Probe.*\"))\n (r/f\"review-positive-if{n}.log\").write_text(o.log)\n print(o.log,flush=True)\n assert o.rc==0\nsrp_arms.HERE=saved\nspec=importlib.util.spec_from_file_location(\"review_plants\",r/\"review/probe_mutants.py\")\np=importlib.util.module_from_spec(spec);spec.loader.exec_module(p)\nplants=[line.split(\"\\t\") for line in (r/\"review/bound_probes.tsv\").read_text().splitlines()]\nplants += [[name,*value] for name,value in p.PLANTS.items() if name!=\"control-none\"]\nbuild=fw_gtest.Build(jobs=4); records=[]\nfor name,path,old,new in plants:\n work=r/\"review-plant-work\";src=work/\"ctrl\"\n shutil.copytree(CTRL,src,dirs_exist_ok=True,ignore=shutil.ignore_patterns(\"__pycache__\",\"*.pyc\"))\n target=src/path;s=target.read_text();assert s.count(old)==1,(name,s.count(old));target.write_text(s.replace(old,new))\n for n in (1,2):\n  failures=0\n  for suite in (\"srp_app.cpp\",\"test_acmp_mbx.cpp\"):\n   o=srp_arms.arm_srp(Tree(src,work/\"build\",work/\"reuse\",build),ROOT/\"third_party/lwSRP\",n,test=suite)\n   (r/f\"review-{name}-{suite}-if{n}.log\").write_text(o.log)\n   failures+=o.rc==1 and \"[FAIL]\" in o.log\n  equivalent=name==\"rv-poll-per-if\" and n==1\n  assert failures if not equivalent else failures==0,(name,n,failures)\n  record=dict(plant=name,interfaces=n,result=\"equivalent (one interface)\" if equivalent else \"caught\",failing_suites=failures)\n  records.append(record);print(record,flush=True)\n(r/\"review-probes-results.json\").write_text(json.dumps(records,indent=2)+\"\\n\")\nshutil.rmtree(r/\"review-plant-work\")\n"
+  },
+  {
+    "name": "asan.py",
+    "original": {
+      "size": 1663,
+      "sha256": "138f4b2c55f00343561d236d8c9600aff7f6c681dabcf5428672b780c48dc449"
+    },
+    "normalized_source": "from pathlib import Path\nimport os,shutil,sys\nsys.path.insert(0,str(Path.cwd()/\"sw/firmware/ctrl/test\"))\nfrom ctrl_build import ROOT,CTRL,Tree\nfrom ctrl_reuse import cut_reuse\nimport ctrl_arms,srp_arms,fw_gtest\nr=Path(__file__).resolve().parent\nfor cc,cxx in ((\"gcc\",\"g++\"),(\"clang\",\"clang++\")):\n os.environ.update(CC=cc,CXX=cxx)\n for sanitized in (False,True):\n  label=cc+(\"-asan\" if sanitized else \"-plain\")\n  build=fw_gtest.Build(jobs=4,address_sanitizer=sanitized)\n  for planted in (False,True):\n   work=r/\"asan\"/label/(\"plant\" if planted else \"base\");src=work/\"ctrl\"\n   shutil.copytree(CTRL,src,dirs_exist_ok=True,ignore=shutil.ignore_patterns(\"__pycache__\",\"*.pyc\"))\n   if planted:\n    p=src/\"acmp/acmp.c\";s=p.read_text();old=\"cfg->n_sources > ACMP_MAX_SOURCES) {\";assert s.count(old)==1\n    p.write_text(s.replace(old,\"cfg->n_sources > ACMP_MAX_SOURCES + 1u) {\"))\n   reuse=work/\"reuse\";cut_reuse(reuse)\n   o=ctrl_arms.arm_acmp(Tree(src,work/\"build\",reuse,build))\n   (r/(label+(\"-plant\" if planted else \"-base\")+\".log\")).write_text(o.log)\n   assert o.rc==(1 if planted else 0),(label,planted,o.log)\n   assert \"ERROR: AddressSanitizer\" not in o.log\n   if planted: assert \"A0 more sources than ACMP_MAX_SOURCES\" in o.log\n   print(label,\"planted\" if planted else \"base\",\"rc\",o.rc,\"expected\",flush=True)\n  if sanitized:\n   for n in (1,2):\n    for suite in (\"srp_app.cpp\",\"test_acmp_mbx.cpp\"):\n     out=r/\"asan\"/label/\"srp\"\n     o=srp_arms.arm_srp(Tree(CTRL,out,out/\"reuse\",build),ROOT/\"third_party/lwSRP\",n,test=suite)\n     (r/f\"{label}-{suite}-if{n}.log\").write_text(o.log)\n     assert o.rc==0,(label,n,suite,o.log)\n     print(label,n,suite,\"PASS\",flush=True)\n"
+  },
+  {
+    "name": "park_check.py",
+    "original": {
+      "size": 593,
+      "sha256": "fc093000e7b9a088af8ab375510b5b3a8c58f19d14dad2c8731cdc712456800a"
+    },
+    "normalized_source": "from pathlib import Path\nimport sys,os\nsys.path.insert(0,str(Path.cwd()/\"sw/firmware/ctrl/test\"))\nfrom ctrl_build import CTRL,ROOT,Tree\nimport srp_arms,fw_gtest\nr=Path(__file__).resolve().parent\nfor cc,cxx in ((\"gcc\",\"g++\"),(\"clang\",\"clang++\")):\n os.environ.update(CC=cc,CXX=cxx)\n for n in (1,2):\n  build=fw_gtest.Build(jobs=4,address_sanitizer=True)\n  out=r/\"park-check\"/cc\n  o=srp_arms.arm_srp(Tree(CTRL,out,out/\"reuse\",build),ROOT/\"third_party/lwSRP\",n,test=(\"test_acmp_mbx.cpp\",\"SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding\"))\n  print(o.log,flush=True)\n  assert o.rc==0\n"
+  },
+  {
+    "name": "binding_required.py",
+    "original": {
+      "size": 2676,
+      "sha256": "a3fcb29d2d0017c587209690196094d212bb0d684cbf364d0e2e6b1d93a6ea2f"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"Required composed ACMP-to-SRP delivery at one and two interfaces.\n\nAdapted from the external reviewer probe: remove its direct binding control\nand require the original composed-delivery assertion to pass. Production\nsources compile unchanged from the candidate checkout.\n\"\"\"\nfrom pathlib import Path\nimport sys\n\nroot = Path.cwd()\npacket = Path(__file__).resolve().parent\nsys.path.insert(0, str(root / \"sw/firmware/ctrl/test\"))\nimport srp_arms\nimport fw_gtest\nfrom ctrl_build import CTRL, Tree\n\nprobe = packet / \"scratch/binding-probe\"\nprobe.mkdir(parents=True,exist_ok=True)\nextra = r'''\nnamespace {\nTEST_F(AcmpMailbox, R533ComposedAcmpDeliveryReachesSrp) {\n    mbx_model_reset(&model);\n    for (unsigned i = 0; i < MBX_N_IF; ++i) {\n        mbx_model_set_gm(&model, i, kGm0, 0);\n        mbx_model_set_link(&model, i, true);\n    }\n    const ctrl_app_config cfg = three_way();\n    ASSERT_TRUE(ctrl_app_start(&app, &cfg));\n    attach_srp();\n    settle();\n    for (unsigned i = 0; i < MBX_N_IF; ++i) {\n        fk.clear();\n        bind(i);\n        ASSERT_TRUE(offer(answer(i), spec::MULTICAST_MAC, i));\n        settle();\n        bool requested = false;\n        for (const auto& call : fk.calls) {\n            requested = requested || (call.kind == Call::SRP && call.index == i &&\n                         call.flag && call.stream.stream_id == kSid);\n        }\n        ASSERT_TRUE(requested) << \"ACMP accepted the response and requested this stream\";\n        for (unsigned pass_number = 0; pass_number < 32u; ++pass_number) {\n            mbx_model_advance_ms(&model, 10u);\n            settle();\n        }\n        std::printf(\"R533 interface=%u ACMP_requested=%u SRP_bound=%u\\n\", i,\n                    static_cast<unsigned>(requested),\n                    static_cast<unsigned>(srp_adapter.ifs[i].sinks[i].bound));\n        EXPECT_TRUE(srp_adapter.ifs[i].sinks[i].bound)\n            << \"R533 required composed delivery is absent\";\n    }\n    srp_mbx_destroy(&srp_adapter);\n}\n}\n'''\noriginal = root / \"sw/firmware/ctrl/test/test_acmp_mbx.cpp\"\n(probe / original.name).write_text(original.read_text() + extra)\nsrp_arms.HERE = probe\nselected = \"AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp\"\nfor count in (1, 2):\n    out = probe / f\"if{count}\"\n    result = srp_arms.arm_srp(Tree(CTRL, out, out / \"reuse\", fw_gtest.Build(jobs=2)),\n                              root / \"third_party/lwSRP\", count,\n                              test=(original.name, selected))\n    print(result.log, flush=True)\n    assert result.rc == 0, \"required composed delivery must pass without direct binding\"\nprint(\"PASS: accepted ACMP requests reach the attached adapter at IF=1 and IF=2\")\n"
+  },
+  {
+    "name": "check_bounds.py",
+    "original": {
+      "size": 2894,
+      "sha256": "e121474d9dd2ea6f8609f1efe9eec26877acfd7834408e7d044ec246b3b18d32"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"Independently evaluate the compiled pass macros and recompute the prose table.\"\"\"\nimport json\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport sys\n\nroot = Path.cwd()\npacket = Path(__file__).resolve().parent\nscratch = packet / \"scratch/bounds\"\nscratch.mkdir(parents=True,exist_ok=True)\ncode = r'''\n#include <stdio.h>\n#include \"ctrl_app.h\"\nint main(void) {\n    printf(\"%u %u %u %u %u %u %u\\n\", ADP_MBX_PASS_MAX, ACMP_MBX_PASS_MAX,\n           MAAP_MBX_PASS_MAX, SRP_MBX_PASS_MAX,\n           CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u), CTRL_APP_PASS_MAX, CTRL_APP_SRP_FEEDBACK_MAX);\n    return 0;\n}\n'''\n(scratch / \"macros.c\").write_text(code)\nvalues = []\nfor interfaces in (1, 2):\n    variant = scratch / f\"ctrl-if{interfaces}\"\n    shutil.copytree(root / \"sw/firmware/ctrl\", variant, dirs_exist_ok=True,\n                    ignore=shutil.ignore_patterns(\"__pycache__\"))\n    generated = scratch / f\"gen-if{interfaces}\"\n    subprocess.run([sys.executable, \"sw/mailbox/gen_mailbox.py\", \"--variant-interfaces\",\n                    str(interfaces), \"--out\", str(generated)], check=True)\n    shutil.copyfile(generated / \"mbx_contract.h\", variant / \"mbx/mbx_contract.h\")\n    include = [\"-I\" + str(variant / name) for name in\n               (\"app\", \"acmp\", \"adp\", \"loop\", \"maap\", \"mbx\", \"port\")]\n    binary = scratch / f\"macros-if{interfaces}\"\n    subprocess.run([\"cc\", \"-std=c11\", *include, str(scratch / \"macros.c\"),\n                    \"-o\", str(binary)], check=True)\n    adp, acmp, maap, srp, shared, total, feedback = map(int, subprocess.check_output([str(binary)]).split())\n    assert feedback == 16 * 4\n    assert total == acmp + maap + srp - 2 * shared + feedback\n    assert total == (3192 if interfaces == 1 else 4041)\n    values.append(dict(interfaces=interfaces, adp=adp, acmp_including_adp=acmp,\n                       maap=maap, srp=srp, shared_event_reads=shared, feedback=feedback, total=total))\ndoc = (root / \"docs/design/MAILBOX_SPLIT.md\").read_text()\nrows = []\nfor label, passes in ((\"event\", 2), (\"ACMP\", 10), (\"ADP\", 21), (\"owed response\", 8)):\n    accesses = [v[\"total\"] * (passes + 1) for v in values]\n    microseconds = [(1000000 // a) / 100 for a in accesses]\n    rendered = f\"{accesses[0]:,} / {accesses[1]:,} | {microseconds[0]:.2f} / {microseconds[1]:.2f} us\"\n    assert rendered in doc, rendered\n    rows.append(dict(input=label, taken_by_pass=passes, accesses=accesses,\n                     microseconds_per_access_for_10ms=microseconds))\nassert \"only the one-interface event envelope fits T_svc = 10 ms\" in doc\nassert \"Retry after owed transmission commits and retained reception completes or expires.\" in (\n    root / \"sw/firmware/ctrl/srp/README.md\").read_text()\nprint(json.dumps({\"compiled_macros\": values, \"recomputed_table\": rows,\n                  \"doc_table_matches\": True, \"R532_7_R1_exact_fix_present\": True}, indent=2))\n"
+  },
+  {
+    "name": "review/binding_probe_nodirect.py",
+    "original": {
+      "size": 3259,
+      "sha256": "9805baca46e995d4475d7f555a98e93fed31b97498d8c9bf4efa937ace1f75ab"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"R532-9 adaptation of R533-8's binding_probe.py (sha256 3047858d...bf72):\nthe direct-delivery workaround (the direct port call and its positive control)\nis removed, and the required composed-delivery assertion must now PASS.\nusage: binding_probe_nodirect.py REPO LWSRP WORK\n\nProbe the required ACMP-to-SRP delivery through the composed application.\n\nOnly the test translation unit is copied/extended. Production sources are\ncompiled from the exact checkout. Existing fake environment callbacks observe\nthe ACMP handoff; direct adapter delivery is a separate positive control.\nExit 0 means the missing-delivery failure was reproduced at both interfaces.\n\"\"\"\nfrom pathlib import Path\nimport sys\n\nroot = Path(sys.argv[1]).resolve()\nlwsrp = Path(sys.argv[2]).resolve()\nwork = Path(sys.argv[3]).resolve()\nsys.path.insert(0, str(root / \"sw/firmware/ctrl/test\"))\nimport srp_arms\nimport fw_gtest\nfrom ctrl_build import CTRL, Tree\n\nprobe = work\nprobe.mkdir(parents=True, exist_ok=True)\nextra = r'''\nnamespace {\nTEST_F(AcmpMailbox, R533ComposedAcmpDeliveryReachesSrp) {\n    mbx_model_reset(&model);\n    for (unsigned i = 0; i < MBX_N_IF; ++i) {\n        mbx_model_set_gm(&model, i, kGm0, 0);\n        mbx_model_set_link(&model, i, true);\n    }\n    const ctrl_app_config cfg = three_way();\n    ASSERT_TRUE(ctrl_app_start(&app, &cfg));\n    attach_srp();\n    settle();\n    for (unsigned i = 0; i < MBX_N_IF; ++i) {\n        fk.clear();\n        bind(i);\n        ASSERT_TRUE(offer(answer(i), spec::MULTICAST_MAC, i));\n        settle();\n        bool requested = false;\n        for (const auto& call : fk.calls) {\n            requested = requested || (call.kind == Call::SRP && call.index == i &&\n                         call.flag && call.stream.stream_id == kSid);\n        }\n        ASSERT_TRUE(requested) << \"ACMP accepted the response and requested this stream\";\n        for (unsigned pass_number = 0; pass_number < 32u; ++pass_number) {\n            mbx_model_advance_ms(&model, 10u);\n            settle();\n        }\n        std::printf(\"R533 interface=%u ACMP_requested=%u SRP_bound=%u\\n\", i,\n                    static_cast<unsigned>(requested),\n                    static_cast<unsigned>(srp_adapter.ifs[i].sinks[i].bound));\n        EXPECT_TRUE(srp_adapter.ifs[i].sinks[i].bound)\n            << \"R533 required composed delivery is absent\";\n    }\n    srp_mbx_destroy(&srp_adapter);\n}\n}\n'''\noriginal = root / \"sw/firmware/ctrl/test/test_acmp_mbx.cpp\"\n(probe / original.name).write_text(original.read_text() + extra)\nsrp_arms.HERE = probe\nselected = \"AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp\"\nfor count in (1, 2):\n    out = probe / f\"if{count}\"\n    result = srp_arms.arm_srp(Tree(CTRL, out, out / \"reuse\", fw_gtest.Build(jobs=2)),\n                              lwsrp, count,\n                              test=(original.name, selected))\n    print(result.log, flush=True)\n    assert result.rc == 0, \"required composed delivery must pass without direct delivery\"\n    assert \"R533 required composed delivery is absent\" not in result.log\n    assert result.log.count(\"SRP_bound=1\") == count, \"every tested interface reports SRP_bound=1\"\nprint(\"PASS: accepted ACMP requests reach the attached SRP adapter through the composition, no direct delivery\")\n"
+  },
+  {
+    "name": "review/bound_controls.tsv",
+    "original": {
+      "size": 86,
+      "sha256": "83ecbfb99e693489e4d6e687935c7d1295d22760d4a0d76347fbb2fbade9cdb5"
+    },
+    "normalized_source": "ctl-author-srp-bound-poll\tsrp/srp_bounds.h\t(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))\t0u\n"
+  },
+  {
+    "name": "review/bound_probes.tsv",
+    "original": {
+      "size": 706,
+      "sha256": "62e07a44bb52dc68a99c5ad421ea350d2bbc806ca458c0546795ad542c959a40"
+    },
+    "normalized_source": "rv-poll-fixed\tsrp/srp_bounds.h\t(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))\t(MBX_N_IF * (0u + 2u * SRP_MBX_TX_MAX))\nrv-poll-two-calls\tsrp/srp_bounds.h\t(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))\t(MBX_N_IF * (4u + 1u * SRP_MBX_TX_MAX))\nrv-poll-per-if\tsrp/srp_bounds.h\t(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))\t(1u * (4u + 2u * SRP_MBX_TX_MAX))\nrv-pass-event-words\tsrp/srp_bounds.h\tCTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX)\tCTRL_LOOP_EVENTS_PER_PASS * (SRP_MBX_EVENT_MAX)\nrv-pass-rx-count\tsrp/srp_bounds.h\tCTRL_LOOP_RX_PER_PASS * (SRP_MBX_RX_RECORD_MAX\t1u * (SRP_MBX_RX_RECORD_MAX\nrv-pass-poll-half\tsrp/srp_bounds.h\tSRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX)\tSRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX / 2u)\n"
+  },
+  {
+    "name": "review/plant.py",
+    "original": {
+      "size": 615,
+      "sha256": "83bb0f16d1a5a39ab1ca157ad16960f3585af9834c5226661e9845f39ef0593a"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"Copy CTRL to DEST and replace one unique OLD text with NEW in PATH (relative to CTRL).\n\nusage: plant.py CTRL DEST PATH OLD NEW\n\"\"\"\nimport shutil, sys\nfrom pathlib import Path\nsrc, dest, rel, old, new = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5]\nif dest.exists():\n    shutil.rmtree(dest)\nshutil.copytree(src, dest, ignore=shutil.ignore_patterns(\"__pycache__\"))\nf = dest / rel\ntext = f.read_text()\nassert text.count(old) == 1, f\"plant site not unique: {text.count(old)}\"\nf.write_text(text.replace(old, new))\nprint(\"planted\", rel, repr(old), \"->\", repr(new))\n"
+  },
+  {
+    "name": "review/plant_a0.py",
+    "original": {
+      "size": 562,
+      "sha256": "ee0f24d9c83a8307f413f7e29df18f5e140faa5bef0da8d07d1e8dcae9cfc093"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"Copy CTRL to DEST and apply the acmp-init-too-many-sources plant exactly.\"\"\"\nimport shutil, sys\nfrom pathlib import Path\nsrc, dest = Path(sys.argv[1]), Path(sys.argv[2])\nif dest.exists():\n    shutil.rmtree(dest)\nshutil.copytree(src, dest, ignore=shutil.ignore_patterns(\"__pycache__\"))\nf = dest / \"acmp/acmp.c\"\ntext = f.read_text()\nold, new = \"cfg->n_sources > ACMP_MAX_SOURCES) {\", \"cfg->n_sources > ACMP_MAX_SOURCES + 1u) {\"\nassert text.count(old) == 1, \"plant site not unique\"\nf.write_text(text.replace(old, new))\nprint(\"planted\", f)\n"
+  },
+  {
+    "name": "review/probe_invalid_vid.hpp",
+    "original": {
+      "size": 1413,
+      "sha256": "2a36c0dc12efeb09eb6033ccb2d31db7744cca99a10d6af24576c7487afcc6fe"
+    },
+    "normalized_source": "// Reviewer probe (R532-9): appended to srp_binding.hpp in a disposable copy.\n// One PROBE_TX_RESPONSE whose stream_vlan_id is 0 (outside 1..4094): count how\n// long the composed loop refuses to sleep with no further input, and what\n// ACMP and SRP each report meanwhile.\nnamespace {\nclass SrpBindingVidProbe : public SrpBinding {};\nTEST_F(SrpBindingVidProbe, InvalidVidKeepsTheLoopAwakeWithoutInput) {\n    bind(0);\n    auto invalid=answer(0); invalid.vlan=0;\n    ASSERT_TRUE(offer(invalid,spec::MULTICAST_MAC,acfg.sink_interface[0]));\n    settle();\n    unsigned awake=0, first_sleep=0;\n    for (unsigned ms=0; ms<12000u; ++ms) {\n        mbx_model_advance_ms(&model,1u);\n        for (unsigned n=0;n<4u;++n) {\n            if (ctrl_loop_service(&app.loop)!=0u) { ++awake; } else { if (!first_sleep) first_sleep=ms+1u; break; }\n        }\n        if (ms==5000u) {\n            std::printf(\"  probe: t=5 s acmp state %d (6=SETTLED_NO_RSV) srp bound %d request pending %d\\n\",\n                        static_cast<int>(core()->sinks[0].state),sink(0).bound,app.srp_requests[0].pending);\n        }\n    }\n    std::printf(\"  probe: 12 s without input: %u non-idle passes, first idle pass at %u ms, owed passes %u\\n\",\n                awake,first_sleep,static_cast<unsigned>(app.loop.stats.owed_passes));\n    EXPECT_LT(first_sleep,100u) << \"PROBE-VID the loop sleeps soon after a permanently refused binding\";\n}\n} // namespace\n"
+  },
+  {
+    "name": "review/probe_mutants.py",
+    "original": {
+      "size": 3828,
+      "sha256": "6e6fdf2bfbadef088766680e9f1974c1c9a2b47203c50019c5bdb59fa8899c69"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"R532-9 reviewer probe (round-8 probes retained verbatim, two code-regression plants added): plant one defect into a scratch copy of the exact-head\ncontrol tree and run the SRP-composition suites that compile it.\n\nusage: probe_mutants.py REPO LWSRP WORK NAME\nREPO is an exported copy of the head (its test helpers are imported from it),\nLWSRP the pinned lwSRP checkout, WORK a disposable directory. Prints one line\nper suite and interface count; exit 0 = every run passed (the plant ESCAPED),\n1 = at least one run failed (the plant was CAUGHT), 2 = refusal.\n\"\"\"\nimport shutil, sys\nsys.dont_write_bytecode = True\nfrom pathlib import Path\n\nPLANTS = {\n    # The new SRP pass bound's terms (srp/srp_bounds.h, new in the merge), understated.\n    \"srp-poll-drops-tx\": (\"srp/srp_bounds.h\", \"(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))\",\n                          \"(MBX_N_IF * (4u + 0u * SRP_MBX_TX_MAX))\"),\n    \"srp-pass-drops-rx-and-poll\": (\"srp/srp_bounds.h\",\n                                   \"CTRL_LOOP_RX_PER_PASS * (SRP_MBX_RX_RECORD_MAX + SRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX)\",\n                                   \"0u)\"),\n    \"srp-rx-max-zero\": (\"srp/srp_bounds.h\", \"#define SRP_MBX_RX_MAX 2u\", \"#define SRP_MBX_RX_MAX 0u\"),\n    \"srp-event-max-zero\": (\"srp/srp_bounds.h\", \"#define SRP_MBX_EVENT_MAX 1u\", \"#define SRP_MBX_EVENT_MAX 0u\"),\n    # The attach's conditional ACMP bit and tick enable.\n    \"attach-acmp-always\": (\"app/ctrl_app_srp.c\", \"if (app->loop.rx[MBX_CH_ACMP].fn) {\", \"if (1) {\"),\n    \"attach-no-tick\": (\"app/ctrl_app_srp.c\", \"mbx_tick_enable(true);\", \"mbx_tick_enable(false);\"),\n    # R532-9: real code regressions that make the poll's worst case exceed SRP_MBX_POLL_MAX.\n    \"code-poll-extra-read\": (\"srp/srp_mbx.c\", \"        bool link = mbx_link_up(n);\\n\",\n                             \"        bool link = mbx_link_up(n);\\n        (void)mbx_irq_status();\\n\"),\n    \"code-send-extra-read\": (\"srp/srp_mbx.c\", \"    if (mbx_tx_send(MBX_CH_SRP,m->owed_if,m->owed_frame,m->owed_len) != MBX_STATUS_OK) {\",\n                             \"    (void)mbx_irq_status();\\n    if (mbx_tx_send(MBX_CH_SRP,m->owed_if,m->owed_frame,m->owed_len) != MBX_STATUS_OK) {\"),\n    # Control: the unmodified tree must pass every suite.\n    \"control-none\": (\"app/ctrl_app_srp.c\", \"\", \"\"),\n}\nSUITES = (\"test_acmp_mbx.cpp\", \"srp_app.cpp\")\n\n\ndef main() -> int:\n    repo, lwsrp, work, name = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]), sys.argv[4]\n    sys.path[:0] = [str(repo / \"sw/firmware/ctrl/test\"), str(repo / \"sw/firmware/gtest\")]\n    import fw_gtest\n    from ctrl_build import Tree, Refusal\n    from srp_arms import arm_srp\n    path, old, new = PLANTS[name]\n    src = work / \"ctrl\"\n    shutil.rmtree(work, ignore_errors=True)\n    shutil.copytree(repo / \"sw/firmware/ctrl\", src)\n    target = src / path\n    text = target.read_text()\n    if old:\n        if text.count(old) != 1:\n            print(f\"REFUSED {name}: {text.count(old)} planting sites\"); return 2\n        target.write_text(text.replace(old, new))\n    failed = False\n    build = fw_gtest.Build(jobs=4)\n    for suite in SUITES:\n        for interfaces in (1, 2):\n            try:\n                result = arm_srp(Tree(src, work / \"build\", work / \"reuse\", build), lwsrp, interfaces, test=suite)\n            except Refusal as error:\n                print(f\"{name} {suite} IF={interfaces}: REFUSED (build) {str(error)[:300]}\"); failed = True; continue\n            first = next((l.strip() for l in result.log.splitlines() if \"[FAIL]\" in l or \"Failure\" in l), \"\")\n            print(f\"{name} {suite} IF={interfaces}: {'FAIL' if result.rc else 'pass'} {first[:200]}\")\n            failed |= bool(result.rc)\n    print(f\"{name}: {'CAUGHT' if failed else 'ESCAPED'}\")\n    return 1 if failed else 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n"
+  },
+  {
+    "name": "review/probe_tk_registered.hpp",
+    "original": {
+      "size": 3121,
+      "sha256": "373607eb04178fb796e37b2ef7ba786125a184c48ba014f25e252f018f4333f6"
+    },
+    "normalized_source": "// Reviewer probe (R532-9): appended to srp_binding.hpp in a disposable copy.\n// After a real bind and PROBE_TX_RESPONSE, a matching MSRP Talker Advertise is\n// received on the sink's interface and refreshed every second. Milan v1.2\n// 5.5.3.5.42 moves the sink to SETTLED_RSV_OK once the Talker attribute is\n// registered; 5.5.3.5.36 withdraws SRP only when TMR_NO_TK (10 s) expires\n// without one.\nnamespace {\nclass SrpBindingProbe : public SrpBinding {};\nstd::vector<uint8_t> probe_talker_frame(unsigned event) {\n    std::vector<uint8_t> v(25);\n    wire_put_be(v.data(),kSid,8); wire_put_be(v.data()+8,kDa,6); wire_put_be(v.data()+14,2,2);\n    wire_put_be(v.data()+16,224,2); wire_put_be(v.data()+18,1,2); v[20]=0x60;\n    const unsigned list=2+v.size()+1+2;\n    std::vector<uint8_t> f(14+1+4+list+2);\n    wire_put_be(f.data(),0x0180c200000eull,6);\n    wire_put_be(f.data()+6,0x020304010203ull,6);\n    wire_put_be(f.data()+12,0x22ea,2);\n    auto *p=f.data()+14; p[1]=1; p[2]=v.size();\n    wire_put_be(p+3,list,2); wire_put_be(p+5,1,2);\n    std::memcpy(p+7,v.data(),v.size()); p[7+v.size()]=event*36;\n    return f;\n}\nTEST_F(SrpBindingProbe, RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk) {\n    for (unsigned k=0;k<2u;++k) {\n        bind(k); response(k); expect_stream(k);\n        ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_NO_RSV);\n    }\n    bool withdrawn[2]{};\n    for (unsigned second=0; second<12u; ++second) {\n        for (unsigned k=0;k<2u;++k) {\n            const auto f=probe_talker_frame(second==0 ? 0u : 1u);\n            ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),acfg.sink_interface[k]));\n        }\n        settle();\n        if (second==0) {\n            for (unsigned k=0;k<2u;++k) {\n                EXPECT_NE(sink(k).desired,0u) << \"PROBE-TK0 SRP registered the matching Talker, sink \" << k;\n                EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK)\n                    << \"PROBE-TK1 ACMP learns the registered Talker (Milan 5.5.3.5.42), sink \" << k;\n            }\n        }\n        for (unsigned ms=0; ms<1000u; ms+=10u) {\n            mbx_model_advance_ms(&model,10u); settle();\n            for (unsigned k=0;k<2u;++k) {\n                if (!sink(k).bound && !withdrawn[k]) {\n                    withdrawn[k]=true;\n                    std::printf(\"  probe: sink %u SRP binding withdrawn at t=%u ms after the first Talker Advertise (acmp state %d, probes sent so far)\\n\",\n                                k,second*1000u+ms+10u,static_cast<int>(core()->sinks[k].state));\n                }\n            }\n        }\n    }\n    for (unsigned k=0;k<2u;++k) {\n        EXPECT_NE(sink(k).desired,0u) << \"PROBE-TK0 Talker still registered after 12 s, sink \" << k;\n        EXPECT_TRUE(sink(k).bound) << \"PROBE-TK2 a healthy registered binding survives TMR_NO_TK, sink \" << k;\n        EXPECT_NE(core()->sinks[k].state,ACMP_PRB_W_RESP) << \"PROBE-TK3 no reprobe of a registered binding, sink \" << k;\n        std::printf(\"  probe: sink %u acmp state %d srp bound %d desired %u\\n\",k,\n                    static_cast<int>(core()->sinks[k].state),sink(k).bound,sink(k).desired);\n    }\n}\n} // namespace\n"
+  },
+  {
+    "name": "review/run_a0.py",
+    "original": {
+      "size": 1369,
+      "sha256": "21124eaf7bfa630fd135a86a63a6875da62c2c191c58a5c319658e71a45e7bfa"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"Build and run the ACMP core suite (test_acmp.cpp) of a ctrl tree copy.\n\nusage: run_a0.py REPO CTRL_SRC OUT [asan]\nCC/CXX in the environment choose the compilers. A plant is applied to the\ncopy beforehand (plant_a0.py). Prints the run log and the A0 lines.\n\"\"\"\nimport sys\nfrom pathlib import Path\n\n\ndef main() -> int:\n    repo, src, out = (Path(a).resolve() for a in sys.argv[1:4])\n    asan = len(sys.argv) > 4 and sys.argv[4] == \"asan\"\n    sys.path.insert(0, str(repo / \"sw/firmware/ctrl/test\"))\n    sys.path.insert(0, str(repo / \"sw/firmware/gtest\"))\n    import fw_gtest\n    from ctrl_build import Tree, compile_c, compile_tests, link, execute, sources, PORTABLE, HOST, Refusal\n    from ctrl_arms import REENTRY_ASSERT\n    tree = Tree(src, out, out / \"reuse\", fw_gtest.Build(address_sanitizer=asan, jobs=4))\n    try:\n        objs = (compile_c(tree, sources(tree, PORTABLE), \"acmp\", REENTRY_ASSERT) +\n                compile_c(tree, sources(tree, HOST), \"acmp/host\", measured=False) +\n                compile_tests(tree, (\"test_acmp.cpp\",), \"acmp/tests\"))\n        outcome = execute(\"acmp\", link(tree, \"test_acmp\", objs))\n    except Refusal as error:\n        print(f\"REFUSAL: {error}\")\n        return 2\n    print(outcome.log)\n    print(f\"ARM rc={outcome.rc}\")\n    return 1 if outcome.rc else 0\n\n\nif __name__ == \"__main__\":\n    sys.exit(main())\n"
+  },
+  {
+    "name": "review/run_arm.py",
+    "original": {
+      "size": 1439,
+      "sha256": "7ffd53b184e8c25263080b5961b779f64f6f1f4619e2f383fd3fbd28ca483f79"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"Run one SRP-arm GoogleTest suite of a (probe) tree at one interface count.\n\nusage: run_arm.py TREE LWSRP OUT SUITE FILTER IFCOUNT [CTRL_SRC]\nTREE is a checkout of the repository (the probe copy); the arm is imported\nfrom TREE/sw/firmware/ctrl/test so test-file edits in the copy are compiled.\nCTRL_SRC, when given, is a planted copy of sw/firmware/ctrl to build instead.\nPrints the arm log and exits with the arm's rc (0 pass, 1 fail, 2 refusal).\n\"\"\"\nimport sys\nfrom pathlib import Path\n\n\ndef main() -> int:\n    tree_root, lwsrp, out, suite, filt, ifs = sys.argv[1:7]\n    test_dir = Path(tree_root).resolve() / \"sw/firmware/ctrl/test\"\n    sys.path.insert(0, str(test_dir))\n    sys.path.insert(0, str(Path(tree_root).resolve() / \"sw/firmware/gtest\"))\n    import fw_gtest\n    import srp_arms\n    from ctrl_build import CTRL, Tree, Refusal\n    out_path = Path(out).resolve()\n    out_path.mkdir(parents=True, exist_ok=True)\n    src = Path(sys.argv[7]).resolve() if len(sys.argv) > 7 else CTRL\n    tree = Tree(src, out_path / \"build\", out_path / \"reuse\", fw_gtest.Build(jobs=4))\n    try:\n        outcome = srp_arms.arm_srp(tree, Path(lwsrp).resolve(), int(ifs), test=(suite, filt))\n    except Refusal as error:\n        print(f\"REFUSAL: {error}\")\n        return 2\n    print(outcome.log)\n    print(f\"ARM {outcome.arm} rc={outcome.rc}\")\n    return 1 if outcome.rc else 0\n\n\nif __name__ == \"__main__\":\n    sys.exit(main())\n"
+  },
+  {
+    "name": "review/srp_fourway_subset.py",
+    "original": {
+      "size": 751,
+      "sha256": "6cf16cc1117b664b1af26f7581b355821e702a8c09fab3d3f79c75c7ec77757b"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"Run the author's four-way-* SRP plants (srp_mutants.DEFECTS)\nat one interface count, partition K of N, with the repository's own campaign.\nusage: srp_plants_subset.py REPO LWSRP WORK IFCOUNT K N\n\"\"\"\nimport sys\nfrom pathlib import Path\nrepo, lwsrp, work = (Path(a).resolve() for a in sys.argv[1:4])\nifs, k, n = (int(a) for a in sys.argv[4:7])\nsys.path[:0] = [str(repo / \"sw/firmware/ctrl/test\"), str(repo / \"sw/firmware/gtest\")]\nimport srp_mutants\nchosen = [d for d in srp_mutants.DEFECTS if d.name.startswith((\"four-way-\",))]\nsrp_mutants.DEFECTS = tuple(chosen[k::n])\nprint(f\"partition {k}/{n} at IF={ifs}: {[d.name for d in srp_mutants.DEFECTS]}\", flush=True)\nsys.exit(1 if srp_mutants.campaign(work, lwsrp, 4, ifs) else 0)\n"
+  },
+  {
+    "name": "review/srp_plants_subset.py",
+    "original": {
+      "size": 778,
+      "sha256": "55628d38001be42a71235a4808384ac70a961347a6e85f29d90164ce3aae9e0f"
+    },
+    "normalized_source": "#!/usr/bin/env python3\n\"\"\"Run the author's binding-* and srp-bound-* SRP plants (srp_mutants.DEFECTS)\nat one interface count, partition K of N, with the repository's own campaign.\nusage: srp_plants_subset.py REPO LWSRP WORK IFCOUNT K N\n\"\"\"\nimport sys\nfrom pathlib import Path\nrepo, lwsrp, work = (Path(a).resolve() for a in sys.argv[1:4])\nifs, k, n = (int(a) for a in sys.argv[4:7])\nsys.path[:0] = [str(repo / \"sw/firmware/ctrl/test\"), str(repo / \"sw/firmware/gtest\")]\nimport srp_mutants\nchosen = [d for d in srp_mutants.DEFECTS if d.name.startswith((\"binding-\", \"srp-bound-\"))]\nsrp_mutants.DEFECTS = tuple(chosen[k::n])\nprint(f\"partition {k}/{n} at IF={ifs}: {[d.name for d in srp_mutants.DEFECTS]}\", flush=True)\nsys.exit(1 if srp_mutants.campaign(work, lwsrp, 4, ifs) else 0)\n"
+  }
+]

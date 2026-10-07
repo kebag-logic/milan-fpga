@@ -1,0 +1,46 @@
+Note: Google Test filter = Srp.MissingBootDependenciesRefuseBeforeAttachment
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.MissingBootDependenciesRefuseBeforeAttachment
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:225: Failure
+Value of: srp_mbx_init(&candidate,&cfg)
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.MissingBootDependenciesRefuseBeforeAttachment: Expected: false
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:225: Failure
+Value of: srp_mbx_attach(&candidate,&loop)
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.MissingBootDependenciesRefuseBeforeAttachment: Expected: false
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:228: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 20
+  0u
+    Which is: 0
+
+  [FAIL] Srp.MissingBootDependenciesRefuseBeforeAttachment:     Which is: 0
+$SOURCE/sw/firmware/ctrl/test/srp_fixture.hpp:71: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 20
+  0u
+    Which is: 0
+
+  [FAIL] Srp.MissingBootDependenciesRefuseBeforeAttachment:     Which is: 0
+[  FAILED  ] Srp.MissingBootDependenciesRefuseBeforeAttachment (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.MissingBootDependenciesRefuseBeforeAttachment
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

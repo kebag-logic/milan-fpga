@@ -1,0 +1,58 @@
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpApp
+[ RUN      ] SrpApp.AttachRefusalPreservesExistingComposition
+[       OK ] SrpApp.AttachRefusalPreservesExistingComposition (0 ms)
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[       OK ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 2 tests from SrpApp (0 ms total)
+
+[----------] 3 tests from Srp
+[ RUN      ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+  SRP event bound: 1 accesses, bound 0
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:99: Failure
+Expected: (actual) <= (limit), actual: 1 vs 0
+SRP event bound
+
+  [FAIL] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds: SRP event bound
+  SRP refused receive bound: 2 accesses, bound 2
+  SRP retained receive poll bound: 3 accesses, bound 770
+  SRP transmitting poll bound: 48 accesses, bound 770
+  SRP maximum TX record bound: 383 accesses, bound 383
+  SRP maximum RX record bound: 383 accesses, bound 383
+  SRP complete pass bound: 388 accesses, bound 1588
+[  FAILED  ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds (0 ms)
+[ RUN      ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+  SRP poll terms: fixed 4, calls 2, real send accesses 766, envelope 770/770
+[       OK ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks (0 ms)
+[ RUN      ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:207: Failure
+Expected: (static_cast<int64_t>(events)) <= (static_cast<int64_t>((8u * (4u + 2u + 0u) + 2u * ((2u + 2u + (1514u + 3u) / 4u) + 2u) + (1u * (4u + 2u * (2u + 2u + (1514u + 3u) / 4u)))))- 2u*((2u + 2u + (1514u + 3u) / 4u)+2u)-(1u * (4u + 2u * (2u + 2u + (1514u + 3u) / 4u)))), actual: 56 vs 48
+pass event records are funded independently
+
+  [FAIL] Srp.PassFundsEveryEventRecordAndBothMaximumReceives: pass event records are funded independently
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:226: Failure
+Expected: (static_cast<int64_t>(receive_envelope)) <= (static_cast<int64_t>((8u * (4u + 2u + 0u) + 2u * ((2u + 2u + (1514u + 3u) / 4u) + 2u) + (1u * (4u + 2u * (2u + 2u + (1514u + 3u) / 4u)))))-events-(1u * (4u + 2u * (2u + 2u + (1514u + 3u) / 4u)))), actual: 770 vs 762
+pass receive count is funded independently
+
+  [FAIL] Srp.PassFundsEveryEventRecordAndBothMaximumReceives: pass receive count is funded independently
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:229: Failure
+Expected: (pass_envelope) <= ((8u * (4u + 2u + 0u) + 2u * ((2u + 2u + (1514u + 3u) / 4u) + 2u) + (1u * (4u + 2u * (2u + 2u + (1514u + 3u) / 4u))))), actual: 1596 vs 1588
+pass funds the independently measured poll envelope
+
+  [FAIL] Srp.PassFundsEveryEventRecordAndBothMaximumReceives: pass funds the independently measured poll envelope
+  SRP pass terms: event 56, receive 770, poll 770, envelope 1596/1588
+[  FAILED  ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives (0 ms)
+[----------] 3 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+[  FAILED  ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives
+
+ 2 FAILED TESTS
+== ctrl ADP MAAP SRP composition: checks: 5   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 5 checks, exit 1)

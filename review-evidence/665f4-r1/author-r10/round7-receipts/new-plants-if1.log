@@ -1,0 +1,12 @@
+[ok] receive-retention-unbounded: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len
+[ok] receive-retention-short: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-retention-late: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-discard-uncounted: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-discard-malformed: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.malformed
+[ok] receive-discard-as-success: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+[ok] receive-queue-renews-deadline: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-first-refusal-never-expires: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-expiry-precedes-recovery: SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord / adapter.received
+[ok] receive-recreate-never-expires: SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline / adapter.rx_discarded
+[ok] receive-flood-unbounded: SrpRetry.DomainFloodCannotDelayLaterRapidLeave / adapter.pending_rx.len
+[ok] receive-deadline-not-modular: SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard / adapter.rx_discarded

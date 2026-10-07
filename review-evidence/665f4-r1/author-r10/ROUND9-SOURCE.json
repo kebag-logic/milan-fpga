@@ -1,0 +1,113 @@
+{
+  "head": "edeef61c5a0cc6c18caa61db4019a8e378baf366",
+  "base": "a6e6916826448f81de2b779ca61a87a9f8c47278",
+  "tree": "164108f28665ce5ad1a24f350bf28b056100cb56",
+  "commits": [
+    {
+      "commit": "877c0b9d04078867e2bef481903745198527844c",
+      "parents": [
+        "a6e6916826448f81de2b779ca61a87a9f8c47278"
+      ],
+      "subject": "Wire deferred ACMP binding delivery into SRP composition",
+      "configured_identity_matches": true
+    },
+    {
+      "commit": "edeef61c5a0cc6c18caa61db4019a8e378baf366",
+      "parents": [
+        "877c0b9d04078867e2bef481903745198527844c"
+      ],
+      "subject": "Ratchet complete coverage for deferred SRP binding delivery",
+      "configured_identity_matches": true
+    }
+  ],
+  "protected_inputs_changed": [],
+  "builder_checkout": {
+    "head": "877c0b9d04078867e2bef481903745198527844c",
+    "differences_to_candidate": [
+      "sw/firmware/gtest/coverage.ratchet"
+    ],
+    "builder_inputs_identical": true
+  },
+  "files": [
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "size": 66360,
+      "sha256": "f44e003b200e721cc1fec3b66a715e96c9e5f44b67a8350ec4e50e0670e82628"
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "size": 30650,
+      "sha256": "a4af3d00b82c1f0e4ddbacbb9cd57e82f408ff2c3921f5e4f00cf8c4f04f041c"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.h",
+      "size": 7181,
+      "sha256": "74904c9f155eab65b3e0d8f5ab08f372730f56f76e9f472af94ab43f9a58e686"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app_srp.c",
+      "size": 3458,
+      "sha256": "f7cbb63216691707edbc4f1299aa91fcc79d5976c18a58f250346417aed171f6"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/README.md",
+      "size": 10955,
+      "sha256": "8338acd1ad14a69ad7e64443ae6704fca2ffbfe4d167ec19898721371e977d07"
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/README.md",
+      "size": 17634,
+      "sha256": "2c88dead88ce1de9d46c710de6452dcd201c7e9431b08f7e87725cd47a2fe0c0"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_review_mutants.py",
+      "size": 33275,
+      "sha256": "6b515960b7b69964334f5bbc6db2ceb524b1394f843d87dfd2b6bd1c5815588b"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_image.c",
+      "size": 3627,
+      "sha256": "7e96177a5ab2b13b9ba4cbc117455a8c0a055f3c1eb4342d77bac2b3e56284db"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "size": 6700,
+      "sha256": "249c0c594198a9637733d404a63d498744088b8562243a65bcd38131056054f1"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_app.cpp",
+      "size": 6841,
+      "sha256": "40f07425bb6e76d33103430c643b70edb4badbf092f3b9ffea472afb67e725fd"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_binding.hpp",
+      "size": 8397,
+      "sha256": "016a11f7114f20b64a8c03956571c4314057d5c81cbe9c5fc95ea91f6ff7ffa3"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_mutants.py",
+      "size": 36744,
+      "sha256": "d3b26bc7617b0d83fd75bda02fdf3fc0b55326111190d9ef56007d5bde43289d"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp.cpp",
+      "size": 90531,
+      "sha256": "fbbafe6999224ed48a85314b24a2519066ae9d33a1b8b74a4e89c6a6a68b9c3c"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp_mbx.cpp",
+      "size": 59478,
+      "sha256": "b8719d47e8220b41230ac74f43fe657181217e104676758fb35ba3b12cd0aa02"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "size": 12740,
+      "sha256": "184bd3b913b7677f40ed98ac450a279f7bc8a2d2ed97de003f6b6468e44731a0"
+    },
+    {
+      "path": "sw/firmware/gtest/coverage.ratchet",
+      "size": 1684,
+      "sha256": "f99cea294341e0bd15110c37ecdf424e7f9cca8c7a6de25f4b87a72e591a35fc"
+    }
+  ]
+}

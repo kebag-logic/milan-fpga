@@ -1,0 +1,31 @@
+Test project $SCRATCH/upstream-reversals/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.05 sec
+Running "main" (46 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 104 passes in 5ms.
+$SCRATCH/upstream-reversals/source/tests/unit/integration_test.c:282: Failure: integration_suite -> applicant_receive_conditions_follow_link_mode 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[7]
+		expected value:			[0]
+
+$SCRATCH/upstream-reversals/source/tests/unit/integration_test.c:282: Failure: integration_suite -> pending_applicant_joinin_obeys_note_four 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[9]
+		expected value:			[1]
+
+  "integration_suite": 378 passes, 2 failures in 11ms.
+  "milan_suite": 381 passes in 12ms.
+Completed "main": 2673 passes, 2 failures in 47ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest
