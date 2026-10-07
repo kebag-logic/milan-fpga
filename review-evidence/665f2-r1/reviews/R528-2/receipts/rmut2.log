@@ -1,0 +1,8 @@
+[run] r2-forward-octet-order-v2
+    arm=maap rc=1 caught=True failing: ['[FAIL] AllStates/MaapCell.TableB7/13', '[FAIL] AllStates/MaapCell.TableB7/14', '[FAIL] AllStates/MaapCell.TableB7/6', '[FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange', '[FAIL] MaapCore.QueueBoundAndWithdrawal', '[FAIL] MaapCore.RestartDrawsNewRange', '[FAIL] MaapCore.ReverseOctetPriority', '[FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath']
+[caught-all-arms] r2-forward-octet-order-v2
+[run] r2-csr-selection-not-restored-v2
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCsr.EveryStreamAddressAndLossGate']
+[caught-all-arms] r2-csr-selection-not-restored-v2
+defects: 2, escaped: 0
+rc=0 seconds=19

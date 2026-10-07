@@ -1,0 +1,15 @@
+== scripts/check_em_dash.py --base 1a5d70faba6a9b01aab6bb868c12e4c7023e0c70
+check_em_dash: 0 finding(s) over 34 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [1a5d70fa..HEAD]
+rc=0
+== scripts/check_em_dash.py --base db9aa8c9b135b34ff3d070a979dee70440b37cc6
+check_em_dash: 0 finding(s) over 193 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [db9aa8c9..HEAD]
+rc=0
+== scripts/docs_check.py
+docs_check: 0 finding(s) across 198 md files + 1130 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== scripts/gen_toc.py --check
+TOC gate: OK (138 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== scripts/gen_toc.py --verify-anchors
+anchor check: 385 existing cross-page fragment links reproduced
+rc=0

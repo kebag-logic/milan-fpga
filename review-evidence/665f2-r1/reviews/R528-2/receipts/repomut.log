@@ -1,0 +1,39 @@
+[run] maap-app-missing-rx-interrupt declared (maap, 'MaapHost.AppWaitWakesForMaapWithinBudget', 'accepted MAAP wakes idle loop')
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+    arm=maap_if2 rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+[named-caught] maap-app-missing-rx-interrupt arms=maap,maap_if2
+[run] maap-begin-down-forgets-range declared (maap, 'MaapCore.BeginBeforePortOperationalRetainsRange', 'Begin supplied range survives port down')
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.BeginBeforePortOperationalRetainsRange']
+[named-caught] maap-begin-down-forgets-range arms=maap
+[run] maap-restart-reuses-range declared (maap, 'MaapCore.RestartDrawsNewRange', 'fixed seed Restart draws a new range')
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.BeginBeforePortOperationalRetainsRange', '[FAIL] MaapCore.RestartDrawsNewRange']
+[named-caught] maap-restart-reuses-range arms=maap
+[run] maap-reverse-five-octets declared (maap, 'MaapCore.PriorityAfterTiedOctets', 'every reversed octet decides')
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.PriorityAfterTiedOctets']
+[named-caught] maap-reverse-five-octets arms=maap
+[run] maap-compare-mac-lsb-only declared (maap, 'MaapCore.PriorityAfterTiedOctets', 'every reversed octet decides')
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.PriorityAfterTiedOctets']
+[named-caught] maap-compare-mac-lsb-only arms=maap
+[run] maap-csr-select-listener declared (maap, 'MaapCsr.EveryStreamAddressAndLossGate', 'stream destination base plus index')
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCsr.EveryStreamAddressAndLossGate']
+[named-caught] maap-csr-select-listener arms=maap
+[run] maap-csr-enable-before-programming declared (maap, 'MaapCsr.AdmissionAfterEveryDestinationWrite', 'enables follow every destination word')
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite']
+[named-caught] maap-csr-enable-before-programming arms=maap
+[run] maap-poll-first-interface-only declared (maap_if2, 'MaapHost.InterfaceOneStallDrainsWithinBudget', 'interface 1 poll drains deferred output')
+    arm=maap_if2 rc=1 caught=True failing: ['[FAIL] MaapHost.InterfaceOneStallDrainsWithinBudget']
+[named-caught] maap-poll-first-interface-only arms=maap_if2
+[run] maap-generic-initial-handles-conflict declared (maap, 'AllStates/MaapCell.TableB7/0', 'Table B.7')
+    arm=maap rc=1 caught=True failing: ['[FAIL] AllStates/MaapCell.TableB7/0', '[FAIL] AllStates/MaapCell.TableB7/1', '[FAIL] AllStates/MaapCell.TableB7/2']
+[named-caught] maap-generic-initial-handles-conflict arms=maap
+[run] maap-generic-probe-state-defends declared (maap, 'AllStates/MaapCell.TableB7/12', 'Table B.7')
+    arm=maap rc=1 caught=True failing: ['[FAIL] AllStates/MaapCell.TableB7/12', '[FAIL] AllStates/MaapCell.TableB7/15', '[FAIL] AllStates/MaapCell.TableB7/6', '[FAIL] AllStates/MaapCell.TableB7/9', '[FAIL] MaapCore.DefendEchoAndIntersection', '[FAIL] MaapCore.PriorityAfterTiedOctets', '[FAIL] MaapCore.QueueBoundAndWithdrawal', '[FAIL] MaapCore.ReverseOctetPriority']
+[named-caught] maap-generic-probe-state-defends arms=maap
+[run] maap-generic-probe-defend-uses-priority declared (maap, 'AllStates/MaapCell.TableB7/10', 'Table B.7')
+    arm=maap rc=1 caught=True failing: ['[FAIL] AllStates/MaapCell.TableB7/10', '[FAIL] AllStates/MaapCell.TableB7/11']
+[named-caught] maap-generic-probe-defend-uses-priority arms=maap
+[run] maap-generic-equal-mac-wins declared (maap, 'MaapCore.ReverseOctetPriority', 'equal MAC is not lower')
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.ReverseOctetPriority']
+[named-caught] maap-generic-equal-mac-wins arms=maap
+defects: 12, escaped: 0
+rc=0 seconds=105

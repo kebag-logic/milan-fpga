@@ -1,0 +1,67 @@
+[run] r-reverse-five-octets
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.PriorityAfterTiedOctets']
+[caught-all-arms] r-reverse-five-octets
+[run] r-compare-mac-lsb-only
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.PriorityAfterTiedOctets']
+[caught-all-arms] r-compare-mac-lsb-only
+[run] r-restart-reuses-range
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.BeginBeforePortOperationalRetainsRange', '[FAIL] MaapCore.RestartDrawsNewRange']
+[caught-all-arms] r-restart-reuses-range
+[run] r-csr-enable-before-programming
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite']
+[caught-all-arms] r-csr-enable-before-programming
+[run] r-csr-select-listener
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCsr.EveryStreamAddressAndLossGate']
+[caught-all-arms] r-csr-select-listener
+[run] r-poll-first-interface-only
+    arm=maap_if2 rc=1 caught=True failing: ['[FAIL] MaapHost.InterfaceOneStallDrainsWithinBudget']
+[caught-all-arms] r-poll-first-interface-only
+[run] r2-irq-adp-only
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+    arm=maap_if2 rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+[caught-all-arms] r2-irq-adp-only
+[run] r2-irq-no-enable-write
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+    arm=maap_if2 rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+[caught-all-arms] r2-irq-no-enable-write
+[run] r2-irq-maap-only
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+    arm=maap_if2 rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+[caught-all-arms] r2-irq-maap-only
+[run] r2-irq-no-event
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+    arm=maap_if2 rc=1 caught=True failing: ['[FAIL] MaapHost.AppWaitWakesForMaapWithinBudget']
+[caught-all-arms] r2-irq-no-event
+[run] r2-up-ignores-saved-range
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.BeginBeforePortOperationalRetainsRange']
+[caught-all-arms] r2-up-ignores-saved-range
+[run] r2-saved-range-never-consumed
+    arm=maap rc=0 caught=False failing: []
+    arm=maap_if2 rc=0 caught=False failing: []
+[ESCAPED] r2-saved-range-never-consumed
+[run] r2-saved-range-reused-on-conflict
+    arm=maap rc=0 caught=False failing: []
+[ESCAPED] r2-saved-range-reused-on-conflict
+[run] r2-up-saved-range-no-send
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.BeginBeforePortOperationalRetainsRange', '[FAIL] MaapCore.ReleaseLossAndRetry']
+[caught-all-arms] r2-up-saved-range-no-send
+[run] r2-forward-octet-order
+    arm=maap rc=2 caught=False failing: []
+[ESCAPED] r2-forward-octet-order
+[run] r2-first-octet-ignored
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCore.PriorityAfterTiedOctets']
+[caught-all-arms] r2-first-octet-ignored
+[run] r2-last-octet-ignored
+    arm=maap rc=1 caught=True failing: ['[FAIL] AllStates/MaapCell.TableB7/13', '[FAIL] AllStates/MaapCell.TableB7/14', '[FAIL] AllStates/MaapCell.TableB7/16', '[FAIL] AllStates/MaapCell.TableB7/17', '[FAIL] AllStates/MaapCell.TableB7/6', '[FAIL] AllStates/MaapCell.TableB7/9', '[FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange', '[FAIL] MaapCore.PriorityAfterTiedOctets']
+[caught-all-arms] r2-last-octet-ignored
+[run] r2-csr-crf-enable-before-crf-address
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite']
+[caught-all-arms] r2-csr-crf-enable-before-crf-address
+[run] r2-csr-aaf-enable-before-window
+    arm=maap rc=1 caught=True failing: ['[FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite']
+[caught-all-arms] r2-csr-aaf-enable-before-window
+[run] r2-csr-selection-not-restored
+    arm=maap rc=2 caught=False failing: []
+[ESCAPED] r2-csr-selection-not-restored
+defects: 20, escaped: 4
+rc=0 seconds=172
