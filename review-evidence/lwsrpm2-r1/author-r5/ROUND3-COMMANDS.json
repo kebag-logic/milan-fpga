@@ -1,0 +1,919 @@
+{
+  "commands": [
+    {
+      "label": "issue6",
+      "command": [
+        "gh",
+        "issue",
+        "view",
+        "6",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--json",
+        "body,comments,url,state"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.64
+    },
+    {
+      "label": "review-internal",
+      "command": [
+        "gh",
+        "api",
+        "repos/kebag-logic/lwSRP/issues/comments/6032999319"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.73
+    },
+    {
+      "label": "issue7",
+      "command": [
+        "gh",
+        "issue",
+        "view",
+        "7",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--json",
+        "body,comments,url,state"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.75
+    },
+    {
+      "label": "issues",
+      "command": [
+        "gh",
+        "issue",
+        "view",
+        "1",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--json",
+        "body,comments,url,state"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.84
+    },
+    {
+      "label": "review-external",
+      "command": [
+        "gh",
+        "api",
+        "repos/kebag-logic/lwSRP/issues/comments/6033216570"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.88
+    },
+    {
+      "label": "packets",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 12.07
+    },
+    {
+      "label": "configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "$ROUND3_SCRATCH/build",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.34
+    },
+    {
+      "label": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "$ROUND3_SCRATCH/build",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.8
+    },
+    {
+      "label": "unit",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "$ROUND3_SCRATCH/build/unit_tests"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 1,
+      "seconds": 0.06
+    },
+    {
+      "label": "build-v2",
+      "command": [
+        "cmake",
+        "--build",
+        "$ROUND3_SCRATCH/build",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.42
+    },
+    {
+      "label": "unit-v2",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "$ROUND3_SCRATCH/build/unit_tests"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.07
+    },
+    {
+      "label": "embedded",
+      "command": [
+        "python3",
+        "tests/check_embedded.py",
+        "--work-dir",
+        "$ROUND3_SCRATCH/embedded"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 1.76
+    },
+    {
+      "label": "reversals",
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "tests/check_reversals.py",
+        "--work-dir",
+        "$ROUND3_SCRATCH/reversals",
+        "--prefix",
+        "$CGREEN_PREFIX"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 37.41
+    },
+    {
+      "label": "sentences",
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "doc/tools/check_sentences.py"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.06
+    },
+    {
+      "label": "references",
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "doc/tools/check_references.py"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.08
+    },
+    {
+      "label": "reference-selftest",
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "doc/tools/check_references.py",
+        "--self-test"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.09
+    },
+    {
+      "label": "configure-milan",
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "$ROUND3_SCRATCH/milan-build",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=ON"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.33
+    },
+    {
+      "label": "build-milan",
+      "command": [
+        "cmake",
+        "--build",
+        "$ROUND3_SCRATCH/milan-build",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.9
+    },
+    {
+      "label": "unit-milan",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "$ROUND3_SCRATCH/milan-build/unit_tests"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.07
+    },
+    {
+      "label": "independent-probes",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.5
+    },
+    {
+      "label": "sanitized-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "$ROUND3_SCRATCH/sanitized",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=ON",
+        "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined",
+        "-DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "label": "sanitized-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$ROUND3_SCRATCH/sanitized",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 1.1
+    },
+    {
+      "label": "sanitized-ctest",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "ASAN_OPTIONS=detect_leaks=1",
+        "UBSAN_OPTIONS=halt_on_error=1",
+        "ctest",
+        "--test-dir",
+        "$ROUND3_SCRATCH/sanitized",
+        "--output-on-failure",
+        "-V"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.75
+    },
+    {
+      "label": "audit",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.11
+    },
+    {
+      "label": "whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.02
+    },
+    {
+      "label": "published",
+      "command": [
+        "python3",
+        "$ROUND3_SCRATCH/published.py"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 65.19
+    },
+    {
+      "label": "graph-views",
+      "command": [
+        "bash",
+        "-c",
+        "node $ROUND3_SCRATCH/packets/R541-1/scripts/graph_views.mjs $ROUND3_SCRATCH/published-doc/graphs /usr/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer/lib/esm/puppeteer/puppeteer.js"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 1,
+      "seconds": 0.06
+    },
+    {
+      "label": "anchor-review",
+      "command": [
+        "python3",
+        "$ROUND3_SCRATCH/packets/R540-1/scripts/anchors.py",
+        "."
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.05
+    },
+    {
+      "label": "graph-views-v2",
+      "command": [
+        "node",
+        "$ROUND3_SCRATCH/packets/R541-1/scripts/graph_views.mjs",
+        "$ROUND3_SCRATCH/published-doc/graphs",
+        "$LOCAL_PREFIX/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer/lib/esm/puppeteer/puppeteer.js"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 1,
+      "seconds": 0.05
+    },
+    {
+      "label": "standard-recheck",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.05
+    },
+    {
+      "label": "graph-views-v3",
+      "command": [
+        "node",
+        "$ROUND3_SCRATCH/packets/R541-1/scripts/graph_views.mjs",
+        "$ROUND3_SCRATCH/published-doc/graphs",
+        "$LOCAL_PREFIX/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer/lib/puppeteer/puppeteer.js"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 3.79
+    },
+    {
+      "label": "final-published",
+      "command": [
+        "python3",
+        "$ROUND3_SCRATCH/final-published.py"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 101.5
+    },
+    {
+      "label": "final-docs",
+      "command": [
+        "python3",
+        "$ROUND3_SCRATCH/final-docs.py"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 20.03
+    },
+    {
+      "label": "final-audit",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "label": "final-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.02
+    },
+    {
+      "label": "final-doc-review",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.06
+    },
+    {
+      "label": "final-graph-views",
+      "command": [
+        "node",
+        "$ROUND3_SCRATCH/packets/R541-1/scripts/graph_views.mjs",
+        "$ROUND3_SCRATCH/final-doc/graphs",
+        "$LOCAL_PREFIX/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer/lib/puppeteer/puppeteer.js"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 3.09
+    },
+    {
+      "label": "stage",
+      "command": [
+        "git",
+        "add",
+        "CMakeLists.txt",
+        "README.md",
+        "doc/architecture.md",
+        "doc/developer.md",
+        "doc/integrator.md",
+        "doc/manager.md",
+        "doc/tester.md",
+        "src/core/mrp_mad.c",
+        "src/core/mrp_pdu.c",
+        "src/include/shish_lan/mrp.h",
+        "src/modules/mmrp.c",
+        "src/modules/msrp.c",
+        "src/modules/mvrp.c",
+        "tests/check_freestanding.py",
+        "tests/check_reversals.py",
+        "tests/check_embedded.py",
+        "tests/embedded_switch.c",
+        "tests/unit/review_test.c",
+        "tests/unit/integration_test.c",
+        "tests/unit/main.c",
+        "tests/unit/milan_test.c",
+        "tests/unit/transmit_test.c"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.02
+    },
+    {
+      "label": "staged-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.02
+    },
+    {
+      "label": "commit",
+      "command": [
+        "git",
+        "commit",
+        "-m",
+        "Fix atomic receive validation and retained propagation"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.03
+    },
+    {
+      "label": "committed-audit",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.19
+    },
+    {
+      "label": "delivery-audit",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 0.06
+    },
+    {
+      "label": "review-ready",
+      "command": [
+        "gh",
+        "issue",
+        "comment",
+        "10",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--body-file",
+        "$ROUND3_SCRATCH/review-ready.txt"
+      ],
+      "cwd": "$SOURCE",
+      "rc": 0,
+      "seconds": 1.39
+    }
+  ],
+  "published": [
+    {
+      "label": "final-published-01",
+      "page": "README.md",
+      "line": 39,
+      "command": "cmake -S . -B \"$LWSRP_BUILD\" -DCMAKE_BUILD_TYPE=Debug -DLWSRP_MILAN=OFF",
+      "rc": 0
+    },
+    {
+      "label": "final-published-02",
+      "page": "README.md",
+      "line": 40,
+      "command": "cmake --build \"$LWSRP_BUILD\" --parallel 2",
+      "rc": 0
+    },
+    {
+      "label": "final-published-03",
+      "page": "README.md",
+      "line": 41,
+      "command": "ctest --test-dir \"$LWSRP_BUILD\" --output-on-failure",
+      "rc": 0
+    },
+    {
+      "label": "final-published-04",
+      "page": "README.md",
+      "line": 42,
+      "command": "SHLAN_LIBRARY=\"$LWSRP_BUILD/libshlan.so\" behave",
+      "rc": 0
+    },
+    {
+      "label": "final-published-05",
+      "page": "doc/tester.md",
+      "line": 18,
+      "command": "cmake -S . -B \"$LWSRP_BUILD\" -DCMAKE_BUILD_TYPE=Debug -DLWSRP_MILAN=OFF",
+      "rc": 0
+    },
+    {
+      "label": "final-published-06",
+      "page": "doc/tester.md",
+      "line": 19,
+      "command": "cmake --build \"$LWSRP_BUILD\" --parallel 2",
+      "rc": 0
+    },
+    {
+      "label": "final-published-07",
+      "page": "doc/tester.md",
+      "line": 20,
+      "command": "ctest --test-dir \"$LWSRP_BUILD\" --output-on-failure",
+      "rc": 0
+    },
+    {
+      "label": "final-published-08",
+      "page": "doc/tester.md",
+      "line": 21,
+      "command": "\"$LWSRP_BUILD/unit_tests\"",
+      "rc": 0
+    },
+    {
+      "label": "final-published-09",
+      "page": "doc/tester.md",
+      "line": 22,
+      "command": "SHLAN_LIBRARY=\"$LWSRP_BUILD/libshlan.so\" behave",
+      "rc": 0
+    },
+    {
+      "label": "final-published-10",
+      "page": "doc/tester.md",
+      "line": 23,
+      "command": "behave --dry-run",
+      "rc": 0
+    },
+    {
+      "label": "final-published-11",
+      "page": "doc/tester.md",
+      "line": 46,
+      "command": "cmake -S . -B \"$LWSRP_MILAN_BUILD\" -DCMAKE_BUILD_TYPE=Debug -DLWSRP_MILAN=ON",
+      "rc": 0
+    },
+    {
+      "label": "final-published-12",
+      "page": "doc/tester.md",
+      "line": 47,
+      "command": "cmake --build \"$LWSRP_MILAN_BUILD\" --parallel 2",
+      "rc": 0
+    },
+    {
+      "label": "final-published-13",
+      "page": "doc/tester.md",
+      "line": 48,
+      "command": "ctest --test-dir \"$LWSRP_MILAN_BUILD\" --output-on-failure",
+      "rc": 0
+    },
+    {
+      "label": "final-published-14",
+      "page": "doc/tester.md",
+      "line": 49,
+      "command": "\"$LWSRP_MILAN_BUILD/unit_tests\"",
+      "rc": 0
+    },
+    {
+      "label": "final-published-15",
+      "page": "doc/tester.md",
+      "line": 50,
+      "command": "SHLAN_LIBRARY=\"$LWSRP_MILAN_BUILD/libshlan.so\" behave",
+      "rc": 0
+    },
+    {
+      "label": "final-published-16",
+      "page": "doc/tester.md",
+      "line": 73,
+      "command": "cc -std=c11 -Isrc/include tests/unit/mrp_pdu_test.c src/core/mrp_pdu.c -xc - -lcgreen -o \"$LWSRP_BUILD/mrp_pdu_tests\" <<'C'\n#include <cgreen/cgreen.h>\nTestSuite *mrp_pdu_suite(void);\nint main(void)\n{\n    return run_test_suite(mrp_pdu_suite(), create_text_reporter());\n}\nC",
+      "rc": 0
+    },
+    {
+      "label": "final-published-17",
+      "page": "doc/tester.md",
+      "line": 81,
+      "command": "\"$LWSRP_BUILD/mrp_pdu_tests\"",
+      "rc": 0
+    },
+    {
+      "label": "final-published-18",
+      "page": "doc/tester.md",
+      "line": 161,
+      "command": "python3 tests/check_embedded.py --work-dir \"$EMBEDDED_SCRATCH\"",
+      "rc": 0
+    },
+    {
+      "label": "final-published-19",
+      "page": "doc/tester.md",
+      "line": 162,
+      "command": "python3 tests/check_freestanding.py",
+      "rc": 0
+    },
+    {
+      "label": "final-published-20",
+      "page": "doc/tester.md",
+      "line": 163,
+      "command": "CC=\"cc -DLWSRP_MILAN=1\" python3 tests/check_freestanding.py",
+      "rc": 0
+    },
+    {
+      "label": "final-published-21",
+      "page": "doc/tester.md",
+      "line": 164,
+      "command": "python3 tests/check_reversals.py --work-dir \"$REVERSAL_SCRATCH\" --prefix \"$CGREEN_PREFIX\"",
+      "rc": 0
+    },
+    {
+      "label": "final-published-22",
+      "page": "doc/tester.md",
+      "line": 165,
+      "command": "python3 tests/check_reversals.py --work-dir \"$MILAN_REVERSAL_SCRATCH\" --prefix \"$CGREEN_PREFIX\" --milan ON",
+      "rc": 0
+    },
+    {
+      "label": "final-doc-23",
+      "page": "doc/tools/README.md",
+      "line": 14,
+      "command": "python3 doc/tools/check_sentences.py",
+      "rc": 0
+    },
+    {
+      "label": "final-doc-24",
+      "page": "doc/tools/README.md",
+      "line": 15,
+      "command": "python3 doc/tools/check_references.py",
+      "rc": 0
+    },
+    {
+      "label": "final-doc-25",
+      "page": "doc/tools/README.md",
+      "line": 16,
+      "command": "python3 doc/tools/check_references.py --self-test",
+      "rc": 0
+    },
+    {
+      "label": "final-doc-26",
+      "page": "doc/tools/README.md",
+      "line": 17,
+      "command": "python3 doc/tools/check_links.py --github-auth",
+      "rc": 0
+    },
+    {
+      "label": "final-doc-27",
+      "page": "doc/tools/README.md",
+      "line": 18,
+      "command": "python3 doc/tools/render_mermaid.py --output \"$DOC_SCRATCH/graphs\"",
+      "rc": 0
+    }
+  ],
+  "independent_probes": [
+    {
+      "label": "edge_probes-default-build",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/include",
+        "-Isrc",
+        "$ROUND3_SCRATCH/packets/R541-1/scripts/edge_probes.c",
+        "-L$ROUND3_SCRATCH/build",
+        "-lshlan",
+        "-Wl,-rpath,$ROUND3_SCRATCH/build",
+        "-o",
+        "$ROUND3_SCRATCH/edge_probes-default"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-default-versions",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-default",
+        "versions"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-default-overflow",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-default",
+        "overflow"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-default-controls",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-default",
+        "controls"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-default-invalid-then-valid",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-default",
+        "invalid-then-valid"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-default-rejoin",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-default",
+        "rejoin"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "map_probe-default-build",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/include",
+        "-Isrc",
+        "$ROUND3_SCRATCH/packets/R541-1/scripts/map_probe.c",
+        "-L$ROUND3_SCRATCH/build",
+        "-lshlan",
+        "-Wl,-rpath,$ROUND3_SCRATCH/build",
+        "-o",
+        "$ROUND3_SCRATCH/map_probe-default"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "map_probe-default-",
+      "command": [
+        "$ROUND3_SCRATCH/map_probe-default"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-milan-build",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/include",
+        "-Isrc",
+        "$ROUND3_SCRATCH/packets/R541-1/scripts/edge_probes.c",
+        "-L$ROUND3_SCRATCH/milan-build",
+        "-lshlan",
+        "-Wl,-rpath,$ROUND3_SCRATCH/milan-build",
+        "-o",
+        "$ROUND3_SCRATCH/edge_probes-milan"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-milan-versions",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-milan",
+        "versions"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-milan-overflow",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-milan",
+        "overflow"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-milan-controls",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-milan",
+        "controls"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-milan-invalid-then-valid",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-milan",
+        "invalid-then-valid"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "edge_probes-milan-rejoin",
+      "command": [
+        "$ROUND3_SCRATCH/edge_probes-milan",
+        "rejoin"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "map_probe-milan-build",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/include",
+        "-Isrc",
+        "$ROUND3_SCRATCH/packets/R541-1/scripts/map_probe.c",
+        "-L$ROUND3_SCRATCH/milan-build",
+        "-lshlan",
+        "-Wl,-rpath,$ROUND3_SCRATCH/milan-build",
+        "-o",
+        "$ROUND3_SCRATCH/map_probe-milan"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "map_probe-milan-",
+      "command": [
+        "$ROUND3_SCRATCH/map_probe-milan"
+      ],
+      "rc": 0
+    }
+  ]
+}

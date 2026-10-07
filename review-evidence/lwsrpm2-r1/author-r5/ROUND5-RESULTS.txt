@@ -1,0 +1,701 @@
+# SPDX-License-Identifier: Apache-2.0
+
+=== probes.json ===
+[
+  {
+    "label": "probe_r3-0-compile",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-no-pie",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DLWSRP_MILAN=0",
+      "-Isrc/include",
+      "-Isrc",
+      "$SCRATCH/packets/R540-3/scripts/probes/probe_r3.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/modules/msrp.c",
+      "src/modules/mvrp.c",
+      "src/modules/mmrp.c",
+      "src/ports/timer.c",
+      "$SCRATCH/packets/R540-3/scripts/probes/probe_alloc.c",
+      "-o",
+      "$SCRATCH/probe_r3-0"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r3-0",
+    "command": [
+      "$SCRATCH/probe_r3-0"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_plants-0-compile",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-no-pie",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DLWSRP_MILAN=0",
+      "-Isrc/include",
+      "-Isrc",
+      "$SCRATCH/packets/R540-3/scripts/probes/probe_plants.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/modules/msrp.c",
+      "src/modules/mvrp.c",
+      "src/modules/mmrp.c",
+      "src/ports/timer.c",
+      "$SCRATCH/packets/R540-3/scripts/probes/probe_alloc.c",
+      "-o",
+      "$SCRATCH/probe_plants-0"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_plants-0",
+    "command": [
+      "$SCRATCH/probe_plants-0"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r3-1-compile",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-no-pie",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DLWSRP_MILAN=1",
+      "-Isrc/include",
+      "-Isrc",
+      "$SCRATCH/packets/R540-3/scripts/probes/probe_r3.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/modules/msrp.c",
+      "src/modules/mvrp.c",
+      "src/modules/mmrp.c",
+      "src/ports/timer.c",
+      "$SCRATCH/packets/R540-3/scripts/probes/probe_alloc.c",
+      "-o",
+      "$SCRATCH/probe_r3-1"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_r3-1",
+    "command": [
+      "$SCRATCH/probe_r3-1"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_plants-1-compile",
+    "command": [
+      "cc",
+      "-std=c11",
+      "-g",
+      "-O1",
+      "-no-pie",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DLWSRP_MILAN=1",
+      "-Isrc/include",
+      "-Isrc",
+      "$SCRATCH/packets/R540-3/scripts/probes/probe_plants.c",
+      "src/core/mrp_mad.c",
+      "src/core/mrp_pdu.c",
+      "src/modules/msrp.c",
+      "src/modules/mvrp.c",
+      "src/modules/mmrp.c",
+      "src/ports/timer.c",
+      "$SCRATCH/packets/R540-3/scripts/probes/probe_alloc.c",
+      "-o",
+      "$SCRATCH/probe_plants-1"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "probe_plants-1",
+    "command": [
+      "$SCRATCH/probe_plants-1"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "external-flush",
+    "command": [
+      "python3",
+      "$SCRATCH/packets/R541-3/scripts/run_flush.py",
+      "--source",
+      "$SOURCE",
+      "--packet",
+      "$SCRATCH/packets/R541-3",
+      "--jobs",
+      "1"
+    ],
+    "rc": 0
+  }
+]
+=== external-flush.log ===
+OFF build 0 
+OFF run 0 flush fail_slot=0 immediate reg=MT leave_indications=1
+flush fail_slot=0 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=1 immediate reg=LV leave_indications=0
+flush fail_slot=1 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=2 immediate reg=LV leave_indications=0
+flush fail_slot=2 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=3 immediate reg=LV leave_indications=0
+flush fail_slot=3 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush checks=532 failures=0 live=0
+
+ON build 0 
+ON run 0 flush fail_slot=0 immediate reg=MT leave_indications=1
+flush fail_slot=0 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=1 immediate reg=LV leave_indications=0
+flush fail_slot=1 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=2 immediate reg=LV leave_indications=0
+flush fail_slot=2 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=3 immediate reg=LV leave_indications=0
+flush fail_slot=3 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush checks=532 failures=0 live=0
+
+
+=== external-faults.log ===
+fault-build-OFF 0 
+fault-OFF 0 completed 54 changed-value allocation cases
+completed 12 unchanged LV recovery cases
+completed repeated timer exhaustion and retained FIFO replay
+checks=2289 failures=0 live=0
+
+sanitized-build-OFF 1 fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/receive_test.c:2:10: fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/review_test.c:2:10: fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/timer_test.c:2:10: fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/transmit_test.c:2:10: fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/main.c:3:10: fatal error: cgreen/cgreen.h: No such file or directory
+    3 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+
+fault-build-ON 0 
+fault-ON 0 completed 54 changed-value allocation cases
+completed 12 unchanged LV recovery cases
+completed repeated timer exhaustion and retained FIFO replay
+checks=2289 failures=0 live=0
+
+sanitized-build-ON 1 fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/receive_test.c:2:10: fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/review_test.c:2:10: fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/timer_test.c:2:10: fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/transmit_test.c:2:10: fatal error: cgreen/cgreen.h: No such file or directory
+    2 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+$SOURCE/tests/unit/main.c:3:10: fatal error: cgreen/cgreen.h: No such file or directory
+    3 | #include <cgreen/cgreen.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+
+
+=== external-faults-rerun.log ===
+fault-build-OFF 0 
+fault-OFF 0 completed 54 changed-value allocation cases
+completed 12 unchanged LV recovery cases
+completed repeated timer exhaustion and retained FIFO replay
+checks=2289 failures=0 live=0
+
+sanitized-build-OFF 0 
+sanitized-unit-OFF 0 Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 116ms.
+  "timer_suite": 14 passes in 22ms.
+  "msrp_values_suite": 23 passes in 21ms.
+  "receive_suite": 83 passes in 54ms.
+  "transmit_suite": 106 passes in 70ms.
+  "integration_suite": 371 passes in 144ms.
+  "milan_suite": 442 passes in 108ms.
+  "boundaries_suite": 2016 passes in 313ms.
+Completed "main": 4745 passes in 848ms.
+
+fault-build-ON 0 
+fault-ON 0 completed 54 changed-value allocation cases
+completed 12 unchanged LV recovery cases
+completed repeated timer exhaustion and retained FIFO replay
+checks=2289 failures=0 live=0
+
+sanitized-build-ON 0 
+sanitized-unit-ON 0 Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 102ms.
+  "timer_suite": 14 passes in 19ms.
+  "msrp_values_suite": 23 passes in 20ms.
+  "receive_suite": 83 passes in 56ms.
+  "transmit_suite": 106 passes in 65ms.
+  "integration_suite": 371 passes in 139ms.
+  "milan_suite": 430 passes in 112ms.
+  "boundaries_suite": 2016 passes in 323ms.
+Completed "main": 4733 passes in 836ms.
+
+
+=== full-braces.log ===
+unbraced added control lines: 0
+
+=== audit.log ===
+Files: 60 issues: 0
+
+Source anchors: 43
+Added brace issues: []
+
+=== final-anchors.txt ===
+doc/architecture.md: transmit operation -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/architecture.md: mrp_transmit -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/architecture.md: bounded assembler -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/manager.md: Receive handler -> ../src/core/mrp_mad.c:1047: static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)
+doc/manager.md: Applicant handler -> ../src/core/mrp_mad.c:503: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+doc/manager.md: Registrar table -> ../src/core/mrp_mad.c:322: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+doc/manager.md: transmit operation -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/manager.md: Assembler -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/manager.md: Destination constant -> ../src/modules/msrp.c:415:     .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },
+doc/manager.md: assembler -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/manager.md: Stream policy -> ../src/modules/msrp.c:138: static uint32_t msrp_map_join(const struct mrp_app *app, uint8_t src_port,
+doc/manager.md: active-state and inactive-state assertions -> ../tests/features/steps/switch_steps.py:27: @then("port {port_id:d} should be active")
+doc/tester.md: active-state and inactive-state assertions -> ../tests/features/steps/switch_steps.py:27: @then("port {port_id:d} should be active")
+doc/developer.md: mrp_reclaim -> ../src/core/mrp_mad.c:1081: unsigned mrp_reclaim(struct mrp_app *app, uint8_t port_id)
+doc/developer.md: declaration rows -> ../src/core/mrp_mad.c:155:     [MRP_EVENT_NEW] = {
+doc/developer.md: Applicant handler -> ../src/core/mrp_mad.c:503: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+doc/developer.md: transmit operation -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/developer.md: Applicant handler -> ../src/core/mrp_mad.c:503: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+doc/developer.md: event dispatcher -> ../src/core/mrp_mad.c:742: static void deliver_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/developer.md: transactional assembler -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/developer.md: receive-event rows -> ../src/core/mrp_mad.c:204:     [MRP_EVENT_RJOININ] = {
+doc/developer.md: Applicant table -> ../src/core/mrp_mad.c:146: static const struct appl_entry appl_table[MRP_EVENT_COUNT][MRP_APPL_STATE_COUNT] = {
+doc/developer.md: Applicant handler -> ../src/core/mrp_mad.c:503: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+doc/developer.md: withdrawal row -> ../src/core/mrp_mad.c:169:     [MRP_EVENT_LV] = {
+doc/developer.md: transmit rows -> ../src/core/mrp_mad.c:176:     [MRP_EVENT_TX] = {
+doc/developer.md: transmit rows -> ../src/core/mrp_mad.c:176:     [MRP_EVENT_TX] = {
+doc/developer.md: Registrar table -> ../src/core/mrp_mad.c:322: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+doc/developer.md: indication handler -> ../src/core/mrp_mad.c:615: static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+doc/developer.md: Registrar table -> ../src/core/mrp_mad.c:322: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+doc/developer.md: re-declaration row -> ../src/core/mrp_mad.c:384:     /* MRP_EVENT_REDECLARE — same as RLV for Registrar */
+doc/developer.md: Registrar Join rows -> ../src/core/mrp_mad.c:350:     /* MRP_EVENT_RJOININ || MRP_EVENT_RJOINMT — Table 10-4 rJoinIn!||rJoinMt! row */
+doc/developer.md: Registrar handler -> ../src/core/mrp_mad.c:615: static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+doc/developer.md: receive handler -> ../src/core/mrp_mad.c:1047: static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)
+doc/developer.md: la_event -> ../src/core/mrp_mad.c:766: static void la_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/developer.md: transmit operation -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/developer.md: timer draw -> ../src/core/mrp_mad.c:760: static uint32_t leaveall_draw(struct mrp_port_state *ps)
+doc/developer.md: pt_event -> ../src/core/mrp_mad.c:806: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/developer.md: mrp_set_periodic -> ../src/core/mrp_mad.c:1121: void mrp_set_periodic(struct mrp_app *app, uint8_t port_id, bool enable)
+doc/developer.md: periodic handler -> ../src/core/mrp_mad.c:806: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/integrator.md: assembler -> ../src/core/mrp_mad.c:1301: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/integrator.md: stream destination -> ../src/modules/msrp.c:415:     .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },
+doc/integrator.md: periodic handler -> ../src/core/mrp_mad.c:806: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/integrator.md: destructor -> ../src/core/mrp_mad.c:906: void mrp_app_destroy(struct mrp_app *app)
+
+=== sanitize-OFF-unit.log ===
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 108ms.
+  "timer_suite": 14 passes in 24ms.
+  "msrp_values_suite": 23 passes in 23ms.
+  "receive_suite": 83 passes in 55ms.
+  "transmit_suite": 106 passes in 71ms.
+  "integration_suite": 371 passes in 166ms.
+  "milan_suite": 442 passes in 111ms.
+  "boundaries_suite": 2016 passes in 358ms.
+Completed "main": 4745 passes in 924ms.
+
+=== sanitize-ON-unit.log ===
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 109ms.
+  "timer_suite": 14 passes in 21ms.
+  "msrp_values_suite": 23 passes in 20ms.
+  "receive_suite": 83 passes in 46ms.
+  "transmit_suite": 106 passes in 62ms.
+  "integration_suite": 371 passes in 146ms.
+  "milan_suite": 430 passes in 112ms.
+  "boundaries_suite": 2016 passes in 316ms.
+Completed "main": 4733 passes in 832ms.
+
+=== published-03.log ===
+Test project $SCRATCH/final-published/published-build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.06 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.06 sec
+
+=== published-04.log ===
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.001s
+
+=== published-08.log ===
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 10ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 8ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 2016 passes in 23ms.
+Completed "main": 4745 passes in 61ms.
+
+=== published-13.log ===
+Test project $SCRATCH/final-published/published-milan-build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.07 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.07 sec
+
+=== published-14.log ===
+Running "main" (75 tests)...
+  "mrp_pdu_suite": 1690 passes in 10ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 3ms.
+  "integration_suite": 371 passes in 9ms.
+  "milan_suite": 430 passes in 7ms.
+  "boundaries_suite": 2016 passes in 24ms.
+Completed "main": 4733 passes in 59ms.
+
+=== published-15.log ===
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.010s
+
+=== published-17.log ===
+Running "mrp_pdu_suite" (9 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+Completed "mrp_pdu_suite": 1690 passes in 11ms.
+
+=== published-18.log ===
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/final-published/published-embedded/OFF
+OFF: ['cmake', '-S', '$SCRATCH/final-published/published-embedded', '-B', '$SCRATCH/final-published/published-embedded/OFF', '-DLWSRP_ROOT=$SOURCE', '-DLWSRP_MILAN=OFF']; rc=0
+[  9%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/mrp_pdu.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/mrp_mad.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$SOURCE/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+OFF: ['cmake', '--build', '$SCRATCH/final-published/published-embedded/OFF', '--parallel', '2']; rc=0
+OFF: ['$SCRATCH/final-published/published-embedded/OFF/probe']; rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/final-published/published-embedded/ON
+ON: ['cmake', '-S', '$SCRATCH/final-published/published-embedded', '-B', '$SCRATCH/final-published/published-embedded/ON', '-DLWSRP_ROOT=$SOURCE', '-DLWSRP_MILAN=ON']; rc=0
+[  9%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/mrp_pdu.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$SOURCE/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+ON: ['cmake', '--build', '$SCRATCH/final-published/published-embedded/ON', '--parallel', '2']; rc=0
+ON: ['$SCRATCH/final-published/published-embedded/ON/probe']; rc=0
+Embedded source list: both profile links and dispatch probes pass
+
+=== published-19.log ===
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+
+=== published-20.log ===
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+
+=== published-23.log ===
+SYNTAX CONTRIBUTING.md:18: c fence: literal machine syntax; nearby reference links require review
+SYNTAX CONTRIBUTING.md:48: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX README.md:15: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX README.md:38: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:10: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:35: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:71: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:29: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:81: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:114: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:143: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:170: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:204: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:232: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:259: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:293: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:337: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:44: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:81: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:121: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:175: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:227: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:254: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:288: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:318: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:349: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/manager.md:46: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:17: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:53: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:80: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:98: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:111: gherkin fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:128: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:169: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tools/README.md:13: sh fence: literal machine syntax; nearby reference links require review
+Sentences/fragments: 941; over limit: 0; prose exceptions: 0
+
+=== published-24.log ===
+SYNTAX CONTRIBUTING.md:18: c fence: literal machine syntax; nearby reference links require review
+SYNTAX CONTRIBUTING.md:48: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX README.md:15: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX README.md:38: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:10: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:35: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:71: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:29: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:81: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:114: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:143: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:170: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:204: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:232: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:259: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:293: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:337: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:44: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:81: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:121: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:175: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:227: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:254: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:288: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:318: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:349: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/manager.md:46: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:17: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:53: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:80: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:98: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:111: gherkin fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:128: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:169: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tools/README.md:13: sh fence: literal machine syntax; nearby reference links require review
+Unlinked references: 0; prose exceptions: 0
+
+=== published-25.log ===
+Reference self-test: 79 cases; failures: 0
+
+=== published-26.log ===
+PASS https://behave.readthedocs.io/en/stable/: anonymous; HTTP 200
+PASS https://cli.github.com/manual/: anonymous; HTTP 200
+PASS https://cmake.org/cmake/help/latest/: anonymous; HTTP 200
+PASS https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html: anonymous; HTTP 200
+PASS https://docs.python.org/3/: anonymous; HTTP 200
+PASS https://docs.zephyrproject.org/latest/develop/modules.html: anonymous; HTTP 200
+PASS https://gcc.gnu.org/onlinedocs/gcc/: anonymous; HTTP 200
+PASS https://github.com/cgreen-devs/cgreen: anonymous; HTTP 200
+PASS https://github.com/kebag-logic/lwSRP/issues: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/1: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/10: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/11: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/4: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/8: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/pulls: authenticated; API rc=0
+PASS https://github.com/mermaid-js/mermaid-cli: anonymous; HTTP 200
+PASS https://milanav.com/milan-faqs/: anonymous; HTTP 200
+PASS https://spdx.dev/: anonymous; HTTP 200
+PASS https://standards.ieee.org/ieee/802.1Q/6844/: anonymous; HTTP 200
+PASS https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf: anonymous; HTTP 200
+Local links: 352; external URLs: 20; failures: 0
+
+=== published-27.log ===
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/CONTRIBUTING.md-48.mmd -o $SCRATCH/final-published/published-doc/graphs/CONTRIBUTING.md-48.svg -b white; rc=0
+PASS CONTRIBUTING.md:48: 5 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/README.md-15.mmd -o $SCRATCH/final-published/published-doc/graphs/README.md-15.svg -b white; rc=0
+PASS README.md:15: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-10.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-10.svg -b white; rc=0
+PASS doc/architecture.md:10: 11 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-35.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-35.svg -b white; rc=0
+PASS doc/architecture.md:35: 12 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-71.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-71.svg -b white; rc=0
+PASS doc/architecture.md:71: 8 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-29.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-29.svg -b white; rc=0
+PASS doc/developer.md:29: 10 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-81.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-81.svg -b white; rc=0
+PASS doc/developer.md:81: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-114.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-114.svg -b white; rc=0
+PASS doc/developer.md:114: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-143.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-143.svg -b white; rc=0
+PASS doc/developer.md:143: 7 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-170.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-170.svg -b white; rc=0
+PASS doc/developer.md:170: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-204.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-204.svg -b white; rc=0
+PASS doc/developer.md:204: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-232.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-232.svg -b white; rc=0
+PASS doc/developer.md:232: 2 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-259.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-259.svg -b white; rc=0
+PASS doc/developer.md:259: 2 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-293.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-293.svg -b white; rc=0
+PASS doc/developer.md:293: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-337.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-337.svg -b white; rc=0
+PASS doc/developer.md:337: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-44.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-44.svg -b white; rc=0
+PASS doc/integrator.md:44: 2 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-81.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-81.svg -b white; rc=0
+PASS doc/integrator.md:81: 4 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-121.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-121.svg -b white; rc=0
+PASS doc/integrator.md:121: 4 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-175.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-175.svg -b white; rc=0
+PASS doc/integrator.md:175: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-227.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-227.svg -b white; rc=0
+PASS doc/integrator.md:227: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-254.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-254.svg -b white; rc=0
+PASS doc/integrator.md:254: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-288.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-288.svg -b white; rc=0
+PASS doc/integrator.md:288: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-318.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-318.svg -b white; rc=0
+PASS doc/integrator.md:318: 2 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-349.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-349.svg -b white; rc=0
+PASS doc/integrator.md:349: 4 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-manager.md-46.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-manager.md-46.svg -b white; rc=0
+PASS doc/manager.md:46: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-tester.md-98.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-tester.md-98.svg -b white; rc=0
+PASS doc/tester.md:98: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-tester.md-128.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-tester.md-128.svg -b white; rc=0
+PASS doc/tester.md:128: 9 nodes; render rc=0
+Graphs: 27; failures: 0
