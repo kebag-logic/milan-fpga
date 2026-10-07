@@ -141,8 +141,9 @@ audio deadlines and bench acceptance remain later integration obligations.
 The control gate runs the core/CSR tests and H-MAAP at one and two interfaces.
 Release coverage measures the original portable C sources.
 The debug assertion has a separate expected-abort test.
-RV32 object validation uses `-DNDEBUG` only.
-The host assertion test does not prove target debug linkage.
+The regular RV32 object gate uses `-DNDEBUG`.
+A debug RV32 compile also passes with the assertion header.
+Target debug linkage still needs a runtime `__assert_fail` handler.
 New firmware must have 100% line and branch coverage without exclusions.
 `maap_mutants.py` plants protocol, wire, timer, ordering, adapter and output defects;
 the named test and failure text must match, not merely a failed executable.
@@ -152,7 +153,7 @@ The campaign can be partitioned with `--self-test --mutation-shard INDEX COUNT`.
 Run every zero-based index to cover the complete campaign.
 
 ```sh
-CTRL_RV32_CC=riscv64-elf-gcc python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+MILAN_RV32_CC=riscv64-elf-gcc python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
 python3 sw/firmware/gtest/tally_selftest.py
 python3 sw/firmware/gtest/fw_coverage.py --selftest
 python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
