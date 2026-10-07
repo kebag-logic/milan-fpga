@@ -1,0 +1,578 @@
+[==========] Running 84 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 62 tests from AcmpCore
+[ RUN      ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold
+[       OK ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold (0 ms)
+[ RUN      ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled
+[       OK ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled (0 ms)
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+[       OK ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[ RUN      ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted
+[       OK ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateInEveryState
+[       OK ] AcmpCore.A2GetRxStateInEveryState (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed
+[       OK ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed (0 ms)
+[ RUN      ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId
+[       OK ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId (0 ms)
+[ RUN      ] AcmpCore.A3UnbindInEveryState
+[       OK ] AcmpCore.A3UnbindInEveryState (0 ms)
+[ RUN      ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind
+[       OK ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind (0 ms)
+[ RUN      ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked
+[       OK ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked (0 ms)
+[ RUN      ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+[       OK ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits (0 ms)
+[ RUN      ] AcmpCore.A6BindAnotherSourceRestartsTheSink
+[       OK ] AcmpCore.A6BindAnotherSourceRestartsTheSink (0 ms)
+[ RUN      ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding
+[       OK ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId
+[       OK ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId (0 ms)
+[ RUN      ] AcmpCore.A7EachGuardTermIsChecked
+[       OK ] AcmpCore.A7EachGuardTermIsChecked (0 ms)
+[ RUN      ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding
+[       OK ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesOutsideProbingAreIgnored
+[       OK ] AcmpCore.A7ResponsesOutsideProbingAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A8SuccessSettles
+[       OK ] AcmpCore.A8SuccessSettles (0 ms)
+[ RUN      ] AcmpCore.A9FailureWaitsForTheRetry
+[       OK ] AcmpCore.A9FailureWaitsForTheRetry (0 ms)
+[ RUN      ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+[       OK ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp (0 ms)
+[ RUN      ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+[       OK ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays (0 ms)
+[ RUN      ] AcmpCore.A12DelaySendsANewProbe
+[       OK ] AcmpCore.A12DelaySendsANewProbe (0 ms)
+[ RUN      ] AcmpCore.A13NoTalkerAttributeReprobes
+[       OK ] AcmpCore.A13NoTalkerAttributeReprobes (0 ms)
+[ RUN      ] AcmpCore.A14RegisteredSettlesTheReservation
+[       OK ] AcmpCore.A14RegisteredSettlesTheReservation (0 ms)
+[ RUN      ] AcmpCore.A15UnregisteredReprobes
+[       OK ] AcmpCore.A15UnregisteredReprobes (0 ms)
+[ RUN      ] AcmpCore.A16OneCounterForEveryNewProbe
+[       OK ] AcmpCore.A16OneCounterForEveryNewProbe (0 ms)
+[ RUN      ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[       OK ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline (0 ms)
+[ RUN      ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry
+[       OK ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry (0 ms)
+[ RUN      ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw
+[       OK ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw (0 ms)
+[ RUN      ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource
+[       OK ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource (0 ms)
+[ RUN      ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+[       OK ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection (0 ms)
+[ RUN      ] AcmpCore.A21MessagesNotForThisEntityAreIgnored
+[       OK ] AcmpCore.A21MessagesNotForThisEntityAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A21MalformedFramesAreCounted
+[       OK ] AcmpCore.A21MalformedFramesAreCounted (0 ms)
+[ RUN      ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+[       OK ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits (0 ms)
+[ RUN      ] AcmpCore.A19NothingPassesAnOwedFrame
+[       OK ] AcmpCore.A19NothingPassesAnOwedFrame (0 ms)
+[ RUN      ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs
+[       OK ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs (0 ms)
+[ RUN      ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered
+[       OK ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered (0 ms)
+[ RUN      ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether
+[       OK ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether (0 ms)
+[ RUN      ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+[       OK ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail
+[       OK ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStateCells
+[       OK ] AcmpCore.A22DiscoveredStateCells (0 ms)
+[ RUN      ] AcmpCore.A22DepartingAndAging
+[       OK ] AcmpCore.A22DepartingAndAging (0 ms)
+[ RUN      ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface
+[       OK ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface (0 ms)
+[ RUN      ] AcmpCore.A22OtherAdpFramesAreIgnored
+[       OK ] AcmpCore.A22OtherAdpFramesAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort
+[       OK ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort (0 ms)
+[ RUN      ] AcmpCore.A23EveryPortIsGuarded
+[       OK ] AcmpCore.A23EveryPortIsGuarded (0 ms)
+[ RUN      ] AcmpCore.A24ARestoredBindingFastConnects
+[       OK ] AcmpCore.A24ARestoredBindingFastConnects (0 ms)
+[ RUN      ] AcmpCore.A24UnboundRecordsRefusalsAndRollback
+[       OK ] AcmpCore.A24UnboundRecordsRefusalsAndRollback (0 ms)
+[ RUN      ] AcmpCore.A24StartedIsSavedAndReported
+[       OK ] AcmpCore.A24StartedIsSavedAndReported (0 ms)
+[ RUN      ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime
+[       OK ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime (0 ms)
+[ RUN      ] AcmpCore.A25OnlyTable522ItemsAreReported
+[       OK ] AcmpCore.A25OnlyTable522ItemsAreReported (0 ms)
+[ RUN      ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+[       OK ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead (0 ms)
+[ RUN      ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+[       OK ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves (0 ms)
+[ RUN      ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+[       OK ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval (0 ms)
+[ RUN      ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+[       OK ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing (0 ms)
+[ RUN      ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+[       OK ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+[       OK ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+[       OK ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker (0 ms)
+[ RUN      ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens
+[       OK ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens (0 ms)
+[ RUN      ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend
+[       OK ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+[       OK ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+[       OK ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry (0 ms)
+[----------] 62 tests from AcmpCore (0 ms total)
+
+[----------] 21 tests from AcmpMailbox
+[ RUN      ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:300: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, 0))
+  Actual: false
+Expected: true
+B1 the filter passes a BIND_RX for this listener
+
+  [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the filter passes a BIND_RX for this listener
+[  FAILED  ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder (0 ms)
+[ RUN      ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:320: Failure
+Value of: offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0), kMac0)
+  Actual: false
+Expected: true
+B2 a command to this interface's own unicast MAC passes (the owner's receive tolerance)
+
+  [FAIL] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused: B2 a command to this interface's own unicast MAC passes (the owner's receive tolerance)
+[  FAILED  ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused (0 ms)
+[ RUN      ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:340: Failure
+Expected: (arm) != (nullptr), actual: NULL vs (nullptr)
+B3 the bind arms a fabric timer
+
+  [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 the bind arms a fabric timer
+[  FAILED  ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot (0 ms)
+[ RUN      ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:363: Failure
+Value of: offer(answer(k), spec::MULTICAST_MAC, i)
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: Expected: true
+[  FAILED  ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded (0 ms)
+[ RUN      ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:238: Failure
+Expected equality of these values:
+  acmp_restore_binding(core(), k, record, sizeof record)
+    Which is: 1
+  ACMP_RESTORE_APPLIED
+    Which is: 0
+
+  [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp:     Which is: 0
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:399: Failure
+Value of: model.bound_en[0][0] && model.bound_eid[0][0] == kTkA
+  Actual: false
+Expected: true
+B5 the open wrote the restored binding's talker into interface 0's bound-talker table
+
+  [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 the open wrote the restored binding's talker into interface 0's bound-talker table
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:406: Failure
+Value of: available(Adp{})
+  Actual: false
+Expected: true
+B5 the bound talker's ENTITY_AVAILABLE passes the filter (the eq_bound term)
+
+  [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 the bound talker's ENTITY_AVAILABLE passes the filter (the eq_bound term)
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:408: Failure
+Value of: core()->sinks[0].discovered && core()->sinks[0].state == ACMP_PRB_W_DELAY
+  Actual: false
+Expected: true
+B5 and reaches discovery through the tap (5.5.3.5.9)
+
+  [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 and reaches discovery through the tap (5.5.3.5.9)
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:415: Failure
+Expected equality of these values:
+  app.adp.ifs[0].adp.state
+    Which is: 0
+  ADP_STATE_WAITING
+    Which is: 3
+
+  [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp:     Which is: 3
+[  FAILED  ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp (0 ms)
+[ RUN      ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:238: Failure
+Expected equality of these values:
+  acmp_restore_binding(core(), k, record, sizeof record)
+    Which is: 1
+  ACMP_RESTORE_APPLIED
+    Which is: 0
+
+  [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces:     Which is: 0
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:440: Failure
+Value of: available(d, i)
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: Expected: true
+[  FAILED  ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces (0 ms)
+[ RUN      ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:498: Failure
+Value of: model.bound_en[i][k] && model.bound_eid[i][k] == kTkA
+  Actual: false
+Expected: true
+B8 a BIND_RX writes its sink's entry of interface 0's table
+
+  [FAIL] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding: B8 a BIND_RX writes its sink's entry of interface 0's table
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:500: Failure
+Value of: available(Adp{}, i)
+  Actual: false
+Expected: true
+B8 and the bound talker's ENTITY_AVAILABLE passes on that interface
+
+  [FAIL] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding: B8 and the bound talker's ENTITY_AVAILABLE passes on that interface
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:505: Failure
+Value of: offer(rebind, spec::MULTICAST_MAC, i)
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding: Expected: true
+[  FAILED  ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding (0 ms)
+[ RUN      ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:533: Failure
+Value of: mbx_model_rx(&model, bindf.data(), bindf.size(), 0)
+  Actual: false
+Expected: true
+B9 the filter reads no version: a BIND_RX of version 1 reaches the acmp ring
+
+  [FAIL] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing: B9 the filter reads no version: a BIND_RX of version 1 reaches the acmp ring
+[  FAILED  ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing (0 ms)
+[ RUN      ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:570: Failure
+Value of: on(command(spec::MSG_BIND_RX_COMMAND, k))
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: Expected: true
+[  FAILED  ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem (0 ms)
+[ RUN      ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:285: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 0 is armed
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: the ACMP slot of interface 0 is armed
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:615: Failure
+Value of: model.tx_sent == sent + 1u && core()->sinks[k].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+C5 TMR_NO_RESP: the duplicate in the pass that takes the expiry
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C5 TMR_NO_RESP: the duplicate in the pass that takes the expiry
+  C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0              2 accesses (bound 35)
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:285: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 0 is armed
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: the ACMP slot of interface 0 is armed
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:620: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 0
+  ACMP_PRB_W_RETRY
+    Which is: 5
+C6 the second TMR_NO_RESP
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C6 the second TMR_NO_RESP
+  C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                              2 accesses (bound 13)
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:622: Failure
+Value of: available(Adp{}, i)
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: Expected: true
+[  FAILED  ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:238: Failure
+Expected equality of these values:
+  acmp_restore_binding(core(), k, record, sizeof record)
+    Which is: 1
+  ACMP_RESTORE_APPLIED
+    Which is: 0
+
+  [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord:     Which is: 0
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:645: Failure
+Value of: available(Adp{}, i)
+  Actual: false
+Expected: true
+C10 the filter commits the bound talker's ENTITY_AVAILABLE (RX_HEAD)
+
+  [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C10 the filter commits the bound talker's ENTITY_AVAILABLE (RX_HEAD)
+[  FAILED  ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord (0 ms)
+[ RUN      ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:666: Failure
+Value of: available(v, i)
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: Expected: true
+[  FAILED  ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:727: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, 0))
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: Expected: true
+[  FAILED  ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt (0 ms)
+[ RUN      ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:765: Failure
+Value of: offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0, kCtl1, 0x7777))
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1: Expected: true
+[  FAILED  ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1 (0 ms)
+[ RUN      ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:285: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 0 is armed
+
+  [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: the ACMP slot of interface 0 is armed
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:799: Failure
+Expected equality of these values:
+  static_cast<std::uint16_t>(model.evt_head - model.evt_tail)
+    Which is: 60
+  64u
+    Which is: 64
+F0 the event ring is full
+
+  [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F0 the event ring is full
+[  FAILED  ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:844: Failure
+Expected equality of these values:
+  stored
+    Which is: 0
+  (256u / (2u + (34u + 8u + 3u) / 4u))
+    Which is: 19
+F4 the ring holds ACMP_MBX_RX_BACKLOG records of the smallest frame
+
+  [FAIL] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing: F4 the ring holds ACMP_MBX_RX_BACKLOG records of the smallest frame
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:851: Failure
+Value of: at == (((256u / (2u + (34u + 8u + 3u) / 4u)) + 2u - 1u) / 2u) && core()->rx_malformed == stored
+  Actual: false
+Expected: true
+F4 taken by pass ACMP_MBX_RX_PASSES, each a malformed ACMPDU the core counts
+
+  [FAIL] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing: F4 taken by pass ACMP_MBX_RX_PASSES, each a malformed ACMPDU the core counts
+[  FAILED  ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing (2 ms)
+[ RUN      ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:238: Failure
+Expected equality of these values:
+  acmp_restore_binding(core(), k, record, sizeof record)
+    Which is: 1
+  ACMP_RESTORE_APPLIED
+    Which is: 0
+
+  [FAIL] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound:     Which is: 0
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:888: Failure
+Value of: committed && model.ch[0u].rx_drop == 0u
+  Actual: false
+Expected: true
+F5 the ENTITY_AVAILABLE's record is committed
+
+  [FAIL] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound: F5 the ENTITY_AVAILABLE's record is committed
+[  FAILED  ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound (2 ms)
+[ RUN      ] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:290: Failure
+Value of: offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k])
+  Actual: false
+Expected: true
+the filter passes the BIND_RX
+
+  [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: the filter passes the BIND_RX
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:285: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 0 is armed
+
+  [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: the ACMP slot of interface 0 is armed
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:954: Failure
+Value of: events > 0u && acmp_stored > 0u && maap_stored > 0u
+  Actual: false
+Expected: true
+F6 events, acmp and maap records wait
+
+  [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[  FAILED  ] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound (2 ms)
+[ RUN      ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:982: Failure
+Value of: app.loop.rx[1u].fn != nullptr && app.loop.rx[0u].ctx == &app.acmp && app.acmp.adp_next.ctx == &app.adp
+  Actual: false
+Expected: true
+U5 ACMP binds its channel and stands in front of ADP's handler
+
+  [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 ACMP binds its channel and stands in front of ADP's handler
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:987: Failure
+Expected equality of these values:
+  acmp_restore_binding(core(), 1, record, sizeof record)
+    Which is: 1
+  ACMP_RESTORE_APPLIED
+    Which is: 0
+
+  [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract:     Which is: 0
+[  FAILED  ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract (0 ms)
+[ RUN      ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:1013: Failure
+Value of: app.loop.n_sinks == 3u && app.loop.sinks[0].ctx == &app.adp && app.loop.sinks[1].ctx == &app.acmp && app.loop.sinks[2].ctx == &app.maap && app.loop.n_polls == 3u && app.loop.polls[0].ctx == &app.adp && app.loop.polls[1].ctx == &app.acmp && app.loop.polls[2].ctx == &app.maap
+  Actual: false
+Expected: true
+U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll
+
+  [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:1017: Failure
+Value of: app.loop.rx[0u].ctx == &app.acmp && app.acmp.adp_next.ctx == &app.adp && app.loop.rx[1u].ctx == &app.acmp && app.loop.rx[3u].ctx == &app.maap
+  Actual: false
+Expected: true
+U6 ACMP still stands in front of ADP's handler, and MAAP holds its own channel
+
+  [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 ACMP still stands in front of ADP's handler, and MAAP holds its own channel
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:1025: Failure
+Value of: std::adjacent_find(slots.begin(), slots.end()) == slots.end() && slots.back() < 16u
+  Actual: false
+Expected: true
+U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+
+  [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:1029: Failure
+Expected equality of these values:
+  acmp_restore_binding(core(), 1, record, sizeof record)
+    Which is: 1
+  ACMP_RESTORE_APPLIED
+    Which is: 0
+
+  [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen:     Which is: 0
+[  FAILED  ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen (0 ms)
+[ RUN      ] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:1082: Failure
+Value of: ctrl_app_start(&app, &cfg)
+  Actual: true
+Expected: false
+U7 a refused ACMP configuration fails the three-way composition
+
+  [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 a refused ACMP configuration fails the three-way composition
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:1083: Failure
+Value of: app.loop.rx[3u].fn == nullptr
+  Actual: false
+Expected: true
+U7 before MAAP attaches
+
+  [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 before MAAP attaches
+$REVIEWS/r531-5-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:1087: Failure
+Value of: model.reads + model.writes == before && model.filter_en == 0u && model.irq_enable == 0u
+  Actual: false
+Expected: true
+U7 and no refusal touched a mailbox register
+
+  [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 and no refusal touched a mailbox register
+[  FAILED  ] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened (0 ms)
+[----------] 21 tests from AcmpMailbox (9 ms total)
+
+[----------] 1 test from AcmpAdapterUnit
+[ RUN      ] AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[       OK ] AcmpAdapterUnit.B7RefusalsOfTheAdapter (0 ms)
+[----------] 1 test from AcmpAdapterUnit (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 84 tests from 3 test suites ran. (9 ms total)
+[  PASSED  ] 63 tests.
+[  FAILED  ] 21 tests, listed below:
+[  FAILED  ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[  FAILED  ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[  FAILED  ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[  FAILED  ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[  FAILED  ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[  FAILED  ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[  FAILED  ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[  FAILED  ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[  FAILED  ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+[  FAILED  ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+[  FAILED  ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+[  FAILED  ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+[  FAILED  ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[  FAILED  ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+[  FAILED  ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+[  FAILED  ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[  FAILED  ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+[  FAILED  ] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+[  FAILED  ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[  FAILED  ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[  FAILED  ] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+
+21 FAILED TESTS
+== ctrl ACMP core and adapter (fake ports and host model): checks: 84   failures: 21 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 21 failure(s) across 84 checks, exit 1)

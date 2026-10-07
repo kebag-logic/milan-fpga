@@ -1,0 +1,258 @@
+Public evidence revision 16497e023fd082b4dd8e9f57969d4f3b47ef053a
+Path: review-evidence/665f3-r1/author-r6/HANDOFF.md
+
+Round-6 scope, validation and limits:
+# HANDOFF: [A559] lane F3 for #665 (ACMP on the bare-metal core), round 6
+
+Status: REVIEW READY at `13e715136b0b7c8d9763e0b730d9709f2c9f5932` (round 6, merge F2; assignment #665
+comment 6037650104; REVIEW READY posted as comment 6040171459).
+Every gate below exits 0. Not pushed.
+
+- Branch `665-f3-acmp`, round 6 on `39adc58f` (round 5's head, PR #688): one `--no-ff` merge of
+  dev `e21c1ca0` and seven one-line commits; no rebase, no amend.
+- Scope: `sw/firmware/ctrl` (the app, the image harness, tests, defect tables, README, MAAP
+  README), `sw/firmware/gtest` (two coverage-exclusion rows, their count, the ratchet), `tb/verilator/mbx`
+  (the Makefile's source list from the merge, one initializer in `cosim_main.cpp`) and
+  `docs/design/MAILBOX_SPLIT.md`. `git diff e21c1ca0 HEAD -- hdl sw/mailbox sw/litex configs
+  sw/builder constraints syn .github scripts` is identical to `git diff e21c1ca0 39adc58f` on
+  the same paths: no mailbox RTL, contract, register, builder or shipping-image change in this
+  round (the merge needed none).
+
+## Round 6
+
+Assignment: issue #665 comment 6037650104 ("F3 round 6 (merge F2)"). R530-4 (6037644394) and
+R531-4 (6037645915) are both POSITIVE at `39adc58f`. F2 merged; dev is `e21c1ca0`. Items: merge
+dev with `--no-ff` keeping both sides; `ctrl_app` composes ADP, MAAP and ACMP (IRQ mask with every
+channel's bit and the events', disjoint timer slots, attach order and refusals tested); the linked
+image with MAAP and ACMP both linked, shipping and largest shapes, delta from dev; keep every
+check, arm and planted defect, re-grade with reasons, re-run the firmware gates at the 100 %
+ratchet, both defect campaigns, `make -C tb/verilator/mbx` and the docs gates.
+
+### Commits
+
+| Commit | Subject |
+|---|---|
+| `aa0fdd01` | Merge dev (e21c1ca0, F2's MAAP core, #687) into lane F3, both sides kept (#665 F3) |
+| `32c41bbb` | ctrl_app: MAAP from the configuration like ACMP, on its own slots after ACMP's, attached before the open (#665 F3) |
+| `7e5b7e40` | test_acmp_mbx.cpp: U6 and U7, ADP, ACMP and MAAP composed on disjoint slots with every channel open, and the refusals, with their defects (#665 F3) |
+| `dd3fc113` | CTRL_APP_PASS_MAX: a pass of ADP, ACMP and MAAP composed, held by F6 with the three rings and the events backlogged (#665 F3) |
+| `cc7d2347` | ctrl_image.py: the image with MAAP composed beside ACMP on its CSR allocation output, and dev's base through ctrl_app_start_maap (#665 F3) |
+| `576879d4` | Coverage ratchet: ctrl_app.c at 42 of 42 lines and 40 of 40 branches, the ACMP and MAAP attach refusals excluded with their proofs (#665 F3) |
+| `d7e5fee5` | Describe the composition of ADP, ACMP and MAAP, its pass bound and its times, and the image with MAAP linked (#665 F3) |
+| `13e71513` | Harness page: sixteen exclusion rows, MAAP's attach refusal in the composition among them (#665 F3) |
+
+The merge commit holds only both sides: F3's three app functions and F2's `ctrl_app_start_maap`
+verbatim, both members in `struct ctrl_app`, F2's two test initializers given ACMP's two fields,
+both arm sets, both defect tables, the ratchet re-measured by `fw_coverage.py --write` at that
+state (`ctrl_app.c` 39/39 lines, 31/31 branches). `test_ctrl_firmware.py --require-rv32 --jobs 4`
+passed at the merge state before it was committed. The composition fix follows as its own
+commits. Subject note: `dd3fc113` says "the three rings"; F6 backlogs the event ring and the acmp
+and maap rings, not the adp ring (F5 holds the full adp ring). No amend, per the rules.
+
+### 1. Merge of dev `e21c1ca0` (`aa0fdd01`)
+
+F2's seven commits touch the nine files the assignment lists; each conflict kept both sides.
+
+| File | Ours (F3) | Theirs (F2) | Resolution |
+|---|---|---|---|
+| `sw/firmware/ctrl/README.md` | ACMP intro, Contents, `acmp/` row | MAAP intro, `maap/` row | both rows; intro names F2 then F3; "sixteen arms" |
+| `app/ctrl_app.c` | compose / open / start | `ctrl_app_start_maap` | ours, then F2's function verbatim (fixed in `32c41bbb`) |
+| `app/ctrl_app.h` | `struct acmp_mbx acmp`, config fields | `struct maap_mbx maap`, declaration | both members, both declarations |
+| `test/ctrl_arms.py` | `arm_acmp`, `arm_acmpif2`, `arm_acmpwalk`, `arm_acmpnvm` | `arm_maap`, `arm_maap_debug`, `arm_maap_if2` | both blocks |
+| `test/ctrl_build.py` | ACMP sources, `acmp` include, `NVM_DIR` | MAAP sources, `maap` include, `-DNDEBUG` | union; F2's `-DNDEBUG` kept (ACMP's host guard is `CTRL_REENTRY_ASSERT`, independent of it) |
+| `test/ctrl_mutants.py` | ACMP arms in `campaign()` | MAAP arms | all arms |
+| `test/test_ctrl_firmware.py` | ACMP arms in the coverage run | MAAP arms | all arms; F2's `--mutation-shard` and F3's `--slice` both kept (they compose) |
+| `gtest/coverage.ratchet` | ACMP rows, `mbx.c` 185/68 | MAAP rows, `ctrl_app.c` 31/20 | re-measured with `--write` |
+| `tb/verilator/mbx/Makefile` | ACMP sources, `ctrl_nvm` include, `FW_HDR` | MAAP sources, `VBUILD_JOBS` | union |
+
+Auto-merged: `docs/design/MAILBOX_SPLIT.md` (F2's paragraph), `sw/firmware/gtest/README.md`
+(the NDEBUG note), F2's new files. F2's 8-value `ctrl_app_config` initializers fail
+`-Wmissing-field-initializers` under `-Werror` against F3's 10 fields, so the merge gives them
+ACMP's two fields (`nullptr`).
+
+### 2. Composition: ADP, ACMP and MAAP (`32c41bbb`)
+
+As merged, `ctrl_app_start_maap` composed MAAP after `ctrl_app_start` on first slot `MBX_N_IF`,
+which is `CTRL_APP_ACMP_FIRST_SLOT`, and rewrote the IRQ enable and the filter with ADP and MAAP
+only: with ACMP configured, both slot runs overlap and ACMP's channel loses its interrupt and its
+filter bit. It also bypassed the compose/open split, so a platform restoring bindings could not
+compose MAAP. The change:
+
+| Change | Where |
+|---|---|
+| MAAP from the configuration, like ACMP: `maap_allocation` (NULL composes none), `maap_ctx`, `maap_preferred` | `sw/firmware/ctrl/app/ctrl_app.h:90`-`96` |
+| MAAP's slots after ACMP's: `CTRL_APP_MAAP_FIRST_SLOT` | `ctrl_app.h:53` |
+| The three runs fit the bank: `_Static_assert(CTRL_APP_MAAP_FIRST_SLOT + MBX_N_IF <= MBX_N_TIMERS)` | `sw/firmware/ctrl/app/ctrl_app.c:12` |
+| `maap_compose()`: F2's preferred-range refusal (text unchanged), `maap_mbx_init` on MAAP's slots, `maap_mbx_attach`, return values checked (F2 cast the attach to void) | `ctrl_app.c:16`-`30` |
+| Compose order ADP, ACMP (now a guarded block that returns on refusal), MAAP, all before the open, so `ctrl_loop_open()` derives the IRQ enable and the filter from every bound channel | `ctrl_app.c:32`-`52` |
+| Open: loop open, ACMP's restored bindings, ADP enabled, then `maap_mbx_start(preferred)` | `ctrl_app.c:54`-`77` |
+| `ctrl_app_start_maap`: `ctrl_app_start` on a copy of the config with the three fields; refuses NULL allocation | `ctrl_app.c:84`-`92`, `ctrl_app.h:111`-`115` |
+| The attach-order note in the header | `ctrl_app.h:13`-`22` |
+| Every positional `ctrl_app_config` initializer given the three MAAP fields | `test_unit_seams.cpp:63`, `test_adp.cpp:595`, `adp_walk.cpp:101`, `test_acmp_mbx.cpp:88`, `test_maap_mbx.cpp:254`, `:279`, `tb/verilator/mbx/cosim_main.cpp:228` |
+
+The four defects whose planted text moved are re-graded in the same commit (section 5).
+
+### 3. The three-way pass bound (`dd3fc113`)
+
+`ACMP_MBX_PASS_MAX` is a pass of ADP and ACMP. With MAAP in the same loop, a pass also runs MAAP's
+sink, its channel and its poll, so the design page's "a pass of the composition costs at most
+1,012" no longer covered the app, and F2's README said "other protocol callbacks must be added for
+a composed loop". `ctrl_app.h:55`-`66` adds `CTRL_APP_PASS_MAX = ACMP_MBX_PASS_MAX +
+CTRL_APP_MAAP_PASS_SHARE`, the share being `8 x MAAP_MBX_EVENT_MAX (48) + 2 x (20 + MAAP_MBX_RX_MAX
+(48)) + MBX_N_IF x MAAP_MBX_POLL_MAX (48)` = 568 at one interface: 1,580 at one interface, 1,659 at
+two. F6 holds it (section 5). The design page scales the four backlog rows: 4,740 / 17,380 / 34,760
+/ 14,220 accesses, i.e. 2.10 / 0.57 / 0.28 / 0.70 us per access for T_svc
+(`docs/design/MAILBOX_SPLIT.md:692`, open item at `:951`).
+
+### 4. Linked image with MAAP and ACMP (`cc7d2347`)
+
+`rv32_image/image_main.c` composes MAAP through the configuration on `maap_csr_allocation` with a
+stub CSR window (`:152`-`:169`, `:185`-`:194`; the shape's STREAM_OUTPUTs as AAF talkers plus one
+CRF, `IMAGE_SOURCES - 1`, true). A base whose app composes MAAP only through
+`ctrl_app_start_maap` (dev `e21c1ca0`) links through that entry (`:213`-`:218`); a base with
+neither keeps `ctrl_app_start`. `ctrl_image.py:324` adds `maap` to the app's parts.
+
+`python3 sw/firmware/ctrl/test/ctrl_image.py --base e21c1ca024d37ea188ad15b5c8f9c2dae18628df`,
+pinned SDK (identity unchanged from round 5: GCC 14.3.0, build `2021.11-18033-g83947c7bb6`,
+`libgcc.a` sha256 `d8ebca8c...0af58`, not linked):
+
+| Shape | IN / OUT | text | rodata | data | bss | total | of 128 KB |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `endstation_ax7101_1x1_tdm8` (shipping) | 2 / 2 | 33,444 (+10,768) | 748 (+32) | 0 (+0) | 12,416 (+4,848) | 46,608 (+15,648) | 35.6 % |
+| `endstation_ax7101_8x8` (largest) | 9 / 9 | 33,448 (+10,768) | 748 (+32) | 0 (+0) | 22,784 (+4,848) | 56,980 (+15,648) | 43.5 % |
+
+Base (dev, ADP and MAAP): 30,960 and 41,332 bytes. Audit: `rv32i2p1`; head 8,361 / 8,362 words,
+base 5,669 / 5,670, all RV32I base instructions, nothing undefined. Helpers 508 bytes at head and
+base (`__umodsi3` and its 32-bit loop are new: MAAP's code reaches them). App 7,904 bytes (ACMP
+4,720, loop 1,748, MAAP 1,104, pool 204, ADP 124). ELF sha256 (head 1x1)
+`3d797e8f19a8b06532aa0b7beb4d64cda6e35f1b965635a4466ea0d2eae4788f`, (head 8x8) `96eaa98578ea8eee4c516da408ba1d1050c152a245388d6b64cecc396fe01671`.
+
+### 5. Tests and the planted defects each catches (round 6)
+
+New tests (`sw/firmware/ctrl/test/test_acmp_mbx.cpp`, both the `acmp` and `acmpif2` arms):
+
+| Test | Checks | Planted defect (`acmp_review_mutants.py`) |
+|---|---|---|
+| U6 `:1002` | compose touches no register | `app-maap-started-in-compose` (`:363`) |
+| | sinks and polls ADP, ACMP, MAAP | `app-maap-before-acmp` (`:356`) |
+| | ACMP in front of ADP; MAAP owns its channel | `app-maap-channel-unbound` (`:368`, also) |
+| | 3 x MBX_N_IF slots distinct, inside the bank | `app-maap-slots-overlap-acmp` (`:340`), `app-maap-slots-overlap-adp` (`:344`, also) |
+| | FILTER_EN = adp, acmp, maap exactly; IRQ enable = their RX bits + EVT | `app-maap-attached-after-open` (`:350`); F2's two re-planted (`maap_mutants.py:41`, `:216`) catch through `MaapHost` |
+| | MAAP in PROBE after the open | `app-maap-never-started` (`:366`) |
+| | after 4 s: MAAP DEFEND on every interface, ADP and MAAP frames sent, no stale expiry, each slot holding its own module's arm, the range at the port | (behavioural; the slot defects also redden it) |
+| U7 `:1065` | preferred below the pool / past its end refused; the last range taken | `app-maap-preferred-unchecked` (`:373`), `app-maap-range-past-the-pool` (`:379`), `app-maap-last-range-refused` (`:376`) |
+| | MAAP for an entity with no talker source refused (at compose) | `app-maap-refusal-ignored` (`:382`) |
+| | an ACMP refusal fails the three-way composition, before MAAP attaches | `app-acmp-refusal-ignored` (`:386`, also U5), `app-maap-before-acmp` (also) |
+| | `ctrl_app_start_maap` refuses NULL allocation; nothing touched | `app-maap-entry-takes-no-port` (`:392`) |
+| F6 `:923` | events, acmp and maap records backlogged; all taken within 10 passes; maap ring drained; worst pass <= `CTRL_APP_PASS_MAX` (231 of 1,580; 233 of 1,659 at two interfaces) | `app-three-way-pass-overrun` (`:398`), `app-maap-channel-unbound` (`:368`) |
+| `MaapHost.ExplicitAppComposition` (F2) | F2's refusals and filter through the entry | `app-maap-entry-drops-preferred` (`:395`), and also on several above |
+
+Re-graded (text moved by the composition; same test and words, reasons in the tables):
+
+| Defect | Was | Now |
+|---|---|---|
+| `app-binds-pool-after-the-mailbox` (F0) | `APP_BRING` through `return cfg->acmp == NULL ||` | `ctrl_mutants.py:35`: through the ACMP block and the MAAP return |
+| `app-acmp-never-composed` (F3) | `return cfg->acmp == NULL ||` -> `return true ||` | `acmp_mutants.py:914`: `if (cfg->acmp != NULL &&` -> `if (false && ...` |
+| `maap-app-missing-rx-interrupt` (F2) | MAAP's bit dropped from the app's `mbx_irq_enable` | `maap_mutants.py:41`: dropped from `ctrl_loop_open()`'s, which now writes it (MAAP attaches before the open) |
+| `maap-app-channel-closed` (F2) | MAAP dropped from the app's channel mask | `maap_mutants.py:216`: dropped from `ctrl_loop_open()`'s `mbx_filter_open` |
+
+First run of the 19: two escapes, both fixed before commit. `app-maap-attached-after-open`'s
+second `also` (`AppWaitWakesForMaapWithinBudget`) never ran because `ExplicitAppComposition`
+crashes first in that binary under the defect; the `also` was removed (the primary and
+`ExplicitAppComposition` stay). `app-maap-refusal-ignored` crashed in the open (MAAP's cores
+unported) instead of failing the check, so U7 checks that refusal at `ctrl_app_compose`, where it
+is decided. Second run: 19 of 19.
+
+### Coverage
+
+`python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4`, rc 0, 20 files at the ratchet, all
+100 % after exclusions. Changed rows: `ctrl_app.c` 42/42 lines, 40/40 branches (raw 42/43, 40/44).
+Exclusions (`sw/firmware/gtest/README.md:306`, `:308`): ACMP's attach refusal re-keyed from
+`return cfg->acmp == NULL` arc 6 of 6 to `if (cfg->acmp != NULL &&` arc 5 of 6 (same proof); new,
+`maap_compose` `return maap_mbx_init(` arc 4 of 4, MAAP's attach refusal (a full sink or poll
+table, or a bound maap channel: ADP and ACMP hold 2 of 8 each and neither binds it; the refusals
+are tested on the adapter, `MaapHost.AttachRefusalsAndTimerWrap`).
+
+| File | Lines | Branches |
+|---|---:|---:|
+| `ctrl/acmp/acmp.c` | 734/734 | 342/342 |
+| `ctrl/acmp/acmp_mbx.c` | 73/73 | 26/26 |
+| `ctrl/acmp/acmp_nvm.c` | 38/38 | 10/10 |
+| `ctrl/adp/adp.c` | 204/204 | 95/95 |
+| `ctrl/adp/adp_mbx.c` | 83/83 | 38/38 |
+| `ctrl/app/ctrl_app.c` | 42/42 | 40/40 |
+| `ctrl/loop/ctrl_loop.c` | 95/95 | 56/56 |
+| `ctrl/maap/maap.c` | 209/209 | 140/140 |
+| `ctrl/maap/maap_csr.c` | 39/39 | 18/18 |
+| `ctrl/maap/maap_mbx.c` | 98/98 | 60/60 |
+| `ctrl/mbx/mbx.c` | 185/185 | 68/68 |
+| `ctrl/mbx/mbx_wire.h` | 15/15 | 12/12 |
+| `ctrl/plat/mbx_plat_mmio.c` | 10/10 | 0/0 |
+| `ctrl/port/ctrl_debug.c` | 19/19 | 6/6 |
+| `ctrl/port/ctrl_pool.c` | 99/99 | 60/60 |
+| `ctrl/port/shlan_port.c` | 22/22 | 6/6 |
+| `ctrl/wire/wire.h` | 10/10 | 2/2 |
+| `ctrl_nvm/nvm_klj2.c` | 198/198 | 106/106 |
+| `ctrl_nvm/nvm_store.c` | 434/434 | 259/259 |
+| `ctrl_nvm/plat/nvm_flash_litespi.c` | 100/100 | 63/63 |
+
+### Gate table (round 6)
+
+Each command run on its own from the checkout, rc recorded, output never piped, with
+`MILAN_RV32_CC` set to the pinned SDK, `PYTHONDONTWRITEBYTECODE=1`, `TMPDIR` in scratch and the
+pinned Verilator 5.050. Head `13e71513` unless the row says otherwise.
+
+| Gate | Command | rc | Result |
+|---|---|---:|---|
+| firmware-unit | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --jobs 4` | 0 | 16 arms PASS: model 23, port 31, adp 26, unit 24 + 2, walk 41, acmp 84, acmpwalk 127, acmpnvm 7, acmpif2 22, entity 9 x 5, rv32, maap 37 + 12, maap_debug 1, maap_if2 13, reentry_debug 122, reentry_release 122 |
+| store | `python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4` | 0 | 5 shapes, 435 tests |
+| coverage | `python3 sw/firmware/gtest/fw_coverage.py --selftest`; `--check --jobs 4` | 0, 0 | 28 of 28; 20 files at the ratchet |
+| tally | `python3 sw/firmware/gtest/tally_selftest.py` | 0 | 18 of 18 |
+| RV32 and SDK | `python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32`; `python3 scripts/ci_rv32_sdk_selftest.py`; `python3 scripts/ci_rv32_sdk.py --verify-only --destination <scratch>/sdk` | 0, 0, 0 | 17 checks; OK; verified |
+| image self-test | `python3 sw/firmware/ctrl/test/ctrl_image_selftest.py --require-rv32` | 0 | 33 checks |
+| linked image | `python3 sw/firmware/ctrl/test/ctrl_image.py --base e21c1ca0... --out <scratch>` | 0 | the table in item 4; the ELFs byte-identical to an earlier run under another `--out` |
+| ctrl campaign | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice K/18 --jobs 4`, K = 1 to 18, four at a time, at `d7e5fee5` | 0 x 18 | 465 of 465 (26 x 17, 23); peak MemoryCurrent 5.7 GB |
+| round-6 defects | the 19 new and re-planted through `campaign()` (scratch driver), before the commits | 0 | 19 of 19 (two escapes fixed first, section 5) |
+| mbx suite | `make -C tb/verilator/mbx clean`, then `make -C tb/verilator/mbx -j2 VBUILD_JOBS=4 run-wb run-axil`, at `d7e5fee5` | 0, 0 | Wishbone 382, AXI4-Lite 427 |
+| mbx default | `make -C tb/verilator/mbx -j2 VBUILD_JOBS=4` (all: both adapters, `run-cosim`, `run-if2` with the model, quick arms), at `d7e5fee5` | 0 | 382 / 427; two interfaces 384 / 429 and model 369; co-simulation 32; quick arms 5 of 5 |
+| mbx RTL campaign | `python3 -B tb/verilator/mbx/mutants.py --jobs 2`, at `d7e5fee5` | 0 | 147 of 147 with the four controls, 490 s |
+| docs workflow and idiom | the 68 commands of round 5's list with `check_em_dash.py --base e21c1ca0...` (docs_check, doc style, TOC check / anchors / self-test, the py, cpp, sv and sh idiom gates and self-tests, hygiene, bare-metal-only, naming, fail-fast, test evidence, port contracts, ci_events, act_ci self-test, ...) under the pinned Markdown environment | 0 | 68 of 68 (also at `d7e5fee5`) |
+
+`make -j2 VBUILD_JOBS=4` in place of `-j8` keeps at most two Verilator builds at once: the
+Makefile's targets are separate builds, and F2's `VBUILD_JOBS` is the Verilator `-j` it reads.
+`git diff d7e5fee5 13e71513` is one line of `sw/firmware/gtest/README.md`, which only the coverage
+gate and the docs gates read; both were run again at `13e71513`.
+
+Not run:
+
+- the store campaign (`test_ctrl_nvm.py --self-test`). It has no partition option and runs past
+  one foreground command (two bounded attempts timed out at 595 s). Started detached at
+  `d7e5fee5`, it held MemoryCurrent above the 9 GB cap and had reached about 40 of 109 defects
+  after 50 minutes, so it was stopped with no verdict. `sw/firmware/ctrl_nvm` and
+  `nvm_hosttest` are identical to dev `e21c1ca0` except `ctrl_nvm/README.md` (earlier rounds).
+  The two campaigns run are the ones this lane's evidence has always named: ctrl and RTL;
+- the writer self-test (`nvm_hosttest` unchanged);
+- the contract generator, lint, Vivado, Yosys and the area: no RTL or contract change (the diff
+  against dev on those paths is round 5's, byte for byte).
+
+### Open questions and risks
+
+- MAAP's allocation reaches ACMP's talker only through the integrator's `source` port
+  (`acmp.h`: `dest_mac_valid` and the stream's destination); the app does not connect the two.
+  Stated in both READMEs; wiring it is integration work, not in this assignment.
+- `CTRL_APP_PASS_MAX` is an analytic upper bound (every term at its maximum at once), like
+  `ACMP_MBX_PASS_MAX`; F6 measures 231. The scaled backlog bounds fit T_svc only at 0.57 us per
+  access (acmp ring) and 0.28 us (adp ring, H-DISC); the access time is not measured (A4).
+- The co-simulation (`cosim_main.cpp`) composes ADP and ACMP, not MAAP; the three-way
+  composition is held on the host model (U6, U7, F6) at one and two interfaces.
+- Two campaign-partition options now exist (F2's `--mutation-shard`, F3's `--slice`); both kept.
+- No hosted workflow runs `ctrl_image.py` or its self-test (unchanged from round 5).
+- A4, hosted CI and `act` remain the manager's.
+
+
+Historical R530-4-R1 remains at lines 480-483:
+   runtime stand-ins are a floor, lwSRP's pool and the integrator's owners are not sized, and
+   the stack is not counted.
+3. **The CI path on this host holds another build.** The tree is not affected: CI installs the
+   pinned archive there. Locally, a run without `MILAN_RV32_CC` would pick the other build. It
+   would now print another identity, and its images would fail the audit (as round 4's do).
