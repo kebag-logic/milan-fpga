@@ -1,0 +1,362 @@
+{
+  "base": {
+    "04_pp_sources": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.291
+    },
+    "05_ports": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "rc": 0,
+      "seconds": 2.843
+    },
+    "10_builder": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "sw/builder/test_builder.py"
+      ],
+      "rc": 0,
+      "seconds": 4323.776
+    },
+    "14_nvm_quick": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/nvm_cosim",
+        "JOBS=2",
+        "POOL=2",
+        "quick"
+      ],
+      "rc": 0,
+      "seconds": 91.371
+    },
+    "12_shadow": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/pp_shadow"
+      ],
+      "rc": 0,
+      "seconds": 408.696
+    },
+    "09_xvlog": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "flock",
+        "$VIVADO_LOCK",
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 151.139
+    },
+    "07_evidence": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 6.523
+    },
+    "08_docs": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 5.02
+    },
+    "01_cpp": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 1.686
+    },
+    "16_render": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/milan_dp_render",
+        "VERILATOR_JOBS=2",
+        "MUTANT_JOBS=2"
+      ],
+      "rc": 0,
+      "seconds": 1192.381
+    },
+    "11_lint": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 7.174
+    },
+    "03_sources": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "rc": 0,
+      "seconds": 1.697
+    },
+    "06_naming": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.532
+    },
+    "17_shell": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 1.419
+    },
+    "02_py": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 4.62
+    },
+    "15_datapath": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/milan_dp",
+        "VERILATOR_JOBS=2"
+      ],
+      "rc": 0,
+      "seconds": 3290.441
+    },
+    "13_nvm_lint": {
+      "processor": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/nvm_cosim",
+        "lint"
+      ],
+      "rc": 0,
+      "seconds": 1.431
+    }
+  },
+  "final": {
+    "04_pp_sources": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.475
+    },
+    "05_ports": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "rc": 0,
+      "seconds": 3.841
+    },
+    "10_builder": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "sw/builder/test_builder.py"
+      ],
+      "rc": 0,
+      "seconds": 2004.935
+    },
+    "14_nvm_quick": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/nvm_cosim",
+        "JOBS=2",
+        "POOL=2",
+        "quick"
+      ],
+      "rc": 0,
+      "seconds": 93.135
+    },
+    "12_shadow": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/pp_shadow"
+      ],
+      "rc": 0,
+      "seconds": 329.396
+    },
+    "09_xvlog": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "flock",
+        "$VIVADO_LOCK",
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 150.481
+    },
+    "07_evidence": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 8.239
+    },
+    "08_docs": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 7.932
+    },
+    "01_cpp": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 2.457
+    },
+    "16_render": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/milan_dp_render",
+        "VERILATOR_JOBS=2",
+        "MUTANT_JOBS=2"
+      ],
+      "rc": 0,
+      "seconds": 791.714
+    },
+    "11_lint": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 59.526
+    },
+    "03_sources": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "rc": 0,
+      "seconds": 3.665
+    },
+    "06_naming": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 1.063
+    },
+    "17_shell": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 0.993
+    },
+    "02_py": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 5.318
+    },
+    "15_datapath": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/milan_dp",
+        "VERILATOR_JOBS=2"
+      ],
+      "rc": 0,
+      "seconds": 3177.825
+    },
+    "13_nvm_lint": {
+      "processor": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "command": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/nvm_cosim",
+        "lint"
+      ],
+      "rc": 0,
+      "seconds": 58.529
+    }
+  }
+}

@@ -1,0 +1,13 @@
+0 hit(s): logic [2:0] key_w, best_w;
+0 hit(s): // every fresh native (1_cc); ties resolve to the lowest index
+0 hit(s): pick_ok_w = 1'b0;
+0 hit(s): best_w    = 3'b111;
+0 hit(s): key_w = {~aged_w[i], PRIO_MAP_P[2*i +: 2]};
+0 hit(s): if (elig_w[i] && (!pick_ok_w || (key_w < best_w))) begin
+0 hit(s): pick_ok_w = 1'b1;
+0 hit(s): pick_w    = REQ_IX_W_C'(i);
+0 hit(s): best_w    = key_w;
+0 hit(s): && org_withdraw_slot_mask_w[laneq_org_r[0]];
+0 hit(s): && !org_withdraw_slot_mask_w[laneq_org_r[i]]) begin
+0 hit(s): assign arb_start_abort_w = org_withdraw_slot_mask_w[ser_slot_w]
+total hits: 0
