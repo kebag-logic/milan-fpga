@@ -106,7 +106,8 @@ def main() -> None:
     checked = check_capture()
     if args.emit_dir is not None:
         emit_capture(args.emit_dir)
-    print(f"RESULT: PASS ({checked} GMII capture comparisons)")
+    print(f"GMII capture comparisons: {checked}")
+    print("RESULT: PASS")
 
 
 if __name__ == "__main__":
