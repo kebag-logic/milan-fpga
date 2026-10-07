@@ -1,0 +1,78 @@
+{
+  "all-F2-paths": {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "d51b373a",
+      "HEAD"
+    ],
+    "rc": 0,
+    "stdout": "docs/design/MAILBOX_SPLIT.md\nsw/firmware/ctrl/README.md\nsw/firmware/ctrl/app/ctrl_app.c\nsw/firmware/ctrl/app/ctrl_app.h\nsw/firmware/ctrl/maap/README.md\nsw/firmware/ctrl/maap/maap.c\nsw/firmware/ctrl/maap/maap.h\nsw/firmware/ctrl/maap/maap_csr.c\nsw/firmware/ctrl/maap/maap_csr.h\nsw/firmware/ctrl/maap/maap_mbx.c\nsw/firmware/ctrl/maap/maap_mbx.h\nsw/firmware/ctrl/test/ctrl_arms.py\nsw/firmware/ctrl/test/ctrl_build.py\nsw/firmware/ctrl/test/ctrl_mutants.py\nsw/firmware/ctrl/test/maap_differential.py\nsw/firmware/ctrl/test/maap_mutants.py\nsw/firmware/ctrl/test/test_ctrl_firmware.py\nsw/firmware/ctrl/test/test_maap.cpp\nsw/firmware/ctrl/test/test_maap_debug.cpp\nsw/firmware/ctrl/test/test_maap_differential.cpp\nsw/firmware/ctrl/test/test_maap_mbx.cpp\nsw/firmware/gtest/README.md\nsw/firmware/gtest/coverage.ratchet\ntb/verilator/mbx/Makefile\n",
+    "stderr": ""
+  },
+  "unchanged-maap": {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "8b78a8fd",
+      "HEAD",
+      "--",
+      "sw/firmware/ctrl/maap",
+      "sw/firmware/ctrl/app",
+      "sw/firmware/ctrl/test/test_maap*",
+      "sw/firmware/ctrl/test/maap*"
+    ],
+    "rc": 0,
+    "stdout": "sw/firmware/ctrl/maap/README.md\n",
+    "stderr": ""
+  },
+  "protected": {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "d51b373a",
+      "HEAD",
+      "--",
+      "hdl",
+      "configs",
+      "sw/mailbox",
+      "sw/builder",
+      "sw/litex",
+      "sw/firmware/milan_baremetal",
+      "protocol-processor",
+      "gptp-processor",
+      "third_party/verilog-axis"
+    ],
+    "rc": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "whitespace": {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "d51b373a",
+      "HEAD"
+    ],
+    "rc": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "retired-selector": {
+    "command": [
+      "rg",
+      "-n",
+      "CTRL_RV32_CC",
+      "sw",
+      "docs",
+      "scripts"
+    ],
+    "rc": 1,
+    "stdout": "",
+    "stderr": ""
+  }
+}

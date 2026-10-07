@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--require-rv32",
+    "--self-test",
+    "--jobs",
+    "2",
+    "--mutation-shard",
+    "2",
+    "4"
+  ],
+  "rc": 0,
+  "seconds": 541.522
+}
