@@ -327,6 +327,29 @@ TEST(MaapCore, BeginBeforePortOperationalRetainsRange) {
     EXPECT_NE(r.core.base, kBase) << "new Begin without preferred range draws";
 }
 
+// R528-2-S1: the documented one-use preference is consumed before a link bounce.
+TEST(MaapCore, LinkBounceDrawsAfterSuppliedRange) {
+    CoreRig r;
+    maap_port_operational(&r.core, false);
+    r.begin();
+    ASSERT_TRUE(r.frames.empty());
+    maap_port_operational(&r.core, true);
+    ASSERT_EQ(r.frames.size(), 1u);
+    EXPECT_EQ(r.frames.back(), pdu(1, kBase, 8, kMac));
+    maap_port_operational(&r.core, false);
+    EXPECT_EQ(r.core.state, MAAP_INITIAL);
+    EXPECT_FALSE(r.core.timer_running);
+    EXPECT_EQ(r.frames.size(), 1u);
+    maap_port_operational(&r.core, true);
+    EXPECT_EQ(r.core.state, MAAP_PROBE);
+    EXPECT_TRUE(r.core.timer_running);
+    EXPECT_NE(r.core.base, kBase) << "link bounce draws after consuming supplied range";
+    EXPECT_GE(r.core.base, MAAP_POOL_BASE);
+    EXPECT_LE(r.core.base + 8, MAAP_POOL_BASE + MAAP_POOL_SIZE);
+    ASSERT_EQ(r.frames.size(), 2u);
+    EXPECT_EQ(r.frames.back(), pdu(1, r.core.base, 8, kMac));
+}
+
 TEST(MaapCore, StalledOutputRetainsOrderAndOriginalExpiry) {
     CoreRig r; r.room = false; r.begin();
     EXPECT_EQ(r.core.queued, 1u);

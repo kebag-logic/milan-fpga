@@ -22,7 +22,7 @@ is an integration obligation, not a target-time result established here.
 ## Contents
 
 - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, the app, the MMIO platform, the host model, the tests.
-- **[The host test](#the-host-test)** -- The seven arms, how the processor's ADP stimulus is cut from the pinned submodule and walked, and the planted defects.
+- **[The host test](#the-host-test)** -- The ten arms (and the optional `lwsrp` arm), how the processor's ADP stimulus is cut from the pinned submodule and walked, and the planted defects.
 - **[Run](#run)** -- The three invocations and what each needs.
 
 ## Layout
@@ -137,6 +137,3 @@ git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
 The `lwsrp` arm refuses another HEAD, and a checkout whose `src/` (every
 source and header it compiles) differs from that revision. Moving the pin is
 a reviewed change to `LWSRP_REV`.
-
-The optional `CTRL_RV32_CC` selects an installed bare-metal compiler explicitly.
-This supports RV32I/ILP32 headers when the installed SDK contains only ILP32D.

@@ -25,6 +25,10 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         "publish(m, m->count, false);", ("MaapHost.AcquiredRangeFeedsExistingCsrPath", "allocation reaches AAF CSR"))
     _review_regressions(add)
     _generic_table(add)
+    # R528-2-S1: preserve the review's escaping defect as a named control.
+    out.append(kind("r2-saved-range-never-consumed", "maap/maap.c", "m->preferred = 0;",
+                    "/* saved preference retained */;", "maap", "MaapCore.LinkBounceDrawsAfterSuppliedRange",
+                    "link bounce draws after consuming supplied range"))
     return tuple(out)
 
 

@@ -39,7 +39,8 @@ HOST = ("host/mbx_model.c", "host/mbx_plat_host.c")
 INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "maap", "app", "test")
 C_FLAGS = ("-std=c11", "-O2", "-DNDEBUG", "-Wall", "-Wextra", "-Werror", "-pedantic")
 
-RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-DNDEBUG", "-std=c11", "-Wall",
+RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-DNDEBUG",
+              "-std=c11", "-Wall",
               "-Wextra", "-Werror", "-pedantic", "-fstack-usage", "-DCTRL_MBX_BASE=0x80000000u")
 #: Runtime interfaces an object-only check may leave undefined.
 RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf"})
