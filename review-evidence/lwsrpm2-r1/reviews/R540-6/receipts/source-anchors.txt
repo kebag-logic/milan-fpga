@@ -1,0 +1,21 @@
+src/core/mrp_mad.c:1069                          static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)
+src/core/mrp_mad.c:1103                          unsigned mrp_reclaim(struct mrp_app *app, uint8_t port_id)
+src/core/mrp_mad.c:1143                          void mrp_set_periodic(struct mrp_app *app, uint8_t port_id, bool enable)
+src/core/mrp_mad.c:1323                          int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+src/core/mrp_mad.c:149                           static const struct appl_entry appl_table[MRP_EVENT_COUNT][MRP_APPL_STATE_COUNT] = {
+src/core/mrp_mad.c:158                               [MRP_EVENT_NEW] = {
+src/core/mrp_mad.c:172                               [MRP_EVENT_LV] = {
+src/core/mrp_mad.c:179                               [MRP_EVENT_TX] = {
+src/core/mrp_mad.c:207                               [MRP_EVENT_RJOININ] = {
+src/core/mrp_mad.c:325                           static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+src/core/mrp_mad.c:353                               /* MRP_EVENT_RJOININ || MRP_EVENT_RJOINMT — Table 10-4 rJoinIn!||rJoinMt! row */
+src/core/mrp_mad.c:387                               /* MRP_EVENT_REDECLARE — same as RLV for Registrar */
+src/core/mrp_mad.c:506                           static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+src/core/mrp_mad.c:618                           static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+src/core/mrp_mad.c:755                           static void deliver_event(struct mrp_app *app, struct mrp_port_state *ps,
+src/core/mrp_mad.c:773                           static uint32_t leaveall_draw(struct mrp_port_state *ps)
+src/core/mrp_mad.c:779                           static void la_event(struct mrp_app *app, struct mrp_port_state *ps,
+src/core/mrp_mad.c:819                           static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+src/core/mrp_mad.c:919                           void mrp_app_destroy(struct mrp_app *app)
+src/modules/msrp.c:138                           static uint32_t msrp_map_join(const struct mrp_app *app, uint8_t src_port,
+src/modules/msrp.c:415                               .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },

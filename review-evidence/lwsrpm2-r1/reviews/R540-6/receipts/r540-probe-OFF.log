@@ -1,0 +1,112 @@
+S1 type=1 fault=0 path=rLA-other x_leaves=1 x_value=100
+S1 type=1 fault=0 path=redeclare x_leaves=1 x_value=100
+S1 type=1 fault=0 path=txLA x_leaves=1 x_value=100
+S1 type=1 fault=1 path=rLA-other x_leaves=1 x_value=100
+S1 type=1 fault=1 path=redeclare x_leaves=1 x_value=100
+S1 type=1 fault=1 path=txLA x_leaves=1 x_value=100
+S1 type=1 fault=2 path=rLA-other x_leaves=1 x_value=100
+S1 type=1 fault=2 path=redeclare x_leaves=1 x_value=100
+S1 type=1 fault=2 path=txLA x_leaves=1 x_value=100
+S1 type=1 fault=3 path=rLA-other x_leaves=1 x_value=100
+S1 type=1 fault=3 path=redeclare x_leaves=1 x_value=100
+S1 type=1 fault=3 path=txLA x_leaves=1 x_value=100
+S1 type=2 fault=0 path=rLA-other x_leaves=1 x_value=100
+S1 type=2 fault=0 path=redeclare x_leaves=1 x_value=100
+S1 type=2 fault=0 path=txLA x_leaves=1 x_value=100
+S1 type=2 fault=1 path=rLA-other x_leaves=1 x_value=100
+S1 type=2 fault=1 path=redeclare x_leaves=1 x_value=100
+S1 type=2 fault=1 path=txLA x_leaves=1 x_value=100
+S1 type=2 fault=2 path=rLA-other x_leaves=1 x_value=100
+S1 type=2 fault=2 path=redeclare x_leaves=1 x_value=100
+S1 type=2 fault=2 path=txLA x_leaves=1 x_value=100
+S1 type=2 fault=3 path=rLA-other x_leaves=1 x_value=100
+S1 type=2 fault=3 path=redeclare x_leaves=1 x_value=100
+S1 type=2 fault=3 path=txLA x_leaves=1 x_value=100
+S2 type=1 fault=0 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=0 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=0 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=0 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=1 fault=1 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=1 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=1 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=1 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=1 fault=2 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=2 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=2 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=2 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=1 fault=3 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=2 fault=0 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=3 fault=0 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=100
+S2 type=3 fault=1 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S3 old=1 new=2 event=New fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=New fault=1 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=1 order differs from no-fault control
+S3 old=1 new=2 event=New fault=2 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=2 order differs from no-fault control
+S3 old=1 new=2 event=New fault=3 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=3 order differs from no-fault control
+S3 old=1 new=2 event=JoinIn fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=New fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=New fault=1 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=1 order differs from no-fault control
+S3 old=2 new=1 event=New fault=2 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=2 order differs from no-fault control
+S3 old=2 new=1 event=New fault=3 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=3 order differs from no-fault control
+S3 old=2 new=1 event=JoinIn fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S4 fault=0 leave=100 observer_lv_mt=100 count=1
+S4 fault=1 leave=100 observer_lv_mt=200 count=1
+S4 fault=2 leave=100 observer_lv_mt=200 count=1
+S4 fault=3 leave=100 observer_lv_mt=200 count=1
+S5 fault=0 leave=200 control=200
+S5 fault=1 leave=200 control=200
+S5 fault=2 leave=200 control=200
+S5 fault=3 leave=200 control=200
+S6 completed through scenario 320
+PASS internal pending-storage probe: 320 scenarios, 3023 checks, 0 failures

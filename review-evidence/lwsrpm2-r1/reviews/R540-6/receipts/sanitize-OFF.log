@@ -1,0 +1,222 @@
+== cmake -S $CLONE -B $PACKET/scratch/san-OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$PACKET/scratch/prefix -DLWSRP_MILAN=OFF -DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: $PACKET/scratch/san-OFF
+== rc=0
+== cmake --build $PACKET/scratch/san-OFF --parallel 4
+[  4%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[  9%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 13%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 27%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 31%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 36%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 50%] Linking C shared library libshlan.so
+[ 50%] Built target shlan
+[ 63%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 63%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 63%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 68%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 72%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 77%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 81%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 86%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+== rc=0
+== $PACKET/scratch/san-OFF/unit_tests
+Running "main" (86 tests)...
+  "mrp_pdu_suite": 1690 passes in 118ms.
+  "timer_suite": 14 passes in 25ms.
+  "msrp_values_suite": 23 passes in 22ms.
+  "receive_suite": 83 passes in 52ms.
+  "transmit_suite": 106 passes in 74ms.
+  "integration_suite": 371 passes in 157ms.
+  "milan_suite": 442 passes in 123ms.
+  "boundaries_suite": 17156 passes in 626ms.
+Completed "main": 19885 passes in 1198ms.
+== rc=0
+== cc -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -I$CLONE/src/include -I$CLONE/src -I$CLONE/tests/unit $PACKET/scripts/r540_6_probe.c $CLONE/tests/unit/fault_alloc.c -L$PACKET/scratch/san-OFF -Wl,-rpath,$PACKET/scratch/san-OFF -lshlan -o $PACKET/scratch/san-OFF/r540_6_probe
+== rc=0
+== $PACKET/scratch/san-OFF/r540_6_probe
+S1 type=1 fault=0 path=rLA-other x_leaves=1 x_value=100
+S1 type=1 fault=0 path=redeclare x_leaves=1 x_value=100
+S1 type=1 fault=0 path=txLA x_leaves=1 x_value=100
+S1 type=1 fault=1 path=rLA-other x_leaves=1 x_value=100
+S1 type=1 fault=1 path=redeclare x_leaves=1 x_value=100
+S1 type=1 fault=1 path=txLA x_leaves=1 x_value=100
+S1 type=1 fault=2 path=rLA-other x_leaves=1 x_value=100
+S1 type=1 fault=2 path=redeclare x_leaves=1 x_value=100
+S1 type=1 fault=2 path=txLA x_leaves=1 x_value=100
+S1 type=1 fault=3 path=rLA-other x_leaves=1 x_value=100
+S1 type=1 fault=3 path=redeclare x_leaves=1 x_value=100
+S1 type=1 fault=3 path=txLA x_leaves=1 x_value=100
+S1 type=2 fault=0 path=rLA-other x_leaves=1 x_value=100
+S1 type=2 fault=0 path=redeclare x_leaves=1 x_value=100
+S1 type=2 fault=0 path=txLA x_leaves=1 x_value=100
+S1 type=2 fault=1 path=rLA-other x_leaves=1 x_value=100
+S1 type=2 fault=1 path=redeclare x_leaves=1 x_value=100
+S1 type=2 fault=1 path=txLA x_leaves=1 x_value=100
+S1 type=2 fault=2 path=rLA-other x_leaves=1 x_value=100
+S1 type=2 fault=2 path=redeclare x_leaves=1 x_value=100
+S1 type=2 fault=2 path=txLA x_leaves=1 x_value=100
+S1 type=2 fault=3 path=rLA-other x_leaves=1 x_value=100
+S1 type=2 fault=3 path=redeclare x_leaves=1 x_value=100
+S1 type=2 fault=3 path=txLA x_leaves=1 x_value=100
+S2 type=1 fault=0 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=0 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=0 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=0 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=1 fault=1 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=1 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=1 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=1 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=1 fault=2 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=2 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=2 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=2 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=1 fault=3 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=2 fault=0 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=3 fault=0 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=100
+S2 type=3 fault=1 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S3 old=1 new=2 event=New fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=New fault=1 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=1 order differs from no-fault control
+S3 old=1 new=2 event=New fault=2 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=2 order differs from no-fault control
+S3 old=1 new=2 event=New fault=3 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=3 order differs from no-fault control
+S3 old=1 new=2 event=JoinIn fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=New fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=New fault=1 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=1 order differs from no-fault control
+S3 old=2 new=1 event=New fault=2 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=2 order differs from no-fault control
+S3 old=2 new=1 event=New fault=3 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=3 order differs from no-fault control
+S3 old=2 new=1 event=JoinIn fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S4 fault=0 leave=100 observer_lv_mt=100 count=1
+S4 fault=1 leave=100 observer_lv_mt=200 count=1
+S4 fault=2 leave=100 observer_lv_mt=200 count=1
+S4 fault=3 leave=100 observer_lv_mt=200 count=1
+S5 fault=0 leave=200 control=200
+S5 fault=1 leave=200 control=200
+S5 fault=2 leave=200 control=200
+S5 fault=3 leave=200 control=200
+S6 completed through scenario 320
+PASS internal pending-storage probe: 320 scenarios, 3023 checks, 0 failures
+== rc=0
+== cc -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -I$CLONE/src/include -I$CLONE/src -I$CLONE/tests/unit $PACKET/scratch/ev/reviews/R541-5/scripts/probe.c $CLONE/tests/unit/fault_alloc.c -L$PACKET/scratch/san-OFF -Wl,-rpath,$PACKET/scratch/san-OFF -lshlan -o $PACKET/scratch/san-OFF/probe
+== rc=0
+== $PACKET/scratch/san-OFF/probe
+PASS independent production-policy probe: 489 cases, 21780 checks, 0 value mismatches
+== rc=0
+== $PACKET/scratch/san-OFF/probe cross-port
+cross-port type=1 fault=0 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=2 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=2 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=2 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=2 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=3 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=3 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=3 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=3 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=2 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=2 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=2 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=2 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=3 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=3 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=3 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=3 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=3 fault=0 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=LV recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=LV recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=2 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=2 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=2 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=2 initial=LV recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=LV recovery=receive expected=2 withdrawal=2
+PASS independent production-policy probe: 48 cases, 2188 checks, 0 value mismatches
+== rc=0
+sanitize OFF failures=0

@@ -1,0 +1,302 @@
+$ cmake -S $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source -B $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$PACKET/scratch/prefix -DLWSRP_MILAN=ON
+rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/build
+
+$ cmake --build $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/build --parallel 2
+rc=0
+[  4%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[  9%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 13%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 27%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 31%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 36%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 50%] Linking C shared library libshlan.so
+[ 50%] Built target shlan
+[ 54%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 59%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 63%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 68%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 72%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 77%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 81%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 86%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+$ $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/build/unit_tests
+rc=1
+ues[2]] to [equal] [next]
+		actual value:			[0]
+		expected value:			[3]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:983: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [withdrawal_map_value] to [equal] [next]
+		actual value:			[0]
+		expected value:			[3]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[100]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[2]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[2]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[2]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[2]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[2]
+
+$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/review_test.c:1037: Failure: boundaries_suite -> timer_completed_flush_keeps_unchanged_registrations_quiet 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[0]
+		expected value:			[2]
+
+  "boundaries_suite": 16442 passes, 714 failures in 90ms.
+Completed "main": 19159 passes, 714 failures in 144ms.
+
+$ cc -std=c11 -I$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/src/include -I$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/src -I$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit $PACKET/scripts/r540_6_probe.c $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/fault_alloc.c -L$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/build -Wl,-rpath,$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/build -lshlan -o $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/own-probe
+rc=0
+
+$ $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/own-probe
+rc=1
+FAIL S6 type=2 event=4 fault=2 retry_fault=0 line=339: v == old
+FAIL S6 type=2 event=4 fault=2 retry_fault=1 line=339: v == old
+FAIL S6 type=2 event=4 fault=2 retry_fault=2 line=339: v == old
+FAIL S6 type=2 event=4 fault=2 retry_fault=3 line=339: v == old
+FAIL S6 type=2 event=4 fault=3 retry_fault=0 line=339: v == old
+FAIL S6 type=2 event=4 fault=3 retry_fault=1 line=339: v == old
+FAIL S6 type=2 event=4 fault=3 retry_fault=2 line=339: v == old
+FAIL S6 type=2 event=4 fault=3 retry_fault=3 line=339: v == old
+FAIL S6 type=2 event=5 fault=1 retry_fault=0 line=339: v == old
+FAIL S6 type=2 event=5 fault=1 retry_fault=1 line=339: v == old
+FAIL S6 type=2 event=5 fault=1 retry_fault=2 line=339: v == old
+FAIL S6 type=2 event=5 fault=1 retry_fault=3 line=339: v == old
+FAIL S6 type=2 event=5 fault=2 retry_fault=0 line=339: v == old
+FAIL S6 type=2 event=5 fault=2 retry_fault=1 line=339: v == old
+FAIL S6 type=2 event=5 fault=2 retry_fault=2 line=339: v == old
+FAIL S6 type=2 event=5 fault=2 retry_fault=3 line=339: v == old
+FAIL S6 type=2 event=5 fault=3 retry_fault=0 line=339: v == old
+FAIL S6 type=2 event=5 fault=3 retry_fault=1 line=339: v == old
+FAIL S6 type=2 event=5 fault=3 retry_fault=2 line=339: v == old
+FAIL S6 type=2 event=5 fault=3 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=0 fault=1 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=0 fault=1 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=0 fault=1 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=0 fault=1 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=0 fault=2 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=0 fault=2 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=0 fault=2 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=0 fault=2 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=0 fault=3 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=0 fault=3 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=0 fault=3 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=0 fault=3 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=1 fault=1 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=1 fault=1 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=1 fault=1 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=1 fault=1 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=1 fault=2 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=1 fault=2 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=1 fault=2 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=1 fault=2 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=1 fault=3 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=1 fault=3 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=1 fault=3 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=1 fault=3 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=2 fault=1 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=2 fault=1 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=2 fault=1 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=2 fault=1 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=2 fault=2 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=2 fault=2 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=2 fault=2 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=2 fault=2 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=2 fault=3 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=2 fault=3 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=2 fault=3 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=2 fault=3 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=3 fault=1 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=3 fault=1 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=3 fault=1 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=3 fault=1 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=3 fault=2 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=3 fault=2 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=3 fault=2 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=3 fault=2 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=3 fault=3 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=3 fault=3 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=3 fault=3 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=3 fault=3 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=4 fault=1 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=4 fault=1 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=4 fault=1 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=4 fault=1 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=4 fault=2 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=4 fault=2 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=4 fault=2 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=4 fault=2 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=4 fault=3 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=4 fault=3 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=4 fault=3 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=4 fault=3 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=5 fault=1 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=5 fault=1 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=5 fault=1 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=5 fault=1 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=5 fault=2 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=5 fault=2 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=5 fault=2 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=5 fault=2 retry_fault=3 line=339: v == old
+FAIL S6 type=3 event=5 fault=3 retry_fault=0 line=339: v == old
+FAIL S6 type=3 event=5 fault=3 retry_fault=1 line=339: v == old
+FAIL S6 type=3 event=5 fault=3 retry_fault=2 line=339: v == old
+FAIL S6 type=3 event=5 fault=3 retry_fault=3 line=339: v == old
+S6 completed through scenario 320
+FAIL internal pending-storage probe: 320 scenarios, 3023 checks, 366 failures
+
+$ cc -std=c11 -I$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/src/include -I$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/src -I$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit $PACKET/scratch/ev/reviews/R541-5/scripts/probe.c $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/source/tests/unit/fault_alloc.c -L$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/build -Wl,-rpath,$PACKET/scratch/mutants/m2-no-snapshot-copy-ON/build -lshlan -o $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/ext-probe
+rc=0
+
+$ $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/ext-probe cross-port
+rc=1
+cross-port type=1 fault=0 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=IN recovery=tick expected=100 withdrawal=0
+cross-port type=1 fault=1 initial=IN recovery=receive expected=100 withdrawal=0
+cross-port type=1 fault=1 initial=LV recovery=tick expected=100 withdrawal=0
+cross-port type=1 fault=1 initial=LV recovery=receive expected=100 withdrawal=0
+cross-port type=1 fault=2 initial=IN recovery=tick expected=100 withdrawal=0
+cross-port type=1 fault=2 initial=IN recovery=receive expected=100 withdrawal=0
+cross-port type=1 fault=2 initial=LV recovery=tick expected=100 withdrawal=0
+cross-port type=1 fault=2 initial=LV recovery=receive expected=100 withdrawal=0
+cross-port type=1 fault=3 initial=IN recovery=tick expected=100 withdrawal=0
+cross-port type=1 fault=3 initial=IN recovery=receive expected=100 withdrawal=0
+cross-port type=1 fault=3 initial=LV recovery=tick expected=100 withdrawal=0
+cross-port type=1 fault=3 initial=LV recovery=receive expected=100 withdrawal=0
+cross-port type=2 fault=0 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=IN recovery=tick expected=100 withdrawal=0
+cross-port type=2 fault=1 initial=IN recovery=receive expected=100 withdrawal=0
+cross-port type=2 fault=1 initial=LV recovery=tick expected=100 withdrawal=0
+cross-port type=2 fault=1 initial=LV recovery=receive expected=100 withdrawal=0
+cross-port type=2 fault=2 initial=IN recovery=tick expected=100 withdrawal=0
+cross-port type=2 fault=2 initial=IN recovery=receive expected=100 withdrawal=0
+cross-port type=2 fault=2 initial=LV recovery=tick expected=100 withdrawal=0
+cross-port type=2 fault=2 initial=LV recovery=receive expected=100 withdrawal=0
+cross-port type=2 fault=3 initial=IN recovery=tick expected=100 withdrawal=0
+cross-port type=2 fault=3 initial=IN recovery=receive expected=100 withdrawal=0
+cross-port type=2 fault=3 initial=LV recovery=tick expected=100 withdrawal=0
+cross-port type=2 fault=3 initial=LV recovery=receive expected=100 withdrawal=0
+cross-port type=3 fault=0 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=LV recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=IN recovery=tick expected=2 withdrawal=0
+cross-port type=3 fault=1 initial=IN recovery=receive expected=2 withdrawal=0
+cross-port type=3 fault=1 initial=LV recovery=tick expected=2 withdrawal=0
+cross-port type=3 fault=1 initial=LV recovery=receive expected=2 withdrawal=0
+cross-port type=3 fault=2 initial=IN recovery=tick expected=2 withdrawal=0
+cross-port type=3 fault=2 initial=IN recovery=receive expected=2 withdrawal=0
+cross-port type=3 fault=2 initial=LV recovery=tick expected=2 withdrawal=0
+cross-port type=3 fault=2 initial=LV recovery=receive expected=2 withdrawal=0
+cross-port type=3 fault=3 initial=IN recovery=tick expected=2 withdrawal=0
+cross-port type=3 fault=3 initial=IN recovery=receive expected=2 withdrawal=0
+cross-port type=3 fault=3 initial=LV recovery=tick expected=2 withdrawal=0
+cross-port type=3 fault=3 initial=LV recovery=receive expected=2 withdrawal=0
+FAIL independent production-policy probe: 48 cases, 2008 checks, 36 value mismatches
+
+$ $PACKET/scratch/mutants/m2-no-snapshot-copy-ON/ext-probe
+rc=1
+FAIL scenario=1 line=69: values[0]==old
+

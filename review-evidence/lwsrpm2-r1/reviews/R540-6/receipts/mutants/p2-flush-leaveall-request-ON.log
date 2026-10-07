@@ -1,0 +1,194 @@
+$ cmake -S $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source -B $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$PACKET/scratch/prefix -DLWSRP_MILAN=ON
+rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/build
+
+$ cmake --build $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/build --parallel 2
+rc=0
+[  4%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[  9%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 13%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 27%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 31%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 36%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 50%] Linking C shared library libshlan.so
+[ 50%] Built target shlan
+[ 54%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 59%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 63%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 68%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 72%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 77%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 81%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 86%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+$ $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/build/unit_tests
+rc=0
+Running "main" (86 tests)...
+  "mrp_pdu_suite": 1690 passes in 15ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 6ms.
+  "integration_suite": 371 passes in 13ms.
+  "milan_suite": 430 passes in 11ms.
+  "boundaries_suite": 17156 passes in 106ms.
+Completed "main": 19873 passes in 158ms.
+
+$ cc -std=c11 -I$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source/src/include -I$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source/src -I$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source/tests/unit $PACKET/scripts/r540_6_probe.c $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source/tests/unit/fault_alloc.c -L$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/build -Wl,-rpath,$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/build -lshlan -o $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/own-probe
+rc=0
+
+$ $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/own-probe
+rc=1
+ fault=2 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=1 fault=3 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=1 fault=3 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=200
+S2 type=2 fault=0 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=0 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=1 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=2 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=second-flush-ok leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=reclaim leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=remote-leave leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=2 fault=3 path=transmit leaves=1 value=100 policy=1/100 tx_mfs=0
+S2 type=3 fault=0 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=0 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=1 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=2 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=second-flush-ok leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=reclaim leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=remote-leave leaves=1 value=2 policy=1/2 tx_mfs=0
+S2 type=3 fault=3 path=transmit leaves=1 value=2 policy=1/2 tx_mfs=0
+S3 old=1 new=2 event=New fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=New fault=1 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=1 order differs from no-fault control
+S3 old=1 new=2 event=New fault=2 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=2 order differs from no-fault control
+S3 old=1 new=2 event=New fault=3 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=1 new=2 event=New fault=3 order differs from no-fault control
+S3 old=1 new=2 event=JoinIn fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinIn fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=1 new=2 event=JoinMt fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=New fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=New fault=1 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=1 order differs from no-fault control
+S3 old=2 new=1 event=New fault=2 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=2 order differs from no-fault control
+S3 old=2 new=1 event=New fault=3 leave_before_join=0 (before tick 0) control=1 leaves=1 value=100
+NOTE S3 old=2 new=1 event=New fault=3 order differs from no-fault control
+S3 old=2 new=1 event=JoinIn fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinIn fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=0 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=1 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=2 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S3 old=2 new=1 event=JoinMt fault=3 leave_before_join=1 (before tick 1) control=1 leaves=1 value=100
+S4 fault=0 leave=100 observer_lv_mt=100 count=1
+S4 fault=1 leave=100 observer_lv_mt=200 count=1
+S4 fault=2 leave=100 observer_lv_mt=200 count=1
+S4 fault=3 leave=100 observer_lv_mt=200 count=1
+S5 fault=0 leave=200 control=200
+S5 fault=1 leave=200 control=200
+S5 fault=2 leave=200 control=200
+S5 fault=3 leave=200 control=200
+S6 completed through scenario 320
+FAIL internal pending-storage probe: 320 scenarios, 3023 checks, 8 failures
+
+$ cc -std=c11 -I$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source/src/include -I$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source/src -I$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source/tests/unit $PACKET/scratch/ev/reviews/R541-5/scripts/probe.c $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/source/tests/unit/fault_alloc.c -L$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/build -Wl,-rpath,$PACKET/scratch/mutants/p2-flush-leaveall-request-ON/build -lshlan -o $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/ext-probe
+rc=0
+
+$ $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/ext-probe cross-port
+rc=0
+cross-port type=1 fault=0 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=0 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=1 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=2 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=2 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=2 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=2 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=3 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=3 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=1 fault=3 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=1 fault=3 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=0 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=1 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=2 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=2 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=2 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=2 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=3 initial=IN recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=3 initial=IN recovery=receive expected=100 withdrawal=100
+cross-port type=2 fault=3 initial=LV recovery=tick expected=100 withdrawal=100
+cross-port type=2 fault=3 initial=LV recovery=receive expected=100 withdrawal=100
+cross-port type=3 fault=0 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=0 initial=LV recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=1 initial=LV recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=2 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=2 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=2 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=2 initial=LV recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=IN recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=IN recovery=receive expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=LV recovery=receive expected=2 withdrawal=2
+PASS independent production-policy probe: 48 cases, 2188 checks, 0 value mismatches
+
+$ $PACKET/scratch/mutants/p2-flush-leaveall-request-ON/ext-probe
+rc=0
+PASS independent production-policy probe: 489 cases, 21780 checks, 0 value mismatches
+

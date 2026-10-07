@@ -1,0 +1,26 @@
+66:    _Alignas(max_align_t) uint8_t attr_val[48];
+69:    bool                 flush_pending; /* Withdrawal precedes re-registration. */
+71:    _Alignas(max_align_t) uint8_t flush_value[48];
+432:                app->ops->attr_cmp(attr_type, a->attr_val, attr_val) == 0 &&
+446:        if (a->attr_type == type && ops->attr_cmp(type, a->attr_val, val) == 0)
+480:        memcpy(a->attr_val, val, attr_store_len(ops, type));
+490:    memcpy(a->attr_val, val, attr_store_len(ops, type));
+492:    a->reg        = MRP_REG_STATE_MT;
+638:        ai->reg = e->ns;
+642:    const void *ind_value = e->ind == REG_IND_LV && ai->flush_pending ?
+643:        ai->flush_value : ai->attr_val;
+648:        ai->reg = previous;
+651:            if (!ai->flush_pending) {
+652:                memcpy(ai->flush_value, ai->attr_val, attr_store_len(app->ops, ai->attr_type));
+654:            ai->flush_pending = true;
+655:            ai->reg = MRP_REG_STATE_LV;
+671:        ai->flush_pending = false;
+675:        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, true);
+678:        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, false);
+937:            shlan_free(a);
+1002:    if (previous && previous->flush_pending) {
+1012:        memcmp(previous->attr_val, attr_val, attr_store_len(rc->app->ops, attr_type)) != 0;
+1015:        memcpy(previous_value, previous->attr_val, sizeof(previous_value));
+1043:                        memcpy(ai->attr_val, previous_value, sizeof(previous_value));
+1065:        memcpy(ai->attr_val, previous_value, sizeof(previous_value));
+1117:            shlan_free(a);
