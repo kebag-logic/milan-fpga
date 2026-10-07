@@ -36,7 +36,7 @@
 //
 // Every level below is sampled on every cycle, so an edge between two CSR
 // reads cannot be missed. Phases:
-//   [BOOT] identity, the firmware boot values, the MAAP claim.
+//   [BOOT] identity, the firmware boot values, the MAAP claim started.
 //   [A]    Run B's opening: the first probes are refused, MAAP grants, the DUT
 //          declares Talker Advertise and is admitted, and no Listener Ready
 //          exists yet. Nothing may be emitted (item 2).
@@ -830,7 +830,7 @@ unsigned CrfLicenceHarness::lstn_reg(int uid) const {
 //  [BOOT] the identity and the firmware boot values of the #117 image
 // ============================================================================
 void CrfLicenceHarness::boot() {
-    printf("[BOOT] identity, the firmware boot values, the MAAP claim\n");
+    printf("[BOOT] identity, the firmware boot values, the MAAP claim started\n");
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4Eu);
     axi_write(A_MAC_ALO, kStaMacLo);
     axi_write(A_MAC_AHI, kStaMacHi);
@@ -842,13 +842,13 @@ void CrfLicenceHarness::boot() {
     axi_write(A_CRFT_CTRL, 0x3u);          // CRF output on, class A
     axi_write(A_PP_CTRL, 0x1u);            // entity enable
     rx_q.push_back(msrp_frame(domain_msg(0, 1)));   // the switch's Domain
-    bool announced = false;
-    for (int r = 0; r < 400 && !announced; r++) {
-        run_until(cyc + ms(20));
-        announced = ((axi_read(A_MAAP_STAT1) >> 2) & 1u) != 0;
-    }
-    ck_true("KL_maap reached ANNOUNCE (a block of two is claimed)", announced);
-    maap_off = axi_read(A_MAAP_STAT0) & 0xFFFFu;
+    // Run B's listener probed while the claim was still in flight. [A] probes
+    // here too: KL_maap needs three probe intervals (over 1.5 s, IEEE 1722-2016
+    // Table B.7) before it holds a block, so the refusal cannot depend on where
+    // the processor's 100 ms DA retry round falls against the ANNOUNCE.
+    run_until(cyc + ms(20));
+    const uint32_t maap = axi_read(A_MAAP_STAT1);
+    ck("KL_maap is probing, no block claimed yet", maap & 7u, 1);
     ck("CRFT_CTRL[1:0] reads back the boot value", axi_read(A_CRFT_CTRL) & 3u, 3);
     ck("nothing declares yet, so nothing is licensed", licence.rises, 0);
 }
@@ -865,6 +865,9 @@ uint64_t CrfLicenceHarness::phase_a() {
     probe(kUidCrf);
     probe(kUidAaf);
     run_until(t0 + ms(3900));
+    ck("KL_maap reached ANNOUNCE (a block of two is claimed)",
+       (axi_read(A_MAAP_STAT1) >> 2) & 1u, 1);
+    maap_off = axi_read(A_MAAP_STAT0) & 0xFFFFu;
     for (int s = 0; s < kSources; s++) {
         printf("  -- source uid %d (%s)\n", s, s == kUidCrf ? "CRF Media Clock Output" : "AAF");
         ck("the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)", static_cast<uint64_t>(peer[s].first_status), 3);

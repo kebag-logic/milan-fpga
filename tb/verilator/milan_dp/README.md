@@ -452,7 +452,7 @@ Advertise state are sampled on every cycle.
 
 | phase | what it proves |
 |---|---|
-| `[A]` | Run B's opening: both first probes are refused, MAAP grants, the DUT declares Talker Advertise and is admitted, and no Listener Ready exists. No CRF or AAF PDU leaves, `CRFT_COUNT` stays 0 and `CRFT_CTRL[6]`/`[7]` read 0 (item 2). |
+| `[A]` | Run B's opening: both first probes go while `KL_maap` is still probing, so both are refused whatever the phase of the processor's 100 ms DA retry round; MAAP grants, the DUT declares Talker Advertise and is admitted, and no Listener Ready exists. No CRF or AAF PDU leaves, `CRFT_COUNT` stays 0 and `CRFT_CTRL[6]`/`[7]` read 0 (item 2). |
 | `[B]` | The first Listener Ready opens each gate on the cycle ACTIVE rises. Every CRF PDU is C-tagged {PCP 3, VID 2} with the stream {MAC, uid 1} and the MAAP DA. |
 | `[B2]` | The AAF closing edge: a withdrawn Listener closes the AAF gate on the cycle ACTIVE falls, while the talker still declares and is admitted. |
 | `[C]` | Item 1: 76 s bound across at least three DUT and three switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. Each switch LeaveAll restarts the DUT's leavealltimer (802.1Q-2014 Table 10-5 rLA!, processor issue 108, since processor pin `b2db3a97`): every DUT LeaveAll comes at least 10 s after the switch's preceding one, which is why the phase holds three of each rather than five. |
