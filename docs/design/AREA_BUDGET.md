@@ -99,8 +99,9 @@ named campaign before quoting the resulting image as release-ready.
 
 Issue #234 first measured the shipping 1x1 image at dev `1269cdaf`, processor pin `631eeb34`.
 It re-baselined after PR #634 at dev `54643724`, and on 2026-10-05 after #661's adoption of processor `ead80360` on dev `506d91db`.
-The latest measurement, parent `ca129e38`, is the gate's record.
-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) holds all three measurements and their receipts.
+The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) holds those three measurements and their receipts.
+Issue #686 re-recorded all three endpoints on 2026-10-07 at `7b289656` on dev `e21c1ca0`, after `KL_maap`'s Annex B change.
+That measurement is the gate's record.
 
 ### Headroom target
 
@@ -110,28 +111,30 @@ The adopted image does not meet it:
 
 | Resource | Device | Shipping route, processor `ead80360` | Used | Target | Status |
 |---|---:|---:|---:|---|---|
-| Slice LUT | 63,400 | 50,318 | 79.37 % | NFR-RES-01: at most 38,040 (60 %) | not met, 12,278 over |
-| Slice register | 126,800 | 54,214 | 42.76 % | none stated | - |
-| Slice | 15,850 | 15,789 | 99.62 % | must stay below the device to place | 61 free |
+| Slice LUT | 63,400 | 50,088 | 79.00 % | NFR-RES-01: at most 38,040 (60 %) | not met, 12,048 over |
+| Slice register | 126,800 | 54,188 | 42.74 % | none stated | - |
+| Slice | 15,850 | 15,843 | 99.96 % | must stay below the device to place | 7 free |
 | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
 | DSP | 240 | 14 | 5.83 % | none stated | - |
-| WNS / WHS | - | +0.108 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
+| WNS / WHS | - | +0.317 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
-The slice row is the binding limit: placement has 61 slices left.
-The routed critical path, 42 logic levels, lies inside the protocol processor.
-The previous C image used 50,767 LUTs and 15,832 slices, 18 free, at +0.193 / +0.024 ns.
+The table is the gate's record.
+The slice row is the binding limit: placement has 7 slices left.
+The routed critical path, 21 logic levels, lies in the CPU's DMA bridge.
+The 2026-10-05 adoption image used 50,318 LUTs and 15,789 slices, 61 free, at +0.108 / +0.036 ns; its critical path, 42 logic levels, lay inside the protocol processor.
+The C image before it used 50,767 LUTs and 15,832 slices, 18 free, at +0.193 / +0.024 ns.
 The adoption saves 449 LUTs, 5,420 FFs and five RAMB36s in the image.
 
 ### Allocation to the protocol processor
 
 The standalone wrapper uses 23,178 LUTs, 36.6 % of the device, at the shipping clock.
 Epic #229's milestone keeps the non-CPU stack under 30 %, 19,020 LUTs.
-Read as `milan_datapath`, that stack names 41,657 LUTs in the routed image, 65.7 % of the device.
-The wrapper names 22,886 of them in that rebuilt hierarchy.
+Read as `milan_datapath`, that stack names 41,511 LUTs in the routed image, 65.5 % of the device.
+The wrapper names 22,984 of them in that rebuilt hierarchy.
 On any reading, the wrapper alone exceeds the milestone.
 
-Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 10,608 LUTs.
-That is a 12,278-LUT cut, 54 % of the wrapper.
+Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 10,936 LUTs.
+That is a 12,048-LUT cut, 52 % of the wrapper.
 The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that NFR-RES-01 stays at 60 %.
 It is met by a redesign in milestone "Optimisations Mark II" (#640), after Instrument verification.
 Until then the gate holds every resource at its recorded value: no material growth.
@@ -159,7 +162,7 @@ It also requires the route's BRAM tile ceiling.
 
 Growth beyond a tolerance, a ceiling crossed or a timing floor crossed exits 1.
 A route whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
-The 0.25 ns fall limit matters only once the route has margin; at +0.108 ns the floor still binds first, after a fall of 0.078 ns.
+The 0.25 ns fall limit matters only once the route has margin; at the record's +0.317 ns it binds first, at +0.067 ns, before the floor.
 One more RAMB36, RAMB18 or DSP is always material.
 A primitive count moves only when storage or arithmetic changes its mapping.
 
@@ -192,6 +195,8 @@ Each endpoint's `measured` note names the dev revision its record describes.
 The first re-baseline recorded PR #634's growth on 2026-10-03, in PR #638, which added the gate.
 The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-03-after-pr-634) gives its delta per endpoint and sub-block.
 The [second re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-05-processor-ead80360) records the adopted `ead80360` image on dev `506d91db` for #661.
+The third records #686's `KL_maap` change on dev `e21c1ca0`.
+Against the second, its route moved by -230 LUTs, -26 FFs and +54 slices, and its WNS rose from +0.108 to +0.317 ns; both standalone records kept every figure.
 
 The gate refuses, with exit 2, to compare across a tool or recipe change.
 That covers the Vivado build, the device, the design and its state, every flow command and the standalone clock.

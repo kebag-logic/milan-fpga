@@ -2,7 +2,7 @@
 
 Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
 The [2026-10-05 re-baseline](#re-baseline-of-2026-10-05-processor-ead80360) records processor pin `ead80360` on dev `506d91db` for #661.
-It is the resource gate's current record.
+It was the resource gate's record until 2026-10-07, when issue #686 re-recorded the three endpoints on dev `e21c1ca0`; the [area budget](../design/AREA_BUDGET.md#headroom-target) gives that record.
 The later sections preserve the previous combinations A, B and C as history.
 This adoption changes the processor gitlink; no parent RTL or processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
