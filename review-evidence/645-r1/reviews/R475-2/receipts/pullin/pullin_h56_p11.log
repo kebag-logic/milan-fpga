@@ -1,0 +1,13 @@
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +0.591..+0.599 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.502..8.509 (out of band 0), end-to-pop clearance 0.491 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +0.269..+5.276 ticks; render n 1600 fill 14..14 (off-law 0), delay 8.172..8.509 (out of band 0), end-to-pop clearance 0.172 ticks
+  info: after the settle           [   4.790,    6.600) s: ring slips 0+0, margin +5.238..+5.292 ticks; render n 14478 fill 14..14 (off-law 0), delay 8.148..8.195 (out of band 0), end-to-pop clearance 0.148 ticks
+  info: [PULLIN]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.238..+5.292 ticks, render fill 14..14 delay 8.148..8.195, on the law
+MARGINS: [PULLIN] empty 5.237760 full 5.790720 ticks
+  info: [PULLIN]: settle recentre 0.1900 s after the start
+ERROR-DISTRIBUTION: INTERNAL before hold window 4.100000000 4.600000000 samples 24000 axis_hz 6250000 histogram -1:24 0:23951 1:25
+ERROR-DISTRIBUTION: INTERNAL after hold window 4.600000000 6.600056000 samples 96002 axis_hz 6250000 histogram -41:15 -40:79 -39:109 -38:100 -37:100 -36:111 -35:111 -34:125 -33:99 -32:153 -31:113 -30:125 -29:122 -28:131 -27:134 -26:136 -25:140 -24:141 -23:149 -22:153 -21:155 -20:164 -19:165 -18:176 -17:179 -16:187 -15:194 -14:200 -13:213 -12:219 -11:234 -10:242 -9:256 -8:274 -7:288 -6:307 -5:334 -4:358 -3:390 -2:434 -1:623 0:44843 1:14970 2:7038 3:5587 4:5615 5:8058 6:1953
+ERROR-DISTRIBUTION: INTERNAL after settle window 4.790113200 6.600056000 samples 86877 axis_hz 6250000 histogram -1:145 0:44300 1:14365 2:6854 3:5587 4:5615 5:8058 6:1953
+RESULT-647: latency 214.32 us hold 56.0 us: delay 8.502..8.509 -> 8.148..8.195 ticks (shift -0.334), fill 14..14 -> 14..14, clearance 0.491 -> 0.148 ticks, settle +0.190 s after the hold, recentres 1, loopback slips 0 before the settle and 0 after: ON THE LAW
+RECOVERY: action 4.789991600 rearmed 5.341140240 duration 0.551148640 s quiet_ticks 2048
+== follow_ring: checks: 18   failures: 0 ==
+RESULT: PASS

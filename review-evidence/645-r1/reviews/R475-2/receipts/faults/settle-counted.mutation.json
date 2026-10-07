@@ -1,0 +1,6 @@
+{
+  "kind": "capture",
+  "old": "17'(lb_dup_cnt_o) + 17'(pop_dup_w)",
+  "new": "17'(lb_dup_cnt_o) + 17'(pop_dup_w || pop_hold_w)",
+  "expected": "[FAIL] LRC: no recentre moved the dup counter"
+}

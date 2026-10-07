@@ -1,0 +1,14 @@
+{
+  "cwd": "$REVIEWS/r475-2-645",
+  "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/chmap_capture",
+    "build",
+    "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "VERILATOR_JOBS=8",
+    "MDIR=$REVIEWS/645-r475-2-packet/scratch/faults/one-sided",
+    "CMAP_SRC=$REVIEWS/645-r475-2-packet/scratch/faults/one-sided/capture.sv"
+  ]
+}
