@@ -343,7 +343,8 @@ The unchanged acquisition deadline expires before the acquired-publication check
 First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
 Its separate deadline is 5400 seconds, including compilation.
 The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
-Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
+Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
+[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
 Physical regressions are therefore caught nightly, outside the PR aggregate.
 Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.

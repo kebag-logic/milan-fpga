@@ -166,10 +166,9 @@ The directory inventory includes one environment-dependent measurement exception
 It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
 Its README provides measurement commands and the complete receipt.
 
-The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
-The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
-It excludes scheduled `milan_dp_gptp` and manual `nvm_capture_cpu` measurements.
+Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
+[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
 The separate physical job permits 5400 seconds, including compilation.
 Its workflow job permits 120 minutes, including toolchain setup.
 Both target a four-core `ubuntu-latest` hosted worker.

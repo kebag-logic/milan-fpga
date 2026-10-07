@@ -80,9 +80,10 @@ See the [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
 for its supported histories and unresolved cases.
 The runner discovers suites from the filesystem, serializes whole-tree sweeps,
 enforces a per-suite wall clock, and refuses to quote a total when a suite's
-check count cannot be read. The default selection contains 54 suites, each
-with an 1800-second deadline except `milan_dp`, which has 3600 seconds
-under [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
+check count cannot be read.
+The default selection contains 60 suites.
+Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
+[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The separate `milan_dp_gptp` selection uses
 5400 seconds, including compilation, and preserves physical clock and timer
 rates. CI shards the default selection; the physical job runs nightly and on
