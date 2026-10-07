@@ -1,0 +1,23 @@
+== ls-tree diff excluding LICENSE
+rc=0
+== tracked files
+60
+     59 100644
+      1 100755
+== grep -n SPDX (non-header uses)
+HEAD:CONTRIBUTING.md:41:Start each new Markdown page with the existing [SPDX](https://spdx.dev/) comment.
+HEAD:doc/tools/README.md:45:[SPDX](https://spdx.dev/) comments are metadata.
+HEAD:doc/tools/check_references.py:13:        r"\b(?:IEEE|ISO(?:/IEC)?|IEC|SPDX|POSIX)\b|\b802\.1[A-Za-z0-9.-]+"
+HEAD:doc/tools/check_references.py:41:        "IEEE", "802.1Q-2018", "ISO/IEC 9899:2011", "IEC 61508", "POSIX", "SPDX",
+== grep LICENSE references
+HEAD:CONTRIBUTING.md:4:Individuals and companies may contribute under the [Apache License, Version 2.0](LICENSE).
+HEAD:CONTRIBUTING.md:5:Contributions use the same licence as the project.
+HEAD:CONTRIBUTING.md:64:Maintainers review scope, evidence, and licence compatibility before merging.
+HEAD:README.md:63:lwSRP is licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 kebag-logic. See [NOTICE](NOTICE). Individuals and companies may contribute under the same licence.
+HEAD:doc/manager.md:85:| Manager | Review [release scope](https://github.com/kebag-logic/lwSRP/issues/1). | Known gaps, licence readiness, and approval criteria. |
+HEAD:doc/manager.md:89:The public-release licence is [Apache License, Version 2.0](../LICENSE).
+HEAD:doc/manager.md:91:The [release issue](https://github.com/kebag-logic/lwSRP/issues/1) required the licence and documentation before publication.
+HEAD:doc/manager.md:92:The [licence issue](https://github.com/kebag-logic/lwSRP/issues/8) added both files.
+HEAD:doc/manager.md:94:Individuals and companies contribute under the same licence.
+HEAD:doc/tools/README.md:31:The [licence](../../LICENSE) and [notice](../../NOTICE) links are required and must resolve.
+HEAD:doc/tools/check_references.py:20:    "file": r"\b[\w./-]+\.(?:md|c|h|py|sh|yml|yaml|ini|drawio|svg|feature|zephyr)\b|\bCMakeLists\.txt\b|\b(?:LICENSE|NOTICE)\b",
