@@ -424,9 +424,11 @@ TEST(MaapCsr, AdmissionAfterEveryDestinationWrite) {
     CsrRig r;
     ASSERT_TRUE(maap_csr_init(&r.output, r.port, 8, true, 1, 1));
     maap_csr_allocation(&r.output, 0, kBase, 9, true);
-    unsigned destinations = 0, enables = 0;
+    unsigned destinations = 0;
+    unsigned enables = 0;
     for (unsigned k = 0; k < r.writes.size(); ++k) {
-        const auto offset = r.writes[k][1], value = r.writes[k][2];
+        const auto offset = r.writes[k][1];
+        const auto value = r.writes[k][2];
         if (offset == 0x658 || offset == 0x65c || offset == 0x81c ||
             offset == 0x820 || offset == 0x75c || offset == 0x760) {
             EXPECT_EQ(enables, 0u) << "no destination write after admission opens";

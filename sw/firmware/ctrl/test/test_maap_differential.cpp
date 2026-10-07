@@ -37,7 +37,9 @@ struct Software {
     maap_ports ports{};
     std::vector<Frame> frames;
     std::vector<unsigned> frame_ms;
-    unsigned now_ms = 0, deadline_ms = 0, seed_clock;
+    unsigned now_ms = 0;
+    unsigned deadline_ms = 0;
+    unsigned seed_clock;
     bool armed = false;
     explicit Software(unsigned seed = 17) : seed_clock(seed) {
         ports.ctx = this;
@@ -156,7 +158,8 @@ TEST(MaapDifferential, ProbeTimingAndParentDelta) {
         EXPECT_LE(elapsed, (kParentProbeMaxMs + 1u) * 10u) << "#686 parent probe maximum with observation error";
         std::printf("  parent PROBE %u: %u cycles (10 cycles/ms)\n", k, elapsed);
     }
-    unsigned parent_minimum = 10000, parent_maximum = 0;
+    unsigned parent_minimum = 10000;
+    unsigned parent_maximum = 0;
     for (unsigned phase = 0; phase < 1024; ++phase) {
         Fabric sampled;
         sampled.step(phase); sampled.begin(); sampled.frames_until(3);
@@ -170,7 +173,8 @@ TEST(MaapDifferential, ProbeTimingAndParentDelta) {
     EXPECT_EQ(parent_minimum, 5000u); EXPECT_EQ(parent_maximum, 6270u)
         << "#686 parent actually exceeds Annex B probe upper bound";
     // Reach both firmware draw boundaries through the real timer port.
-    unsigned minimum = 1000, maximum = 0;
+    unsigned minimum = 1000;
+    unsigned maximum = 0;
     for (unsigned seed = 0; seed < 5000; ++seed) {
         Software sampled(seed); sampled.acquire();
         for (unsigned k = 1; k < 4; ++k) {
