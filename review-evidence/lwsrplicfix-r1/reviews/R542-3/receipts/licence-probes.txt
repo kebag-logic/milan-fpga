@@ -1,0 +1,21 @@
+== A1 byte identity
+cmp head LICENSE vs canonical rc=0
+cmp base LICENSE vs canonical rc=1 (expect 1)
+base LICENSE minus first two lines vs canonical rc=0 (expect 0)
+canonical blob d645695673349e3947e8e5ae42332d0ac3164cd7; head blob d645695673349e3947e8e5ae42332d0ac3164cd7
+== A1 discriminating mutations (each must differ from canonical)
+mutation spdx-readded: cmp rc=1 (expect 1)
+mutation crlf: cmp rc=1 (expect 1)
+mutation trailing-newline-dropped: cmp rc=1 (expect 1)
+mutation leading-blank-dropped: cmp rc=1 (expect 1)
+== A3 SPDX sweep (first 400 bytes) at base and head
+a4cbe41de1c80d43f26e0d348cbdb45075273a4f files=60 missing-SPDX: none
+f800a2bb920c543934d6286a47fe20dde3efa2c5 files=60 missing-SPDX: LICENSE
+changed paths: LICENSE 
+== Docs link rule: the LICENSE link is required and must resolve
+check_links with LICENSE removed rc=1 (expect nonzero)
+FAIL CONTRIBUTING.md:4: LICENSE: missing target
+FAIL README.md:63: LICENSE: missing target
+FAIL doc/manager.md:89: ../LICENSE: missing target
+FAIL doc/tools/README.md:31: ../../LICENSE: missing target
+Local links: 354; external URLs: 20; failures: 4

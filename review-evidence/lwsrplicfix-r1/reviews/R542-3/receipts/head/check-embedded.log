@@ -1,0 +1,51 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: <packet>/scratch/run/embedded/OFF
+OFF: ['cmake', '-S', '<packet>/scratch/run/embedded', '-B', '<packet>/scratch/run/embedded/OFF', '-DLWSRP_ROOT=<clone>', '-DLWSRP_MILAN=OFF']; rc=0
+[ 18%] Building C object CMakeFiles/lwsrp.dir<clone>/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir<clone>/src/core/mrp_pdu.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir<clone>/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir<clone>/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir<clone>/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir<clone>/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir<clone>/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir<clone>/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir<clone>/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+OFF: ['cmake', '--build', '<packet>/scratch/run/embedded/OFF', '--parallel', '2']; rc=0
+OFF: ['<packet>/scratch/run/embedded/OFF/probe']; rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: <packet>/scratch/run/embedded/ON
+ON: ['cmake', '-S', '<packet>/scratch/run/embedded', '-B', '<packet>/scratch/run/embedded/ON', '-DLWSRP_ROOT=<clone>', '-DLWSRP_MILAN=ON']; rc=0
+[ 18%] Building C object CMakeFiles/lwsrp.dir<clone>/src/core/mrp_pdu.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir<clone>/src/core/mrp_mad.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir<clone>/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir<clone>/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir<clone>/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir<clone>/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir<clone>/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir<clone>/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir<clone>/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+ON: ['cmake', '--build', '<packet>/scratch/run/embedded/ON', '--parallel', '2']; rc=0
+ON: ['<packet>/scratch/run/embedded/ON/probe']; rc=0
+Embedded source list: both profile links and dispatch probes pass

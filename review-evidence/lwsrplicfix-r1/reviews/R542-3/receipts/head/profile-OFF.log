@@ -1,0 +1,112 @@
+== configure
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: <packet>/scratch/run/build-OFF
+configure rc=0
+== build
+[  4%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[  9%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 27%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 31%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 36%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 50%] Linking C shared library libshlan.so
+[ 50%] Built target shlan
+[ 59%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 59%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 63%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 68%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 72%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 77%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 81%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 86%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+build rc=0
+== ctest
+Test project <packet>/scratch/run/build-OFF
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.17 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.17 sec
+ctest rc=0
+== unit_tests
+Running "main" (86 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 3ms.
+  "receive_suite": 83 passes in 5ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 10ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 17156 passes in 95ms.
+Completed "main": 19885 passes in 140ms.
+unit_tests rc=0
+== behave
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.001s
+behave rc=0
+== behave --dry-run
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+0 features passed, 0 failed, 0 skipped, 1 untested
+0 scenarios passed, 0 failed, 0 skipped, 3 untested
+0 steps passed, 0 failed, 0 skipped, 10 untested
+Took 0min 0.000s
+behave-dry rc=0
