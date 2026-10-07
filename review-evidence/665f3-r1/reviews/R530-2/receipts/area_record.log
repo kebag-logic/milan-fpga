@@ -1,0 +1,13 @@
+`KL_mbx_rx`                                [1151, 1951, 1481, 1069, 1076, 1155]
+`KL_mbx` registers, decode, read mux       [295, 752, 294, 532, 1572, 532]
+`KL_mbx_evt`                               [682, 727, 702, 978, 978, 978]
+`KL_mbx_tx`                                [529, 481, 488, 280, 280, 280]
+`KL_mbx_wb`                                [67, 93, 122, 1, 1, 1]
+**Total**                                  [2745, 4025, 3102, 2860, 3907, 2946]
+sum of listed blocks: [2724, 4004, 3087, 2860, 3907, 2946]
+total minus listed (blocks not in the table): LUT [21, 21, 15] FF [0, 0, 0]
+round-3 delta over FC r2: LUT 357 FF 86
+round-2 delta over FC r2: LUT 1280 FF 1047
+per-block round-3 LUT deltas: {'`KL_mbx_rx`': 330, '`KL_mbx` registers, decode, read mux': -1, '`KL_mbx_evt`': 20, '`KL_mbx_tx`': -41, '`KL_mbx_wb`': 55} unlisted: -6
+breakdown 64 + 22 + 271 = 357 ; SRL16E 128 / 2 = 64 ; (34 RAMD32 + 10 RAMS32) / 2 = 22
+target check: LUT 357 <= 300 ? False ; FF 86 <= 120 ? True

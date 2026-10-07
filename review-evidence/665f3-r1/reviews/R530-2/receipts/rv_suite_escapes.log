@@ -1,0 +1,5 @@
+[ESCAPED] X7-flag-not-cleared-by-reset (ifs 1, host 0) rc=0: 0 failed; == mbx (Wishbone host): checks: 381   failures: 0 ==
+[CAUGHT] X13-frame-table-from-live-if-input (ifs 1, host 0) rc=1: 1 failed; [FAIL] RV1 a bound talker's AVAILABLE on interface 0, the next frame (index 1) queued behind it, passes alone got=0 exp=1
+[CAUGHT] X13-frame-table-from-live-if-input-if2 (ifs 2, host 0) rc=1: 1 failed; [FAIL] RV1 a bound talker's AVAILABLE on interface 0, the next frame (index 1) queued behind it, passes alone got=0 exp=1
+[CAUGHT] X17-live-of-other-interface-if2 (ifs 2, host 0) rc=1: 1 failed; [FAIL] RV2 on interface 1, a frame stalled while its entry owes a copy reaches no ring got=1 exp=0
+r530-2 probes: 3 of 4 non-equivalent caught

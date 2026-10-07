@@ -1,0 +1,33 @@
+[CAUGHT] FW1-rebind-to-another-talker-not-admitted: acmp rc=1 fails=4
+    first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 a re-bind to another talker admits it
+[CAUGHT] FW2-admit-port-on-interface-0: acmp rc=0 fails=0; acmpif2 rc=1 fails=11
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: Expected: true
+[CAUGHT] FW3-driver-entry-off-by-one: unit rc=1 fails=4; acmp rc=1 fails=5
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+[CAUGHT] FW4-driver-eid-halves-swapped: unit rc=1 fails=1; acmp rc=1 fails=15
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EID_LO holds talker[31:0]
+[CAUGHT] FW5-admit-without-first-clearing-en: unit rc=1 fails=1
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 four writes: BOUND_EN, BOUND_EID_LO, BOUND_EID_HI, BOUND_EN
+[CAUGHT] FW6-probe-left-ignores-sequence-id: acmp rc=1 fails=2
+    first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 the old probe leaving starts no timer for the new one
+[CAUGHT] FW7-stop-keeps-the-hold: acmp rc=1 fails=2
+    first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 an UNBIND_RX while the probe is owed stops its timer
+[CAUGHT] FW8-held-timer-counted-for-the-earliest: acmp rc=1 fails=14
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry 0
+[CAUGHT] FW9-due-unsigned-compare: acmp rc=1 fails=9
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline
+[CAUGHT] FW10-earliest-unsigned-compare: acmp rc=1 fails=1
+    first: [FAIL] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap: A28 the interface timer holds the earlier deadline, the numerically larger one before the wrap
+[CAUGHT] FW11-slot-bound-off-by-one: acmp rc=1 fails=2; acmpif2 rc=1 fails=2
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 the last slot range that fits is taken
+[CAUGHT] FW12-slot-bound-summed: acmp rc=1 fails=2; acmpif2 rc=1 fails=2
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 4294967295 is refused: past the bank, wrapping the sum, or truncating to a slot
+[CAUGHT] FW13-d3-rollback-drops-bindings: acmpnvm rc=1 fails=2; acmp rc=0 fails=0
+    first: [FAIL] AcmpStore.N7AD3RollBackKeepsTheBindings: N7 and leaves the applied binding as the binding walk left it: bound, PRB_W_AVAIL, discovery running
+[CAUGHT] FW14-adp-version-only-bit-4: acmp rc=1 fails=18
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 a BIND_RX of AVTP version 2 binds nothing, calls no port, counts as malformed
+[CAUGHT] FW15-version-checked-after-the-sink-match: acmp rc=1 fails=32
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 an ENTITY_AVAILABLE of version 1 discovers nothing
+[CAUGHT] FW16-restored-bindings-not-admitted-at-open: acmp rc=1 fails=9; acmpnvm rc=0 fails=0
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 9
+r530-2 firmware probes: 16 of 16 caught

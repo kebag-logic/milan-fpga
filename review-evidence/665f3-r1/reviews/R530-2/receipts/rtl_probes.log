@@ -1,0 +1,21 @@
+[CAUGHT] X1-copy-words-swapped (ifs 1, host 0) rc=1: 19 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring got=5 exp=0
+[CAUGHT] X2-armed-at-second-identity-byte (ifs 1, host 0) rc=1: 2 failed; [FAIL] Q14 right after that, one differing from it in the first identity byte only: no RX record, no delivery got=0 exp=5
+[CAUGHT] X3-tap-index-from-cnt-low-bits (ifs 1, host 0) rc=1: 19 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring got=5 exp=0
+[CAUGHT] X4-copy-byte-lane-rotated (ifs 1, host 0) rc=1: 19 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring got=5 exp=0
+[CAUGHT] X5-flag-kept-on-unequal-byte (ifs 1, host 0) rc=1: 10 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a talker no entry holds: no RX record, no delivery got=0 exp=5
+[CAUGHT] X6-eq-bound-field-length-unchecked (ifs 1, host 0) rc=1: 1 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker that ends inside its entity_id: no RX record, no delivery got=0 exp=5
+[ESCAPED] X7-flag-not-cleared-by-reset (ifs 1, host 0) rc=0: 0 failed; == mbx (Wishbone host): checks: 380   failures: 0 ==
+[CAUGHT] X8-copier-reads-next-entry (ifs 1, host 0) rc=1: 18 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring got=5 exp=0
+[CAUGHT] X9-scan-wraps-past-entry-0 (ifs 1, host 0) rc=1: 16 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring got=5 exp=0
+[CAUGHT] X10-last-entry-never-live (ifs 1, host 0) rc=1: 3 failed; [FAIL] Q12 the last entry passes its talker     got=5 exp=0
+[CAUGHT] X11-valid-flag-of-next-word (ifs 1, host 0) rc=1: 3 failed; [FAIL] Q17 with BOUND_EID_HI alone written since, BOUND_EID_LO reads 0 got=0xe0f1012 exp=0x0
+[equivalent-green] X12-entry-decode-bound-relaxed-equivalent (ifs 1, host 0) rc=0: 0 failed; == mbx (Wishbone host): checks: 380   failures: 0 ==
+[ESCAPED] X13-frame-table-from-live-if-input (ifs 1, host 0) rc=0: 0 failed; == mbx (Wishbone host): checks: 380   failures: 0 ==
+[ESCAPED] X13-frame-table-from-live-if-input-if2 (ifs 2, host 0) rc=0: 0 failed; == mbx (Wishbone host, 2 interfaces): checks: 380   failures: 0 ==
+[CAUGHT] X14-host-entry-interface-transposed-if2 (ifs 2, host 0) rc=1: 6 failed; [FAIL] Q12 the last entry passes its talker     got=5 exp=0
+[CAUGHT] X15-copy-into-other-interface-if2 (ifs 2, host 0) rc=1: 20 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring got=5 exp=0
+[CAUGHT] X16-out-of-range-index-uses-table-0 (ifs 1, host 0) rc=1: 1 failed; [FAIL] Q13 on another interface, or an index with no interface, it reaches no ring and counts nothing got=1 exp=0
+[ESCAPED] X17-live-of-other-interface-if2 (ifs 2, host 0) rc=0: 0 failed; == mbx (Wishbone host, 2 interfaces): checks: 380   failures: 0 ==
+[CAUGHT] X5-flag-kept-on-unequal-byte-axil (ifs 1, host 1) rc=1: 10 failed; [FAIL] Q12 an ENTITY_AVAILABLE of a talker no entry holds: no RX record, no delivery got=0 exp=5
+[CAUGHT] X14-host-entry-interface-transposed-if2-axil (ifs 2, host 1) rc=1: 6 failed; [FAIL] Q12 the last entry passes its talker     got=5 exp=0
+r530-2 probes: 15 of 19 non-equivalent caught

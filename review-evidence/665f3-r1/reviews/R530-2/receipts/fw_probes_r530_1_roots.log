@@ -1,0 +1,7 @@
+[CAUGHT] FW17-one-slot-for-every-interface: acmp rc=0 fails=0; acmpif2 rc=1 fails=19
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 1's ACMP slot at NOW_MS + 200 (Table 5.26)
+[CAUGHT] FW18-flag-bits-swapped-both-sides: acmp rc=1 fails=4; acmpnvm rc=0 fails=0
+    first: [FAIL] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime: A24 bound and started: flags 0x03, then the parameters, byte for byte
+[CAUGHT] FW19-longer-record-applied: acmp rc=1 fails=3; acmpnvm rc=0 fails=0
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 a payload of 21 bytes is refused, the longer ones too, before a byte is read
+r530-2 firmware probes: 3 of 3 caught
