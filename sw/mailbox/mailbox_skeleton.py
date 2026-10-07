@@ -29,7 +29,12 @@ RO_SOURCES = {
     "LINK": {"UP": "link_up_i"},
     "EVT_HEAD": {"WORDS": "evt_head_w"},
     "BUS_ERR": {"COUNT": "bus_err_r"},
+    "FILTER_MISMATCH": {"COUNT": "filter_mismatch_w"},
 }
+
+#: The interface filter registers the skeleton wires into KL_mbx_rx's own_mac_i:
+#: register -> the MAC bits its one field carries, as (msb, lsb).
+OWN_MAC_BITS = {"OWN_MAC_HI": (47, 32), "OWN_MAC_LO": (31, 0)}
 
 #: Read-only interface fields; `{i}` is the interface index.
 IF_SOURCES = {
@@ -63,6 +68,11 @@ def _mask(reg: Register) -> str:
     """The union of a register's field masks, from the constants."""
     return " | ".join(f"mbx_place_f(32'hFFFF_FFFF, MBX_{reg.name}_{f.name}_LSB_C, MBX_{reg.name}_{f.name}_WIDTH_C)"
                       for f in reg.fields)
+
+
+def _bits(reg: Register) -> int:
+    """The register's width up to its highest field bit: what storage of it keeps."""
+    return max(f.lsb + f.width for f in reg.fields)
 
 
 def _sources(reg: Register, table: dict[str, dict[str, str]], fmt: dict[str, int]) -> str:
@@ -193,6 +203,8 @@ def _core() -> list[str]:
         "  logic [31:0]              evw_data_w;",
         "  logic [MBX_N_CH_C-1:0]    rx_pending_w;",
         "  logic                     evt_pending_w;",
+        "  logic [15:0]              filter_mismatch_w;",
+        "  logic [MBX_N_IF_C*48-1:0] own_mac_w;      //! OWN_MAC per interface, the filter's `own` destination",
         "",
     ]
 
@@ -208,6 +220,10 @@ def _storage(contract: Contract) -> list[str]:
     for reg in contract.ch_registers:
         if reg.access == "rw":
             out.append(f"  logic [15:0] {reg.name.lower()}_r [MBX_N_CH_C];   //! {reg.name} per channel")
+    for reg in contract.iff_registers:
+        if reg.access == "rw":
+            out.append(f"  logic [{_bits(reg) - 1}:0] {reg.name.lower()}_r [MBX_N_IF_C];"
+                       f"   //! {reg.name} per interface")
     out += [
         "  logic        err_r;                          //! IRQ_STATUS.ERR, sticky",
         "  logic [15:0] bus_err_r;                      //! BUS_ERR",
@@ -226,14 +242,16 @@ def _write_block(contract: Contract) -> list[str]:
     """The always_ff that applies host writes, the sticky error and the snapshots."""
     rw = [r for r in contract.registers if r.access == "rw"]
     ch_rw = [r for r in contract.ch_registers if r.access == "rw"]
+    iff_rw = [r for r in contract.iff_registers if r.access == "rw"]
     out = ["  always_ff @(posedge clk_i) begin : host_write", "    if (!rst_n) begin"]
     out += [f"      {r.name.lower()}_r <= '0;" for r in rw]
     out += ["      err_r     <= 1'b0;", "      bus_err_r <= '0;",
             "      for (int c = 0; c < int'(MBX_N_CH_C); c++) begin"]
     out += [f"        {r.name.lower()}_r[c] <= '0;" for r in ch_rw]
     out += ["      end", "      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
-            "        gm_hi_snap_r[i]  <= '0;", "        domain_snap_r[i] <= '0;", "      end",
-            "    end else begin"]
+            "        gm_hi_snap_r[i]  <= '0;", "        domain_snap_r[i] <= '0;"]
+    out += [f"        {r.name.lower()}_r[i] <= '0;" for r in iff_rw]
+    out += ["      end", "    end else begin"]
     for r in rw:
         out.append(f"      if (wr_w && off_w == {AW}'(MBX_REG_{r.name}_C))"
                    f" {r.name.lower()}_r <= host_wdata_i & ({_mask(r)});")
@@ -253,7 +271,12 @@ def _write_block(contract: Contract) -> list[str]:
             f"        if (rd_w && off_w == {AW}'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin",
             "          gm_hi_snap_r[i]  <= gm_id_i[64*i + 32 +: 32];",
             "          domain_snap_r[i] <= gptp_domain_i[8*i +: 8];",
-            "        end", "      end", "    end", "  end : host_write", ""]
+            "        end"]
+    for r in iff_rw:
+        at = f"MBX_IFF_BASE_C + i * MBX_IFF_STRIDE_C + MBX_IFF_REG_{r.name}_C"
+        out.append(f"        if (wr_w && off_w == {AW}'({at}))")
+        out.append(f"          {r.name.lower()}_r[i] <= {_bits(r)}'(host_wdata_i & ({_mask(r)}));")
+    out += ["      end", "    end", "  end : host_write", ""]
     return out
 
 
@@ -270,6 +293,11 @@ def _read_block(contract: Contract) -> list[str]:
         for reg in contract.if_registers:
             base = f"MBX_IF_BASE_C + {i} * MBX_IF_STRIDE_C + MBX_IF_REG_{reg.name}_C"
             out.append(f"    if (off_w == {AW}'({base})) reg_rdata_w = {_sources(reg, IF_SOURCES, {'i': i})};")
+        for reg in contract.iff_registers:
+            if reg.access != "rw":
+                raise ContractError(f"interface filter register {reg.name}: the skeleton stores rw registers only")
+            base = f"MBX_IFF_BASE_C + {i} * MBX_IFF_STRIDE_C + MBX_IFF_REG_{reg.name}_C"
+            out.append(f"    if (off_w == {AW}'({base})) reg_rdata_w = 32'({reg.name.lower()}_r[{i}]);")
     out.append("    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin")
     for reg in contract.ch_registers:
         base = f"MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_{reg.name}_C"
@@ -359,6 +387,12 @@ def _leaves(contract: Contract) -> list[str]:
     ch_rw = {r.name for r in contract.ch_registers if r.access == "rw"}
     if ch_rw != {"RX_TAIL", "TX_HEAD"}:
         raise ContractError("the skeleton wires RX_TAIL and TX_HEAD into the leaves; the channel rw set changed")
+    iff = {r.name: r for r in contract.iff_registers}
+    if set(iff) != set(OWN_MAC_BITS) or any(len(r.fields) != 1 or r.fields[0].lsb != 0 or _bits(r) != hi - lo + 1
+                                            for name, r in iff.items() for hi, lo in (OWN_MAC_BITS[name],)):
+        raise ContractError("the skeleton wires OWN_MAC_HI (MAC[47:32]) and OWN_MAC_LO (MAC[31:0]) into the "
+                            "filter; the interface filter registers changed")
+    mac = ", ".join(f"{name.lower()}_r[i]" for name in OWN_MAC_BITS)
     status = next(r for r in contract.registers if r.name == "IRQ_STATUS")
     return [
         "  always_comb begin : pending",
@@ -368,6 +402,9 @@ def _leaves(contract: Contract) -> list[str]:
         "      rx_pending_w[c]       = rx_head_w[16*c +: 16] != rx_tail_r[c];",
         "    end",
         "    evt_pending_w = evt_head_w != evt_tail_r[15:0];",
+        "    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
+        f"      own_mac_w[48*i +: 48] = {{{mac}}};",
+        "    end",
         "  end : pending",
         "",
         "  logic irq_r;",
@@ -381,6 +418,7 @@ def _leaves(contract: Contract) -> list[str]:
         "    .clk_i           (clk_i),", "    .rst_n           (rst_n),",
         "    .ms_tick_p_i     (ms_tick_p_i),", "    .now_ms_i        (now_ms_r),",
         "    .own_eid_i       ({own_eid_hi_r, own_eid_lo_r}),",
+        "    .own_mac_i       (own_mac_w),",
         "    .open_i          (filter_en_r[MBX_N_CH_C-1:0]),",
         "    .maap_base_i     ({maap_base_hi_r[15:0], maap_base_lo_r}),",
         "    .maap_count_i    (maap_count_r[15:0]),",
@@ -390,7 +428,8 @@ def _leaves(contract: Contract) -> list[str]:
         "    .wr_addr_o       (rxw_addr_w),", "    .wr_data_o       (rxw_data_w),",
         "    .rx_tail_words_i (rx_tail_w),", "    .rx_head_words_o (rx_head_w),",
         "    .rx_drop_cnt_o   (rx_drop_w),", "    .rate_drop_cnt_o (rate_drop_w),",
-        "    .rx_pass_cnt_o   (rx_pass_w),", "    .err_p_o         (rx_err_p_w)",
+        "    .rx_pass_cnt_o   (rx_pass_w),", "    .mismatch_cnt_o  (filter_mismatch_w),",
+        "    .err_p_o         (rx_err_p_w)",
         "  );",
         "",
         "  KL_mbx_tx u_tx (",

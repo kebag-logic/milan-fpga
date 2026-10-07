@@ -19,7 +19,13 @@ bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	    !adp_mbx_attach(&app->adp, &app->loop)) {
 		return false;
 	}
-	if (!ctrl_loop_open(&app->loop, cfg->entity->entity_id)) {
+	// ADP sends the entity's one MAC on every interface (adp.c), so it is
+	// every interface's own unicast address
+	uint64_t own_mac[MBX_N_IF];
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		own_mac[i] = cfg->entity->mac;
+	}
+	if (!ctrl_loop_open(&app->loop, cfg->entity->entity_id, own_mac)) {
 		return false;
 	}
 	adp_mbx_set_enable(&app->adp, true);

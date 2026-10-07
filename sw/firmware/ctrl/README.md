@@ -51,8 +51,8 @@ hand-rolled checks and the coverage ratchet are described in
 | Arm | Source | What it shows |
 |---|---|---|
 | `model` | `model_suite.cpp` | the mailbox suite's checks, which the RTL passes through both adapters, pass on the model too |
-| `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included), the loop's order, bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
-| `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the contract check field by field, the driver's refusals and bounds, the adapter's slot, interface and loop-room refusals, and the MMIO platform over a host window |
+| `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included, and the own MAC the filter matches with the FILTER_MISMATCH it counts), the loop's order (every interface's own MAC before a channel opens), bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
+| `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the entity's MAC as every interface's own MAC, the contract check field by field, the driver's refusals and bounds, each interface's own MAC block and the FILTER_MISMATCH read, the adapter's slot, interface and loop-room refusals, and the MMIO platform over a host window |
 | `adp` | `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
 | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
@@ -94,7 +94,16 @@ composition order, the contract fields, the driver's refusals, the
 adapter's bounds and the MMIO platform) by `unit`; each check written for
 branch coverage (P5 to P9, S3, L9, A22 to A24) has a defect of its own; P9's
 free list cut short, followed to its end, is caught by the crash report
-that names P9. With
+that names P9. Each rule of the full-tuple filter (lane FC) has a defect in
+the model caught by `model` (a tag stripped or taken for an EtherType, a
+destination, EtherType or subtype ignored, any unicast or interface 0's MAC
+taken for own, the AECP response term dropped, FILTER_MISMATCH never, wrongly
+or ERR-less counted; for the MAAP DEFEND to own unicast, the message_type read
+a byte early, a tuple's message types ignored, a message_type refusal left
+uncounted, a DEFEND taken to any unicast), and the firmware's side has its
+own: the own MAC unguarded or halved, FILTER_MISMATCH read from another register (`unit` and
+`port`), the own MACs written after the channels open (`port`) and the app's
+own MAC not the entity's (`unit`). With
 `--lwsrp` it also requires the pin to refuse a
 scratch clone with one compiled source edited, and the same clone at
 another revision.

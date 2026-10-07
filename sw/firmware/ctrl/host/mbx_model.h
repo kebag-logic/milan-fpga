@@ -84,6 +84,7 @@ struct mbx_model {
 	uint32_t irq_enable;
 	uint32_t tick_ctl;
 	uint64_t own_eid;
+	uint64_t own_mac[MBX_N_IF];                     // OWN_MAC_HI:OWN_MAC_LO per interface, 48 bits
 	uint32_t filter_en;
 	uint64_t maap_base;
 	uint16_t maap_count;
@@ -95,6 +96,7 @@ struct mbx_model {
 	uint16_t seq;
 	bool err;
 	uint16_t bus_err;
+	uint16_t filter_mismatch;                       // FILTER_MISMATCH
 	bool link_up[MBX_N_IF];
 	bool posted_up[MBX_N_IF];
 	bool gm_pending[MBX_N_IF];
@@ -128,8 +130,9 @@ void mbx_model_set_link(struct mbx_model *m, unsigned interface, bool up);
 void mbx_model_set_gm(struct mbx_model *m, unsigned interface, uint64_t gm_id, uint8_t domain);
 void mbx_model_gm_change(struct mbx_model *m, unsigned interface, uint64_t gm_id, uint8_t domain);
 
-// One frame on the ingress path (FCS stripped); true when it was committed
-// into an receive ring.
+// One frame on the ingress path (FCS stripped), arrived on `interface` (an
+// index with no interface in this build has no own MAC); true when it was
+// committed into an receive ring.
 bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigned interface);
 
 // Hold the TX merge (records stay in their rings) or let it drain.

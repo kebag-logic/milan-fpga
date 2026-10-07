@@ -5,10 +5,13 @@
 // the transaction level (see mbx_model.h). Each rule below is the RTL's
 // (hdl/milan/mailbox), stated in the leaf that implements it:
 //
-//   KL_mbx_rx   classification by EtherType and subtype, the accept terms,
-//               the record committed whole or dropped (RX_DROP for size or
-//               space, RATE_DROP for an empty bucket), one token per refill
-//               period up to the burst;
+//   KL_mbx_rx   classification by the full tuple (destination MAC, or the
+//               arrival interface's OWN_MAC for an `own` tuple, EtherType,
+//               subtype and message_type), FILTER_MISMATCH for a control
+//               EtherType no tuple holds, the accept terms, the record
+//               committed whole or dropped (RX_DROP for size or space,
+//               RATE_DROP for an empty bucket), one token per refill period
+//               up to the burst;
 //   KL_mbx_tx   the record whose SEQ comes first modulo 2^16 among each
 //               channel's oldest, scanned from the channel after the one
 //               served last (so equal SEQs go round-robin), a record checked
@@ -31,10 +34,13 @@ static const uint32_t rx_words[MBX_N_CH] = MBX_CH_RX_WORDS_TBL;
 static const uint32_t tx_base[MBX_N_CH] = MBX_CH_TX_BASE_TBL;
 static const uint32_t tx_words[MBX_N_CH] = MBX_CH_TX_WORDS_TBL;
 static const uint32_t max_frame[MBX_N_CH] = MBX_CH_MAX_FRAME_BYTES_TBL;
-static const uint32_t ethertype0[MBX_N_CH] = MBX_CH_ETHERTYPE0_TBL;
-static const uint32_t ethertype1[MBX_N_CH] = MBX_CH_ETHERTYPE1_TBL;
-static const uint32_t has_subtype[MBX_N_CH] = MBX_CH_HAS_SUBTYPE_TBL;
-static const uint32_t subtype[MBX_N_CH] = MBX_CH_SUBTYPE_TBL;
+static const uint32_t tuple_dst[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_DST_TBL;
+static const uint32_t tuple_dst_hi[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_DST_HI_TBL;
+static const uint32_t tuple_dst_lo[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_DST_LO_TBL;
+static const uint32_t tuple_ethertype[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_ETHERTYPE_TBL;
+static const uint32_t tuple_has_subtype[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_HAS_SUBTYPE_TBL;
+static const uint32_t tuple_subtype[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_SUBTYPE_TBL;
+static const uint32_t tuple_msg_mask[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_MSG_MASK_TBL;
 static const uint32_t burst[MBX_N_CH] = MBX_CH_RATE_BURST_TBL;
 static const uint32_t refill_ms[MBX_N_CH] = MBX_CH_RATE_REFILL_MS_TBL;
 static const uint32_t term_test[MBX_N_CH * MBX_MAX_TERMS] = MBX_TERM_TEST_TBL;
@@ -276,18 +282,54 @@ void mbx_model_tx_pause(struct mbx_model *m, bool paused)
 
 // ---- the ingress filter ----------------------------------------------------------
 
-static int classify(const uint8_t *frame, size_t len)
+// The destination a tuple compares with: its address, or the OWN_MAC of the
+// interface the frame arrived on; false when it has none (an unused tuple,
+// or an `own` tuple on an index with no interface).
+static bool tuple_dst_mac(const struct mbx_model *m, unsigned j, unsigned interface, uint64_t *mac)
 {
-	if (len <= MBX_SUBTYPE_BYTE) {
-		return -1;                                      // ends before the subtype byte
+	if (tuple_dst[j] == MBX_DST_MAC) {
+		*mac = ((uint64_t)tuple_dst_hi[j] << 32) | tuple_dst_lo[j];
+		return true;
 	}
+	if (tuple_dst[j] == MBX_DST_OWN && interface < MBX_N_IF) {
+		*mac = m->own_mac[interface];
+		return true;
+	}
+	return false;
+}
+
+// The message_type the accept terms and the tuples read: 0 for a frame that
+// ends before its byte.
+static uint32_t msg_type(const uint8_t *frame, size_t len)
+{
+	return len > MBX_MSG_TYPE_BYTE ? frame[MBX_MSG_TYPE_BYTE] & 0x0Fu : 0u;
+}
+
+// The channel whose match tuple holds for the frame's destination, EtherType,
+// subtype and message_type, or -1. *mismatch when none holds and the EtherType
+// is one some tuple names (a tagged frame's is its TPID, which no tuple names).
+// A frame that ends before the subtype byte carries no PDU: no channel, no count.
+static int classify(const struct mbx_model *m, const uint8_t *frame, size_t len, unsigned interface, bool *mismatch)
+{
+	*mismatch = false;
+	if (len <= MBX_SUBTYPE_BYTE) {
+		return -1;
+	}
+	uint64_t dst = ((uint64_t)wire_be16(frame + MBX_DST_BYTE) << 32) | wire_be32(frame + MBX_DST_BYTE + 2u);
 	uint32_t et = wire_be16(frame + MBX_ETHERTYPE_BYTE);
-	for (unsigned c = 0; c < MBX_N_CH; ++c) {
-		if ((et == ethertype0[c] || et == ethertype1[c]) &&
-		    (has_subtype[c] == 0u || frame[MBX_SUBTYPE_BYTE] == subtype[c])) {
-			return (int)c;
+	uint32_t msg = msg_type(frame, len);
+	bool control = false;
+	for (unsigned j = 0; j < MBX_N_CH * MBX_MAX_TUPLES; ++j) {
+		uint64_t mac = 0;
+		bool named = tuple_dst[j] != MBX_DST_NONE && et == tuple_ethertype[j];
+		control = control || named;
+		if (named && tuple_dst_mac(m, j, interface, &mac) && dst == mac &&
+		    (tuple_has_subtype[j] == 0u || frame[MBX_SUBTYPE_BYTE] == tuple_subtype[j]) &&
+		    ((tuple_msg_mask[j] >> msg) & 1u) != 0u) {
+			return (int)(j / MBX_MAX_TUPLES);
 		}
 	}
+	*mismatch = control;
 	return -1;
 }
 
@@ -321,7 +363,7 @@ static bool term_holds(const struct mbx_model *m, unsigned j, const uint8_t *fra
 
 static bool rule_passes(const struct mbx_model *m, unsigned c, const uint8_t *frame, size_t len)
 {
-	uint32_t msg = len > MBX_MSG_TYPE_BYTE ? frame[MBX_MSG_TYPE_BYTE] & 0x0Fu : 0u;
+	uint32_t msg = msg_type(frame, len);
 	for (unsigned t = 0; t < MBX_MAX_TERMS; ++t) {
 		unsigned j = c * MBX_MAX_TERMS + t;
 		if (((term_mask[j] >> msg) & 1u) != 0u && term_holds(m, j, frame, len)) {
@@ -350,7 +392,12 @@ static void rx_commit(struct mbx_model *m, unsigned c, const uint8_t *frame, siz
 
 bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigned interface)
 {
-	int found = classify(frame, len);
+	bool mismatch = false;
+	int found = classify(m, frame, len, interface, &mismatch);
+	if (mismatch) {
+		m->filter_mismatch = sat16(m->filter_mismatch);
+		m->err = true;
+	}
 	if (found < 0 || ((m->filter_en >> found) & 1u) == 0u) {
 		return false;
 	}
@@ -482,8 +529,30 @@ static uint32_t read_global(const struct mbx_model *m, uint32_t off)
 		return m->evt_tail;
 	case MBX_REG_BUS_ERR:
 		return m->bus_err;
+	case MBX_REG_FILTER_MISMATCH:
+		return m->filter_mismatch;
 	default:
 		return 0;
+	}
+}
+
+// OWN_MAC_LO or OWN_MAC_HI of interface i.
+static uint32_t read_interface_filter(const struct mbx_model *m, unsigned i, uint32_t reg)
+{
+	if (reg == MBX_IFF_REG_OWN_MAC_LO) {
+		return (uint32_t)m->own_mac[i];
+	}
+	return reg == MBX_IFF_REG_OWN_MAC_HI ? (uint32_t)(m->own_mac[i] >> 32) : 0u;
+}
+
+static void write_interface_filter(struct mbx_model *m, unsigned i, uint32_t reg, uint32_t v)
+{
+	if (reg == MBX_IFF_REG_OWN_MAC_LO) {
+		m->own_mac[i] = (m->own_mac[i] & 0xFFFF00000000ull) |
+				mbx_field(v, MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH);
+	} else if (reg == MBX_IFF_REG_OWN_MAC_HI) {
+		m->own_mac[i] = (m->own_mac[i] & 0xFFFFFFFFull) |
+				((uint64_t)mbx_field(v, MBX_OWN_MAC_HI_MAC_LSB, MBX_OWN_MAC_HI_MAC_WIDTH) << 32);
 	}
 }
 
@@ -552,6 +621,9 @@ uint32_t mbx_model_read(struct mbx_model *m, uint32_t byte_offset)
 	}
 	if (off < MBX_IF_BASE + MBX_IF_STRIDE * MBX_N_IF) {
 		return read_interface(m, (off - MBX_IF_BASE) / MBX_IF_STRIDE, (off - MBX_IF_BASE) % MBX_IF_STRIDE);
+	}
+	if (off >= MBX_IFF_BASE && off < MBX_IFF_BASE + MBX_IFF_STRIDE * MBX_N_IF) {
+		return read_interface_filter(m, (off - MBX_IFF_BASE) / MBX_IFF_STRIDE, (off - MBX_IFF_BASE) % MBX_IFF_STRIDE);
 	}
 	if (off >= MBX_CH_BASE && off < MBX_CH_BASE + MBX_CH_STRIDE * MBX_N_CH) {
 		return read_channel(m, (off - MBX_CH_BASE) / MBX_CH_STRIDE, (off - MBX_CH_BASE) % MBX_CH_STRIDE);
@@ -656,6 +728,9 @@ void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, 
 	}
 	if (off >= MBX_CH_BASE && off < MBX_CH_BASE + MBX_CH_STRIDE * MBX_N_CH) {
 		write_channel(m, (off - MBX_CH_BASE) / MBX_CH_STRIDE, (off - MBX_CH_BASE) % MBX_CH_STRIDE, value);
+	} else if (off >= MBX_IFF_BASE && off < MBX_IFF_BASE + MBX_IFF_STRIDE * MBX_N_IF) {
+		write_interface_filter(m, (off - MBX_IFF_BASE) / MBX_IFF_STRIDE, (off - MBX_IFF_BASE) % MBX_IFF_STRIDE,
+				       value);
 	} else if (off < MBX_REGISTER_SPACE_BYTES) {
 		write_global(m, off, value);
 	} else if (writable_ring(off)) {

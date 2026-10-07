@@ -27,14 +27,25 @@
 #
 # RULES FOR CHANGING IT:
 #   * a change that moves or resizes a field, register or ring raises `major`;
-#     a change that only adds raises `minor`. The fabric publishes both in ID,
-#     and the firmware refuses a major it was not built against.
+#     so does a change that narrows what the filter passes, since a firmware
+#     built before it does not program what the narrower rule reads. A change
+#     that only adds raises `minor`. The fabric publishes both in ID, and the
+#     firmware refuses a major it was not built against.
 #   * every ring is a power of two in words and aligned to its own size.
 #   * a channel's filter rule cites the clause that makes the frames it passes
 #     the ones this entity must act on.
+#
+# Major 2 (#665 lane FC, the owner decision on #664, comment 6014311316): the
+# filter matches each channel's full tuple (destination MAC, EtherType, AVTP
+# subtype) before its identity term, the destination may be the receiving
+# interface's own MAC (OWN_MAC_LO/HI, per interface), the AECP channel also
+# takes a response for this controller, and FILTER_MISMATCH counts what fails
+# every tuple. A tuple may also name AVTP message types: the MAAP channel takes
+# a DEFEND to the receiving interface's own MAC (IEEE 1722-2016 B.2.1; #665,
+# comment 6026839422).
 
 version:
-  major: 1
+  major: 2
   minor: 0
 magic: 0x4D42          # "MB"
 window_bytes: 0x8000   # host-visible window
@@ -181,6 +192,18 @@ registers:
     doc: Host accesses refused, saturating. A write with a partial byte strobe and a bad TMR_CMD are refused.
     fields:
       - {name: COUNT, lsb: 0, width: 16, doc: refusals}
+  - name: FILTER_MISMATCH
+    offset: 0x074
+    access: ro
+    doc: >-
+      Untagged frames of a control EtherType that match no channel's tuple, saturating.
+      A frame counts once, when it reaches byte 14 with an EtherType some tuple names
+      and its destination MAC, EtherType and AVTP subtype together match no tuple of any
+      channel; it also sets IRQ_STATUS.ERR. A frame that matches a tuple and fails its
+      channel's identity term, a frame for a closed channel and a tagged frame never
+      count, nor does a frame that ends before byte 14.
+    fields:
+      - {name: COUNT, lsb: 0, width: 16, doc: frames}
 
 interface_registers:
   base: 0x040
@@ -206,6 +229,28 @@ interface_registers:
       doc: gPTP domain number, from the snapshot.
       fields:
         - {name: NUMBER, lsb: 0, width: 8, doc: gptp_domain_number}
+
+# The filter's per-interface registers: an `own` match tuple compares a frame's
+# destination with the OWN_MAC of the interface the frame arrived on (the RX
+# record's IF), never with another interface's and never with any unicast.
+interface_filter_registers:
+  base: 0x080
+  stride: 0x08
+  registers:
+    - name: OWN_MAC_LO
+      offset: 0x0
+      access: rw
+      doc: >-
+        This interface's own unicast MAC, low word. Reset 0; firmware writes it
+        before it opens a channel.
+      fields:
+        - {name: MAC, lsb: 0, width: 32, doc: "MAC[31:0], destination wire bytes 2 to 5"}
+    - name: OWN_MAC_HI
+      offset: 0x4
+      access: rw
+      doc: This interface's own unicast MAC, high 16 bits.
+      fields:
+        - {name: MAC, lsb: 0, width: 16, doc: "MAC[47:32], destination wire bytes 0 and 1"}
 
 channel_registers:
   base: 0x100
@@ -369,16 +414,38 @@ event_types:
         fields:
           - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
 
-# The ingress filter. A frame is classified by EtherType (and AVTP subtype at
-# wire byte 14) into at most one channel. It passes when the channel is open,
-# one of its accept terms holds, it fits max_frame_bytes and the ring, and the
-# channel's token bucket holds a token. Untagged frames only: an 802.1Q-tagged
-# frame classifies into no channel.
+# The ingress filter (the owner decision on #664, comment 6014311316;
+# REQUIREMENTS.md section 1 and NFR-SCOUT-08). A frame is classified when its
+# byte 15 arrives, or at its last byte when it ends at byte 14, by its full
+# tuple: a channel's match tuple holds when the destination MAC (wire bytes 0
+# to 5) is the tuple's address, or for an `own` tuple the OWN_MAC of the
+# interface the frame arrived on, the EtherType (wire bytes 12 and 13) is the
+# tuple's, the AVTP subtype (wire byte 14) is the tuple's where it names one,
+# and the message_type (the low nibble of wire byte 15, 0 for a frame that ends
+# at byte 14, as for the accept terms) is one of the tuple's where it names
+# some. The frame then passes when its channel is open, one of its accept terms
+# (the identity term) holds, it fits max_frame_bytes and the ring, and the
+# channel's token bucket holds a token.
+#
+# Untagged frames only, by construction: an 802.1Q tag puts its TPID (`tpids`,
+# IEEE 802.1Q-2018 Table 9-1) where the EtherType is read, no tuple may name a
+# TPID, so a tagged frame matches no tuple and is not of a control EtherType
+# either: it reaches no channel and no counter. A control EtherType is one some
+# tuple names; an untagged frame of one that matches no tuple counts in
+# FILTER_MISMATCH. A frame that ends before byte 14 carries no PDU and is
+# classified into nothing and counted nowhere.
 filter:
   msg_type_byte: 15          # AVTP control header: message_type is the low nibble
   subtype_byte: 14
   ethertype_byte: 12
+  dst_byte: 0                # the destination MAC, six bytes, network order
   max_terms: 2               # accept terms per channel; unused terms are `none`
+  max_tuples: 2              # match tuples per channel; unused tuples are `none`
+  tpids: [0x8100, 0x88A8, 0x88E7]   # IEEE 802.1Q-2018 Table 9-1: C-VLAN, S-VLAN and I-tag TPIDs
+  dsts:
+    - {name: none, value: 0, doc: never (an unused tuple)}
+    - {name: mac, value: 1, doc: the destination MAC is the tuple's address}
+    - {name: own, value: 2, doc: the destination MAC is OWN_MAC of the interface the frame arrived on}
   tests:
     - {name: none, value: 0, doc: never (an unused term)}
     - {name: any, value: 1, doc: always}
@@ -396,7 +463,9 @@ channels:
     rx: {base: 0x1000, words: 256}
     tx: {base: 0x1400, words: 128}
     max_frame_bytes: 128
-    match: {ethertypes: [0x22F0], subtype: 0xFA}
+    match:
+      - {dst: 0x91E0F0010000, ethertype: 0x22F0, subtype: 0xFA,
+         doc: "the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1)"}
     rate: {burst: 8, refill_ms: 10}
     cite: IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1
     accept:
@@ -409,7 +478,11 @@ channels:
     rx: {base: 0x1800, words: 256}
     tx: {base: 0x1C00, words: 256}
     max_frame_bytes: 128
-    match: {ethertypes: [0x22F0], subtype: 0xFC}
+    match:
+      - {dst: 0x91E0F0010000, ethertype: 0x22F0, subtype: 0xFC,
+         doc: "the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1; 8.2.1 sends every ACMPDU to it)"}
+      - {dst: own, ethertype: 0x22F0, subtype: 0xFC,
+         doc: "this interface's own unicast MAC, a receive tolerance the owner decision grants, not a normative transmission"}
     rate: {burst: 16, refill_ms: 5}
     cite: IEEE 1722.1-2021 8.2.1.9 and 8.2.1.10
     accept:
@@ -422,20 +495,33 @@ channels:
     rx: {base: 0x2000, words: 512}
     tx: {base: 0x2800, words: 512}
     max_frame_bytes: 1514
-    match: {ethertypes: [0x22F0], subtype: 0xFB}
+    match:
+      - {dst: own, ethertype: 0x22F0, subtype: 0xFB,
+         doc: "this interface's own unicast MAC (IEEE 1722.1-2021 9.2.2: commands and responses travel unicast)"}
     rate: {burst: 16, refill_ms: 5}
-    cite: IEEE 1722.1-2021 9.2.2.7 (target_entity_id)
+    cite: IEEE 1722.1-2021 9.2.2.4 (Table 9-1), 9.2.2.7 and 9.2.2.8; Milan v1.2 5.4.5.3
+    # Table 9-1 gives every command an even message_type and its response the
+    # next odd one; the reserved 10 to 13 keep that parity, which is how the
+    # fabric's AECP engine reads them (protocol-processor KL_aecp_engine.sv,
+    # msg_type[0]), so this channel sees the commands the fabric placement
+    # answers.
     accept:
-      - {test: eq_own, offset: 18, field: target_entity_id,
+      - {test: eq_own, offset: 18, msg_types: [0, 2, 4, 6, 8, 10, 12, 14], field: target_entity_id,
          doc: a command addressed to this entity}
+      - {test: eq_own, offset: 26, msg_types: [1, 3, 5, 7, 9, 11, 13, 15], field: controller_entity_id,
+         doc: "a response to a command this entity sent as a controller, such as CONTROLLER_AVAILABLE (Milan v1.2 5.4.5.3)"}
   - name: maap
     id: 3
     rx: {base: 0x3000, words: 128}
     tx: {base: 0x3200, words: 128}
     max_frame_bytes: 64
-    match: {ethertypes: [0x22F0], subtype: 0xFE}
+    match:
+      - {dst: 0x91E0F000FF00, ethertype: 0x22F0, subtype: 0xFE,
+         doc: "the MAAP multicast address (IEEE 1722-2016 Table B.10; B.2.1 sends PROBE and ANNOUNCE to it)"}
+      - {dst: own, ethertype: 0x22F0, subtype: 0xFE, msg_types: [2],
+         doc: "a DEFEND to this interface's own unicast MAC (IEEE 1722-2016 B.2.1: the PROBE's source MAC)"}
     rate: {burst: 8, refill_ms: 20}
-    cite: IEEE 1722-2016 B.2.5, B.2.6 and note b of Table B.7
+    cite: IEEE 1722-2016 B.2.1, B.2.5, B.2.6 and note b of Table B.7
     accept:
       - {test: range_overlap, offset: 26, msg_types: [1, 2, 3], field: requested_start_address,
          doc: "a PROBE, DEFEND or ANNOUNCE whose requested range conflicts with this entity's range"}
@@ -444,7 +530,11 @@ channels:
     rx: {base: 0x4000, words: 1024}
     tx: {base: 0x5000, words: 512}
     max_frame_bytes: 1514
-    match: {ethertypes: [0x22EA, 0x88F5]}
+    match:
+      - {dst: 0x0180C200000E, ethertype: 0x22EA,
+         doc: "MSRP: the Nearest Bridge group address and the MSRP EtherType (IEEE 802.1Q-2018 35.2.2.1, 35.2.2.2)"}
+      - {dst: 0x0180C2000021, ethertype: 0x88F5,
+         doc: "MVRP: the Customer Bridge MVRP address and EtherType (IEEE 802.1Q-2018 11.2.3.1.3, Tables 10-1 and 10-2)"}
     rate: {burst: 32, refill_ms: 2}
     cite: IEEE 802.1Q-2018 35.2.2 (MSRP address and EtherType) and 11.2 (MVRP)
     # The record carries the whole frame, so the MRPDU (802.1Q 10.8.1.2,

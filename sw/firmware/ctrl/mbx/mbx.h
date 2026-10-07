@@ -69,6 +69,13 @@ bool mbx_open(void);
 void mbx_filter_set_own_eid(uint64_t entity_id);
 void mbx_filter_open(uint32_t channel_mask);
 void mbx_filter_set_maap_range(uint64_t base, uint16_t count);
+// The 48-bit own unicast MAC of an interface (OWN_MAC_LO/HI), the destination
+// an `own` match tuple takes on a frame that arrived on that interface. False,
+// writing nothing, for an interface the contract does not have.
+bool mbx_filter_set_own_mac(unsigned interface, uint64_t mac);
+// FILTER_MISMATCH: untagged frames of a control EtherType that matched no
+// channel's tuple, saturating at 0xFFFF.
+uint16_t mbx_filter_mismatch(void);
 
 // Copy channel ch's next RX record into *f and release it (RX_TAIL).
 // EMPTY when the ring is empty; BAD when the record is malformed, in which

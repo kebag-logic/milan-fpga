@@ -12,6 +12,8 @@
 //   D9   an event of a type the contract does not define, the coherent
 //        grandmaster read with no domain wanted, and the interrupt words;
 //   D10  the lane and field helpers at their bounds;
+//   D11  each interface's own MAC in its own filter block, an interface past
+//        the contract's refused, and FILTER_MISMATCH read as its field (lane FC);
 //   B2   the adapter's slots past the fabric's timer bank;
 //   B3   a record or an event naming an interface with no instance, counted;
 //   B4   an adapter the loop has no room for.
@@ -132,8 +134,25 @@ TEST(DriverUnit, D10LanesAndFieldsAtTheirBounds) {
     EXPECT_EQ(mbx_field(0xDEADBEEFu, 0, 32), 0xDEADBEEFu) << "D10 and reads whole";
 }
 
+TEST(DriverUnit, D11OwnMacPerInterfaceAndTheMismatchCount) {
+    NiceMock<MockMbxHal> hal;
+    Window w(hal);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        EXPECT_TRUE(mbx_filter_set_own_mac(i, 0xA1B2C3D4E5F0ull + i)) << "D11 interface " << i << " takes its own MAC";
+        const std::uint32_t block = MBX_IFF_BASE + MBX_IFF_STRIDE * i;
+        EXPECT_EQ(w.at(block + MBX_IFF_REG_OWN_MAC_LO), 0xC3D4E5F0u + i) << "D11 OWN_MAC_LO holds MAC[31:0]";
+        EXPECT_EQ(w.at(block + MBX_IFF_REG_OWN_MAC_HI), 0xA1B2u) << "D11 OWN_MAC_HI holds MAC[47:32]";
+    }
+    const std::size_t writes = w.writes.size();
+    EXPECT_FALSE(mbx_filter_set_own_mac(MBX_N_IF, 0x001B92000001ull)) << "D11 an interface past the contract's is refused";
+    EXPECT_EQ(w.writes.size(), writes) << "D11 and nothing is written";
+    w.words[MBX_REG_FILTER_MISMATCH] = 0xFFFF0123u;
+    EXPECT_EQ(mbx_filter_mismatch(), 0x0123u) << "D11 FILTER_MISMATCH is read as its COUNT field";
+}
+
 const adp_entity kEntity = {0x1122334455667788ull, 0x99AABBCCDDEEFF01ull, 0x001B921122AAull, 0xC588u, 8u, 0x4801u,
                             8u, 0x4801u, 5u};
+const std::uint64_t kOwnMac[MBX_N_IF] = {kEntity.mac};
 
 TEST(AdpAdapterUnit, B2SlotsPastTheTimerBankRefused) {
     static adp_mbx m;
@@ -147,7 +166,7 @@ TEST(AdpAdapterUnit, B3ForeignInterfaceCounted) {
     NiceMock<MockMbxHal> hal;
     Window w(hal);
     ctrl_loop_init(&loop);
-    ASSERT_TRUE(adp_mbx_init(&m, &kEntity, 0, 0) && adp_mbx_attach(&m, &loop) && ctrl_loop_open(&loop, 1));
+    ASSERT_TRUE(adp_mbx_init(&m, &kEntity, 0, 0) && adp_mbx_attach(&m, &loop) && ctrl_loop_open(&loop, 1, kOwnMac));
     w.rx(kAdp, 0) = rx_w0(26, MBX_N_IF);
     w.words[ch_reg(kAdp, MBX_CH_REG_RX_HEAD)] = 2u + 7u;
     w.evt(0) = ev_w0(MBX_EV_TYPE_LINK, MBX_N_IF);
