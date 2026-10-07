@@ -967,6 +967,12 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
                 acmp_stored, maap_stored, static_cast<unsigned>(worst));
     EXPECT_TRUE(at != 0u && at <= ACMP_MBX_RX_PASSES) << "F6 every record and event is taken, by ACMP_MBX_RX_PASSES";
     EXPECT_EQ(model.ch[MBX_CH_MAAP].rx_tail, model.ch[MBX_CH_MAAP].rx_head) << "F6 the maap ring is drained";
+    // The bound is the two published passes, ADP and ACMP's (acmp_mbx.h) and
+    // MAAP's own (maap_mbx.h), with each event record's 6 accesses, which both
+    // count, taken once: the measured worst pass above cannot pin it.
+    EXPECT_EQ(CTRL_APP_PASS_MAX,
+              ACMP_MBX_PASS_MAX + MAAP_MBX_PASS_MAX - CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
+        << "F6 the three-way bound is both modules' passes with each event record taken once";
     bound("F6 the worst pass of the three-way backlog", worst, CTRL_APP_PASS_MAX);
     settle();
 }

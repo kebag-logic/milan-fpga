@@ -6,7 +6,7 @@ reviews and for the adp channel's bound-talker term (comment 6029368753),
 on the core, the adapter, the binding owner, the driver and the host model;
 round 4's (comment 6034423349) for R531-2-F1; round 6's (comment
 6037650104) for the app composing ADP, ACMP and lane F2's MAAP together;
-and round 7's (comment 6041160063) for R530-5-F1. acmp_mutants.py
+and round 7's (comment 6041160063) for R530-5-F1 and S1. acmp_mutants.py
 appends this table to its own.
 """
 
@@ -407,4 +407,14 @@ MUTANTS = (
     Mutant("app-own-mac-per-interface", APP, "\t\town_mac[i] = cfg->entity->mac;\n",
            "\t\town_mac[i] = cfg->entity->mac + i;\n",
            "acmpif2", U6, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"),
+    # round 7 (R530-5-S1): the three-way bound against the two published passes
+    Mutant("app-three-way-bound-drops-maap", "app/ctrl_app.h",
+           "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)",
+           "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX)",
+           "acmp", F6, "F6 the three-way bound is both modules' passes",
+           (("acmpif2", F6, "F6 the three-way bound is both modules' passes"),)),
+    Mutant("app-three-way-bound-one-maap-poll", "app/ctrl_app.h",
+           "(CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MBX_N_IF * MAAP_MBX_POLL_MAX)",
+           "(CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MAAP_MBX_POLL_MAX)",
+           "acmpif2", F6, "F6 the three-way bound is both modules' passes"),
 )
