@@ -1,0 +1,52 @@
+diff --git a/tb/verilator/gptp_txts/generated/mac_tx_chain.v b/tb/verilator/gptp_txts/generated/mac_tx_chain.v
+index 4921039a1..8ebc603be 100644
+--- a/tb/verilator/gptp_txts/generated/mac_tx_chain.v
++++ b/tb/verilator/gptp_txts/generated/mac_tx_chain.v
+@@ -49,14 +49,16 @@ wire phy_sink_last1;
+ wire [7:0] phy_sink_payload_data;
+ wire phy_sink_payload_last_be;
+ wire phy_sink_payload_error;
+-reg phy_source_valid = 1'd0;
++wire phy_source_valid;
+ wire phy_source_ready;
+ reg phy_source_first = 1'd0;
+ wire phy_source_last;
+-reg [7:0] phy_source_payload_data = 8'd0;
++wire [7:0] phy_source_payload_data;
+ reg phy_source_payload_last_be = 1'd0;
+ reg phy_source_payload_error = 1'd0;
+-reg phy_dv_d = 1'd0;
++reg phy_rx_dv = 1'd0;
++reg [7:0] phy_rx_data = 8'd0;
++reg phy_rx_reset = 1'd1;
+ wire liteethmaccore_sink_valid;
+ wire liteethmaccore_sink_ready;
+ wire liteethmaccore_sink_first;
+@@ -820,7 +822,9 @@ assign gmii_tx_en = pads_tx_en;
+ assign gmii_tx_data = pads_tx_data;
+ assign gmii_tx_er = pads_tx_er;
+ assign maceth_tx_rst = maceth_tx_rst_1;
+-assign phy_source_last = ((~pads_rx_dv) & phy_dv_d);
++assign phy_source_valid = (phy_rx_dv & (~phy_rx_reset));
++assign phy_source_payload_data = (phy_rx_reset ? 1'd0 : phy_rx_data);
++assign phy_source_last = ((~pads_rx_dv) & phy_source_valid);
+ assign liteethmaccore_tx_cdc_cdc_sink_valid = liteethmaccore_tx_cdc_sink_sink_valid;
+ assign liteethmaccore_tx_cdc_sink_sink_ready = liteethmaccore_tx_cdc_cdc_sink_ready;
+ assign liteethmaccore_tx_cdc_cdc_sink_first = liteethmaccore_tx_cdc_sink_sink_first;
+@@ -2201,13 +2205,10 @@ assign tx_dp_cdc_produce_rdomain = multiregimpl61;
+ assign tx_dp_cdc_consume_wdomain = multiregimpl71;
+ 
+ always @(posedge eth_rx_clk_1) begin
+-	phy_dv_d <= pads_rx_dv;
+-	phy_source_valid <= pads_rx_dv;
+-	phy_source_payload_data <= pads_rx_data;
++	phy_rx_dv <= pads_rx_dv;
++	phy_rx_data <= pads_rx_data;
++	phy_rx_reset <= eth_rx_rst;
+ 	if (eth_rx_rst) begin
+-		phy_source_valid <= 1'd0;
+-		phy_source_payload_data <= 8'd0;
+-		phy_dv_d <= 1'd0;
+ 	end
+ end
+ 

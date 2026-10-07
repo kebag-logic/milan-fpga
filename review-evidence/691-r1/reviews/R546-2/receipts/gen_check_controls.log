@@ -1,0 +1,14 @@
+== stack=venv artifact=probe_head
+generated MAC transmit chain: OK (2683 lines, region 1875a2eb2163, checked by re-converted from the product source)
+rc=0
+== stack=venv artifact=probe_old
+STALE: the generated MAC transmit chain is not the chain the product builds. Regenerate it with sw/litex/gen_mac_tx_model.py and review the diff.
+  re-converting the product chain does not reproduce the artifact byte for byte
+rc=1
+== stack=venv_no0007 artifact=probe_head
+STALE: the generated MAC transmit chain is not the chain the product builds. Regenerate it with sw/litex/gen_mac_tx_model.py and review the diff.
+  re-converting the product chain does not reproduce the artifact byte for byte
+rc=1
+== stack=venv_no0007 artifact=probe_old
+generated MAC transmit chain: OK (2682 lines, region 1875a2eb2163, checked by re-converted from the product source)
+rc=0

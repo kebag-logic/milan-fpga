@@ -1,0 +1,6 @@
+CAUGHT valid_reset_restored rc=1 module=valid_reset_restored/liteeth/phy/gmii.py reason=AssertionError: pad capture must be unconditional and direct
+CAUGHT data_reset_restored rc=1 module=data_reset_restored/liteeth/phy/gmii.py reason=AssertionError: pad capture must be unconditional and direct
+CAUGHT live_reset_mask rc=1 module=live_reset_mask/liteeth/phy/gmii.py reason=AssertionError: (102, 1, 1, (0, 85, 0), (1, 85, 0))
+CAUGHT data_mask_dropped rc=1 module=data_mask_dropped/liteeth/phy/gmii.py reason=AssertionError: (119, 1, 1, (0, 102, 0), (0, 0, 0))
+CAUGHT last_from_raw_dv rc=1 module=last_from_raw_dv/liteeth/phy/gmii.py reason=AssertionError: (1, 0, 0, (0, 0, 1), (0, 0, 0))
+SURVIVED reset_initial_zero rc=0 module=reset_initial_zero/liteeth/phy/gmii.py reason=
