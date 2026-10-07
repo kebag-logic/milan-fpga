@@ -30,18 +30,17 @@ int64_t __lshrdi3(int64_t a, int b);
 int64_t __ashldi3(int64_t a, int b);
 int64_t __ashrdi3(int64_t a, int b);
 
-// One bit of the quotient per step; `carry` holds the remainder's 33rd bit,
-// so a divisor above 2^31 (2^63) still divides.
+// One bit of the quotient per step. After step k the remainder is below 2^k,
+// so its shift never drops a bit, whatever the divisor.
 static uint32_t image_udivmod32(uint32_t n, uint32_t d, uint32_t *rem)
 {
 	uint32_t q = 0u;
 	uint32_t r = 0u;
 	for (unsigned i = 0u; i < 32u; ++i) {
-		uint32_t carry = r >> 31;
 		r = (r << 1) | (n >> 31);
 		n <<= 1;
 		q <<= 1;
-		if (carry != 0u || r >= d) {
+		if (r >= d) {
 			r -= d;
 			q |= 1u;
 		}
@@ -55,28 +54,16 @@ static uint64_t image_udivmod64(uint64_t n, uint64_t d, uint64_t *rem)
 	uint64_t q = 0u;
 	uint64_t r = 0u;
 	for (unsigned i = 0u; i < 64u; ++i) {
-		uint64_t carry = r >> 63;
 		r = (r << 1) | (n >> 63);
 		n <<= 1;
 		q <<= 1;
-		if (carry != 0u || r >= d) {
+		if (r >= d) {
 			r -= d;
 			q |= 1u;
 		}
 	}
 	*rem = r;
 	return q;
-}
-
-// A multiplier bit as a mask of 0 or all ones, through an empty asm so the
-// compiler cannot see that it is one or the other: GCC turns `if (bit) p += x`
-// and `p += x & -bit` into a product by the bit, which for 64 bits is a call
-// to __muldi3, so from __muldi3 itself.
-static uint32_t image_mask(uint32_t bit)
-{
-	uint32_t m = 0u - bit;
-	__asm__("" : "+r"(m));
-	return m;
 }
 
 static uint32_t image_abs32(int32_t v)
@@ -93,7 +80,7 @@ uint32_t __mulsi3(uint32_t a, uint32_t b)
 {
 	uint32_t p = 0u;
 	while (b != 0u) {
-		p += a & image_mask(b & 1u);
+		p += a & (0u - (b & 1u));
 		a <<= 1;
 		b >>= 1;
 	}
@@ -129,8 +116,9 @@ int32_t __modsi3(int32_t a, int32_t b)
 	return (int32_t)(a < 0 ? 0u - r : r);
 }
 
-// On the halves, with the carry out of the low word by hand: GCC also folds
-// a 64-bit `(m << 32) | m` into a product by 2^32 + 1.
+// On the halves, with the carry out of the low word by hand. On 64-bit
+// values GCC turns `if (bit) p += x`, `p += x & -bit` and the mask
+// `(m << 32) | m` into products, so calls to __muldi3 from itself.
 int64_t __muldi3(int64_t a, int64_t b)
 {
 	uint32_t xlo = (uint32_t)a;
@@ -140,7 +128,7 @@ int64_t __muldi3(int64_t a, int64_t b)
 	uint32_t lo = 0u;
 	uint32_t hi = 0u;
 	while ((ylo | yhi) != 0u) {
-		uint32_t m = image_mask(ylo & 1u);
+		uint32_t m = 0u - (ylo & 1u);
 		uint32_t add = xlo & m;
 		lo += add;
 		hi += (xhi & m) + (lo < add ? 1u : 0u);

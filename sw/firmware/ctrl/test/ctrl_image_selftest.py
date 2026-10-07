@@ -229,7 +229,7 @@ _start:
 """
 
 #: __mulsi3's loop, and the plant that writes it with `*`: GCC lowers that into a call to __mulsi3, from itself.
-MULSI3_LOOP = ("\tuint32_t p = 0u;\n\twhile (b != 0u) {\n\t\tp += a & image_mask(b & 1u);\n\t\ta <<= 1;\n"
+MULSI3_LOOP = ("\tuint32_t p = 0u;\n\twhile (b != 0u) {\n\t\tp += a & (0u - (b & 1u));\n\t\ta <<= 1;\n"
                "\t\tb >>= 1;\n\t}\n")
 MULSI3_STAR = "\treturn a * b;\n"
 
