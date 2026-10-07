@@ -1,0 +1,199 @@
+72597d223606ee9c3174dd7d68267921e40a8f3a
+4f6216abff01b6f859d348aaf6a71e47c5a5a2a8 d51b373ad7e8e8381af2797be3ebb8ee45c62e3c
+Merge dev (d51b373a, #677) into lane F3 (#665 F3)
+
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/README.md
+index a417fc3a7..249003ab2 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -21,16 +21,10 @@ is an integration obligation, not a target-time result established here.
+ 
+ ## Contents
+ 
+-<<<<<<< 4f6216abf (Describe the bound-talker table in distributed RAM and its measured area against the target (#665 F3))
+ - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, ACMP, the app, the MMIO platform, the host model, the tests.
+ - **[The ACMP module](#the-acmp-module)** -- The core, its mailbox adapter with the ADP channel's tap, and the binding owner on the saved-state store; per-interface keying, the response before its notification, the filter term discovery still waits for, and the boot order.
+-- **[The host test](#the-host-test)** -- The ten arms, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
++- **[The host test](#the-host-test)** -- The thirteen arms and lwSRP's, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
+ - **[Run](#run)** -- The four invocations and what each needs.
+-=======
+-- **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, the app, the MMIO platform, the host model, the tests.
+-- **[The host test](#the-host-test)** -- The ten arms, how the processor's ADP stimulus is cut from the pinned submodule and walked, and the planted defects.
+-- **[Run](#run)** -- The three invocations and what each needs.
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+ 
+ ## Layout
+ 
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/ctrl_arms.py
+index 076340cf0..8a9d4e8de 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -34,7 +34,6 @@ def arm_adp(tree: Tree) -> Outcome:
+     return execute("adp", link(tree, "test_adp", objs))
+ 
+ 
+-<<<<<<< 4f6216abf (Describe the bound-talker table in distributed RAM and its measured area against the target (#665 F3))
+ #: The ACMP binary's tests: the core over fake ports, then the adapter, the
+ #: latency bounds and the composition on the model.
+ ACMP_TESTS = ("test_acmp.cpp", "test_acmp_mbx.cpp")
+@@ -116,7 +115,8 @@ def arm_acmpnvm(tree: Tree) -> Outcome:
+     objs = (firmware(tree, PORTABLE, "acmpnvm") + store +
+             compile_tests(tree, ("test_acmp_nvm.cpp",), "acmpnvm/tests", nvm_inc))
+     return execute("acmpnvm", link(tree, "test_acmp_nvm", objs))
+-=======
++
++
+ def reentry(tree: Tree, release: bool) -> Outcome:
+     """The same violating ports against assertions and release refusal."""
+     tag = "reentry_release" if release else "reentry_debug"
+@@ -137,7 +137,6 @@ def arm_reentry_debug(tree: Tree) -> Outcome:
+ def arm_reentry_release(tree: Tree) -> Outcome:
+     """Release count and ignore, with the outer transition preserved."""
+     return reentry(tree, True)
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+ 
+ 
+ def arm_unit(tree: Tree) -> Outcome:
+diff --git a/sw/firmware/ctrl/test/ctrl_mutants.py b/sw/firmware/ctrl/test/ctrl_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/ctrl_mutants.py
+index 6efe39efc..ce0bbe88f 100644
+--- a/sw/firmware/ctrl/test/ctrl_mutants.py
++++ b/sw/firmware/ctrl/test/ctrl_mutants.py
+@@ -522,7 +522,6 @@ def lwsrp_pin_arms(root: Path, lwsrp: Path) -> int:
+     return escaped
+ 
+ 
+-<<<<<<< 4f6216abf (Describe the bound-talker table in distributed RAM and its measured area against the target (#665 F3))
+ def sliced(part: tuple[int, int]) -> tuple[Mutant, ...]:
+     """Slice k of n of the table, contiguous and in table order: every mutant
+     is in exactly one slice, so n runs together plant the whole table."""
+@@ -531,7 +530,7 @@ def sliced(part: tuple[int, int]) -> tuple[Mutant, ...]:
+     return MUTANTS[(k - 1) * size:k * size]
+ 
+ 
+-def campaign(root: Path, reuse: Path, part: tuple[int, int] = (1, 1)) -> bool:
++def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1)) -> bool:
+     """Plant every mutant of slice `part` (k of n; the whole table by
+     default); True when one escaped. One build serves every copy, so a test
+     object is compiled again only where a planted header changes what it
+@@ -540,22 +539,12 @@ def campaign(root: Path, reuse: Path, part: tuple[int, int] = (1, 1)) -> bool:
+             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "acmp": ctrl_arms.arm_acmp,
+             "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "acmpif2": ctrl_arms.arm_acmpif2,
+             "entity": ctrl_arms.arm_entity,
+-            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
+-    build = fw_gtest.Build()
+-    unnamed = unnamed_tests()
+-    for test in unnamed:
+-        print(f"[ESCAPED] no defect names the test {test}")
+-=======
+-def campaign(root: Path, reuse: Path, jobs: int) -> bool:
+-    """Plant every mutant; True when one escaped. One build serves every
+-    copy, so a test object is compiled again only where a planted header
+-    changes what it sees."""
+-    arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
+-            "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
+             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
+             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
+     build = fw_gtest.Build(jobs=jobs)
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
++    unnamed = unnamed_tests()
++    for test in unnamed:
++        print(f"[ESCAPED] no defect names the test {test}")
+     escaped = 0
+     table = sliced(part)
+     for m in table:
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+index 1617427cc..92274fa41 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -110,13 +110,9 @@ def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:
+     try:
+         cut_reuse(tree.reuse)
+         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
+-<<<<<<< 4f6216abf (Describe the bound-talker table in distributed RAM and its measured area against the target (#665 F3))
+                     ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree), ctrl_arms.arm_acmpwalk(tree),
+-                    ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_entity(tree)]
+-=======
+-                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree),
++                    ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_entity(tree),
+                     ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+         if lwsrp is not None:
+             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
+     except Refusal as exc:
+@@ -156,15 +152,10 @@ def main(argv: list[str] | None = None) -> int:
+             tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
+             cut_reuse(tree.reuse)
+             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
+-<<<<<<< 4f6216abf (Describe the bound-talker table in distributed RAM and its measured area against the target (#665 F3))
+                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
+                         ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
+-                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32)]
+-=======
+-                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
+                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+                         ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+             if args.lwsrp is not None:
+                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
+         except Refusal as exc:
+@@ -172,11 +163,7 @@ def main(argv: list[str] | None = None) -> int:
+             return 2
+         failed = ctrl_arms.report(outcomes)
+         if args.self_test and not failed:
+-<<<<<<< 4f6216abf (Describe the bound-talker table in distributed RAM and its measured area against the target (#665 F3))
+-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.slice)
+-=======
+-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs)
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
++            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice)
+             if args.lwsrp is not None:
+                 try:
+                     failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
+diff --git a/sw/firmware/gtest/README.md b/sw/firmware/gtest/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/gtest/README.md
+index cdd9bf4d0..37509ecb7 100644
+--- a/sw/firmware/gtest/README.md
++++ b/sw/firmware/gtest/README.md
+@@ -228,17 +228,10 @@ the module's public header reaches, with the ports keeping the contract their
+ header states; a static function is judged through the public functions that
+ call it. A row's proof does not rest on what today's callers happen to pass.
+ Where it rests on a generated constant of the contract, the row says so, and
+-<<<<<<< 4f6216abf (Describe the bound-talker table in distributed RAM and its measured area against the target (#665 F3))
+-the row stops matching (so the gate fails) when the constant changes. Ten
+-rows meet that standard through their headers as they stand. The five
+-`adp.c` rows do not yet: they rest on a port rule that `adp.h` does not
+-state, which #678 has ruled and will add to it (see below the gate's rules).
+-=======
+ the row stops matching (so the gate fails) when the constant changes.
+-All fourteen rows meet that standard through their public headers.
++All fifteen rows meet that standard through their public headers.
+ The five `adp.c` rows cite the no-callback rule in
+ [`adp.h`](../ctrl/adp/adp.h), enforced by the core guard (#678).
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+ 
+ ### Coverage exclusions
+ 
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+remerge CONFLICT (content): Merge conflict in sw/firmware/gtest/coverage.ratchet
+index b6f054f11..d19856d61 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -2,14 +2,10 @@
+ # exclusions in sw/firmware/gtest/README.md. Written by fw_coverage.py --write, which
+ # refuses to record a drop; read by fw_coverage.py --check, which refuses one.
+ # file  lines covered/total  branches covered/total
+-<<<<<<< 4f6216abf (Describe the bound-talker table in distributed RAM and its measured area against the target (#665 F3))
+ sw/firmware/ctrl/acmp/acmp.c  lines 729/729  branches 342/342
+ sw/firmware/ctrl/acmp/acmp_mbx.c  lines 73/73  branches 26/26
+ sw/firmware/ctrl/acmp/acmp_nvm.c  lines 38/38  branches 10/10
+-sw/firmware/ctrl/adp/adp.c  lines 168/168  branches 73/73
+-=======
+ sw/firmware/ctrl/adp/adp.c  lines 204/204  branches 95/95
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+ sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38
+ sw/firmware/ctrl/app/ctrl_app.c  lines 22/22  branches 19/19
+ sw/firmware/ctrl/loop/ctrl_loop.c  lines 95/95  branches 56/56

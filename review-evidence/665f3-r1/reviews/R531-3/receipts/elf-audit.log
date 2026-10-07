@@ -1,0 +1,645 @@
+IMAGE base/endstation_ax7101_1x1_tdm8/ctrl_app.elf sha256 12bad3b261b07c45b6afc80840353abe5ba0dc03d633caf97e38ddbcb8f785eb
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          51420 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         3
+  Size of section headers:           40 (bytes)
+  Number of section headers:         17
+  Section header string table index: 16
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 004a10 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        00004a10 005a10 0003bc 00   A  0   0  8
+  [ 3] .data             PROGBITS        00004dcc 005dcc 000010 04  WA  0   0  4
+  [ 4] .bss              NOBITS          00004de0 005ddc 001920 00  WA  0   0 16
+  [ 5] .riscv.attributes RISCV_ATTRIBUTES 00000000 005ddc 000057 00      0   0  1
+  [ 6] .debug_info       PROGBITS        00000000 005e33 001407 00      0   0  1
+  [ 7] .debug_abbrev     PROGBITS        00000000 00723a 00060a 00      0   0  1
+  [ 8] .debug_loclists   PROGBITS        00000000 007844 0012bc 00      0   0  1
+  [ 9] .debug_aranges    PROGBITS        00000000 008b00 0000b8 00      0   0  8
+  [10] .debug_line       PROGBITS        00000000 008bb8 0018cc 00      0   0  1
+  [11] .debug_str        PROGBITS        00000000 00a484 0003d0 01  MS  0   0  1
+  [12] .debug_line_str   PROGBITS        00000000 00a854 0000de 01  MS  0   0  1
+  [13] .debug_rnglists   PROGBITS        00000000 00a932 0001bf 00      0   0  1
+  [14] .symtab           SYMTAB          00000000 00aaf4 001440 10     15 248  4
+  [15] .strtab           STRTAB          00000000 00bf34 0008f2 00      0   0  1
+  [16] .shstrtab         STRTAB          00000000 00c826 0000b6 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), p (processor specific)
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  RISCV_ATTRIBUT 0x005ddc 0x00000000 0x00000000 0x00057 0x00000 R   0x1
+  LOAD           0x001000 0x00000000 0x00000000 0x04ddc 0x06700 RWE 0x1000
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .riscv.attributes 
+   01     .text .rodata .data .bss 
+   02     
+Attribute Section: riscv
+File Attributes
+  Tag_RISCV_stack_align: 16-bytes
+  Tag_RISCV_arch: "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0"
+
+Undefined symbols: NONE
+RV32I attribute check: FAIL
+M/A instructions: 58
+00004068 <__udivdi3>: : 40d0:	02c75533          	divu	a0,a4,a2
+00004068 <__udivdi3>: : 40e0:	02c77733          	remu	a4,a4,a2
+00004068 <__udivdi3>: : 40e4:	02a685b3          	mul	a1,a3,a0
+00004068 <__udivdi3>: : 410c:	02c7d733          	divu	a4,a5,a2
+00004068 <__udivdi3>: : 4118:	02c7f7b3          	remu	a5,a5,a2
+00004068 <__udivdi3>: : 411c:	02e686b3          	mul	a3,a3,a4
+00004068 <__udivdi3>: : 4204:	02d7d533          	divu	a0,a5,a3
+00004068 <__udivdi3>: : 420c:	02d7f7b3          	remu	a5,a5,a3
+00004068 <__udivdi3>: : 4210:	02c50333          	mul	t1,a0,a2
+00004068 <__udivdi3>: : 4238:	02d7d733          	divu	a4,a5,a3
+00004068 <__udivdi3>: : 4244:	02d7f7b3          	remu	a5,a5,a3
+00004068 <__udivdi3>: : 4248:	02c70633          	mul	a2,a4,a2
+00004068 <__udivdi3>: : 42c0:	02d35e33          	divu	t3,t1,a3
+00004068 <__udivdi3>: : 42e0:	02d37333          	remu	t1,t1,a3
+00004068 <__udivdi3>: : 42e4:	03c605b3          	mul	a1,a2,t3
+00004068 <__udivdi3>: : 4310:	02d75533          	divu	a0,a4,a3
+00004068 <__udivdi3>: : 431c:	02d77733          	remu	a4,a4,a3
+00004068 <__udivdi3>: : 4320:	02a60333          	mul	t1,a2,a0
+00004068 <__udivdi3>: : 439c:	03d857b3          	divu	a5,a6,t4
+00004068 <__udivdi3>: : 43bc:	03d87833          	remu	a6,a6,t4
+00004068 <__udivdi3>: : 43c0:	02f305b3          	mul	a1,t1,a5
+00004068 <__udivdi3>: : 43ec:	03d6d833          	divu	a6,a3,t4
+00004068 <__udivdi3>: : 43f8:	03d6f6b3          	remu	a3,a3,t4
+00004068 <__udivdi3>: : 43fc:	030305b3          	mul	a1,t1,a6
+00004068 <__udivdi3>: : 4444:	02680e33          	mul	t3,a6,t1
+00004068 <__udivdi3>: : 444c:	02668333          	mul	t1,a3,t1
+00004068 <__udivdi3>: : 4450:	02c686b3          	mul	a3,a3,a2
+00004068 <__udivdi3>: : 4460:	02c80833          	mul	a6,a6,a2
+00004514 <__umoddi3>: : 4580:	02b75633          	divu	a2,a4,a1
+00004514 <__umoddi3>: : 4590:	02b77733          	remu	a4,a4,a1
+00004514 <__umoddi3>: : 4594:	02660633          	mul	a2,a2,t1
+00004514 <__umoddi3>: : 45b4:	02b7d733          	divu	a4,a5,a1
+00004514 <__umoddi3>: : 45c0:	02b7f7b3          	remu	a5,a5,a1
+00004514 <__umoddi3>: : 45c4:	02670733          	mul	a4,a4,t1
+00004514 <__umoddi3>: : 46a8:	026755b3          	divu	a1,a4,t1
+00004514 <__umoddi3>: : 46b0:	02677733          	remu	a4,a4,t1
+00004514 <__umoddi3>: : 46b4:	02c585b3          	mul	a1,a1,a2
+00004514 <__umoddi3>: : 46d8:	0267d733          	divu	a4,a5,t1
+00004514 <__umoddi3>: : 46e4:	0267f7b3          	remu	a5,a5,t1
+00004514 <__umoddi3>: : 46e8:	02c70733          	mul	a4,a4,a2
+00004514 <__umoddi3>: : 474c:	026e5eb3          	divu	t4,t3,t1
+00004514 <__umoddi3>: : 476c:	026e7e33          	remu	t3,t3,t1
+00004514 <__umoddi3>: : 4770:	02ce85b3          	mul	a1,t4,a2
+00004514 <__umoddi3>: : 4794:	0267d5b3          	divu	a1,a5,t1
+00004514 <__umoddi3>: : 47a0:	0267f7b3          	remu	a5,a5,t1
+00004514 <__umoddi3>: : 47a4:	02c585b3          	mul	a1,a1,a2
+00004514 <__umoddi3>: : 4810:	03c356b3          	divu	a3,t1,t3
+00004514 <__umoddi3>: : 4834:	03c37333          	remu	t1,t1,t3
+00004514 <__umoddi3>: : 4838:	02de8f33          	mul	t5,t4,a3
+00004514 <__umoddi3>: : 4864:	03c7df33          	divu	t5,a5,t3
+00004514 <__umoddi3>: : 4870:	03c7f7b3          	remu	a5,a5,t3
+00004514 <__umoddi3>: : 4874:	03ee8eb3          	mul	t4,t4,t5
+00004514 <__umoddi3>: : 48bc:	02668fb3          	mul	t6,a3,t1
+00004514 <__umoddi3>: : 48c4:	026e0333          	mul	t1,t3,t1
+00004514 <__umoddi3>: : 48c8:	03ee0e33          	mul	t3,t3,t5
+00004514 <__umoddi3>: : 48d8:	03e686b3          	mul	a3,a3,t5
+000049a4 <__muldi3>: : 49f4:	02c585b3          	mul	a1,a1,a2
+000049a4 <__muldi3>: : 4a04:	025686b3          	mul	a3,a3,t0
+Call sites of affected helpers:
+    3a48:	2cd000ef          	jal	4514 <__umoddi3>
+    3a58:	74d000ef          	jal	49a4 <__muldi3>
+    3a68:	600000ef          	jal	4068 <__udivdi3>
+    3a88:	5e0000ef          	jal	4068 <__udivdi3>
+    3a98:	70d000ef          	jal	49a4 <__muldi3>
+Library provenance from link map:
+Archive member included to satisfy reference by file (symbol)
+
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_lshrdi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/adp_adp.o (__lshrdi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_udivdi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/plat_nvm_flash_litespi.o (__udivdi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_umoddi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/plat_nvm_flash_litespi.o (__umoddi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(muldi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/port_ctrl_pool.o (__mulsi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(multi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/plat_nvm_flash_litespi.o (__muldi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(div.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/port_ctrl_pool.o (__udivsi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_clz.o)
+                              $DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_udivdi3.o) (__clz_tab)
+
+Discarded input sections
+
+ .text          0x00000000        0x0 $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .data          0x00000000        0x0 $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .bss           0x00000000        0x0 $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .text.mbx_filter_set_maap_range
+                0x00000000       0x5c $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .text.mbx_filter_mismatch
+                0x00000000       0x28 $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .text.mbx_irq_status
+                0x00000000        0xc $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .text.mbx_irq_clear_err
+                0x00000000       0x10 $PACKET/scratch/images/base/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+IMAGE base/endstation_ax7101_8x8/ctrl_app.elf sha256 4a423bfda4e80f6271c9553bc26a6ba686b15278985e15ac4356a633096e196c
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          51428 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         3
+  Size of section headers:           40 (bytes)
+  Number of section headers:         17
+  Section header string table index: 16
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 004a14 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        00004a18 005a18 0003bc 00   A  0   0  8
+  [ 3] .data             PROGBITS        00004dd4 005dd4 000010 04  WA  0   0  4
+  [ 4] .bss              NOBITS          00004df0 005de4 004190 00  WA  0   0 16
+  [ 5] .riscv.attributes RISCV_ATTRIBUTES 00000000 005de4 000057 00      0   0  1
+  [ 6] .debug_info       PROGBITS        00000000 005e3b 001407 00      0   0  1
+  [ 7] .debug_abbrev     PROGBITS        00000000 007242 00060a 00      0   0  1
+  [ 8] .debug_loclists   PROGBITS        00000000 00784c 0012bc 00      0   0  1
+  [ 9] .debug_aranges    PROGBITS        00000000 008b08 0000b8 00      0   0  8
+  [10] .debug_line       PROGBITS        00000000 008bc0 0018cc 00      0   0  1
+  [11] .debug_str        PROGBITS        00000000 00a48c 0003d0 01  MS  0   0  1
+  [12] .debug_line_str   PROGBITS        00000000 00a85c 0000de 01  MS  0   0  1
+  [13] .debug_rnglists   PROGBITS        00000000 00a93a 0001bf 00      0   0  1
+  [14] .symtab           SYMTAB          00000000 00aafc 001440 10     15 248  4
+  [15] .strtab           STRTAB          00000000 00bf3c 0008f2 00      0   0  1
+  [16] .shstrtab         STRTAB          00000000 00c82e 0000b6 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), p (processor specific)
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  RISCV_ATTRIBUT 0x005de4 0x00000000 0x00000000 0x00057 0x00000 R   0x1
+  LOAD           0x001000 0x00000000 0x00000000 0x04de4 0x08f80 RWE 0x1000
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .riscv.attributes 
+   01     .text .rodata .data .bss 
+   02     
+Attribute Section: riscv
+File Attributes
+  Tag_RISCV_stack_align: 16-bytes
+  Tag_RISCV_arch: "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0"
+
+Undefined symbols: NONE
+RV32I attribute check: FAIL
+M/A instructions: 58
+0000406c <__udivdi3>: : 40d4:	02c75533          	divu	a0,a4,a2
+0000406c <__udivdi3>: : 40e4:	02c77733          	remu	a4,a4,a2
+0000406c <__udivdi3>: : 40e8:	02a685b3          	mul	a1,a3,a0
+0000406c <__udivdi3>: : 4110:	02c7d733          	divu	a4,a5,a2
+0000406c <__udivdi3>: : 411c:	02c7f7b3          	remu	a5,a5,a2
+0000406c <__udivdi3>: : 4120:	02e686b3          	mul	a3,a3,a4
+0000406c <__udivdi3>: : 4208:	02d7d533          	divu	a0,a5,a3
+0000406c <__udivdi3>: : 4210:	02d7f7b3          	remu	a5,a5,a3
+0000406c <__udivdi3>: : 4214:	02c50333          	mul	t1,a0,a2
+0000406c <__udivdi3>: : 423c:	02d7d733          	divu	a4,a5,a3
+0000406c <__udivdi3>: : 4248:	02d7f7b3          	remu	a5,a5,a3
+0000406c <__udivdi3>: : 424c:	02c70633          	mul	a2,a4,a2
+0000406c <__udivdi3>: : 42c4:	02d35e33          	divu	t3,t1,a3
+0000406c <__udivdi3>: : 42e4:	02d37333          	remu	t1,t1,a3
+0000406c <__udivdi3>: : 42e8:	03c605b3          	mul	a1,a2,t3
+0000406c <__udivdi3>: : 4314:	02d75533          	divu	a0,a4,a3
+0000406c <__udivdi3>: : 4320:	02d77733          	remu	a4,a4,a3
+0000406c <__udivdi3>: : 4324:	02a60333          	mul	t1,a2,a0
+0000406c <__udivdi3>: : 43a0:	03d857b3          	divu	a5,a6,t4
+0000406c <__udivdi3>: : 43c0:	03d87833          	remu	a6,a6,t4
+0000406c <__udivdi3>: : 43c4:	02f305b3          	mul	a1,t1,a5
+0000406c <__udivdi3>: : 43f0:	03d6d833          	divu	a6,a3,t4
+0000406c <__udivdi3>: : 43fc:	03d6f6b3          	remu	a3,a3,t4
+0000406c <__udivdi3>: : 4400:	030305b3          	mul	a1,t1,a6
+0000406c <__udivdi3>: : 4448:	02680e33          	mul	t3,a6,t1
+0000406c <__udivdi3>: : 4450:	02668333          	mul	t1,a3,t1
+0000406c <__udivdi3>: : 4454:	02c686b3          	mul	a3,a3,a2
+0000406c <__udivdi3>: : 4464:	02c80833          	mul	a6,a6,a2
+00004518 <__umoddi3>: : 4584:	02b75633          	divu	a2,a4,a1
+00004518 <__umoddi3>: : 4594:	02b77733          	remu	a4,a4,a1
+00004518 <__umoddi3>: : 4598:	02660633          	mul	a2,a2,t1
+00004518 <__umoddi3>: : 45b8:	02b7d733          	divu	a4,a5,a1
+00004518 <__umoddi3>: : 45c4:	02b7f7b3          	remu	a5,a5,a1
+00004518 <__umoddi3>: : 45c8:	02670733          	mul	a4,a4,t1
+00004518 <__umoddi3>: : 46ac:	026755b3          	divu	a1,a4,t1
+00004518 <__umoddi3>: : 46b4:	02677733          	remu	a4,a4,t1
+00004518 <__umoddi3>: : 46b8:	02c585b3          	mul	a1,a1,a2
+00004518 <__umoddi3>: : 46dc:	0267d733          	divu	a4,a5,t1
+00004518 <__umoddi3>: : 46e8:	0267f7b3          	remu	a5,a5,t1
+00004518 <__umoddi3>: : 46ec:	02c70733          	mul	a4,a4,a2
+00004518 <__umoddi3>: : 4750:	026e5eb3          	divu	t4,t3,t1
+00004518 <__umoddi3>: : 4770:	026e7e33          	remu	t3,t3,t1
+00004518 <__umoddi3>: : 4774:	02ce85b3          	mul	a1,t4,a2
+00004518 <__umoddi3>: : 4798:	0267d5b3          	divu	a1,a5,t1
+00004518 <__umoddi3>: : 47a4:	0267f7b3          	remu	a5,a5,t1
+00004518 <__umoddi3>: : 47a8:	02c585b3          	mul	a1,a1,a2
+00004518 <__umoddi3>: : 4814:	03c356b3          	divu	a3,t1,t3
+00004518 <__umoddi3>: : 4838:	03c37333          	remu	t1,t1,t3
+00004518 <__umoddi3>: : 483c:	02de8f33          	mul	t5,t4,a3
+00004518 <__umoddi3>: : 4868:	03c7df33          	divu	t5,a5,t3
+00004518 <__umoddi3>: : 4874:	03c7f7b3          	remu	a5,a5,t3
+00004518 <__umoddi3>: : 4878:	03ee8eb3          	mul	t4,t4,t5
+00004518 <__umoddi3>: : 48c0:	02668fb3          	mul	t6,a3,t1
+00004518 <__umoddi3>: : 48c8:	026e0333          	mul	t1,t3,t1
+00004518 <__umoddi3>: : 48cc:	03ee0e33          	mul	t3,t3,t5
+00004518 <__umoddi3>: : 48dc:	03e686b3          	mul	a3,a3,t5
+000049a8 <__muldi3>: : 49f8:	02c585b3          	mul	a1,a1,a2
+000049a8 <__muldi3>: : 4a08:	025686b3          	mul	a3,a3,t0
+Call sites of affected helpers:
+    3a4c:	2cd000ef          	jal	4518 <__umoddi3>
+    3a5c:	74d000ef          	jal	49a8 <__muldi3>
+    3a6c:	600000ef          	jal	406c <__udivdi3>
+    3a8c:	5e0000ef          	jal	406c <__udivdi3>
+    3a9c:	70d000ef          	jal	49a8 <__muldi3>
+Library provenance from link map:
+Archive member included to satisfy reference by file (symbol)
+
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_lshrdi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_8x8/adp_adp.o (__lshrdi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_udivdi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_8x8/plat_nvm_flash_litespi.o (__udivdi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_umoddi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_8x8/plat_nvm_flash_litespi.o (__umoddi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(muldi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_8x8/port_ctrl_pool.o (__mulsi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(multi3.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_8x8/plat_nvm_flash_litespi.o (__muldi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(div.o)
+                              $PACKET/scratch/images/base/endstation_ax7101_8x8/port_ctrl_pool.o (__udivsi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_clz.o)
+                              $DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_udivdi3.o) (__clz_tab)
+
+Discarded input sections
+
+ .text          0x00000000        0x0 $PACKET/scratch/images/base/endstation_ax7101_8x8/mbx_mbx.o
+ .data          0x00000000        0x0 $PACKET/scratch/images/base/endstation_ax7101_8x8/mbx_mbx.o
+ .bss           0x00000000        0x0 $PACKET/scratch/images/base/endstation_ax7101_8x8/mbx_mbx.o
+ .text.mbx_filter_set_maap_range
+                0x00000000       0x5c $PACKET/scratch/images/base/endstation_ax7101_8x8/mbx_mbx.o
+ .text.mbx_filter_mismatch
+                0x00000000       0x28 $PACKET/scratch/images/base/endstation_ax7101_8x8/mbx_mbx.o
+ .text.mbx_irq_status
+                0x00000000        0xc $PACKET/scratch/images/base/endstation_ax7101_8x8/mbx_mbx.o
+ .text.mbx_irq_clear_err
+                0x00000000       0x10 $PACKET/scratch/images/base/endstation_ax7101_8x8/mbx_mbx.o
+IMAGE head/endstation_ax7101_1x1_tdm8/ctrl_app.elf sha256 afdfbca9156361ee1560a3176b05f3437609e2775c83df2e06c8969a89f8b471
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          64760 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         3
+  Size of section headers:           40 (bytes)
+  Number of section headers:         17
+  Section header string table index: 16
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 007474 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        00007478 008478 0003e0 00   A  0   0  8
+  [ 3] .data             PROGBITS        00007858 008858 000010 04  WA  0   0  4
+  [ 4] .bss              NOBITS          00007870 008868 002c10 00  WA  0   0 16
+  [ 5] .riscv.attributes RISCV_ATTRIBUTES 00000000 008868 000057 00      0   0  1
+  [ 6] .debug_info       PROGBITS        00000000 0088bf 001407 00      0   0  1
+  [ 7] .debug_abbrev     PROGBITS        00000000 009cc6 00060a 00      0   0  1
+  [ 8] .debug_loclists   PROGBITS        00000000 00a2d0 0012bc 00      0   0  1
+  [ 9] .debug_aranges    PROGBITS        00000000 00b590 0000b8 00      0   0  8
+  [10] .debug_line       PROGBITS        00000000 00b648 0018cc 00      0   0  1
+  [11] .debug_str        PROGBITS        00000000 00cf14 0003d0 01  MS  0   0  1
+  [12] .debug_line_str   PROGBITS        00000000 00d2e4 0000de 01  MS  0   0  1
+  [13] .debug_rnglists   PROGBITS        00000000 00d3c2 0001bf 00      0   0  1
+  [14] .symtab           SYMTAB          00000000 00d584 001be0 10     15 353  4
+  [15] .strtab           STRTAB          00000000 00f164 000ade 00      0   0  1
+  [16] .shstrtab         STRTAB          00000000 00fc42 0000b6 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), p (processor specific)
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  RISCV_ATTRIBUT 0x008868 0x00000000 0x00000000 0x00057 0x00000 R   0x1
+  LOAD           0x001000 0x00000000 0x00000000 0x07868 0x0a480 RWE 0x1000
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .riscv.attributes 
+   01     .text .rodata .data .bss 
+   02     
+Attribute Section: riscv
+File Attributes
+  Tag_RISCV_stack_align: 16-bytes
+  Tag_RISCV_arch: "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0"
+
+Undefined symbols: NONE
+RV32I attribute check: FAIL
+M/A instructions: 58
+00006acc <__udivdi3>: : 6b34:	02c75533          	divu	a0,a4,a2
+00006acc <__udivdi3>: : 6b44:	02c77733          	remu	a4,a4,a2
+00006acc <__udivdi3>: : 6b48:	02a685b3          	mul	a1,a3,a0
+00006acc <__udivdi3>: : 6b70:	02c7d733          	divu	a4,a5,a2
+00006acc <__udivdi3>: : 6b7c:	02c7f7b3          	remu	a5,a5,a2
+00006acc <__udivdi3>: : 6b80:	02e686b3          	mul	a3,a3,a4
+00006acc <__udivdi3>: : 6c68:	02d7d533          	divu	a0,a5,a3
+00006acc <__udivdi3>: : 6c70:	02d7f7b3          	remu	a5,a5,a3
+00006acc <__udivdi3>: : 6c74:	02c50333          	mul	t1,a0,a2
+00006acc <__udivdi3>: : 6c9c:	02d7d733          	divu	a4,a5,a3
+00006acc <__udivdi3>: : 6ca8:	02d7f7b3          	remu	a5,a5,a3
+00006acc <__udivdi3>: : 6cac:	02c70633          	mul	a2,a4,a2
+00006acc <__udivdi3>: : 6d24:	02d35e33          	divu	t3,t1,a3
+00006acc <__udivdi3>: : 6d44:	02d37333          	remu	t1,t1,a3
+00006acc <__udivdi3>: : 6d48:	03c605b3          	mul	a1,a2,t3
+00006acc <__udivdi3>: : 6d74:	02d75533          	divu	a0,a4,a3
+00006acc <__udivdi3>: : 6d80:	02d77733          	remu	a4,a4,a3
+00006acc <__udivdi3>: : 6d84:	02a60333          	mul	t1,a2,a0
+00006acc <__udivdi3>: : 6e00:	03d857b3          	divu	a5,a6,t4
+00006acc <__udivdi3>: : 6e20:	03d87833          	remu	a6,a6,t4
+00006acc <__udivdi3>: : 6e24:	02f305b3          	mul	a1,t1,a5
+00006acc <__udivdi3>: : 6e50:	03d6d833          	divu	a6,a3,t4
+00006acc <__udivdi3>: : 6e5c:	03d6f6b3          	remu	a3,a3,t4
+00006acc <__udivdi3>: : 6e60:	030305b3          	mul	a1,t1,a6
+00006acc <__udivdi3>: : 6ea8:	02680e33          	mul	t3,a6,t1
+00006acc <__udivdi3>: : 6eb0:	02668333          	mul	t1,a3,t1
+00006acc <__udivdi3>: : 6eb4:	02c686b3          	mul	a3,a3,a2
+00006acc <__udivdi3>: : 6ec4:	02c80833          	mul	a6,a6,a2
+00006f78 <__umoddi3>: : 6fe4:	02b75633          	divu	a2,a4,a1
+00006f78 <__umoddi3>: : 6ff4:	02b77733          	remu	a4,a4,a1
+00006f78 <__umoddi3>: : 6ff8:	02660633          	mul	a2,a2,t1
+00006f78 <__umoddi3>: : 7018:	02b7d733          	divu	a4,a5,a1
+00006f78 <__umoddi3>: : 7024:	02b7f7b3          	remu	a5,a5,a1
+00006f78 <__umoddi3>: : 7028:	02670733          	mul	a4,a4,t1
+00006f78 <__umoddi3>: : 710c:	026755b3          	divu	a1,a4,t1
+00006f78 <__umoddi3>: : 7114:	02677733          	remu	a4,a4,t1
+00006f78 <__umoddi3>: : 7118:	02c585b3          	mul	a1,a1,a2
+00006f78 <__umoddi3>: : 713c:	0267d733          	divu	a4,a5,t1
+00006f78 <__umoddi3>: : 7148:	0267f7b3          	remu	a5,a5,t1
+00006f78 <__umoddi3>: : 714c:	02c70733          	mul	a4,a4,a2
+00006f78 <__umoddi3>: : 71b0:	026e5eb3          	divu	t4,t3,t1
+00006f78 <__umoddi3>: : 71d0:	026e7e33          	remu	t3,t3,t1
+00006f78 <__umoddi3>: : 71d4:	02ce85b3          	mul	a1,t4,a2
+00006f78 <__umoddi3>: : 71f8:	0267d5b3          	divu	a1,a5,t1
+00006f78 <__umoddi3>: : 7204:	0267f7b3          	remu	a5,a5,t1
+00006f78 <__umoddi3>: : 7208:	02c585b3          	mul	a1,a1,a2
+00006f78 <__umoddi3>: : 7274:	03c356b3          	divu	a3,t1,t3
+00006f78 <__umoddi3>: : 7298:	03c37333          	remu	t1,t1,t3
+00006f78 <__umoddi3>: : 729c:	02de8f33          	mul	t5,t4,a3
+00006f78 <__umoddi3>: : 72c8:	03c7df33          	divu	t5,a5,t3
+00006f78 <__umoddi3>: : 72d4:	03c7f7b3          	remu	a5,a5,t3
+00006f78 <__umoddi3>: : 72d8:	03ee8eb3          	mul	t4,t4,t5
+00006f78 <__umoddi3>: : 7320:	02668fb3          	mul	t6,a3,t1
+00006f78 <__umoddi3>: : 7328:	026e0333          	mul	t1,t3,t1
+00006f78 <__umoddi3>: : 732c:	03ee0e33          	mul	t3,t3,t5
+00006f78 <__umoddi3>: : 733c:	03e686b3          	mul	a3,a3,t5
+00007408 <__muldi3>: : 7458:	02c585b3          	mul	a1,a1,a2
+00007408 <__muldi3>: : 7468:	025686b3          	mul	a3,a3,t0
+Call sites of affected helpers:
+    63f0:	389000ef          	jal	6f78 <__umoddi3>
+    6400:	008010ef          	jal	7408 <__muldi3>
+    6410:	6bc000ef          	jal	6acc <__udivdi3>
+    6430:	69c000ef          	jal	6acc <__udivdi3>
+    6440:	7c9000ef          	jal	7408 <__muldi3>
+Library provenance from link map:
+Archive member included to satisfy reference by file (symbol)
+
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_lshrdi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/adp_adp.o (__lshrdi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_udivdi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/plat_nvm_flash_litespi.o (__udivdi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_umoddi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/plat_nvm_flash_litespi.o (__umoddi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(muldi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/port_ctrl_pool.o (__mulsi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(multi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/plat_nvm_flash_litespi.o (__muldi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(div.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/port_ctrl_pool.o (__udivsi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_clz.o)
+                              $DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_udivdi3.o) (__clz_tab)
+
+Discarded input sections
+
+ .text          0x00000000        0x0 $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .data          0x00000000        0x0 $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .bss           0x00000000        0x0 $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .text.mbx_filter_set_maap_range
+                0x00000000       0x5c $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .text.mbx_filter_mismatch
+                0x00000000       0x28 $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .text.mbx_irq_status
+                0x00000000        0xc $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+ .text.mbx_irq_clear_err
+                0x00000000       0x10 $PACKET/scratch/images/head/endstation_ax7101_1x1_tdm8/mbx_mbx.o
+IMAGE head/endstation_ax7101_8x8/ctrl_app.elf sha256 867ddcfe6f0fc01473a1ad01f1750f375b4a30b46cb5a703650f4b30d782b28f
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          64760 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         3
+  Size of section headers:           40 (bytes)
+  Number of section headers:         17
+  Section header string table index: 16
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 007478 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        00007478 008478 0003e0 00   A  0   0  8
+  [ 3] .data             PROGBITS        00007858 008858 000010 04  WA  0   0  4
+  [ 4] .bss              NOBITS          00007870 008868 005490 00  WA  0   0 16
+  [ 5] .riscv.attributes RISCV_ATTRIBUTES 00000000 008868 000057 00      0   0  1
+  [ 6] .debug_info       PROGBITS        00000000 0088bf 001407 00      0   0  1
+  [ 7] .debug_abbrev     PROGBITS        00000000 009cc6 00060a 00      0   0  1
+  [ 8] .debug_loclists   PROGBITS        00000000 00a2d0 0012bc 00      0   0  1
+  [ 9] .debug_aranges    PROGBITS        00000000 00b590 0000b8 00      0   0  8
+  [10] .debug_line       PROGBITS        00000000 00b648 0018cc 00      0   0  1
+  [11] .debug_str        PROGBITS        00000000 00cf14 0003d0 01  MS  0   0  1
+  [12] .debug_line_str   PROGBITS        00000000 00d2e4 0000de 01  MS  0   0  1
+  [13] .debug_rnglists   PROGBITS        00000000 00d3c2 0001bf 00      0   0  1
+  [14] .symtab           SYMTAB          00000000 00d584 001be0 10     15 353  4
+  [15] .strtab           STRTAB          00000000 00f164 000ade 00      0   0  1
+  [16] .shstrtab         STRTAB          00000000 00fc42 0000b6 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), p (processor specific)
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  RISCV_ATTRIBUT 0x008868 0x00000000 0x00000000 0x00057 0x00000 R   0x1
+  LOAD           0x001000 0x00000000 0x00000000 0x07868 0x0cd00 RWE 0x1000
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .riscv.attributes 
+   01     .text .rodata .data .bss 
+   02     
+Attribute Section: riscv
+File Attributes
+  Tag_RISCV_stack_align: 16-bytes
+  Tag_RISCV_arch: "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0"
+
+Undefined symbols: NONE
+RV32I attribute check: FAIL
+M/A instructions: 58
+00006ad0 <__udivdi3>: : 6b38:	02c75533          	divu	a0,a4,a2
+00006ad0 <__udivdi3>: : 6b48:	02c77733          	remu	a4,a4,a2
+00006ad0 <__udivdi3>: : 6b4c:	02a685b3          	mul	a1,a3,a0
+00006ad0 <__udivdi3>: : 6b74:	02c7d733          	divu	a4,a5,a2
+00006ad0 <__udivdi3>: : 6b80:	02c7f7b3          	remu	a5,a5,a2
+00006ad0 <__udivdi3>: : 6b84:	02e686b3          	mul	a3,a3,a4
+00006ad0 <__udivdi3>: : 6c6c:	02d7d533          	divu	a0,a5,a3
+00006ad0 <__udivdi3>: : 6c74:	02d7f7b3          	remu	a5,a5,a3
+00006ad0 <__udivdi3>: : 6c78:	02c50333          	mul	t1,a0,a2
+00006ad0 <__udivdi3>: : 6ca0:	02d7d733          	divu	a4,a5,a3
+00006ad0 <__udivdi3>: : 6cac:	02d7f7b3          	remu	a5,a5,a3
+00006ad0 <__udivdi3>: : 6cb0:	02c70633          	mul	a2,a4,a2
+00006ad0 <__udivdi3>: : 6d28:	02d35e33          	divu	t3,t1,a3
+00006ad0 <__udivdi3>: : 6d48:	02d37333          	remu	t1,t1,a3
+00006ad0 <__udivdi3>: : 6d4c:	03c605b3          	mul	a1,a2,t3
+00006ad0 <__udivdi3>: : 6d78:	02d75533          	divu	a0,a4,a3
+00006ad0 <__udivdi3>: : 6d84:	02d77733          	remu	a4,a4,a3
+00006ad0 <__udivdi3>: : 6d88:	02a60333          	mul	t1,a2,a0
+00006ad0 <__udivdi3>: : 6e04:	03d857b3          	divu	a5,a6,t4
+00006ad0 <__udivdi3>: : 6e24:	03d87833          	remu	a6,a6,t4
+00006ad0 <__udivdi3>: : 6e28:	02f305b3          	mul	a1,t1,a5
+00006ad0 <__udivdi3>: : 6e54:	03d6d833          	divu	a6,a3,t4
+00006ad0 <__udivdi3>: : 6e60:	03d6f6b3          	remu	a3,a3,t4
+00006ad0 <__udivdi3>: : 6e64:	030305b3          	mul	a1,t1,a6
+00006ad0 <__udivdi3>: : 6eac:	02680e33          	mul	t3,a6,t1
+00006ad0 <__udivdi3>: : 6eb4:	02668333          	mul	t1,a3,t1
+00006ad0 <__udivdi3>: : 6eb8:	02c686b3          	mul	a3,a3,a2
+00006ad0 <__udivdi3>: : 6ec8:	02c80833          	mul	a6,a6,a2
+00006f7c <__umoddi3>: : 6fe8:	02b75633          	divu	a2,a4,a1
+00006f7c <__umoddi3>: : 6ff8:	02b77733          	remu	a4,a4,a1
+00006f7c <__umoddi3>: : 6ffc:	02660633          	mul	a2,a2,t1
+00006f7c <__umoddi3>: : 701c:	02b7d733          	divu	a4,a5,a1
+00006f7c <__umoddi3>: : 7028:	02b7f7b3          	remu	a5,a5,a1
+00006f7c <__umoddi3>: : 702c:	02670733          	mul	a4,a4,t1
+00006f7c <__umoddi3>: : 7110:	026755b3          	divu	a1,a4,t1
+00006f7c <__umoddi3>: : 7118:	02677733          	remu	a4,a4,t1
+00006f7c <__umoddi3>: : 711c:	02c585b3          	mul	a1,a1,a2
+00006f7c <__umoddi3>: : 7140:	0267d733          	divu	a4,a5,t1
+00006f7c <__umoddi3>: : 714c:	0267f7b3          	remu	a5,a5,t1
+00006f7c <__umoddi3>: : 7150:	02c70733          	mul	a4,a4,a2
+00006f7c <__umoddi3>: : 71b4:	026e5eb3          	divu	t4,t3,t1
+00006f7c <__umoddi3>: : 71d4:	026e7e33          	remu	t3,t3,t1
+00006f7c <__umoddi3>: : 71d8:	02ce85b3          	mul	a1,t4,a2
+00006f7c <__umoddi3>: : 71fc:	0267d5b3          	divu	a1,a5,t1
+00006f7c <__umoddi3>: : 7208:	0267f7b3          	remu	a5,a5,t1
+00006f7c <__umoddi3>: : 720c:	02c585b3          	mul	a1,a1,a2
+00006f7c <__umoddi3>: : 7278:	03c356b3          	divu	a3,t1,t3
+00006f7c <__umoddi3>: : 729c:	03c37333          	remu	t1,t1,t3
+00006f7c <__umoddi3>: : 72a0:	02de8f33          	mul	t5,t4,a3
+00006f7c <__umoddi3>: : 72cc:	03c7df33          	divu	t5,a5,t3
+00006f7c <__umoddi3>: : 72d8:	03c7f7b3          	remu	a5,a5,t3
+00006f7c <__umoddi3>: : 72dc:	03ee8eb3          	mul	t4,t4,t5
+00006f7c <__umoddi3>: : 7324:	02668fb3          	mul	t6,a3,t1
+00006f7c <__umoddi3>: : 732c:	026e0333          	mul	t1,t3,t1
+00006f7c <__umoddi3>: : 7330:	03ee0e33          	mul	t3,t3,t5
+00006f7c <__umoddi3>: : 7340:	03e686b3          	mul	a3,a3,t5
+0000740c <__muldi3>: : 745c:	02c585b3          	mul	a1,a1,a2
+0000740c <__muldi3>: : 746c:	025686b3          	mul	a3,a3,t0
+Call sites of affected helpers:
+    63f4:	389000ef          	jal	6f7c <__umoddi3>
+    6404:	008010ef          	jal	740c <__muldi3>
+    6414:	6bc000ef          	jal	6ad0 <__udivdi3>
+    6434:	69c000ef          	jal	6ad0 <__udivdi3>
+    6444:	7c9000ef          	jal	740c <__muldi3>
+Library provenance from link map:
+Archive member included to satisfy reference by file (symbol)
+
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_lshrdi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_8x8/adp_adp.o (__lshrdi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_udivdi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_8x8/plat_nvm_flash_litespi.o (__udivdi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_umoddi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_8x8/plat_nvm_flash_litespi.o (__umoddi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(muldi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_8x8/port_ctrl_pool.o (__mulsi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(multi3.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_8x8/plat_nvm_flash_litespi.o (__muldi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(div.o)
+                              $PACKET/scratch/images/head/endstation_ax7101_8x8/port_ctrl_pool.o (__udivsi3)
+$DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_clz.o)
+                              $DEFAULT_SDK/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/libgcc.a(_udivdi3.o) (__clz_tab)
+
+Discarded input sections
+
+ .text          0x00000000        0x0 $PACKET/scratch/images/head/endstation_ax7101_8x8/mbx_mbx.o
+ .data          0x00000000        0x0 $PACKET/scratch/images/head/endstation_ax7101_8x8/mbx_mbx.o
+ .bss           0x00000000        0x0 $PACKET/scratch/images/head/endstation_ax7101_8x8/mbx_mbx.o
+ .text.mbx_filter_set_maap_range
+                0x00000000       0x5c $PACKET/scratch/images/head/endstation_ax7101_8x8/mbx_mbx.o
+ .text.mbx_filter_mismatch
+                0x00000000       0x28 $PACKET/scratch/images/head/endstation_ax7101_8x8/mbx_mbx.o
+ .text.mbx_irq_status
+                0x00000000        0xc $PACKET/scratch/images/head/endstation_ax7101_8x8/mbx_mbx.o
+ .text.mbx_irq_clear_err
+                0x00000000       0x10 $PACKET/scratch/images/head/endstation_ax7101_8x8/mbx_mbx.o
+RV32I audit failed images: 4

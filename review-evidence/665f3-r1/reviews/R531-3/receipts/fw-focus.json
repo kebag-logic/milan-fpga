@@ -1,0 +1,436 @@
+[
+  {
+    "name": "acmp-version-unchecked",
+    "path": "acmp/acmp.c",
+    "old": "\t    frame[PDU] != ACMP_SUBTYPE || AVTP_VERSION(frame) != ACMP_AVTP_VERSION) {",
+    "new": "\t    frame[PDU] != ACMP_SUBTYPE) {",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+            "A26 a BIND_RX of AVTP version 1"
+          ],
+          [
+            "acmp",
+            "AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing",
+            "B9 the core discards it"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-adp-version-unchecked",
+    "path": "acmp/acmp.c",
+    "old": "\t    frame[PDU] != ACMP_ADP_SUBTYPE || AVTP_VERSION(frame) != ACMP_AVTP_VERSION ||",
+    "new": "\t    frame[PDU] != ACMP_ADP_SUBTYPE ||",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+            "A26 an ENTITY_AVAILABLE of version 1"
+          ],
+          [
+            "acmp",
+            "AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing",
+            "B9 and discovers nothing"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-timer-runs",
+    "path": "acmp/acmp.c",
+    "old": "\t} else if (sent == OWED) {\n\t\ts->timer = ACMP_TIMER_NO_RESP;\n\t\ts->timer_held = true;\n",
+    "new": "\t} else if (sent == OWED) {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+            "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held"
+          ],
+          [
+            "acmp",
+            "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+            "A27 the first TMR_NO_RESP finds no room"
+          ],
+          [
+            "acmp",
+            "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+            "A23 and the outer call completes as if it had not been made"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-sequence-unchecked",
+    "path": "acmp/acmp.c",
+    "old": "\tif (s->timer_held && wire_be16(o->frame + O_SEQ) == s->probe_seq) {",
+    "new": "\tif (s->timer_held) {",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+            "A27 the old probe leaving starts no timer for the new one"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-probe-timer-before-its-send",
+    "path": "acmp/acmp.c",
+    "old": "\tenum sent sent = transmit(a, s->interface, frame, 0u, k + 1u);\n\tif (sent == SENT) {\n\t\tno_resp_from_send(a, s);",
+    "new": "\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\tenum sent sent = transmit(a, s->interface, frame, 0u, k + 1u);\n\tif (sent == SENT) {\n\t\ts->timer_held = false;",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend",
+            "A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send"
+          ],
+          [
+            "acmp",
+            "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+            "A30 the duplicate taken at once"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-taken-probe-timer-from-the-entry-clock",
+    "path": "acmp/acmp.c",
+    "old": "\tif (sent == SENT) {\n\t\tno_resp_from_send(a, s);",
+    "new": "\tif (sent == SENT) {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+            "A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-expiry-due-at-its-first-read",
+    "path": "acmp/acmp.c",
+    "old": "\ta->timer_armed[interface] = false;                      // the port's timer has fired\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (s->interface != interface) {\n\t\t\tcontinue;\n\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {      // 5.6.4.5.4\n\t\t\ts->adp_armed = false;\n\t\t\ttk_departed(s);\n\t\t}\n\t\twhile (sm_running(s) && due(s->timer_deadline, now(a))) {",
+    "new": "\ta->timer_armed[interface] = false;\n\tconst uint32_t t = now(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (s->interface != interface) {\n\t\t\tcontinue;\n\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, t)) {\n\t\t\ts->adp_armed = false;\n\t\t\ttk_departed(s);\n\t\t}\n\t\twhile (sm_running(s) && due(s->timer_deadline, t)) {",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry",
+            "A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-lost-probe-held",
+    "path": "acmp/acmp.c",
+    "old": "\t} else {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\t\ta->probes_lost++;",
+    "new": "\t} else {\n\t\ts->timer = ACMP_TIMER_NO_RESP;\n\t\ts->timer_held = true;\n\t\ta->probes_lost++;",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+            "A19 and it does"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-stop-keeps-the-hold",
+    "path": "acmp/acmp.c",
+    "old": "\ts->timer = ACMP_TIMER_NONE;\n\ts->timer_held = false;\n}",
+    "new": "\ts->timer = ACMP_TIMER_NONE;\n}",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+            "A27 an UNBIND_RX while the probe is owed stops its timer"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-slot-sum-wraps",
+    "path": "acmp/acmp_mbx.c",
+    "old": "\tif (first_slot > MBX_N_TIMERS - MBX_N_IF ||",
+    "new": "\tif (first_slot + MBX_N_IF > MBX_N_TIMERS ||",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpAdapterUnit.B7RefusalsOfTheAdapter",
+            "B7 a first slot of 4294967295 is refused"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-one-slot-for-all-interfaces",
+    "path": "acmp/acmp_mbx.c",
+    "old": "\t\tm->ifs[k].slot = (uint8_t)(first_slot + k);",
+    "new": "\t\tm->ifs[k].slot = (uint8_t)first_slot;",
+    "outcomes": [
+      {
+        "arm": "acmpif2",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmpif2",
+            "AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot",
+            "B3 TMR_NO_RESP is armed on interface 1's ACMP slot"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "acmp_if2-c49d53053d25.o": "cbabeeedb0596e1c44b5c40bb1132a1dfe8f32d76034c67ffd916907a3ddcdc4",
+          "test_acmp_mbx-64b630201d2c.o": "ba3b3c61ca622a411c24e139848daaaac9b393fb2b21beef8f2fc1b708897d1a",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-record-flag-defines-swapped",
+    "path": "acmp/acmp.c",
+    "old": "#define BIND_STARTED 0x02u\n#define BIND_STREAMING_WAIT 0x04u",
+    "new": "#define BIND_STARTED 0x04u\n#define BIND_STREAMING_WAIT 0x02u",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+            "A24 bound and started: flags 0x03"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-longer-record-applied",
+    "path": "acmp/acmp.c",
+    "old": "if (sink >= a->cfg.n_sinks || len != ACMP_BINDING_BYTES) {",
+    "new": "if (sink >= a->cfg.n_sinks || len < ACMP_BINDING_BYTES) {",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+            "A24 a payload of 21 bytes is refused"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-nvm-d3-rollback-drops-bindings",
+    "path": "acmp/acmp_nvm.c",
+    "old": "\tstruct acmp_nvm *n = ctx;\n\tif (walk != NVM_W_BIND) {",
+    "new": "\tstruct acmp_nvm *n = ctx;\n\tacmp_restore_rollback(n->acmp);\n\tif (walk != NVM_W_BIND) {",
+    "outcomes": [
+      {
+        "arm": "acmpnvm",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmpnvm",
+            "AcmpStore.N7AD3RollBackKeepsTheBindings",
+            "N7 and leaves the applied binding"
+          ],
+          [
+            "acmpnvm",
+            "AcmpStore.N7AD3RollBackKeepsTheBindings",
+            "N7 and the saved binding still comes back"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp_nvm-903089add470.o": "e54d35cbe887abf31938836a68a3b3cc06733db158aea52e82f638ce59040873",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-due-unsigned",
+    "path": "acmp/acmp.c",
+    "old": "\treturn (int32_t)(deadline - at) <= 0;",
+    "new": "\treturn deadline <= at;",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+            "A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline"
+          ],
+          [
+            "acmp",
+            "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+            "A28 the first expiry takes sink 0 only"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  },
+  {
+    "name": "acmp-earliest-unsigned",
+    "path": "acmp/acmp.c",
+    "old": "(!*any || (int32_t)(deadline - *at) < 0)",
+    "new": "(!*any || deadline < *at)",
+    "outcomes": [
+      {
+        "arm": "acmp",
+        "rc": 1,
+        "caught": true,
+        "required_assertions": [
+          [
+            "acmp",
+            "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+            "A28 the interface timer holds the earlier deadline"
+          ]
+        ],
+        "unchanged_test_objects": {
+          "test_acmp-8089217aa245.o": "7c985d8d26cfe6eb9e504ac01fae6d968795def0f6ff6a31f864858c0a8ee336",
+          "test_acmp_mbx-000b7c71306a.o": "9778dc9c1f429dbd7bf9836ace64dea4b46d88ff0a816d654d67cc6de1766ff8",
+          "fw_gtest_main-fd48eff39587.o": "6b09157967fbe18e097e692cbc97ba46e5ea1da1957380e9a478f08ceef9ee59"
+        }
+      }
+    ]
+  }
+]

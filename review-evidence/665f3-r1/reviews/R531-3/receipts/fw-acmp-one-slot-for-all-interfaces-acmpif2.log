@@ -1,0 +1,242 @@
+[==========] Running 19 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 18 tests from AcmpMailbox
+[ RUN      ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[       OK ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder (0 ms)
+[ RUN      ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[       OK ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused (0 ms)
+[ RUN      ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:298: Failure
+Value of: arm->op == 1u && arm->slot == slot(i) && arm->deadline_ms == t0 + spec::TMR_NO_RESP_MS && app.acmp.ifs[i].armed
+  Actual: false
+Expected: true
+B3 TMR_NO_RESP is armed on interface 1's ACMP slot at NOW_MS + 200 (Table 5.26)
+
+  [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 1's ACMP slot at NOW_MS + 200 (Table 5.26)
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:308: Failure
+Value of: model.tx_sent == sent + 1u && dup != nullptr && dup->now_ms == t0 + spec::TMR_NO_RESP_MS && dup->interface == i && read(dup->bytes).msg == spec::MSG_PROBE_TX_COMMAND && core()->sinks[k].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+B3 the duplicate leaves at 200 ms exactly, on interface 1 (5.5.3.5.16)
+
+  [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 the duplicate leaves at 200 ms exactly, on interface 1 (5.5.3.5.16)
+[  FAILED  ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot (0 ms)
+[ RUN      ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:242: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 1 is armed
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: the ACMP slot of interface 1 is armed
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:326: Failure
+Value of: app.acmp.ifs[i].stale_expiries == 1u && core()->sinks[k].state == ACMP_SETTLED_RSV_OK && !app.acmp.ifs[i].armed
+  Actual: false
+Expected: true
+B4 the expiry of a stopped arm is counted, never acted on, interface 1
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a stopped arm is counted, never acted on, interface 1
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:242: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 1 is armed
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: the ACMP slot of interface 1 is armed
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:338: Failure
+Value of: app.acmp.ifs[i].stale_expiries == 1u && core()->sinks[k].state == ACMP_SETTLED_RSV_OK && app.acmp.ifs[i].armed && model.timers[slot(i)].deadline_ms == core()->sinks[k].adp_deadline
+  Actual: false
+Expected: true
+B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 1
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 1
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:349: Failure
+Value of: app.acmp.ifs[i].stale_expiries == 1u && app.acmp.ifs[i].armed
+  Actual: false
+Expected: true
+B4 another module's slot is not ACMP's, interface 1
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 another module's slot is not ACMP's, interface 1
+[  FAILED  ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded (0 ms)
+[ RUN      ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[       OK ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp (0 ms)
+[ RUN      ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[       OK ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces (0 ms)
+[ RUN      ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[       OK ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding (0 ms)
+[ RUN      ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[       OK ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing (0 ms)
+[ RUN      ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+  C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+  C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+  C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+  C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   76 accesses (bound 76)
+  C1 GET_RX_STATE -> response, interface 1                                   47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       28 accesses (bound 28)
+  C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     49 accesses (bound 49)
+  C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 28)
+[       OK ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem (0 ms)
+[ RUN      ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+  C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+  C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+  C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+  C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+  C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:242: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 1 is armed
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: the ACMP slot of interface 1 is armed
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:572: Failure
+Value of: model.tx_sent == sent + 1u && core()->sinks[k].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+C5 TMR_NO_RESP: the duplicate in the pass that takes the expiry
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C5 TMR_NO_RESP: the duplicate in the pass that takes the expiry
+  C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1              3 accesses (bound 35)
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:242: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 1 is armed
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: the ACMP slot of interface 1 is armed
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:577: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 3
+  ACMP_PRB_W_RETRY
+    Which is: 5
+C6 the second TMR_NO_RESP
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C6 the second TMR_NO_RESP
+  C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                              3 accesses (bound 13)
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:242: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 1 is armed
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: the ACMP slot of interface 1 is armed
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:583: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 3
+  ACMP_PRB_W_DELAY
+    Which is: 2
+C7 TMR_RETRY, talker discovered
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C7 TMR_RETRY, talker discovered
+  C7 TMR_RETRY -> TMR_DELAY armed, interface 1                                3 accesses (bound 13)
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:242: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 1 is armed
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: the ACMP slot of interface 1 is armed
+  C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                          3 accesses (bound 35)
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:242: Failure
+Value of: t.armed
+  Actual: false
+Expected: true
+the ACMP slot of interface 1 is armed
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: the ACMP slot of interface 1 is armed
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:593: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 6
+  ACMP_PRB_W_DELAY
+    Which is: 2
+C9 TMR_NO_TK, talker discovered
+
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK, talker discovered
+  C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                                3 accesses (bound 13)
+[  FAILED  ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+  C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+  C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+  C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+  C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+[       OK ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord (0 ms)
+[ RUN      ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+  C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:627: Failure
+Expected equality of these values:
+  model.timers[slot(i)].deadline_ms
+    Which is: 0
+  core()->sinks[k].adp_deadline
+    Which is: 2000
+C12 TMR_NO_ADP (2 s) is the slot's earliest deadline
+
+  [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: C12 TMR_NO_ADP (2 s) is the slot's earliest deadline
+[  FAILED  ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[       OK ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt (0 ms)
+[ RUN      ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+  E2 0 owed ahead: room to response                                          25 accesses (bound 9387)
+  E2 3 owed ahead: room to response                                         100 accesses (bound 9387)
+  E2 7 owed ahead: room to response                                         200 accesses (bound 9387)
+[       OK ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1 (0 ms)
+[ RUN      ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:756: Failure
+Expected equality of these values:
+  static_cast<std::uint16_t>(model.evt_head - model.evt_tail)
+    Which is: 60
+  64u
+    Which is: 64
+F0 the event ring is full
+
+  [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F0 the event ring is full
+[  FAILED  ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[       OK ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing (0 ms)
+[ RUN      ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+  adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+  F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22946)
+[       OK ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[       OK ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract (0 ms)
+[----------] 18 tests from AcmpMailbox (1 ms total)
+
+[----------] 1 test from AcmpAdapterUnit
+[ RUN      ] AcmpAdapterUnit.B7RefusalsOfTheAdapter
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:414: Failure
+Value of: m.ifs[0].slot == 16u - 2u && m.ifs[2u - 1u].slot == 16u - 1u
+  Actual: false
+Expected: true
+B7 its last interface on the bank's last slot
+
+  [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 its last interface on the bank's last slot
+[  FAILED  ] AcmpAdapterUnit.B7RefusalsOfTheAdapter (0 ms)
+[----------] 1 test from AcmpAdapterUnit (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 19 tests from 2 test suites ran. (2 ms total)
+[  PASSED  ] 13 tests.
+[  FAILED  ] 6 tests, listed below:
+[  FAILED  ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[  FAILED  ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[  FAILED  ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+[  FAILED  ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+[  FAILED  ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+[  FAILED  ] AcmpAdapterUnit.B7RefusalsOfTheAdapter
+
+ 6 FAILED TESTS
+== ctrl ACMP adapter on the two-interface contract (host model): checks: 19   failures: 6 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 6 failure(s) across 19 checks, exit 1)

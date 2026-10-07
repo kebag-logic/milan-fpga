@@ -1,0 +1,35 @@
+control-if1-host0 rc 0 == mbx (Wishbone host): checks: 382   failures: 0 ==
+control-if1-host1 rc 0 == mbx (AXI4-Lite host): checks: 427   failures: 0 ==
+control-if2-host0 rc 0 == mbx (Wishbone host, 2 interfaces): checks: 384   failures: 0 ==
+control-if2-host1 rc 0 == mbx (AXI4-Lite host, 2 interfaces): checks: 429   failures: 0 ==
+rx-bound-verdict-of-the-presented-interface
+rc
+1
+CAUGHT
+  [FAIL] Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone got=0 exp=1
+rx-bound-verdict-of-the-presented-interface-axil
+rc
+1
+CAUGHT
+  [FAIL] Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone got=0 exp=1
+rx-bound-verdict-of-the-presented-interface-if2
+rc
+1
+CAUGHT
+  [FAIL] Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone got=0 exp=2
+rx-bound-verdict-of-the-presented-interface-if2-axil
+rc
+1
+CAUGHT
+  [FAIL] Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone got=0 exp=2
+rx-bound-live-reads-interface-0-owed
+rc
+1
+CAUGHT
+  [FAIL] Q23 on each interface past the first, one stalled while BOUND_EN is set again alone reaches no ring got=0 exp=1
+rx-bound-live-reads-interface-0-owed-axil
+rc
+1
+CAUGHT
+  [FAIL] Q23 on each interface past the first, one stalled while BOUND_EN is set again alone reaches no ring got=0 exp=1
+round-4 RTL probes: 6 faults; failures: 0
