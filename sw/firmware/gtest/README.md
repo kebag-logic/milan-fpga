@@ -229,7 +229,7 @@ header states; a static function is judged through the public functions that
 call it. A row's proof does not rest on what today's callers happen to pass.
 Where it rests on a generated constant of the contract, the row says so, and
 the row stops matching (so the gate fails) when the constant changes.
-All fifteen rows meet that standard through their public headers.
+All sixteen rows meet that standard through their public headers.
 The five `adp.c` rows cite the no-callback rule in
 [`adp.h`](../ctrl/adp/adp.h), enforced by the core guard (#678).
 
