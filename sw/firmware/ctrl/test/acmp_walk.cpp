@@ -569,27 +569,26 @@ using DCell = std::tuple<int, int>;   // row, column
 
 class DiscoveryWalk : public ::testing::TestWithParam<DCell> {};
 
-TEST_P(DiscoveryWalk, Graded) {
-    using namespace pp_disc;
-    const int row = std::get<0>(GetParam());
-    const int col = std::get<1>(GetParam());
-    const DiscCell& c = DISC[row][col];
-    const std::string cell = std::string(DRN[row]) + " x " + DCN[col];
-    fk = Fake{};
+// One sink on one interface, its discovery driven through the core's entries.
+struct DiscRig {
     acmp a{};
-    acmp_config cfg{};
-    cfg.entity_id = kOwn;
-    cfg.n_interfaces = 1;
-    cfg.mac[0] = kMac0;
-    cfg.n_sinks = 1;
-    ASSERT_TRUE(acmp_init(&a, &cfg, &kPorts, &kEnv));
-    a.rng = kDraw777;
-    a.seeded = true;
-    auto ingest = [&](const Adp& d) {
+
+    void init() {
+        fk = Fake{};
+        acmp_config cfg{};
+        cfg.entity_id = kOwn;
+        cfg.n_interfaces = 1;
+        cfg.mac[0] = kMac0;
+        cfg.n_sinks = 1;
+        ASSERT_TRUE(acmp_init(&a, &cfg, &kPorts, &kEnv));
+        a.rng = kDraw777;
+        a.seeded = true;
+    }
+    void ingest(const Adp& d) {
         auto f = adpdu(d);
         acmp_adp_rx(&a, 0, f.data(), f.size());
-    };
-    auto command = [&](std::uint8_t msg) {
+    }
+    void command(std::uint8_t msg) {
         Pdu p;
         p.msg = msg;
         p.controller = kCtl1;
@@ -598,23 +597,78 @@ TEST_P(DiscoveryWalk, Graded) {
         p.talker_uid = 1;
         auto f = acmpdu(p);
         acmp_rx(&a, 0, f.data(), f.size());
-    };
-    // the column: unbound; TK_NOT_DISCOVERED waiting in PRB_W_AVAIL; TK_DISCOVERED
-    // probing in PRB_W_RESP with DISC_LAST noted
-    if (col == D_NOT) {
-        std::uint8_t record[spec::BINDING_BYTES] = {0x01, 0, 0, 1};
-        wire_put_be(record + 4, kTkA, 8);
-        wire_put_be(record + 12, kCtl1, 8);
-        ASSERT_EQ(acmp_restore_binding(&a, 0, record, sizeof record), ACMP_RESTORE_APPLIED);
-    } else if (col == D_DISC) {
-        command(spec::MSG_BIND_RX_COMMAND);
-        Adp d;
-        d.index = DISC_LAST;
-        d.interface_index = 2;
-        ingest(d);
-        ASSERT_TRUE(a.sinks[0].discovered && a.sinks[0].state == ACMP_PRB_W_RESP);
     }
-    const acmp_sink& s = a.sinks[0];
+    // The column: unbound; TK_NOT_DISCOVERED waiting in PRB_W_AVAIL;
+    // TK_DISCOVERED probing in PRB_W_RESP with DISC_LAST noted.
+    void column(int col) {
+        using namespace pp_disc;
+        if (col == D_NOT) {
+            std::uint8_t record[spec::BINDING_BYTES] = {0x01, 0, 0, 1};
+            wire_put_be(record + 4, kTkA, 8);
+            wire_put_be(record + 12, kCtl1, 8);
+            ASSERT_EQ(acmp_restore_binding(&a, 0, record, sizeof record), ACMP_RESTORE_APPLIED);
+        } else if (col == D_DISC) {
+            command(spec::MSG_BIND_RX_COMMAND);
+            Adp d;
+            d.index = DISC_LAST;
+            d.interface_index = 2;
+            ingest(d);
+            ASSERT_TRUE(a.sinks[0].discovered && a.sinks[0].state == ACMP_PRB_W_RESP);
+        }
+    }
+    // The row's input, valid_time 7 and interface_index 2 unless the row changes them.
+    void stimulus(int row) {
+        using namespace pp_disc;
+        const acmp_sink& s = a.sinks[0];
+        Adp d;
+        d.valid_time = 7;
+        d.interface_index = 2;
+        switch (row) {
+        case V_FRESH: d.index = DISC_LAST + 1u; ingest(d); break;
+        case V_STALE: d.index = DISC_LAST - 1u; ingest(d); break;
+        case V_GMF: d.index = DISC_LAST + 1u; d.gm = kGm0 + 1u; ingest(d); break;
+        case V_GMS: d.index = DISC_LAST - 1u; d.gm = kGm0 + 1u; ingest(d); break;
+        case V_DOMS: d.index = DISC_LAST - 1u; d.domain = 5; ingest(d); break;
+        case V_IFX: d.index = DISC_LAST + 1u; d.interface_index = 3; ingest(d); break;
+        case V_DEP: d.msg = spec::ADPDU_ENTITY_DEPARTING; ingest(d); break;
+        case V_DEPIFX: d.msg = spec::ADPDU_ENTITY_DEPARTING; d.interface_index = 3; ingest(d); break;
+        case V_NOADP:
+            if (s.adp_armed) {
+                fk.now = s.adp_deadline;
+            }
+            acmp_timer_expired(&a, 0);                   // a stray where nothing is armed
+            break;
+        case V_UNBIND: command(spec::MSG_UNBIND_RX_COMMAND); break;
+        default: command(spec::MSG_BIND_RX_COMMAND); break;   // V_BIND
+        }
+    }
+};
+
+// The events discovery raised, seen through the connection machine (see the top of the file).
+int raised(int col, acmp_sink_state before, const acmp_sink& s) {
+    using namespace pp_disc;
+    if (col == D_NOT && before == ACMP_PRB_W_AVAIL && s.state == ACMP_PRB_W_DELAY) {
+        return EV_DISC;
+    }
+    if (col == D_DISC && s.bound && before == ACMP_PRB_W_RESP && s.state == ACMP_PRB_W_AVAIL) {
+        return EV_DEP;
+    }
+    if (col == D_DISC && s.bound && before == ACMP_PRB_W_RESP && s.state == ACMP_PRB_W_DELAY) {
+        return EV_PAIR;
+    }
+    return EV_NONE;
+}
+
+TEST_P(DiscoveryWalk, Graded) {
+    using namespace pp_disc;
+    const int row = std::get<0>(GetParam());
+    const int col = std::get<1>(GetParam());
+    const DiscCell& c = DISC[row][col];
+    const std::string cell = std::string(DRN[row]) + " x " + DCN[col];
+    DiscRig rig;
+    ASSERT_NO_FATAL_FAILURE(rig.init());
+    ASSERT_NO_FATAL_FAILURE(rig.column(col));
+    const acmp_sink& s = rig.a.sinks[0];
     const bool armed_before = s.adp_armed;
     const std::uint32_t deadline_before = s.adp_deadline;
     const acmp_sink_state state_before = s.state;
@@ -625,39 +679,10 @@ TEST_P(DiscoveryWalk, Graded) {
     }
     fk.now += 1000;
     const std::uint32_t t = fk.now;
-    Adp d;
-    d.valid_time = 7;
-    d.interface_index = 2;
-    switch (row) {
-    case V_FRESH: d.index = DISC_LAST + 1u; ingest(d); break;
-    case V_STALE: d.index = DISC_LAST - 1u; ingest(d); break;
-    case V_GMF: d.index = DISC_LAST + 1u; d.gm = kGm0 + 1u; ingest(d); break;
-    case V_GMS: d.index = DISC_LAST - 1u; d.gm = kGm0 + 1u; ingest(d); break;
-    case V_DOMS: d.index = DISC_LAST - 1u; d.domain = 5; ingest(d); break;
-    case V_IFX: d.index = DISC_LAST + 1u; d.interface_index = 3; ingest(d); break;
-    case V_DEP: d.msg = spec::ADPDU_ENTITY_DEPARTING; ingest(d); break;
-    case V_DEPIFX: d.msg = spec::ADPDU_ENTITY_DEPARTING; d.interface_index = 3; ingest(d); break;
-    case V_NOADP:
-        if (s.adp_armed) {
-            fk.now = s.adp_deadline;
-        }
-        acmp_timer_expired(&a, 0);                       // a stray where nothing is armed
-        break;
-    case V_UNBIND: command(spec::MSG_UNBIND_RX_COMMAND); break;
-    default: command(spec::MSG_BIND_RX_COMMAND); break;  // V_BIND
-    }
+    rig.stimulus(row);
     const int to = !s.bound ? D_UNB : (s.discovered ? D_DISC : D_NOT);
     EXPECT_EQ(to, c.to) << "DW " << cell << ": the discovery state (" << c.milan << ")";
-    // the events, seen through the connection machine (see the top of the file)
-    int ev = EV_NONE;
-    if (col == D_NOT && state_before == ACMP_PRB_W_AVAIL && s.state == ACMP_PRB_W_DELAY) {
-        ev = EV_DISC;
-    } else if (col == D_DISC && s.bound && state_before == ACMP_PRB_W_RESP && s.state == ACMP_PRB_W_AVAIL) {
-        ev = EV_DEP;
-    } else if (col == D_DISC && s.bound && state_before == ACMP_PRB_W_RESP && s.state == ACMP_PRB_W_DELAY) {
-        ev = EV_PAIR;
-    }
-    EXPECT_EQ(ev, c.evs) << "DW " << cell << ": the events raised to the connection machine";
+    EXPECT_EQ(raised(col, state_before, s), c.evs) << "DW " << cell << ": the events raised to the connection machine";
     if (c.tm == TM_ARM) {
         EXPECT_TRUE(s.adp_armed && s.adp_deadline == t + 7u * spec::VALID_TIME_UNIT_MS)
             << "DW " << cell << ": TMR_NO_ADP armed from the received valid_time (6.2.2.5)";

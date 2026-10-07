@@ -129,8 +129,9 @@ TALKER_UNKNOWN_ID).
 
 ### Planted defects
 
-`--self-test` writes each defect of `ctrl_mutants.py` into a copy of this
-tree and requires the arm it names to exit 1 with a `[FAIL]` line naming the
+`--self-test` writes each defect of `ctrl_mutants.py` (with lane F3's
+`acmp_mutants.py` appended) into a copy of this tree and requires the arm it
+names to exit 1 with a `[FAIL]` line naming the
 GoogleTest test and carrying the check's own words; a defect that breaks the
 build, or reddens only other tests, is an escape. The arms: ADP clause defects caught by the walk (one per walked
 Table 5.51 row but the foreign DISCOVER, which the fabric filter drops and
@@ -160,8 +161,8 @@ record, the adapter's slot, tag and tap, extra mailbox accesses on each
 measured path, each backlog figure understated, and the binding owner's
 forwarding; and seven wrong numbers in `acmp.h` itself, which the tests
 catch because they spell the standards' values (`acmp_fake.hpp`, `spec`),
-never the header's. Every test of those arms is named by at least one
-defect, which `unnamed_tests` proves before any is planted, as lane F1's
+never the header's. They are `acmp_mutants.py`'s table. Every test of those
+arms is named by at least one defect, which `unnamed_tests` proves before any is planted, as lane F1's
 store suite does. Some FC filter defects in the host model also name
 lane F3's own-unicast and FILTER_MISMATCH checks. With
 `--lwsrp` it also requires the pin to refuse a

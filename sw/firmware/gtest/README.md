@@ -183,7 +183,8 @@ with the container the reference encoder assembles for the same records.
 `test_check.h` and `test_check.c`, the hand-rolled framework, are gone:
 nothing used them once the port was done.
 
-Every planted defect of `ctrl_mutants.py` and `nvm_mutants.py` is now killed
+Every planted defect of `ctrl_mutants.py` (lane F3's in `acmp_mutants.py`)
+and `nvm_mutants.py` is now killed
 by a named GoogleTest test: a mutant names the test (and, for `ctrl`, the
 check's words) whose `[FAIL]` line must appear. Each test added here has a
 planted defect of its own.
