@@ -56,7 +56,7 @@ bool ctrl_loop_add_poll(struct ctrl_loop *l, ctrl_poll_fn fn, void *ctx)
 	return true;
 }
 
-bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id)
+bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF])
 {
 	if (!mbx_open()) {
 		return false;
@@ -68,6 +68,9 @@ bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id)
 		}
 	}
 	mbx_filter_set_own_eid(entity_id);
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		(void)mbx_filter_set_own_mac(i, own_mac[i]);    // every i is an interface of the contract
+	}
 	mbx_irq_enable(mbx_place(open, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH) |
 		       mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH));
 	mbx_tick_enable(l->n_ticks > 0u);

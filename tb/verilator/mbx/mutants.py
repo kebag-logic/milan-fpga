@@ -66,8 +66,10 @@ ARMS = (
         "T0 the frames past it count in RATE_DROP"),
     Arm("rx-lanes-big-endian", "KL_mbx_rx.sv", "(5'd8 * 5'(lane_r))", "(5'd8 * (5'd3 - 5'(lane_r)))", 0,
         "F1 frame byte k is ring word"),
+    # lane FC: the classification is per match tuple now, so the subtype term is the tuple's
+    # (round 2: read from `subtype`, byte 14 held for the decision at byte 15)
     Arm("rx-subtype-ignored", "KL_mbx_rx.sv",
-        "(MBX_CH_HAS_SUBTYPE_TBL_C[c] == 0 || rx_data_i == 8'(MBX_CH_SUBTYPE_TBL_C[c]))", "1'b1", 0,
+        "(MBX_TUPLE_HAS_SUBTYPE_TBL_C[j] == 0 || subtype == 8'(MBX_TUPLE_SUBTYPE_TBL_C[j]))", "1'b1", 0,
         "C0 ACMP to this talker or this listener passes"),
     Arm("tx-reserved-word-unchecked", "KL_mbx_tx.sv",
         "if (w0_ok_w && (rd_data_i >> MBX_TXREC_W1_RSVD_LSB_C) == 32'd0) begin", "if (w0_ok_w) begin", 0,
@@ -119,9 +121,11 @@ ARMS = (
         "R1 IRQ_ENABLE keeps RX[7:0], EVT and ERR only"),
     Arm("rx-closed-channel-stores", "KL_mbx_rx.sv", "hit_r      <= cls_hit_w && open_i[cls_ch_w];",
         "hit_r      <= cls_hit_w;", 0, "F0 a closed channel stores nothing"),
+    # lane FC: a channel's second EtherType is its second match tuple now (MVRP's)
     Arm("rx-second-ethertype-ignored", "KL_mbx_rx.sv",
-        "|| ethertype == 16'(MBX_CH_ETHERTYPE1_TBL_C[c]))", ")", 0,
-        "C3 every MSRP and MVRP PDU reaches the SRP ring"),
+        "for (int j = 0; j < int'(NM_C); j++) begin",
+        "for (int j = 0; j < int'(NM_C); j += int'(MBX_MAX_TUPLES_C)) begin",
+        0, "C3 every MSRP and MVRP PDU reaches the SRP ring"),
     # The three host-counter guards (R496-1 F4).
     Arm("rx-tail-unguarded", "KL_mbx_rx.sv",
         "free_w       = (used_w > ring_words_w) ? 16'd0 : ring_words_w - used_w;",
@@ -166,11 +170,126 @@ ARMS = (
         "assign s_awready_o  = !aw_full_r || go_wr_w;", 1, "A7 each write's data lands at its own address"),
     Arm("axil-reset-keeps-aw", "KL_mbx_axil.sv", "      aw_full_r <= 1'b0;\n      aw_addr_r <= '0;\n",
         "      aw_addr_r <= '0;\n", 1, "A6 an AW taken before a reset is forgotten"),
+    # ---- lane FC: one defect per rule of the full-tuple filter ----
+    # 1. tagged frames never reach a mailbox: a classifier that takes a C-tag's
+    #    TPID for any tuple's EtherType, so a tagged MSRP or MVRP frame, whose
+    #    tuples read no subtype, lands in the SRP ring
+    Arm("rx-tpid-matches-a-tuple", "KL_mbx_rx.sv",
+        "if (!cls_hit_w && dst_ok && ethertype == 16'(MBX_TUPLE_ETHERTYPE_TBL_C[j])",
+        "if (!cls_hit_w && dst_ok && (ethertype == 16'(MBX_TUPLE_ETHERTYPE_TBL_C[j]) || ethertype == 16'h8100)", 0,
+        "Q1 tagged, it (srp MSRP): no RX record"),
+    # 2. each channel matches its exact tuple: destination, EtherType, subtype
+    Arm("rx-dst-ignored", "KL_mbx_rx.sv",
+        "dst_ok = (MBX_TUPLE_DST_TBL_C[j] == MBX_DST_MAC_C\n"
+        "                && dst_r == {16'(MBX_TUPLE_DST_HI_TBL_C[j]), MBX_TUPLE_DST_LO_TBL_C[j]})\n"
+        "               || (MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && own_if_w && dst_r == own_mac_w);",
+        "dst_ok = MBX_TUPLE_DST_TBL_C[j] != MBX_DST_NONE_C;", 0, "Q2 to another destination MAC, it (adp)"),
+    Arm("rx-multicast-dst-ignored", "KL_mbx_rx.sv",
+        "                && dst_r == {16'(MBX_TUPLE_DST_HI_TBL_C[j]), MBX_TUPLE_DST_LO_TBL_C[j]})", ")", 0,
+        "Q2 to another destination MAC, it (srp MSRP)"),
+    Arm("rx-ethertype-ignored", "KL_mbx_rx.sv",
+        "if (!cls_hit_w && dst_ok && ethertype == 16'(MBX_TUPLE_ETHERTYPE_TBL_C[j])",
+        "if (!cls_hit_w && dst_ok", 0, "Q3 under another control EtherType, it (adp)"),
+    # 3. own unicast is the arrival interface's MAC, never any unicast
+    Arm("rx-own-any-unicast", "KL_mbx_rx.sv",
+        "(MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && own_if_w && dst_r == own_mac_w)",
+        "(MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && !dst_r[40])", 0,
+        "Q2 to another destination MAC, it (aecp, command)"),
+    Arm("rx-own-mac-of-interface-0", "KL_mbx_rx.sv", "if (int'(if_r) == i) begin", "if (i == 0) begin", 0,
+        "Q8 another interface's own MAC, or one on an index with no interface, reaches no ring"),
+    Arm("rx-own-mac-low-word-only", "KL_mbx_rx.sv", "&& own_if_w && dst_r == own_mac_w)",
+        "&& own_if_w && dst_r[31:0] == own_mac_w[31:0])", 0, "Q8 a MAC differing from OWN_MAC in MAC[47:32] only"),
+    Arm("top-own-mac-halves-swapped", "KL_mbx.sv", "own_mac_w[48*i +: 48] = {own_mac_hi_r[i], own_mac_lo_r[i]};",
+        "own_mac_w[48*i +: 48] = {own_mac_lo_r[i][15:0], own_mac_lo_r[i][31:16], own_mac_hi_r[i]};", 0,
+        "Q0 a valid frame reaches its channel (acmp, own unicast)"),
+    Arm("top-own-mac-hi-read-from-lo", "KL_mbx.sv", "reg_rdata_w = 32'(own_mac_hi_r[0]);",
+        "reg_rdata_w = 32'(own_mac_lo_r[0]);", 0, "R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only"),
+    # 4. AECP: (command AND target = own) OR (response AND controller = own),
+    #    planted in the generated package the RTL reads its terms from
+    Arm("pkg-aecp-command-only", "KL_mbx_pkg.sv", "MBX_CH_AECP_T1_TEST_C = 32'd2;", "MBX_CH_AECP_T1_TEST_C = 32'd0;", 0,
+        "Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring"),
+    Arm("pkg-aecp-target-term-any-type", "KL_mbx_pkg.sv", "MBX_CH_AECP_T0_MSG_MASK_C = 32'h00005555;",
+        "MBX_CH_AECP_T0_MSG_MASK_C = 32'h0000FFFF;", 0,
+        "Q5 an AECP response for another controller, even to this target"),
+    Arm("pkg-aecp-controller-term-any-type", "KL_mbx_pkg.sv", "MBX_CH_AECP_T1_MSG_MASK_C = 32'h0000AAAA;",
+        "MBX_CH_AECP_T1_MSG_MASK_C = 32'h0000FFFF;", 0,
+        "Q5 an AECP command for another target, even with this controller"),
+    # 5. FILTER_MISMATCH: an untagged control frame failing its tuple, once;
+    #    never a valid, tagged, identity-refused or short one; it sets ERR
+    Arm("rx-mismatch-never-counted", "KL_mbx_rx.sv", "mis_r      <= ctrl_et_w && !cls_hit_w;", "mis_r      <= 1'b0;", 0,
+        "Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once"),
+    Arm("rx-mismatch-counts-valid", "KL_mbx_rx.sv", "mis_r      <= ctrl_et_w && !cls_hit_w;",
+        "mis_r      <= ctrl_et_w;",
+        0, "Q0 a valid frame never counts in FILTER_MISMATCH (adp)"),
+    Arm("rx-mismatch-counts-any-ethertype", "KL_mbx_rx.sv",
+        "if (MBX_TUPLE_DST_TBL_C[j] != MBX_DST_NONE_C && ethertype == 16'(MBX_TUPLE_ETHERTYPE_TBL_C[j]))\n"
+        "        ctrl_et_w = 1'b1;", "ctrl_et_w = 1'b1;", 0, "Q1 tagged, it (adp): FILTER_MISMATCH does not count it"),
+    Arm("rx-mismatch-counts-identity-refusals", "KL_mbx_rx.sv", "assign mis_w       = fin_ready_w && mis_r;",
+        "assign mis_w       = fin_ready_w && (mis_r || (hit_r && !rule_pass_w));", 0,
+        "Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it"),
+    Arm("rx-mismatch-counted-twice", "KL_mbx_rx.sv", "mismatch_r <= mismatch_r + 16'd1;",
+        "mismatch_r <= mismatch_r + 16'd2;", 0, "Q9 five tuple failures in a row count five"),
+    Arm("rx-mismatch-needs-an-open-channel", "KL_mbx_rx.sv", "mis_r      <= ctrl_et_w && !cls_hit_w;",
+        "mis_r      <= ctrl_et_w && !cls_hit_w && open_i != '0;", 0,
+        "Q9 with every channel closed, an untagged AAF: FILTER_MISMATCH counts it once"),
+    Arm("rx-short-frame-counted", "KL_mbx_rx.sv", "            cls_done_r <= 1'b1;\n            hit_r      <= 1'b0;\n",
+        "            cls_done_r <= 1'b1;\n            hit_r      <= 1'b0;\n            mis_r      <= 1'b1;\n", 0,
+        "Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it"),
+    Arm("rx-mismatch-sets-no-err", "KL_mbx_rx.sv", "assign err_p_o     = drop_w || rate_w || mis_w;",
+        "assign err_p_o     = drop_w || rate_w;", 0, "Q9 a mismatch sets IRQ_STATUS.ERR"),
+    # the token buckets stay, apart from the filter: a refusal takes no token
+    Arm("rx-refusal-takes-a-token", "KL_mbx_rx.sv", "if (commit_w && ch_r == MBX_CH_W_C'(c)) tokens = tokens - 9'd1;",
+        "if ((commit_w || (fin_ready_w && hit_r && !rule_pass_w)) && ch_r == MBX_CH_W_C'(c)) tokens = tokens - 9'd1;",
+        0, "Q10 refusals by the filter take no token"),
 )
 
 
-#: One defect per leaf and one in the skeleton: the arm the suite's default target runs.
-QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted")
+def _both(name: str, path: str, old: str, new: str, needle: str) -> tuple[Arm, Arm]:
+    """One defect planted through each bus adapter: `name` on Wishbone, `name-axil` on AXI4-Lite."""
+    return Arm(name, path, old, new, 0, needle), Arm(f"{name}-axil", path, old, new, 1, needle)
+
+
+#: ---- lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1),
+#: one defect per rule through both adapters (the model's twins are in
+#: sw/firmware/ctrl/test/ctrl_mutants.py) ----
+ARMS += (
+    # a DEFEND to this interface's own MAC is delivered: the tuple dropped from
+    # the contract, the message type read one byte early, the channel decided
+    # at byte 14 before the message type arrives
+    *_both("pkg-maap-defend-tuple-dropped", "KL_mbx_pkg.sv", "MBX_CH_MAAP_M1_DST_C = 32'd2;",
+           "MBX_CH_MAAP_M1_DST_C = 32'd0;", "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"),
+    *_both("rx-msg-type-off-by-one", "KL_mbx_rx.sv",
+           "msg       = (cnt_r == 11'(MBX_MSG_TYPE_BYTE_C)) ? rx_data_i[3:0] : 4'd0;", "msg       = subtype[3:0];",
+           "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"),
+    *_both("rx-classified-before-msg-type", "KL_mbx_rx.sv",
+           "assign cls_at_w = (cnt_r == 11'(MBX_MSG_TYPE_BYTE_C)) || (rx_last_i && cnt_r == 11'(MBX_SUBTYPE_BYTE_C));",
+           "assign cls_at_w = (cnt_r == 11'(MBX_SUBTYPE_BYTE_C));",
+           "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"),
+    # a PROBE or ANNOUNCE to it is rejected and counted: the tuple's message
+    # types ignored, a frame to the own MAC never counted
+    *_both("rx-tuple-msg-type-ignored", "KL_mbx_rx.sv",
+           "\n          && MBX_TUPLE_MSG_MASK_TBL_C[j][{1'b0, msg}]) begin", ") begin",
+           "Q11 a PROBE to this interface's own MAC: no RX record"),
+    *_both("rx-own-unicast-never-counted", "KL_mbx_rx.sv", "mis_r      <= ctrl_et_w && !cls_hit_w;",
+           "mis_r      <= ctrl_et_w && !cls_hit_w && !(own_if_w && dst_r == own_mac_w);",
+           "Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once"),
+    # a DEFEND to a foreign unicast is rejected: the DEFEND tuple takes any unicast
+    *_both("rx-defend-any-unicast", "KL_mbx_rx.sv",
+           "(MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && own_if_w && dst_r == own_mac_w)",
+           "(MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && ((own_if_w && dst_r == own_mac_w)\n"
+           "                   || (MBX_TUPLE_MSG_MASK_TBL_C[j] != 32'hFFFF && !dst_r[40])))",
+           "Q11 a DEFEND to a unicast MAC no interface owns: no RX record"),
+    # a frame that ends at byte 14, before its message type, is still decided:
+    # without the last-byte decision it never is, and the receive path waits
+    *_both("rx-short-frame-never-classified", "KL_mbx_rx.sv",
+           " || (rx_last_i && cnt_r == 11'(MBX_SUBTYPE_BYTE_C));", ";",
+           "Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type"),
+)
+
+
+#: One defect per leaf and one in the skeleton, and one in the filter's tuple: the arms the suite's default target runs.
+QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted",
+         "rx-dst-ignored")
 
 
 def recipe() -> list[str]:

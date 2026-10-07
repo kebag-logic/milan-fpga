@@ -160,6 +160,10 @@ it.
 | `ctrl_nvm`, per shape | (new) | 0 | `test_nvm_codec.cpp`, `test_nvm_more.cpp`, `test_nvm_flashmock.cpp` | 16 |
 | `ctrl_nvm`, 1x1 shape | (new) | 0 | `test_nvm_shapes.cpp` (two doctored builds), `test_nvm_litespi.cpp` | 5 |
 
+The table records the port as FT landed it. Lane FC (the full-tuple ingress
+filter) then added eight `model` groups, D12 to `port`, and D11 and U4 to
+`unit`, so those arms run 22, 31 and 25 tests.
+
 The saved-state store's checks kept their names: a check that ran on both
 flash ports is two tests, `Ports/NvmBoth.<check>/model` and `.../litespi`.
 Their oracle did not move. [`nvm_fixture.py`](../ctrl_nvm/test/nvm_fixture.py)

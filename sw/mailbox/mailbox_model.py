@@ -4,7 +4,8 @@
 
 One reading for every output. ``load()`` turns the YAML into a ``Contract``
 and refuses a contract that could not be built (an overlapping field, a ring
-that is not a power of two, a channel two EtherType rules both claim).
+that is not a power of two, a channel two EtherType rules both claim, a
+match tuple naming a VLAN tag's TPID, or message types with no subtype).
 ``constants()`` flattens it into the one named list every emitter writes, so
 the SystemVerilog package, the C header and the reference page carry the same
 names with the same values, and ``gen_mailbox.py --selftest`` can compare the
@@ -13,7 +14,7 @@ three outputs name by name.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -78,6 +79,18 @@ class Term:
 
 
 @dataclass(frozen=True)
+class Match:
+    """One match tuple of a channel: destination, EtherType, AVTP subtype and message types."""
+
+    dst: str                # `mac` (the address below) or `own` (the arrival interface's OWN_MAC)
+    mac: int                # the 48-bit destination of a `mac` tuple, 0 for `own`
+    ethertype: int
+    subtype: int | None     # None: the tuple reads no subtype (MSRP, MVRP)
+    msg_mask: int           # bit t: message_type t holds; 0xFFFF when the tuple names none
+    doc: str
+
+
+@dataclass(frozen=True)
 class Channel:
     """One mailbox pair: an receive ring, a transmit ring and the filter rule feeding RX."""
 
@@ -88,8 +101,7 @@ class Channel:
     tx_base: int
     tx_words: int
     max_frame_bytes: int
-    ethertypes: tuple[int, ...]
-    subtype: int | None
+    tuples: tuple[Match, ...]
     burst: int
     refill_ms: int
     cite: str
@@ -122,6 +134,9 @@ class Contract:
     if_base: int
     if_stride: int
     if_registers: tuple[Register, ...]
+    iff_base: int
+    iff_stride: int
+    iff_registers: tuple[Register, ...]
     ch_base: int
     ch_stride: int
     ch_registers: tuple[Register, ...]
@@ -140,7 +155,11 @@ class Contract:
     ethertype_byte: int
     subtype_byte: int
     msg_type_byte: int
+    dst_byte: int
     max_terms: int
+    max_tuples: int
+    tpids: tuple[int, ...]
+    dsts: tuple[tuple[str, int, str], ...]
     tests: tuple[tuple[str, int, str], ...]
     tmr_ops: tuple[tuple[str, int], ...]
     channels: tuple[Channel, ...]
@@ -235,28 +254,62 @@ def _terms(raw: list[dict[str, Any]], where: str, tests: dict[str, int], max_byt
     return tuple(out)
 
 
-def _channel(item: dict[str, Any], tests: dict[str, int], max_terms: int) -> Channel:
+def _msg_mask(item: dict[str, Any], subtype: int | None, where: str) -> int:
+    """A tuple's message types as a mask, 0xFFFF when it names none. A message
+    type is the low nibble of the byte after an AVTP subtype, so a tuple names
+    some only beside a subtype."""
+    msg_types = item.get("msg_types")
+    if msg_types is None:
+        return 0xFFFF
+    if subtype is None:
+        raise ContractError(f"{where}: a tuple names message types but no AVTP subtype to read them after")
+    if not isinstance(msg_types, list) or not msg_types or len(set(msg_types)) != len(msg_types) \
+            or not all(isinstance(m, int) and 0 <= m <= 15 for m in msg_types):
+        raise ContractError(f"{where}: a tuple's msg_types is a list of distinct message types 0 to 15")
+    return sum(1 << m for m in msg_types)
+
+
+def _tuples(raw: list[dict[str, Any]], where: str, max_tuples: int) -> tuple[Match, ...]:
+    """A channel's match tuples, refused when one lacks a destination, repeats or does not fit."""
+    if not isinstance(raw, list) or not 1 <= len(raw) <= max_tuples:
+        raise ContractError(f"{where}: match is a list of 1 to {max_tuples} tuples")
+    out: list[Match] = []
+    for item in raw:
+        dst = _need(item, "dst", f"{where}.match")
+        ethertype = int(_need(item, "ethertype", f"{where}.match"))
+        subtype = None if item.get("subtype") is None else int(item["subtype"])
+        mask = _msg_mask(item, subtype, f"{where}.match")
+        if dst == "own":
+            match = Match("own", 0, ethertype, subtype, mask, str(item.get("doc", "")))
+        elif isinstance(dst, int) and 0 < dst < 1 << 48:
+            match = Match("mac", dst, ethertype, subtype, mask, str(item.get("doc", "")))
+        else:
+            raise ContractError(f"{where}: a tuple's dst is `own` or a 48-bit MAC, got {dst!r}")
+        if not 0 < ethertype <= 0xFFFF or (match.subtype is not None and not 0 <= match.subtype <= 0xFF):
+            raise ContractError(f"{where}: EtherType {ethertype:#x} or subtype {match.subtype} out of range")
+        if any((m.dst, m.mac, m.ethertype, m.subtype, m.msg_mask)
+               == (match.dst, match.mac, match.ethertype, match.subtype, match.msg_mask) for m in out):
+            raise ContractError(f"{where}: a match tuple is given twice")
+        out.append(match)
+    return tuple(out)
+
+
+def _channel(item: dict[str, Any], tests: dict[str, int], max_terms: int, max_tuples: int) -> Channel:
     """One channel, its rings and its rule."""
     name = str(_need(item, "name", "channels"))
     where = f"channels.{name}"
     rx = _need(item, "rx", where)
     tx = _need(item, "tx", where)
-    match = _need(item, "match", where)
     rate = _need(item, "rate", where)
     max_bytes = int(_need(item, "max_frame_bytes", where))
     terms = _terms(_need(item, "accept", where), where, tests, max_bytes)
     if not 1 <= len(terms) <= max_terms:
         raise ContractError(f"{where}: {len(terms)} accept terms, the contract allows 1 to {max_terms}")
-    ethertypes = tuple(int(e) for e in _need(match, "ethertypes", where))
-    if not 1 <= len(ethertypes) <= 2:
-        raise ContractError(f"{where}: one or two EtherTypes, got {len(ethertypes)}")
-    subtype = match.get("subtype")
     channel = Channel(
         name=name, ident=int(_need(item, "id", where)),
         rx_base=int(_need(rx, "base", where)), rx_words=int(_need(rx, "words", where)),
         tx_base=int(_need(tx, "base", where)), tx_words=int(_need(tx, "words", where)),
-        max_frame_bytes=max_bytes, ethertypes=ethertypes,
-        subtype=None if subtype is None else int(subtype),
+        max_frame_bytes=max_bytes, tuples=_tuples(_need(item, "match", where), where, max_tuples),
         burst=int(_need(rate, "burst", where)), refill_ms=int(_need(rate, "refill_ms", where)),
         cite=str(_need(item, "cite", where)), terms=terms)
     if not (14 < max_bytes <= 1514) or max_bytes % 2:
@@ -287,20 +340,24 @@ def _check_rings(contract: Contract) -> None:
 
 
 def _check_channels(contract: Contract) -> None:
-    """Channel ids are 0..N-1, and no frame can classify into two channels."""
+    """Channel ids are 0..N-1, no tuple names a VLAN tag's TPID, and no frame
+    can classify into two channels: two channels never share an EtherType and
+    subtype, whatever their destinations (an `own` address is not known here)."""
     idents = sorted(ch.ident for ch in contract.channels)
     if idents != list(range(len(idents))) or len(idents) > 8:
         raise ContractError(f"channel ids must be 0..N-1 with N <= 8, got {idents}")
     claims: dict[tuple[int, int | None], str] = {}
     for ch in contract.channels:
-        for ethertype in ch.ethertypes:
-            for key in ((ethertype, ch.subtype), (ethertype, None)):
-                other = claims.get(key)
-                if other is not None and (key[1] is None or ch.subtype is None):
-                    raise ContractError(f"{ch.name} and {other} both claim EtherType {ethertype:#06x}")
-            if (ethertype, ch.subtype) in claims:
-                raise ContractError(f"{ch.name} repeats a classification of {claims[(ethertype, ch.subtype)]}")
-            claims[(ethertype, ch.subtype)] = ch.name
+        mine: set[tuple[int, int | None]] = set()
+        for m in ch.tuples:
+            if m.ethertype in contract.tpids:
+                raise ContractError(f"{ch.name}: a tuple names the VLAN tag TPID {m.ethertype:#06x}; a tagged "
+                                    "frame must reach no channel")
+            for key, other in claims.items():
+                if key[0] == m.ethertype and (key[1] is None or m.subtype is None or key[1] == m.subtype):
+                    raise ContractError(f"{ch.name} and {other} both claim EtherType {m.ethertype:#06x}")
+            mine.add((m.ethertype, m.subtype))
+        claims.update({key: ch.name for key in mine})
 
 
 def _check_blocks(contract: Contract) -> None:
@@ -308,6 +365,8 @@ def _check_blocks(contract: Contract) -> None:
     globals_at = {r.offset for r in contract.registers}
     for base, stride, regs, count, label in (
             (contract.if_base, contract.if_stride, contract.if_registers, contract.interfaces, "interface"),
+            (contract.iff_base, contract.iff_stride, contract.iff_registers, contract.interfaces,
+             "interface filter"),
             (contract.ch_base, contract.ch_stride, contract.ch_registers, len(contract.channels), "channel")):
         if any(r.offset >= stride for r in regs):
             raise ContractError(f"{label} registers spill out of their {stride:#x} stride")
@@ -341,7 +400,9 @@ def load(path: Path = CONTRACT) -> Contract:
     flt = _need(raw, "filter", "contract")
     tests = {str(t["name"]): int(t["value"]) for t in _need(flt, "tests", "filter")}
     max_terms = int(_need(flt, "max_terms", "filter"))
+    max_tuples = int(_need(flt, "max_tuples", "filter"))
     ifr = _need(raw, "interface_registers", "contract")
+    iffr = _need(raw, "interface_filter_registers", "contract")
     chr_ = _need(raw, "channel_registers", "contract")
     contract = Contract(
         major=int(raw["version"]["major"]), minor=int(raw["version"]["minor"]),
@@ -352,6 +413,8 @@ def load(path: Path = CONTRACT) -> Contract:
         registers=_registers(_need(raw, "registers", "contract"), "registers", REGISTER_SPACE_BYTES),
         if_base=int(ifr["base"]), if_stride=int(ifr["stride"]),
         if_registers=_registers(ifr["registers"], "interface_registers", REGISTER_SPACE_BYTES),
+        iff_base=int(iffr["base"]), iff_stride=int(iffr["stride"]),
+        iff_registers=_registers(iffr["registers"], "interface_filter_registers", REGISTER_SPACE_BYTES),
         ch_base=int(chr_["base"]), ch_stride=int(chr_["stride"]),
         ch_registers=_registers(chr_["registers"], "channel_registers", REGISTER_SPACE_BYTES),
         evt_base=int(raw["event_ring"]["base"]), evt_words=int(raw["event_ring"]["words"]),
@@ -360,13 +423,27 @@ def load(path: Path = CONTRACT) -> Contract:
                                     _words(e["words"], f"event_types.{e['name']}"))
                           for e in _need(raw, "event_types", "contract")),
         ethertype_byte=int(flt["ethertype_byte"]), subtype_byte=int(flt["subtype_byte"]),
-        msg_type_byte=int(flt["msg_type_byte"]), max_terms=max_terms,
+        msg_type_byte=int(flt["msg_type_byte"]), dst_byte=int(_need(flt, "dst_byte", "filter")),
+        max_terms=max_terms, max_tuples=max_tuples,
+        tpids=tuple(int(t) for t in _need(flt, "tpids", "filter")),
+        dsts=tuple((str(d["name"]), int(d["value"]), str(d.get("doc", ""))) for d in _need(flt, "dsts", "filter")),
         tests=tuple((str(t["name"]), int(t["value"]), str(t.get("doc", ""))) for t in flt["tests"]),
         tmr_ops=tuple((str(o["name"]), int(o["value"])) for o in flt["tmr_ops"]),
-        channels=tuple(sorted((_channel(c, tests, max_terms) for c in _need(raw, "channels", "contract")),
-                              key=lambda c: c.ident)))
+        channels=tuple(sorted((_channel(c, tests, max_terms, max_tuples)
+                               for c in _need(raw, "channels", "contract")), key=lambda c: c.ident)))
     _check_contract(contract)
     return contract
+
+
+def with_interfaces(contract: Contract, interfaces: int) -> Contract:
+    """The same contract for another AVB interface count, refused as load() refuses.
+
+    The suite elaborates a two-interface variant into its build directory to
+    grade the per-interface own MAC; the tracked outputs are always the
+    contract's own count."""
+    variant = replace(contract, interfaces=interfaces)
+    _check_contract(variant)
+    return variant
 
 
 def _check_contract(contract: Contract) -> None:
@@ -380,6 +457,12 @@ def _check_contract(contract: Contract) -> None:
         raise ContractError("records are two header words for frames and four words for an event")
     if contract.tests[0][:2] != ("none", 0):
         raise ContractError("filter test 0 must be `none`, the padding of an unused term")
+    if [(name, value) for name, value, _doc in contract.dsts] != [("none", 0), ("mac", 1), ("own", 2)]:
+        raise ContractError("filter dsts are none 0 (the padding of an unused tuple), mac 1 and own 2")
+    if contract.dst_byte + 6 > contract.ethertype_byte or contract.ethertype_byte + 2 > contract.subtype_byte:
+        raise ContractError("the destination MAC, the EtherType and the subtype are read in that order")
+    if contract.msg_type_byte != contract.subtype_byte + 1:
+        raise ContractError("a tuple's message_type is read from the byte after the subtype")
     _check_rings(contract)
     _check_channels(contract)
     _check_blocks(contract)
@@ -404,6 +487,11 @@ def _register_constants(contract: Contract) -> list[Constant]:
     out.append(Constant("IF_STRIDE", contract.if_stride, "bytes per interface block", True))
     for reg in contract.if_registers:
         out.append(Constant(f"IF_REG_{reg.name}", reg.offset, reg.doc, True))
+        out += _field_constants(reg.name, reg.fields, reg.name)
+    out.append(Constant("IFF_BASE", contract.iff_base, "first interface filter register block", True))
+    out.append(Constant("IFF_STRIDE", contract.iff_stride, "bytes per interface filter block", True))
+    for reg in contract.iff_registers:
+        out.append(Constant(f"IFF_REG_{reg.name}", reg.offset, reg.doc, True))
         out += _field_constants(reg.name, reg.fields, reg.name)
     out.append(Constant("CH_BASE", contract.ch_base, "first channel register block", True))
     out.append(Constant("CH_STRIDE", contract.ch_stride, "bytes per channel block", True))
@@ -439,6 +527,7 @@ def _record_constants(contract: Contract) -> list[Constant]:
 def _channel_constants(contract: Contract) -> list[Constant]:
     """Every channel's rings, limits, classification and rule."""
     out: list[Constant] = []
+    dsts = {name: value for name, value, _doc in contract.dsts}
     for ch in contract.channels:
         up = ch.name.upper()
         out += [Constant(f"CH_{up}", ch.ident, f"channel {ch.name}", False),
@@ -447,13 +536,19 @@ def _channel_constants(contract: Contract) -> list[Constant]:
                 Constant(f"CH_{up}_TX_BASE", ch.tx_base, f"{ch.name} transmit ring byte offset", True),
                 Constant(f"CH_{up}_TX_WORDS", ch.tx_words, f"{ch.name} transmit ring words", False),
                 Constant(f"CH_{up}_MAX_FRAME_BYTES", ch.max_frame_bytes, f"{ch.name} largest frame", False),
-                Constant(f"CH_{up}_ETHERTYPE0", ch.ethertypes[0], f"{ch.name} EtherType", True),
-                Constant(f"CH_{up}_ETHERTYPE1", ch.ethertypes[-1], f"{ch.name} second EtherType", True),
-                Constant(f"CH_{up}_HAS_SUBTYPE", int(ch.subtype is not None), f"{ch.name} matches a subtype",
-                         False),
-                Constant(f"CH_{up}_SUBTYPE", ch.subtype or 0, f"{ch.name} AVTP subtype", True),
                 Constant(f"CH_{up}_RATE_BURST", ch.burst, f"{ch.name} token bucket depth", False),
                 Constant(f"CH_{up}_RATE_REFILL_MS", ch.refill_ms, f"{ch.name} ms per refilled token", False)]
+        for k in range(contract.max_tuples):
+            m = ch.tuples[k] if k < len(ch.tuples) else Match("none", 0, 0, None, 0, "unused")
+            out += [Constant(f"CH_{up}_M{k}_DST", dsts[m.dst], f"{ch.name} tuple {k}: {m.doc}", False),
+                    Constant(f"CH_{up}_M{k}_DST_HI", m.mac >> 32, f"{ch.name} tuple {k} destination [47:32]", True),
+                    Constant(f"CH_{up}_M{k}_DST_LO", m.mac & 0xFFFFFFFF, f"{ch.name} tuple {k} destination [31:0]",
+                             True),
+                    Constant(f"CH_{up}_M{k}_ETHERTYPE", m.ethertype, f"{ch.name} tuple {k} EtherType", True),
+                    Constant(f"CH_{up}_M{k}_HAS_SUBTYPE", int(m.subtype is not None),
+                             f"{ch.name} tuple {k} matches a subtype", False),
+                    Constant(f"CH_{up}_M{k}_SUBTYPE", m.subtype or 0, f"{ch.name} tuple {k} AVTP subtype", True),
+                    Constant(f"CH_{up}_M{k}_MSG_MASK", m.msg_mask, f"{ch.name} tuple {k} message types", True)]
         tests = {name: value for name, value, _doc in contract.tests}
         for k in range(contract.max_terms):
             term = ch.terms[k] if k < len(ch.terms) else Term("none", 0, 0, "", "unused")
@@ -476,10 +571,13 @@ def constants(contract: Contract) -> list[Constant]:
            Constant("N_CH", len(contract.channels), "channels", False),
            Constant("INDEX_BITS", contract.index_bits, "ring counter width", False),
            Constant("MAX_TERMS", contract.max_terms, "accept terms per channel", False),
+           Constant("MAX_TUPLES", contract.max_tuples, "match tuples per channel", False),
            Constant("TERM_FIELD_BYTES", TERM_FIELD_BYTES, "bytes a filter term reads", False),
+           Constant("DST_BYTE", contract.dst_byte, "wire byte of the destination MAC's first octet", False),
            Constant("ETHERTYPE_BYTE", contract.ethertype_byte, "wire byte of the EtherType", False),
            Constant("SUBTYPE_BYTE", contract.subtype_byte, "wire byte of the AVTP subtype", False),
            Constant("MSG_TYPE_BYTE", contract.msg_type_byte, "wire byte whose low nibble is message_type", False)]
+    out += [Constant(f"DST_{name.upper()}", value, doc, False) for name, value, doc in contract.dsts]
     out += [Constant(f"TEST_{name.upper()}", value, doc, False) for name, value, doc in contract.tests]
     out += [Constant(f"TMR_OP_{name.upper()}", value, f"TMR_CMD.OP {name}", False)
             for name, value in contract.tmr_ops]

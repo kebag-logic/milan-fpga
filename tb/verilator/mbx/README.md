@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # mbx: the packet-mailbox fabric skeleton, through both bus adapters
 
-`make` builds and runs three things, exit 0 = all green:
+`make` builds and runs four things, exit 0 = all green:
 
 1. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
    `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus);
@@ -9,10 +9,16 @@
    a hard core's bus), then the adapter's own handshake checks
    ([`axil_checks.hpp`](axil_checks.hpp));
 3. `run-cosim`: the control-plane firmware run on the RTL and on the host
-   model, one scenario, compared frame by frame.
+   model, one scenario, compared frame by frame;
+4. `run-if2`: the same checks on the contract elaborated for two AVB
+   interfaces (`gen_mailbox.py --variant-interfaces 2`, written into
+   `obj_if2/gen`, never the tree), through both adapters and on the host
+   model ([`model_main.cpp`](model_main.cpp)), so the own-MAC checks run on
+   two real interfaces.
 
 `make mutants` runs [`mutants.py`](mutants.py), every planted RTL defect in
-its table; the default `make` runs four of them (one per leaf, `--quick`).
+its table; the default `make` runs five of them (one per leaf and one in the
+filter's tuple, `--quick`).
 
 The contract is [`sw/mailbox/mailbox.yaml`](../../../sw/mailbox/mailbox.yaml);
 the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
@@ -22,7 +28,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[The top and the bench](#the-top-and-the-bench)** -- One KL_mbx behind the adapter HOST_P selects, driven a clock at a time through real bus handshakes.
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model; the AXI4-Lite build adds the handshake rules.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
-- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; four run in the default make.
+- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; five run in the default make.
 - **[Run](#run)** -- The two make targets.
 
 ## The top and the bench
@@ -52,6 +58,14 @@ filter table. Register offsets and field positions are the generated
 | R2 | a partial-strobe write is refused, counted in BUS_ERR and raises a sticky ERR; a disabled cause leaves the line low; write-1-to-clear |
 | F0 to F2 | a closed channel stores nothing; ENTITY_DISCOVER for entity_id 0 or this entity passes, whole, byte k in word 2 + k/4 at bits 8*(k%4); foreign, AVAILABLE, DEPARTING and truncated ADPDUs do not; the RX level and the interrupt follow RX_TAIL |
 | C0 to C4 | ACMP by talker or listener entity_id, AECP by target, MAAP range overlap with message types, MSRP and MVRP whole (the MRPDU at byte 14), tagged, foreign and too-short frames nowhere |
+| Q0 | the full tuple (lane FC, [product ownership](../../../REQUIREMENTS.md#1-product-ownership)): one valid frame per table row (ADP, ACMP multicast and own unicast, an AECP command and a response, MAAP multicast and a DEFEND to own unicast, MSRP, MVRP) reaches its channel whole and counts nothing |
+| Q1 to Q5 | each row's frame changed one element at a time: tagged (no ring, no count); to another destination, under another control EtherType, with the unassigned AVTP subtype `0xFD`, or for MSRP and MVRP as AVTP (no ring, counted once each in `FILTER_MISMATCH`); a non-control EtherType (no count); the identity term refused, both AECP directions included (no ring, no count) |
+| Q6 | untagged AAF and CRF, to a stream address, the ADP address and the own MAC, never delivered and counted once each; tagged AAF and CRF counted nothing |
+| Q7 | the CONTROLLER_AVAILABLE response for this controller delivered whole; one for another controller dropped even to this target; every message_type sent both ways: even ones pass on target_entity_id only, odd ones on controller_entity_id only |
+| Q8 | the own MAC per interface: on every interface index the stream can name, each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND only on its own interface, with the record's IF that index, and counts once elsewhere; a MAC differing in its high or low part; a rewritten own MAC |
+| Q9 | `FILTER_MISMATCH` judges the tuple whatever `FILTER_EN` holds, counts five failures as five, and sets `IRQ_STATUS.ERR`; valid, tagged, identity-refused and short frames leave it and ERR alone |
+| Q10 | tuple and identity refusals take no token: a full burst passes after them, the frame past it counts in RATE_DROP |
+| Q11 | the MAAP DEFEND (IEEE 1722-2016 B.2.1): a DEFEND to the own MAC delivered whole and uncounted; a PROBE, an ANNOUNCE and every reserved message_type there, and a DEFEND to a foreign unicast, never delivered and counted once each; a DEFEND to the own MAC for a range beside this entity's dropped uncounted; a multicast DEFEND still delivered; a DEFEND cut at byte 14 (no message_type: counted) and at byte 15 (no range: uncounted), then the next DEFEND delivered |
 | D0, D1 | the ring fills to its last whole record; a frame the space cannot hold, or one over the channel's limit, counts in RX_DROP and never touches an unread record |
 | T0, T1 | the token bucket: a burst of its depth, then one frame per refill period |
 | X0, X1 | TX records leave byte for byte under backpressure, in commit order between channels; a wrong KIND, non-zero reserved bits in word 1, an unknown interface, a short or long LEN, or a payload past TX_HEAD is refused once and flushes the ring |
@@ -78,6 +92,8 @@ master (AW and W together, BREADY and RREADY high) never exercises:
 The host test runs the same `suite.hpp` on the firmware's mailbox model
 ([`sw/firmware/ctrl/test`](../../../sw/firmware/ctrl/README.md), arm
 `model`), so the model and the RTL answer to one set of expectations.
+`run-if2` does the same on two interfaces with the RTL and the model built
+against one generated header.
 
 ## The co-simulation
 
@@ -105,7 +121,7 @@ first as positive controls.
 | `rx-writes-past-free-space` | speculative writes ignore the free space | D0, every unread record survives |
 | `rx-bucket-never-drains` | a commit takes no token | T0, RATE_DROP |
 | `rx-lanes-big-endian` | ring lanes reversed | F1, byte k in word k/4 |
-| `rx-subtype-ignored` | classification ignores the subtype | C0, ACMP by entity_id |
+| `rx-subtype-ignored` | classification ignores the tuple's subtype | C0, ACMP by entity_id |
 | `tx-reserved-word-unchecked` | a non-zero reserved word is sent | X1, counted once |
 | `tx-refusal-no-flush` | a refusal leaves the ring | X1, counted once and flushed |
 | `tx-round-robin` | the merge ignores SEQ: round-robin | X2, 1, 1, 2 |
@@ -127,7 +143,7 @@ first as positive controls.
 | `evt-expires-late` | an expiry one millisecond late | M0, at its deadline |
 | `top-irq-enable-unmasked` | IRQ_ENABLE keeps undefined bits | R1, IRQ_ENABLE mask |
 | `rx-closed-channel-stores` | FILTER_EN ignored | F0, a closed channel stores nothing |
-| `rx-second-ethertype-ignored` | a channel's second EtherType never classifies | C3, MSRP and MVRP |
+| `rx-second-ethertype-ignored` | a channel's second match tuple (MVRP's EtherType and address) never classifies | C3, MSRP and MVRP |
 | `evt-only-exact-deadline` | a deadline already past never expires | M2, at once |
 | `wb-address-shifted` | the Wishbone adapter shifts the address | R0, CAPS |
 | `axil-read-uses-write-address` | the AXI4-Lite adapter reads at AWADDR | R0, CAPS |
@@ -145,11 +161,47 @@ first as positive controls.
 | `rx-tail-unguarded` | no guard on an RX_TAIL out of range | H0, nothing stored |
 | `tx-head-unguarded` | no guard on a TX_HEAD a ring ahead | H1, refused |
 | `evt-tail-unguarded` | no guard on an EVT_TAIL out of range | H2, nothing posted |
+| `rx-tpid-matches-a-tuple` | a C-tag's TPID taken for any tuple's EtherType | Q1, a tagged MSRP frame reaches no ring |
+| `rx-dst-ignored` | the destination MAC never compared | Q2, ADP to another address |
+| `rx-multicast-dst-ignored` | a fixed destination never compared | Q2, MSRP at MVRP's address |
+| `rx-ethertype-ignored` | the tuple's EtherType never compared | Q3, ADP under another control EtherType |
+| `rx-own-any-unicast` | any unicast destination taken for own | Q2, AECP to a foreign unicast |
+| `rx-own-mac-of-interface-0` | interface 0's own MAC used on every interface | Q8, another interface's MAC |
+| `rx-own-mac-low-word-only` | the own MAC compared on MAC[31:0] only | Q8, a MAC differing in MAC[47:32] |
+| `top-own-mac-halves-swapped` | the skeleton hands the filter OWN_MAC's halves in the wrong order | Q0, ACMP own unicast |
+| `top-own-mac-hi-read-from-lo` | OWN_MAC_HI reads OWN_MAC_LO | R1, OWN_MAC masks |
+| `pkg-aecp-command-only` | the AECP response term dropped from the package (F0's command-only rule) | Q7, CONTROLLER_AVAILABLE response |
+| `pkg-aecp-target-term-any-type` | the target term takes any message_type | Q5, a response for another controller |
+| `pkg-aecp-controller-term-any-type` | the controller term takes any message_type | Q5, a command for another target |
+| `rx-mismatch-never-counted` | FILTER_MISMATCH never moves | Q2, counted once |
+| `rx-mismatch-counts-valid` | a frame whose tuple matched counts too | Q0, a valid frame never counts |
+| `rx-mismatch-counts-any-ethertype` | every frame matching no tuple counts, tagged ones included | Q1, a tagged frame counts nothing |
+| `rx-mismatch-counts-identity-refusals` | an identity refusal counts | Q5, a foreign DISCOVER counts nothing |
+| `rx-mismatch-counted-twice` | FILTER_MISMATCH moves by two | Q9, five count five |
+| `rx-mismatch-needs-an-open-channel` | nothing counts while every channel is closed | Q9, AAF with every channel closed |
+| `rx-short-frame-counted` | a frame that ends before byte 14 counts | Q9, the short frame leaves it |
+| `rx-mismatch-sets-no-err` | a mismatch does not set IRQ_STATUS.ERR | Q9, ERR set |
+| `rx-refusal-takes-a-token` | a frame refused by the identity term spends a token | Q10, a full burst after the refusals |
+
+The MAAP DEFEND to own unicast (lane FC round 2) adds seven defects, each
+planted twice, through Wishbone (the name below) and through AXI4-Lite (the
+name with `-axil`), and each caught by Q11 on both:
+
+| Arm | Defect | Caught by |
+|---|---|---|
+| `pkg-maap-defend-tuple-dropped` | the package drops the DEFEND tuple | Q11, a DEFEND to the own MAC delivered |
+| `rx-msg-type-off-by-one` | the tuple's message_type read from byte 14 | Q11, a DEFEND to the own MAC delivered |
+| `rx-classified-before-msg-type` | the channel decided at byte 14, before the message_type arrives | Q11, a DEFEND to the own MAC delivered |
+| `rx-tuple-msg-type-ignored` | the tuple's message types never compared | Q11, a PROBE to the own MAC reaches no ring |
+| `rx-own-unicast-never-counted` | a frame to the own MAC never counts | Q11, a PROBE to the own MAC counted once |
+| `rx-defend-any-unicast` | the DEFEND tuple takes any unicast destination | Q11, a DEFEND to a foreign unicast reaches no ring |
+| `rx-short-frame-never-classified` | a frame that ends at byte 14 is never decided, so the receive path waits | Q11, the DEFEND cut at byte 14 counted once |
 
 ## Run
 
 ```sh
 make -C tb/verilator/mbx
+make -C tb/verilator/mbx run-if2
 make -C tb/verilator/mbx mutants
 ```
 

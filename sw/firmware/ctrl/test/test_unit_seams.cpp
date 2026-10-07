@@ -12,7 +12,9 @@
 //   U2  mbx_open refuses an ID or CAPS word that differs from the contract the
 //       firmware was built against in any one field, and reads nothing more;
 //   U3  ctrl_loop_run turns for ever: a pass, then the wait when it owed
-//       nothing, and again.
+//       nothing, and again;
+//   U4  the app gives the filter the entity's MAC as every interface's own
+//       unicast MAC before a channel opens (lane FC).
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -85,6 +87,36 @@ TEST(AppComposition, U1AnotherContractOpensNothing) {
     const ctrl_app_config cfg = config();
     EXPECT_CALL(hal, write32(_, _)).Times(0);
     EXPECT_FALSE(ctrl_app_start(&app, &cfg)) << "U1 a bitstream carrying another contract is refused, nothing written";
+}
+
+// ADP sends the entity's one MAC on every interface, so the app gives it to
+// the filter as every interface's own unicast MAC, before a channel opens
+// (#665 lane FC).
+TEST(AppComposition, U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens) {
+    static ctrl_app app;
+    NiceMock<MockMbxHal> hal;
+    NiceMock<MockShlanPort> port;
+    unit::Window w(hal);
+    const ctrl_app_config cfg = config();
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg));
+    std::size_t opened = w.writes.size();
+    for (std::size_t k = w.writes.size(); k-- > 0;) {
+        if (w.writes[k].first == MBX_REG_FILTER_EN) {
+            opened = k;
+        }
+    }
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        const std::uint32_t lo = MBX_IFF_BASE + MBX_IFF_STRIDE * i + MBX_IFF_REG_OWN_MAC_LO;
+        const std::uint32_t hi = MBX_IFF_BASE + MBX_IFF_STRIDE * i + MBX_IFF_REG_OWN_MAC_HI;
+        EXPECT_TRUE(w.at(lo) == static_cast<std::uint32_t>(kEntity.mac) &&
+                    w.at(hi) == static_cast<std::uint32_t>(kEntity.mac >> 32))
+            << "U4 interface " << i << "'s OWN_MAC is the entity's MAC";
+        bool before = false;
+        for (std::size_t k = 0; k < opened; ++k) {
+            before = before || w.writes[k].first == hi;
+        }
+        EXPECT_TRUE(before) << "U4 and is written before any channel opens";
+    }
 }
 
 TEST(AppComposition, U1AnUncarvablePoolStartsNothing) {
