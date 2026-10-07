@@ -417,6 +417,11 @@ F0's advertiser checks do not establish this listener timing.
 
 ### Service latency
 
+F2 adds an opt-in [bare-metal MAAP owner](../../sw/firmware/ctrl/maap/README.md).
+Its H-MAAP tests use the FC channel and the existing AAF/CRF CSR allocation output.
+The page records Annex B coverage, per-event work and host timing assumptions.
+The shipping all-fabric placement remains unchanged.
+
 The figures below are F0's conditional mailbox-access evidence.
 [NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
 adds the proposed 10 ms project budget for integrated firmware.
