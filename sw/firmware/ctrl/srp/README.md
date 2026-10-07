@@ -1,0 +1,161 @@
+<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+# Bare-metal MSRP and MVRP
+
+F4 implements SRP on the mailbox using the pinned lwSRP submodule.
+The firmware owns interface identity, static storage, admission and output ports.
+lwSRP owns the MRP parser, Applicant, Registrar and timers.
+The default fabric build and shipping image are unchanged.
+
+## Contents
+
+- **[Composition](#composition)** -- Boot order, allocation and asynchronous ports.
+- **[Protocol commitments](#protocol-commitments)** -- Declarations, timers and output ordering.
+- **[Evidence](#evidence)** -- Host, freestanding, coverage, mutation and timing checks.
+- **[Processor comparison](#processor-comparison)** -- Reused stimuli and normative differences.
+- **[Integration still owed](#integration-still-owed)** -- Application wiring and target release evidence.
+
+## Composition
+
+Generate `srp_entity_gen.h` with `srp_entity.py` from the selected builder config.
+Force-include it in every SRP translation unit; there is no fallback shape.
+The source and sink counts equal the entity's advertised counts, including CRF.
+The shape tests independently compare them with the builder's fabric constants.
+
+Statically allocate `srp_mbx`, `ctrl_pool`, an aligned `SRP_POOL_ARENA_BYTES`
+arena and one `srp_source` array per interface.
+Initialize the pool with `srp_pool_classes`, then bind it with
+`shlan_port_bind_pool` before creating SRP.
+Do not rebind or destroy the pool while any participant owns storage.
+`shlan_printf` uses the existing optional debug sink.
+There is no firmware heap or operating-system dependency.
+
+The pool has two small and two large blocks per interface, plus
+`16 + 3 * sources + 4 * sinks` medium blocks per interface.
+The arena includes conservative allocator overhead for each block.
+Receive-interest filters retain only the Class A Domain, output Listener IDs,
+bound input Talker IDs and required VLANs.
+Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
+Exhaustion is counted and refused; it cannot overwrite another reservation.
+The pool is a finite capacity, not a claim that arbitrary peer churn always fits.
+
+Initialize the adapter with interface MACs, source TSpecs/allocation state,
+link rate, and a licence output callback.
+Call `srp_mbx_attach` before opening the loop's channels.
+Only one adapter may own the library's global centisecond dispatch.
+The fabric's millisecond events feed the loop's accumulated centiseconds;
+coalesced ticks are drained without dropping elapsed time.
+Destroy detaches the adapter, releases all participants and revokes active licences.
+Destroy before reinitializing an already initialized instance.
+
+F3 calls `srp_mbx_bind(interface, sink, identity, destination, VID)` on the loop.
+A null identity removes a binding; false leaves the old binding unchanged.
+Retry after owed transmission commits.
+Shared bindings retain their Listener and VLAN until the final user leaves.
+All ports are serialized. Output callbacks must enqueue work and return;
+they must not synchronously call an input port or advance the loop.
+The adapter asserts on reentry in debug builds and counts/refuses it in release.
+
+## Protocol commitments
+
+Each physical interface has independent MSRP and MVRP participants.
+The adapter accepts the FC SRP mailbox channel's untagged Ethernet records,
+validates destination, EtherType, length and interface, and preserves interface
+identity on transmission. The library validates a whole PDU before applying events.
+
+Every output starts with Talker Advertise or Talker Failed (Milan 5.5.2.7).
+Admission charges Ethernet overhead and a 75% link-rate ceiling.
+Unallocated outputs report insufficient resources; bandwidth failures report
+insufficient bandwidth. A registered Ready or ReadyFailed Listener can enable
+an admitted output only after the applicable MVRP Join commits (Milan 4.3.2).
+A binding declares Ready for a matching Advertise, AskingFailed for a matching
+Failed, and withdraws when its retained registration expires.
+Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
+
+Startup declares Domain class 6, priority 3, VID 2 and MVRP membership in VID 2.
+A valid peer Class A Domain changes the priority and VID; link restart restores
+the defaults. A changed VID is reserved before old declarations are withdrawn.
+A bound sink retains an old VID it still needs.
+
+| Timer | Configured value | Authority |
+|---|---|---|
+| JoinTime | 20 centiseconds | IEEE 802.1Q-2018 10.7.11; Milan Table 4.3 |
+| LeaveTime | 500 centiseconds | Milan Table 4.3 |
+| Periodic | 100 centiseconds | IEEE 802.1Q-2018 10.7.11; Milan Table 4.3 |
+| LeaveAll | Integer draw strictly between 1000 and 1500 centiseconds | IEEE 802.1Q-2018 10.7.11 |
+
+A withdrawal in LV does not restart LeaveTime (#608 and processor #134).
+The original five-second deadline revokes the Talker licence.
+Expiry processing precedes later RX, including a tick still in the event ring.
+A subsequent same-pass registration cannot erase the owed stop notification.
+
+An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
+A refused send retains identical bytes and interface until accepted.
+SRP RX waits behind that owed record; Registrar clocks continue to run.
+A link loss cancels only that interface's owed output and recreates its state.
+
+## Evidence
+
+Run the common firmware gate from the repository root:
+
+```sh
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+```
+
+The gate requires the exact lwSRP gitlink and compiled source bytes.
+The pinned SDK distribution is named `ilp32d`; the cacheless core build uses
+`-march=rv32i -mabi=ilp32`, as required by #679.
+Minimal freestanding headers and ELF/runtime checks prevent hosted-libc leakage.
+Object totals include the library and adapter; compiler stack frames are reported
+separately and do not establish a whole call-chain bound.
+
+GoogleTest/GoogleMock exercise one and two interfaces, every shipped entity shape,
+allocation failures, malformed inputs, declaration changes, reset, reentry,
+backpressure and timer ordering. The adapter has no coverage exclusions.
+`srp_mutants.py` ties each named case to a defect and its failed observable;
+build failures do not count as catches.
+
+The H-SRP desk test timestamps the actual mailbox access path at 100 ns per access.
+It adds one aggregate 1 ms CPU/preemption allowance and 100 ns uncertainty per
+action. It records full elapsed time and subtracts only the applicable normative
+Join wait; periodic and Leave expiry start at their original deadlines.
+All overhead shares the single 10 ms service allowance in
+[FR_NFR 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+An 11 ms full-ring stall deliberately fails that budget predicate without
+restarting the origin when space becomes available.
+These are explicit host-envelope assumptions, not measured target execution or
+wire-departure latency. Target scheduling, ingress, egress and arbitration must
+validate those assumptions and the remaining normative margin before release.
+
+## Processor comparison
+
+`srp_reuse.py` verifies each source blob against the processor gitlink before
+extracting the SRP-top wire builders and stream-FSM Applicant tables.
+`srp_walk.cpp` applies their two-class Domain vector, stream near misses,
+Advertise/Failed replacement, Run-B LeaveAll lanes, Applicant startup/received
+rows, per-interface Listener registration and truncated frames through the
+firmware mailbox. This is a selected wire differential, not an exhaustive walk
+of every processor state. The complete original processor suites run separately.
+
+| Difference | Processor stimulus/expectation | Firmware result and authority |
+|---|---|---|
+| D1 | `srp_stream_fsms` section E expects immediate loss on Talker Lv from IN | Retain in LV until LeaveTime. IEEE 802.1Q-2018 Table 10-4; a later Lv in LV does not reset the timer. The #608 case stops at the original deadline. |
+| D2 | Sections B/E encode Listener withdrawal with FourPackedEvent Ignore (0) | Retain the last declaration subtype on Lv. IEEE 802.1Q-2018 35.2.2.7.2: Ignore is not a Listener declaration to register or withdraw. |
+
+IEEE 802.1Q is the oracle for both differences.
+JoinIn/JoinMt replacing Advertise with Failed or the reverse uses 35.2.6;
+conflicting New registrations retain Failed precedence until replacement/expiry.
+
+## Integration still owed
+
+F3 is absent from the assigned FC base, so `ctrl_app` does not call the binding
+port yet. Application composition must supply the actual generated stream
+configuration, MAAP allocation changes and the existing fabric licence output.
+The desk callback proves output ordering, not a connected target licence register.
+The mailbox SoC skeleton also needs its separate target integration and timing
+validation. No register-map change is made here.
+
+The lwSRP pin is on a local topic stack pending upstream publication and review.
+Its private availability gates hosted fetch and merge, as the assignment states.
+FC integration, two independent reviews, candidate-merge gates and deployment
+remain separate obligations; this lane changes neither shipping ownership nor RTL.

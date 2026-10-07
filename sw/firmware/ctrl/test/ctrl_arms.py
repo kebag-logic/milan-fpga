@@ -5,14 +5,15 @@
 from __future__ import annotations
 
 import re
-import shutil
 import sys
 from pathlib import Path
+from subprocess import CompletedProcess
 
-from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_CANDIDATES, RV32_FLAGS, RV32_LIBC, TB_COMMON,
+from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
                         TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
                         run, sources)
 
+import fw_rv32
 
 def arm_model(tree: Tree) -> Outcome:
     """The RTL's mailbox checks, on the host model."""
@@ -154,17 +155,14 @@ def arm_entity(tree: Tree) -> Outcome:
 # ---- rv32: freestanding RV32I build, no heap and no OS ---------------------------------
 
 def rv32_compiler() -> str | None:
-    """The first RV32 compiler present, the pinned SDK's first."""
-    for cand in RV32_CANDIDATES:
-        found = shutil.which(cand)
-        if found is not None:
-            return found
-    return None
+    """The explicit compiler, or the first available SDK candidate."""
+    return fw_rv32.compiler()
 
 
 def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
-    """The undefined, or the defined, symbols of a set of objects."""
-    res = run([tool, "-u" if undefined else "--defined-only", *map(str, objs)])
+    """Undefined symbols, or definitions capable of resolving external references."""
+    flags = ("-u",) if undefined else ("--extern-only", "--defined-only")
+    res = run([tool, *flags, *map(str, objs)])
     if res.returncode != 0:
         raise Refusal(f"{tool}: {res.stderr.strip()}")
     return {ln.split()[-1] for ln in res.stdout.splitlines() if ln.strip() and not ln.endswith(":")}
@@ -179,25 +177,40 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
         return Outcome("rv32", 0, "  SKIPPED: no RV32 compiler; --require-rv32 refuses instead")
     obj_dir = tree.out / "rv32"
     obj_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        runtime_inc = fw_rv32.includes(cc)
+    except ValueError as exc:
+        raise Refusal(str(exc)) from exc
     objs = []
     for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c",)):
         obj = obj_dir / f"{src.parent.name}_{src.stem}.o"
-        res = run([cc, *RV32_FLAGS, *includes(tree), "-c", str(src), "-o", str(obj)])
+        res = run([cc, *RV32_FLAGS, *runtime_inc, *includes(tree), "-c", str(src), "-o", str(obj)])
         if res.returncode != 0:
             return Outcome("rv32", 1, f"  [FAIL] {src.name} does not build for RV32I:\n{res.stderr}")
         objs.append(obj)
     tool = cc.removesuffix("gcc")
     open_syms = symbols(tool + "nm", objs, True) - symbols(tool + "nm", objs, False)
-    stray = sorted(s for s in open_syms if s not in RV32_LIBC and not s.startswith("__"))
-    size = run([tool + "size", "-t", *map(str, objs)]).stdout.strip().splitlines()
+    stray = sorted(open_syms - RV32_LIBC - fw_rv32.HELPERS)
+    findings = fw_rv32.object_findings(cc, objs)
+    try:
+        frame = fw_rv32.stack_frames(objs)
+    except ValueError as exc:
+        findings.append(str(exc))
+        frame = None
+    measured = run([tool + "size", "-t", *map(str, objs)])
+    if measured.returncode:
+        raise Refusal(f"RV32 size failed: {measured.stderr.strip()}")
+    size = measured.stdout.strip().splitlines()
     lines = [f"  {cc.rsplit('/', 1)[-1]} {' '.join(RV32_FLAGS[:4])}: {len(objs)} objects",
              f"  size (text data bss dec): {' '.join(size[-1].split()[:4]) if size else 'unknown'}",
+             f"  largest static frame: {frame} bytes (not a call-chain bound)",
              f"  undefined: {', '.join(sorted(open_syms))}"]
     if stray:
-        lines.append(f"  [FAIL] symbols outside the C library and libgcc: {', '.join(stray)}")
-    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if stray else 0} ==",
-              f"RESULT: {'FAIL' if stray else 'PASS'}"]
-    return Outcome("rv32", 1 if stray else 0, "\n".join(lines))
+        findings.append(f"symbols outside the C library and libgcc: {', '.join(stray)}")
+    lines += [f"  [FAIL] {finding}" for finding in findings]
+    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if findings else 0} ==",
+              f"RESULT: {'FAIL' if findings else 'PASS'}"]
+    return Outcome("rv32", 1 if findings else 0, "\n".join(lines))
 
 
 # ---- lwsrp: lwSRP's MRP core on the port layer -----------------------------------------
@@ -207,10 +220,10 @@ LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c"
 #: The lwSRP revision port/shlan_port.h is written against (it restates that
 #: revision's src/ports/alloc.h). Fetch it with
 #:     git clone https://github.com/kebag-logic/lwSRP lwSRP
-#:     git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
+#:     git -C lwSRP checkout ef8a28b9f991ad2f6a466b377c25c2f7bcb310da
 #: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
 LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
-LWSRP_REV = "19f5796b63652eb1151906de73cb827d4980a53f"
+LWSRP_REV = "ef8a28b9f991ad2f6a466b377c25c2f7bcb310da"
 #: Every source and header the arm compiles lives under this directory.
 LWSRP_TREE = "src"
 
@@ -221,12 +234,17 @@ def lwsrp_pin(lwsrp: Path) -> str:
     `--no-optional-locks` keeps `git status` from refreshing the index, so a
     read-only checkout is read and never written.
     """
-    head = run(["git", "-C", str(lwsrp), "rev-parse", "HEAD"]).stdout.strip()
+    def checked_git(args: list[str]) -> CompletedProcess[str]:
+        """Check the dependency root before each command in that checkout."""
+        top = run(["git", "-C", str(lwsrp), "rev-parse", "--show-toplevel"])
+        if top.returncode or Path(top.stdout.strip()).resolve() != lwsrp.resolve():
+            raise Refusal("lwSRP is not its own checkout")
+        return run(["git", "--no-optional-locks", "-C", str(lwsrp), *args])
+    head = checked_git(["rev-parse", "HEAD"]).stdout.strip()
     if head != LWSRP_REV:
         raise Refusal(f"lwSRP at {head or 'no git HEAD'} is not the pinned {LWSRP_REV} "
                       f"(fetch {LWSRP_URL} and check the pin out)")
-    dirty = run(["git", "--no-optional-locks", "-C", str(lwsrp), "status", "--porcelain", "--untracked-files=all",
-                 "--", LWSRP_TREE])
+    dirty = checked_git(["status", "--porcelain", "--untracked-files=all", "--", LWSRP_TREE])
     if dirty.returncode != 0 or dirty.stdout.strip():
         changed = ", ".join(ln[3:] for ln in dirty.stdout.splitlines()) or dirty.stderr.strip()
         raise Refusal(f"lwSRP's {LWSRP_TREE}/ differs from the pinned {LWSRP_REV[:8]}: {changed}")

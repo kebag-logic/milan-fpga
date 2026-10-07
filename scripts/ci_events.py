@@ -2341,17 +2341,12 @@ RTL_STEP_LISTS = {
              'python3 syn/yosys/cache_selftest.py',
          )},
     ),
-    # #665 lane FT: the bare-metal firmware's GoogleTest suites, the
-    # saved-state store's RV32 build and the coverage ratchet. The RV32
-    # steps are the docs job's pinned cache and install, placed after the
-    # ctrl gate: that gate's rv32 arm builds against the SDK's C headers
-    # for -mabi=ilp32, which the pinned ilp32d SDK does not carry, so it
-    # runs with no RV32 compiler present and skips that arm by name. lwSRP
-    # is private, so the ctrl gate's opt-in lwsrp arm stays local too.
+    # #665 lanes FT/F4: the pinned SDK precedes the required freestanding
+    # control builds. SRP uses the exact lwSRP submodule and mutation campaign.
     (RTL_FAST, FIRMWARE_UNIT_JOB): (
         {"uses": "actions/checkout@v4"},
         {"name": "Fetch RTL dependencies",
-         "run": RTL_FETCH_SCRIPT},
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP",)},
         {"name": "Install GoogleTest and GoogleMock and print the versions",
          "run": (
              'set -euo pipefail',
@@ -2366,14 +2361,15 @@ RTL_STEP_LISTS = {
          "run": (
              'python3 sw/firmware/gtest/tally_selftest.py',
          )},
-        {"name": "Run the control-plane firmware suites",
-         "run": (
-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py',
-         )},
         {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
          "with": RV32_CACHE_WITH},
         {"name": "Install and verify the pinned RV32 SDK",
          "run": RV32_INSTALL},
+        {"name": "Run the control-plane firmware suites and RV32 builds",
+         "run": (
+             'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
+             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
+         )},
         {"name": "Run the saved-state store suites and its RV32 build",
          "run": (
              'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',

@@ -41,7 +41,8 @@ C_FLAGS = ("-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "-pedantic")
 
 RV32_CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"), "riscv32-unknown-elf-gcc",
                    "riscv64-elf-gcc")
-RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-std=c11", "-Wall",
+RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-fstack-usage",
+              "-Os", "-std=c11", "-Wall",
               "-Wextra", "-Werror", "-pedantic", "-DCTRL_MBX_BASE=0x80000000u")
 #: What a freestanding RV32I build may leave undefined, besides libgcc's `__` helpers.
 RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf"})

@@ -7,7 +7,8 @@ mailbox ([design](../../../docs/design/MAILBOX_SPLIT.md),
 threads: one event loop, static state, and a static pool behind lwSRP's
 allocation port. Lane F0 carries the mailbox driver, the HAL, lwSRP's port
 layer, the loop and the ADP slice; the other protocols follow in F1 to F5,
-each as its own ports-and-adapters module.
+each as its own ports-and-adapters module. F4 adds the
+[SRP adapter](srp/README.md) on the pinned lwSRP dependency.
 
 `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test`
 is the gate: exit 0 = every arm passed and every planted defect was caught.
@@ -34,6 +35,7 @@ is an integration obligation, not a target-time result established here.
 | [`port/`](port) | lwSRP's port layer: `shlan_malloc`/`calloc`/`free` on the static block pool, `shlan_printf` on the debug sink |
 | [`loop/`](loop) | the event loop: events first, bounded passes, the TICK fan-out in slices, sleep only when nothing is owed, the bring-up order, and the latency bound's assumptions |
 | [`adp/`](adp) | the ADP core (no mailbox), its mailbox adapter with the latency bounds, and `adp_entity.py` |
+| [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
 | [`app/`](app) | the static composition a platform starts |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
@@ -57,7 +59,10 @@ hand-rolled checks and the coverage ratchet are described in
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
 | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string and format functions and libgcc helpers |
-| `lwsrp` | `lwsrp_port.cpp` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+| `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+
+The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,
+debug, shape and processor-wire arms at one and two interfaces.
 
 ### Reusing the processor's stimulus
 
@@ -117,18 +122,13 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
 ```
 
 Needs a host C and C++ compiler, GoogleTest and GoogleMock (`libgtest-dev`
-and `libgmock-dev`), PyYAML, and for `rv32` an RV32 compiler for
-`-mabi=ilp32` with its C headers (the CI-pinned SDK of
-`scripts/ci_rv32_sdk.py` is `ilp32d` and carries no `gnu/stubs-ilp32.h`, so
-`firmware-unit` runs this gate with the arm skipped). lwSRP is referenced, never vendored, at the
-revision `ctrl_arms.LWSRP_REV` records,
-`19f5796b63652eb1151906de73cb827d4980a53f`:
+and `libgmock-dev`), PyYAML and the pinned SDK installed by
+`scripts/ci_rv32_sdk.py`. The SDK distribution is `ilp32d`; the freestanding
+core uses RV32I/ILP32 with the shared minimal headers and ELF checks from #679.
+The CI firmware step requires that build and the mutation campaign.
 
-```sh
-git clone https://github.com/kebag-logic/lwSRP lwSRP
-git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
-```
-
-The `lwsrp` arm refuses another HEAD, and a checkout whose `src/` (every
-source and header it compiles) differs from that revision. Moving the pin is
-a reviewed change to `LWSRP_REV`.
+Initialize `third_party/lwSRP` at its recorded gitlink before running the gate.
+An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
+`ef8a28b9f991ad2f6a466b377c25c2f7bcb310da`, with every compiled source unchanged.
+Moving either pin requires a reviewed change. The local upstream topic stack
+must be published before a clean remote checkout can fetch this revision.

@@ -1,0 +1,463 @@
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""One named observable must reject each planted SRP defect; compile errors do not count."""
+from dataclasses import dataclass
+from pathlib import Path
+import shutil
+from ctrl_build import CTRL, Tree, Refusal, Outcome
+import fw_gtest
+from srp_arms import arm_srp
+def caught(test: str, needle: str, outcome: Outcome) -> bool:
+    """Match the named FT failure and its complete GoogleTest diagnostic.
+
+    FT repeats the last diagnostic line; equality diagnostics put the
+    expression on earlier lines. Only that failure block may satisfy it.
+    """
+    if outcome.rc != 1:
+        return False
+    for line in outcome.log.splitlines():
+        if line.strip().startswith("[FAIL] "+test+":"):
+            end=outcome.log.index(line)
+            start=outcome.log.rfind("Failure\n",0,end)
+            diagnostic=outcome.log[start:end] if start>=0 else line
+            if needle in diagnostic or needle in line:
+                return True
+    return False
+
+
+@dataclass(frozen=True)
+class Defect:
+    """A source mutation and the independently named observable it must fail."""
+
+    name: str
+    test: str
+    old: str
+    new: str
+    needle: str
+    path: str = "srp/srp_mbx.c"
+    suite: str = "srp_mbx.cpp"
+    debug: bool = False
+
+DEFECTS = (
+    Defect(
+        name='startup-vid',
+        test='StartupDeclaresTalkersDomainAndVlan',
+        old='{6,3,2}',
+        new='{6,3,7}',
+        needle='d.value',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='short-leave',
+        test='LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline',
+        old='i->msrp,0,20,500,1000',
+        new='i->msrp,0,20,400,1000',
+        needle='Unexpected mock function call',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='asking-is-ready',
+        test='RegisteredListenerSubtypeChangeRevokesPermission',
+        old='v[8] == 2 || v[8] == 3',
+        new='v[8] == 1 || v[8] == 2 || v[8] == 3',
+        needle='adapter.ifs[0].active[0]',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='ignore-link',
+        test='InterfaceStateDoesNotCross',
+        old='if (i->link && !link)',
+        new='if (i->link && !link && false)',
+        needle='adapter.ifs[i].active[0]',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='failed-listener-ready',
+        test='SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer',
+        old='sink->desired = 1;',
+        new='sink->desired = 2;',
+        needle='declared',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='ignore-peer-domain',
+        test='DomainUsesPeerPriorityAndVlan',
+        old='i->next_domain = *value;',
+        new='i->next_domain = i->domain;',
+        needle='domain.priority',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='rx-overtakes-owed',
+        test='RefusedMailboxRetainsOwedFrameAndDefersInput',
+        old='return m->owed_len == 0 &&',
+        new='return',
+        needle='adapter.received',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='rx-overtakes-expiry',
+        test='ExpiryBacklogPrecedesSamePassReceive',
+        old='m->loop->ticks_owed == 0 &&',
+        new='true &&',
+        needle='adapter.stops',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='reentry-uncounted',
+        test='ReentryFromOutputIsRefusedAndCounted',
+        old='++m->reentries;',
+        new='(void)m;',
+        needle='adapter.reentries',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='invalid-vid',
+        test='InvalidBindingsAndDuplicateBindingsPreserveState',
+        old='vid == 0 || vid >= 4095',
+        new='vid >= 4095',
+        needle='srp_mbx_bind',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='failed-init-leaks',
+        test='ExhaustionDuringEachStartupStageReleasesEveryBlock',
+        old='++m->refused;\n            srp_mbx_destroy(m);',
+        new='++m->refused;',
+        needle='ctrl_pool_in_use',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='missing-port-accepted',
+        test='MissingBootDependenciesRefuseBeforeAttachment',
+        old='!config->licence || !shlan_port_pool()',
+        new='!shlan_port_pool()',
+        needle='srp_mbx_init',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='attach-nonatomic',
+        test='AttachmentFailureIsAtomicAndDetachesAfterLoopReset',
+        old='loop->n_polls < CTRL_LOOP_MAX_POLLS &&',
+        new='true &&',
+        needle='srp_mbx_attach',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='malformed-uncounted',
+        test='InvalidFramesHaveNoReservationSideEffects',
+        old='++m->malformed;\n    } else',
+        new='(void)m;\n    } else',
+        needle='adapter.malformed',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='reset-skips-recreate',
+        test='ExhaustedPoolStillReusesOwnedBlocksOnLinkReset',
+        old='(void)open_interface(i);',
+        new='(void)i;',
+        needle='crashed on signal',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='readyfailed-ignored',
+        test='ReadyFailedAndUninterestingStreamsAreSeparated',
+        old='v[8] == 2 || v[8] == 3',
+        new='v[8] == 2',
+        needle='Actual function call count',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='foreign-domain-stored',
+        test='DomainFilterAndDuplicateDoNotGrowDeclarations',
+        old='d->class_id == 6 &&',
+        new='d->class_id > 0 &&',
+        needle='ctrl_pool_in_use',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='foreign-vlan-stored',
+        test='MvrpAcceptsOnlyCurrentDomainVid',
+        old='if (vid == i->domain.vid)',
+        new='if (vid != 0)',
+        needle='ctrl_pool_in_use',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='sink-da-ignored',
+        test='WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt',
+        old='memcmp(sink->dest_mac,v->dest_mac,6) == 0 &&',
+        new='true &&',
+        needle='declared',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='admission-ceiling-ignored',
+        test='AdmissionUsesBandwidthAndEthernetMinimum',
+        old='used + slope <= (uint64_t)m->config.link_rate_bps * 3u / 4u',
+        new='used + slope <= (uint64_t)m->config.link_rate_bps * 1000u',
+        needle='admitted[0]',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='domain-refusal-lost',
+        test='DomainExhaustionPreservesOldDeclarationUntilRetry',
+        old='if (mvrp_declare(i->mvrp,0,i->next_domain.vid) != 0)',
+        new='if (mvrp_declare(i->mvrp,0,i->next_domain.vid) == 99)',
+        needle='domain.vid',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='listener-refusal-lost',
+        test='SinkDeclarationExhaustionRetriesWithoutLosingBinding',
+        old='if (result == 0)',
+        new='if (result != 99)',
+        needle='declared',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='other-link-cancels-owed',
+        test='LinkLossCancelsItsOwedFrameOnly',
+        old='m->owed_len && m->owed_if == n',
+        new='m->owed_len && m->owed_if != n',
+        needle='adapter.owed_len',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='duplicate-tick-owner',
+        test='OneLoopOwnsTheGlobalCentisecondDispatch',
+        old='!m->loop && !timer_owner &&',
+        new='!m->loop &&',
+        needle='srp_mbx_attach',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=False,
+    ),
+    Defect(
+        name='binding-debug-guard',
+        test='SynchronousBindingFromOutputAsserts',
+        old='assert(!m->busy);',
+        new='(void)m;',
+        needle='failed to die',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=True,
+    ),
+    Defect(
+        name='receive-debug-guard',
+        test='SynchronousReceiveFromOutputAsserts',
+        old='assert(!m->busy);',
+        new='(void)m;',
+        needle='failed to die',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=True,
+    ),
+    Defect(
+        name='tick-debug-guard',
+        test='SynchronousTickFromOutputAsserts',
+        old='assert(!m->busy);',
+        new='(void)m;',
+        needle='failed to die',
+        path='srp/srp_mbx.c',
+        suite='srp_mbx.cpp',
+        debug=True,
+    ),
+    Defect(
+        name='licence-before-vlan',
+        test='ListenerBeforeVlanCommitCannotStartTalker',
+        old='link && i->vlan_sent &&',
+        new='link &&',
+        needle='joined',
+    ),
+    Defect(
+        name='unbind-shared-listener',
+        test='SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind',
+        old='if (!another_sink(i,sink,s,true))',
+        new='if (true)',
+        needle='d.event',
+    ),
+    Defect(
+        name='withdraw-bound-domain',
+        test='BoundOldDomainVlanSurvivesDomainChange',
+        old=' && !another_sink(i,CTRL_SRP_SINKS,&old_vlan,false)',
+        new=' && (old_vlan.vid != 0)',
+        needle='d.event',
+    ),
+    Defect(
+        name='withdraw-same-domain',
+        test='PriorityOnlyDomainChangeKeepsVlanMembership',
+        old='i->domain.vid != i->next_domain.vid && !another_sink',
+        new='i->domain.vid != 0 && !another_sink',
+        needle='d.event',
+    ),
+    Defect(
+        name='sink-vlan-refusal-lost',
+        test='SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent',
+        old='if (mvrp_declare(i->mvrp,0,s->vid) != 0)',
+        new='if (mvrp_declare(i->mvrp,0,s->vid) == 99)',
+        needle='vlan_requested',
+    ),
+    Defect(
+        name='ready-before-vlan',
+        test='SinkMembershipCommitsBeforeReadyAtStartup',
+        old='if (s->desired == 2 && !s->vlan_sent)',
+        new='if (s->desired == 2 && false)',
+        needle='joined',
+    ),
+    Defect(
+        name='latency-missing-startup',
+        test='SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget',
+        old='if (i->link) {',
+        new='if (i->link && false) {',
+        needle='commits.size()',
+        suite='srp_latency.cpp',
+    ),
+    Defect(
+        name='latency-domain-unserviced',
+        test='SrpLatency.ReceiveStateMalformedDomainAndListenerPaths',
+        old='i->next_domain = *value;',
+        new='i->next_domain = i->domain;',
+        needle='domain.vid',
+        suite='srp_latency.cpp',
+    ),
+    Defect(
+        name='latency-leave-origin',
+        test='SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog',
+        old='i->msrp,0,20,500,1000',
+        new='i->msrp,0,20,400,1000',
+        needle='Unexpected mock function call',
+        suite='srp_latency.cpp',
+    ),
+    Defect(
+        name='latency-relaxed-budget',
+        test='SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails',
+        old='10000000',
+        new='20000000',
+        needle='service_limit',
+        suite='srp_latency.cpp',
+        path='test/srp_latency_policy.hpp',
+    ),
+    Defect(
+        name='walk-domain-ignored',
+        test='SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA',
+        old='i->next_domain = *value;',
+        new='i->next_domain = i->domain;',
+        needle='domain.vid',
+        suite='srp_walk.cpp',
+    ),
+    Defect(
+        name='walk-match-da-ignored',
+        test='SrpWalk.StreamMatcherNearMissSwapAndDelayedWithdrawal',
+        old='memcmp(sink->dest_mac,v->dest_mac,6) == 0 &&',
+        new='true &&',
+        needle='declared',
+        suite='srp_walk.cpp',
+    ),
+    Defect(
+        name='walk-leave-shortened',
+        test='SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener',
+        old='i->msrp,0,20,500,1000',
+        new='i->msrp,0,20,400,1000',
+        needle='Unexpected mock function call',
+        suite='srp_walk.cpp',
+    ),
+    Defect(
+        name='walk-startup-is-join',
+        test='SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire',
+        old='&value,true) != 0',
+        new='&value,false) != 0',
+        needle='d.event',
+        suite='srp_walk.cpp',
+    ),
+    Defect(
+        name='walk-malformed-uncounted',
+        test='SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput',
+        old='++m->malformed;\n    } else',
+        new='(void)m;\n    } else',
+        needle='adapter.malformed',
+        suite='srp_walk.cpp',
+    ),
+    Defect(
+        name='shape-last-output-missing',
+        test='EveryGeneratedOutputIsDeclaredAndEverySinkFits',
+        old='unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {\n        struct msrp_talker_failed',
+        new='unsigned n = 0; n + 1 < CTRL_SRP_SOURCES; ++n) {\n        struct msrp_talker_failed',
+        needle='outputs',
+        suite='srp_shape.cpp',
+    ),
+)
+
+def campaign(root: Path, lwsrp: Path, jobs: int = 4) -> bool:
+    """Run every mutation in a reusable isolated checkout; true means a failure."""
+    build=fw_gtest.Build(jobs=jobs)
+    failed=False
+    root.mkdir(parents=True,exist_ok=True)
+    for d in DEFECTS:
+        out=root/"work"
+        src=out/"ctrl"
+        shutil.copytree(CTRL,src,dirs_exist_ok=True,ignore=shutil.ignore_patterns("__pycache__","*.pyc"))
+        target=src/d.path
+        source=target.read_text()
+        if source.count(d.old)!=1:
+            raise Refusal(f"SRP defect {d.name} has {source.count(d.old)} planting sites")
+        target.write_text(source.replace(d.old,d.new))
+        selected=d.test if "." in d.test else "Srp."+d.test
+        try:
+            result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,2,
+                           debug=d.debug,test=(d.suite, selected))
+            ok=caught(selected,d.needle,result)
+            (root/(d.name+".log")).write_text(result.log)
+            print(f"[{'ok' if ok else 'ESCAPED'}] {d.name}: {d.test} / {d.needle}",flush=True)
+            if not ok: print(result.log,flush=True)
+        except Refusal as error:
+            ok=False
+            print(f"[ESCAPED] {d.name}: {error}",flush=True)
+        failed |= not ok
+    shutil.rmtree(root/"work")
+    return failed

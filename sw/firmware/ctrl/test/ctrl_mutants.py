@@ -437,7 +437,7 @@ MUTANTS = (
 
 def plant(m: Mutant, root: Path) -> Path:
     """A copy of the firmware tree with the mutant written into it."""
-    copy = root / m.name / "ctrl"
+    copy = root / "work" / "ctrl"
     if copy.exists():
         shutil.rmtree(copy)
     shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"))
@@ -495,17 +495,18 @@ def lwsrp_pin_arms(root: Path, lwsrp: Path) -> int:
     return escaped
 
 
-def campaign(root: Path, reuse: Path) -> bool:
+def campaign(root: Path, reuse: Path, jobs: int = 4) -> bool:
     """Plant every mutant; True when one escaped. One build serves every
     copy, so a test object is compiled again only where a planted header
-    changes what it sees."""
+    changes what it sees. A stable isolated path preserves compiler cache keys;
+    every plant first restores pristine source bytes."""
     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
-    build = fw_gtest.Build()
+    build = fw_gtest.Build(jobs=jobs)
     escaped = 0
     for m in MUTANTS:
-        tree = Tree(plant(m, root), root / m.name / "build", reuse, build)
+        tree = Tree(plant(m, root), root / "work" / "build", reuse, build)
         missed = []
         fails: list[str] = []
         for arm, test, needle in m.kills():
@@ -521,6 +522,6 @@ def campaign(root: Path, reuse: Path) -> bool:
         if fails:
             print(f"    first: {fails[0]}")
         escaped += 0 if not missed else 1
-        shutil.rmtree(root / m.name, ignore_errors=True)
+    shutil.rmtree(root / "work", ignore_errors=True)
     print(f"mutants: {len(MUTANTS) - escaped} of {len(MUTANTS)} caught")
     return escaped != 0

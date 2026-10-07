@@ -236,13 +236,10 @@ jobs:
   # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
   # are the distribution's packages, and the install step prints the
   # versions and the compiler and gcov the ratchet is measured with.
-  # Three arms stay local gates, each named where it is left out: the ctrl
-  # gate runs before the RV32 SDK is installed, so its rv32 arm is SKIPPED,
-  # visibly (it builds against the SDK's C headers for -mabi=ilp32, which
-  # the pinned ilp32d SDK does not carry: no gnu/stubs-ilp32.h); the ctrl
-  # gate's lwsrp arm is opt-in (--lwsrp) and lwSRP is a private repository
-  # this workflow's token cannot read (the ratchet reads the same with and
-  # without it); and both gates' planted-defect campaigns (--self-test).
+  # F4 requires the exact lwSRP submodule and the freestanding RV32 control
+  # build after SDK installation, plus the control mutation campaign. The
+  # private dependency must become fetchable before this lane can merge.
+  # The saved-state and tally mutation campaigns remain additional local gates.
   firmware-unit:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -251,7 +248,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
 
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |
@@ -266,9 +263,6 @@ jobs:
       - name: Prove the tally reads a failing and a crashing test as failures
         run: python3 sw/firmware/gtest/tally_selftest.py
 
-      - name: Run the control-plane firmware suites
-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
-
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
@@ -279,6 +273,11 @@ jobs:
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Run the control-plane firmware suites and RV32 builds
+        run: |
+          python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
 
       - name: Run the saved-state store suites and its RV32 build
         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"

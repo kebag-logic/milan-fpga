@@ -2252,8 +2252,10 @@ syn/yosys/run.sh --mode elaborate --no-structural \
 ```
 
 The bare-metal firmware's host suites run locally as `firmware-unit` runs
-them, and their planted-defect campaigns, which no hosted job runs, are added
-with `--self-test`, and the tally listener's with `--mutants`
+them. F4 fetches the pinned lwSRP submodule and installs the pinned SDK before
+the required RV32 control build and its `--self-test` mutation campaign.
+The saved-state campaign remains a local `--self-test` addition, and the
+tally listener's campaign uses `--mutants`
 ([the harness page](../../sw/firmware/gtest/README.md#run)):
 
 ```sh
