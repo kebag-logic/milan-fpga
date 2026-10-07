@@ -1,0 +1,20 @@
+Note: Google Test filter = Srp.ProbeRapid*:Srp.ProbeLeaveTime*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Srp
+[ RUN      ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted
+PROBE rapid-leave held=47 malformed+0 received+1 active_after_lv=0
+PROBE rapid-leave after-release active=0 revoked_after_ms=0
+[       OK ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted (0 ms)
+[ RUN      ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted
+PROBE leavetime held=47 active_after_deadline=0 stops=1
+PROBE leavetime after-release active=0
+[       OK ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 2 tests.
+== reviewer exhaustion probe: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)

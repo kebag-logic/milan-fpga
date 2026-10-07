@@ -1,0 +1,42 @@
+Note: Google Test filter = Srp.ProbeDomainFlood*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ProbeDomainFloodThenRapidListenerLeave
+$REVIEWS/665f4-r532-5-packet/scratch/root-head/sw/firmware/ctrl/test/srp_exhaustion_probe.cpp:61: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(0, 0, false)
+         Expected: to be called at most once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Srp.ProbeDomainFloodThenRapidListenerLeave:            Actual: called twice - over-saturated and active
+$REVIEWS/665f4-r532-5-packet/scratch/root-head/sw/firmware/ctrl/test/srp_exhaustion_probe.cpp:62: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(0, 0, true)
+         Expected: to be called at most once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Srp.ProbeDomainFloodThenRapidListenerLeave:            Actual: called twice - over-saturated and active
+PROBE flood values=60 pushed=60 pool_refused=3179 adapter_refused+3141 domain_vid=24 active_before_lv=1
+$REVIEWS/665f4-r532-5-packet/scratch/root-head/sw/firmware/ctrl/test/srp_exhaustion_probe.cpp:61: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(0, 0, false)
+         Expected: to be called at most once
+           Actual: called 3 times - over-saturated and active
+
+  [FAIL] Srp.ProbeDomainFloodThenRapidListenerLeave:            Actual: called 3 times - over-saturated and active
+PROBE flood lv_pushed=1 malformed+0 active_after_lv=0
+PROBE flood +3s active=0
+[  FAILED  ] Srp.ProbeDomainFloodThenRapidListenerLeave (15 ms)
+[----------] 1 test from Srp (15 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (15 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ProbeDomainFloodThenRapidListenerLeave
+
+ 1 FAILED TEST
+== reviewer exhaustion probe: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

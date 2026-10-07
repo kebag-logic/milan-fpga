@@ -1,0 +1,11 @@
+rc=1 ifs=1 rev=a4cbe41d filter=Srp.ProbeRapid*:Srp.ProbeLeaveTime*
+== reviewer exhaustion probe: checks: 2   failures: 2 ==
+RESULT: FAIL
+  [FAIL] Srp.ProbeRapidListenerLeaveWhilePoolExhausted: Listener Lv must revoke the Talker licence
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted (2 ms)
+  [FAIL] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted: LeaveTime expiry must revoke the Talker licence
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted (0 ms)
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted
+ 2 FAILED TESTS

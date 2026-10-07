@@ -1,0 +1,23 @@
+rc=1 ifs=1 rev=a4cbe41d filter=*
+== ctrl SRP mailbox: checks: 53   failures: 4 ==
+RESULT: FAIL
+  [FAIL] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry: Expected: (adapter.refused) > (0u), actual: 0 vs 0
+  [FAIL] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry: Expected: true
+  [FAIL] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry:     Which is: 3
+[  FAILED  ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry (0 ms)
+  [FAIL] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding: Expected: (adapter.refused) > (0u), actual: 0 vs 0
+  [FAIL] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding:     Which is: 2
+[  FAILED  ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding (0 ms)
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent: Expected: (adapter.refused) > (0u), actual: 0 vs 0
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent:     Which is: 2
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent: Expected: true
+[  FAILED  ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent (0 ms)
+  [FAIL] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart: Expected: true
+  [FAIL] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart:     Which is: 0
+[  FAILED  ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart (0 ms)
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry
+[  FAILED  ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding
+[  FAILED  ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+[  FAILED  ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+ 4 FAILED TESTS

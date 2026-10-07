@@ -1,0 +1,14 @@
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-exh-new-if2/srp-srp_exhaustion_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-exh-new-if2/srp-srp_exhaustion_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-exh-new-if2/srp-srp_exhaustion_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 rev=a4cbe41d filter=Srp.ProbeRapid*:Srp.ProbeLeaveTime*
+== reviewer exhaustion probe: checks: 2   failures: 2 ==
+RESULT: FAIL
+  [FAIL] Srp.ProbeRapidListenerLeaveWhilePoolExhausted: Listener Lv must revoke the Talker licence
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted (3 ms)
+  [FAIL] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted: LeaveTime expiry must revoke the Talker licence
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted (1 ms)
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted
+ 2 FAILED TESTS

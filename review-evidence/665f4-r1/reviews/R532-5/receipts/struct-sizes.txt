@@ -1,0 +1,43 @@
+pin=old host:
+  sz_attr_inst 144
+  sz_priv_one_port 216
+pin=old rv32-ilp32:
+pin=new host:
+  sz_attr_inst 208
+  sz_map_work 64
+  sz_priv_one_port 240
+pin=new rv32-ilp32:
+pin=old rv32-ilp32:
+  sz_attr_inst 112
+  sz_priv_one_port 124
+pin=new rv32-ilp32:
+  sz_attr_inst 176
+  sz_map_work 64
+  sz_priv_one_port 136
+--- second pass (adds app/ops/priv header) ---
+pin=old rv32-ilp32:
+  sz_app 8
+  sz_app_ops 64
+  sz_attr_inst 112
+  sz_priv_header 20
+  sz_priv_one_port 124
+pin=old host-x86_64:
+  sz_app 16
+  sz_app_ops 120
+  sz_attr_inst 144
+  sz_priv_header 40
+  sz_priv_one_port 216
+pin=new rv32-ilp32:
+  sz_app 8
+  sz_app_ops 64
+  sz_attr_inst 176
+  sz_map_work 64
+  sz_priv_header 24
+  sz_priv_one_port 136
+pin=new host-x86_64:
+  sz_app 16
+  sz_app_ops 120
+  sz_attr_inst 208
+  sz_map_work 64
+  sz_priv_header 48
+  sz_priv_one_port 240

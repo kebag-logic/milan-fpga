@@ -1,0 +1,11 @@
+rc=0 0s :: python3 docs/diagrams/submodule_boundaries.gen.py --check :: submodule diagram: OK (5 exact gitlinks, decoded PNG)
+rc=0 1s :: python3 scripts/check_submodule_docs.py :: submodule documentation: OK (5 exact gitlinks)
+rc=0 0s :: python3 scripts/check_diagram_pngs.py :: diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0 1s :: python3 scripts/check_doc_paths.py :: doc path gate: OK (937 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0 0s :: python3 scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+rc=0 5s :: python3 scripts/gen_toc.py --check :: TOC gate: OK (139 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0 3s :: python3 scripts/check_em_dash.py --base 6f7deea15a9160761b30aaa93fe152f20d416695 :: check_em_dash: 0 finding(s) over 22 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6f7deea1..HEAD]
+rc=0 2s :: python3 scripts/check_cpp_idiom.py ::   build without warnings: 0 <= 0
+rc=0 4s :: python3 scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 1s :: python3 scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 1021 file(s))
+rc=0 0s :: git diff --check 6f7deea15a9160761b30aaa93fe152f20d416695 500b8f64443777685e6a54049d933476710d26f0 :: 

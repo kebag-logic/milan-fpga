@@ -1,0 +1,39 @@
+Note: Google Test filter = Srp.ProbeRapid*:Srp.ProbeLeaveTime*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Srp
+[ RUN      ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted
+PROBE rapid-leave held=23 malformed+1 received+0 active_after_lv=1
+$REVIEWS/665f4-r532-5-packet/scratch/root-head/sw/firmware/ctrl/test/srp_exhaustion_probe.cpp:28: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+Listener Lv must revoke the Talker licence
+
+  [FAIL] Srp.ProbeRapidListenerLeaveWhilePoolExhausted: Listener Lv must revoke the Talker licence
+PROBE rapid-leave after-release active=0 revoked_after_ms=19700
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted (2 ms)
+[ RUN      ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted
+PROBE leavetime held=23 active_after_deadline=1 stops=0
+$REVIEWS/665f4-r532-5-packet/scratch/root-head/sw/firmware/ctrl/test/srp_exhaustion_probe.cpp:46: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+LeaveTime expiry must revoke the Talker licence
+
+  [FAIL] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted: LeaveTime expiry must revoke the Talker licence
+PROBE leavetime after-release active=0
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted (0 ms)
+[----------] 2 tests from Srp (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted
+
+ 2 FAILED TESTS
+== reviewer exhaustion probe: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

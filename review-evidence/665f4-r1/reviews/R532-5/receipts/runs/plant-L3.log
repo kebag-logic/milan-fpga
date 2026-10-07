@@ -1,0 +1,19 @@
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-L3/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-L3/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-L3/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 rev=c68c391c filter=*
+== ctrl SRP mailbox: checks: 53   failures: 2 ==
+RESULT: FAIL
+  [FAIL] Srp.InListenerWithdrawalRevokesLicenceImmediately: Expected: false
+  [FAIL] Srp.InListenerWithdrawalRevokesLicenceImmediately: Expected: false
+  [FAIL] Srp.InListenerWithdrawalRevokesLicenceImmediately:     Which is: 2
+[  FAILED  ] Srp.InListenerWithdrawalRevokesLicenceImmediately (0 ms)
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener:     Which is: 0
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener: Expected: true
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener:     Which is: 0
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener: Expected: true
+[  FAILED  ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener (0 ms)
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+[  FAILED  ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+ 2 FAILED TESTS

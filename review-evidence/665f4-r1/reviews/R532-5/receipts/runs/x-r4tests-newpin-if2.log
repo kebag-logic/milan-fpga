@@ -1,0 +1,26 @@
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-r4tests-new-if2/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-r4tests-new-if2/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-5-packet/scratch/out-r4tests-new-if2/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 rev=a4cbe41d filter=*
+== ctrl SRP mailbox: checks: 53   failures: 4 ==
+RESULT: FAIL
+  [FAIL] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry: Expected: (adapter.refused) > (0u), actual: 0 vs 0
+  [FAIL] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry: Expected: true
+  [FAIL] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry:     Which is: 3
+[  FAILED  ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry (0 ms)
+  [FAIL] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding: Expected: (adapter.refused) > (0u), actual: 0 vs 0
+  [FAIL] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding:     Which is: 2
+[  FAILED  ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding (0 ms)
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent: Expected: (adapter.refused) > (0u), actual: 0 vs 0
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent:     Which is: 2
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent: Expected: true
+[  FAILED  ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent (0 ms)
+  [FAIL] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart: Expected: true
+  [FAIL] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart:     Which is: 0
+[  FAILED  ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart (0 ms)
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry
+[  FAILED  ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding
+[  FAILED  ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+[  FAILED  ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+ 4 FAILED TESTS
