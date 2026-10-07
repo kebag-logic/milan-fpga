@@ -1,0 +1,4 @@
+flowchart LR
+    Declare[Local declaration] --> Pending[Pending state]
+    Pending -.-> Assembly[Missing transmit assembly]
+    Assembly -.-> Frame[Missing frame transport]

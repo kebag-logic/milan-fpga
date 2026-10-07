@@ -1,0 +1,25 @@
+Rendered PR #5 body (API html body) href targets and their resolution against the PR page https://github.com/kebag-logic/lwSRP/pull/5
+ABSOLUTE https://github.com/kebag-logic/lwSRP/issues/1 -> https://github.com/kebag-logic/lwSRP/issues/1
+RELATIVE doc/manager.md#implementation-status -> https://github.com/kebag-logic/lwSRP/pull/doc/manager.md#implementation-status
+ABSOLUTE https://github.com/kebag-logic/lwSRP/issues/6 -> https://github.com/kebag-logic/lwSRP/issues/6
+ABSOLUTE https://github.com/kebag-logic/lwSRP/issues/7 -> https://github.com/kebag-logic/lwSRP/issues/7
+RELATIVE doc/tester.md#coverage -> https://github.com/kebag-logic/lwSRP/pull/doc/tester.md#coverage
+ABSOLUTE https://github.com/kebag-logic/lwSRP/issues/4 -> https://github.com/kebag-logic/lwSRP/issues/4
+RELATIVE doc/developer.md#data-structures -> https://github.com/kebag-logic/lwSRP/pull/doc/developer.md#data-structures
+RELATIVE doc/architecture.md#test-layout -> https://github.com/kebag-logic/lwSRP/pull/doc/architecture.md#test-layout
+RELATIVE doc/tools/check_references.py -> https://github.com/kebag-logic/lwSRP/pull/doc/tools/check_references.py
+RELATIVE doc/tools/check_sentences.py -> https://github.com/kebag-logic/lwSRP/pull/doc/tools/check_sentences.py
+RELATIVE doc/tools/check_references.py -> https://github.com/kebag-logic/lwSRP/pull/doc/tools/check_references.py
+RELATIVE doc/tools/check_links.py -> https://github.com/kebag-logic/lwSRP/pull/doc/tools/check_links.py
+ABSOLUTE https://www.iso.org/standard/57853.html -> https://www.iso.org/standard/57853.html
+RELATIVE doc/tools/render_mermaid.py -> https://github.com/kebag-logic/lwSRP/pull/doc/tools/render_mermaid.py
+RELATIVE doc/tester.md#run-the-suites -> https://github.com/kebag-logic/lwSRP/pull/doc/tester.md#run-the-suites
+RELATIVE LICENSE -> https://github.com/kebag-logic/lwSRP/pull/LICENSE
+RELATIVE NOTICE -> https://github.com/kebag-logic/lwSRP/pull/NOTICE
+ABSOLUTE https://www.iso.org/standard/57853.html -> https://www.iso.org/standard/57853.html
+--- route check on a public repository (same URL shape, anonymous)
+302 https://github.com/cgreen-devs/cgreen/pull/doc/README.md
+404 https://github.com/cgreen-devs/cgreen/pull/LICENSE
+200 https://github.com/cgreen-devs/cgreen/blob/master/LICENSE
+200 final=https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fcgreen-devs%2Fcgreen%2Fpull%2Fnew%2Fdoc%252FREADME.md
+note: the relative /pull/<path> form does not reach the file; it redirects to a sign-in page for a new pull request (above) or answers 404.

@@ -1,0 +1,6 @@
+flowchart TD
+    Identity[Define identity] --> Codec[Encode and decode]
+    Codec --> Indicate[Handle indications]
+    Indicate --> Policy[Choose propagation]
+    Policy --> Create[Create application]
+    Create --> Verify[Exercise events]

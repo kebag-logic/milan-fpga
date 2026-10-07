@@ -1,0 +1,7 @@
+flowchart TD
+    Payload[MRP payload] --> Parse[Parse vectors]
+    Parse --> Decode[Decode value]
+    Decode --> State[Apply event]
+    State --> Notify[Notify host]
+    Notify --> Policy[Choose propagation ports]
+    Policy --> Declare[Declare on target ports]

@@ -1,0 +1,17 @@
+baseline rc=0
+plant 1 rc=1 text=[Use a C11 compiler.] hits=[FAIL README.md:60: unlinked standard: C11;]
+plant 2 rc=1 text=[Use a `C11` compiler.] hits=[FAIL README.md:60: unlinked standard: C11;]
+plant 3 rc=1 text=[| C language | Requires C11. |] hits=[FAIL README.md:60: unlinked standard: C11;]
+plant 4 rc=1 text=[Build with C17 or C2x.] hits=[FAIL README.md:60: unlinked standard: C17;FAIL README.md:60: unlinked standard: C2x;]
+plant 5 rc=1 text=[Follow ISO/IEC 9899:2011.] hits=[FAIL README.md:60: unlinked standard: ISO/IEC;]
+plant 6 rc=1 text=[Follow POSIX timers.] hits=[FAIL README.md:60: unlinked standard: POSIX;]
+plant 7 rc=1 text=[Use C++17 bindings.] hits=[FAIL README.md:60: unlinked standard: C++17;]
+plant 8 rc=1 text=[Requires IEEE 802.1Q.] hits=[FAIL README.md:60: unlinked standard: IEEE;FAIL README.md:60: unlinked standard: 802.1Q.;]
+plant 9 rc=1 text=[See clause 10.7.5.20.] hits=[FAIL README.md:60: unlinked clause: clause 10.7.5.20;]
+plant 10 rc=1 text=[See Table 8-1.] hits=[FAIL README.md:60: unlinked table: Table 8-1;]
+plant 11 rc=1 text=[See issue #7.] hits=[FAIL README.md:60: unlinked issue: issue #7;]
+plant 12 rc=1 text=[Track #6.] hits=[FAIL README.md:60: unlinked issue: #6;]
+plant 13 rc=1 text=[Edit Kconfig.zephyr.] hits=[FAIL README.md:60: unlinked file: Kconfig.zephyr;]
+plant 14 rc=1 text=[Call mrp_rx.] hits=[FAIL README.md:60: unlinked function: mrp_rx;]
+plant 15 rc=1 text=[Use the SPDX comment.] hits=[FAIL README.md:60: unlinked standard: SPDX;]
+restored rc=0

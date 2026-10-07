@@ -1,0 +1,6 @@
+flowchart TD
+    Host[Host application] --> Apps[VLAN / MAC / stream applications]
+    Apps --> Core[MRP state and codec]
+    Core --> Ports[Allocation and timers]
+    Host --> Switch[Switch interface]
+    Switch --> Sim[Port simulation]

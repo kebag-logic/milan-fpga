@@ -1,0 +1,9 @@
+stateDiagram-v2
+    [*] --> MT: Begin
+    MT --> IN: rNew or rJoin
+    IN --> IN: rNew
+    IN --> LV: rLv or rLA
+    LV --> IN: rNew or rJoin
+    LV --> MT: leave timer
+    IN --> MT: Flush
+    LV --> MT: Flush

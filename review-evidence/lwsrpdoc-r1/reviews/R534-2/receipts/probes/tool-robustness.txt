@@ -1,0 +1,29 @@
+== render output inside checkout
+render_mermaid.py: error: Render output must be outside the checkout
+rc=2
+ls: cannot access 'doc/tmp-graphs': No such file or directory
+== link check --github-auth in non-git snapshot
+check_links.py: error: Command '['git', 'remote', 'get-url', 'origin']' returned non-zero exit status 128.
+rc=2
+== mutually exclusive options
+check_links.py: error: --local-only and --github-auth are mutually exclusive
+rc=2
+== self-test from another cwd
+Reference self-test: 79 cases; failures: 0
+rc=0
+== unclosed fence in snapshot
+ValueError: README.md:60: unclosed fence
+rc=1
+== planted over-25-word sentence
+FAIL README.md:60: 26 words: This sentence is deliberately written to contain far more than twenty five words so that the sentence checker must report it as a failure for review.
+Sentences/fragments: 761; over limit: 1; prose exceptions: 0
+rc=1
+== planted 16-node graph
+FAIL README.md:60: 16 nodes; expected 1 through 15
+Graphs: 23; failures: 1
+rc=1
+== planted broken relative link and bad line range
+FAIL README.md:60: doc/missing.md: missing target
+FAIL README.md:60: src/core/mrp_mad.c#L1-L99999: invalid line range
+Local links: 292; external URLs: 18; failures: 10
+rc=1

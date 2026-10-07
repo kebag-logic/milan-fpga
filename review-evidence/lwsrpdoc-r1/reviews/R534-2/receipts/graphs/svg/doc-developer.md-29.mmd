@@ -1,0 +1,10 @@
+flowchart TD
+    App[Application handle] --> Ops[Copied callbacks]
+    Ops --> Context[Borrowed host context]
+    App --> Private[Private state]
+    Private --> Port[Port array]
+    Port --> List[Attribute list]
+    Port --> Timers[Port timers]
+    List --> Value[Value and identity]
+    List --> Machines[Applicant and Registrar]
+    List --> Leave[Leave timer]

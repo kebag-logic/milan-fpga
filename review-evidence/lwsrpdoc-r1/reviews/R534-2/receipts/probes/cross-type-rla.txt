@@ -1,0 +1,9 @@
+talker JoinIn rc=0
+  after-talker type=1 appl=AO reg=IN
+listener JoinIn (no LeaveAll) rc=0
+  control type=3 appl=AO reg=IN
+  control type=1 appl=AO reg=IN
+listener LeaveAll (no values) rc=0
+  after-listener-LA type=3 appl=LO reg=LV
+  after-listener-LA type=1 appl=LO reg=LV
+rc=0

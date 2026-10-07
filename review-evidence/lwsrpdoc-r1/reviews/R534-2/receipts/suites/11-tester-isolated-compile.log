@@ -1,0 +1,8 @@
+$ cc -std=c11 -Isrc/include tests/unit/mrp_pdu_test.c src/core/mrp_pdu.c -xc - -lcgreen -o build/mrp_pdu_tests <<'C'
+#include <cgreen/cgreen.h>
+TestSuite *mrp_pdu_suite(void);
+int main(void)
+{
+    return run_test_suite(mrp_pdu_suite(), create_text_reporter());
+}
+C
