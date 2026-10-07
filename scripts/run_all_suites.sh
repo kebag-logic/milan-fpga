@@ -36,7 +36,8 @@
 #
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
-#                        Defaults: 1800 s; milan_dp gets 3600 s and the
+#                        Defaults: 1800 s; capture_coherence gets 2400 s,
+#                        milan_dp_mclk 3600 s, milan_dp 4800 s and the
 #                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
@@ -237,14 +238,17 @@ acquire_lock() {
 
 #! Declared per-suite defaults; an explicit caller override retains its meaning.
 #! The CI runner contract pins every budget and each named suite.
-#! milan_dp (#387, decision 5820240308): hosted window 2459.9 s at a21cd358,
-#! with a 1296-2460 s spread on 2026-09-24. The 3600 s budget leaves
-#! 1140.1 s (31.7% of the budget); CI_WORKFLOWS.md cites the samples.
+#! #673, decision 6015726285: capture_coherence passed in 1642.280 s,
+#! milan_dp in 3509.562 s; milan_dp_mclk timed out at 1800.008 s.
+#! The new limits leave >=10% in each hosted shard's measured job envelope.
+#! CI_WORKFLOWS.md records the samples and per-shard arithmetic.
 suite_timeout() {
   case "$1" in
-    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
-    milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
-    *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
+    capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
+    milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
+    milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
+    milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+    *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
 }
 

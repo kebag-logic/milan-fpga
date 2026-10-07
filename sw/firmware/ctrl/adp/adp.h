@@ -11,8 +11,9 @@
 // provides (struct adp_ports): sending a frame, one timer per interface, the
 // gPTP grandmaster and domain, the link level and a seed. The mailbox adapter
 // (adp_mbx.h) is one implementation of those ports; the unit tests' fake is
-// another. The core allocates nothing, reaches no global, and every call
-// returns after a bounded number of steps.
+// another. The core allocates nothing, and every call returns after a
+// bounded number of steps. Its only shared state is the port-call guard
+// and diagnostic count described below.
 //
 //   * ENTITY_AVAILABLE on its schedule (5.6.3.5.2, 5.6.3.5.3, 5.6.3.5.5,
 //     5.6.3.5.9): a random TMR_DELAY, the frame, then TMR_ADVERTISE (5 s),
@@ -126,6 +127,21 @@ struct adp_entity {
 	uint16_t identify_control_index;
 };
 
+// NO SYNCHRONOUS CALLBACKS (#678). Every port returns before the single
+// bare-metal event loop delivers an expiry, frame or other core input.
+// This includes zero-delay timers, TX, link, gPTP and seed calls. Ports
+// must not call any ADP entry point, on any instance, while being called
+// by the core. Nor may an interrupt dispatch the core during a port call.
+// F2 to F5 use the same rule for their protocol ports.
+//
+// A shared flag brackets each port call, including adp_build's gPTP read.
+// Every core entry checks it before touching arguments, even adp_init.
+// Debug/test builds (NDEBUG absent) assert on a violation. Release builds
+// (NDEBUG defined) ignore the call and increment adp_reentry_count modulo
+// 2^32. A refused adp_poll returns false; adp_build leaves its output alone.
+// Initialization does not reset this lifetime diagnostic. This guard is
+// for one event loop, not a lock for concurrent callers.
+//
 // The ports the core calls. Every pointer is required; `ctx` is passed back.
 struct adp_ports {
 	void *ctx;
@@ -134,6 +150,7 @@ struct adp_ports {
 	bool (*send)(void *ctx, unsigned interface, const uint8_t *frame, size_t len);
 	// Start (or restart, replacing) the interface's one timer; it calls
 	// adp_timer_expired once, delay_ms later, unless stopped or restarted.
+	// Even delay_ms == 0 is delivered by a later event-loop dispatch.
 	void (*timer_start)(void *ctx, unsigned interface, uint32_t delay_ms);
 	void (*timer_stop)(void *ctx, unsigned interface);
 	// The gPTP grandmaster identity and domain of the interface, now.
@@ -191,6 +208,10 @@ bool adp_poll(struct adp *a);
 
 // The ADPDU this instance would send now, built into frame[ADP_FRAME_BYTES].
 void adp_build(const struct adp *a, uint8_t message_type, uint32_t available_index, uint8_t *frame);
+
+// Ignored port callbacks across all instances, counted since boot. Read
+// from the event loop; a port's re-entrant read is itself counted.
+uint32_t adp_reentry_count(void);
 
 #ifdef __cplusplus
 }

@@ -231,7 +231,7 @@ jobs:
 
   # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
   # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at
-  # every shipped shape, the saved-state store's RV32 build, the tally
+  # every shipped shape, both freestanding RV32 object builds, the tally
   # listener's planted failure and crash, and the coverage ratchet with its
   # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
   # are the distribution's packages, and the install step prints the
@@ -276,6 +276,7 @@ jobs:
 
       - name: Run the control-plane firmware suites and RV32 builds
         run: |
+          set -euo pipefail
           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
           python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
 

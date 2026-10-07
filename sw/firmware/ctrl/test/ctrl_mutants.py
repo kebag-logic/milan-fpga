@@ -80,6 +80,19 @@ APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n")
     "\tshlan_port_bind_pool(&app->pool);\n"
 
 MUTANTS = (
+    Mutant("reentry-guard-removed", "adp/adp.c",
+           "\tassert(!port_active);\n\tif (port_active) {",
+           "\tif (port_active && false) {",
+           "reentry_debug", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry asserts",
+           (("reentry_debug", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry asserts"),
+            ("reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
+            ("reentry_release", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry is counted"))),
+    Mutant("reentry-uncounted", "adp/adp.c", "\t\treentry_count++;\n", "",
+           "reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
+    Mutant("reentry-not-ignored", "adp/adp.c", "\t\treentry_count++;\n\t\treturn true;",
+           "\t\treentry_count++;\n\t\treturn false;",
+           "reentry_release", "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/",
+           "callback leaves core state unchanged"),
     Mutant("departing-keeps-index", "adp/adp.c",
            "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
            "\tuint32_t index = a->available_index;\n", "walk", "Table551/AdpWalkCell.Graded/", "available_index"),
@@ -502,7 +515,8 @@ def campaign(root: Path, reuse: Path, jobs: int = 4) -> bool:
     every plant first restores pristine source bytes."""
     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
-            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
+            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
+            "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
     build = fw_gtest.Build(jobs=jobs)
     escaped = 0
     for m in MUTANTS:

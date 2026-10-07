@@ -14,6 +14,9 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            driver and the event loop (test_port_loop.cpp);
   adp      the ADP core over fake ports, the adapter's tag race and every
            response path's service-latency bound (test_adp.cpp);
+  reentry_debug, reentry_release
+           synchronous callbacks from every port to every entry, on the same
+           instance and another, asserting or counted and ignored respectively;
   unit     the firmware's own seams on GoogleMock: the mailbox window
            (mbx_hal.h) and lwSRP's port layer (shlan_port.h) under the app's
            composition, the driver's contract and refusals, the adapter's
@@ -30,8 +33,10 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            (the builder's ADP shape include) and the processor's
            ADP_ENTITY_CAPS_C;
   rv32     the portable set and the MMIO platform cross-compiled freestanding
-           for RV32I with the pinned SDK, every undefined symbol a C-library
-           string or format function or a libgcc helper (no heap, no OS);
+           for RV32I with the pinned SDK and isolated freestanding headers;
+           every undefined symbol a named runtime interface (string, format
+           or assertion) or arithmetic helper, with ELF ABI and static-frame
+           checks (no heap, no OS);
   lwsrp    lwSRP's own MRP core on the port layer and
            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
@@ -63,6 +68,7 @@ Exit 0 = every arm passed and every planted defect reddened; 1 = a finding;
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -85,7 +91,8 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
     try:
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
-                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree)]
+                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree),
+                    ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
         if lwsrp is not None:
             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
         for i in (1, 2):
@@ -106,6 +113,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--lwsrp", type=Path, default=CTRL.parents[2] / "third_party/lwSRP",
                     help="an exact pinned lwSRP checkout (default: the submodule)")
     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
+    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel compilation")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
     ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
@@ -121,7 +129,8 @@ def main(argv: list[str] | None = None) -> int:
             cut_reuse(tree.reuse)
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
-                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32)]
+                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
                 for i in (1, 2):

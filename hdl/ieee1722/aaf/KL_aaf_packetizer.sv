@@ -268,6 +268,10 @@ module KL_aaf_packetizer #(
   logic [2:0] nsamp_r  [N_TALKERS_P];   //! samples accumulated in wr bank
   logic       wbank_r  [N_TALKERS_P];   //! bank being filled
   logic       pend_r   [N_TALKERS_P];   //! !wbank full, awaiting emission
+  //! After enable, wait for pair zero before collecting a sample frame.
+  //! Otherwise its last pair advances nsamp without capturing TCTX w4.
+  //! IEEE 1722-2016 7.5 requires the first sample's presentation time.
+  logic       started_r [N_TALKERS_P]; //! first pair accepted since enable
 
   //! channels_per_frame flop mirror of TCTX w0.chans (clamped even 2..8;
   //! reset 2 = the byte-identical stereo default, t0 included). Snoops the
@@ -312,6 +316,7 @@ module KL_aaf_packetizer #(
   //! still-pending frame (the old MVP frame_pend drop, per bank; blocking
   //! only the bank-completing pair keeps channel alignment slot-structural)
   wire pair_ok_w = pair_valid_i && pown_v_w && stream_en_i[pown_t_w] &&
+                   (started_r[pown_t_w] || pown_o_w == '0) &&
                    !(pend_r[pown_t_w] && own_last_w &&
                      (32'(nsamp_r[pown_t_w]) == SAMPLES_PER_FRAME_C - 1));
 
@@ -583,6 +588,7 @@ module KL_aaf_packetizer #(
         nsamp_r[t] <= '0;
         wbank_r[t] <= 1'b0;
         pend_r[t]  <= 1'b0;
+        started_r[t] <= 1'b0;
         //! the build constant IS the wire: reset every talker to the
         //! channels_per_frame this fabric emits (WIRE_CHANS_P, default 2 =
         //! the historical 4'd2 literal, byte for byte)
@@ -706,6 +712,7 @@ module KL_aaf_packetizer #(
       // ---- pair capture / bank swap (after the FSM so a same-cycle
       //      new-epoch pend set wins over the drain clear) ----------------
       if (pair_ok_w) begin
+        started_r[pown_t_w] <= 1'b1;
         //! the sample row advances on its LAST channel pair; the bank swap
         //! on the last row's last pair (channel position is slot-addressed,
         //! so drops can only repeat a row, never skew channels)
@@ -732,6 +739,7 @@ module KL_aaf_packetizer #(
       //! disabled stream: clear its accumulation (flat-talker semantics)
       for (int t = 0; t < N_TALKERS_P; t++) begin
         if (!stream_en_i[t]) begin
+          started_r[t] <= 1'b0;
           nsamp_r[t] <= '0;
           pend_r[t]  <= 1'b0;
         end

@@ -2367,6 +2367,7 @@ RTL_STEP_LISTS = {
          "run": RV32_INSTALL},
         {"name": "Run the control-plane firmware suites and RV32 builds",
          "run": (
+             'set -euo pipefail',
              'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
              'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
          )},
@@ -7761,14 +7762,15 @@ def _rv32_sdk_arms() -> list[Arm]:
                      _m_step_key_any(path, jid, "ci_rv32_sdk.py", "if", False),
                      "(`Install and verify the pinned RV32 SDK`)"))
         if path == RTL_FAST:
-            # #665 lane FT: the store's gate skips its RV32 arm visibly
-            # without a compiler; only --require-rv32 makes that a refusal.
-            store = "Run the saved-state store suites and its RV32 build"
-            suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == store)
-            arms.append((f"RV32 {jid} allows a stood-down compiler",
-                         _m_step_key_any(path, jid, "test_ctrl_nvm.py", "run",
-                                         "\n".join(suites["run"]).replace(" --require-rv32", "")),
-                         f"(`{store}`) script is not the canonical form"))
+            # Each missing compiler must refuse, never silently skip a build.
+            for script, label in (("test_ctrl_firmware.py", "control-plane firmware"),
+                                  ("test_ctrl_nvm.py", "saved-state store")):
+                step_name = f"Run the {label} suites and its RV32 build"
+                suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
+                arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
+                             _m_step_key_any(path, jid, script, "run",
+                                             "\n".join(suites["run"]).replace(" --require-rv32", "")),
+                             f"(`{step_name}`) script is not the canonical form"))
             continue
         builder_name = "End-station builder gates" if path == DOCS else "Elaboration gates"
         arms.append((f"RV32 {jid} allows a stood-down compiler",

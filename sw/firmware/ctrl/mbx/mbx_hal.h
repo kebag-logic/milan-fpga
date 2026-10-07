@@ -21,6 +21,12 @@
 // The Verilator suite tb/verilator/mbx answers the same three calls with
 // cycle-accurate bus transactions on the RTL.
 
+// No synchronous callbacks (#678): a port must return before any core
+// input is dispatched by the single bare-metal event loop. A port never
+// calls back into a protocol core or the store, including on zero-delay
+// timer arms or TX completion. Interrupts defer dispatch to the loop.
+// F2 to F5 inherit this rule for every protocol port.
+
 #ifndef MBX_HAL_H
 #define MBX_HAL_H
 

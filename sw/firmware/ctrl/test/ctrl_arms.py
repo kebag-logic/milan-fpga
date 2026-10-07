@@ -12,6 +12,7 @@ from subprocess import CompletedProcess
 from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
                         TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
                         run, sources)
+import fw_rv32
 
 import fw_rv32
 
@@ -32,6 +33,28 @@ def arm_adp(tree: Tree) -> Outcome:
     """The ADP core, its adapter and the latency bounds."""
     objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ("test_adp.cpp",), "adp/tests")
     return execute("adp", link(tree, "test_adp", objs))
+
+
+def reentry(tree: Tree, release: bool) -> Outcome:
+    """The same violating ports against assertions and release refusal."""
+    tag = "reentry_release" if release else "reentry_debug"
+    flags = ("-DNDEBUG",) if release else ("-UNDEBUG",)
+    tests = ("-DADP_TEST_RELEASE",) if release else ()
+    if tree.build.coverage:
+        tests += ("-DADP_TEST_COVERAGE",)
+    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), tag, flags)
+    objs += compile_tests(tree, ("test_adp_reentry.cpp",), f"{tag}/tests", tests)
+    return execute(tag, link(tree, f"test_{tag}", objs))
+
+
+def arm_reentry_debug(tree: Tree) -> Outcome:
+    """Debug/test assertion on a synchronous callback."""
+    return reentry(tree, False)
+
+
+def arm_reentry_release(tree: Tree) -> Outcome:
+    """Release count and ignore, with the outer transition preserved."""
+    return reentry(tree, True)
 
 
 def arm_unit(tree: Tree) -> Outcome:

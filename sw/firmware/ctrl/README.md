@@ -23,7 +23,7 @@ is an integration obligation, not a target-time result established here.
 ## Contents
 
 - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, the app, the MMIO platform, the host model, the tests.
-- **[The host test](#the-host-test)** -- The seven arms, how the processor's ADP stimulus is cut from the pinned submodule and walked, and the planted defects.
+- **[The host test](#the-host-test)** -- The ten arms, how the processor's ADP stimulus is cut from the pinned submodule and walked, and the planted defects.
 - **[Run](#run)** -- The three invocations and what each needs.
 
 ## Layout
@@ -56,9 +56,10 @@ hand-rolled checks and the coverage ratchet are described in
 | `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included, and the own MAC the filter matches with the FILTER_MISMATCH it counts), the loop's order (every interface's own MAC before a channel opens), bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
 | `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the entity's MAC as every interface's own MAC, the contract check field by field, the driver's refusals and bounds, each interface's own MAC block and the FILTER_MISMATCH read, the adapter's slot, interface and loop-room refusals, and the MMIO platform over a host window |
 | `adp` | `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
+| `reentry_debug`, `reentry_release` | `test_adp_reentry.cpp` | Every port/core entry pair, same and cross instance; both inline-expiry regressions. Assertions in debug, counted refusal in release. |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
 | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
-| `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string and format functions and libgcc helpers |
+| `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
 | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
 
 The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,
@@ -121,11 +122,15 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
 ```
 
-Needs a host C and C++ compiler, GoogleTest and GoogleMock (`libgtest-dev`
-and `libgmock-dev`), PyYAML and the pinned SDK installed by
-`scripts/ci_rv32_sdk.py`. The SDK distribution is `ilp32d`; the freestanding
-core uses RV32I/ILP32 with the shared minimal headers and ELF checks from #679.
-The CI firmware step requires that build and the mutation campaign.
+Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML.
+RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
+Both firmware gates require RV32 in `firmware-unit`.
+Freestanding declarations avoid the SDK's hosted C headers.
+GCC supplies its own freestanding integer and varargs headers.
+`MILAN_RV32_CC` selects an explicit compiler for local validation.
+See [the harness](../gtest/README.md#rv32-object-builds) for evidence limits.
+The SDK distribution is `ilp32d`; the core uses RV32I/ILP32.
+The CI firmware step also requires the control mutation campaign.
 
 Initialize `third_party/lwSRP` at its recorded gitlink before running the gate.
 An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently

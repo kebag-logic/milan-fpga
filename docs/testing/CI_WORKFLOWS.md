@@ -42,19 +42,17 @@ pull-request update and on every push to `dev`. It produces one stable
 - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
   (#665), when RTL or its tooling changes: the GoogleTest suites of
   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
-  saved-state store's RV32 build, the tally listener's planted failure and
+  two freestanding RV32 object builds, the tally listener's planted failure and
   crash, and the line and branch coverage ratchet with its planted cases
   ([the harness page](../../sw/firmware/gtest/README.md)). GoogleTest and
   GoogleMock are the runner distribution's `libgtest-dev` and
   `libgmock-dev`; the job prints the versions it installed and the gcc and
   gcov the ratchet is measured with. The RV32 SDK is the docs job's pinned
-  cache and install. Three arms stay local gates (see
-  [Local commands](#local-commands)), and the job names each:
-  - the ctrl gate's `rv32` arm. It builds against the SDK's C headers with
-    `-mabi=ilp32`, and the pinned SDK is `ilp32d` with no
-    `gnu/stubs-ilp32.h`, at the base this job was added on as well. The
-    ctrl gate therefore runs before the SDK is installed and reports that
-    arm SKIPPED.
+  cache and install. It precedes both required RV32 arms.
+  Their freestanding headers exclude the SDK's hosted C library.
+  The RV32 self-test plants header, ABI, and runtime-dependency defects.
+  These builds report objects and frames, not linked-image bounds.
+  Two groups stay local (see [Local commands](#local-commands)):
   - the ctrl gate's opt-in `lwsrp` arm. lwSRP is a private repository the
     workflow's token cannot read; the ratchet reads the same with and
     without that arm.
@@ -193,10 +191,56 @@ margin sets each named entry:
 
 | Suite | Budget | Basis |
 |---|---|---|
-| every other default suite | 1800 s | original hosted basis: at most 548 s |
+| every other default suite | 1800 s | retained; #673's near-limit survey appears below |
 | `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
-| `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
+| `capture_coherence` | 2400 s | hosted PASS 1642.280 s; 757.720 s remains (31.6%) |
+| `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
+| `milan_dp` | 4800 s | hosted PASS 3509.562 s; 1290.438 s remains (26.9%) |
 | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+
+[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285)
+authorizes those three increases within existing shard envelopes.
+The survey covers ten hosted runs on 2026-10-06.
+Its endpoints are `37420502040` and `37457223191`.
+Available logs provide 425 completed suite windows.
+Seven active jobs withheld logs; one run skipped suites.
+These windows include tally overhead between adjacent verdicts.
+Timeout windows establish cutoffs, never successful completion bounds.
+
+| Suite above 60% | Largest window | Previous limit | Usage | Run / job |
+|---|---|---|---|---|
+| `capture_coherence` | 1642.280 s PASS | 1800 s | 91.24% | [37429204551 / 112155955445](https://github.com/kebag-logic/milan-fpga/actions/runs/37429204551/job/112155955445) |
+| `milan_dp` | 3509.562 s PASS | 3600 s | 97.49% | [37424768281 / 112142195163](https://github.com/kebag-logic/milan-fpga/actions/runs/37424768281/job/112142195163) |
+| `milan_dp_mclk` | 1800.008 s TIMEOUT | 1800 s | 100.00% | [37430728685 / 112160880744](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880744) |
+| `milan_dp_render` | 1285.710 s PASS | 1800 s | 71.43% | [37429204551 / 112155955318](https://github.com/kebag-logic/milan-fpga/actions/runs/37429204551/job/112155955318) |
+| `mmcm_servo` | 1147.315 s PASS | 1800 s | 63.74% | [37430728685 / 112160880744](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880744) |
+| `pp_shadow` | 1201.263 s PASS | 1800 s | 66.74% | [37424768281 / 112142195196](https://github.com/kebag-logic/milan-fpga/actions/runs/37424768281/job/112142195196) |
+| `milan_dp_gptp` | 5400.003 s TIMEOUT | 5400 s | 100.00% | [37430728685 / 112160880673](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880673) |
+
+The largest completed `milan_dp_mclk` window was 1084.530 seconds.
+It came from run `37424768281`, job `112142195210`.
+The three default suites exceeding 80% receive increases.
+The remaining default suites retain their limits.
+The ruling assigns `milan_dp_gptp` scheduling to a follow-up.
+
+Each envelope substitutes new limits for changed suites.
+It adds each sibling's largest observed window independently.
+Job overhead equals total job time minus suite windows.
+The largest observed overhead is added for each shard.
+This includes setup, preflights, tally, upload, and cleanup.
+Every affected shard remains below 6480 seconds: 90% utilization.
+
+| Shard | New limit | Sibling maxima sum | Maximum overhead | Envelope | Remaining / 7200 s |
+|---|---|---|---|---|---|
+| 1/5 | 2400 s | 3381.779 s | 117.580 s | 5899.359 s | 1300.641 s / 18.06% |
+| 2/5 | 3600 s | 2517.453 s | 86.448 s | 6203.901 s | 996.099 s / 13.83% |
+| 4/5 | 4800 s | 0 s | 89.438 s | 4889.438 s | 2310.562 s / 32.09% |
+
+Overhead maxima come from jobs `112142195196`, `112155955407`, and `112142195163`.
+No requested limit needs trimming under this measured envelope.
+These samples cannot bound future runner or cache-miss delays.
+Checks, campaigns, shard assignments, and job timeouts remain unchanged.
+An explicit `SUITE_TIMEOUT` still overrides every selected suite's limit.
 
 PR #563's first head timed out during servo mutations.
 
@@ -238,11 +282,11 @@ The PR samples build candidate merges onto dev `57456af9`.
 The day's observed spread was 1296-2460 s.
 The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
 That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
-The new budget leaves 1140.1 s: 31.7%, approximately 32%.
+That historical budget left 1140.1 s: 31.7%, approximately 32%.
 These historical samples do not measure the corrected candidate.
 The five default gmstep controls remain in `run` (#602).
 The additional controls stay in the explicit `gmstep-mutants` campaign.
-The hosted shards allow 120 minutes, accommodating this one-hour deadline.
+The hosted shards allow 120 minutes; #673's envelopes appear above.
 If later exact-head margin falls below 10%, split further.
 
 The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
