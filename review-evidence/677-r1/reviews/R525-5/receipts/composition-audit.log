@@ -1,0 +1,46 @@
+argv: ["python3", "$REVIEWS/677-r525-5-packet/scripts/composition_audit.py"]
+PR paths: 30 predecessor paths: 37
+Overlap: [
+  "sw/firmware/ctrl/README.md",
+  "sw/firmware/ctrl/mbx/mbx.h",
+  "sw/firmware/ctrl/test/ctrl_mutants.py",
+  "sw/firmware/gtest/README.md",
+  "sw/firmware/gtest/coverage.ratchet"
+]
+All unshared entries preserve their owning source blob and mode.
+Raw three-way merge exactly retained: sw/firmware/ctrl/README.md
+Raw three-way merge exactly retained: sw/firmware/ctrl/mbx/mbx.h
+Raw three-way merge exactly retained: sw/firmware/ctrl/test/ctrl_mutants.py
+Raw three-way merge exactly retained: sw/firmware/gtest/README.md
+Raw three-way merge exactly retained: sw/firmware/gtest/coverage.ratchet
+Mutation inventories: {"910f338db": 76, "64e62816ad21791f6df3657fadb935aec5555881": 97, "708e5634f28e6e5a19236a9b0a9a543c3622e52d": 79, "33b311f5213f1fb8b47916ace9b8d872538a90e4": 100}
+Source-only mutations: ['reentry-guard-removed', 'reentry-not-ignored', 'reentry-uncounted']
+Predecessor-only mutations: ['app-own-mac-not-the-entity-mac', 'mismatch-read-from-bus-err', 'model-aecp-command-only', 'model-defend-any-unicast', 'model-ethertype-ignored', 'model-mismatch-counts-identity-refusals', 'model-mismatch-never-counted', 'model-mismatch-sets-no-err', 'model-msg-type-off-by-one', 'model-msg-type-refusal-uncounted', 'model-multicast-dst-ignored', 'model-own-any-unicast', 'model-own-mac-hi-dropped', 'model-own-mac-of-interface-0', 'model-subtype-ignored', 'model-tag-stripped', 'model-tpid-matches-a-tuple', 'model-tuple-msg-type-ignored', 'own-mac-after-the-channels-open', 'own-mac-halves-swapped', 'own-mac-unguarded']
+Every mutation definition from both parents survives exactly.
+Ratchet: sw/firmware/ctrl/adp/adp.c lines 204/204  branches 95/95
+Ratchet: sw/firmware/ctrl/adp/adp_mbx.c lines 83/83  branches 38/38
+Ratchet: sw/firmware/ctrl/app/ctrl_app.c lines 14/14  branches 8/8
+Ratchet: sw/firmware/ctrl/loop/ctrl_loop.c lines 95/95  branches 56/56
+Ratchet: sw/firmware/ctrl/mbx/mbx.c lines 173/173  branches 62/62
+Ratchet: sw/firmware/ctrl/mbx/mbx_wire.h lines 15/15  branches 12/12
+Ratchet: sw/firmware/ctrl/plat/mbx_plat_mmio.c lines 10/10  branches 0/0
+Ratchet: sw/firmware/ctrl/port/ctrl_debug.c lines 19/19  branches 6/6
+Ratchet: sw/firmware/ctrl/port/ctrl_pool.c lines 99/99  branches 60/60
+Ratchet: sw/firmware/ctrl/port/shlan_port.c lines 22/22  branches 6/6
+Ratchet: sw/firmware/ctrl/wire/wire.h lines 10/10  branches 2/2
+Ratchet: sw/firmware/ctrl_nvm/nvm_klj2.c lines 198/198  branches 106/106
+Ratchet: sw/firmware/ctrl_nvm/nvm_store.c lines 434/434  branches 259/259
+Ratchet: sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c lines 100/100  branches 63/63
+Unchanged from reviewed source: .github/workflows
+Unchanged from reviewed source: scripts/ci_events.py
+Unchanged from reviewed source: scripts/ci_scope.py
+Unchanged from reviewed source: scripts/ci_rv32_sdk.py
+Unchanged from reviewed source: scripts/run_all_suites.sh
+Unchanged from reviewed source: sw/firmware/gtest/fw_rv32.py
+Unchanged from reviewed source: sw/firmware/gtest/rv32_include/assert.h
+Unchanged from predecessor: hdl
+Unchanged from predecessor: protocol-processor
+Unchanged from predecessor: gptp-processor
+Unchanged from predecessor: third_party/verilog-axis
+Unchanged from predecessor: sw/mailbox
+PASS composition retention and inventories

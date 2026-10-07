@@ -1,0 +1,27 @@
+Note: Google Test filter = *.codec_erased_loaded_prefix:*.codec_erased_loaded_prefix/*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmCodec
+[ RUN      ] NvmCodec.codec_erased_loaded_prefix
+$REVIEWS/r525-5-677/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp:37: Failure
+Expected equality of these values:
+  nvm_klj2_check_body(prefix.get(), (40u + (((((8u + (2u)) + (8u + (8u)) + 0x1u * (8u + (4u)) + 0x1u * ((8u + (2u)) + (8u + (66u))) + 0x2u * ((8u + (20u)) + (8u + (8u))) + 0x2u * ((8u + (8u)) + (8u + (4u)))) + ((((0) < (0x1u)) ? (8u + (8u * (0x8u))) : 0u) + (((1) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((2) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((3) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((4) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((5) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((6) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((7) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((8) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((9) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((10) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((11) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((12) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((13) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((14) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((15) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u)) + ((((0) < (0x1u)) ? (8u + (8u * (0x11u))) : 0u) + (((1) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((2) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((3) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((4) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((5) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((6) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((7) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((8) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((9) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((10) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((11) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((12) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((13) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((14) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((15) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u)) + 0x27u * (8u + (64u))) + 3u) & ~3u) + 4u), loaded)
+    Which is: 7
+  loaded == end ? NVM_VD_OK : NVM_VD_REC
+    Which is: 0
+erased last payload at its exact loaded boundary
+
+  [FAIL] NvmCodec.codec_erased_loaded_prefix: erased last payload at its exact loaded boundary
+[  FAILED  ] NvmCodec.codec_erased_loaded_prefix (1 ms)
+[----------] 1 test from NvmCodec (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] NvmCodec.codec_erased_loaded_prefix
+
+ 1 FAILED TEST
+== NVM erased prefixes under AddressSanitizer: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

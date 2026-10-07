@@ -1,0 +1,10 @@
+argv: ["python3", "$REVIEWS/677-r525-5-packet/scripts/lwsrp_probe.py"]
+fatal: unable to read tree (19f5796b63652eb1151906de73cb827d4980a53f)
+Traceback (most recent call last):
+  File "$REVIEWS/677-r525-5-packet/scripts/lwsrp_probe.py", line 8, in <module>
+    subprocess.run(["git","-C",str(repo),"checkout","--quiet","--detach",ctrl_arms.LWSRP_REV],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '$REVIEWS/677-r525-5-packet/scratch/lwsrp', 'checkout', '--quiet', '--detach', '19f5796b63652eb1151906de73cb827d4980a53f']' returned non-zero exit status 128.

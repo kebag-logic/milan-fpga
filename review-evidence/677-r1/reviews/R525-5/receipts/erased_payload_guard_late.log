@@ -1,0 +1,79 @@
+Note: Google Test filter = *.codec_erased_loaded_prefix:*.codec_erased_loaded_prefix/*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmCodec
+[ RUN      ] NvmCodec.codec_erased_loaded_prefix
+
+  [FAIL] NvmCodec.codec_erased_loaded_prefix: crashed on signal 6
+== NVM erased prefixes under AddressSanitizer: checks: 1   failures: 1 ==
+RESULT: FAIL
+=================================================================
+==1463375==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7d092cbe1b81 at pc 0x000000403bd5 bp 0x7ffc9648e4e0 sp 0x7ffc9648e4d0
+READ of size 1 at 0x7d092cbe1b81 thread T0
+    #0 0x000000403bd4 in nvm_all_erased $REVIEWS/677-r525-5-packet/scratch/prefix-probes/erased_payload_guard_late/tree/nvm_klj2.c:115
+    #1 0x000000404854 in nvm_klj2_record $REVIEWS/677-r525-5-packet/scratch/prefix-probes/erased_payload_guard_late/tree/nvm_klj2.c:301
+    #2 0x000000404854 in nvm_klj2_check_body $REVIEWS/677-r525-5-packet/scratch/prefix-probes/erased_payload_guard_late/tree/nvm_klj2.c:355
+    #3 0x000000405f25 in NvmCodec_codec_erased_loaded_prefix_Test::TestBody() $REVIEWS/r525-5-677/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp:37
+    #4 0x7f192e1deec6  (/usr/lib/libgtest.so.1.18.0+0x59ec6) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7f192e1ca347 in testing::Test::Run() (/usr/lib/libgtest.so.1.18.0+0x45347) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x7f192e1ca556 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45556) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #7 0x7f192e1ca773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #8 0x7f192e1d6ef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #9 0x7f192e1d7800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #10 0x0000004098d8 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #11 0x0000004098d8 in main $REVIEWS/r525-5-677/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #12 0x7f192da27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #13 0x7f192da278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #14 0x000000403564 in _start ($REVIEWS/677-r525-5-packet/scratch/prefix-probes/erased_payload_guard_late/build/nvm_prefix+0x403564) (BuildId: bcd183c6614476214000c389fab880f01eea25e5)
+
+0x7d092cbe1b81 is located 0 bytes after 3329-byte region [0x7d092cbe0e80,0x7d092cbe1b81)
+allocated by thread T0 here:
+    #0 0x7f192e32d431 in operator new[](unsigned long) (/usr/lib/libasan.so.8+0x12d431) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x0000004062d8 in std::__detail::_MakeUniq<unsigned char []>::__array std::make_unique<unsigned char []>(unsigned long) /usr/include/c++/16/bits/unique_ptr.h:1120
+    #2 0x0000004062d8 in NvmCodec_codec_erased_loaded_prefix_Test::TestBody() $REVIEWS/r525-5-677/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp:35
+    #3 0x7f192e1deec6  (/usr/lib/libgtest.so.1.18.0+0x59ec6) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #4 0x7f192e1ca347 in testing::Test::Run() (/usr/lib/libgtest.so.1.18.0+0x45347) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7f192e1ca556 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45556) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x7f192e1ca773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #7 0x7f192e1d6ef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #8 0x7f192e1d7800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #9 0x0000004098d8 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #10 0x0000004098d8 in main $REVIEWS/r525-5-677/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #11 0x7f192da27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #12 0x7f192da278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #13 0x000000403564 in _start ($REVIEWS/677-r525-5-packet/scratch/prefix-probes/erased_payload_guard_late/build/nvm_prefix+0x403564) (BuildId: bcd183c6614476214000c389fab880f01eea25e5)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow $REVIEWS/677-r525-5-packet/scratch/prefix-probes/erased_payload_guard_late/tree/nvm_klj2.c:115 in nvm_all_erased
+Shadow bytes around the buggy address:
+  0x7d092cbe1900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d092cbe1980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d092cbe1a00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d092cbe1a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d092cbe1b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x7d092cbe1b80:[01]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d092cbe1c00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d092cbe1c80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d092cbe1d00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d092cbe1d80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d092cbe1e00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==1463375==ABORTING
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit -6)

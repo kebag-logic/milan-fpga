@@ -1,0 +1,302 @@
+{
+  "64e62816ad21791f6df3657fadb935aec5555881": [
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_link_change",
+      "statement": "if (a->state == ADP_STATE_DOWN) {",
+      "uncovered": "arc 2 of 2",
+      "reason": "A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_link_change",
+      "statement": "if (a->state != ADP_STATE_DOWN) {",
+      "uncovered": "arc 2 of 2",
+      "reason": "A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_timer_expired",
+      "statement": "if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {",
+      "uncovered": "arc 4 of 4",
+      "reason": "DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_timer_expired",
+      "statement": "} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {",
+      "uncovered": "arcs 2, 4 of 4; line `a->stray_expiries++;`",
+      "reason": "The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_poll",
+      "statement": "if (a->enabled && a->state == ADP_STATE_DELAY) {",
+      "uncovered": "arcs 2, 4 of 4; line `a->available_owed = false;`",
+      "reason": "An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_mbx.c",
+      "function": "on_poll",
+      "statement": "owed = adp_poll(&m->ifs[k].adp)",
+      "uncovered": "arc 3 of 4",
+      "reason": "The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_mbx.c",
+      "function": "adp_mbx_attach",
+      "statement": "ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)",
+      "uncovered": "arc 2 of 6",
+      "reason": "The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4)."
+    },
+    {
+      "file": "sw/firmware/ctrl/app/ctrl_app.c",
+      "function": "ctrl_app_start",
+      "statement": "if (!adp_mbx_init(",
+      "uncovered": "arcs 2, 3 of 4; line `return false;`",
+      "reason": "The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+      "function": "nvm_shape_consistent",
+      "statement": "(int)r.id <= last",
+      "uncovered": "arcs 2, 4, 5 of 6; line `return 0;`",
+      "reason": "The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`)."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+      "function": "nvm_shape_consistent",
+      "statement": "return count == NVM_N_REC && bytes == NVM_AREA_RAW;",
+      "uncovered": "arc 2 of 4",
+      "reason": "The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_idle",
+      "statement": "due = nvm.dirty_armed && nvm_any(nvm.dirty) &&",
+      "uncovered": "arc 4 of 6",
+      "reason": "The first-dirty window open with nothing dirty (`nvm_any(nvm.dirty)` false). `nvm_store_changed` opens the window only with the bit it sets, and returns before both for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_framed_as",
+      "statement": "return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)",
+      "uncovered": "arcs 2, 4, 6, 10, 12 of 12",
+      "reason": "A staged record span that starts with the magic but is not a frame of its record (each compare after the first false). The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote; `nvm_store.h` hands the stage out read-only. Only the first byte of an erased span can differ."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_erase_start",
+      "statement": "nvm.target == nvm.st.auth",
+      "uncovered": "arc 2 of 4",
+      "reason": "Erasing the authoritative slot. `nvm_target_slot` returns `!auth` while a slot is authoritative, and 0 or 1 while `auth` is -1."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c",
+      "function": "ls_in_journal",
+      "statement": "return addr >= MILAN_FLASH_JOURNAL_OFFSET &&",
+      "uncovered": "arc 2 of 6",
+      "reason": "A length longer than the journal (`len <= MILAN_FLASH_JOURNAL_SIZE` false). The port's public entry points are the `struct nvm_flash` calls: `ls_program` refuses a length past `LS_PAGE` before this call, and `ls_erase` passes `LS_BLOCK`. The journal is two 64 KiB slots (`nvm_shape.h` asserts the slot size). gcov files this operand's arcs under the statement's first line, as arcs 1 and 2, and the first operand's under its second."
+    }
+  ],
+  "708e5634f28e6e5a19236a9b0a9a543c3622e52d": [
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_link_change",
+      "statement": "if (a->state == ADP_STATE_DOWN) {",
+      "uncovered": "arc 2 of 2",
+      "reason": "A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_link_change",
+      "statement": "if (a->state != ADP_STATE_DOWN) {",
+      "uncovered": "arc 2 of 2",
+      "reason": "A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_timer_expired",
+      "statement": "if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {",
+      "uncovered": "arc 4 of 4",
+      "reason": "DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_timer_expired",
+      "statement": "} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {",
+      "uncovered": "arcs 2, 4 of 4; line `a->stray_expiries++;`",
+      "reason": "The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_poll",
+      "statement": "if (a->enabled && a->state == ADP_STATE_DELAY) {",
+      "uncovered": "arcs 2, 4 of 4; line `a->available_owed = false;`",
+      "reason": "An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_mbx.c",
+      "function": "on_poll",
+      "statement": "owed = adp_poll(&m->ifs[k].adp)",
+      "uncovered": "arc 3 of 4",
+      "reason": "The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_mbx.c",
+      "function": "adp_mbx_attach",
+      "statement": "ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)",
+      "uncovered": "arc 2 of 6",
+      "reason": "The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4)."
+    },
+    {
+      "file": "sw/firmware/ctrl/app/ctrl_app.c",
+      "function": "ctrl_app_start",
+      "statement": "if (!adp_mbx_init(",
+      "uncovered": "arcs 2, 3 of 4; line `return false;`",
+      "reason": "The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+      "function": "nvm_shape_consistent",
+      "statement": "(int)r.id <= last",
+      "uncovered": "arcs 2, 4, 5 of 6; line `return 0;`",
+      "reason": "The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`)."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+      "function": "nvm_shape_consistent",
+      "statement": "return count == NVM_N_REC && bytes == NVM_AREA_RAW;",
+      "uncovered": "arc 2 of 4",
+      "reason": "The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_idle",
+      "statement": "due = nvm.dirty_armed && nvm_any(nvm.dirty) &&",
+      "uncovered": "arc 4 of 6",
+      "reason": "The first-dirty window open with nothing dirty (`nvm_any(nvm.dirty)` false). `nvm_store_changed` opens the window only with the bit it sets, and returns before both for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_framed_as",
+      "statement": "return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)",
+      "uncovered": "arcs 2, 4, 6, 10, 12 of 12",
+      "reason": "A staged record span that starts with the magic but is not a frame of its record (each compare after the first false). The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote; `nvm_store.h` hands the stage out read-only. Only the first byte of an erased span can differ."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_erase_start",
+      "statement": "nvm.target == nvm.st.auth",
+      "uncovered": "arc 2 of 4",
+      "reason": "Erasing the authoritative slot. `nvm_target_slot` returns `!auth` while a slot is authoritative, and 0 or 1 while `auth` is -1."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c",
+      "function": "ls_in_journal",
+      "statement": "return addr >= MILAN_FLASH_JOURNAL_OFFSET &&",
+      "uncovered": "arc 2 of 6",
+      "reason": "A length longer than the journal (`len <= MILAN_FLASH_JOURNAL_SIZE` false). The port's public entry points are the `struct nvm_flash` calls: `ls_program` refuses a length past `LS_PAGE` before this call, and `ls_erase` passes `LS_BLOCK`. The journal is two 64 KiB slots (`nvm_shape.h` asserts the slot size). gcov files this operand's arcs under the statement's first line, as arcs 1 and 2, and the first operand's under its second."
+    }
+  ],
+  "HEAD": [
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_link_change",
+      "statement": "if (a->state == ADP_STATE_DOWN) {",
+      "uncovered": "arc 2 of 2",
+      "reason": "A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_link_change",
+      "statement": "if (a->state != ADP_STATE_DOWN) {",
+      "uncovered": "arc 2 of 2",
+      "reason": "A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_timer_expired",
+      "statement": "if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {",
+      "uncovered": "arc 4 of 4",
+      "reason": "DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_timer_expired",
+      "statement": "} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {",
+      "uncovered": "arcs 2, 4 of 4; line `a->stray_expiries++;`",
+      "reason": "The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp.c",
+      "function": "adp_poll",
+      "statement": "if (a->enabled && a->state == ADP_STATE_DELAY) {",
+      "uncovered": "arcs 2, 4 of 4; line `a->available_owed = false;`",
+      "reason": "An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_mbx.c",
+      "function": "on_poll",
+      "statement": "owed = adp_poll(&m->ifs[k].adp)",
+      "uncovered": "arc 3 of 4",
+      "reason": "The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching."
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_mbx.c",
+      "function": "adp_mbx_attach",
+      "statement": "ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)",
+      "uncovered": "arc 2 of 6",
+      "reason": "The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4)."
+    },
+    {
+      "file": "sw/firmware/ctrl/app/ctrl_app.c",
+      "function": "ctrl_app_start",
+      "statement": "if (!adp_mbx_init(",
+      "uncovered": "arcs 2, 3 of 4; line `return false;`",
+      "reason": "The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+      "function": "nvm_shape_consistent",
+      "statement": "(int)r.id <= last",
+      "uncovered": "arcs 2, 4, 5 of 6; line `return 0;`",
+      "reason": "The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`)."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+      "function": "nvm_shape_consistent",
+      "statement": "return count == NVM_N_REC && bytes == NVM_AREA_RAW;",
+      "uncovered": "arc 2 of 4",
+      "reason": "The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_idle",
+      "statement": "due = nvm.dirty_armed && nvm_any(nvm.dirty) &&",
+      "uncovered": "arc 4 of 6",
+      "reason": "The first-dirty window open with nothing dirty (`nvm_any(nvm.dirty)` false). `nvm_store_changed` opens the window only with the bit it sets, and returns before both for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_framed_as",
+      "statement": "return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)",
+      "uncovered": "arcs 2, 4, 6, 10, 12 of 12",
+      "reason": "A staged record span that starts with the magic but is not a frame of its record (each compare after the first false). The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote; `nvm_store.h` hands the stage out read-only. Only the first byte of an erased span can differ."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/nvm_store.c",
+      "function": "nvm_erase_start",
+      "statement": "nvm.target == nvm.st.auth",
+      "uncovered": "arc 2 of 4",
+      "reason": "Erasing the authoritative slot. `nvm_target_slot` returns `!auth` while a slot is authoritative, and 0 or 1 while `auth` is -1."
+    },
+    {
+      "file": "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c",
+      "function": "ls_in_journal",
+      "statement": "return addr >= MILAN_FLASH_JOURNAL_OFFSET &&",
+      "uncovered": "arc 2 of 6",
+      "reason": "A length longer than the journal (`len <= MILAN_FLASH_JOURNAL_SIZE` false). The port's public entry points are the `struct nvm_flash` calls: `ls_program` refuses a length past `LS_PAGE` before this call, and `ls_erase` passes `LS_BLOCK`. The journal is two 64 KiB slots (`nvm_shape.h` asserts the slot size). gcov files this operand's arcs under the statement's first line, as arcs 1 and 2, and the first operand's under its second."
+    }
+  ]
+}

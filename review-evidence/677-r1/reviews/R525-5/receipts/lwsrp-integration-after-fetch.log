@@ -1,0 +1,22 @@
+argv: ["python3", "$REVIEWS/677-r525-5-packet/scripts/lwsrp_probe.py"]
+lwSRP pin verified 19f5796b63652eb1151906de73cb827d4980a53f
+  lwSRP at 19f5796b63652eb1151906de73cb827d4980a53f
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LwsrpOnThePort
+[ RUN      ] LwsrpOnThePort.W0toW3MvrpOnThePoolAndTheFabricTicks
+  pool class 0: 64-byte stride, high-water 1 of 32 blocks
+  pool class 1: 256-byte stride, high-water 3 of 16 blocks
+  pool class 2: 1024-byte stride, high-water 0 of 4 blocks
+[       OK ] LwsrpOnThePort.W0toW3MvrpOnThePoolAndTheFabricTicks (0 ms)
+[----------] 1 test from LwsrpOnThePort (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl lwSRP port (lwSRP core on the static pool and the mailbox): checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 19f5796b: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at f8db42ae7a420468625a79257edfd05ba8ee0f1d is not the pinned 19f5796b63652eb1151906de73cb827d4980a53f (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+PASS lwSRP integration and pin controls

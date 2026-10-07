@@ -1,0 +1,9 @@
+{
+  "issue": {
+    "number": 678,
+    "html_url": "https://github.com/kebag-logic/milan-fpga/issues/678",
+    "title": "ADP firmware core: ports must not call back into the core synchronously (no-callback rule and guard)",
+    "body": "[A10] Found by #665 lane FT (A547, round 2; PR #675 HANDOFF section 8 item 2, `gates/probe-adp-reentry.log`, `-reentry2.log`).\n\n`adp.h` says the timer port \"calls adp_timer_expired once, delay_ms later\". It does not say whether a port may call back into the ADP core while the core is calling it. A timer port that fires from inside `timer_start` (a zero-delay draw is the plausible case) leaves the machine in DELAY or WAITING with no timer running. The in-tree adapter never does this.\n\n**Ruling (manager):** ports never call back into the core synchronously. In the bare-metal design, every expiry and every received frame is delivered by the one event loop, never from inside a port call.\n\n**Acceptance:**\n1. `adp.h` and every port header (`mbx_hal.h`, `shlan_port.h`, `nvm_flash.h`, the timer and TX ports) state the no-callback rule.\n2. The core guards it: a re-entry flag set around each port call. Debug and test builds assert on a re-entrant call; release builds ignore it and count it.\n3. GoogleTest: the two re-entry probes become standing cases. Each asserts the guard fires and the machine keeps a running timer, with a planted defect that removes the guard.\n4. F2 to F5 adopt the same rule for their ports.\n\nRelates to #665 (F0 code).\n"
+  },
+  "scope_comments": []
+}

@@ -1,0 +1,55 @@
+$ git show -s --format=%H%n%T%n%P%n%s HEAD
+warning: unable to find all commit-graph files
+33b311f5213f1fb8b47916ace9b8d872538a90e4
+52b4e42eca3d57c74ede894a9452dcad0af42862
+64e62816ad21791f6df3657fadb935aec5555881 708e5634f28e6e5a19236a9b0a9a543c3622e52d
+Validate issue 677 merge-train candidate
+$ git log --oneline --first-parent -7 64e62816
+warning: unable to find all commit-graph files
+64e62816a Validate issue 665fc merge-train candidate
+af5be4710 Validate issue 679 merge-train candidate
+72d3780d2 Validate issue 673 merge-train candidate
+28cdb5891 Validate issue 667 merge-train candidate
+618875364 Validate issue 665ft merge-train candidate
+5615f52eb Validate issue 664 merge-train candidate
+40ae4ce98 Validate issue 667-b13 merge-train candidate
+$ git log --oneline --first-parent 910f338db..708e5634
+warning: unable to find all commit-graph files
+708e5634f Record the measured RV32 text sizes of the store after the erased-payload check
+34475e774 Declare assert for the freestanding RV32 object check and name __assert_fail in the ctrl runtime interfaces
+232970dbb Merge dev 910f338d into 677-fw-fixes
+6c94e9f5f fix firmware erased-record bounds and ADP port re-entry
+$ git diff --name-status 64e62816 HEAD
+warning: unable to find all commit-graph files
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/adp/adp.c
+M	sw/firmware/ctrl/adp/adp.h
+M	sw/firmware/ctrl/adp/adp_mbx.h
+M	sw/firmware/ctrl/mbx/mbx.h
+M	sw/firmware/ctrl/mbx/mbx_hal.h
+M	sw/firmware/ctrl/port/ctrl_debug.h
+M	sw/firmware/ctrl/port/ctrl_pool.h
+M	sw/firmware/ctrl/port/shlan_port.h
+M	sw/firmware/ctrl/test/ctrl_arms.py
+M	sw/firmware/ctrl/test/ctrl_build.py
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+A	sw/firmware/ctrl/test/test_adp_reentry.cpp
+M	sw/firmware/ctrl/test/test_ctrl_firmware.py
+M	sw/firmware/ctrl_nvm/README.md
+M	sw/firmware/ctrl_nvm/nvm_flash.h
+M	sw/firmware/ctrl_nvm/nvm_klj2.c
+M	sw/firmware/ctrl_nvm/nvm_state.h
+M	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h
+M	sw/firmware/ctrl_nvm/test/nvm_bench.py
+M	sw/firmware/ctrl_nvm/test/nvm_mutants.py
+M	sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
+A	sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp
+M	sw/firmware/gtest/README.md
+M	sw/firmware/gtest/coverage.ratchet
+M	sw/firmware/gtest/fw_coverage.py
+M	sw/firmware/gtest/fw_gtest.py
+M	sw/firmware/gtest/fw_rv32.py
+M	sw/firmware/gtest/fw_rv32_selftest.py
+A	sw/firmware/gtest/rv32_include/assert.h
+$ git diff --check 64e62816 HEAD
+warning: unable to find all commit-graph files
