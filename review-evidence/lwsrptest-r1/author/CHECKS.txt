@@ -1,0 +1,542 @@
+# SPDX-License-Identifier: Apache-2.0
+
+Recorded foreground command results. Checks were never piped.
+
+## before-configure
+Command: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+Exit code: 0
+
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+
+
+## before-build
+Command: cmake --build build
+Exit code: 0
+
+[ 11%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 33%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 44%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 55%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 66%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 77%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 88%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[100%] Linking C shared library libshlan.so
+[100%] Built target shlan
+
+
+## before-ctest-no-cgreen
+Command: ctest --test-dir build --output-on-failure
+Exit code: 0
+
+Test project $LANES/lwsrp-tests/build
+No tests were found!!!
+
+
+## before-behave
+Command: behave
+Exit code: 1
+
+ABORTED: HOOK-ERROR in hook=before_all
+USING RUNNER: behave.runner:Runner
+HOOK-ERROR in before_all: AttributeError: $LANES/lwsrp-tests/build/libshlan.so: undefined symbol: shlan_connect
+
+ABORTED: By user.
+0 features passed, 0 failed, 0 skipped, 1 untested
+0 scenarios passed, 0 failed, 0 skipped, 3 untested
+0 steps passed, 0 failed, 0 skipped, 10 untested
+Took 0min 0.000s
+
+
+## prepare-cgreen
+Command: cp -a $VALIDATION_STORAGE/lwsrpdoc-a561/deps $VALIDATION_STORAGE/lwsrptest-a562/deps
+Exit code: 0
+
+
+
+## before-configure-cgreen
+Command: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$VALIDATION_STORAGE/lwsrptest-a562/deps
+Exit code: 0
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+
+
+## before-build-cgreen
+Command: cmake --build build
+Exit code: 0
+
+[ 81%] Built target shlan
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/placeholder.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## before-unit
+Command: build/unit_tests
+Exit code: 0
+
+Running "main" (0 tests)...
+Completed "main": No assertions.
+
+
+## before-ctest
+Command: ctest --test-dir build --output-on-failure
+Exit code: 0
+
+Test project $LANES/lwsrp-tests/build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.00 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.00 sec
+
+
+## after-configure
+Command: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+Exit code: 0
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+
+
+## after-build
+Command: cmake --build build
+Exit code: 0
+
+[  7%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 15%] Linking C shared library libshlan.so
+[ 76%] Built target shlan
+[ 84%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 92%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## after-unit
+Command: build/unit_tests
+Exit code: 0
+
+Running "mrp_pdu_suite" (9 tests)...
+  "mrp_pdu_suite": 1690 passes in 15ms.
+Completed "mrp_pdu_suite": 1690 passes in 15ms.
+
+
+## after-ctest
+Command: ctest --test-dir build --output-on-failure
+Exit code: 0
+
+Test project $LANES/lwsrp-tests/build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.02 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.02 sec
+
+
+## after-behave
+Command: behave
+Exit code: 0
+
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:1
+
+  Feature: Switch port management  # tests/features/switch.feature:1
+
+  Scenario: Enable a port         # tests/features/switch.feature:6
+    Given the switch is connected # tests/features/steps/switch_steps.py:5
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:16
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:26
+
+  Scenario: Disable a port         # tests/features/switch.feature:10
+    Given the switch is connected  # tests/features/steps/switch_steps.py:5
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:11
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:21
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:33
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:15
+    Given the switch is connected        # tests/features/steps/switch_steps.py:5
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:16
+    Then the operation should fail       # tests/features/steps/switch_steps.py:39
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.000s
+
+
+## reversal-exports-configure
+Command: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+Exit code: 0
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+
+
+## reversal-exports-build
+Command: cmake --build build
+Exit code: 0
+
+[  8%] Linking C shared library libshlan.so
+[ 75%] Built target shlan
+[ 83%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## reversal-exports-behave
+Command: behave
+Exit code: 1
+
+ABORTED: HOOK-ERROR in hook=before_all
+USING RUNNER: behave.runner:Runner
+HOOK-ERROR in before_all: AttributeError: $LANES/lwsrp-tests/build/libshlan.so: undefined symbol: shlan_test_connect
+
+ABORTED: By user.
+0 features passed, 0 failed, 0 skipped, 1 untested
+0 scenarios passed, 0 failed, 0 skipped, 3 untested
+0 steps passed, 0 failed, 0 skipped, 10 untested
+Took 0min 0.000s
+
+
+## restore-exports-configure
+Command: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+Exit code: 0
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+
+
+## restore-exports-build
+Command: cmake --build build
+Exit code: 0
+
+[  7%] Linking C shared library libshlan.so
+[ 76%] Built target shlan
+[ 84%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 92%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## reversal-ctypes-behave
+Command: behave
+Exit code: 1
+
+ABORTED: HOOK-ERROR in hook=before_all
+USING RUNNER: behave.runner:Runner
+HOOK-ERROR in before_all: AttributeError: $LANES/lwsrp-tests/build/libshlan.so: undefined symbol: shlan_connect
+
+ABORTED: By user.
+0 features passed, 0 failed, 0 skipped, 1 untested
+0 scenarios passed, 0 failed, 0 skipped, 3 untested
+0 steps passed, 0 failed, 0 skipped, 10 untested
+Took 0min 0.000s
+
+
+## reversal-unit-wiring-configure
+Command: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+Exit code: 0
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+
+
+## reversal-unit-wiring-build
+Command: cmake --build build
+Exit code: 0
+
+[ 83%] Built target shlan
+[ 91%] Building C object CMakeFiles/unit_tests.dir/tests/unit/placeholder.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## reversal-unit-wiring-ctest
+Command: ctest --test-dir build --output-on-failure
+Exit code: 8
+
+Test project $LANES/lwsrp-tests/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed  Error regular expression found in output. Regex=[No assertions]  0.00 sec
+Running "main" (0 tests)...
+Completed "main": No assertions.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest
+
+
+## restore-unit-wiring-configure
+Command: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+Exit code: 0
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+
+
+## restore-unit-wiring-build
+Command: cmake --build build
+Exit code: 0
+
+[ 76%] Built target shlan
+[ 84%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 92%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## reversal-empty-runner-build
+Command: cmake --build build
+Exit code: 0
+
+[ 76%] Built target shlan
+[ 84%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 92%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## reversal-empty-runner-ctest
+Command: ctest --test-dir build --output-on-failure
+Exit code: 8
+
+Test project $LANES/lwsrp-tests/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed  Error regular expression found in output. Regex=[No assertions]  0.00 sec
+Running "main" (0 tests)...
+Completed "main": No assertions.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.00 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest
+
+
+## reversal-assertion-build
+Command: cmake --build build
+Exit code: 0
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+[ 76%] Built target shlan
+[ 84%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 92%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## reversal-assertion-ctest
+Command: ctest --test-dir build --output-on-failure
+Exit code: 8
+
+Test project $LANES/lwsrp-tests/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.02 sec
+Running "mrp_pdu_suite" (9 tests)...
+$LANES/lwsrp-tests/tests/unit/mrp_pdu_test.c:41: Failure: three_pack_uses_single_byte 
+	Expected [packed] to [equal] [214]
+		actual value:			[215]
+		expected value:			[214]
+
+  "mrp_pdu_suite": 1689 passes, 1 failure in 13ms.
+Completed "mrp_pdu_suite": 1689 passes, 1 failure in 13ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.02 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest
+
+
+## restore-final-configure
+Command: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+Exit code: 0
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $LANES/lwsrp-tests/build
+
+
+## restore-final-build
+Command: cmake --build build
+Exit code: 0
+
+[ 76%] Built target shlan
+[ 84%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 92%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+## restored-ctest
+Command: ctest --test-dir build --output-on-failure
+Exit code: 0
+
+Test project $LANES/lwsrp-tests/build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.02 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.02 sec
+
+
+## restored-behave
+Command: behave
+Exit code: 0
+
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:1
+
+  Feature: Switch port management  # tests/features/switch.feature:1
+
+  Scenario: Enable a port         # tests/features/switch.feature:6
+    Given the switch is connected # tests/features/steps/switch_steps.py:5
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:16
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:26
+
+  Scenario: Disable a port         # tests/features/switch.feature:10
+    Given the switch is connected  # tests/features/steps/switch_steps.py:5
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:11
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:21
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:33
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:15
+    Given the switch is connected        # tests/features/steps/switch_steps.py:5
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:16
+    Then the operation should fail       # tests/features/steps/switch_steps.py:39
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.000s
+
+
+## diff-check
+Command: git diff --check
+Exit code: 0
+
+
+
+## after-ctest-verbose
+Command: ctest --test-dir build --verbose
+Exit code: 0
+
+UpdateCTestConfiguration  from :$LANES/lwsrp-tests/build/DartConfiguration.tcl
+Test project $LANES/lwsrp-tests/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: $LANES/lwsrp-tests/build/unit_tests
+1: Working Directory: $LANES/lwsrp-tests/build
+1: Test timeout computed to be: 10000000
+1: Running "mrp_pdu_suite" (9 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 14ms.
+1: Completed "mrp_pdu_suite": 1690 passes in 14ms.
+1/1 Test #1: unit .............................   Passed    0.02 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.02 sec
+
+
+## missing-cgreen
+Command: cmake -S . -B $VALIDATION_STORAGE/lwsrptest-a562/missing-cgreen -DCMAKE_FIND_ROOT_PATH=$VALIDATION_STORAGE/lwsrptest-a562/no-dependencies -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+Exit code: 1
+
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+CMake Error at CMakeLists.txt:45 (find_library):
+  Could not find CGREEN_LIB using the following names: cgreen
+
+
+-- Configuring incomplete, errors occurred!
+
+
+## stage
+Command: git add CMakeLists.txt tests/features/environment.py tests/features/switch_bindings.c tests/unit/main.c tests/unit/placeholder.c
+Exit code: 0
+
+
+
+## staged-diff-check
+Command: git diff --cached --check
+Exit code: 0
+
+
+
+## precommit-audit
+Command: python3 $VALIDATION_STORAGE/lwsrptest-a562/audit.py
+Exit code: 0
+
+PASS: only assigned harness files staged; src and codec assertions unchanged; new files licensed; no private paths or attribution in changes; scratch build link removed.
+
+
+## commit
+Command: git -c 'user.name=Harness Author' -c user.email=harness-author@example.invalid -c commit.gpgsign=false commit -m 'Fix shared-library test bindings and run codec assertions'
+Exit code: 0
+
+[tests-harness ad61990] Fix shared-library test bindings and run codec assertions
+ 5 files changed, 60 insertions(+), 33 deletions(-)
+ create mode 100644 tests/features/switch_bindings.c
+ create mode 100644 tests/unit/main.c
+ delete mode 100644 tests/unit/placeholder.c
+
+
+## final-audit
+Command: python3 $VALIDATION_STORAGE/lwsrptest-a562/final_audit.py
+Exit code: 0
+
+PASS: expected origin, branch, parent, one-line commit, neutral identity, clean worktree, assigned diff, unchanged protocol sources and codec assertions, licensed new files, public-text restrictions, required artifacts, and size limits.
+Head: ad6199083a1eb242f37dacf88de94bd00c4b3658
+
+
+## final-diff-check
+Command: git diff 19f5796 HEAD --check
+Exit code: 0
+
+
+
+## review-ready
+Action: add the authorized issue status comment
+Body: [A562] REVIEW READY ad6199083a1eb242f37dacf88de94bd00c4b3658
+Exit code: 0
+Receipt: https://github.com/kebag-logic/lwSRP/issues/2#issuecomment-6030686979
