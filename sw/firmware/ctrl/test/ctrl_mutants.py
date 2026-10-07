@@ -22,6 +22,7 @@ from pathlib import Path
 import acmp_mutants
 import ctrl_arms
 import fw_gtest
+from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, Outcome, Refusal, Tree
 from ctrl_mutant import Mutant
 
@@ -462,6 +463,9 @@ def unnamed_tests(test_dir: Path = Path(__file__).resolve().parent) -> list[str]
     return [t for t in tests if t not in named]
 
 
+MUTANTS += maap_mutants(Mutant)
+
+
 def plant(m: Mutant, root: Path) -> Path:
     """A copy of the firmware tree with the mutant written into it."""
     copy = root / m.name / "ctrl"
@@ -539,6 +543,7 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1))
             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "acmp": ctrl_arms.arm_acmp,
             "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "acmpif2": ctrl_arms.arm_acmpif2,
             "entity": ctrl_arms.arm_entity,
+            "maap": ctrl_arms.arm_maap, "maap_debug": ctrl_arms.arm_maap_debug, "maap_if2": ctrl_arms.arm_maap_if2,
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
     build = fw_gtest.Build(jobs=jobs)

@@ -33,6 +33,7 @@
 #include "ctrl_debug.h"
 #include "ctrl_loop.h"
 #include "ctrl_pool.h"
+#include "maap_mbx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +49,7 @@ struct ctrl_app {
 	struct ctrl_loop loop;
 	struct adp_mbx adp;
 	struct acmp_mbx acmp;
+	struct maap_mbx maap;
 };
 
 struct ctrl_app_config {
@@ -77,6 +79,12 @@ bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg);
 
 // ctrl_app_compose() then ctrl_app_open().
 bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg);
+
+// Explicit F2 composition. The default entry above remains ADP-only.
+// allocation is the stream-address port (maap_csr_allocation on the existing
+// datapath CSR window). The count is the entity's declared talker sources.
+bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg,
+			 maap_allocation_fn allocation, void *ctx, uint64_t preferred);
 
 #ifdef __cplusplus
 }

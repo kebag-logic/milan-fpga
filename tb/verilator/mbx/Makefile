@@ -17,6 +17,7 @@
 # mutants.py builds a planted COPY with this same recipe (print-vflags).
 
 VERILATOR ?= verilator
+VBUILD_JOBS ?= 0
 ROOT      := ../../..
 RTL_DIR   ?= $(ROOT)/hdl/milan/mailbox
 TOP        = tb_mbx_top
@@ -30,7 +31,7 @@ CONTRACT_INC := $(abspath $(ROOT))/sw/firmware/ctrl/mbx
 
 # -Werror-USERERROR: an elaboration $error is a failed build, never a warning.
 # -Werror-PINMISSING / -Werror-UNDRIVEN: a dropped binding is refused by name.
-VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
+VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
          -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN \
          -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CONTRACT_INC)"
@@ -41,9 +42,9 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
 # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
 FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
 FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
-            port/shlan_port.c adp/adp.c adp/adp_mbx.c acmp/acmp.c acmp/acmp_mbx.c acmp/acmp_nvm.c \
-            app/ctrl_app.c host/mbx_model.c)
-FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp acmp app) -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
+            port/shlan_port.c adp/adp.c adp/adp_mbx.c maap/maap.c maap/maap_mbx.c maap/maap_csr.c \
+            acmp/acmp.c acmp/acmp_mbx.c acmp/acmp_nvm.c app/ctrl_app.c host/mbx_model.c)
+FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp maap acmp app) -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
 # Every header those sources can include, so a header-only change rebuilds them.
 FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
 CC     ?= cc
