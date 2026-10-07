@@ -1,0 +1,28 @@
+--- head-capture-run
++++ starved-held-dup-mutant
+@@ -448,7 +448,7 @@
+   [ ok ] LRC: ...and holds no sixth: e8..e13 follow in order = 0x1
+   [ ok ] LRC hold before a commit: t1 frame emitted     = 0x1
+   [ ok ] LRC: a walk before pair 1's first commit is the first of five holds (e6 x5, then e7) = 0x1
+-  [ ok ] LRC: that held walk on a still-empty pair counts no dup = 0x0
++  [FAIL] LRC: that held walk on a still-empty pair counts no dup got=0x1 exp=0x0
+   [ ok ] LRC: ...and no skip                            = 0x0
+   [ ok ] LRC after the early hold: t1 frame emitted     = 0x1
+   [ ok ] LRC after the early hold: both pairs carry one event per tick = 0x1
+@@ -482,7 +482,7 @@
+   [ ok ] LRC next end: t1 frame emitted                 = 0x1
+   [ ok ] LRC next end: both pairs carry one event per tick = 0x1
+   [ ok ] LRC: ...it acts at the next one (five holds: e18 repeats five times) = 0x1
+-  [ ok ] LRC: no recentre moved the dup counter         = 0x0
++  [FAIL] LRC: no recentre moved the dup counter         got=0x1 exp=0x0
+   [ ok ] LRC: no recentre moved the skip counter        = 0x0
+ 
+ [SAT] a starved pair pegs its dup count at 0xFFFF and holds
+@@ -932,5 +932,5 @@
+   [ ok ] SPAN: every planted control was exercised      = 0x1
+ 
+ ======================================================================
+-KL_chan_map_capture: 785 checks, 0 failures
+-RESULT: PASS
++KL_chan_map_capture: 785 checks, 2 failures
++RESULT: FAIL

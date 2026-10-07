@@ -1,0 +1,63 @@
+{
+  "publication_manifest_checks": [
+    {
+      "commit": "6efdd2447c72b9b60f5d0d9e393c851bb742945a",
+      "prefix": "author/",
+      "verified_files": 591,
+      "result": "PASS"
+    },
+    {
+      "commit": "65b9e8ee8f9e00cc303b3c294d243a89781807e9",
+      "prefix": "author-r2d/",
+      "verified_files": 416,
+      "result": "PASS"
+    }
+  ],
+  "area_rows": {
+    "cmc_base": {
+      "LUT": 1076,
+      "FF": 1336
+    },
+    "cmc_head": {
+      "LUT": 1156,
+      "FF": 1372
+    },
+    "settle_base": {
+      "LUT": 41,
+      "FF": 51
+    },
+    "settle_head": {
+      "LUT": 74,
+      "FF": 93
+    }
+  },
+  "computed_delta": {
+    "LUT": 113,
+    "FF": 78
+  },
+  "limit_each": 120,
+  "capture_source_hash_matches_measurement": true,
+  "conservative_prior_area": {
+    "LUT": 119,
+    "FF": 82
+  },
+  "quiet_samples_recounted": 320462699,
+  "quiet_peak_axis_cycles": 1,
+  "quiet_groups": 8,
+  "phases": 128,
+  "windows": 512,
+  "published_campaign_comparison": {
+    "campaign": {
+      "cases": 128,
+      "byte_identical": 128,
+      "rc0_both": 128
+    },
+    "pullin": {
+      "cases": 32,
+      "byte_identical": 32,
+      "rc0_both": 32
+    },
+    "quiet_distributions_identical": true
+  },
+  "limitation": "Campaign equality is the published comparison receipt; all individual campaign logs were not republished in this round. No independent rerun of those campaigns or implementation is claimed."
+}
