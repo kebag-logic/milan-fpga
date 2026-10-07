@@ -1,0 +1,19 @@
+{
+  "name": "campaign-1",
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--require-rv32",
+    "--self-test",
+    "--mutation-shard",
+    "1",
+    "3",
+    "--jobs",
+    "3",
+    "--build-dir",
+    "$REVIEWS/665f3-r531-6-packet/scratch/campaign-1"
+  ],
+  "rc": -9,
+  "seconds": 358.158
+}

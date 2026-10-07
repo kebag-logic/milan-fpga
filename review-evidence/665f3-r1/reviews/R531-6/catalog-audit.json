@@ -1,0 +1,54 @@
+{
+  "catalog_total": 469,
+  "acmp_total": 273,
+  "unchanged_prior_review_fixtures": 74,
+  "added": [
+    {
+      "name": "app-maap-mac-per-interface",
+      "path": "app/ctrl_app.c",
+      "old": "\t\tmac[k] = cfg->entity->mac;\n",
+      "new": "\t\tmac[k] = cfg->entity->mac + k;\n",
+      "arm": "acmpif2",
+      "test": "AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen",
+      "needle": "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1",
+      "also": []
+    },
+    {
+      "name": "app-own-mac-per-interface",
+      "path": "app/ctrl_app.c",
+      "old": "\t\town_mac[i] = cfg->entity->mac;\n",
+      "new": "\t\town_mac[i] = cfg->entity->mac + i;\n",
+      "arm": "acmpif2",
+      "test": "AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen",
+      "needle": "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1",
+      "also": []
+    },
+    {
+      "name": "app-three-way-bound-drops-maap",
+      "path": "app/ctrl_app.h",
+      "old": "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)",
+      "new": "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX)",
+      "arm": "acmp",
+      "test": "AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound",
+      "needle": "F6 the three-way bound is both modules' passes",
+      "also": [
+        [
+          "acmpif2",
+          "AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound",
+          "F6 the three-way bound is both modules' passes"
+        ]
+      ]
+    },
+    {
+      "name": "app-three-way-bound-one-maap-poll",
+      "path": "app/ctrl_app.h",
+      "old": "(CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MBX_N_IF * MAAP_MBX_POLL_MAX)",
+      "new": "(CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MAAP_MBX_POLL_MAX)",
+      "arm": "acmpif2",
+      "test": "AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound",
+      "needle": "F6 the three-way bound is both modules' passes",
+      "also": []
+    }
+  ],
+  "unnamed_tests": []
+}

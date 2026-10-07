@@ -1,0 +1,76 @@
+[
+  {
+    "control": "acmp",
+    "rc": 0
+  },
+  {
+    "control": "acmpif2",
+    "rc": 0
+  },
+  {
+    "mutant": "app-maap-mac-per-interface",
+    "arm": "acmp",
+    "rc": 0,
+    "failures": [],
+    "expected": "unchanged control passes"
+  },
+  {
+    "mutant": "app-maap-mac-per-interface",
+    "arm": "acmpif2",
+    "rc": 1,
+    "failures": [
+      "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"
+    ],
+    "expected": "one named failure"
+  },
+  {
+    "mutant": "app-own-mac-per-interface",
+    "arm": "acmp",
+    "rc": 0,
+    "failures": [],
+    "expected": "unchanged control passes"
+  },
+  {
+    "mutant": "app-own-mac-per-interface",
+    "arm": "acmpif2",
+    "rc": 1,
+    "failures": [
+      "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"
+    ],
+    "expected": "one named failure"
+  },
+  {
+    "mutant": "app-three-way-bound-drops-maap",
+    "arm": "acmp",
+    "rc": 1,
+    "failures": [
+      "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once"
+    ],
+    "expected": "one named failure"
+  },
+  {
+    "mutant": "app-three-way-bound-drops-maap",
+    "arm": "acmpif2",
+    "rc": 1,
+    "failures": [
+      "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once"
+    ],
+    "expected": "one named failure"
+  },
+  {
+    "mutant": "app-three-way-bound-one-maap-poll",
+    "arm": "acmp",
+    "rc": 0,
+    "failures": [],
+    "expected": "unchanged control passes"
+  },
+  {
+    "mutant": "app-three-way-bound-one-maap-poll",
+    "arm": "acmpif2",
+    "rc": 1,
+    "failures": [
+      "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once"
+    ],
+    "expected": "one named failure"
+  }
+]

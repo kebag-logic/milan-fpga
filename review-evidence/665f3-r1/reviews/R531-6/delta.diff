@@ -1,0 +1,162 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 8c8498aed..44085551c 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -706,6 +706,12 @@ On the model, 15 events, 12 acmp records and 7 maap records behind them
+ take a worst pass of 231 accesses (233 at two interfaces), every record and
+ event within 10 passes (`test_acmp_mbx.cpp` F6).
+ 
++At F0's assumed 1 us per access, only the event bound still fits T_svc
++(4.74 ms). The owed-frame bound, which fits it without MAAP, no longer does
++(14.22 ms, under the ceiling); the bound behind a full acmp ring stays
++under the ceiling (17.38 ms), and the one behind a full adp ring exceeds it
++(34.76 ms).
++
+ ### Differences from the processor
+ 
+ The `acmpwalk` arm runs the processor's own expectations against the
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 750d20c17..d46ed245f 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -109,8 +109,11 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
+   one interface) plus MAAP's share of 568, its costliest action on each of
+   the 8 events (48), its 2 records of the maap channel (20 + 48) and its
+   poll on each interface (48). That is 1,580 at one interface and 1,659 at
+-  two. Every pass count of `acmp_mbx.h` and of the MAAP page holds in the
+-  composed loop with this pass in place of its own
++  two. It is also the two modules' own pass bounds less what both count:
++  `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (616 at one interface, 664
++  at two) less the 6 accesses of each of the 8 event records. Every pass
++  count of `acmp_mbx.h` and of the MAAP page holds in the composed loop
++  with this pass in place of its own
+   ([design page](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)).
+ 
+ MAAP's allocation reaches ACMP's talker only through the integrator's
+@@ -120,9 +123,11 @@ destination, and the app does not connect it to the stream-address port.
+ `test_acmp_mbx.cpp` holds the composition's checks, in both ACMP arms: U6
+ (the attach order, every channel and its interrupt, disjoint slots each
+ holding its own module's arm, MAAP acquiring its range beside the other
+-two over four seconds), U7 (the refusals) and F6 (events and the acmp and
+-maap rings backlogged: the worst pass 231 accesses at one interface and 233
+-at two).
++two over four seconds, every MAAP frame sent from its interface's own
++unicast MAC, where the maap row admits a DEFEND (IEEE 1722-2016 B.2.1)),
++U7 (the refusals) and F6 (events and the acmp and maap rings backlogged:
++the worst pass 231 accesses at one interface and 233 at two, and the bound
++against the two modules' own).
+ 
+ ## The host test
+ 
+@@ -218,7 +223,7 @@ a byte early, a tuple's message types ignored, a message_type refusal left
+ uncounted, a DEFEND taken to any unicast), and the firmware's side has its
+ own: the own MAC unguarded or halved, FILTER_MISMATCH read from another register (`unit` and
+ `port`), the own MACs written after the channels open (`port`) and the app's
+-own MAC not the entity's (`unit`). Lane F3 adds 269 defects for the
++own MAC not the entity's (`unit`). Lane F3 adds 273 defects for the
+ `acmp`, `acmpwalk`, `acmpnvm` and `acmpif2` arms (with the driver's and the
+ model's for the bound-talker table in `unit` and `model`): a defect in each clause step, each
+ response field, each guard term, each timer, the owed queue and the #653
+@@ -234,9 +239,12 @@ MAAP: each overlap of MAAP's slots with ACMP's or ADP's, MAAP attached after
+ the open, before ACMP, started in the compose or never, its channel left
+ unbound, each refusal dropped or moved off its boundary, lane F2's entry
+ taking no port or dropping its range, and a MAAP handler overrunning the
+-three-way pass bound; and eight wrong numbers in `acmp.h` itself, which the tests
++three-way pass bound; round 7's: MAAP's source MAC or the filter's own MAC
++keyed by interface (`acmpif2`), and the three-way bound without MAAP's
++share or with MAAP's poll on one interface only; and eight wrong numbers in
++`acmp.h` itself, which the tests
+ catch because they spell the standards' values (`acmp_fake.hpp`, `spec`),
+-never the header's. They are `acmp_mutants.py`'s table, rounds 2, 4 and 6's
++never the header's. They are `acmp_mutants.py`'s table, rounds 2, 4, 6 and 7's
+ in `acmp_review_mutants.py`. Round 6 re-plants four defects whose text the
+ composition moved, each with its test and words: the pool bound after the
+ mailbox (F0) and ACMP never composed read the compose's ACMP block, and lane
+diff --git a/sw/firmware/ctrl/test/acmp_review_mutants.py b/sw/firmware/ctrl/test/acmp_review_mutants.py
+index 1fd260b7a..4a2f4eeaa 100644
+--- a/sw/firmware/ctrl/test/acmp_review_mutants.py
++++ b/sw/firmware/ctrl/test/acmp_review_mutants.py
+@@ -4,9 +4,10 @@
+ comment 6030067436): one or more for each finding of the R531-1 and R530-1
+ reviews and for the adp channel's bound-talker term (comment 6029368753),
+ on the core, the adapter, the binding owner, the driver and the host model;
+-round 4's (comment 6034423349) for R531-2-F1; and round 6's (comment
+-6037650104) for the app composing ADP, ACMP and lane F2's MAAP together.
+-acmp_mutants.py appends this table to its own.
++round 4's (comment 6034423349) for R531-2-F1; round 6's (comment
++6037650104) for the app composing ADP, ACMP and lane F2's MAAP together;
++and round 7's (comment 6041160063) for R530-5-F1 and S1. acmp_mutants.py
++appends this table to its own.
+ """
+ 
+ from __future__ import annotations
+@@ -399,4 +400,21 @@ MUTANTS = (
+            "\tfor (unsigned k = 0; k < 2000u; ++k) {\n\t\t(void)mbx_now_ms();\n\t}\n"
+            "\tmaap_rx(&m->ifs[f->interface].core",
+            "acmp", F6, "F6 the worst pass of the three-way backlog"),
++    # round 7 (R530-5-F1): MAAP's source on each interface is the own unicast MAC the filter holds there
++    Mutant("app-maap-mac-per-interface", APP, "\t\tmac[k] = cfg->entity->mac;\n",
++           "\t\tmac[k] = cfg->entity->mac + k;\n",
++           "acmpif2", U6, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"),
++    Mutant("app-own-mac-per-interface", APP, "\t\town_mac[i] = cfg->entity->mac;\n",
++           "\t\town_mac[i] = cfg->entity->mac + i;\n",
++           "acmpif2", U6, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"),
++    # round 7 (R530-5-S1): the three-way bound against the two published passes
++    Mutant("app-three-way-bound-drops-maap", "app/ctrl_app.h",
++           "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)",
++           "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX)",
++           "acmp", F6, "F6 the three-way bound is both modules' passes",
++           (("acmpif2", F6, "F6 the three-way bound is both modules' passes"),)),
++    Mutant("app-three-way-bound-one-maap-poll", "app/ctrl_app.h",
++           "(CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MBX_N_IF * MAAP_MBX_POLL_MAX)",
++           "(CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MAAP_MBX_POLL_MAX)",
++           "acmpif2", F6, "F6 the three-way bound is both modules' passes"),
+ )
+diff --git a/sw/firmware/ctrl/test/test_acmp_mbx.cpp b/sw/firmware/ctrl/test/test_acmp_mbx.cpp
+index 2b7dbc133..8523f1527 100644
+--- a/sw/firmware/ctrl/test/test_acmp_mbx.cpp
++++ b/sw/firmware/ctrl/test/test_acmp_mbx.cpp
+@@ -967,6 +967,12 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
+                 acmp_stored, maap_stored, static_cast<unsigned>(worst));
+     EXPECT_TRUE(at != 0u && at <= ACMP_MBX_RX_PASSES) << "F6 every record and event is taken, by ACMP_MBX_RX_PASSES";
+     EXPECT_EQ(model.ch[MBX_CH_MAAP].rx_tail, model.ch[MBX_CH_MAAP].rx_head) << "F6 the maap ring is drained";
++    // The bound is the two published passes, ADP and ACMP's (acmp_mbx.h) and
++    // MAAP's own (maap_mbx.h), with each event record's 6 accesses, which both
++    // count, taken once: the measured worst pass above cannot pin it.
++    EXPECT_EQ(CTRL_APP_PASS_MAX,
++              ACMP_MBX_PASS_MAX + MAAP_MBX_PASS_MAX - CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
++        << "F6 the three-way bound is both modules' passes with each event record taken once";
+     bound("F6 the worst pass of the three-way backlog", worst, CTRL_APP_PASS_MAX);
+     settle();
+ }
+@@ -1044,13 +1050,29 @@ TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelO
+         mbx_model_advance_ms(&model, 10u);
+         settle();
+     }
++    // A DEFEND answers the PROBE's source (IEEE 1722-2016 B.2.1), and the maap
++    // row admits one only to the receiving interface's own unicast MAC, so
++    // MAAP sends on each interface from the MAC the open wrote for it there.
+     std::array<unsigned, MBX_N_CH> sent{};
++    std::array<unsigned, MBX_N_IF> maap_own{};
++    std::array<unsigned, MBX_N_IF> maap_other{};
+     for (std::uint32_t k = 0; k < model.tx_sent; ++k) {
+-        ++sent[mbx_model_tx_frame(&model, k)->channel];
++        const mbx_model_tx* f = mbx_model_tx_frame(&model, k);
++        ++sent[f->channel];
++        if (f->channel != MBX_CH_MAAP) {
++            continue;
++        }
++        if ((wire_be64(f->bytes + 6) >> 16) == model.own_mac[f->interface]) {
++            ++maap_own[f->interface];
++        } else {
++            ++maap_other[f->interface];
++        }
+     }
+     EXPECT_TRUE(sent[MBX_CH_ADP] > 0u && sent[MBX_CH_MAAP] >= 3u * MBX_N_IF)
+         << "U6 ADP advertises and MAAP probes on every interface";
+     for (unsigned i = 0; i < MBX_N_IF; ++i) {
++        EXPECT_TRUE(maap_own[i] >= 3u && maap_other[i] == 0u)
++            << on_if(i, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted");
+         EXPECT_EQ(app.maap.ifs[i].core.state, MAAP_DEFEND) << on_if(i, "U6 MAAP acquires its range");
+         EXPECT_TRUE(app.adp.ifs[i].stale_expiries == 0u && app.acmp.ifs[i].stale_expiries == 0u &&
+                     app.maap.ifs[i].stale_expiries == 0u)

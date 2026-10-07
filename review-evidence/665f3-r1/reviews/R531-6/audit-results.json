@@ -1,0 +1,86 @@
+{
+  "head": "d8060d87f892239ac4e598d0a8556cbfcd4a52ec",
+  "baseline": "13e715136b0b7c8d9763e0b730d9709f2c9f5932",
+  "changed_paths": [
+    "docs/design/MAILBOX_SPLIT.md",
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/test/acmp_review_mutants.py",
+    "sw/firmware/ctrl/test/test_acmp_mbx.cpp"
+  ],
+  "history": [
+    "d8060d87f892239ac4e598d0a8556cbfcd4a52ec Describe the round-7 checks and defects, and which three-way backlog bounds fit T_svc at 1 us per access (#665 F3)",
+    "c316ff0042831a02266e8953681fd9555f261fc5 test_acmp_mbx.cpp: F6 ties CTRL_APP_PASS_MAX to the ACMP and MAAP pass bounds with each event record counted once, with two defects (#665 F3)",
+    "94108feca2faee9cfb688c6f8fd8c80da02bbdb9 test_acmp_mbx.cpp: U6 checks every MAAP frame leaves each interface from that interface's own unicast MAC, with two defects acmpif2 catches (#665 F3)"
+  ],
+  "production_tree_unchanged": true,
+  "header_bounds": [
+    {
+      "interfaces": 1,
+      "acmp": 1012,
+      "maap": 616,
+      "shared": 48,
+      "app": 1580
+    },
+    {
+      "interfaces": 2,
+      "acmp": 1043,
+      "maap": 664,
+      "shared": 48,
+      "app": 1659
+    }
+  ],
+  "derived_times": [
+    {
+      "input": "event",
+      "taken_by_pass": 2,
+      "accesses": 4740,
+      "assumed_access_us": 1,
+      "milliseconds": 4.74,
+      "fits_T_svc_10_ms": true,
+      "fits_ceiling_20_ms": true
+    },
+    {
+      "input": "owed",
+      "taken_by_pass": 8,
+      "accesses": 14220,
+      "assumed_access_us": 1,
+      "milliseconds": 14.22,
+      "fits_T_svc_10_ms": false,
+      "fits_ceiling_20_ms": true
+    },
+    {
+      "input": "acmp-ring",
+      "taken_by_pass": 10,
+      "accesses": 17380,
+      "assumed_access_us": 1,
+      "milliseconds": 17.38,
+      "fits_T_svc_10_ms": false,
+      "fits_ceiling_20_ms": true
+    },
+    {
+      "input": "adp-ring",
+      "taken_by_pass": 21,
+      "accesses": 34760,
+      "assumed_access_us": 1,
+      "milliseconds": 34.76,
+      "fits_T_svc_10_ms": false,
+      "fits_ceiling_20_ms": false
+    }
+  ],
+  "images": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "elf_file_bytes": 49904,
+      "head_sha256": "3d797e8f19a8b06532aa0b7beb4d64cda6e35f1b965635a4466ea0d2eae4788f",
+      "round6_sha256": "3d797e8f19a8b06532aa0b7beb4d64cda6e35f1b965635a4466ea0d2eae4788f",
+      "byte_identical": true
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "elf_file_bytes": 49904,
+      "head_sha256": "96eaa98578ea8eee4c516da408ba1d1050c152a245388d6b64cecc396fe01671",
+      "round6_sha256": "96eaa98578ea8eee4c516da408ba1d1050c152a245388d6b64cecc396fe01671",
+      "byte_identical": true
+    }
+  ]
+}
