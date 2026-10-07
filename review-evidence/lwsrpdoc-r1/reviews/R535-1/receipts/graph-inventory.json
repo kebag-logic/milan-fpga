@@ -1,0 +1,222 @@
+[
+  {
+    "graph": "CONTRIBUTING.md-47",
+    "source": "flowchart TD\n    Scope[Describe scope] --> Change[Make focused changes]\n    Change --> Check[Run checks]\n    Check --> Review[Submit evidence]\n    Review --> Decision[Maintainer review]\n",
+    "rc": 0,
+    "viewBox": "0 0 252.03125 486",
+    "direction": "TD",
+    "max_label_characters": 20,
+    "max_label_words": 3,
+    "image": "CONTRIBUTING.md-47.png"
+  },
+  {
+    "graph": "README.md-14",
+    "source": "flowchart TD\n    Host[Host application] --> Apps[VLAN / MAC / stream applications]\n    Apps --> Core[MRP state and codec]\n    Core --> Ports[Allocation and timers]\n    Host --> Switch[Switch interface]\n    Switch --> Sim[Port simulation]\n",
+    "rc": 0,
+    "viewBox": "0 0 508.546875 406",
+    "direction": "TD",
+    "max_label_characters": 32,
+    "max_label_words": 6,
+    "image": "README.md-14.png"
+  },
+  {
+    "graph": "doc-architecture.md-10",
+    "source": "flowchart TD\n    Host[Host policy] --> Apps[Protocol applications]\n    Apps --> Vtable[Application callbacks]\n    Vtable --> MAD[Declaration state]\n    MAD --> Codec[PDU codec]\n    MAD --> Clock[Timer port]\n    MAD --> Heap[Allocation port]\n    Host --> Switch[Switch operations]\n    Switch --> Sim[Simulation adapter]\n    Driver[Future hardware driver] -.-> Queue[Register queue]\n",
+    "rc": 0,
+    "viewBox": "0 0 799.41015625 486",
+    "direction": "TD",
+    "max_label_characters": 22,
+    "max_label_words": 3,
+    "image": "doc-architecture.md-10.png"
+  },
+  {
+    "graph": "doc-architecture.md-34",
+    "source": "flowchart TD\n    Payload[MRP payload] --> Parse[Parse vectors]\n    Parse --> Decode[Decode value]\n    Decode --> State[Apply event]\n    State --> Notify[Notify host]\n    Notify --> Policy[Choose propagation ports]\n    Policy --> Declare[Declare on target ports]\n",
+    "rc": 0,
+    "viewBox": "0 0 273.34375 694",
+    "direction": "TD",
+    "max_label_characters": 24,
+    "max_label_words": 4,
+    "image": "doc-architecture.md-34.png"
+  },
+  {
+    "graph": "doc-architecture.md-56",
+    "source": "flowchart LR\n    Declare[Local declaration] --> Pending[Pending state]\n    Pending -.-> Assembly[Missing transmit assembly]\n    Assembly -.-> Frame[Missing frame transport]\n",
+    "rc": 0,
+    "viewBox": "0 0 1020.828125 94",
+    "direction": "LR",
+    "max_label_characters": 25,
+    "max_label_words": 3,
+    "image": "doc-architecture.md-56.png"
+  },
+  {
+    "graph": "doc-developer.md-114",
+    "source": "stateDiagram-v2\n    direction LR\n    VO --> AO: rJoinIn, shared\n    AO --> QO: rJoinIn\n    QO --> AO: rJoinMt\n    VP --> AP: rJoinIn, shared\n    AP --> QP: rJoinIn\n    QP --> AP: rJoinMt\n",
+    "rc": 0,
+    "viewBox": "0 0 402.84375 174",
+    "direction": "LR",
+    "max_label_characters": 15,
+    "max_label_words": 2,
+    "image": "doc-developer.md-114.png"
+  },
+  {
+    "graph": "doc-developer.md-146",
+    "source": "stateDiagram-v2\n    VN --> LA: Leave\n    AN --> LA: Leave\n    AA --> LA: Leave\n    QA --> LA: Leave\n    LA --> VO: tx / Leave\n    LO --> VO: tx / In or Mt\n",
+    "rc": 0,
+    "viewBox": "0 0 327.6171875 284",
+    "direction": "TD",
+    "max_label_characters": 13,
+    "max_label_words": 5,
+    "image": "doc-developer.md-146.png"
+  },
+  {
+    "graph": "doc-developer.md-182",
+    "source": "stateDiagram-v2\n    [*] --> MT: Begin\n    MT --> IN: rNew or rJoin\n    IN --> IN: rNew\n    IN --> LV: rLv or rLA\n    LV --> IN: rNew or rJoin\n    LV --> MT: leave timer\n    IN --> MT: Flush\n    LV --> MT: Flush\n",
+    "rc": 0,
+    "viewBox": "0 0 395.7015686035156 446.1499938964844",
+    "direction": "TD",
+    "max_label_characters": 13,
+    "max_label_words": 3,
+    "image": "doc-developer.md-182.png"
+  },
+  {
+    "graph": "doc-developer.md-214",
+    "source": "stateDiagram-v2\n    direction LR\n    [*] --> Passive: Begin\n    Passive --> Active: timer\n    Active --> Passive: tx or rLA\n    Active --> Active: timer\n    Passive --> Passive: rLA\n",
+    "rc": 0,
+    "viewBox": "0 0 540.265625 138.1750030517578",
+    "direction": "LR",
+    "max_label_characters": 9,
+    "max_label_words": 3,
+    "image": "doc-developer.md-214.png"
+  },
+  {
+    "graph": "doc-developer.md-243",
+    "source": "stateDiagram-v2\n    direction LR\n    [*] --> Active: Begin\n    Active --> Active: timer\n    Active --> Passive: disable\n    Passive --> Active: enable\n",
+    "rc": 0,
+    "viewBox": "0 11.074199676513672 453.2593688964844 129.5758056640625",
+    "direction": "LR",
+    "max_label_characters": 7,
+    "max_label_words": 1,
+    "image": "doc-developer.md-243.png"
+  },
+  {
+    "graph": "doc-developer.md-269",
+    "source": "flowchart TD\n    Identity[Define identity] --> Codec[Encode and decode]\n    Codec --> Indicate[Handle indications]\n    Indicate --> Policy[Choose propagation]\n    Policy --> Create[Create application]\n    Create --> Verify[Exercise events]\n",
+    "rc": 0,
+    "viewBox": "0 0 229.65625 590",
+    "direction": "TD",
+    "max_label_characters": 18,
+    "max_label_words": 3,
+    "image": "doc-developer.md-269.png"
+  },
+  {
+    "graph": "doc-developer.md-28",
+    "source": "flowchart TD\n    App[Application handle] --> Ops[Copied callbacks]\n    Ops --> Context[Borrowed host context]\n    App --> Private[Private state]\n    Private --> Port[Port array]\n    Port --> Timers[LeaveAll and periodic timers]\n    Port --> List[Attribute list]\n    List --> Value[Value and identity]\n    List --> Machines[Applicant and Registrar]\n    List --> Leave[Leave timer]\n",
+    "rc": 0,
+    "viewBox": "0 0 809.5234375 510",
+    "direction": "TD",
+    "max_label_characters": 28,
+    "max_label_words": 4,
+    "image": "doc-developer.md-28.png"
+  },
+  {
+    "graph": "doc-developer.md-76",
+    "source": "stateDiagram-v2\n    [*] --> VO: Begin\n    VO --> VP: Join\n    VO --> VN: New\n    VN --> AN: tx / New\n    AN --> QA: tx / New, Registrar IN\n    AN --> AA: tx / New, Registrar not IN\n    VP --> AA: tx / Join\n    AA --> QA: tx / Join\n    QA --> QA: Join\n",
+    "rc": 0,
+    "viewBox": "0 0 394.7109375 724.25",
+    "direction": "TD",
+    "max_label_characters": 26,
+    "max_label_words": 6,
+    "image": "doc-developer.md-76.png"
+  },
+  {
+    "graph": "doc-integrator.md-115",
+    "source": "sequenceDiagram\n    participant Platform\n    participant Timer as Global timer list\n    participant Core as All applications\n    loop Once per centisecond\n        Platform->>Timer: Advance one tick\n        Timer->>Core: Run expired callbacks\n        Core->>Core: Apply events and rearm\n    end\n",
+    "rc": 0,
+    "viewBox": "-50 -10 806 436",
+    "direction": "sequence",
+    "max_label_characters": 22,
+    "max_label_words": 4,
+    "image": "doc-integrator.md-115.png"
+  },
+  {
+    "graph": "doc-integrator.md-144",
+    "source": "sequenceDiagram\n    participant Host\n    participant Core as MRP state\n    participant Timer as Global timer service\n    Host->>Core: Withdraw local declarations\n    Note over Host,Core: Withdrawal does not send a frame\n    Host->>Timer: Stop all future ticks and callbacks\n    Host->>Core: Destroy application\n    Note over Host,Timer: Current timer list retains freed links\n",
+    "rc": 0,
+    "viewBox": "-50 -10 875 421",
+    "direction": "sequence",
+    "max_label_characters": 38,
+    "max_label_words": 6,
+    "image": "doc-integrator.md-144.png"
+  },
+  {
+    "graph": "doc-integrator.md-169",
+    "source": "sequenceDiagram\n    participant Host\n    participant Adapter\n    Host->>Adapter: Create\n    Adapter-->>Host: Switch handle\n    Host->>Adapter: Connect\n    Host->>Adapter: Enable or disable port\n    Adapter-->>Host: Status code\n    Host->>Adapter: Disconnect\n    Host->>Adapter: Destroy\n",
+    "rc": 0,
+    "viewBox": "-50 -10 540 521",
+    "direction": "sequence",
+    "max_label_characters": 22,
+    "max_label_words": 4,
+    "image": "doc-integrator.md-169.png"
+  },
+  {
+    "graph": "doc-integrator.md-201",
+    "source": "sequenceDiagram\n    participant Producer\n    participant Queue\n    participant Driver as Single consumer\n    participant Bus\n    Producer->>Queue: Enqueue descriptor\n    Driver->>Queue: Dispatch\n    Driver->>Bus: Read or write\n    Bus-->>Driver: Result\n    Driver->>Producer: Completion callback\n",
+    "rc": 0,
+    "viewBox": "-50 -10 920 421",
+    "direction": "sequence",
+    "max_label_characters": 19,
+    "max_label_words": 3,
+    "image": "doc-integrator.md-201.png"
+  },
+  {
+    "graph": "doc-integrator.md-46",
+    "source": "sequenceDiagram\n    participant Host\n    participant App as Protocol application\n    participant Core as MRP state\n    participant Timer as Timer service\n    Host->>App: Create with ports and callbacks\n    App->>Core: Copy operations and allocate state\n    Core->>Timer: Register and arm port timers\n    App-->>Host: Handle or null\n    Host->>App: Declare a value\n    App->>Core: Apply local event\n    Core-->>Host: Status code\n",
+    "rc": 0,
+    "viewBox": "-50 -10 1390 521",
+    "direction": "sequence",
+    "max_label_characters": 34,
+    "max_label_words": 5,
+    "image": "doc-integrator.md-46.png"
+  },
+  {
+    "graph": "doc-integrator.md-81",
+    "source": "sequenceDiagram\n    participant Host\n    participant Core as MRP state\n    participant Codec\n    participant Policy as Host callbacks\n    Host->>Core: Submit payload and ingress port\n    Core->>Codec: Parse attribute vectors\n    Codec->>Core: Deliver decoded events\n    Core->>Policy: Registration indication\n    Core->>Core: Apply optional propagation\n    Core->>Host: Report state transition\n    Core-->>Host: Parse result\n",
+    "rc": 0,
+    "viewBox": "-50 -10 1140 551",
+    "direction": "sequence",
+    "max_label_characters": 31,
+    "max_label_words": 5,
+    "image": "doc-integrator.md-81.png"
+  },
+  {
+    "graph": "doc-manager.md-41",
+    "source": "flowchart TD\n    Review[Inspect implementation] --> Host[Run host checks]\n    Host --> Gaps[Resolve protocol gaps]\n    Gaps --> Target[Validate target integration]\n    Target --> Network[Run interoperability tests]\n    Network --> Release[Approve deployment]\n",
+    "rc": 0,
+    "viewBox": "0 0 270.828125 590",
+    "direction": "TD",
+    "max_label_characters": 27,
+    "max_label_words": 3,
+    "image": "doc-manager.md-41.png"
+  },
+  {
+    "graph": "doc-tester.md-62",
+    "source": "flowchart TD\n    Behavior[Choose behavior] --> Given[Define starting state]\n    Given --> When[Perform one action]\n    When --> Then[Check observable result]\n    Then --> Match[Check step matching]\n    Match --> Execute[Run with working setup]\n",
+    "rc": 0,
+    "viewBox": "0 0 260.28125 590",
+    "direction": "TD",
+    "max_label_characters": 23,
+    "max_label_words": 4,
+    "image": "doc-tester.md-62.png"
+  },
+  {
+    "graph": "doc-tester.md-92",
+    "source": "flowchart LR\n    Checks[Current checks] --> Codec[Nine codec tests]\n    Checks --> Scenarios[Three switch scenarios]\n    Scenarios --> Steps[Ten passing steps]\n    Missing[Coverage gaps] --> State[State and timer behavior]\n    Missing --> Wire[Parser and interoperability]\n    Missing --> Target[Hardware and lifecycle]\n",
+    "rc": 0,
+    "viewBox": "0 0 748.890625 486",
+    "direction": "LR",
+    "max_label_characters": 27,
+    "max_label_words": 4,
+    "image": "doc-tester.md-92.png"
+  }
+]

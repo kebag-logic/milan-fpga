@@ -1,0 +1,10 @@
+flowchart TD
+    Host[Host policy] --> Apps[Protocol applications]
+    Apps --> Vtable[Application callbacks]
+    Vtable --> MAD[Declaration state]
+    MAD --> Codec[PDU codec]
+    MAD --> Clock[Timer port]
+    MAD --> Heap[Allocation port]
+    Host --> Switch[Switch operations]
+    Switch --> Sim[Simulation adapter]
+    Driver[Future hardware driver] -.-> Queue[Register queue]

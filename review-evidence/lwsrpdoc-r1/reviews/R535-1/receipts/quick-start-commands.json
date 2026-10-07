@@ -1,0 +1,26 @@
+[
+  {
+    "page": "README.md",
+    "line": 35,
+    "command": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "rc": 0
+  },
+  {
+    "page": "README.md",
+    "line": 36,
+    "command": "cmake --build build --parallel 2",
+    "rc": 0
+  },
+  {
+    "page": "README.md",
+    "line": 37,
+    "command": "ctest --test-dir build --output-on-failure",
+    "rc": 0
+  },
+  {
+    "page": "README.md",
+    "line": 38,
+    "command": "behave",
+    "rc": 0
+  }
+]

@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant Host
+    participant Core as MRP state
+    participant Codec
+    participant Policy as Host callbacks
+    Host->>Core: Submit payload and ingress port
+    Core->>Codec: Parse attribute vectors
+    Codec->>Core: Deliver decoded events
+    Core->>Policy: Registration indication
+    Core->>Core: Apply optional propagation
+    Core->>Host: Report state transition
+    Core-->>Host: Parse result

@@ -1,0 +1,205 @@
+[
+  {
+    "name": "clone",
+    "command": [
+      "git",
+      "clone",
+      "--shared",
+      "--no-checkout",
+      "<review-checkout>",
+      "<source>"
+    ],
+    "rc": 0,
+    "seconds": 0.014
+  },
+  {
+    "name": "checkout",
+    "command": [
+      "git",
+      "checkout",
+      "--detach",
+      "5f9b9d99e1d94485fc00a1b1539baf2ae861cb65"
+    ],
+    "rc": 0,
+    "seconds": 0.007
+  },
+  {
+    "name": "origin",
+    "command": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://github.com/kebag-logic/lwSRP.git"
+    ],
+    "rc": 0,
+    "seconds": 0.004
+  },
+  {
+    "name": "docs-sentences",
+    "command": [
+      "python3",
+      "doc/tools/check_sentences.py"
+    ],
+    "rc": 0,
+    "seconds": 0.034
+  },
+  {
+    "name": "docs-references",
+    "command": [
+      "python3",
+      "doc/tools/check_references.py"
+    ],
+    "rc": 0,
+    "seconds": 0.04
+  },
+  {
+    "name": "dependency-download",
+    "command": [
+      "curl",
+      "-fL",
+      "--retry",
+      "2",
+      "https://api.github.com/repos/cgreen-devs/cgreen/tarball/1.7.0",
+      "-o",
+      "<packet>/scratch/dependency.tar.gz"
+    ],
+    "rc": 0,
+    "seconds": 0.826
+  },
+  {
+    "name": "docs-links",
+    "command": [
+      "python3",
+      "doc/tools/check_links.py",
+      "--github-auth"
+    ],
+    "rc": 1,
+    "seconds": 1.52
+  },
+  {
+    "name": "dependency-configure",
+    "command": [
+      "cmake",
+      "-S",
+      "<packet>/scratch/dependency-source/cgreen-devs-cgreen-feeb85e",
+      "-B",
+      "<packet>/scratch/dependency-build",
+      "-DCMAKE_INSTALL_PREFIX=<packet>/scratch/dependency-prefix",
+      "-DCMAKE_INSTALL_LIBDIR=lib",
+      "-DWITH_TESTS=OFF",
+      "-DWITH_EXAMPLES=OFF"
+    ],
+    "rc": 0,
+    "seconds": 1.365
+  },
+  {
+    "name": "dependency-build",
+    "command": [
+      "make",
+      "-j16"
+    ],
+    "rc": 0,
+    "seconds": 2.106
+  },
+  {
+    "name": "dependency-install",
+    "command": [
+      "cmake",
+      "--install",
+      "<packet>/scratch/dependency-build"
+    ],
+    "rc": 0,
+    "seconds": 0.018
+  },
+  {
+    "name": "published-configure",
+    "command": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build",
+      "-DCMAKE_BUILD_TYPE=Debug"
+    ],
+    "rc": 0,
+    "seconds": 0.324
+  },
+  {
+    "name": "published-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 0.527
+  },
+  {
+    "name": "published-ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build",
+      "--output-on-failure"
+    ],
+    "rc": 0,
+    "seconds": 0.029
+  },
+  {
+    "name": "published-unit",
+    "command": [
+      "./build/unit_tests"
+    ],
+    "rc": 0,
+    "seconds": 0.017
+  },
+  {
+    "name": "published-scenarios",
+    "command": [
+      "behave"
+    ],
+    "rc": 0,
+    "seconds": 0.112
+  },
+  {
+    "name": "published-scenario-dry",
+    "command": [
+      "behave",
+      "--dry-run"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  {
+    "name": "published-isolated-compile",
+    "command": [
+      "bash",
+      "-c",
+      "cc -std=c11 -Isrc/include tests/unit/mrp_pdu_test.c src/core/mrp_pdu.c -xc - -lcgreen -o build/mrp_pdu_tests <<'C'\n#include <cgreen/cgreen.h>\nTestSuite *mrp_pdu_suite(void);\nint main(void)\n{\n    return run_test_suite(mrp_pdu_suite(), create_text_reporter());\n}\nC\n"
+    ],
+    "rc": 0,
+    "seconds": 0.153
+  },
+  {
+    "name": "published-isolated-run",
+    "command": [
+      "./build/mrp_pdu_tests"
+    ],
+    "rc": 0,
+    "seconds": 0.017
+  },
+  {
+    "name": "docs-render-published",
+    "command": [
+      "python3",
+      "doc/tools/render_mermaid.py",
+      "--output",
+      "<packet>/graphs"
+    ],
+    "rc": 0,
+    "seconds": 15.87
+  }
+]

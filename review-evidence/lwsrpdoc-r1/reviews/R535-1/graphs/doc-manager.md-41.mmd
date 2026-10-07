@@ -1,0 +1,6 @@
+flowchart TD
+    Review[Inspect implementation] --> Host[Run host checks]
+    Host --> Gaps[Resolve protocol gaps]
+    Gaps --> Target[Validate target integration]
+    Target --> Network[Run interoperability tests]
+    Network --> Release[Approve deployment]

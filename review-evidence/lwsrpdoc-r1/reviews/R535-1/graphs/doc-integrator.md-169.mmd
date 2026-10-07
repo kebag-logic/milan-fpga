@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant Host
+    participant Adapter
+    Host->>Adapter: Create
+    Adapter-->>Host: Switch handle
+    Host->>Adapter: Connect
+    Host->>Adapter: Enable or disable port
+    Adapter-->>Host: Status code
+    Host->>Adapter: Disconnect
+    Host->>Adapter: Destroy

@@ -1,0 +1,80 @@
+[
+  {
+    "name": "probe-long-sentence",
+    "rc": 1,
+    "expected": 1,
+    "passed": true
+  },
+  {
+    "name": "probe-unlinked-references",
+    "rc": 1,
+    "expected": 1,
+    "passed": true
+  },
+  {
+    "name": "probe-bad-links",
+    "rc": 1,
+    "expected": 1,
+    "passed": true
+  },
+  {
+    "name": "probe-good-links",
+    "rc": 0,
+    "expected": 0,
+    "passed": true
+  },
+  {
+    "name": "probe-large-graph",
+    "rc": 1,
+    "expected": 1,
+    "passed": true
+  },
+  {
+    "url": "https://github.com/kebag-logic/lwSRP/issues/1",
+    "expected": "repos/kebag-logic/lwSRP/issues/1",
+    "actual": "repos/kebag-logic/lwSRP/issues/1",
+    "passed": true
+  },
+  {
+    "url": "https://github.com/kebag-logic/lwSRP/pull/5#issuecomment-6030839413",
+    "expected": "repos/kebag-logic/lwSRP/issues/comments/6030839413",
+    "actual": "repos/kebag-logic/lwSRP/issues/comments/6030839413",
+    "passed": true
+  },
+  {
+    "url": "https://github.com/kebag-logic/lwSRP-extra/issues/1",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "url": "https://github.com.example.org/kebag-logic/lwSRP/issues/1",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "url": "https://github.com/kebag-logic/lwSRP/blob/main/README.md",
+    "expected": "",
+    "actual": "",
+    "passed": true
+  },
+  {
+    "name": "probe-empty-suite-compile",
+    "rc": 0,
+    "expected": 0,
+    "passed": true
+  },
+  {
+    "name": "probe-empty-suite-direct",
+    "rc": 0,
+    "expected": 0,
+    "passed": true
+  },
+  {
+    "name": "probe-empty-suite-guard",
+    "rc": 8,
+    "expected": 8,
+    "passed": true
+  }
+]
