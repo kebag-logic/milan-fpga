@@ -1,0 +1,66 @@
+Note: Google Test filter = SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpLatency
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:164: Failure
+Expected equality of these values:
+  adapter.pending_rx.len
+    Which is: 35
+  0u
+    Which is: 0
+
+  [FAIL] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget:     Which is: 0
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:165: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget: Expected: false
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:164: Failure
+Expected equality of these values:
+  adapter.pending_rx.len
+    Which is: 35
+  0u
+    Which is: 0
+
+  [FAIL] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget:     Which is: 0
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:165: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget: Expected: false
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:167: Failure
+Expected equality of these values:
+  adapter.stops
+    Which is: 0
+  2u
+    Which is: 2
+
+  [FAIL] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget:     Which is: 2
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:155: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget:            Actual: never called - unsatisfied and active
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:145: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget:            Actual: never called - unsatisfied and active
+[  FAILED  ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 1 test from SrpLatency (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+
+ 1 FAILED TEST
+== ctrl SRP service latency: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

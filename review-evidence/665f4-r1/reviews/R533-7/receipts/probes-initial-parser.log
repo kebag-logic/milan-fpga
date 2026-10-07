@@ -1,0 +1,13 @@
+r532_hol_probe-if1 0
+r532_flood_probe-if1 0
+r533_5_independent-if1 0
+r532_retry_probes-if1 0
+wrote ${PACKET}/scratch/probes/srp-${PACKET}/scripts/r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote ${PACKET}/scratch/probes/srp-${PACKET}/scripts/r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote ${PACKET}/scratch/probes/srp-${PACKET}/scripts/r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+r532_hol_probe-if2 0
+Traceback (most recent call last):
+  File "${PACKET}/scripts/focused.py", line 44, in <module>
+    assert len(lines)==2 and all('pending=0 ' in s and 'received=2 ' in s and 'active=0 ' in s for s in lines),lines
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['  t+5s pending=0 refused=99903 received=2 active=0 pool_in_use=65', '  t+5s pending=0 refused=0 received=3 active=0 pool_in_use=49']

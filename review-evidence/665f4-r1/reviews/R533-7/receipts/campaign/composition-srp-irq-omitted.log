@@ -1,0 +1,26 @@
+Note: Google Test filter = SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpApp
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+${SOURCE}/sw/firmware/ctrl/test/srp_app.cpp:52: Failure
+Expected equality of these values:
+  model.irq_enable
+    Which is: 265
+  (channels<<0u)|(1u<<8u)
+    Which is: 281
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources:     Which is: 281
+[  FAILED  ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 1 test from SrpApp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+
+ 1 FAILED TEST
+== ctrl ADP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

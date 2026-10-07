@@ -1,0 +1,30 @@
+1x1_tdm8-if1-base 18752
+1x1_tdm8-if2-base 19248
+1x1_tdm8-if1-head 62688
+8x8-if1-base 18752
+1x1_tdm8-if2-head 75264
+Traceback (most recent call last):
+  File "${PACKET}/scripts/sizes.py", line 29, in <module>
+    results=list(pool.map(measure,[(s,n,m) for s in ('1x1_tdm8','8x8') for n in (1,2) for m in ('base','round5','head')]))
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 447, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "${PACKET}/scripts/sizes.py", line 24, in measure
+    command(args,name+'.log')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "${PACKET}/scripts/sizes.py", line 10, in command
+    if r.returncode:raise RuntimeError((log,r.returncode))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: ('1x1_tdm8-if1-round5.log', 2)

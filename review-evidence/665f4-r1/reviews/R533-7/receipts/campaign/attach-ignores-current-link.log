@@ -1,0 +1,43 @@
+Note: Google Test filter = Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:692: Failure
+Value of: adapter.ifs[i].link
+  Actual: false
+Expected: true
+attach samples the current level
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord: attach samples the current level
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:704: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord: Expected: true
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:693: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord:            Actual: never called - unsatisfied and active
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:705: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

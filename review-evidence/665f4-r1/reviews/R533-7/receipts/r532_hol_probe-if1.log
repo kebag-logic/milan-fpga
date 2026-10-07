@@ -1,0 +1,30 @@
+Note: Google Test filter = R532Hol.ManyDomainValuesInOneValidPdu:R532Hol.ThirtyDomainValues
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from R532Hol
+[ RUN      ] R532Hol.ManyDomainValuesInOneValidPdu
+N=150 bytes=1073 pending=1073 refused=501 received=1 malformed=0 pool_in_use=33
+  t+5s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+10s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+15s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+20s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+  t+25s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+  t+30s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+[       OK ] R532Hol.ManyDomainValuesInOneValidPdu (309 ms)
+[ RUN      ] R532Hol.ThirtyDomainValues
+N=30 bytes=233 pending=233 refused=501 received=1 malformed=0 pool_in_use=33
+  t+5s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+10s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+15s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+20s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+  t+25s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+  t+30s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+[       OK ] R532Hol.ThirtyDomainValues (207 ms)
+[----------] 2 tests from R532Hol (517 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (517 ms total)
+[  PASSED  ] 2 tests.
+== R532-6 head-of-line probe: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)

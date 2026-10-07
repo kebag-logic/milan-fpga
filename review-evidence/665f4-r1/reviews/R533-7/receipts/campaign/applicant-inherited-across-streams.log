@@ -1,0 +1,54 @@
+Note: Google Test filter = Srp.ReboundStreamCannotInheritAnotherStreamsReady
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReboundStreamCannotInheritAnotherStreamsReady
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:881: Failure
+Value of: ready
+  Actual: false
+Expected: true
+the rebound StreamID owes its own Ready declaration
+Google Test trace:
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:861: 0/0
+
+  [FAIL] Srp.ReboundStreamCannotInheritAnotherStreamsReady: ${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:861: 0/0
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:881: Failure
+Value of: ready
+  Actual: false
+Expected: true
+the rebound StreamID owes its own Ready declaration
+Google Test trace:
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:861: 0/1
+
+  [FAIL] Srp.ReboundStreamCannotInheritAnotherStreamsReady: ${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:861: 0/1
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:881: Failure
+Value of: ready
+  Actual: false
+Expected: true
+the rebound StreamID owes its own Ready declaration
+Google Test trace:
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:861: 1/0
+
+  [FAIL] Srp.ReboundStreamCannotInheritAnotherStreamsReady: ${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:861: 1/0
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:881: Failure
+Value of: ready
+  Actual: false
+Expected: true
+the rebound StreamID owes its own Ready declaration
+Google Test trace:
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:861: 1/1
+
+  [FAIL] Srp.ReboundStreamCannotInheritAnotherStreamsReady: ${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:861: 1/1
+[  FAILED  ] Srp.ReboundStreamCannotInheritAnotherStreamsReady (3 ms)
+[----------] 1 test from Srp (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReboundStreamCannotInheritAnotherStreamsReady
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

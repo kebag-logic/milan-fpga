@@ -1,0 +1,42 @@
+f74b9403b330ce316eeec6f724846f16def98443 Bound SRP receive allocation retries by original arrival
+cce554f64f6bdab1f6d26e5c4d7b46d54d228c52 Record the published Applicant test merge exactly
+fcc1e8d9de6285b6f3f4429711f4e6be81f92782 Use a typed array for the SRP retry test address
+45e5803a9997c7a228f92a45308dbd06ea669c48 Retain refused SRP input and compose ADP MAAP and SRP
+069874955e9c1061872d47afc3b7e57fc24e19bd Merge F2 composition from dev into SRP lane
+500b8f64443777685e6a54049d933476710d26f0 Adopt public lwSRP main and preserve allocation refusal coverage
+e21c1ca024d37ea188ad15b5c8f9c2dae18628df Merge PR #687: Mark II F2: bare-metal MAAP core on the mailbox
+6f7deea15a9160761b30aaa93fe152f20d416695 test: discriminate shared SRP inheritance and Domain VID retention
+c1049de1970e93d2c36ace62891ee9d947cd3191 fix: reconcile SRP link levels and shared binding replacements
+42a0371affceb2a07a734449d706be01fa5abc9a Cover receive rejection while the SRP link remains down
+acb0325bdb5d26954fa34577c8d7c55600e95b59 Close the remaining SRP lifecycle mutation checks
+181e3e1ac62cf768532087ee647c94c554338c8c Correct Milan SRP lifecycle and shared declarations with round two evidence
+5968967e19411428b71dde5c4712d4a8fa528cfb Clarify release and debug RV32 assertion evidence
+24be55fc14f396db631efb49dc4b0d9b2fc4e97a Correct MAAP compiler selector and document debug RV32 evidence
+d4bc335c20ad764fdcda7ebef6a6cd64dc60af93 Merge dev d51b373a into F2 preserving MAAP and firmware robustness checks
+f9ffa5cb94c152212af63916bf5eecb019a287a7 Pin the integrated lwSRP port for round two
+8b43aed6126c39483ce20e37f0644d34f6f30696 Merge dev for F4 round 2
+d51b373ad7e8e8381af2797be3ebb8ee45c62e3c Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678)
+50d492c12789e1d80bf11f547e7fe53e02b4bdb9 fix: guard SRP reentry before validating arguments
+8e309d8ab1589d7c1da0c078eba4aca70d69d3ff feat: add bare-metal SRP on pinned lwSRP
+09f1841bd2c6a9dea8eb1994d887f7386ca4f62d Merge PR #685: Mark II FC: mailbox ingress filter contract (full tuple, per-interface own MAC, two-sided AECP identity, FILTER_MISMATCH, MAAP DEFEND to own unicast)
+708e5634f28e6e5a19236a9b0a9a543c3622e52d Record the measured RV32 text sizes of the store after the erased-payload check
+8b78a8fd36864246336c71c061ac4f21d629952f Keep MAAP release assertions independent of hosted SDK headers
+a71b8c8072c28c3511254484de5dda4e57e91d3f Pin consumed MAAP preference across link bounce after SDK merge
+5901ab0869e0674bb18bbb4df60757f2711e5cd4 Merge dev 910f338d into F2 preserving RV32 checks and MAAP coverage
+34475e774dfe1c92c81fa51293668e64dc95fa85 Declare assert for the freestanding RV32 object check and name __assert_fail in the ctrl runtime interfaces
+232970dbb9663abb2a260efda4d2d5abcf034fb5 Merge dev 910f338d into 677-fw-fixes
+910f338dbd050f4efd2d96991ddcf928a583d55f Merge PR #683: Build the ctrl and ctrl_nvm RV32 objects against the pinned ilp32d SDK (#679)
+938497af1dffd8a87edebf3ab93663914bf85e5e Keep new MAAP test declarations separate
+11e195bea81def13274ac6f424f974b3f4cfc0d7 Fix MAAP wake and saved-range handling with review regression controls
+1a5d70faba6a9b01aab6bb868c12e4c7023e0c70 Add bare-metal MAAP core and mailbox service evidence
+79b086d44eb62d007d38e18f5618b98e8e2a33e6 Merge PR #681: Raise the measured per-suite time limits that slow hosted runners exceed (#673)
+6a05347d4e2ec1dcb37d4e5806c7767537de3ce0 Merge PR #680: AAF talker: admit capture from the talker's pair zero after a disable, so the first PDU carries a current presentation time (#667)
+04e1435a218908d2b12b4053e5dab2c2dcac2ebf fix: exclude local definitions from firmware runtime resolution
+6c94e9f5f496ac25f8c4e31f9e3685c725de29f3 fix firmware erased-record bounds and ADP port re-entry
+0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe Fix RV32 firmware object checks for the pinned SDK
+793dcd3f7867d85f8c1f5c9ef2b04dc9c2d9c5df docs: align suite deadline references with measured limits
+26bd6334a7b8b2a8582b36ae4729a71620546c14 ci: raise measured per-suite time limits for slow runners
+41bc9dac031526c1fd637ff1e801d3c6dc1260b4 Merge dev bd884631 into 667-talker-start; move the start_mutants reader entry to measure_test_evidence_readers.py
+5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2 Keep the mutation disposition concise
+63f9ce62b51fd8a7da26bea0122642d48b3e4ad7 Classify startup mutations as independent test controls
+4adfd118efa5cb89195e0b401e20abf7272d217b Fix AAF startup admission before the first channel pair

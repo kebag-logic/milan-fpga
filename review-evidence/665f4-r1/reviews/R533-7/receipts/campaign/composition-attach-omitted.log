@@ -1,0 +1,54 @@
+Note: Google Test filter = SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpApp
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+${SOURCE}/sw/firmware/ctrl/test/srp_app.cpp:53: Failure
+Expected equality of these values:
+  app.loop.n_sinks
+    Which is: 2
+  3u
+    Which is: 3
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources:     Which is: 3
+${SOURCE}/sw/firmware/ctrl/test/srp_app.cpp:54: Failure
+Expected equality of these values:
+  app.loop.n_polls
+    Which is: 2
+  3u
+    Which is: 3
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources:     Which is: 3
+${SOURCE}/sw/firmware/ctrl/test/srp_app.cpp:55: Failure
+Expected equality of these values:
+  app.loop.n_ticks
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources:     Which is: 1
+${SOURCE}/sw/firmware/ctrl/test/srp_app.cpp:56: Failure
+Value of: ctrl_app_attach_srp(&app,&adapter)
+  Actual: true
+Expected: false
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources: Expected: false
+${SOURCE}/sw/firmware/ctrl/test/srp_app.cpp:75: Failure
+Value of: sent[4u]
+  Actual: false
+Expected: true
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources: Expected: true
+[  FAILED  ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 1 test from SrpApp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+
+ 1 FAILED TEST
+== ctrl ADP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

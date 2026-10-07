@@ -1,0 +1,23 @@
+Note: Google Test filter = Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:421: Failure
+Expected: (d.event) != (5u), actual: 5 vs 5
+one remaining binding retains the Listener
+
+  [FAIL] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind: one remaining binding retains the Listener
+[  FAILED  ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,45 @@
+Note: Google Test filter = SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:364: Failure
+Expected equality of these values:
+  adapter.pending_rx.len
+    Which is: 35
+  0u
+    Which is: 0
+
+  [FAIL] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline:     Which is: 0
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:365: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline:     Which is: 1
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Change(1, 0, true)
+
+  [FAIL] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline:     Function call: Change(1, 0, true)
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:370: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline:            Actual: never called - unsatisfied and active
+[  FAILED  ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline (2 ms)
+[----------] 1 test from SrpRetry (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+
+ 1 FAILED TEST
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,46 @@
+Note: Google Test filter = SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:223: Failure
+Expected: (adapter.pending_rx.len) != (0u), actual: 0 vs 0
+
+  [FAIL] SrpRetry.RetainedReceiveWaitsForOwedTransmit: Expected: (adapter.pending_rx.len) != (0u), actual: 0 vs 0
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:225: Failure
+Expected equality of these values:
+  adapter.malformed
+    Which is: 1
+  0u
+    Which is: 0
+
+  [FAIL] SrpRetry.RetainedReceiveWaitsForOwedTransmit:     Which is: 0
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:228: Failure
+Expected equality of these values:
+  adapter.ifs[0].domain.vid
+    Which is: 2
+  7u
+    Which is: 7
+
+  [FAIL] SrpRetry.RetainedReceiveWaitsForOwedTransmit:     Which is: 7
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:229: Failure
+Expected equality of these values:
+  adapter.received
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.RetainedReceiveWaitsForOwedTransmit:     Which is: 1
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[----------] 1 test from SrpRetry (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+
+ 1 FAILED TEST
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

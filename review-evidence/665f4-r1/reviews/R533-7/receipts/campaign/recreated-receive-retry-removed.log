@@ -1,0 +1,46 @@
+Note: Google Test filter = SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:186: Failure
+Expected equality of these values:
+  adapter.received
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.FailedParticipantRecreationRetainsFreshReceive:     Which is: 1
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:187: Failure
+Expected equality of these values:
+  adapter.pending_rx.len
+    Which is: 35
+  0u
+    Which is: 0
+
+  [FAIL] SrpRetry.FailedParticipantRecreationRetainsFreshReceive:     Which is: 0
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:185: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpRetry.FailedParticipantRecreationRetainsFreshReceive:            Actual: never called - unsatisfied and active
+${SOURCE}/sw/firmware/ctrl/test/srp_rx_retry.cpp:188: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpRetry.FailedParticipantRecreationRetainsFreshReceive:            Actual: never called - unsatisfied and active
+[  FAILED  ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[----------] 1 test from SrpRetry (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+
+ 1 FAILED TEST
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

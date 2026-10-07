@@ -1,0 +1,44 @@
+Note: Google Test filter = Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:148: Failure
+Expected equality of these values:
+  adapter.received
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput:     Which is: 1
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:150: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput: Expected: true
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:146: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput:            Actual: never called - unsatisfied and active
+${SOURCE}/sw/firmware/ctrl/test/srp_mbx.cpp:151: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,370 @@
+f74b9403b330ce316eeec6f724846f16def98443 Bound SRP receive allocation retries by original arrival
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index 0e2c74c04..5f049620d 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -32,8 +32,8 @@ There is no firmware heap or operating-system dependency.
+ The pool has two small and two large blocks per interface, plus
+ `16 + 3 * sources + 4 * sinks` medium blocks per interface.
+ The arena includes conservative allocator overhead for each block.
+-Receive-interest filters retain only the Class A Domain, output Listener IDs,
+-bound input Talker IDs and required VLANs.
++Receive-interest filters retain every valid Class A Domain value, output Listener
++IDs, bound input Talker IDs and required VLANs.
+ Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
+ Exhaustion is counted and refused; it cannot overwrite another reservation.
+ The pool is a finite capacity, not a claim that arbitrary peer churn always fits.
+@@ -82,12 +82,23 @@ Malformed PDUs increment `malformed`; local allocation refusals increment `refus
+ A refusal retains the complete record in one static buffer.
+ Its interface, arrival timestamp and payload remain unchanged.
+ Later SRP records and binding changes wait behind it.
+-Each poll retries after earlier events, ticks and owed output.
++Each poll retries after pending events, ticks and owed output.
+ Earlier applied attributes remain applied; replay includes every later attribute.
+-Repeated refusal retains the same record.
+ Each poll attempts reception once.
+ The fabric centisecond event supplies another service opportunity.
+ Storage recovery completes the payload on the next eligible poll.
++A continuing allocation refusal expires after 1000 ms from the original arrival.
++This local recovery policy allows one periodic interval.
++It is checked at each eligible receive attempt.
++A record already delayed in the RX ring gets no fresh retry window.
++A failed participant recreation checks the same deadline.
++A successful retry takes precedence over expiration; pending events and owed
++output still precede that retry.
++Expired refusal clears the retained record and increments `rx_discarded` once,
++without incrementing `received` or `malformed`.
++Earlier applied attributes remain; MRP refresh and aging recover the lost suffix.
++Later input on every interface and binding calls can then proceed.
++This recovery limit does not enlarge the 10 ms service budget.
+ Destroy cancels it; link reset cancels only its interface's record.
+ 
+ Every output starts with Talker Advertise or Talker Failed (Milan 5.5.2.7).
+@@ -117,7 +128,8 @@ The corresponding Talker licence or Listener request is revoked in that pass.
+ MVRP retains the generic IEEE 802.1Q Table 10-4 Registrar behavior.
+ A withdrawal in LV does not restart LeaveTime (#608 and processor #134).
+ The original five-second deadline revokes the Talker licence.
+-Temporary storage refusal defers application until capacity returns.
++Temporary storage refusal defers application until capacity returns or the
++receive recovery limit expires.
+ Timer withdrawals retry at each centisecond; retained RX retries at polls.
+ That delay is measured from the original deadline or arrival.
+ Exhaustion never grants a fresh service or protocol timing budget.
+@@ -188,6 +200,10 @@ Separate receive tests exhaust it before accepting a mailbox record.
+ They cover mixed attributes, partial completion, repeated refusal and recovery.
+ They also cover interface ordering, link fences and destruction.
+ The retry-removal plant must fail the retained-payload regressions.
++Wire-valid Domain floods exceed the actual pool without artificial exhaustion.
++They check later withdrawal and binding progress at one and two interfaces.
++Boundary, clock-wrap and failed-recreation cases grade the original deadline.
++The bound-removal plant must fail the oversized-record regression.
+ Higher-version messages and atomic invalid-value rejection have wire cases.
+ 
+ The published lwSRP [Applicant tests](https://github.com/kebag-logic/lwSRP/pull/15)
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index b109b8f8f..7096c06f8 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -15,6 +15,10 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
+     {64u, SRP_POOL_SMALL_BLOCKS}, {256u, SRP_POOL_MEDIUM_BLOCKS}, {512u, SRP_POOL_LARGE_BLOCKS}
+ };
+ 
++// Stop retrying allocation refusal after one periodic interval from arrival.
++// This recovery limit does not extend the 10 ms service budget.
++#define SRP_RX_RETRY_MS 1000u
++
+ static struct srp_mbx *timer_owner;
+ static void tick(void);
+ static bool poll(void *ctx);
+@@ -352,7 +356,7 @@ static bool rx_ready(void *ctx)
+     return m->pending_rx.len == 0 && rx_order_ready(m);
+ }
+ 
+-// Return false only for recoverable local storage refusal. Earlier events
++// Return false only for local storage refusal. Earlier events
+ // may already have applied; lwSRP requires replay of the identical payload.
+ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
+ {
+@@ -381,6 +385,15 @@ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
+     return true;
+ }
+ 
++static void expire_receive(struct srp_mbx *m)
++{
++    if (m->pending_rx.len &&
++        (uint32_t)(mbx_now_ms() - m->pending_rx.arrival_ms) >= SRP_RX_RETRY_MS) {
++        m->pending_rx.len = 0;
++        ++m->rx_discarded;
++    }
++}
++
+ static void receive(void *ctx, const struct mbx_frame *frame)
+ {
+     struct srp_mbx *m = ctx;
+@@ -399,6 +412,7 @@ static void receive(void *ctx, const struct mbx_frame *frame)
+     }
+     if (!apply_receive(m,frame)) {
+         m->pending_rx = *frame;
++        expire_receive(m);
+     }
+     m->busy = false;
+ }
+@@ -641,6 +655,9 @@ static bool poll(void *ctx)
+             i->msrp = NULL; i->mvrp = NULL;
+             if (!open_interface(i)) {
+                 ++m->refused; owed = true;
++                if (m->pending_rx.interface == n) {
++                    expire_receive(m);
++                }
+                 continue;
+             }
+         }
+@@ -649,6 +666,8 @@ static bool poll(void *ctx)
+         if (m->pending_rx.len && m->pending_rx.interface == n && rx_order_ready(m)) {
+             if (apply_receive(m,&m->pending_rx)) {
+                 m->pending_rx.len = 0;
++            } else {
++                expire_receive(m);
+             }
+         }
+         memset(i->registered,0,sizeof(i->registered));
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index 480141b49..d565ae333 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -77,6 +77,7 @@ struct srp_mbx {
+     bool initialized;
+     uint32_t reentries;
+     uint32_t refused;
++    uint32_t rx_discarded; // allocation refusal still present at the receive deadline
+     uint32_t malformed;
+     uint32_t received;
+     uint32_t transmitted;
+@@ -94,7 +95,8 @@ bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config);
+ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop);
+ void srp_mbx_destroy(struct srp_mbx *m);
+ // ACMP-facing port. A false result leaves the binding unchanged; retry
+-// after owed transmission and retained reception finish. Null identity unbinds.
++// after owed transmission commits and retained reception completes or expires.
++// Null identity unbinds.
+ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
+                   const struct msrp_stream_id *identity, const uint8_t dest_mac[6], uint16_t vid);
+ #ifdef __cplusplus
+diff --git a/sw/firmware/ctrl/test/srp_mutants.py b/sw/firmware/ctrl/test/srp_mutants.py
+index 25391972b..5880f8587 100644
+--- a/sw/firmware/ctrl/test/srp_mutants.py
++++ b/sw/firmware/ctrl/test/srp_mutants.py
+@@ -572,6 +572,42 @@ DEFECTS = (
+            'if (apply_receive(m,&m->pending_rx))', 'if (false)', 'adapter.ifs[0].active[0]',
+            suite='srp_latency.cpp'),
+ 
++    Defect('receive-retention-unbounded','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
++           '>= SRP_RX_RETRY_MS', '>= UINT32_MAX', 'adapter.pending_rx.len', suite='srp_rx_retry.cpp'),
++    Defect('receive-retention-short','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
++           '#define SRP_RX_RETRY_MS 1000u', '#define SRP_RX_RETRY_MS 999u',
++           'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
++    Defect('receive-retention-late','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
++           '>= SRP_RX_RETRY_MS', '> SRP_RX_RETRY_MS', 'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
++    Defect('receive-discard-uncounted','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
++           '++m->rx_discarded;', '(void)m;', 'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
++    Defect('receive-discard-malformed','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
++           '++m->rx_discarded;', '++m->rx_discarded; ++m->malformed;',
++           'adapter.malformed', suite='srp_rx_retry.cpp'),
++    Defect('receive-discard-as-success','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
++           '++m->rx_discarded;', '++m->rx_discarded; ++m->received;',
++           'adapter.received', suite='srp_rx_retry.cpp'),
++    Defect('receive-queue-renews-deadline','SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap',
++           'm->pending_rx = *frame;', 'm->pending_rx = *frame; m->pending_rx.arrival_ms = mbx_now_ms();',
++           'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
++    Defect('receive-first-refusal-never-expires','SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap',
++           'm->pending_rx = *frame;\n        expire_receive(m);', 'm->pending_rx = *frame;',
++           'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
++    Defect('receive-expiry-precedes-recovery','SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord',
++           'if (apply_receive(m,&m->pending_rx))',
++           'expire_receive(m);\n            if (m->pending_rx.len && apply_receive(m,&m->pending_rx))',
++           'adapter.received', suite='srp_rx_retry.cpp'),
++    Defect('receive-recreate-never-expires','SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline',
++           'if (m->pending_rx.interface == n)', 'if (false)',
++           'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
++    Defect('receive-flood-unbounded','SrpRetry.DomainFloodCannotDelayLaterRapidLeave',
++           '>= SRP_RX_RETRY_MS', '>= UINT32_MAX', 'adapter.pending_rx.len', suite='srp_rx_retry.cpp'),
++
++    Defect('receive-deadline-not-modular','SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard',
++           '(uint32_t)(mbx_now_ms() - m->pending_rx.arrival_ms) >= SRP_RX_RETRY_MS',
++           'mbx_now_ms() >= m->pending_rx.arrival_ms + SRP_RX_RETRY_MS',
++           'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
++
+ )
+ 
+ def campaign(root: Path, lwsrp: Path, jobs: int = 4) -> bool:
+diff --git a/sw/firmware/ctrl/test/srp_rx_retry.cpp b/sw/firmware/ctrl/test/srp_rx_retry.cpp
+index bd6b52290..3a0d2cebc 100644
+--- a/sw/firmware/ctrl/test/srp_rx_retry.cpp
++++ b/sw/firmware/ctrl/test/srp_rx_retry.cpp
+@@ -20,6 +20,25 @@ protected:
+         first.insert(first.end(),last.begin()+15,last.end());
+         return first;
+     }
++    std::vector<uint8_t> domains(unsigned count) {
++        auto f=frame(4,{6,3,0,100},1);
++        f.resize(19);
++        wire_put_be(f.data()+17,7*count+2,2);
++        for(unsigned k=0;k<count;++k) {
++            const unsigned vid=100+k;
++            f.insert(f.end(),{0,1,6,3,uint8_t(vid>>8),uint8_t(vid),36});
++        }
++        f.insert(f.end(),{0,0,0,0});
++        return f;
++    }
++    void pump(unsigned ms) {
++        for(unsigned k=0;k<ms;++k) {
++            mbx_model_advance_ms(&model,1);
++            for(unsigned n=0;n<20;++n) {
++                if(ctrl_loop_service(&loop)==0 && !mbx_model_irq(&model)) break;
++            }
++        }
++    }
+ };
+ 
+ TEST_F(SrpRetry, RefusedMixedPayloadRetriesWithoutPeerRetransmission) {
+@@ -254,4 +273,127 @@ TEST_F(SrpRetry, WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped) {
+     EXPECT_EQ(adapter.received,1u);
+     EXPECT_CALL(licence,Change(0,0,false));
+ }
++
++TEST_F(SrpRetry, OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding) {
++    settle(); advance(400);
++    const unsigned i=MBX_N_IF-1;
++    EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),0,2),i);
++    auto f=domains(150);
++    ASSERT_LT(f.size(),size_t(MBX_FRAME_BYTES_MAX));
++    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
++    ctrl_loop_service(&loop);
++    ASSERT_EQ(adapter.pending_rx.len,f.size());
++    EXPECT_FALSE(srp_mbx_bind(&adapter,i,0,nullptr,nullptr,0));
++    auto leave=frame(3,identity(i),5,2);
++    ASSERT_TRUE(mbx_model_rx(&model,leave.data(),leave.size(),i));
++    // No artificial allocation failure: the PDU itself fills the entity pool.
++    pump(999);
++    EXPECT_NE(adapter.pending_rx.len,0u);
++    EXPECT_EQ(adapter.rx_discarded,0u);
++    EXPECT_EQ(adapter.received,1u);
++    EXPECT_CALL(licence,Change(i,0,false));
++    pump(1);
++    EXPECT_EQ(adapter.pending_rx.len,0u);
++    EXPECT_EQ(adapter.rx_discarded,1u);
++    EXPECT_EQ(adapter.received,2u);
++    EXPECT_EQ(adapter.malformed,0u);
++    EXPECT_FALSE(adapter.ifs[i].active[0]);
++    EXPECT_TRUE(srp_mbx_bind(&adapter,i,0,nullptr,nullptr,0));
++    pump(1000);
++    EXPECT_EQ(adapter.rx_discarded,1u);
++    EXPECT_EQ(adapter.stops,1u);
++}
++
++TEST_F(SrpRetry, QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap) {
++    settle(); advance(400);
++    model.now_ms=UINT32_MAX-499u;
++    auto f=domains(150);
++    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
++    mbx_model_advance_ms(&model,1000);
++    // Hold polls to prove the expired first refusal is discarded by reception.
++    const unsigned polls=loop.n_polls;
++    loop.n_polls=0;
++    for(unsigned n=0;n<100 && loop.stats.rx_records==0;++n) ctrl_loop_service(&loop);
++    loop.n_polls=polls;
++    EXPECT_EQ(adapter.pending_rx.len,0u);
++    EXPECT_EQ(adapter.rx_discarded,1u);
++    EXPECT_EQ(adapter.received,0u);
++    EXPECT_EQ(adapter.malformed,0u);
++}
++
++TEST_F(SrpRetry, RecoveryAtDeadlineStillAppliesTheCompleteRecord) {
++    settle(); advance(400);
++    exhaust(); offer(frame(4,{6,4,0,7},0));
++    pump(999);
++    EXPECT_NE(adapter.pending_rx.len,0u);
++    EXPECT_EQ(adapter.rx_discarded,0u);
++    recover(); pump(1);
++    EXPECT_EQ(adapter.pending_rx.len,0u);
++    EXPECT_EQ(adapter.ifs[0].domain.vid,7u);
++    EXPECT_EQ(adapter.received,1u);
++    EXPECT_EQ(adapter.rx_discarded,0u);
++}
++
++TEST_F(SrpRetry, RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard) {
++    settle(); advance(400);
++    model.now_ms=UINT32_MAX-499u;
++    exhaust(); offer(frame(4,{6,4,0,7},0));
++    pump(999);
++    EXPECT_NE(adapter.pending_rx.len,0u);
++    EXPECT_EQ(adapter.rx_discarded,0u);
++    pump(1);
++    EXPECT_EQ(adapter.pending_rx.len,0u);
++    EXPECT_EQ(adapter.rx_discarded,1u);
++    EXPECT_EQ(adapter.received,0u);
++    recover(); settle();
++    EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
++}
++
++TEST_F(SrpRetry, FailedRecreationCannotRetainInputBeyondItsDeadline) {
++    settle(); advance(400);
++    const unsigned i=MBX_N_IF-1;
++    calloc_before_failure=0;
++    mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true);
++    ctrl_loop_service(&loop);
++    ASSERT_EQ(adapter.ifs[i].msrp,nullptr);
++    auto f=frame(3,identity(i),0,2);
++    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),i));
++    ctrl_loop_service(&loop);
++    ASSERT_NE(adapter.pending_rx.len,0u);
++    pump(1000);
++    EXPECT_EQ(adapter.pending_rx.len,0u);
++    EXPECT_EQ(adapter.rx_discarded,1u);
++    EXPECT_EQ(adapter.received,0u);
++    EXPECT_EQ(adapter.malformed,0u);
++    recover(); settle();
++    EXPECT_TRUE(srp_mbx_bind(&adapter,i,0,nullptr,nullptr,0));
++    EXPECT_CALL(licence,Change(i,0,true)); offer(f,i);
++    EXPECT_CALL(licence,Change(i,0,false));
++}
++
++TEST_F(SrpRetry, DomainFloodCannotDelayLaterRapidLeave) {
++    EXPECT_CALL(licence,Change(0,0,::testing::_)).Times(::testing::AnyNumber());
++    settle(); offer(frame(3,identity(),1,2));
++    ASSERT_TRUE(adapter.ifs[0].active[0]);
++    for(unsigned vid=3;vid<63;++vid) {
++        auto f=frame(4,{6,3,0,uint8_t(vid)},1);
++        bool accepted=false;
++        for(unsigned n=0;n<200 && !accepted;++n) {
++            accepted=mbx_model_rx(&model,f.data(),f.size(),0);
++            pump(accepted ? 2 : 1);
++        }
++        ASSERT_TRUE(accepted);
++    }
++    pump(1500);
++    ASSERT_EQ(adapter.pending_rx.len,0u);
++    ASSERT_GT(adapter.rx_discarded,0u);
++    ASSERT_TRUE(adapter.ifs[0].active[0]);
++    const unsigned before=adapter.received;
++    auto leave=frame(3,identity(),5,2);
++    ASSERT_TRUE(mbx_model_rx(&model,leave.data(),leave.size(),0));
++    pump(1);
++    EXPECT_EQ(adapter.received,before+1);
++    EXPECT_FALSE(adapter.ifs[0].active[0]);
++    EXPECT_EQ(adapter.malformed,0u);
++}
+ } // namespace
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+index aa906a9dd..99f76d330 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -16,7 +16,7 @@ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 10/10  branches 0/0
+ sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6
+ sw/firmware/ctrl/port/ctrl_pool.c  lines 99/99  branches 60/60
+ sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
+-sw/firmware/ctrl/srp/srp_mbx.c  lines 459/459  branches 432/432
++sw/firmware/ctrl/srp/srp_mbx.c  lines 469/469  branches 438/438
+ sw/firmware/ctrl/wire/wire.h  lines 10/10  branches 2/2
+ sw/firmware/ctrl_nvm/nvm_klj2.c  lines 198/198  branches 106/106
+ sw/firmware/ctrl_nvm/nvm_store.c  lines 434/434  branches 259/259

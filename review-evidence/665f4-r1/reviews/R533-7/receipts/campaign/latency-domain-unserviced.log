@@ -1,0 +1,34 @@
+Note: Google Test filter = SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpLatency
+[ RUN      ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+H-SRP if=2 path=RX to licence elapsed_ns=1001900 wait_ms=0 service_ns=1001900 accesses=324
+H-SRP if=2 path=malformed discard elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=354
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:105: Failure
+Expected equality of these values:
+  adapter.ifs[0].domain.vid
+    Which is: 2
+  3u
+    Which is: 3
+
+  [FAIL] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths:     Which is: 3
+${SOURCE}/sw/firmware/ctrl/test/srp_latency.cpp:103: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths:            Actual: never called - unsatisfied and active
+[  FAILED  ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[----------] 1 test from SrpLatency (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+
+ 1 FAILED TEST
+== ctrl SRP service latency: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
