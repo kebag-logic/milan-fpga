@@ -73,6 +73,7 @@ filter table. Register offsets and field positions are the generated
 | Q13 | the table read is the arrival interface's: a talker bound on interface i passes there only, with the record's IF i, and on another interface or an index with no interface reaches no ring and counts nothing |
 | Q14 to Q17 | the table compared byte by byte as the identity arrives (lane F3 round 3, #665 comment 6032450078): the bound talker right after another talker's frame passes, and right after that one differing in its first identity byte only does not; an identity differing from the entry in any one of its eight bytes is refused; `BOUND_EID_LO`, then `BOUND_EID_HI`, rewritten with `BOUND_EN` still set takes effect; after a reset every entry reads 0 again, an entry enabled with no identity written holds talker 0, and one with `BOUND_EID_HI` alone written holds that word and 0 |
 | Q18 to Q21 | the table's timing, on the RTL only (the model's frames arrive whole): a frame stalled inside its identity passes, but not while its entry's `BOUND_EN` is cleared and set again, or set again alone, even with the copy made by the verdict; another entry's words read back while an entry is copied, and both then pass; `BOUND_EID_LO` rewritten at each of 32 clocks after `BOUND_EN` is set again, the new talker passing and the old never |
+| Q22, Q23 | the table's interface, on the RTL only (lane F3 round 4, R530-2-F1): on each interface, a bound talker's ENTITY_AVAILABLE with another talker's frame on another index right behind it, so the next frame is presented at the verdict, passes alone with the record's IF its own; with two interfaces, Q19 again on every interface past the first, the owed copy gating that interface's entry |
 | Q11 | the MAAP DEFEND (IEEE 1722-2016 B.2.1): a DEFEND to the own MAC delivered whole and uncounted; a PROBE, an ANNOUNCE and every reserved message_type there, and a DEFEND to a foreign unicast, never delivered and counted once each; a DEFEND to the own MAC for a range beside this entity's dropped uncounted; a multicast DEFEND still delivered; a DEFEND cut at byte 14 (no message_type: counted) and at byte 15 (no range: uncounted), then the next DEFEND delivered |
 | D0, D1 | the ring fills to its last whole record; a frame the space cannot hold, or one over the channel's limit, counts in RX_DROP and never touches an unread record |
 | T0, T1 | the token bucket: a burst of its depth, then one frame per refill period |
@@ -100,7 +101,7 @@ master (AW and W together, BREADY and RREADY high) never exercises:
 The host test runs the same `suite.hpp` on the firmware's mailbox model
 ([`sw/firmware/ctrl/test`](../../../sw/firmware/ctrl/README.md), arm
 `model`), so the model and the RTL answer to one set of expectations; only
-Q18 to Q21 are the RTL's alone.
+Q18 to Q23 are the RTL's alone.
 `run-if2` does the same on two interfaces with the RTL and the model built
 against one generated header.
 
@@ -252,6 +253,8 @@ bytes and copies; the rest are round 3's. The twins in the host model are in
 | `rx-bound-flag-carried-into-the-next-frame` | a matched frame's flag stands in for the next frame's first identity byte | Q14, one differing in its first identity byte only |
 | `rx-bound-liveness-at-the-verdict-only` | BOUND_EN and the owed copy read at the verdict only | Q18, BOUND_EN cleared and set inside the identity |
 | `rx-bound-live-while-owed` | an entry takes part while its copy is owed | Q19, BOUND_EN set again inside the identity |
+| `rx-bound-verdict-of-the-presented-interface`, and `-if2` (two interfaces) | the verdict reads the table of the interface presented with the next frame | Q22, the bound talker's frame passes alone |
+| `rx-bound-live-reads-interface-0-owed` (two interfaces) | every interface's entries gated by interface 0's owed copies | Q23, interface 1's frame stalled while its copy is owed |
 | `rx-bound-copy-not-owed-on-enable` | setting BOUND_EN owes no copy | Q12, a bound talker's AVAILABLE delivered |
 | `rx-bound-copy-not-owed-on-rewrite` | a BOUND_EID word written while BOUND_EN is set owes no copy | Q16, the new talker passes |
 | `rx-bound-copy-ignores-the-host` | the copier steps while the host holds the read-back memory | Q20, the entry copied meanwhile |
