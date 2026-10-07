@@ -52,26 +52,29 @@ def check_capture() -> int:
         previous_data = 0
         # The simulator applies drives after an edge. Before the following
         # sample updates, only last may respond to the new pad-valid level.
-        for value in range(256):
-            for valid in (0, 1):
-                for reset in (0, 1):
-                    yield dut.pads.rx_dv.eq(valid)
-                    yield dut.pads.rx_data.eq(value)
-                    yield dut.pads.rx_er.eq(value & 1)
-                    yield dut.reset.eq(reset)
-                    yield dut.rx.source.ready.eq(value & 1)
-                    yield
-                    expected_valid = valid if not reset else 0
-                    expected_data = value if not reset else 0
-                    got = ((yield dut.rx.source.valid),
-                           (yield dut.rx.source.data),
-                           (yield dut.rx.source.last))
-                    expected = (previous_valid, previous_data,
-                                (1 - valid) & previous_valid)
-                    assert got == expected, (value, valid, reset, got, expected)
-                    checked += 1
-                    previous_valid = expected_valid
-                    previous_data = expected_data
+        frame = [(0, 0, 0), (0x55, 1, 0), (0xd5, 1, 0), (0xa5, 1, 0),
+                 (0, 0, 0), (0, 0, 0), (0x55, 1, 0), (0x66, 1, 1),
+                 (0x77, 1, 1), (0x88, 1, 0), (0, 0, 0)]
+        exhaustive = [(value, valid, reset) for value in range(256)
+                      for reset in (0, 1) for valid in (0, 1)]
+        for value, valid, reset in frame + exhaustive:
+            yield dut.pads.rx_dv.eq(valid)
+            yield dut.pads.rx_data.eq(value)
+            yield dut.pads.rx_er.eq(value & 1)
+            yield dut.reset.eq(reset)
+            yield dut.rx.source.ready.eq(value & 1)
+            yield
+            expected_valid = valid if not reset else 0
+            expected_data = value if not reset else 0
+            got = ((yield dut.rx.source.valid),
+                   (yield dut.rx.source.data),
+                   (yield dut.rx.source.last))
+            expected = (previous_valid, previous_data,
+                        (1 - valid) & previous_valid)
+            assert got == expected, (value, valid, reset, got, expected)
+            checked += 1
+            previous_valid = expected_valid
+            previous_data = expected_data
         yield
         assert (yield dut.rx.source.valid) == previous_valid
         assert (yield dut.rx.source.data) == previous_data
