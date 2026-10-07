@@ -1,0 +1,15 @@
+708e5634f28e6e5a19236a9b0a9a543c3622e52d 34475e774dfe1c92c81fa51293668e64dc95fa85 Record the measured RV32 text sizes of the store after the erased-payload check
+34475e774dfe1c92c81fa51293668e64dc95fa85 232970dbb9663abb2a260efda4d2d5abcf034fb5 Declare assert for the freestanding RV32 object check and name __assert_fail in the ctrl runtime interfaces
+232970dbb9663abb2a260efda4d2d5abcf034fb5 6c94e9f5f496ac25f8c4e31f9e3685c725de29f3 910f338dbd050f4efd2d96991ddcf928a583d55f Merge dev 910f338d into 677-fw-fixes
+910f338dbd050f4efd2d96991ddcf928a583d55f 79b086d44eb62d007d38e18f5618b98e8e2a33e6 04e1435a218908d2b12b4053e5dab2c2dcac2ebf Merge PR #683: Build the ctrl and ctrl_nvm RV32 objects against the pinned ilp32d SDK (#679)
+79b086d44eb62d007d38e18f5618b98e8e2a33e6 6a05347d4e2ec1dcb37d4e5806c7767537de3ce0 793dcd3f7867d85f8c1f5c9ef2b04dc9c2d9c5df Merge PR #681: Raise the measured per-suite time limits that slow hosted runners exceed (#673)
+6a05347d4e2ec1dcb37d4e5806c7767537de3ce0 6714181d0c8a16e2983f85b724f4d688f5111835 41bc9dac031526c1fd637ff1e801d3c6dc1260b4 Merge PR #680: AAF talker: admit capture from the talker's pair zero after a disable, so the first PDU carries a current presentation time (#667)
+04e1435a218908d2b12b4053e5dab2c2dcac2ebf 0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe fix: exclude local definitions from firmware runtime resolution
+6c94e9f5f496ac25f8c4e31f9e3685c725de29f3 6714181d0c8a16e2983f85b724f4d688f5111835 fix firmware erased-record bounds and ADP port re-entry
+0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe 6714181d0c8a16e2983f85b724f4d688f5111835 Fix RV32 firmware object checks for the pinned SDK
+793dcd3f7867d85f8c1f5c9ef2b04dc9c2d9c5df 26bd6334a7b8b2a8582b36ae4729a71620546c14 docs: align suite deadline references with measured limits
+26bd6334a7b8b2a8582b36ae4729a71620546c14 bd884631684ccf5060339efa92263d5c3e5c262c ci: raise measured per-suite time limits for slow runners
+41bc9dac031526c1fd637ff1e801d3c6dc1260b4 5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2 bd884631684ccf5060339efa92263d5c3e5c262c Merge dev bd884631 into 667-talker-start; move the start_mutants reader entry to measure_test_evidence_readers.py
+5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2 63f9ce62b51fd8a7da26bea0122642d48b3e4ad7 Keep the mutation disposition concise
+63f9ce62b51fd8a7da26bea0122642d48b3e4ad7 4adfd118efa5cb89195e0b401e20abf7272d217b Classify startup mutations as independent test controls
+4adfd118efa5cb89195e0b401e20abf7272d217b 423ac5d910d09ab189b3acc39ae3ae1d10d50b19 Fix AAF startup admission before the first channel pair

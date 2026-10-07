@@ -1,0 +1,9 @@
+PASS delta: one commit; one README; exactly five text cells; each +4; other bytes unchanged
+PASS gate: 435 tests across five shapes, zero skips; five RV32 object builds
+README line | shape | bss | measured text | README text
+351 | endstation_arty_current | 3160 | 12116 | 12116
+352 | endstation_ax7101_1x1_tdm8 | 4048 | 12132 | 12132
+353 | endstation_arty_4x4 | 5452 | 12124 | 12124
+354 | endstation_arty_8ch | 8012 | 12124 | 12124
+355 | endstation_ax7101_8x8 | 14408 | 12136 | 12136
+PASS all five rows matched by unique BSS, with clock and buffer dimensions also equal

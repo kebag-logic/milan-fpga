@@ -1,0 +1,42 @@
+Evidence commit: 412c0f10e12755a47f79ec3f90e08ef5d2ecaa47
+Source head of these historical receipts: 6c94e9f5f496ac25f8c4e31f9e3685c725de29f3
+author/logs/erased-end-asan.log: SHA256 verified
+==1654973==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7bfc4a1e0700 at pc 0x000000403bd5 bp 0x7fff206cf2d0 sp 0x7fff206cf2c0
+SUMMARY: AddressSanitizer: heap-buffer-overflow <scratch>/asan-witness/tree/nvm_klj2.c:115 in nvm_all_erased
+author/logs/nvm-controls.log: SHA256 verified
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+saved-state store gate (#665 F1): OK across 5 shape(s), 435 tests
+author/logs/coverage-check.log: SHA256 verified
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+test_ctrl_firmware coverage run: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+saved-state store coverage run: PASS
+firmware coverage: PASS (14 files)
+author/logs/coverage-selftest.log: SHA256 verified
+[ok] a measured file the ratchet does not record: sw/firmware/ctrl/x.c: measured, but the ratchet does not record it
+[ok] a recorded file nothing measured: sw/firmware/ctrl/x.c: recorded in the ratchet, but nothing measured it
+author/nvm-campaign.json: SHA256 verified
+ "caught": 109,

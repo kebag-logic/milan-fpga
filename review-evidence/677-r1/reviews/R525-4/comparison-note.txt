@@ -1,0 +1,1 @@
+The initial auxiliary table comparator incorrectly assumed data=0 although the README has no data column. The real gate reported data=24. The comparator was corrected to compare only the table's claimed quantities. The gate itself passed unchanged and was not rerun. The initial comparison refusal remains in sizes-initial-check.*.
