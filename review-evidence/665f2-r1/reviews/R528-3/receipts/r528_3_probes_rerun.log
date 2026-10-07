@@ -1,0 +1,19 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+== probe p3-assert-only-in-release
+  arm maap_debug: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] MaapDebug.SynchronousExpiryAsserts: debug reentry assertion
+  arm maap: rc=2 expected=FAIL needle-ok -> as expected
+    refused: maap.c does not compile:
+$REVIEWS/665f2-r528-3-packet/scratch/probes2/plants/p3/ctrl/maap/maap.c: In function ‘enter’:
+$REVIEWS/665f2-r528-3-packet/scratch/probes2/plants/p3/ctrl/maap/maap.c:18:17: error: implicit declaration of function ‘assert’ [-Wimplicit-function-declaration]
+   18 |                 assert(!m->in_call);
+      |                 ^~~~~~
+$VALIDATION_STORAGE/
+  arm rv32: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] maap.c does not build for RV32I:
+== probe p3-assert-only-in-release: AS EXPECTED
+== probe p6-maap-mbx-heap
+  arm rv32: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] symbols outside the C library and libgcc: malloc
+== probe p6-maap-mbx-heap: AS EXPECTED
+probes: 2 of 2 as expected

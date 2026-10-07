@@ -1,0 +1,75 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+== probe baseline-sdk
+  arm rv32: rc=0 expected=PASS needle-ok -> as expected
+  arm maap: rc=0 expected=PASS needle-ok -> as expected
+  arm maap_debug: rc=0 expected=PASS needle-ok -> as expected
+  arm maap_if2: rc=0 expected=PASS needle-ok -> as expected
+== probe baseline-sdk: AS EXPECTED
+== probe baseline-elf
+  arm rv32: rc=0 expected=PASS needle-ok -> as expected
+  arm maap: rc=0 expected=PASS needle-ok -> as expected
+  arm maap_debug: rc=0 expected=PASS needle-ok -> as expected
+  arm maap_if2: rc=0 expected=PASS needle-ok -> as expected
+== probe baseline-elf: AS EXPECTED
+== probe compiler
+  default compiler: ~/br-milan-rv32/host/bin/riscv32-linux-gcc
+  CTRL_RV32_CC=riscv64-elf-gcc selects: ~/br-milan-rv32/host/bin/riscv32-linux-gcc
+  MILAN_RV32_CC=riscv64-elf-gcc selects: /usr/bin/riscv64-elf-gcc
+  CTRL_RV32_CC ignored after the merge: True
+== probe compiler: AS EXPECTED
+== probe h1-no-ndebug
+  arm rv32: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] maap.c does not build for RV32I:
+== probe h1-no-ndebug: AS EXPECTED
+== probe p1-unconditional-assert-include
+  arm rv32: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] maap.c does not build for RV32I:
+  arm maap: rc=0 expected=PASS needle-ok -> as expected
+  arm maap_debug: rc=0 expected=PASS needle-ok -> as expected
+== probe p1-unconditional-assert-include: AS EXPECTED
+== probe p2-revert-8b78a8fd
+  arm rv32: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] maap.c does not build for RV32I:
+  arm maap: rc=0 expected=PASS needle-ok -> as expected
+  arm maap_debug: rc=0 expected=PASS needle-ok -> as expected
+== probe p2-revert-8b78a8fd: AS EXPECTED
+== probe p3-assert-only-in-release
+  arm maap_debug: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] MaapDebug.SynchronousExpiryAsserts: debug reentry assertion
+  arm maap: rc=2 expected=PASS needle-ok -> UNEXPECTED
+    refused: maap.c does not compile:
+$REVIEWS/665f2-r528-3-packet/scratch/probes/plants/p3/ctrl/maap/maap.c: In function ‘enter’:
+$REVIEWS/665f2-r528-3-packet/scratch/probes/plants/p3/ctrl/maap/maap.c:18:17: error: implicit declaration of function ‘assert’ [-Wimplicit-function-declaration]
+   18 |                 assert(!m->in_call);
+      |                 ^~~~~~
+$VALIDATION_STORAGE/re
+  arm rv32: rc=1 expected=PASS needle-ok -> UNEXPECTED
+    [FAIL] maap.c does not build for RV32I:
+== probe p3-assert-only-in-release: UNEXPECTED
+== probe p4-assert-removed
+  arm maap_debug: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] MaapDebug.SynchronousExpiryAsserts: debug reentry assertion
+  arm maap: rc=0 expected=PASS needle-ok -> as expected
+== probe p4-assert-removed: AS EXPECTED
+== probe p5-maap-core-memmove
+  arm rv32: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] symbols outside the C library and libgcc: memmove
+  arm maap: rc=0 expected=PASS needle-ok -> as expected
+== probe p5-maap-core-memmove: AS EXPECTED
+== probe p6-maap-mbx-heap
+  arm rv32: rc=1 expected=FAIL NEEDLE-MISSING:symbols outside the C library -> UNEXPECTED
+    [FAIL] maap_mbx.c does not build for RV32I:
+== probe p6-maap-mbx-heap: UNEXPECTED
+== probe p7-maap-csr-puts
+  arm rv32: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] symbols outside the C library and libgcc: puts
+== probe p7-maap-csr-puts: AS EXPECTED
+== probe p8-bounce-reuses-previous-base
+  arm maap: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] MaapCore.LinkBounceDrawsAfterSuppliedRange: link bounce draws after consuming supplied range
+== probe p8-bounce-reuses-previous-base: AS EXPECTED
+== probe p9-r2-saved-range-never-consumed
+  arm maap: rc=1 expected=FAIL needle-ok -> as expected
+    [FAIL] MaapCore.LinkBounceDrawsAfterSuppliedRange: link bounce draws after consuming supplied range
+== probe p9-r2-saved-range-never-consumed: AS EXPECTED
+probes: 11 of 13 as expected; unexpected: p3-assert-only-in-release, p6-maap-mbx-heap

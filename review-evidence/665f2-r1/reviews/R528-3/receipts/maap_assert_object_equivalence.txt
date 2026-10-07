@@ -1,0 +1,9 @@
+mode -DNDEBUG: disassembly IDENTICAL; preprocessed-after-assert.h DIFFERENT
+1d51ecb5accf4cc7b3014299c26fe22c924da1dd8dd847f0d145dc26fa3bd1c4  old-DNDEBUG.dis
+1d51ecb5accf4cc7b3014299c26fe22c924da1dd8dd847f0d145dc26fa3bd1c4  new-DNDEBUG.dis
+mode -UNDEBUG: disassembly DIFFERENT; preprocessed-after-assert.h DIFFERENT
+f5ccf656a92dd423b1e897942ca4e35d07e59b98ea7d7ea4a8f70438eef72c73  old-UNDEBUG.dis
+8ca2dddf5dff831a0a55459a171cecbaf5df2b566f7b819c13a429c7cfb5cab0  new-UNDEBUG.dis
+gcc (GCC) 16.2.1 20260810
+
+Note: the debug (-UNDEBUG) difference is only the assert() line constant (15 -> 18, from the two added guard lines) and the source path string; release (-DNDEBUG) code is byte-identical in disassembly.
