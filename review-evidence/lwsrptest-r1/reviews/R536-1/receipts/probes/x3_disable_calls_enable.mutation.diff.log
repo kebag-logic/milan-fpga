@@ -1,0 +1,10 @@
+diff -ru pristine_head/tests/features/switch_bindings.c x3_disable_calls_enable/tests/features/switch_bindings.c
+--- pristine_head/tests/features/switch_bindings.c	2026-10-07 06:06:12.000000000 +0200
++++ x3_disable_calls_enable/tests/features/switch_bindings.c	2026-10-07 06:09:24.791344397 +0200
+@@ -20,5 +20,5 @@
+ 
+ int shlan_test_port_disable(struct shlan_switch *sw, uint8_t port_id)
+ {
+-    return shlan_port_disable(sw, port_id);
++    return shlan_port_enable(sw, port_id);
+ }

@@ -1,0 +1,20 @@
+diff -ru pristine_head/CMakeLists.txt x2_no_guard_empty_runner/CMakeLists.txt
+--- pristine_head/CMakeLists.txt	2026-10-07 06:06:12.000000000 +0200
++++ x2_no_guard_empty_runner/CMakeLists.txt	2026-10-07 06:09:24.795431110 +0200
+@@ -50,4 +50,3 @@
+ target_link_libraries(unit_tests PRIVATE shlan ${CGREEN_LIB})
+ add_test(NAME unit COMMAND unit_tests)
+ # An empty cgreen suite exits successfully; it must not pass CTest.
+-set_tests_properties(unit PROPERTIES FAIL_REGULAR_EXPRESSION "No assertions")
+diff -ru pristine_head/tests/unit/main.c x2_no_guard_empty_runner/tests/unit/main.c
+--- pristine_head/tests/unit/main.c	2026-10-07 06:06:12.000000000 +0200
++++ x2_no_guard_empty_runner/tests/unit/main.c	2026-10-07 06:09:24.792000000 +0200
+@@ -6,7 +6,7 @@
+ 
+ int main(void)
+ {
+-    TestSuite *suite = mrp_pdu_suite();
++    TestSuite *suite = create_test_suite();
+     TestReporter *reporter = create_text_reporter();
+     int result = run_test_suite(suite, reporter);
+     destroy_test_suite(suite);

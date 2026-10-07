@@ -1,0 +1,63 @@
+== p0_head
+mutate_rc=0
+configure_rc=0
+build_rc=0
+ctest_rc=0
+ctest_v_rc=0
+behave_rc=0
+== p1_base
+mutate_rc=0
+configure_rc=0
+build_rc=0
+ctest_rc=0
+ctest_v_rc=0
+behave_rc=1
+== r1_drop_bindings
+mutate_rc=0
+configure_rc=0
+build_rc=0
+behave_rc=1
+== r2_old_env
+mutate_rc=0
+configure_rc=0
+build_rc=0
+behave_rc=1
+== r3_placeholder
+mutate_rc=0
+configure_rc=0
+build_rc=0
+ctest_rc=8
+ctest_v_rc=8
+== r4_empty_runner
+mutate_rc=0
+configure_rc=0
+build_rc=0
+ctest_rc=8
+ctest_v_rc=8
+== r5_wrong_byte
+mutate_rc=0
+configure_rc=0
+build_rc=0
+ctest_rc=8
+== x1_no_cgreen
+configure_rc=1
+== x2_no_guard_empty_runner
+mutate_rc=0
+configure_rc=0
+build_rc=0
+ctest_rc=0
+== x3_disable_calls_enable
+mutate_rc=0
+configure_rc=0
+build_rc=0
+behave_rc=0
+== x4_enable_returns_zero
+mutate_rc=0
+configure_rc=0
+build_rc=0
+behave_rc=1
+== x5_connect_noop
+mutate_rc=0
+configure_rc=0
+build_rc=0
+behave_rc=0

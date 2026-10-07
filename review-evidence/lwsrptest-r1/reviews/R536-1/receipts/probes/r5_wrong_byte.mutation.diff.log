@@ -1,0 +1,12 @@
+diff -ru pristine_head/tests/unit/mrp_pdu_test.c r5_wrong_byte/tests/unit/mrp_pdu_test.c
+--- pristine_head/tests/unit/mrp_pdu_test.c	2026-10-07 06:06:12.000000000 +0200
++++ r5_wrong_byte/tests/unit/mrp_pdu_test.c	2026-10-07 06:09:24.792390387 +0200
+@@ -38,7 +38,7 @@
+ {
+     /* Max legal packed value: 5*6*6 + 5*6 + 5 = 215 < 256 */
+     uint8_t packed = mrp_three_pack(5, 5, 5);
+-    assert_that(packed, is_equal_to(215));
++    assert_that(packed, is_equal_to(214));
+ }
+ 
+ /* ------------------------------------------------------------------ */

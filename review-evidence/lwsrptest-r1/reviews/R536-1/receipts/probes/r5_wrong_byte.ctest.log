@@ -1,0 +1,20 @@
+Test project $WORK/r5_wrong_byte/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.02 sec
+Running "mrp_pdu_suite" (9 tests)...
+$WORK/r5_wrong_byte/tests/unit/mrp_pdu_test.c:41: Failure: three_pack_uses_single_byte 
+	Expected [packed] to [equal] [214]
+		actual value:			[215]
+		expected value:			[214]
+
+  "mrp_pdu_suite": 1689 passes, 1 failure in 13ms.
+Completed "mrp_pdu_suite": 1689 passes, 1 failure in 13ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.02 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

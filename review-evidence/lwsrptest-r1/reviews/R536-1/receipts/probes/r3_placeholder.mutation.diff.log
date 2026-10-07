@@ -1,0 +1,13 @@
+diff -ru pristine_head/CMakeLists.txt r3_placeholder/CMakeLists.txt
+--- pristine_head/CMakeLists.txt	2026-10-07 06:06:12.000000000 +0200
++++ r3_placeholder/CMakeLists.txt	2026-10-07 06:09:24.795431110 +0200
+@@ -45,7 +45,7 @@
+ find_library(CGREEN_LIB cgreen REQUIRED)
+ find_path(CGREEN_INCLUDE cgreen/cgreen.h REQUIRED)
+ 
+-add_executable(unit_tests tests/unit/main.c tests/unit/mrp_pdu_test.c)
++add_executable(unit_tests tests/unit/placeholder.c)
+ target_include_directories(unit_tests PRIVATE ${CGREEN_INCLUDE} src/include)
+ target_link_libraries(unit_tests PRIVATE shlan ${CGREEN_LIB})
+ add_test(NAME unit COMMAND unit_tests)
+Only in r3_placeholder/tests/unit: placeholder.c

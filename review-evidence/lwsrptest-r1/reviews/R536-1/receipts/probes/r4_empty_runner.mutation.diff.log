@@ -1,0 +1,12 @@
+diff -ru pristine_head/tests/unit/main.c r4_empty_runner/tests/unit/main.c
+--- pristine_head/tests/unit/main.c	2026-10-07 06:06:12.000000000 +0200
++++ r4_empty_runner/tests/unit/main.c	2026-10-07 06:09:24.791000000 +0200
+@@ -6,7 +6,7 @@
+ 
+ int main(void)
+ {
+-    TestSuite *suite = mrp_pdu_suite();
++    TestSuite *suite = create_test_suite();
+     TestReporter *reporter = create_text_reporter();
+     int result = run_test_suite(suite, reporter);
+     destroy_test_suite(suite);

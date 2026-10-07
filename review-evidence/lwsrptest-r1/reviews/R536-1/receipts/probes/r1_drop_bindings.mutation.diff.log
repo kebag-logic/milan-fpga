@@ -1,0 +1,11 @@
+diff -ru pristine_head/CMakeLists.txt r1_drop_bindings/CMakeLists.txt
+--- pristine_head/CMakeLists.txt	2026-10-07 06:06:12.000000000 +0200
++++ r1_drop_bindings/CMakeLists.txt	2026-10-07 06:09:24.790563185 +0200
+@@ -35,7 +35,6 @@
+     src/modules/mvrp.c
+     src/modules/mmrp.c
+     src/modules/msrp.c
+-    tests/features/switch_bindings.c
+     # src/core/hw_adapter.c    (add when hardware driver exists)
+ )
+ target_include_directories(shlan PUBLIC src/include src/modules src)

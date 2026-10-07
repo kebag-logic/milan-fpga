@@ -1,0 +1,12 @@
+diff -ru pristine_head/tests/features/switch_bindings.c x5_connect_noop/tests/features/switch_bindings.c
+--- pristine_head/tests/features/switch_bindings.c	2026-10-07 06:06:12.000000000 +0200
++++ x5_connect_noop/tests/features/switch_bindings.c	2026-10-07 06:09:24.791767332 +0200
+@@ -5,7 +5,7 @@
+ /* ctypes needs external symbols for the public header's inline helpers. */
+ int shlan_test_connect(struct shlan_switch *sw)
+ {
+-    return shlan_connect(sw);
++    (void)sw; return 0;
+ }
+ 
+ void shlan_test_disconnect(struct shlan_switch *sw)
