@@ -191,8 +191,8 @@ The retry-removal plant must fail the retained-payload regressions.
 Higher-version messages and atomic invalid-value rejection have wire cases.
 
 The published lwSRP [Applicant tests](https://github.com/kebag-logic/lwSRP/pull/15)
-merged through branch `f4-applicant-notes` at `ced667d8`.
-Public main `9197193e` includes that merged follow-up.
+merged as PR #15 at `9197193e`.
+That public pin includes branch `f4-applicant-notes`.
 `applicant_receive_conditions_follow_link_mode` tests Table 10-3 notes 4/5.
 `pending_applicant_joinin_obeys_note_four` adds both link modes in VP.
 The `point-to-point-condition`, `pending-point-to-point-condition` and
