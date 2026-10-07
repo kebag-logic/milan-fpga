@@ -1,0 +1,166 @@
+[
+  {
+    "name": "OFF-configure",
+    "command": [
+      "cmake",
+      "-S",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/source",
+      "-B",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-OFF",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DLWSRP_MILAN=OFF",
+      "-DCMAKE_PREFIX_PATH=$REVIEWS/665f4-r533-3-packet/scratch/cgreen"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "OFF-build",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-OFF"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "OFF-unit",
+    "command": [
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-OFF/unit_tests"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "OFF-behave",
+    "command": [
+      "behave",
+      "tests/features",
+      "--no-capture"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "ON-configure",
+    "command": [
+      "cmake",
+      "-S",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/source",
+      "-B",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DLWSRP_MILAN=ON",
+      "-DCMAKE_PREFIX_PATH=$REVIEWS/665f4-r533-3-packet/scratch/cgreen"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "ON-build",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "ON-unit",
+    "command": [
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON/unit_tests"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "ON-behave",
+    "command": [
+      "behave",
+      "tests/features",
+      "--no-capture"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "note4-VO-VP-build",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "note4-VO-VP-unit",
+    "command": [
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON/unit_tests"
+    ],
+    "rc": 1,
+    "accepted": true
+  },
+  {
+    "name": "note4-VP-build",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "note4-VP-unit",
+    "command": [
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON/unit_tests"
+    ],
+    "rc": 1,
+    "accepted": true
+  },
+  {
+    "name": "note5-shared-build",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "note5-shared-unit",
+    "command": [
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON/unit_tests"
+    ],
+    "rc": 1,
+    "accepted": true
+  },
+  {
+    "name": "restored-build",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON"
+    ],
+    "rc": 0,
+    "accepted": true
+  },
+  {
+    "name": "restored-unit",
+    "command": [
+      "$REVIEWS/665f4-r533-3-packet/scratch/upstream/build-ON/unit_tests"
+    ],
+    "rc": 0,
+    "accepted": true
+  }
+]

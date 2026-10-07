@@ -1,0 +1,5 @@
+{
+  "html_url": "https://github.com/kebag-logic/milan-fpga/pull/690#issuecomment-6036186046",
+  "created_at": "2026-10-07T10:39:07Z",
+  "body": "[A10] Manager run of the compiler-absent docs check at `c1049de1`, which the lane could not finish inside its foreground limit:\n\n`python3 sw/builder/test_firmware_compiler.py --absent --audit <scratch>/rv32-absent.jsonl` \u2192 **rc 0**, about 10 min.\n\n- GATE 1b PASS.\n- 1 NOT RUN, which is expected in the compiler-absent mode: the compiled CSR-address census needs an RV32 compiler.\n- 0 firmware compiler invocations.\n\nLog sha256 `ab0330e44601be05\u2026`."
+}

@@ -1,0 +1,9 @@
+python3 -B docs/diagrams/submodule_boundaries.gen.py --check rc= 0
+python3 -B docs/diagrams/submodule_boundaries.gen.py --selftest rc= 0
+python3 -B scripts/check_submodule_docs.py rc= 0
+python3 -B scripts/check_submodule_docs.py --selftest rc= 0
+python3 -B scripts/docs_check.py rc= 0
+python3 -B scripts/check_diagram_pngs.py rc= 0
+python3 -B sw/mailbox/gen_mailbox.py --check rc= 0
+python3 -B scripts/ci_events.py --check rc= 0
+python3 -B scripts/check_em_dash.py --base db9aa8c9b135b34ff3d070a979dee70440b37cc6 rc= 2
