@@ -42,19 +42,17 @@ pull-request update and on every push to `dev`. It produces one stable
 - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
   (#665), when RTL or its tooling changes: the GoogleTest suites of
   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
-  saved-state store's RV32 build, the tally listener's planted failure and
+  two freestanding RV32 object builds, the tally listener's planted failure and
   crash, and the line and branch coverage ratchet with its planted cases
   ([the harness page](../../sw/firmware/gtest/README.md)). GoogleTest and
   GoogleMock are the runner distribution's `libgtest-dev` and
   `libgmock-dev`; the job prints the versions it installed and the gcc and
   gcov the ratchet is measured with. The RV32 SDK is the docs job's pinned
-  cache and install. Three arms stay local gates (see
-  [Local commands](#local-commands)), and the job names each:
-  - the ctrl gate's `rv32` arm. It builds against the SDK's C headers with
-    `-mabi=ilp32`, and the pinned SDK is `ilp32d` with no
-    `gnu/stubs-ilp32.h`, at the base this job was added on as well. The
-    ctrl gate therefore runs before the SDK is installed and reports that
-    arm SKIPPED.
+  cache and install. It precedes both required RV32 arms.
+  Their freestanding headers exclude the SDK's hosted C library.
+  The RV32 self-test plants header, ABI, and runtime-dependency defects.
+  These builds report objects and frames, not linked-image bounds.
+  Two groups stay local (see [Local commands](#local-commands)):
   - the ctrl gate's opt-in `lwsrp` arm. lwSRP is a private repository the
     workflow's token cannot read; the ratchet reads the same with and
     without that arm.
