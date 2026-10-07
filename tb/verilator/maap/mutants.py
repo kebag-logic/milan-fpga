@@ -4,9 +4,10 @@
 """Build each planted KL_maap defect of #686; require its named Annex B check to fail.
 
 Every #686 item has at least one mutant: item 1 is B.2.1 (DEFEND destination,
-control_data_length), item 2 B.3.4 (probe and announce timer draws), item 3
-B.3.2 Table B.7 notes b and d (ANNOUNCE conflict detection), item 4 Table
-B.7 (four PROBEs, the first at once, the ANNOUNCE at once). Each mutant is
+control_data_length), item 2 B.3.4 (probe and announce timer draws, random
+for every station MAC), item 3 B.3.2 Table B.7 notes b and d (ANNOUNCE
+conflict detection), item 4 Table B.7 (four PROBEs, the first at once, the
+ANNOUNCE at once). Each mutant is
 an exact source replacement whose anchor must occur exactly once, applied to
 a scratch copy: no checkout file is edited. A mutant counts as killed only
 when its build succeeds, the harness exits 1, and the named check is among
@@ -28,6 +29,7 @@ BEGIN_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at on
 RESTART_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
                  "            state_r      <= PROBE_S;\n            conflicts_o")
 CELL = "((state_r == PROBE_S) || !mac_lower_w)"
+SEED = "(mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w"
 
 #: (name, #686 item, anchor, replacement, the check that must fail)
 MUTANTS = (
@@ -49,6 +51,10 @@ MUTANTS = (
      "B.3.4.1 announce T < 32 s"),
     ("announce_not_randomized", 2, "{6'd0, lfsr_r[9:0]}", "16'd512",
      "B.3.4.1 announce T randomized"),
+    ("zero_seed_freezes_the_probe_draw", 2, SEED, "mac_seed_w",
+     "B.3.4.2 probe T randomized (zero-seed MAC)"),
+    ("zero_seed_freezes_the_announce_draw", 2, SEED, "mac_seed_w",
+     "B.3.4.1 announce T randomized (zero-seed MAC)"),
     ("announce_judged_on_conflict_fields", 3,
      "rx_defend_w = (rx_msg_r == {2'b00, MSG_DEFEND_C});",
      "rx_defend_w = (rx_msg_r != {2'b00, MSG_PROBE_C});",

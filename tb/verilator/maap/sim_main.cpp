@@ -5,7 +5,8 @@
 // The standard is the oracle: every check names the clause it grades, and
 // mutants.py plants one defect per #686 item and requires its named check to
 // fail. Item 1 is B.2.1 (DEFEND destination, control_data_length 16), item 2
-// B.3.3 Table B.8 and B.3.4 (strict probe and announce intervals), item 3
+// B.3.3 Table B.8 and B.3.4 (strict, random probe and announce intervals,
+// for a station MAC that folds the LFSR seed to zero as well), item 3
 // B.3.2 Table B.7 notes b and d (ANNOUNCE conflict detection), item 4 Table
 // B.7 ReserveAddress!/probetimer!/probeCount! (four PROBEs, the first at
 // once). A DEFEND's requested_* fields are not graded: their B.3.6.6 echo is
@@ -52,9 +53,15 @@ constexpr uint64_t kStationMac = 0x020000000001ULL;  // reversed: 01:..:02
 // which is what lets a reversal defect show.
 constexpr uint64_t kPeerAbove = 0x66778899AABBULL;
 constexpr uint64_t kPeerBelow = 0x66778899AA00ULL;
+// a station MAC whose two low 16-bit halves XOR to 0xACE1, which folds the
+// LFSR's MAC seed to zero (the LFSR's fixed point)
+constexpr uint64_t kZeroSeedMac = 0x02000000ACE1ULL;
 // timing campaign size: walks restarted by disable/enable
 constexpr int kTimingWalks = 150;
 constexpr int kAnnounceSamples = 24;
+// zero-seed MAC: walks for its probe draws, ANNOUNCEs after the first
+constexpr int kZeroSeedWalks = 3;
+constexpr int kZeroSeedAnnounces = 4;
 // a walk stops counting PROBEs here (a defect could send them forever)
 constexpr int kProbeLimit = 8;
 
@@ -172,6 +179,8 @@ class MaapHarness {
     void honour_conflicts_from_any_maap_version();
     void probe_interval_campaign();
     void disable_then_claim_the_seed();
+    std::vector<long> frame_starts(size_t n);
+    void zero_seed_mac_draws_random_timers();
 
     const milan::tb::Model<VKL_maap> model;
     VKL_maap* dut = model.get();
@@ -526,6 +535,60 @@ void MaapHarness::disable_then_claim_the_seed(){
        next(f, kProbeBudgetCyc) && f.start-begin<=kAtOnceCyc && f.b==golden(1,0x1234), 1);
 }
 
+// The first beats of the next n frames, or fewer if one does not come.
+std::vector<long> MaapHarness::frame_starts(size_t n){
+    std::vector<long> starts;
+    Frame f;
+    while(starts.size()<n && next(f, kAnnounceBudgetCyc)){
+        if(!frame_is(f, starts.size()<4 ? 1 : 3)) break;   // four PROBEs, then ANNOUNCEs
+        starts.push_back(f.start);
+    }
+    return starts;
+}
+
+// B.3.4 wants a random T. Only timer-to-timer intervals are compared: a send
+// the timer starts is one cycle after a millisecond tick, so that interval
+// is exactly the draw. The at-once sends (the first PROBE, the first
+// ANNOUNCE) start at another tick phase, so counting them would let a draw
+// frozen at one value pass as random through the phase alone.
+void MaapHarness::zero_seed_mac_draws_random_timers(){
+    printf("\n[11] B.3.4: a station MAC that folds the LFSR seed to zero\n"
+           "     (02:00:00:00:AC:E1) still draws random probe and announce intervals\n");
+    dut->enable_i=0; cyc(5);
+    while(dut->m_axis_tvalid) cyc();
+    dut->station_mac_i=kZeroSeedMac; dut->seed_valid_i=0;
+    dut->rst_n=0; cyc(6); dut->rst_n=1; cyc(3);
+    cur=Frame{};
+    std::vector<long> piv;
+    std::vector<long> aiv;
+    bool shape=true;
+    for(int k=0;k<kZeroSeedWalks;k++){
+        const bool last = k==kZeroSeedWalks-1;
+        dut->enable_i=0; cyc(5 + k);
+        while(dut->m_axis_tvalid) cyc();
+        seen=frames.size();
+        dut->enable_i=1;
+        const size_t want = last ? 5+kZeroSeedAnnounces : 5;
+        const std::vector<long> s=frame_starts(want);
+        shape = shape && s.size()==want;
+        if(s.size()!=want) break;
+        piv.push_back(s[2]-s[1]);                  // PROBE 2 -> 3
+        piv.push_back(s[3]-s[2]);                  // PROBE 3 -> 4
+        for(size_t i=6;i<s.size();i++) aiv.push_back(s[i]-s[i-1]);   // ANNOUNCE 1 -> 2 on
+    }
+    ck("zero-seed MAC: four PROBEs, then ANNOUNCEs", shape, 1);
+    const std::set<long> pd(piv.begin(), piv.end());
+    const std::set<long> ad(aiv.begin(), aiv.end());
+    printf("  [i]    %zu timer PROBE intervals, %zu distinct; %zu timer ANNOUNCE intervals, %zu distinct\n",
+           piv.size(), pd.size(), aiv.size(), ad.size());
+    ck("B.3.4.2 probe T in bounds (zero-seed MAC)",
+       !pd.empty() && *pd.begin()>kProbeMinCyc && *pd.rbegin()<kProbeMaxCyc, 1);
+    ck("B.3.4.2 probe T randomized (zero-seed MAC)", pd.size()>1, 1);
+    ck("B.3.4.1 announce T in bounds (zero-seed MAC)",
+       !ad.empty() && *ad.begin()>kAnnounceMinCyc && *ad.rbegin()<kAnnounceMaxCyc, 1);
+    ck("B.3.4.1 announce T randomized (zero-seed MAC)", ad.size()>1, 1);
+}
+
 int MaapHarness::run(){
     bring_up_idle();
     check_reset_idle();
@@ -539,6 +602,7 @@ int MaapHarness::run(){
     honour_conflicts_from_any_maap_version();
     probe_interval_campaign();
     disable_then_claim_the_seed();
+    zero_seed_mac_draws_random_timers();
 
     printf("\n======================================================================\n");
     printf("KL_maap: %ld checks, %ld failures\n", checks, fails);

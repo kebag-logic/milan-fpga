@@ -134,10 +134,15 @@ module KL_maap #(
   logic         tick_ms_w;
   assign tick_ms_w = (tickdiv_r == '0);
 
-  //! 16-bit Fibonacci LFSR (x^16+x^15+x^13+x^4+1), station-MAC seeded
+  //! 16-bit Fibonacci LFSR (x^16+x^15+x^13+x^4+1), station-MAC seeded.
+  //! All-zero is its only fixed point and no other state reaches it (the
+  //! step is an invertible linear map), so the reset seed is never zero:
+  //! a MAC that folds to zero (mac[15:0] ^ mac[31:16] == 0xACE1) takes the
+  //! constant instead, and the B.3.4 timer draws stay random for every MAC.
   logic [15:0]  lfsr_r;
   wire  [15:0]  lfsr_next_w = {lfsr_r[14:0],
                                lfsr_r[15] ^ lfsr_r[14] ^ lfsr_r[12] ^ lfsr_r[3]};
+  wire  [15:0]  mac_seed_w  = 16'hACE1 ^ station_mac_i[15:0] ^ station_mac_i[31:16];
 
   // ---- claim state ----------------------------------------------------------
   logic [15:0]  offset_r;
@@ -275,8 +280,7 @@ module KL_maap #(
       probe_left_r <= '0;
       timer_ms_r   <= '0;
       tickdiv_r    <= '0;
-      lfsr_r       <= 16'hACE1 ^ station_mac_i[15:0]
-                      ^ {station_mac_i[31:24], station_mac_i[23:16]};
+      lfsr_r       <= (mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w;
       seed_used_r  <= 1'b0;
       conflicts_o  <= '0;
       defends_o    <= '0;
