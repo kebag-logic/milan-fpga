@@ -1,0 +1,8 @@
+Draft written 2026-10-07T04:37:29Z, before reading prior PR review findings or other reviewers' reports.
+Draft verdict: POSITIVE at 708e5634f28e6e5a19236a9b0a9a543c3622e52d (no finding of mine at MINOR or above).
+Delta 34475e77..708e5634: only sw/firmware/ctrl_nvm/README.md, the five text cells of the Static sizes table.
+Conformance CLEAN r524-4 (delta is docs only; round-3 coverage of nvm_klj2.c:298-300 stands; probe ties +4 B to it)
+RTL         CLEAN via round 3 at 34475e77; delta touches no RTL/firmware source
+Robustness  CLEAN via round 3 at 34475e77; delta touches no code
+Tests       CLEAN r524-4 (suite rc 0 at head; match script + parent negative control; probe)
+Docs        CLEAN r524-4 (table text = measured text for all 5 rows; preamble matches nvm_rv32.py flags)

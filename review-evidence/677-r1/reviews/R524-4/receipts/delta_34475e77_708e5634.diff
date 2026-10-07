@@ -1,0 +1,21 @@
+diff --git a/sw/firmware/ctrl_nvm/README.md b/sw/firmware/ctrl_nvm/README.md
+index e0184b014..53766ad64 100644
+--- a/sw/firmware/ctrl_nvm/README.md
++++ b/sw/firmware/ctrl_nvm/README.md
+@@ -348,11 +348,11 @@ only while the slot is judged.
+ 
+ | Shape | Clock (Hz) | Records | Container | Stage | Payload | Chunk | Store state | Clock counters | bss | text |
+ |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+-| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,112 |
+-| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,128 |
+-| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,120 |
+-| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,120 |
+-| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,132 |
++| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,116 |
++| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,132 |
++| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,124 |
++| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,124 |
++| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,136 |
+ 
+ #640 D4 removes DDR3, so the stage lives in block RAM: one container, not the
+ 64 KiB slot. The shipping writer keeps a live window and a private stage in

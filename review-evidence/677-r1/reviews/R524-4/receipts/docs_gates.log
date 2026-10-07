@@ -1,0 +1,20 @@
+head 708e5634f28e6e5a19236a9b0a9a543c3622e52d; venv requirements sha256 40cdefe08ebda5e63f0ed13f5437f96dc58f8b2d64a6fb045f3ba02441ed2817
+### $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 198 md files + 1126 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --check
+TOC gate: OK (138 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+### $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --verify-anchors
+anchor check: 388 existing cross-page fragment links reproduced
+rc=0
+### $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --base 34475e774dfe1c92c81fa51293668e64dc95fa85
+check_em_dash: 0 finding(s) over 5 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [34475e77..HEAD]
+rc=0
+### $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --base 910f338dbd050f4efd2d96991ddcf928a583d55f
+check_em_dash: 0 finding(s) over 57 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [910f338d..HEAD]
+rc=0
+### git diff --check 34475e774dfe1c92c81fa51293668e64dc95fa85 HEAD
+rc=0
+### git diff --check 910f338dbd050f4efd2d96991ddcf928a583d55f HEAD
+rc=0
