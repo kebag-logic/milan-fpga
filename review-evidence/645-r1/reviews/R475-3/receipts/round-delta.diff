@@ -1,0 +1,239 @@
+diff --git a/docs/design/MEDIA_CLOCK_FOLLOWING.md b/docs/design/MEDIA_CLOCK_FOLLOWING.md
+index cccad1c21..2556f4f82 100644
+--- a/docs/design/MEDIA_CLOCK_FOLLOWING.md
++++ b/docs/design/MEDIA_CLOCK_FOLLOWING.md
+@@ -1542,8 +1542,8 @@ pass.
+ | `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling, counted from the start of `[LAW]`'s own wait, and holds through every phase. Every phase is gradable: no PDU end has a pop within the ambiguity window below, and that margin is a check. At every PDU end the fill is exactly the setpoint plus that PDU, 14 events; every first event pops inside (8, 9] ticks of its PDU end, plus the pop pulse's one-cycle register | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check. Separately, the render setpoint one event low, and one event high: all 18 phases fail both the fill and the band check |
+ | Same, `tdm8render-law-boundary` | The same phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, located from the +0 phase's own offsets, in three histories: the leg's own ascending scan, the band descending, and each phase within 12 cycles of it alone | Every phase is graded and passes, or is not gradable and fails nothing; each scan holds both kinds. Every window's nearest-pop range and walk is printed, and the largest walk beside the one the suite states | The render setpoint one event low, and one event high: no graded phase passes, and every graded phase fails both law checks |
+ | Same, `[PULLIN]` (#647, the [settle recentre](#settle-recentre)) and `tdm8render-pullin` | INTERNAL after the settled report, a fresh stream at a `[LAW]` feed phase on the law, then T14's serial-clock hold (5,200 cycles, folded to half a sample) under the running stream, and up to 2 s of it for the settle recentre, the aligner traced every 64 ms. The full leg runs one standing phase, +1,562; `tdm8render-pullin` runs all 18 `[LAW]` phases, one leg each | On the law before the hold; exactly one settle recentre after it, the one render recentre pulse since the hold and the one the stage executed; `SLIP_LB` static from it on; on the law again after it, at every phase the ambiguity window can grade (the standing phase must be gradable) | The settle recentre never pulses: the standing phase leaves the law after the hold |
+-| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8 uses both peer offsets, -11.02 and +0.82 ppm against the DUT's -5.1 ppm INTERNAL clock. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock. `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us, 2 us plus a 1e-4 tail of 0 to 24 us, and 0 to 60 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us. `small_pulls.py` adds fine holds, a no-hold leg and two pulls on each side of recovery; `quiet_distributions.py` requires all 128 phases and complete signed histograms; `settle_control.py` checks the controller at all four axis rates | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (nominal margin in (5, 6] ticks), with at least one tick on both the empty and full sides, the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden); SINGLE-DROP, an incomplete full-side action; NO-ARM, a missed fine boundary; NO-RECOVERY, two actions from one hold; HIGH-ARM, a missed +9-cycle peak; QUIET-ARM, pending correction without a hold |
+-| `tb/verilator/chmap_capture`, `[LRC]` | One 4-channel stream of the LOOP bucket, its six-event PDUs at one beat per cycle, `lb_recentre_i` pulsed before a PDU starting with none, four, five, six or ten events of the previous PDU left; unprimed; flushed after the pulse; the pulse on a PDU's first beat | None left holds five pops, four holds one pop, five moves nothing, six drops one and ten drops five, on both pairs in lockstep; the following PDU proves the action occurs once; an unprimed stream ignores the pulse, a flush cancels it, a pulse on a PDU's first beat acts at the next PDU; neither slip counter moves | (the module's own leg; the integration's planted controls are follow_ring's) |
++| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8 uses both peer offsets, -11.02 and +0.82 ppm against the DUT's -5.1 ppm INTERNAL clock. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock. `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us, 2 us plus a 1e-4 tail of 0 to 24 us, and 0 to 60 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us. `small_pulls.py` adds fine holds, a no-hold leg and two pulls on each side of recovery; `quiet_distributions.py` requires all 128 phases and complete signed histograms; `settle_control.py` checks the controller at all four axis rates | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (nominal margin in (5, 6] ticks), with at least one tick on both the empty and full sides, the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden); SINGLE-DROP, an incomplete full-side action; HELD-DUP, every held pop counted as a dup (the walk before a pair's first commit, the `[LRC]` counter check and the span counter check fail); STARVED-HELD-DUP, a held pop counted only on a still-empty pair (that walk and the `[LRC]` counter check fail); NO-ARM, a missed fine boundary; NO-RECOVERY, two actions from one hold; HIGH-ARM, a missed +9-cycle peak; QUIET-ARM, pending correction without a hold |
++| `tb/verilator/chmap_capture`, `[LRC]` | One 4-channel stream of the LOOP bucket, its six-event PDUs at one beat per cycle, `lb_recentre_i` pulsed before a PDU starting with none, four, five, six or ten events of the previous PDU left; none left with a walk between the PDU's first beat and the second pair's first commit, and the same stimulus without the pulse; unprimed; flushed after the pulse; the pulse on a PDU's first beat | None left holds five pops, four holds one pop, five moves nothing, six drops one and ten drops five, on both pairs in lockstep; the following PDU proves the action occurs once; an unprimed stream ignores the pulse, a flush cancels it, a pulse on a PDU's first beat acts at the next PDU; neither slip counter moves, including for a held walk on a pair still empty because its first commit of the PDU has not landed, where the same walk without the pulse counts one dup | (the module's own leg; the integration's planted controls are follow_ring's) |
+ | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
+ 
+ **Why the switch row has three checks.** The round 3 evidence on PR #631
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 2c6b513b6..958bbcfca 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -486,10 +486,13 @@ Its CDC FIFO stays full: up to 16 frames more.
+ A clock-source change arms one recentre.
+ It fires once the grid has settled (table above).
+ 
+-A settle recentre follows each change and each pull-in.
++A settle recentre follows each change.
++Each pull-in starting outside a previous action's recovery gets one.
++
+ It waits until the servo and aligner rest.
++A pull-in starting inside that recovery is the declared residual.
+ 
+-Nothing moves the stage after it.
++Outside that declared residual, nothing moves the stage after it.
+ 
+ The `milan_dp` leg selects CRF under a running stream.
+ One recentre fires; every PDU returns to the setpoint.
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 87d381ad3..856d04a82 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -1867,7 +1867,7 @@ These two words are that evidence on silicon.
+ 
+ | Offset | Name | Acc | Reset | Description |
+ |--------|------|-----|-------|-------------|
+-| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The unit is one dup per fed and primed pair per tick, so a lane of `LB_PAIRS_C` pairs counts `LB_PAIRS_C` per slipped beat (4 on the shipping 1x1x8 lane, 32 on an 8x8 elaboration); a lane never fed counts nothing. The #645 settle recentre's own held pops or dropped event count in neither half: it is the declared discontinuity of a source change or a pull-in ([design](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre)), so a word static from it on is the acceptance state |
++| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The unit is one dup per fed and primed pair per tick, so a lane of `LB_PAIRS_C` pairs counts `LB_PAIRS_C` per slipped beat (4 on the shipping 1x1x8 lane, 32 on an 8x8 elaboration); a lane never fed counts nothing. The #645 settle recentre's own held pops or dropped events count in neither half: it is the declared discontinuity of a source change or a pull-in ([design](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre)), so a word static from it on is the acceptance state |
+ | `0x8D8` | `SLIP_TDM` | RO | `0` | `[15:0]` TDM-junction dups (a walk snapshot with no frame closed since the last one: the talker repeats a TDM frame), `[31:16]` TDM-junction skips (a frame close over an unread frame: no talker walk reads it). One event per frame, gated on the first physical frame. The frame close is the strobe of the frame's last pair (`CMAP_TDM_FRAME_PAIRS_C`); before #617 the marker was the slot-0 strobe and the consume the tick |
+ 
+ **The counting law, and the ceiling.** A loopback pair is *fed* by its first
+diff --git a/hdl/ieee1722/aaf/KL_chan_map_capture.sv b/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+index 3a8641d0e..58539a09f 100644
+--- a/hdl/ieee1722/aaf/KL_chan_map_capture.sv
++++ b/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+@@ -891,8 +891,10 @@ module KL_chan_map_capture #(
+   wire [LB_QPTRW_C:0] pop_drop_n_w =
+       ((LB_QPTRW_C+1)'(act_drop_r[32'(pop_pair_w) / LB_PPS_C]) < pop_cnt_w)
+           ? (LB_QPTRW_C+1)'(act_drop_r[32'(pop_pair_w) / LB_PPS_C]) : pop_cnt_w - 1'b1;
++  //! a held walk is the declared repeat, not a dup, even on a pair whose
++  //! first commit of the PDU has not landed yet
+   wire pop_dup_w = pop_visit_w && q_primed_r[pop_pair_w]
+-                   && q_fed_r[pop_pair_w] && (pop_cnt_w == '0);
++                   && q_fed_r[pop_pair_w] && (pop_cnt_w == '0) && !pop_hold_w;
+   //! the visit's read pointer, past a dropped event, and what it consumes
+   wire [LB_QPTRW_C-1:0] pop_rd_w = q_rd_r[pop_pair_w]
+                                    + LB_QPTRW_C'(pop_drop_n_w);
+diff --git a/tb/verilator/chmap_capture/sim_main.cpp b/tb/verilator/chmap_capture/sim_main.cpp
+index a3108fb70..69bec60a3 100644
+--- a/tb/verilator/chmap_capture/sim_main.cpp
++++ b/tb/verilator/chmap_capture/sim_main.cpp
+@@ -141,6 +141,7 @@ class ChanMapCaptureHarness {
+   void lrc_pulse();
+   void lrc_expect_frame(const char* tag, const char* what, const std::array<int, 6>& want);
+   void lrc_unprimed_and_hold();
++  void lrc_hold_before_first_commit(bool pulse);
+   void lrc_hold_one();
+   void lrc_drop();
+   void lrc_drop_five();
+@@ -1705,7 +1706,9 @@ void ChanMapCaptureHarness::pin_settle_recentre_centres_the_loop_queues() {
+   // left before its first beat need no action; four left hold one pop;
+   // none left hold five pops; six left drop the oldest before the pop.
+   // Both pairs act together, once, without counting the declared action
+-  // as a slip. Unprimed, flush and coincident-first-beat cases remain pinned.
++  // as a slip, including a held walk that lands before a pair's first
++  // commit of the PDU. Unprimed, flush and coincident-first-beat cases
++  // remain pinned.
+   printf("\n[LRC] the settle recentre puts a stream's LOOP queues on 11 events\n");
+   lb_set_chans(kLrcStream, 4);
+   a_map_wr(1, ent_lb(1, kLrcStream, 0));      // t1 pair0 <- s5 ch0/ch1
+@@ -1716,9 +1719,13 @@ void ChanMapCaptureHarness::pin_settle_recentre_centres_the_loop_queues() {
+   // starved pairs would count dups on the lane's one counter
+   dut->a_lb_flush_i = 0xFF; cyc(); dut->a_lb_flush_i = 0; cyc(2);
+   lrc_align();
++  lrc_hold_before_first_commit(false);  // its genuine dup lands before d0
++  lrc_wipe();
++  lrc_align();
+   const long d0 = dut->a_dup_cnt_o;
+   const long k0 = dut->a_skip_cnt_o;
+   lrc_unprimed_and_hold();
++  lrc_hold_before_first_commit(true);
+   lrc_hold_one();
+   lrc_drop();
+   lrc_drop_five();
+@@ -1746,6 +1753,53 @@ void ChanMapCaptureHarness::lrc_unprimed_and_hold() {
+     ck("LRC: ...and holds no sixth: e8..e13 follow in order", lrc_same(ev, {8, 9, 10, 11, 12, 13}), 1);
+ }
+ 
++//! none left, and a walk between the PDU's first beat (the decision, pair
++//! 0's event) and pair 1's first commit: pair 1 is still empty at that
++//! walk. With the pulse the walk is the first of the five declared holds
++//! on both pairs and counts no dup (R474-2 F1). Without it, the identical
++//! stimulus is one genuine dup on pair 1, which shows the walk lands in
++//! that gap; the caller runs that variant outside the counter window.
++void ChanMapCaptureHarness::lrc_hold_before_first_commit(bool pulse) {
++  const int S = kLrcStream;
++  lrc_wipe();
++  lrc_align();
++  drv_lb_pdu(S, 4, 6, 1);            // primes, fill 6
++  for (int i = 0; i < 6; i++) a_tick(); // e1..e6 out: nothing left
++  if (pulse) lrc_pulse();
++  std::vector<uint32_t> smp;
++  for (int e = 0; e < 6; e++)
++    for (int c = 0; c < 4; c++) smp.push_back(LBV(S, c, 7 + e));
++  afr.clear();
++  const long dA = dut->a_dup_cnt_o;
++  const long kA = dut->a_skip_cnt_o;
++  dut->lb_tuser_i = S;
++  for (size_t i = 0; i < smp.size(); i += 2) {
++    dut->lb_tdata_i = lb_beat(smp[i], smp[i + 1]);
++    dut->lb_tvalid_i = 1;
++    dut->lb_tlast_i = (i + 2 >= smp.size());
++    cyc();
++    if (i == 0) {                     // pair 0's e7 only: walk before pair 1's
++      dut->lb_tvalid_i = 0; dut->lb_tdata_i = 0; cyc(2);
++      a_tick();
++    }
++  }
++  dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0; dut->lb_tdata_i = 0; cyc(2);
++  const long walk_dups = static_cast<long>(dut->a_dup_cnt_o) - dA;
++  if (!pulse) {
++    ck("LRC CONTROL: without the pulse that walk finds pair 1 empty (one dup)", walk_dups, 1);
++    return;
++  }
++  for (int i = 0; i < 5; i++) a_tick();
++  lrc_expect_frame("hold before a commit", "LRC: a walk before pair 1's first commit is the first of five holds (e6 x5, then e7)",
++                   {6, 6, 6, 6, 6, 7});
++  ck("LRC: that held walk on a still-empty pair counts no dup", static_cast<long>(dut->a_dup_cnt_o) - dA, 0);
++  ck("LRC: ...and no skip", static_cast<long>(dut->a_skip_cnt_o) - kA, 0);
++  std::array<int, 6> ev{};
++  drv_lb_pdu(S, 4, 6, 13);           // five left: on target, fill 11
++  if (lrc_frame("after the early hold", S, ev))
++    ck("LRC: ...and holds no sixth: e8..e13 follow in order", lrc_same(ev, {8, 9, 10, 11, 12, 13}), 1);
++}
++
+ //! four left (10 at the PDU end): the next walk holds, once
+ void ChanMapCaptureHarness::lrc_hold_one() {
+   const int S = kLrcStream;
+diff --git a/tb/verilator/follow_ring/mutants.py b/tb/verilator/follow_ring/mutants.py
+index 3837d49f7..d7e028da5 100644
+--- a/tb/verilator/follow_ring/mutants.py
++++ b/tb/verilator/follow_ring/mutants.py
+@@ -36,6 +36,12 @@ NO-ARM: remove excursion arming under a running INTERNAL stream. The fine
+   while its peak error remains below the former four-band threshold.
+ SINGLE-DROP: replace the full-side correction with one drop. The ten-event
+   pre-PDU fill must then fail the LRC wire expectation for five drops.
++HELD-DUP: count every held pop as a loopback dup. The declared holds must
++  then fail the LRC case for a walk before a pair's first commit, the LRC
++  counter check and the span checks' counter check.
++STARVED-HELD-DUP: count a held pop as a dup only where the pair is still
++  empty (R474-2 F1). Only the LRC case for a walk before a pair's first
++  commit reaches that state, so it and the LRC counter check must fail.
+ NO-RECOVERY: let the excursion arm while recovering. The three-quantum hold
+   then causes two actions, one from the aligner's own recovery swing.
+ HIGH-ARM: raise the arm above the one-quantum pull's +9-cycle peak. Its
+@@ -62,9 +68,15 @@ SMALL_PULLIN = ["--case", "pullin", "--hold-us", "42.64", "--latency-us", "204.4
+ PULLIN = ["--case", "pullin", "--latency-us", "210.42", "--after-s", "1.5"]
+ 
+ #: (name, wrapper define or None, [(shipped text, planted text)] in the datapath,
+-#:  [(shipped text, planted text)] in the capture crossbar, leg, the check that must fail)
++#:  [(shipped text, planted text)] in the capture crossbar, leg, the check or
++#:  checks that must all fail)
+ Plant = list[tuple[str, str]]
+-Mutant = tuple[str, str | None, Plant, Plant, list[str], str]
++Mutant = tuple[str, str | None, Plant, Plant, list[str], str | tuple[str, ...]]
++#: built and run through chmap_capture's recipe, not follow_ring's
++CAPTURE_SUITE = {"SINGLE-DROP", "HELD-DUP", "STARVED-HELD-DUP"}
++POP_DUP = "&& q_fed_r[pop_pair_w] && (pop_cnt_w == '0) && !pop_hold_w;"
++EARLY_HOLD = "LRC: that held walk on a still-empty pair counts no dup"
++LRC_DUPS = "LRC: no recentre moved the dup counter"
+ MUTANTS: tuple[Mutant, ...] = (
+     ("NO-ARM", None,
+      [("                      (settle_exc_w && !settle_pend_r && !settle_recover_r);\n",
+@@ -89,6 +101,12 @@ MUTANTS: tuple[Mutant, ...] = (
+      [("? LB_DROPW_C'(32'(rc_left_w) - LB_LEFT_C) : '0;",
+        "? LB_DROPW_C'(1) : '0;")], [],
+      "LRC: ten left drops five excess events on both pairs"),
++    ("HELD-DUP", None, [],
++     [(POP_DUP, "&& q_fed_r[pop_pair_w] && ((pop_cnt_w == '0) || pop_hold_w);")], [],
++     (EARLY_HOLD, LRC_DUPS, "SPAN: no action counted as a duplicate")),
++    ("STARVED-HELD-DUP", None, [],
++     [(POP_DUP, "&& q_fed_r[pop_pair_w] && (pop_cnt_w == '0);")], [],
++     (EARLY_HOLD, LRC_DUPS)),
+     ("NO-SETTLE", None,
+      [("          settle_recentre_p_r <= 1'b1;\n", "          settle_recentre_p_r <= 1'b0;\n")], [],
+      PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
+@@ -125,7 +143,7 @@ def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
+     name, define, edits, cmap_edits, leg, check = mutant
+     mdir = mdir_root / name.lower()
+     mdir.mkdir(parents=True, exist_ok=True)
+-    suite = HERE.parent / "chmap_capture" if name == "SINGLE-DROP" else HERE
++    suite = HERE.parent / "chmap_capture" if name in CAPTURE_SUITE else HERE
+     make = ["make", "-j16", "-s", "--no-print-directory", "-C", str(suite), "build",
+             "VERILATOR_JOBS=16", f"MDIR={mdir}"]
+     if name in {"NO-ARM", "NO-RECOVERY", "HIGH-ARM", "QUIET-ARM"}:
+@@ -145,13 +163,14 @@ def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
+     (mdir / "build.rc").write_text(f"{build.returncode}\n")
+     if build.returncode != 0:
+         return name, False, f"did not build (rc {build.returncode})\n{build.stdout[-2000:]}{build.stderr[-2000:]}"
+-    executable = "Vchmap_wrap" if name == "SINGLE-DROP" else "Vfollow_ring"
++    executable = "Vchmap_wrap" if name in CAPTURE_SUITE else "Vfollow_ring"
+     argv = [str(mdir / executable), *leg]
+     (mdir / "run.command.json").write_text(json.dumps(argv) + "\n")
+     run = subprocess.run(argv, capture_output=True, text=True, check=False)
+     (mdir / "run.log").write_text(run.stdout + run.stderr)
+     (mdir / "run.rc").write_text(f"{run.returncode}\n")
+-    killed = run.returncode != 0 and f"[FAIL] {check}" in run.stdout
++    checks = (check,) if isinstance(check, str) else check
++    killed = run.returncode != 0 and all(f"[FAIL] {c}" in run.stdout for c in checks)
+     return name, killed, run.stdout
+ 
+ 
+@@ -169,7 +188,8 @@ def main() -> int:
+         for fut in cf.as_completed(futs):
+             name, killed, out = fut.result()
+             check = futs[fut][5]
+-            print(f"[MUTANT] {name}: {'caught' if killed else 'SURVIVED'} by \"{check}\"", flush=True)
++            named = check if isinstance(check, str) else "\" and \"".join(check)
++            print(f"[MUTANT] {name}: {'caught' if killed else 'SURVIVED'} by \"{named}\"", flush=True)
+             if not killed:
+                 print(out)
+                 survivors += 1

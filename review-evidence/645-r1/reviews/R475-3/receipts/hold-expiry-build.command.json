@@ -1,0 +1,12 @@
+[
+  "make",
+  "-j16",
+  "-f",
+  "<PACKET>/scratch/hold-expiry/Makefile",
+  "-C",
+  "<REPO>/tb/verilator/chmap_capture",
+  "build",
+  "VERILATOR_JOBS=16",
+  "VERILATOR=<SIMULATOR>",
+  "MDIR=<PACKET>/scratch/hold-expiry/obj"
+]

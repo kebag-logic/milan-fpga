@@ -1,0 +1,17 @@
+{
+  "cwd": "<REPO>",
+  "argv": [
+    "env",
+    "VERILATOR=<SIMULATOR>",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "python3",
+    "tb/verilator/follow_ring/mutants.py",
+    "--jobs",
+    "1",
+    "--mdir",
+    "<PACKET>/scratch/mutants",
+    "--select",
+    "HELD-DUP",
+    "STARVED-HELD-DUP"
+  ]
+}

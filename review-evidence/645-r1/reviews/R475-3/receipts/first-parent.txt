@@ -1,0 +1,46 @@
+2525eae9567865a8bc741901914bdf5a1caf2c26 701b8332b6bd2387471db6d55be55449e770291b e21c1ca024d37ea188ad15b5c8f9c2dae18628df Merge dev e21c1ca0 into the ring settling lane
+701b8332b6bd2387471db6d55be55449e770291b 3eee12dcd9214122460fa585ce68e9b970fe556d d51b373ad7e8e8381af2797be3ebb8ee45c62e3c Merge dev d51b373a into the ring settling lane
+3eee12dcd9214122460fa585ce68e9b970fe556d 2d9f995beb7b241e59eea66721f3799991386ce4 State the declared recovery residual in TIME_SYNC and pluralise dropped events in SLIP_LB
+2d9f995beb7b241e59eea66721f3799991386ce4 886e16201654ba0fd0c60c41c228ea4c75b2f6d3 Count no loopback dup for a settle-held walk on a pair still awaiting its first commit
+886e16201654ba0fd0c60c41c228ea4c75b2f6d3 0a1961923895b35354e8c6d72566749e31237ff8 09f1841bd2c6a9dea8eb1994d887f7386ca4f62d Merge dev 09f1841b into the ring settling lane
+0a1961923895b35354e8c6d72566749e31237ff8 4951c4717fa2db66a61d265eb9f52d8a81631594 910f338dbd050f4efd2d96991ddcf928a583d55f Merge dev 910f338d into the ring settling lane
+4951c4717fa2db66a61d265eb9f52d8a81631594 f6bd415f74bfae8666da327e31edb97fcc61d3a9 79b086d44eb62d007d38e18f5618b98e8e2a33e6 Merge dev 79b086d4 into the ring settling lane
+f6bd415f74bfae8666da327e31edb97fcc61d3a9 9e529b2069d0ef652325f37e029ca969f852e8a6 6a05347d4e2ec1dcb37d4e5806c7767537de3ce0 Merge dev 6a05347d into the ring settling lane
+9e529b2069d0ef652325f37e029ca969f852e8a6 33c951fcceb07d30028f2385c60900dc1aad8323 6714181d0c8a16e2983f85b724f4d688f5111835 Merge dev 6714181d into the ring settling lane
+33c951fcceb07d30028f2385c60900dc1aad8323 b00df0509bb392ceeeb26dbed0433ddc799e8140 Correct the 56 us pull-in slip count and widen the declared-transient measurement scope to both signs and the 60 us envelope
+b00df0509bb392ceeeb26dbed0433ddc799e8140 5afae068b9172568e90f30d6b682993d33682667 State the measured 128-phase quiet distribution behind the two-cycle settle arm
+5afae068b9172568e90f30d6b682993d33682667 132d79e7f38212cedf0e344a39d0f811566a1d1b bd884631684ccf5060339efa92263d5c3e5c262c Merge dev bd884631 into the ring settling lane
+132d79e7f38212cedf0e344a39d0f811566a1d1b 31538f4b47a8c6d072323f25fd4a160a3521e0f1 30e3c018b9add0cb182d8f1229eeec062218130d Merge dev 30e3c018 into the ring settling lane
+31538f4b47a8c6d072323f25fd4a160a3521e0f1 4bddd95e2b864c8867915d07d1104b49565860dd Clarify quiet-band settling and focused validation coverage
+4bddd95e2b864c8867915d07d1104b49565860dd 639814a17ef7b9eca9fc08f8eb6a17348694a5ce Document measured settle recovery windows and their limits
+639814a17ef7b9eca9fc08f8eb6a17348694a5ce 583f93a353248475172274ee3a39fc556f8fad2e Qualify settle excursion rearming with a quiet recovery dwell
+583f93a353248475172274ee3a39fc556f8fad2e f06c74269907801abf9f799de6117d465faeece3 Preserve symmetric recentres and expose the INTERNAL excursion-arm conflict
+f06c74269907801abf9f799de6117d465faeece3 4e1ddee9d7b9ebf58ebebcacd90c5d72dce0c96f 423ac5d910d09ab189b3acc39ae3ae1d10d50b19 Merge dev 423ac5d9 into ring-slip lane
+4e1ddee9d7b9ebf58ebebcacd90c5d72dce0c96f f325c3ab4a9faa0e2b7784e796728ebe6acf3fd3 28f9666feab2b2ba287643c63ed3a16b1e0bb863 Merge dev 28f9666f into ring-slip lane
+f325c3ab4a9faa0e2b7784e796728ebe6acf3fd3 e80dd7ad43574b109b51d4f586efad776d547553 510fae60b26bef1db138de5cf2ac72b17b5011a5 Merge dev 510fae60 into ring-slip lane
+e80dd7ad43574b109b51d4f586efad776d547553 b2c81239f686592b224510c9d4f196a6c7aa7f25 Correct loopback queue depth in capture summary
+b2c81239f686592b224510c9d4f196a6c7aa7f25 fad3cf18633f424d0d52cfedbac2f705c4a024c1 Grade declared settle steps on the physical loopback wire
+fad3cf18633f424d0d52cfedbac2f705c4a024c1 be3ec6e57a9b22c76daef817c07cae5ade8ca012 Document bounded startup and reset settle recentres
+be3ec6e57a9b22c76daef817c07cae5ade8ca012 535a710d3be73764fd0c951953565f462812bce8 fa450d301805881ad713b67521477bf042ddadfd Merge dev fa450d30 into the ring settle lane
+535a710d3be73764fd0c951953565f462812bce8 344fbbc47bfb86f1e35ce1054b1fcab2a68f0594 State queue storage independently of the inferred memory primitive
+344fbbc47bfb86f1e35ce1054b1fcab2a68f0594 ee513ab9a4936c9c095c7be4c78c5dca0b36e7a5 Clarify the wide arrival campaign and single-event recentre drop
+ee513ab9a4936c9c095c7be4c78c5dca0b36e7a5 332833afa6cd396b99ac6f0e7ab48757459d0e56 Centre the sixteen-entry loopback queue for the ruled arrival envelope
+332833afa6cd396b99ac6f0e7ab48757459d0e56 d12ce007c556856b202e1780214ea7ca4df9b0d6 Group follow-ring mutation inputs and correct the fixed-eight test contract
+d12ce007c556856b202e1780214ea7ca4df9b0d6 11eafd84d787725ad5927ec83ff9776ef11b9a18 Document the 8-event loopback target, its cost on the diagnostic loopback lane, the PDU-end split and OVERSHOOT, the open case of a recentre that reads a late PDU, and #657's four campaign failures (#645, #647)
+11eafd84d787725ad5927ec83ff9776ef11b9a18 1a99cab543984db9567b6ed70c66fe8d2099b21e Record that follow_ring's mutants.py also plants a copy of the capture crossbar (#645)
+1a99cab543984db9567b6ed70c66fe8d2099b21e 681ad6aa2c3aa2ccce6e1ec628aca57a304ee9a3 Add follow_ring's OVERSHOOT control on a CMAP_SRC copy of the capture crossbar: a recentre one event past the depth drops an event a PDU later, which only the PDU-end split grades (#645)
+681ad6aa2c3aa2ccce6e1ec628aca57a304ee9a3 e54d8140447ae5e0c20d4a430259452bd0422e71 Split follow_ring's slips at the end of the PDU the loopback ring decided on, not 1 ms after the pulse, so a slip the settle recentre causes is graded after it (#645)
+e54d8140447ae5e0c20d4a430259452bd0422e71 558c97a94c0d8e9e42bbcfab1af69732c78ce6a4 Centre follow_ring's loopback check on the 8-event target: margin in (2, 3] ticks after the settle recentre (#645)
+558c97a94c0d8e9e42bbcfab1af69732c78ce6a4 78eeba22f954ee30c04559e094e9131588e38cf1 Grade the 8-event settle recentre in chmap_capture [LRC]: none left holds two pops and no third, one holds one, two is on target, three drops the oldest (#645)
+78eeba22f954ee30c04559e094e9131588e38cf1 ff6b28b0f56656271a61c7b3a075046922441366 Re-centre the loopback ring on a fixed 8 events at a PDU end: two left of the previous PDU, up to two held pops per pair, one per walk (#645)
+ff6b28b0f56656271a61c7b3a075046922441366 a98543b278d19f55a68bd50957a4d8cad5b8216d Count the settle-recentre mutant and the --pullin positive control in the render mutation inventory: 22 mutants, 34 checks (#647)
+a98543b278d19f55a68bd50957a4d8cad5b8216d 6bbdb57f4f11aa1672531c8a66415fad13de39af State that a build with the servo pruned reaches the settle recentre only through its ceiling (#645)
+6bbdb57f4f11aa1672531c8a66415fad13de39af cb42cc073efe92a7af42fcbfda4d7fc5ed5396ae Document the settle recentre: its trigger, ceiling and the loopback ring's 7-event target, the declared transient before it, the open case of arrivals more than a tick late, and its suites (#645, #647)
+cb42cc073efe92a7af42fcbfda4d7fc5ed5396ae 23657429cb8816f8e3bb808a26d978685a789c80 Allow the few axis cycles from a PDU's first beat to its first event's landing in follow_ring's centring check: a PDU that lands on a pop is decided at the beat and read just short of a tick (#645)
+23657429cb8816f8e3bb808a26d978685a789c80 8ba27663b403f9bcfc517c1b20095d1a18ffa897 Let [PULLIN] wait up to 2 s for the settle recentre, renewing the instrument's record between PDUs, and trace the aligner through the pull: after the [CRF] phase's history the aligner overshoots its band and settles 512 ms after the hold (#647)
+8ba27663b403f9bcfc517c1b20095d1a18ffa897 540d7f65e6b4502f8276525711d2ffb6448b303c Pin the settle recentre in the render recentre set and on the LOOP queues' recentre port, and move the gmstep anchors to the three-term set (#645)
+540d7f65e6b4502f8276525711d2ffb6448b303c 20c9b46ef0cf6a58fb99bcc40f3d38acefcddb51 Add [PULLIN] to the render law suite: a running stream through T14's serial-clock hold graded after the settle recentre, its 18-phase campaign and its NO-SETTLE mutant (#647)
+20c9b46ef0cf6a58fb99bcc40f3d38acefcddb51 6572896de3973e4ccc4ce7f81d0a30fd70629778 Grade the LOOP queues' settle recentre in chmap_capture [LRC]: hold, drop and no-op as a PDU starts, lockstep, uncounted, unprimed, flushed and same-beat (#645)
+6572896de3973e4ccc4ce7f81d0a30fd70629778 77576406302e36a1ce398c583da7bca719df1cdd Grade the settle recentre in follow_ring: one per switch and pull-in, the declared slips before it, no slip and both rings on target after it, across the phase sweeps, with its four planted controls (#645, #647)
+77576406302e36a1ce398c583da7bca719df1cdd 6ca6d6686a69f2b053652149d21af63987479b4b Re-centre both listener rings once the media plane has settled after a source change or an aligner pull-in: milan_datapath's settle recentre after 8 LOCKED servo windows or the aligner's band, and the LOOP queues' recentre to 7 events (#645, #647)
+6ca6d6686a69f2b053652149d21af63987479b4b fea346e76c2a57ed5cd131af8fc68dfeff57f877 Add the follow_ring suite: the media-clock plane and both listener rings through an INTERNAL-to-AAF set, stream-to-stream switches and an INTERNAL pull-in, with phase sweeps that reproduce #645 and #647 (#645)
