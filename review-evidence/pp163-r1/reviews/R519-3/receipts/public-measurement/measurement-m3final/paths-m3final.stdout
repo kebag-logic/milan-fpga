@@ -1,0 +1,66 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Wed Oct  7 08:29:10 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $VALIDATION_STORAGE/pp163-a553/scripts/arb_paths.tcl
+# set dcp [lindex $argv 0]
+# set out [lindex $argv 1]
+# set_param general.maxThreads 2
+# open_checkpoint $dcp
+Command: open_checkpoint $VALIDATION_STORAGE/pp163-a553/meas/ooc-m3final/baseline_synth.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1456.344 ; gain = 7.938 ; free physical = 25058 ; free virtual = 45522
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.1 ; elapsed = 00:00:00.11 . Memory (MB): peak = 1893.234 ; gain = 0.000 ; free physical = 24466 ; free virtual = 44934
+INFO: [Netlist 29-17] Analyzing 2759 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 2013.953 ; gain = 6.250 ; free physical = 24606 ; free virtual = 45075
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2634.938 ; gain = 0.000 ; free physical = 23673 ; free virtual = 44161
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 875 instances were transformed.
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 16 instances
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 513 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 10 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 288 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:15 ; elapsed = 00:00:13 . Memory (MB): peak = 2634.973 ; gain = 1191.535 ; free physical = 23900 ; free virtual = 44388
+# set eps [get_cells -hier -filter {IS_SEQUENTIAL && NAME =~ "*u_tx_arbiter/*"}]
+# puts "arbiter sequential cells: [llength $eps]"
+arbiter sequential cells: 187
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk_i" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+get_timing_paths: Time (s): cpu = 00:00:12 ; elapsed = 00:00:08 . Memory (MB): peak = 2701.938 ; gain = 66.965 ; free physical = 23879 ; free virtual = 44375
+# set paths [get_timing_paths -setup -to $eps -max_paths 200000 -nworst 20 -unique_pins]
+# set f [open $out/arb_paths.tsv w]
+# puts $f "levels\tslack_ns\tdatapath_ns\tstartpoint\tendpoint"
+# foreach p $paths {
+#   puts $f "[get_property LOGIC_LEVELS $p]\t[get_property SLACK $p]\t[get_property DATAPATH_DELAY $p]\t[get_property STARTPOINT_PIN $p]\t[get_property ENDPOINT_PIN $p]"
+# }
+# close $f
+# puts "paths written: [llength $paths]"
+paths written: 7034
+# report_timing -setup -to $eps -max_paths 5 -nworst 1 -input_pins -file $out/arb_worst5.rpt
+INFO: [Timing 38-78] ReportTimingParams: -to_pins  -max_paths 5 -nworst 1 -delay_type max -sort_by slack.
+# set deep [lsort -decreasing -command {apply {{a b} {expr {[get_property LOGIC_LEVELS $a] - [get_property LOGIC_LEVELS $b]}}}} $paths]
+# report_timing -of_objects [lrange $deep 0 4] -input_pins -file $out/arb_deep5.rpt
+WARNING: [Vivado 12-1072] '-of_objects' option can't be used with options '-path_type', '-input_pins', and 'nets', These options will be ignored.
+# report_timing_summary -max_paths 10 -file $out/arb_timing_summary.rpt
+# quit
+INFO: [Common 17-206] Exiting Vivado at Wed Oct  7 08:29:37 2026...

@@ -1,0 +1,26 @@
+{
+  "notify_equals_main": {
+    "equal": true,
+    "path": "hdl/aecp/KL_aecp_notify.sv",
+    "reference": "c9f74b68",
+    "head_blob": "c8fbce303ba609efa3be86e71ccbc22d1e6a184b"
+  },
+  "arbiter_equals_previous_review": {
+    "equal": true,
+    "path": "hdl/packet_engine/KL_pp_tx_arbiter.sv",
+    "reference": "cd9825c9",
+    "head_blob": "f6130635dbab12527595cc0661c9c5619d5259dc"
+  },
+  "scoped_checks": {
+    "reset_mask_to_zero": true,
+    "mask_registered": true,
+    "three_mask_readers": true,
+    "lowest_index_tie": true,
+    "withdraw_both_races": true,
+    "immediate_cancel_and_no_later": true,
+    "release_also_feeds_abort": true
+  },
+  "head": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+  "fresh_simulation_executed": false,
+  "scope": "same-head F1 evidence re-review; source behavior inspected, round-2 executed conclusions carried forward"
+}

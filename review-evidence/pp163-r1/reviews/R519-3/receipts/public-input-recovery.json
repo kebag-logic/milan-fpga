@@ -1,0 +1,635 @@
+{
+  "parent": "28f9666feab2b2ba287643c63ed3a16b1e0bb863",
+  "submodule_gitlinks": {
+    "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+    "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+    "protocol-processor": "ead8036035affd53ef4b29979190f2f4f67084c0"
+  },
+  "gitmodules": "[submodule \"external\"]\n\tpath = external\n\turl = git@github.com:kebag-logic/fpga-avb-ethernet.git\n[submodule \"third_party/verilog-axis\"]\n\tpath = third_party/verilog-axis\n\turl = https://github.com/alexforencich/verilog-axis\n[submodule \"protocol-processor\"]\n\tpath = protocol-processor\n\turl = https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git\n[submodule \"gptp-processor\"]\n\tpath = gptp-processor\n\turl = https://github.com/Mister-M-alt/FPGA-gPTP.git\n",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "4e39ed10ef3a9cc38e524fea67cd6cf50f5d8600",
+      "bytes": 23027,
+      "sha256": "60ca774f70d3e7a4b4c59f65b12d8570a389d45297650c748a86d60dae6a80da"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "a787c2ded3cc208e13c5ecd026728e2c5674dd51",
+      "bytes": 45424,
+      "sha256": "26bda29ca93c9a6d7e616a1fa07ea075d2076b8d1df289b99c2d9eb892b77c27"
+    },
+    {
+      "path": "configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "10d74743d7ece9f757ed35a95bd7af09737ed0cb",
+      "bytes": 8119,
+      "sha256": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb"
+    },
+    {
+      "path": "docs/integration/BUILDING.md",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "65f9cf23616d481e10d3c0b1b81a2ae64409bf31",
+      "bytes": 45686,
+      "sha256": "dcfd4d299b3e261f29342dc39f5837db4ba2c888d3843e69e627109df419101c"
+    },
+    {
+      "path": "gptp-processor/hdl/common/KL_gptp_timer.sv",
+      "status": "fetched",
+      "repository": "Mister-M-alt/FPGA-gPTP",
+      "blob": "e3b76fb52a5075126a00e8ac2b133e5444057366",
+      "bytes": 4471,
+      "sha256": "0cd54f1303e521a7a83f0e6db0fdafbe2c14db2a2277ae032d333c36fd7c0e38"
+    },
+    {
+      "path": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+      "status": "fetched",
+      "repository": "Mister-M-alt/FPGA-gPTP",
+      "blob": "e8b69007be7f3499fee8d8507a6607069302a099",
+      "bytes": 43156,
+      "sha256": "51642d60f680a168c9f767fd74ce0157a3fda7b2feaf578b2f69456afb7077ac"
+    },
+    {
+      "path": "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+      "status": "fetched",
+      "repository": "Mister-M-alt/FPGA-gPTP",
+      "blob": "093311a4ed1fd4e68a618262c5cb5b31b321c0c5",
+      "bytes": 26775,
+      "sha256": "fa4d9ffd04ab68f24a77aa08c7e7f3b98f0015bc97e11d7f3969bb3d79df8647"
+    },
+    {
+      "path": "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+      "status": "fetched",
+      "repository": "Mister-M-alt/FPGA-gPTP",
+      "blob": "62c49ae3fc8ffe46cb93e715c403a16e2fa602d0",
+      "bytes": 6602,
+      "sha256": "f9e43432d8d121a27b15544d8e33e3d8f85fa05432399e7b75d5e6c4125d7b35"
+    },
+    {
+      "path": "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+      "status": "fetched",
+      "repository": "Mister-M-alt/FPGA-gPTP",
+      "blob": "53bd013c466407c818b64bbfc7abc516e3b2d998",
+      "bytes": 29553,
+      "sha256": "f8ed0a2d0901391aafc96611488a91919e3f2d385b5c96d20b0799508e4d714b"
+    },
+    {
+      "path": "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+      "status": "fetched",
+      "repository": "Mister-M-alt/FPGA-gPTP",
+      "blob": "50ef51785f7a9f603d77034ad2062e86fc4f9683",
+      "bytes": 4754,
+      "sha256": "f5d1dbf6acafa6197d7afd7830f920b0c324f0628738deabc5af92fbca7dbdc1"
+    },
+    {
+      "path": "hdl/common/KL_link_guard.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e00cad8e6e1c10aa3961027b6e4bc7edab05fa78",
+      "bytes": 15700,
+      "sha256": "85c716fdbf90f92bece9c11e81d3704c4b3aaea935c50e9f9a2733208da73a53"
+    },
+    {
+      "path": "hdl/common/axi_stream_if.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "12719d93c78e841cbdd5c589966a8a6da81d0739",
+      "bytes": 1845,
+      "sha256": "f3787e00690a6182572af8817b1fe19d7b8abb7215cd51cc8ce43f9770d91c6c"
+    },
+    {
+      "path": "hdl/common/cdc_handshake.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "cd568642c44eb77fff4924cb1c98741bf1458c2f",
+      "bytes": 3435,
+      "sha256": "047bad93e2c1507798ce9617ff7f8413e163edb786e4b1371d2219a146096c79"
+    },
+    {
+      "path": "hdl/common/cdc_pair_fifo.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "f4fbc167a20c777fd81b23741a220dc57b94d168",
+      "bytes": 3929,
+      "sha256": "d6c043df6e2c99e00cb5dd5a9595c459351133968229e4ad7f6246824c61c025"
+    },
+    {
+      "path": "hdl/common/cdc_pulse.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "29f8e416d817776ccad34147de1d84e9e3192288",
+      "bytes": 1814,
+      "sha256": "abcbeb59c175b7fbc8de5555474146bfb4e426d086c4b68f915c148e9c677ad3"
+    },
+    {
+      "path": "hdl/common/csr/milan_csr.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "3392e01af7a095449ce3563cffd81850befebf80",
+      "bytes": 192573,
+      "sha256": "c3106a1410035f33eef9e634750ffc534be4d04293263bdbfd4ea144dfd523d8"
+    },
+    {
+      "path": "hdl/common/eth_event_counter/KL_mac_rmon_events.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "fbf1c80475b73a9c9378e8d8fa76cc5852f68a87",
+      "bytes": 11161,
+      "sha256": "9b45703f19dd59656107ed11d619bfe1a2b6d232d160faf20f3fe5a1b0355f4b"
+    },
+    {
+      "path": "hdl/common/eth_event_counter/ethernet_events.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "1f9b9115e546d0c2b12c50685ba6f7f9b641dcfc",
+      "bytes": 4488,
+      "sha256": "e7b87c05dc031981db1bd1ce012761a8c043a2598855fdbcf8e2c7d1baaa99b6"
+    },
+    {
+      "path": "hdl/common/eth_event_counter/ethernet_events.svh",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "4e7c4141633081388dc754786f23adaa856f9c18",
+      "bytes": 1155,
+      "sha256": "4901b9e672250b4cd36e17edce5a8c13f501bfe37169bc5c52ae5c95224cd3d3"
+    },
+    {
+      "path": "hdl/common/eth_event_counter/event_counter.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "a3a3915d1ee52e5bf90988c90acdbef3a588a4ed",
+      "bytes": 2078,
+      "sha256": "564927ba2161ccf445a63ba60af214e34d2d4ec0068a80833dd80ac79f08a466"
+    },
+    {
+      "path": "hdl/common/ethernet_packet_pkg.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e43a2628937280d547d7af1c3bcb9b67ab14cd2c",
+      "bytes": 17691,
+      "sha256": "91c82f1696af7e46518deec7247c683cd13a8dc482fc957e3f0775549dc64713"
+    },
+    {
+      "path": "hdl/common/parameters.svh",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "c43afe9c8f4e1d1081e5afe1333446718d71250a",
+      "bytes": 516,
+      "sha256": "1165574103364b5ad360b34751f5ac1fa6adf67a81326885c42fb35979c397fc"
+    },
+    {
+      "path": "hdl/common/tx_ifg_gasket.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "0d5ce956c6af47498e1d808f0c015dd191f8a3c4",
+      "bytes": 3304,
+      "sha256": "c2038c55d20a01b22c1e8c71a2238a0cdb430db2a53a3ea01b660a8b2c955ac8"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "efb2daebd91671cdf8015d7a054206fe4479ce95",
+      "bytes": 5827,
+      "sha256": "8931009ce7d06c16ad2a39d7ce7069d9aa807b74fb035ef9b54a7672d80461c3"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "99f4e8007bd3955a963ed29de51bb0bfae21cfbd",
+      "bytes": 10610,
+      "sha256": "5aa7571a27cee85f6ae2c39cb58332886b6c7063ceda502c233af7b04306e144"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "0fed8aacef7e5e8f67a56bf5dbbe6c86c59a79f8",
+      "bytes": 14760,
+      "sha256": "2fb2ecb429b1125d368f61dd36c131302da136bfb41603346e9ac084a9441e8e"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "fb038e678e06b75f116c9da45ffa547342e87064",
+      "bytes": 34870,
+      "sha256": "05f58ca91d7b0e4158e68c37cac79c9c65dc8a8b403df91419e150de3a9d75ca"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e2e865312f529eeb45c1130dced4700c3c3cfc17",
+      "bytes": 17039,
+      "sha256": "0a885054146a04e95add3bb8bbe28aa80e7fe6c1f447ce000816f923560b05fc"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "0e94ac50410622df3bcab5befca28bbf553b7e4a",
+      "bytes": 66332,
+      "sha256": "7f21dd43679fb8fdd019a8bacd6cdfd6a4bc160a1a1da9d8246062b750f9358b"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_chan_map_render.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "875905b77940cd4ad2013274adf952096b82f4f4",
+      "bytes": 16274,
+      "sha256": "d645deb04c8d5554f013a43e2de6b7a4b2e1a3538e65cde0dda725a2e392e5fe"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_i2s_feed_mux.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "a80f928a2472d03dfe7d6b2a55a02f7664135653",
+      "bytes": 7687,
+      "sha256": "721ce0c974668d062d5d6b099454e2218ea85be4515fb34996e4e1c11a5784e4"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_i2s_playback.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "df93f7b8c48161b6a9422460a28409a0c3bd242d",
+      "bytes": 23259,
+      "sha256": "f79b1ff10545c2a18e6af8637ad31ff50cce0e1654f2fb06305507afc301cd11"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_media_adv.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e151eff9da3dbe167f8466078e7da0e296bd17d8",
+      "bytes": 2650,
+      "sha256": "65029f520cb945ba679e872c9b60580342ebb6ccfd002a31400b4aec2b68ae99"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_pair_blend.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "16f492f7453fc23addd928ad7aa0467808c6999d",
+      "bytes": 6248,
+      "sha256": "7b10ab08be2722970674eb959d7b65d60f327153e60e0ca72f6d4d0181b1591a"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_pair_zero_fill.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "72a0f9e8ff2cba3dafac6ca81c6db112bc60eb65",
+      "bytes": 9356,
+      "sha256": "3a0b8adef03b9373d66426d88cc49c0989258007020276a7ff78e03051116acd"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "1a499353d4079260a24baf1e793f188c5db49177",
+      "bytes": 8553,
+      "sha256": "de148eea2d2e298cb7ead685e133eebd745ec5f7192ce41877cacde9b2cdb121"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_pcm_route.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "1bc9874ac83def103f4dc59c7efd005e507588b4",
+      "bytes": 4018,
+      "sha256": "696979b3075883e293825974f347fc36119515dd6c73aa65ef63a4cd347177b6"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_render_setpoint.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e66b427d84348d6662949a160007c4ebf11c13e9",
+      "bytes": 36548,
+      "sha256": "54b6a23336dcbef53a50482749b42a081365754017d2fb94fdc705772c9ba200"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_tdm_capture.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e8c7b37a22180a98ee0e7f66087a6c9599c1950d",
+      "bytes": 10281,
+      "sha256": "ec077533729fe07f60df4d7e777ce4fa74bb893d03e2a1f530908e40eb89cd60"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_tdm_capture_master.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e90e1508624b34e61dd4a75b7fd9335e6a947fdc",
+      "bytes": 21492,
+      "sha256": "b4a4b7f7487499153b64553d36e34011cfab0bdbc47cbd0c40a7ed457e821ffc"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_tdm_render.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "fd6cbc7cc74c83e658928373d9c426e994694f94",
+      "bytes": 13521,
+      "sha256": "2e155f55c8c0e00099c028520fe19517373bbcbbe0ad998272fdf5ab66ede46b"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_tdm_render_master.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "89069e4c5be8e6e1894e733003a7bbc195db72a4",
+      "bytes": 29316,
+      "sha256": "abdb08d03210316872077d7a67ea9417b6860b5af12afad4a07cb21fdc24d951"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_tone_gen.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "0be1218db71e2ba0d08611f0f95da1a5e984f27b",
+      "bytes": 4671,
+      "sha256": "b8b83919ff2f92da3e9de81de80c2c8714d544b4bc1d54c8ea57baf7e1884a3b"
+    },
+    {
+      "path": "hdl/ieee1722/aaf/aaf_talker_i2s.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "3b0ecf1453b5b53946baf7811dcee54ae895fd5b",
+      "bytes": 12738,
+      "sha256": "bf33bb22c1b9d2aa62e71b8b157a565413e6d76c60042c81935ff71e4b1b81aa"
+    },
+    {
+      "path": "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "75051cac0fd66cba763ca335733dcff1e2d70376",
+      "bytes": 17951,
+      "sha256": "4f4372952e5d08b003cb35c588a370bc471f96a960a830e8172eb43d86c6ed05"
+    },
+    {
+      "path": "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "96d934be1e17cfaba1a8097121da089d3b667580",
+      "bytes": 56088,
+      "sha256": "7407649412d5cce3b80b66c46b734f2530dac4b7e6e4f4dec7c0be94791eef13"
+    },
+    {
+      "path": "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "c0b5efc24e9f12b68617f782a928e6b9b3b0cc56",
+      "bytes": 14950,
+      "sha256": "5891b12a91ba1cd91f308c9c2394808d9aebe4bae999e5654859689d9656465f"
+    },
+    {
+      "path": "hdl/ieee1722/avtp/KL_stream_table.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "d0c233b7ea8148928813c121ac6b71ca2a899be6",
+      "bytes": 7431,
+      "sha256": "cebf68fe297a46c0825b5bcb0ab7b231e881be65ebda1d6c27cbaa5b393da7cc"
+    },
+    {
+      "path": "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "db5c8a72604d49d8987e7e9e297c8ce339093f52",
+      "bytes": 14522,
+      "sha256": "6b2ca279ba258c3ed6c264e6c1c02947af2e6f4997ec3c4b9dd138a02aa6280d"
+    },
+    {
+      "path": "hdl/ieee1722/avtp/avtp_stream_parser.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "21a240c903cefb2e7d0b5662544e6b633a8cca56",
+      "bytes": 12712,
+      "sha256": "43d3a69b6be07d82b4082131de03525078fe4562139135fd837a1dc735ee6a58"
+    },
+    {
+      "path": "hdl/ieee1722/avtp/avtp_subtype_pkg.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "6b5f69cbeb7ed946bb3ecb44f08e6a788111d0e4",
+      "bytes": 1060,
+      "sha256": "6442ccd6a6ac6071b558b7d37a063e50638b976f390112ba6189351c0ae105b9"
+    },
+    {
+      "path": "hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "0b0117aa82603fc30536a16b66a0f57db531a05b",
+      "bytes": 28938,
+      "sha256": "7011dde80bf448554729aade2ef98aaadb452fcd436a10420e80cb0c92c7d670"
+    },
+    {
+      "path": "hdl/ieee1722/crf/KL_crf_rx.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "666ec09e51ba96a33c3dd132f6d6172bd5b54968",
+      "bytes": 37072,
+      "sha256": "b36ba339c208d50bafa64b5833af845bff7d0e55bb87da2e46af8e1624f0d39a"
+    },
+    {
+      "path": "hdl/ieee1722/crf/KL_crf_tx.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "612ee2a54d524872de350a3e6ddc7170b91c3b5c",
+      "bytes": 27196,
+      "sha256": "ac31366daa6c88e82eb739880834325ce5a97badce4e247489f2bbe71bfabe43"
+    },
+    {
+      "path": "hdl/ieee1722/crf/KL_media_grid_align.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e29894830ad1d063abff460016ffb6965e619493",
+      "bytes": 16691,
+      "sha256": "50fae464ebd8c89287115922b63c80c71a26ae6ef112253fc745cba14b2d41ed"
+    },
+    {
+      "path": "hdl/ieee1722/crf/KL_media_nco.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "a3a878d94327934b328ac20afee917da89dd2ee7",
+      "bytes": 14116,
+      "sha256": "4faec8b7c0d57a20ed5497bb794d35920f69996f7869f829aec699afbc6bcb52"
+    },
+    {
+      "path": "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "a9284b0e19824af5b2761b2713e774fc5f64d607",
+      "bytes": 46868,
+      "sha256": "f971f0b42e21276ea54cd9a0360b0cea80b1428246daed92be82f09a4724e219"
+    },
+    {
+      "path": "hdl/ieee1722/maap/KL_maap.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "ecf14b1227599a34a38d205e414794b390713593",
+      "bytes": 16127,
+      "sha256": "566b88228f6cc1c84de307e770122f37eecabdc6c49a36ea7ea56e33552e261d"
+    },
+    {
+      "path": "hdl/ieee17221/adp/adp_tx_arbiter.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "75f47d454b858e1c17547571ada238358412c3a1",
+      "bytes": 10017,
+      "sha256": "3a7e171107c0f5554b5f76721ada4f972378e5c829700b16c323cfede4ec3b5f"
+    },
+    {
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "39d1f002cffb76857522c483de0eeb381b97bb62",
+      "bytes": 24154,
+      "sha256": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29"
+    },
+    {
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "eb4127cd08d794839faf5ad726221668443b369c",
+      "bytes": 49534,
+      "sha256": "477aa966a7119cf94148a5c92186c42a86668c80cac97a750dee14f5f0330e5f"
+    },
+    {
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e77227213b5d88deb1c89250d49cab5cfdd3d7f2",
+      "bytes": 46673,
+      "sha256": "84fafe6dedec86f293f054d0aefed2b0466aa38e0e4fb12be7c042fbd4a5f259"
+    },
+    {
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "9452370409e11732833790e8ac2c9dabd55759c4",
+      "bytes": 12641,
+      "sha256": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184"
+    },
+    {
+      "path": "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "e85b6c3f3f300f89dffe1084e8c58b8fd0302949",
+      "bytes": 12919,
+      "sha256": "af8dc99c4da6a0f1709fb91803474e430e283fa265750597728b58f8a9107cee"
+    },
+    {
+      "path": "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "acc1db0d708e234daa5edecab66716b74232d9f6",
+      "bytes": 14060,
+      "sha256": "fac8feb49e61cf946a215162f4694935d75a9bc24e09240a2d44635ef1ec91cc"
+    },
+    {
+      "path": "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "6dca5b403c91ffb0e260c2eb97dbfecc63b87689",
+      "bytes": 14007,
+      "sha256": "89813f3420f7aa4ea80aee478b25ca6a9fa562572025447fc07b1c949bda1a33"
+    },
+    {
+      "path": "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "cfa4f686340a9e8236c6860defc6948fea5e4019",
+      "bytes": 15751,
+      "sha256": "c14536e3bbe679f7979dcdae81b080ba770a5c69e442be7d8b1eb638eb52b11e"
+    },
+    {
+      "path": "hdl/ieee8021q/filtering/tcam.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "4c7c1e3f9c742affd3de35936e6f5fe214631913",
+      "bytes": 5520,
+      "sha256": "2fb50884ba72fefc8f0c4be096513b49ffe71f1d4635c58eaa6cfd1d88c77e8b"
+    },
+    {
+      "path": "hdl/milan/KL_nvm_backend.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "1da09625734d885612c5f177cda6cce16e3f79e4",
+      "bytes": 58044,
+      "sha256": "eb11d27650df9dde6ffcbc9c99af634cb6e837dea2b54734b8c71e307d5c317f"
+    },
+    {
+      "path": "hdl/milan/KL_pp_maap_shim.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "b12c5edbdaf56c39b448b2a370c2af89c0d204ec",
+      "bytes": 14354,
+      "sha256": "965fbee050c985f767423bf63f2c0f0a507faf5ede7cc81e3a939bee963ba98e"
+    },
+    {
+      "path": "hdl/milan/KL_pp_shadow.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "3ac2db1e828b84790fa9997b96a1d023e6fc3b7a",
+      "bytes": 83818,
+      "sha256": "d98cf81219d264f4b24ceeaddce57c9012a8197c5f7bca624727cffc4f49d4b6"
+    },
+    {
+      "path": "hdl/milan/milan_datapath.sv",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "b8afe5ed27b58ff70d5d269e42cf06511843f5ab",
+      "bytes": 439557,
+      "sha256": "7100a1f8a56cc0e54345fb1cbc62b6de868bb2ab1cf820eec34bfdf3c0fceb50"
+    },
+    {
+      "path": "scripts/ci_rv32_sdk.py",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "b6ac4138972d2dd321edc523ab9c65ec1ad69fe3",
+      "bytes": 8402,
+      "sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4"
+    },
+    {
+      "path": "syn/ooc/pp_resource_gate.py",
+      "status": "fetched",
+      "repository": "kebag-logic/milan-fpga",
+      "blob": "1d2ba6402f622aafe5702bf9f2b4cfa8096d215b",
+      "bytes": 41548,
+      "sha256": "c372e1f66054781582b45f83d566e0b9438f6f9c151b28382760ceda2db9901d"
+    },
+    {
+      "path": "third_party/verilog-axis/rtl/arbiter.v",
+      "status": "fetched",
+      "repository": "alexforencich/verilog-axis",
+      "blob": "762907788408145c9fac97b15c587969232fcc2f",
+      "bytes": 4993,
+      "sha256": "d54d337db4812f927b2e9b5788dfa39f9bd578ad01b7846c5fa7f2610b0923fa"
+    },
+    {
+      "path": "third_party/verilog-axis/rtl/axis_arb_mux.v",
+      "status": "fetched",
+      "repository": "alexforencich/verilog-axis",
+      "blob": "1953313b5a839b728da1de591a66058f66fe454e",
+      "bytes": 11633,
+      "sha256": "bee8d11f32f7fb1c5afdd6cdad872cd7de9dc94bcb4787f9aa119f2ebbc489a6"
+    },
+    {
+      "path": "third_party/verilog-axis/rtl/axis_fifo.v",
+      "status": "fetched",
+      "repository": "alexforencich/verilog-axis",
+      "blob": "dfa465792f052486ac6f8d4c483318d4a338076d",
+      "bytes": 21692,
+      "sha256": "aefddc67fc3552d919280424606fc6b048e61d7df9ee7ee0f8801c082c1cfc39"
+    },
+    {
+      "path": "third_party/verilog-axis/rtl/priority_encoder.v",
+      "status": "fetched",
+      "repository": "alexforencich/verilog-axis",
+      "blob": "cf82512ba84c43cfddc7728782493241b563b8f3",
+      "bytes": 3253,
+      "sha256": "df28220d95b47df349a72803a9751aad331eb8e1435416e8686d00572a974dd5"
+    }
+  ]
+}

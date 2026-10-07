@@ -1,0 +1,53 @@
+{
+  "independent_verdict_written_before_peer_report": true,
+  "review_submissions": 0,
+  "inline_comments": 0,
+  "public_reports": [
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166#issuecomment-6023961268",
+      "first_line": "[R518] POSITIVE - exact head cd9825c947cf67b735d26cc1c42541ccd9d7f637"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166#issuecomment-6023982628",
+      "first_line": "[R519] POSITIVE - exact head cd9825c947cf67b735d26cc1c42541ccd9d7f637"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166#issuecomment-6032812507",
+      "first_line": "[R519] NEGATIVE - exact head c4539ff107a6a4c7d2e4a4844182b00a2bf33c82"
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "R519-2-F1",
+      "severity": "MINOR",
+      "status": "OPEN / RETAINED",
+      "lenses": [
+        "Conformance",
+        "Tests",
+        "Docs"
+      ],
+      "reason": "Final record supplied, but full aggregate cannot be recomputed from recoverable inputs."
+    },
+    {
+      "id": "R518-1-S1 / R519-1-S1",
+      "severity": "SUGGESTION",
+      "status": "RETAINED, NARROWED",
+      "lenses": [
+        "Robustness",
+        "Tests",
+        "Docs"
+      ],
+      "reason": "Traversal commands now visible in transcript; raw full pair tables, explicit inventory and summary transformation still absent."
+    },
+    {
+      "id": "R519-2-S2",
+      "severity": "SUGGESTION",
+      "status": "RETAINED",
+      "lenses": [
+        "Robustness",
+        "Tests"
+      ],
+      "reason": "Same source head. Extra-mask-delay survivor remains an exploratory coverage limit, not a kill or proven equivalent."
+    }
+  ]
+}
