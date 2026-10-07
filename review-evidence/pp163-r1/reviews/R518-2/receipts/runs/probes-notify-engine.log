@@ -1,0 +1,10 @@
+{"probe": "ctl-index", "verdict": "PASS", "missing": [], "tallies": ["[build default] 42 checks, 0 failures", "[build identify] 4 checks, 0 failures", "[build interfaces] 19 checks, 0 failures", "65 checks: 65 PASS, 0 FAIL"]}
+{"probe": "ctl-interfaces", "verdict": "PASS", "missing": [], "tallies": ["[build interfaces] 19 checks, 0 failures"]}
+{"probe": "r-cx-repeated", "verdict": "KILLED", "missing": [], "tallies": ["[build default] 42 checks, 1 failures"]}
+{"probe": "r-ca-settle-one", "verdict": "KILLED", "missing": [], "tallies": ["[build interfaces] 19 checks, 1 failures"]}
+{"probe": "r-ca-turns-ignore-pending-cancel", "verdict": "SURVIVED", "missing": ["CA"], "tallies": ["[build interfaces] 19 checks, 0 failures"]}
+{"probe": "r-ca-drain-cancel-dropped", "verdict": "KILLED", "missing": [], "tallies": ["[build interfaces] 19 checks, 1 failures"]}
+{"probe": "r-ca-owner-low-bits", "verdict": "KILLED", "missing": [], "tallies": ["[build interfaces] 19 checks, 4 failures"]}
+{"probe": "r-pd-any-port-row", "verdict": "KILLED", "missing": [], "tallies": ["[build interfaces] 19 checks, 6 failures"]}
+{"probe": "r-ck-avb1-shares-avb0-window", "verdict": "KILLED", "missing": [], "tallies": ["[build interfaces] 19 checks, 3 failures"]}
+reviewer probes: 8 of 9 as expected

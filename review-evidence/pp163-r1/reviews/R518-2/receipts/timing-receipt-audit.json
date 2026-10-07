@@ -1,0 +1,108 @@
+{
+ "claims_vs_receipt": {
+  "WNS_ns": {
+   "claimed": 3.337,
+   "receipt": 3.337,
+   "match": true
+  },
+  "TNS_ns": {
+   "claimed": 0.0,
+   "receipt": 0.0,
+   "match": true
+  },
+  "failing_setup": {
+   "claimed": 0,
+   "receipt": 0,
+   "match": true
+  },
+  "WHS_ns": {
+   "claimed": 0.159,
+   "receipt": 0.159,
+   "match": true
+  },
+  "max_levels": {
+   "claimed": 16,
+   "receipt": 16,
+   "match": true
+  },
+  "above_20": {
+   "claimed": 0,
+   "receipt": 0,
+   "match": true
+  },
+  "startpoints": {
+   "claimed": 328,
+   "receipt": 328,
+   "match": true
+  },
+  "u_pp_lut": {
+   "claimed": 22478,
+   "receipt": 22478,
+   "match": true
+  },
+  "u_pp_ff": {
+   "claimed": 18951,
+   "receipt": 18951,
+   "match": true
+  },
+  "own_lut_delta": {
+   "claimed": -110,
+   "receipt": -110,
+   "match": true
+  },
+  "own_ff_delta": {
+   "claimed": 6,
+   "receipt": 6,
+   "match": true
+  },
+  "base_WNS_ns": {
+   "claimed": -3.562,
+   "receipt": -3.562,
+   "match": true
+  },
+  "base_above_20": {
+   "claimed": 146535,
+   "receipt": 146535,
+   "match": true
+  },
+  "base_max_levels": {
+   "claimed": 51,
+   "receipt": 51,
+   "match": true
+  },
+  "worst_arbiter_slack": {
+   "claimed": 11.912,
+   "receipt": 11.912,
+   "match": true
+  }
+ },
+ "final_histogram_sum": 17990,
+ "final_pairs": 17990,
+ "histogram_levels_above_20": [],
+ "blobs": {
+  "arbiter_receipt": "f6130635dbab12527595cc0661c9c5619d5259dc",
+  "arbiter_head": "f6130635dbab12527595cc0661c9c5619d5259dc",
+  "notify_receipt": "c8fbce303ba609efa3be86e71ccbc22d1e6a184b",
+  "notify_head": "c8fbce303ba609efa3be86e71ccbc22d1e6a184b",
+  "notify_new_main": "c8fbce303ba609efa3be86e71ccbc22d1e6a184b",
+  "top_head": "bf522a6fc672f40de4a2f8d5a2692e813b764f4c",
+  "top_in_receipt": null
+ },
+ "input_digests": {
+  "stored_parent_reference_ooc_1x1": "b68c6d3577e9ebafbd794e97019381e0c1b3ae92dbafe660c38068dfe9d1a61c",
+  "fresh_new_main_reference": "a331e67f17d3c4346fd4665900e2ec67c798919b447004387d742004f25a45a8",
+  "final_measurement": null,
+  "fresh_flow": [
+   "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+   "set_param general.maxThreads 2",
+   "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+  ],
+  "stored_flow": [
+   "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+   "set_param general.maxThreads 32",
+   "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+  ]
+ },
+ "all_claims_match": true,
+ "blobs_match": true
+}

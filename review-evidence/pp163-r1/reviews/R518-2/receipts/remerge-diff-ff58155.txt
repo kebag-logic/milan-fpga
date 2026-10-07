@@ -1,0 +1,707 @@
+ff58155657c3496d862710dab48357fd8f8d4102 Merge main 2ad2f845 (#42) into pp163-txarb-cone
+
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+remerge CONFLICT (content): Merge conflict in tb/pp_top/README.md
+index 744beac..84b8be7 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2226,7 +2226,7 @@ not a multiple of 8`). Verilator reports an elaboration `$error` as a warning th
+ 
+ ## Lane C6: notifications and identify (issues #54, #58, #80, #86)
+ 
+-`notify_phases.hpp` holds eight sections, each on a fresh processor of its own
++`notify_phases.hpp` holds nine sections, each on a fresh processor of its own
+ (the section AD pattern: its own model, the suite's descriptor image, erased NVM,
+ both restore walks, link up and enable; WD boots as U10 does, link down and not
+ enabled), so the main run's clock is untouched.
+@@ -2236,15 +2236,9 @@ clause byte offsets; a per-entry `sequence_id` is modelled from the wire alone,
+ the count of unsolicited frames that controller was sent before (Milan §5.4.5.1).
+ 
+ `--identify-only` runs ID0 (default build), `--notify-only` runs NP, ST and RN,
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-`--spacing-only` runs CS and `--withdraw-only` (`make withdraw`) runs WD; `make
+-identify` builds and runs the third build and ID0, and `make timer-defaults` the
+-sixth build, which runs TD alone.
+-=======
+-`--spacing-only` runs CS, and `--domain-notify-only` runs DN; `make identify` builds and
+-runs the third build and ID0, and `make timer-defaults` the sixth build, which runs TD
+-alone.
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++`--spacing-only` runs CS, `--domain-notify-only` runs DN and `--withdraw-only` (`make
++withdraw`) runs WD; `make identify` builds and runs the third build and ID0, and
++`make timer-defaults` the sixth build, which runs TD alone.
+ 
+ ### The third build: `P-EN-IDENTIFY-NOTIFICATION`
+ 
+@@ -2469,44 +2463,6 @@ fails (99,854, row 0, STREAM_OUTPUT 0) and CS2c fails (99,590, row 0, STREAM_INP
+ round starts a second after the previous round's last send, and a sixteen-row round
+ takes about 15,000 clocks here.
+ 
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-### Section WD: the originator's withdraw mask, one clock late (#163)
+-
+-The originator's withdraw mask is combinational from its response, cancel and
+-expiry choice. It fed the TX arbiter's slot and state registers through the
+-originator lane's request and the arbiter's pre-start abort, 51 logic levels from
+-the registry's identity index and the received header at the 50 MHz clock. The top
+-now registers it (`org_withdraw_mask_r`): a cancellation reaches the lane and the
+-abort one clock after the originator takes it, the clock its registered release
+-reaches the TX slot pool. That moves the race between a cancellation and the
+-serializer's acceptance by one clock, and WD grades the new boundary from both
+-sides.
+-
+-Each run holds a solicited answer (GET_CONFIGURATION) on its last byte until a
+-CONTROLLER_AVAILABLE probe waits in the originator lane, lets every waiting lane age
+-past T-TX-AGING so that the probe's class is the arbiter's first, then feeds a
+-GET_CONFIGURATION from the probed controller (Milan 5.4.5.3: any valid command
+-supersedes the probe) and lets the held byte go on a clock the receive validator's
+-commit shift gives in advance (`dbg_rxv_commit_o`; the command's header is valid,
+-and its cancellation taken, two clocks after the shift's input rises). The wrap
+-exports the arbiter's state, owner lane and started bit (`dbg_arb_st_o`,
+-`dbg_arb_owner_o`, `dbg_arb_sent_o`) to read where the cancellation landed.
+-
+-- **WD1** the cancellation on the clock the arbiter accepts the probe (its start
+-  state, owner lane 7, not yet started) no longer stops it: the probe leaves once
+-  and byte-exact, nothing follows it in 1.5 s (no retry and no deregistration: its
+-  exchange is gone), both answers leave, and the five TX slots, the originator and
+-  its lane return idle. The pool frees the probe's slot after its last byte.
+-- **WD2** the cancellation on the clock the arbiter selects the probe (idle, the
+-  probe at the lane's head): the arbiter's start state holds that selection the
+-  next clock, aborted, and is idle the clock after; the pool starts nothing.
+-- **WD3** that probe never reaches the wire; both answers leave, and the five TX
+-  slots, the originator and its lane return idle.
+-
+-Before #163 the acceptance clock's cancellation withdrew the probe (WD1 fails) and
+-the selection clock's one left nothing to select (WD2 fails): the
+-`withdraw_unregistered` control below plants that path.
+-=======
+ ### Section DN: the Domain and link-edge GET_AVB_INFO notification (#42)
+ 
+ Milan §5.3.6.2 and Table 5.22 report a change of the Class A Domain (§4.2.7.2.1: its
+@@ -2560,7 +2516,43 @@ follows the previous window directly, at least 1,000 ms after the latest notific
+ No count depends on coalescing or on a limiter. The section takes 8,167 ms of the
+ timebase after the registration. That is under the controller monitor's 30 s floor, so
+ no CONTROLLER_AVAILABLE reaches A.
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++
++### Section WD: the originator's withdraw mask, one clock late (#163)
++
++The originator's withdraw mask is combinational from its response, cancel and
++expiry choice. It fed the TX arbiter's slot and state registers through the
++originator lane's request and the arbiter's pre-start abort, 51 logic levels from
++the registry's identity index and the received header at the 50 MHz clock. The top
++now registers it (`org_withdraw_mask_r`): a cancellation reaches the lane and the
++abort one clock after the originator takes it, the clock its registered release
++reaches the TX slot pool. That moves the race between a cancellation and the
++serializer's acceptance by one clock, and WD grades the new boundary from both
++sides.
++
++Each run holds a solicited answer (GET_CONFIGURATION) on its last byte until a
++CONTROLLER_AVAILABLE probe waits in the originator lane, lets every waiting lane age
++past T-TX-AGING so that the probe's class is the arbiter's first, then feeds a
++GET_CONFIGURATION from the probed controller (Milan 5.4.5.3: any valid command
++supersedes the probe) and lets the held byte go on a clock the receive validator's
++commit shift gives in advance (`dbg_rxv_commit_o`; the command's header is valid,
++and its cancellation taken, two clocks after the shift's input rises). The wrap
++exports the arbiter's state, owner lane and started bit (`dbg_arb_st_o`,
++`dbg_arb_owner_o`, `dbg_arb_sent_o`) to read where the cancellation landed.
++
++- **WD1** the cancellation on the clock the arbiter accepts the probe (its start
++  state, owner lane 7, not yet started) no longer stops it: the probe leaves once
++  and byte-exact, nothing follows it in 1.5 s (no retry and no deregistration: its
++  exchange is gone), both answers leave, and the five TX slots, the originator and
++  its lane return idle. The pool frees the probe's slot after its last byte.
++- **WD2** the cancellation on the clock the arbiter selects the probe (idle, the
++  probe at the lane's head): the arbiter's start state holds that selection the
++  next clock, aborted, and is idle the clock after; the pool starts nothing.
++- **WD3** that probe never reaches the wire; both answers leave, and the five TX
++  slots, the originator and its lane return idle.
++
++Before #163 the acceptance clock's cancellation withdrew the probe (WD1 fails) and
++the selection clock's one left nothing to select (WD2 fails): the
++`withdraw_unregistered` control below plants that path.
+ 
+ ### Mutation record: `notify_mutants.py`
+ 
+@@ -2583,20 +2575,16 @@ the one record #148 moves, and its named check is now ST2b alone (its row). Issu
+ adds three controls, graded by `tb/aecp_notify` section DR, for 56 of 56. Re-run
+ 2026-10-05 at `main` `054d01c7` (53 of 53) and at the #158 head (56 of 56): the
+ goldens PASS, and 50 of the 53 earlier controls fail the same checks at both. The
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows). Issue #163
+-adds three controls of the withdraw mask's clock, graded by section WD and by
+-`tb/aecp_notify` section CX, for 59 of 59. Re-run 2026-10-06 at `main` `86a7b0c5` (56
+-of 56) and at the #163 head (59 of 59): the goldens PASS, and 55 of the 56 earlier
+-controls fail the same checks at both. `ix_new_identity_unset` fails CX1 as well since
+-#163 (its row): without the new identity, the probing controller's command matches no
+-row and cancels nothing:
+-=======
+ three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows). Issue #42
+ adds nine controls, graded by section DN on a run of its own (`--domain-notify-only`),
+ for 65 of 65. Re-run 2026-10-06 at `main` `e6a759de` (56 of 56) and at the #42 head
+-(65 of 65): the goldens PASS, and the 56 earlier controls fail the same checks at both:
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++(65 of 65): the goldens PASS, and the 56 earlier controls fail the same checks at both.
++Issue #163 adds three controls of the withdraw mask's clock, graded by section WD
++and by `tb/aecp_notify` section CX, for 68 of 68 with #42's nine. Re-run 2026-10-06
++at `main` `86a7b0c5` (56 of 56) and at the #163 head before #42 (59 of 59): the
++goldens PASS, and 55 of the 56 earlier controls fail the same checks at both.
++`ix_new_identity_unset` fails CX1 as well since #163 (its row): without the new
++identity, the probing controller's command matches no row and cancels nothing:
+ 
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+@@ -2656,11 +2644,6 @@ for 65 of 65. Re-run 2026-10-06 at `main` `e6a759de` (56 of 56) and at the #42 h
+ | `dereg_mid_round_no_hold` | a DEREGISTER drained between two jobs of a round no longer waits for the round's boundary (`main`'s rule) | 3: `tb/aecp_notify` DR1, DR2, DR3 |
+ | `dereg_pending_stops_follow` | the counter stamp stops following while a DEREGISTER is pending (review R477-1 S2 on PR #159) | 1: `tb/aecp_notify` DR3 |
+ | `dereg_lost_at_round_end` | the round's end drops the held DEREGISTER | 2: `tb/aecp_notify` DR1b, DR2b |
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-| `withdraw_unregistered` | the lane, its compaction and the arbiter's abort read the originator's combinational mask (the path before #163) | 2: WD1, WD2 |
+-| `withdraw_abort_ignored` | the arbiter's `start_abort_i` tied low at the top | 2: WD2, WD3 |
+-| `cancel_one_clock_late` | the registry monitor's cancellation registered, one clock after the command | 2: `tb/aecp_notify` CX1, IX3 |
+-=======
+ | `avb_domain_term_dropped` | `srp_evt_domain_change_w` removed from `ev_avb_i` (issue #42 acceptance 3) | 4: DN1b, DN1c, DN2b, DN2c |
+ | `avb_link_term_dropped` | the `link_up_i` edge removed from `ev_avb_i` | 4: DN4b, DN4c, DN4d, DN4e |
+ | `asp_takes_domain` | `ev_asp_i` takes DOMAIN_CHANGE too | 2: DN1b, DN2b (a GET_AS_PATH follows each GET_AVB_INFO) |
+@@ -2670,7 +2653,9 @@ for 65 of 65. Re-run 2026-10-06 at `main` `e6a759de` (56 of 56) and at the #42 h
+ | `revert_strobes_at_defaults` | the LINK_DOWN revert strobes from DEFAULTS too (`if (adopted_r)` dropped) | 1: DN4 |
+ | `registry_never_claims` | a REGISTER never claims a free row | 9: DN0, DN4b-DN4e, DN1b, DN1c, DN2b, DN2c |
+ | `restore_never_done` | `restore_done_o` tied 0 | 1: the bench's boot premise ("notify bench: blank NVM, both restore walks reach done") |
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++| `withdraw_unregistered` | the lane, its compaction and the arbiter's abort read the originator's combinational mask (the path before #163) | 2: WD1, WD2 |
++| `withdraw_abort_ignored` | the arbiter's `start_abort_i` tied low at the top | 2: WD2, WD3 |
++| `cancel_one_clock_late` | the registry monitor's cancellation registered, one clock after the command | 2: `tb/aecp_notify` CX1, IX3 |
+ 
+ RN and `tb/originator` R are the suites whose mutation records #80 and #86 ask for:
+ every RND control is killed by the divergence check alone.
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+remerge CONFLICT (content): Merge conflict in tb/pp_top/notify_mutants.py
+index eb40a67..b8ce8df 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -18,17 +18,12 @@ the STORM and RND sections (ST, RN), the originator's seeded inflight session
+ (tb/originator section R), and the registry's identity index and the counter
+ throttle stamps' valid bit in the first build of tb/aecp_notify (sections IX and TS,
+ issue #232), and the counter rounds' spacing from the previous round's send (issue
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-#148: tb/pp_top section CS and tb/aecp_notify section TW), and a DEREGISTER drained
+-between two jobs of a round (issue #158: tb/aecp_notify section DR), and the
+-originator's withdraw mask one clock late at the top (issue #163: tb/pp_top section WD
+-and tb/aecp_notify section CX). The suite READMEs carry the matching mutation records.
+-=======
+ #148: tb/pp_top section CS and tb/aecp_notify section TW), a DEREGISTER drained
+-between two jobs of a round (issue #158: tb/aecp_notify section DR), and the Domain
+-and link-edge triggers of the GET_AVB_INFO notification (issue #42: tb/pp_top section
+-DN). The suite READMEs carry the matching mutation records.
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++between two jobs of a round (issue #158: tb/aecp_notify section DR), the Domain and
++link-edge triggers of the GET_AVB_INFO notification (issue #42: tb/pp_top section DN),
++and the originator's withdraw mask one clock late at the top (issue #163: tb/pp_top
++section WD and tb/aecp_notify section CX). The suite READMEs carry the matching
++mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+                                            [--only NAME ...]
+@@ -357,40 +352,6 @@ DEREG_MID_ROUND = (
+         ("DR1b:", "DR2b:")),
+ )
+ 
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-# the originator's withdraw mask registered at the top (issue #163), graded on the
+-# wire by tb/pp_top section WD, and the notify cancellation's own clock by
+-# tb/aecp_notify section CX
+-WITHDRAW = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--withdraw-only"))
+-MASK_READS = ("                                   && org_withdraw_mask_r[laneq_org_r[0]];\n",
+-              "          && !org_withdraw_mask_r[laneq_org_r[i]]) begin\n",
+-              "  assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]\n")
+-CA_REQUEST = "  always_comb begin : ca_request\n"
+-
+-WITHDRAW_STAGE = (
+-    Mutant("withdraw_unregistered", WITHDRAW, tuple(
+-        (TOP, old, old.replace("org_withdraw_mask_r", "org_withdraw_slot_mask_w"))
+-        for old in MASK_READS),
+-        ("WD1:", "WD2:")),
+-    Mutant("withdraw_abort_ignored", WITHDRAW, (
+-        (TOP, "      .start_abort_i(arb_start_abort_w),\n", "      .start_abort_i(1'b0),\n"),),
+-        ("WD2:", "WD3:")),
+-    Mutant("cancel_one_clock_late", INDEX, (
+-        (NTFY, CA_REQUEST, "  logic               cx_late_r;\n"
+-                           "  logic [CIX_W_C-1:0] cx_late_ix_r;\n"
+-                           "  always_ff @(posedge clk_i) begin : cx_late\n"
+-                           "    cx_late_r    <= ca_cancel_ok_w;\n"
+-                           "    cx_late_ix_r <= ca_cancel_ix_w;\n"
+-                           "  end\n" + CA_REQUEST),
+-        (NTFY, "    ca_cancel_valid_o = ca_cancel_ok_w\n", "    ca_cancel_valid_o = cx_late_r\n"),
+-        (NTFY, "                        ? 4'(pd_ix_w) : 4'(ca_cancel_ix_w);\n",
+-         "                        ? 4'(pd_ix_w) : 4'(cx_late_ix_r);\n")),
+-        ("CX1:",)),
+-)
+-
+-MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+-           + DEREG_MID_ROUND + WITHDRAW_STAGE)
+-=======
+ # the Domain and link-edge GET_AVB_INFO triggers of ev_avb_i (issue #42), graded
+ # by tb/pp_top section DN
+ DOMAIN_NOTIFY_SUITE = Suite("tb/pp_top", ("make", "gsi-build"),
+@@ -436,9 +397,38 @@ DOMAIN_NOTIFY = (
+         ("notify bench: blank NVM",)),
+ )
+ 
++# the originator's withdraw mask registered at the top (issue #163), graded on the
++# wire by tb/pp_top section WD, and the notify cancellation's own clock by
++# tb/aecp_notify section CX
++WITHDRAW = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--withdraw-only"))
++MASK_READS = ("                                   && org_withdraw_mask_r[laneq_org_r[0]];\n",
++              "          && !org_withdraw_mask_r[laneq_org_r[i]]) begin\n",
++              "  assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]\n")
++CA_REQUEST = "  always_comb begin : ca_request\n"
++
++WITHDRAW_STAGE = (
++    Mutant("withdraw_unregistered", WITHDRAW, tuple(
++        (TOP, old, old.replace("org_withdraw_mask_r", "org_withdraw_slot_mask_w"))
++        for old in MASK_READS),
++        ("WD1:", "WD2:")),
++    Mutant("withdraw_abort_ignored", WITHDRAW, (
++        (TOP, "      .start_abort_i(arb_start_abort_w),\n", "      .start_abort_i(1'b0),\n"),),
++        ("WD2:", "WD3:")),
++    Mutant("cancel_one_clock_late", INDEX, (
++        (NTFY, CA_REQUEST, "  logic               cx_late_r;\n"
++                           "  logic [CIX_W_C-1:0] cx_late_ix_r;\n"
++                           "  always_ff @(posedge clk_i) begin : cx_late\n"
++                           "    cx_late_r    <= ca_cancel_ok_w;\n"
++                           "    cx_late_ix_r <= ca_cancel_ix_w;\n"
++                           "  end\n" + CA_REQUEST),
++        (NTFY, "    ca_cancel_valid_o = ca_cancel_ok_w\n", "    ca_cancel_valid_o = cx_late_r\n"),
++        (NTFY, "                        ? 4'(pd_ix_w) : 4'(ca_cancel_ix_w);\n",
++         "                        ? 4'(pd_ix_w) : 4'(cx_late_ix_r);\n")),
++        ("CX1:",)),
++)
++
+ MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+-           + DEREG_MID_ROUND + DOMAIN_NOTIFY)
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++           + DEREG_MID_ROUND + DOMAIN_NOTIFY + WITHDRAW_STAGE)
+ TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                    r" \d+ checks, \d+ failures"
+                    r"|\[build \w+\] \d+ checks, \d+ failures"
+diff --git a/tb/pp_top/notify_phases.hpp b/tb/pp_top/notify_phases.hpp
+remerge CONFLICT (content): Merge conflict in tb/pp_top/notify_phases.hpp
+index e615c57..839cac4 100644
+--- a/tb/pp_top/notify_phases.hpp
++++ b/tb/pp_top/notify_phases.hpp
+@@ -1639,7 +1639,178 @@ struct RndPhase : NotifyBench {
+   }
+ };
+ 
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
++// ==== DN. The Domain and link-edge GET_AVB_INFO notification (issue #42) ===
++// Milan 5.3.6.2 and Table 5.22: a change of the MSRP Class A Domain (4.2.7.2.1:
++// its priority and VID) or of the link state is reported to every registered
++// controller as an unsolicited GET_AVB_INFO for the AVB_INTERFACE. The top ORs
++// four triggers into the notification block's ev_avb_i: gm_change_i and
++// gsi_avb_chg_i (section V, V6 to V6i), the SRP Domain machine's DOMAIN_CHANGE
++// and the link_up_i edge. This section grades the last two. One controller A
++// is registered; a bridge feeds its Class A Domain in the certified two-class
++// shape of S8 and DV4 (FirstValue {5, 2, VID}, NumberOfValues 2). The body is
++// the integrator's face answer, V1's words (06 6.10: the processor serves them
++// and makes none of them), so a frame is graded byte-exact for its trigger,
++// header, entry sequence_id and AVB_INTERFACE 0. GET_AVB_INFO has no rate limit
++// of its own (06 7: T-CTR-NOTIF limits GET_COUNTERS); every stimulus still
++// waits a second after the latest notification left, so no count here depends
++// on coalescing or on a limiter.
++struct DomainNotifyPhase : NotifyBench {
++  static constexpr uint16_t ADOPT_VID = 5;          // a bridge's Class A VID (S8)
++  static_assert(ADOPT_VID != SRP_DEF_VID, "<bench-switch-model> must see the VID move");
++  static constexpr long WINDOW = 1200L * MS_CYC;    // longer than the spacing
++  static constexpr long SPACING = 1000L * MS_CYC;   // T-CTR-NOTIF (06 7)
++  uint16_t seq = 0x4200;
++  //! the clock the latest notification to A left; 0 before the first (the
++  //! REGISTER response is not counted)
++  uint64_t last_sent = 0;
++
++  using NotifyBench::NotifyBench;
++
++  //! the u = 1 GET_AVB_INFO response to A for AVB_INTERFACE 0 (IEEE
++  //! 7.4.40.2), its body the integrator's words at the 06 6.10 offsets
++  static std::vector<uint8_t> avb_info(unsigned s) {
++    const uint64_t w1 = H::gsi_value(1, 0x0009, 0, 1, 0);
++    const size_t n = size_t(w1 & 0xFFFF);
++    std::vector<uint8_t> b(20 + 4 * n, 0);
++    putbe(&b[0], 0x0009, 2);                             // AVB_INTERFACE @24
++    putbe(&b[2], 0, 2);                                  // index 0 @26
++    putbe(&b[4], H::gsi_value(1, 0x0009, 0, 0, 0), 8);   // grandmaster @28
++    putbe(&b[12], w1, 8);              // delay, domain, flags, count @36
++    for (size_t k = 0; k < n; ++k)                       // msrp_mappings @44
++      putbe(&b[20 + 4 * k], H::gsi_value(1, 0x0009, 0, 8, uint8_t(k)), 4);
++    auto f = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
++                        uint16_t(s), 0x0027, b);
++    f[36] |= 0x80;                                       // u = 1
++    return f;
++  }
++  bool class_a_is(unsigned vid) const {
++    return io.d->srp_class_a_prio_o == 3 && io.d->srp_class_a_vid_o == vid;
++  }
++  //! the 06 7 spacing: a second after the latest notification to A left
++  void space_out() {
++    while (io.t < last_sent + SPACING) tick();
++  }
++  //! the bridge's Class A Domain {3, vid}: Class A arrives as value 1 (10 3)
++  void declare_domain(uint16_t vid) {
++    Msg dom{4, 4, false, {Vec{false, 2, fv_domain(5, 2, vid), {EV_JOININ, EV_JOININ}, {}}}};
++    feed(mrpdu_frame(true, T1_MAC, {dom}));
++  }
++  //! the window after a stimulus that ended at log index `from`; returns the
++  //! frames A received in it
++  std::vector<size_t> watch(size_t from) {
++    for (long c = 0; c < WINDOW; ++c) tick();
++    const auto at = at_mac(CTLR_MAC, from);
++    if (!at.empty()) last_sent = seen[at.back()].t;
++    return at;
++  }
++  //! one stimulus that must notify: exactly one frame at A, a u = 1
++  //! GET_AVB_INFO (so no GET_AS_PATH and nothing else), byte-exact at the
++  //! entry's sequence_id (Milan 5.4.5.1, modelled from the wire as in NP).
++  //! t0 is the stimulus the [i] line times from: the link edge, or the return
++  //! of feed(), four idle clocks after an MRPDU's last byte
++  void one_notification(const char* tag, const char* tag_b, const char* what,
++                        size_t from, uint64_t t0) {
++    const auto at = watch(from);
++    unsigned avb = 0;
++    unsigned asp = 0;
++    for (size_t i : at) {
++      avb += unsolicited(seen[i].f) && ct_of(seen[i].f) == 0x0027;
++      asp += unsolicited(seen[i].f) && ct_of(seen[i].f) == 0x0028;
++    }
++    CHECK(at.size() == 1 && avb == 1,
++          "%s: %s: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH "
++          "(got %zu frames: %u GET_AVB_INFO, %u GET_AS_PATH)", tag, what, at.size(), avb, asp);
++    const std::vector<uint8_t> got = at.empty() ? std::vector<uint8_t>{} : seen[at[0]].f;
++    const unsigned want_seq = at.empty() ? 0 : notified_before(CTLR_MAC, at[0]);
++    const auto want = avb_info(want_seq);
++    CHECK(got == want,
++          "%s: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its "
++          "sequence_id %u, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)%s", tag_b, want_seq,
++          got.empty() ? "; no frame" : "");
++    if (!got.empty() && got != want) { dump("got", got); dump("exp", want); }
++    if (!at.empty())
++      printf("  [i] %s: GET_AVB_INFO sequence_id %u left %ld clocks after the stimulus\n", tag,
++             seq_of(got), long(seen[at[0]].t - t0));
++  }
++
++  // ---- DN4: the link edge alone, at DEFAULTS --------------------------------
++  // KL_srp_domain strobes a LINK_DOWN revert only from ADOPTED (10 6.1 F10.2),
++  // so at DEFAULTS neither edge raises DOMAIN_CHANGE and the link term is the
++  // only trigger of ev_avb_i.
++  void link_edges() {
++    const int ch0 = io.domain_changes;
++    space_out();
++    size_t from = seen.size();
++    io.d->link_up_i = 0;
++    one_notification("DN4b", "DN4c", "link down", from, io.t);
++    space_out();
++    from = seen.size();
++    io.d->link_up_i = 1;
++    one_notification("DN4d", "DN4e", "link up", from, io.t);
++    CHECK(io.domain_changes == ch0,
++          "DN4: neither link edge raises DOMAIN_CHANGE at DEFAULTS (premise: the link "
++          "term alone notifies), saw %d", io.domain_changes - ch0);
++  }
++  // ---- <bench-switch-model>: a differing Domain is adopted and notified ----------------------
++  void adoption() {
++    const int ch0 = io.domain_changes;
++    space_out();
++    const size_t from = seen.size();
++    declare_domain(ADOPT_VID);
++    const uint64_t t0 = io.t;
++    one_notification("DN1b", "DN1c", "the bridge's {3, 5} adopted", from, t0);
++    CHECK(io.domain_changes == ch0 + 1 && class_a_is(ADOPT_VID) && io.d->srp_domain_adopted_o,
++          "<bench-switch-model>: the bridge's {3, %u} is adopted with one DOMAIN_CHANGE (premise), saw %d, "
++          "class-D {%u, %u, adopted %u}", unsigned(ADOPT_VID), io.domain_changes - ch0,
++          unsigned(io.d->srp_class_a_prio_o), unsigned(io.d->srp_class_a_vid_o),
++          unsigned(io.d->srp_domain_adopted_o));
++  }
++  // ---- DN2: the declaration that returns the Domain to its default ----------
++  // A received Domain that differs from the operating one is adopted, the
++  // default's values included (KL_srp_domain's adoption arm; only LINK_DOWN
++  // restores the DEFAULTS state), so it strobes DOMAIN_CHANGE once.
++  void revert() {
++    const int ch0 = io.domain_changes;
++    space_out();
++    const size_t from = seen.size();
++    declare_domain(SRP_DEF_VID);
++    const uint64_t t0 = io.t;
++    one_notification("DN2b", "DN2c", "the default {3, 2} declared back", from, t0);
++    CHECK(io.domain_changes == ch0 + 1 && class_a_is(SRP_DEF_VID),
++          "DN2: the declared default {3, %u} is in force with one DOMAIN_CHANGE (premise), "
++          "saw %d, class-D {%u, %u}", unsigned(SRP_DEF_VID), io.domain_changes - ch0,
++          unsigned(io.d->srp_class_a_prio_o), unsigned(io.d->srp_class_a_vid_o));
++    printf("  [i] DN2: class-D adopted %u after the default is declared back\n",
++           unsigned(io.d->srp_domain_adopted_o));
++  }
++  // ---- DN3: an identical re-declaration changes nothing and sends nothing ---
++  void identical(const char* tag, uint16_t vid) {
++    const int ch0 = io.domain_changes;
++    space_out();
++    const size_t from = seen.size();
++    declare_domain(vid);
++    const auto at = watch(from);
++    CHECK(io.domain_changes == ch0 && at.empty(),
++          "%s: the bridge declares the operating {3, %u} again: no DOMAIN_CHANGE (saw %d) "
++          "and nothing reaches A (got %zu frames)", tag, unsigned(vid),
++          io.domain_changes - ch0, at.size());
++  }
++
++  void run() {
++    boot_to_idle(true);
++    CHECK(register_controller(CTLR_MAC, CTLR_EID, seq++),
++          "DN0: controller A registered (premise)");
++    const uint32_t ms0 = io.d->dbg_now_ms_o;
++    link_edges();
++    adoption();
++    identical("DN3", ADOPT_VID);
++    revert();
++    identical("DN3b", SRP_DEF_VID);
++    printf("  [i] DN: %u ms of the timebase after the registration (the controller monitor's "
++           "floor is 30 s)\n", unsigned(io.d->dbg_now_ms_o - ms0));
++  }
++};
++
+ // ==== WD. the originator's withdraw mask, one clock late (issue #163) =====
+ // The originator's withdraw mask is combinational from its response, cancel
+ // and expiry choice. It fed the TX arbiter's slot and state registers through
+@@ -1821,177 +1992,6 @@ struct WithdrawStagePhase : NotifyBench {
+           "WD3: that probe never reaches the wire, both answers leave, and the slots, "
+           "the originator and its lane return idle (%u probe(s), deregistration %d, "
+           "answers %d, idle %d)", b.probes, int(b.dereg), int(b.answers), int(b.idle));
+-=======
+-// ==== DN. The Domain and link-edge GET_AVB_INFO notification (issue #42) ===
+-// Milan 5.3.6.2 and Table 5.22: a change of the MSRP Class A Domain (4.2.7.2.1:
+-// its priority and VID) or of the link state is reported to every registered
+-// controller as an unsolicited GET_AVB_INFO for the AVB_INTERFACE. The top ORs
+-// four triggers into the notification block's ev_avb_i: gm_change_i and
+-// gsi_avb_chg_i (section V, V6 to V6i), the SRP Domain machine's DOMAIN_CHANGE
+-// and the link_up_i edge. This section grades the last two. One controller A
+-// is registered; a bridge feeds its Class A Domain in the certified two-class
+-// shape of S8 and DV4 (FirstValue {5, 2, VID}, NumberOfValues 2). The body is
+-// the integrator's face answer, V1's words (06 6.10: the processor serves them
+-// and makes none of them), so a frame is graded byte-exact for its trigger,
+-// header, entry sequence_id and AVB_INTERFACE 0. GET_AVB_INFO has no rate limit
+-// of its own (06 7: T-CTR-NOTIF limits GET_COUNTERS); every stimulus still
+-// waits a second after the latest notification left, so no count here depends
+-// on coalescing or on a limiter.
+-struct DomainNotifyPhase : NotifyBench {
+-  static constexpr uint16_t ADOPT_VID = 5;          // a bridge's Class A VID (S8)
+-  static_assert(ADOPT_VID != SRP_DEF_VID, "<bench-switch-model> must see the VID move");
+-  static constexpr long WINDOW = 1200L * MS_CYC;    // longer than the spacing
+-  static constexpr long SPACING = 1000L * MS_CYC;   // T-CTR-NOTIF (06 7)
+-  uint16_t seq = 0x4200;
+-  //! the clock the latest notification to A left; 0 before the first (the
+-  //! REGISTER response is not counted)
+-  uint64_t last_sent = 0;
+-
+-  using NotifyBench::NotifyBench;
+-
+-  //! the u = 1 GET_AVB_INFO response to A for AVB_INTERFACE 0 (IEEE
+-  //! 7.4.40.2), its body the integrator's words at the 06 6.10 offsets
+-  static std::vector<uint8_t> avb_info(unsigned s) {
+-    const uint64_t w1 = H::gsi_value(1, 0x0009, 0, 1, 0);
+-    const size_t n = size_t(w1 & 0xFFFF);
+-    std::vector<uint8_t> b(20 + 4 * n, 0);
+-    putbe(&b[0], 0x0009, 2);                             // AVB_INTERFACE @24
+-    putbe(&b[2], 0, 2);                                  // index 0 @26
+-    putbe(&b[4], H::gsi_value(1, 0x0009, 0, 0, 0), 8);   // grandmaster @28
+-    putbe(&b[12], w1, 8);              // delay, domain, flags, count @36
+-    for (size_t k = 0; k < n; ++k)                       // msrp_mappings @44
+-      putbe(&b[20 + 4 * k], H::gsi_value(1, 0x0009, 0, 8, uint8_t(k)), 4);
+-    auto f = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
+-                        uint16_t(s), 0x0027, b);
+-    f[36] |= 0x80;                                       // u = 1
+-    return f;
+-  }
+-  bool class_a_is(unsigned vid) const {
+-    return io.d->srp_class_a_prio_o == 3 && io.d->srp_class_a_vid_o == vid;
+-  }
+-  //! the 06 7 spacing: a second after the latest notification to A left
+-  void space_out() {
+-    while (io.t < last_sent + SPACING) tick();
+-  }
+-  //! the bridge's Class A Domain {3, vid}: Class A arrives as value 1 (10 3)
+-  void declare_domain(uint16_t vid) {
+-    Msg dom{4, 4, false, {Vec{false, 2, fv_domain(5, 2, vid), {EV_JOININ, EV_JOININ}, {}}}};
+-    feed(mrpdu_frame(true, T1_MAC, {dom}));
+-  }
+-  //! the window after a stimulus that ended at log index `from`; returns the
+-  //! frames A received in it
+-  std::vector<size_t> watch(size_t from) {
+-    for (long c = 0; c < WINDOW; ++c) tick();
+-    const auto at = at_mac(CTLR_MAC, from);
+-    if (!at.empty()) last_sent = seen[at.back()].t;
+-    return at;
+-  }
+-  //! one stimulus that must notify: exactly one frame at A, a u = 1
+-  //! GET_AVB_INFO (so no GET_AS_PATH and nothing else), byte-exact at the
+-  //! entry's sequence_id (Milan 5.4.5.1, modelled from the wire as in NP).
+-  //! t0 is the stimulus the [i] line times from: the link edge, or the return
+-  //! of feed(), four idle clocks after an MRPDU's last byte
+-  void one_notification(const char* tag, const char* tag_b, const char* what,
+-                        size_t from, uint64_t t0) {
+-    const auto at = watch(from);
+-    unsigned avb = 0;
+-    unsigned asp = 0;
+-    for (size_t i : at) {
+-      avb += unsolicited(seen[i].f) && ct_of(seen[i].f) == 0x0027;
+-      asp += unsolicited(seen[i].f) && ct_of(seen[i].f) == 0x0028;
+-    }
+-    CHECK(at.size() == 1 && avb == 1,
+-          "%s: %s: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH "
+-          "(got %zu frames: %u GET_AVB_INFO, %u GET_AS_PATH)", tag, what, at.size(), avb, asp);
+-    const std::vector<uint8_t> got = at.empty() ? std::vector<uint8_t>{} : seen[at[0]].f;
+-    const unsigned want_seq = at.empty() ? 0 : notified_before(CTLR_MAC, at[0]);
+-    const auto want = avb_info(want_seq);
+-    CHECK(got == want,
+-          "%s: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its "
+-          "sequence_id %u, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)%s", tag_b, want_seq,
+-          got.empty() ? "; no frame" : "");
+-    if (!got.empty() && got != want) { dump("got", got); dump("exp", want); }
+-    if (!at.empty())
+-      printf("  [i] %s: GET_AVB_INFO sequence_id %u left %ld clocks after the stimulus\n", tag,
+-             seq_of(got), long(seen[at[0]].t - t0));
+-  }
+-
+-  // ---- DN4: the link edge alone, at DEFAULTS --------------------------------
+-  // KL_srp_domain strobes a LINK_DOWN revert only from ADOPTED (10 6.1 F10.2),
+-  // so at DEFAULTS neither edge raises DOMAIN_CHANGE and the link term is the
+-  // only trigger of ev_avb_i.
+-  void link_edges() {
+-    const int ch0 = io.domain_changes;
+-    space_out();
+-    size_t from = seen.size();
+-    io.d->link_up_i = 0;
+-    one_notification("DN4b", "DN4c", "link down", from, io.t);
+-    space_out();
+-    from = seen.size();
+-    io.d->link_up_i = 1;
+-    one_notification("DN4d", "DN4e", "link up", from, io.t);
+-    CHECK(io.domain_changes == ch0,
+-          "DN4: neither link edge raises DOMAIN_CHANGE at DEFAULTS (premise: the link "
+-          "term alone notifies), saw %d", io.domain_changes - ch0);
+-  }
+-  // ---- <bench-switch-model>: a differing Domain is adopted and notified ----------------------
+-  void adoption() {
+-    const int ch0 = io.domain_changes;
+-    space_out();
+-    const size_t from = seen.size();
+-    declare_domain(ADOPT_VID);
+-    const uint64_t t0 = io.t;
+-    one_notification("DN1b", "DN1c", "the bridge's {3, 5} adopted", from, t0);
+-    CHECK(io.domain_changes == ch0 + 1 && class_a_is(ADOPT_VID) && io.d->srp_domain_adopted_o,
+-          "<bench-switch-model>: the bridge's {3, %u} is adopted with one DOMAIN_CHANGE (premise), saw %d, "
+-          "class-D {%u, %u, adopted %u}", unsigned(ADOPT_VID), io.domain_changes - ch0,
+-          unsigned(io.d->srp_class_a_prio_o), unsigned(io.d->srp_class_a_vid_o),
+-          unsigned(io.d->srp_domain_adopted_o));
+-  }
+-  // ---- DN2: the declaration that returns the Domain to its default ----------
+-  // A received Domain that differs from the operating one is adopted, the
+-  // default's values included (KL_srp_domain's adoption arm; only LINK_DOWN
+-  // restores the DEFAULTS state), so it strobes DOMAIN_CHANGE once.
+-  void revert() {
+-    const int ch0 = io.domain_changes;
+-    space_out();
+-    const size_t from = seen.size();
+-    declare_domain(SRP_DEF_VID);
+-    const uint64_t t0 = io.t;
+-    one_notification("DN2b", "DN2c", "the default {3, 2} declared back", from, t0);
+-    CHECK(io.domain_changes == ch0 + 1 && class_a_is(SRP_DEF_VID),
+-          "DN2: the declared default {3, %u} is in force with one DOMAIN_CHANGE (premise), "
+-          "saw %d, class-D {%u, %u}", unsigned(SRP_DEF_VID), io.domain_changes - ch0,
+-          unsigned(io.d->srp_class_a_prio_o), unsigned(io.d->srp_class_a_vid_o));
+-    printf("  [i] DN2: class-D adopted %u after the default is declared back\n",
+-           unsigned(io.d->srp_domain_adopted_o));
+-  }
+-  // ---- DN3: an identical re-declaration changes nothing and sends nothing ---
+-  void identical(const char* tag, uint16_t vid) {
+-    const int ch0 = io.domain_changes;
+-    space_out();
+-    const size_t from = seen.size();
+-    declare_domain(vid);
+-    const auto at = watch(from);
+-    CHECK(io.domain_changes == ch0 && at.empty(),
+-          "%s: the bridge declares the operating {3, %u} again: no DOMAIN_CHANGE (saw %d) "
+-          "and nothing reaches A (got %zu frames)", tag, unsigned(vid),
+-          io.domain_changes - ch0, at.size());
+-  }
+-
+-  void run() {
+-    boot_to_idle(true);
+-    CHECK(register_controller(CTLR_MAC, CTLR_EID, seq++),
+-          "DN0: controller A registered (premise)");
+-    const uint32_t ms0 = io.d->dbg_now_ms_o;
+-    link_edges();
+-    adoption();
+-    identical("DN3", ADOPT_VID);
+-    revert();
+-    identical("DN3b", SRP_DEF_VID);
+-    printf("  [i] DN: %u ms of the timebase after the registration (the controller monitor's "
+-           "floor is 30 s)\n", unsigned(io.d->dbg_now_ms_o - ms0));
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
+   }
+ };
+ 
+@@ -2025,19 +2025,18 @@ struct DomainNotifyPhase : NotifyBench {
+   printf("CS: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+ 
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-[[maybe_unused]] static void run_withdraw(H& h) {
+-  const int checks0 = h.checks;
+-  const int fails0 = h.fails;
+-  WithdrawStagePhase{h}.run();
+-  printf("WD: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+-=======
+ [[maybe_unused]] static void run_domain_notify(H& h) {
+   const int checks0 = h.checks;
+   const int fails0 = h.fails;
+   DomainNotifyPhase{h}.run();
+   printf("DN: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++}
++
++[[maybe_unused]] static void run_withdraw(H& h) {
++  const int checks0 = h.checks;
++  const int fails0 = h.fails;
++  WithdrawStagePhase{h}.run();
++  printf("WD: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+ 
+ [[maybe_unused]] static void run_identify(H& h) {
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+remerge CONFLICT (content): Merge conflict in tb/pp_top/sim_main.cpp
+index 2434eeb..17c8a53 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -14068,11 +14068,7 @@ int main(int argc, char** argv) {
+   const bool one_section = gsi_only || name_only || d3_only || volatile_only || acmp_only || adp_only
+                            || cuts_only || one_seed || maap_only || aecp_only || dl_only || hz_only
+                            || ident_only || notify_only || ctr_only || spacing_only || aq_only
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-                           || withdraw_only;
+-=======
+-                           || dn_only;
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++                           || dn_only || withdraw_only;
+   if (maap_only) run_maap_internal(h);
+   if (!one_section || aq_only) Suite(h).run();
+   if (aecp_only) run_aecp_dispatch_focus(h);
+@@ -14092,11 +14088,8 @@ int main(int argc, char** argv) {
+   if (!one_section || notify_only) run_storm(h);
+   if (!one_section || notify_only) run_rnd(h);
+   if (!one_section || spacing_only) run_spacing(h);
+-<<<<<<< cd9825c (Record the #163 notify-campaign re-run and CX1 in the ix_new_identity_unset rows)
+-  if (!one_section || withdraw_only) run_withdraw(h);
+-=======
+   if (!one_section || dn_only) run_domain_notify(h);
+->>>>>>> 2ad2f84 (Merge pull request #164 from Mister-M-alt/pp42-domain-notify)
++  if (!one_section || withdraw_only) run_withdraw(h);
+   if (!one_section || ctr_only) run_counters(h);
+   if (!one_section || aq_only) run_arm_queue(h);
+   const char* const build = "default";

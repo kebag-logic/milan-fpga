@@ -1,0 +1,9 @@
+{"probe": "ctl-withdraw", "verdict": "PASS", "missing": [], "tallies": ["[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures"]}
+{"probe": "ctl-if-top", "verdict": "PASS", "missing": [], "tallies": ["[build interfaces, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6 checks, 0 failures"]}
+{"probe": "r-wd-abort-only-comb", "verdict": "KILLED", "missing": [], "tallies": ["[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 1 failures"]}
+{"probe": "r-wd-lane-only-comb", "verdict": "KILLED", "missing": [], "tallies": ["[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 1 failures"]}
+{"probe": "r-wd-two-clocks", "verdict": "SURVIVED", "missing": ["WD"], "tallies": ["[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures"]}
+{"probe": "r-wd-sticky", "verdict": "KILLED", "missing": [], "tallies": ["[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 2 failures"]}
+{"probe": "ctl-if-top-with-wd", "verdict": "PASS", "missing": [], "tallies": ["[build interfaces, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9 checks, 0 failures"]}
+{"probe": "r-if-top-wd-unregistered", "verdict": "KILLED", "missing": [], "tallies": ["[build interfaces, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9 checks, 2 failures"]}
+reviewer probes: 7 of 8 as expected

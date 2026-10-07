@@ -1,0 +1,212 @@
+5fe5ea579e27b1bf6529e97dae44c94281f35764 Merge main c9f74b68 (#69) into pp163-txarb-cone
+
+diff --git a/tb/aecp_notify/README.md b/tb/aecp_notify/README.md
+remerge CONFLICT (content): Merge conflict in tb/aecp_notify/README.md
+index d8ec64f..13cd41c 100644
+--- a/tb/aecp_notify/README.md
++++ b/tb/aecp_notify/README.md
+@@ -10,15 +10,10 @@ cancellation before the row is cleared. It then reuses the same row for a
+ different controller and verifies that the next probe carries only the new
+ Entity ID and MAC tuple. Section IX then grades the registry's identity index,
+ section TS the counter throttle stamps' valid bit, section TW a counter round
+-<<<<<<< ff58155 (Merge main 2ad2f845 (#42) into pp163-txarb-cone)
+ that waits for the TX slot, section DR a DEREGISTER drained between two jobs
+ of a round, and section CX the clock of the availability cancellation.
+-=======
+-that waits for the TX slot, and section DR a DEREGISTER drained between two jobs
+-of a round. A third build, at two AVB interfaces, runs sections PT, CK, PD and
+-CA: the registry row's port, the per-interface counter rows, the registry depth
++A third build, at two AVB interfaces, runs sections PT, CK, PD and CA: the registry row's port, the per-interface counter rows, the registry depth
+ per interface and the availability probes of a controller on both interfaces.
+->>>>>>> c9f74b6 (Merge pull request #165 from Mister-M-alt/pp69-if-seam)
+ 
+ Run `make`. Exit status zero and the printed check tally are required.
+ 
+@@ -33,7 +28,11 @@ Run `make`. Exit status zero and the printed check tally are required.
+ Each binary prints its own build's count, and the Makefile prints the one
+ canonical tally, summed over the three. `make identify` builds and runs the
+ second build alone (the identify mutation campaign's arm), and `make interfaces`
+-the third (the notify campaign's arms for issue #69).
++the third (the notify campaign's arms for issue #69). The combined suite has
++65 checks: 42 in the first build, 4 in FT and 19 in PT/CK/PD/CA. CX keeps its
++one-interface cancellation-clock premise; CA4 measures the engine's settle
++interval, before the top's withdraw register, so its four-cycle lower bound
++is unchanged by #163.
+ 
+ ## Sections PT, CK, PD and CA: two AVB interfaces (issue #69)
+ 
+diff --git a/tb/aecp_notify/sim_main.cpp b/tb/aecp_notify/sim_main.cpp
+remerge CONFLICT (content): Merge conflict in tb/aecp_notify/sim_main.cpp
+index 351b85f..9baa067 100644
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -716,7 +716,6 @@ void Harness::dereg_round_waits() {
+   d->uns_done_i = 1;
+ }
+ 
+-<<<<<<< ff58155 (Merge main 2ad2f845 (#42) into pp163-txarb-cone)
+ //! CX (issue #163): the top registers the originator's withdraw mask, so a
+ //! cancellation reaches the TX arbiter one clock after the originator takes
+ //! it. That is the only clock it gains: a command from the probing controller
+@@ -752,10 +751,7 @@ void Harness::cancel_clock() {
+         int(probing), int(own), later, DRAIN_WATCH_CYCLES);
+ }
+ 
+-#else
+-=======
+ #elif defined(AECP_NOTIFY_IDENT)
+->>>>>>> c9f74b6 (Merge pull request #165 from Mister-M-alt/pp69-if-seam)
+ // ---- FT: the identify schedule at the full timebase -------------------------
+ // tb/pp_top grades the burst on the wire with 1 ms compressed to 100 clocks,
+ // where one tick is no longer than a frame's own build and serialization, so
+diff --git a/tb/pp_top/Makefile b/tb/pp_top/Makefile
+remerge CONFLICT (content): Merge conflict in tb/pp_top/Makefile
+index 50495bb..f9f5e8a 100644
+--- a/tb/pp_top/Makefile
++++ b/tb/pp_top/Makefile
+@@ -242,10 +242,5 @@ clean:
+ .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config aecp-dispatch \
+         line-build aecp-line aecp-dispatch-mutants identify-build identify \
+         deadline d3 volatile cuts hazards counters budget budget-build \
+-<<<<<<< ff58155 (Merge main 2ad2f845 (#42) into pp163-txarb-cone)
+-        timer-defaults timer-defaults-build withdraw \
+-        aecp-mutants ctr-mutants fixture-guards fixture-guards-test line-guards clean
+-=======
+-        timer-defaults timer-defaults-build interfaces interfaces-build \
++        timer-defaults timer-defaults-build withdraw interfaces interfaces-build \
+         aecp-mutants ctr-mutants fixture-guards fixture-guards-test line-guards if-guards clean
+->>>>>>> c9f74b6 (Merge pull request #165 from Mister-M-alt/pp69-if-seam)
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+remerge CONFLICT (content): Merge conflict in tb/pp_top/README.md
+index 50a068c..2d120c6 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2579,14 +2579,13 @@ three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows). Issue
+ adds nine controls, graded by section DN on a run of its own (`--domain-notify-only`),
+ for 65 of 65. Re-run 2026-10-06 at `main` `e6a759de` (56 of 56) and at the #42 head
+ (65 of 65): the goldens PASS, and the 56 earlier controls fail the same checks at both.
+-<<<<<<< ff58155 (Merge main 2ad2f845 (#42) into pp163-txarb-cone)
+ Issue #163 adds three controls of the withdraw mask's clock, graded by section WD
+ and by `tb/aecp_notify` section CX, for 68 of 68 with #42's nine. Re-run 2026-10-06
+ at `main` `86a7b0c5` (56 of 56) and at the #163 head before #42 (59 of 59): the
+ goldens PASS, and 55 of the 56 earlier controls fail the same checks at both.
+ `ix_new_identity_unset` fails CX1 as well since #163 (its row): without the new
+-identity, the probing controller's command matches no row and cancels nothing:
+-=======
++identity, the probing controller's command matches no row and cancels nothing.
++
+ Issue #69, on its branch without #42,
+ adds nine controls, eight graded by `tb/aecp_notify`'s third build (sections PT and CK)
+ and one by this suite's seventh (section IF), for 65 of 65. Re-run 2026-10-06 at
+@@ -2603,8 +2602,13 @@ both, for 86 of 86. Re-run 2026-10-06 at `main` `2ad2f845` (65 of 65) and at the
+ (86 of 86): the goldens PASS, the 65 controls of `main` fail the same checks at both, and
+ the 77 of #69's second round fail the same checks as at its head `75c4eee4`. No record
+ of `75c4eee4` moves; of `main`'s, only the `tb/aecp_notify` golden, which gains #69's
+-third build:
+->>>>>>> c9f74b6 (Merge pull request #165 from Mister-M-alt/pp69-if-seam)
++third build.
++
++The #163 merge of `main` `c9f74b68` keeps all 89 controls (68 from #163/#42,
++plus #69's 21). Its `cancel_one_clock_late` arm now plants at `g_ca_own`,
++where #69 moved the one-interface cancellation choice: the command is delayed
++one clock and the TIME_LIMITED drain remains immediate. The per-interface
++`ctr_last_r` shape and every WD/CX and CA/PD check are retained.
+ 
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+@@ -2673,11 +2677,9 @@ third build:
+ | `revert_strobes_at_defaults` | the LINK_DOWN revert strobes from DEFAULTS too (`if (adopted_r)` dropped) | 1: DN4 |
+ | `registry_never_claims` | a REGISTER never claims a free row | 9: DN0, DN4b-DN4e, DN1b, DN1c, DN2b, DN2c |
+ | `restore_never_done` | `restore_done_o` tied 0 | 1: the bench's boot premise ("notify bench: blank NVM, both restore walks reach done") |
+-<<<<<<< ff58155 (Merge main 2ad2f845 (#42) into pp163-txarb-cone)
+ | `withdraw_unregistered` | the lane, its compaction and the arbiter's abort read the originator's combinational mask (the path before #163) | 2: WD1, WD2 |
+ | `withdraw_abort_ignored` | the arbiter's `start_abort_i` tied low at the top | 2: WD2, WD3 |
+ | `cancel_one_clock_late` | the registry monitor's cancellation registered, one clock after the command | 2: `tb/aecp_notify` CX1, IX3 |
+-=======
+ | `port_not_compared` | the registry walk matches {eid, mac} without the port (#69) | 7: `tb/aecp_notify` PT2, PT4, PT3, PT5, PT6, CA1, CA2 (5 before round 2: PT2 to PT7 but PT5) |
+ | `port_not_latched` | the op's port latched as 0 | 12: `tb/aecp_notify` PT2, PT4, PT3, PT5, PT6, PD1 to PD3, CA1 to CA4 (5 before round 2) |
+ | `port_not_stored` | a claimed or refreshed row stores port 0 | 4: `tb/aecp_notify` PT3, PT5, PT6, PT7 |
+@@ -2699,7 +2701,6 @@ third build:
+ | `settle_dropped` | no settle after a cancel | 1: `tb/aecp_notify` CA4 |
+ | `rgy_port_from_latest_frame` | the top takes `u_notify`'s `rgy_port_i` from the latest received frame's interface, `hdr_if_r` (review R512-1 F2, probe P1) | 2: IF3, IF3b (seventh build) |
+ | `dereg_matches_other_port` | a DEREGISTER matches the other port's entry (review R512-1 F2, probe P2) | 1: IF3b (seventh build) |
+->>>>>>> c9f74b6 (Merge pull request #165 from Mister-M-alt/pp69-if-seam)
+ 
+ RN and `tb/originator` R are the suites whose mutation records #80 and #86 ask for:
+ every RND control is killed by the divergence check alone.
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+remerge CONFLICT (content): Merge conflict in tb/pp_top/notify_mutants.py
+index 3e37601..b06ccfd 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -19,21 +19,15 @@ the STORM and RND sections (ST, RN), the originator's seeded inflight session
+ throttle stamps' valid bit in the first build of tb/aecp_notify (sections IX and TS,
+ issue #232), and the counter rounds' spacing from the previous round's send (issue
+ #148: tb/pp_top section CS and tb/aecp_notify section TW), a DEREGISTER drained
+-<<<<<<< ff58155 (Merge main 2ad2f845 (#42) into pp163-txarb-cone)
+-between two jobs of a round (issue #158: tb/aecp_notify section DR), the Domain and
+-link-edge triggers of the GET_AVB_INFO notification (issue #42: tb/pp_top section DN),
+-and the originator's withdraw mask one clock late at the top (issue #163: tb/pp_top
+-section WD and tb/aecp_notify section CX). The suite READMEs carry the matching
+-mutation records.
+-=======
+ between two jobs of a round (issue #158: tb/aecp_notify section DR), the Domain
+ and link-edge triggers of the GET_AVB_INFO notification (issue #42: tb/pp_top section
+ DN), and the registry port and AVB_INTERFACE counter rows at two AVB interfaces
+ (issue #69: tb/aecp_notify's third build, sections PT and CK, and tb/pp_top's seventh,
+ section IF), and there the registry depth per interface and the availability probes
+ of rows that share a controller or a CA owner (review R512-1: sections PD and CA, and
+-IF3 and IF3b's held commands). The suite READMEs carry the matching mutation records.
+->>>>>>> c9f74b6 (Merge pull request #165 from Mister-M-alt/pp69-if-seam)
++IF3 and IF3b's held commands), and the originator's withdraw mask one clock late at
++the top (issue #163: tb/pp_top section WD and tb/aecp_notify section CX). The suite
++READMEs carry the matching mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+                                            [--only NAME ...]
+@@ -407,7 +401,6 @@ DOMAIN_NOTIFY = (
+         ("notify bench: blank NVM",)),
+ )
+ 
+-<<<<<<< ff58155 (Merge main 2ad2f845 (#42) into pp163-txarb-cone)
+ # the originator's withdraw mask registered at the top (issue #163), graded on the
+ # wire by tb/pp_top section WD, and the notify cancellation's own clock by
+ # tb/aecp_notify section CX
+@@ -425,6 +418,8 @@ WITHDRAW_STAGE = (
+     Mutant("withdraw_abort_ignored", WITHDRAW, (
+         (TOP, "      .start_abort_i(arb_start_abort_w),\n", "      .start_abort_i(1'b0),\n"),),
+         ("WD2:", "WD3:")),
++    # #69 moved the one-interface choice to g_ca_own; delay the command
++    # there, preserving the immediate TIME_LIMITED drain and the owner tuple.
+     Mutant("cancel_one_clock_late", INDEX, (
+         (NTFY, CA_REQUEST, "  logic               cx_late_r;\n"
+                            "  logic [CIX_W_C-1:0] cx_late_ix_r;\n"
+@@ -432,15 +427,12 @@ WITHDRAW_STAGE = (
+                            "    cx_late_r    <= ca_cancel_ok_w;\n"
+                            "    cx_late_ix_r <= ca_cancel_ix_w;\n"
+                            "  end\n" + CA_REQUEST),
+-        (NTFY, "    ca_cancel_valid_o = ca_cancel_ok_w\n", "    ca_cancel_valid_o = cx_late_r\n"),
+-        (NTFY, "                        ? 4'(pd_ix_w) : 4'(ca_cancel_ix_w);\n",
+-         "                        ? 4'(pd_ix_w) : 4'(cx_late_ix_r);\n")),
++        (NTFY, "    assign cx_ok_w   = ca_cancel_ok_w\n", "    assign cx_ok_w   = cx_late_r\n"),
++        (NTFY, "                       ? pd_ix_w : ca_cancel_ix_w;\n",
++         "                       ? pd_ix_w : cx_late_ix_r;\n")),
+         ("CX1:",)),
+ )
+ 
+-MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+-           + DEREG_MID_ROUND + DOMAIN_NOTIFY + WITHDRAW_STAGE)
+-=======
+ # the registry port and the AVB_INTERFACE counter rows with two AVB interfaces
+ # (issue #69), graded by tb/aecp_notify's third build (sections PT and CK) and on
+ # the wire by tb/pp_top's seventh build (section IF)
+@@ -547,8 +539,7 @@ INTERFACE_DEPTH_PROBES = (
+ )
+ 
+ MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+-           + DEREG_MID_ROUND + DOMAIN_NOTIFY + INTERFACE_ROWS + INTERFACE_DEPTH_PROBES)
+->>>>>>> c9f74b6 (Merge pull request #165 from Mister-M-alt/pp69-if-seam)
++           + DEREG_MID_ROUND + DOMAIN_NOTIFY + WITHDRAW_STAGE + INTERFACE_ROWS + INTERFACE_DEPTH_PROBES)
+ TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                    r" \d+ checks, \d+ failures"
+                    r"|\[build \w+\] \d+ checks, \d+ failures"

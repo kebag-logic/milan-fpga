@@ -1,0 +1,155 @@
+[
+ {
+  "probe": "ctl-index",
+  "suite": "make run",
+  "edits": 0,
+  "expect": "PASS",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tallies": [
+   "[build default] 42 checks, 0 failures",
+   "[build identify] 4 checks, 0 failures",
+   "[build interfaces] 19 checks, 0 failures",
+   "65 checks: 65 PASS, 0 FAIL"
+  ],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "probe": "ctl-interfaces",
+  "suite": "make interfaces",
+  "edits": 0,
+  "expect": "PASS",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tallies": [
+   "[build interfaces] 19 checks, 0 failures"
+  ],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "probe": "r-cx-repeated",
+  "suite": "make run",
+  "edits": 2,
+  "expect": "FAIL:CX1:",
+  "build_rc": 0,
+  "run_rc": 2,
+  "tallies": [
+   "[build default] 42 checks, 1 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CX1: a command from the probing controller cancels its probe in the command's own clock (probe live 1, cancelled then 1) and in no later one (1 of 8)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "probe": "r-ca-settle-one",
+  "suite": "make interfaces",
+  "edits": 1,
+  "expect": "FAIL:CA4",
+  "build_rc": 0,
+  "run_rc": 2,
+  "tallies": [
+   "[build interfaces] 19 checks, 1 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken 2 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (1 entries, DEREGISTER to 02000000000c)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "probe": "r-ca-turns-ignore-pending-cancel",
+  "suite": "make interfaces",
+  "edits": 1,
+  "expect": "FAIL:CA",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tallies": [
+   "[build interfaces] 19 checks, 0 failures"
+  ],
+  "missing": [
+   "CA"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "probe": "r-ca-drain-cancel-dropped",
+  "suite": "make interfaces",
+  "edits": 1,
+  "expect": "FAIL:CA",
+  "build_rc": 0,
+  "run_rc": 2,
+  "tallies": [
+   "[build interfaces] 19 checks, 1 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (0 cancel(s), owners 0x0, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "probe": "r-ca-owner-low-bits",
+  "suite": "make interfaces",
+  "edits": 2,
+  "expect": "FAIL:CA",
+  "build_rc": 0,
+  "run_rc": 2,
+  "tallies": [
+   "[build interfaces] 19 checks, 4 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (3 entries, DEREGISTER to 020000000005), and row 1's monitor deadline probes row 1's controller, CA owner 0 (1 probe(s))",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (2 cancel(s), owners 0x1, 1 entries)",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 1 entries), and B's probe follows (1)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken 4 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (1 entries, DEREGISTER to 02000000000c)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "probe": "r-pd-any-port-row",
+  "suite": "make interfaces",
+  "edits": 1,
+  "expect": "FAIL:PD",
+  "build_rc": 0,
+  "run_rc": 2,
+  "tallies": [
+   "[build interfaces] 19 checks, 6 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 0 0 1 1, 4 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (3 entries, DEREGISTER to 020000000004), and row 1's monitor deadline probes row 1's controller, CA owner 0 (1 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "probe": "r-ck-avb1-shares-avb0-window",
+  "suite": "make interfaces",
+  "edits": 1,
+  "expect": "FAIL:CK",
+  "build_rc": 0,
+  "run_rc": 2,
+  "tallies": [
+   "[build interfaces] 19 checks, 3 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 0 on index 0, want 4005 to 4013 on index 1",
+   "CK4: AVB_INTERFACE 2 names no interface of a two-interface build: no GET_COUNTERS in two seconds (one presented on 0009:1)",
+   "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:1)"
+  ],
+  "verdict": "KILLED"
+ }
+]

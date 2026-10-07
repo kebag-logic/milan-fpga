@@ -1,0 +1,7 @@
+OK cancel_one_clock_late pp_top readme 2 | `tb/aecp_notify` CX1, IX3 | observed 2 ['IX3', 'CX1']
+OK cancel_one_clock_late aecp_notify readme 2 | CX1, IX3 | observed 2 ['IX3', 'CX1']
+OK ix_new_identity_unset pp_top readme 4 | `tb/aecp_notify` IX3, IX4, IX6b, CX1 (3 before #163) | observed 4 ['IX3', 'IX4', 'IX6b', 'CX1']
+OK ix_new_identity_unset aecp_notify readme 4 | IX3, IX4, IX6b, CX1 (3 before #163) | observed 4 ['IX3', 'IX4', 'IX6b', 'CX1']
+OK withdraw_abort_ignored pp_top readme 2 | WD2, WD3 | observed 2 ['WD2', 'WD3']
+OK withdraw_unregistered pp_top readme 2 | WD1, WD2 | observed 2 ['WD1', 'WD2']
+rows matching count 123 differing 0 arms without a parsed README row 0 []

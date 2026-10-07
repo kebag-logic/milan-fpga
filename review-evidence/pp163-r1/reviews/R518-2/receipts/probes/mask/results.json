@@ -1,0 +1,50 @@
+[
+ {
+  "probe": "r-wd-mask-dropped",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "edits": 3,
+  "expect": "FAIL:WD",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tallies": [
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures"
+  ],
+  "missing": [
+   "WD"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "probe": "r-full-mask-dropped",
+  "suite": "./obj_dir/Vpp_top_sim",
+  "edits": 3,
+  "expect": "FAIL:",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tallies": [
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9974 checks, 0 failures"
+  ],
+  "missing": [
+   ""
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "probe": "r-full-two-clocks",
+  "suite": "./obj_dir/Vpp_top_sim",
+  "edits": 2,
+  "expect": "FAIL:",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tallies": [
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9974 checks, 0 failures"
+  ],
+  "missing": [
+   ""
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ }
+]
