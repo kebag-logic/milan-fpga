@@ -6,9 +6,9 @@ mailbox ([design](../../../docs/design/MAILBOX_SPLIT.md),
 [contract](../../../docs/reference/MAILBOX_CONTRACT.md)). No OS, no heap, no
 threads: one event loop, static state, and a static pool behind lwSRP's
 allocation port. Lane F0 carries the mailbox driver, the HAL, lwSRP's port
-layer, the loop and the ADP slice; the other protocols follow in F1 to F5,
-each as its own ports-and-adapters module. F4 adds the
-[SRP adapter](srp/README.md) on the pinned lwSRP dependency.
+layer, the loop and the ADP slice. F2 adds the opt-in [MAAP owner](maap/README.md).
+F4 adds the [SRP adapter](srp/README.md) on pinned lwSRP.
+Each protocol has its own core and mailbox adapter.
 
 `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test`
 is the gate: exit 0 = every arm passed and every planted defect was caught.
@@ -23,7 +23,7 @@ is an integration obligation, not a target-time result established here.
 ## Contents
 
 - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, the app, the MMIO platform, the host model, the tests.
-- **[The host test](#the-host-test)** -- The ten arms, how the processor's ADP stimulus is cut from the pinned submodule and walked, and the planted defects.
+- **[The host test](#the-host-test)** -- The firmware arms, optional `lwsrp` integration, processor stimulus and planted defects.
 - **[Run](#run)** -- The three invocations and what each needs.
 
 ## Layout
@@ -35,6 +35,7 @@ is an integration obligation, not a target-time result established here.
 | [`port/`](port) | lwSRP's port layer: `shlan_malloc`/`calloc`/`free` on the static block pool, `shlan_printf` on the debug sink |
 | [`loop/`](loop) | the event loop: events first, bounded passes, the TICK fan-out in slices, sleep only when nothing is owed, the bring-up order, and the latency bound's assumptions |
 | [`adp/`](adp) | the ADP core (no mailbox), its mailbox adapter with the latency bounds, and `adp_entity.py` |
+| [`maap/`](maap) | the Annex B core, per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
 | [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
 | [`app/`](app) | the static composition a platform starts |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
@@ -59,6 +60,7 @@ hand-rolled checks and the coverage ratchet are described in
 | `reentry_debug`, `reentry_release` | `test_adp_reentry.cpp` | Every port/core entry pair, same and cross instance; both inline-expiry regressions. Assertions in debug, counted refusal in release. |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
 | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
+| `maap`, `maap_if2`, `maap_debug` | `test_maap.cpp`, `test_maap_mbx.cpp`, `test_maap_debug.cpp` | Annex B, stream CSR output, H-MAAP at one/two interfaces, and synchronous reentry refusal |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
 | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
 

@@ -32,6 +32,9 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            is programmed with (boot_policy.fabric_constants), compiled with
            (the builder's ADP shape include) and the processor's
            ADP_ENTITY_CAPS_C;
+  maap     Annex B transitions and PDUs, allocation CSR writes and the H-MAAP
+           host mailbox hook; maap_if2 repeats the hook at two interfaces;
+  maap_debug the no-synchronous-callback assertion in a debug build;
   rv32     the portable set and the MMIO platform cross-compiled freestanding
            for RV32I with the pinned SDK and isolated freestanding headers;
            every undefined symbol a named runtime interface (string, format
@@ -91,7 +94,8 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
     try:
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
-                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree),
+                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree), ctrl_arms.arm_maap(tree),
+                    ctrl_arms.arm_maap_if2(tree),
                     ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
         if lwsrp is not None:
             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
@@ -113,11 +117,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--lwsrp", type=Path, default=CTRL.parents[2] / "third_party/lwSRP",
                     help="an exact pinned lwSRP checkout (default: the submodule)")
     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
+    ap.add_argument("--mutation-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
+                    help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
     ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
     args = ap.parse_args(argv)
     args.jobs = min(4, max(1, args.jobs))
+    if args.mutation_shard is not None:
+        index, count = args.mutation_shard
+        if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
+            ap.error("mutation shard requires --self-test and 0 <= INDEX < COUNT <= mutant count")
+        ctrl_mutants.MUTANTS = ctrl_mutants.MUTANTS[index::count]
     if args.coverage is not None:
         return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
     print(f"toolchain: {fw_gtest.toolchain()}")
@@ -129,6 +140,7 @@ def main(argv: list[str] | None = None) -> int:
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+                        ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
                         ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
