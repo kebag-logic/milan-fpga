@@ -161,7 +161,13 @@ it.
 
 The table records the port as FT landed it. Lane FC (the full-tuple ingress
 filter) then added seven `model` groups, D12 to `port`, and D11 and U4 to
-`unit`, so those arms run 21, 31 and 25 tests.
+`unit`, so those arms run 21, 31 and 25 tests. Lane F3 (ACMP) added three
+arms written on GoogleTest from the start: `acmp` (67 tests), `acmpwalk`
+(127: 88 cells of the processor's Table 5.30 model, 33 of its Table 5.54
+transcription, six scenarios) and `acmpnvm` (6), each test with a planted
+defect of its own. The ACMP core is guarded by #678's rule (`acmp.h`): its
+host tests build it with `CTRL_REENTRY_ASSERT`, which reports each refused
+re-entrant call to the test, and a release build only counts it.
 
 The saved-state store's checks kept their names: a check that ran on both
 flash ports is two tests, `Ports/NvmBoth.<check>/model` and `.../litespi`.
@@ -217,7 +223,7 @@ the module's public header reaches, with the ports keeping the contract their
 header states; a static function is judged through the public functions that
 call it. A row's proof does not rest on what today's callers happen to pass.
 Where it rests on a generated constant of the contract, the row says so, and
-the row stops matching (so the gate fails) when the constant changes. Nine
+the row stops matching (so the gate fails) when the constant changes. Ten
 rows meet that standard through their headers as they stand. The five
 `adp.c` rows do not yet: they rest on a port rule that `adp.h` does not
 state, which #678 has ruled and will add to it (see below the gate's rules).

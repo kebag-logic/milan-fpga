@@ -494,5 +494,8 @@ shows at a clock that is not a whole number of MHz. That one,
   own.
 - The #665 switch and its link: F0's switch is not merged, so no image links
   this store.
-- The owners: the state model stands in for the AECP, ACMP and map stores of
-  F3 and F5.
+- The owners: the state model stands in for the AECP and map stores of F5.
+  The binding group's owner is F3's
+  [`acmp_nvm.c`](../ctrl/acmp/acmp_nvm.c); its arm `acmpnvm` in
+  [`../ctrl/test/`](../ctrl/test/) boots it from this store. No image links
+  the two either.

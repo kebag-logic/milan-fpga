@@ -8,8 +8,8 @@
 2. `run-axil`: the same checks on `KL_mbx` behind `KL_mbx_axil` (AXI4-Lite,
    a hard core's bus), then the adapter's own handshake checks
    ([`axil_checks.hpp`](axil_checks.hpp));
-3. `run-cosim`: the control-plane firmware run on the RTL and on the host
-   model, one scenario, compared frame by frame;
+3. `run-cosim`: the control-plane firmware (ADP and ACMP) run on the RTL
+   and on the host model, one scenario, compared frame by frame;
 4. `run-if2`: the same checks on the contract elaborated for two AVB
    interfaces (`gen_mailbox.py --variant-interfaces 2`, written into
    `obj_if2/gen`, never the tree), through both adapters and on the host
@@ -97,12 +97,20 @@ against one generated header.
 ## The co-simulation
 
 [`cosim_main.cpp`](cosim_main.cpp) links the firmware (driver, loop, port
-layer, ADP, the app), compiled as C11 exactly as the target builds it, and
+layer, ADP, ACMP, the app), compiled as C11 exactly as the target builds it, and
 answers `mbx_hal.h` once with Wishbone transactions on the RTL and once with
 the host model. One scenario runs on each: a link rise, two advertising
 cycles, an ENTITY_DISCOVER, a grandmaster change and a shutdown, 21 modeled
-seconds. The firmware's random delays are seeded from NOW_MS, so the two runs
-must commit the same frames at the same millisecond; they do, five frames.
+seconds. Lane F3 adds ACMP to it: a BIND_RX the talker never answers (its
+response and probe in one pass, the duplicate after TMR_NO_RESP, then
+TMR_RETRY), GET_TX_STATE, PROBE_TX, GET_RX_STATE and UNBIND_RX, and two
+frames both filters refuse, a BIND_RX for another listener and the bound
+talker's ENTITY_AVAILABLE. The firmware's random delays are seeded from
+NOW_MS, so the two runs must commit the same frames at the same millisecond;
+they do, twelve frames (five ADP, seven ACMP), and the model run must carry
+the seven ACMP frames in the scenario's order. When two frames are committed
+in one pass, the RTL run waits for the second one too. It starts on the
+stream about 13 clocks after the first one's last byte.
 
 ## Planted defects
 
