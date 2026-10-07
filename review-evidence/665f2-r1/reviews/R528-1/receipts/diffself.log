@@ -1,0 +1,758 @@
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (13 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (20 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (23 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (44 ms total)
+[  PASSED  ] 11 tests.
+== MAAP core and parent wire differential: checks: 11   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (11 tests, 0 failures, exit 0)
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:106: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: Annex B core wire
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:106: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: Annex B core wire
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:106: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: Annex B core wire
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:106: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: Annex B core wire
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:106: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x3' (3), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x3' (3), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: Annex B core wire
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[  FAILED  ] MaapDifferential.ProbeSequenceWireAndCadence (15 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (23 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (8 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (26 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (49 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeSequenceWireAndCadence
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant wire: MaapDifferential.ProbeSequenceWireAndCadence
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (13 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:161: Failure
+Expected equality of these values:
+  s.core.state
+    Which is: 2
+  MAAP_INITIAL
+    Which is: 0
+
+  [FAIL] MaapDifferential.ReleaseAndRetry:     Which is: 0
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:165: Failure
+Expected equality of these values:
+  s.core.state
+    Which is: 2
+  MAAP_PROBE
+    Which is: 1
+
+  [FAIL] MaapDifferential.ReleaseAndRetry:     Which is: 1
+[  FAILED  ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (21 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (8 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (25 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (47 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ReleaseAndRetry
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant release: MaapDifferential.ReleaseAndRetry
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (24 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (13 ms)
+[----------] 2 tests from MaapDifferential (38 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:131: Failure
+Expected equality of these values:
+  s.frames.size()
+    Which is: 1
+  before
+    Which is: 0
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/0:     Which is: 0
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/0, where GetParam() = 0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (1 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (1 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (10 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (8 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (29 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (68 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/0, where GetParam() = 0
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-0: AllStates/DifferentialCell.SharedConflict/0
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (14 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (21 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:131: Failure
+Expected equality of these values:
+  s.frames.size()
+    Which is: 1
+  before
+    Which is: 0
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/1:     Which is: 0
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/1, where GetParam() = 1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (23 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (44 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/1, where GetParam() = 1
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-1: AllStates/DifferentialCell.SharedConflict/1
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (14 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (21 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:131: Failure
+Expected equality of these values:
+  s.frames.size()
+    Which is: 1
+  before
+    Which is: 0
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/2:     Which is: 0
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/2, where GetParam() = 2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (23 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (45 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/2, where GetParam() = 2
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-2: AllStates/DifferentialCell.SharedConflict/2
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (13 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (20 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:139: Failure
+Expected equality of these values:
+  s.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/3:     Which is: 1
+DIFF state=1 input=1 core-conflicts=0 parent-conflicts=1
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/3, where GetParam() = 3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (23 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (44 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/3, where GetParam() = 3
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-6: AllStates/DifferentialCell.SharedConflict/3
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (13 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (20 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:139: Failure
+Expected equality of these values:
+  s.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/4:     Which is: 1
+DIFF state=1 input=2 core-conflicts=0 parent-conflicts=1
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/4, where GetParam() = 4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (23 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (44 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/4, where GetParam() = 4
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-7: AllStates/DifferentialCell.SharedConflict/4
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (13 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (20 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:139: Failure
+Expected equality of these values:
+  s.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/5:     Which is: 1
+DIFF state=1 input=3 core-conflicts=0 parent-conflicts=0
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/5, where GetParam() = 5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (23 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (44 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/5, where GetParam() = 5
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-8: AllStates/DifferentialCell.SharedConflict/5
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (15 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (22 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:135: Failure
+Expected equality of these values:
+  s.frames.size()
+    Which is: 5
+  before + 1
+    Which is: 6
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/6:     Which is: 6
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/6, where GetParam() = 6 (8 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (9 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (27 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (50 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/6, where GetParam() = 6
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-12: AllStates/DifferentialCell.SharedConflict/6
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (14 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (22 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:139: Failure
+Expected equality of these values:
+  s.core.state
+    Which is: 2
+  MAAP_PROBE
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/7:     Which is: 1
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:139: Failure
+Expected equality of these values:
+  s.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/7:     Which is: 1
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:140: Failure
+Value of: s.core.valid
+  Actual: true
+Expected: false
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/7: Expected: false
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:140: Failure
+Expected equality of these values:
+  s.frames.back()[15]
+    Which is: '\x3' (3)
+  1u
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/7:     Which is: 1
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:149: Failure
+Expected equality of these values:
+  a[byte]
+    Which is: '\x3' (3)
+  b[byte]
+    Which is: '\x1' (1)
+retry wire, excluding CDL and independent random allocation
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/7: retry wire, excluding CDL and independent random allocation
+DIFF state=2 input=2 core-conflicts=0 parent-conflicts=1
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/7, where GetParam() = 7 (8 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (25 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (48 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/7, where GetParam() = 7
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-13: AllStates/DifferentialCell.SharedConflict/7
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (15 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (7 ms)
+[----------] 2 tests from MaapDifferential (22 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (7 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (8 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:139: Failure
+Expected equality of these values:
+  s.core.state
+    Which is: 2
+  MAAP_PROBE
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/8:     Which is: 1
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:139: Failure
+Expected equality of these values:
+  s.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/8:     Which is: 1
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:140: Failure
+Value of: s.core.valid
+  Actual: true
+Expected: false
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/8: Expected: false
+$REVIEWS/r528-1-665f2/sw/firmware/ctrl/test/test_maap_differential.cpp:140: Failure
+Expected equality of these values:
+  s.frames.back()[15]
+    Which is: '\x3' (3)
+  1u
+    Which is: 1
+
+  [FAIL] AllStates/DifferentialCell.SharedConflict/8:     Which is: 1
+DIFF state=2 input=3 core-conflicts=0 parent-conflicts=0
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/8, where GetParam() = 8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (25 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (48 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/8, where GetParam() = 8
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)
+[ok] differential mutant maap-table-b7-14: AllStates/DifferentialCell.SharedConflict/8
+differential mutants: 11/11 caught
+rc=0 seconds=70

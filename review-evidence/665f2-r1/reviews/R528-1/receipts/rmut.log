@@ -1,0 +1,60 @@
+[caught] r-probe-state-defends
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] AllStates/MaapCell.TableB7/12', '[FAIL] AllStates/MaapCell.TableB7/15', '[FAIL] AllStates/MaapCell.TableB7/6', '[FAIL] AllStates/MaapCell.TableB7/9', '[FAIL] MaapCore.DefendEchoAndIntersection', '[FAIL] MaapCore.QueueBoundAndWithdrawal']
+[caught] r-probe-state-compare-mac-on-defend
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] AllStates/MaapCell.TableB7/10', '[FAIL] AllStates/MaapCell.TableB7/11']
+[ESCAPED] r-compare-mac-always-loses
+    arm=maap rc=2 named-fail=False failing: []
+[caught] r-compare-mac-strict
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.ReverseOctetPriority']
+[ESCAPED] r-reverse-five-octets
+    arm=maap rc=0 named-fail=False failing: []
+[caught] r-probe-uses-announce-interval
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapHost.HMaapTimerCommitsAndIntervals']
+[caught] r-no-jitter-allowance
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.ConstantsStrictTimersAndSeed', '[FAIL] MaapCore.UniformDrawRejectsIncompleteBucket']
+[caught] r-seed-mac-ignored
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.UniformDrawRejectsIncompleteBucket']
+[caught] r-generate-past-pool-end
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.InitAndPreferredRangeBounds']
+[ESCAPED] r-conflict-count-to-own-end
+    arm=maap rc=2 named-fail=False failing: []
+[caught] r-own-range-one-address
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.DefendEchoAndIntersection']
+[caught] r-conflict-start-nonzero-in-request
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.InitialAndThreeRetransmissions']
+[caught] r-release-keeps-timer
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.ReleaseLossAndRetry', '[FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges']
+[caught] r-link-down-keeps-claim
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.ReleaseLossAndRetry', '[FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges']
+[caught] r-restart-keeps-queue
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.QueueBoundAndWithdrawal']
+[ESCAPED] r-restart-reuses-range
+    arm=maap rc=0 named-fail=False failing: []
+[ESCAPED] r-unicast-defend-any-destination
+    arm=maap rc=2 named-fail=False failing: []
+[caught] r-in-call-left-set-after-poll
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCore.QueueBoundAndWithdrawal', '[FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry', '[FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock']
+[caught] r-arm-half-delay
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapHost.HMaapTimerCommitsAndIntervals']
+[caught] r-cancel-keeps-armed
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges']
+[caught] r-link-level-not-recorded
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges']
+[caught] r-envelope-own-interface-only
+    arm=maap_if2 rc=1 named-fail=True failing: ['[FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget', '[FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope']
+[ESCAPED] r-poll-first-interface-only
+    arm=maap_if2 rc=0 named-fail=False failing: []
+[caught] r-timer-slot-shared
+    arm=maap_if2 rc=1 named-fail=True failing: ['[FAIL] MaapHost.AttachRefusalsAndTimerWrap', '[FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock', '[FAIL] MaapHost.HMaapConflictLossAndRetry', '[FAIL] MaapHost.HMaapTimerCommitsAndIntervals']
+[ESCAPED] r-csr-enable-before-programming
+    arm=maap rc=0 named-fail=False failing: []
+[caught] r-csr-loss-keeps-aaf
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCsr.EveryStreamAddressAndLossGate', '[FAIL] MaapCsr.ShapesAndCountRefusal', '[FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath']
+[caught] r-csr-high-word-unshifted
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapCsr.EveryStreamAddressAndLossGate', '[FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath']
+[ESCAPED] r-csr-select-listener
+    arm=maap rc=0 named-fail=False failing: []
+[caught] r-app-shares-adp-slots
+    arm=maap rc=1 named-fail=True failing: ['[FAIL] MaapHost.ExplicitAppComposition']
+reviewer defects escaped: 8
+rc=0 seconds=183

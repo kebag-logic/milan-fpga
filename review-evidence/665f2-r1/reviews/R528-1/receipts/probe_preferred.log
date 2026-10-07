@@ -1,0 +1,26 @@
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from ReviewerProbe
+[ RUN      ] ReviewerProbe.PreferredRangeUsedWhenLinkAlreadyUp
+[       OK ] ReviewerProbe.PreferredRangeUsedWhenLinkAlreadyUp (0 ms)
+[ RUN      ] ReviewerProbe.PreferredRangeSurvivesBeginWhileLinkDown
+$REVIEWS/665f2-r528-1-packet/scripts/probes/probe_preferred.cpp:43: Failure
+Expected equality of these values:
+  r.core.base
+    Which is: 160395285297165
+  kBase
+    Which is: 160395285233920
+Table B.7 note a: supplied range used, generate_address not called; base=91e0f000f80d
+
+[  FAILED  ] ReviewerProbe.PreferredRangeSurvivesBeginWhileLinkDown (0 ms)
+[----------] 2 tests from ReviewerProbe (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ReviewerProbe.PreferredRangeSurvivesBeginWhileLinkDown
+
+ 1 FAILED TEST
+rc=1
