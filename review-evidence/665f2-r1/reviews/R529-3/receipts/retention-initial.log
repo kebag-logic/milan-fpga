@@ -1,0 +1,28 @@
+PASS: all 192 round-2 mutation definitions, exact source plants and named obligations retained; one additional bounce control
+PASS: four complete disjoint partitions [49, 48, 48, 48]
+Named obligations: 198
+PASS: merge parents are exact reviewed round-2 head then authorized dev
+PASS: functions retained semantically from 938497af1dffd8a87edebf3ab93663914bf85e5e 17 in sw/firmware/ctrl/test/ctrl_arms.py
+PASS: functions retained semantically from 910f338dbd050f4efd2d96991ddcf928a583d55f 17 in sw/firmware/ctrl/test/ctrl_arms.py
+PASS exact dev bytes: sw/firmware/gtest/fw_rv32.py
+PASS exact dev bytes: sw/firmware/gtest/fw_rv32_selftest.py
+PASS exact dev bytes: sw/firmware/ctrl_nvm/test/nvm_rv32.py
+PASS exact dev bytes: .github/workflows/rtl-fast.yml
+PASS exact dev bytes: scripts/ci_events.py
+PASS exact dev bytes: scripts/run_all_suites.sh
+PASS exact dev bytes: scripts/measure_test_evidence.py
+PASS exact dev bytes: hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+PASS exact round-2 bytes: sw/firmware/ctrl/maap/maap_mbx.c
+PASS exact round-2 bytes: sw/firmware/ctrl/maap/maap_csr.c
+PASS exact round-2 bytes: sw/firmware/ctrl/app/ctrl_app.c
+PASS exact round-2 bytes: sw/firmware/ctrl/test/test_maap_mbx.cpp
+PASS exact round-2 bytes: sw/firmware/ctrl/test/test_maap_differential.cpp
+PASS exact round-2 bytes: sw/firmware/ctrl/test/maap_differential.py
+PASS exact round-2 bytes: sw/firmware/gtest/coverage.ratchet
+Preprocessed release byte equality True
+Preprocessed debug byte equality False
+Traceback (most recent call last):
+  File "<packet>/scripts/retention.py", line 51, in <module>
+    if debug: assert before==after
+                     ^^^^^^^^^^^^^
+AssertionError

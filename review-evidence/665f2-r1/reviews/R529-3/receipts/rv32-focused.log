@@ -1,0 +1,30 @@
+argv: ["python3", "scripts/focused.py", "rv32", "--repo", "<review-root>", "--out", "scratch/rv32-focused", "--jobs", "1"]
+CASE baseline-rv32 rc 0
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 12 objects
+  size (text data bss dec): 19280 0 170 19450
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+RESULT: PASS
+PASS: merged RV32 set includes all three MAAP objects; total 12
+CASE maap-unknown-runtime rc 1
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 12 objects
+  size (text data bss dec): 19332 0 170 19502
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __lshrdi3, __mulsi3, __review_unexpected_service, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+  [FAIL] symbols outside the C library and libgcc: __review_unexpected_service
+== ctrl RV32I freestanding build: checks: 1   failures: 1 ==
+RESULT: FAIL
+CAUGHT expected RV32 refusal: maap-unknown-runtime
+CASE hosted-assert-include-restored rc 1
+  [FAIL] maap.c does not build for RV32I:
+<packet>/scratch/rv32-focused/hosted-assert-include-restored/ctrl/maap/maap.c:6:10: fatal error: assert.h: No such file or directory
+    6 | #include <assert.h>
+      |          ^~~~~~~~~~
+compilation terminated.
+
+CAUGHT expected RV32 refusal: hosted-assert-include-restored
+DOCUMENTED SELECTOR PROBE: CTRL_RV32_CC alone ignored; MILAN_RV32_CC selects requested compiler
+PASS: exact-head RV32 objects and two independently planted controls; stale selector reproduced
+
+exit=0 elapsed_seconds=2.272

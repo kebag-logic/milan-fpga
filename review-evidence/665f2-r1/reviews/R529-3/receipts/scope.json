@@ -1,0 +1,234 @@
+{
+  "head": "8b78a8fd36864246336c71c061ac4f21d629952f",
+  "tree": "ee59c5cb2b3adc55d3907eac24f9a5e27466b6c8",
+  "prior_head": "938497af1dffd8a87edebf3ab93663914bf85e5e",
+  "dev_parent": "910f338dbd050f4efd2d96991ddcf928a583d55f",
+  "source_base": "021b9c1fb966e9a1a4acef6b5233edd3518f32a0",
+  "base_delta_files": [
+    ".github/workflows/rtl-fast.yml",
+    "REQUIREMENTS.md",
+    "docs/design/MAILBOX_SPLIT.md",
+    "docs/design/TIME_SYNC.md",
+    "docs/reference/FR_NFR.md",
+    "docs/reference/MAILBOX_CONTRACT.md",
+    "docs/testing/CI_WORKFLOWS.md",
+    "docs/testing/RUNNING_TESTS.md",
+    "docs/testing/TESTING.md",
+    "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+    "hdl/milan/mailbox/KL_mbx_pkg.sv",
+    "hdl/milan/mailbox/KL_mbx_rx.sv",
+    "scripts/ci_events.py",
+    "scripts/measure_test_evidence.py",
+    "scripts/measure_test_evidence_readers.py",
+    "scripts/measure_test_evidence_selftest.py",
+    "scripts/run_all_suites.sh",
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/app/ctrl_app.c",
+    "sw/firmware/ctrl/app/ctrl_app.h",
+    "sw/firmware/ctrl/host/mbx_model.c",
+    "sw/firmware/ctrl/maap/README.md",
+    "sw/firmware/ctrl/maap/maap.c",
+    "sw/firmware/ctrl/maap/maap.h",
+    "sw/firmware/ctrl/maap/maap_csr.c",
+    "sw/firmware/ctrl/maap/maap_csr.h",
+    "sw/firmware/ctrl/maap/maap_mbx.c",
+    "sw/firmware/ctrl/maap/maap_mbx.h",
+    "sw/firmware/ctrl/mbx/mbx_contract.h",
+    "sw/firmware/ctrl/test/ctrl_arms.py",
+    "sw/firmware/ctrl/test/ctrl_build.py",
+    "sw/firmware/ctrl/test/ctrl_mutants.py",
+    "sw/firmware/ctrl/test/maap_differential.py",
+    "sw/firmware/ctrl/test/maap_mutants.py",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/ctrl/test/test_maap.cpp",
+    "sw/firmware/ctrl/test/test_maap_debug.cpp",
+    "sw/firmware/ctrl/test/test_maap_differential.cpp",
+    "sw/firmware/ctrl/test/test_maap_mbx.cpp",
+    "sw/firmware/ctrl_nvm/README.md",
+    "sw/firmware/ctrl_nvm/test/nvm_rv32.py",
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/coverage.ratchet",
+    "sw/firmware/gtest/fw_rv32.py",
+    "sw/firmware/gtest/fw_rv32_selftest.py",
+    "sw/firmware/gtest/rv32_include/stdio.h",
+    "sw/firmware/gtest/rv32_include/string.h",
+    "sw/mailbox/gen_mailbox.py",
+    "sw/mailbox/mailbox.yaml",
+    "sw/mailbox/mailbox_emit.py",
+    "sw/mailbox/mailbox_model.py",
+    "tb/verilator/aaf/Makefile",
+    "tb/verilator/aaf/README.md",
+    "tb/verilator/aaf/sim_start.cpp",
+    "tb/verilator/aaf/start_mutants.py",
+    "tb/verilator/mbx/Makefile",
+    "tb/verilator/mbx/README.md",
+    "tb/verilator/mbx/mutants.py",
+    "tb/verilator/mbx/suite.hpp",
+    "tb/verilator/milan_dp/README.md",
+    "tb/verilator/milan_dp_gptp/README.md"
+  ],
+  "round3_delta": [
+    {
+      "path": ".github/workflows/rtl-fast.yml",
+      "head_blob": "cbb682646660899064727f1f58ec8f0611debba0",
+      "identical_to_dev": true
+    },
+    {
+      "path": "docs/design/TIME_SYNC.md",
+      "head_blob": "2bf61364e9286bd464048f2fb5dce55e05a1b11e",
+      "identical_to_dev": true
+    },
+    {
+      "path": "docs/testing/CI_WORKFLOWS.md",
+      "head_blob": "e3933a031fb344456c410ffb6b15fa4c36b897bf",
+      "identical_to_dev": true
+    },
+    {
+      "path": "docs/testing/RUNNING_TESTS.md",
+      "head_blob": "9e77c01cce6010019767637b55ca6447bf19e56a",
+      "identical_to_dev": true
+    },
+    {
+      "path": "docs/testing/TESTING.md",
+      "head_blob": "bbb713a8e09a6e4deb27ace139c94993ddaa3a39",
+      "identical_to_dev": true
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+      "head_blob": "eae99385c0eb45c54f6b009c721624b747a074f7",
+      "identical_to_dev": true
+    },
+    {
+      "path": "scripts/ci_events.py",
+      "head_blob": "344b49157687288d7089675aa73007ee23df2fa6",
+      "identical_to_dev": true
+    },
+    {
+      "path": "scripts/measure_test_evidence.py",
+      "head_blob": "8d217e54855063b6633ec10f61ff678bfc78dfd0",
+      "identical_to_dev": true
+    },
+    {
+      "path": "scripts/measure_test_evidence_readers.py",
+      "head_blob": "04f814bd394c3fd5dc18c46403907b0d1d56e96c",
+      "identical_to_dev": true
+    },
+    {
+      "path": "scripts/measure_test_evidence_selftest.py",
+      "head_blob": "4e16490a8b379c61f5827ad51cec9466901529d2",
+      "identical_to_dev": true
+    },
+    {
+      "path": "scripts/run_all_suites.sh",
+      "head_blob": "133a9c8f524d174e9cd47bb996ca1a65b85e48b8",
+      "identical_to_dev": true
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "head_blob": "6ddce6a6c2138217a5b14a4a98681b532b6b6d36",
+      "identical_to_dev": false
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap.c",
+      "head_blob": "e1d37ccf8b317273059f2f6049bc10afa159d52e",
+      "identical_to_dev": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_arms.py",
+      "head_blob": "f6b5048cbb02d099a318397ae1ebcee5076fffa7",
+      "identical_to_dev": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_build.py",
+      "head_blob": "e7956a2538c9676a35558fae75d3ed8f728069ff",
+      "identical_to_dev": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/maap_mutants.py",
+      "head_blob": "fde5c518127915160e03e81ce193eca9e14f16b3",
+      "identical_to_dev": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "head_blob": "943c79da839bbfbac32debddfa69d8bf3b56d0ae",
+      "identical_to_dev": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_maap.cpp",
+      "head_blob": "e232b7014344f6eb3bac2a20fd9b475f9ab65cab",
+      "identical_to_dev": false
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/README.md",
+      "head_blob": "7bab2bc4cbd2a18ab3a5c11ed5648eea0276c630",
+      "identical_to_dev": true
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/test/nvm_rv32.py",
+      "head_blob": "eba0021471af75e7f808134f422cfd64d7305515",
+      "identical_to_dev": true
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "head_blob": "66e863c1caff148c4fd4bf4c9f1cf732d1dc1222",
+      "identical_to_dev": true
+    },
+    {
+      "path": "sw/firmware/gtest/README.md",
+      "head_blob": "46d304f5f1dd760e106007a317d19c12ffd646c4",
+      "identical_to_dev": false
+    },
+    {
+      "path": "sw/firmware/gtest/fw_rv32.py",
+      "head_blob": "d33c89c41c798b9740c3bcc0ed769dce0b0e4a71",
+      "identical_to_dev": true
+    },
+    {
+      "path": "sw/firmware/gtest/fw_rv32_selftest.py",
+      "head_blob": "dd9e494ba8ffb7af492771c42eac2b87a3d4a228",
+      "identical_to_dev": true
+    },
+    {
+      "path": "sw/firmware/gtest/rv32_include/stdio.h",
+      "head_blob": "43a18799a64bb16276aa85b5dd66c4465805c19d",
+      "identical_to_dev": true
+    },
+    {
+      "path": "sw/firmware/gtest/rv32_include/string.h",
+      "head_blob": "f0029c7203d55f943c59805e448c711e61049195",
+      "identical_to_dev": true
+    },
+    {
+      "path": "tb/verilator/aaf/Makefile",
+      "head_blob": "36ddf3945885f7564ed0848839be344deb80b762",
+      "identical_to_dev": true
+    },
+    {
+      "path": "tb/verilator/aaf/README.md",
+      "head_blob": "5f31a5a0d94406efb6704efce8a850a032e184ca",
+      "identical_to_dev": true
+    },
+    {
+      "path": "tb/verilator/aaf/sim_start.cpp",
+      "head_blob": "f4dceb5573dce7af2418765f45fdd96fb041ae37",
+      "identical_to_dev": true
+    },
+    {
+      "path": "tb/verilator/aaf/start_mutants.py",
+      "head_blob": "9aac632df2f7625ed5e71ae9dd116e73fcb91f21",
+      "identical_to_dev": true
+    },
+    {
+      "path": "tb/verilator/milan_dp/README.md",
+      "head_blob": "3f962ae20e72a065e8e40f75cbd2b2cd1cbda769",
+      "identical_to_dev": true
+    },
+    {
+      "path": "tb/verilator/milan_dp_gptp/README.md",
+      "head_blob": "5fca90b3a01e7b9eb05c48802b5a7b0e1cd720e8",
+      "identical_to_dev": true
+    }
+  ],
+  "commits": "8b78a8fd36864246336c71c061ac4f21d629952f a71b8c8072c28c3511254484de5dda4e57e91d3f Keep MAAP release assertions independent of hosted SDK headers\na71b8c8072c28c3511254484de5dda4e57e91d3f 5901ab0869e0674bb18bbb4df60757f2711e5cd4 Pin consumed MAAP preference across link bounce after SDK merge\n5901ab0869e0674bb18bbb4df60757f2711e5cd4 938497af1dffd8a87edebf3ab93663914bf85e5e 910f338dbd050f4efd2d96991ddcf928a583d55f Merge dev 910f338d into F2 preserving RV32 checks and MAAP coverage\n910f338dbd050f4efd2d96991ddcf928a583d55f 79b086d44eb62d007d38e18f5618b98e8e2a33e6 04e1435a218908d2b12b4053e5dab2c2dcac2ebf Merge PR #683: Build the ctrl and ctrl_nvm RV32 objects against the pinned ilp32d SDK (#679)\n79b086d44eb62d007d38e18f5618b98e8e2a33e6 6a05347d4e2ec1dcb37d4e5806c7767537de3ce0 793dcd3f7867d85f8c1f5c9ef2b04dc9c2d9c5df Merge PR #681: Raise the measured per-suite time limits that slow hosted runners exceed (#673)\n6a05347d4e2ec1dcb37d4e5806c7767537de3ce0 6714181d0c8a16e2983f85b724f4d688f5111835 41bc9dac031526c1fd637ff1e801d3c6dc1260b4 Merge PR #680: AAF talker: admit capture from the talker's pair zero after a disable, so the first PDU carries a current presentation time (#667)\n04e1435a218908d2b12b4053e5dab2c2dcac2ebf 0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe fix: exclude local definitions from firmware runtime resolution\n0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe 6714181d0c8a16e2983f85b724f4d688f5111835 Fix RV32 firmware object checks for the pinned SDK\n793dcd3f7867d85f8c1f5c9ef2b04dc9c2d9c5df 26bd6334a7b8b2a8582b36ae4729a71620546c14 docs: align suite deadline references with measured limits\n26bd6334a7b8b2a8582b36ae4729a71620546c14 bd884631684ccf5060339efa92263d5c3e5c262c ci: raise measured per-suite time limits for slow runners\n41bc9dac031526c1fd637ff1e801d3c6dc1260b4 5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2 bd884631684ccf5060339efa92263d5c3e5c262c Merge dev bd884631 into 667-talker-start; move the start_mutants reader entry to measure_test_evidence_readers.py\n5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2 63f9ce62b51fd8a7da26bea0122642d48b3e4ad7 Keep the mutation disposition concise\n63f9ce62b51fd8a7da26bea0122642d48b3e4ad7 4adfd118efa5cb89195e0b401e20abf7272d217b Classify startup mutations as independent test controls\n4adfd118efa5cb89195e0b401e20abf7272d217b 423ac5d910d09ab189b3acc39ae3ae1d10d50b19 Fix AAF startup admission before the first channel pair"
+}

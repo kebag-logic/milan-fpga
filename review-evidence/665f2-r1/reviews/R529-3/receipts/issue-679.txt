@@ -1,0 +1,12 @@
+Issue #679: ctrl firmware RV32 arm fails against the CI-pinned ilp32d SDK and is skipped in firmware-unit
+[A10] Found by #665 lane FT (A547; confirmed by review R506-1). Pre-existing at dev `423ac5d9`.
+
+The ctrl firmware's `rv32` arm (`sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32`) fails against the CI-pinned SDK from `scripts/ci_rv32_sdk.py`. That SDK is `ilp32d` and has no `gnu/stubs-ilp32.h` for `-mabi=ilp32`. The arm passes with the host toolchain. The `firmware-unit` job skips it by name, so CI does not build the ctrl firmware for RV32.
+
+**Acceptance:**
+1. The ctrl firmware builds for the shipping core's ABI with the CI-pinned SDK: either it builds freestanding (no glibc stubs, matching bare metal), or the pinned SDK gains the matching multilib.
+2. The `rv32` arm runs in the hosted job, not skipped by name.
+3. The same check applies to `ctrl_nvm`'s RV32 arm.
+
+Relates to #665.
+

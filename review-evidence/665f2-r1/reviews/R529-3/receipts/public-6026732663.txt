@@ -1,0 +1,9 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6026732663
+[A558] TAKEN
+Branch: 665-f2-maap
+Head: 021b9c1fb966e9a1a4acef6b5233edd3518f32a0
+Executor: [A558]. Independent reviewers: [R528] (internal), [R529] (external).
+Authoritative references: the F2 assignment, #664, #678, IEEE 1722-2016 Annex B, REQUIREMENTS.md, FR_NFR.md, and MAILBOX_SPLIT.md.
+Interpreted scope: bare-metal MAAP core and FC mailbox adapter, per-interface allocation, shared-stimulus fabric comparison, and H-MAAP timing evidence. The default build and shipping image remain unchanged.
+Validation plan: firmware-unit tally and coverage; ctrl campaign; mailbox suite; builder bank; documentation gates; planted controls for new checks.
+Blockers: none identified yet; checking the existing allocation and mailbox interfaces against the assignment stop conditions.

@@ -1,0 +1,16 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6026839422
+[A10] **Round 2 for PR #685 (FC): the MAAP DEFEND destination.** F2 (STOP 6026825549) shows that IEEE 1722-2016 B.2.1 sends DEFEND unicast to the source MAC of the triggering PROBE. FC's `maap` row accepts only `91:E0:F0:00:FF:00`, so a DEFEND aimed at this entity is dropped and counted as FILTER_MISMATCH. That breaks B.3.2/Table B.7 conflict handling.
+
+1. **The `maap` row becomes:** (destination = `91:E0:F0:00:FF:00`) OR (destination = the receiving interface's own unicast MAC AND message_type = DEFEND), then the existing "overlaps own range" identity term. All other rules stay: tagged frames excluded, foreign unicast rejected, FILTER_MISMATCH and the token buckets.
+2. **Regenerate** the contract, SV, C and docs through the generator.
+3. **Tests.**
+   - A DEFEND to own unicast is delivered.
+   - A PROBE or ANNOUNCE to own unicast is rejected and counted.
+   - A DEFEND to a foreign unicast is rejected.
+   - A planted defect per new rule, on both bus adapters and the host model.
+4. **Requirements.** Update the MAAP row in `REQUIREMENTS.md` section 1 and `FR_NFR.md` (NFR-SCOUT-08, H-MAAP) to the same rule, citing B.2.1. Also update the "awaits the contract lane after FT" status lines (REQUIREMENTS.md 93-94, FR_NFR.md 427, 599) to say the filter is implemented by this PR. The owner approves the amended row before merge.
+
+Re-run the mbx suite and mutants, firmware-unit, the builder bank and the docs gates. Then post REVIEW READY with the head. Do not push.
+
+Do not edit or delete any existing comment.
+

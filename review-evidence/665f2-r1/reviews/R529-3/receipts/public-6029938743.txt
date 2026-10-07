@@ -1,0 +1,19 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6029938743
+[A10] F2 round 3 (merge only), PR #687 at `938497af`. R528-2 (6029935831) and R529-2 (6029833929) are both POSITIVE. #679 has merged, and dev is now `910f338d`.
+
+1. Merge dev `910f338d` with `--no-ff`. No rebase, no amend.
+   - It conflicts in `sw/firmware/ctrl/test/ctrl_arms.py`, `ctrl_build.py` and `test_ctrl_firmware.py`. Keep both sides: #679's freestanding ilp32d RV32 object builds and runtime-dependency checks, and this lane's MAAP arms, partitions and planted defects.
+   - Re-grade any check whose meaning changes, with the reason stated. Never drop a check.
+   - FC (#685) is not in dev yet. When it lands, a later trivial dev merge brings in only its merge commit.
+2. **R528-2-S1.** Pin the link-bounce case: a Begin! range, then PortOperational! up, down and up again; the base is drawn after the bounce. Plant `r2-saved-range-never-consumed` against it.
+3. **R528-2-R1.** In `sw/firmware/ctrl/README.md:25`, replace "The seven arms" with "The ten arms (and the optional `lwsrp` arm)".
+4. Re-run the whole firmware gate set at the merged head:
+   - `test_ctrl_firmware.py --require-rv32 --self-test`
+   - `test_ctrl_nvm.py --require-rv32`
+   - `fw_gtest` and `fw_coverage.py --check` at 100 %
+   - the full MAAP defect campaign and the differential
+   - `make -C tb/verilator/mbx`
+   - the docs gates
+
+Then post REVIEW READY (or STOP) with the head.
+

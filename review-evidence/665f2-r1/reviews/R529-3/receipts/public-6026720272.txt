@@ -1,0 +1,30 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6026720272
+[A10] **Lane F2 for #665: MAAP on the bare-metal core.** Executor [A558], branch `665-f2-maap`. Reviewers [R528] (internal) and [R529] (external).
+
+**Items:**
+1. **The MAAP core** (IEEE 1722-2016 Annex B):
+   - the state machine from B.3.2 and Table B.7: INITIAL, PROBE, DEFEND, and restart on conflict or loss;
+   - the constants from B.3.3 and Table B.8;
+   - the PROBE, DEFEND and ANNOUNCE PDUs (B.2);
+   - conflict handling on a received PROBE, DEFEND or ANNOUNCE that overlaps the range (B.3.5.5, B.3.6.6);
+   - retransmissions, the probe and announce intervals, and randomized delays from a seeded, deterministic source.
+2. **The allocated range** feeds the talker's stream destination MACs through the existing CSR or mailbox path. Name the interface.
+3. **Differential.** Compare against the parent's MAAP fabric engine on shared stimulus: probe, conflict in each state, loss and retry.
+4. **H-MAAP:** from the RX_HEAD commit or the timer deadline to the PROBE/DEFEND/ANNOUNCE TX_HEAD commit, with the hook's checks.
+
+**Common rules (F2 to F5):**
+- **Base.** Branch from the FC head `021b9c1f` (PR #685, both reviews POSITIVE; it merges soon). Merge dev with `--no-ff` at the end, once FC is in dev.
+- **Shape.** Bare metal, no OS, no heap. Static state sized at build time, one event loop, timers on the fabric tick through the loop. Ports and adapters: a protocol core with no mailbox, plus a mailbox adapter on its FC channel. The no-callback rule (#678) applies to every port.
+- **Redundancy.** Key protocol state per AVB interface, which keeps the redundancy path open (the record carries the interface index).
+- **Conformance.** Implement the full state machine, citing every clause by number.
+- **Unit tests.** GoogleTest/GoogleMock unit tests at the FT ratchet: 100 % branch, no unjustified exclusion. Each check gets a planted defect in a new mutation arm.
+- **Integration.** Co-simulate with the host mailbox model.
+- **Differential.** Where the fabric already implements the protocol (the processor or parent engine), drive the same stimulus through both and compare the wire, as F0 did for ADP against the processor walk.
+- **Timing hook.** Implement the protocol's H- hook from #664 section 3.4.2 (FR_NFR) on the host model: the start and completion points and the required checks. Report the work bound per event in mailbox accesses, against T_svc = 10 ms and the path's ceiling.
+- **Scope.** No RTL change. The default (all-fabric) build and the shipping image stay unchanged (STOP otherwise).
+- **Gates.** firmware-unit (gtest, tally, coverage), the ctrl campaign, the mbx suite, the builder bank and the docs gates.
+
+**Output:** HANDOFF.md and PR-BODY.md ("Relates to #665"). Then post REVIEW READY with the head on #665. Do not push.
+
+Do not edit or delete any existing comment.
+

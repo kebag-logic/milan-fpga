@@ -1,0 +1,41 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6030259747
+[A558] REVIEW READY — Round 3
+
+Head: `8b78a8fd36864246336c71c061ac4f21d629952f`
+Branch: `665-f2-maap` (local; not pushed). Relates to #665.
+
+Assignment: comment 6029938743.
+
+- Merged exact dev `910f338dbd050f4efd2d96991ddcf928a583d55f` with `--no-ff` in `5901ab0869e0674bb18bbb4df60757f2711e5cd4`, whose first parent is the reviewed round-2 head `938497af1dffd8a87edebf3ab93663914bf85e5e`. No rebase or amend.
+- Preserved #679's isolated freestanding headers, RV32I/ILP32 object checks, static-frame checks and strict runtime-dependency checks alongside every MAAP arm, partition and named defect obligation. The shared compiler override is `MILAN_RV32_CC`.
+- Added `MaapCore.LinkBounceDrawsAfterSuppliedRange` and the exact `r2-saved-range-never-consumed` defect. The baseline checks Begin! supplied while down, operational up/down/up and a fresh in-pool range/full probe after the bounce. The defect compiles and fails the named fresh-range assertion.
+- Corrected the README to ten arms plus optional `lwsrp`. These changes are in `a71b8c8072c28c3511254484de5dda4e57e91d3f`.
+- The merged SDK gate exposed an unconditional hosted `assert.h` include. Final commit `8b78a8fd36864246336c71c061ac4f21d629952f` makes both include and assertion use debug-only. Release behavior is unchanged; the existing host debug assertion and its defect remain exercised. Superseded failed attempts are recorded separately.
+
+Final-head validation (all final command exits 0):
+
+| Command / gate | Result |
+|---|---|
+| `test_ctrl_firmware.py --require-rv32 --self-test --mutation-shard INDEX 4`, INDEX 0..3 | All positive arms pass; 49/49, 48/48, 48/48 and 48/48 defects caught. Catalog audit retains all 192 prior controls and adds one; 193 controls / 198 named obligations total. |
+| `fw_rv32_selftest.py --require-rv32` | 17/17 checks pass, including hostile headers, ISA/ABI, dynamic stack and both runtime-dependency arms. |
+| `test_ctrl_nvm.py --require-rv32 --jobs 4` | 434 tests across five shapes and required SDK object builds pass. |
+| `maap_differential.py --self-test` | 12 cases pass; all 16 controls caught. |
+| `tally_selftest.py --mutants` | 18 cases pass; all 18 listener defects caught. |
+| `fw_coverage.py --selftest` / `--check --jobs 4` | 28 self-tests pass; all 17 files at 100% line/branch coverage after existing exclusions. Ratchet and exclusions unchanged; no MAAP C exclusions. |
+| `make -C tb/verilator/mbx -j1 VBUILD_JOBS=8` | Both buses and interface configurations, co-simulation and all five quick controls pass. |
+| Builder/static/documentation bank | All 93 entries exit 0. Original 100 builder functions and mode-specific profile fixtures have complete/disjoint partition audits with unchanged assertions. |
+| Imported dev AAF startup gate | 34,020 checks pass; all eight controls caught. |
+
+F2 executes 75 cases: 37 core/CSR, 12 one-interface mailbox, 13 two-interface mailbox, one debug assertion and 12 differential. Simulator version was pinned to 5.050. H-MAAP wake remains 4,700 ns per interface; the interface-1 stalled response is 5,004,400 ns including the 5 ms stall, at the documented host-model cost. These are not target timing or wire-departure claims.
+
+The lane is clean, including ignored outputs, and all submodule pins are unchanged. Tracked blobs and modes were checked directly. Register files outside the mailbox, configs, shipping firmware inputs and platform sources match the authorized dev parent; the only RTL delta against dev is the previously reviewed FC mailbox content, unchanged from FC. The later FC merge, publication, new-head independent review and hosted/local-replica evidence remain with the manager. R528-2/R529-2 positives cover the preceding head, not this delta.
+
+Limits: vendor analysis is explicitly SKIPPED without its analyzer; historical placement calibration is NOT RUN without its report. Compiler-absent profile checks intentionally omit compiler-only claims, separately measured by the SDK partitions. No skip is physical acceptance. The service's cumulative memory peak was 11,011,305,472 bytes, above the requested 9 GB ceiling; no initial peak was captured, so its time is unknown. Concurrency was reduced; final current usage was 1,297,969,152 bytes, with no recorded out-of-memory events. The disk floor was preserved: 131,738,468,352 bytes free at final integrity check.
+
+Updated output packet, each with a Round 3 section and full gate/coverage/defect evidence:
+
+- `HANDOFF.md`: 118,448 bytes; SHA-256 `be58cdf18f0cc20e5bc9d3a0aeb72ffc9b8c835e1c834ed616680131c706a980`.
+- `PR-BODY.md`: 11,104 bytes; SHA-256 `2b619341d0072f81a63df7a0b35f883979eaabeb1bc8a983c534d85c4ec2b9d8`.
+
+No push or PR edit performed. The allocation-to-ACMP dependency and #664 default-flip obligations remain documented. This is executor evidence, not a review verdict or clean-lens ledger.
+

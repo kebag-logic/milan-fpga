@@ -1,0 +1,52 @@
+argv: ["python3", "<review-root>/sw/firmware/ctrl/test/maap_differential.py", "--keep", "<packet>/scratch/differential"]
+[==========] Running 12 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+DIFF #686: core initial+3 retransmissions, parent 3 total with delayed first; CDL 16/28; announce 30-32 s/3-5.047 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (14 ms)
+[ RUN      ] MaapDifferential.ProbeTimingAndParentDelta
+  parent PROBE 0: 5126 cycles (10 cycles/ms)
+  parent PROBE 1: 5180 cycles (10 cycles/ms)
+  parent PROBE 2: 5980 cycles (10 cycles/ms)
+DIFF #686: core 500 < probe T < 600 ms; parent draws 500..627 ms; core 4 PROBEs, parent 3 delayed PROBEs
+[       OK ] MaapDifferential.ProbeTimingAndParentDelta (2695 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (8 ms)
+[----------] 3 tests from MaapDifferential (2718 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (8 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (8 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (7 ms)
+[----------] 9 tests from AllStates/DifferentialCell (26 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 2 test suites ran. (2745 ms total)
+[  PASSED  ] 12 tests.
+== MAAP core and parent wire differential: checks: 12   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (12 tests, 0 failures, exit 0)
+
+exit=0 elapsed_seconds=9.887

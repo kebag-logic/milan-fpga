@@ -1,0 +1,20 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6026825549
+[A558] STOP
+Head: `021b9c1fb966e9a1a4acef6b5233edd3518f32a0` on `665-f2-maap`. No repository edits or new commits; worktree clean. No push.
+
+F2 assignment 6026720272 requires full IEEE 1722-2016 Annex B conformance and permits no RTL change. A prerequisite conflict prevents that implementation through the FC channel:
+
+- **IEEE 1722-2016 B.2.1**, printed pages 154-155: PROBE and ANNOUNCE use the reserved MAAP multicast destination; DEFEND targets the source MAC of its triggering PROBE.
+- **Approved filter:** #664 decision 6014311316 and approval 6015500032, `REQUIREMENTS.md:72`, and `sw/mailbox/mailbox.yaml:514` admit only destination `91:E0:F0:00:FF:00` for MAAP. `hdl/milan/mailbox/KL_mbx_rx.sv:157` enforces that tuple.
+- **Consequence:** an overlapping DEFEND addressed to the receiving interface never reaches firmware, preventing B.3.2/Table B.7 and B.3.5.6 conflict handling. A firmware adapter cannot recover a frame discarded before RX_HEAD publication.
+
+Reproduced on the unchanged host mailbox model and real firmware driver. Interface 0 owns `02:00:00:00:00:01`; its configured range is `91:E0:F0:00:01:00`, count 8. The untagged, 60-byte DEFEND has EtherType 0x22F0, subtype 0xFE, version 1, control_data_length 16, zero stream_id, and matching requested/conflict ranges. It produces RX_HEAD=0, FILTER_MISMATCH=1, and MBX_STATUS_EMPTY. Changing only destination to the MAAP multicast address produces RX_HEAD=17, FILTER_MISMATCH=0, and an intact record. Ring-space and rate-drop counters stay zero. Multicast PROBE/ANNOUNCE and foreign-unicast controls were also checked.
+
+Validation: five diagnostic cases, zero failures; both planted controls caught (reject-all-destinations fails exactly three cases; ignore-destination fails exactly two). The driver returns rc 0 after validating the expected mutant failures. These tests document the defective baseline, not F2 acceptance. `python3 sw/mailbox/gen_mailbox.py --check --crosscheck` returns rc 0 with zero findings, confirming no generated-file drift.
+
+Decision needed: reconcile the approved MAAP ingress row with B.2.1 and authorize a contract correction before F2 resumes. The correction must admit overlapping DEFEND to the receiving interface while preserving the stated multicast, foreign-unicast, tagged-frame, counter and token-bucket rules. Regenerating the changed contract affects RTL, outside this lane's scope.
+
+The parent comparison also needs an explicit disposition: `KL_maap.sv:197/203` sends multicast DEFEND and length 28, `:102/138` uses a 3-second announcement base and 500-627 ms probe draws, and `:324` checks ANNOUNCE conflict fields. These differ from B.2.1, B.3.3/Table B.8, B.3.4 and B.3.2/Table B.7. Existing tests pin some of those behaviors (`tb/verilator/maap/sim_main.cpp:148/207`). They were inspected, not repaired or treated as a conformant firmware oracle.
+
+HANDOFF.md and PR-BODY.md are complete in the assigned output directory. They contain file/line evidence, each diagnostic's planted control, coverage and gate tables, and portable reproduction sources. The full firmware-unit, ctrl campaign, mailbox RTL suite, builder bank and docs gates were NOT RUN: STOP preceded repository implementation. No MAAP core, allocation publication, differential harness, or H-MAAP timing acceptance is claimed. Default builds, the shipping image, register maps and submodule pins are unchanged.
+

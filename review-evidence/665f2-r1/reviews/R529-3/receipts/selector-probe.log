@@ -1,0 +1,9 @@
+argv: ["python3", "<packet>/scripts/selector_probe.py", "--repo", ".", "--out", "<packet>/scratch/selector"]
+Exact-head README:155: CTRL_RV32_CC=riscv64-elf-gcc python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+Documented selector with no default => NO COMPILER
+Supported selector => requested riscv64-elf-gcc
+Documented selector with competing default => fallback-gcc
+Supported selector => requested riscv64-elf-gcc
+REPRODUCED: the executable README override does not choose the specified compiler
+
+exit=0 elapsed_seconds=0.164

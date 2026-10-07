@@ -1,0 +1,12 @@
+argv: ["python3", "<packet>/scripts/integrity.py", "."]
+PASS candidate: head 8b78a8fd36864246336c71c061ac4f21d629952f; 1161 tracked blobs match raw bytes/modes and exact stage-0 index; 4 gitlinks
+PASS protocol-processor: head ead8036035affd53ef4b29979190f2f4f67084c0; 558 tracked blobs match raw bytes/modes and exact stage-0 index; 0 gitlinks
+PASS registered submodule protocol-processor True
+PASS gptp-processor: head 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d; 104 tracked blobs match raw bytes/modes and exact stage-0 index; 0 gitlinks
+PASS registered submodule gptp-processor True
+PASS third_party/verilog-axis: head 48ff7a7e2ef782cf778d47910cf85835c64b1bce; 214 tracked blobs match raw bytes/modes and exact stage-0 index; 0 gitlinks
+PASS registered submodule third_party/verilog-axis True
+External optional submodule remains uninitialized; required gitlinks verified.
+PASS exact head/tree, blobs, modes and index verified
+
+exit=0 elapsed_seconds=0.215

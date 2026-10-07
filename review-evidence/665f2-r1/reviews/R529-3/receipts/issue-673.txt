@@ -1,0 +1,26 @@
+Issue #673: Hosted shard 2/5: milan_dp_mclk exceeds the 1800 s suite limit on slow runners
+[A10] The hosted `Verilator shard 2/5` job times out on `milan_dp_mclk` on slow runners. The suite is cut at the default 1800 s per-suite limit (`scripts/run_all_suites.sh:247`), and the job reports an ACCOUNTING FAILURE. No check fails: the result is unknown.
+
+**Measured.** Each row is a hosted `rtl.yml` run on 2026-10-05: the suite's wall time, and the time of `aaf_clock_meter` in the same job as a measure of runner speed.
+
+| Run | Branch | `aaf_clock_meter` | `milan_dp_mclk` |
+|---|---|---:|---|
+| 37307019985 | 661 | 726 s | 1116 s PASS |
+| 37318425944 | 665 F1 | 1061 s | 1576 s PASS |
+| 37326153950 | 658 | 1061 s | 1603 s PASS |
+| 37329336937 | dev | 1046 s | 1800 s TIMEOUT |
+| 37332840506 | 665 F1 | 1052 s | 1800 s TIMEOUT |
+| 37334514838 | 665 F0 | 934 s | 1397 s PASS |
+| 37337355271 | dev | 725 s | 1115 s PASS |
+| 37350574309 | 665 F0 | 1043 s | 1800 s TIMEOUT (twice) |
+| 37352638671 | 665 F1 | 1047 s | 1800 s TIMEOUT |
+
+Runner speed varies by about 1.45x. On a slow runner the suite needs about 1,600-1,900 s, at or over the limit. The timeouts hit dev too, so they are not caused by a change. `milan_dp` (3600 s) and `milan_dp_gptp` (5400 s) already have their own limits.
+
+**Acceptance.**
+1. `milan_dp_mclk` gets its own limit in `scripts/run_all_suites.sh`. Use 3600 s unless a measurement supports a smaller value. Mirror the change in `scripts/measure_test_evidence.py` and its selftest.
+2. Alternatively, rebalance the shard so the job's total stays under its job timeout. Either way, record the hosted wall times on the PR.
+3. No check, count or campaign changes.
+
+The change touches CI scripts, so it voids every act in flight. Land it between merge rounds.
+
