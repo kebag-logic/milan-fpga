@@ -1,0 +1,44 @@
+--- a/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-07 07:01:13.000000000 +0200
++++ b/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-07 07:55:38.232000000 +0200
+@@ -953,7 +953,7 @@
+   wire [LB_HOLDW_C-1:0] rc_hold_n_w = rc_short_w
+                           ? LB_HOLDW_C'(LB_LEFT_C - 32'(rc_left_w)) : '0;
+   wire [LB_DROPW_C-1:0] rc_drop_n_w = rc_over_w
+-                          ? LB_DROPW_C'(32'(rc_left_w) - LB_LEFT_C) : '0;
++                          ? LB_DROPW_C'(0) : '0;
+   //! ...and its action, taken by every pair of the stream in the walks that
+   //! start next, so no walk emits a frame half re-centred
+   wire walk_start_w = (st_r == CM_IDLE_S) && tick_pend_r;
+--- a/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-07 07:01:13.000000000 +0200
++++ b/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-07 07:55:38.247986747 +0200
+@@ -951,7 +951,7 @@
+   wire rc_over_w      = (32'(rc_left_w) > LB_LEFT_C);
+   //! ...short of it, one held pop per missing event
+   wire [LB_HOLDW_C-1:0] rc_hold_n_w = rc_short_w
+-                          ? LB_HOLDW_C'(LB_LEFT_C - 32'(rc_left_w)) : '0;
++                          ? LB_HOLDW_C'(0) : '0;
+   wire [LB_DROPW_C-1:0] rc_drop_n_w = rc_over_w
+                           ? LB_DROPW_C'(32'(rc_left_w) - LB_LEFT_C) : '0;
+   //! ...and its action, taken by every pair of the stream in the walks that
+--- a/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-07 07:01:13.000000000 +0200
++++ b/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-07 07:55:38.263609851 +0200
+@@ -892,7 +892,7 @@
+       ((LB_QPTRW_C+1)'(act_drop_r[32'(pop_pair_w) / LB_PPS_C]) < pop_cnt_w)
+           ? (LB_QPTRW_C+1)'(act_drop_r[32'(pop_pair_w) / LB_PPS_C]) : pop_cnt_w - 1'b1;
+   wire pop_dup_w = pop_visit_w && q_primed_r[pop_pair_w]
+-                   && q_fed_r[pop_pair_w] && (pop_cnt_w == '0);
++                   && q_fed_r[pop_pair_w] && ((pop_cnt_w == '0) || pop_hold_w);
+   //! the visit's read pointer, past a dropped event, and what it consumes
+   wire [LB_QPTRW_C-1:0] pop_rd_w = q_rd_r[pop_pair_w]
+                                    + LB_QPTRW_C'(pop_drop_n_w);
+--- a/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-07 07:01:13.000000000 +0200
++++ b/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-07 07:55:38.278766236 +0200
+@@ -961,7 +961,7 @@
+   //! saturating slip evidence: dups are one per starved fed pair per tick,
+   //! skips are drop-oldest (queue full) plus refused commits (skid overflow,
+   //! not reachable at wire beat spacing) - up to 3 events in one cycle
+-  wire [1:0] skip_inc_w = 2'(push_drop_w) + 2'(skid_ovf0_w)
++  wire [1:0] skip_inc_w = 2'(pop_act_w && (pop_drop_n_w != '0)) + 2'(push_drop_w) + 2'(skid_ovf0_w)
+                           + 2'(skid_ovf1_w);
+   wire [16:0] skip_sum_w = 17'(lb_skip_cnt_o) + 17'(skip_inc_w);
+   wire [16:0] dup_sum_w  = 17'(lb_dup_cnt_o) + 17'(pop_dup_w);

@@ -1,0 +1,17 @@
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +5.057..+5.059 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.972..8.974 (out of band 0), end-to-pop clearance 0.026 ticks
+  [FAIL] [TWO-PULL] second hold starts on its declared side of recovery
+  info: [FIRST-PULL]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.105..+5.113 ticks, render fill 14..14 delay 8.022..8.026, on the law
+MARGINS: [FIRST-PULL] empty 5.105280 full 5.965440 ticks
+  info: [FIRST-PULL]: settle recentre 0.1741 s after the start
+  info: [SECOND-PULL]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.055..+5.059 ticks, render fill 14..14 delay 8.968..8.974, on the law
+MARGINS: [SECOND-PULL] empty 5.055360 full 6.017280 ticks
+  info: [SECOND-PULL]: settle recentre 0.2178 s after the start
+  [FAIL] [RESIDUAL] second pull in recovery adds no action got=1 exp=0
+  [FAIL] [RESIDUAL] second pull leaves a gradable render-law shift
+RECOVERY: action 4.774061420 rearmed 4.775394780 duration 0.001333360 s quiet_ticks 64
+  [FAIL] [RECOVERY] re-arms after a full 2048-tick quiet dwell
+RECOVERY: action 5.091832900 rearmed 5.093166220 duration 0.001333320 s quiet_ticks 64
+  [FAIL] [RECOVERY] re-arms after a full 2048-tick quiet dwell
+TWO-PULL: first 4.600000000 action 4.774061420 second 4.874061420 inside_recovery 0 second_actions 1 final on the law
+== follow_ring: checks: 14   failures: 5 ==
+RESULT: FAIL

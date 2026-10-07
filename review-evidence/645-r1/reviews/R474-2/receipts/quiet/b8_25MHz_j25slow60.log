@@ -1,0 +1,18 @@
+  info: INTERNAL: 2 slips in 8.639 s (beat 3.519 s); margin at the set +3.118..+6.042 ticks
+  info: t=8.639000 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 6.657 s after the set; trim -5.875 ppm at the end
+  info: render recentre at 0.0427 s after the set, -6.6144 s from LOCKED
+  info: render recentre at 10.7532 s after the set, +4.0961 s from LOCKED
+  info: INTERNAL, last second      [   7.639,    8.639) s: ring slips 0+0, margin +3.118..+6.250 ticks; render n 8000 fill 10..13 (off-law 8000), delay 4.032..7.162 (out of band 8000), end-to-pop clearance 0.000 ticks NOT GRADABLE
+  info: set to LOCKED              [   8.639,   15.296) s: ring slips 0+0, margin +1.682..+5.965 ticks; render n 53254 fill 10..14 (off-law 49344), delay 4.013..8.867 (out of band 49372), end-to-pop clearance 0.000 ticks NOT GRADABLE
+  info: LOCKED to the settle       [  15.296,   19.392) s: ring slips 0+0, margin +1.651..+5.829 ticks; render n 32768 fill 10..13 (off-law 32768), delay 4.566..7.465 (out of band 32768), end-to-pop clearance 0.000 ticks NOT GRADABLE
+  info: settle to the hold's end   [  19.392,   21.639) s: ring slips 0+0, margin +5.651..+8.531 ticks; render n 17972 fill 13..16 (off-law 11742), delay 7.563..10.445 (out of band 11734), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: [B8]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.651..+8.531 ticks, render fill 13..16 delay 7.563..10.443, not gradable
+MARGINS: [B8] empty 5.650560 full 2.545920 ticks
+  info: [B8]: settle recentre 10.7531 s after the start, 4.0960 s after LOCKED
+ERROR-DISTRIBUTION: INTERNAL before switch window 8.139000000 8.639000000 samples 24000 axis_hz 25000000 histogram -1:50 0:23896 1:54
+ERROR-DISTRIBUTION: AAF after settle window 19.392215780 21.639000020 samples 107844 axis_hz 25000000 histogram -1:2672 0:100951 1:4221
+RESULT-645: phase 0.2500 jitter 60.0 us tail 0.0 us p 0e+00: slips set-to-settle 0 (declared bound 3), after the settle 0, margin at LOCKED +1.668..+4.552, after the settle +5.651..+8.531 ticks, LOCKED 6.66 s, settle +4.096 s after LOCKED, render after the settle fill 13..16 delay 7.563..10.443 (not gradable)
+  info: [B8] render law not graded: the run's arrivals are late by up to 60.0 us
+== follow_ring: checks: 17   failures: 0 ==
+RESULT: PASS
