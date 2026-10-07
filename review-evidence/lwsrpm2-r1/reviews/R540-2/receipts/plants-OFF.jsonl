@@ -1,0 +1,17 @@
+{"label": "x01-no-commit-replay", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3892 passes, 4 failures in 85ms."}
+{"label": "x02-no-poll-replay", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 69ms."}
+{"label": "x03-no-registrar-rollback", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 81ms."}
+{"label": "x04-no-leavetimer-retry", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 79ms."}
+{"label": "x05-drop-map-error", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 80ms."}
+{"label": "x06-partial-publish", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 74ms."}
+{"label": "x07-zero-attr-length-accepted", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 70ms."}
+{"label": "x08-vid-off-by-one", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3887 passes, 9 failures in 83ms."}
+{"label": "x09-rjoinmt-lv-join-only", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3894 passes, 2 failures in 206ms."}
+{"label": "x10-lv-no-timer-stop", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 79ms."}
+{"label": "x11-dangling-tail", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": true, "tail": "==1816761==ABORTING"}
+{"label": "x12-destroy-leaks-queue", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 851ms."}
+{"label": "x13-map-value-not-copied", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3894 passes, 2 failures in 78ms."}
+{"label": "x14-later-known-type-skip", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3644 passes, 247 failures in 74ms."}
+{"label": "x15-domain-vid-ignored", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3892 passes, 4 failures in 96ms."}
+{"label": "x16-changed-in-map-dropped", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 68ms."}
+{"label": "x17-replay-ignores-retention", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 3896 passes in 50ms."}

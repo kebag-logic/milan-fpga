@@ -1,0 +1,21 @@
+PASS p1a-ready-accepted
+PASS p1a-leaveall-pdu-accepted
+INFO p1a listener_inds=1 last_decl=2
+FAIL p1a-changed-declaration-indicated
+INFO p1a after 5 more JoinIn(AskingFailed): listener_inds=1 last_decl=2
+FAIL p1a-application-eventually-sees-asking-failed
+PASS p1b-leaveall-only-accepted
+INFO p1b listener_inds=1 last_decl=2
+FAIL p1b-changed-declaration-indicated
+PASS p1c-talker-accepted
+PASS p1c-leaveall-talker-accepted
+INFO p1c talker_inds=1 last_frame=100
+FAIL p1c-changed-tspec-indicated
+INFO p1d talker_inds=2 last_frame=200
+PASS p1d-control-in-change-indicated
+INFO p2 rx=-22 listener_inds=0
+FAIL p2-later-unknown-stream-message-skipped-by-list-length
+INFO p2b rx=-22 listener_inds=0
+FAIL p2b-later-unknown-stream-message-trailing-octets
+PASS p2c-control-well-formed-unknown-skipped
+probe failures: 6

@@ -1,0 +1,51 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded/OFF
+OFF: ['cmake', '-S', '$REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded', '-B', '$REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded/OFF', '-DLWSRP_ROOT=$REVIEWS/r540-2-lwsrpm2', '-DLWSRP_MILAN=OFF']; rc=0
+[ 18%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/core/mrp_pdu.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/core/mrp_mad.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$REVIEWS/r540-2-lwsrpm2/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+OFF: ['cmake', '--build', '$REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded/OFF', '--parallel', '2']; rc=0
+OFF: ['$REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded/OFF/probe']; rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded/ON
+ON: ['cmake', '-S', '$REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded', '-B', '$REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded/ON', '-DLWSRP_ROOT=$REVIEWS/r540-2-lwsrpm2', '-DLWSRP_MILAN=ON']; rc=0
+[  9%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/core/mrp_pdu.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir$REVIEWS/r540-2-lwsrpm2/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$REVIEWS/r540-2-lwsrpm2/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+ON: ['cmake', '--build', '$REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded/ON', '--parallel', '2']; rc=0
+ON: ['$REVIEWS/lwsrpm2-r540-2-packet/scratch/embedded/ON/probe']; rc=0
+Embedded source list: both profile links and dispatch probes pass

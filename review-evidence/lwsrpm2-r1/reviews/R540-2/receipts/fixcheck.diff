@@ -1,0 +1,24 @@
+--- $REVIEWS/r540-2-lwsrpm2/src/core/mrp_mad.c	2026-10-07 10:01:02.921000000 +0200
++++ scratch/tree-fixcheck/src/core/mrp_mad.c	2026-10-07 10:08:06.139271830 +0200
+@@ -956,7 +956,7 @@
+         return;
+     }
+     struct mrp_attr_inst *previous = find_attr(rc->ps, rc->app->ops, attr_type, attr_val);
+-    bool changed_in = previous && previous->reg == MRP_REG_STATE_IN &&
++    bool changed_in = previous && previous->reg != MRP_REG_STATE_MT &&
+         memcmp(previous->attr_val, attr_val, attr_store_len(rc->app->ops, attr_type)) != 0;
+     bool declares = attr_event == MRP_ATTR_EVENT_NEW || attr_event == MRP_ATTR_EVENT_JOININ ||
+                     attr_event == MRP_ATTR_EVENT_JOINMT;
+--- $REVIEWS/r540-2-lwsrpm2/src/core/mrp_pdu.c	2026-10-07 10:01:02.921000000 +0200
++++ scratch/tree-fixcheck/src/core/mrp_pdu.c	2026-10-07 10:08:06.141255678 +0200
+@@ -143,6 +143,10 @@
+         }
+         uint8_t expected = ops->attr_len(type);
+         bool unknown = !expected && later;
++        if (unknown && msrp) {
++            off = end;
++            continue;
++        }
+         if ((!expected && !unknown) || !alen || (expected && expected != alen)) {
+             return -SHLAN_ERROR_INVALID;
+         }
