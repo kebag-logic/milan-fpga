@@ -1,0 +1,18 @@
+# gate check_cpp_idiom
+# cwd $REVIEWS/r528-4-665f2
+# head 5968967e19411428b71dde5c4712d4a8fa528cfb
+# cmd python3 scripts/check_cpp_idiom.py
+# start 2026-10-07T09:13:32Z
+cpp idiom: 276 first-party translation units, 117 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+# maxrss_kb 22288
+# end 2026-10-07T09:13:34Z wall_s 2 rc 0

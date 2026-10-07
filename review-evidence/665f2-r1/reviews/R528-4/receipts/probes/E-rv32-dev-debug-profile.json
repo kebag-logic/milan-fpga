@@ -1,0 +1,28 @@
+{
+ "name": "E-rv32-dev-debug-profile",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/ctrl/test/ctrl_build.py",
+ "planted_diff": "diff --git a/sw/firmware/ctrl/test/ctrl_build.py b/sw/firmware/ctrl/test/ctrl_build.py\nindex 262044677..4b0bc09de 100644\n--- a/sw/firmware/ctrl/test/ctrl_build.py\n+++ b/sw/firmware/ctrl/test/ctrl_build.py\n@@ -39,7 +39,7 @@ HOST = (\"host/mbx_model.c\", \"host/mbx_plat_host.c\")\n INCLUDE_DIRS = (\"mbx\", \"wire\", \"host\", \"port\", \"loop\", \"adp\", \"maap\", \"app\", \"test\")\n C_FLAGS = (\"-std=c11\", \"-O2\", \"-DNDEBUG\", \"-Wall\", \"-Wextra\", \"-Werror\", \"-pedantic\")\n \n-RV32_FLAGS = (\"-march=rv32i\", \"-mabi=ilp32\", \"-ffreestanding\", \"-fno-stack-protector\", \"-Os\", \"-DNDEBUG\",\n+RV32_FLAGS = (\"-march=rv32i\", \"-mabi=ilp32\", \"-ffreestanding\", \"-fno-stack-protector\", \"-Os\",\n               \"-std=c11\", \"-Wall\",\n               \"-Wextra\", \"-Werror\", \"-pedantic\", \"-fstack-usage\", \"-DCTRL_MBX_BASE=0x80000000u\")\n #: Runtime interfaces an object-only check may leave undefined, including the\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "--require-rv32",
+  "--jobs",
+  "2"
+ ],
+ "rc": 0,
+ "expect": "pass",
+ "matched_expectation": true,
+ "wall_s": 64,
+ "fail_lines": [],
+ "tail": [
+  "    == ADP debug re-entry: checks: 122   failures: 0 ==",
+  "    RESULT: PASS",
+  "    verdict: PASS (122 tests, 0 failures, exit 0)",
+  "[ok] arm reentry_release",
+  "    == ADP release re-entry: checks: 122   failures: 0 ==",
+  "    RESULT: PASS",
+  "    verdict: PASS (122 tests, 0 failures, exit 0)",
+  "test_ctrl_firmware: PASS"
+ ]
+}

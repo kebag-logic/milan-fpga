@@ -1,0 +1,37 @@
+# gate fw_coverage_selftest
+# cwd $REVIEWS/r528-4-665f2
+# head 5968967e19411428b71dde5c4712d4a8fa528cfb
+# cmd python3 sw/firmware/gtest/fw_coverage.py --selftest
+# start 2026-10-07T09:07:30Z
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] the control: the only gap excluded, at its record: no finding
+[ok] a branch of f no longer taken: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a line of f no longer run: sw/firmware/ctrl/x.c: lines 6/7 fell below the recorded 7/7
+[ok] the record is a floor: a measurement over it passes: no finding
+[ok] a measured file the ratchet does not record: sw/firmware/ctrl/x.c: measured, but the ratchet does not record it
+[ok] a recorded file nothing measured: sw/firmware/ctrl/x.c: recorded in the ratchet, but nothing measured it
+[ok] an exclusion with no reason: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no reason given
+[ok] an exclusion whose statement is not in its function: exclusion sw/firmware/ctrl/x.c g(): `if (a == 8)`: the statement occurs 0 times in the function, not once
+[ok] an exclusion whose statement is not one statement: exclusion sw/firmware/ctrl/x.c g(): `return`: the statement occurs 2 times in the function, not once
+[ok] an exclusion naming no function measured: exclusion sw/firmware/ctrl/x.c h(): `if (a == 7)`: no such function in the measurement
+[ok] an exclusion gone stale: the arc it names is covered now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion gone stale: the line it names runs now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion that names less than is uncovered: exclusion sw/firmware/ctrl/x.c g(): line 10 is unexecuted, and no row names it
+[ok] the uncovered arc moved to the statement's other arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [2] of the statement's 2 are uncovered, the row names [1]
+[ok] the uncovered arc and line moved to another statement, the function's totals unchanged: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion whose statement has another number of arcs: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: the statement (lines 9-9) has 2 arcs, the row says 3
+[ok] an exclusion naming a line no line from the statement on holds: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no line from the statement's on holds `return 8;`
+[ok] two exclusions naming one arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: names an arc or a line another row of the function names
+[ok] an exclusion whose items cannot be read: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: cannot read 'one arc'
+[ok] two builds of one source merge to the union: no finding
+[ok] a build with fewer arcs on a line covers none of the longer build's: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a test, a host model and a source outside the tree are not measured: no finding
+[ok] an exception edge is not a branch: no finding
+[ok] gcc and gcov on this host read as planted: no finding
+[ok] gcc: a compensating swap, the control measurement: no finding
+[ok] gcc: a compensating swap, refused with the function's totals unchanged: exclusion sw/firmware/ctrl/swap.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] gcc: a condition over two lines, the control measurement: no finding
+[ok] gcc: a condition over two lines, its other operand uncovered instead: exclusion sw/firmware/ctrl/two_lines.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]
+coverage self-test: 28 of 28 planted cases read as planted
+# maxrss_kb 40124
+# end 2026-10-07T09:07:31Z wall_s 1 rc 0

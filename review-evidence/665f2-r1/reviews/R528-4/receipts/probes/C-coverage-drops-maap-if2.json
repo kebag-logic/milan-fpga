@@ -1,0 +1,28 @@
+{
+ "name": "C-coverage-drops-maap-if2",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+ "planted_diff": "diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py\nindex c4d63fb88..072604b96 100644\n--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py\n+++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py\n@@ -91,7 +91,6 @@ def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:\n         cut_reuse(tree.reuse)\n         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),\n                     ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree), ctrl_arms.arm_maap(tree),\n-                    ctrl_arms.arm_maap_if2(tree),\n                     ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]\n         if lwsrp is not None:\n             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/gtest/fw_coverage.py",
+  "--check",
+  "--jobs",
+  "2"
+ ],
+ "rc": 1,
+ "expect": "fail",
+ "matched_expectation": true,
+ "wall_s": 173,
+ "fail_lines": [],
+ "tail": [
+  "sw/firmware/ctrl/port/ctrl_pool.c                 99/99       60/60      lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl/port/shlan_port.c                22/22        6/6       lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl/wire/wire.h                      10/10        2/2       lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl_nvm/nvm_klj2.c                  198/199     106/110     lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %",
+  "FINDING: sw/firmware/ctrl/maap/maap_mbx.c: branches 53/60 fell below the recorded 60/60",
+  "firmware coverage: FAIL (17 files)"
+ ]
+}

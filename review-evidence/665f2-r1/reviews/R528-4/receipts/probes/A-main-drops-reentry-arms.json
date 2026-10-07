@@ -1,0 +1,28 @@
+{
+ "name": "A-main-drops-reentry-arms",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+ "planted_diff": "diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py\nindex c4d63fb88..27431e350 100644\n--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py\n+++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py\n@@ -131,8 +131,7 @@ def main(argv: list[str] | None = None) -> int:\n             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),\n                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),\n                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),\n-                        ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),\n-                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]\n+                        ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree)]\n             if args.lwsrp is not None:\n                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))\n         except Refusal as exc:\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "--require-rv32",
+  "--jobs",
+  "2"
+ ],
+ "rc": 0,
+ "expect": "pass",
+ "matched_expectation": true,
+ "wall_s": 63,
+ "fail_lines": [],
+ "tail": [
+  "    H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)",
+  "    H-MAAP wake interface 0: 4700 ns from RX_HEAD (model)",
+  "    H-MAAP wake interface 1: 4700 ns from RX_HEAD (model)",
+  "    H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)",
+  "    == ctrl H-MAAP mailbox: checks: 13   failures: 0 ==",
+  "    RESULT: PASS",
+  "    verdict: PASS (13 tests, 0 failures, exit 0)",
+  "test_ctrl_firmware: PASS"
+ ]
+}

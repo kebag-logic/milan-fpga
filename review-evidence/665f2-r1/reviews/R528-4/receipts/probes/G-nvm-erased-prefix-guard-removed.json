@@ -1,0 +1,30 @@
+{
+ "name": "G-nvm-erased-prefix-guard-removed",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+ "planted_diff": "diff --git a/sw/firmware/ctrl_nvm/nvm_klj2.c b/sw/firmware/ctrl_nvm/nvm_klj2.c\nindex f0f2f0c93..10e56d731 100644\n--- a/sw/firmware/ctrl_nvm/nvm_klj2.c\n+++ b/sw/firmware/ctrl_nvm/nvm_klj2.c\n@@ -296,8 +296,6 @@ static enum nvm_verdict nvm_klj2_record(const uint8_t *img, uint32_t pos, uint32\n \t\tif (pos + NVM_REC_HDR + r.plen > end)\n \t\t\treturn NVM_VD_LEN;\n \t\t/* The caller may hold only a prefix of the CRC-closed container. */\n-\t\tif (pos + NVM_REC_HDR + r.plen > loaded)\n-\t\t\treturn NVM_VD_REC;\n \t\tif (!nvm_all_erased(p + NVM_REC_HDR, r.plen))\n \t\t\treturn NVM_VD_REC;\n \t\t*out = r;\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+  "--require-rv32",
+  "--jobs",
+  "2"
+ ],
+ "rc": 1,
+ "expect": "fail",
+ "matched_expectation": true,
+ "wall_s": 140,
+ "fail_lines": [
+  "  [FAIL] NvmCodec.codec_erased_loaded_prefix: crashed on signal 6"
+ ],
+ "tail": [
+  "  verdict: PASS (85 tests, 0 failures, exit 0)",
+  "  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall",
+  "  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==",
+  "  RESULT: PASS",
+  "  verdict: PASS (2 tests, 0 failures, exit 0)",
+  "  rv32 at 100000000 Hz: text=12132 data=24 bss=14408 stage=13264 payload=576 chunk=256 store=288 clock=20 (bytes)",
+  "  largest static frame: 128 bytes (not a call-chain bound)",
+  "FINDING: endstation_ax7101_1x1_tdm8: prefix failed"
+ ]
+}

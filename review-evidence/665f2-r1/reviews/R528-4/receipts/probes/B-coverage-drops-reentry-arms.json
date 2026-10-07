@@ -1,0 +1,28 @@
+{
+ "name": "B-coverage-drops-reentry-arms",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+ "planted_diff": "diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py\nindex c4d63fb88..b26621673 100644\n--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py\n+++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py\n@@ -91,8 +91,7 @@ def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:\n         cut_reuse(tree.reuse)\n         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),\n                     ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree), ctrl_arms.arm_maap(tree),\n-                    ctrl_arms.arm_maap_if2(tree),\n-                    ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]\n+                    ctrl_arms.arm_maap_if2(tree)]\n         if lwsrp is not None:\n             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))\n     except Refusal as exc:\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/gtest/fw_coverage.py",
+  "--check",
+  "--jobs",
+  "2"
+ ],
+ "rc": 1,
+ "expect": "fail",
+ "matched_expectation": true,
+ "wall_s": 173,
+ "fail_lines": [],
+ "tail": [
+  "FINDING: exclusion sw/firmware/ctrl/adp/adp.c adp_link_change(): line 250 is unexecuted, and no row names it",
+  "FINDING: exclusion sw/firmware/ctrl/adp/adp.c adp_timer_expired(): line 283 arc 1 is uncovered, and no row names it",
+  "FINDING: exclusion sw/firmware/ctrl/adp/adp.c adp_timer_expired(): line 284 is unexecuted, and no row names it",
+  "FINDING: exclusion sw/firmware/ctrl/adp/adp.c adp_poll(): line 330 arc 1 is uncovered, and no row names it",
+  "FINDING: exclusion sw/firmware/ctrl/adp/adp.c adp_poll(): line 331 is unexecuted, and no row names it",
+  "FINDING: sw/firmware/ctrl/adp/adp.c: lines 189/203 fell below the recorded 204/204",
+  "FINDING: sw/firmware/ctrl/adp/adp.c: branches 83/93 fell below the recorded 95/95",
+  "firmware coverage: FAIL (17 files)"
+ ]
+}

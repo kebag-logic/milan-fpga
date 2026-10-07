@@ -1,0 +1,31 @@
+{
+ "name": "J-host-flags-dev-debug",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/ctrl/test/ctrl_build.py",
+ "planted_diff": "diff --git a/sw/firmware/ctrl/test/ctrl_build.py b/sw/firmware/ctrl/test/ctrl_build.py\nindex 262044677..251cdf25e 100644\n--- a/sw/firmware/ctrl/test/ctrl_build.py\n+++ b/sw/firmware/ctrl/test/ctrl_build.py\n@@ -37,7 +37,7 @@ PORTABLE = (\"mbx/mbx.c\", \"loop/ctrl_loop.c\", \"port/ctrl_pool.c\", \"port/ctrl_debu\n #: The host side: the model and mbx_hal.h on it. Test equipment, never measured.\n HOST = (\"host/mbx_model.c\", \"host/mbx_plat_host.c\")\n INCLUDE_DIRS = (\"mbx\", \"wire\", \"host\", \"port\", \"loop\", \"adp\", \"maap\", \"app\", \"test\")\n-C_FLAGS = (\"-std=c11\", \"-O2\", \"-DNDEBUG\", \"-Wall\", \"-Wextra\", \"-Werror\", \"-pedantic\")\n+C_FLAGS = (\"-std=c11\", \"-O2\", \"-Wall\", \"-Wextra\", \"-Werror\", \"-pedantic\")\n \n RV32_FLAGS = (\"-march=rv32i\", \"-mabi=ilp32\", \"-ffreestanding\", \"-fno-stack-protector\", \"-Os\", \"-DNDEBUG\",\n               \"-std=c11\", \"-Wall\",\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "--require-rv32",
+  "--jobs",
+  "2"
+ ],
+ "rc": 1,
+ "expect": "fail",
+ "matched_expectation": true,
+ "wall_s": 68,
+ "fail_lines": [
+  "[FAIL] arm maap",
+  "    [FAIL] MaapCore.ReentrantPortsAreCountedAndIgnored: crashed on signal 6"
+ ],
+ "tail": [
+  "    == ADP debug re-entry: checks: 122   failures: 0 ==",
+  "    RESULT: PASS",
+  "    verdict: PASS (122 tests, 0 failures, exit 0)",
+  "[ok] arm reentry_release",
+  "    == ADP release re-entry: checks: 122   failures: 0 ==",
+  "    RESULT: PASS",
+  "    verdict: PASS (122 tests, 0 failures, exit 0)",
+  "test_ctrl_firmware: FAIL"
+ ]
+}

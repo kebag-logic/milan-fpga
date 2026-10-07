@@ -1,0 +1,28 @@
+{
+ "name": "K-ratchet-drops-maap-row",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/gtest/coverage.ratchet",
+ "planted_diff": "diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet\nindex 1738afba4..222bba26a 100644\n--- a/sw/firmware/gtest/coverage.ratchet\n+++ b/sw/firmware/gtest/coverage.ratchet\n@@ -6,7 +6,6 @@ sw/firmware/ctrl/adp/adp.c  lines 204/204  branches 95/95\n sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38\n sw/firmware/ctrl/app/ctrl_app.c  lines 31/31  branches 20/20\n sw/firmware/ctrl/loop/ctrl_loop.c  lines 95/95  branches 56/56\n-sw/firmware/ctrl/maap/maap.c  lines 209/209  branches 140/140\n sw/firmware/ctrl/maap/maap_csr.c  lines 39/39  branches 18/18\n sw/firmware/ctrl/maap/maap_mbx.c  lines 98/98  branches 60/60\n sw/firmware/ctrl/mbx/mbx.c  lines 173/173  branches 62/62\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/gtest/fw_coverage.py",
+  "--check",
+  "--jobs",
+  "2"
+ ],
+ "rc": 1,
+ "expect": "fail",
+ "matched_expectation": true,
+ "wall_s": 179,
+ "fail_lines": [],
+ "tail": [
+  "sw/firmware/ctrl/port/ctrl_pool.c                 99/99       60/60      lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl/port/shlan_port.c                22/22        6/6       lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl/wire/wire.h                      10/10        2/2       lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl_nvm/nvm_klj2.c                  198/199     106/110     lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %",
+  "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %",
+  "FINDING: sw/firmware/ctrl/maap/maap.c: measured, but the ratchet does not record it",
+  "firmware coverage: FAIL (17 files)"
+ ]
+}

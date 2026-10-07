@@ -1,0 +1,7 @@
+README line: 156:MILAN_RV32_CC=riscv64-elf-gcc python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+README selector variable: MILAN_RV32_CC
+case1 README prefix, competing default: /usr/bin/riscv64-elf-gcc
+case2 retired CTRL_RV32_CC, competing default: $REVIEWS/665f2-r528-4-packet/scratch/sdk/riscv32-ilp32d--glibc--stable-2025.08-1/bin/riscv32-linux-gcc
+case3 README prefix, no competing default: /usr/bin/riscv64-elf-gcc
+grep CTRL_RV32_CC sw docs scripts:
+grep rc=1 (1 = no match)

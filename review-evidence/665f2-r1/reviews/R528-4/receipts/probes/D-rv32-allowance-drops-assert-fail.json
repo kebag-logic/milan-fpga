@@ -1,0 +1,28 @@
+{
+ "name": "D-rv32-allowance-drops-assert-fail",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/ctrl/test/ctrl_build.py",
+ "planted_diff": "diff --git a/sw/firmware/ctrl/test/ctrl_build.py b/sw/firmware/ctrl/test/ctrl_build.py\nindex 262044677..0428bda6f 100644\n--- a/sw/firmware/ctrl/test/ctrl_build.py\n+++ b/sw/firmware/ctrl/test/ctrl_build.py\n@@ -44,7 +44,7 @@ RV32_FLAGS = (\"-march=rv32i\", \"-mabi=ilp32\", \"-ffreestanding\", \"-fno-stack-prote\n               \"-Wextra\", \"-Werror\", \"-pedantic\", \"-fstack-usage\", \"-DCTRL_MBX_BASE=0x80000000u\")\n #: Runtime interfaces an object-only check may leave undefined, including the\n #: assertion handler when a debug build enables a protocol's re-entry guard.\n-RV32_LIBC = frozenset({\"memset\", \"memcpy\", \"vsnprintf\", \"__assert_fail\"})\n+RV32_LIBC = frozenset({\"memset\", \"memcpy\", \"vsnprintf\"})\n \n \n class Refusal(Exception):\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "--require-rv32",
+  "--jobs",
+  "2"
+ ],
+ "rc": 0,
+ "expect": "pass",
+ "matched_expectation": true,
+ "wall_s": 73,
+ "fail_lines": [],
+ "tail": [
+  "    == ADP debug re-entry: checks: 122   failures: 0 ==",
+  "    RESULT: PASS",
+  "    verdict: PASS (122 tests, 0 failures, exit 0)",
+  "[ok] arm reentry_release",
+  "    == ADP release re-entry: checks: 122   failures: 0 ==",
+  "    RESULT: PASS",
+  "    verdict: PASS (122 tests, 0 failures, exit 0)",
+  "test_ctrl_firmware: PASS"
+ ]
+}

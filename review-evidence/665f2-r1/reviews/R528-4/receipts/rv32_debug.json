@@ -1,0 +1,71 @@
+{
+ "cc": "$REVIEWS/665f2-r528-4-packet/scratch/sdk/riscv32-ilp32d--glibc--stable-2025.08-1/bin/riscv32-linux-gcc",
+ "cc_version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0",
+ "flags": [
+  "-march=rv32i",
+  "-mabi=ilp32",
+  "-ffreestanding",
+  "-fno-stack-protector",
+  "-Os",
+  "-std=c11",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-pedantic",
+  "-fstack-usage",
+  "-DCTRL_MBX_BASE=0x80000000u"
+ ],
+ "sets": {
+  "maap_only": {
+   "sources": [
+    "maap/maap.c"
+   ],
+   "compile_failures": [],
+   "objects": 1,
+   "undefined": [
+    "__assert_fail",
+    "__lshrdi3",
+    "__umodsi3",
+    "memcpy",
+    "memset"
+   ],
+   "outside_allowance": [],
+   "abi_findings": [],
+   "size_total": "   4602\t      0\t      0\t   4602\t   11fa\t(TOTALS)",
+   "assert_fail_referenced": true
+  },
+  "all_twelve": {
+   "sources": [
+    "mbx/mbx.c",
+    "loop/ctrl_loop.c",
+    "port/ctrl_pool.c",
+    "port/ctrl_debug.c",
+    "port/shlan_port.c",
+    "adp/adp.c",
+    "adp/adp_mbx.c",
+    "maap/maap.c",
+    "maap/maap_mbx.c",
+    "maap/maap_csr.c",
+    "app/ctrl_app.c",
+    "plat/mbx_plat_mmio.c"
+   ],
+   "compile_failures": [],
+   "objects": 12,
+   "undefined": [
+    "__assert_fail",
+    "__lshrdi3",
+    "__mulsi3",
+    "__udivsi3",
+    "__umodsi3",
+    "memcpy",
+    "memset",
+    "vsnprintf"
+   ],
+   "outside_allowance": [],
+   "abi_findings": [],
+   "size_total": "  20130\t      0\t    171\t  20301\t   4f4d\t(TOTALS)",
+   "assert_fail_referenced": true
+  }
+ }
+}
+rc=0

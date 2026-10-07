@@ -1,0 +1,49 @@
+{
+ "name": "H-adp-assert-neutered",
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "file": "sw/firmware/ctrl/adp/adp.c",
+ "planted_diff": "diff --git a/sw/firmware/ctrl/adp/adp.c b/sw/firmware/ctrl/adp/adp.c\nindex 450eba2b5..2c08e9eb6 100644\n--- a/sw/firmware/ctrl/adp/adp.c\n+++ b/sw/firmware/ctrl/adp/adp.c\n@@ -26,7 +26,7 @@ static uint32_t reentry_count;\n \n static bool reject_reentry(void)\n {\n-\tassert(!port_active);\n+\tassert(1);\n \tif (port_active) {\n \t\treentry_count++;\n \t\treturn true;\n",
+ "cmd": [
+  "python3",
+  "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "--require-rv32",
+  "--jobs",
+  "2"
+ ],
+ "rc": 1,
+ "expect": "fail",
+ "matched_expectation": true,
+ "wall_s": 70,
+ "fail_lines": [
+  "[FAIL] arm reentry_debug",
+  "    [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry asserts",
+  "    [FAIL] AdpReentry.DelayInlineExpiryOnGmChange: inline DELAY expiry asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/4: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/5: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/6: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/7: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/8: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/9: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/10: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/11: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/12: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/13: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/14: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/15: each port callback asserts",
+  "    [FAIL] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/16: each port callback asserts"
+ ],
+ "tail": [
+  "    == ADP debug re-entry: checks: 122   failures: 122 ==",
+  "    RESULT: FAIL",
+  "    verdict: FAIL (its tallies report 122 failure(s) across 122 checks, exit 1)",
+  "[ok] arm reentry_release",
+  "    == ADP release re-entry: checks: 122   failures: 0 ==",
+  "    RESULT: PASS",
+  "    verdict: PASS (122 tests, 0 failures, exit 0)",
+  "test_ctrl_firmware: FAIL"
+ ]
+}

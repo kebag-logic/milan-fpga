@@ -1,0 +1,115 @@
+{
+ "rev": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+ "cc": "riscv64-elf-gcc (Arch Linux Repositories) 15.2.0",
+ "portable": [
+  "mbx/mbx.c",
+  "loop/ctrl_loop.c",
+  "port/ctrl_pool.c",
+  "port/ctrl_debug.c",
+  "port/shlan_port.c",
+  "adp/adp.c",
+  "adp/adp_mbx.c",
+  "maap/maap.c",
+  "maap/maap_mbx.c",
+  "maap/maap_csr.c",
+  "app/ctrl_app.c"
+ ],
+ "rv32_flags": [
+  "-march=rv32i",
+  "-mabi=ilp32",
+  "-ffreestanding",
+  "-fno-stack-protector",
+  "-Os",
+  "-std=c11",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-pedantic",
+  "-DCTRL_MBX_BASE=0x80000000u"
+ ],
+ "has_maap": true,
+ "libc": "/usr/lib/gcc/riscv64-elf/15.2.0/../../../../riscv64-elf/lib/rv32i/ilp32/libc.a",
+ "libgcc": "/usr/lib/gcc/riscv64-elf/15.2.0/rv32i/ilp32/libgcc.a",
+ "images": [
+  {
+   "config": "endstation_arty_4x4.yaml",
+   "interfaces": 1,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_arty_8ch.yaml",
+   "interfaces": 1,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_arty_current.yaml",
+   "interfaces": 1,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_ax7101_1x1_tdm8.yaml",
+   "interfaces": 1,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_ax7101_8x8.yaml",
+   "interfaces": 1,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_arty_4x4.yaml",
+   "interfaces": 2,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_arty_8ch.yaml",
+   "interfaces": 2,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_arty_current.yaml",
+   "interfaces": 2,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_ax7101_1x1_tdm8.yaml",
+   "interfaces": 2,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  },
+  {
+   "config": "endstation_ax7101_8x8.yaml",
+   "interfaces": 2,
+   "debug_link_rc": 1,
+   "undefined_references": [
+    "__assert_fail"
+   ]
+  }
+ ]
+}
