@@ -67,14 +67,16 @@ class Suite {
     Suite(Bench& bench, Check& check) : b_(bench), ck_(check) {}
 
     //! The groups run() runs, in its order.
-    static constexpr unsigned kGroups = 21;
+    static constexpr unsigned kGroups = 22;
     static constexpr const char* kGroupNames[kGroups] = {
         "ResetIdentityAndRegisterMasks", "PartialStrobeRefused", "AdpFilter", "Classification",
         "DropNeverTouchesAnUnreadRecord", "RateLimit", "TxMerge", "TxCommitOrder", "TxRefusals",
         "BadHostCounters", "LinkAndGmEvents", "Timers", "Tick", "GmSnapshot",
         // lane FC: the full-tuple filter (REQUIREMENTS.md section 1, NFR-SCOUT-08)
         "TupleControls", "TupleRejections", "StreamDataNeverDelivered", "AecpBothDirections",
-        "OwnMacPerInterface", "FilterMismatchCount", "TokensApartFromTheFilter"};
+        "OwnMacPerInterface", "FilterMismatchCount", "TokensApartFromTheFilter",
+        // lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1)
+        "MaapDefendToOwnUnicast"};
 
     void run() {
         for (unsigned g = 0; g < kGroups; ++g) {
@@ -112,7 +114,8 @@ class Suite {
         case 17: check_aecp_both_directions(); break;
         case 18: check_own_mac_per_interface(); break;
         case 19: check_filter_mismatch_count(); break;
-        default: check_tokens_apart(); break;
+        case 20: check_tokens_apart(); break;
+        default: check_maap_defend(); break;
         }
     }
 
@@ -244,6 +247,7 @@ class Suite {
     void check_own_mac_per_interface();
     void check_filter_mismatch_count();
     void check_tokens_apart();
+    void check_maap_defend();
 
     //! One row of the owner's table (REQUIREMENTS.md section 1): its valid
     //! frame, the channel it must reach, and whether it carries an AVTP subtype.
@@ -951,6 +955,7 @@ std::vector<typename Suite<Bench, Check>::Row> Suite<Bench, Check>::table_rows()
         {"aecp, command", MBX_CH_AECP, mbx_tb::aecp(0, kOwnEid, kForeignEid), true},
         {"aecp, response", MBX_CH_AECP, mbx_tb::aecp(1, kForeignEid, kOwnEid, kOwnMac, kControllerAvailable), true},
         {"maap", MBX_CH_MAAP, mbx_tb::maap(1, 0x91E000000100ull + 6u, 4), true},
+        {"maap, DEFEND to own unicast", MBX_CH_MAAP, mbx_tb::to(mbx_tb::maap(2, 0x91E000000100ull, 8), kOwnMac), true},
         {"srp MSRP", MBX_CH_SRP, mbx_tb::mrp(mbx_tb::kEtherMsrp, mrpdu), false},
         {"srp MVRP", MBX_CH_SRP, mbx_tb::mrp(mbx_tb::kEtherMvrp, mrpdu), false},
     };
@@ -993,8 +998,8 @@ void Suite<Bench, Check>::check_tuple_rejections() {
         std::uint64_t other = kForeignMac;                  // a unicast nobody here owns: flooded traffic
         if (r.channel == MBX_CH_ADP) {
             other = mbx_tb::kIdentifyMac;                   // the other ATDECC multicast address
-        } else if (r.channel == MBX_CH_MAAP) {
-            other = mbx_tb::kAdpAcmpMac;
+        } else if (r.channel == MBX_CH_MAAP && (r.frame[0] & 0x01u) != 0u) {
+            other = mbx_tb::kAdpAcmpMac;                    // the multicast row; the DEFEND row keeps kForeignMac
         } else if (r.channel == MBX_CH_SRP) {               // each MRP application at the other's address
             other = r.frame[5] == 0x0Eu ? mbx_tb::kMvrpMac : mbx_tb::kMsrpMac;
         }
@@ -1075,8 +1080,9 @@ void Suite<Bench, Check>::check_aecp_both_directions() {
 }
 
 // Own unicast is the arrival interface's OWN_MAC, never any unicast: each
-// interface index the stream can name, against each interface's MAC. An
-// index with no interface behind it has no own MAC.
+// interface index the stream can name, against each interface's MAC, for
+// every `own` tuple (AECP, the ACMP tolerance, the MAAP DEFEND). An index with
+// no interface behind it has no own MAC.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_own_mac_per_interface() {
     filter_up();
@@ -1088,22 +1094,28 @@ void Suite<Bench, Check>::check_own_mac_per_interface() {
         for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
             const auto cmd = mbx_tb::aecp(0, kOwnEid, kForeignEid, kOwnMac + i);
             const auto tol = mbx_tb::to(mbx_tb::acmpdu(0, kOwnEid, kForeignEid), kOwnMac + i);
+            const auto defend = mbx_tb::to(mbx_tb::maap(2, 0x91E000000100ull, 8), kOwnMac + i);
             const Verdict a = offer(cmd, r);
             const Verdict b = offer(tol, r);
+            const Verdict d = offer(defend, r);
             if (r == i) {
-                right += (a.channel == MBX_CH_AECP ? 1u : 0u) + (b.channel == MBX_CH_ACMP ? 1u : 0u);
+                right += (a.channel == MBX_CH_AECP ? 1u : 0u) + (b.channel == MBX_CH_ACMP ? 1u : 0u) +
+                         (d.channel == MBX_CH_MAAP ? 1u : 0u);
                 indexed += field(a.record.w0, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH) == r ? 1u : 0u;
+                indexed += field(d.record.w0, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH) == r ? 1u : 0u;
             } else {
-                wrong += (a.channel != MBX_N_CH ? 1u : 0u) + (b.channel != MBX_N_CH ? 1u : 0u);
-                counted += a.mismatched + b.mismatched;
+                wrong += (a.channel != MBX_N_CH ? 1u : 0u) + (b.channel != MBX_N_CH ? 1u : 0u) +
+                         (d.channel != MBX_N_CH ? 1u : 0u);
+                counted += a.mismatched + b.mismatched + d.mismatched;
             }
         }
     }
     const std::uint32_t pairs = kIfIndices * MBX_N_IF - MBX_N_IF;
-    ck_.dec("Q8 each interface's own MAC passes AECP and the ACMP tolerance on that interface", right, 2u * MBX_N_IF);
-    ck_.dec("Q8 with the record's IF the arrival interface", indexed, MBX_N_IF);
+    ck_.dec("Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface", right,
+            3u * MBX_N_IF);
+    ck_.dec("Q8 with the record's IF the arrival interface", indexed, 2u * MBX_N_IF);
     ck_.dec("Q8 another interface's own MAC, or one on an index with no interface, reaches no ring", wrong, 0);
-    ck_.dec("Q8 and counts once each in FILTER_MISMATCH", counted, 2u * pairs);
+    ck_.dec("Q8 and counts once each in FILTER_MISMATCH", counted, 3u * pairs);
     check_rejected("Q8 a MAC differing from OWN_MAC in MAC[47:32] only",
                    mbx_tb::aecp(0, kOwnEid, kForeignEid, kOwnMac ^ 0x020000000000ull), 1);
     check_rejected("Q8 a MAC differing from OWN_MAC in MAC[31:0] only",
@@ -1157,6 +1169,53 @@ void Suite<Bench, Check>::check_tokens_apart() {
     ck_.dec("Q10 refusals by the filter take no token: a full burst still passes after them", rx_pass(kAdp), burst);
     ck_.dec("Q10 the bucket refuses the frame past it in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
     ck_.dec("Q10 and FILTER_MISMATCH counts the tuple failures only", mismatches(), 2u * burst);
+}
+
+// The MAAP DEFEND (IEEE 1722-2016 B.2.1): PROBE and ANNOUNCE go to the MAAP
+// multicast address, a DEFEND to the source MAC of the PROBE it answers, so
+// to this interface's own MAC when this entity probed. Only a DEFEND passes
+// there, a tuple failure like any other counts once, and the identity term
+// (the requested range overlaps this entity's, B.3.5.6) still follows.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_maap_defend() {
+    filter_up();
+    const std::uint64_t base = 0x91E000000100ull;                  // filter_up()'s range, 8 addresses
+    auto own = [&](std::uint8_t mt) { return mbx_tb::to(mbx_tb::maap(mt, base, 8), kOwnMac); };
+    const auto defend = own(2);
+    const Verdict v = offer(defend);
+    ck_.dec("Q11 a DEFEND to this interface's own MAC reaches the MAAP ring", v.channel, MBX_CH_MAAP);
+    ck_.that("Q11 its record is the DEFEND, byte for byte", same_bytes(v.record.bytes, defend));
+    ck_.dec("Q11 and FILTER_MISMATCH does not count it", v.mismatched, 0);
+    check_rejected("Q11 a PROBE to this interface's own MAC", own(1), 1);
+    check_rejected("Q11 an ANNOUNCE to this interface's own MAC", own(3), 1);
+    std::uint32_t reached = 0;
+    std::uint32_t counted = 0;
+    for (std::uint8_t mt = 0; mt < 16u; ++mt) {
+        if (mt < 1u || mt > 3u) {                                  // Table B.1: reserved
+            const Verdict o = offer(own(mt));
+            reached += o.channel != MBX_N_CH ? 1u : 0u;
+            counted += o.mismatched;
+        }
+    }
+    ck_.dec("Q11 no reserved message_type to this interface's own MAC reaches a ring", reached, 0);
+    ck_.dec("Q11 and each counts once in FILTER_MISMATCH", counted, 13);
+    check_rejected("Q11 a DEFEND to a unicast MAC no interface owns", mbx_tb::to(mbx_tb::maap(2, base, 8), kForeignMac),
+                   1);
+    check_rejected("Q11 a DEFEND to this interface's own MAC for a range beside this entity's",
+                   mbx_tb::to(mbx_tb::maap(2, base + 8u, 4), kOwnMac), 0);
+    ck_.dec("Q11 a DEFEND to the MAAP multicast address still passes", offer(mbx_tb::maap(2, base, 8)).channel,
+            MBX_CH_MAAP);
+    // the message_type is byte 15's low nibble: a frame that ends at byte 14
+    // has none, so no DEFEND, and one that ends at byte 15 carries no range
+    auto cut = defend;
+    cut.resize(MBX_MSG_TYPE_BYTE);
+    check_rejected("Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type", cut, 1);
+    cut = defend;
+    cut.resize(MBX_MSG_TYPE_BYTE + 1u);
+    check_rejected("Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range", cut, 0);
+    ck_.dec("Q11 the DEFEND after them still reaches the MAAP ring", offer(defend).channel, MBX_CH_MAAP);
+    ck_.dec("Q11 no frame was refused for size, space or rate",
+            rd(ch_reg(MBX_CH_MAAP, MBX_CH_REG_RX_DROP)) + rd(ch_reg(MBX_CH_MAAP, MBX_CH_REG_RATE_DROP)), 0);
 }
 
 }  // namespace mbx_tb

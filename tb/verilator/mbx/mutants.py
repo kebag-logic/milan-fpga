@@ -67,8 +67,9 @@ ARMS = (
     Arm("rx-lanes-big-endian", "KL_mbx_rx.sv", "(5'd8 * 5'(lane_r))", "(5'd8 * (5'd3 - 5'(lane_r)))", 0,
         "F1 frame byte k is ring word"),
     # lane FC: the classification is per match tuple now, so the subtype term is the tuple's
+    # (round 2: read from `subtype`, byte 14 held for the decision at byte 15)
     Arm("rx-subtype-ignored", "KL_mbx_rx.sv",
-        "(MBX_TUPLE_HAS_SUBTYPE_TBL_C[j] == 0 || rx_data_i == 8'(MBX_TUPLE_SUBTYPE_TBL_C[j]))", "1'b1", 0,
+        "(MBX_TUPLE_HAS_SUBTYPE_TBL_C[j] == 0 || subtype == 8'(MBX_TUPLE_SUBTYPE_TBL_C[j]))", "1'b1", 0,
         "C0 ACMP to this talker or this listener passes"),
     Arm("tx-reserved-word-unchecked", "KL_mbx_tx.sv",
         "if (w0_ok_w && (rd_data_i >> MBX_TXREC_W1_RSVD_LSB_C) == 32'd0) begin", "if (w0_ok_w) begin", 0,
@@ -240,6 +241,49 @@ ARMS = (
     Arm("rx-refusal-takes-a-token", "KL_mbx_rx.sv", "if (commit_w && ch_r == MBX_CH_W_C'(c)) tokens = tokens - 9'd1;",
         "if ((commit_w || (fin_ready_w && hit_r && !rule_pass_w)) && ch_r == MBX_CH_W_C'(c)) tokens = tokens - 9'd1;",
         0, "Q10 refusals by the filter take no token"),
+)
+
+
+def _both(name: str, path: str, old: str, new: str, needle: str) -> tuple[Arm, Arm]:
+    """One defect planted through each bus adapter: `name` on Wishbone, `name-axil` on AXI4-Lite."""
+    return Arm(name, path, old, new, 0, needle), Arm(f"{name}-axil", path, old, new, 1, needle)
+
+
+#: ---- lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1),
+#: one defect per rule through both adapters (the model's twins are in
+#: sw/firmware/ctrl/test/ctrl_mutants.py) ----
+ARMS += (
+    # a DEFEND to this interface's own MAC is delivered: the tuple dropped from
+    # the contract, the message type read one byte early, the channel decided
+    # at byte 14 before the message type arrives
+    *_both("pkg-maap-defend-tuple-dropped", "KL_mbx_pkg.sv", "MBX_CH_MAAP_M1_DST_C = 32'd2;",
+           "MBX_CH_MAAP_M1_DST_C = 32'd0;", "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"),
+    *_both("rx-msg-type-off-by-one", "KL_mbx_rx.sv",
+           "msg       = (cnt_r == 11'(MBX_MSG_TYPE_BYTE_C)) ? rx_data_i[3:0] : 4'd0;", "msg       = subtype[3:0];",
+           "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"),
+    *_both("rx-classified-before-msg-type", "KL_mbx_rx.sv",
+           "assign cls_at_w = (cnt_r == 11'(MBX_MSG_TYPE_BYTE_C)) || (rx_last_i && cnt_r == 11'(MBX_SUBTYPE_BYTE_C));",
+           "assign cls_at_w = (cnt_r == 11'(MBX_SUBTYPE_BYTE_C));",
+           "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"),
+    # a PROBE or ANNOUNCE to it is rejected and counted: the tuple's message
+    # types ignored, a frame to the own MAC never counted
+    *_both("rx-tuple-msg-type-ignored", "KL_mbx_rx.sv",
+           "\n          && MBX_TUPLE_MSG_MASK_TBL_C[j][{1'b0, msg}]) begin", ") begin",
+           "Q11 a PROBE to this interface's own MAC: no RX record"),
+    *_both("rx-own-unicast-never-counted", "KL_mbx_rx.sv", "mis_r      <= ctrl_et_w && !cls_hit_w;",
+           "mis_r      <= ctrl_et_w && !cls_hit_w && !(own_if_w && dst_r == own_mac_w);",
+           "Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once"),
+    # a DEFEND to a foreign unicast is rejected: the DEFEND tuple takes any unicast
+    *_both("rx-defend-any-unicast", "KL_mbx_rx.sv",
+           "(MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && own_if_w && dst_r == own_mac_w)",
+           "(MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && ((own_if_w && dst_r == own_mac_w)\n"
+           "                   || (MBX_TUPLE_MSG_MASK_TBL_C[j] != 32'hFFFF && !dst_r[40])))",
+           "Q11 a DEFEND to a unicast MAC no interface owns: no RX record"),
+    # a frame that ends at byte 14, before its message type, is still decided:
+    # without the last-byte decision it never is, and the receive path waits
+    *_both("rx-short-frame-never-classified", "KL_mbx_rx.sv",
+           " || (rx_last_i && cnt_r == 11'(MBX_SUBTYPE_BYTE_C));", ";",
+           "Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type"),
 )
 
 

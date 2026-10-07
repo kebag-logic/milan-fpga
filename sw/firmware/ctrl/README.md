@@ -150,8 +150,10 @@ that names P9. Each rule of the full-tuple filter (lane FC) has a defect in
 the model caught by `model` (a tag stripped or taken for an EtherType, a
 destination, EtherType or subtype ignored, any unicast or interface 0's MAC
 taken for own, the AECP response term dropped, FILTER_MISMATCH never, wrongly
-or ERR-less counted), and the firmware's side has its own: the own MAC
-unguarded or halved, FILTER_MISMATCH read from another register (`unit` and
+or ERR-less counted; for the MAAP DEFEND to own unicast, the message_type read
+a byte early, a tuple's message types ignored, a message_type refusal left
+uncounted, a DEFEND taken to any unicast), and the firmware's side has its
+own: the own MAC unguarded or halved, FILTER_MISMATCH read from another register (`unit` and
 `port`), the own MACs written after the channels open (`port`) and the app's
 own MAC not the entity's (`unit`). Lane F3 adds 195 defects for the
 `acmp`, `acmpwalk` and `acmpnvm` arms: a defect in each clause step, each

@@ -457,6 +457,8 @@
 #define MBX_CH_ADP_M0_HAS_SUBTYPE 1u
 /* adp tuple 0 AVTP subtype */
 #define MBX_CH_ADP_M0_SUBTYPE 0xFAu
+/* adp tuple 0 message types */
+#define MBX_CH_ADP_M0_MSG_MASK 0xFFFFu
 /* adp tuple 1: unused */
 #define MBX_CH_ADP_M1_DST 0u
 /* adp tuple 1 destination [47:32] */
@@ -469,6 +471,8 @@
 #define MBX_CH_ADP_M1_HAS_SUBTYPE 0u
 /* adp tuple 1 AVTP subtype */
 #define MBX_CH_ADP_M1_SUBTYPE 0x0u
+/* adp tuple 1 message types */
+#define MBX_CH_ADP_M1_MSG_MASK 0x0u
 /* adp term 0: ENTITY_DISCOVER for every entity (Milan v1.2 5.6.3.1 step 2) */
 #define MBX_CH_ADP_T0_TEST 3u
 /* adp term 0 field byte */
@@ -509,6 +513,8 @@
 #define MBX_CH_ACMP_M0_HAS_SUBTYPE 1u
 /* acmp tuple 0 AVTP subtype */
 #define MBX_CH_ACMP_M0_SUBTYPE 0xFCu
+/* acmp tuple 0 message types */
+#define MBX_CH_ACMP_M0_MSG_MASK 0xFFFFu
 /* acmp tuple 1: this interface's own unicast MAC, a receive tolerance the owner decision grants, not a normative transmission */
 #define MBX_CH_ACMP_M1_DST 2u
 /* acmp tuple 1 destination [47:32] */
@@ -521,6 +527,8 @@
 #define MBX_CH_ACMP_M1_HAS_SUBTYPE 1u
 /* acmp tuple 1 AVTP subtype */
 #define MBX_CH_ACMP_M1_SUBTYPE 0xFCu
+/* acmp tuple 1 message types */
+#define MBX_CH_ACMP_M1_MSG_MASK 0xFFFFu
 /* acmp term 0: a command or response addressed to this entity's talker */
 #define MBX_CH_ACMP_T0_TEST 2u
 /* acmp term 0 field byte */
@@ -561,6 +569,8 @@
 #define MBX_CH_AECP_M0_HAS_SUBTYPE 1u
 /* aecp tuple 0 AVTP subtype */
 #define MBX_CH_AECP_M0_SUBTYPE 0xFBu
+/* aecp tuple 0 message types */
+#define MBX_CH_AECP_M0_MSG_MASK 0xFFFFu
 /* aecp tuple 1: unused */
 #define MBX_CH_AECP_M1_DST 0u
 /* aecp tuple 1 destination [47:32] */
@@ -573,6 +583,8 @@
 #define MBX_CH_AECP_M1_HAS_SUBTYPE 0u
 /* aecp tuple 1 AVTP subtype */
 #define MBX_CH_AECP_M1_SUBTYPE 0x0u
+/* aecp tuple 1 message types */
+#define MBX_CH_AECP_M1_MSG_MASK 0x0u
 /* aecp term 0: a command addressed to this entity */
 #define MBX_CH_AECP_T0_TEST 2u
 /* aecp term 0 field byte */
@@ -601,7 +613,7 @@
 #define MBX_CH_MAAP_RATE_BURST 8u
 /* maap ms per refilled token */
 #define MBX_CH_MAAP_RATE_REFILL_MS 20u
-/* maap tuple 0: the MAAP multicast address (IEEE 1722-2016 Table B.10) */
+/* maap tuple 0: the MAAP multicast address (IEEE 1722-2016 Table B.10; B.2.1 sends PROBE and ANNOUNCE to it) */
 #define MBX_CH_MAAP_M0_DST 1u
 /* maap tuple 0 destination [47:32] */
 #define MBX_CH_MAAP_M0_DST_HI 0x91E0u
@@ -613,18 +625,22 @@
 #define MBX_CH_MAAP_M0_HAS_SUBTYPE 1u
 /* maap tuple 0 AVTP subtype */
 #define MBX_CH_MAAP_M0_SUBTYPE 0xFEu
-/* maap tuple 1: unused */
-#define MBX_CH_MAAP_M1_DST 0u
+/* maap tuple 0 message types */
+#define MBX_CH_MAAP_M0_MSG_MASK 0xFFFFu
+/* maap tuple 1: a DEFEND to this interface's own unicast MAC (IEEE 1722-2016 B.2.1: the PROBE's source MAC) */
+#define MBX_CH_MAAP_M1_DST 2u
 /* maap tuple 1 destination [47:32] */
 #define MBX_CH_MAAP_M1_DST_HI 0x0u
 /* maap tuple 1 destination [31:0] */
 #define MBX_CH_MAAP_M1_DST_LO 0x0u
 /* maap tuple 1 EtherType */
-#define MBX_CH_MAAP_M1_ETHERTYPE 0x0u
+#define MBX_CH_MAAP_M1_ETHERTYPE 0x22F0u
 /* maap tuple 1 matches a subtype */
-#define MBX_CH_MAAP_M1_HAS_SUBTYPE 0u
+#define MBX_CH_MAAP_M1_HAS_SUBTYPE 1u
 /* maap tuple 1 AVTP subtype */
-#define MBX_CH_MAAP_M1_SUBTYPE 0x0u
+#define MBX_CH_MAAP_M1_SUBTYPE 0xFEu
+/* maap tuple 1 message types */
+#define MBX_CH_MAAP_M1_MSG_MASK 0x4u
 /* maap term 0: a PROBE, DEFEND or ANNOUNCE whose requested range conflicts with this entity's range */
 #define MBX_CH_MAAP_T0_TEST 4u
 /* maap term 0 field byte */
@@ -665,6 +681,8 @@
 #define MBX_CH_SRP_M0_HAS_SUBTYPE 0u
 /* srp tuple 0 AVTP subtype */
 #define MBX_CH_SRP_M0_SUBTYPE 0x0u
+/* srp tuple 0 message types */
+#define MBX_CH_SRP_M0_MSG_MASK 0xFFFFu
 /* srp tuple 1: MVRP: the Customer Bridge MVRP address and EtherType (IEEE 802.1Q-2018 11.2.3.1.3, Tables 10-1 and 10-2) */
 #define MBX_CH_SRP_M1_DST 1u
 /* srp tuple 1 destination [47:32] */
@@ -677,6 +695,8 @@
 #define MBX_CH_SRP_M1_HAS_SUBTYPE 0u
 /* srp tuple 1 AVTP subtype */
 #define MBX_CH_SRP_M1_SUBTYPE 0x0u
+/* srp tuple 1 message types */
+#define MBX_CH_SRP_M1_MSG_MASK 0xFFFFu
 /* srp term 0: every MSRP and MVRP PDU; both are link-local to this port */
 #define MBX_CH_SRP_T0_TEST 1u
 /* srp term 0 field byte */
@@ -713,6 +733,7 @@
 #define MBX_TUPLE_ETHERTYPE_TBL { MBX_CH_ADP_M0_ETHERTYPE, MBX_CH_ADP_M1_ETHERTYPE, MBX_CH_ACMP_M0_ETHERTYPE, MBX_CH_ACMP_M1_ETHERTYPE, MBX_CH_AECP_M0_ETHERTYPE, MBX_CH_AECP_M1_ETHERTYPE, MBX_CH_MAAP_M0_ETHERTYPE, MBX_CH_MAAP_M1_ETHERTYPE, MBX_CH_SRP_M0_ETHERTYPE, MBX_CH_SRP_M1_ETHERTYPE }
 #define MBX_TUPLE_HAS_SUBTYPE_TBL { MBX_CH_ADP_M0_HAS_SUBTYPE, MBX_CH_ADP_M1_HAS_SUBTYPE, MBX_CH_ACMP_M0_HAS_SUBTYPE, MBX_CH_ACMP_M1_HAS_SUBTYPE, MBX_CH_AECP_M0_HAS_SUBTYPE, MBX_CH_AECP_M1_HAS_SUBTYPE, MBX_CH_MAAP_M0_HAS_SUBTYPE, MBX_CH_MAAP_M1_HAS_SUBTYPE, MBX_CH_SRP_M0_HAS_SUBTYPE, MBX_CH_SRP_M1_HAS_SUBTYPE }
 #define MBX_TUPLE_SUBTYPE_TBL { MBX_CH_ADP_M0_SUBTYPE, MBX_CH_ADP_M1_SUBTYPE, MBX_CH_ACMP_M0_SUBTYPE, MBX_CH_ACMP_M1_SUBTYPE, MBX_CH_AECP_M0_SUBTYPE, MBX_CH_AECP_M1_SUBTYPE, MBX_CH_MAAP_M0_SUBTYPE, MBX_CH_MAAP_M1_SUBTYPE, MBX_CH_SRP_M0_SUBTYPE, MBX_CH_SRP_M1_SUBTYPE }
+#define MBX_TUPLE_MSG_MASK_TBL { MBX_CH_ADP_M0_MSG_MASK, MBX_CH_ADP_M1_MSG_MASK, MBX_CH_ACMP_M0_MSG_MASK, MBX_CH_ACMP_M1_MSG_MASK, MBX_CH_AECP_M0_MSG_MASK, MBX_CH_AECP_M1_MSG_MASK, MBX_CH_MAAP_M0_MSG_MASK, MBX_CH_MAAP_M1_MSG_MASK, MBX_CH_SRP_M0_MSG_MASK, MBX_CH_SRP_M1_MSG_MASK }
 #define MBX_TERM_TEST_TBL { MBX_CH_ADP_T0_TEST, MBX_CH_ADP_T1_TEST, MBX_CH_ACMP_T0_TEST, MBX_CH_ACMP_T1_TEST, MBX_CH_AECP_T0_TEST, MBX_CH_AECP_T1_TEST, MBX_CH_MAAP_T0_TEST, MBX_CH_MAAP_T1_TEST, MBX_CH_SRP_T0_TEST, MBX_CH_SRP_T1_TEST }
 #define MBX_TERM_OFFSET_TBL { MBX_CH_ADP_T0_OFFSET, MBX_CH_ADP_T1_OFFSET, MBX_CH_ACMP_T0_OFFSET, MBX_CH_ACMP_T1_OFFSET, MBX_CH_AECP_T0_OFFSET, MBX_CH_AECP_T1_OFFSET, MBX_CH_MAAP_T0_OFFSET, MBX_CH_MAAP_T1_OFFSET, MBX_CH_SRP_T0_OFFSET, MBX_CH_SRP_T1_OFFSET }
 #define MBX_TERM_MASK_TBL { MBX_CH_ADP_T0_MSG_MASK, MBX_CH_ADP_T1_MSG_MASK, MBX_CH_ACMP_T0_MSG_MASK, MBX_CH_ACMP_T1_MSG_MASK, MBX_CH_AECP_T0_MSG_MASK, MBX_CH_AECP_T1_MSG_MASK, MBX_CH_MAAP_T0_MSG_MASK, MBX_CH_MAAP_T1_MSG_MASK, MBX_CH_SRP_T0_MSG_MASK, MBX_CH_SRP_T1_MSG_MASK }

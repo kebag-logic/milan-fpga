@@ -6,11 +6,12 @@
 // (hdl/milan/mailbox), stated in the leaf that implements it:
 //
 //   KL_mbx_rx   classification by the full tuple (destination MAC, or the
-//               arrival interface's OWN_MAC for an `own` tuple, EtherType and
-//               subtype), FILTER_MISMATCH for a control EtherType no tuple
-//               holds, the accept terms, the record committed whole or
-//               dropped (RX_DROP for size or space, RATE_DROP for an empty
-//               bucket), one token per refill period up to the burst;
+//               arrival interface's OWN_MAC for an `own` tuple, EtherType,
+//               subtype and message_type), FILTER_MISMATCH for a control
+//               EtherType no tuple holds, the accept terms, the record
+//               committed whole or dropped (RX_DROP for size or space,
+//               RATE_DROP for an empty bucket), one token per refill period
+//               up to the burst;
 //   KL_mbx_tx   the record whose SEQ comes first modulo 2^16 among each
 //               channel's oldest, scanned from the channel after the one
 //               served last (so equal SEQs go round-robin), a record checked
@@ -39,6 +40,7 @@ static const uint32_t tuple_dst_lo[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_DST_LO
 static const uint32_t tuple_ethertype[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_ETHERTYPE_TBL;
 static const uint32_t tuple_has_subtype[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_HAS_SUBTYPE_TBL;
 static const uint32_t tuple_subtype[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_SUBTYPE_TBL;
+static const uint32_t tuple_msg_mask[MBX_N_CH * MBX_MAX_TUPLES] = MBX_TUPLE_MSG_MASK_TBL;
 static const uint32_t burst[MBX_N_CH] = MBX_CH_RATE_BURST_TBL;
 static const uint32_t refill_ms[MBX_N_CH] = MBX_CH_RATE_REFILL_MS_TBL;
 static const uint32_t term_test[MBX_N_CH * MBX_MAX_TERMS] = MBX_TERM_TEST_TBL;
@@ -296,10 +298,17 @@ static bool tuple_dst_mac(const struct mbx_model *m, unsigned j, unsigned interf
 	return false;
 }
 
-// The channel whose match tuple holds for the frame's destination, EtherType
-// and subtype, or -1. *mismatch when none holds and the EtherType is one some
-// tuple names (a tagged frame's is its TPID, which no tuple names). A frame
-// that ends before the subtype byte carries no PDU: no channel, no count.
+// The message_type the accept terms and the tuples read: 0 for a frame that
+// ends before its byte.
+static uint32_t msg_type(const uint8_t *frame, size_t len)
+{
+	return len > MBX_MSG_TYPE_BYTE ? frame[MBX_MSG_TYPE_BYTE] & 0x0Fu : 0u;
+}
+
+// The channel whose match tuple holds for the frame's destination, EtherType,
+// subtype and message_type, or -1. *mismatch when none holds and the EtherType
+// is one some tuple names (a tagged frame's is its TPID, which no tuple names).
+// A frame that ends before the subtype byte carries no PDU: no channel, no count.
 static int classify(const struct mbx_model *m, const uint8_t *frame, size_t len, unsigned interface, bool *mismatch)
 {
 	*mismatch = false;
@@ -308,13 +317,15 @@ static int classify(const struct mbx_model *m, const uint8_t *frame, size_t len,
 	}
 	uint64_t dst = ((uint64_t)wire_be16(frame + MBX_DST_BYTE) << 32) | wire_be32(frame + MBX_DST_BYTE + 2u);
 	uint32_t et = wire_be16(frame + MBX_ETHERTYPE_BYTE);
+	uint32_t msg = msg_type(frame, len);
 	bool control = false;
 	for (unsigned j = 0; j < MBX_N_CH * MBX_MAX_TUPLES; ++j) {
 		uint64_t mac = 0;
 		bool named = tuple_dst[j] != MBX_DST_NONE && et == tuple_ethertype[j];
 		control = control || named;
 		if (named && tuple_dst_mac(m, j, interface, &mac) && dst == mac &&
-		    (tuple_has_subtype[j] == 0u || frame[MBX_SUBTYPE_BYTE] == tuple_subtype[j])) {
+		    (tuple_has_subtype[j] == 0u || frame[MBX_SUBTYPE_BYTE] == tuple_subtype[j]) &&
+		    ((tuple_msg_mask[j] >> msg) & 1u) != 0u) {
 			return (int)(j / MBX_MAX_TUPLES);
 		}
 	}
@@ -352,7 +363,7 @@ static bool term_holds(const struct mbx_model *m, unsigned j, const uint8_t *fra
 
 static bool rule_passes(const struct mbx_model *m, unsigned c, const uint8_t *frame, size_t len)
 {
-	uint32_t msg = len > MBX_MSG_TYPE_BYTE ? frame[MBX_MSG_TYPE_BYTE] & 0x0Fu : 0u;
+	uint32_t msg = msg_type(frame, len);
 	for (unsigned t = 0; t < MBX_MAX_TERMS; ++t) {
 		unsigned j = c * MBX_MAX_TERMS + t;
 		if (((term_mask[j] >> msg) & 1u) != 0u && term_holds(m, j, frame, len)) {

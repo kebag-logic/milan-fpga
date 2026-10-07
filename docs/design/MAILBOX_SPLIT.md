@@ -79,12 +79,14 @@ The generator refuses a contract that cannot be built: overlapping fields, a
 ring that is not a power of two or overlaps another, two channels that claim
 one EtherType, a register outside its block, a filter field past the frame,
 a read-only field the skeleton has no fabric source for, a match tuple that
-names a VLAN tag's TPID or no destination.
+names a VLAN tag's TPID or no destination, message types named with no
+subtype or wider than four bits, a message_type byte not the one after the
+subtype.
 
 `--check` regenerates every output in memory and fails on any byte of drift.
 `--crosscheck` reads the three constant carriers back by name and fails on a
 field mismatch between them, whatever produced it. `--selftest` plants a
-mismatch into each output (14 arms) and a defect into the YAML (12 arms), and
+mismatch into each output (16 arms) and a defect into the YAML (15 arms), and
 requires each to be caught, after a clean positive control. It also builds
 the two-interface variant the suite uses, which must cross-check clean, and
 requires a four-interface one, whose blocks would overlap the global
@@ -161,11 +163,15 @@ which [product ownership](../../REQUIREMENTS.md#1-product-ownership) and
 [NFR-SCOUT-08](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
 state (#665 lane FC; F0 classified on EtherType and subtype alone).
 
-A frame is classified when its byte 14 arrives, by its full tuple. A channel's
-match tuple holds when the destination MAC is the tuple's address, or, for an
-`own` tuple, the `OWN_MAC` of the interface the frame arrived on; the
-EtherType is the tuple's; and the AVTP subtype is the tuple's where it names
-one. The frame is then stored only when its channel is open, one of the
+A frame is classified when its byte 15 arrives, or at its last byte when it
+ends at byte 14, by its full tuple. A channel's match tuple holds when the
+destination MAC is the tuple's address, or, for an `own` tuple, the `OWN_MAC`
+of the interface the frame arrived on; the EtherType is the tuple's; the AVTP
+subtype is the tuple's where it names one; and the message_type (the low
+nibble of byte 15) is one of the tuple's where it names some. A frame that
+ends at byte 14 has message_type 0, as the accept terms read it. The four-word
+queue holds bytes 0 to 15, so the decision at byte 15 never waits for a drain.
+The frame is then stored only when its channel is open, one of the
 channel's accept terms (its identity term) holds, it fits the channel's
 largest frame and the free ring space, and the channel's token bucket holds a
 token.
@@ -175,7 +181,7 @@ token.
 | `adp` | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | ENTITY_DISCOVER for entity_id 0 or this entity | IEEE 1722.1-2021 6.2, Table B.1; Milan v1.2 5.6.3.1 |
 | `acmp` | `91:E0:F0:01:00:00`, or own unicast (the owner's receive tolerance) | `0x22F0` | `0xFC` | a command or response naming this entity as talker or listener | IEEE 1722.1-2021 8.2.1, Table B.1 |
 | `aecp` | own unicast | `0x22F0` | `0xFB` | a command for this target, or a response for this controller | IEEE 1722.1-2021 9.2.2.4 (Table 9-1), 9.2.2.7, 9.2.2.8; Milan v1.2 5.4.5.3 |
-| `maap` | `91:E0:F0:00:FF:00` | `0x22F0` | `0xFE` | a PROBE, DEFEND or ANNOUNCE overlapping this entity's range | IEEE 1722-2016 Annex B, Table B.10 |
+| `maap` | `91:E0:F0:00:FF:00`; or own unicast for a DEFEND (message_type 2) only | `0x22F0` | `0xFE` | a PROBE, DEFEND or ANNOUNCE overlapping this entity's range | IEEE 1722-2016 B.2.1, Table B.1, Table B.10 |
 | `srp` | `01:80:C2:00:00:0E` with `0x22EA` (MSRP); `01:80:C2:00:00:21` with `0x88F5` (MVRP) | as paired | none | every MSRP and MVRP PDU | IEEE 802.1Q-2018 35.2.2, 11.2.3.1.3, Tables 10-1 and 10-2 |
 
 - **Tagged frames reach no mailbox, by construction.** An 802.1Q tag puts
@@ -191,6 +197,14 @@ token.
   interface behind it has no own MAC. The firmware writes every interface's
   own MAC before it opens a channel (`ctrl_loop_open`). The app gives each
   interface the entity's MAC, which ADP sends on every interface.
+- **A MAAP DEFEND arrives unicast.** IEEE 1722-2016 B.2.1 sends PROBE and
+  ANNOUNCE to the MAAP multicast address, and a DEFEND to the source MAC of
+  the PROBE it answers. So the `maap` channel's second tuple is this
+  interface's own MAC with message_type DEFEND only (#665, comment
+  6026839422). A PROBE, an ANNOUNCE or a reserved message type sent there
+  matches no tuple, so it is counted, as a DEFEND to a foreign unicast is.
+  The range term then applies to the DEFEND as to the multicast frames: its
+  requested range is the one this entity probed.
 - **AECP is two-sided.** A command (an even message_type) passes when
   target_entity_id is this entity. A response (an odd one) passes when
   controller_entity_id is this entity, such as the CONTROLLER_AVAILABLE reply
@@ -626,10 +640,10 @@ Each is the processor's to fix; F3 changes nothing in the submodule.
 
 | Evidence | What it shows |
 |---|---|
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 285 checks through the Wishbone adapter and the same 285 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
-| the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 316 checks through the Wishbone adapter and the same 316 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
+| the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
-| the same suite on the host model | the 285 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the same suite on the host model | the 316 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the other commands, and the two frames both filters refuse) |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
@@ -710,6 +724,24 @@ register and the tuple compares in `KL_mbx_rx`, and to the 48-bit own MAC of
 each interface in `KL_mbx`. The "before" column equals the measurement
 above. The event and TX blocks' RTL did not change; their figures moved only
 with Vivado's optimisation across the hierarchy.
+
+The MAAP DEFEND to own unicast (lane FC, round 2) was measured with the same
+recipe on 2026-10-07, beside the round-1 head `021b9c1f`, whose figures
+repeated the "after" column above exactly:
+
+| Block | LUT before | LUT after | FF before | FF after |
+|---|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,136 | 1,151 | 1,061 | 1,069 |
+| `KL_mbx` registers, decode, read mux | 296 | 295 | 532 | 532 |
+| `KL_mbx_evt` | 681 | 682 | 978 | 978 |
+| `KL_mbx_tx` | 530 | 529 | 280 | 280 |
+| `KL_mbx_wb` | 67 | 67 | 1 | 1 |
+| **Total** | **2,730** | **2,745** | **2,852** | **2,860** |
+
+It costs 15 LUT and 8 FF: the subtype byte held for the decision at byte 15,
+and the second MAAP tuple's compares. The block RAM is unchanged, with no
+DSP. WNS is +0.186 ns at 10 ns (+0.271 ns before), with all 5,630 nets
+routed.
 
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \

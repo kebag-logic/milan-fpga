@@ -389,6 +389,27 @@ MUTANTS = (
            "\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n\t\tm->err = true;\n",
            "\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n",
            "model", MODEL_GROUP + "FilterMismatchCount", "Q9 a mismatch sets IRQ_STATUS.ERR"),
+    # ---- #665 lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1), the RTL arms' twins ----
+    # a DEFEND to this interface's own MAC is delivered: the message type read one byte early
+    Mutant("model-msg-type-off-by-one", "host/mbx_model.c", "\tuint32_t msg = msg_type(frame, len);\n\tbool control",
+           "\tuint32_t msg = frame[MBX_SUBTYPE_BYTE] & 0x0Fu;\n\tbool control", "model",
+           MODEL_GROUP + "MaapDefendToOwnUnicast", "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"),
+    # a PROBE or ANNOUNCE to it is rejected and counted: the tuple's message
+    # types ignored; a message-type refusal taken as an identity refusal, uncounted
+    Mutant("model-tuple-msg-type-ignored", "host/mbx_model.c",
+           "((tuple_msg_mask[j] >> msg) & 1u) != 0u) {", "(((tuple_msg_mask[j] | 0xFFFFu) >> msg) & 1u) != 0u) {",
+           "model",
+           MODEL_GROUP + "MaapDefendToOwnUnicast", "Q11 a PROBE to this interface's own MAC: no RX record"),
+    Mutant("model-msg-type-refusal-uncounted", "host/mbx_model.c",
+           " &&\n\t\t    ((tuple_msg_mask[j] >> msg) & 1u) != 0u) {\n\t\t\treturn (int)(j / MBX_MAX_TUPLES);",
+           ") {\n\t\t\treturn ((tuple_msg_mask[j] >> msg) & 1u) != 0u ? (int)(j / MBX_MAX_TUPLES) : -1;",
+           "model", MODEL_GROUP + "MaapDefendToOwnUnicast",
+           "Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once"),
+    # a DEFEND to a foreign unicast is rejected: the DEFEND tuple takes any unicast
+    Mutant("model-defend-any-unicast", "host/mbx_model.c", "&& dst == mac &&",
+           "&& (dst == mac || (tuple_msg_mask[j] != 0xFFFFu && ((dst >> 40) & 1u) == 0u)) &&",
+           "model", MODEL_GROUP + "MaapDefendToOwnUnicast",
+           "Q11 a DEFEND to a unicast MAC no interface owns: no RX record"),
     # the firmware's side: the own MAC per interface, the counter, the bring-up order
     Mutant("own-mac-unguarded", "mbx/mbx.c",
            "\tif (interface >= MBX_N_IF) {\n\t\treturn false;\n\t}\n\tmbx_hal_write32(iff_reg",

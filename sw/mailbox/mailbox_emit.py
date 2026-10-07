@@ -27,7 +27,7 @@ CHANNEL_TABLES = (
 #: Flattened match-tuple tables, indexed channel * MAX_TUPLES + tuple.
 TUPLE_TABLES = (("TUPLE_DST_TBL", "DST"), ("TUPLE_DST_HI_TBL", "DST_HI"), ("TUPLE_DST_LO_TBL", "DST_LO"),
                 ("TUPLE_ETHERTYPE_TBL", "ETHERTYPE"), ("TUPLE_HAS_SUBTYPE_TBL", "HAS_SUBTYPE"),
-                ("TUPLE_SUBTYPE_TBL", "SUBTYPE"))
+                ("TUPLE_SUBTYPE_TBL", "SUBTYPE"), ("TUPLE_MSG_MASK_TBL", "MSG_MASK"))
 
 #: Flattened accept-term tables, indexed channel * MAX_TERMS + term.
 TERM_TABLES = (("TERM_TEST_TBL", "TEST"), ("TERM_OFFSET_TBL", "OFFSET"), ("TERM_MASK_TBL", "MSG_MASK"))
@@ -192,15 +192,21 @@ def _mac(value: int) -> str:
     return ":".join(f"{(value >> (8 * (5 - k))) & 0xFF:02X}" for k in range(6))
 
 
+def _types(mask: int) -> str:
+    """The message types a mask names, or `any`."""
+    return "any" if mask == 0xFFFF else ", ".join(str(m) for m in range(16) if mask >> m & 1)
+
+
 def _tuple_rows(contract: Contract) -> list[str]:
     """One row per match tuple: the full tuple a channel classifies on."""
-    out = ["| Channel | Tuple | VLAN tag | Destination MAC | EtherType | AVTP subtype | Why |",
-           "|---|---:|---|---|---|---|---|"]
+    out = ["| Channel | Tuple | VLAN tag | Destination MAC | EtherType | AVTP subtype | message_type | Why |",
+           "|---|---:|---|---|---|---|---|---|"]
     for ch in contract.channels:
         for k, m in enumerate(ch.tuples):
             dst = f"`{_mac(m.mac)}`" if m.dst == "mac" else "own MAC of the arrival interface (`OWN_MAC`)"
             sub = "not read" if m.subtype is None else f"`0x{m.subtype:02X}`"
-            out.append(f"| `{ch.name}` | {k} | absent | {dst} | `0x{m.ethertype:04X}` | {sub} | {m.doc} |")
+            out.append(f"| `{ch.name}` | {k} | absent | {dst} | `0x{m.ethertype:04X}` | {sub} "
+                       f"| {_types(m.msg_mask)} | {m.doc} |")
     return out + [""]
 
 
@@ -218,9 +224,7 @@ def _channel_rows(contract: Contract) -> list[str]:
         out += [f"`{ch.name}` accepts a frame when one term holds ({ch.cite}):", "",
                 "| Term | Test | Wire byte | message_type | Field | Why |", "|---|---|---:|---|---|---|"]
         for k, t in enumerate(ch.terms):
-            types = "any" if t.msg_mask == 0xFFFF else ", ".join(
-                str(m) for m in range(16) if t.msg_mask >> m & 1)
-            out.append(f"| {k} | `{t.test}` | {t.offset} | {types} | `{t.field}` | {t.doc} |")
+            out.append(f"| {k} | `{t.test}` | {t.offset} | {_types(t.msg_mask)} | `{t.field}` | {t.doc} |")
         out.append("")
     return out
 
@@ -276,10 +280,13 @@ def emit_doc(contract: Contract) -> str:
     lines += [f"| `{e.name}` | {e.value} | {e.doc} |" for e in contract.event_types]
     tpids = ", ".join(f"`0x{t:04X}`" for t in contract.tpids)
     lines += ["", "## Channels and the ingress filter", "",
-              f"A frame is classified when its byte {contract.subtype_byte} arrives, by its full tuple.",
+              f"A frame is classified when its byte {contract.msg_type_byte} arrives, by its full tuple,",
+              f"or at its last byte when it ends at byte {contract.subtype_byte}.",
               "A channel's tuple holds when the destination MAC is the tuple's address,",
               "or, for an `own` tuple, `OWN_MAC` of the interface the frame arrived on;",
-              "the EtherType is the tuple's; and the AVTP subtype is the tuple's where it names one.",
+              "the EtherType is the tuple's; the AVTP subtype is the tuple's where it names one;",
+              f"and the message_type (the low nibble of byte {contract.msg_type_byte}, 0 when the frame ends",
+              f"at byte {contract.subtype_byte}) is one of the tuple's where it names some.",
               "The frame passes when its channel is open and one accept term (the identity term) holds.",
               "It must also fit max_frame_bytes and the free ring space.",
               "Then the channel's token bucket must hold a token.", "",

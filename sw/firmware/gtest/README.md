@@ -160,8 +160,8 @@ it.
 | `ctrl_nvm`, 1x1 shape | (new) | 0 | `test_nvm_shapes.cpp` (two doctored builds), `test_nvm_litespi.cpp` | 5 |
 
 The table records the port as FT landed it. Lane FC (the full-tuple ingress
-filter) then added seven `model` groups, D12 to `port`, and D11 and U4 to
-`unit`, so those arms run 21, 31 and 25 tests. Lane F3 (ACMP) added three
+filter) then added eight `model` groups, D12 to `port`, and D11 and U4 to
+`unit`, so those arms run 22, 31 and 25 tests. Lane F3 (ACMP) added three
 arms written on GoogleTest from the start: `acmp` (67 tests), `acmpwalk`
 (127: 88 cells of the processor's Table 5.30 model, 33 of its Table 5.54
 transcription, six scenarios) and `acmpnvm` (6), each test with a planted
