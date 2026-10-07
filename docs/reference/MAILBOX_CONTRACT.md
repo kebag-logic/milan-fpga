@@ -5,7 +5,7 @@
 Regenerate with `python3 sw/mailbox/gen_mailbox.py --write`.
 
 The design page is [MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md).
-This page is contract version 2.0.
+This page is contract version 2.1.
 
 ## Byte order
 
@@ -218,6 +218,34 @@ Interface i's filter block starts at `0x080 + 0x8 * i`.
 |---|---|---|
 | `[15:0]` | `MAC` | MAC[47:32], destination wire bytes 0 and 1 |
 
+### Interface bound-talker registers
+
+Interface i's bound-talker table starts at `0x200 + 0x100 * i`, and its entry e at `0x10 * e` inside it, for 16 entries (one per listener stream). An `eq_bound` term reads the table of the interface the frame arrived on.
+
+| Offset | Register | Access | Meaning |
+|---|---|---|---|
+| `0x000` | `BOUND_EID_LO` | rw | An entry's talker_entity_id, low word. Reset 0. |
+| `0x004` | `BOUND_EID_HI` | rw | An entry's talker_entity_id, high word. Reset 0. |
+| `0x008` | `BOUND_EN` | rw | The entry holds a bound talker. Reset 0. The firmware clears EN before it rewrites the entry's BOUND_EID, so a half-written identity never matches. |
+
+`BOUND_EID_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `EID` | talker_entity_id[31:0], ADPDU wire bytes 22 to 25 |
+
+`BOUND_EID_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `EID` | talker_entity_id[63:32], ADPDU wire bytes 18 to 21 |
+
+`BOUND_EN` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `EN` | the entry takes part in the eq_bound test |
+
 ### Channel registers
 
 Channel c's block starts at `0x100 + 0x20 * c`.
@@ -362,12 +390,13 @@ A frame that ends before byte 14 is classified into nothing and counted nowhere.
 | `srp` | 0 | absent | `01:80:C2:00:00:0E` | `0x22EA` | not read | any | MSRP: the Nearest Bridge group address and the MSRP EtherType (IEEE 802.1Q-2018 35.2.2.1, 35.2.2.2) |
 | `srp` | 1 | absent | `01:80:C2:00:00:21` | `0x88F5` | not read | any | MVRP: the Customer Bridge MVRP address and EtherType (IEEE 802.1Q-2018 11.2.3.1.3, Tables 10-1 and 10-2) |
 
-`adp` accepts a frame when one term holds (IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1):
+`adp` accepts a frame when one term holds (IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1 and 5.6.4.1):
 
 | Term | Test | Wire byte | message_type | Field | Why |
 |---|---|---:|---|---|---|
 | 0 | `eq_zero` | 18 | 2 | `entity_id` | ENTITY_DISCOVER for every entity (Milan v1.2 5.6.3.1 step 2) |
 | 1 | `eq_own` | 18 | 2 | `entity_id` | ENTITY_DISCOVER for this entity (Milan v1.2 5.6.3.1 step 2) |
+| 2 | `eq_bound` | 18 | 0, 1 | `entity_id` | ENTITY_AVAILABLE and ENTITY_DEPARTING of a talker bound on the receiving interface (Milan v1.2 5.6.4.1; #665, comment 6029368753) |
 
 `acmp` accepts a frame when one term holds (IEEE 1722.1-2021 8.2.1.9 and 8.2.1.10):
 
@@ -408,6 +437,7 @@ A frame that ends before byte 14 is classified into nothing and counted nowhere.
 | `eq_own` | 2 | the 8-byte big-endian field equals OWN_EID |
 | `eq_zero` | 3 | the 8-byte field is 0 |
 | `range_overlap` | 4 | the 6-byte start and 2-byte count overlap [MAAP_BASE, MAAP_BASE + MAAP_COUNT - 1] |
+| `eq_bound` | 5 | the 8-byte big-endian field equals an enabled entry (BOUND_EID, BOUND_EN) of the arrival interface's bound-talker table |
 
 ## Constants
 
@@ -417,16 +447,17 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | Name | Value |
 |---|---:|
 | `MBX_VERSION_MAJOR` | `0x2` |
-| `MBX_VERSION_MINOR` | `0x0` |
+| `MBX_VERSION_MINOR` | `0x1` |
 | `MBX_MAGIC` | `0x4d42` |
 | `MBX_WINDOW_BYTES` | `0x8000` |
 | `MBX_REGISTER_SPACE_BYTES` | `0x400` |
 | `MBX_N_IF` | `0x1` |
 | `MBX_N_TIMERS` | `0x10` |
+| `MBX_N_BOUND` | `0x10` |
 | `MBX_TICK_MS` | `0xa` |
 | `MBX_N_CH` | `0x5` |
 | `MBX_INDEX_BITS` | `0x10` |
-| `MBX_MAX_TERMS` | `0x2` |
+| `MBX_MAX_TERMS` | `0x3` |
 | `MBX_MAX_TUPLES` | `0x2` |
 | `MBX_TERM_FIELD_BYTES` | `0x8` |
 | `MBX_DST_BYTE` | `0x0` |
@@ -441,6 +472,7 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_TEST_EQ_OWN` | `0x2` |
 | `MBX_TEST_EQ_ZERO` | `0x3` |
 | `MBX_TEST_RANGE_OVERLAP` | `0x4` |
+| `MBX_TEST_EQ_BOUND` | `0x5` |
 | `MBX_TMR_OP_ARM` | `0x1` |
 | `MBX_TMR_OP_CANCEL` | `0x2` |
 | `MBX_REG_ID` | `0x0` |
@@ -541,6 +573,18 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_IFF_REG_OWN_MAC_HI` | `0x4` |
 | `MBX_OWN_MAC_HI_MAC_LSB` | `0x0` |
 | `MBX_OWN_MAC_HI_MAC_WIDTH` | `0x10` |
+| `MBX_BND_BASE` | `0x200` |
+| `MBX_BND_STRIDE` | `0x100` |
+| `MBX_BND_ENTRY_STRIDE` | `0x10` |
+| `MBX_BND_REG_BOUND_EID_LO` | `0x0` |
+| `MBX_BOUND_EID_LO_EID_LSB` | `0x0` |
+| `MBX_BOUND_EID_LO_EID_WIDTH` | `0x20` |
+| `MBX_BND_REG_BOUND_EID_HI` | `0x4` |
+| `MBX_BOUND_EID_HI_EID_LSB` | `0x0` |
+| `MBX_BOUND_EID_HI_EID_WIDTH` | `0x20` |
+| `MBX_BND_REG_BOUND_EN` | `0x8` |
+| `MBX_BOUND_EN_EN_LSB` | `0x0` |
+| `MBX_BOUND_EN_EN_WIDTH` | `0x1` |
 | `MBX_CH_BASE` | `0x100` |
 | `MBX_CH_STRIDE` | `0x20` |
 | `MBX_CH_REG_RX_HEAD` | `0x0` |
@@ -652,6 +696,9 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_ADP_T1_TEST` | `0x2` |
 | `MBX_CH_ADP_T1_OFFSET` | `0x12` |
 | `MBX_CH_ADP_T1_MSG_MASK` | `0x4` |
+| `MBX_CH_ADP_T2_TEST` | `0x5` |
+| `MBX_CH_ADP_T2_OFFSET` | `0x12` |
+| `MBX_CH_ADP_T2_MSG_MASK` | `0x3` |
 | `MBX_CH_ACMP` | `0x1` |
 | `MBX_CH_ACMP_RX_BASE` | `0x1800` |
 | `MBX_CH_ACMP_RX_WORDS` | `0x100` |
@@ -680,6 +727,9 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_ACMP_T1_TEST` | `0x2` |
 | `MBX_CH_ACMP_T1_OFFSET` | `0x2a` |
 | `MBX_CH_ACMP_T1_MSG_MASK` | `0xffff` |
+| `MBX_CH_ACMP_T2_TEST` | `0x0` |
+| `MBX_CH_ACMP_T2_OFFSET` | `0x0` |
+| `MBX_CH_ACMP_T2_MSG_MASK` | `0x0` |
 | `MBX_CH_AECP` | `0x2` |
 | `MBX_CH_AECP_RX_BASE` | `0x2000` |
 | `MBX_CH_AECP_RX_WORDS` | `0x200` |
@@ -708,6 +758,9 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_AECP_T1_TEST` | `0x2` |
 | `MBX_CH_AECP_T1_OFFSET` | `0x1a` |
 | `MBX_CH_AECP_T1_MSG_MASK` | `0xaaaa` |
+| `MBX_CH_AECP_T2_TEST` | `0x0` |
+| `MBX_CH_AECP_T2_OFFSET` | `0x0` |
+| `MBX_CH_AECP_T2_MSG_MASK` | `0x0` |
 | `MBX_CH_MAAP` | `0x3` |
 | `MBX_CH_MAAP_RX_BASE` | `0x3000` |
 | `MBX_CH_MAAP_RX_WORDS` | `0x80` |
@@ -736,6 +789,9 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_MAAP_T1_TEST` | `0x0` |
 | `MBX_CH_MAAP_T1_OFFSET` | `0x0` |
 | `MBX_CH_MAAP_T1_MSG_MASK` | `0x0` |
+| `MBX_CH_MAAP_T2_TEST` | `0x0` |
+| `MBX_CH_MAAP_T2_OFFSET` | `0x0` |
+| `MBX_CH_MAAP_T2_MSG_MASK` | `0x0` |
 | `MBX_CH_SRP` | `0x4` |
 | `MBX_CH_SRP_RX_BASE` | `0x4000` |
 | `MBX_CH_SRP_RX_WORDS` | `0x400` |
@@ -764,6 +820,9 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_SRP_T1_TEST` | `0x0` |
 | `MBX_CH_SRP_T1_OFFSET` | `0x0` |
 | `MBX_CH_SRP_T1_MSG_MASK` | `0x0` |
+| `MBX_CH_SRP_T2_TEST` | `0x0` |
+| `MBX_CH_SRP_T2_OFFSET` | `0x0` |
+| `MBX_CH_SRP_T2_MSG_MASK` | `0x0` |
 | `MBX_IF_W` | `0x1` |
 | `MBX_CH_W` | `0x3` |
 | `MBX_RING_AW` | `0xa` |

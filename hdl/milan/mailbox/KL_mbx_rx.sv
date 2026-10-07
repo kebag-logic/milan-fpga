@@ -4,7 +4,7 @@
  */
 //---------------------------------------------------------------------------//
 //  File        : KL_mbx_rx.sv
-//  Project     : Milan FPGA Platform (packet mailbox, #665 lanes F0 and FC)
+//  Project     : Milan FPGA Platform (packet mailbox, #665 lanes F0, FC and F3)
 //
 //  Description : The ingress filter and the receive ring writer. A frame arrives
 //                one byte per accepted cycle. When its byte 15 arrives (or its
@@ -17,8 +17,10 @@
 //                when the frame ends at byte 14) where the tuple names some, as
 //                the MAAP DEFEND to own unicast does. Every channel's
 //                accept terms (the identity term: an 8-byte compare against
-//                OWN_EID or zero, or a MAAP range captured for the overlap
-//                test) are evaluated as the bytes pass, and the frame's words
+//                OWN_EID or zero, a MAAP range captured for the overlap test,
+//                or an 8-byte field captured for the eq_bound test against the
+//                enabled entries of the arrival interface's bound-talker
+//                table) are evaluated as the bytes pass, and the frame's words
 //                are written into the picked channel's receive ring
 //                speculatively, past the ring's head. At the last byte the
 //                verdict is taken: a frame for no open channel, or one no
@@ -62,6 +64,8 @@ module KL_mbx_rx
 
   input  wire  [63:0]                       own_eid_i,        //! OWN_EID, the eq_own operand
   input  wire  [MBX_N_IF_C*48-1:0]          own_mac_i,        //! OWN_MAC per interface, an `own` tuple's destination
+  input  wire  [MBX_N_IF_C*MBX_N_BOUND_C*64-1:0] bound_eid_i,  //! BOUND_EID per interface and entry, the eq_bound operand
+  input  wire  [MBX_N_IF_C*MBX_N_BOUND_C-1:0] bound_en_i,      //! BOUND_EN per interface and entry
   input  wire  [MBX_N_CH_C-1:0]             open_i,           //! FILTER_EN.OPEN, bit c opens channel c
   input  wire  [47:0]                       maap_base_i,      //! MAAP_BASE, first address of this entity's range
   input  wire  [15:0]                       maap_count_i,     //! MAAP_COUNT, addresses in the range (0 = none)
@@ -90,6 +94,7 @@ module KL_mbx_rx
   localparam int unsigned NM_C = MBX_N_CH_C * MBX_MAX_TUPLES_C;  //! match tuples, flattened
   localparam int unsigned QD_C = 4;                              //! word queue depth
   localparam int unsigned TW_C = $clog2(NT_C);                   //! term index width
+  localparam int unsigned NB_C = MBX_N_BOUND_C;                  //! bound-talker entries per interface
 
   typedef enum logic [1:0] {RECV_S, FIN_S, HDR0_S, HDR1_S} state_t;
 
@@ -149,6 +154,21 @@ module KL_mbx_rx
     end
   end : own_mac
 
+  // ---- the bound-talker table of the interface the frame arrived on ----------
+  // An index this build has no interface for has no table: no eq_bound term holds.
+  logic [NB_C*64-1:0] bound_eid_w;
+  logic [NB_C-1:0]    bound_en_w;
+  always_comb begin : bound_table
+    bound_eid_w = '0;
+    bound_en_w  = '0;
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      if (int'(if_r) == i) begin
+        bound_eid_w = bound_eid_i[64*NB_C*i +: 64*NB_C];
+        bound_en_w  = bound_en_i[NB_C*i +: NB_C];
+      end
+    end
+  end : bound_table
+
   // ---- classification at byte 15, or at the last byte of a frame ending at 14 --
   logic                  cls_at_w;    //! the byte taken now decides the channel
   logic                  cls_hit_w;   //! a channel's tuple holds
@@ -205,18 +225,24 @@ module KL_mbx_rx
       logic        overlap;
       logic [48:0] own_end;
       logic [48:0] req_end;
+      logic        bound;
       j        = TW_C'(int'(ch_r) * int'(MBX_MAX_TERMS_C) + t);
       field_ok = 32'(cnt_r) >= MBX_TERM_OFFSET_TBL_C[j] + MBX_TERM_FIELD_BYTES_C;
       own_end  = {1'b0, maap_base_i} + 49'(maap_count_i) - 49'd1;
       req_end  = {1'b0, field_r[j][63:16]} + 49'(field_r[j][15:0]) - 49'd1;
       overlap  = (field_r[j][15:0] != 16'd0) && (maap_count_i != 16'd0)
                  && ({1'b0, field_r[j][63:16]} <= own_end) && ({1'b0, maap_base_i} <= req_end);
+      bound    = 1'b0;
+      for (int e = 0; e < int'(NB_C); e++) begin
+        if (bound_en_w[e] && field_r[j] == bound_eid_w[64*e +: 64]) bound = 1'b1;
+      end
       if (MBX_TERM_MASK_TBL_C[j][{1'b0, msg_r}]) begin
         unique case (MBX_TERM_TEST_TBL_C[j])
           MBX_TEST_ANY_C:           rule_pass_w = 1'b1;
           MBX_TEST_EQ_OWN_C:        if (field_ok && eqown_r[j]) rule_pass_w = 1'b1;
           MBX_TEST_EQ_ZERO_C:       if (field_ok && eqzero_r[j]) rule_pass_w = 1'b1;
           MBX_TEST_RANGE_OVERLAP_C: if (field_ok && overlap) rule_pass_w = 1'b1;
+          MBX_TEST_EQ_BOUND_C:      if (field_ok && bound) rule_pass_w = 1'b1;
           default: ;
         endcase
       end

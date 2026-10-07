@@ -43,14 +43,22 @@
 # every tuple. A tuple may also name AVTP message types: the MAAP channel takes
 # a DEFEND to the receiving interface's own MAC (IEEE 1722-2016 B.2.1; #665,
 # comment 6026839422).
+#
+# Minor 1 (#665 lane F3, the decision on #665, comment 6029368753): the adp
+# channel also takes the ENTITY_AVAILABLE and ENTITY_DEPARTING of a talker
+# bound on the receiving interface, read from a per-interface bound-talker
+# table the firmware writes as its bindings change. It only adds: a firmware
+# built against 2.0 leaves the table empty and sees the 2.0 filter.
 
 version:
   major: 2
-  minor: 0
+  minor: 1
 magic: 0x4D42          # "MB"
 window_bytes: 0x8000   # host-visible window
 interfaces: 1          # AVB interfaces (link, grandmaster and domain per interface)
 timers: 16             # fabric timer slots
+bound_talkers: 16      # bound-talker entries per interface: one per listener stream (STREAM_INPUT), 16 as
+                       # the firmware's ACMP_MAX_SINKS and the saved-state binding block hold
 tick_ms: 10            # the TICK event period: one centisecond, lwSRP's timer unit
 index_bits: 16         # ring head and tail counters, in words, modulo 2^16
 
@@ -252,6 +260,37 @@ interface_filter_registers:
       fields:
         - {name: MAC, lsb: 0, width: 16, doc: "MAC[47:32], destination wire bytes 0 and 1"}
 
+# The adp channel's bound-talker table (#665, comment 6029368753; Milan v1.2
+# 5.6.4.1): per interface, one entry per listener stream, which the firmware
+# writes as that stream's binding changes. An `eq_bound` term holds when its
+# field equals an enabled entry of the table of the interface the frame
+# arrived on (the RX record's IF), never another interface's.
+interface_bound_registers:
+  base: 0x200
+  stride: 0x100          # bytes per interface: bound_talkers entries
+  entry_stride: 0x10     # bytes per entry
+  registers:
+    - name: BOUND_EID_LO
+      offset: 0x0
+      access: rw
+      doc: An entry's talker_entity_id, low word. Reset 0.
+      fields:
+        - {name: EID, lsb: 0, width: 32, doc: "talker_entity_id[31:0], ADPDU wire bytes 22 to 25"}
+    - name: BOUND_EID_HI
+      offset: 0x4
+      access: rw
+      doc: An entry's talker_entity_id, high word. Reset 0.
+      fields:
+        - {name: EID, lsb: 0, width: 32, doc: "talker_entity_id[63:32], ADPDU wire bytes 18 to 21"}
+    - name: BOUND_EN
+      offset: 0x8
+      access: rw
+      doc: >-
+        The entry holds a bound talker. Reset 0. The firmware clears EN before it
+        rewrites the entry's BOUND_EID, so a half-written identity never matches.
+      fields:
+        - {name: EN, lsb: 0, width: 1, doc: the entry takes part in the eq_bound test}
+
 channel_registers:
   base: 0x100
   stride: 0x20
@@ -439,7 +478,7 @@ filter:
   subtype_byte: 14
   ethertype_byte: 12
   dst_byte: 0                # the destination MAC, six bytes, network order
-  max_terms: 2               # accept terms per channel; unused terms are `none`
+  max_terms: 3               # accept terms per channel; unused terms are `none`
   max_tuples: 2              # match tuples per channel; unused tuples are `none`
   tpids: [0x8100, 0x88A8, 0x88E7]   # IEEE 802.1Q-2018 Table 9-1: C-VLAN, S-VLAN and I-tag TPIDs
   dsts:
@@ -453,6 +492,8 @@ filter:
     - {name: eq_zero, value: 3, doc: the 8-byte field is 0}
     - {name: range_overlap, value: 4,
        doc: "the 6-byte start and 2-byte count overlap [MAAP_BASE, MAAP_BASE + MAAP_COUNT - 1]"}
+    - {name: eq_bound, value: 5,
+       doc: "the 8-byte big-endian field equals an enabled entry (BOUND_EID, BOUND_EN) of the arrival interface's bound-talker table"}
   tmr_ops:
     - {name: arm, value: 1}
     - {name: cancel, value: 2}
@@ -467,12 +508,14 @@ channels:
       - {dst: 0x91E0F0010000, ethertype: 0x22F0, subtype: 0xFA,
          doc: "the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1)"}
     rate: {burst: 8, refill_ms: 10}
-    cite: IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1
+    cite: IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1 and 5.6.4.1
     accept:
       - {test: eq_zero, offset: 18, msg_types: [2], field: entity_id,
          doc: "ENTITY_DISCOVER for every entity (Milan v1.2 5.6.3.1 step 2)"}
       - {test: eq_own, offset: 18, msg_types: [2], field: entity_id,
          doc: "ENTITY_DISCOVER for this entity (Milan v1.2 5.6.3.1 step 2)"}
+      - {test: eq_bound, offset: 18, msg_types: [0, 1], field: entity_id,
+         doc: "ENTITY_AVAILABLE and ENTITY_DEPARTING of a talker bound on the receiving interface (Milan v1.2 5.6.4.1; #665, comment 6029368753)"}
   - name: acmp
     id: 1
     rx: {base: 0x1800, words: 256}

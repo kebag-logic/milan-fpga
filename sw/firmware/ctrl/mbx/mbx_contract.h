@@ -16,7 +16,7 @@
 /* contract major version */
 #define MBX_VERSION_MAJOR 2u
 /* contract minor version */
-#define MBX_VERSION_MINOR 0u
+#define MBX_VERSION_MINOR 1u
 /* ID.MAGIC */
 #define MBX_MAGIC 0x4D42u
 /* host window size */
@@ -27,6 +27,8 @@
 #define MBX_N_IF 1u
 /* timer slots */
 #define MBX_N_TIMERS 16u
+/* bound-talker entries per interface (listener streams) */
+#define MBX_N_BOUND 16u
 /* NOW_MS milliseconds per TICK (one centisecond) */
 #define MBX_TICK_MS 10u
 /* channels */
@@ -34,7 +36,7 @@
 /* ring counter width */
 #define MBX_INDEX_BITS 16u
 /* accept terms per channel */
-#define MBX_MAX_TERMS 2u
+#define MBX_MAX_TERMS 3u
 /* match tuples per channel */
 #define MBX_MAX_TUPLES 2u
 /* bytes a filter term reads */
@@ -63,6 +65,8 @@
 #define MBX_TEST_EQ_ZERO 3u
 /* the 6-byte start and 2-byte count overlap [MAAP_BASE, MAAP_BASE + MAAP_COUNT - 1] */
 #define MBX_TEST_RANGE_OVERLAP 4u
+/* the 8-byte big-endian field equals an enabled entry (BOUND_EID, BOUND_EN) of the arrival interface's bound-talker table */
+#define MBX_TEST_EQ_BOUND 5u
 /* TMR_CMD.OP arm */
 #define MBX_TMR_OP_ARM 1u
 /* TMR_CMD.OP cancel */
@@ -263,6 +267,30 @@
 #define MBX_OWN_MAC_HI_MAC_LSB 0u
 /* OWN_MAC_HI: MAC[47:32], destination wire bytes 0 and 1 */
 #define MBX_OWN_MAC_HI_MAC_WIDTH 16u
+/* first interface's bound-talker table */
+#define MBX_BND_BASE 0x200u
+/* bytes per interface's bound-talker table */
+#define MBX_BND_STRIDE 0x100u
+/* bytes per bound-talker entry */
+#define MBX_BND_ENTRY_STRIDE 0x10u
+/* An entry's talker_entity_id, low word. Reset 0. */
+#define MBX_BND_REG_BOUND_EID_LO 0x0u
+/* BOUND_EID_LO: talker_entity_id[31:0], ADPDU wire bytes 22 to 25 */
+#define MBX_BOUND_EID_LO_EID_LSB 0u
+/* BOUND_EID_LO: talker_entity_id[31:0], ADPDU wire bytes 22 to 25 */
+#define MBX_BOUND_EID_LO_EID_WIDTH 32u
+/* An entry's talker_entity_id, high word. Reset 0. */
+#define MBX_BND_REG_BOUND_EID_HI 0x4u
+/* BOUND_EID_HI: talker_entity_id[63:32], ADPDU wire bytes 18 to 21 */
+#define MBX_BOUND_EID_HI_EID_LSB 0u
+/* BOUND_EID_HI: talker_entity_id[63:32], ADPDU wire bytes 18 to 21 */
+#define MBX_BOUND_EID_HI_EID_WIDTH 32u
+/* The entry holds a bound talker. Reset 0. The firmware clears EN before it rewrites the entry's BOUND_EID, so a half-written identity never matches. */
+#define MBX_BND_REG_BOUND_EN 0x8u
+/* BOUND_EN: the entry takes part in the eq_bound test */
+#define MBX_BOUND_EN_EN_LSB 0u
+/* BOUND_EN: the entry takes part in the eq_bound test */
+#define MBX_BOUND_EN_EN_WIDTH 1u
 /* first channel register block */
 #define MBX_CH_BASE 0x100u
 /* bytes per channel block */
@@ -485,6 +513,12 @@
 #define MBX_CH_ADP_T1_OFFSET 18u
 /* adp term 1 message types */
 #define MBX_CH_ADP_T1_MSG_MASK 0x4u
+/* adp term 2: ENTITY_AVAILABLE and ENTITY_DEPARTING of a talker bound on the receiving interface (Milan v1.2 5.6.4.1; #665, comment 6029368753) */
+#define MBX_CH_ADP_T2_TEST 5u
+/* adp term 2 field byte */
+#define MBX_CH_ADP_T2_OFFSET 18u
+/* adp term 2 message types */
+#define MBX_CH_ADP_T2_MSG_MASK 0x3u
 /* channel acmp */
 #define MBX_CH_ACMP 1u
 /* acmp receive ring byte offset */
@@ -541,6 +575,12 @@
 #define MBX_CH_ACMP_T1_OFFSET 42u
 /* acmp term 1 message types */
 #define MBX_CH_ACMP_T1_MSG_MASK 0xFFFFu
+/* acmp term 2: unused */
+#define MBX_CH_ACMP_T2_TEST 0u
+/* acmp term 2 field byte */
+#define MBX_CH_ACMP_T2_OFFSET 0u
+/* acmp term 2 message types */
+#define MBX_CH_ACMP_T2_MSG_MASK 0x0u
 /* channel aecp */
 #define MBX_CH_AECP 2u
 /* aecp receive ring byte offset */
@@ -597,6 +637,12 @@
 #define MBX_CH_AECP_T1_OFFSET 26u
 /* aecp term 1 message types */
 #define MBX_CH_AECP_T1_MSG_MASK 0xAAAAu
+/* aecp term 2: unused */
+#define MBX_CH_AECP_T2_TEST 0u
+/* aecp term 2 field byte */
+#define MBX_CH_AECP_T2_OFFSET 0u
+/* aecp term 2 message types */
+#define MBX_CH_AECP_T2_MSG_MASK 0x0u
 /* channel maap */
 #define MBX_CH_MAAP 3u
 /* maap receive ring byte offset */
@@ -653,6 +699,12 @@
 #define MBX_CH_MAAP_T1_OFFSET 0u
 /* maap term 1 message types */
 #define MBX_CH_MAAP_T1_MSG_MASK 0x0u
+/* maap term 2: unused */
+#define MBX_CH_MAAP_T2_TEST 0u
+/* maap term 2 field byte */
+#define MBX_CH_MAAP_T2_OFFSET 0u
+/* maap term 2 message types */
+#define MBX_CH_MAAP_T2_MSG_MASK 0x0u
 /* channel srp */
 #define MBX_CH_SRP 4u
 /* srp receive ring byte offset */
@@ -709,6 +761,12 @@
 #define MBX_CH_SRP_T1_OFFSET 0u
 /* srp term 1 message types */
 #define MBX_CH_SRP_T1_MSG_MASK 0x0u
+/* srp term 2: unused */
+#define MBX_CH_SRP_T2_TEST 0u
+/* srp term 2 field byte */
+#define MBX_CH_SRP_T2_OFFSET 0u
+/* srp term 2 message types */
+#define MBX_CH_SRP_T2_MSG_MASK 0x0u
 /* interface index bits */
 #define MBX_IF_W 1u
 /* channel index bits */
@@ -734,8 +792,8 @@
 #define MBX_TUPLE_HAS_SUBTYPE_TBL { MBX_CH_ADP_M0_HAS_SUBTYPE, MBX_CH_ADP_M1_HAS_SUBTYPE, MBX_CH_ACMP_M0_HAS_SUBTYPE, MBX_CH_ACMP_M1_HAS_SUBTYPE, MBX_CH_AECP_M0_HAS_SUBTYPE, MBX_CH_AECP_M1_HAS_SUBTYPE, MBX_CH_MAAP_M0_HAS_SUBTYPE, MBX_CH_MAAP_M1_HAS_SUBTYPE, MBX_CH_SRP_M0_HAS_SUBTYPE, MBX_CH_SRP_M1_HAS_SUBTYPE }
 #define MBX_TUPLE_SUBTYPE_TBL { MBX_CH_ADP_M0_SUBTYPE, MBX_CH_ADP_M1_SUBTYPE, MBX_CH_ACMP_M0_SUBTYPE, MBX_CH_ACMP_M1_SUBTYPE, MBX_CH_AECP_M0_SUBTYPE, MBX_CH_AECP_M1_SUBTYPE, MBX_CH_MAAP_M0_SUBTYPE, MBX_CH_MAAP_M1_SUBTYPE, MBX_CH_SRP_M0_SUBTYPE, MBX_CH_SRP_M1_SUBTYPE }
 #define MBX_TUPLE_MSG_MASK_TBL { MBX_CH_ADP_M0_MSG_MASK, MBX_CH_ADP_M1_MSG_MASK, MBX_CH_ACMP_M0_MSG_MASK, MBX_CH_ACMP_M1_MSG_MASK, MBX_CH_AECP_M0_MSG_MASK, MBX_CH_AECP_M1_MSG_MASK, MBX_CH_MAAP_M0_MSG_MASK, MBX_CH_MAAP_M1_MSG_MASK, MBX_CH_SRP_M0_MSG_MASK, MBX_CH_SRP_M1_MSG_MASK }
-#define MBX_TERM_TEST_TBL { MBX_CH_ADP_T0_TEST, MBX_CH_ADP_T1_TEST, MBX_CH_ACMP_T0_TEST, MBX_CH_ACMP_T1_TEST, MBX_CH_AECP_T0_TEST, MBX_CH_AECP_T1_TEST, MBX_CH_MAAP_T0_TEST, MBX_CH_MAAP_T1_TEST, MBX_CH_SRP_T0_TEST, MBX_CH_SRP_T1_TEST }
-#define MBX_TERM_OFFSET_TBL { MBX_CH_ADP_T0_OFFSET, MBX_CH_ADP_T1_OFFSET, MBX_CH_ACMP_T0_OFFSET, MBX_CH_ACMP_T1_OFFSET, MBX_CH_AECP_T0_OFFSET, MBX_CH_AECP_T1_OFFSET, MBX_CH_MAAP_T0_OFFSET, MBX_CH_MAAP_T1_OFFSET, MBX_CH_SRP_T0_OFFSET, MBX_CH_SRP_T1_OFFSET }
-#define MBX_TERM_MASK_TBL { MBX_CH_ADP_T0_MSG_MASK, MBX_CH_ADP_T1_MSG_MASK, MBX_CH_ACMP_T0_MSG_MASK, MBX_CH_ACMP_T1_MSG_MASK, MBX_CH_AECP_T0_MSG_MASK, MBX_CH_AECP_T1_MSG_MASK, MBX_CH_MAAP_T0_MSG_MASK, MBX_CH_MAAP_T1_MSG_MASK, MBX_CH_SRP_T0_MSG_MASK, MBX_CH_SRP_T1_MSG_MASK }
+#define MBX_TERM_TEST_TBL { MBX_CH_ADP_T0_TEST, MBX_CH_ADP_T1_TEST, MBX_CH_ADP_T2_TEST, MBX_CH_ACMP_T0_TEST, MBX_CH_ACMP_T1_TEST, MBX_CH_ACMP_T2_TEST, MBX_CH_AECP_T0_TEST, MBX_CH_AECP_T1_TEST, MBX_CH_AECP_T2_TEST, MBX_CH_MAAP_T0_TEST, MBX_CH_MAAP_T1_TEST, MBX_CH_MAAP_T2_TEST, MBX_CH_SRP_T0_TEST, MBX_CH_SRP_T1_TEST, MBX_CH_SRP_T2_TEST }
+#define MBX_TERM_OFFSET_TBL { MBX_CH_ADP_T0_OFFSET, MBX_CH_ADP_T1_OFFSET, MBX_CH_ADP_T2_OFFSET, MBX_CH_ACMP_T0_OFFSET, MBX_CH_ACMP_T1_OFFSET, MBX_CH_ACMP_T2_OFFSET, MBX_CH_AECP_T0_OFFSET, MBX_CH_AECP_T1_OFFSET, MBX_CH_AECP_T2_OFFSET, MBX_CH_MAAP_T0_OFFSET, MBX_CH_MAAP_T1_OFFSET, MBX_CH_MAAP_T2_OFFSET, MBX_CH_SRP_T0_OFFSET, MBX_CH_SRP_T1_OFFSET, MBX_CH_SRP_T2_OFFSET }
+#define MBX_TERM_MASK_TBL { MBX_CH_ADP_T0_MSG_MASK, MBX_CH_ADP_T1_MSG_MASK, MBX_CH_ADP_T2_MSG_MASK, MBX_CH_ACMP_T0_MSG_MASK, MBX_CH_ACMP_T1_MSG_MASK, MBX_CH_ACMP_T2_MSG_MASK, MBX_CH_AECP_T0_MSG_MASK, MBX_CH_AECP_T1_MSG_MASK, MBX_CH_AECP_T2_MSG_MASK, MBX_CH_MAAP_T0_MSG_MASK, MBX_CH_MAAP_T1_MSG_MASK, MBX_CH_MAAP_T2_MSG_MASK, MBX_CH_SRP_T0_MSG_MASK, MBX_CH_SRP_T1_MSG_MASK, MBX_CH_SRP_T2_MSG_MASK }
 
 #endif /* MBX_CONTRACT_H */

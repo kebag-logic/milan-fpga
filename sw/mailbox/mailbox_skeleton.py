@@ -36,6 +36,13 @@ RO_SOURCES = {
 #: register -> the MAC bits its one field carries, as (msb, lsb).
 OWN_MAC_BITS = {"OWN_MAC_HI": (47, 32), "OWN_MAC_LO": (31, 0)}
 
+#: The bound-talker registers the skeleton wires into KL_mbx_rx's bound_eid_i
+#: and bound_en_i: register -> the bits its one field carries, as (msb, lsb).
+BOUND_BITS = {"BOUND_EID_HI": (63, 32), "BOUND_EID_LO": (31, 0), "BOUND_EN": (0, 0)}
+
+#: The flat index of entry e of interface i in the skeleton's per-entry storage.
+BND_AT = "MBX_BND_BASE_C + i * MBX_BND_STRIDE_C + e * MBX_BND_ENTRY_STRIDE_C"
+
 #: Read-only interface fields; `{i}` is the interface index.
 IF_SOURCES = {
     "GM_LO": {"ID": "gm_id_i[64*{i} +: 32]"},
@@ -205,6 +212,8 @@ def _core() -> list[str]:
         "  logic                     evt_pending_w;",
         "  logic [15:0]              filter_mismatch_w;",
         "  logic [MBX_N_IF_C*48-1:0] own_mac_w;      //! OWN_MAC per interface, the filter's `own` destination",
+        "  logic [MBX_N_IF_C*MBX_N_BOUND_C*64-1:0] bound_eid_w;   //! BOUND_EID per interface and entry",
+        "  logic [MBX_N_IF_C*MBX_N_BOUND_C-1:0]    bound_en_w;    //! BOUND_EN per interface and entry",
         "",
     ]
 
@@ -224,6 +233,10 @@ def _storage(contract: Contract) -> list[str]:
         if reg.access == "rw":
             out.append(f"  logic [{_bits(reg) - 1}:0] {reg.name.lower()}_r [MBX_N_IF_C];"
                        f"   //! {reg.name} per interface")
+    for reg in contract.bnd_registers:
+        if reg.access == "rw":
+            out.append(f"  logic [{_bits(reg) - 1}:0] {reg.name.lower()}_r [MBX_N_IF_C*MBX_N_BOUND_C];"
+                       f"   //! {reg.name} per interface and entry, at i * MBX_N_BOUND_C + e")
     out += [
         "  logic        err_r;                          //! IRQ_STATUS.ERR, sticky",
         "  logic [15:0] bus_err_r;                      //! BUS_ERR",
@@ -243,6 +256,7 @@ def _write_block(contract: Contract) -> list[str]:
     rw = [r for r in contract.registers if r.access == "rw"]
     ch_rw = [r for r in contract.ch_registers if r.access == "rw"]
     iff_rw = [r for r in contract.iff_registers if r.access == "rw"]
+    bnd_rw = [r for r in contract.bnd_registers if r.access == "rw"]
     out = ["  always_ff @(posedge clk_i) begin : host_write", "    if (!rst_n) begin"]
     out += [f"      {r.name.lower()}_r <= '0;" for r in rw]
     out += ["      err_r     <= 1'b0;", "      bus_err_r <= '0;",
@@ -251,6 +265,8 @@ def _write_block(contract: Contract) -> list[str]:
     out += ["      end", "      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
             "        gm_hi_snap_r[i]  <= '0;", "        domain_snap_r[i] <= '0;"]
     out += [f"        {r.name.lower()}_r[i] <= '0;" for r in iff_rw]
+    out += ["      end", "      for (int k = 0; k < int'(MBX_N_IF_C * MBX_N_BOUND_C); k++) begin"]
+    out += [f"        {r.name.lower()}_r[k] <= '0;" for r in bnd_rw]
     out += ["      end", "    end else begin"]
     for r in rw:
         out.append(f"      if (wr_w && off_w == {AW}'(MBX_REG_{r.name}_C))"
@@ -276,7 +292,12 @@ def _write_block(contract: Contract) -> list[str]:
         at = f"MBX_IFF_BASE_C + i * MBX_IFF_STRIDE_C + MBX_IFF_REG_{r.name}_C"
         out.append(f"        if (wr_w && off_w == {AW}'({at}))")
         out.append(f"          {r.name.lower()}_r[i] <= {_bits(r)}'(host_wdata_i & ({_mask(r)}));")
-    out += ["      end", "    end", "  end : host_write", ""]
+    out += ["        for (int e = 0; e < int'(MBX_N_BOUND_C); e++) begin"]
+    for r in bnd_rw:
+        out.append(f"          if (wr_w && off_w == {AW}'({BND_AT} + MBX_BND_REG_{r.name}_C))")
+        out.append(f"            {r.name.lower()}_r[i * int'(MBX_N_BOUND_C) + e] <= "
+                   f"{_bits(r)}'(host_wdata_i & ({_mask(r)}));")
+    out += ["        end", "      end", "    end", "  end : host_write", ""]
     return out
 
 
@@ -298,6 +319,14 @@ def _read_block(contract: Contract) -> list[str]:
                 raise ContractError(f"interface filter register {reg.name}: the skeleton stores rw registers only")
             base = f"MBX_IFF_BASE_C + {i} * MBX_IFF_STRIDE_C + MBX_IFF_REG_{reg.name}_C"
             out.append(f"    if (off_w == {AW}'({base})) reg_rdata_w = 32'({reg.name.lower()}_r[{i}]);")
+    out += ["    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
+            "      for (int e = 0; e < int'(MBX_N_BOUND_C); e++) begin"]
+    for reg in contract.bnd_registers:
+        if reg.access != "rw":
+            raise ContractError(f"bound-talker register {reg.name}: the skeleton stores rw registers only")
+        out.append(f"        if (off_w == {AW}'({BND_AT} + MBX_BND_REG_{reg.name}_C))")
+        out.append(f"          reg_rdata_w = 32'({reg.name.lower()}_r[i * int'(MBX_N_BOUND_C) + e]);")
+    out += ["      end", "    end"]
     out.append("    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin")
     for reg in contract.ch_registers:
         base = f"MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_{reg.name}_C"
@@ -382,8 +411,8 @@ def _mux_block(contract: Contract) -> list[str]:
     return out
 
 
-def _leaves(contract: Contract) -> list[str]:
-    """The pending levels, the interrupt and the three leaf instances."""
+def _check_wiring(contract: Contract) -> None:
+    """The register sets the skeleton wires into the leaves by name are the contract's."""
     ch_rw = {r.name for r in contract.ch_registers if r.access == "rw"}
     if ch_rw != {"RX_TAIL", "TX_HEAD"}:
         raise ContractError("the skeleton wires RX_TAIL and TX_HEAD into the leaves; the channel rw set changed")
@@ -392,6 +421,16 @@ def _leaves(contract: Contract) -> list[str]:
                                             for name, r in iff.items() for hi, lo in (OWN_MAC_BITS[name],)):
         raise ContractError("the skeleton wires OWN_MAC_HI (MAC[47:32]) and OWN_MAC_LO (MAC[31:0]) into the "
                             "filter; the interface filter registers changed")
+    bnd = {r.name: r for r in contract.bnd_registers}
+    if set(bnd) != set(BOUND_BITS) or any(len(r.fields) != 1 or r.fields[0].lsb != 0 or _bits(r) != hi - lo + 1
+                                          for name, r in bnd.items() for hi, lo in (BOUND_BITS[name],)):
+        raise ContractError("the skeleton wires BOUND_EID_HI (EID[63:32]), BOUND_EID_LO (EID[31:0]) and BOUND_EN "
+                            "(one bit) into the filter; the bound-talker registers changed")
+
+
+def _leaves(contract: Contract) -> list[str]:
+    """The pending levels, the interrupt and the three leaf instances."""
+    _check_wiring(contract)
     mac = ", ".join(f"{name.lower()}_r[i]" for name in OWN_MAC_BITS)
     status = next(r for r in contract.registers if r.name == "IRQ_STATUS")
     return [
@@ -404,6 +443,10 @@ def _leaves(contract: Contract) -> list[str]:
         "    evt_pending_w = evt_head_w != evt_tail_r[15:0];",
         "    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
         f"      own_mac_w[48*i +: 48] = {{{mac}}};",
+        "    end",
+        "    for (int k = 0; k < int'(MBX_N_IF_C * MBX_N_BOUND_C); k++) begin",
+        "      bound_eid_w[64*k +: 64] = {bound_eid_hi_r[k], bound_eid_lo_r[k]};",
+        "      bound_en_w[k]           = bound_en_r[k][0];",
         "    end",
         "  end : pending",
         "",
@@ -419,6 +462,8 @@ def _leaves(contract: Contract) -> list[str]:
         "    .ms_tick_p_i     (ms_tick_p_i),", "    .now_ms_i        (now_ms_r),",
         "    .own_eid_i       ({own_eid_hi_r, own_eid_lo_r}),",
         "    .own_mac_i       (own_mac_w),",
+        "    .bound_eid_i     (bound_eid_w),",
+        "    .bound_en_i      (bound_en_w),",
         "    .open_i          (filter_en_r[MBX_N_CH_C-1:0]),",
         "    .maap_base_i     ({maap_base_hi_r[15:0], maap_base_lo_r}),",
         "    .maap_count_i    (maap_count_r[15:0]),",

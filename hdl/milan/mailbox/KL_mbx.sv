@@ -105,6 +105,8 @@ module KL_mbx
   logic                     evt_pending_w;
   logic [15:0]              filter_mismatch_w;
   logic [MBX_N_IF_C*48-1:0] own_mac_w;      //! OWN_MAC per interface, the filter's `own` destination
+  logic [MBX_N_IF_C*MBX_N_BOUND_C*64-1:0] bound_eid_w;   //! BOUND_EID per interface and entry
+  logic [MBX_N_IF_C*MBX_N_BOUND_C-1:0]    bound_en_w;    //! BOUND_EN per interface and entry
 
   // ---- what the host writes -----------------------------------------------------
   logic [31:0] irq_enable_r;   //! IRQ_ENABLE
@@ -122,6 +124,9 @@ module KL_mbx
   logic [15:0] tx_head_r [MBX_N_CH_C];   //! TX_HEAD per channel
   logic [31:0] own_mac_lo_r [MBX_N_IF_C];   //! OWN_MAC_LO per interface
   logic [15:0] own_mac_hi_r [MBX_N_IF_C];   //! OWN_MAC_HI per interface
+  logic [31:0] bound_eid_lo_r [MBX_N_IF_C*MBX_N_BOUND_C];   //! BOUND_EID_LO per interface and entry, at i * MBX_N_BOUND_C + e
+  logic [31:0] bound_eid_hi_r [MBX_N_IF_C*MBX_N_BOUND_C];   //! BOUND_EID_HI per interface and entry, at i * MBX_N_BOUND_C + e
+  logic [0:0] bound_en_r [MBX_N_IF_C*MBX_N_BOUND_C];   //! BOUND_EN per interface and entry, at i * MBX_N_BOUND_C + e
   logic        err_r;                          //! IRQ_STATUS.ERR, sticky
   logic [15:0] bus_err_r;                      //! BUS_ERR
   logic [31:0] gm_hi_snap_r  [MBX_N_IF_C];     //! GM_HI, snapshot taken by a GM_LO read
@@ -152,6 +157,11 @@ module KL_mbx
         domain_snap_r[i] <= '0;
         own_mac_lo_r[i] <= '0;
         own_mac_hi_r[i] <= '0;
+      end
+      for (int k = 0; k < int'(MBX_N_IF_C * MBX_N_BOUND_C); k++) begin
+        bound_eid_lo_r[k] <= '0;
+        bound_eid_hi_r[k] <= '0;
+        bound_en_r[k] <= '0;
       end
     end else begin
       if (wr_w && off_w == AW2_C'(MBX_REG_IRQ_ENABLE_C)) irq_enable_r <= host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_IRQ_ENABLE_RX_LSB_C, MBX_IRQ_ENABLE_RX_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_IRQ_ENABLE_EVT_LSB_C, MBX_IRQ_ENABLE_EVT_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_IRQ_ENABLE_ERR_LSB_C, MBX_IRQ_ENABLE_ERR_WIDTH_C));
@@ -185,6 +195,14 @@ module KL_mbx
           own_mac_lo_r[i] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_OWN_MAC_LO_MAC_LSB_C, MBX_OWN_MAC_LO_MAC_WIDTH_C)));
         if (wr_w && off_w == AW2_C'(MBX_IFF_BASE_C + i * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_HI_C))
           own_mac_hi_r[i] <= 16'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_OWN_MAC_HI_MAC_LSB_C, MBX_OWN_MAC_HI_MAC_WIDTH_C)));
+        for (int e = 0; e < int'(MBX_N_BOUND_C); e++) begin
+          if (wr_w && off_w == AW2_C'(MBX_BND_BASE_C + i * MBX_BND_STRIDE_C + e * MBX_BND_ENTRY_STRIDE_C + MBX_BND_REG_BOUND_EID_LO_C))
+            bound_eid_lo_r[i * int'(MBX_N_BOUND_C) + e] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_BOUND_EID_LO_EID_LSB_C, MBX_BOUND_EID_LO_EID_WIDTH_C)));
+          if (wr_w && off_w == AW2_C'(MBX_BND_BASE_C + i * MBX_BND_STRIDE_C + e * MBX_BND_ENTRY_STRIDE_C + MBX_BND_REG_BOUND_EID_HI_C))
+            bound_eid_hi_r[i * int'(MBX_N_BOUND_C) + e] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_BOUND_EID_HI_EID_LSB_C, MBX_BOUND_EID_HI_EID_WIDTH_C)));
+          if (wr_w && off_w == AW2_C'(MBX_BND_BASE_C + i * MBX_BND_STRIDE_C + e * MBX_BND_ENTRY_STRIDE_C + MBX_BND_REG_BOUND_EN_C))
+            bound_en_r[i * int'(MBX_N_BOUND_C) + e] <= 1'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C)));
+        end
       end
     end
   end : host_write
@@ -215,6 +233,16 @@ module KL_mbx
     if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_DOMAIN_C)) reg_rdata_w = mbx_place_f(32'(domain_snap_r[0]), MBX_DOMAIN_NUMBER_LSB_C, MBX_DOMAIN_NUMBER_WIDTH_C);
     if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_LO_C)) reg_rdata_w = 32'(own_mac_lo_r[0]);
     if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_HI_C)) reg_rdata_w = 32'(own_mac_hi_r[0]);
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      for (int e = 0; e < int'(MBX_N_BOUND_C); e++) begin
+        if (off_w == AW2_C'(MBX_BND_BASE_C + i * MBX_BND_STRIDE_C + e * MBX_BND_ENTRY_STRIDE_C + MBX_BND_REG_BOUND_EID_LO_C))
+          reg_rdata_w = 32'(bound_eid_lo_r[i * int'(MBX_N_BOUND_C) + e]);
+        if (off_w == AW2_C'(MBX_BND_BASE_C + i * MBX_BND_STRIDE_C + e * MBX_BND_ENTRY_STRIDE_C + MBX_BND_REG_BOUND_EID_HI_C))
+          reg_rdata_w = 32'(bound_eid_hi_r[i * int'(MBX_N_BOUND_C) + e]);
+        if (off_w == AW2_C'(MBX_BND_BASE_C + i * MBX_BND_STRIDE_C + e * MBX_BND_ENTRY_STRIDE_C + MBX_BND_REG_BOUND_EN_C))
+          reg_rdata_w = 32'(bound_en_r[i * int'(MBX_N_BOUND_C) + e]);
+      end
+    end
     for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
       if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(rx_head_w[16*c +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C);
       if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(rx_tail_r[c]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C);
@@ -463,6 +491,10 @@ module KL_mbx
     for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
       own_mac_w[48*i +: 48] = {own_mac_hi_r[i], own_mac_lo_r[i]};
     end
+    for (int k = 0; k < int'(MBX_N_IF_C * MBX_N_BOUND_C); k++) begin
+      bound_eid_w[64*k +: 64] = {bound_eid_hi_r[k], bound_eid_lo_r[k]};
+      bound_en_w[k]           = bound_en_r[k][0];
+    end
   end : pending
 
   logic irq_r;
@@ -479,6 +511,8 @@ module KL_mbx
     .now_ms_i        (now_ms_r),
     .own_eid_i       ({own_eid_hi_r, own_eid_lo_r}),
     .own_mac_i       (own_mac_w),
+    .bound_eid_i     (bound_eid_w),
+    .bound_en_i      (bound_en_w),
     .open_i          (filter_en_r[MBX_N_CH_C-1:0]),
     .maap_base_i     ({maap_base_hi_r[15:0], maap_base_lo_r}),
     .maap_count_i    (maap_count_r[15:0]),

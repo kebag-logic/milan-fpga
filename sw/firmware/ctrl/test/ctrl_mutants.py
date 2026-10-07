@@ -380,8 +380,8 @@ MUTANTS = (
            (("acmp", "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused",
              "B2 and counted once in FILTER_MISMATCH"),)),
     Mutant("model-mismatch-counts-identity-refusals", "host/mbx_model.c",
-           "\tif (!rule_passes(m, c, frame, len)) {\n\t\treturn false;",
-           "\tif (!rule_passes(m, c, frame, len)) {\n\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n"
+           "\tif (!rule_passes(m, c, frame, len, interface)) {\n\t\treturn false;",
+           "\tif (!rule_passes(m, c, frame, len, interface)) {\n\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n"
            "\t\treturn false;",
            "model", MODEL_GROUP + "TupleRejections",
            "Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it"),

@@ -31,7 +31,8 @@ that is not a power of two, two channels claiming one EtherType, a register
 with no fabric source, a match tuple naming a VLAN tag's TPID or no
 destination, an own-MAC block that spills or collides, message types named
 with no subtype or wider than four bits, a message_type byte not the one after
-the subtype) and requires each to be refused. A clean run of the tracked outputs is the positive control.
+the subtype, a bound-talker table that spills its interface stride or runs into
+the channel registers) and requires each to be refused. A clean run of the tracked outputs is the positive control.
 
 ``--variant-interfaces N --out DIR`` writes the package, the skeleton and the
 header of the same contract elaborated for N AVB interfaces into a build
@@ -79,7 +80,7 @@ C_TABLE = re.compile(r"^#define MBX_(\w+_TBL) \{ (.*) \}$", re.M)
 SV_CONST = re.compile(r"^\s*localparam int unsigned MBX_(\w+)_C = 32'([hd])([0-9A-F_]+);$", re.M)
 SV_TABLE = re.compile(r"^\s*localparam int unsigned MBX_(\w+_TBL)_C \[[^\]]+\] = '\{(.*)\};$", re.M)
 DOC_CONST = re.compile(r"^\| `MBX_(\w+)` \| `(0x[0-9a-f]+)` \|$", re.M)
-SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|CH_REG)_(\w+)_C\b")
+SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|CH_REG)_(\w+)_C\b")
 
 
 def parse_c(text: str) -> tuple[dict[str, int], dict[str, list[str]]]:
@@ -122,7 +123,8 @@ def crosscheck(contract: Contract, texts: dict[str, str]) -> list[str]:
                 findings.append(f"{label}: table MBX_{table} lists {got_tables.get(table)}, want {members}")
     top = texts["hdl/milan/mailbox/KL_mbx.sv"]
     named = set(SV_REG_REF.findall(top))
-    every = contract.registers + contract.if_registers + contract.iff_registers + contract.ch_registers
+    every = (contract.registers + contract.if_registers + contract.iff_registers + contract.bnd_registers
+             + contract.ch_registers)
     for reg in every:
         if reg.name not in named:
             findings.append(f"skeleton: register {reg.name} is never decoded")
@@ -241,6 +243,17 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
          "MBX_CH_MAAP_M1_MSG_MASK"),
         ("SV package DEFEND tuple dropped", _plant(base, pkg, "MBX_CH_MAAP_M1_DST_C = 32'd2;",
                                                    "MBX_CH_MAAP_M1_DST_C = 32'd0;"), "MBX_CH_MAAP_M1_DST"),
+        # lane F3 round 2: the adp channel's bound-talker term (#665, comment 6029368753)
+        ("C header bound term's message types", _plant(base, hdr, "#define MBX_CH_ADP_T2_MSG_MASK 0x3u",
+                                                       "#define MBX_CH_ADP_T2_MSG_MASK 0x7u"),
+         "MBX_CH_ADP_T2_MSG_MASK"),
+        ("SV package bound term's test", _plant(base, pkg, "MBX_CH_ADP_T2_TEST_C = 32'd5;",
+                                                "MBX_CH_ADP_T2_TEST_C = 32'd2;"), "MBX_CH_ADP_T2_TEST"),
+        ("reference page entry stride", _plant(base, doc, "| `MBX_BND_ENTRY_STRIDE` | `0x10` |",
+                                               "| `MBX_BND_ENTRY_STRIDE` | `0x8` |"), "MBX_BND_ENTRY_STRIDE"),
+        ("C header table size", _plant(base, hdr, "#define MBX_N_BOUND 16u", "#define MBX_N_BOUND 8u"), "MBX_N_BOUND"),
+        ("skeleton bound enable dropped", _plant_all(base, top, "MBX_BND_REG_BOUND_EN_C", "MBX_BND_REG_BOUND_EID_LO_C"),
+         "BOUND_EN"),
     ]
 
 
@@ -272,6 +285,14 @@ def _contract_arms() -> list[tuple[str, str, str]]:
          "{dst: 0x0180C2000021, ethertype: 0x88F5, msg_types: [2],"),
         ("a message type wider than four bits", "subtype: 0xFE, msg_types: [2],", "subtype: 0xFE, msg_types: [16],"),
         ("message_type not the byte after the subtype", "msg_type_byte: 15", "msg_type_byte: 16"),
+        # lane F3 round 2: the bound-talker table fits its block and the register space
+        ("bound-talker entries spill their interface stride", "bound_talkers: 16 ", "bound_talkers: 17 "),
+        ("bound-talker entry registers spill their entry", "  entry_stride: 0x10 ", "  entry_stride: 0x08 "),
+        ("bound-talker table over the channel registers", "interface_bound_registers:\n  base: 0x200",
+         "interface_bound_registers:\n  base: 0x100"),
+        ("bound-talker table past the register space", "interface_bound_registers:\n  base: 0x200",
+         "interface_bound_registers:\n  base: 0x380"),
+        ("an unknown filter test", "{test: eq_bound, offset: 18,", "{test: eq_bonded, offset: 18,"),
     ]
 
 

@@ -8,7 +8,8 @@
 //   KL_mbx_rx   classification by the full tuple (destination MAC, or the
 //               arrival interface's OWN_MAC for an `own` tuple, EtherType,
 //               subtype and message_type), FILTER_MISMATCH for a control
-//               EtherType no tuple holds, the accept terms, the record
+//               EtherType no tuple holds, the accept terms (eq_bound on the
+//               arrival interface's bound-talker table), the record
 //               committed whole or dropped (RX_DROP for size or space,
 //               RATE_DROP for an empty bucket), one token per refill period
 //               up to the burst;
@@ -343,7 +344,22 @@ static bool maap_overlap(const struct mbx_model *m, uint64_t start, uint32_t cou
 	return start <= own_end && m->maap_base <= req_end;
 }
 
-static bool term_holds(const struct mbx_model *m, unsigned j, const uint8_t *frame, size_t len)
+// The field equals an enabled entry of the arrival interface's bound-talker
+// table; an index with no interface behind it has no table.
+static bool bound_talker(const struct mbx_model *m, unsigned interface, uint64_t field)
+{
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	for (unsigned e = 0; e < MBX_N_BOUND; ++e) {
+		if (m->bound_en[interface][e] && m->bound_eid[interface][e] == field) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool term_holds(const struct mbx_model *m, unsigned j, const uint8_t *frame, size_t len, unsigned interface)
 {
 	uint32_t off = term_offset[j];
 	bool field_ok = len >= (size_t)off + MBX_TERM_FIELD_BYTES;
@@ -356,17 +372,19 @@ static bool term_holds(const struct mbx_model *m, unsigned j, const uint8_t *fra
 		return field_ok && wire_be64(frame + off) == 0u;
 	case MBX_TEST_RANGE_OVERLAP:
 		return field_ok && maap_overlap(m, wire_be64(frame + off) >> 16, wire_be16(frame + off + 6u));
+	case MBX_TEST_EQ_BOUND:
+		return field_ok && bound_talker(m, interface, wire_be64(frame + off));
 	default:
 		return false;
 	}
 }
 
-static bool rule_passes(const struct mbx_model *m, unsigned c, const uint8_t *frame, size_t len)
+static bool rule_passes(const struct mbx_model *m, unsigned c, const uint8_t *frame, size_t len, unsigned interface)
 {
 	uint32_t msg = msg_type(frame, len);
 	for (unsigned t = 0; t < MBX_MAX_TERMS; ++t) {
 		unsigned j = c * MBX_MAX_TERMS + t;
-		if (((term_mask[j] >> msg) & 1u) != 0u && term_holds(m, j, frame, len)) {
+		if (((term_mask[j] >> msg) & 1u) != 0u && term_holds(m, j, frame, len, interface)) {
 			return true;
 		}
 	}
@@ -402,7 +420,7 @@ bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigne
 		return false;
 	}
 	unsigned c = (unsigned)found;
-	if (!rule_passes(m, c, frame, len)) {
+	if (!rule_passes(m, c, frame, len, interface)) {
 		return false;
 	}
 	struct mbx_model_channel *ch = &m->ch[c];
@@ -556,6 +574,45 @@ static void write_interface_filter(struct mbx_model *m, unsigned i, uint32_t reg
 	}
 }
 
+// BOUND_EID_LO, BOUND_EID_HI or BOUND_EN of entry e of interface i.
+static uint32_t read_bound(const struct mbx_model *m, unsigned i, unsigned e, uint32_t reg)
+{
+	if (reg == MBX_BND_REG_BOUND_EID_LO) {
+		return (uint32_t)m->bound_eid[i][e];
+	}
+	if (reg == MBX_BND_REG_BOUND_EID_HI) {
+		return (uint32_t)(m->bound_eid[i][e] >> 32);
+	}
+	return reg == MBX_BND_REG_BOUND_EN && m->bound_en[i][e] ? 1u : 0u;
+}
+
+static void write_bound(struct mbx_model *m, unsigned i, unsigned e, uint32_t reg, uint32_t v)
+{
+	if (reg == MBX_BND_REG_BOUND_EID_LO) {
+		m->bound_eid[i][e] = (m->bound_eid[i][e] & 0xFFFFFFFF00000000ull) |
+				     mbx_field(v, MBX_BOUND_EID_LO_EID_LSB, MBX_BOUND_EID_LO_EID_WIDTH);
+	} else if (reg == MBX_BND_REG_BOUND_EID_HI) {
+		m->bound_eid[i][e] = (m->bound_eid[i][e] & 0xFFFFFFFFull) |
+				     ((uint64_t)mbx_field(v, MBX_BOUND_EID_HI_EID_LSB, MBX_BOUND_EID_HI_EID_WIDTH) << 32);
+	} else if (reg == MBX_BND_REG_BOUND_EN) {
+		m->bound_en[i][e] = mbx_field(v, MBX_BOUND_EN_EN_LSB, MBX_BOUND_EN_EN_WIDTH) != 0u;
+	}
+}
+
+// The bound-talker block an offset falls in: interface *i, entry *e and the
+// register's offset inside the entry; false outside it.
+static bool bound_at(uint32_t off, unsigned *i, unsigned *e, uint32_t *reg)
+{
+	if (off < MBX_BND_BASE || off >= MBX_BND_BASE + MBX_BND_STRIDE * MBX_N_IF) {
+		return false;
+	}
+	uint32_t rel = off - MBX_BND_BASE;
+	*i = rel / MBX_BND_STRIDE;
+	*e = (rel % MBX_BND_STRIDE) / MBX_BND_ENTRY_STRIDE;
+	*reg = (rel % MBX_BND_STRIDE) % MBX_BND_ENTRY_STRIDE;
+	return *e < MBX_N_BOUND;
+}
+
 static uint32_t read_channel(const struct mbx_model *m, unsigned c, uint32_t reg)
 {
 	const struct mbx_model_channel *ch = &m->ch[c];
@@ -627,6 +684,12 @@ uint32_t mbx_model_read(struct mbx_model *m, uint32_t byte_offset)
 	}
 	if (off >= MBX_CH_BASE && off < MBX_CH_BASE + MBX_CH_STRIDE * MBX_N_CH) {
 		return read_channel(m, (off - MBX_CH_BASE) / MBX_CH_STRIDE, (off - MBX_CH_BASE) % MBX_CH_STRIDE);
+	}
+	unsigned i = 0;
+	unsigned e = 0;
+	uint32_t reg = 0;
+	if (bound_at(off, &i, &e, &reg)) {
+		return read_bound(m, i, e, reg);
 	}
 	if (off < MBX_REGISTER_SPACE_BYTES) {
 		return read_global(m, off);
@@ -720,6 +783,9 @@ static bool writable_ring(uint32_t off)
 void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, uint8_t strobes)
 {
 	uint32_t off = byte_offset & (MBX_WINDOW_BYTES - 4u);
+	unsigned i = 0;
+	unsigned e = 0;
+	uint32_t reg = 0;
 	m->writes++;
 	if (strobes != 0xFu) {
 		m->bus_err = sat16(m->bus_err);
@@ -731,6 +797,8 @@ void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, 
 	} else if (off >= MBX_IFF_BASE && off < MBX_IFF_BASE + MBX_IFF_STRIDE * MBX_N_IF) {
 		write_interface_filter(m, (off - MBX_IFF_BASE) / MBX_IFF_STRIDE, (off - MBX_IFF_BASE) % MBX_IFF_STRIDE,
 				       value);
+	} else if (bound_at(off, &i, &e, &reg)) {
+		write_bound(m, i, e, reg, value);
 	} else if (off < MBX_REGISTER_SPACE_BYTES) {
 		write_global(m, off, value);
 	} else if (writable_ring(off)) {
