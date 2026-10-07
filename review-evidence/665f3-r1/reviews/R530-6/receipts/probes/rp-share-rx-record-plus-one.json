@@ -1,0 +1,137 @@
+{
+ "name": "rp-share-rx-record-plus-one",
+ "path": "app/ctrl_app.h",
+ "old": "MBX_CH_MAAP_MAX_FRAME_BYTES / 4u)\n",
+ "new": "MBX_CH_MAAP_MAX_FRAME_BYTES / 4u + 1u)\n",
+ "expected": [
+  [
+   "",
+   "",
+   ""
+  ]
+ ],
+ "arms": {
+  "model": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== mbx (host model): checks: 23   failures: 0 =="
+   ]
+  },
+  "port": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl port, driver and loop (host model): checks: 31   failures: 0 =="
+   ]
+  },
+  "adp": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl ADP slice (fake ports and host model): checks: 26   failures: 0 =="
+   ]
+  },
+  "unit": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl units on the HAL and port-layer mocks: checks: 24   failures: 0 ==",
+    "== ctrl MMIO platform (host window): checks: 2   failures: 0 =="
+   ]
+  },
+  "walk": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 =="
+   ]
+  },
+  "acmp": {
+   "rc": 1,
+   "fails": [
+    "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once"
+   ],
+   "tally": [
+    "== ctrl ACMP core and adapter (fake ports and host model): checks: 84   failures: 1 =="
+   ]
+  },
+  "acmpwalk": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 =="
+   ]
+  },
+  "acmpnvm": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 =="
+   ]
+  },
+  "acmpif2": {
+   "rc": 1,
+   "fails": [
+    "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once"
+   ],
+   "tally": [
+    "== ctrl ACMP adapter on the two-interface contract (host model): checks: 22   failures: 1 =="
+   ]
+  },
+  "entity": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==",
+    "== ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==",
+    "== ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==",
+    "== ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==",
+    "== ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 =="
+   ]
+  },
+  "maap": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl MAAP Annex B: checks: 37   failures: 0 ==",
+    "== ctrl H-MAAP mailbox: checks: 12   failures: 0 =="
+   ]
+  },
+  "maap_debug": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl MAAP debug port contract: checks: 1   failures: 0 =="
+   ]
+  },
+  "maap_if2": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl H-MAAP mailbox: checks: 13   failures: 0 =="
+   ]
+  },
+  "rv32": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ctrl RV32I freestanding build: checks: 1   failures: 0 =="
+   ]
+  },
+  "reentry_debug": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ADP debug re-entry: checks: 122   failures: 0 =="
+   ]
+  },
+  "reentry_release": {
+   "rc": 0,
+   "fails": [],
+   "tally": [
+    "== ADP release re-entry: checks: 122   failures: 0 =="
+   ]
+  }
+ }
+}

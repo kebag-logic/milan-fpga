@@ -1,0 +1,19 @@
+app-three-way-bound-drops-maap model: rc=0 fails=0
+app-three-way-bound-drops-maap port: rc=0 fails=0
+app-three-way-bound-drops-maap adp: rc=0 fails=0
+app-three-way-bound-drops-maap unit: rc=0 fails=0
+app-three-way-bound-drops-maap walk: rc=0 fails=0
+app-three-way-bound-drops-maap acmp: rc=1 fails=1
+    [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once
+app-three-way-bound-drops-maap acmpwalk: rc=0 fails=0
+app-three-way-bound-drops-maap acmpnvm: rc=0 fails=0
+app-three-way-bound-drops-maap acmpif2: rc=1 fails=1
+    [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once
+app-three-way-bound-drops-maap entity: rc=0 fails=0
+app-three-way-bound-drops-maap maap: rc=0 fails=0
+app-three-way-bound-drops-maap maap_debug: rc=0 fails=0
+app-three-way-bound-drops-maap maap_if2: rc=0 fails=0
+app-three-way-bound-drops-maap rv32: rc=0 fails=0
+app-three-way-bound-drops-maap reentry_debug: rc=0 fails=0
+app-three-way-bound-drops-maap reentry_release: rc=0 fails=0
+wrote $REVIEWS/665f3-r530-6-packet/scratch/probes/app-three-way-bound-drops-maap.json

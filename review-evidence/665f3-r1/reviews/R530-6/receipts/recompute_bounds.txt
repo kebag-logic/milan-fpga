@@ -1,0 +1,11 @@
+N_IF=1: ACMP_MBX_PASS_MAX=1012 MAAP_MBX_PASS_MAX=616 share=568 CTRL_APP_PASS_MAX=1580 tie=1580 EQUAL
+   event      (2+1)*1580 = 4740 accesses = 4.74 ms at 1 us: fits T_svc
+   acmp ring  (10+1)*1580 = 17380 accesses = 17.38 ms at 1 us: under ceiling
+   adp ring   (21+1)*1580 = 34760 accesses = 34.76 ms at 1 us: exceeds ceiling
+   owed       (8+1)*1580 = 14220 accesses = 14.22 ms at 1 us: under ceiling
+N_IF=2: ACMP_MBX_PASS_MAX=1043 MAAP_MBX_PASS_MAX=664 share=616 CTRL_APP_PASS_MAX=1659 tie=1659 EQUAL
+   event      (2+1)*1659 = 4977 accesses = 4.98 ms at 1 us: fits T_svc
+   acmp ring  (10+1)*1659 = 18249 accesses = 18.25 ms at 1 us: under ceiling
+   adp ring   (21+1)*1659 = 36498 accesses = 36.50 ms at 1 us: exceeds ceiling
+   owed       (8+1)*1659 = 14931 accesses = 14.93 ms at 1 us: under ceiling
+two-way owed bound without MAAP: 9*1012 = 9108 -> 9.108 ms fits T_svc

@@ -1,0 +1,20 @@
+rp-maap-mac-plus-one model: rc=0 fails=0
+rp-maap-mac-plus-one port: rc=0 fails=0
+rp-maap-mac-plus-one adp: rc=0 fails=0
+rp-maap-mac-plus-one unit: rc=0 fails=0
+rp-maap-mac-plus-one walk: rc=0 fails=0
+rp-maap-mac-plus-one acmp: rc=1 fails=1
+    [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 0
+rp-maap-mac-plus-one acmpwalk: rc=0 fails=0
+rp-maap-mac-plus-one acmpnvm: rc=0 fails=0
+rp-maap-mac-plus-one acmpif2: rc=1 fails=2
+    [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 0
+    [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+rp-maap-mac-plus-one entity: rc=0 fails=0
+rp-maap-mac-plus-one maap: rc=0 fails=0
+rp-maap-mac-plus-one maap_debug: rc=0 fails=0
+rp-maap-mac-plus-one maap_if2: rc=0 fails=0
+rp-maap-mac-plus-one rv32: rc=0 fails=0
+rp-maap-mac-plus-one reentry_debug: rc=0 fails=0
+rp-maap-mac-plus-one reentry_release: rc=0 fails=0
+wrote $REVIEWS/665f3-r530-6-packet/scratch/probes/rp-maap-mac-plus-one.json

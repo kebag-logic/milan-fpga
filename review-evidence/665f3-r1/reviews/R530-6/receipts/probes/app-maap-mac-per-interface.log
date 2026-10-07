@@ -1,0 +1,18 @@
+app-maap-mac-per-interface model: rc=0 fails=0
+app-maap-mac-per-interface port: rc=0 fails=0
+app-maap-mac-per-interface adp: rc=0 fails=0
+app-maap-mac-per-interface unit: rc=0 fails=0
+app-maap-mac-per-interface walk: rc=0 fails=0
+app-maap-mac-per-interface acmp: rc=0 fails=0
+app-maap-mac-per-interface acmpwalk: rc=0 fails=0
+app-maap-mac-per-interface acmpnvm: rc=0 fails=0
+app-maap-mac-per-interface acmpif2: rc=1 fails=1
+    [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+app-maap-mac-per-interface entity: rc=0 fails=0
+app-maap-mac-per-interface maap: rc=0 fails=0
+app-maap-mac-per-interface maap_debug: rc=0 fails=0
+app-maap-mac-per-interface maap_if2: rc=0 fails=0
+app-maap-mac-per-interface rv32: rc=0 fails=0
+app-maap-mac-per-interface reentry_debug: rc=0 fails=0
+app-maap-mac-per-interface reentry_release: rc=0 fails=0
+wrote $REVIEWS/665f3-r530-6-packet/scratch/probes/app-maap-mac-per-interface.json
