@@ -238,7 +238,7 @@ jobs:
   # versions and the compiler and gcov the ratchet is measured with.
   # F4 requires the exact lwSRP submodule and the freestanding RV32 control
   # build after SDK installation, plus the control mutation campaign. The
-  # private dependency must become fetchable before this lane can merge.
+  # public dependency is fetched at the reviewed gitlink.
   # The saved-state and tally mutation campaigns remain additional local gates.
   firmware-unit:
     needs: changes

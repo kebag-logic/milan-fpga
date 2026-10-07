@@ -394,12 +394,10 @@ and this coverage gate with its planted cases. `scripts/ci_events.py` pins
 the job's steps and the `rtl-fast` aggregate's verdict on it, and
 `scripts/act_ci.py` replays it with the rest of `rtl-fast.yml`.
 
-Two groups stay with local gates:
-- the ctrl gate's `lwsrp` arm: lwSRP is a private repository the workflow's
-  token cannot read. The coverage ratchet reads the same with and without
-  it;
-- both gates' planted-defect campaigns (`--self-test`) and the tally
-  listener's (`tally_selftest.py --mutants`).
+F4 initializes the public lwSRP submodule at its exact pin.
+The control gate includes lwSRP, SRP and its mutation campaign.
+The saved-state mutation campaign (`--self-test`) remains a local gate.
+The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
 
 The versions this harness was built and measured with:
 

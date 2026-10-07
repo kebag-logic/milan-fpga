@@ -139,6 +139,17 @@ protected:
         if(type==3) p[8+value.size()]=subtype*64;
         return f;
     }
+    void receive_before_poll(const std::vector<uint8_t> &f,unsigned interface=0) {
+        // Let lwSRP finish its temporary propagation reservation first.
+        // Tests can then exhaust storage at the adapter's poll boundary.
+        ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),interface));
+        const unsigned received=adapter.received;
+        const unsigned polls=loop.n_polls;
+        loop.n_polls=0;
+        ctrl_loop_service(&loop);
+        loop.n_polls=polls;
+        ASSERT_EQ(adapter.received,received+1u);
+    }
     void offer(const std::vector<uint8_t> &f,unsigned interface=0) {
         ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),interface)); settle();
     }

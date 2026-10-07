@@ -163,11 +163,14 @@ allocation failures, malformed inputs, declaration changes, reset, reentry,
 backpressure and timer ordering. The adapter has no coverage exclusions.
 `srp_mutants.py` ties each named case to a defect and its failed observable;
 build failures do not count as catches.
+Allocation tests exhaust the pool after accepted mailbox reception.
+This preserves receive-time propagation storage before testing adapter poll refusals.
 
 The published lwSRP
-[applicant test follow-up](https://github.com/kebag-logic/lwSRP/tree/495520f5e02dd077fc9b1451942b25ec95afa1b8)
+[applicant test follow-up](https://github.com/kebag-logic/lwSRP/tree/72209a53a241cd5de4786d3e1b3aefcbdf5fa5d9)
 is branch `f4-applicant-notes`, following PR #12.
-Its production sources equal this lane's unchanged dependency pin.
+Its round-5 local merge adopts the current public dependency pin.
+The handoff records that local branch and its exact merge commit.
 `applicant_receive_conditions_follow_link_mode` tests Table 10-3 notes 4/5.
 `pending_applicant_joinin_obeys_note_four` adds both link modes in VP.
 The `point-to-point-condition`, `pending-point-to-point-condition` and
@@ -213,7 +216,7 @@ The desk callback proves output ordering, not a connected target licence registe
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.
 
-The lwSRP pin is the integrated `mark2-port` head `23d9a817` from PR #12.
-A later integration delta moves it to that PR's reviewed head.
+The lwSRP pin is public `main` at `a4cbe41d`, including PR #12.
+Round 5 adopts its reviewed receive, propagation and Flush corrections.
 Two independent reviews, candidate-merge gates and deployment
 remain separate obligations; this lane changes neither shipping ownership nor RTL.

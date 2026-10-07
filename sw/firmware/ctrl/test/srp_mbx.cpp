@@ -332,11 +332,10 @@ TEST_F(Srp, AdmissionUsesBandwidthAndEthernetMinimum) {
 }
 TEST_F(Srp, DomainExhaustionPreservesOldDeclarationUntilRetry) {
     settle(); advance(400);
+    receive_before_poll(frame(4,{6,4,0,3},0));
     std::vector<void*> held; while(void *p=ctrl_pool_alloc(&pool,1)) { held.push_back(p); }
     ASSERT_GE(held.size(),2u);
-    ctrl_pool_free(&pool,held.back()); held.pop_back();
-    auto f=frame(4,{6,4,0,3},0);
-    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0)); ctrl_loop_service(&loop);
+    ctrl_loop_service(&loop);
     EXPECT_GT(adapter.refused,0u); EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
     EXPECT_TRUE(adapter.ifs[0].domain_owed);
     ctrl_pool_free(&pool,held.back()); held.pop_back(); settle();
@@ -350,9 +349,10 @@ TEST_F(Srp, SinkDeclarationExhaustionRetriesWithoutLosingBinding) {
     std::vector<uint8_t> talker(25); std::copy(sid.bytes,sid.bytes+8,talker.begin());
     std::copy(da,da+6,talker.begin()+8); wire_put_be(talker.data()+14,2,2);
     wire_put_be(talker.data()+16,224,2); wire_put_be(talker.data()+18,1,2); talker[20]=0x60;
+    receive_before_poll(frame(1,talker,0));
     std::vector<void*> held; while(void *p=ctrl_pool_alloc(&pool,1)) { held.push_back(p); }
-    ASSERT_GE(held.size(),2u); ctrl_pool_free(&pool,held.back()); held.pop_back();
-    auto f=frame(1,talker,0); ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0)); ctrl_loop_service(&loop);
+    ASSERT_GE(held.size(),2u);
+    ctrl_loop_service(&loop);
     EXPECT_GT(adapter.refused,0u); EXPECT_EQ(adapter.ifs[0].sinks[0].declared,0u);
     EXPECT_TRUE(adapter.ifs[0].sinks[0].bound);
     ctrl_pool_free(&pool,held.back()); held.pop_back(); settle();
@@ -454,9 +454,10 @@ TEST_F(Srp, SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent) {
     std::vector<uint8_t> talker(25); std::copy(sid.bytes,sid.bytes+8,talker.begin());
     std::copy(da,da+6,talker.begin()+8); wire_put_be(talker.data()+14,7,2);
     wire_put_be(talker.data()+16,224,2); wire_put_be(talker.data()+18,1,2); talker[20]=0x60;
+    receive_before_poll(frame(1,talker,0));
     std::vector<void*> held; while(void *p=ctrl_pool_alloc(&pool,1)) held.push_back(p);
-    ASSERT_GE(held.size(),3u); ctrl_pool_free(&pool,held.back()); held.pop_back();
-    auto f=frame(1,talker,0); ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0)); ctrl_loop_service(&loop);
+    ASSERT_GE(held.size(),3u);
+    ctrl_loop_service(&loop);
     EXPECT_FALSE(adapter.ifs[0].sinks[0].vlan_requested); EXPECT_GT(adapter.refused,0u);
     for(void *p:held) ctrl_pool_free(&pool,p);
     settle(); advance(200); EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u);
@@ -949,10 +950,10 @@ TEST_F(Srp, LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder) {
 
 TEST_F(Srp, RefusedPeerDomainDoesNotSurviveLinkRestart) {
     settle(); advance(400);
+    receive_before_poll(frame(4,{6,4,0,3},0));
     std::vector<void*> held; while(void *p=ctrl_pool_alloc(&pool,1)) held.push_back(p);
-    ASSERT_GE(held.size(),2u); ctrl_pool_free(&pool,held.back()); held.pop_back();
-    auto f=frame(4,{6,4,0,3},0);
-    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0)); ctrl_loop_service(&loop);
+    ASSERT_GE(held.size(),2u);
+    ctrl_loop_service(&loop);
     ASSERT_TRUE(adapter.ifs[0].domain_owed);
     for(void *p:held) ctrl_pool_free(&pool,p);
     mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,0,true); settle(); advance(400);
