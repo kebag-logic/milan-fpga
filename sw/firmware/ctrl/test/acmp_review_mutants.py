@@ -4,9 +4,10 @@
 comment 6030067436): one or more for each finding of the R531-1 and R530-1
 reviews and for the adp channel's bound-talker term (comment 6029368753),
 on the core, the adapter, the binding owner, the driver and the host model;
-round 4's (comment 6034423349) for R531-2-F1; and round 6's (comment
-6037650104) for the app composing ADP, ACMP and lane F2's MAAP together.
-acmp_mutants.py appends this table to its own.
+round 4's (comment 6034423349) for R531-2-F1; round 6's (comment
+6037650104) for the app composing ADP, ACMP and lane F2's MAAP together;
+and round 7's (comment 6041160063) for R530-5-F1. acmp_mutants.py
+appends this table to its own.
 """
 
 from __future__ import annotations
@@ -399,4 +400,11 @@ MUTANTS = (
            "\tfor (unsigned k = 0; k < 2000u; ++k) {\n\t\t(void)mbx_now_ms();\n\t}\n"
            "\tmaap_rx(&m->ifs[f->interface].core",
            "acmp", F6, "F6 the worst pass of the three-way backlog"),
+    # round 7 (R530-5-F1): MAAP's source on each interface is the own unicast MAC the filter holds there
+    Mutant("app-maap-mac-per-interface", APP, "\t\tmac[k] = cfg->entity->mac;\n",
+           "\t\tmac[k] = cfg->entity->mac + k;\n",
+           "acmpif2", U6, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"),
+    Mutant("app-own-mac-per-interface", APP, "\t\town_mac[i] = cfg->entity->mac;\n",
+           "\t\town_mac[i] = cfg->entity->mac + i;\n",
+           "acmpif2", U6, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"),
 )

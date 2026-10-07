@@ -1044,13 +1044,29 @@ TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelO
         mbx_model_advance_ms(&model, 10u);
         settle();
     }
+    // A DEFEND answers the PROBE's source (IEEE 1722-2016 B.2.1), and the maap
+    // row admits one only to the receiving interface's own unicast MAC, so
+    // MAAP sends on each interface from the MAC the open wrote for it there.
     std::array<unsigned, MBX_N_CH> sent{};
+    std::array<unsigned, MBX_N_IF> maap_own{};
+    std::array<unsigned, MBX_N_IF> maap_other{};
     for (std::uint32_t k = 0; k < model.tx_sent; ++k) {
-        ++sent[mbx_model_tx_frame(&model, k)->channel];
+        const mbx_model_tx* f = mbx_model_tx_frame(&model, k);
+        ++sent[f->channel];
+        if (f->channel != MBX_CH_MAAP) {
+            continue;
+        }
+        if ((wire_be64(f->bytes + 6) >> 16) == model.own_mac[f->interface]) {
+            ++maap_own[f->interface];
+        } else {
+            ++maap_other[f->interface];
+        }
     }
     EXPECT_TRUE(sent[MBX_CH_ADP] > 0u && sent[MBX_CH_MAAP] >= 3u * MBX_N_IF)
         << "U6 ADP advertises and MAAP probes on every interface";
     for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        EXPECT_TRUE(maap_own[i] >= 3u && maap_other[i] == 0u)
+            << on_if(i, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted");
         EXPECT_EQ(app.maap.ifs[i].core.state, MAAP_DEFEND) << on_if(i, "U6 MAAP acquires its range");
         EXPECT_TRUE(app.adp.ifs[i].stale_expiries == 0u && app.acmp.ifs[i].stale_expiries == 0u &&
                     app.maap.ifs[i].stale_expiries == 0u)
