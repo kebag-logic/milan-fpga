@@ -1,0 +1,109 @@
+{
+  "base": "db9aa8c9b135b34ff3d070a979dee70440b37cc6",
+  "dev": "d51b373ad7e8e8381af2797be3ebb8ee45c62e3c",
+  "old_f4": "50d492c12789e1d80bf11f547e7fe53e02b4bdb9",
+  "merge": "8b43aed6126c39483ce20e37f0644d34f6f30696",
+  "parents": "50d492c12789e1d80bf11f547e7fe53e02b4bdb9 d51b373ad7e8e8381af2797be3ebb8ee45c62e3c",
+  "dev_only_paths_equal_at_merge": [
+    "docs/design/TIME_SYNC.md",
+    "docs/testing/RUNNING_TESTS.md",
+    "docs/testing/TESTING.md",
+    "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+    "scripts/measure_test_evidence.py",
+    "scripts/measure_test_evidence_readers.py",
+    "scripts/measure_test_evidence_selftest.py",
+    "scripts/run_all_suites.sh",
+    "sw/firmware/ctrl/adp/adp.c",
+    "sw/firmware/ctrl/adp/adp.h",
+    "sw/firmware/ctrl/adp/adp_mbx.h",
+    "sw/firmware/ctrl/mbx/mbx.h",
+    "sw/firmware/ctrl/mbx/mbx_hal.h",
+    "sw/firmware/ctrl/port/ctrl_debug.h",
+    "sw/firmware/ctrl/port/ctrl_pool.h",
+    "sw/firmware/ctrl/test/test_adp_reentry.cpp",
+    "sw/firmware/ctrl_nvm/README.md",
+    "sw/firmware/ctrl_nvm/nvm_flash.h",
+    "sw/firmware/ctrl_nvm/nvm_klj2.c",
+    "sw/firmware/ctrl_nvm/nvm_state.h",
+    "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h",
+    "sw/firmware/ctrl_nvm/test/nvm_bench.py",
+    "sw/firmware/ctrl_nvm/test/nvm_mutants.py",
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp",
+    "sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/fw_gtest.py",
+    "sw/firmware/gtest/rv32_include/assert.h",
+    "tb/verilator/aaf/Makefile",
+    "tb/verilator/aaf/README.md",
+    "tb/verilator/aaf/sim_start.cpp",
+    "tb/verilator/aaf/start_mutants.py",
+    "tb/verilator/milan_dp/README.md",
+    "tb/verilator/milan_dp_gptp/README.md"
+  ],
+  "head_additive_followup": "diff --git a/sw/firmware/ctrl/mbx/mbx.h b/sw/firmware/ctrl/mbx/mbx.h\nindex 5dff51b19..fbde5f621 100644\n--- a/sw/firmware/ctrl/mbx/mbx.h\n+++ b/sw/firmware/ctrl/mbx/mbx.h\n@@ -90,0 +91,7 @@ enum mbx_status mbx_rx_take(unsigned ch, struct mbx_frame *f);\n+// Snapshot the published RX prefix and test whether the consumed cursor is\n+// still at or before it. A lifecycle consumer can discard that prefix for\n+// one interface while retaining other interfaces. Check on each bounded\n+// pass; comparison is modulo 2^16 and must not span 32768 consumed words.\n+uint16_t mbx_rx_mark(unsigned ch);\n+bool mbx_rx_before(unsigned ch, uint16_t mark);\n+\n",
+  "conflicts": [
+    {
+      "path": ".github/workflows/rtl-fast.yml",
+      "dev": "100644 blob cbb682646660899064727f1f58ec8f0611debba0\t.github/workflows/rtl-fast.yml",
+      "old_f4": "100644 blob 843db7190ba0506a2e91ff129ac7fa5b7e96b9e7\t.github/workflows/rtl-fast.yml",
+      "merge": "100644 blob c2ba717834fe7db12d0f7cdf63c34b1db4b0c28a\t.github/workflows/rtl-fast.yml",
+      "head": "100644 blob c2ba717834fe7db12d0f7cdf63c34b1db4b0c28a\t.github/workflows/rtl-fast.yml"
+    },
+    {
+      "path": "scripts/ci_events.py",
+      "dev": "100755 blob 344b49157687288d7089675aa73007ee23df2fa6\tscripts/ci_events.py",
+      "old_f4": "100755 blob e2287f0b822f455ba808e450114a30fc5e1ae0f3\tscripts/ci_events.py",
+      "merge": "100755 blob 23ee7592d02fe7173bcded99bc4dde25c3296e8f\tscripts/ci_events.py",
+      "head": "100755 blob 904923d6b6b3208608098e72a8375805c8dbe858\tscripts/ci_events.py"
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "dev": "100644 blob 5b276b3d27a010aa91adcb32bde1dd590b033419\tsw/firmware/ctrl/README.md",
+      "old_f4": "100644 blob 7d2d56ea78dbc5415762a3b3c20d3ebfa8bad3eb\tsw/firmware/ctrl/README.md",
+      "merge": "100644 blob aaea12b9e70fc37bbce347b0fc2e2f6283e6f89d\tsw/firmware/ctrl/README.md",
+      "head": "100644 blob 54baa09b73028f9f8306b7f1f1f3bad68b1f8afa\tsw/firmware/ctrl/README.md"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_build.py",
+      "dev": "100644 blob 7654014083a02f7c47c787a2ff21963eb52a5c7d\tsw/firmware/ctrl/test/ctrl_build.py",
+      "old_f4": "100644 blob 29f7418e3e6a87e023fe9108f38c3453b346d5a8\tsw/firmware/ctrl/test/ctrl_build.py",
+      "merge": "100644 blob 7654014083a02f7c47c787a2ff21963eb52a5c7d\tsw/firmware/ctrl/test/ctrl_build.py",
+      "head": "100644 blob 7654014083a02f7c47c787a2ff21963eb52a5c7d\tsw/firmware/ctrl/test/ctrl_build.py"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_mutants.py",
+      "dev": "100644 blob 3f882c585d8cfeea1e57844edc05f0ddcf3a9546\tsw/firmware/ctrl/test/ctrl_mutants.py",
+      "old_f4": "100644 blob 47c5f68eae9ffaf99c29590f2928b8e25c79d55c\tsw/firmware/ctrl/test/ctrl_mutants.py",
+      "merge": "100644 blob 53e7391f4de378533896a1fdf3520a1d0fcc20e6\tsw/firmware/ctrl/test/ctrl_mutants.py",
+      "head": "100644 blob 53e7391f4de378533896a1fdf3520a1d0fcc20e6\tsw/firmware/ctrl/test/ctrl_mutants.py"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "dev": "100644 blob e95b965cedafa8afdd7b6ec6d8019327a67c3699\tsw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "old_f4": "100644 blob b898a200d58994483473f8dbb6a4baf0e95e41cd\tsw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "merge": "100644 blob 9fadd3510e30b0433aaa424a4bcee7a970309ee4\tsw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "head": "100644 blob 2f6cb83a185f3bc212c3e98903db5ae7f4bdf2ac\tsw/firmware/ctrl/test/test_ctrl_firmware.py"
+    },
+    {
+      "path": "sw/firmware/gtest/fw_rv32.py",
+      "dev": "100644 blob 4a0c053138136a31cb8ccb892a7fc387f05a7698\tsw/firmware/gtest/fw_rv32.py",
+      "old_f4": "100644 blob d33c89c41c798b9740c3bcc0ed769dce0b0e4a71\tsw/firmware/gtest/fw_rv32.py",
+      "merge": "100644 blob 4a0c053138136a31cb8ccb892a7fc387f05a7698\tsw/firmware/gtest/fw_rv32.py",
+      "head": "100644 blob 4a0c053138136a31cb8ccb892a7fc387f05a7698\tsw/firmware/gtest/fw_rv32.py"
+    },
+    {
+      "path": "sw/firmware/gtest/fw_rv32_selftest.py",
+      "dev": "100755 blob db2ca516782eb292393ce08366fe9773d84c2029\tsw/firmware/gtest/fw_rv32_selftest.py",
+      "old_f4": "100644 blob dd9e494ba8ffb7af492771c42eac2b87a3d4a228\tsw/firmware/gtest/fw_rv32_selftest.py",
+      "merge": "100644 blob db2ca516782eb292393ce08366fe9773d84c2029\tsw/firmware/gtest/fw_rv32_selftest.py",
+      "head": "100755 blob db2ca516782eb292393ce08366fe9773d84c2029\tsw/firmware/gtest/fw_rv32_selftest.py"
+    }
+  ],
+  "head_vs_dev_rtl": [],
+  "size_inputs_changed_since_measurement": [
+    "M\tsw/firmware/ctrl/test/srp_mbx.cpp",
+    "M\tsw/firmware/ctrl/test/srp_mutants.py",
+    "M\tsw/firmware/gtest/fw_rv32_selftest.py"
+  ]
+}

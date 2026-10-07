@@ -1,0 +1,46 @@
+[
+  {
+    "name": "milan-delay-in",
+    "path": "library/src/core/mrp_mad.c",
+    "old": "if (app->ops->milan_rapid_leave && ev == MRP_EVENT_RLV &&",
+    "new": "if (false && app->ops->milan_rapid_leave && ev == MRP_EVENT_RLV &&",
+    "test": "Srp.InListenerWithdrawalRevokesLicenceImmediately:Srp.InTalkerWithdrawalImmediatelyWithdrawsListener",
+    "before_sha256": "41143f8768198cb8628bd1640bbc2b60aa7bcfab76d94f8339340a1d2fb4e7d9",
+    "after_sha256": "18f3244378f9a51be02c77315c46d10fed1255ed0a0d1dcd7037005001e21f8d",
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "milan-restart-lv",
+    "path": "library/src/core/mrp_mad.c",
+    "old": "    if (e->ns != MRP_REG_STATE_COUNT) {",
+    "new": "    if (ev == MRP_EVENT_RLV && ai->reg == MRP_REG_STATE_LV) {\n        shlan_timer_arm(&ai->leave_timer, priv_of(app)->ports[port_id].leave_cs);\n    }\n    if (e->ns != MRP_REG_STATE_COUNT) {",
+    "test": "Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline",
+    "before_sha256": "41143f8768198cb8628bd1640bbc2b60aa7bcfab76d94f8339340a1d2fb4e7d9",
+    "after_sha256": "44edb8016adc7c603f089a2c760e7c8096176135294d5eae54750f6df1ea5dcb",
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "lifecycle-fence-exclusive",
+    "path": "ctrl/mbx/mbx.c",
+    "old": "(uint16_t)(mark - rx_tail[ch]) < 0x8000u",
+    "new": "(uint16_t)(mark - rx_tail[ch]) > 0u && (uint16_t)(mark - rx_tail[ch]) < 0x8000u",
+    "test": "Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix",
+    "before_sha256": "edb09dec268bac02b60b5aeebb12b67e9a0df6c16c3fbf680242f1284c8c11d8",
+    "after_sha256": "8a9ab665ff76405150eba0ea83390198b1345fcbb8f23868e38690b180547912",
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "shared-clear-on-ineligible",
+    "path": "ctrl/srp/srp_mbx.c",
+    "old": "desired |= r->desired;",
+    "new": "desired = r->desired == 0 ? 0 : (desired | r->desired);",
+    "test": "Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire",
+    "before_sha256": "5f2ffb9f2a964a2dbe187538fb6ca5c5b63e965bcad9e4c03f24e5496542bee8",
+    "after_sha256": "8ccb2970fd444ab799831addf966715368b82869e0207959c82c3c17a7fdd7d9",
+    "rc": 1,
+    "caught": true
+  }
+]

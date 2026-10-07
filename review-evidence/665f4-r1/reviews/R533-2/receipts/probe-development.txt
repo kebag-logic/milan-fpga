@@ -1,0 +1,2 @@
+The first MVRP probe build was refused before execution because wire_be16 expected const uint8_t* and the probe supplied const void*. The probe now uses an explicit cast. This compile failure is not a test or mutation detection.
+The first merge-audit assertion incorrectly required an additive post-merge mbx.h API addition to be byte-identical to dev. The final audit verifies all 35 dev-only paths at the merge and separately verifies that the one later header change only adds lines.

@@ -1,0 +1,276 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+remerge CONFLICT (content): Merge conflict in .github/workflows/rtl-fast.yml
+index efc4d6a62..c2ba71783 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -236,16 +236,10 @@ jobs:
+   # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
+   # are the distribution's packages, and the install step prints the
+   # versions and the compiler and gcov the ratchet is measured with.
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+   # F4 requires the exact lwSRP submodule and the freestanding RV32 control
+   # build after SDK installation, plus the control mutation campaign. The
+   # private dependency must become fetchable before this lane can merge.
+   # The saved-state and tally mutation campaigns remain additional local gates.
+-=======
+-  # The ctrl gate's lwsrp arm stays opt-in: the workflow token cannot
+-  # read that private dependency. Both firmware mutation campaigns remain
+-  # local gates. The SDK is installed before either required RV32 arm.
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+   firmware-unit:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+@@ -280,18 +274,11 @@ jobs:
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+ 
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+       - name: Run the control-plane firmware suites and RV32 builds
+-        run: |
+-          python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+-          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+-=======
+-      - name: Run the control-plane firmware suites and its RV32 build
+         run: |
+           set -euo pipefail
+           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+-          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
++          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+ 
+       - name: Run the saved-state store suites and its RV32 build
+         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+remerge CONFLICT (content): Merge conflict in scripts/ci_events.py
+index b2913a74d..23ee7592d 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -2341,14 +2341,8 @@ RTL_STEP_LISTS = {
+              'python3 syn/yosys/cache_selftest.py',
+          )},
+     ),
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+     # #665 lanes FT/F4: the pinned SDK precedes the required freestanding
+     # control builds. SRP uses the exact lwSRP submodule and mutation campaign.
+-=======
+-    # #679: both object builds require the SDK, installed before either.
+-    # Freestanding headers exclude the SDK's hosted libc. The ctrl gate's
+-    # opt-in lwSRP arm and both mutation campaigns remain local gates.
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+     (RTL_FAST, FIRMWARE_UNIT_JOB): (
+         {"uses": "actions/checkout@v4"},
+         {"name": "Fetch RTL dependencies",
+@@ -2371,18 +2365,11 @@ RTL_STEP_LISTS = {
+          "with": RV32_CACHE_WITH},
+         {"name": "Install and verify the pinned RV32 SDK",
+          "run": RV32_INSTALL},
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+         {"name": "Run the control-plane firmware suites and RV32 builds",
+-         "run": (
+-             'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
+-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
+-=======
+-        {"name": "Run the control-plane firmware suites and its RV32 build",
+          "run": (
+              'set -euo pipefail',
+              'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
+-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32',
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
++             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
+          )},
+         {"name": "Run the saved-state store suites and its RV32 build",
+          "run": (
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/README.md
+index 64bd1746d..aaea12b9e 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -59,16 +59,11 @@ hand-rolled checks and the coverage ratchet are described in
+ | `reentry_debug`, `reentry_release` | `test_adp_reentry.cpp` | Every port/core entry pair, same and cross instance; both inline-expiry regressions. Assertions in debug, counted refusal in release. |
+ | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
+ | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-| `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string and format functions and libgcc helpers |
++| `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
+ | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+ 
+ The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,
+ debug, shape and processor-wire arms at one and two interfaces.
+-=======
+-| `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
+-| `lwsrp` | `lwsrp_port.cpp` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+ 
+ ### Reusing the processor's stimulus
+ 
+@@ -127,13 +122,6 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
+ ```
+ 
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-Needs a host C and C++ compiler, GoogleTest and GoogleMock (`libgtest-dev`
+-and `libgmock-dev`), PyYAML and the pinned SDK installed by
+-`scripts/ci_rv32_sdk.py`. The SDK distribution is `ilp32d`; the freestanding
+-core uses RV32I/ILP32 with the shared minimal headers and ELF checks from #679.
+-The CI firmware step requires that build and the mutation campaign.
+-=======
+ Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML.
+ RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
+ Both firmware gates require RV32 in `firmware-unit`.
+@@ -141,10 +129,8 @@ Freestanding declarations avoid the SDK's hosted C headers.
+ GCC supplies its own freestanding integer and varargs headers.
+ `MILAN_RV32_CC` selects an explicit compiler for local validation.
+ See [the harness](../gtest/README.md#rv32-object-builds) for evidence limits.
+-lwSRP is referenced, never vendored, at the
+-revision `ctrl_arms.LWSRP_REV` records,
+-`19f5796b63652eb1151906de73cb827d4980a53f`:
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
++The SDK distribution is `ilp32d`; the core uses RV32I/ILP32.
++The CI firmware step also requires the control mutation campaign.
+ 
+ Initialize `third_party/lwSRP` at its recorded gitlink before running the gate.
+ An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
+diff --git a/sw/firmware/ctrl/test/ctrl_build.py b/sw/firmware/ctrl/test/ctrl_build.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/ctrl_build.py
+index 415209ae6..765401408 100644
+--- a/sw/firmware/ctrl/test/ctrl_build.py
++++ b/sw/firmware/ctrl/test/ctrl_build.py
+@@ -39,21 +39,11 @@ HOST = ("host/mbx_model.c", "host/mbx_plat_host.c")
+ INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "app", "test")
+ C_FLAGS = ("-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "-pedantic")
+ 
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-RV32_CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"), "riscv32-unknown-elf-gcc",
+-                   "riscv64-elf-gcc")
+-RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-fstack-usage",
+-              "-Os", "-std=c11", "-Wall",
+-              "-Wextra", "-Werror", "-pedantic", "-DCTRL_MBX_BASE=0x80000000u")
+-#: What a freestanding RV32I build may leave undefined, besides libgcc's `__` helpers.
+-RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf"})
+-=======
+ RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-std=c11", "-Wall",
+               "-Wextra", "-Werror", "-pedantic", "-fstack-usage", "-DCTRL_MBX_BASE=0x80000000u")
+ #: Runtime interfaces an object-only check may leave undefined; ADP's re-entry
+ #: guard asserts in this (NDEBUG-free) build.
+ RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf", "__assert_fail"})
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+ 
+ 
+ class Refusal(Exception):
+diff --git a/sw/firmware/ctrl/test/ctrl_mutants.py b/sw/firmware/ctrl/test/ctrl_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/ctrl_mutants.py
+index 32c7a3533..53e7391f4 100644
+--- a/sw/firmware/ctrl/test/ctrl_mutants.py
++++ b/sw/firmware/ctrl/test/ctrl_mutants.py
+@@ -508,23 +508,15 @@ def lwsrp_pin_arms(root: Path, lwsrp: Path) -> int:
+     return escaped
+ 
+ 
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+ def campaign(root: Path, reuse: Path, jobs: int = 4) -> bool:
+-=======
+-def campaign(root: Path, reuse: Path, jobs: int) -> bool:
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+     """Plant every mutant; True when one escaped. One build serves every
+     copy, so a test object is compiled again only where a planted header
+     changes what it sees. A stable isolated path preserves compiler cache keys;
+     every plant first restores pristine source bytes."""
+     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
+             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
+-=======
+             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
+             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+     build = fw_gtest.Build(jobs=jobs)
+     escaped = 0
+     for m in MUTANTS:
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+index 276c943e7..9fadd3510 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -33,17 +33,11 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
+            (the builder's ADP shape include) and the processor's
+            ADP_ENTITY_CAPS_C;
+   rv32     the portable set and the MMIO platform cross-compiled freestanding
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-           for RV32I with the pinned SDK, every undefined symbol a C-library
+-           string or format function or a libgcc helper (no heap, no OS);
+-  lwsrp    lwSRP's own MRP core on the port layer and
+-=======
+            for RV32I with the pinned SDK and isolated freestanding headers;
+            every undefined symbol a named runtime interface (string, format
+            or assertion) or arithmetic helper, with ELF ABI and static-frame
+            checks (no heap, no OS);
+-  lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
++  lwsrp    lwSRP's own MRP core on the port layer and
+            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
+            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
+            with its src/ unmodified, or the arm refuses.
+@@ -91,11 +85,7 @@ from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
+ from ctrl_reuse import cut_reuse  # noqa: E402
+ 
+ 
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
+-=======
+-def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
+     tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True, jobs=jobs))
+     try:
+diff --git a/sw/firmware/gtest/fw_rv32.py b/sw/firmware/gtest/fw_rv32.py
+remerge CONFLICT (add/add): Merge conflict in sw/firmware/gtest/fw_rv32.py
+index 1c2f69f84..4a0c05313 100644
+--- a/sw/firmware/gtest/fw_rv32.py
++++ b/sw/firmware/gtest/fw_rv32.py
+@@ -1,11 +1,7 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """Shared freestanding RV32I object checks, without the SDK's hosted libc.
+ 
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-GCC supplies stdint/stddef/stdarg/stdbool under -ffreestanding. The two
+-=======
+ GCC supplies stdint/stddef/stdarg/stdbool under -ffreestanding. The
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+ rv32_include headers declare the bare-metal runtime interfaces consumed by
+ the firmware. These checks compile objects, not a linked or bootable image.
+ """
+diff --git a/sw/firmware/gtest/fw_rv32_selftest.py b/sw/firmware/gtest/fw_rv32_selftest.py
+remerge CONFLICT (add/add): Merge conflict in sw/firmware/gtest/fw_rv32_selftest.py
+index 3c1598d5c..db2ca5167 100644
+--- a/sw/firmware/gtest/fw_rv32_selftest.py
++++ b/sw/firmware/gtest/fw_rv32_selftest.py
+@@ -27,29 +27,19 @@ def header_and_abi_cases(cc: str, work: Path) -> int:
+     """A hostile hosted include tree cannot affect the freestanding build."""
+     poison = work / "sysroot/usr/include"
+     poison.mkdir(parents=True)
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-    for header in ("stdint.h", "string.h", "stdio.h"):
+-=======
+     for header in ("stdint.h", "string.h", "stdio.h", "assert.h"):
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+         (poison / header).write_text('#error "hosted header reached"\n')
+     source = work / "interfaces.c"
+     source.write_text("""#include <stdint.h>
+ #include <stdbool.h>
+ #include <string.h>
+ #include <stdio.h>
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-=======
+ #include <assert.h>
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+ _Static_assert(sizeof(uintptr_t) == 4, "RV32 pointers");
+ _Static_assert(sizeof(long) == 4, "ILP32 long");
+ _Static_assert(sizeof(uint64_t) == 8, "64-bit wire fields");
+ int format(char *dst, size_t n, const char *fmt, va_list ap) {
+-<<<<<<< 50d492c12 (fix: guard SRP reentry before validating arguments)
+-=======
+     assert(dst != NULL);
+->>>>>>> d51b373ad (Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678))
+     memset(dst, 0, n);
+     return vsnprintf(dst, n, fmt, ap);
+ }

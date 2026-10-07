@@ -1,0 +1,33 @@
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.RebindingRepresentativeMustWithdrawLastEligibleRequest
+listener event=3 subtype=2 time_ms=1000
+listener event=3 subtype=2 time_ms=2000
+$REVIEWS/665f4-r533-2-packet/probe_shared_rebind.cpp:33: Failure
+Value of: withdrew
+  Actual: false
+Expected: true
+no eligible binding remains; Listener withdrawal is required
+
+  [FAIL] Srp.RebindingRepresentativeMustWithdrawLastEligibleRequest: no eligible binding remains; Listener withdrawal is required
+$REVIEWS/665f4-r533-2-packet/probe_shared_rebind.cpp:34: Failure
+Value of: renewed
+  Actual: true
+Expected: false
+Ready must not renew after every binding becomes ineligible
+
+  [FAIL] Srp.RebindingRepresentativeMustWithdrawLastEligibleRequest: Ready must not renew after every binding becomes ineligible
+[  FAILED  ] Srp.RebindingRepresentativeMustWithdrawLastEligibleRequest (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.RebindingRepresentativeMustWithdrawLastEligibleRequest
+
+ 1 FAILED TEST
+== R533 shared binding rebind: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

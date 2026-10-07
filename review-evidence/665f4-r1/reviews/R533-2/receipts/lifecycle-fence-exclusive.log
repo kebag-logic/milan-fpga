@@ -1,0 +1,67 @@
+Note: Google Test filter = Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Change(0, 0, true)
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix:     Function call: Change(0, 0, true)
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:633: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix: Expected: false
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Change(1, 0, true)
+Google Mock tried the following 2 expectations, but none matched:
+
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:634: tried expectation #0: EXPECT_CALL(licence, Change(i,0,true))...
+  Expected arg #0: is equal to 0
+           Actual: 1
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:636: tried expectation #1: EXPECT_CALL(licence, Change(i,0,false))...
+  Expected arg #0: is equal to 0
+           Actual: 1
+  Expected arg #2: is equal to false
+           Actual: true
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix:            Actual: never called - unsatisfied and active
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:633: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix: Expected: false
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:634: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix:            Actual: never called - unsatisfied and active
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:634: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

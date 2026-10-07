@@ -1,0 +1,69 @@
+Note: Google Test filter = Srp.InListenerWithdrawalRevokesLicenceImmediately:Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Srp
+[ RUN      ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:490: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.InListenerWithdrawalRevokesLicenceImmediately: Expected: false
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:490: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.InListenerWithdrawalRevokesLicenceImmediately: Expected: false
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:492: Failure
+Expected equality of these values:
+  adapter.stops
+    Which is: 0
+  2u
+    Which is: 2
+
+  [FAIL] Srp.InListenerWithdrawalRevokesLicenceImmediately:     Which is: 2
+[  FAILED  ] Srp.InListenerWithdrawalRevokesLicenceImmediately (0 ms)
+[ RUN      ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:510: Failure
+Expected equality of these values:
+  adapter.ifs[i].sinks[0].declared
+    Which is: '\x2' (2)
+  0u
+    Which is: 0
+
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener:     Which is: 0
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:515: Failure
+Value of: left
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener: Expected: true
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:510: Failure
+Expected equality of these values:
+  adapter.ifs[i].sinks[0].declared
+    Which is: '\x2' (2)
+  0u
+    Which is: 0
+
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener:     Which is: 0
+$REVIEWS/r533-2-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:515: Failure
+Value of: left
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener: Expected: true
+[  FAILED  ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+[  FAILED  ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+
+ 2 FAILED TESTS
+== ctrl SRP mailbox: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)
