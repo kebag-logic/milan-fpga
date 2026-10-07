@@ -1,0 +1,448 @@
+[
+  {
+    "label": "a-leaveall-scope",
+    "file": "src/core/mrp_mad.c",
+    "expected": [
+      "msrp_leaveall_changes_only_the_message_type_and_port",
+      "mmrp_leaveall_changes_only_the_message_type_and_port"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "mmrp_leaveall_changes_only_the_message_type_and_port",
+      "msrp_leaveall_changes_only_the_message_type_and_port"
+    ],
+    "summary": "Completed \"main\": 2631 passes, 28 failures in 45ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-msrp-address",
+    "file": "src/modules/msrp.c",
+    "expected": [
+      "every_application_uses_its_standard_destination"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "domain_and_vector_offsets_match_wire_fields",
+      "every_application_uses_its_standard_destination"
+    ],
+    "summary": "Completed \"main\": 2657 passes, 2 failures in 46ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-milan-delayed-in-leave",
+    "file": "src/core/mrp_mad.c",
+    "expected": [
+      "talker_leave_in_is_immediate",
+      "listener_leave_in_is_immediate"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "listener_leave_in_is_immediate",
+      "talker_leave_in_is_immediate"
+    ],
+    "summary": "Completed \"main\": 2653 passes, 6 failures in 45ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-milan-restarted-lv-deadline",
+    "file": "src/core/mrp_mad.c",
+    "expected": [
+      "leave_in_lv_keeps_the_original_deadline"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "leave_in_lv_keeps_the_original_deadline"
+    ],
+    "summary": "Completed \"main\": 2653 passes, 6 failures in 45ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-milan-option-scope",
+    "file": "src/core/mrp_mad.c",
+    "expected": [
+      "mvrp_keeps_ieee_leave_timing",
+      "mmrp_keeps_ieee_leave_timing",
+      "disabled_application_option_preserves_ieee_timing"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "disabled_application_option_preserves_ieee_timing",
+      "mmrp_keeps_ieee_leave_timing",
+      "msrp_constructor_selects_the_build_profile",
+      "mvrp_keeps_ieee_leave_timing"
+    ],
+    "summary": "Completed \"main\": 2627 passes, 32 failures in 45ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-wire-prevalidation",
+    "file": "src/core/mrp_pdu.c",
+    "expected": [
+      "a_malformed_later_message_has_no_earlier_indications"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "a_malformed_later_message_has_no_earlier_indications",
+      "truncation_respects_complete_vectors_and_pdu_end"
+    ],
+    "summary": "Completed \"main\": 2660 passes, 4 failures in 55ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-split-fairness",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "a_full_pdu_retries_omitted_attributes_before_repeats"
+    ],
+    "summary": "Completed \"main\": 2649 passes, 10 failures in 44ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-talker-replacement",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "talker_join_replaces_the_other_type_on_the_same_port"
+    ],
+    "summary": "Completed \"main\": 2657 passes, 2 failures in 49ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-refused-storage",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "refused_pdu_survives_timers_without_aging_unsent_leaveall"
+    ],
+    "summary": "Completed \"main\": 2653 passes, 6 failures in 45ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "a-received-withdrawal-value",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "disabled_application_option_preserves_ieee_timing",
+      "leave_in_lv_keeps_the_original_deadline",
+      "listener_leave_in_is_immediate",
+      "msrp_constructor_selects_the_build_profile",
+      "withdrawal_does_not_replace_the_registered_declaration"
+    ],
+    "summary": "Completed \"main\": 2654 passes, 5 failures in 48ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-milan-on-rla",
+    "file": "src/core/mrp_mad.c",
+    "expected": [
+      "leave_in_lv_keeps_the_original_deadline"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "leave_in_lv_keeps_the_original_deadline"
+    ],
+    "summary": "Completed \"main\": 2644 passes, 15 failures in 60ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-milan-on-redeclare",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 46ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-milan-on-txla",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 46ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-milan-no-indication",
+    "file": "src/core/mrp_mad.c",
+    "expected": [
+      "talker_leave_in_is_immediate",
+      "listener_leave_in_is_immediate"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "listener_leave_in_is_immediate",
+      "talker_leave_in_is_immediate"
+    ],
+    "summary": "Completed \"main\": 2643 passes, 6 failures in 43ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-milan-from-lv-too",
+    "file": "src/core/mrp_mad.c",
+    "expected": [
+      "leave_in_lv_keeps_the_original_deadline"
+    ],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "leave_in_lv_keeps_the_original_deadline"
+    ],
+    "summary": "Completed \"main\": 2647 passes, 12 failures in 61ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-lv-join-indication-removed",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 42ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-rx-leaveall-no-la-reset",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 41ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-tx-leaveall-no-local-rla",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 55ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-parse-accept-bad-la",
+    "file": "src/core/mrp_pdu.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 43ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-parse-accept-bad-threepacked",
+    "file": "src/core/mrp_pdu.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "truncation_respects_complete_vectors_and_pdu_end"
+    ],
+    "summary": "Completed \"main\": 2658 passes, 1 failure in 46ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-domain-priority-bound",
+    "file": "src/modules/msrp.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "domain_and_vector_offsets_match_wire_fields"
+    ],
+    "summary": "Completed \"main\": 2658 passes, 1 failure in 45ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-talker-dest-offset",
+    "file": "src/modules/msrp.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "domain_and_vector_offsets_match_wire_fields"
+    ],
+    "summary": "Completed \"main\": 2657 passes, 2 failures in 44ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-reclaim-lo",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 46ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-reclaim-registered",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "uninteresting_values_do_not_allocate_and_empty_state_is_reclaimed"
+    ],
+    "summary": "Completed \"main\": 2657 passes, 2 failures in 64ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-leaveall-draw-upper",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 53ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-no-txlaf",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 46ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-no-join-spacing",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "fresh_ladder_and_refusal_are_transactional"
+    ],
+    "summary": "Completed \"main\": 2656 passes, 3 failures in 53ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-listener-subtype-tx",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 61ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-msrp-listlen",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "a_full_pdu_retries_omitted_attributes_before_repeats",
+      "changed_listener_redeclares_from_a_quiet_applicant",
+      "fresh_ladder_and_refusal_are_transactional",
+      "transmitted_leaveall_includes_every_supported_type"
+    ],
+    "summary": "Completed \"main\": 2614 passes, 25 failures in 52ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-destroy-leave-timer",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": "timeout",
+    "failed_tests": [],
+    "summary": "",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-rx-during-retention",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "refused_pdu_survives_timers_without_aging_unsent_leaveall"
+    ],
+    "summary": "Completed \"main\": 2658 passes, 1 failure in 44ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-seed-ignored",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "leaveall_draws_are_inside_the_required_interval"
+    ],
+    "summary": "Completed \"main\": 2657 passes, 2 failures in 40ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-ignore-subtype-registers",
+    "file": "src/core/mrp_pdu.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "truncation_respects_complete_vectors_and_pdu_end"
+    ],
+    "summary": "Completed \"main\": 2658 passes, 1 failure in 44ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-unknown-msrp-type-rejected",
+    "file": "src/core/mrp_pdu.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "later_versions_skip_unknown_stream_messages"
+    ],
+    "summary": "Completed \"main\": 2652 passes, 2 failures in 44ms.",
+    "status": "KILLED"
+  },
+  {
+    "label": "r-txla-registrar-ignored",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 0,
+    "failed_tests": [],
+    "summary": "Completed \"main\": 2659 passes in 47ms.",
+    "status": "SURVIVED"
+  },
+  {
+    "label": "r-replace-without-leavetimer",
+    "file": "src/core/mrp_mad.c",
+    "expected": [],
+    "milan": false,
+    "rc": 1,
+    "failed_tests": [
+      "talker_join_replaces_the_other_type_on_the_same_port"
+    ],
+    "summary": "Completed \"main\": 2657 passes, 2 failures in 47ms.",
+    "status": "KILLED"
+  }
+]

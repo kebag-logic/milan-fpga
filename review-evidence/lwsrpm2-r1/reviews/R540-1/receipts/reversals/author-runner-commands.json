@@ -1,0 +1,923 @@
+[
+  {
+    "label": "configure",
+    "command": [
+      "cmake",
+      "-S",
+      "<packet>/scratch/author-reversals/source",
+      "-B",
+      "<packet>/scratch/author-reversals/build",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_PREFIX_PATH=<packet>/scratch/cgreen-prefix"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "timer-unlink-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "timer-unlink",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "msrp-address-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "msrp-address",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "mmrp-address-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "mmrp-address",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "mvrp-address-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "mvrp-address",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "domain-offset-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "domain-offset",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "talker-offset-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "talker-offset",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "listener-offset-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "listener-offset",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "wire-prevalidation-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "wire-prevalidation",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "pdu-endmark-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "pdu-endmark",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leaveall-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "local-registration-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "local-registration",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "registrar-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "registrar-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "periodic-interval-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "periodic-interval",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leaveall-randomization-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-randomization",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "refused-storage-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "refused-storage",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "registrar-during-refusal-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "registrar-during-refusal",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "changed-listener-indication-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "changed-listener-indication",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "receive-opportunity-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "receive-opportunity",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "receive-interest-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "receive-interest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "reclaim-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "reclaim",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "split-fairness-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "split-fairness",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "received-withdrawal-value-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "received-withdrawal-value",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "local-withdrawal-value-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "local-withdrawal-value",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "talker-replacement-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "talker-replacement",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "listener-redeclaration-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "listener-redeclaration",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "domain-member-order-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "domain-member-order",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "hosted-allocation-header",
+    "command": [
+      "/usr/bin/python3",
+      "tests/check_freestanding.py"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "hosted-error-header",
+    "command": [
+      "/usr/bin/python3",
+      "tests/check_freestanding.py"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "point-to-point-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "point-to-point-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "shared-in-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "shared-in-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "withdrawal-transition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "withdrawal-transition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "periodic-passive-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "periodic-passive",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leaveall-all-types-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-all-types",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "unknown-stream-message-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "unknown-stream-message",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "bounded-header-initialization",
+    "command": [
+      "cc",
+      "-O2",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc/include",
+      "-Isrc",
+      "-c",
+      "src/core/mrp_pdu.c",
+      "-o",
+      "<packet>/scratch/author-reversals/strict.o"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "milan-delayed-in-leave-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-delayed-in-leave",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-restarted-lv-deadline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-restarted-lv-deadline",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-profile-selection-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-profile-selection",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-option-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-option-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "restored-build",
+    "command": [
+      "cmake",
+      "--build",
+      "<packet>/scratch/author-reversals/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "restored-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/author-reversals/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  }
+]

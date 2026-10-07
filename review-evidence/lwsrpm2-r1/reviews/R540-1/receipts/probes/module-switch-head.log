@@ -1,0 +1,15 @@
+module sources:
+<packet>/scratch/src/src/core/mrp_mad.c
+<packet>/scratch/src/src/core/mrp_pdu.c
+<packet>/scratch/src/src/modules/mvrp.c
+<packet>/scratch/src/src/modules/mmrp.c
+<packet>/scratch/src/src/modules/msrp.c
+<packet>/scratch/src/src/ports/alloc.c
+<packet>/scratch/src/src/ports/timer.c
+/usr/bin/ld: /tmp/ccHY6gTy.o: in function `main':
+probe_module_switch.c:(.text+0x68): undefined reference to `shlan_connect'
+/usr/bin/ld: probe_module_switch.c:(.text+0x7b): undefined reference to `shlan_port_enable'
+/usr/bin/ld: probe_module_switch.c:(.text+0x8e): undefined reference to `shlan_port_disable'
+/usr/bin/ld: probe_module_switch.c:(.text+0x9f): undefined reference to `shlan_disconnect'
+collect2: error: ld returned 1 exit status
+link rc=1
