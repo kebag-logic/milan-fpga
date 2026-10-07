@@ -4,13 +4,41 @@
 comment 6030067436): one or more for each finding of the R531-1 and R530-1
 reviews and for the adp channel's bound-talker term (comment 6029368753),
 on the core, the adapter, the binding owner, the driver and the host model;
-and round 4's (comment 6034423349) for R531-2-F1. acmp_mutants.py appends
-this table to its own.
+round 4's (comment 6034423349) for R531-2-F1; and round 6's (comment
+6037650104) for the app composing ADP, ACMP and lane F2's MAAP together.
+acmp_mutants.py appends this table to its own.
 """
 
 from __future__ import annotations
 
 from ctrl_mutant import Mutant
+
+APP = "app/ctrl_app.c"
+#: ctrl_app_open from its first line to ADP's enable: what lies between the
+#: compose's MAAP step and the open's MAAP start.
+APP_OPEN = ("\n\nbool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)\n{\n"
+            "\t// ADP sends the entity's one MAC on every interface (adp.c), so it is\n"
+            "\t// every interface's own unicast address\n"
+            "\tuint64_t own_mac[MBX_N_IF];\n"
+            "\tfor (unsigned i = 0; i < MBX_N_IF; ++i) {\n\t\town_mac[i] = cfg->entity->mac;\n\t}\n"
+            "\tif (!ctrl_loop_open(&app->loop, cfg->entity->entity_id, own_mac)) {\n\t\treturn false;\n\t}\n"
+            "\t// the bindings the store restored between compose and open, into the\n"
+            "\t// adp channel's bound-talker table, before any protocol starts\n"
+            "\tif (cfg->acmp != NULL) {\n\t\tacmp_mbx_open(&app->acmp);\n\t}\n"
+            "\tadp_mbx_set_enable(&app->adp, true);\n"
+            "\t// MAAP reads each interface's link and begins once the channels are open\n"
+            "\t// (maap_mbx.h); compose refused a preferred range it would refuse\n"
+            "\tif (cfg->maap_allocation != NULL) {\n")
+#: The compose's ACMP step and its MAAP step, in that order.
+APP_ACMP_THEN_MAAP = ("\tif (cfg->acmp != NULL &&\n"
+                      "\t    (!acmp_mbx_init(&app->acmp, cfg->acmp, cfg->acmp_env, CTRL_APP_ACMP_FIRST_SLOT) ||\n"
+                      "\t     !acmp_mbx_attach(&app->acmp, &app->loop))) {\n\t\treturn false;\n\t}\n"
+                      "\treturn cfg->maap_allocation == NULL || maap_compose(app, cfg);\n")
+MAAP_INIT = ("\treturn maap_mbx_init(&app->maap, mac, count, CTRL_APP_MAAP_FIRST_SLOT, cfg->maap_allocation, "
+             "cfg->maap_ctx) &&\n\t       maap_mbx_attach(&app->maap, &app->loop);\n")
+U6 = "AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen"
+U7 = "AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened"
+EXPLICIT = "MaapHost.ExplicitAppComposition"
 
 MUTANTS = (
     # R531-1-F1: only AVTP version 0 is read, in both receive paths, before anything changes
@@ -307,4 +335,58 @@ MUTANTS = (
            "\treturn reg == MBX_BND_REG_BOUND_EN ? (uint32_t)m->bound_eid[i][e] : 0u;",
            "model", "Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks",
            "R1 each bound-talker entry keeps"),
+    # round 6: the timer slots of the three modules
+    Mutant("app-maap-slots-overlap-acmp", "app/ctrl_app.h",
+           "#define CTRL_APP_MAAP_FIRST_SLOT (CTRL_APP_ACMP_FIRST_SLOT + MBX_N_IF)",
+           "#define CTRL_APP_MAAP_FIRST_SLOT (CTRL_APP_ACMP_FIRST_SLOT)",
+           "acmp", U6, "U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank"),
+    Mutant("app-maap-slots-overlap-adp", "app/ctrl_app.h",
+           "#define CTRL_APP_MAAP_FIRST_SLOT (CTRL_APP_ACMP_FIRST_SLOT + MBX_N_IF)",
+           "#define CTRL_APP_MAAP_FIRST_SLOT (CTRL_APP_ADP_FIRST_SLOT)",
+           "maap", EXPLICIT, "protocol timer slots disjoint",
+           (("acmp", U6, "U6 every interface's ADP, ACMP and MAAP slots are distinct"),)),
+    # round 6: the attach order, and every channel opened by the open
+    Mutant("app-maap-attached-after-open", APP,
+           "\treturn cfg->maap_allocation == NULL || maap_compose(app, cfg);\n}" + APP_OPEN +
+           "\t\t(void)maap_mbx_start(",
+           "\treturn true;\n}" + APP_OPEN + "\t\t(void)maap_compose(app, cfg);\n\t\t(void)maap_mbx_start(",
+           "acmp", U6, "U6 opening opens the adp, acmp and maap channels and no other",
+           (("maap", EXPLICIT, ""),)),
+    Mutant("app-maap-before-acmp", APP, APP_ACMP_THEN_MAAP,
+           "\tif (cfg->maap_allocation != NULL && !maap_compose(app, cfg)) {\n\t\treturn false;\n\t}\n"
+           "\treturn cfg->acmp == NULL ||\n"
+           "\t       (acmp_mbx_init(&app->acmp, cfg->acmp, cfg->acmp_env, CTRL_APP_ACMP_FIRST_SLOT) &&\n"
+           "\t\tacmp_mbx_attach(&app->acmp, &app->loop));\n",
+           "acmp", U6, "U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll",
+           (("acmp", U7, "U7 before MAAP attaches"),)),
+    Mutant("app-maap-started-in-compose", APP, "\t       maap_mbx_attach(&app->maap, &app->loop);\n}",
+           "\t       maap_mbx_attach(&app->maap, &app->loop) && maap_mbx_start(&app->maap, preferred);\n}",
+           "acmp", U6, "U6 composing the three touches no mailbox register"),
+    Mutant("app-maap-never-started", APP, "\t\t(void)maap_mbx_start(&app->maap, cfg->maap_preferred);\n", "",
+           "acmp", U6, "U6 MAAP probes from the open", (("maap", EXPLICIT, ""),)),
+    # round 6: the refusals
+    Mutant("app-maap-preferred-unchecked", APP, "\tif (preferred != 0u && (preferred < MAAP_POOL_BASE ||\n",
+           "\tif (false && (preferred < MAAP_POOL_BASE ||\n",
+           "acmp", U7, "U7 a preferred range below the B.4 pool is refused", (("maap", EXPLICIT, ""),)),
+    Mutant("app-maap-last-range-refused", APP, "\t    preferred > MAAP_POOL_BASE + MAAP_POOL_SIZE - count)) {",
+           "\t    preferred >= MAAP_POOL_BASE + MAAP_POOL_SIZE - count)) {",
+           "acmp", U7, "U7 the pool's last range is not"),
+    Mutant("app-maap-range-past-the-pool", APP, "\t    preferred > MAAP_POOL_BASE + MAAP_POOL_SIZE - count)) {",
+           "\t    preferred > MAAP_POOL_BASE + MAAP_POOL_SIZE)) {",
+           "acmp", U7, "U7 one that runs past the pool's end is refused"),
+    Mutant("app-maap-refusal-ignored", APP, MAAP_INIT,
+           "\t(void)maap_mbx_init(&app->maap, mac, count, CTRL_APP_MAAP_FIRST_SLOT, cfg->maap_allocation, "
+           "cfg->maap_ctx);\n\treturn maap_mbx_attach(&app->maap, &app->loop);\n",
+           "acmp", U7, "U7 MAAP for an entity with no talker source is refused"),
+    Mutant("app-acmp-refusal-ignored", APP,
+           "\t     !acmp_mbx_attach(&app->acmp, &app->loop))) {\n\t\treturn false;\n\t}\n",
+           "\t     !acmp_mbx_attach(&app->acmp, &app->loop))) {\n\t\t;\n\t}\n",
+           "acmp", U7, "U7 a refused ACMP configuration fails the three-way composition",
+           (("acmp", "AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract",
+             "U5 an ACMP configuration the module refuses fails the composition"),)),
+    Mutant("app-maap-entry-takes-no-port", APP, "\treturn allocation != NULL && ctrl_app_start(app, &with);",
+           "\treturn ctrl_app_start(app, &with);",
+           "acmp", U7, "U7 the explicit MAAP entry refuses a missing stream-address port", (("maap", EXPLICIT, ""),)),
+    Mutant("app-maap-entry-drops-preferred", APP, "\twith.maap_preferred = preferred;\n", "\t(void)preferred;\n",
+           "maap", EXPLICIT, ""),
 )

@@ -18,7 +18,10 @@
 //   F   the bound with full legal backlogs: both rings full, every pass and
 //       path held to the stated figures, events first in every pass;
 //   U   the composition: ACMP after ADP, nothing read before the contract
-//       check, the boot order's two halves.
+//       check, the boot order's two halves; ADP, ACMP and lane F2's MAAP in
+//       one app (the attach order, every channel and its interrupt opened,
+//       disjoint timer slots, MAAP acquiring beside the other two) and the
+//       three-way composition's refusals.
 //
 // The contract's adp channel passes the ENTITY_AVAILABLE and ENTITY_DEPARTING of
 // a talker bound on the receiving interface (sw/mailbox/mailbox.yaml 2.1, the
@@ -30,6 +33,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <array>
 #include <climits>
 #include <cstddef>
@@ -87,6 +91,43 @@ constexpr unsigned slot(unsigned i) {
 ctrl_app_config app_config() {
     return ctrl_app_config{&kEntity, 0, arena, sizeof arena, kClasses, 1, nullptr, nullptr, &acfg, &kEnv,
                            nullptr, nullptr, 0};
+}
+
+// What MAAP published through the three-way composition's stream-address port.
+struct Allocation {
+    unsigned calls = 0;
+    std::uint64_t base = 0;
+    std::uint16_t count = 0;
+    bool valid = false;
+};
+Allocation published;
+
+void allocation(void* ctx, unsigned, std::uint64_t base, std::uint16_t count, bool valid) {
+    Allocation& a = *static_cast<Allocation*>(ctx);
+    ++a.calls;
+    a.base = base;
+    a.count = count;
+    a.valid = valid;
+}
+
+// A range inside the B.4 pool (IEEE 1722-2016 Table B.9).
+constexpr std::uint64_t kMaapBase = MAAP_POOL_BASE + 0x100u;
+
+// True when a module's timer slot on the model is armed exactly when the
+// module holds an arm there, with that arm's tag.
+template <typename If>
+bool holds(const If& i) {
+    const mbx_model_timer& t = model.timers[i.slot];
+    return t.armed == i.armed && (!i.armed || t.tag == i.tag);
+}
+
+// The app with ADP, ACMP and MAAP, MAAP claiming its range from kMaapBase.
+ctrl_app_config three_way() {
+    ctrl_app_config c = app_config();
+    c.maap_allocation = allocation;
+    c.maap_ctx = &published;
+    c.maap_preferred = kMaapBase;
+    return c;
 }
 
 struct acmp* core() {
@@ -888,6 +929,95 @@ TEST_F(AcmpMailbox, U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract) {
     bad.n_sinks = ACMP_MAX_SINKS + 1u;
     acfg = bad;
     EXPECT_FALSE(ctrl_app_compose(&app, &cfg)) << "U5 an ACMP configuration the module refuses fails the composition";
+}
+
+TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen) {
+    mbx_model_reset(&model);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        mbx_model_set_gm(&model, i, kGm0, 0);
+        mbx_model_set_link(&model, i, true);
+    }
+    published = Allocation{};
+    const std::uint64_t before = model.reads + model.writes;
+    const ctrl_app_config cfg = three_way();
+    ASSERT_TRUE(ctrl_app_compose(&app, &cfg)) << "U6 the app composes ADP, ACMP and MAAP";
+    EXPECT_EQ(model.reads + model.writes, before) << "U6 composing the three touches no mailbox register";
+    EXPECT_TRUE(app.loop.n_sinks == 3u && app.loop.sinks[0].ctx == &app.adp && app.loop.sinks[1].ctx == &app.acmp &&
+                app.loop.sinks[2].ctx == &app.maap && app.loop.n_polls == 3u && app.loop.polls[0].ctx == &app.adp &&
+                app.loop.polls[1].ctx == &app.acmp && app.loop.polls[2].ctx == &app.maap)
+        << "U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll";
+    EXPECT_TRUE(app.loop.rx[MBX_CH_ADP].ctx == &app.acmp && app.acmp.adp_next.ctx == &app.adp &&
+                app.loop.rx[MBX_CH_ACMP].ctx == &app.acmp && app.loop.rx[MBX_CH_MAAP].ctx == &app.maap)
+        << "U6 ACMP still stands in front of ADP's handler, and MAAP holds its own channel";
+    std::vector<unsigned> slots;
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        slots.insert(slots.end(), {app.adp.ifs[i].slot, app.acmp.ifs[i].slot, app.maap.ifs[i].slot});
+    }
+    std::sort(slots.begin(), slots.end());
+    EXPECT_TRUE(std::adjacent_find(slots.begin(), slots.end()) == slots.end() && slots.back() < MBX_N_TIMERS)
+        << "U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank";
+    std::uint8_t record[spec::BINDING_BYTES] = {0x03, 0, 0, 1};
+    wire_put_be(record + 4, kTkA, 8);
+    ASSERT_EQ(acmp_restore_binding(core(), 1, record, sizeof record), ACMP_RESTORE_APPLIED);
+    ASSERT_TRUE(ctrl_app_open(&app, &cfg));
+    const std::uint32_t channels = (1u << MBX_CH_ADP) | (1u << MBX_CH_ACMP) | (1u << MBX_CH_MAAP);
+    EXPECT_EQ(model.filter_en, channels) << "U6 opening opens the adp, acmp and maap channels and no other";
+    EXPECT_EQ(model.irq_enable, mbx_place(channels, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH) |
+                                    mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH))
+        << "U6 with each one's receive interrupt and the events'";
+    EXPECT_TRUE(model.bound_en[acfg.sink_interface[1]][1] && model.bound_eid[acfg.sink_interface[1]][1] == kTkA)
+        << "U6 the binding restored between compose and open reaches the bound-talker table";
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        EXPECT_EQ(app.maap.ifs[i].core.state, MAAP_PROBE) << on_if(i, "U6 MAAP probes from the open");
+    }
+    // Four seconds: MAAP's probes and its acquisition, ADP's advertisements and
+    // the restored sink's TMR_NO_ADP, each on its own slots.
+    for (unsigned ms = 0; ms < 4000u; ms += 10u) {
+        mbx_model_advance_ms(&model, 10u);
+        settle();
+    }
+    std::array<unsigned, MBX_N_CH> sent{};
+    for (std::uint32_t k = 0; k < model.tx_sent; ++k) {
+        ++sent[mbx_model_tx_frame(&model, k)->channel];
+    }
+    EXPECT_TRUE(sent[MBX_CH_ADP] > 0u && sent[MBX_CH_MAAP] >= 3u * MBX_N_IF)
+        << "U6 ADP advertises and MAAP probes on every interface";
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        EXPECT_EQ(app.maap.ifs[i].core.state, MAAP_DEFEND) << on_if(i, "U6 MAAP acquires its range");
+        EXPECT_TRUE(app.adp.ifs[i].stale_expiries == 0u && app.acmp.ifs[i].stale_expiries == 0u &&
+                    app.maap.ifs[i].stale_expiries == 0u)
+            << on_if(i, "U6 no module takes an expiry of another's arm");
+        EXPECT_TRUE(holds(app.adp.ifs[i]) && holds(app.acmp.ifs[i]) && holds(app.maap.ifs[i]))
+            << on_if(i, "U6 and each slot holds its own module's current arm");
+    }
+    EXPECT_TRUE(published.valid && published.base == kMaapBase && published.count == kEntity.talker_stream_sources)
+        << "U6 the acquired range reaches the stream-address port";
+}
+
+TEST_F(AcmpMailbox, U7TheThreeWayCompositionRefusesWithNothingOpened) {
+    mbx_model_reset(&model);
+    const std::uint64_t before = model.reads + model.writes;
+    ctrl_app_config cfg = three_way();
+    cfg.maap_preferred = MAAP_POOL_BASE - 1u;
+    EXPECT_FALSE(ctrl_app_start(&app, &cfg)) << "U7 a preferred range below the B.4 pool is refused";
+    cfg.maap_preferred = MAAP_POOL_BASE + MAAP_POOL_SIZE - kEntity.talker_stream_sources + 1u;
+    EXPECT_FALSE(ctrl_app_start(&app, &cfg)) << "U7 one that runs past the pool's end is refused";
+    cfg.maap_preferred = MAAP_POOL_BASE + MAAP_POOL_SIZE - kEntity.talker_stream_sources;
+    EXPECT_TRUE(ctrl_app_compose(&app, &cfg)) << "U7 the pool's last range is not";
+    adp_entity silent = kEntity;
+    silent.talker_stream_sources = 0u;
+    cfg = three_way();
+    cfg.entity = &silent;
+    EXPECT_FALSE(ctrl_app_compose(&app, &cfg)) << "U7 MAAP for an entity with no talker source is refused";
+    acfg.n_sinks = ACMP_MAX_SINKS + 1u;
+    cfg = three_way();
+    EXPECT_FALSE(ctrl_app_start(&app, &cfg)) << "U7 a refused ACMP configuration fails the three-way composition";
+    EXPECT_TRUE(app.loop.rx[MBX_CH_MAAP].fn == nullptr) << "U7 before MAAP attaches";
+    acfg = acmp_shape();
+    EXPECT_FALSE(ctrl_app_start_maap(&app, &cfg, nullptr, nullptr, 0u))
+        << "U7 the explicit MAAP entry refuses a missing stream-address port";
+    EXPECT_TRUE(model.reads + model.writes == before && model.filter_en == 0u && model.irq_enable == 0u)
+        << "U7 and no refusal touched a mailbox register";
 }
 
 }  // namespace
