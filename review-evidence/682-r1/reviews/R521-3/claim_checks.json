@@ -1,0 +1,162 @@
+{
+  "processor_top_sha256": "84d89afb652b3db646fd86a13e301c9de89005607b9d8fa896eb38f365a0e170",
+  "processor_top_identical": true,
+  "merged_prs": {
+    "156": {
+      "merge": "21c6f7096ac80007f723de59c6f717f55bd34cfc",
+      "title": "C11: landed-port docs, the P-/T- ID gate, figure gates in CI and the RX FIFO integrator contract (#27, #70, #75; relates #71)",
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156"
+    },
+    "159": {
+      "merge": "054d01c79e59c3f80454ad9cdefd8e914b540bb4",
+      "title": "KL_aecp_notify: space counter notifications from the previous round's send, not its selection (#148)",
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/159"
+    },
+    "160": {
+      "merge": "7e5415e069cae46b63cafcc9e6ac9f68e058d9d0",
+      "title": "Grade a withdrawal that meets an LV Listener registrar after a LeaveAll (#134)",
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/160"
+    },
+    "161": {
+      "merge": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+      "title": "KL_aecp_notify: a DEREGISTER drained mid-round no longer overwrites the round's notification (#158)",
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/161"
+    },
+    "162": {
+      "merge": "86a7b0c57831c15e9cd8b42d64cc4a9843f4e726",
+      "title": "Declare cancel_hit_w and vd_push_w before their first use (#22)",
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162"
+    },
+    "164": {
+      "merge": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "title": "Grade the domain-change notification at pp_top: one unsolicited GET_AVB_INFO per adopted or reverted Class A Domain (#42)",
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/164"
+    }
+  },
+  "reset_attribution": {
+    "change": "371505db",
+    "merge": "b0a74196",
+    "already_present_at": "ead8036035affd53ef4b29979190f2f4f67084c0"
+  },
+  "rom_rows": {
+    "2ad2f845dd583f8310075fa2380cb60a04fd091a": {
+      "ltn_rom.hex": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956",
+      "ucode.hex": "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8"
+    },
+    "ead8036035affd53ef4b29979190f2f4f67084c0": {
+      "ltn_rom.hex": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956",
+      "ucode.hex": "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8"
+    }
+  },
+  "resource_record_matches_public_F": true,
+  "endpoint_flow_controls": {
+    "route-1x1": {
+      "identity": {
+        "tool": "Vivado v.2026.1 (lin64) Build 6511674",
+        "device": "xc7a100tfgg484-2",
+        "design": "alinx_ax7101",
+        "state": "Physopt postRoute",
+        "flow": [
+          "set_param synth.maxThreads 1",
+          "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+          "set_param general.maxThreads 32",
+          "synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2",
+          "opt_design -directive ExploreArea",
+          "kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}",
+          "place_design -directive ExtraPostPlacementOpt",
+          "phys_opt_design -directive AggressiveExplore",
+          "route_design -directive AggressiveExplore",
+          "phys_opt_design -directive AggressiveExplore"
+        ],
+        "standalone_clock_ns": []
+      },
+      "control": 0,
+      "missing_cap": 2,
+      "diagnostic": [
+        "NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of comparing across it"
+      ],
+      "policies_unchanged": true
+    },
+    "ooc-1x1": {
+      "identity": {
+        "tool": "Vivado v.2026.1 (lin64) Build 6511674",
+        "device": "xc7a100tfgg484-2",
+        "design": "KL_pp_shadow",
+        "state": "Synthesized",
+        "flow": [
+          "set_param synth.maxThreads 1",
+          "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+          "set_param general.maxThreads 32",
+          "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+        ],
+        "standalone_clock_ns": [
+          "20.000"
+        ]
+      },
+      "control": 0,
+      "missing_cap": 2,
+      "diagnostic": [
+        "NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of comparing across it"
+      ],
+      "policies_unchanged": true
+    },
+    "ooc-8x8": {
+      "identity": {
+        "tool": "Vivado v.2026.1 (lin64) Build 6511674",
+        "device": "xc7a100tfgg484-2",
+        "design": "KL_pp_shadow",
+        "state": "Synthesized",
+        "flow": [
+          "set_param synth.maxThreads 1",
+          "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+          "set_param general.maxThreads 32",
+          "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+        ],
+        "standalone_clock_ns": [
+          "20.000"
+        ]
+      },
+      "control": 0,
+      "missing_cap": 2,
+      "diagnostic": [
+        "NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of comparing across it"
+      ],
+      "policies_unchanged": true
+    }
+  },
+  "recipe_preparations": [
+    "python3 syn/ooc/pp_baseline.py \"$WORK/ax7101/gateware\" --single-thread-synthesis",
+    "python3 syn/ooc/pp_baseline.py \"$WORK/ax8x8/gateware\"    --synthesis-only --single-thread-synthesis",
+    "python3 syn/ooc/pp_baseline.py \"$WORK/ax7101/gateware\"    --attribution-only --single-thread-synthesis",
+    "python3 syn/ooc/pp_baseline.py \"$WORK/ax8x8/gateware\"    --synthesis-only --attribution-only --single-thread-synthesis",
+    "python3 syn/ooc/pp_baseline.py \"$WORK/$shape/gateware\"      --single-thread-synthesis      --output \"$WORK/$shape-ooc\"      --integrated-log \"$WORK/$shape/gateware/baseline.log\""
+  ],
+  "unchanged_product_scopes": [
+    "sw/firmware/milan_baremetal",
+    "tb/verilator/nvm_capture_cpu",
+    "hdl",
+    "configs"
+  ],
+  "capture_firmware_sha256": "a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3",
+  "capture_maxima": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "cpu_hz": 50000000,
+      "maximum_ms": 3.96728,
+      "margin": 12.351031437155935
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "cpu_hz": 50000000,
+      "maximum_ms": 13.86484,
+      "margin": 3.5341193984207537
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "cpu_hz": 100000000,
+      "maximum_ms": 10.42973,
+      "margin": 4.698108196472967
+    }
+  ],
+  "public_render_clean_epoch_identical": true
+}

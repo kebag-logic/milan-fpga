@@ -1,0 +1,2078 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f259e3435..f312b8128 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
+ - **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
+ - **[Unreleased - processor pin ead80360](#unreleased---processor-pin-ead80360)** -- A silent NVM device is answered.
+ - **[Unreleased - CRF unbind counts its unlock](#unreleased---crf-unbind-counts-its-unlock)** -- Counted at the unbind.
+@@ -40,6 +41,35 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - processor pin 2ad2f845
++
++- Issue #682 adopts processor `2ad2f845`.
++- That pin carries processor PRs #156 and #159 to #162.
++- It also carries #164.
++- GET_COUNTERS notification spacing is now measured at grant (#148).
++- Later MAC stalls remain a wire-gap limitation.
++- The capture harness finishes frames crossing its observation boundary.
++- That extension stops after at most 2,048 cycles.
++- C11 documents the landed byte interfaces and TX backpressure.
++- It also documents complete FCS-good RX frames.
++- SRP registrar expiry precedes same-clock reception (#134).
++- Lv and LeaveAll finish MT; New and Join renew IN.
++- A held DEREGISTER waits for the notification round boundary (#158).
++- Subsequent controllers keep their notifications.
++- Its contents stay unchanged, but delivery can arrive later.
++- Existing declarations now precede use (#22).
++- The parent analysis budget has zero processor findings.
++- Domain and link-edge notification triggers gain tests (#42).
++- The parent still owns GET_AVB_INFO mapping words.
++- The processor top remains byte-identical to `ead80360`.
++- No port, parameter or register changes require parent adaptation.
++- The resource gate records this image as baseline F.
++- The ROM ledger adds `2ad2f845` rows; both ROMs are unchanged.
++- The capture census, receipt and product firmware remain unchanged.
++- After merge, the manager repeats #608 withdrawal cycles.
++- The manager also reads #658's default map.
++- VERSION is unchanged; the release step owns the bump.
++
+ ## Unreleased - power-on audio maps
+ 
+ - Every dynamic stream port powered up unmapped (#658).
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index bf9f0ba9d..1b9c6a053 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -10,7 +10,7 @@ The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records iss
+ It also records issue #587's 50 MHz 8x8 rerun.
+ It separates standalone synthesis from integrated implementation.
+ Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
+-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) measures the shipping image at dev `54643724`, after PR #634.
++The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image after merging dev `79b086d4`, retaining processor `2ad2f845` for #682.
+ Its figures back the protocol processor budget and resource gate below.
+ 
+ The current command and media-clock claims are checked against the
+@@ -98,9 +98,11 @@ named campaign before quoting the resulting image as release-ready.
+ ## Protocol processor budget and resource gate
+ 
+ Issue #234 first measured the shipping 1x1 image at dev `1269cdaf`, processor pin `631eeb34`.
+-It re-baselined after PR #634 at dev `54643724`, and on 2026-10-05 after #661's adoption of processor `ead80360` on dev `506d91db`.
+-The latest measurement, parent `ca129e38`, is the gate's record.
+-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) holds all three measurements and their receipts.
++Later records cover PR #634 and #661's adoption of processor `ead80360`.
++The current record is [combination F](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845), measured for #682 at parent `4d253880` after merging dev `79b086d4`, processor `2ad2f845`.
++It explicitly limits synthesis to one worker; the flow identity records this memory setting.
++The flow identity matches E; the changed tracked resource input is the parent AAF packetizer from dev.
++The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) holds the measurements, differences and receipts.
+ 
+ ### Headroom target
+ 
+@@ -108,30 +110,31 @@ NFR-RES-01 in the [requirements](../reference/FR_NFR.md) is the accepted headroo
+ The baseline product must fit `xc7a100t` with at most 60 percent of its LUTs used.
+ The adopted image does not meet it:
+ 
+-| Resource | Device | Shipping route, processor `ead80360` | Used | Target | Status |
++| Resource | Device | Shipping route, processor `2ad2f845` | Used | Target | Status |
+ |---|---:|---:|---:|---|---|
+-| Slice LUT | 63,400 | 50,318 | 79.37 % | NFR-RES-01: at most 38,040 (60 %) | not met, 12,278 over |
+-| Slice register | 126,800 | 54,214 | 42.76 % | none stated | - |
+-| Slice | 15,850 | 15,789 | 99.62 % | must stay below the device to place | 61 free |
++| Slice LUT | 63,400 | 49,957 | 78.80 % | NFR-RES-01: at most 38,040 (60 %) | not met, 11,917 over |
++| Slice register | 126,800 | 54,274 | 42.80 % | none stated | - |
++| Slice | 15,850 | 15,734 | 99.27 % | must stay below the device to place | 116 free |
+ | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
+ | DSP | 240 | 14 | 5.83 % | none stated | - |
+-| WNS / WHS | - | +0.108 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
++| WNS / WHS | - | +0.124 / +0.031 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
+ 
+-The slice row is the binding limit: placement has 61 slices left.
+-The routed critical path, 42 logic levels, lies inside the protocol processor.
+-The previous C image used 50,767 LUTs and 15,832 slices, 18 free, at +0.193 / +0.024 ns.
+-The adoption saves 449 LUTs, 5,420 FFs and five RAMB36s in the image.
++The slice row is the binding limit: placement has 116 slices left.
++The routed critical path has 18 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
++The previous E image used 49,888 LUTs and 15,805 slices, 45 free, at +0.101 / +0.031 ns.
++The baseline records all endpoint and sub-block differences.
++The comparison follows the changed parent input with the processor pin and recipe identity unchanged.
+ 
+ ### Allocation to the protocol processor
+ 
+-The standalone wrapper uses 23,178 LUTs, 36.6 % of the device, at the shipping clock.
++The standalone wrapper uses 23,179 LUTs, 36.6 % of the device, at the shipping clock.
+ Epic #229's milestone keeps the non-CPU stack under 30 %, 19,020 LUTs.
+-Read as `milan_datapath`, that stack names 41,657 LUTs in the routed image, 65.7 % of the device.
+-The wrapper names 22,886 of them in that rebuilt hierarchy.
++Read as `milan_datapath`, that stack names 41,394 LUTs in the routed image, 65.3 % of the device.
++The wrapper names 23,128 of them in that rebuilt hierarchy.
+ On any reading, the wrapper alone exceeds the milestone.
+ 
+-Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 10,608 LUTs.
+-That is a 12,278-LUT cut, 54 % of the wrapper.
++Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 11,211 LUTs.
++That requires removing 11,917 LUTs, 52 % of the wrapper.
+ The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that NFR-RES-01 stays at 60 %.
+ It is met by a redesign in milestone "Optimisations Mark II" (#640), after Instrument verification.
+ Until then the gate holds every resource at its recorded value: no material growth.
+@@ -159,7 +162,7 @@ It also requires the route's BRAM tile ceiling.
+ 
+ Growth beyond a tolerance, a ceiling crossed or a timing floor crossed exits 1.
+ A route whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
+-The 0.25 ns fall limit matters only once the route has margin; at +0.108 ns the floor still binds first, after a fall of 0.078 ns.
++The 0.25 ns fall limit matters only once the route has margin; at +0.124 ns the floor still binds first, after a fall of 0.094 ns.
+ One more RAMB36, RAMB18 or DSP is always material.
+ A primitive count moves only when storage or arithmetic changes its mapping.
+ 
+@@ -192,6 +195,8 @@ Each endpoint's `measured` note names the dev revision its record describes.
+ The first re-baseline recorded PR #634's growth on 2026-10-03, in PR #638, which added the gate.
+ The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-03-after-pr-634) gives its delta per endpoint and sub-block.
+ The [second re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-05-processor-ead80360) records the adopted `ead80360` image on dev `506d91db` for #661.
++The [third re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-06-processor-2ad2f845) records processor `2ad2f845` on dev `bd884631` for #682, including its changed measurement flow.
++The [fourth re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845) records the same processor after #682 merges dev `79b086d4`, under the same measurement flow.
+ 
+ The gate refuses, with exit 2, to compare across a tool or recipe change.
+ That covers the Vivado build, the device, the design and its state, every flow command and the standalone clock.
+diff --git a/docs/diagrams/PNG_MANIFEST.json b/docs/diagrams/PNG_MANIFEST.json
+index 059ee1a87..fe1484057 100644
+--- a/docs/diagrams/PNG_MANIFEST.json
++++ b/docs/diagrams/PNG_MANIFEST.json
+@@ -9,9 +9,9 @@
+     },
+     "docs/diagrams/submodule_boundaries.png": {
+       "height": 1440,
+-      "raster_sha256": "96ffdc2786aa89ba592b0b30cfa33cd5f0f56853d46e1810bc8f63704bc44df9",
++      "raster_sha256": "7f7c477a4dddff02c71e3c2f8bb830d1817d324ca5bd16a5e2c5b701de19e2ce",
+       "source": "docs/diagrams/submodule_boundaries.drawio",
+-      "source_sha256": "58b37f4b0e5533d26ef80a906cf0f68734d7556248ffb101e2d67d55ec6756ee",
++      "source_sha256": "843f500789f1eaa04a7f083b4b44670a407390ca79b041c28a8b0d764bb0aebe",
+       "width": 2400
+     },
+     "docs/diagrams/timesync_chain.png": {
+diff --git a/docs/diagrams/submodule_boundaries.drawio b/docs/diagrams/submodule_boundaries.drawio
+index f637a53e5..c82f080b1 100644
+--- a/docs/diagrams/submodule_boundaries.drawio
++++ b/docs/diagrams/submodule_boundaries.drawio
+@@ -1 +1 @@
+-<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin ead8036035af&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 5dce647ab5a0&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="785" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
++<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 2ad2f845dd58&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 5dce647ab5a0&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="785" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+diff --git a/docs/diagrams/submodule_boundaries.png b/docs/diagrams/submodule_boundaries.png
+index 8ad5faec1..879ef1369 100644
+Binary files a/docs/diagrams/submodule_boundaries.png and b/docs/diagrams/submodule_boundaries.png differ
+diff --git a/docs/diagrams/submodule_boundaries.svg b/docs/diagrams/submodule_boundaries.svg
+index 4b929dfa5..8fcdfeb4c 100644
+--- a/docs/diagrams/submodule_boundaries.svg
++++ b/docs/diagrams/submodule_boundaries.svg
+@@ -26,7 +26,7 @@
+ <text x="133" y="174" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE CONTROL</text>
+ <text x="53" y="215" font-size="20" font-weight="bold" fill="#212121">protocol-processor</text>
+ <text x="53" y="258" font-size="16" fill="#37474F">ADP, ACMP, AECP, and SRP engine</text>
+-<text x="53" y="297" font-size="16" fill="#37474F">pin ead8036035af</text>
++<text x="53" y="297" font-size="16" fill="#37474F">pin 2ad2f845dd58</text>
+ <text x="53" y="323" font-size="16" fill="#37474F">wrapper:</text>
+ <text x="53" y="344" font-size="16" fill="#37474F">hdl/milan/</text>
+ <text x="53" y="365" font-size="16" fill="#37474F">KL_pp_shadow.sv</text>
+diff --git a/docs/findings/234_PP_SHADOW_AREA_BASELINE.md b/docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+index 81b7412ba..3cb850a51 100644
+--- a/docs/findings/234_PP_SHADOW_AREA_BASELINE.md
++++ b/docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+@@ -1,14 +1,17 @@
+ # Protocol processor area baseline for issue #234
+ 
+ Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
+-The [2026-10-05 re-baseline](#re-baseline-of-2026-10-05-processor-ead80360) records processor pin `ead80360` on dev `506d91db` for #661.
++The [2026-10-07 re-baseline](#re-baseline-of-2026-10-07-processor-2ad2f845) records processor pin `2ad2f845` after merging dev `79b086d4` for #682.
+ It is the resource gate's current record.
+-The later sections preserve the previous combinations A, B and C as history.
+-This adoption changes the processor gitlink; no parent RTL or processor source is edited.
++The later sections preserve combinations A, B, C, D and E as history.
++The adoption changes the processor gitlink; the later dev merge also changes the parent AAF packetizer.
++No processor source is edited.
+ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
+ 
+ ## Contents
+ 
++- **[Re-baseline of 2026-10-07, processor 2ad2f845](#re-baseline-of-2026-10-07-processor-2ad2f845)** -- The same processor after merging dev `79b086d4`, with all three endpoints remeasured, unchanged policy and the complete input-digest provenance.
++- **[Re-baseline of 2026-10-06, processor 2ad2f845](#re-baseline-of-2026-10-06-processor-2ad2f845)** -- The adopted pin on dev `bd884631`, its recorded synthesis worker limit, three measured endpoints, corner timing and declaration-warning counts.
+ - **[Re-baseline of 2026-10-05, processor ead80360](#re-baseline-of-2026-10-05-processor-ead80360)** -- The adopted pin on dev `506d91db`, its three measured endpoints, storage mappings and changes from C.
+ - **[Re-baseline of 2026-10-03, after PR #634](#re-baseline-of-2026-10-03-after-pr-634)** -- The three endpoints measured again at dev `54643724`, their delta from the first record per endpoint and sub-block, and its sources: the AAF clock meter, one more name entry and the firmware ROM.
+ - **[Combinations](#combinations)** -- The first record's dev head and the next processor adoption, and the only functional HDL change between them.
+@@ -21,6 +24,203 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
+ - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
+ - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+ 
++## Re-baseline of 2026-10-07, processor 2ad2f845
++
++Combination F records [#682's round-2 merge](https://github.com/kebag-logic/milan-fpga/issues/682#issuecomment-6028334443) of dev `79b086d44eb62d007d38e18f5618b98e8e2a33e6`.
++Its RTL inputs are parent `4d2538809d739d97c09f3f0bee194fb14e1cec18`; the processor remains `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
++E below is the same adoption before that dev merge.
++Both use Vivado 2026.1 build 6511674, `xc7a100tfgg484-2`, the shipping 50 MHz wrapper clock and the same implementation directives.
++Both explicitly set `synth.maxThreads` to one and `general.maxThreads` to 32.
++Their recipe identities match, including the worker setting.
++The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) emits the setting with `--single-thread-synthesis`.
++The route's synthesis and implementation finish in separate processes, joined by its synthesis checkpoint; both exit zero.
++
++With E's exports retained, all three resource input digests change through `hdl/ieee1722/aaf/KL_aaf_packetizer.sv` from dev.
++That change aligns startup to the first enabled stereo pair.
++The fresh shipping exports also reorder entries in their generated hierarchy comments.
++Their non-comment RTL and ROM contents are unchanged.
++The gate still includes those comments: F records the actual fresh-export digests.
++Read-only substitution of the previous packetizer bytes and export comment ordering reproduces each E input digest exactly.
++The re-baseline rule therefore requires all three measurements again, even for standalone processor endpoints.
++The measured differences below belong to the merged parent input, not another processor revision.
++The 8x8 wrapper parameters still come from RTL elaboration of its shipping export.
++Neither standalone endpoint claims an integrated 8x8 fit.
++
++**Three endpoints, E / F**
++
++| Endpoint | LUT | FF | Slice | RAMB36 | RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
++|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
++| `route-1x1` | 49,888 / 49,957 | 54,267 / 54,274 | 15,805 / 15,734 | 74 / 74 | 27 / 27 | 14 / 14 | 3,385 / 3,385 | 0.101 / 0.124 | 0.031 / 0.031 |
++| `ooc-1x1` | 23,179 / 23,179 | 19,779 / 19,779 | - | 16 / 16 | 3 / 3 | 8 / 8 | 1,494 / 1,494 | -3.562 / -3.562 | 0.159 / 0.159 |
++| `ooc-8x8` | 30,135 / 30,135 | 27,380 / 27,380 | - | 21 / 21 | 5 / 5 | 8 / 8 | 1,889 / 1,889 | -2.278 / -2.278 | 0.159 / 0.159 |
++
++F uses 87.5 BRAM tiles and leaves 116 slices free.
++The route-status report has no unrouted net or routing error.
++Its worst setup path has 18 logic levels and 9.808ns  (logic 3.461ns (35.288%)  route 6.347ns (64.712%)) data delay.
++It starts at `FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]/C` and ends at `milansoc_spiflash_phy_cnt_reg[8]/D`.
++Standalone timing is an internal synthesis estimate without I/O constraints; its negative setup slack is not a routed timing verdict.
++
++| Default-route corner | WNS ns | WHS ns |
++|---|---:|---:|
++| `Slow_0C` | +0.124 | +0.059 |
++| `Slow_85C` | +0.124 | +0.059 |
++| `Fast_0C` | +1.246 | +0.031 |
++| `Fast_85C` | +1.246 | +0.031 |
++
++**Processor sub-block differences**
++
++Each cell is F minus E in LUT / FF. Parent rows include descendants; do not add them to their children.
++The generated record retains every reported scope.
++
++| Scope relative to the wrapper | Route 1x1 | Standalone 1x1 | Standalone 8x8 |
++|---|---:|---:|---:|
++| `wrapper` | +34 / +6 | +0 / +0 | +0 / +0 |
++| `u_pp` | +32 / +6 | +0 / +0 | +0 / +0 |
++| `u_pp/u_notify` | +16 / +6 | +0 / +0 | +0 / +0 |
++| `u_pp/u_originator` | -6 / +0 | +0 / +0 | +0 / +0 |
++| `u_pp/u_srp` | -9 / +0 | +0 / +0 | +0 / +0 |
++| `u_pp/u_aecp` | +25 / +0 | +0 / +0 | +0 / +0 |
++| `u_pp/u_aecp/u_d3` | +15 / +0 | +0 / +0 | +0 / +0 |
++| `u_pp/u_listener` | -4 / +0 | +0 / +0 | +0 / +0 |
++| `u_pp/u_nvm_port` | +2 / +0 | +0 / +0 | +0 / +0 |
++| `u_nvm` | -2 / +0 | +0 / +0 | +0 / +0 |
++
++The route's `milan_datapath` has 41,394 LUTs and 43,045 FFs, including the wrapper's 23,128 LUTs and 18,790 FFs.
++Outside the wrapper, the image has 26,829 LUTs and 35,484 FFs.
++The notification spacing (#148), registrar expiry collision (#134) and held deregistration (#158) change processor behavior.
++The declaration-order change (#22) preserves behavior; C11 and #42 update documentation and tests.
++The full parent-visible list is in [SUBMODULES](../reference/SUBMODULES.md).
++
++**Recorded and checked**
++
++`pp_resource_gate.py record --write` records all three F endpoints twice, with identical bytes.
++Every tolerance, floor and ceiling is unchanged.
++All three `check` commands and `check-baseline` then exit zero.
++The generated recipes repeat identically.
++All three records bind the changed input digests; every recipe identity is unchanged from E.
++The resource-policy table remains the authority.
++
++| Synthesis log | Processor Synth 8-6901 | Parent Synth 8-6901 |
++|---|---:|---:|
++| `route-1x1` | 0 | 1 |
++| `ooc-1x1` | 0 | 1 |
++| `ooc-8x8` | 0 | 1 |
++
++The processor count is zero in both standalone logs, satisfying processor #22's adoption check.
++The per-file table covers all 46 processor sources and is retained with the handoff.
++The separate parent warning is `crft_emit_en_w` in `hdl/milan/milan_datapath.sv:3168`.
++No completed synthesis log contains a Synth 8-4445 or Synth 8-7186 diagnostic.
++Each endpoint's six generated images rehash to their recorded byte count and digest.
++
++| Successful process | rc | Log SHA-256 | Bytes |
++|---|---:|---|---:|
++| route synthesis | 0 | `36cfdfb1d671f49cfd50287ec0fad66a91df65e334c529adcfc209aa8e4d1110` | 610,136 |
++| route implementation | 0 | `e53ec868447a291841ab6e0c72f22e0c554d5969895d7158e43eeccc747c5a96` | 333,095 |
++| standalone 1x1 | 0 | `5c9255bfd58f5dd8251975e7f3021f1a635f13b5f03a36d4ac024ff6163e4e58` | 307,948 |
++| standalone 8x8 | 0 | `3a91c0869793f8ac6ba55e35a8cbfb7203e77c6317b66d3d3d89cdad1fdddfb9` | 313,521 |
++
++Each run held the shared Vivado lock, with no other heavy build in this lane beside it.
++Large logs, reports and checkpoints remain outside the handoff directory, with their byte sizes and SHA-256 digests recorded there.
++Combination E and the earlier storage analysis and rankings below remain historical.
++
++## Re-baseline of 2026-10-06, processor 2ad2f845
++
++Combination E adopts processor `2ad2f845dd583f8310075fa2380cb60a04fd091a` for [#682](https://github.com/kebag-logic/milan-fpga/issues/682).
++Its RTL inputs are parent `2a97d4e8874a90a620d2b9234620eff9aec57bcb`, based on dev `bd884631684ccf5060339efa92263d5c3e5c262c`.
++D below is the previous record, processor `ead80360` on dev `506d91db`.
++Both use Vivado 2026.1 build 6511674, `xc7a100tfgg484-2`, the shipping 50 MHz wrapper clock and the same implementation directives.
++E explicitly sets `synth.maxThreads` to one to stay within the measurement process's memory limit; `general.maxThreads` remains 32.
++The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) emits that setting with `--single-thread-synthesis` and records it in each endpoint's flow identity.
++The route's synthesis and implementation finish in separate processes, joined by its synthesis checkpoint.
++Both processes exit zero; the fresh implementation uses the exported commands and directives.
++The shipping export, source lists, generated images and timing constraints are unchanged by this execution method.
++
++The changed flow makes D and E NOT COMPARABLE at the gate, with the expected diagnostic exit 2.
++The figures below are measured differences, not an isolated architectural comparison.
++Intervening dev includes the default audio-map writer (#658), the default-disabled mailbox (#665) and the NAME-capacity guard (#652).
++Those predecessors also contribute to E's inputs; no parent RTL or firmware source changes in #682.
++The processor top remains byte-identical, including all ports and parameters.
++The 8x8 wrapper parameters come from RTL elaboration of its shipping export.
++Neither standalone endpoint claims an integrated 8x8 fit.
++
++**Three endpoints, D / E**
++
++| Endpoint | LUT | FF | Slice | RAMB36 | RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
++|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
++| `route-1x1` | 50,318 / 49,888 | 54,214 / 54,267 | 15,789 / 15,805 | 74 / 74 | 27 / 27 | 14 / 14 | 3,377 / 3,385 | 0.108 / 0.101 | 0.036 / 0.031 |
++| `ooc-1x1` | 23,178 / 23,179 | 19,776 / 19,779 | - | 16 / 16 | 3 / 3 | 8 / 8 | 1,494 / 1,494 | -2.58 / -3.562 | 0.159 / 0.159 |
++| `ooc-8x8` | 29,853 / 30,135 | 27,370 / 27,380 | - | 21 / 21 | 5 / 5 | 8 / 8 | 1,889 / 1,889 | -4.095 / -2.278 | 0.159 / 0.159 |
++
++E uses 87.5 BRAM tiles and leaves 45 slices free.
++The route-status report has no unrouted net or routing error.
++Its worst setup path has 21 logic levels and 9.871 ns data delay: 2.730 ns logic and 7.141 ns routing.
++It starts at `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C` and ends at `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg/D`.
++Standalone timing is an internal synthesis estimate without I/O constraints; its negative setup slack is not a routed timing verdict.
++
++| Default-route corner | WNS ns | WHS ns |
++|---|---:|---:|
++| `Slow_0C` | +0.101 | +0.085 |
++| `Slow_85C` | +0.101 | +0.085 |
++| `Fast_0C` | +1.492 | +0.031 |
++| `Fast_85C` | +1.492 | +0.031 |
++
++**Processor sub-block differences**
++
++Each cell is E minus D in LUT / FF. Parent rows include descendants; do not add them to their children.
++The generated record retains every reported scope.
++
++| Scope relative to the wrapper | Route 1x1 | Standalone 1x1 | Standalone 8x8 |
++|---|---:|---:|---:|
++| `wrapper` | +208 / +29 | +1 / +3 | +282 / +10 |
++| `u_pp` | +234 / +28 | +19 / +1 | +281 / +10 |
++| `u_pp/u_notify` | +87 / +24 | +71 / +1 | -29 / +6 |
++| `u_pp/u_originator` | -37 / +0 | -25 / +0 | +25 / +0 |
++| `u_pp/u_srp` | +39 / +1 | -10 / +0 | +141 / +0 |
++| `u_pp/u_aecp` | +163 / +4 | -18 / -1 | +21 / +0 |
++| `u_pp/u_aecp/u_d3` | -43 / +1 | +9 / +0 | -2 / -1 |
++| `u_pp/u_listener` | -19 / +0 | +1 / +0 | -12 / +3 |
++| `u_pp/u_nvm_port` | -10 / +0 | -12 / +0 | +5 / +0 |
++| `u_nvm` | -21 / +0 | -18 / +0 | +0 / +0 |
++
++The route's `milan_datapath` has 41,356 LUTs and 43,038 FFs, including the wrapper's 23,094 LUTs and 18,784 FFs.
++Outside the wrapper, the image has 26,794 LUTs and 35,483 FFs.
++The notification spacing (#148), registrar expiry collision (#134) and held deregistration (#158) change processor behavior.
++The declaration-order change (#22) preserves behavior; C11 and #42 update documentation and tests.
++The full parent-visible list is in [SUBMODULES](../reference/SUBMODULES.md).
++
++**Recorded and checked**
++
++`pp_resource_gate.py record --write` records all three E endpoints twice, with identical bytes.
++Every tolerance, floor and ceiling is unchanged.
++All three `check` commands and `check-baseline` then exit zero.
++The three generated effective recipes also repeat identically, with unchanged design-input digests.
++The generator's default output stays unchanged; controls check that the optional worker setting is the only added line.
++The resource-policy table remains the authority.
++
++| Synthesis log | Processor Synth 8-6901 | Parent Synth 8-6901 |
++|---|---:|---:|
++| `route-1x1` | 0 | 1 |
++| `ooc-1x1` | 0 | 1 |
++| `ooc-8x8` | 0 | 1 |
++
++The processor count is zero in both standalone logs, satisfying processor #22's adoption check.
++The per-file table covers all 46 processor sources and is retained with the handoff.
++The separate parent warning is `crft_emit_en_w` in `hdl/milan/milan_datapath.sv:3168`.
++No completed synthesis log contains a Synth 8-4445 or Synth 8-7186 diagnostic.
++Each endpoint's six generated images rehash to their recorded byte count and digest.
++
++| Successful process | rc | Log SHA-256 | Bytes |
++|---|---:|---|---:|
++| route synthesis | 0 | `6f7da8653eaf0844def3aaff4639e2f63a163332a354c8aaed40ba0cb54d2bb1` | 608,759 |
++| route implementation | 0 | `4b3710cb81aa7e5fb62c4e2ddf8970ace89439edd65673ffb6e39e4218e2bee4` | 214,950 |
++| standalone 1x1 | 0 | `c9ec21b3261684bf4678f873ca949e0fc824db40a2a6eee95399d190922bbed4` | 308,409 |
++| standalone 8x8 | 0 | `c0dc92e325ae5466c70a5aa4c63f746601014bea8405672cab4c45a69864bcb7` | 313,987 |
++
++Each run held the shared Vivado lock, with no other heavy build in this lane beside it.
++Interrupted runs and the provisional checkpoint route are excluded from these receipts.
++Large logs, reports and checkpoints remain outside the handoff directory, with their byte sizes and SHA-256 digests recorded there.
++The D storage analysis and earlier rankings below remain historical.
++
+ ## Re-baseline of 2026-10-05, processor ead80360
+ 
+ Combination D is parent `ca129e3805dbd45d1289325bc0c8bef06d05f6a2`, on dev `506d91dbeeba585d72d2e80d92fca799c719f8ee`.
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index cc4ebcb8b..662f27dc8 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -21,8 +21,8 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ | [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz after the #590, #592 and #599 repairs, with external markers (#397) | Simulation measurement under the one-hart decision; future duties, physical torture and bench proof remain open |
+ | [117_GPTP_SILICON_EVIDENCE.md](117_GPTP_SILICON_EVIDENCE.md) | One AX7101 against the reference peer on dev `ede8d48e`: asCapable, cadence, turnaround, GM loss and return over six switch power cycles, publication and `tu` against the wire, controller enumeration (#117) | Current; GM loss and return inside the 5 s bound (worst 1.60 s) |
+ | [117_AUDIO_CONTINUITY.md](117_AUDIO_CONTINUITY.md) | Audio continuity end to end against the reference peer on dev `ec0cc0c1`: the first-light pattern through the DUT's AAF talker to the peer's listener, recorded from the peer's digital output by an external audio capture; integrity, 660 s of continuity and 30 unbind and rebind restarts (#117 acceptance box 4) | Integrity PASS, bit-exact and in order; restarts PASS, 30 of 30 under 1 s, median 0.028 s; continuity FAIL as measured: one-frame drops every 1.266 s, attributed by inference to the peer's output rate; 236 of the 239 skips of 60 frames or more are stall-aligned capture-path loss; skips of 2 to 59 frames are not separated from a packet-sized drop downstream of the peer's receive counters; direction B NOT RUN |
+-| [PP_SHADOW_BASELINE.md](PP_SHADOW_BASELINE.md) | Protocol-processor area baseline at revision `7eb3b0d4`: standalone `KL_pp_shadow` synthesis against the integrated implementation at both product geometries, three placement directives, and #587's 50 MHz 8x8 rerun (#231, epic #229) | Current for its revision and method; the current figures after #661, processor `ead80360` on dev `506d91db`, are in [234_PP_SHADOW_AREA_BASELINE.md](234_PP_SHADOW_AREA_BASELINE.md) |
+-| [234_PP_SHADOW_AREA_BASELINE.md](234_PP_SHADOW_AREA_BASELINE.md) | Protocol-processor area at dev `1269cdaf`, the C re-baseline after PR #634, and the 2026-10-05 D re-baseline adopting `ead80360` on dev `506d91db`: route, standalone endpoints, per-block changes and mapped storage (#234, #661, epic #229) | Current record: 50,318 LUT (79.37 %), 54,214 FF, 15,789 slices (61 free), five fewer RAMB36s and +0.108 / +0.036 ns. The #232/#230/#639 storage changes are adopted. NFR-RES-01 remains 12,278 LUT over its 60 % target; the owner assigns the redesign to #640. Gate policy is unchanged |
++| [PP_SHADOW_BASELINE.md](PP_SHADOW_BASELINE.md) | Protocol-processor area baseline at revision `7eb3b0d4`: standalone `KL_pp_shadow` synthesis against the integrated implementation at both product geometries, three placement directives, and #587's 50 MHz 8x8 rerun (#231, epic #229) | Current for its revision and method; the current figures after #682 merges dev `79b086d4`, processor `2ad2f845`, are in [234_PP_SHADOW_AREA_BASELINE.md](234_PP_SHADOW_AREA_BASELINE.md) |
++| [234_PP_SHADOW_AREA_BASELINE.md](234_PP_SHADOW_AREA_BASELINE.md) | Protocol-processor measurements A through F, including #682's adoption of `2ad2f845` after merging dev `79b086d4`: route, standalone endpoints, per-block changes and mapped storage (#234, #661, #682, epic #229) | Current record: 49,957 LUT (78.80 %), 54,274 FF, 15,734 slices (116 free), 87.5 BRAM tiles and +0.124 / +0.031 ns. NFR-RES-01 remains 11,917 LUT over its 60 % target; #640 owns the redesign. The merged AAF packetizer changes the resource inputs; recipe identity and gate policy are unchanged |
+ | [649_RESOURCE_MAP_AND_SENSITIVITY.md](649_RESOURCE_MAP_AND_SENSITIVITY.md) | Side project of the #229 area epic and input to #640 (#649): the shipping 1x1 route at dev `241f9184` mapped to every one of its 175 blocks, each block's LUT, FF, RAMB and DSP figures read from both the utilization report and the placed-cell census, its CARRY4 and slices from the census, and the totals tied to the `route-1x1` record, and the resource cost of every design parameter: 59 Yosys sweep points (52 guard-clean, 7 refused), four Vivado anchors at 1, 2, 4 and 8 streams, the SoC options with the CPU, cache and L2 variants priced out of context from a scratch recipe copy, and the redundancy second port | Current, measurement only. Each stream per direction costs 3,828 LUT out of context, two thirds in the processor, with a falling cost per added stream; channels and the TDM capture width cost nothing; the low-function-cost prunes total up to about 1,200 routed LUT, a tenth of the NFR-RES-01 gap. Yosys does not enforce the RTL's elaboration guards. At the measurement revision the builder accepted an 8x8 TDM8 configuration the saved-state backend refused (235 names against 128); since #652 the builder refuses that shape before generation. |
+ | [ADP shape (historical)](../history/v1/findings/ADP_SHAPE_STATIC_0727.md) | Generated ADP/AEM shape must match the instantiated stream geometry | Fixed; guarded by `scripts/check_entity_shape.py` |
+ | [CBS_DATAPATH_BUG.md](CBS_DATAPATH_BUG.md) | Per-frame classifier sideband timing at the CBS boundary | Fixed; covered by the controller-rate bench |
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index e0dbaf54f..ac6d5991c 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+ | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+-| `protocol-processor` | `ead8036035affd53ef4b29979190f2f4f67084c0` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
++| `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+ <!-- submodule-pins:end -->
+ 
+@@ -155,6 +155,35 @@ The parent can observe these processor changes.
+ | C7 documents the integrator-owned `ctr_*` counters face | `milan_datapath` already meets it |
+ | #143 adds `--jobs` to the processor's mutation campaigns | No parent change |
+ 
++Issue #682 adopts processor pin `2ad2f845`.
++
++| Processor lane | Merged PR | Parent-visible result |
++|---|---|---|
++| #148, counter notification spacing | [159](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/159) | The spacing stamp follows each waiting job through grant; the parent harness completes frames crossing an observation boundary |
++| C11, interface documentation | [156](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156) | Documents the landed byte interfaces, TX backpressure and complete FCS-good RX frames |
++| #134, SRP registrar expiry | [160](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/160) | Expiry precedes reception on a simultaneous event; Lv and LeaveAll finish MT, while New and Join renew IN |
++| #158, mid-round DEREGISTER | [161](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/161) | A held DEREGISTER waits for the round boundary, preserving subsequent controllers' notifications |
++| #22, declaration order | [162](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162) | Existing declarations precede use; the parent analysis budget has zero processor findings |
++| #42, Domain notifications | [164](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/164) | Tests Domain and link-edge notification triggers; the parent still owns the mapping words |
++
++The processor top is byte-identical to the previous pin.
++
++No port, parameter or register changes require parent adaptation.
++
++Both processor ROM digests match the `ead80360` rows.
++
++Counter spacing is measured at grant.
++
++Later MAC stalls remain a wire-gap limitation.
++
++The held DEREGISTER retains its contents but can arrive later.
++
++After merge, the manager repeats #608 withdrawal cycles.
++
++The manager also reads #658's default map.
++
++This adoption checks the resource baseline and capture receipt.
++
+ The ROM ledger records current and earlier pins.
+ 
+ The boundary diagram follows the current pin.
+@@ -250,18 +279,15 @@ Window overlap preserves lock until measured correction completes.
+ - [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md)
+ - [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md)
+ 
+-Protocol donor prose retains these known contradictions.
++Processor PR 156 resolves both former RX-interface contradictions.
+ 
+-Use root RTL for integration truth.
++The current guide describes byte-wide RX without a ready input.
+ 
+-Imported prose never defines root runtime behavior.
++Its historical word-stream contract remains linked from the donor documentation.
+ 
+-| Conflict | Implementation evidence |
+-|---|---|
+-| Protocol interface guide shows word-wide RX | Landed processor receives bytes |
+-| Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
++The integrator supplies complete, FCS-good frames.
+ 
+-Track donor repairs separately.
++Root RTL remains the authority for parent runtime wiring.
+ 
+ Historical audit exceptions remain open disclosures.
+ PR13/PR6 branch continuity is UNKNOWN.
+diff --git a/docs/testing/PP_SHADOW_BASELINE_RECIPE.md b/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+index c536be61f..ef269d0b1 100644
+--- a/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
++++ b/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+@@ -102,6 +102,16 @@ Keep `--timing-opt`, `--floorplan` and every emitted design argument.
+ Keep `--vivado-max-threads 32`.
+ Never substitute an uninitialized firmware ROM.
+ 
++Current baseline F was recorded with `--single-thread-synthesis`.
++Every measurement judged against F must pass that flag.
++This applies to `route-1x1`, `ooc-1x1` and `ooc-8x8`.
++The baseline helper emits `set_param synth.maxThreads 1` before synthesis.
++It leaves `general.maxThreads` and the directives unchanged.
++The resource gate records this setting in the flow identity.
++Dropping it requires re-recording all three endpoints at the base.
++Do that before measuring the candidate under the changed flow.
++Comparisons across different flow identities return exit 2.
++
+ ## Integrated measurements
+ 
+ Prepare scripts from the generated shipping Tcl.
+@@ -111,8 +121,9 @@ The 1x1 endpoint follows the recipe through routing.
+ The 8x8 endpoint stops after synthesis.
+ 
+ ```sh
+-python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware"
+-python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" --synthesis-only
++python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" --single-thread-synthesis
++python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" \
++  --synthesis-only --single-thread-synthesis
+ (
+   cd "$WORK/ax7101/gateware"
+   vivado -mode batch -source baseline_integrated.tcl -nojournal -log baseline.log
+@@ -175,9 +186,10 @@ Repeat the export steps using a separate work directory.
+ Prepare that export with the additional attribution switch:
+ 
+ ```sh
+-python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" --attribution-only
++python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" \
++  --attribution-only --single-thread-synthesis
+ python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" \
+-  --synthesis-only --attribution-only
++  --synthesis-only --attribution-only --single-thread-synthesis
+ ```
+ 
+ Run the generated integrated scripts exactly as above.
+@@ -251,6 +263,7 @@ The script refuses ambiguous blocks and unsupported default expressions.
+ ```sh
+ for shape in ax7101 ax8x8; do
+   python3 syn/ooc/pp_baseline.py "$WORK/$shape/gateware" \
++    --single-thread-synthesis \
+     --output "$WORK/$shape-ooc" \
+     --integrated-log "$WORK/$shape/gateware/baseline.log"
+   (
+@@ -444,7 +457,8 @@ git diff --check
+ [`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one measurement directory.
+ It compares the directory with an endpoint of [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json).
+ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the policy.
+-Run the shipping route and the 1x1 standalone synthesis as above.
++Run the shipping route and both standalone syntheses as above.
++Pass `--single-thread-synthesis` when preparing every endpoint compared against F.
+ Use `--integrated-clock` for every standalone endpoint the gate judges.
+ 
+ ```sh
+diff --git a/protocol-processor b/protocol-processor
+index ead803603..2ad2f845d 160000
+--- a/protocol-processor
++++ b/protocol-processor
+@@ -1 +1 @@
+-Subproject commit ead8036035affd53ef4b29979190f2f4f67084c0
++Subproject commit 2ad2f845dd583f8310075fa2380cb60a04fd091a
+diff --git a/scripts/port_docs.budget b/scripts/port_docs.budget
+index d478e75a2..9127ab398 100644
+--- a/scripts/port_docs.budget
++++ b/scripts/port_docs.budget
+@@ -18,7 +18,7 @@
+ # are the review inventory the guide classifies, not defects proven one
+ # by one.
+ #
+-# ports per tree: hdl 1940, gptp-processor 125, protocol-processor 1759
++# ports per tree: hdl 2079, gptp-processor 125, protocol-processor 1759
+ # unjustified per tree: hdl 51, gptp-processor 4, protocol-processor 4
+ undocumented hdl 217
+ undocumented gptp-processor 19
+diff --git a/scripts/xvlog.budget b/scripts/xvlog.budget
+index ff7b64b5c..72001dca5 100644
+--- a/scripts/xvlog.budget
++++ b/scripts/xvlog.budget
+@@ -30,6 +30,4 @@
+ #
+ # --- section hdl: 0 finding(s) (hdl/) ---
+ #
+-# --- section submodules: 2 finding(s) (pinned processors) ---
+-protocol-processor:hdl/packet_engine/KL_pp_originator.sv|VRFC 10-3380|cancel_hit_w  # line(s) 194
+-protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv|VRFC 10-3380|vd_push_w  # line(s) 383
++# --- section submodules: 0 finding(s) (pinned processors) ---
+diff --git a/syn/ooc/pp_baseline.py b/syn/ooc/pp_baseline.py
+index 6c7ae51bd..e472e7ee9 100644
+--- a/syn/ooc/pp_baseline.py
++++ b/syn/ooc/pp_baseline.py
+@@ -507,6 +507,18 @@ def export_selftest() -> None:
+             report = next(line for line in script.splitlines() if "-file baseline_hierarchy.rpt" in line)
+             if "-hierarchical_min_primitive_count 0" not in report:
+                 raise AssertionError(f"hierarchy report filters small consumers: {filename}")
++            arguments = [str(gateware)]
++            if evidence is not None:
++                arguments += ["--output", str(destination), "--integrated-log", str(evidence)]
++            if synth_only:
++                arguments.append("--synthesis-only")
++            main(arguments)
++            if (destination / filename).read_text() != script:
++                raise AssertionError(f"default CLI changes the exported recipe: {filename}")
++            main(arguments + ["--single-thread-synthesis"])
++            capped = (destination / filename).read_text()
++            if capped != "set_param synth.maxThreads 1\n" + script:
++                raise AssertionError(f"synthesis worker cap changes more than its flow setting: {filename}")
+         prepare(gateware, gateware, None, True, attribution_only=True)
+         script = (gateware / "baseline_integrated.tcl").read_text()
+         constraint = (gateware / "baseline_boundary.xdc").read_text()
+@@ -530,7 +542,7 @@ def export_selftest() -> None:
+                     raise AssertionError("wrong in-repository refusal") from error
+             else:
+                 raise AssertionError("in-repository output accepted")
+-        print("baseline export selftest: 3 default scripts, attribution constraint, "
++        print("baseline export selftest: 3 default and worker-capped scripts, attribution constraint, "
+               "CLI containment refusal PASS")
+ 
+ 
+@@ -547,6 +559,8 @@ def main(argv: list[str] | None = None) -> None:
+                         help="preserve the integrated protocol-wrapper boundary")
+     parser.add_argument("--integrated-clock", action="store_true",
+                         help="standalone: constrain clk_i at the bound CLK_HZ_P, not 10 ns")
++    parser.add_argument("--single-thread-synthesis", action="store_true",
++                        help="emit synth.maxThreads=1 in the recorded measurement flow")
+     args = parser.parse_args(argv)
+     if args.selftest:
+         selftest()
+@@ -564,6 +578,9 @@ def main(argv: list[str] | None = None) -> None:
+         parser.error("--integrated-clock requires the standalone endpoint")
+     prepare(gateware, output, args.integrated_log, args.synthesis_only,
+             args.attribution_only, args.integrated_clock)
++    if args.single_thread_synthesis:
++        script = output / ("baseline_ooc.tcl" if args.integrated_log else "baseline_integrated.tcl")
++        script.write_text("set_param synth.maxThreads 1\n" + script.read_text())
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/syn/ooc/pp_baseline_mutants.py b/syn/ooc/pp_baseline_mutants.py
+index 36dce0a7e..724491201 100644
+--- a/syn/ooc/pp_baseline_mutants.py
++++ b/syn/ooc/pp_baseline_mutants.py
+@@ -10,6 +10,8 @@ import tempfile
+ 
+ 
+ MUTANTS = {
++    "synthesis worker cap ignored": ("    if args.single_thread_synthesis:\n", "    if False:\n"),
++    "synthesis worker cap enabled by default": ("    if args.single_thread_synthesis:\n", "    if True:\n"),
+     "ROM error promotion": ("    prefix += ROM_ERROR\n", "    pass\n"),
+     "readmemh inventory equality": (
+         '    if expected != {Path(row["path"]).name for row in inputs}:\n',
+diff --git a/syn/ooc/pp_resource_baseline.json b/syn/ooc/pp_resource_baseline.json
+index f1d9ab120..af2ad86c0 100644
+--- a/syn/ooc/pp_resource_baseline.json
++++ b/syn/ooc/pp_resource_baseline.json
+@@ -11,6 +11,7 @@
+      "design": "alinx_ax7101",
+      "state": "Physopt postRoute",
+      "flow": [
++      "set_param synth.maxThreads 1",
+       "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+       "set_param general.maxThreads 32",
+       "synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2",
+@@ -23,30 +24,30 @@
+      ],
+      "standalone_clock_ns": []
+     },
+-    "inputs_sha256": "7804f35f30ce6cc837a1fdc439958d0ad2daf47e8097f938c3216344296ad8bd",
++    "inputs_sha256": "fe05182f7b303a175afa44006cd6098d34b8887b3b9296aaffda9415ea928b63",
+     "figures": {
+-     "LUT": 50318,
+-     "FF": 54214,
+-     "SLICE": 15789,
++     "LUT": 49957,
++     "FF": 54274,
++     "SLICE": 15734,
+      "BRAM_TILE": 87.5,
+      "RAMB36": 74,
+      "RAMB18": 27,
+      "DSP": 14,
+-     "WNS_ns": 0.108,
+-     "WHS_ns": 0.036,
+-     "CARRY4": 3377
++     "WNS_ns": 0.124,
++     "WHS_ns": 0.031,
++     "CARRY4": 3385
+     },
+     "scopes": {
+      "wrapper": {
+-      "LUT": 22886,
+-      "FF": 18755,
++      "LUT": 23128,
++      "FF": 18790,
+       "RAMB36": 16,
+       "RAMB18": 3,
+       "DSP": 8,
+-      "CARRY4": 1437
++      "CARRY4": 1443
+      },
+      "ctl_fifo": {
+-      "LUT": 71,
++      "LUT": 72,
+       "FF": 33,
+       "RAMB36": 1,
+       "RAMB18": 1,
+@@ -54,23 +55,23 @@
+       "CARRY4": 3
+      },
+      "u_nvm": {
+-      "LUT": 511,
++      "LUT": 488,
+       "FF": 476,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 4,
+-      "CARRY4": 45
++      "CARRY4": 47
+      },
+      "u_pp": {
+-      "LUT": 22307,
+-      "FF": 17926,
++      "LUT": 22573,
++      "FF": 17960,
+       "RAMB36": 15,
+       "RAMB18": 2,
+       "DSP": 4,
+-      "CARRY4": 1383
++      "CARRY4": 1387
+      },
+      "u_pp/g_rx_pool[0].u_rx_slots": {
+-      "LUT": 38,
++      "LUT": 37,
+       "FF": 38,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -78,7 +79,7 @@
+       "CARRY4": 7
+      },
+      "u_pp/g_rx_pool[1].u_rx_slots": {
+-      "LUT": 29,
++      "LUT": 30,
+       "FF": 22,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -86,7 +87,7 @@
+       "CARRY4": 3
+      },
+      "u_pp/g_rx_pool[2].u_rx_slots": {
+-      "LUT": 48,
++      "LUT": 52,
+       "FF": 62,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -94,7 +95,7 @@
+       "CARRY4": 2
+      },
+      "u_pp/g_rx_pool[4].u_rx_slots": {
+-      "LUT": 32,
++      "LUT": 34,
+       "FF": 22,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -102,15 +103,15 @@
+       "CARRY4": 3
+      },
+      "u_pp/g_rx_pool[5].u_rx_slots": {
+-      "LUT": 97,
++      "LUT": 82,
+       "FF": 62,
+       "RAMB36": 1,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 4
++      "CARRY4": 3
+      },
+      "u_pp/u_adp": {
+-      "LUT": 381,
++      "LUT": 386,
+       "FF": 471,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -118,31 +119,31 @@
+       "CARRY4": 32
+      },
+      "u_pp/u_aecp": {
+-      "LUT": 7767,
+-      "FF": 3592,
++      "LUT": 7955,
++      "FF": 3596,
+       "RAMB36": 6,
+       "RAMB18": 0,
+       "DSP": 1,
+-      "CARRY4": 470
++      "CARRY4": 463
+      },
+      "u_pp/u_aecp/u_d3": {
+-      "LUT": 1881,
+-      "FF": 581,
++      "LUT": 1853,
++      "FF": 582,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+       "CARRY4": 103
+      },
+      "u_pp/u_aecp/u_dyn": {
+-      "LUT": 1160,
++      "LUT": 1340,
+       "FF": 467,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 62
++      "CARRY4": 60
+      },
+      "u_pp/u_aecp/u_resp": {
+-      "LUT": 357,
++      "LUT": 340,
+       "FF": 260,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -150,7 +151,7 @@
+       "CARRY4": 16
+      },
+      "u_pp/u_aecp/u_store": {
+-      "LUT": 980,
++      "LUT": 978,
+       "FF": 694,
+       "RAMB36": 2,
+       "RAMB18": 0,
+@@ -158,7 +159,7 @@
+       "CARRY4": 106
+      },
+      "u_pp/u_aecp/u_ucpu": {
+-      "LUT": 1677,
++      "LUT": 1715,
+       "FF": 495,
+       "RAMB36": 3,
+       "RAMB18": 0,
+@@ -166,7 +167,7 @@
+       "CARRY4": 72
+      },
+      "u_pp/u_ca_builder": {
+-      "LUT": 109,
++      "LUT": 111,
+       "FF": 152,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -182,7 +183,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch": {
+-      "LUT": 690,
++      "LUT": 665,
+       "FF": 635,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -190,7 +191,7 @@
+       "CARRY4": 12
+      },
+      "u_pp/u_dispatch/u_acmp_q": {
+-      "LUT": 294,
++      "LUT": 235,
+       "FF": 204,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -198,7 +199,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch/u_adp_q": {
+-      "LUT": 70,
++      "LUT": 69,
+       "FF": 88,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -206,7 +207,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch/u_aecp_q": {
+-      "LUT": 278,
++      "LUT": 322,
+       "FF": 287,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -214,7 +215,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch/u_maap_q": {
+-      "LUT": 14,
++      "LUT": 10,
+       "FF": 8,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -222,7 +223,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_event_router": {
+-      "LUT": 236,
++      "LUT": 225,
+       "FF": 51,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -230,15 +231,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_listener": {
+-      "LUT": 1474,
++      "LUT": 1451,
+       "FF": 1054,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 27
++      "CARRY4": 24
+      },
+      "u_pp/u_lsn_admit": {
+-      "LUT": 1,
++      "LUT": 7,
+       "FF": 1,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -254,7 +255,7 @@
+       "CARRY4": 17
+      },
+      "u_pp/u_normalizer": {
+-      "LUT": 70,
++      "LUT": 74,
+       "FF": 307,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -262,15 +263,15 @@
+       "CARRY4": 6
+      },
+      "u_pp/u_notify": {
+-      "LUT": 2106,
+-      "FF": 1261,
++      "LUT": 2209,
++      "FF": 1291,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 33
++      "CARRY4": 49
+      },
+      "u_pp/u_nvm_arb": {
+-      "LUT": 6,
++      "LUT": 29,
+       "FF": 4,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -278,7 +279,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_nvm_port": {
+-      "LUT": 522,
++      "LUT": 514,
+       "FF": 160,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -286,7 +287,7 @@
+       "CARRY4": 73
+      },
+      "u_pp/u_nvm_shadow": {
+-      "LUT": 800,
++      "LUT": 794,
+       "FF": 1118,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -294,15 +295,15 @@
+       "CARRY4": 51
+      },
+      "u_pp/u_originator": {
+-      "LUT": 716,
++      "LUT": 673,
+       "FF": 885,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 52
++      "CARRY4": 53
+      },
+      "u_pp/u_prng": {
+-      "LUT": 133,
++      "LUT": 138,
+       "FF": 150,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -318,15 +319,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_rx_validator": {
+-      "LUT": 489,
++      "LUT": 494,
+       "FF": 751,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 0,
+-      "CARRY4": 40
++      "CARRY4": 35
+      },
+      "u_pp/u_scoreboard": {
+-      "LUT": 142,
++      "LUT": 141,
+       "FF": 169,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -342,15 +343,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_srp": {
+-      "LUT": 3640,
+-      "FF": 3838,
++      "LUT": 3670,
++      "FF": 3839,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 2,
+-      "CARRY4": 234
++      "CARRY4": 237
+      },
+      "u_pp/u_srp/u_admission": {
+-      "LUT": 260,
++      "LUT": 241,
+       "FF": 143,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -358,15 +359,15 @@
+       "CARRY4": 16
+      },
+      "u_pp/u_srp/u_decoder": {
+-      "LUT": 585,
++      "LUT": 577,
+       "FF": 630,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 0,
+-      "CARRY4": 59
++      "CARRY4": 51
+      },
+      "u_pp/u_srp/u_domain": {
+-      "LUT": 77,
++      "LUT": 79,
+       "FF": 108,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -374,31 +375,31 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_srp/u_encoder": {
+-      "LUT": 1323,
+-      "FF": 1062,
++      "LUT": 1360,
++      "FF": 1061,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 99
++      "CARRY4": 102
+      },
+      "u_pp/u_srp/u_listener": {
+-      "LUT": 398,
++      "LUT": 502,
+       "FF": 667,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 29
++      "CARRY4": 35
+      },
+      "u_pp/u_srp/u_talker": {
+-      "LUT": 634,
+-      "FF": 602,
++      "LUT": 487,
++      "FF": 604,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 22
++      "CARRY4": 24
+      },
+      "u_pp/u_srp/u_vlan": {
+-      "LUT": 138,
++      "LUT": 244,
+       "FF": 126,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -406,7 +407,7 @@
+       "CARRY4": 9
+      },
+      "u_pp/u_talker": {
+-      "LUT": 652,
++      "LUT": 667,
+       "FF": 517,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -414,7 +415,7 @@
+       "CARRY4": 17
+      },
+      "u_pp/u_timer": {
+-      "LUT": 897,
++      "LUT": 881,
+       "FF": 179,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -422,7 +423,7 @@
+       "CARRY4": 229
+      },
+      "u_pp/u_trace": {
+-      "LUT": 30,
++      "LUT": 31,
+       "FF": 18,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -430,7 +431,7 @@
+       "CARRY4": 4
+      },
+      "u_pp/u_tx_arbiter": {
+-      "LUT": 195,
++      "LUT": 183,
+       "FF": 182,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -438,7 +439,7 @@
+       "CARRY4": 4
+      },
+      "u_pp/u_tx_slots": {
+-      "LUT": 340,
++      "LUT": 347,
+       "FF": 135,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -447,7 +448,7 @@
+      }
+     }
+    },
+-   "measured": "2026-10-05, issue #661: parent ca129e3805dbd45d1289325bc0c8bef06d05f6a2 on dev 506d91dbeeba585d72d2e80d92fca799c719f8ee, processor ead8036035affd53ef4b29979190f2f4f67084c0. Combination D; docs/findings/234_PP_SHADOW_AREA_BASELINE.md records the delta from C.",
++   "measured": "2026-10-07, issue #682: RTL inputs at parent 4d2538809d739d97c09f3f0bee194fb14e1cec18 after merging dev 79b086d44eb62d007d38e18f5618b98e8e2a33e6, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a. Combination F; explicit synth.maxThreads 1, general.maxThreads 32. Default synthesis and implementation complete in separate processes. docs/findings/234_PP_SHADOW_AREA_BASELINE.md records the changed parent input and repeated measurements.",
+    "tolerance": {
+     "LUT": 500,
+     "FF": 600,
+@@ -475,6 +476,7 @@
+      "design": "KL_pp_shadow",
+      "state": "Synthesized",
+      "flow": [
++      "set_param synth.maxThreads 1",
+       "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+       "set_param general.maxThreads 32",
+       "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+@@ -483,22 +485,22 @@
+       "20.000"
+      ]
+     },
+-    "inputs_sha256": "b68c6d3577e9ebafbd794e97019381e0c1b3ae92dbafe660c38068dfe9d1a61c",
++    "inputs_sha256": "949b816238370a52d9b9aa89c7d77e004c7d019479e88085172ddf793fc3fe7a",
+     "figures": {
+-     "LUT": 23178,
+-     "FF": 19776,
++     "LUT": 23179,
++     "FF": 19779,
+      "BRAM_TILE": 17.5,
+      "RAMB36": 16,
+      "RAMB18": 3,
+      "DSP": 8,
+-     "WNS_ns": -2.58,
++     "WNS_ns": -3.562,
+      "WHS_ns": 0.159,
+      "CARRY4": 1494
+     },
+     "scopes": {
+      "wrapper": {
+-      "LUT": 23178,
+-      "FF": 19776,
++      "LUT": 23179,
++      "FF": 19779,
+       "RAMB36": 16,
+       "RAMB18": 3,
+       "DSP": 8,
+@@ -513,7 +515,7 @@
+       "CARRY4": 3
+      },
+      "u_nvm": {
+-      "LUT": 599,
++      "LUT": 581,
+       "FF": 476,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -521,12 +523,12 @@
+       "CARRY4": 47
+      },
+      "u_pp": {
+-      "LUT": 22498,
+-      "FF": 18940,
++      "LUT": 22517,
++      "FF": 18941,
+       "RAMB36": 15,
+       "RAMB18": 2,
+       "DSP": 4,
+-      "CARRY4": 1422
++      "CARRY4": 1436
+      },
+      "u_pp/g_rx_pool[0].u_rx_slots": {
+       "LUT": 39,
+@@ -537,7 +539,7 @@
+       "CARRY4": 7
+      },
+      "u_pp/g_rx_pool[1].u_rx_slots": {
+-      "LUT": 28,
++      "LUT": 30,
+       "FF": 22,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -545,7 +547,7 @@
+       "CARRY4": 3
+      },
+      "u_pp/g_rx_pool[2].u_rx_slots": {
+-      "LUT": 50,
++      "LUT": 51,
+       "FF": 62,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -553,7 +555,7 @@
+       "CARRY4": 2
+      },
+      "u_pp/g_rx_pool[4].u_rx_slots": {
+-      "LUT": 32,
++      "LUT": 31,
+       "FF": 22,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -561,7 +563,7 @@
+       "CARRY4": 3
+      },
+      "u_pp/g_rx_pool[5].u_rx_slots": {
+-      "LUT": 103,
++      "LUT": 97,
+       "FF": 62,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -569,7 +571,7 @@
+       "CARRY4": 4
+      },
+      "u_pp/u_adp": {
+-      "LUT": 517,
++      "LUT": 523,
+       "FF": 479,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -577,31 +579,31 @@
+       "CARRY4": 44
+      },
+      "u_pp/u_aecp": {
+-      "LUT": 6168,
+-      "FF": 3598,
++      "LUT": 6150,
++      "FF": 3597,
+       "RAMB36": 6,
+       "RAMB18": 0,
+       "DSP": 1,
+-      "CARRY4": 367
++      "CARRY4": 360
+      },
+      "u_pp/u_aecp/u_d3": {
+-      "LUT": 1694,
++      "LUT": 1703,
+       "FF": 583,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 79
++      "CARRY4": 80
+      },
+      "u_pp/u_aecp/u_dyn": {
+-      "LUT": 136,
++      "LUT": 134,
+       "FF": 468,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 20
++      "CARRY4": 19
+      },
+      "u_pp/u_aecp/u_resp": {
+-      "LUT": 312,
++      "LUT": 432,
+       "FF": 260,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -609,7 +611,7 @@
+       "CARRY4": 16
+      },
+      "u_pp/u_aecp/u_store": {
+-      "LUT": 1025,
++      "LUT": 1026,
+       "FF": 694,
+       "RAMB36": 2,
+       "RAMB18": 0,
+@@ -617,7 +619,7 @@
+       "CARRY4": 106
+      },
+      "u_pp/u_aecp/u_ucpu": {
+-      "LUT": 1637,
++      "LUT": 1553,
+       "FF": 495,
+       "RAMB36": 3,
+       "RAMB18": 0,
+@@ -625,7 +627,7 @@
+       "CARRY4": 68
+      },
+      "u_pp/u_ca_builder": {
+-      "LUT": 156,
++      "LUT": 159,
+       "FF": 152,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -641,7 +643,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch": {
+-      "LUT": 841,
++      "LUT": 887,
+       "FF": 815,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -649,7 +651,7 @@
+       "CARRY4": 18
+      },
+      "u_pp/u_dispatch/u_acmp_q": {
+-      "LUT": 291,
++      "LUT": 230,
+       "FF": 204,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -657,7 +659,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch/u_adp_q": {
+-      "LUT": 71,
++      "LUT": 74,
+       "FF": 88,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -665,7 +667,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch/u_aecp_q": {
+-      "LUT": 305,
++      "LUT": 421,
+       "FF": 287,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -673,7 +675,7 @@
+       "CARRY4": 6
+      },
+      "u_pp/u_dispatch/u_maap_q": {
+-      "LUT": 140,
++      "LUT": 133,
+       "FF": 188,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -689,15 +691,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_listener": {
+-      "LUT": 1559,
++      "LUT": 1560,
+       "FF": 1054,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 30
++      "CARRY4": 29
+      },
+      "u_pp/u_lsn_admit": {
+-      "LUT": 0,
++      "LUT": 1,
+       "FF": 1,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -705,12 +707,12 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_maap": {
+-      "LUT": 670,
++      "LUT": 672,
+       "FF": 499,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 90
++      "CARRY4": 88
+      },
+      "u_pp/u_mrp_strip": {
+       "LUT": 77,
+@@ -721,7 +723,7 @@
+       "CARRY4": 17
+      },
+      "u_pp/u_normalizer": {
+-      "LUT": 55,
++      "LUT": 63,
+       "FF": 353,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -729,15 +731,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_notify": {
+-      "LUT": 2054,
+-      "FF": 1255,
++      "LUT": 2125,
++      "FF": 1256,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 27
++      "CARRY4": 44
+      },
+      "u_pp/u_nvm_arb": {
+-      "LUT": 7,
++      "LUT": 16,
+       "FF": 4,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -745,7 +747,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_nvm_port": {
+-      "LUT": 538,
++      "LUT": 526,
+       "FF": 160,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -753,7 +755,7 @@
+       "CARRY4": 73
+      },
+      "u_pp/u_nvm_shadow": {
+-      "LUT": 810,
++      "LUT": 808,
+       "FF": 1118,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -761,15 +763,15 @@
+       "CARRY4": 51
+      },
+      "u_pp/u_originator": {
+-      "LUT": 722,
++      "LUT": 697,
+       "FF": 885,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 59
++      "CARRY4": 60
+      },
+      "u_pp/u_prng": {
+-      "LUT": 157,
++      "LUT": 159,
+       "FF": 150,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -785,15 +787,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_rx_validator": {
+-      "LUT": 527,
++      "LUT": 469,
+       "FF": 789,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 0,
+-      "CARRY4": 46
++      "CARRY4": 29
+      },
+      "u_pp/u_scoreboard": {
+-      "LUT": 126,
++      "LUT": 129,
+       "FF": 169,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -809,15 +811,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_srp": {
+-      "LUT": 3878,
++      "LUT": 3868,
+       "FF": 3979,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 2,
+-      "CARRY4": 247
++      "CARRY4": 264
+      },
+      "u_pp/u_srp/u_admission": {
+-      "LUT": 359,
++      "LUT": 345,
+       "FF": 207,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -825,12 +827,12 @@
+       "CARRY4": 31
+      },
+      "u_pp/u_srp/u_decoder": {
+-      "LUT": 602,
++      "LUT": 588,
+       "FF": 630,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 0,
+-      "CARRY4": 59
++      "CARRY4": 51
+      },
+      "u_pp/u_srp/u_domain": {
+       "LUT": 53,
+@@ -841,31 +843,31 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_srp/u_encoder": {
+-      "LUT": 1460,
++      "LUT": 1479,
+       "FF": 1086,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 97
++      "CARRY4": 100
+      },
+      "u_pp/u_srp/u_listener": {
+-      "LUT": 366,
++      "LUT": 437,
+       "FF": 667,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 29
++      "CARRY4": 42
+      },
+      "u_pp/u_srp/u_talker": {
+-      "LUT": 653,
++      "LUT": 418,
+       "FF": 610,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 22
++      "CARRY4": 31
+      },
+      "u_pp/u_srp/u_vlan": {
+-      "LUT": 144,
++      "LUT": 315,
+       "FF": 126,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -873,7 +875,7 @@
+       "CARRY4": 9
+      },
+      "u_pp/u_talker": {
+-      "LUT": 821,
++      "LUT": 823,
+       "FF": 551,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -881,7 +883,7 @@
+       "CARRY4": 18
+      },
+      "u_pp/u_timer": {
+-      "LUT": 921,
++      "LUT": 906,
+       "FF": 179,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -889,7 +891,7 @@
+       "CARRY4": 237
+      },
+      "u_pp/u_trace": {
+-      "LUT": 30,
++      "LUT": 37,
+       "FF": 18,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -897,7 +899,7 @@
+       "CARRY4": 4
+      },
+      "u_pp/u_tx_arbiter": {
+-      "LUT": 198,
++      "LUT": 185,
+       "FF": 187,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -905,7 +907,7 @@
+       "CARRY4": 4
+      },
+      "u_pp/u_tx_slots": {
+-      "LUT": 337,
++      "LUT": 216,
+       "FF": 138,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -914,7 +916,7 @@
+      }
+     }
+    },
+-   "measured": "2026-10-05, issue #661: parent ca129e3805dbd45d1289325bc0c8bef06d05f6a2 on dev 506d91dbeeba585d72d2e80d92fca799c719f8ee, processor ead8036035affd53ef4b29979190f2f4f67084c0. Combination D; docs/findings/234_PP_SHADOW_AREA_BASELINE.md records the delta from C.",
++   "measured": "2026-10-07, issue #682: RTL inputs at parent 4d2538809d739d97c09f3f0bee194fb14e1cec18 after merging dev 79b086d44eb62d007d38e18f5618b98e8e2a33e6, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a. Combination F; explicit synth.maxThreads 1, general.maxThreads 32. Default synthesis and implementation complete in separate processes. docs/findings/234_PP_SHADOW_AREA_BASELINE.md records the changed parent input and repeated measurements.",
+    "tolerance": {
+     "LUT": 250,
+     "FF": 250,
+@@ -932,6 +934,7 @@
+      "design": "KL_pp_shadow",
+      "state": "Synthesized",
+      "flow": [
++      "set_param synth.maxThreads 1",
+       "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+       "set_param general.maxThreads 32",
+       "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+@@ -940,22 +943,22 @@
+       "20.000"
+      ]
+     },
+-    "inputs_sha256": "68de00c76a07e62857fd7191a6590587b85121b24e017cfe3f14ba6957cc38c4",
++    "inputs_sha256": "53980010e27e5caca27d026414fab6ee7db387b3adeaddb6433d74d8339cffa5",
+     "figures": {
+-     "LUT": 29853,
+-     "FF": 27370,
++     "LUT": 30135,
++     "FF": 27380,
+      "BRAM_TILE": 23.5,
+      "RAMB36": 21,
+      "RAMB18": 5,
+      "DSP": 8,
+-     "WNS_ns": -4.095,
++     "WNS_ns": -2.278,
+      "WHS_ns": 0.159,
+      "CARRY4": 1889
+     },
+     "scopes": {
+      "wrapper": {
+-      "LUT": 29853,
+-      "FF": 27370,
++      "LUT": 30135,
++      "FF": 27380,
+       "RAMB36": 21,
+       "RAMB18": 5,
+       "DSP": 8,
+@@ -978,8 +981,8 @@
+       "CARRY4": 57
+      },
+      "u_pp": {
+-      "LUT": 28657,
+-      "FF": 25976,
++      "LUT": 28938,
++      "FF": 25986,
+       "RAMB36": 20,
+       "RAMB18": 4,
+       "DSP": 4,
+@@ -994,7 +997,7 @@
+       "CARRY4": 7
+      },
+      "u_pp/g_rx_pool[1].u_rx_slots": {
+-      "LUT": 29,
++      "LUT": 30,
+       "FF": 22,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -1002,7 +1005,7 @@
+       "CARRY4": 3
+      },
+      "u_pp/g_rx_pool[2].u_rx_slots": {
+-      "LUT": 51,
++      "LUT": 52,
+       "FF": 62,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -1010,7 +1013,7 @@
+       "CARRY4": 2
+      },
+      "u_pp/g_rx_pool[4].u_rx_slots": {
+-      "LUT": 40,
++      "LUT": 31,
+       "FF": 22,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -1018,15 +1021,15 @@
+       "CARRY4": 3
+      },
+      "u_pp/g_rx_pool[5].u_rx_slots": {
+-      "LUT": 90,
++      "LUT": 95,
+       "FF": 62,
+       "RAMB36": 1,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 3
++      "CARRY4": 4
+      },
+      "u_pp/u_adp": {
+-      "LUT": 695,
++      "LUT": 696,
+       "FF": 465,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -1034,16 +1037,16 @@
+       "CARRY4": 86
+      },
+      "u_pp/u_aecp": {
+-      "LUT": 7277,
++      "LUT": 7298,
+       "FF": 4919,
+       "RAMB36": 7,
+       "RAMB18": 0,
+       "DSP": 1,
+-      "CARRY4": 368
++      "CARRY4": 371
+      },
+      "u_pp/u_aecp/u_d3": {
+-      "LUT": 2299,
+-      "FF": 765,
++      "LUT": 2297,
++      "FF": 764,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+@@ -1066,7 +1069,7 @@
+       "CARRY4": 16
+      },
+      "u_pp/u_aecp/u_store": {
+-      "LUT": 1116,
++      "LUT": 1119,
+       "FF": 694,
+       "RAMB36": 3,
+       "RAMB18": 0,
+@@ -1074,7 +1077,7 @@
+       "CARRY4": 111
+      },
+      "u_pp/u_aecp/u_ucpu": {
+-      "LUT": 1592,
++      "LUT": 1651,
+       "FF": 495,
+       "RAMB36": 3,
+       "RAMB18": 0,
+@@ -1082,7 +1085,7 @@
+       "CARRY4": 68
+      },
+      "u_pp/u_ca_builder": {
+-      "LUT": 167,
++      "LUT": 161,
+       "FF": 152,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1098,7 +1101,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch": {
+-      "LUT": 891,
++      "LUT": 908,
+       "FF": 815,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1106,7 +1109,7 @@
+       "CARRY4": 18
+      },
+      "u_pp/u_dispatch/u_acmp_q": {
+-      "LUT": 289,
++      "LUT": 255,
+       "FF": 204,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1122,7 +1125,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch/u_aecp_q": {
+-      "LUT": 362,
++      "LUT": 411,
+       "FF": 287,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1130,7 +1133,7 @@
+       "CARRY4": 6
+      },
+      "u_pp/u_dispatch/u_maap_q": {
+-      "LUT": 132,
++      "LUT": 134,
+       "FF": 188,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1146,15 +1149,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_listener": {
+-      "LUT": 1693,
+-      "FF": 1082,
++      "LUT": 1681,
++      "FF": 1085,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+       "CARRY4": 32
+      },
+      "u_pp/u_lsn_admit": {
+-      "LUT": 3,
++      "LUT": 0,
+       "FF": 1,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1162,12 +1165,12 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_maap": {
+-      "LUT": 717,
++      "LUT": 727,
+       "FF": 506,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 90
++      "CARRY4": 95
+      },
+      "u_pp/u_mrp_strip": {
+       "LUT": 72,
+@@ -1178,7 +1181,7 @@
+       "CARRY4": 17
+      },
+      "u_pp/u_normalizer": {
+-      "LUT": 81,
++      "LUT": 80,
+       "FF": 353,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1186,15 +1189,15 @@
+       "CARRY4": 6
+      },
+      "u_pp/u_notify": {
+-      "LUT": 2143,
+-      "FF": 1753,
++      "LUT": 2114,
++      "FF": 1759,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 42
++      "CARRY4": 26
+      },
+      "u_pp/u_nvm_arb": {
+-      "LUT": 25,
++      "LUT": 14,
+       "FF": 4,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1202,7 +1205,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_nvm_port": {
+-      "LUT": 519,
++      "LUT": 524,
+       "FF": 160,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1210,7 +1213,7 @@
+       "CARRY4": 72
+      },
+      "u_pp/u_nvm_shadow": {
+-      "LUT": 785,
++      "LUT": 780,
+       "FF": 1013,
+       "RAMB36": 2,
+       "RAMB18": 1,
+@@ -1218,7 +1221,7 @@
+       "CARRY4": 51
+      },
+      "u_pp/u_originator": {
+-      "LUT": 657,
++      "LUT": 682,
+       "FF": 881,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1226,12 +1229,12 @@
+       "CARRY4": 60
+      },
+      "u_pp/u_prng": {
+-      "LUT": 159,
++      "LUT": 156,
+       "FF": 150,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 24
++      "CARRY4": 22
+      },
+      "u_pp/u_release_merge": {
+       "LUT": 0,
+@@ -1242,15 +1245,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_rx_validator": {
+-      "LUT": 480,
++      "LUT": 558,
+       "FF": 789,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 0,
+-      "CARRY4": 35
++      "CARRY4": 45
+      },
+      "u_pp/u_scoreboard": {
+-      "LUT": 133,
++      "LUT": 135,
+       "FF": 169,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1258,7 +1261,7 @@
+       "CARRY4": 16
+      },
+      "u_pp/u_side_port": {
+-      "LUT": 54,
++      "LUT": 55,
+       "FF": 6,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1266,7 +1269,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_srp": {
+-      "LUT": 7171,
++      "LUT": 7312,
+       "FF": 7747,
+       "RAMB36": 0,
+       "RAMB18": 1,
+@@ -1282,15 +1285,15 @@
+       "CARRY4": 31
+      },
+      "u_pp/u_srp/u_decoder": {
+-      "LUT": 906,
++      "LUT": 922,
+       "FF": 630,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 0,
+-      "CARRY4": 73
++      "CARRY4": 63
+      },
+      "u_pp/u_srp/u_domain": {
+-      "LUT": 43,
++      "LUT": 44,
+       "FF": 108,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1298,7 +1301,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_srp/u_encoder": {
+-      "LUT": 1449,
++      "LUT": 1466,
+       "FF": 1089,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1306,7 +1309,7 @@
+       "CARRY4": 106
+      },
+      "u_pp/u_srp/u_listener": {
+-      "LUT": 1777,
++      "LUT": 1804,
+       "FF": 2615,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1314,31 +1317,31 @@
+       "CARRY4": 132
+      },
+      "u_pp/u_srp/u_talker": {
+-      "LUT": 1550,
++      "LUT": 1477,
+       "FF": 1787,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 124
++      "CARRY4": 107
+      },
+      "u_pp/u_srp/u_vlan": {
+-      "LUT": 398,
++      "LUT": 500,
+       "FF": 126,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 5
++      "CARRY4": 32
+      },
+      "u_pp/u_talker": {
+-      "LUT": 1416,
++      "LUT": 1472,
+       "FF": 569,
+       "RAMB36": 1,
+       "RAMB18": 1,
+       "DSP": 0,
+-      "CARRY4": 19
++      "CARRY4": 18
+      },
+      "u_pp/u_timer": {
+-      "LUT": 1635,
++      "LUT": 1631,
+       "FF": 217,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -1346,7 +1349,7 @@
+       "CARRY4": 349
+      },
+      "u_pp/u_trace": {
+-      "LUT": 23,
++      "LUT": 28,
+       "FF": 18,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -1354,7 +1357,7 @@
+       "CARRY4": 4
+      },
+      "u_pp/u_tx_arbiter": {
+-      "LUT": 188,
++      "LUT": 192,
+       "FF": 187,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -1362,7 +1365,7 @@
+       "CARRY4": 4
+      },
+      "u_pp/u_tx_slots": {
+-      "LUT": 340,
++      "LUT": 217,
+       "FF": 138,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -1371,7 +1374,7 @@
+      }
+     }
+    },
+-   "measured": "2026-10-05, issue #661: parent ca129e3805dbd45d1289325bc0c8bef06d05f6a2 on dev 506d91dbeeba585d72d2e80d92fca799c719f8ee, processor ead8036035affd53ef4b29979190f2f4f67084c0. Combination D; docs/findings/234_PP_SHADOW_AREA_BASELINE.md records the delta from C.",
++   "measured": "2026-10-07, issue #682: RTL inputs at parent 4d2538809d739d97c09f3f0bee194fb14e1cec18 after merging dev 79b086d44eb62d007d38e18f5618b98e8e2a33e6, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a. Combination F; explicit synth.maxThreads 1, general.maxThreads 32. Default synthesis and implementation complete in separate processes. docs/findings/234_PP_SHADOW_AREA_BASELINE.md records the changed parent input and repeated measurements.",
+    "tolerance": {
+     "LUT": 316,
+     "FF": 339,
+diff --git a/syn/yosys/rom_digests.tsv b/syn/yosys/rom_digests.tsv
+index 9fdfaeacf..9b8208dc5 100644
+--- a/syn/yosys/rom_digests.tsv
++++ b/syn/yosys/rom_digests.tsv
+@@ -12,6 +12,8 @@
+ 0c208442c67213c04bde0eb75ec0f649eb09890b	ucode.hex	e77ca1f64dfcbcffb2290b9acd812fa3790a78220558cf44f306d904f758e4dc
+ 16be6768f710e79450aace277abacd6c2c3336e5	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 16be6768f710e79450aace277abacd6c2c3336e5	ucode.hex	23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
++2ad2f845dd583f8310075fa2380cb60a04fd091a	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
++2ad2f845dd583f8310075fa2380cb60a04fd091a	ucode.hex	518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8
+ 2faa5af8889d97616bda1369e4739a546da7b0f1	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 2faa5af8889d97616bda1369e4739a546da7b0f1	ucode.hex	e77ca1f64dfcbcffb2290b9acd812fa3790a78220558cf44f306d904f758e4dc
+ 3770ae02c56ca712d4a3505f429298b62edd5da8	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index f4ca8742e..3f5df4a62 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -961,13 +961,16 @@ class NxnDatapathHarness {
+         return resp;
+     }
+     // walk `cyc` cycles with the trunk open, logging every unsolicited or
+-    // originated AEM frame - the [NOTIFY] section's observation window
++    // originated AEM frame - the [NOTIFY] section's observation window. A
++    // frame still on the trunk at the last cycle is read to its end (one
++    // frame's beats at most), so a window that ends inside a frame never cuts
++    // it in two and drops it
+     void drain_tx(int cyc) {
+         std::vector<uint8_t> cur;
+         cur.reserve(1514);
+         dut->m_axis_mac_tx_tready = 1;
+         force_uns_log_realloc();
+-        for (int c = 0; c < cyc; c++) {
++        for (int c = 0; c < cyc || (!cur.empty() && c < cyc + 2048); c++) {
+             lo();
+             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                 for (int l = 0; l < 8; l++)

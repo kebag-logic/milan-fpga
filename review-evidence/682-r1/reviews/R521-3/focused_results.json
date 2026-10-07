@@ -1,0 +1,51 @@
+[
+  {
+    "name": "docs_check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.325
+  },
+  {
+    "name": "check_doc_style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "pp_baseline_selftest",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  {
+    "name": "gen_toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.526
+  },
+  {
+    "name": "check_em_dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "e21c1ca024d37ea188ad15b5c8f9c2dae18628df"
+    ],
+    "rc": 0,
+    "seconds": 3.222
+  }
+]

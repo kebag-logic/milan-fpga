@@ -1,0 +1,26 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index a24c218ad..f312b8128 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -51,7 +51,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - The capture harness finishes frames crossing its observation boundary.
+ - That extension stops after at most 2,048 cycles.
+ - C11 documents the landed byte interfaces and TX backpressure.
+-- It also documents synchronous reset and complete FCS-good RX frames.
++- It also documents complete FCS-good RX frames.
+ - SRP registrar expiry precedes same-clock reception (#134).
+ - Lv and LeaveAll finish MT; New and Join renew IN.
+ - A held DEREGISTER waits for the notification round boundary (#158).
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index 90f979c36..ac6d5991c 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -160,7 +160,7 @@ Issue #682 adopts processor pin `2ad2f845`.
+ | Processor lane | Merged PR | Parent-visible result |
+ |---|---|---|
+ | #148, counter notification spacing | [159](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/159) | The spacing stamp follows each waiting job through grant; the parent harness completes frames crossing an observation boundary |
+-| C11, interface documentation | [156](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156) | Documents the landed byte interfaces, TX backpressure, synchronous reset and complete FCS-good RX frames |
++| C11, interface documentation | [156](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156) | Documents the landed byte interfaces, TX backpressure and complete FCS-good RX frames |
+ | #134, SRP registrar expiry | [160](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/160) | Expiry precedes reception on a simultaneous event; Lv and LeaveAll finish MT, while New and Join renew IN |
+ | #158, mid-round DEREGISTER | [161](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/161) | A held DEREGISTER waits for the round boundary, preserving subsequent controllers' notifications |
+ | #22, declaration order | [162](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162) | Existing declarations precede use; the parent analysis budget has zero processor findings |

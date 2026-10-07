@@ -1,0 +1,130 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f259e3435..f312b8128 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
+ - **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
+ - **[Unreleased - processor pin ead80360](#unreleased---processor-pin-ead80360)** -- A silent NVM device is answered.
+ - **[Unreleased - CRF unbind counts its unlock](#unreleased---crf-unbind-counts-its-unlock)** -- Counted at the unbind.
+@@ -40,6 +41,35 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - processor pin 2ad2f845
++
++- Issue #682 adopts processor `2ad2f845`.
++- That pin carries processor PRs #156 and #159 to #162.
++- It also carries #164.
++- GET_COUNTERS notification spacing is now measured at grant (#148).
++- Later MAC stalls remain a wire-gap limitation.
++- The capture harness finishes frames crossing its observation boundary.
++- That extension stops after at most 2,048 cycles.
++- C11 documents the landed byte interfaces and TX backpressure.
++- It also documents complete FCS-good RX frames.
++- SRP registrar expiry precedes same-clock reception (#134).
++- Lv and LeaveAll finish MT; New and Join renew IN.
++- A held DEREGISTER waits for the notification round boundary (#158).
++- Subsequent controllers keep their notifications.
++- Its contents stay unchanged, but delivery can arrive later.
++- Existing declarations now precede use (#22).
++- The parent analysis budget has zero processor findings.
++- Domain and link-edge notification triggers gain tests (#42).
++- The parent still owns GET_AVB_INFO mapping words.
++- The processor top remains byte-identical to `ead80360`.
++- No port, parameter or register changes require parent adaptation.
++- The resource gate records this image as baseline F.
++- The ROM ledger adds `2ad2f845` rows; both ROMs are unchanged.
++- The capture census, receipt and product firmware remain unchanged.
++- After merge, the manager repeats #608 withdrawal cycles.
++- The manager also reads #658's default map.
++- VERSION is unchanged; the release step owns the bump.
++
+ ## Unreleased - power-on audio maps
+ 
+ - Every dynamic stream port powered up unmapped (#658).
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index 90f979c36..ac6d5991c 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -160,7 +160,7 @@ Issue #682 adopts processor pin `2ad2f845`.
+ | Processor lane | Merged PR | Parent-visible result |
+ |---|---|---|
+ | #148, counter notification spacing | [159](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/159) | The spacing stamp follows each waiting job through grant; the parent harness completes frames crossing an observation boundary |
+-| C11, interface documentation | [156](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156) | Documents the landed byte interfaces, TX backpressure, synchronous reset and complete FCS-good RX frames |
++| C11, interface documentation | [156](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156) | Documents the landed byte interfaces, TX backpressure and complete FCS-good RX frames |
+ | #134, SRP registrar expiry | [160](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/160) | Expiry precedes reception on a simultaneous event; Lv and LeaveAll finish MT, while New and Join renew IN |
+ | #158, mid-round DEREGISTER | [161](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/161) | A held DEREGISTER waits for the round boundary, preserving subsequent controllers' notifications |
+ | #22, declaration order | [162](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162) | Existing declarations precede use; the parent analysis budget has zero processor findings |
+diff --git a/docs/testing/PP_SHADOW_BASELINE_RECIPE.md b/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+index 4d2bfc55b..ef269d0b1 100644
+--- a/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
++++ b/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+@@ -102,12 +102,15 @@ Keep `--timing-opt`, `--floorplan` and every emitted design argument.
+ Keep `--vivado-max-threads 32`.
+ Never substitute an uninitialized firmware ROM.
+ 
+-For a memory-constrained measurement, pass `--single-thread-synthesis` to the
+-baseline helper for each endpoint. It emits `set_param synth.maxThreads 1`
+-before the exported commands, leaving `general.maxThreads` and the directives
+-unchanged. The resource gate records this setting in the flow identity.
+-Changing it requires a new baseline; do not compare its figures as an RTL-only
+-delta against a baseline recorded without it.
++Current baseline F was recorded with `--single-thread-synthesis`.
++Every measurement judged against F must pass that flag.
++This applies to `route-1x1`, `ooc-1x1` and `ooc-8x8`.
++The baseline helper emits `set_param synth.maxThreads 1` before synthesis.
++It leaves `general.maxThreads` and the directives unchanged.
++The resource gate records this setting in the flow identity.
++Dropping it requires re-recording all three endpoints at the base.
++Do that before measuring the candidate under the changed flow.
++Comparisons across different flow identities return exit 2.
+ 
+ ## Integrated measurements
+ 
+@@ -118,8 +121,9 @@ The 1x1 endpoint follows the recipe through routing.
+ The 8x8 endpoint stops after synthesis.
+ 
+ ```sh
+-python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware"
+-python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" --synthesis-only
++python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" --single-thread-synthesis
++python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" \
++  --synthesis-only --single-thread-synthesis
+ (
+   cd "$WORK/ax7101/gateware"
+   vivado -mode batch -source baseline_integrated.tcl -nojournal -log baseline.log
+@@ -182,9 +186,10 @@ Repeat the export steps using a separate work directory.
+ Prepare that export with the additional attribution switch:
+ 
+ ```sh
+-python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" --attribution-only
++python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" \
++  --attribution-only --single-thread-synthesis
+ python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" \
+-  --synthesis-only --attribution-only
++  --synthesis-only --attribution-only --single-thread-synthesis
+ ```
+ 
+ Run the generated integrated scripts exactly as above.
+@@ -258,6 +263,7 @@ The script refuses ambiguous blocks and unsupported default expressions.
+ ```sh
+ for shape in ax7101 ax8x8; do
+   python3 syn/ooc/pp_baseline.py "$WORK/$shape/gateware" \
++    --single-thread-synthesis \
+     --output "$WORK/$shape-ooc" \
+     --integrated-log "$WORK/$shape/gateware/baseline.log"
+   (
+@@ -451,7 +457,8 @@ git diff --check
+ [`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one measurement directory.
+ It compares the directory with an endpoint of [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json).
+ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the policy.
+-Run the shipping route and the 1x1 standalone synthesis as above.
++Run the shipping route and both standalone syntheses as above.
++Pass `--single-thread-synthesis` when preparing every endpoint compared against F.
+ Use `--integrated-clock` for every standalone endpoint the gate judges.
+ 
+ ```sh
