@@ -95,7 +95,7 @@ void bound(const char* path, std::uint64_t accesses, unsigned limit) {
 }
 
 // A frame offered to the model's ingress; true when the filter committed it.
-bool offer(const Pdu& p, std::uint64_t dst = ACMP_MULTICAST_MAC) {
+bool offer(const Pdu& p, std::uint64_t dst = spec::MULTICAST_MAC) {
     auto f = acmpdu(p);
     wire_put_be(f.data(), dst, 6);
     return mbx_model_rx(&model, f.data(), f.size(), 0);
@@ -131,8 +131,9 @@ Pdu wire(std::uint32_t k) {
     return t != nullptr ? read(t->bytes) : Pdu{};
 }
 
+// The last TMR_CMD, or nullptr when none was written.
 const struct mbx_model_tmr_op* last_tmr() {
-    return mbx_model_tmr_op(&model, model.tmr_ops - 1u);
+    return model.tmr_ops == 0u ? nullptr : mbx_model_tmr_op(&model, model.tmr_ops - 1u);
 }
 
 class AcmpMailbox : public ::testing::Test {
@@ -173,10 +174,10 @@ class AcmpMailbox : public ::testing::Test {
         p.seq = 0x5100;
         return p;
     }
-    Pdu answer(unsigned k, std::uint8_t status = ACMP_STATUS_SUCCESS) const {
+    Pdu answer(unsigned k, std::uint8_t status = spec::STATUS_SUCCESS) const {
         const acmp_sink& s = core()->sinks[k];
         Pdu p;
-        p.msg = ACMP_MSG_PROBE_TX_RESPONSE;
+        p.msg = spec::MSG_PROBE_TX_RESPONSE;
         p.status = status;
         p.controller = s.probe_controller;
         p.talker = s.probe_talker;
@@ -192,15 +193,15 @@ class AcmpMailbox : public ::testing::Test {
     // Run the model to the ACMP slot's armed deadline.
     void to_deadline() {
         const mbx_model_timer& t = model.timers[CTRL_APP_ACMP_FIRST_SLOT];
-        ASSERT_TRUE(t.armed);
+        ASSERT_TRUE(t.armed) << "the ACMP slot is armed";
         mbx_model_advance_ms(&model, t.deadline_ms - model.now_ms);
     }
     void bind(unsigned k) {
-        ASSERT_TRUE(offer(command(ACMP_MSG_BIND_RX_COMMAND, k)));
+        ASSERT_TRUE(offer(command(spec::MSG_BIND_RX_COMMAND, k))) << "the filter passes the BIND_RX";
         settle();
     }
     void restore(unsigned k) {
-        std::uint8_t record[ACMP_BINDING_BYTES] = {0x03, 0, 0, 1};
+        std::uint8_t record[spec::BINDING_BYTES] = {0x03, 0, 0, 1};
         wire_put_be(record + 4, kTkA, 8);
         wire_put_be(record + 12, kCtl1, 8);
         ASSERT_EQ(acmp_restore_binding(core(), k, record, sizeof record), ACMP_RESTORE_APPLIED);
@@ -211,52 +212,54 @@ class AcmpMailbox : public ::testing::Test {
 
 TEST_F(AcmpMailbox, B1TheChannelCarriesCommandsAndResponsesInOrder) {
     std::uint32_t sent = model.tx_sent;
-    ASSERT_TRUE(offer(command(ACMP_MSG_BIND_RX_COMMAND, 0))) << "B1 the filter passes a BIND_RX for this listener";
+    ASSERT_TRUE(offer(command(spec::MSG_BIND_RX_COMMAND, 0))) << "B1 the filter passes a BIND_RX for this listener";
     settle();
     ASSERT_EQ(model.tx_sent, sent + 2u) << "B1 two frames leave";
     const mbx_model_tx* r = mbx_model_tx_frame(&model, sent);
     const mbx_model_tx* p = mbx_model_tx_frame(&model, sent + 1u);
-    EXPECT_TRUE(r->channel == MBX_CH_ACMP && r->interface == 0u && r->len == ACMP_FRAME_BYTES &&
-                read(r->bytes).msg == ACMP_MSG_BIND_RX_RESPONSE && p->channel == MBX_CH_ACMP &&
-                read(p->bytes).msg == ACMP_MSG_PROBE_TX_COMMAND)
+    EXPECT_TRUE(r->channel == MBX_CH_ACMP && r->interface == 0u && r->len == spec::FRAME_BYTES &&
+                read(r->bytes).msg == spec::MSG_BIND_RX_RESPONSE && p->channel == MBX_CH_ACMP &&
+                read(p->bytes).msg == spec::MSG_PROBE_TX_COMMAND)
         << "B1 the response, then the probe, on the acmp channel, 70 bytes each, in commit order";
-    EXPECT_TRUE((wire_be64(r->bytes) >> 16) == ACMP_MULTICAST_MAC && (wire_be64(r->bytes + 6) >> 16) == kMac0)
+    EXPECT_TRUE((wire_be64(r->bytes) >> 16) == spec::MULTICAST_MAC && (wire_be64(r->bytes + 6) >> 16) == kMac0)
         << "B1 to the ACMP multicast address from the interface's MAC";
-    Pdu other = command(ACMP_MSG_BIND_RX_COMMAND, 1);
+    Pdu other = command(spec::MSG_BIND_RX_COMMAND, 1);
     other.listener = kTkB;
     EXPECT_FALSE(offer(other)) << "B1 a BIND_RX for another listener never reaches the core (the identity term)";
-    EXPECT_TRUE(offer(talker_command(ACMP_MSG_GET_TX_STATE_COMMAND))) << "B1 a GET_TX_STATE for this talker passes";
+    EXPECT_TRUE(offer(talker_command(spec::MSG_GET_TX_STATE_COMMAND))) << "B1 a GET_TX_STATE for this talker passes";
     settle();
-    EXPECT_EQ(wire(model.tx_sent - 1u).msg, ACMP_MSG_GET_TX_STATE_RESPONSE) << "B1 and is answered";
+    EXPECT_EQ(wire(model.tx_sent - 1u).msg, spec::MSG_GET_TX_STATE_RESPONSE) << "B1 and is answered";
 }
 
 TEST_F(AcmpMailbox, B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused) {
-    ASSERT_TRUE(offer(command(ACMP_MSG_GET_RX_STATE_COMMAND, 0), kMac0))
+    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0), kMac0))
         << "B2 a command to this interface's own unicast MAC passes (the owner's receive tolerance)";
     settle();
-    EXPECT_EQ(wire(model.tx_sent - 1u).msg, ACMP_MSG_GET_RX_STATE_RESPONSE)
+    EXPECT_EQ(wire(model.tx_sent - 1u).msg, spec::MSG_GET_RX_STATE_RESPONSE)
         << "B2 and is answered, to the multicast address (8.2.1)";
     std::uint16_t mismatch = model.filter_mismatch;
-    EXPECT_FALSE(offer(command(ACMP_MSG_GET_RX_STATE_COMMAND, 0), kMac0 ^ 1u)) << "B2 a foreign unicast is refused";
+    EXPECT_FALSE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0), kMac0 ^ 1u)) << "B2 a foreign unicast is refused";
     EXPECT_EQ(model.filter_mismatch, mismatch + 1u) << "B2 and counted once in FILTER_MISMATCH";
 }
 
 TEST_F(AcmpMailbox, B3TheTimersRunOnTheInterfaceSlot) {
+    mbx_model_advance_ms(&model, 1234);                  // a deadline is absolute: NOW_MS must not be 0
     std::uint32_t t0 = model.now_ms;
     bind(0);
     const struct mbx_model_tmr_op* arm = last_tmr();
+    ASSERT_NE(arm, nullptr) << "B3 the bind arms a fabric timer";
     EXPECT_TRUE(arm->op == MBX_TMR_OP_ARM && arm->slot == CTRL_APP_ACMP_FIRST_SLOT &&
-                arm->deadline_ms == t0 + ACMP_TMR_NO_RESP_MS && app.acmp.ifs[0].armed)
+                arm->deadline_ms == t0 + spec::TMR_NO_RESP_MS && app.acmp.ifs[0].armed)
         << "B3 TMR_NO_RESP is armed on the interface's ACMP slot at NOW_MS + 200 (Table 5.26)";
     std::uint32_t sent = model.tx_sent;
-    mbx_model_advance_ms(&model, ACMP_TMR_NO_RESP_MS - 1u);
+    mbx_model_advance_ms(&model, spec::TMR_NO_RESP_MS - 1u);
     settle();
     EXPECT_EQ(model.tx_sent, sent) << "B3 nothing at 199 ms";
     mbx_model_advance_ms(&model, 1);
     settle();
     const mbx_model_tx* dup = mbx_model_tx_frame(&model, sent);
-    EXPECT_TRUE(model.tx_sent == sent + 1u && dup != nullptr && dup->now_ms == t0 + ACMP_TMR_NO_RESP_MS &&
-                read(dup->bytes).msg == ACMP_MSG_PROBE_TX_COMMAND && core()->sinks[0].state == ACMP_PRB_W_RESP2)
+    EXPECT_TRUE(model.tx_sent == sent + 1u && dup != nullptr && dup->now_ms == t0 + spec::TMR_NO_RESP_MS &&
+                read(dup->bytes).msg == spec::MSG_PROBE_TX_COMMAND && core()->sinks[0].state == ACMP_PRB_W_RESP2)
         << "B3 the duplicate leaves at 200 ms exactly (5.5.3.5.16)";
 }
 
@@ -311,10 +314,10 @@ TEST_F(AcmpMailbox, B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp) {
         settle();
     }
     ASSERT_EQ(app.adp.ifs[0].adp.state, ADP_STATE_WAITING);
-    std::uint8_t discover[ACMP_ADP_FRAME_BYTES] = {};
+    std::uint8_t discover[spec::ADPDU_FRAME_BYTES] = {};
     wire_put_be(discover, 0x91E0F0010000ull, 6);
-    wire_put_be(discover + 12, ACMP_ETHERTYPE, 2);
-    discover[14] = ACMP_ADP_SUBTYPE;
+    wire_put_be(discover + 12, spec::ETHERTYPE, 2);
+    discover[14] = spec::ADPDU_SUBTYPE;
     discover[15] = 2;
     ASSERT_TRUE(mbx_model_rx(&model, discover, sizeof discover, 0));
     settle();
@@ -374,11 +377,11 @@ TEST(AcmpAdapterUnit, B7RefusalsOfTheAdapter) {
 
 TEST_F(AcmpMailbox, C0ToC4CommandsAreAnsweredInThePassThatTakesThem) {
     std::uint32_t sent = model.tx_sent;
-    ASSERT_TRUE(offer(command(ACMP_MSG_BIND_RX_COMMAND, 0)));
+    ASSERT_TRUE(offer(command(spec::MSG_BIND_RX_COMMAND, 0)));
     std::uint64_t n = pass();
     EXPECT_EQ(model.tx_sent, sent + 2u) << "C0 BIND_RX: the response and the probe in the pass that takes it";
     bound("C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP", n, ACMP_MBX_LAT_BIND);
-    ASSERT_TRUE(offer(command(ACMP_MSG_GET_RX_STATE_COMMAND, 0)));
+    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0)));
     n = pass();
     EXPECT_EQ(model.tx_sent, sent + 3u) << "C1 GET_RX_STATE answered in one pass";
     bound("C1 GET_RX_STATE -> response", n, ACMP_MBX_LAT_GET_RX);
@@ -386,13 +389,13 @@ TEST_F(AcmpMailbox, C0ToC4CommandsAreAnsweredInThePassThatTakesThem) {
     n = pass();
     EXPECT_EQ(core()->sinks[0].state, ACMP_SETTLED_NO_RSV) << "C2 PROBE_TX_RESPONSE settles in one pass";
     bound("C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed", n, ACMP_MBX_LAT_PROBE_RESP);
-    ASSERT_TRUE(offer(command(ACMP_MSG_UNBIND_RX_COMMAND, 0)));
+    ASSERT_TRUE(offer(command(spec::MSG_UNBIND_RX_COMMAND, 0)));
     n = pass();
     EXPECT_TRUE(model.tx_sent == sent + 4u && core()->sinks[0].state == ACMP_UNBOUND)
         << "C3 UNBIND_RX answered in one pass";
     bound("C3 UNBIND_RX -> response, timer stopped", n, ACMP_MBX_LAT_UNBIND);
-    for (std::uint8_t msg : {ACMP_MSG_PROBE_TX_COMMAND, ACMP_MSG_GET_TX_STATE_COMMAND,
-                             ACMP_MSG_DISCONNECT_TX_COMMAND, ACMP_MSG_GET_TX_CONNECTION_COMMAND}) {
+    for (std::uint8_t msg : {spec::MSG_PROBE_TX_COMMAND, spec::MSG_GET_TX_STATE_COMMAND,
+                             spec::MSG_DISCONNECT_TX_COMMAND, spec::MSG_GET_TX_CONNECTION_COMMAND}) {
         std::uint32_t before = model.tx_sent;
         ASSERT_TRUE(offer(talker_command(msg)));
         n = pass();
@@ -442,7 +445,7 @@ TEST_F(AcmpMailbox, C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord) {
     EXPECT_EQ(core()->sinks[0].state, ACMP_PRB_W_DELAY) << "C10 ENTITY_AVAILABLE: TMR_DELAY in the same pass";
     bound("C10 ENTITY_AVAILABLE -> TMR_DELAY armed (H-DISC)", n, ACMP_MBX_LAT_AVAILABLE);
     Adp gone;
-    gone.msg = ACMP_ADP_MSG_ENTITY_DEPARTING;
+    gone.msg = spec::ADPDU_ENTITY_DEPARTING;
     post_adp(gone);
     n = pass();
     EXPECT_TRUE(core()->sinks[0].state == ACMP_PRB_W_AVAIL && !app.acmp.ifs[0].armed)
@@ -502,7 +505,7 @@ std::vector<std::uint64_t> changes;
 void fill_acmp_tx() {
     mbx_model_tx_pause(&model, true);
     Pdu p;
-    p.msg = ACMP_MSG_GET_RX_STATE_RESPONSE;
+    p.msg = spec::MSG_GET_RX_STATE_RESPONSE;
     auto filler = acmpdu(p);
     while (mbx_tx_send(MBX_CH_ACMP, 0, filler.data(), filler.size()) == MBX_STATUS_OK) {}
 }
@@ -514,7 +517,7 @@ TEST_F(AcmpMailbox, E1AnOwedResponseLeavesFirstAndItsChangeAfterIt) {
     acmp_commits.clear();
     changes.clear();
     fill_acmp_tx();
-    ASSERT_TRUE(offer(command(ACMP_MSG_BIND_RX_COMMAND, 0)));
+    ASSERT_TRUE(offer(command(spec::MSG_BIND_RX_COMMAND, 0)));
     for (unsigned k = 0; k < 8u; ++k) {
         ctrl_loop_step(&app.loop);
     }
@@ -536,9 +539,9 @@ TEST_F(AcmpMailbox, E1AnOwedResponseLeavesFirstAndItsChangeAfterIt) {
     ASSERT_FALSE(acmp_commits.empty());
     EXPECT_TRUE(changes.back() >= acmp_commits.front())
         << "E1 the change is reported after the response's TX_HEAD commit (#653)";
-    EXPECT_EQ(wire(drained).msg, ACMP_MSG_BIND_RX_RESPONSE) << "E1 and the response is the first frame after the room";
+    EXPECT_EQ(wire(drained).msg, spec::MSG_BIND_RX_RESPONSE) << "E1 and the response is the first frame after the room";
     settle();
-    EXPECT_TRUE(wire(drained + 1u).msg == ACMP_MSG_PROBE_TX_COMMAND && core()->owed_count == 0u)
+    EXPECT_TRUE(wire(drained + 1u).msg == spec::MSG_PROBE_TX_COMMAND && core()->owed_count == 0u)
         << "E1 then the probe; nothing owed";
     mbx_model_bind(&model, nullptr, nullptr);
 }
@@ -548,11 +551,11 @@ TEST_F(AcmpMailbox, E2AnOwedResponseIsCommittedInPassKPlus1) {
         SetUp();
         fill_acmp_tx();
         for (unsigned j = 0; j < k; ++j) {
-            ASSERT_TRUE(offer(command(ACMP_MSG_GET_RX_STATE_COMMAND, 1, kCtl2, static_cast<std::uint16_t>(j))));
+            ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl2, static_cast<std::uint16_t>(j))));
             mbx_model_advance_ms(&model, MBX_CH_ACMP_RATE_REFILL_MS);
             settle();
         }
-        ASSERT_TRUE(offer(command(ACMP_MSG_GET_RX_STATE_COMMAND, 0, kCtl1, 0x7777)));
+        ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0, kCtl1, 0x7777)));
         settle();
         ASSERT_EQ(core()->owed_count, k + 1u);
         mbx_model_tx_pause(&model, false);
@@ -590,7 +593,7 @@ TEST_F(AcmpMailbox, F0ToF3FullRingsAreTakenWithinTheBound) {
         << "F0 the event ring is full";
     unsigned stored = 0;
     for (unsigned j = 0; j < 100000u && model.ch[MBX_CH_ACMP].rx_drop == 0u; ++j) {
-        Pdu p = command(ACMP_MSG_BIND_RX_COMMAND, j % acfg.n_sinks, kCtl1, static_cast<std::uint16_t>(j));
+        Pdu p = command(spec::MSG_BIND_RX_COMMAND, j % acfg.n_sinks, kCtl1, static_cast<std::uint16_t>(j));
         p.talker = kTkB + j;
         if (offer(p)) {
             stored++;
@@ -619,7 +622,7 @@ TEST_F(AcmpMailbox, F0ToF3FullRingsAreTakenWithinTheBound) {
 }
 
 TEST_F(AcmpMailbox, F4TheSmallestRecordsTheFilterPassesFillTheRing) {
-    auto f = acmpdu(talker_command(ACMP_MSG_GET_TX_STATE_COMMAND));
+    auto f = acmpdu(talker_command(spec::MSG_GET_TX_STATE_COMMAND));
     const std::size_t smallest = MBX_CH_ACMP_T0_OFFSET + MBX_TERM_FIELD_BYTES;
     EXPECT_FALSE(mbx_model_rx(&model, f.data(), smallest - 1u, 0))
         << "F4 a frame that ends inside talker_entity_id holds no identity term and is not passed";

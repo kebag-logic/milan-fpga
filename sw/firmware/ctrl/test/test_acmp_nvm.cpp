@@ -114,7 +114,7 @@ class AcmpStore : public ::testing::Test {
 
 TEST_F(AcmpStore, N1ABindSurvivesAPowerCycleAndFastConnects) {
     EXPECT_EQ(nvm_store_status()->terminal, NVM_T_BLANK) << "N1 blank media boots BLANK";
-    command(ACMP_MSG_BIND_RX_COMMAND, 0, kTkA);
+    command(spec::MSG_BIND_RX_COMMAND, 0, kTkA);
     ASSERT_EQ(persists, 1u) << "N1 the bind marks its record (5.5.2.4)";
     unsigned ok = nvm_store_status()->commits_ok;
     serve();
@@ -135,18 +135,18 @@ TEST_F(AcmpStore, N1ABindSurvivesAPowerCycleAndFastConnects) {
     acmp_timer_expired(&a, 0);
     ASSERT_FALSE(fk.sent.empty());
     Pdu probe = read(fk.sent.back().bytes.data());
-    EXPECT_TRUE(probe.msg == ACMP_MSG_PROBE_TX_COMMAND && probe.talker == kTkA && probe.controller == kCtl1 &&
+    EXPECT_TRUE(probe.msg == spec::MSG_PROBE_TX_COMMAND && probe.talker == kTkA && probe.controller == kCtl1 &&
                 probe.talker_uid == 1u && a.sinks[0].state == ACMP_PRB_W_RESP)
         << "N1 the talker's ENTITY_AVAILABLE starts the fast connect: TMR_DELAY, then its probe (5.5.2.6)";
     EXPECT_EQ(persists, 0u) << "N1 probing saves nothing";
 }
 
 TEST_F(AcmpStore, N2AnUnbindIsSavedAsAnUnboundRecord) {
-    command(ACMP_MSG_BIND_RX_COMMAND, 0, kTkA);
+    command(spec::MSG_BIND_RX_COMMAND, 0, kTkA);
     serve();
     boot(MILAN_NVM_N_STREAM_IN);
     ASSERT_TRUE(a.sinks[0].bound);
-    command(ACMP_MSG_UNBIND_RX_COMMAND, 0, kTkA);
+    command(spec::MSG_UNBIND_RX_COMMAND, 0, kTkA);
     ASSERT_EQ(persists, 1u) << "N2 the unbind marks the record (5.5.3.5.8 step 3)";
     serve();
     boot(MILAN_NVM_N_STREAM_IN);
@@ -155,10 +155,13 @@ TEST_F(AcmpStore, N2AnUnbindIsSavedAsAnUnboundRecord) {
 }
 
 TEST_F(AcmpStore, N3EachSinksStartedStateIsSaved) {
-    command(ACMP_MSG_BIND_RX_COMMAND, 0, kTkA, ACMP_FLAG_STREAMING_WAIT);
-    command(ACMP_MSG_BIND_RX_COMMAND, 1, kTkB);
+    command(spec::MSG_BIND_RX_COMMAND, 0, kTkA, spec::FLAG_STREAMING_WAIT);
+    command(spec::MSG_BIND_RX_COMMAND, 1, kTkB);
+    serve();
+    unsigned ok = nvm_store_status()->commits_ok;
     ASSERT_TRUE(acmp_set_started(&a, 1, false)) << "N3 STOP_STREAMING of sink 1";
     serve();
+    EXPECT_EQ(nvm_store_status()->commits_ok, ok + 1u) << "N3 the started state alone is a change the store commits";
     boot(MILAN_NVM_N_STREAM_IN);
     EXPECT_TRUE(a.sinks[0].bound && !a.sinks[0].started && a.sinks[0].binding.streaming_wait && a.sinks[1].bound &&
                 !a.sinks[1].started && !a.sinks[1].binding.streaming_wait && a.sinks[1].binding.talker_entity_id == kTkB)
@@ -166,7 +169,7 @@ TEST_F(AcmpStore, N3EachSinksStartedStateIsSaved) {
 }
 
 TEST_F(AcmpStore, N4AnUnreadSlotRefusesPersistence) {
-    command(ACMP_MSG_BIND_RX_COMMAND, 0, kTkA);
+    command(spec::MSG_BIND_RX_COMMAND, 0, kTkA);
     serve();
     const int auth = nvm_store_status()->auth;
     ASSERT_TRUE(auth == 0 || auth == 1);
@@ -187,7 +190,7 @@ TEST_F(AcmpStore, N4AnUnreadSlotRefusesPersistence) {
     EXPECT_TRUE(a.sinks[0].bound && a.sinks[0].binding.talker_entity_id == kTkA && a.sinks[0].state == ACMP_PRB_W_AVAIL)
         << "N4 what the readable slot holds is still restored: the fast connect stands";
     unsigned ok = nvm_store_status()->commits_ok;
-    command(ACMP_MSG_BIND_RX_COMMAND, 0, kTkB);
+    command(spec::MSG_BIND_RX_COMMAND, 0, kTkB);
     EXPECT_TRUE(persists == 1u && a.sinks[0].binding.talker_entity_id == kTkB)
         << "N4 a new bind is answered and taken, and its record marked";
     serve(5000u);
@@ -200,7 +203,7 @@ TEST_F(AcmpStore, N4AnUnreadSlotRefusesPersistence) {
 }
 
 TEST_F(AcmpStore, N5ARecordTheCoreRefusesKeepsItsDefault) {
-    command(ACMP_MSG_BIND_RX_COMMAND, MILAN_NVM_N_STREAM_IN - 1u, kTkA);
+    command(spec::MSG_BIND_RX_COMMAND, MILAN_NVM_N_STREAM_IN - 1u, kTkA);
     serve();
     boot(MILAN_NVM_N_STREAM_IN - 1u);
     EXPECT_TRUE(nvm_store_status()->terminal == NVM_T_COMPLETE && nvm_store_status()->refused >= 1u)
@@ -208,7 +211,7 @@ TEST_F(AcmpStore, N5ARecordTheCoreRefusesKeepsItsDefault) {
 }
 
 TEST_F(AcmpStore, N6TheRollBackAndEveryOtherGroup) {
-    std::uint8_t record[ACMP_BINDING_BYTES] = {0x01, 0, 0, 1};
+    std::uint8_t record[spec::BINDING_BYTES] = {0x01, 0, 0, 1};
     wire_put_be(record + 4, kTkA, 8);
     ASSERT_EQ(glue.port.apply(glue.port.ctx, NVM_G_BIND, 0, record, sizeof record), NVM_APPLIED)
         << "N6 a binding record applies through the port";
@@ -216,12 +219,15 @@ TEST_F(AcmpStore, N6TheRollBackAndEveryOtherGroup) {
         << "N6 one of another length is refused";
     EXPECT_EQ(glue.port.rollback(glue.port.ctx, NVM_W_BIND), 0) << "N6 the binding walk's roll-back succeeds";
     EXPECT_FALSE(a.sinks[0].bound) << "N6 and drops what it applied";
-    std::uint8_t payload[ACMP_BINDING_BYTES];
+    std::uint8_t payload[spec::BINDING_BYTES];
     EXPECT_EQ(glue.port.latch(glue.port.ctx, NVM_G_BIND, 0, payload, sizeof payload - 1u), 0)
         << "N6 a latch of another length gives nothing";
     EXPECT_EQ(glue.port.latch(glue.port.ctx, NVM_G_BIND, 0, payload, sizeof payload), 1) << "N6 the record's does";
     EXPECT_EQ(glue.port.latch(glue.port.ctx, NVM_G_BIND, MILAN_NVM_N_STREAM_IN, payload, sizeof payload), 0)
         << "N6 a latch of a sink the configuration lacks gives nothing: the staged bytes stand";
+    nvm_smodel_ready(0);
+    EXPECT_EQ(glue.port.model_ready(glue.port.ctx), 0) << "N6 the model's readiness is the other owners'";
+    nvm_smodel_ready(1);
     const struct nvm_smodel_count before = *nvm_smodel_count();
     std::uint8_t cfgidx[NVM_PL_CFG] = {0, 0};
     static_cast<void>(glue.port.model_ready(glue.port.ctx));

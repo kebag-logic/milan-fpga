@@ -105,7 +105,7 @@ std::uint32_t state_drawing(std::uint32_t ms) {
         x ^= x << 13;
         x ^= x >> 17;
         x ^= x << 5;
-        if ((((x >> 16) * (ACMP_TMR_DELAY_MAX_MS + 1u)) >> 16) == ms) {
+        if ((((x >> 16) * (spec::TMR_DELAY_MAX_MS + 1u)) >> 16) == ms) {
             return s;
         }
     }
@@ -216,11 +216,11 @@ class Lockstep {
         if (s.k == pp_lsn::Stim::TXN) {
             pp_lsn::Pdu p = pp_lsn::mk_pdu(s.msg, s.status, s.sid, s.ctlr, s.tk_eid, s.target, s.tk_uid, s.uid, s.da,
                                            0, s.seq, s.flags, s.vlan);
-            std::array<std::uint8_t, ACMP_FRAME_BYTES> f{};
-            wire_put_be(f.data(), ACMP_MULTICAST_MAC, 6);
+            std::array<std::uint8_t, spec::FRAME_BYTES> f{};
+            wire_put_be(f.data(), spec::MULTICAST_MAC, 6);
             wire_put_be(f.data() + 6, 0x0202DEADBEEFull, 6);
-            wire_put_be(f.data() + 12, ACMP_ETHERTYPE, 2);
-            std::memcpy(f.data() + ACMP_HEADER_BYTES, p.b, pp_lsn::PDU_BYTES);
+            wire_put_be(f.data() + 12, spec::ETHERTYPE, 2);
+            std::memcpy(f.data() + spec::HEADER_BYTES, p.b, pp_lsn::PDU_BYTES);
             acmp_rx(&a, 0, f.data(), f.size());
         } else if (s.k == pp_lsn::Stim::EXP) {
             if (a.sinks[k].timer != ACMP_TIMER_NONE) {
@@ -236,7 +236,7 @@ class Lockstep {
             acmp_adp_rx(&a, 0, f.data(), f.size());
         } else if (s.tk_kind == 1u) {                    // EVT_TK_DEPARTED: its ENTITY_DEPARTING
             Adp d;
-            d.msg = ACMP_ADP_MSG_ENTITY_DEPARTING;
+            d.msg = spec::ADPDU_ENTITY_DEPARTING;
             d.entity = a.sinks[k].binding.talker_entity_id;
             auto f = adpdu(d);
             acmp_adp_rx(&a, 0, f.data(), f.size());
@@ -441,7 +441,7 @@ TEST_P(ListenerWalk, Graded) {
 
     ASSERT_EQ(fk.sent.size(), e.frames.size()) << "LW " << cell << ": frames";
     for (std::size_t i = 0; i < e.frames.size(); ++i) {
-        EXPECT_EQ(std::memcmp(fk.sent[i].bytes.data() + ACMP_HEADER_BYTES, e.frames[i].b, PDU_BYTES), 0)
+        EXPECT_EQ(std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES), 0)
             << "LW " << cell << ": frame " << i << " byte for byte";
     }
     const acmp_sink& s = w.a.sinks[k];
@@ -525,10 +525,10 @@ TEST(ListenerScenario, LD3TheLockRefusalStatus) {
     ASSERT_TRUE(e.frames.size() == 1u && fk.sent.size() == 1u) << "LD3 one refusal each";
     EXPECT_EQ(e.frames[0].b[2] >> 3, ST_NOAUTH) << "LD3 the processor's status is its ST_NOAUTH";
     EXPECT_EQ(ST_NOAUTH, 13) << "LD3 which is 13, TALKER_MISBEHAVING in IEEE 1722.1-2021 Table 8-3";
-    EXPECT_EQ(fk.sent[0].bytes[16] >> 3, ACMP_STATUS_CONTROLLER_NOT_AUTHORIZED)
+    EXPECT_EQ(fk.sent[0].bytes[16] >> 3, spec::STATUS_CONTROLLER_NOT_AUTHORIZED)
         << "LD3 the firmware sends 16, CONTROLLER_NOT_AUTHORIZED";
-    e.frames[0].b[2] = static_cast<std::uint8_t>((ACMP_STATUS_CONTROLLER_NOT_AUTHORIZED << 3) | (e.frames[0].b[2] & 7u));
-    EXPECT_EQ(std::memcmp(fk.sent[0].bytes.data() + ACMP_HEADER_BYTES, e.frames[0].b, PDU_BYTES), 0)
+    e.frames[0].b[2] = static_cast<std::uint8_t>((spec::STATUS_CONTROLLER_NOT_AUTHORIZED << 3) | (e.frames[0].b[2] & 7u));
+    EXPECT_EQ(std::memcmp(fk.sent[0].bytes.data() + spec::HEADER_BYTES, e.frames[0].b, PDU_BYTES), 0)
         << "LD3 and every other byte agrees";
     EXPECT_TRUE(w.a.sinks[0].state == ACMP_UNBOUND && w.m.rec[0].sm == S_UNB) << "LD3 nothing bound on either side";
 }
@@ -552,7 +552,7 @@ TEST(ListenerScenario, LW2GuardsUnknownSinksAndForeignMessages) {
     Stim unknown = Lockstep::getrx(N_SINKS);
     Exp e = w.step(0, unknown);
     ASSERT_TRUE(e.frames.size() == 1u && fk.sent.size() == 1u);
-    EXPECT_EQ(std::memcmp(fk.sent[0].bytes.data() + ACMP_HEADER_BYTES, e.frames[0].b, PDU_BYTES), 0)
+    EXPECT_EQ(std::memcmp(fk.sent[0].bytes.data() + spec::HEADER_BYTES, e.frames[0].b, PDU_BYTES), 0)
         << "LW2 LISTENER_UNKNOWN_ID byte for byte";
     for (std::uint8_t msg : {3, 5, 7, 9, 11, 13, 14, 15}) {
         Stim f = w.probe(0, ST_OK);
@@ -602,12 +602,12 @@ TEST_P(DiscoveryWalk, Graded) {
     // the column: unbound; TK_NOT_DISCOVERED waiting in PRB_W_AVAIL; TK_DISCOVERED
     // probing in PRB_W_RESP with DISC_LAST noted
     if (col == D_NOT) {
-        std::uint8_t record[ACMP_BINDING_BYTES] = {0x01, 0, 0, 1};
+        std::uint8_t record[spec::BINDING_BYTES] = {0x01, 0, 0, 1};
         wire_put_be(record + 4, kTkA, 8);
         wire_put_be(record + 12, kCtl1, 8);
         ASSERT_EQ(acmp_restore_binding(&a, 0, record, sizeof record), ACMP_RESTORE_APPLIED);
     } else if (col == D_DISC) {
-        command(ACMP_MSG_BIND_RX_COMMAND);
+        command(spec::MSG_BIND_RX_COMMAND);
         Adp d;
         d.index = DISC_LAST;
         d.interface_index = 2;
@@ -635,16 +635,16 @@ TEST_P(DiscoveryWalk, Graded) {
     case V_GMS: d.index = DISC_LAST - 1u; d.gm = kGm0 + 1u; ingest(d); break;
     case V_DOMS: d.index = DISC_LAST - 1u; d.domain = 5; ingest(d); break;
     case V_IFX: d.index = DISC_LAST + 1u; d.interface_index = 3; ingest(d); break;
-    case V_DEP: d.msg = ACMP_ADP_MSG_ENTITY_DEPARTING; ingest(d); break;
-    case V_DEPIFX: d.msg = ACMP_ADP_MSG_ENTITY_DEPARTING; d.interface_index = 3; ingest(d); break;
+    case V_DEP: d.msg = spec::ADPDU_ENTITY_DEPARTING; ingest(d); break;
+    case V_DEPIFX: d.msg = spec::ADPDU_ENTITY_DEPARTING; d.interface_index = 3; ingest(d); break;
     case V_NOADP:
         if (s.adp_armed) {
             fk.now = s.adp_deadline;
         }
         acmp_timer_expired(&a, 0);                       // a stray where nothing is armed
         break;
-    case V_UNBIND: command(ACMP_MSG_UNBIND_RX_COMMAND); break;
-    default: command(ACMP_MSG_BIND_RX_COMMAND); break;  // V_BIND
+    case V_UNBIND: command(spec::MSG_UNBIND_RX_COMMAND); break;
+    default: command(spec::MSG_BIND_RX_COMMAND); break;  // V_BIND
     }
     const int to = !s.bound ? D_UNB : (s.discovered ? D_DISC : D_NOT);
     EXPECT_EQ(to, c.to) << "DW " << cell << ": the discovery state (" << c.milan << ")";
@@ -659,7 +659,7 @@ TEST_P(DiscoveryWalk, Graded) {
     }
     EXPECT_EQ(ev, c.evs) << "DW " << cell << ": the events raised to the connection machine";
     if (c.tm == TM_ARM) {
-        EXPECT_TRUE(s.adp_armed && s.adp_deadline == t + 7u * ACMP_VALID_TIME_UNIT_MS)
+        EXPECT_TRUE(s.adp_armed && s.adp_deadline == t + 7u * spec::VALID_TIME_UNIT_MS)
             << "DW " << cell << ": TMR_NO_ADP armed from the received valid_time (6.2.2.5)";
     } else if (c.tm == TM_CANCEL) {
         EXPECT_FALSE(s.adp_armed) << "DW " << cell << ": TMR_NO_ADP stopped";
@@ -772,7 +772,7 @@ TEST_F(TalkerWalk, TW3DisconnectAndGetTxConnection) {
 
 TEST_F(TalkerWalk, TW4TheInterfaceAndTheStatelessProperty) {
     Pdu r = ask(pp_tk::MT_PROBE, pp_tk::N_SRC - 1, 0, 0);
-    EXPECT_EQ(r.status, ACMP_STATUS_INCOMPATIBLE_REQUEST)
+    EXPECT_EQ(r.status, spec::STATUS_INCOMPATIBLE_REQUEST)
         << "TW4 a probe from another interface than the source's is answered INCOMPATIBLE_REQUEST (Table 5.41), "
            "5.5.4.1 step 2's other choice than the processor's silence";
     Pdu first = ask(pp_tk::MT_GTXS, 5, 0);
