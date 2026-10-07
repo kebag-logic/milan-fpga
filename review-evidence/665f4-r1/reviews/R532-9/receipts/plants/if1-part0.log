@@ -1,0 +1,9 @@
+partition 0/3 at IF=1: ['binding-debug-guard', 'binding-poll-adds-access', 'binding-refusal-dropped', 'binding-replacement-lost', 'binding-count-overflow', 'srp-bound-event', 'srp-bound-poll', 'srp-bound-pass']
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] srp-bound-event: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+[ok] srp-bound-poll: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+[ok] srp-bound-pass: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound

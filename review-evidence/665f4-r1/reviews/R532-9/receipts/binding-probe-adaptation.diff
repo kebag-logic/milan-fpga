@@ -1,0 +1,45 @@
+2c2,7
+< """Probe the required ACMP-to-SRP delivery through the composed application.
+---
+> """R532-9 adaptation of R533-8's binding_probe.py (sha256 3047858d...bf72):
+> the direct-delivery workaround (the direct port call and its positive control)
+> is removed, and the required composed-delivery assertion must now PASS.
+> usage: binding_probe_nodirect.py REPO LWSRP WORK
+> 
+> Probe the required ACMP-to-SRP delivery through the composed application.
+12,13c17,19
+< root = Path.cwd()
+< packet = Path(__file__).resolve().parent
+---
+> root = Path(sys.argv[1]).resolve()
+> lwsrp = Path(sys.argv[2]).resolve()
+> work = Path(sys.argv[3]).resolve()
+19,20c25,26
+< probe = packet / "scratch/binding-probe"
+< probe.mkdir(exist_ok=True)
+---
+> probe = work
+> probe.mkdir(parents=True, exist_ok=True)
+53,60d58
+<         msrp_stream_id identity{};
+<         std::uint8_t destination[6]{};
+<         wire_put_be(identity.bytes, kSid, 8);
+<         wire_put_be(destination, kDa, 6);
+<         ASSERT_TRUE(srp_mbx_bind(&srp_adapter, i, i, &identity, destination, 2u));
+<         ASSERT_TRUE(srp_adapter.ifs[i].sinks[i].bound)
+<             << "positive control: direct delivery to the public SRP port binds";
+<         std::printf("R533 interface=%u direct_delivery_bound=1\n", i);
+73c71
+<                               root / "third_party/lwSRP", count,
+---
+>                               lwsrp, count,
+76,79c74,77
+<     assert result.rc == 1, "probe must fail the required delivery assertion"
+<     assert result.log.count("[FAIL] " + selected + ": R533 required composed delivery is absent") == count
+<     assert result.log.count("direct_delivery_bound=1") == count
+< print("REPRODUCED: accepted ACMP requests do not reach the attached SRP adapter; direct port control passes")
+---
+>     assert result.rc == 0, "required composed delivery must pass without direct delivery"
+>     assert "R533 required composed delivery is absent" not in result.log
+>     assert result.log.count("SRP_bound=1") == count, "every tested interface reports SRP_bound=1"
+> print("PASS: accepted ACMP requests reach the attached SRP adapter through the composition, no direct delivery")

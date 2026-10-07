@@ -1,0 +1,8 @@
+partition 1/3 at IF=1: ['binding-delivery-missing', 'binding-interface-lost', 'binding-owed-retry-dropped', 'binding-pending-sleeps', 'binding-poll-overflow', 'srp-bound-receive', 'srp-bound-tx-record']
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] srp-bound-tx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound

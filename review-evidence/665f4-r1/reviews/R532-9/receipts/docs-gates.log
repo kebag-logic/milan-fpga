@@ -1,0 +1,20 @@
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 200 md files + 1185 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (938 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0
+### python3 scripts/check_cpp_idiom.py --check
+usage: check_cpp_idiom.py [-h] [--list] [--write-budget] [--selftest]
+check_cpp_idiom.py: error: unrecognized arguments: --check
+rc=2
+### python3 scripts/check_py_idiom.py --check
+usage: check_py_idiom.py [-h] [--list] [--write-budget] [--selftest]
+check_py_idiom.py: error: unrecognized arguments: --check
+rc=2
+### python3 sw/mailbox/gen_mailbox.py --check
+gen_mailbox: 0 finding(s)
+rc=0

@@ -1,0 +1,8 @@
+partition 2/3 at IF=1: ['binding-synchronous', 'binding-sink-lost', 'binding-unbind-lost', 'binding-first-refusal-forgotten', 'binding-reattach-recurses', 'srp-bound-poll-transmit', 'srp-bound-rx-record']
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+[ok] binding-first-refusal-forgotten: SrpBinding.OneRefusedSinkDoesNotBlockAnotherOrLetTheLoopSleep / earlier refusal keeps service awake
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+[ok] srp-bound-poll-transmit: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP transmitting poll bound
+[ok] srp-bound-rx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound

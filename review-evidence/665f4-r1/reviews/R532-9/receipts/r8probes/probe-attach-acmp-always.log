@@ -1,0 +1,11 @@
+attach-acmp-always test_acmp_mbx.cpp IF=1: pass 
+wrote $PACKET/scratch/probe-attach-acmp-always/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe-attach-acmp-always/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe-attach-acmp-always/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+attach-acmp-always test_acmp_mbx.cpp IF=2: pass 
+attach-acmp-always srp_app.cpp IF=1: FAIL $CLONE/sw/firmware/ctrl/test/srp_app.cpp:51: Failure
+wrote $PACKET/scratch/probe-attach-acmp-always/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe-attach-acmp-always/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe-attach-acmp-always/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+attach-acmp-always srp_app.cpp IF=2: FAIL $CLONE/sw/firmware/ctrl/test/srp_app.cpp:51: Failure
+attach-acmp-always: CAUGHT

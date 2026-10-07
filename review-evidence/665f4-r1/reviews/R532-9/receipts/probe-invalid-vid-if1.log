@@ -1,0 +1,27 @@
+Note: Google Test filter = SrpBindingVidProbe.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBindingVidProbe
+[ RUN      ] SrpBindingVidProbe.InvalidVidKeepsTheLoopAwakeWithoutInput
+  probe: t=5 s acmp state 6 (6=SETTLED_NO_RSV) srp bound 0 request pending 1
+  probe: 12 s without input: 40198 non-idle passes, first idle pass at 10000 ms, owed passes 40256
+$PACKET/scratch/probe/sw/firmware/ctrl/test/srp_binding.hpp:229: Failure
+Expected: (first_sleep) < (100u), actual: 10000 vs 100
+PROBE-VID the loop sleeps soon after a permanently refused binding
+
+  [FAIL] SrpBindingVidProbe.InvalidVidKeepsTheLoopAwakeWithoutInput: PROBE-VID the loop sleeps soon after a permanently refused binding
+[  FAILED  ] SrpBindingVidProbe.InvalidVidKeepsTheLoopAwakeWithoutInput (5 ms)
+[----------] 1 test from SrpBindingVidProbe (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (5 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpBindingVidProbe.InvalidVidKeepsTheLoopAwakeWithoutInput
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+ARM srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8 rc=1
+rc=1

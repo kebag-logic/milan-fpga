@@ -1,0 +1,69 @@
+wrote $PACKET/scratch/run-tk-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/run-tk-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/run-tk-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = SrpBindingProbe.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBindingProbe
+[ RUN      ] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk
+$PACKET/scratch/probe/sw/firmware/ctrl/test/srp_binding.hpp:242: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 6
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+PROBE-TK1 ACMP learns the registered Talker (Milan 5.5.3.5.42), sink 0
+
+  [FAIL] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk: PROBE-TK1 ACMP learns the registered Talker (Milan 5.5.3.5.42), sink 0
+$PACKET/scratch/probe/sw/firmware/ctrl/test/srp_binding.hpp:242: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 6
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+PROBE-TK1 ACMP learns the registered Talker (Milan 5.5.3.5.42), sink 1
+
+  [FAIL] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk: PROBE-TK1 ACMP learns the registered Talker (Milan 5.5.3.5.42), sink 1
+  probe: sink 0 SRP binding withdrawn at t=10000 ms after the first Talker Advertise (acmp state 1, probes sent so far)
+  probe: sink 1 SRP binding withdrawn at t=10000 ms after the first Talker Advertise (acmp state 1, probes sent so far)
+$PACKET/scratch/probe/sw/firmware/ctrl/test/srp_binding.hpp:258: Failure
+Expected: (sink(k).desired) != (0u), actual: '\0' vs 0
+PROBE-TK0 Talker still registered after 12 s, sink 0
+
+  [FAIL] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk: PROBE-TK0 Talker still registered after 12 s, sink 0
+$PACKET/scratch/probe/sw/firmware/ctrl/test/srp_binding.hpp:259: Failure
+Value of: sink(k).bound
+  Actual: false
+Expected: true
+PROBE-TK2 a healthy registered binding survives TMR_NO_TK, sink 0
+
+  [FAIL] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk: PROBE-TK2 a healthy registered binding survives TMR_NO_TK, sink 0
+  probe: sink 0 acmp state 1 srp bound 0 desired 0
+$PACKET/scratch/probe/sw/firmware/ctrl/test/srp_binding.hpp:258: Failure
+Expected: (sink(k).desired) != (0u), actual: '\0' vs 0
+PROBE-TK0 Talker still registered after 12 s, sink 1
+
+  [FAIL] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk: PROBE-TK0 Talker still registered after 12 s, sink 1
+$PACKET/scratch/probe/sw/firmware/ctrl/test/srp_binding.hpp:259: Failure
+Value of: sink(k).bound
+  Actual: false
+Expected: true
+PROBE-TK2 a healthy registered binding survives TMR_NO_TK, sink 1
+
+  [FAIL] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk: PROBE-TK2 a healthy registered binding survives TMR_NO_TK, sink 1
+  probe: sink 1 acmp state 1 srp bound 0 desired 0
+[  FAILED  ] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk (1 ms)
+[----------] 1 test from SrpBindingProbe (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+ARM srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8 rc=1
+rc=1
