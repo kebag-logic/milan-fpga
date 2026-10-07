@@ -1,0 +1,139 @@
+Round-4 head abb3a78a12c29ff13ee7f71a00b387a6c91dc361
+Current head 39adc58f8e63c7f41e12c79207a45bcc91a658d0
+UNCHANGED 040000 tree cf1ae3c42946471a8691545025c693c07cb934a5	hdl
+UNCHANGED 040000 tree d00b089b56725a0fa26c4c77d88900872a5b9777	sw/mailbox
+UNCHANGED 040000 tree 922245fb000ac845a32a94f5498cfdb8aac76b36	sw/firmware/ctrl/acmp
+UNCHANGED 040000 tree b649396291e7283322baf53fb8e855751cc64d53	sw/firmware/ctrl/app
+UNCHANGED 100644 blob d1a707b90d7b8c905279c22fb8821ae553ac115d	sw/firmware/ctrl/test/test_acmp.cpp
+UNCHANGED 100644 blob 51ec2225a662e4501ab09a25c4ab3e329c8ceb64	sw/firmware/ctrl/test/test_acmp_mbx.cpp
+UNCHANGED 100644 blob 77b1fcdd6eeecbabdcfda7ded067c994d7dda746	sw/firmware/ctrl/test/test_acmp_nvm.cpp
+UNCHANGED 100644 blob 1fc61dd222958ff932051e3d80648211b7a4a0a3	sw/firmware/ctrl/test/acmp_review_mutants.py
+UNCHANGED 040000 tree d513e9a2531fef008f01f0958d3accc68ff030ec	sw/firmware/gtest
+UNCHANGED 040000 tree cc25b2c3724cff1d7bab5f54ec10848999173d3c	sw/firmware/ctrl_nvm
+UNCHANGED 040000 tree b1f9b69aada3065e421e39da4c95115001f9dcdd	tb/verilator/mbx
+UNCHANGED 100644 blob 65d1fd277a41aa3c7c619b4eacca3e0b54032030	docs/design/MAILBOX_SPLIT.md
+UNCHANGED 100644 blob 5d11b8e72c9dd9258510613427e117f87e6fe3a7	docs/reference/MAILBOX_CONTRACT.md
+UNCHANGED 100644 blob 2fa246b75eb155e9318e1c51dce7933a7b4d8e02	docs/reference/FR_NFR.md
+UNCHANGED 100644 blob 5e358972eb583fdda9c8c11bc3f51f8e99081d94	REQUIREMENTS.md
+UNCHANGED 040000 tree 10c198b979c501e002f1559e5af724a1f86d819a	.github
+UNCHANGED 040000 tree 6da84037553f262fc4226399a089567857f870de	sw/litex
+UNCHANGED 040000 tree 46399440800854473d3277e68feff3fd054eee06	configs
+UNCHANGED 040000 tree f96474e0170d6eb42de2574c084516e5235653b3	sw/builder
+UNCHANGED 040000 tree 2f424e896203cee037362bf02eb8c2d38962dd2f	constraints
+UNCHANGED 040000 tree dab5cc3073000375bb46a77da729399e8e73222f	syn
+UNCHANGED 040000 tree f28311b38048b1c68ddc48585cd6f479ec01325f	scripts
+Seven-commit delta:
+39adc58f8e63c7f41e12c79207a45bcc91a658d0 Record the linked size with the simplified helpers: 412 bytes of them, 39,716 and 50,088 bytes in all (#665 F3)
+d2e52c9a6ba6be7c36588cd17e80101e9a4a2117 image_arith.c: divide loops without the carry no step can set, masks without the asm the halves made unneeded (#665 F3)
+071d6298c2e6dabd7429854078180803238b3b2d ctrl README: the SDK build by its revision, without the retired-stack terms the bare-metal gate refuses (#665 F3)
+747133e852ffea6aac151d78d025beecb500b7c0 ctrl README: the SDK's version line by its Buildroot identity, not its program name, for the bare-metal gate (#665 F3)
+f59b4f4452a9c67b772a9cf0e636b67af7c38a7f Record the linked size with the pinned SDK, its identity, the helpers apart and the audit (#665 F3)
+f124c7ad36ea94ee83be7989456b0d1f1078c076 ctrl_image_selftest.py: the helpers against the host's arithmetic, and incompatible libraries, words and headers refused (#665 F3)
+1aeba2341be38cd65d408257501ce8daf4fd80ff ctrl_image.py: no library, the RV32I helpers from image_arith.c as leaves, and an image the audit finds not RV32I ILP32 refused (#665 F3)
+
+FC-to-head inventory:
+ .github/workflows/rtl-fast.yml                 |   21 +-
+ REQUIREMENTS.md                                |   11 +-
+ docs/design/MAILBOX_SPLIT.md                   |  386 ++++-
+ docs/design/TIME_SYNC.md                       |   12 +
+ docs/reference/FR_NFR.md                       |    8 +-
+ docs/reference/MAILBOX_CONTRACT.md             |  113 +-
+ docs/testing/CI_WORKFLOWS.md                   |   68 +-
+ docs/testing/RUNNING_TESTS.md                  |    7 +-
+ docs/testing/TESTING.md                        |    7 +-
+ hdl/ieee1722/aaf/KL_aaf_packetizer.sv          |    8 +
+ hdl/milan/mailbox/KL_mbx.sv                    |   39 +
+ hdl/milan/mailbox/KL_mbx_pkg.sv                |  102 +-
+ hdl/milan/mailbox/KL_mbx_rx.sv                 |  251 +++-
+ scripts/ci_events.py                           |   37 +-
+ scripts/measure_test_evidence.py               |   10 +-
+ scripts/measure_test_evidence_readers.py       |    3 +
+ scripts/measure_test_evidence_selftest.py      |    8 +-
+ scripts/run_all_suites.sh                      |   18 +-
+ sw/firmware/ctrl/README.md                     |  214 ++-
+ sw/firmware/ctrl/acmp/acmp.c                   | 1244 ++++++++++++++++
+ sw/firmware/ctrl/acmp/acmp.h                   |  459 ++++++
+ sw/firmware/ctrl/acmp/acmp_mbx.c               |  153 ++
+ sw/firmware/ctrl/acmp/acmp_mbx.h               |  194 +++
+ sw/firmware/ctrl/acmp/acmp_nvm.c               |   68 +
+ sw/firmware/ctrl/acmp/acmp_nvm.h               |   56 +
+ sw/firmware/ctrl/adp/adp.c                     |   64 +-
+ sw/firmware/ctrl/adp/adp.h                     |   25 +-
+ sw/firmware/ctrl/adp/adp_mbx.h                 |    6 +
+ sw/firmware/ctrl/app/ctrl_app.c                |   21 +-
+ sw/firmware/ctrl/app/ctrl_app.h                |   37 +-
+ sw/firmware/ctrl/host/mbx_model.c              |  109 +-
+ sw/firmware/ctrl/host/mbx_model.h              |    2 +
+ sw/firmware/ctrl/mbx/mbx.c                     |   23 +
+ sw/firmware/ctrl/mbx/mbx.h                     |   13 +
+ sw/firmware/ctrl/mbx/mbx_contract.h            |  101 +-
+ sw/firmware/ctrl/mbx/mbx_hal.h                 |    6 +
+ sw/firmware/ctrl/port/ctrl_debug.h             |    6 +
+ sw/firmware/ctrl/port/ctrl_pool.h              |    6 +
+ sw/firmware/ctrl/port/shlan_port.h             |    6 +
+ sw/firmware/ctrl/test/acmp_fake.hpp            |  332 +++++
+ sw/firmware/ctrl/test/acmp_if2.cpp             |   21 +
+ sw/firmware/ctrl/test/acmp_mutants.py          |  944 ++++++++++++
+ sw/firmware/ctrl/test/acmp_review_mutants.py   |  310 ++++
+ sw/firmware/ctrl/test/acmp_walk.cpp            |  818 +++++++++++
+ sw/firmware/ctrl/test/adp_walk.cpp             |    2 +-
+ sw/firmware/ctrl/test/ctrl_arms.py             |  150 +-
+ sw/firmware/ctrl/test/ctrl_build.py            |   19 +-
+ sw/firmware/ctrl/test/ctrl_image.py            |  431 ++++++
+ sw/firmware/ctrl/test/ctrl_image_selftest.py   |  431 ++++++
+ sw/firmware/ctrl/test/ctrl_mutant.py           |   26 +
+ sw/firmware/ctrl/test/ctrl_mutants.py          |  144 +-
+ sw/firmware/ctrl/test/ctrl_reuse.py            |   62 +-
+ sw/firmware/ctrl/test/rv32_image/image.ld      |   28 +
+ sw/firmware/ctrl/test/rv32_image/image_arith.c |  213 +++
+ sw/firmware/ctrl/test/rv32_image/image_main.c  |  181 +++
+ sw/firmware/ctrl/test/rv32_image/image_rt.c    |   81 +
+ sw/firmware/ctrl/test/rv32_image/image_start.S |   17 +
+ sw/firmware/ctrl/test/test_acmp.cpp            | 1876 ++++++++++++++++++++++++
+ sw/firmware/ctrl/test/test_acmp_mbx.cpp        |  892 +++++++++++
+ sw/firmware/ctrl/test/test_acmp_nvm.cpp        |  283 ++++
+ sw/firmware/ctrl/test/test_adp.cpp             |    2 +-
+ sw/firmware/ctrl/test/test_adp_reentry.cpp     |  237 +++
+ sw/firmware/ctrl/test/test_ctrl_firmware.py    |   68 +-
+ sw/firmware/ctrl/test/test_unit_driver.cpp     |   27 +
+ sw/firmware/ctrl/test/test_unit_seams.cpp      |    2 +-
+ sw/firmware/ctrl_nvm/README.md                 |   32 +-
+ sw/firmware/ctrl_nvm/nvm_flash.h               |    6 +
+ sw/firmware/ctrl_nvm/nvm_klj2.c                |    3 +
+ sw/firmware/ctrl_nvm/nvm_state.h               |    6 +
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h  |    6 +
+ sw/firmware/ctrl_nvm/test/nvm_bench.py         |   13 +-
+ sw/firmware/ctrl_nvm/test/nvm_mutants.py       |    6 +
+ sw/firmware/ctrl_nvm/test/nvm_rv32.py          |   37 +-
+ sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py     |    1 +
+ sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp   |    5 +-
+ sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp  |   41 +
+ sw/firmware/gtest/README.md                    |  165 ++-
+ sw/firmware/gtest/coverage.ratchet             |   11 +-
+ sw/firmware/gtest/fw_coverage.py               |    3 +-
+ sw/firmware/gtest/fw_gtest.py                  |   12 +-
+ sw/firmware/gtest/fw_rv32.py                   |   74 +
+ sw/firmware/gtest/fw_rv32_selftest.py          |  174 +++
+ sw/firmware/gtest/rv32_include/assert.h        |   19 +
+ sw/firmware/gtest/rv32_include/stdio.h         |   12 +
+ sw/firmware/gtest/rv32_include/string.h        |   14 +
+ sw/mailbox/gen_mailbox.py                      |   46 +-
+ sw/mailbox/mailbox.yaml                        |   76 +-
+ sw/mailbox/mailbox_emit.py                     |   30 +-
+ sw/mailbox/mailbox_model.py                    |   73 +-
+ sw/mailbox/mailbox_skeleton.py                 |   90 +-
+ tb/verilator/aaf/Makefile                      |   19 +-
+ tb/verilator/aaf/README.md                     |  108 ++
+ tb/verilator/aaf/sim_start.cpp                 |  222 +++
+ tb/verilator/aaf/start_mutants.py              |   98 ++
+ tb/verilator/mbx/Makefile                      |   17 +-
+ tb/verilator/mbx/README.md                     |  110 +-
+ tb/verilator/mbx/bench.hpp                     |   13 +-
+ tb/verilator/mbx/cosim_main.cpp                |  132 +-
+ tb/verilator/mbx/mutants.py                    |  231 ++-
+ tb/verilator/mbx/sim_main.cpp                  |    5 +-
+ tb/verilator/mbx/suite.hpp                     |  480 +++++-
+ tb/verilator/milan_dp/README.md                |    3 +-
+ tb/verilator/milan_dp_gptp/README.md           |    4 +-
+ 103 files changed, 13411 insertions(+), 505 deletions(-)
+

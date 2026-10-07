@@ -1,0 +1,16 @@
+[R531] POSITIVE - exact head 39adc58f8e63c7f41e12c79207a45bcc91a658d0
+
+Independent delta pass recorded before reading prior reviewers' findings or reports.
+No new finding in the four changed files. Prior-finding reconciliation follows this record.
+The accepted scope is issue #665 ruling 6036721467 and linked-size addition 6030870481.
+
+Lens | Status | Examined artifacts | Covering round | Exact head
+Conformance | CLEAN | REQUIREMENTS.md:4; FR_NFR.md:321; ctrl_image.py:328; README.md:285; image.log and independent-audit.log reproduce both shapes and base | R531-4 | 39adc58f8e63c7f41e12c79207a45bcc91a658d0
+RTL | CLEAN | abb3a78a..39adc58f four-file delta; hdl, sw/mailbox, protocol/app code, configs and platform build trees unchanged; ctrl_image.py:281 audits RV32I/ILP32 | R531-4 delta scope | 39adc58f8e63c7f41e12c79207a45bcc91a658d0
+Robustness | CLEAN | image_arith.c:35-213; ctrl_image_selftest.py:61,237,245,385; 33 self-test checks, signed/carry/shift/divide boundaries, six independently planted arithmetic defects all caught | R531-4 | 39adc58f8e63c7f41e12c79207a45bcc91a658d0
+Tests | CLEAN | ctrl_image_selftest.py; helper_mutations.py; audit_images.py uses no candidate checker import; every image's disassembled bytes counted, all allowed base instructions; 6/6 defects fail actual self-test | R531-4 | 39adc58f8e63c7f41e12c79207a45bcc91a658d0
+Docs | CLEAN | README.md:225-318; public author-r5/HANDOFF.md at 24bc7989d0b98b46efe070cb3f612ff3017192e6; PR body; sdk.log identity and independent ELF hashes equal published figures; baremetal gate passes | R531-4 | 39adc58f8e63c7f41e12c79207a45bcc91a658d0
+
+No hardware, core execution, routed image, stack bound, or merge-candidate proof is claimed.
+No hosted workflow runs the image scripts; the assignment explicitly excludes that from findings.
+The final report must reconcile prior public findings and cite round-4 coverage for unchanged scopes.

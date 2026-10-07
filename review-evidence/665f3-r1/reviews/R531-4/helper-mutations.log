@@ -1,0 +1,139 @@
+CAUGHT multiply32-low-bit: self-test exit 1
+compiler: $REVIEWS/665f3-r531-4-packet/scratch/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    sys.exit(test.main(["--require-rv32", "--out", sys.argv[3]]))
+             ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 287, in arith_cases
+    assert res.returncode == 0 and res.stdout.strip().endswith("0 mismatches"), res.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: MISMATCH __mulsi3(0000000000000000, 0000000000000000): 0000000000000001, not 0000000000000000
+MISMATCH __mulsi3(0000000000000000, 0000000000000001): 0000000000000001, not 0000000000000000
+MISMATCH __mulsi3(0000000000000000, 0000000000000002): 0000000000000001, not 0000000000000000
+MISMATCH __mulsi3(0000000000000000, 0000000000000003): 0000000000000001, not 0000000000000000
+MISMATCH __mulsi3(0000000000000000, 0000000000000007): 0000000000000001, not 0000000000000000
+MISMATCH __mulsi3(0000000000000000, 000000000000007f): 0000000000000001, not 0000000000000000
+MISMATCH __mulsi3(0000000000000000, 0000000000000080): 0000000000000001, not 0000000000000000
+MISMATCH __mulsi3(0000000000000000, 00000000000000ff): 0000000000000001, not 0000000000000000
+202112 mismatches
+
+
+CAUGHT multiply64-carry: self-test exit 1
+compiler: $REVIEWS/665f3-r531-4-packet/scratch/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    sys.exit(test.main(["--require-rv32", "--out", sys.argv[3]]))
+             ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 287, in arith_cases
+    assert res.returncode == 0 and res.stdout.strip().endswith("0 mismatches"), res.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: MISMATCH __muldi3(0000000000000003, 000000007fffffff): 000000007ffffffd, not 000000017ffffffd
+MISMATCH __muldi3(0000000000000003, 00000000fffffffe): 00000001fffffffa, not 00000002fffffffa
+MISMATCH __muldi3(0000000000000003, 00000000ffffffff): 00000001fffffffd, not 00000002fffffffd
+MISMATCH __muldi3(0000000000000003, 00000001ffffffff): 00000004fffffffd, not 00000005fffffffd
+MISMATCH __muldi3(0000000000000003, 7fffffffffffffff): 7ffffffefffffffd, not 7ffffffffffffffd
+MISMATCH __muldi3(0000000000000003, fffffffffffffffe): fffffffefffffffa, not fffffffffffffffa
+MISMATCH __muldi3(0000000000000003, ffffffffffffffff): fffffffefffffffd, not fffffffffffffffd
+MISMATCH __muldi3(0000000000000007, 000000007fffffff): 000000017ffffff9, not 000000037ffffff9
+156065 mismatches
+
+
+CAUGHT divide32-equality: self-test exit 1
+compiler: $REVIEWS/665f3-r531-4-packet/scratch/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    sys.exit(test.main(["--require-rv32", "--out", sys.argv[3]]))
+             ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 287, in arith_cases
+    assert res.returncode == 0 and res.stdout.strip().endswith("0 mismatches"), res.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: MISMATCH __udivsi3(0000000000000001, 0000000000000001): 0000000000000000, not 0000000000000001
+MISMATCH __umodsi3(0000000000000001, 0000000000000001): 0000000000000001, not 0000000000000000
+MISMATCH __divsi3(0000000000000001, 0000000000000001): 0000000000000000, not 0000000000000001
+MISMATCH __modsi3(0000000000000001, 0000000000000001): 0000000000000001, not 0000000000000000
+MISMATCH __divsi3(0000000000000001, 00000000ffffffff): 0000000000000000, not 00000000ffffffff
+MISMATCH __modsi3(0000000000000001, 00000000ffffffff): 0000000000000001, not 0000000000000000
+MISMATCH __udivsi3(0000000000000001, 0000000100000001): 0000000000000000, not 0000000000000001
+MISMATCH __umodsi3(0000000000000001, 0000000100000001): 0000000000000001, not 0000000000000000
+53262 mismatches
+
+
+CAUGHT divide64-equality: self-test exit 1
+compiler: $REVIEWS/665f3-r531-4-packet/scratch/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    sys.exit(test.main(["--require-rv32", "--out", sys.argv[3]]))
+             ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 287, in arith_cases
+    assert res.returncode == 0 and res.stdout.strip().endswith("0 mismatches"), res.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: MISMATCH __udivdi3(0000000000000001, 0000000000000001): 0000000000000000, not 0000000000000001
+MISMATCH __umoddi3(0000000000000001, 0000000000000001): 0000000000000001, not 0000000000000000
+MISMATCH __divdi3(0000000000000001, 0000000000000001): 0000000000000000, not 0000000000000001
+MISMATCH __moddi3(0000000000000001, 0000000000000001): 0000000000000001, not 0000000000000000
+MISMATCH __divdi3(0000000000000001, ffffffffffffffff): 0000000000000000, not ffffffffffffffff
+MISMATCH __moddi3(0000000000000001, ffffffffffffffff): 0000000000000001, not 0000000000000000
+MISMATCH __udivdi3(0000000000000001, 0000000000000001): 0000000000000000, not 0000000000000001
+MISMATCH __umoddi3(0000000000000001, 0000000000000001): 0000000000000001, not 0000000000000000
+57276 mismatches
+
+
+CAUGHT shift64-upper-half: self-test exit 1
+compiler: $REVIEWS/665f3-r531-4-packet/scratch/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    sys.exit(test.main(["--require-rv32", "--out", sys.argv[3]]))
+             ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 287, in arith_cases
+    assert res.returncode == 0 and res.stdout.strip().endswith("0 mismatches"), res.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: MISMATCH __lshrdi3(0000000000000000, 000000000000007f): 0000000000000001, not 0000000000000000
+MISMATCH __lshrdi3(0000000000000000, 00000000000000ff): 0000000000000001, not 0000000000000000
+MISMATCH __lshrdi3(0000000000000000, 000000007fffffff): 0000000000000001, not 0000000000000000
+MISMATCH __lshrdi3(0000000000000000, 00000000fffffffe): 0000000000000001, not 0000000000000000
+MISMATCH __lshrdi3(0000000000000000, 00000000ffffffff): 0000000000000001, not 0000000000000000
+MISMATCH __lshrdi3(0000000000000000, 00000001ffffffff): 0000000000000001, not 0000000000000000
+MISMATCH __lshrdi3(0000000000000000, 7fffffffffffffff): 0000000000000001, not 0000000000000000
+MISMATCH __lshrdi3(0000000000000000, fffffffffffffffe): 0000000000000001, not 0000000000000000
+93359 mismatches
+
+
+CAUGHT signed-remainder: self-test exit 1
+compiler: $REVIEWS/665f3-r531-4-packet/scratch/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    sys.exit(test.main(["--require-rv32", "--out", sys.argv[3]]))
+             ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r531-4-665f3/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 287, in arith_cases
+    assert res.returncode == 0 and res.stdout.strip().endswith("0 mismatches"), res.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: MISMATCH __modsi3(0000000080000000, 0000000000000003): 0000000000000002, not 00000000fffffffe
+MISMATCH __modsi3(0000000080000000, 0000000000000007): 0000000000000002, not 00000000fffffffe
+MISMATCH __modsi3(0000000080000000, 000000000000007f): 0000000000000008, not 00000000fffffff8
+MISMATCH __modsi3(0000000080000000, 00000000000000ff): 0000000000000080, not 00000000ffffff80
+MISMATCH __modsi3(0000000080000000, 000000007fffffff): 0000000000000001, not 00000000ffffffff
+MISMATCH __modsi3(0000000080000000, 0000000080000001): 0000000000000001, not 00000000ffffffff
+MISMATCH __modsi3(0000000080000000, 0123456789abcdef): 0000000009abcdef, not 00000000f6543211
+MISMATCH __modsi3(0000000080000000, 0000000000000003): 0000000000000002, not 00000000fffffffe
+50178 mismatches
+
+
+PASS: 6/6 arithmetic defects rejected by the self-test; no repository edits

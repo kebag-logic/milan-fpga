@@ -1,0 +1,265 @@
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          42208 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         3
+  Size of section headers:           40 (bytes)
+  Number of section headers:         8
+  Section header string table index: 7
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 006c38 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        00006c38 007c38 0002e0 00   A  0   0  8
+  [ 3] .bss              NOBITS          00006f20 007f18 005490 00  WA  0   0 16
+  [ 4] .riscv.attributes RISCV_ATTRIBUTES 00000000 007f18 00001c 00      0   0  1
+  [ 5] .symtab           SYMTAB          00000000 007f34 001af0 10      6 338  4
+  [ 6] .strtab           STRTAB          00000000 009a24 000a7a 00      0   0  1
+  [ 7] .shstrtab         STRTAB          00000000 00a49e 000040 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), p (processor specific)
+Attribute Section: riscv
+File Attributes
+  Tag_RISCV_stack_align: 16-bytes
+  Tag_RISCV_arch: "rv32i2p1"
+
+00006c00 00000038 T __lshrdi3
+00006b5c 00000064 T __muldi3
+00006b30 0000002c T __mulsi3
+00006bc0 0000001c T __udivdi3
+00006bdc 00000024 T __umoddi3
+0000c3b0 B _bss_end
+00006f20 B _bss_start
+00020000 B _stack_top
+00000000 T _start
+00003658 00000384 T acmp_adp_rx
+00003f7c 00000048 T acmp_binding_latch
+0000a7c0 00000058 b acmp_cfg
+00002c10 0000012c T acmp_init
+00004230 000000c4 T acmp_mbx_attach
+00004134 000000f8 T acmp_mbx_init
+0000422c 00000004 T acmp_mbx_open
+000043fc 0000005c T acmp_nvm_init
+00003f40 0000003c T acmp_open
+00003c00 000001b4 T acmp_poll
+00003db4 00000124 T acmp_restore_binding
+00003ed8 00000068 T acmp_restore_rollback
+00002d3c 0000091c T acmp_rx
+000039dc 00000224 T acmp_timer_expired
+000011a4 00000238 T adp_build
+00001770 00000060 T adp_gm_change
+00001520 000000a4 T adp_init
+000016ec 00000084 T adp_link_change
+00001c78 00000080 T adp_mbx_attach
+00001bb4 000000c4 T adp_mbx_init
+00001cf8 00000004 T adp_mbx_set_enable
+0000198c 00000080 T adp_poll
+00001858 00000134 T adp_rx
+000015c4 00000128 T adp_set_enable
+000017d0 00000088 T adp_timer_expired
+00001488 00000098 t advertise
+0000a818 00001a90 b app
+000043b0 0000004c t apply
+000068c8 00000008 t apply
+0000c2b0 00000100 b arena
+000024c8 0000007c t bind_response
+0000a794 00000028 b binding_owner
+00006f3c 00000004 b bound_ctx
+00006f40 00000004 b bound_sink
+00002178 000001ac t build
+00006910 00000004 t changed
+00006f08 00000004 r classes
+00004458 000000e8 T ctrl_app_compose
+00004540 0000008c T ctrl_app_open
+00000ff8 00000014 T ctrl_debug_bind
+00000a58 0000003c T ctrl_loop_add_poll
+000009e0 0000003c T ctrl_loop_add_sink
+00000a1c 0000003c T ctrl_loop_add_tick
+000009b0 00000030 T ctrl_loop_bind_rx
+000009a4 0000000c T ctrl_loop_init
+00000a94 000000cc T ctrl_loop_open
+00000d64 0000001c T ctrl_loop_run
+00000b60 000001dc T ctrl_loop_service
+00000d3c 00000028 T ctrl_loop_step
+00000d80 00000098 T ctrl_pool_arena_bytes
+00000e18 000001e0 T ctrl_pool_init
+00001e70 000000f8 t delay
+00001448 00000040 t depart
+0000090c 00000098 t dispatch_ticks
+000020cc 000000ac t echo
+00001dd0 00000030 t enter
+000010d0 000000b4 t enter_delay
+00006ee0 00000028 r entity
+00006eac 00000018 r env
+00006f20 00000002 b evt_tail
+00000068 00000010 t evt_word
+00002874 0000039c t finish
+00006a9c 00000094 t image_udivmod64
+00004324 00000058 t latch
+000068e0 00000008 t latch
+000068ec 00000018 t locked
+00006788 00000070 t ls_busy
+00006320 00000024 t ls_call_begin
+0000a784 00000004 b ls_call_start
+000067f8 0000008c t ls_erase
+00006474 00000048 t ls_late
+00006388 000000ec t ls_now_us
+00006580 00000090 t ls_open
+000066a8 000000e0 t ls_program
+00006344 00000044 t ls_read
+000064bc 00000068 t ls_ready
+0000a790 00000004 b ls_tick_last
+0000a788 00000008 b ls_ticks
+0000a780 00000004 b ls_waited
+00006610 00000098 t ls_window
+00006ea8 00000001 r ls_wren
+00006524 0000005c t ls_xfer
+0000691c 00000140 T main
+00006c38 00000014 r max_frame
+000006a0 0000014c T mbx_event_take
+000001e4 0000000c T mbx_filter_open
+00000238 000000a0 T mbx_filter_set_bound_talker
+000001b0 00000034 T mbx_filter_set_own_eid
+000001f0 00000048 T mbx_filter_set_own_mac
+00000898 00000068 T mbx_gm_id
+000045cc 00000010 T mbx_hal_read32
+000045ec 00000004 T mbx_hal_wait
+000045dc 00000010 T mbx_hal_write32
+00000900 0000000c T mbx_irq_enable
+00000864 00000034 T mbx_link_up
+000007ec 00000008 T mbx_now_ms
+000000b4 000000fc T mbx_open
+000002d8 000001fc T mbx_rx_take
+00000858 0000000c T mbx_tick_enable
+000007f4 00000050 T mbx_timer_arm
+00000844 00000014 T mbx_timer_cancel
+000004d4 000001cc T mbx_tx_send
+00006a78 00000024 T memcpy
+00006a5c 0000001c T memset
+000042f4 00000010 t model_ready
+000068c0 00000008 t model_ready
+00001e00 00000070 t now
+0000a660 00000120 b nvm
+000050c4 0000003c t nvm_abort
+000047f4 00000030 T nvm_all_erased
+0000505c 00000024 t nvm_any
+00005450 000000cc t nvm_apply_faults.isra.0
+00006cfc 00000030 r nvm_blocks
+000053cc 00000044 t nvm_capture_begin
+00006f50 00000100 b nvm_chunk
+00006c9c 00000020 r nvm_crc16_nib
+00004734 00000074 T nvm_crc16_update
+00006cbc 00000040 r nvm_crc32_nib
+000046dc 00000058 T nvm_crc32_update
+0000517c 00000090 t nvm_fail
+00006e90 00000018 R nvm_flash_litespi
+00006884 0000003c T nvm_flash_litespi_power_on
+00005150 0000002c t nvm_heal
+00004c18 00000054 T nvm_klj2_blank
+00004f98 000000b0 T nvm_klj2_check
+00004d08 00000290 T nvm_klj2_check_body
+00004c74 00000094 T nvm_klj2_check_head
+00004acc 00000108 T nvm_klj2_header
+00004bd4 00000044 T nvm_klj2_seal
+00004c6c 00000008 T nvm_klj2_seq
+00006d3c 00000010 r nvm_mapin_entries
+00006d2c 00000010 r nvm_mapout_entries
+00005100 00000050 t nvm_model_proven
+00005048 00000014 t nvm_now
+00007050 00000240 b nvm_payload
+00005410 00000040 t nvm_pick
+00005080 00000044 t nvm_publish
+000047a8 0000002c T nvm_rd32le
+000052b0 00000098 t nvm_read_step
+00004874 00000058 T nvm_rec_after
+000045f0 000000ec t nvm_rec_at
+000048cc 00000050 T nvm_rec_by_id
+00004824 00000018 T nvm_rec_first
+00004a4c 00000080 T nvm_rec_frame
+0000483c 00000038 T nvm_rec_next
+0000491c 00000060 T nvm_rec_of
+00006d70 00000120 r nvm_reset_value
+0000497c 000000d0 T nvm_shape_consistent
+0000551c 00000304 t nvm_slot_check
+00007290 000033d0 b nvm_stage
+00005820 0000039c T nvm_store_boot
+00006268 000000b8 T nvm_store_changed
+00005bbc 000006ac T nvm_store_service
+00005348 00000084 t nvm_take
+0000520c 000000a4 t nvm_wait
+000047d4 00000020 T nvm_wr32le
+000040a0 00000030 t on_adp_frame
+00001afc 0000008c t on_event
+000040d0 00000060 t on_event
+00001b88 0000002c t on_frame
+0000403c 00000010 t on_frame
+00001af8 00000004 t on_poll
+0000404c 00000004 t on_poll
+00006ec4 0000001c r others
+00006914 00000008 t persist
+00006f4c 00000001 b port_active
+00003fc4 00000018 t port_admit
+00001a18 00000034 t port_gptp
+00003fe0 00000034 t port_gptp
+00001a10 00000008 t port_link_up
+00003fdc 00000004 t port_now
+00006f44 00000004 b port_pool
+00001a0c 00000004 t port_seed
+00004130 00000004 t port_seed
+00001ad0 00000028 t port_send
+00004014 00000028 t port_send
+00004050 00000050 t port_timer
+00001a64 0000006c t port_timer_start
+00001a4c 00000018 t port_timer_stop
+00002794 00000058 t probe
+00002544 000000b4 t record_of
+00006f48 00000004 b reentry_count
+00001184 00000020 t reject_reentry
+00004314 00000010 t release
+000068e8 00000004 t release
+00002470 00000058 t respond
+0000437c 00000034 t rollback
+000068d8 00000008 t rollback
+00006c88 00000014 r rx_base
+00006f30 0000000a b rx_tail
+00000030 00000038 t rx_word
+00006c74 00000014 r rx_words
+000013dc 0000006c t send
+00002658 0000013c t send_probe
+00004304 00000010 t settle
+000068d0 00000008 t settle
+0000100c 0000000c T shlan_port_bind_pool
+00001f68 0000009c t sink_reset
+000025f8 00000030 t sink_settle
+00006904 00000008 t source
+0000690c 00000004 t srp
+000027ec 00000088 t srp_stop
+0000108c 00000044 t timer_stop
+00002628 00000030 t tk_departed
+00002324 0000014c t transmit
+00006c60 00000014 r tx_base
+00006f24 0000000a b tx_head
+00006f22 00000002 b tx_seq
+00000078 0000003c t tx_word
+00006c4c 00000014 r tx_words
+00002004 000000c8 t view_of
+00001cfc 0000002c t wire_be32
+00001d28 00000034 t wire_be64
+00001018 00000074 t wire_put_be
+00001d5c 00000074 t wire_put_be
