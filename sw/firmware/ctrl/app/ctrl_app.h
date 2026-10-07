@@ -139,8 +139,8 @@ bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg
 			 maap_allocation_fn allocation, void *ctx, uint64_t preferred);
 
 // MAAP must be composed. After open (or start_maap), initialize SRP on app's
-// pool and attach it here before servicing the loop. Use the entity MAC on each SRP interface, as MAAP/ADP
-// do. A refusal leaves the ADP/ACMP/MAAP composition running and SRP unattached.
+// pool and attach it here before servicing the loop. Use the entity MAC on
+// each SRP interface, as MAAP/ADP do. A refusal leaves the ADP/ACMP/MAAP composition running and SRP unattached.
 // With ACMP, attachment owns deferred binding delivery and registration
 // feedback. Invalid VID requests are parked; transient refusals retry. The
 // supplied SRP callback remains a request observer; it must not deliver the

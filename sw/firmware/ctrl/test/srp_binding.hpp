@@ -218,22 +218,26 @@ TEST_F(SrpBinding, PermanentRefusalParksAndDoesNotBlockAnotherSink) {
 
 TEST_F(SrpBinding, ParkedReplacementRetiresThePreviouslyAcceptedBinding) {
     for (bool transient : {false,true}) {
-        bind(0); response(0); expect_stream(0);
+        for (unsigned k=0;k<2u;++k) { bind(k); response(k,k); expect_stream(k,k); }
         if (transient) refuse_receive();
         without_delivery([&] {
-            auto p=command(spec::MSG_BIND_RX_COMMAND,0); p.talker=kTkB;
-            ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
-            auto invalid=answer(0); invalid.vlan=4095;
-            ASSERT_TRUE(offer(invalid,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+            for (unsigned k=0;k<2u;++k) {
+                auto p=command(spec::MSG_BIND_RX_COMMAND,k); p.talker=kTkB;
+                ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[k])); settle();
+                auto invalid=answer(k); invalid.vlan=4095;
+                ASSERT_TRUE(offer(invalid,spec::MULTICAST_MAC,acfg.sink_interface[k])); settle();
+            }
         });
-        ASSERT_TRUE(sink(0).bound);
+        for (unsigned k=0;k<2u;++k) ASSERT_TRUE(sink(k).bound);
         EXPECT_EQ(app.loop.polls[4].fn(app.loop.polls[4].ctx),transient);
         calloc_before_failure=-1; settle();
-        EXPECT_FALSE(sink(0).bound) << "parking retires the old accepted binding";
-        EXPECT_TRUE(app.srp_requests[0].parked);
-        EXPECT_FALSE(app.srp_requests[0].pending);
-        unbind(0);
-        EXPECT_FALSE(app.srp_requests[0].parked);
+        for (unsigned k=0;k<2u;++k) {
+            EXPECT_FALSE(sink(k).bound) << "parking retires the old accepted binding";
+            EXPECT_TRUE(app.srp_requests[k].parked);
+            EXPECT_FALSE(app.srp_requests[k].pending);
+            unbind(k);
+            EXPECT_FALSE(app.srp_requests[k].parked);
+        }
         mbx_model_advance_ms(&model,1000u); settle();
     }
 }
