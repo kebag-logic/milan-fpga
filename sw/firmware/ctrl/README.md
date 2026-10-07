@@ -109,8 +109,11 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
   one interface) plus MAAP's share of 568, its costliest action on each of
   the 8 events (48), its 2 records of the maap channel (20 + 48) and its
   poll on each interface (48). That is 1,580 at one interface and 1,659 at
-  two. Every pass count of `acmp_mbx.h` and of the MAAP page holds in the
-  composed loop with this pass in place of its own
+  two. It is also the two modules' own pass bounds less what both count:
+  `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (616 at one interface, 664
+  at two) less the 6 accesses of each of the 8 event records. Every pass
+  count of `acmp_mbx.h` and of the MAAP page holds in the composed loop
+  with this pass in place of its own
   ([design page](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)).
 
 MAAP's allocation reaches ACMP's talker only through the integrator's
@@ -120,9 +123,11 @@ destination, and the app does not connect it to the stream-address port.
 `test_acmp_mbx.cpp` holds the composition's checks, in both ACMP arms: U6
 (the attach order, every channel and its interrupt, disjoint slots each
 holding its own module's arm, MAAP acquiring its range beside the other
-two over four seconds), U7 (the refusals) and F6 (events and the acmp and
-maap rings backlogged: the worst pass 231 accesses at one interface and 233
-at two).
+two over four seconds, every MAAP frame sent from its interface's own
+unicast MAC, where the maap row admits a DEFEND (IEEE 1722-2016 B.2.1)),
+U7 (the refusals) and F6 (events and the acmp and maap rings backlogged:
+the worst pass 231 accesses at one interface and 233 at two, and the bound
+against the two modules' own).
 
 ## The host test
 
@@ -218,7 +223,7 @@ a byte early, a tuple's message types ignored, a message_type refusal left
 uncounted, a DEFEND taken to any unicast), and the firmware's side has its
 own: the own MAC unguarded or halved, FILTER_MISMATCH read from another register (`unit` and
 `port`), the own MACs written after the channels open (`port`) and the app's
-own MAC not the entity's (`unit`). Lane F3 adds 269 defects for the
+own MAC not the entity's (`unit`). Lane F3 adds 273 defects for the
 `acmp`, `acmpwalk`, `acmpnvm` and `acmpif2` arms (with the driver's and the
 model's for the bound-talker table in `unit` and `model`): a defect in each clause step, each
 response field, each guard term, each timer, the owed queue and the #653
@@ -234,9 +239,12 @@ MAAP: each overlap of MAAP's slots with ACMP's or ADP's, MAAP attached after
 the open, before ACMP, started in the compose or never, its channel left
 unbound, each refusal dropped or moved off its boundary, lane F2's entry
 taking no port or dropping its range, and a MAAP handler overrunning the
-three-way pass bound; and eight wrong numbers in `acmp.h` itself, which the tests
+three-way pass bound; round 7's: MAAP's source MAC or the filter's own MAC
+keyed by interface (`acmpif2`), and the three-way bound without MAAP's
+share or with MAAP's poll on one interface only; and eight wrong numbers in
+`acmp.h` itself, which the tests
 catch because they spell the standards' values (`acmp_fake.hpp`, `spec`),
-never the header's. They are `acmp_mutants.py`'s table, rounds 2, 4 and 6's
+never the header's. They are `acmp_mutants.py`'s table, rounds 2, 4, 6 and 7's
 in `acmp_review_mutants.py`. Round 6 re-plants four defects whose text the
 composition moved, each with its test and words: the pool bound after the
 mailbox (F0) and ACMP never composed read the compose's ACMP block, and lane

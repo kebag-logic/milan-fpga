@@ -706,6 +706,12 @@ On the model, 15 events, 12 acmp records and 7 maap records behind them
 take a worst pass of 231 accesses (233 at two interfaces), every record and
 event within 10 passes (`test_acmp_mbx.cpp` F6).
 
+At F0's assumed 1 us per access, only the event bound still fits T_svc
+(4.74 ms). The owed-frame bound, which fits it without MAAP, no longer does
+(14.22 ms, under the ceiling); the bound behind a full acmp ring stays
+under the ceiling (17.38 ms), and the one behind a full adp ring exceeds it
+(34.76 ms).
+
 ### Differences from the processor
 
 The `acmpwalk` arm runs the processor's own expectations against the
