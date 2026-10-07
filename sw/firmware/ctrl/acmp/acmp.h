@@ -41,8 +41,9 @@
 //   (5.5.3.5.3) or after a random TMR_DELAY of 0 to 1 s (Table 5.29) once the
 //   talker is discovered; TMR_NO_RESP is 200 ms (Table 5.26) from the send the
 //   port accepts, of the probe and of its duplicate alike (5.5.3.5.3 steps 5
-//   to 7, 5.5.3.5.16): a probe that waits for transmit room holds its
-//   TMR_NO_RESP until acmp_poll sends it; its first
+//   to 7, 5.5.3.5.16), timed from a clock read after that send returns, even
+//   when the entry read the clock before it: a probe that waits for transmit
+//   room holds its TMR_NO_RESP until acmp_poll sends it; its first
 //   expiry sends an exact duplicate, same sequence_id (5.5.3.5.16), its
 //   second sets ACMP status LISTENER_TALKER_TIMEOUT and TMR_RETRY 4 s
 //   (5.5.3.5.23); a failed response sets the status it carries and TMR_RETRY
@@ -377,7 +378,7 @@ struct acmp {
 	uint32_t rng;                           // xorshift32 state of TMR_DELAY
 	bool seeded;                            // the seed port has been mixed in
 	bool in_port;                           // a port call is running (#678)
-	bool now_read;                          // `now` holds this entry's one clock read
+	bool now_read;                          // `now` holds this entry's latest clock read
 	uint32_t now;
 	bool timer_armed[ACMP_MAX_INTERFACES];  // what each interface's timer holds
 	uint32_t timer_at[ACMP_MAX_INTERFACES];

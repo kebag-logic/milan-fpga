@@ -4,8 +4,9 @@
 // acmp.c - Milan connection management (see acmp.h for the clauses it serves).
 //
 // Every public entry that changes state runs the same way: refuse a call made
-// from inside a port call (#678), act, reading the clock at most once and only
-// when a deadline is needed, then finish(): arm each interface's timer at the
+// from inside a port call (#678), act, reading the clock only when a deadline
+// is needed (once, and again after each probe the port accepts, which starts
+// its TMR_NO_RESP), then finish(): arm each interface's timer at the
 // earliest deadline its sinks hold, tell the admit port every sink whose bound
 // talker moved, announce to the store every sink whose saved record moved,
 // and report every sink whose view moved and that holds no change behind an
@@ -14,10 +15,11 @@
 // A sink's connection timer holds the one Table 5.29 timer its state owns
 // (TMR_DELAY in PRB_W_DELAY, TMR_NO_RESP in PRB_W_RESP and PRB_W_RESP2,
 // TMR_RETRY in PRB_W_RETRY, TMR_NO_TK in SETTLED_NO_RSV, none elsewhere), so
-// an expiry is read off the timer's kind. TMR_NO_RESP is held, with no
-// deadline, while the probe it times waits for transmit room, and starts when
-// that probe leaves. Its discovery timer, TMR_NO_ADP, runs beside it and is
-// armed only while the talker is discovered.
+// an expiry is read off the timer's kind. TMR_NO_RESP starts when the port
+// accepts the probe it times, from a clock read after that: at once, or held,
+// with no deadline, while the probe waits for transmit room. Its discovery
+// timer, TMR_NO_ADP, runs beside it and is armed only while the talker is
+// discovered.
 //
 // The random delay costs the same every time: one xorshift step and one
 // multiply, uniform to one part in 65536 over 0 to 1000 ms.
@@ -103,7 +105,8 @@ static bool p_send(struct acmp *a, unsigned interface, const uint8_t *frame)
 	return ok;
 }
 
-// The clock, read once per entry and only by an entry that sets a deadline.
+// The clock, read once per entry and only by an entry that sets a deadline;
+// a probe the port accepts makes the next call read it again (send_probe).
 static uint32_t now(struct acmp *a)
 {
 	if (!a->now_read) {
@@ -653,14 +656,23 @@ static void srp_stop(struct acmp *a, unsigned k)
 	p_srp(a, k, NULL);
 }
 
-// The sink's saved PROBE_TX_COMMAND (Table 5.33) on its interface; TMR_NO_RESP
-// 200 ms from the send the port accepts: a probe owed behind others holds it
-// until acmp_poll sends the probe (probe_left). A probe the queue has no room
-// for is lost and TMR_NO_RESP, run from the attempt, recovers it.
+// TMR_NO_RESP of a sink whose probe the port has just accepted: 200 ms from a
+// clock read after that send, never from one the entry made before it.
+static void no_resp_from_send(struct acmp *a, struct acmp_sink *s)
+{
+	a->now_read = false;
+	sm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);
+}
+
+// The sink's saved PROBE_TX_COMMAND (Table 5.33) on its interface, then
+// TMR_NO_RESP 200 ms from the send the port accepts (5.5.3.5.3 steps 5 to 7,
+// 5.5.3.5.16 steps 1 and 2): taken at once, from the clock after the send; owed
+// behind others, held until acmp_poll sends the probe (probe_left). A probe
+// the queue has no room for is lost and TMR_NO_RESP, run from the attempt,
+// recovers it.
 static void send_probe(struct acmp *a, unsigned k)
 {
 	struct acmp_sink *s = &a->sinks[k];
-	sm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);
 	struct pdu p;
 	memset(&p, 0, sizeof p);
 	p.msg = ACMP_MSG_PROBE_TX_COMMAND;
@@ -674,9 +686,13 @@ static void send_probe(struct acmp *a, unsigned k)
 	uint8_t frame[ACMP_FRAME_BYTES];
 	build(a, s->interface, &p, frame);
 	enum sent sent = transmit(a, s->interface, frame, 0u, k + 1u);
-	if (sent == OWED) {
+	if (sent == SENT) {
+		no_resp_from_send(a, s);
+	} else if (sent == OWED) {
+		s->timer = ACMP_TIMER_NO_RESP;
 		s->timer_held = true;
-	} else if (sent == LOST) {
+	} else {
+		sm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);
 		a->probes_lost++;
 	}
 }
@@ -691,7 +707,7 @@ static void probe_left(struct acmp *a, const struct acmp_owed *o)
 	}
 	struct acmp_sink *s = &a->sinks[o->probe_of - 1u];
 	if (s->timer_held && wire_be16(o->frame + O_SEQ) == s->probe_seq) {
-		sm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);
+		no_resp_from_send(a, s);
 	}
 }
 
@@ -1065,7 +1081,8 @@ void acmp_adp_rx(struct acmp *a, unsigned interface, const uint8_t *frame, size_
 	finish(a);
 }
 
-// Every timer of the interface's sinks that is due, in sink order; a sink's
+// Every timer of the interface's sinks that is due at the latest clock read
+// (a probe sent for an earlier sink reads it again), in sink order; a sink's
 // TMR_NO_ADP before its connection timer. A connection timer is taken again
 // while it is due: a TMR_RETRY or TMR_NO_TK that draws a 0 ms TMR_DELAY sends
 // its probe in the same call, and TMR_NO_RESP then lies 200 ms ahead, so a
@@ -1080,17 +1097,16 @@ void acmp_timer_expired(struct acmp *a, unsigned interface)
 		return;
 	}
 	a->timer_armed[interface] = false;                      // the port's timer has fired
-	uint32_t t = now(a);
 	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
 		struct acmp_sink *s = &a->sinks[k];
 		if (s->interface != interface) {
 			continue;
 		}
-		if (s->adp_armed && due(s->adp_deadline, t)) {   // 5.6.4.5.4
+		if (s->adp_armed && due(s->adp_deadline, now(a))) {      // 5.6.4.5.4
 			s->adp_armed = false;
 			tk_departed(s);
 		}
-		while (sm_running(s) && due(s->timer_deadline, t)) {
+		while (sm_running(s) && due(s->timer_deadline, now(a))) {
 			sm_expired(a, k);
 		}
 	}

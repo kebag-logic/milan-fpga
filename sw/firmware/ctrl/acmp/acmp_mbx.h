@@ -48,6 +48,8 @@
 //   an ADP RX record    RX_HEAD + 2 header + 21 payload + RX_TAIL       25
 //   an event record     EVT_HEAD + 4 words + EVT_TAIL                    6
 //   the clock           NOW_MS                                           1
+//                       (and again after each probe the ring took, which
+//                       starts its TMR_NO_RESP)
 //   a timer arm         TMR_DEADLINE + TMR_CMD                           2
 //   a timer stop        TMR_CMD                                          1
 //   the gPTP sample     GM_LO + GM_HI + DOMAIN                           3
@@ -64,10 +66,10 @@
 //   events  8 x (6 + 31 + 4)     a record; ADP's costliest action (a TMR_DELAY
 //                                expiry, adp_mbx.h); ACMP's per-event cost
 //                                (the clock, the seed and a re-arm)
-//   ACMP timer work  16 x 22     every sink's due timers, once per pass: at most
+//   ACMP timer work  16 x 23     every sink's due timers, once per pass: at most
 //                                one probe each (a TMR_RETRY or TMR_NO_TK that
-//                                draws 0 ms sends it at once), then TMR_NO_RESP
-//                                lies 200 ms ahead
+//                                draws 0 ms sends it at once) and the clock read
+//                                after it, then TMR_NO_RESP lies 200 ms ahead
 //   ADP RX  2 x (36 + 7)         the channel's largest record (128 bytes) and
 //                                the tap's costliest handler: a record goes to
 //                                ADP (4, adp_mbx.h) or to discovery (gPTP 3,
@@ -120,7 +122,7 @@ extern "C" {
 #define ACMP_MBX_LAT_GET_RX 47u         // GET_RX_STATE -> response: 1 + 1 + 22 + 22 + 1
 #define ACMP_MBX_LAT_PROBE_RESP 28u     // PROBE_TX_RESPONSE -> TMR_NO_TK or TMR_RETRY armed: 1 + 1 + 22 + 1 + 2 + 1
 #define ACMP_MBX_LAT_TALKER 47u         // PROBE_TX / GET_TX_STATE / DISCONNECT_TX -> response: 1 + 1 + 22 + 22 + 1
-#define ACMP_MBX_LAT_TIMER_PROBE 34u    // TMR_DELAY or TMR_NO_RESP -> PROBE_TX, TMR_NO_RESP: 6 + 1 + 22 + 2 + 3
+#define ACMP_MBX_LAT_TIMER_PROBE 35u    // TMR_DELAY or TMR_NO_RESP -> PROBE_TX, TMR_NO_RESP: 6 + 1 + 22 + 1 + 2 + 3
 #define ACMP_MBX_LAT_TIMER_ARM 13u      // TMR_NO_RESP (second) / TMR_RETRY / TMR_NO_TK -> next timer: 6 + 1 + 1 + 2 + 3
 #define ACMP_MBX_LAT_AVAILABLE 35u      // ENTITY_AVAILABLE -> TMR_DELAY armed: 1 + 25 + 3 + 1 + 1 + 2 + 2
 #define ACMP_MBX_LAT_DEPARTING 30u      // ENTITY_DEPARTING -> timer stopped or re-armed: 1 + 25 + 2 + 2
@@ -128,7 +130,7 @@ extern "C" {
 
 // The costliest action per input, and the pass and path bounds they compose.
 #define ACMP_MBX_EVENT_MAX 4u           // per event: the clock, the seed and a re-arm
-#define ACMP_MBX_SINK_WORK 22u          // per sink and pass: one probe frame
+#define ACMP_MBX_SINK_WORK 23u          // per sink and pass: one probe frame and the clock after it
 #define ACMP_MBX_DISC_MAX 7u            // an ADP record's discovery: gPTP 3, clock 1, seed 1, re-arm 2
 #define ACMP_MBX_HANDLER_MAX 51u        // an ACMP record: BIND, 1 + 22 + 22 + 2 + 4
 #define ACMP_MBX_POLL_MAX 25u           // one owed frame, a probe's: 22 + the clock 1 + its TMR_NO_RESP 2
