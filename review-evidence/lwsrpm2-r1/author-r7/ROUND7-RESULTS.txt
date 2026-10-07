@@ -1,0 +1,1296 @@
+Exact source head: 14c8b364863be49bc222f4913830b79d23dcf173
+
+
+published-01; rc 0; README.md:39
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: $CC - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/final-published/published-build
+
+
+published-02; rc 0; README.md:40
+[  4%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[  9%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 13%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 27%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 31%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 36%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 50%] Linking C shared library libshlan.so
+[ 50%] Built target shlan
+[ 54%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 59%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 63%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 68%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 72%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 77%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 81%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 86%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+published-03; rc 0; README.md:41
+Test project $SCRATCH/final-published/published-build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.12 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.12 sec
+
+
+published-04; rc 0; README.md:42
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.001s
+
+
+published-05; rc 0; doc/tester.md:18
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/final-published/published-build
+
+
+published-06; rc 0; doc/tester.md:19
+[ 50%] Built target shlan
+[100%] Built target unit_tests
+
+
+published-07; rc 0; doc/tester.md:20
+Test project $SCRATCH/final-published/published-build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.13 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.13 sec
+
+
+published-08; rc 0; doc/tester.md:21
+Running "main" (86 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 10ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 17156 passes in 81ms.
+Completed "main": 19885 passes in 119ms.
+
+
+published-09; rc 0; doc/tester.md:22
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.001s
+
+
+published-10; rc 0; doc/tester.md:23
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+0 features passed, 0 failed, 0 skipped, 1 untested
+0 scenarios passed, 0 failed, 0 skipped, 3 untested
+0 steps passed, 0 failed, 0 skipped, 10 untested
+Took 0min 0.000s
+
+
+published-11; rc 0; doc/tester.md:63
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: $CC - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/final-published/published-milan-build
+
+
+published-12; rc 0; doc/tester.md:64
+[  9%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[  9%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 13%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 27%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 31%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 36%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 50%] Linking C shared library libshlan.so
+[ 50%] Built target shlan
+[ 54%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 59%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 63%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 68%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 72%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 77%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 81%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 86%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+
+
+published-13; rc 0; doc/tester.md:65
+Test project $SCRATCH/final-published/published-milan-build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.13 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.13 sec
+
+
+published-14; rc 0; doc/tester.md:66
+Running "main" (86 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 9ms.
+  "milan_suite": 430 passes in 6ms.
+  "boundaries_suite": 17156 passes in 80ms.
+Completed "main": 19873 passes in 117ms.
+
+
+published-15; rc 0; doc/tester.md:67
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.001s
+
+
+published-16; rc 0; doc/tester.md:90
+
+
+published-17; rc 0; doc/tester.md:98
+Running "mrp_pdu_suite" (9 tests)...
+  "mrp_pdu_suite": 1690 passes in 10ms.
+Completed "mrp_pdu_suite": 1690 passes in 10ms.
+
+
+published-18; rc 0; doc/tester.md:179
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: $CC - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/final-published/published-embedded/OFF
+OFF: ['cmake', '-S', '$SCRATCH/final-published/published-embedded', '-B', '$SCRATCH/final-published/published-embedded/OFF', '-DLWSRP_ROOT=$SOURCE', '-DLWSRP_MILAN=OFF']; rc=0
+[  9%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/mrp_pdu.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/mrp_mad.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$SOURCE/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+OFF: ['cmake', '--build', '$SCRATCH/final-published/published-embedded/OFF', '--parallel', '2']; rc=0
+OFF: ['$SCRATCH/final-published/published-embedded/OFF/probe']; rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: $CC - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/final-published/published-embedded/ON
+ON: ['cmake', '-S', '$SCRATCH/final-published/published-embedded', '-B', '$SCRATCH/final-published/published-embedded/ON', '-DLWSRP_ROOT=$SOURCE', '-DLWSRP_MILAN=ON']; rc=0
+[  9%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/mrp_pdu.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir$SOURCE/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$SOURCE/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+ON: ['cmake', '--build', '$SCRATCH/final-published/published-embedded/ON', '--parallel', '2']; rc=0
+ON: ['$SCRATCH/final-published/published-embedded/ON/probe']; rc=0
+Embedded source list: both profile links and dispatch probes pass
+
+
+published-19; rc 0; doc/tester.md:180
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+
+
+published-20; rc 0; doc/tester.md:181
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+
+
+published-21; rc 0; doc/tester.md:182
+configure: rc=0
+baseline-build: rc=0
+baseline-check: rc=0
+timer-unlink-build: rc=0
+timer-unlink: rc=8
+KILLED timer-unlink
+msrp-address-build: rc=0
+msrp-address: rc=8
+KILLED msrp-address
+mmrp-address-build: rc=0
+mmrp-address: rc=8
+KILLED mmrp-address
+mvrp-address-build: rc=0
+mvrp-address: rc=8
+KILLED mvrp-address
+domain-offset-build: rc=0
+domain-offset: rc=8
+KILLED domain-offset
+talker-offset-build: rc=0
+talker-offset: rc=8
+KILLED talker-offset
+listener-offset-build: rc=0
+listener-offset: rc=8
+KILLED listener-offset
+wire-prevalidation-build: rc=0
+wire-prevalidation: rc=8
+KILLED wire-prevalidation
+pdu-endmark-build: rc=0
+pdu-endmark: rc=8
+KILLED pdu-endmark
+leaveall-scope-build: rc=0
+leaveall-scope: rc=8
+KILLED leaveall-scope
+local-registration-build: rc=0
+local-registration: rc=8
+KILLED local-registration
+registrar-condition-build: rc=0
+registrar-condition: rc=8
+KILLED registrar-condition
+periodic-interval-build: rc=0
+periodic-interval: rc=8
+KILLED periodic-interval
+leaveall-randomization-build: rc=0
+leaveall-randomization: rc=8
+KILLED leaveall-randomization
+refused-storage-build: rc=0
+refused-storage: rc=8
+KILLED refused-storage
+registrar-during-refusal-build: rc=0
+registrar-during-refusal: rc=8
+KILLED registrar-during-refusal
+changed-listener-indication-build: rc=0
+changed-listener-indication: rc=8
+KILLED changed-listener-indication
+receive-opportunity-build: rc=0
+receive-opportunity: rc=8
+KILLED receive-opportunity
+receive-interest-build: rc=0
+receive-interest: rc=8
+KILLED receive-interest
+reclaim-build: rc=0
+reclaim: rc=8
+KILLED reclaim
+split-fairness-build: rc=0
+split-fairness: rc=8
+KILLED split-fairness
+received-withdrawal-value-build: rc=0
+received-withdrawal-value: rc=8
+KILLED received-withdrawal-value
+local-withdrawal-value-build: rc=0
+local-withdrawal-value: rc=8
+KILLED local-withdrawal-value
+talker-replacement-build: rc=0
+talker-replacement: rc=8
+KILLED talker-replacement
+listener-redeclaration-build: rc=0
+listener-redeclaration: rc=8
+KILLED listener-redeclaration
+domain-member-order-build: rc=0
+domain-member-order: rc=8
+KILLED domain-member-order
+hosted-allocation-header: rc=1
+KILLED hosted-allocation-header
+hosted-error-header: rc=1
+KILLED hosted-error-header
+point-to-point-condition-build: rc=0
+point-to-point-condition: rc=8
+KILLED point-to-point-condition
+shared-in-condition-build: rc=0
+shared-in-condition: rc=8
+KILLED shared-in-condition
+withdrawal-transition-build: rc=0
+withdrawal-transition: rc=8
+KILLED withdrawal-transition
+periodic-passive-build: rc=0
+periodic-passive: rc=8
+KILLED periodic-passive
+leaveall-all-types-build: rc=0
+leaveall-all-types: rc=8
+KILLED leaveall-all-types
+unknown-stream-message-build: rc=0
+unknown-stream-message: rc=8
+KILLED unknown-stream-message
+bounded-header-initialization: rc=1
+KILLED bounded-header-initialization
+milan-delayed-in-leave-build: rc=0
+milan-delayed-in-leave: rc=8
+KILLED milan-delayed-in-leave
+milan-restarted-lv-deadline-build: rc=0
+milan-restarted-lv-deadline: rc=8
+KILLED milan-restarted-lv-deadline
+milan-profile-selection-build: rc=0
+milan-profile-selection: rc=8
+KILLED milan-profile-selection
+milan-option-scope-build: rc=0
+milan-option-scope: rc=8
+KILLED milan-option-scope
+application-decode-error-build: rc=0
+application-decode-error: rc=8
+KILLED application-decode-error
+stream-increment-overflow-build: rc=0
+stream-increment-overflow: rc=8
+KILLED stream-increment-overflow
+domain-priority-range-build: rc=0
+domain-priority-range: rc=8
+KILLED domain-priority-range
+domain-class-range-build: rc=0
+domain-class-range: rc=8
+KILLED domain-class-range
+vlan-range-build: rc=0
+vlan-range: rc=8
+KILLED vlan-range
+mac-increment-overflow-build: rc=0
+mac-increment-overflow: rc=8
+KILLED mac-increment-overflow
+unknown-event-extension-build: rc=0
+unknown-event-extension: rc=8
+KILLED unknown-event-extension
+current-version-extension-build: rc=0
+current-version-extension: rc=8
+KILLED current-version-extension
+propagation-retention-build: rc=0
+propagation-retention: rc=8
+KILLED propagation-retention
+propagation-order-build: rc=0
+propagation-order: rc=8
+KILLED propagation-order
+registrar-recovery-indication-build: rc=0
+registrar-recovery-indication: rc=8
+KILLED registrar-recovery-indication
+committed-local-leaveall-build: rc=0
+committed-local-leaveall: rc=8
+KILLED committed-local-leaveall
+omitted-leaveall-event-build: rc=0
+omitted-leaveall-event: rc=8
+KILLED omitted-leaveall-event
+reserved-leaveall-event-build: rc=0
+reserved-leaveall-event: rc=8
+KILLED reserved-leaveall-event
+listener-subtype-build: rc=0
+listener-subtype: rc=8
+KILLED listener-subtype
+leaveall-upper-bound-build: rc=0
+leaveall-upper-bound: rc=8
+KILLED leaveall-upper-bound
+reclaim-leaving-observer-build: rc=0
+reclaim-leaving-observer: rc=8
+KILLED reclaim-leaving-observer
+milan-redeclare-scope-build: rc=0
+milan-redeclare-scope: rc=8
+KILLED milan-redeclare-scope
+milan-transmitted-leaveall-scope-build: rc=0
+milan-transmitted-leaveall-scope: rc=8
+KILLED milan-transmitted-leaveall-scope
+received-leaveall-restart-build: rc=0
+received-leaveall-restart: rc=8
+KILLED received-leaveall-restart
+embedded-switch-source: rc=1
+KILLED embedded-switch-source
+changed-in-only-build: rc=0
+changed-in-only: rc=8
+KILLED changed-in-only
+stream-list-boundary-build: rc=0
+stream-list-boundary: rc=8
+KILLED stream-list-boundary
+changed-value-rollback-build: rc=0
+changed-value-rollback: rc=8
+KILLED changed-value-rollback
+registrar-rollback-build: rc=0
+registrar-rollback: rc=8
+KILLED registrar-rollback
+applicant-rollback-build: rc=0
+applicant-rollback: rc=8
+KILLED applicant-rollback
+leave-timer-retry-build: rc=0
+leave-timer-retry: rc=8
+KILLED leave-timer-retry
+receive-map-error-build: rc=0
+receive-map-error: rc=8
+KILLED receive-map-error
+reservation-atomicity-build: rc=0
+reservation-atomicity: rc=8
+KILLED reservation-atomicity
+poll-replay-build: rc=0
+poll-replay: rc=8
+KILLED poll-replay
+commit-replay-build: rc=0
+commit-replay: rc=8
+KILLED commit-replay
+queue-teardown-build: rc=0
+queue-teardown: rc=8
+KILLED queue-teardown
+zero-attribute-length-build: rc=0
+zero-attribute-length: rc=8
+KILLED zero-attribute-length
+changed-value-propagation-build: rc=0
+changed-value-propagation: rc=8
+KILLED changed-value-propagation
+replay-error-retention-build: rc=0
+replay-error-retention: rc=8
+KILLED replay-error-retention
+callback-order-build: rc=0
+callback-order: rc=8
+KILLED callback-order
+flush-retry-build: rc=0
+flush-retry: rc=8
+KILLED flush-retry
+replacement-order-build: rc=0
+replacement-order: rc=8
+KILLED replacement-order
+receive-stop-build: rc=0
+receive-stop: rc=8
+KILLED receive-stop
+policy-mask-build: rc=0
+policy-mask: rc=8
+KILLED policy-mask
+no-policy-reservation-build: rc=0
+no-policy-reservation: rc=8
+KILLED no-policy-reservation
+pending-flush-build: rc=0
+pending-flush: rc=8
+KILLED pending-flush
+flush-before-refresh-build: rc=0
+flush-before-refresh: rc=8
+KILLED flush-before-refresh
+flush-deadline-build: rc=0
+flush-deadline: rc=8
+KILLED flush-deadline
+flush-observer-build: rc=0
+flush-observer: rc=8
+KILLED flush-observer
+replacement-lv-build: rc=0
+replacement-lv: rc=8
+KILLED replacement-lv
+replacement-leave-timer-build: rc=0
+replacement-leave-timer: rc=8
+KILLED replacement-leave-timer
+receive-instance-stop-build: rc=0
+receive-instance-stop: rc=8
+KILLED receive-instance-stop
+flush-completion-build: rc=0
+flush-completion: rc=8
+KILLED flush-completion
+flush-snapshot-bypass-build: rc=0
+flush-snapshot-bypass: rc=8
+KILLED flush-snapshot-bypass
+flush-snapshot-replaced-build: rc=0
+flush-snapshot-replaced: rc=8
+KILLED flush-snapshot-replaced
+flush-snapshot-indication-build: rc=0
+flush-snapshot-indication: rc=8
+KILLED flush-snapshot-indication
+flush-snapshot-policy-build: rc=0
+flush-snapshot-policy: rc=8
+KILLED flush-snapshot-policy
+flush-timer-completion-build: rc=0
+flush-timer-completion: rc=8
+KILLED flush-timer-completion
+restored-build: rc=0
+restored-check: rc=0
+Reversals: 93; failures: 0
+
+
+published-22; rc 0; doc/tester.md:183
+configure: rc=0
+baseline-build: rc=0
+baseline-check: rc=0
+timer-unlink-build: rc=0
+timer-unlink: rc=8
+KILLED timer-unlink
+msrp-address-build: rc=0
+msrp-address: rc=8
+KILLED msrp-address
+mmrp-address-build: rc=0
+mmrp-address: rc=8
+KILLED mmrp-address
+mvrp-address-build: rc=0
+mvrp-address: rc=8
+KILLED mvrp-address
+domain-offset-build: rc=0
+domain-offset: rc=8
+KILLED domain-offset
+talker-offset-build: rc=0
+talker-offset: rc=8
+KILLED talker-offset
+listener-offset-build: rc=0
+listener-offset: rc=8
+KILLED listener-offset
+wire-prevalidation-build: rc=0
+wire-prevalidation: rc=8
+KILLED wire-prevalidation
+pdu-endmark-build: rc=0
+pdu-endmark: rc=8
+KILLED pdu-endmark
+leaveall-scope-build: rc=0
+leaveall-scope: rc=8
+KILLED leaveall-scope
+local-registration-build: rc=0
+local-registration: rc=8
+KILLED local-registration
+registrar-condition-build: rc=0
+registrar-condition: rc=8
+KILLED registrar-condition
+periodic-interval-build: rc=0
+periodic-interval: rc=8
+KILLED periodic-interval
+leaveall-randomization-build: rc=0
+leaveall-randomization: rc=8
+KILLED leaveall-randomization
+refused-storage-build: rc=0
+refused-storage: rc=8
+KILLED refused-storage
+registrar-during-refusal-build: rc=0
+registrar-during-refusal: rc=8
+KILLED registrar-during-refusal
+changed-listener-indication-build: rc=0
+changed-listener-indication: rc=8
+KILLED changed-listener-indication
+receive-opportunity-build: rc=0
+receive-opportunity: rc=8
+KILLED receive-opportunity
+receive-interest-build: rc=0
+receive-interest: rc=8
+KILLED receive-interest
+reclaim-build: rc=0
+reclaim: rc=8
+KILLED reclaim
+split-fairness-build: rc=0
+split-fairness: rc=8
+KILLED split-fairness
+received-withdrawal-value-build: rc=0
+received-withdrawal-value: rc=8
+KILLED received-withdrawal-value
+local-withdrawal-value-build: rc=0
+local-withdrawal-value: rc=8
+KILLED local-withdrawal-value
+talker-replacement-build: rc=0
+talker-replacement: rc=8
+KILLED talker-replacement
+listener-redeclaration-build: rc=0
+listener-redeclaration: rc=8
+KILLED listener-redeclaration
+domain-member-order-build: rc=0
+domain-member-order: rc=8
+KILLED domain-member-order
+hosted-allocation-header: rc=1
+KILLED hosted-allocation-header
+hosted-error-header: rc=1
+KILLED hosted-error-header
+point-to-point-condition-build: rc=0
+point-to-point-condition: rc=8
+KILLED point-to-point-condition
+shared-in-condition-build: rc=0
+shared-in-condition: rc=8
+KILLED shared-in-condition
+withdrawal-transition-build: rc=0
+withdrawal-transition: rc=8
+KILLED withdrawal-transition
+periodic-passive-build: rc=0
+periodic-passive: rc=8
+KILLED periodic-passive
+leaveall-all-types-build: rc=0
+leaveall-all-types: rc=8
+KILLED leaveall-all-types
+unknown-stream-message-build: rc=0
+unknown-stream-message: rc=8
+KILLED unknown-stream-message
+bounded-header-initialization: rc=1
+KILLED bounded-header-initialization
+milan-delayed-in-leave-build: rc=0
+milan-delayed-in-leave: rc=8
+KILLED milan-delayed-in-leave
+milan-restarted-lv-deadline-build: rc=0
+milan-restarted-lv-deadline: rc=8
+KILLED milan-restarted-lv-deadline
+milan-profile-selection-build: rc=0
+milan-profile-selection: rc=8
+KILLED milan-profile-selection
+milan-option-scope-build: rc=0
+milan-option-scope: rc=8
+KILLED milan-option-scope
+application-decode-error-build: rc=0
+application-decode-error: rc=8
+KILLED application-decode-error
+stream-increment-overflow-build: rc=0
+stream-increment-overflow: rc=8
+KILLED stream-increment-overflow
+domain-priority-range-build: rc=0
+domain-priority-range: rc=8
+KILLED domain-priority-range
+domain-class-range-build: rc=0
+domain-class-range: rc=8
+KILLED domain-class-range
+vlan-range-build: rc=0
+vlan-range: rc=8
+KILLED vlan-range
+mac-increment-overflow-build: rc=0
+mac-increment-overflow: rc=8
+KILLED mac-increment-overflow
+unknown-event-extension-build: rc=0
+unknown-event-extension: rc=8
+KILLED unknown-event-extension
+current-version-extension-build: rc=0
+current-version-extension: rc=8
+KILLED current-version-extension
+propagation-retention-build: rc=0
+propagation-retention: rc=8
+KILLED propagation-retention
+propagation-order-build: rc=0
+propagation-order: rc=8
+KILLED propagation-order
+registrar-recovery-indication-build: rc=0
+registrar-recovery-indication: rc=8
+KILLED registrar-recovery-indication
+committed-local-leaveall-build: rc=0
+committed-local-leaveall: rc=8
+KILLED committed-local-leaveall
+omitted-leaveall-event-build: rc=0
+omitted-leaveall-event: rc=8
+KILLED omitted-leaveall-event
+reserved-leaveall-event-build: rc=0
+reserved-leaveall-event: rc=8
+KILLED reserved-leaveall-event
+listener-subtype-build: rc=0
+listener-subtype: rc=8
+KILLED listener-subtype
+leaveall-upper-bound-build: rc=0
+leaveall-upper-bound: rc=8
+KILLED leaveall-upper-bound
+reclaim-leaving-observer-build: rc=0
+reclaim-leaving-observer: rc=8
+KILLED reclaim-leaving-observer
+milan-redeclare-scope-build: rc=0
+milan-redeclare-scope: rc=8
+KILLED milan-redeclare-scope
+milan-transmitted-leaveall-scope-build: rc=0
+milan-transmitted-leaveall-scope: rc=8
+KILLED milan-transmitted-leaveall-scope
+received-leaveall-restart-build: rc=0
+received-leaveall-restart: rc=8
+KILLED received-leaveall-restart
+embedded-switch-source: rc=1
+KILLED embedded-switch-source
+changed-in-only-build: rc=0
+changed-in-only: rc=8
+KILLED changed-in-only
+stream-list-boundary-build: rc=0
+stream-list-boundary: rc=8
+KILLED stream-list-boundary
+changed-value-rollback-build: rc=0
+changed-value-rollback: rc=8
+KILLED changed-value-rollback
+registrar-rollback-build: rc=0
+registrar-rollback: rc=8
+KILLED registrar-rollback
+applicant-rollback-build: rc=0
+applicant-rollback: rc=8
+KILLED applicant-rollback
+leave-timer-retry-build: rc=0
+leave-timer-retry: rc=8
+KILLED leave-timer-retry
+receive-map-error-build: rc=0
+receive-map-error: rc=8
+KILLED receive-map-error
+reservation-atomicity-build: rc=0
+reservation-atomicity: rc=8
+KILLED reservation-atomicity
+poll-replay-build: rc=0
+poll-replay: rc=8
+KILLED poll-replay
+commit-replay-build: rc=0
+commit-replay: rc=8
+KILLED commit-replay
+queue-teardown-build: rc=0
+queue-teardown: rc=8
+KILLED queue-teardown
+zero-attribute-length-build: rc=0
+zero-attribute-length: rc=8
+KILLED zero-attribute-length
+changed-value-propagation-build: rc=0
+changed-value-propagation: rc=8
+KILLED changed-value-propagation
+replay-error-retention-build: rc=0
+replay-error-retention: rc=8
+KILLED replay-error-retention
+callback-order-build: rc=0
+callback-order: rc=8
+KILLED callback-order
+flush-retry-build: rc=0
+flush-retry: rc=8
+KILLED flush-retry
+replacement-order-build: rc=0
+replacement-order: rc=8
+KILLED replacement-order
+receive-stop-build: rc=0
+receive-stop: rc=8
+KILLED receive-stop
+policy-mask-build: rc=0
+policy-mask: rc=8
+KILLED policy-mask
+no-policy-reservation-build: rc=0
+no-policy-reservation: rc=8
+KILLED no-policy-reservation
+pending-flush-build: rc=0
+pending-flush: rc=8
+KILLED pending-flush
+flush-before-refresh-build: rc=0
+flush-before-refresh: rc=8
+KILLED flush-before-refresh
+flush-deadline-build: rc=0
+flush-deadline: rc=8
+KILLED flush-deadline
+flush-observer-build: rc=0
+flush-observer: rc=8
+KILLED flush-observer
+replacement-lv-build: rc=0
+replacement-lv: rc=8
+KILLED replacement-lv
+replacement-leave-timer-build: rc=0
+replacement-leave-timer: rc=8
+KILLED replacement-leave-timer
+receive-instance-stop-build: rc=0
+receive-instance-stop: rc=8
+KILLED receive-instance-stop
+flush-completion-build: rc=0
+flush-completion: rc=8
+KILLED flush-completion
+flush-snapshot-bypass-build: rc=0
+flush-snapshot-bypass: rc=8
+KILLED flush-snapshot-bypass
+flush-snapshot-replaced-build: rc=0
+flush-snapshot-replaced: rc=8
+KILLED flush-snapshot-replaced
+flush-snapshot-indication-build: rc=0
+flush-snapshot-indication: rc=8
+KILLED flush-snapshot-indication
+flush-snapshot-policy-build: rc=0
+flush-snapshot-policy: rc=8
+KILLED flush-snapshot-policy
+flush-timer-completion-build: rc=0
+flush-timer-completion: rc=8
+KILLED flush-timer-completion
+restored-build: rc=0
+restored-check: rc=0
+Reversals: 93; failures: 0
+
+
+published-23; rc 0; doc/tools/README.md:14
+SYNTAX CONTRIBUTING.md:18: c fence: literal machine syntax; nearby reference links require review
+SYNTAX CONTRIBUTING.md:48: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX README.md:15: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX README.md:38: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:10: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:35: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:71: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:29: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:81: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:114: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:143: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:170: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:204: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:232: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:259: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:306: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:352: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:44: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:81: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:121: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:175: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:238: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:265: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:299: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:329: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:360: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/manager.md:46: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:17: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:62: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:89: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:107: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:120: gherkin fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:137: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:178: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tools/README.md:13: sh fence: literal machine syntax; nearby reference links require review
+Sentences/fragments: 975; over limit: 0; prose exceptions: 0
+
+
+published-24; rc 0; doc/tools/README.md:15
+SYNTAX CONTRIBUTING.md:18: c fence: literal machine syntax; nearby reference links require review
+SYNTAX CONTRIBUTING.md:48: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX README.md:15: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX README.md:38: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:10: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:35: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/architecture.md:71: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:29: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:81: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:114: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:143: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:170: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:204: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:232: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:259: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:306: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/developer.md:352: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:44: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:81: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:121: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:175: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:238: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:265: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:299: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:329: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/integrator.md:360: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/manager.md:46: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:17: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:62: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:89: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:107: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:120: gherkin fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:137: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:178: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tools/README.md:13: sh fence: literal machine syntax; nearby reference links require review
+Unlinked references: 0; prose exceptions: 0
+
+
+published-25; rc 0; doc/tools/README.md:16
+Reference self-test: 79 cases; failures: 0
+
+
+published-26; rc 0; doc/tools/README.md:17
+PASS https://behave.readthedocs.io/en/stable/: anonymous; HTTP 200
+PASS https://cli.github.com/manual/: anonymous; HTTP 200
+PASS https://cmake.org/cmake/help/latest/: anonymous; HTTP 200
+PASS https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html: anonymous; HTTP 200
+PASS https://docs.python.org/3/: anonymous; HTTP 200
+PASS https://docs.zephyrproject.org/latest/develop/modules.html: anonymous; HTTP 200
+PASS https://gcc.gnu.org/onlinedocs/gcc/: anonymous; HTTP 200
+PASS https://github.com/cgreen-devs/cgreen: anonymous; HTTP 200
+PASS https://github.com/kebag-logic/lwSRP/issues: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/1: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/10: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/11: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/4: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/issues/8: authenticated; API rc=0
+PASS https://github.com/kebag-logic/lwSRP/pulls: authenticated; API rc=0
+PASS https://github.com/mermaid-js/mermaid-cli: anonymous; HTTP 200
+PASS https://milanav.com/milan-faqs/: anonymous; HTTP 200
+PASS https://spdx.dev/: anonymous; HTTP 200
+PASS https://standards.ieee.org/ieee/802.1Q/6844/: anonymous; HTTP 200
+PASS https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf: anonymous; HTTP 200
+Local links: 354; external URLs: 20; failures: 0
+
+
+published-27; rc 0; doc/tools/README.md:18
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/CONTRIBUTING.md-48.mmd -o $SCRATCH/final-published/published-doc/graphs/CONTRIBUTING.md-48.svg -b white; rc=0
+PASS CONTRIBUTING.md:48: 5 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/README.md-15.mmd -o $SCRATCH/final-published/published-doc/graphs/README.md-15.svg -b white; rc=0
+PASS README.md:15: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-10.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-10.svg -b white; rc=0
+PASS doc/architecture.md:10: 11 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-35.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-35.svg -b white; rc=0
+PASS doc/architecture.md:35: 12 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-71.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-architecture.md-71.svg -b white; rc=0
+PASS doc/architecture.md:71: 8 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-29.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-29.svg -b white; rc=0
+PASS doc/developer.md:29: 10 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-81.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-81.svg -b white; rc=0
+PASS doc/developer.md:81: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-114.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-114.svg -b white; rc=0
+PASS doc/developer.md:114: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-143.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-143.svg -b white; rc=0
+PASS doc/developer.md:143: 7 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-170.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-170.svg -b white; rc=0
+PASS doc/developer.md:170: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-204.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-204.svg -b white; rc=0
+PASS doc/developer.md:204: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-232.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-232.svg -b white; rc=0
+PASS doc/developer.md:232: 2 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-259.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-259.svg -b white; rc=0
+PASS doc/developer.md:259: 2 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-306.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-306.svg -b white; rc=0
+PASS doc/developer.md:306: 7 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-developer.md-352.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-developer.md-352.svg -b white; rc=0
+PASS doc/developer.md:352: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-44.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-44.svg -b white; rc=0
+PASS doc/integrator.md:44: 2 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-81.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-81.svg -b white; rc=0
+PASS doc/integrator.md:81: 4 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-121.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-121.svg -b white; rc=0
+PASS doc/integrator.md:121: 4 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-175.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-175.svg -b white; rc=0
+PASS doc/integrator.md:175: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-238.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-238.svg -b white; rc=0
+PASS doc/integrator.md:238: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-265.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-265.svg -b white; rc=0
+PASS doc/integrator.md:265: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-299.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-299.svg -b white; rc=0
+PASS doc/integrator.md:299: 3 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-329.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-329.svg -b white; rc=0
+PASS doc/integrator.md:329: 2 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-360.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-integrator.md-360.svg -b white; rc=0
+PASS doc/integrator.md:360: 4 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-manager.md-46.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-manager.md-46.svg -b white; rc=0
+PASS doc/manager.md:46: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-tester.md-107.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-tester.md-107.svg -b white; rc=0
+PASS doc/tester.md:107: 6 nodes; render rc=0
+COMMAND mmdc -i $SCRATCH/final-published/published-doc/graphs/doc-tester.md-137.mmd -o $SCRATCH/final-published/published-doc/graphs/doc-tester.md-137.svg -b white; rc=0
+PASS doc/tester.md:137: 9 nodes; render rc=0
+Graphs: 27; failures: 0
+
+
+probes.log
+R540-5-probe_r5-0-build rc 0 
+R540-5-probe_r5-0 rc 0 probe_r5 profile=OFF checks=243 failures=0
+
+R541-5-probe-0-build rc 0 
+R541-5-probe-0 rc 0 PASS independent production-policy probe: 489 cases, 21780 checks, 0 value mismatches
+
+R541-5-probe-0-cross-port rc 0 withdrawal=2
+cross-port type=3 fault=3 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=LV recovery=receive expected=2 withdrawal=2
+PASS independent production-policy probe: 48 cases, 2188 checks, 0 value mismatches
+
+R540-4-probe_r3-0-build rc 0 
+R540-4-probe_r3-0 rc 0 e rx]: leaves=1 joins=2 reg=IN
+  info [flush fault=1 then peer JoinIn each tick, rx before tick]: leaves=1 joins=2 reg=IN
+replacement cases 184
+  info [later LeaveAll after failure]: rc=-12 talker sid2 reg after failed pass=LV
+checks 5934 failures 0
+
+R541-4-probe_rx-0-build rc 0 
+R541-4-probe_rx-0 rc 0 nge-indicated
+INFO p2 rx=0 listener_inds=1
+PASS p2-later-unknown-stream-message-skipped-by-list-length
+INFO p2b rx=0 listener_inds=1
+PASS p2b-later-unknown-stream-message-trailing-octets
+PASS p2c-control-well-formed-unknown-skipped
+probe failures: 0
+
+R541-4-probe_fault-0-build rc 0 
+R541-4-probe_fault-0 rc 0 completed 54 changed-value allocation cases
+completed 12 unchanged LV recovery cases
+completed repeated timer exhaustion and retained FIFO replay
+checks=2289 failures=0 live=0
+
+R541-4-probe_flush-0-build rc 0 
+R541-4-probe_flush-0 rc 0 =LV leave_indications=0
+flush fail_slot=2 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=3 immediate reg=LV leave_indications=0
+flush fail_slot=3 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush checks=532 failures=0 live=0
+
+R541-4-probe_r3-0-build rc 0 
+R541-4-probe_r3-0 rc 0 
+PASS f3-k11-converges-to-control
+INFO f3 k=12 fault_reached=0 rx=0 retry=0 log=[J3.2@0 J1@0 ]
+INFO f3 control state=[0:t1.s2.VO.IN 0:t3.s1.VO.IN 0:t1.s1.QA.MT 1:t1.s2.QA.MT 1:t3.s1.QA.MT 1:t1.s1.VO.IN 2:t1.s2.QA.MT 2:t1.s1.QA.MT ]
+probe failures: 0
+
+R541-4-probe_r4-0-build rc 0 
+R541-4-probe_r4-0 rc 0 nitial=LV changed=1 fault=1 rx=0 leaves=1 joins=2 reg=IN
+INTERLEAVE type=3 initial=LV changed=1 fault=2 rx=0 leaves=1 joins=2 reg=IN
+INTERLEAVE type=3 initial=LV changed=1 fault=3 rx=0 leaves=1 joins=2 reg=IN
+interleave checks=6576 failures=0 live=0
+
+R541-4-probe_r4_native-0-build rc 0 
+R541-4-probe_r4_native-0 rc 0 PASS continued-peer-join
+PASS continued-peer-join
+PASS continued-peer-join
+PASS continued-peer-join
+PASS continued-peer-join
+NATIVE type=2 initial=LV fault=3 trace=[L2@0 J2@0 ] reg=IN
+PASS flush-leave-precedes-fresh-join
+native interleave failures=0
+
+R540-5-probe_r5-1-build rc 0 
+R540-5-probe_r5-1 rc 0 probe_r5 profile=ON checks=243 failures=0
+
+R541-5-probe-1-build rc 0 
+R541-5-probe-1 rc 0 PASS independent production-policy probe: 489 cases, 21780 checks, 0 value mismatches
+
+R541-5-probe-1-cross-port rc 0 withdrawal=2
+cross-port type=3 fault=3 initial=LV recovery=tick expected=2 withdrawal=2
+cross-port type=3 fault=3 initial=LV recovery=receive expected=2 withdrawal=2
+PASS independent production-policy probe: 48 cases, 2188 checks, 0 value mismatches
+
+R540-4-probe_r3-1-build rc 0 
+R540-4-probe_r3-1 rc 0 e rx]: leaves=1 joins=2 reg=IN
+  info [flush fault=1 then peer JoinIn each tick, rx before tick]: leaves=1 joins=2 reg=IN
+replacement cases 184
+  info [later LeaveAll after failure]: rc=-12 talker sid2 reg after failed pass=LV
+checks 5934 failures 0
+
+R541-4-probe_rx-1-build rc 0 
+R541-4-probe_rx-1 rc 0 nge-indicated
+INFO p2 rx=0 listener_inds=1
+PASS p2-later-unknown-stream-message-skipped-by-list-length
+INFO p2b rx=0 listener_inds=1
+PASS p2b-later-unknown-stream-message-trailing-octets
+PASS p2c-control-well-formed-unknown-skipped
+probe failures: 0
+
+R541-4-probe_fault-1-build rc 0 
+R541-4-probe_fault-1 rc 0 completed 54 changed-value allocation cases
+completed 12 unchanged LV recovery cases
+completed repeated timer exhaustion and retained FIFO replay
+checks=2289 failures=0 live=0
+
+R541-4-probe_flush-1-build rc 0 
+R541-4-probe_flush-1 rc 0 =LV leave_indications=0
+flush fail_slot=2 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=3 immediate reg=LV leave_indications=0
+flush fail_slot=3 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush checks=532 failures=0 live=0
+
+R541-4-probe_r3-1-build rc 0 
+R541-4-probe_r3-1 rc 0 
+PASS f3-k11-converges-to-control
+INFO f3 k=12 fault_reached=0 rx=0 retry=0 log=[J3.2@0 J1@0 ]
+INFO f3 control state=[0:t1.s2.VO.IN 0:t3.s1.VO.IN 0:t1.s1.QA.MT 1:t1.s2.QA.MT 1:t3.s1.QA.MT 1:t1.s1.VO.IN 2:t1.s2.QA.MT 2:t1.s1.QA.MT ]
+probe failures: 0
+
+R541-4-probe_r4-1-build rc 0 
+R541-4-probe_r4-1 rc 0 nitial=LV changed=1 fault=1 rx=0 leaves=1 joins=2 reg=IN
+INTERLEAVE type=3 initial=LV changed=1 fault=2 rx=0 leaves=1 joins=2 reg=IN
+INTERLEAVE type=3 initial=LV changed=1 fault=3 rx=0 leaves=1 joins=2 reg=IN
+interleave checks=6576 failures=0 live=0
+
+R541-4-probe_r4_native-1-build rc 0 
+R541-4-probe_r4_native-1 rc 0 PASS continued-peer-join
+PASS continued-peer-join
+PASS continued-peer-join
+PASS continued-peer-join
+PASS continued-peer-join
+NATIVE type=2 initial=LV fault=3 trace=[L2@0 J2@0 ] reg=IN
+PASS flush-leave-precedes-fresh-join
+native interleave failures=0
+
+
+
+sanitizers.log
+sanitize-OFF-configure rc 0
+sanitize-OFF-build rc 0
+sanitize-OFF-unit rc 0
+sanitize-OFF-ctest rc 0
+sanitize-ON-configure rc 0
+sanitize-ON-build rc 0
+sanitize-ON-unit rc 0
+sanitize-ON-ctest rc 0
+
+
+graph-review.txt
+Changed developer retry graph: eight actual nodes. Render rc 0. Labels readable at native size and page width. No edge crosses a node. Successful reservation clears pending state before the saved Leave. Failure retains the snapshot and returns through tick or receive. Other graph sources are unchanged.
+
+
+final-anchors.txt
+doc/architecture.md: transmit operation -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/architecture.md: mrp_transmit -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/architecture.md: bounded assembler -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/manager.md: Receive handler -> ../src/core/mrp_mad.c:1069: static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)
+doc/manager.md: Applicant handler -> ../src/core/mrp_mad.c:506: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+doc/manager.md: Registrar table -> ../src/core/mrp_mad.c:325: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+doc/manager.md: transmit operation -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/manager.md: Assembler -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/manager.md: Destination constant -> ../src/modules/msrp.c:415:     .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },
+doc/manager.md: assembler -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/manager.md: Stream policy -> ../src/modules/msrp.c:138: static uint32_t msrp_map_join(const struct mrp_app *app, uint8_t src_port,
+doc/manager.md: active-state and inactive-state assertions -> ../tests/features/steps/switch_steps.py:27: @then("port {port_id:d} should be active")
+doc/tester.md: active-state and inactive-state assertions -> ../tests/features/steps/switch_steps.py:27: @then("port {port_id:d} should be active")
+doc/developer.md: mrp_reclaim -> ../src/core/mrp_mad.c:1103: unsigned mrp_reclaim(struct mrp_app *app, uint8_t port_id)
+doc/developer.md: declaration rows -> ../src/core/mrp_mad.c:158:     [MRP_EVENT_NEW] = {
+doc/developer.md: Applicant handler -> ../src/core/mrp_mad.c:506: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+doc/developer.md: transmit operation -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/developer.md: Applicant handler -> ../src/core/mrp_mad.c:506: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+doc/developer.md: event dispatcher -> ../src/core/mrp_mad.c:755: static void deliver_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/developer.md: transactional assembler -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/developer.md: receive-event rows -> ../src/core/mrp_mad.c:207:     [MRP_EVENT_RJOININ] = {
+doc/developer.md: Applicant table -> ../src/core/mrp_mad.c:149: static const struct appl_entry appl_table[MRP_EVENT_COUNT][MRP_APPL_STATE_COUNT] = {
+doc/developer.md: Applicant handler -> ../src/core/mrp_mad.c:506: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+doc/developer.md: withdrawal row -> ../src/core/mrp_mad.c:172:     [MRP_EVENT_LV] = {
+doc/developer.md: transmit rows -> ../src/core/mrp_mad.c:179:     [MRP_EVENT_TX] = {
+doc/developer.md: transmit rows -> ../src/core/mrp_mad.c:179:     [MRP_EVENT_TX] = {
+doc/developer.md: Registrar table -> ../src/core/mrp_mad.c:325: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+doc/developer.md: indication handler -> ../src/core/mrp_mad.c:618: static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+doc/developer.md: Registrar table -> ../src/core/mrp_mad.c:325: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+doc/developer.md: re-declaration row -> ../src/core/mrp_mad.c:387:     /* MRP_EVENT_REDECLARE — same as RLV for Registrar */
+doc/developer.md: Registrar Join rows -> ../src/core/mrp_mad.c:353:     /* MRP_EVENT_RJOININ || MRP_EVENT_RJOINMT — Table 10-4 rJoinIn!||rJoinMt! row */
+doc/developer.md: Registrar handler -> ../src/core/mrp_mad.c:618: static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+doc/developer.md: receive handler -> ../src/core/mrp_mad.c:1069: static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)
+doc/developer.md: la_event -> ../src/core/mrp_mad.c:779: static void la_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/developer.md: transmit operation -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/developer.md: timer draw -> ../src/core/mrp_mad.c:773: static uint32_t leaveall_draw(struct mrp_port_state *ps)
+doc/developer.md: pt_event -> ../src/core/mrp_mad.c:819: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/developer.md: mrp_set_periodic -> ../src/core/mrp_mad.c:1143: void mrp_set_periodic(struct mrp_app *app, uint8_t port_id, bool enable)
+doc/developer.md: periodic handler -> ../src/core/mrp_mad.c:819: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/integrator.md: assembler -> ../src/core/mrp_mad.c:1323: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+doc/integrator.md: stream destination -> ../src/modules/msrp.c:415:     .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },
+doc/integrator.md: periodic handler -> ../src/core/mrp_mad.c:819: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+doc/integrator.md: destructor -> ../src/core/mrp_mad.c:919: void mrp_app_destroy(struct mrp_app *app)
+
+
+precommit-audit.log
+Files: 60 issues: 0
+
+Source anchors: 43
+Added brace issues: []
+
+
+internal-plant-corrected.log
+clear-only-on-flush-event  build 0 0 | unit rc [1, 1] | probe rc [1, 1]
+    OFF failing: ['pending_flush_failed_talker_snapshot_survives_cross_port_updates', 'pending_flush_listener_snapshot_survives_cross_port_updates', 'pending_flush_snapshot_survives_local_declarations_and_repeated_failure', 'pending_flush_talker_snapshot_survives_cross_port_updates', 'timer_completed_flush_keeps_unchanged_registrations_quiet']
+    ON failing: ['pending_flush_failed_talker_snapshot_survives_cross_port_updates', 'pending_flush_listener_snapshot_survives_cross_port_updates', 'pending_flush_snapshot_survives_local_declarations_and_repeated_failure', 'pending_flush_talker_snapshot_survives_cross_port_updates', 'timer_completed_flush_keeps_unchanged_registrations_quiet']
+
+PASS final integrity: exact parent and head; configured identity; one-line subject; unchanged validated files; clean worktree; one unpushed commit; output sizes and residue.
+
+PASS packet: 46 pull-request fragments; no long sentences or unlinked references; required closing links; Round 7 sections; files below 200 KB.

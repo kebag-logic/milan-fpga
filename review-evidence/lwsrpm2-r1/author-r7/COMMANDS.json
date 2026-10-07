@@ -1,0 +1,2287 @@
+{
+  "primary": [
+    {
+      "label": "inventory",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.05
+    },
+    {
+      "label": "issue10",
+      "command": [
+        "gh",
+        "issue",
+        "view",
+        "10",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--json",
+        "body,comments,title,url,state"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.6
+    },
+    {
+      "label": "taken",
+      "command": [
+        "gh",
+        "issue",
+        "comment",
+        "10",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--body",
+        "[A563] TAKEN"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 1.36
+    },
+    {
+      "label": "issue7",
+      "command": [
+        "gh",
+        "issue",
+        "view",
+        "7",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--json",
+        "body,comments,title,url,state"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.52
+    },
+    {
+      "label": "issue1",
+      "command": [
+        "gh",
+        "issue",
+        "view",
+        "1",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--json",
+        "body,comments,title,url,state"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.65
+    },
+    {
+      "label": "issue6",
+      "command": [
+        "gh",
+        "issue",
+        "view",
+        "6",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--json",
+        "body,comments,title,url,state"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.68
+    },
+    {
+      "label": "merge",
+      "command": [
+        "git",
+        "merge",
+        "--no-ff",
+        "--no-commit",
+        "origin/f4-stack"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 1,
+      "seconds": 0.01
+    },
+    {
+      "label": "read-build-docs",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.03
+    },
+    {
+      "label": "merge-inspect",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.05
+    },
+    {
+      "label": "standard-text",
+      "command": [
+        "pdftotext",
+        "-layout",
+        "$STANDARD_PDF",
+        "$SCRATCH/802.1Q-2018.txt"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 3.11
+    },
+    {
+      "label": "remove-placeholder",
+      "command": [
+        "git",
+        "rm",
+        "tests/unit/placeholder.c"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.0
+    },
+    {
+      "label": "configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "$SCRATCH/build",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.31
+    },
+    {
+      "label": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/build",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.63
+    },
+    {
+      "label": "baseline-ctest",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/build",
+        "--verbose"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.04
+    },
+    {
+      "label": "baseline-behave",
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "SHLAN_LIBRARY=$SCRATCH/build/libshlan.so",
+        "behave"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.13
+    },
+    {
+      "label": "expanded-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/build",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.51
+    },
+    {
+      "label": "expanded-unit",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "$SCRATCH/build/unit_tests"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.03
+    },
+    {
+      "label": "integration-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/build",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.29
+    },
+    {
+      "label": "integration-unit",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "$SCRATCH/build/unit_tests"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.05
+    },
+    {
+      "label": "reversals",
+      "command": [
+        "python3",
+        "tests/check_reversals.py",
+        "--work-dir",
+        "$SCRATCH/reversals",
+        "--prefix",
+        "$CGREEN_PREFIX"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 69.81
+    },
+    {
+      "label": "reversals-v2",
+      "command": [
+        "python3",
+        "tests/check_reversals.py",
+        "--work-dir",
+        "$SCRATCH/reversals-v2",
+        "--prefix",
+        "$CGREEN_PREFIX"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 18.22
+    },
+    {
+      "label": "doc-sentences",
+      "command": [
+        "python3",
+        "doc/tools/check_sentences.py"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.04
+    },
+    {
+      "label": "doc-reference-selftest",
+      "command": [
+        "python3",
+        "doc/tools/check_references.py",
+        "--self-test"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.05
+    },
+    {
+      "label": "doc-references",
+      "command": [
+        "python3",
+        "doc/tools/check_references.py"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.07
+    },
+    {
+      "label": "doc-links",
+      "command": [
+        "python3",
+        "doc/tools/check_links.py",
+        "--github-auth"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 1,
+      "seconds": 1.93
+    },
+    {
+      "label": "doc-graphs",
+      "command": [
+        "python3",
+        "doc/tools/render_mermaid.py",
+        "--output",
+        "$SCRATCH/graphs"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 1,
+      "seconds": 15.36
+    },
+    {
+      "label": "current-audit",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.04
+    },
+    {
+      "label": "iso-links",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.34
+    },
+    {
+      "label": "sanitizer-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "$SCRATCH/sanitized",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.38
+    },
+    {
+      "label": "sanitizer-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/sanitized",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.77
+    },
+    {
+      "label": "sanitizer-ctest",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "ASAN_OPTIONS=detect_leaks=1",
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/sanitized",
+        "--verbose",
+        "--timeout",
+        "60"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.36
+    },
+    {
+      "label": "doc-links-v2",
+      "command": [
+        "python3",
+        "doc/tools/check_links.py",
+        "--github-auth"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 1.71
+    },
+    {
+      "label": "doc-graphs-v2",
+      "command": [
+        "python3",
+        "doc/tools/render_mermaid.py",
+        "--output",
+        "$SCRATCH/graphs-v2"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 13.09
+    },
+    {
+      "label": "table-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/build",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.27
+    },
+    {
+      "label": "table-unit",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "$SCRATCH/build/unit_tests"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.03
+    },
+    {
+      "label": "freestanding",
+      "command": [
+        "python3",
+        "tests/check_freestanding.py"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.23
+    },
+    {
+      "label": "anchor-review",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.04
+    },
+    {
+      "label": "published",
+      "command": [
+        "python3",
+        "$SCRATCH/published.py"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 43.06
+    },
+    {
+      "label": "graph-raster",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 17.2
+    },
+    {
+      "label": "licence-and-private-audit",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 1,
+      "seconds": 0.05
+    },
+    {
+      "label": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "HEAD"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.01
+    },
+    {
+      "label": "final-graphs",
+      "command": [
+        "python3",
+        "doc/tools/render_mermaid.py",
+        "--output",
+        "$SCRATCH/final-graphs"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 13.69
+    },
+    {
+      "label": "final-sanitizer-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/sanitized",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.74
+    },
+    {
+      "label": "final-sanitizer-ctest",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "ASAN_OPTIONS=detect_leaks=1",
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/sanitized",
+        "--verbose",
+        "--timeout",
+        "60"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.39
+    },
+    {
+      "label": "final-sentences",
+      "command": [
+        "python3",
+        "doc/tools/check_sentences.py"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.03
+    },
+    {
+      "label": "merge-ancestry",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.04
+    },
+    {
+      "label": "final-references",
+      "command": [
+        "python3",
+        "doc/tools/check_references.py"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.07
+    },
+    {
+      "label": "final-links",
+      "command": [
+        "python3",
+        "doc/tools/check_links.py",
+        "--github-auth"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 1.72
+    },
+    {
+      "label": "final-graph-raster",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 8.42
+    },
+    {
+      "label": "final-audit",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.06
+    },
+    {
+      "label": "strict-restored",
+      "command": [
+        "cc",
+        "-O2",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/include",
+        "-Isrc",
+        "-c",
+        "src/core/mrp_pdu.c",
+        "-o",
+        "$SCRATCH/strict-restored.o"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.09
+    },
+    {
+      "label": "final-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "HEAD"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.01
+    },
+    {
+      "label": "stage",
+      "command": [
+        "git",
+        "add",
+        "CMakeLists.txt",
+        "Kconfig.zephyr",
+        "LICENSE",
+        "NOTICE",
+        "README.md",
+        "doc",
+        "src",
+        "tests"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.01
+    },
+    {
+      "label": "staged-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.01
+    },
+    {
+      "label": "unresolved-check",
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "--diff-filter=U"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.0
+    },
+    {
+      "label": "commit",
+      "command": [
+        "git",
+        "commit",
+        "-m",
+        "Merge bare-metal support with the test harness and public guides"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.02
+    },
+    {
+      "label": "handoff-review",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 4.77
+    },
+    {
+      "label": "committed-state",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.05
+    },
+    {
+      "label": "final-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-build",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.12
+    },
+    {
+      "label": "final-ctest",
+      "command": [
+        "env",
+        "LD_LIBRARY_PATH=$CGREEN_PREFIX/lib",
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-build",
+        "--verbose"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.05
+    },
+    {
+      "label": "final-behave",
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "SHLAN_LIBRARY=$SCRATCH/published-build/libshlan.so",
+        "behave"
+      ],
+      "cwd": "$CHECKOUT",
+      "rc": 0,
+      "seconds": 0.13
+    }
+  ],
+  "published": [
+    {
+      "label": "published-01",
+      "page": "README.md",
+      "line": 39,
+      "command": "cmake -S . -B \"$LWSRP_BUILD\" -DCMAKE_BUILD_TYPE=Debug",
+      "rc": 0
+    },
+    {
+      "label": "published-02",
+      "page": "README.md",
+      "line": 40,
+      "command": "cmake --build \"$LWSRP_BUILD\" --parallel 2",
+      "rc": 0
+    },
+    {
+      "label": "published-03",
+      "page": "README.md",
+      "line": 41,
+      "command": "ctest --test-dir \"$LWSRP_BUILD\" --output-on-failure",
+      "rc": 0
+    },
+    {
+      "label": "published-04",
+      "page": "README.md",
+      "line": 42,
+      "command": "SHLAN_LIBRARY=\"$LWSRP_BUILD/libshlan.so\" behave",
+      "rc": 0
+    },
+    {
+      "label": "published-05",
+      "page": "doc/tester.md",
+      "line": 18,
+      "command": "cmake -S . -B \"$LWSRP_BUILD\" -DCMAKE_BUILD_TYPE=Debug",
+      "rc": 0
+    },
+    {
+      "label": "published-06",
+      "page": "doc/tester.md",
+      "line": 19,
+      "command": "cmake --build \"$LWSRP_BUILD\" --parallel 2",
+      "rc": 0
+    },
+    {
+      "label": "published-07",
+      "page": "doc/tester.md",
+      "line": 20,
+      "command": "ctest --test-dir \"$LWSRP_BUILD\" --output-on-failure",
+      "rc": 0
+    },
+    {
+      "label": "published-08",
+      "page": "doc/tester.md",
+      "line": 21,
+      "command": "\"$LWSRP_BUILD/unit_tests\"",
+      "rc": 0
+    },
+    {
+      "label": "published-09",
+      "page": "doc/tester.md",
+      "line": 22,
+      "command": "SHLAN_LIBRARY=\"$LWSRP_BUILD/libshlan.so\" behave",
+      "rc": 0
+    },
+    {
+      "label": "published-10",
+      "page": "doc/tester.md",
+      "line": 23,
+      "command": "behave --dry-run",
+      "rc": 0
+    },
+    {
+      "label": "published-11",
+      "page": "doc/tester.md",
+      "line": 48,
+      "command": "cc -std=c11 -Isrc/include tests/unit/mrp_pdu_test.c src/core/mrp_pdu.c -xc - -lcgreen -o \"$LWSRP_BUILD/mrp_pdu_tests\" <<'C'\n#include <cgreen/cgreen.h>\nTestSuite *mrp_pdu_suite(void);\nint main(void)\n{\n    return run_test_suite(mrp_pdu_suite(), create_text_reporter());\n}\nC",
+      "rc": 0
+    },
+    {
+      "label": "published-12",
+      "page": "doc/tester.md",
+      "line": 56,
+      "command": "\"$LWSRP_BUILD/mrp_pdu_tests\"",
+      "rc": 0
+    },
+    {
+      "label": "published-13",
+      "page": "doc/tester.md",
+      "line": 133,
+      "command": "python3 tests/check_freestanding.py",
+      "rc": 0
+    },
+    {
+      "label": "published-14",
+      "page": "doc/tester.md",
+      "line": 134,
+      "command": "python3 tests/check_reversals.py --work-dir \"$REVERSAL_SCRATCH\" --prefix \"$CGREEN_PREFIX\"",
+      "rc": 0
+    },
+    {
+      "label": "published-15",
+      "page": "doc/tools/README.md",
+      "line": 14,
+      "command": "python3 doc/tools/check_sentences.py",
+      "rc": 0
+    },
+    {
+      "label": "published-16",
+      "page": "doc/tools/README.md",
+      "line": 15,
+      "command": "python3 doc/tools/check_references.py",
+      "rc": 0
+    },
+    {
+      "label": "published-17",
+      "page": "doc/tools/README.md",
+      "line": 16,
+      "command": "python3 doc/tools/check_references.py --self-test",
+      "rc": 0
+    },
+    {
+      "label": "published-18",
+      "page": "doc/tools/README.md",
+      "line": 17,
+      "command": "python3 doc/tools/check_links.py --github-auth",
+      "rc": 0
+    },
+    {
+      "label": "published-19",
+      "page": "doc/tools/README.md",
+      "line": 18,
+      "command": "python3 doc/tools/render_mermaid.py --output \"$DOC_SCRATCH/graphs\"",
+      "rc": 0
+    }
+  ],
+  "reversals": [
+    {
+      "label": "configure",
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/published-reversals/source",
+        "-B",
+        "$SCRATCH/published-reversals/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "baseline-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "baseline-check",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "timer-unlink-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "timer-unlink",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "msrp-address-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "msrp-address",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "mmrp-address-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "mmrp-address",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "mvrp-address-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "mvrp-address",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "domain-offset-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "domain-offset",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "talker-offset-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "talker-offset",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "listener-offset-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "listener-offset",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "wire-prevalidation-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "wire-prevalidation",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "pdu-endmark-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "pdu-endmark",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "leaveall-scope-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "leaveall-scope",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "local-registration-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "local-registration",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "registrar-condition-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "registrar-condition",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "periodic-interval-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "periodic-interval",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "leaveall-randomization-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "leaveall-randomization",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "refused-storage-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "refused-storage",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "registrar-during-refusal-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "registrar-during-refusal",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "changed-listener-indication-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "changed-listener-indication",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "receive-opportunity-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "receive-opportunity",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "receive-interest-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "receive-interest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "reclaim-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "reclaim",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "split-fairness-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "split-fairness",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "received-withdrawal-value-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "received-withdrawal-value",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "local-withdrawal-value-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "local-withdrawal-value",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "talker-replacement-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "talker-replacement",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "listener-redeclaration-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "listener-redeclaration",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "domain-member-order-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "domain-member-order",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "hosted-allocation-header",
+      "command": [
+        "/usr/bin/python3",
+        "tests/check_freestanding.py"
+      ],
+      "rc": 1
+    },
+    {
+      "label": "hosted-error-header",
+      "command": [
+        "/usr/bin/python3",
+        "tests/check_freestanding.py"
+      ],
+      "rc": 1
+    },
+    {
+      "label": "point-to-point-condition-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "point-to-point-condition",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "shared-in-condition-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "shared-in-condition",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "withdrawal-transition-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "withdrawal-transition",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "periodic-passive-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "periodic-passive",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "leaveall-all-types-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "leaveall-all-types",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "unknown-stream-message-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "unknown-stream-message",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 8
+    },
+    {
+      "label": "bounded-header-initialization",
+      "command": [
+        "cc",
+        "-O2",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/include",
+        "-Isrc",
+        "-c",
+        "src/core/mrp_pdu.c",
+        "-o",
+        "$SCRATCH/published-reversals/strict.o"
+      ],
+      "rc": 1
+    },
+    {
+      "label": "restored-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/published-reversals/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "restored-check",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/published-reversals/build",
+        "--output-on-failure",
+        "--timeout",
+        "10"
+      ],
+      "rc": 0
+    }
+  ],
+  "graph_raster": [
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/CONTRIBUTING.md-48.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/CONTRIBUTING.md-48.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/README.md-15.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/README.md-15.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-architecture.md-10.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-architecture.md-10.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-architecture.md-35.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-architecture.md-35.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-architecture.md-60.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-architecture.md-60.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-developer.md-114.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-developer.md-114.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-developer.md-143.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-developer.md-143.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-developer.md-170.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-developer.md-170.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-developer.md-205.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-developer.md-205.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-developer.md-232.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-developer.md-232.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-developer.md-275.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-developer.md-275.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-developer.md-29.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-developer.md-29.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-developer.md-81.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-developer.md-81.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-integrator.md-137.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-integrator.md-137.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-integrator.md-185.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-integrator.md-185.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-integrator.md-218.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-integrator.md-218.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-integrator.md-248.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-integrator.md-248.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-integrator.md-279.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-integrator.md-279.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-integrator.md-49.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-integrator.md-49.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-integrator.md-89.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-integrator.md-89.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-manager.md-45.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-manager.md-45.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-tester.md-65.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-tester.md-65.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/graphs-v2/doc-tester.md-95.mmd",
+        "-o",
+        "$SCRATCH/graphs-v2/doc-tester.md-95.png",
+        "-b",
+        "white",
+        "-w",
+        "1200"
+      ],
+      "rc": 0
+    }
+  ],
+  "final_graph_raster": [
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-137.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-137.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "1"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-137.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-137-page.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "0.8"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-185.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-185.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "1"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-185.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-185-page.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "0.8"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-218.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-218.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "1"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-218.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-218-page.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "0.8"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-248.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-248.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "1"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-248.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-248-page.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "0.8"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-279.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-279.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "1"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-279.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-279-page.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "0.8"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-49.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-49.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "1"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-49.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-49-page.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "0.8"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-89.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-89.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "1"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-graphs/doc-integrator.md-89.mmd",
+        "-o",
+        "$SCRATCH/final-graphs/doc-integrator.md-89-page.png",
+        "-b",
+        "white",
+        "-w",
+        "1200",
+        "-s",
+        "0.8"
+      ],
+      "rc": 0
+    }
+  ],
+  "final_status": {
+    "command": [
+      "gh",
+      "issue",
+      "comment",
+      "10",
+      "--repo",
+      "kebag-logic/lwSRP",
+      "--body",
+      "[A563] REVIEW READY 12a0b77f4c4853028466f1ce608feb59598bb3a3"
+    ],
+    "rc": 0,
+    "url": "https://github.com/kebag-logic/lwSRP/issues/10#issuecomment-6032502747"
+  }
+}

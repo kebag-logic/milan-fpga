@@ -1,0 +1,748 @@
+{
+  "spdx": "Apache-2.0",
+  "commands": [
+    {
+      "label": "resume-origin",
+      "command": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "rc": 0,
+      "result": "https://github.com/kebag-logic/lwSRP.git"
+    },
+    {
+      "label": "resume-head",
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "rc": 0,
+      "result": "82422d6ffe38d430576cd9d874a45b9e124e6c63"
+    },
+    {
+      "label": "resume-status",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "rc": 0,
+      "result": "mark2-port; clean"
+    },
+    {
+      "label": "before-fix-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$PRIOR_SCRATCH/build-OFF",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "before-fix-unit",
+      "command": [
+        "$PRIOR_SCRATCH/build-OFF/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "label": "standard",
+      "command": [
+        "pdftotext",
+        "-layout",
+        "$STANDARD",
+        "$SCRATCH/standard.txt"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "fixed-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$PRIOR_SCRATCH/build-OFF",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "fixed-unit",
+      "command": [
+        "$PRIOR_SCRATCH/build-OFF/unit_tests"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "enabled-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$PRIOR_SCRATCH/build-ON",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "enabled-unit",
+      "command": [
+        "$PRIOR_SCRATCH/build-ON/unit_tests"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "reviewer-probes",
+      "command": [
+        "python3",
+        "$SCRATCH/probes.py"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "plants-OFF",
+      "command": [
+        "python3",
+        "$SCRATCH/plants.py",
+        "OFF"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "audit",
+      "command": [
+        "python3",
+        "$SCRATCH/audit.py"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "sentences",
+      "command": [
+        "python3",
+        "doc/tools/check_sentences.py"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "references",
+      "command": [
+        "python3",
+        "doc/tools/check_references.py"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "plants-ON",
+      "command": [
+        "python3",
+        "$SCRATCH/plants.py",
+        "ON"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "external-faults",
+      "command": [
+        "python3",
+        "$SCRATCH/packets/R541-3/scripts/run_faults.py",
+        "--source",
+        "$SOURCE",
+        "--packet",
+        "$SCRATCH/packets/R541-3",
+        "--jobs",
+        "1"
+      ],
+      "rc": 1
+    },
+    {
+      "label": "sanitizers",
+      "command": [
+        "python3",
+        "$SCRATCH/sanitizers.py"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "external-faults-rerun",
+      "command": [
+        "python3",
+        "$SCRATCH/packets/R541-3/scripts/run_faults.py",
+        "--source",
+        "$SOURCE",
+        "--packet",
+        "$SCRATCH/packets/R541-3",
+        "--jobs",
+        "1"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "published",
+      "command": [
+        "python3",
+        "$SCRATCH/published.py"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "flush-graph-png",
+      "command": [
+        "mmdc",
+        "-i",
+        "$SCRATCH/final-published/published-doc/graphs/doc-developer.md-293.mmd",
+        "-o",
+        "$SCRATCH/flush-graph.png",
+        "-b",
+        "white",
+        "-w",
+        "800"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "final-audit",
+      "command": [
+        "python3",
+        "$SCRATCH/audit.py"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "stage",
+      "command": [
+        "git",
+        "add",
+        "README.md",
+        "doc/architecture.md",
+        "doc/developer.md",
+        "doc/integrator.md",
+        "doc/manager.md",
+        "doc/tester.md",
+        "src/core/mrp_mad.c",
+        "src/include/shish_lan/mrp.h",
+        "tests/check_reversals.py",
+        "tests/unit/review_test.c"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "staged-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "commit",
+      "command": [
+        "git",
+        "commit",
+        "-m",
+        "Retain failed topology withdrawals and order replacement retries"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "committed-head",
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "committed-status",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "full-braces",
+      "command": [
+        "python3",
+        "$SCRATCH/packets/R540-3/scripts/braces.py",
+        "$SOURCE",
+        "1401654530ce",
+        "HEAD"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "final-integrity",
+      "command": [
+        "python3",
+        "-"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "review-ready",
+      "command": [
+        "gh",
+        "issue",
+        "comment",
+        "10",
+        "--repo",
+        "kebag-logic/lwSRP",
+        "--body-file",
+        "$SCRATCH/review-ready.txt"
+      ],
+      "rc": 0
+    }
+  ],
+  "published": [
+    {
+      "label": "published-01",
+      "page": "README.md",
+      "line": 39,
+      "command": "cmake -S . -B \"$LWSRP_BUILD\" -DCMAKE_BUILD_TYPE=Debug -DLWSRP_MILAN=OFF",
+      "rc": 0
+    },
+    {
+      "label": "published-02",
+      "page": "README.md",
+      "line": 40,
+      "command": "cmake --build \"$LWSRP_BUILD\" --parallel 2",
+      "rc": 0
+    },
+    {
+      "label": "published-03",
+      "page": "README.md",
+      "line": 41,
+      "command": "ctest --test-dir \"$LWSRP_BUILD\" --output-on-failure",
+      "rc": 0
+    },
+    {
+      "label": "published-04",
+      "page": "README.md",
+      "line": 42,
+      "command": "SHLAN_LIBRARY=\"$LWSRP_BUILD/libshlan.so\" behave",
+      "rc": 0
+    },
+    {
+      "label": "published-05",
+      "page": "doc/tester.md",
+      "line": 18,
+      "command": "cmake -S . -B \"$LWSRP_BUILD\" -DCMAKE_BUILD_TYPE=Debug -DLWSRP_MILAN=OFF",
+      "rc": 0
+    },
+    {
+      "label": "published-06",
+      "page": "doc/tester.md",
+      "line": 19,
+      "command": "cmake --build \"$LWSRP_BUILD\" --parallel 2",
+      "rc": 0
+    },
+    {
+      "label": "published-07",
+      "page": "doc/tester.md",
+      "line": 20,
+      "command": "ctest --test-dir \"$LWSRP_BUILD\" --output-on-failure",
+      "rc": 0
+    },
+    {
+      "label": "published-08",
+      "page": "doc/tester.md",
+      "line": 21,
+      "command": "\"$LWSRP_BUILD/unit_tests\"",
+      "rc": 0
+    },
+    {
+      "label": "published-09",
+      "page": "doc/tester.md",
+      "line": 22,
+      "command": "SHLAN_LIBRARY=\"$LWSRP_BUILD/libshlan.so\" behave",
+      "rc": 0
+    },
+    {
+      "label": "published-10",
+      "page": "doc/tester.md",
+      "line": 23,
+      "command": "behave --dry-run",
+      "rc": 0
+    },
+    {
+      "label": "published-11",
+      "page": "doc/tester.md",
+      "line": 54,
+      "command": "cmake -S . -B \"$LWSRP_MILAN_BUILD\" -DCMAKE_BUILD_TYPE=Debug -DLWSRP_MILAN=ON",
+      "rc": 0
+    },
+    {
+      "label": "published-12",
+      "page": "doc/tester.md",
+      "line": 55,
+      "command": "cmake --build \"$LWSRP_MILAN_BUILD\" --parallel 2",
+      "rc": 0
+    },
+    {
+      "label": "published-13",
+      "page": "doc/tester.md",
+      "line": 56,
+      "command": "ctest --test-dir \"$LWSRP_MILAN_BUILD\" --output-on-failure",
+      "rc": 0
+    },
+    {
+      "label": "published-14",
+      "page": "doc/tester.md",
+      "line": 57,
+      "command": "\"$LWSRP_MILAN_BUILD/unit_tests\"",
+      "rc": 0
+    },
+    {
+      "label": "published-15",
+      "page": "doc/tester.md",
+      "line": 58,
+      "command": "SHLAN_LIBRARY=\"$LWSRP_MILAN_BUILD/libshlan.so\" behave",
+      "rc": 0
+    },
+    {
+      "label": "published-16",
+      "page": "doc/tester.md",
+      "line": 81,
+      "command": "cc -std=c11 -Isrc/include tests/unit/mrp_pdu_test.c src/core/mrp_pdu.c -xc - -lcgreen -o \"$LWSRP_BUILD/mrp_pdu_tests\" <<'C'\n#include <cgreen/cgreen.h>\nTestSuite *mrp_pdu_suite(void);\nint main(void)\n{\n    return run_test_suite(mrp_pdu_suite(), create_text_reporter());\n}\nC",
+      "rc": 0
+    },
+    {
+      "label": "published-17",
+      "page": "doc/tester.md",
+      "line": 89,
+      "command": "\"$LWSRP_BUILD/mrp_pdu_tests\"",
+      "rc": 0
+    },
+    {
+      "label": "published-18",
+      "page": "doc/tester.md",
+      "line": 170,
+      "command": "python3 tests/check_embedded.py --work-dir \"$EMBEDDED_SCRATCH\"",
+      "rc": 0
+    },
+    {
+      "label": "published-19",
+      "page": "doc/tester.md",
+      "line": 171,
+      "command": "python3 tests/check_freestanding.py",
+      "rc": 0
+    },
+    {
+      "label": "published-20",
+      "page": "doc/tester.md",
+      "line": 172,
+      "command": "CC=\"cc -DLWSRP_MILAN=1\" python3 tests/check_freestanding.py",
+      "rc": 0
+    },
+    {
+      "label": "published-21",
+      "page": "doc/tester.md",
+      "line": 173,
+      "command": "python3 tests/check_reversals.py --work-dir \"$REVERSAL_SCRATCH\" --prefix \"$CGREEN_PREFIX\"",
+      "rc": 0
+    },
+    {
+      "label": "published-22",
+      "page": "doc/tester.md",
+      "line": 174,
+      "command": "python3 tests/check_reversals.py --work-dir \"$MILAN_REVERSAL_SCRATCH\" --prefix \"$CGREEN_PREFIX\" --milan ON",
+      "rc": 0
+    },
+    {
+      "label": "published-23",
+      "page": "doc/tools/README.md",
+      "line": 14,
+      "command": "python3 doc/tools/check_sentences.py",
+      "rc": 0
+    },
+    {
+      "label": "published-24",
+      "page": "doc/tools/README.md",
+      "line": 15,
+      "command": "python3 doc/tools/check_references.py",
+      "rc": 0
+    },
+    {
+      "label": "published-25",
+      "page": "doc/tools/README.md",
+      "line": 16,
+      "command": "python3 doc/tools/check_references.py --self-test",
+      "rc": 0
+    },
+    {
+      "label": "published-26",
+      "page": "doc/tools/README.md",
+      "line": 17,
+      "command": "python3 doc/tools/check_links.py --github-auth",
+      "rc": 0
+    },
+    {
+      "label": "published-27",
+      "page": "doc/tools/README.md",
+      "line": 18,
+      "command": "python3 doc/tools/render_mermaid.py --output \"$DOC_SCRATCH/graphs\"",
+      "rc": 0
+    }
+  ],
+  "probes": [
+    {
+      "label": "probe_r3-0-compile",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-g",
+        "-O1",
+        "-no-pie",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DLWSRP_MILAN=0",
+        "-Isrc/include",
+        "-Isrc",
+        "$SCRATCH/packets/R540-3/scripts/probes/probe_r3.c",
+        "src/core/mrp_mad.c",
+        "src/core/mrp_pdu.c",
+        "src/modules/msrp.c",
+        "src/modules/mvrp.c",
+        "src/modules/mmrp.c",
+        "src/ports/timer.c",
+        "$SCRATCH/packets/R540-3/scripts/probes/probe_alloc.c",
+        "-o",
+        "$SCRATCH/probe_r3-0"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "probe_r3-0",
+      "command": [
+        "$SCRATCH/probe_r3-0"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "probe_plants-0-compile",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-g",
+        "-O1",
+        "-no-pie",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DLWSRP_MILAN=0",
+        "-Isrc/include",
+        "-Isrc",
+        "$SCRATCH/packets/R540-3/scripts/probes/probe_plants.c",
+        "src/core/mrp_mad.c",
+        "src/core/mrp_pdu.c",
+        "src/modules/msrp.c",
+        "src/modules/mvrp.c",
+        "src/modules/mmrp.c",
+        "src/ports/timer.c",
+        "$SCRATCH/packets/R540-3/scripts/probes/probe_alloc.c",
+        "-o",
+        "$SCRATCH/probe_plants-0"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "probe_plants-0",
+      "command": [
+        "$SCRATCH/probe_plants-0"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "probe_r3-1-compile",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-g",
+        "-O1",
+        "-no-pie",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DLWSRP_MILAN=1",
+        "-Isrc/include",
+        "-Isrc",
+        "$SCRATCH/packets/R540-3/scripts/probes/probe_r3.c",
+        "src/core/mrp_mad.c",
+        "src/core/mrp_pdu.c",
+        "src/modules/msrp.c",
+        "src/modules/mvrp.c",
+        "src/modules/mmrp.c",
+        "src/ports/timer.c",
+        "$SCRATCH/packets/R540-3/scripts/probes/probe_alloc.c",
+        "-o",
+        "$SCRATCH/probe_r3-1"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "probe_r3-1",
+      "command": [
+        "$SCRATCH/probe_r3-1"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "probe_plants-1-compile",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-g",
+        "-O1",
+        "-no-pie",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DLWSRP_MILAN=1",
+        "-Isrc/include",
+        "-Isrc",
+        "$SCRATCH/packets/R540-3/scripts/probes/probe_plants.c",
+        "src/core/mrp_mad.c",
+        "src/core/mrp_pdu.c",
+        "src/modules/msrp.c",
+        "src/modules/mvrp.c",
+        "src/modules/mmrp.c",
+        "src/ports/timer.c",
+        "$SCRATCH/packets/R540-3/scripts/probes/probe_alloc.c",
+        "-o",
+        "$SCRATCH/probe_plants-1"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "probe_plants-1",
+      "command": [
+        "$SCRATCH/probe_plants-1"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "external-flush",
+      "command": [
+        "python3",
+        "$SCRATCH/packets/R541-3/scripts/run_flush.py",
+        "--source",
+        "$SOURCE",
+        "--packet",
+        "$SCRATCH/packets/R541-3",
+        "--jobs",
+        "1"
+      ],
+      "rc": 0
+    }
+  ],
+  "sanitizers": [
+    {
+      "label": "sanitize-OFF-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "$SCRATCH/sanitize-OFF",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "sanitize-OFF-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/sanitize-OFF",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "sanitize-OFF-unit",
+      "command": [
+        "$SCRATCH/sanitize-OFF/unit_tests"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "sanitize-OFF-ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/sanitize-OFF",
+        "--output-on-failure"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "sanitize-ON-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "$SCRATCH/sanitize-ON",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DLWSRP_MILAN=ON",
+        "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "sanitize-ON-build",
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/sanitize-ON",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "sanitize-ON-unit",
+      "command": [
+        "$SCRATCH/sanitize-ON/unit_tests"
+      ],
+      "rc": 0
+    },
+    {
+      "label": "sanitize-ON-ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "$SCRATCH/sanitize-ON",
+        "--output-on-failure"
+      ],
+      "rc": 0
+    }
+  ]
+}
