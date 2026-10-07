@@ -1,0 +1,32 @@
+PASS ExtraPostPlacementOpt: four corners ['Fast_0C', 'Fast_85C', 'Slow_0C', 'Slow_85C']
+PASS ExtraPostPlacementOpt: worst equals corner minimum (0.124, 0.031)
+PASS ExtraPostPlacementOpt: every corner WNS>=+0.03 and WHS>=0
+PASS ExtraPostPlacementOpt: fully routed, zero errors (101190 nets)
+PASS ExtraPostPlacementOpt: PR table figures (0.124, 0.031) match evidence
+PASS ExtraPostPlacementOpt: worst-path text slack equals worst WNS
+PASS ExtraPostPlacementOpt: 48 artifacts carry sha256 digests
+PASS AltSpreadLogic_high: four corners ['Fast_0C', 'Fast_85C', 'Slow_0C', 'Slow_85C']
+PASS AltSpreadLogic_high: worst equals corner minimum (0.09, 0.011)
+PASS AltSpreadLogic_high: every corner WNS>=+0.03 and WHS>=0
+PASS AltSpreadLogic_high: fully routed, zero errors (101221 nets)
+PASS AltSpreadLogic_high: PR table figures (0.09, 0.011) match evidence
+PASS AltSpreadLogic_high: worst-path text slack equals worst WNS
+PASS AltSpreadLogic_high: 39 artifacts carry sha256 digests
+PASS ExtraTimingOpt: four corners ['Fast_0C', 'Fast_85C', 'Slow_0C', 'Slow_85C']
+PASS ExtraTimingOpt: worst equals corner minimum (0.055, 0.02)
+PASS ExtraTimingOpt: every corner WNS>=+0.03 and WHS>=0
+PASS ExtraTimingOpt: fully routed, zero errors (101183 nets)
+PASS ExtraTimingOpt: PR table figures (0.055, 0.02) match evidence
+PASS ExtraTimingOpt: worst-path text slack equals worst WNS
+PASS ExtraTimingOpt: 39 artifacts carry sha256 digests
+PASS selected directive is ExtraPostPlacementOpt
+PASS selected LUT 49957 == committed route-1x1 49957
+PASS selected FF 54274 == committed route-1x1 54274
+PASS selected SLICE 15734 == committed route-1x1 15734
+PASS selected BRAM_TILE 87.5 == committed route-1x1 87.5
+PASS selected RAMB36 74 == committed route-1x1 74
+PASS selected RAMB18 27 == committed route-1x1 27
+PASS selected DSP 14 == committed route-1x1 14
+PASS selected worst WNS/WHS == committed route record
+PASS selected route has the best worst-corner WNS (ExtraPostPlacementOpt)
+TOTAL failures: 0

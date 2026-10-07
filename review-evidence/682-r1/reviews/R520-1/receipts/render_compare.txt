@@ -1,0 +1,19 @@
+== reviewer head: 32 cases, summary ['32 checks: 28 PASS, 4 FAIL'], 0 
+    [FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless
+    [FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+    [FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+    [FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove "T6 ORDER: every repeat is a counted underrun".
+== reviewer prior: 32 cases, summary ['32 checks: 28 PASS, 4 FAIL'], 0 
+    [FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless
+    [FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+    [FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+    [FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove "T6 ORDER: every repeat is a counted underrun".
+MATCH reviewer head vs prior: case verdict lines (32 vs 32)
+MATCH reviewer head vs prior: summary (1 vs 1)
+MATCH reviewer head vs prior: indented [FAIL] assertion lines (0 vs 0)
+MATCH reviewer head vs prior: per-leg checks/failures count lines (0 vs 0)
+MATCH reviewer vs author adopted: case verdict lines (32 vs 32)
+MATCH reviewer vs author adopted: summary (1 vs 1)
+MATCH reviewer vs author prior: case verdict lines (32 vs 32)
+MATCH reviewer vs author prior: summary (1 vs 1)
+OVERALL MATCH

@@ -1,0 +1,18 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    5 descriptor burst(s) served from the 7512-byte generated image
+  [i]    --crf-only: 30000000 axis cycles at INTERNAL before the CRF phase (the aligner's boot pull-in, A2-a)
+
+[CRF] the CRF clock source selected under the running stream, and the same pins decoded again
+  [i]    T30 INTERNAL: 1799 frames decoded from ordinal 231, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 271..276 axis cycles (2.710..2.760 us) over 1798 frames, spread 5 of one frame = 2083
+  [i]    T30 INTERNAL: the commit-to-pin interval WALKS at -1.0684 ppm over 3743790 axis cycles, which is one whole frame of phi - one counted skip - every 19.4991 s
+  [i]    T30 CRF aligned: 1799 frames decoded from ordinal 8752, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 257..260 axis cycles (2.570..2.600 us) over 1799 frames, spread 3 of one frame = 2083
+  [i]    T30 CRF aligned: the commit-to-pin interval WALKS at -0.8009 ppm over 3745873 axis cycles, which is one whole frame of phi - one counted skip - every 26.0133 s
+  [i]    T30: the divider plan's closed form is +10.6394 ppm; measured -1.0684 ppm at INTERNAL and -0.8009 ppm under CRF
+  [i]    T30 CRF LAW: over 292 steady PDU ends the first pop after the end is taken +1992..+1995 cycles from it and the pop nearest the boundary -92..-89 (walk 3); the least clearance is 89 cycles, at PDU 1650 (offset -89), against the 9-cycle ambiguity window: margin 80
+  [i]    T30 CRF LAW: 292 PDUs, fill at the PDU end 14..14, first-event delay from it 18659..18663 cycles = 8.956..8.958 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T31 back at INTERNAL: 239 frames decoded from ordinal 13432, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 254..255 axis cycles (2.540..2.550 us) over 239 frames, spread 1 of one frame = 2083
+  [i]    T31 back at INTERNAL: the commit-to-pin interval WALKS at -2.0168 ppm over 495838 axis cycles, which is one whole frame of phi - one counted skip - every 10.3301 s
+  [i]    T31: 13686 of the record's 14400 events were injected
+== tdm8_render: checks: 58   failures: 0 ==
+RESULT: PASS
