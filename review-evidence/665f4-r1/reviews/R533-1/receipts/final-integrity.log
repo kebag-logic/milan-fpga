@@ -1,0 +1,64 @@
+COMMAND: ["python3", "$REVIEWS/665f4-r533-1-packet/scripts/verify_integrity.py", "$REVIEWS/r533-1-665f4"]
+{
+  "expected_head": "50d492c12789e1d80bf11f547e7fe53e02b4bdb9",
+  "repositories": [
+    {
+      "repository": ".",
+      "head": "50d492c12789e1d80bf11f547e7fe53e02b4bdb9",
+      "tree": "89b2d8707c3638521d6669f850ae4f8d6c1a666b",
+      "verified_blobs_and_modes": 1159,
+      "stage_zero_index_matches": true,
+      "hidden_index_flags": [],
+      "gitlinks": {
+        "external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+        "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+        "protocol-processor": "ead8036035affd53ef4b29979190f2f4f67084c0",
+        "third_party/lwSRP": "ef8a28b9f991ad2f6a466b377c25c2f7bcb310da",
+        "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      "status": ""
+    },
+    {
+      "repository": "protocol-processor",
+      "head": "ead8036035affd53ef4b29979190f2f4f67084c0",
+      "tree": "0bb7199a3caf38df44071cac4e2d56fef89f1b7c",
+      "verified_blobs_and_modes": 558,
+      "stage_zero_index_matches": true,
+      "hidden_index_flags": [],
+      "gitlinks": {},
+      "status": ""
+    },
+    {
+      "repository": "gptp-processor",
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "tree": "9669a0460e926a3d0c2911918cba793288f69216",
+      "verified_blobs_and_modes": 104,
+      "stage_zero_index_matches": true,
+      "hidden_index_flags": [],
+      "gitlinks": {},
+      "status": ""
+    },
+    {
+      "repository": "third_party/verilog-axis",
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019",
+      "verified_blobs_and_modes": 214,
+      "stage_zero_index_matches": true,
+      "hidden_index_flags": [],
+      "gitlinks": {},
+      "status": ""
+    },
+    {
+      "repository": "third_party/lwSRP",
+      "head": "ef8a28b9f991ad2f6a466b377c25c2f7bcb310da",
+      "tree": "7ba6e3afad5a387a460e415d6e9474e5e7e2f67a",
+      "verified_blobs_and_modes": 41,
+      "stage_zero_index_matches": true,
+      "hidden_index_flags": [],
+      "gitlinks": {},
+      "status": ""
+    }
+  ],
+  "failures": [],
+  "result": "PASS"
+}

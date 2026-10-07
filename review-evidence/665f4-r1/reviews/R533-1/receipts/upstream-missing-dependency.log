@@ -1,0 +1,56 @@
+COMMAND: ["python3", "$REVIEWS/665f4-r533-1-packet/scripts/upstream_gate.py", "$REVIEWS/r533-1-665f4"]
+RUN ['cmake', '-S', '$REVIEWS/r533-1-665f4/third_party/lwSRP', '-B', '$REVIEWS/665f4-r533-1-packet/scratch/upstream']
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $REVIEWS/665f4-r533-1-packet/scratch/upstream
+RUN ['make', '-C', '$REVIEWS/665f4-r533-1-packet/scratch/upstream', '-j16']
+make: Entering directory '$REVIEWS/665f4-r533-1-packet/scratch/upstream'
+[ 30%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 50%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 80%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 80%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 80%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 90%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[100%] Linking C shared library libshlan.so
+[100%] Built target shlan
+make: Leaving directory '$REVIEWS/665f4-r533-1-packet/scratch/upstream'
+RUN ['$REVIEWS/665f4-r533-1-packet/scratch/upstream/unit_tests']
+Traceback (most recent call last):
+  File "$REVIEWS/665f4-r533-1-packet/scripts/upstream_gate.py", line 6, in <module>
+    print('RUN',cmd,flush=True);subprocess.run(cmd,env=env,check=True)
+                                ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1875, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1819, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '$REVIEWS/665f4-r533-1-packet/scratch/upstream/unit_tests'

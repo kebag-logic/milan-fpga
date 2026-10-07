@@ -1,0 +1,56 @@
+Note: Google Test filter = Srp.R533_*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.R533_MilanWithdrawalInINIsImmediate
+$REVIEWS/665f4-r533-1-packet/scripts/reviewer_cases.cpp:10: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+Milan 4.2.7.2.2: IN plus rLv must stop in this service pass
+
+  [FAIL] Srp.R533_MilanWithdrawalInINIsImmediate: Milan 4.2.7.2.2: IN plus rLv must stop in this service pass
+R533 IN/rLv active_after_receive=1 time_ms=0
+R533 IN/rLv active_after_5000ms=0 time_ms=5000
+[  FAILED  ] Srp.R533_MilanWithdrawalInINIsImmediate (1 ms)
+[ RUN      ] Srp.R533_LVWithdrawalKeepsOriginalDeadline
+[       OK ] Srp.R533_LVWithdrawalKeepsOriginalDeadline (0 ms)
+[ RUN      ] Srp.R533_LinkCycleCannotReuseOldQueuedRegistration
+$REVIEWS/665f4-r533-1-packet/scripts/reviewer_cases.cpp:28: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(0, 0, true)
+         Expected: to be never called
+           Actual: called once - over-saturated and active
+
+  [FAIL] Srp.R533_LinkCycleCannotReuseOldQueuedRegistration:            Actual: called once - over-saturated and active
+$REVIEWS/665f4-r533-1-packet/scripts/reviewer_cases.cpp:30: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+Only pre-link-loss Ready frames were offered
+
+  [FAIL] Srp.R533_LinkCycleCannotReuseOldQueuedRegistration: Only pre-link-loss Ready frames were offered
+[  FAILED  ] Srp.R533_LinkCycleCannotReuseOldQueuedRegistration (0 ms)
+[ RUN      ] Srp.R533_SharedIdentityRetainsAnEligibleBinding
+$REVIEWS/665f4-r533-1-packet/scripts/reviewer_cases.cpp:49: Failure
+Value of: withdrew
+  Actual: true
+Expected: false
+one matching bound sink still needs Listener Ready
+
+  [FAIL] Srp.R533_SharedIdentityRetainsAnEligibleBinding: one matching bound sink still needs Listener Ready
+[  FAILED  ] Srp.R533_SharedIdentityRetainsAnEligibleBinding (0 ms)
+[----------] 4 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Srp.R533_MilanWithdrawalInINIsImmediate
+[  FAILED  ] Srp.R533_LinkCycleCannotReuseOldQueuedRegistration
+[  FAILED  ] Srp.R533_SharedIdentityRetainsAnEligibleBinding
+
+ 3 FAILED TESTS
+== R533 independent SRP probes: checks: 4   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 4 checks, exit 1)

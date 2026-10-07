@@ -1,0 +1,85 @@
+COMMAND: ["python3", "$REVIEWS/665f4-r533-1-packet/scripts/build_probes.py", "$REVIEWS/r533-1-665f4", "--jobs", "4"]
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases/prepared/contract/mbx_contract.h (2 interfaces)
+independent-cases FAIL
+otReuseOldQueuedRegistration (0 ms)
+[ RUN      ] Srp.R533_SharedIdentityRetainsAnEligibleBinding
+$REVIEWS/665f4-r533-1-packet/scripts/reviewer_cases.cpp:49: Failure
+Value of: withdrew
+  Actual: true
+Expected: false
+one matching bound sink still needs Listener Ready
+
+  [FAIL] Srp.R533_SharedIdentityRetainsAnEligibleBinding: one matching bound sink still needs Listener Ready
+[  FAILED  ] Srp.R533_SharedIdentityRetainsAnEligibleBinding (0 ms)
+[----------] 4 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Srp.R533_MilanWithdrawalInINIsImmediate
+[  FAILED  ] Srp.R533_LinkCycleCannotReuseOldQueuedRegistration
+[  FAILED  ] Srp.R533_SharedIdentityRetainsAnEligibleBinding
+
+ 3 FAILED TESTS
+== R533 independent SRP probes: checks: 4   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 4 checks, exit 1)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-startup/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-startup/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-startup/prepared/contract/mbx_contract.h (2 interfaces)
+control-startup PASS
+Note: Google Test filter = Srp.StartupDeclaresTalkersDomainAndVlan
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/prepared/contract/mbx_contract.h (2 interfaces)
+Traceback (most recent call last):
+  File "$REVIEWS/665f4-r533-1-packet/scripts/build_probes.py", line 39, in <module>
+    run_one('mutant-port',tests/'srp_mbx.cpp','Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock',plant=('ctrl','port/shlan_port.c','return ctrl_pool_calloc(port_pool, nmemb, size);','return NULL;'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/665f4-r533-1-packet/scripts/build_probes.py", line 26, in run_one
+    objs=fw_gtest.compile_c(build,[*C_FLAGS,'-DNDEBUG'],inc,[(variant if f.startswith('mbx/') else src)/f for f in srp_arms.SRP_SOURCES],out/'objects')
+  File "$REVIEWS/r533-1-665f4/sw/firmware/gtest/fw_gtest.py", line 125, in compile_c
+    compile_many(build, [([build.cc, *use, *includes, "-c", str(src), "-o", str(obj)], src)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         for src, obj in zip(sources, objects)])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r533-1-665f4/sw/firmware/gtest/fw_gtest.py", line 114, in compile_many
+    future.result()
+    ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 447, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$REVIEWS/r533-1-665f4/sw/firmware/gtest/fw_gtest.py", line 106, in _compile
+    raise BuildError(f"{src.name} does not compile:\n{res.stderr}")
+fw_gtest.BuildError: shlan_port.c does not compile:
+$REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/ctrl/port/shlan_port.c: In function ‘shlan_calloc’:
+$REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/ctrl/port/shlan_port.c:33:27: error: unused parameter ‘nmemb’ [-Werror=unused-parameter]
+   33 | void *shlan_calloc(size_t nmemb, size_t size)
+      |                    ~~~~~~~^~~~~
+$REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/ctrl/port/shlan_port.c:33:41: error: unused parameter ‘size’ [-Werror=unused-parameter]
+   33 | void *shlan_calloc(size_t nmemb, size_t size)
+      |                                  ~~~~~~~^~~~
+cc1: all warnings being treated as errors
+

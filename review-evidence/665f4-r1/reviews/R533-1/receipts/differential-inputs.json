@@ -1,0 +1,16 @@
+{
+  "pin": "ead8036035affd53ef4b29979190f2f4f67084c0",
+  "inputs": [
+    {
+      "path": "protocol-processor/tb/srp_top/sim_main.cpp",
+      "tree_entry": "100644 blob d432aee448f6eaad591fdda270f22ede39cb6117\ttb/srp_top/sim_main.cpp"
+    },
+    {
+      "path": "protocol-processor/tb/srp_stream_fsms/sim_main.cpp",
+      "tree_entry": "100644 blob 7895b8308e2cf6733fbd7d43ed7232d66350ea54\ttb/srp_stream_fsms/sim_main.cpp"
+    }
+  ],
+  "extraction": "sw/firmware/ctrl/test/srp_reuse.py",
+  "driver": "sw/firmware/ctrl/test/srp_walk.cpp",
+  "scope": "Selected wire builders and applicant table; not exhaustive processor state coverage. D1 is incorrect under Milan 4.2.7.2.2; D2 is supported by IEEE 802.1Q-2018 35.2.2.7.2."
+}

@@ -1,0 +1,6 @@
+{
+  "path": "ctrl/srp/srp_mbx.c",
+  "old": "m->owed_if = s->interface->index;",
+  "new": "m->owed_if = 0;",
+  "test": "Srp.StartupDeclaresTalkersDomainAndVlan"
+}

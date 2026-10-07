@@ -1,0 +1,21 @@
+COMMAND: ["python3", "$REVIEWS/665f4-r533-1-packet/scripts/focused_static.py"]
+RUN ['python3', 'sw/mailbox/gen_mailbox.py', '--check']
+gen_mailbox: 0 finding(s)
+RUN ['python3', 'sw/firmware/gtest/fw_rv32_selftest.py', '--require-rv32']
+PASS: explicit absent compiler is refused without fallback
+PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+PASS: caught hosted headers restored
+PASS: caught freestanding disabled
+PASS: caught RV64 object
+PASS: caught hard-float object
+PASS: caught compressed ISA object
+PASS: caught multiply ISA object
+PASS: caught malformed object and dynamic stack report
+PASS: ctrl rejects malloc
+PASS: ctrl rejects __unexpected_service
+PASS: ctrl rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects malloc
+PASS: ctrl_nvm rejects __unexpected_service
+PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects restored stack-protector dependency
+RV32 build self-test: 17 checks PASS

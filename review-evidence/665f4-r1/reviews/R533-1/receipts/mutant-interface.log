@@ -1,0 +1,92 @@
+Note: Google Test filter = Srp.StartupDeclaresTalkersDomainAndVlan
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_fixture.hpp:76: Failure
+Expected equality of these values:
+  wire_be64(f->bytes+4)&0x0000ffffffffffffull
+    Which is: 2211975595521
+  config.mac[f->interface]
+    Which is: 2211975595520
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 2211975595520
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_fixture.hpp:76: Failure
+Expected equality of these values:
+  wire_be64(f->bytes+4)&0x0000ffffffffffffull
+    Which is: 2211975595521
+  config.mac[f->interface]
+    Which is: 2211975595520
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 2211975595520
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_fixture.hpp:76: Failure
+Expected equality of these values:
+  wire_be64(f->bytes+4)&0x0000ffffffffffffull
+    Which is: 2211975595521
+  config.mac[f->interface]
+    Which is: 2211975595520
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 2211975595520
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_fixture.hpp:76: Failure
+Expected equality of these values:
+  wire_be64(f->bytes+4)&0x0000ffffffffffffull
+    Which is: 2211975595521
+  config.mac[f->interface]
+    Which is: 2211975595520
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 2211975595520
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_fixture.hpp:76: Failure
+Expected equality of these values:
+  wire_be64(f->bytes+4)&0x0000ffffffffffffull
+    Which is: 2211975595521
+  config.mac[f->interface]
+    Which is: 2211975595520
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 2211975595520
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:18: Failure
+Expected equality of these values:
+  d.time_ms
+    Which is: 0
+  200*count
+    Which is: 200
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 200
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:22: Failure
+Value of: std::equal(d.value.begin(),d.value.begin()+8,identity(i,index).begin())
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: true
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:18: Failure
+Expected equality of these values:
+  d.event
+    Which is: 0
+  events[count]
+    Which is: 3
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 3
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:18: Failure
+Expected equality of these values:
+  d.time_ms
+    Which is: 200
+  200*count
+    Which is: 400
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 400
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:17: Failure
+Expected: (count) < (3u), actual: 3 vs 3
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: (count) < (3u), actual: 3 vs 3
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

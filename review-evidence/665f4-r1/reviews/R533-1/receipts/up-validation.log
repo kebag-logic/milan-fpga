@@ -1,0 +1,103 @@
+COMMAND ["gcc", "-std=c11", "-Wall", "-Wextra", "-fPIC", "-shared", "-I$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/include", "-I$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/modules", "-I$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/ports/alloc.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/ports/timer.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/core/mrp_mad.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/core/mrp_pdu.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/core/switch.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/modules/sim_adapter.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/modules/mvrp.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/modules/mmrp.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/src/modules/msrp.c", "-o", "$REVIEWS/665f4-r533-1-packet/scratch/up-validation/libshlan.so"]
+Running "main" (24 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:28: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:29: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [leavealls] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:32: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:28: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:29: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [leavealls] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:32: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:37: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:38: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [leavealls] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/receive_test.c:42: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [leavealls] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+  "receive_suite": 74 passes, 9 failures in 3ms.
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+  "transmit_suite": 114 passes, 10 failures in 4ms.
+Completed "main": 1915 passes, 19 failures in 21ms.

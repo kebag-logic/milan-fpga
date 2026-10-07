@@ -1,0 +1,185 @@
+COMMAND: ["python3", "$REVIEWS/665f4-r533-1-packet/scripts/build_probes.py", "$REVIEWS/r533-1-665f4", "--jobs", "4"]
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases/prepared/contract/mbx_contract.h (2 interfaces)
+independent-cases FAIL
+otReuseOldQueuedRegistration (0 ms)
+[ RUN      ] Srp.R533_SharedIdentityRetainsAnEligibleBinding
+$REVIEWS/665f4-r533-1-packet/scripts/reviewer_cases.cpp:49: Failure
+Value of: withdrew
+  Actual: true
+Expected: false
+one matching bound sink still needs Listener Ready
+
+  [FAIL] Srp.R533_SharedIdentityRetainsAnEligibleBinding: one matching bound sink still needs Listener Ready
+[  FAILED  ] Srp.R533_SharedIdentityRetainsAnEligibleBinding (0 ms)
+[----------] 4 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Srp.R533_MilanWithdrawalInINIsImmediate
+[  FAILED  ] Srp.R533_LinkCycleCannotReuseOldQueuedRegistration
+[  FAILED  ] Srp.R533_SharedIdentityRetainsAnEligibleBinding
+
+ 3 FAILED TESTS
+== R533 independent SRP probes: checks: 4   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 4 checks, exit 1)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-startup/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-startup/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-startup/prepared/contract/mbx_contract.h (2 interfaces)
+control-startup PASS
+Note: Google Test filter = Srp.StartupDeclaresTalkersDomainAndVlan
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-port/prepared/contract/mbx_contract.h (2 interfaces)
+mutant-port FAIL
+ actual: 0 vs 0
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:206: Failure
+Expected: (trial.refused) > (0u), actual: 0 vs 0
+
+  [FAIL] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock: Expected: (trial.refused) > (0u), actual: 0 vs 0
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:206: Failure
+Expected: (trial.refused) > (0u), actual: 0 vs 0
+
+  [FAIL] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock: Expected: (trial.refused) > (0u), actual: 0 vs 0
+[  FAILED  ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-interface/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-interface/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-interface/prepared/contract/mbx_contract.h (2 interfaces)
+mutant-interface FAIL
+Which is: 3
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 3
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:18: Failure
+Expected equality of these values:
+  d.time_ms
+    Which is: 200
+  200*count
+    Which is: 400
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 400
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:17: Failure
+Expected: (count) < (3u), actual: 3 vs 3
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: (count) < (3u), actual: 3 vs 3
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-domain/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-domain/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-domain/prepared/contract/mbx_contract.h (2 interfaces)
+mutant-domain FAIL
+ich is: { '\x6' (6), '\x3' (3), '\0', '\x2' (2) }
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: { '\x6' (6), '\x3' (3), '\0', '\x2' (2) }
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:19: Failure
+Expected equality of these values:
+  d.value
+    Which is: { '\x6' (6), '\x2' (2), '\0', '\x2' (2) }
+  (std::vector<uint8_t>{6,3,0,2})
+    Which is: { '\x6' (6), '\x3' (3), '\0', '\x2' (2) }
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: { '\x6' (6), '\x3' (3), '\0', '\x2' (2) }
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-leaveall/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-leaveall/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/control-leaveall/prepared/contract/mbx_contract.h (2 interfaces)
+control-leaveall PASS
+Note: Google Test filter = Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (1 ms)
+[----------] 1 test from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-lw-leaveall/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-lw-leaveall/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/mutant-lw-leaveall/prepared/contract/mbx_contract.h (2 interfaces)
+mutant-lw-leaveall FAIL
+e
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:52: Failure
+Expected equality of these values:
+  adapter.stops
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline:     Which is: 1
+$REVIEWS/r533-1-665f4/sw/firmware/ctrl/test/srp_mbx.cpp:55: Failure
+Expected equality of these values:
+  adapter.stops
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline:     Which is: 1
+[  FAILED  ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (1 ms)
+[----------] 1 test from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

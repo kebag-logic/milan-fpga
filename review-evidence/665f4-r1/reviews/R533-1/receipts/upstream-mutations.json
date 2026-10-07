@@ -1,0 +1,20 @@
+[
+  {
+    "name": "up-domain-vector",
+    "path": "third_party/lwSRP/src/modules/msrp.c",
+    "old": "d->class_id = (uint8_t)(buf[0] + offset);",
+    "new": "d->class_id = buf[0];",
+    "test": "domain_and_vector_offsets_match_wire_fields",
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "up-validation",
+    "path": "third_party/lwSRP/src/core/mrp_pdu.c",
+    "old": "int r = parse_pass(pdu, len, ops, NULL, NULL, NULL);",
+    "new": "int r = parse_pass(pdu, len, ops, on_attr, on_leaveall, ctx);",
+    "test": "truncation_respects_complete_vectors_and_pdu_end",
+    "rc": 1,
+    "caught": true
+  }
+]

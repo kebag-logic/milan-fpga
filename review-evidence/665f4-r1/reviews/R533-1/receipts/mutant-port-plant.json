@@ -1,0 +1,6 @@
+{
+  "path": "ctrl/port/ctrl_pool.c",
+  "old": "\tpool->refused++;\n\treturn NULL;\n}",
+  "new": "\tpool->refused += 0u;\n\treturn NULL;\n}",
+  "test": "Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock"
+}

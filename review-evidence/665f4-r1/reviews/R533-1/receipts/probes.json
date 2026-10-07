@@ -1,0 +1,44 @@
+[
+  {
+    "name": "independent-cases",
+    "passed": false,
+    "test": "Srp.R533_*",
+    "planted": false
+  },
+  {
+    "name": "control-startup",
+    "passed": true,
+    "test": "Srp.StartupDeclaresTalkersDomainAndVlan",
+    "planted": false
+  },
+  {
+    "name": "mutant-port",
+    "passed": false,
+    "test": "Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock",
+    "planted": true
+  },
+  {
+    "name": "mutant-interface",
+    "passed": false,
+    "test": "Srp.StartupDeclaresTalkersDomainAndVlan",
+    "planted": true
+  },
+  {
+    "name": "mutant-domain",
+    "passed": false,
+    "test": "Srp.StartupDeclaresTalkersDomainAndVlan",
+    "planted": true
+  },
+  {
+    "name": "control-leaveall",
+    "passed": true,
+    "test": "Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline",
+    "planted": false
+  },
+  {
+    "name": "mutant-lw-leaveall",
+    "passed": false,
+    "test": "Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline",
+    "planted": true
+  }
+]

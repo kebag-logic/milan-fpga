@@ -1,0 +1,18 @@
+COMMAND ["gcc", "-std=c11", "-Wall", "-Wextra", "-fPIC", "-shared", "-I$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/include", "-I$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/modules", "-I$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/ports/alloc.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/ports/timer.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/core/mrp_mad.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/core/mrp_pdu.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/core/switch.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/modules/sim_adapter.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/modules/mvrp.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/modules/mmrp.c", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/src/modules/msrp.c", "-o", "$REVIEWS/665f4-r533-1-packet/scratch/up-domain-vector/libshlan.so"]
+Running "main" (24 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/msrp_values_test.c:18: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [domain.class_id] to [equal] [6]
+		actual value:			[5]
+		expected value:			[6]
+
+$REVIEWS/r533-1-665f4/third_party/lwSRP/tests/unit/msrp_values_test.c:23: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [out[0]] to [equal] [6]
+		actual value:			[5]
+		expected value:			[6]
+
+  "msrp_values_suite": 21 passes, 2 failures in 1ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 104 passes in 4ms.
+Completed "main": 1912 passes, 2 failures in 21ms.

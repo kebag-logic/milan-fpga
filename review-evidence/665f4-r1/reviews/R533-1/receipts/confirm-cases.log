@@ -1,0 +1,27 @@
+COMMAND: ["python3", "$REVIEWS/665f4-r533-1-packet/scripts/confirm_cases.py", "$REVIEWS/r533-1-665f4", "--jobs", "4"]
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases-final/prepared/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases-final/prepared/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r533-1-packet/scratch/probes/independent-cases-final/prepared/contract/mbx_contract.h (2 interfaces)
+independent-cases-final FAIL
+g: one matching bound sink still needs Listener Ready
+$REVIEWS/665f4-r533-1-packet/scripts/reviewer_cases.cpp:63: Failure
+Expected: (last_event) != (5u), actual: 5 vs 5
+No later redeclaration repairs the final Lv
+
+  [FAIL] Srp.R533_SharedIdentityRetainsAnEligibleBinding: No later redeclaration repairs the final Lv
+[  FAILED  ] Srp.R533_SharedIdentityRetainsAnEligibleBinding (0 ms)
+[----------] 5 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Srp.R533_MilanWithdrawalInINIsImmediate
+[  FAILED  ] Srp.R533_LinkCycleCannotReuseOldQueuedRegistration
+[  FAILED  ] Srp.R533_LinkPulseResetsDomainFromQueuedEvents
+[  FAILED  ] Srp.R533_SharedIdentityRetainsAnEligibleBinding
+
+ 4 FAILED TESTS
+== R533 independent SRP probes: checks: 5   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 5 checks, exit 1)
