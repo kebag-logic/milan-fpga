@@ -32,6 +32,7 @@ REV=""
 #   <tree-key> <patch file>
 SERIES=(
     "liteeth 0002-liteeth-gmii-tx-clk-invert.patch"
+    "liteeth 0007-liteeth-gmii-rx-capture.patch"
     "litex   0004-vexiiriscv-baremetal-variant.patch"
     "litex   0006-bios-dispatch-hook.patch"
     "pythondata_cpu_vexiiriscv 0005-vexiiriscv-cacheless-litex.patch"

@@ -604,6 +604,17 @@ the rest are the check refusing to grade what it could not see. For a port
 shape the check models, the fix is in the RTL or the constraint, never in the
 check; for one it does not model (the three below), it is in the check.
 
+The GMII RX capture patch keeps reset after the capture.
+Data, valid and reset are sampled on the same edge.
+Sampled reset masks the captured data and valid.
+This preserves latency, synchronous reset and last-byte behavior.
+Control-set remapping therefore cannot put reset before pad capture.
+The patch series supplies this structure for every GMII instance.
+RX-error remains unused; MII RX has no IOB constraint.
+`sw/litex/test_gmii_rx_capture.py` checks the cycle contract.
+Its `--emit-dir` option generates good and reset-before-D placement fixtures.
+The IOB check must refuse the reset-before-D fixture.
+
 An `INERT` row is not a failure, and exactly two structures reach it: a port
 that carries no net at all, and an output every driver of which is a constant
 cell. An input that has a net never reads `INERT`. Any hop of its traversal
