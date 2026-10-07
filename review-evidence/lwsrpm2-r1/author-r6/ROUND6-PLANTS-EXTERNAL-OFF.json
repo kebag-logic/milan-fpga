@@ -1,0 +1,691 @@
+{
+  "results": [
+    {
+      "label": "y01-no-map-error-stop",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16302 passes, 12 failures in 131ms.",
+      "actual_failing_tests": [
+        "reservation_failure_stops_later_receive_messages"
+      ]
+    },
+    {
+      "label": "y02-publish-ignores-policy",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16296 passes, 48 failures in 123ms.",
+      "actual_failing_tests": [
+        "failed_flush_reports_continuous_observer_transitions",
+        "propagation_obeys_talker_and_listener_policy_masks"
+      ]
+    },
+    {
+      "label": "y03-no-pending-tx-rollback",
+      "status": "SURVIVED",
+      "rc": 0,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16314 passes in 123ms.",
+      "actual_failing_tests": []
+    },
+    {
+      "label": "y04-list-skip-known-later",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16224 passes, 85 failures in 150ms.",
+      "actual_failing_tests": [
+        "later_versions_skip_unknown_events_but_current_versions_reject_them",
+        "later_versions_skip_unknown_messages_in_every_application",
+        "later_versions_skip_unknown_stream_messages",
+        "unknown_stream_layout_uses_attribute_list_length"
+      ]
+    },
+    {
+      "label": "y05-list-skip-to-pdu-end",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16304 passes, 5 failures in 134ms.",
+      "actual_failing_tests": [
+        "later_versions_skip_unknown_messages_in_every_application",
+        "later_versions_skip_unknown_stream_messages",
+        "unknown_stream_layout_uses_attribute_list_length"
+      ]
+    },
+    {
+      "label": "y06-reserve-misses-last-port",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 14713 passes, 1589 failures in 112ms.",
+      "actual_failing_tests": [
+        "changed_value_allocation_failure_preserves_retry",
+        "changed_values_after_received_leaveall_are_indicated_and_propagated",
+        "changed_values_after_transmitted_leaveall_are_indicated_and_propagated",
+        "failed_flush_reports_continuous_observer_transitions",
+        "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+        "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+        "pending_flush_listener_receive_failures_preserve_order_and_values",
+        "pending_flush_precedes_received_registration",
+        "pending_flush_talker_receive_failures_preserve_order_and_values",
+        "propagation_obeys_talker_and_listener_policy_masks",
+        "propagation_policy_observes_completed_host_indications",
+        "queued_propagation_owns_values_and_survives_source_reclamation",
+        "replacement_allocation_failures_keep_leave_before_join",
+        "replacement_from_lv_keeps_leave_before_join_at_every_allocation",
+        "reservation_failure_is_reported_without_partial_publication",
+        "reservation_failure_stops_later_receive_messages",
+        "retained_ports_replay_propagated_join_and_timer_leave_in_order"
+      ]
+    },
+    {
+      "label": "y07-no-policy-still-reserves",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16310 passes, 4 failures in 1198ms.",
+      "actual_failing_tests": [
+        "applications_without_policy_do_not_reserve_propagation"
+      ]
+    },
+    {
+      "label": "y08-failure-returns-zero",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 15613 passes, 701 failures in 131ms.",
+      "actual_failing_tests": [
+        "changed_value_allocation_failure_preserves_retry",
+        "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+        "pending_flush_listener_receive_failures_preserve_order_and_values",
+        "pending_flush_talker_receive_failures_preserve_order_and_values",
+        "replacement_allocation_failures_keep_leave_before_join",
+        "replacement_from_lv_keeps_leave_before_join_at_every_allocation",
+        "reservation_failure_is_reported_without_partial_publication"
+      ]
+    },
+    {
+      "label": "y09-changed-rjoinin-only",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16288 passes, 26 failures in 103ms.",
+      "actual_failing_tests": [
+        "changed_registered_listener_notifies_without_duplicate_join",
+        "changed_values_after_received_leaveall_are_indicated_and_propagated",
+        "changed_values_after_transmitted_leaveall_are_indicated_and_propagated"
+      ]
+    },
+    {
+      "label": "y10-changed-any-event",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16326 passes, 8 failures in 110ms.",
+      "actual_failing_tests": [
+        "disabled_application_option_preserves_ieee_timing",
+        "leave_in_lv_keeps_the_original_deadline",
+        "listener_leave_in_is_immediate",
+        "msrp_constructor_selects_the_build_profile"
+      ]
+    },
+    {
+      "label": "y11-changed-key-only",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 16208 passes, 57 failures, 1 exception in 359ms.",
+      "actual_failing_tests": [
+        "changed_registered_listener_notifies_without_duplicate_join",
+        "changed_value_allocation_failure_preserves_retry",
+        "changed_values_after_received_leaveall_are_indicated_and_propagated",
+        "changed_values_after_transmitted_leaveall_are_indicated_and_propagated"
+      ]
+    },
+    {
+      "label": "y12-publish-leaks-unselected",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": true,
+      "tail": "SUMMARY: AddressSanitizer: 960 byte(s) leaked in 15 allocation(s).",
+      "actual_failing_tests": [
+        "application_errors_reject_the_whole_pdu",
+        "changed_value_allocation_failure_preserves_retry",
+        "changed_values_after_received_leaveall_are_indicated_and_propagated",
+        "changed_values_after_transmitted_leaveall_are_indicated_and_propagated",
+        "destroy_releases_all_queued_allocations",
+        "failed_commit_replay_is_retried_by_the_next_poll",
+        "failed_flush_reports_continuous_observer_transitions",
+        "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+        "later_versions_skip_unknown_events_but_current_versions_reject_them",
+        "later_versions_skip_unknown_messages_in_every_application",
+        "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+        "pending_flush_listener_receive_failures_preserve_order_and_values",
+        "pending_flush_precedes_received_registration",
+        "pending_flush_talker_receive_failures_preserve_order_and_values",
+        "propagation_obeys_talker_and_listener_policy_masks",
+        "propagation_policy_observes_completed_host_indications",
+        "queued_propagation_owns_values_and_survives_source_reclamation",
+        "registrar_recovery_stops_aging_without_duplicate_join_or_map",
+        "replacement_allocation_failures_keep_leave_before_join",
+        "replacement_from_lv_keeps_leave_before_join_at_every_allocation",
+        "reservation_failure_is_reported_without_partial_publication",
+        "reservation_failure_stops_later_receive_messages",
+        "retained_ports_replay_propagated_join_and_timer_leave_in_order",
+        "stream_vectors_cannot_wrap_identity_or_destination",
+        "timer_allocation_failure_rolls_back_and_retries",
+        "unknown_stream_layout_uses_attribute_list_length",
+        "vlan_and_mac_vector_ranges_are_atomic"
+      ]
+    },
+    {
+      "label": "y13-reserve-partial-leak",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": true,
+      "tail": "SUMMARY: AddressSanitizer: 768 byte(s) leaked in 12 allocation(s).",
+      "actual_failing_tests": [
+        "changed_value_allocation_failure_preserves_retry",
+        "failed_flush_reports_continuous_observer_transitions",
+        "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+        "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+        "pending_flush_listener_receive_failures_preserve_order_and_values",
+        "pending_flush_precedes_received_registration",
+        "pending_flush_talker_receive_failures_preserve_order_and_values",
+        "replacement_allocation_failures_keep_leave_before_join",
+        "replacement_from_lv_keeps_leave_before_join_at_every_allocation",
+        "reservation_failure_is_reported_without_partial_publication",
+        "reservation_failure_stops_later_receive_messages",
+        "timer_allocation_failure_rolls_back_and_retries"
+      ]
+    },
+    {
+      "label": "y14-no-replay-after-publish",
+      "status": "KILLED",
+      "rc": 1,
+      "failing": [],
+      "sanitizer": false,
+      "tail": "Completed \"main\": 15540 passes, 774 failures in 115ms.",
+      "actual_failing_tests": [
+        "changed_value_allocation_failure_preserves_retry",
+        "changed_values_after_received_leaveall_are_indicated_and_propagated",
+        "changed_values_after_transmitted_leaveall_are_indicated_and_propagated",
+        "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+        "pending_flush_listener_receive_failures_preserve_order_and_values",
+        "pending_flush_precedes_received_registration",
+        "pending_flush_talker_receive_failures_preserve_order_and_values",
+        "propagation_obeys_talker_and_listener_policy_masks",
+        "propagation_policy_observes_completed_host_indications",
+        "replacement_allocation_failures_keep_leave_before_join",
+        "replacement_from_lv_keeps_leave_before_join_at_every_allocation",
+        "reservation_failure_is_reported_without_partial_publication",
+        "reservation_failure_stops_later_receive_messages"
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y01-no-map-error-stop/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y01-no-map-error-stop/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y02-publish-ignores-policy/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y02-publish-ignores-policy/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y02-publish-ignores-policy/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y01-no-map-error-stop/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y02-publish-ignores-policy/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y01-no-map-error-stop/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y03-no-pending-tx-rollback/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y03-no-pending-tx-rollback/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y04-list-skip-known-later/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y04-list-skip-known-later/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y04-list-skip-known-later/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y03-no-pending-tx-rollback/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y04-list-skip-known-later/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y03-no-pending-tx-rollback/build/unit_tests"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y05-list-skip-to-pdu-end/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y05-list-skip-to-pdu-end/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y06-reserve-misses-last-port/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y06-reserve-misses-last-port/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y05-list-skip-to-pdu-end/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y06-reserve-misses-last-port/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y05-list-skip-to-pdu-end/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y06-reserve-misses-last-port/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y08-failure-returns-zero/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y08-failure-returns-zero/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y07-no-policy-still-reserves/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y07-no-policy-still-reserves/build",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y07-no-policy-still-reserves/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y08-failure-returns-zero/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y08-failure-returns-zero/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y07-no-policy-still-reserves/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y09-changed-rjoinin-only/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y09-changed-rjoinin-only/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y10-changed-any-event/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y10-changed-any-event/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y09-changed-rjoinin-only/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y09-changed-rjoinin-only/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y10-changed-any-event/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y10-changed-any-event/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y11-changed-key-only/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y11-changed-key-only/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y12-publish-leaks-unselected/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y12-publish-leaks-unselected/build",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y12-publish-leaks-unselected/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y11-changed-key-only/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y11-changed-key-only/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y13-reserve-partial-leak/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y13-reserve-partial-leak/build",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g",
+        "-DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -g"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y12-publish-leaks-unselected/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y13-reserve-partial-leak/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "$SCRATCH/plants-external-OFF/y14-no-replay-after-publish/source",
+        "-B",
+        "$SCRATCH/plants-external-OFF/y14-no-replay-after-publish/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_PREFIX_PATH=$CGREEN_PREFIX",
+        "-DLWSRP_MILAN=OFF",
+        "-DCMAKE_C_FLAGS=",
+        "-DCMAKE_EXE_LINKER_FLAGS=",
+        "-DCMAKE_SHARED_LINKER_FLAGS="
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y13-reserve-partial-leak/build/unit_tests"
+      ],
+      "rc": 1
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "$SCRATCH/plants-external-OFF/y14-no-replay-after-publish/build",
+        "--parallel",
+        "2"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "$SCRATCH/plants-external-OFF/y14-no-replay-after-publish/build/unit_tests"
+      ],
+      "rc": 1
+    }
+  ]
+}
