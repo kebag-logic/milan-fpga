@@ -1,0 +1,557 @@
+[
+  {
+    "id": "p01-flush-timer-leave-time",
+    "profile": "default",
+    "intent": "Flush retry delayed to the full Leave time",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4703 passes, 42 failures in 85ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 456",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p01-flush-timer-leave-time",
+    "profile": "milan",
+    "intent": "Flush retry delayed to the full Leave time",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4691 passes, 42 failures in 93ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 456",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p02-flush-keeps-in",
+    "profile": "default",
+    "intent": "Flush failure keeps IN; leavetimer! in IN is ignored",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4718 passes, 27 failures in 79ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 228",
+    "probe_observer_gap_cases": 0,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p02-flush-keeps-in",
+    "profile": "milan",
+    "intent": "Flush failure keeps IN; leavetimer! in IN is ignored",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4706 passes, 27 failures in 75ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 228",
+    "probe_observer_gap_cases": 0,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p03-flush-no-timer",
+    "profile": "default",
+    "intent": "Flush failure enters LV without arming the retry",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4703 passes, 42 failures in 89ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 456",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p03-flush-no-timer",
+    "profile": "milan",
+    "intent": "Flush failure enters LV without arming the retry",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4691 passes, 42 failures in 84ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 456",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p04-flush-silent-mt",
+    "profile": "default",
+    "intent": "Flush failure drops the registration without indication",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4703 passes, 42 failures in 106ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 714",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 121: host view 1 but registrar MT for port 0 type 1 sid 1",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p04-flush-silent-mt",
+    "profile": "milan",
+    "intent": "Flush failure drops the registration without indication",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4691 passes, 42 failures in 84ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 714",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 121: host view 1 but registrar MT for port 0 type 1 sid 1",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p05-flush-only-from-lv",
+    "profile": "default",
+    "intent": "Flush retention only when the source was already LV",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4718 passes, 27 failures in 92ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 228",
+    "probe_observer_gap_cases": 0,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p05-flush-only-from-lv",
+    "profile": "milan",
+    "intent": "Flush retention only when the source was already LV",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4706 passes, 27 failures in 76ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 228",
+    "probe_observer_gap_cases": 0,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p06-replace-skip-leave-timer",
+    "profile": "default",
+    "intent": "Replacement delivers rLv! only",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "replacement_allocation_failures_keep_leave_before_join",
+      "talker_join_replaces_the_other_type_on_the_same_port"
+    ],
+    "suite_summary": "Completed \"main\": 4651 passes, 88 failures in 77ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 4982 failures 920",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 IN fault=0 once retry=0] line 290: old leaves 0",
+      "FAIL [replace 1->2 IN fault=0 once retry=0] line 292: order leave@-1 join@1",
+      "FAIL [replace 1->2 IN fault=0 once retry=0] line 293: old not MT"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p06-replace-skip-leave-timer",
+    "profile": "milan",
+    "intent": "Replacement delivers rLv! only",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4733 passes in 111ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5054 failures 460",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 LV fault=0 once retry=0] line 290: old leaves 0",
+      "FAIL [replace 1->2 LV fault=0 once retry=0] line 292: order leave@-1 join@1",
+      "FAIL [replace 1->2 LV fault=0 once retry=0] line 293: old not MT"
+    ],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p07-replace-unguarded-timer",
+    "profile": "default",
+    "intent": "Replacement overwrites an rLv! failure with the leavetimer! result",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4745 passes in 95ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p07-replace-unguarded-timer",
+    "profile": "milan",
+    "intent": "Replacement overwrites an rLv! failure with the leavetimer! result",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "replacement_allocation_failures_keep_leave_before_join"
+    ],
+    "suite_summary": "Completed \"main\": 4715 passes, 18 failures in 92ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 24",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 IN fault=2 once retry=0] line 277: new Join indicated by a failed receive",
+      "FAIL [replace 1->2 IN fault=2 once retry=0] line 292: order leave@2 join@1",
+      "FAIL [replace 1->2 IN fault=2 once retry=1] line 277: new Join indicated by a failed receive"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p08-replace-continue",
+    "profile": "default",
+    "intent": "Replacement failure continues to the new Join",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "replacement_allocation_failures_keep_leave_before_join"
+    ],
+    "suite_summary": "Completed \"main\": 4727 passes, 18 failures in 78ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 48",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 IN fault=2 once retry=0] line 277: new Join indicated by a failed receive",
+      "FAIL [replace 1->2 IN fault=2 once retry=0] line 292: order leave@2 join@1",
+      "FAIL [replace 1->2 IN fault=2 once retry=1] line 277: new Join indicated by a failed receive"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p08-replace-continue",
+    "profile": "milan",
+    "intent": "Replacement failure continues to the new Join",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "replacement_allocation_failures_keep_leave_before_join"
+    ],
+    "suite_summary": "Completed \"main\": 4715 passes, 18 failures in 82ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 48",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 IN fault=2 once retry=0] line 277: new Join indicated by a failed receive",
+      "FAIL [replace 1->2 IN fault=2 once retry=0] line 292: order leave@2 join@1",
+      "FAIL [replace 1->2 IN fault=2 once retry=1] line 277: new Join indicated by a failed receive"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p09-replace-in-only",
+    "profile": "default",
+    "intent": "Replacement ignores old registrations in LV",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "replacement_allocation_failures_keep_leave_before_join"
+    ],
+    "suite_summary": "Completed \"main\": 4733 passes, 12 failures in 83ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5054 failures 478",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 IN fault=2 once retry=0] line 292: order leave@2 join@1",
+      "FAIL [replace 1->2 IN fault=2 persistent retry=0] line 292: order leave@2 join@1",
+      "FAIL [replace 1->2 IN fault=2 persistent retry=1] line 292: order leave@2 join@1"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p09-replace-in-only",
+    "profile": "milan",
+    "intent": "Replacement ignores old registrations in LV",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4733 passes in 83ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5054 failures 460",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 LV fault=0 once retry=0] line 290: old leaves 0",
+      "FAIL [replace 1->2 LV fault=0 once retry=0] line 292: order leave@-1 join@1",
+      "FAIL [replace 1->2 LV fault=0 once retry=0] line 293: old not MT"
+    ],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p10-replace-no-value-restore",
+    "profile": "default",
+    "intent": "Replacement failure keeps the refreshed value of an existing new-type instance",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4745 passes in 76ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p10-replace-no-value-restore",
+    "profile": "milan",
+    "intent": "Replacement failure keeps the refreshed value of an existing new-type instance",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4733 passes in 108ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p11-replace-no-error",
+    "profile": "default",
+    "intent": "Replacement failure records no receive error (map_error remains)",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4745 passes in 82ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p11-replace-no-error",
+    "profile": "milan",
+    "intent": "Replacement failure records no receive error (map_error remains)",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4733 passes in 79ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p12-leavetimer-retry-2cs",
+    "profile": "default",
+    "intent": "Timer withdrawal retry delayed by one tick",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+      "timer_allocation_failure_rolls_back_and_retries"
+    ],
+    "suite_summary": "Completed \"main\": 4699 passes, 46 failures in 72ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "p12-leavetimer-retry-2cs",
+    "profile": "milan",
+    "intent": "Timer withdrawal retry delayed by one tick",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+      "timer_allocation_failure_rolls_back_and_retries"
+    ],
+    "suite_summary": "Completed \"main\": 4687 passes, 46 failures in 70ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "p13-flush-no-leaveall",
+    "profile": "default",
+    "intent": "Flush no longer requests LeaveAll",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4745 passes in 75ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p13-flush-no-leaveall",
+    "profile": "milan",
+    "intent": "Flush no longer requests LeaveAll",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4733 passes in 75ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5126 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "p14-receive-stop-final-event",
+    "profile": "default",
+    "intent": "Final event failure is neither stopped nor reported",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "changed_value_allocation_failure_preserves_retry",
+      "replacement_allocation_failures_keep_leave_before_join",
+      "reservation_failure_is_reported_without_partial_publication",
+      "reservation_failure_stops_later_receive_messages"
+    ],
+    "suite_summary": "Completed \"main\": 4685 passes, 54 failures in 85ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 4967 failures 245",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 IN fault=5 once retry=0] line 291: new joins 0",
+      "FAIL [replace 1->2 IN fault=5 once retry=0] line 292: order leave@1 join@-1",
+      "FAIL [replace 1->2 IN fault=5 once retry=0] line 294: new not IN"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p14-receive-stop-final-event",
+    "profile": "milan",
+    "intent": "Final event failure is neither stopped nor reported",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "changed_value_allocation_failure_preserves_retry",
+      "replacement_allocation_failures_keep_leave_before_join",
+      "reservation_failure_is_reported_without_partial_publication",
+      "reservation_failure_stops_later_receive_messages"
+    ],
+    "suite_summary": "Completed \"main\": 4673 passes, 54 failures in 75ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 4967 failures 245",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [replace 1->2 IN fault=5 once retry=0] line 291: new joins 0",
+      "FAIL [replace 1->2 IN fault=5 once retry=0] line 292: order leave@1 join@-1",
+      "FAIL [replace 1->2 IN fault=5 once retry=0] line 294: new not IN"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p15-flush-arm-zero",
+    "profile": "default",
+    "intent": "Flush retry armed with zero centiseconds",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4703 passes, 42 failures in 75ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 456",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "p15-flush-arm-zero",
+    "profile": "milan",
+    "intent": "Flush retry armed with zero centiseconds",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "suite_summary": "Completed \"main\": 4691 passes, 42 failures in 85ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5126 failures 456",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 223: sid 1 leave indications 0 (want 1)",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 225: sid 1 source not MT",
+      "FAIL [flush IN attrs=1 fault=1 once hold=0] line 228: sid 1 port 1 propagated withdrawal missing (appl QA)"
+    ],
+    "status": "KILLED"
+  }
+]

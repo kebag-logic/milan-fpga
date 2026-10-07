@@ -1,0 +1,30 @@
+p03-flush-no-timer                 default  KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 456 gaps=45
+p05-flush-only-from-lv             milan    KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 228 gaps=0
+p04-flush-silent-mt                milan    KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 714 gaps=45
+p04-flush-silent-mt                default  KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 714 gaps=45
+p01-flush-timer-leave-time         default  KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 456 gaps=45
+p03-flush-no-timer                 milan    KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 456 gaps=45
+p06-replace-skip-leave-timer       default  KILLED     tests=['replacement_allocation_failures_keep_leave_before_join', 'talker_join_replaces_the_other_type_on_the_same_port'] probe=checks 4982 failures 920 gaps=45
+p01-flush-timer-leave-time         milan    KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 456 gaps=45
+p06-replace-skip-leave-timer       milan    SURVIVED   tests=[] probe=checks 5054 failures 460 gaps=45
+p02-flush-keeps-in                 default  KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 228 gaps=0
+p02-flush-keeps-in                 milan    KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 228 gaps=0
+p05-flush-only-from-lv             default  KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 228 gaps=0
+p09-replace-in-only                default  KILLED     tests=['replacement_allocation_failures_keep_leave_before_join'] probe=checks 5054 failures 478 gaps=45
+p07-replace-unguarded-timer        milan    KILLED     tests=['replacement_allocation_failures_keep_leave_before_join'] probe=checks 5126 failures 24 gaps=45
+p07-replace-unguarded-timer        default  SURVIVED   tests=[] probe=checks 5126 failures 0 gaps=45
+p08-replace-continue               default  KILLED     tests=['replacement_allocation_failures_keep_leave_before_join'] probe=checks 5126 failures 48 gaps=45
+p08-replace-continue               milan    KILLED     tests=['replacement_allocation_failures_keep_leave_before_join'] probe=checks 5126 failures 48 gaps=45
+p09-replace-in-only                milan    SURVIVED   tests=[] probe=checks 5054 failures 460 gaps=45
+p10-replace-no-value-restore       milan    SURVIVED   tests=[] probe=checks 5126 failures 0 gaps=45
+p10-replace-no-value-restore       default  SURVIVED   tests=[] probe=checks 5126 failures 0 gaps=45
+p11-replace-no-error               default  SURVIVED   tests=[] probe=checks 5126 failures 0 gaps=45
+p11-replace-no-error               milan    SURVIVED   tests=[] probe=checks 5126 failures 0 gaps=45
+p12-leavetimer-retry-2cs           default  KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick', 'timer_allocation_failure_rolls_back_and_retries'] probe=checks 5126 failures 0 gaps=45
+p12-leavetimer-retry-2cs           milan    KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick', 'timer_allocation_failure_rolls_back_and_retries'] probe=checks 5126 failures 0 gaps=45
+p13-flush-no-leaveall              milan    SURVIVED   tests=[] probe=checks 5126 failures 0 gaps=45
+p13-flush-no-leaveall              default  SURVIVED   tests=[] probe=checks 5126 failures 0 gaps=45
+p14-receive-stop-final-event       default  KILLED     tests=['changed_value_allocation_failure_preserves_retry', 'replacement_allocation_failures_keep_leave_before_join', 'reservation_failure_is_reported_without_partial_publication', 'reservation_failure_stops_later_receive_messages'] probe=checks 4967 failures 245 gaps=45
+p15-flush-arm-zero                 default  KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 456 gaps=45
+p14-receive-stop-final-event       milan    KILLED     tests=['changed_value_allocation_failure_preserves_retry', 'replacement_allocation_failures_keep_leave_before_join', 'reservation_failure_is_reported_without_partial_publication', 'reservation_failure_stops_later_receive_messages'] probe=checks 4967 failures 245 gaps=45
+p15-flush-arm-zero                 milan    KILLED     tests=['flush_allocation_failures_retry_withdrawal_on_the_next_tick'] probe=checks 5126 failures 456 gaps=45

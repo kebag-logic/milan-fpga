@@ -1,0 +1,20 @@
+== default flush-retry
+     48 boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+== default replacement-order
+     18 boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+== default receive-stop
+     12 boundaries_suite -> reservation_failure_stops_later_receive_messages 
+== default policy-mask
+      3 boundaries_suite -> propagation_obeys_talker_and_listener_policy_masks 
+== default no-policy-reservation
+      4 boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+== milan flush-retry
+     48 boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick 
+== milan replacement-order
+     18 boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+== milan receive-stop
+     12 boundaries_suite -> reservation_failure_stops_later_receive_messages 
+== milan policy-mask
+      3 boundaries_suite -> propagation_obeys_talker_and_listener_policy_masks 
+== milan no-policy-reservation
+      4 boundaries_suite -> applications_without_policy_do_not_reserve_propagation 

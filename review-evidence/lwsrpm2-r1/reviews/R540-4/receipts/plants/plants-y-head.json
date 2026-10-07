@@ -1,0 +1,204 @@
+[
+  {
+    "id": "y01-stop-guard-removed",
+    "profile": "default",
+    "intent": "Receive continues after any earlier failure",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "reservation_failure_stops_later_receive_messages"
+    ],
+    "suite_summary": "Completed \"main\": 4733 passes, 12 failures in 82ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5934 failures 8",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [receive-stop fault=1] line 348: later attribute indicated after failure",
+      "FAIL [receive-stop fault=1] line 349: later attribute registered",
+      "FAIL [receive-stop fault=2] line 348: later attribute indicated after failure"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "y01-stop-guard-removed",
+    "profile": "milan",
+    "intent": "Receive continues after any earlier failure",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "reservation_failure_stops_later_receive_messages"
+    ],
+    "suite_summary": "Completed \"main\": 4721 passes, 12 failures in 102ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5934 failures 8",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [receive-stop fault=1] line 348: later attribute indicated after failure",
+      "FAIL [receive-stop fault=1] line 349: later attribute registered",
+      "FAIL [receive-stop fault=2] line 348: later attribute indicated after failure"
+    ],
+    "status": "KILLED"
+  },
+  {
+    "id": "y01b-stop-map-error-only",
+    "profile": "default",
+    "intent": "Receive continues after a source-instance allocation failure",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4745 passes in 77ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5934 failures 2",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [receive-stop fault=1] line 348: later attribute indicated after failure",
+      "FAIL [receive-stop fault=1] line 349: later attribute registered"
+    ],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "y01b-stop-map-error-only",
+    "profile": "milan",
+    "intent": "Receive continues after a source-instance allocation failure",
+    "matches": 1,
+    "suite_rc": 0,
+    "failing_tests": [],
+    "suite_summary": "Completed \"main\": 4733 passes in 75ms.",
+    "probe_rc": 1,
+    "probe_checks": "checks 5934 failures 2",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [
+      "FAIL [receive-stop fault=1] line 348: later attribute indicated after failure",
+      "FAIL [receive-stop fault=1] line 349: later attribute registered"
+    ],
+    "status": "SURVIVED"
+  },
+  {
+    "id": "y02-publish-ignores-mask",
+    "profile": "default",
+    "intent": "Publication ignores the policy mask",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "propagation_obeys_talker_and_listener_policy_masks"
+    ],
+    "suite_summary": "Completed \"main\": 4742 passes, 3 failures in 68ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5934 failures 0",
+    "probe_observer_gap_cases": 114,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "y02-publish-ignores-mask",
+    "profile": "milan",
+    "intent": "Publication ignores the policy mask",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "propagation_obeys_talker_and_listener_policy_masks"
+    ],
+    "suite_summary": "Completed \"main\": 4730 passes, 3 failures in 70ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5934 failures 0",
+    "probe_observer_gap_cases": 114,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "y02b-publish-adds-source",
+    "profile": "default",
+    "intent": "Publication also targets the source port",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "propagation_obeys_talker_and_listener_policy_masks"
+    ],
+    "suite_summary": "Completed \"main\": 4743 passes, 2 failures in 81ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5934 failures 0",
+    "probe_observer_gap_cases": 114,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "y02b-publish-adds-source",
+    "profile": "milan",
+    "intent": "Publication also targets the source port",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "propagation_obeys_talker_and_listener_policy_masks"
+    ],
+    "suite_summary": "Completed \"main\": 4731 passes, 2 failures in 74ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5934 failures 0",
+    "probe_observer_gap_cases": 114,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "y07-no-policy-reserves",
+    "profile": "default",
+    "intent": "Applications without policy still reserve",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "applications_without_policy_do_not_reserve_propagation"
+    ],
+    "suite_summary": "Completed \"main\": 4741 passes, 4 failures in 65ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5934 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "y07-no-policy-reserves",
+    "profile": "milan",
+    "intent": "Applications without policy still reserve",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "applications_without_policy_do_not_reserve_propagation"
+    ],
+    "suite_summary": "Completed \"main\": 4729 passes, 4 failures in 77ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5934 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "y07b-no-leave-policy-reserves",
+    "profile": "default",
+    "intent": "Withdrawal without leave policy still reserves",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "applications_without_policy_do_not_reserve_propagation"
+    ],
+    "suite_summary": "Completed \"main\": 4743 passes, 2 failures in 87ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5934 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  },
+  {
+    "id": "y07b-no-leave-policy-reserves",
+    "profile": "milan",
+    "intent": "Withdrawal without leave policy still reserves",
+    "matches": 1,
+    "suite_rc": 1,
+    "failing_tests": [
+      "applications_without_policy_do_not_reserve_propagation"
+    ],
+    "suite_summary": "Completed \"main\": 4731 passes, 2 failures in 69ms.",
+    "probe_rc": 0,
+    "probe_checks": "checks 5934 failures 0",
+    "probe_observer_gap_cases": 45,
+    "probe_first_failures": [],
+    "status": "KILLED"
+  }
+]

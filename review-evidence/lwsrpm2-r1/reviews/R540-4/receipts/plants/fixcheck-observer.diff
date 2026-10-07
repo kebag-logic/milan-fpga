@@ -1,0 +1,11 @@
+--- a/src/core/mrp_mad.c	2026-10-07 11:41:04.804796764 +0200
++++ b/src/core/mrp_mad.c	2026-10-07 11:41:04.819594901 +0200
+@@ -722,6 +722,8 @@
+     if (r < 0) {
+         ai->appl = appl_from;
+         ai->pending_tx = pending_from;
++        /* A retained Flush withdrawal still changes the Registrar state. */
++        observe(app, ai, ev, port_id, appl_from, reg_from);
+         return r;
+     }
+     // Table 10-3 note 6: receiving an event can request a transmit too.

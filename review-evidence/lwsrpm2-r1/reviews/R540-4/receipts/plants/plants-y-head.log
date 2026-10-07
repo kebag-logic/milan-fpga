@@ -1,0 +1,12 @@
+y02-publish-ignores-mask           default  KILLED     tests=['propagation_obeys_talker_and_listener_policy_masks'] probe=checks 5934 failures 0 gaps=114
+y07b-no-leave-policy-reserves      default  KILLED     tests=['applications_without_policy_do_not_reserve_propagation'] probe=checks 5934 failures 0 gaps=45
+y01-stop-guard-removed             default  KILLED     tests=['reservation_failure_stops_later_receive_messages'] probe=checks 5934 failures 8 gaps=45
+y01-stop-guard-removed             milan    KILLED     tests=['reservation_failure_stops_later_receive_messages'] probe=checks 5934 failures 8 gaps=45
+y01b-stop-map-error-only           milan    SURVIVED   tests=[] probe=checks 5934 failures 2 gaps=45
+y02-publish-ignores-mask           milan    KILLED     tests=['propagation_obeys_talker_and_listener_policy_masks'] probe=checks 5934 failures 0 gaps=114
+y02b-publish-adds-source           milan    KILLED     tests=['propagation_obeys_talker_and_listener_policy_masks'] probe=checks 5934 failures 0 gaps=114
+y01b-stop-map-error-only           default  SURVIVED   tests=[] probe=checks 5934 failures 2 gaps=45
+y07b-no-leave-policy-reserves      milan    KILLED     tests=['applications_without_policy_do_not_reserve_propagation'] probe=checks 5934 failures 0 gaps=45
+y07-no-policy-reserves             milan    KILLED     tests=['applications_without_policy_do_not_reserve_propagation'] probe=checks 5934 failures 0 gaps=45
+y02b-publish-adds-source           default  KILLED     tests=['propagation_obeys_talker_and_listener_policy_masks'] probe=checks 5934 failures 0 gaps=114
+y07-no-policy-reserves             default  KILLED     tests=['applications_without_policy_do_not_reserve_propagation'] probe=checks 5934 failures 0 gaps=45
