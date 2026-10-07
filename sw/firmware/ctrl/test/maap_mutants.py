@@ -36,9 +36,11 @@ def _review_regressions(add: Plant) -> None:
     """Standing R528-1 and R529-1 probes and their original escaping defects."""
     core = "maap/maap.c"
     csr = "maap/maap_csr.c"
-    add("app-missing-rx-interrupt", "app/ctrl_app.c",
-        "mbx_place(channels, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH)",
-        "mbx_place(channels & ~(1u << MBX_CH_MAAP), MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH)",
+    # F3 round 6: MAAP attaches before the open, so its interrupt and filter bits
+    # are ctrl_loop_open's mask of bound channels; both defects drop MAAP there.
+    add("app-missing-rx-interrupt", "loop/ctrl_loop.c",
+        "mbx_irq_enable(mbx_place(open, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH)",
+        "mbx_irq_enable(mbx_place(open & ~(1u << MBX_CH_MAAP), MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH)",
         ("MaapHost.AppWaitWakesForMaapWithinBudget", "accepted MAAP wakes idle loop"))
     add("begin-down-forgets-range", core, "m->preferred = preferred;", "m->preferred = 0;",
         ("MaapCore.BeginBeforePortOperationalRetainsRange", "Begin supplied range survives port down"))
@@ -211,8 +213,8 @@ def _integration(add: Plant) -> None:
         ("MaapHost.HMaapTimerCommitsAndIntervals", "H-MAAP original timer deadline"))
     add("stall-unqueued", core, "m->deferred++;", "m->deferred++; m->queued = 0u;",
         ("MaapHost.HMaapBacklogAndStallNeverRestartClock", ""))
-    add("app-channel-closed", "app/ctrl_app.c", "(1u << MBX_CH_ADP) | (1u << MBX_CH_MAAP)",
-        "(1u << MBX_CH_ADP)", ("MaapHost.ExplicitAppComposition", ""))
+    add("app-channel-closed", "loop/ctrl_loop.c", "\tmbx_filter_open(open);\n",
+        "\tmbx_filter_open(open & ~(1u << MBX_CH_MAAP));\n", ("MaapHost.ExplicitAppComposition", ""))
     add("callback-work-overrun", adapter, "\tstruct maap_mbx *m = ctx;\n\tif (ev->type",
         "\tstruct maap_mbx *m = ctx;\n\t(void)mbx_now_ms();\n\tif (ev->type",
         ("MaapHost.CallbackWorkAndEveryOutputCount", "callback work bound"))

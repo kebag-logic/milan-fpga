@@ -30,7 +30,8 @@ from ctrl_mutant import Mutant
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
 #: open: the app binds lwSRP's pool before anything reads the mailbox window.
 #: (Lane FC: the open also takes every interface's own MAC. Lane F3: the boot
-#: is two calls, compose then open, with ACMP composed after ADP.)
+#: is two calls, compose then open, with ACMP composed after ADP, and since
+#: round 6 lane F2's MAAP after ACMP; the defect is unchanged.)
 APP_BRING = ("\tshlan_port_bind_pool(&app->pool);\n\tctrl_debug_bind(cfg->sink, cfg->sink_ctx);\n"
              "\tctrl_loop_init(&app->loop);\n"
              "\tif (!adp_mbx_init(&app->adp, cfg->entity, CTRL_APP_ADP_FIRST_SLOT, "
@@ -38,9 +39,10 @@ APP_BRING = ("\tshlan_port_bind_pool(&app->pool);\n\tctrl_debug_bind(cfg->sink, 
              "\t    !adp_mbx_attach(&app->adp, &app->loop)) {\n\t\treturn false;\n\t}\n"
              "\t// ACMP stands in front of ADP's binding of the adp channel, so it comes\n"
              "\t// after it\n"
-             "\treturn cfg->acmp == NULL ||\n"
-             "\t       (acmp_mbx_init(&app->acmp, cfg->acmp, cfg->acmp_env, CTRL_APP_ACMP_FIRST_SLOT) &&\n"
-             "\t\tacmp_mbx_attach(&app->acmp, &app->loop));\n"
+             "\tif (cfg->acmp != NULL &&\n"
+             "\t    (!acmp_mbx_init(&app->acmp, cfg->acmp, cfg->acmp_env, CTRL_APP_ACMP_FIRST_SLOT) ||\n"
+             "\t     !acmp_mbx_attach(&app->acmp, &app->loop))) {\n\t\treturn false;\n\t}\n"
+             "\treturn cfg->maap_allocation == NULL || maap_compose(app, cfg);\n"
              "}\n\n"
              "bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)\n{\n"
              "\t// ADP sends the entity's one MAC on every interface (adp.c), so it is\n"

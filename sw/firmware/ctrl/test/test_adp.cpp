@@ -592,7 +592,8 @@ const struct ctrl_pool_class classes[] = {{32u, 8u}};
 void boot(void) {
     mbx_model_reset(&model);
     mbx_model_bind(&model, nullptr, nullptr);
-    struct ctrl_app_config cfg = {&entity, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr, nullptr};
+    struct ctrl_app_config cfg = {&entity, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr, nullptr,
+                                   nullptr, nullptr, 0};
     EXPECT_TRUE(ctrl_app_start(&app, &cfg)) << "B0 the app starts on the model";
 }
 

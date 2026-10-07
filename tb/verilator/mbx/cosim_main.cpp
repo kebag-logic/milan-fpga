@@ -226,7 +226,7 @@ std::vector<Sent> scenario(Fabric& fab) {
     std::vector<std::uint8_t> arena(1024);
     const auto app = std::make_unique<ctrl_app>();
     const ctrl_app_config cfg{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr, &acmp_cfg,
-                              &acmp_env_};
+                              &acmp_env_, nullptr, nullptr, 0};
     std::vector<Sent> out;
     if (!ctrl_app_start(app.get(), &cfg)) {
         return out;

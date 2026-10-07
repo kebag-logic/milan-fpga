@@ -60,7 +60,8 @@ void answer_contract(NiceMock<MockMbxHal>& hal, std::uint32_t id = kId, std::uin
 }
 
 ctrl_app_config config() {
-    return ctrl_app_config{&kEntity, 2, arena, sizeof arena, kClasses, 1, nullptr, nullptr, nullptr, nullptr};
+    return ctrl_app_config{&kEntity, 2, arena, sizeof arena, kClasses, 1, nullptr, nullptr, nullptr, nullptr,
+                           nullptr, nullptr, 0};
 }
 
 TEST(AppComposition, U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox) {

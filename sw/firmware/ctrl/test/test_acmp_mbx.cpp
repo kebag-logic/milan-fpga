@@ -85,7 +85,8 @@ constexpr unsigned slot(unsigned i) {
 }
 
 ctrl_app_config app_config() {
-    return ctrl_app_config{&kEntity, 0, arena, sizeof arena, kClasses, 1, nullptr, nullptr, &acfg, &kEnv};
+    return ctrl_app_config{&kEntity, 0, arena, sizeof arena, kClasses, 1, nullptr, nullptr, &acfg, &kEnv,
+                           nullptr, nullptr, 0};
 }
 
 struct acmp* core() {

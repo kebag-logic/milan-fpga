@@ -10,10 +10,16 @@
 // except from the pool. The same composition runs on the target and on the
 // host against the mailbox model; only mbx_hal.h and the sink differ.
 //
-// F0 composes the ADP slice and F3 the ACMP module (with the ADP channel's
-// AVAILABLE and DEPARTING tapped for the listener's discovery, acmp_mbx.h).
-// Each later lane (MAAP, SRP through lwSRP, AECP) adds its adapter here and
-// nowhere else.
+// F0 composes the ADP slice, F2 the MAAP owner and F3 the ACMP module (with
+// the ADP channel's AVAILABLE and DEPARTING tapped for the listener's
+// discovery, acmp_mbx.h). MAAP and ACMP are each composed only when the
+// configuration supplies them. Each later lane (SRP through lwSRP, AECP) adds
+// its adapter here and nowhere else.
+//
+// THE ATTACH ORDER. ADP, then ACMP (it stands in front of ADP's handler of the
+// adp channel), then MAAP, all before the open, so the open enables every
+// bound channel's receive interrupt and filter with the events'
+// (ctrl_loop_open). Each owns MBX_N_IF fabric timer slots of its own.
 //
 // THE BOOT ORDER. ctrl_app_compose() binds every module into the loop and
 // touches no mailbox register; ctrl_app_open() brings the mailbox up in the
@@ -39,10 +45,12 @@
 extern "C" {
 #endif
 
-// The fabric timer slot of interface 0's ADP machine, and of interface 0's
-// ACMP sinks, which follow ADP's.
+// The fabric timer slot of interface 0's ADP machine, of interface 0's ACMP
+// sinks, which follow ADP's, and of interface 0's MAAP machine, which follows
+// ACMP's: three disjoint runs of MBX_N_IF slots.
 #define CTRL_APP_ADP_FIRST_SLOT 0u
 #define CTRL_APP_ACMP_FIRST_SLOT (CTRL_APP_ADP_FIRST_SLOT + MBX_N_IF)
+#define CTRL_APP_MAAP_FIRST_SLOT (CTRL_APP_ACMP_FIRST_SLOT + MBX_N_IF)
 
 struct ctrl_app {
 	struct ctrl_pool pool;
@@ -66,6 +74,13 @@ struct ctrl_app_config {
 	// with no stream, which composes no ACMP.
 	const struct acmp_config *acmp;
 	const struct acmp_env *acmp_env;
+	// The stream-address port (maap_csr_allocation on the existing datapath
+	// CSR window) and its context; NULL composes no MAAP. MAAP claims the
+	// entity's declared talker sources, from maap_preferred when it is not 0
+	// (a range inside the B.4 pool, else the composition is refused).
+	maap_allocation_fn maap_allocation;
+	void *maap_ctx;
+	uint64_t maap_preferred;
 };
 
 // Bind everything into the loop; no mailbox access. False when the pool
@@ -80,9 +95,9 @@ bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg);
 // ctrl_app_compose() then ctrl_app_open().
 bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg);
 
-// Explicit F2 composition. The default entry above remains ADP-only.
-// allocation is the stream-address port (maap_csr_allocation on the existing
-// datapath CSR window). The count is the entity's declared talker sources.
+// Explicit F2 composition: ctrl_app_start() with cfg's MAAP fields replaced by
+// allocation, ctx and preferred. False, with nothing opened, when allocation
+// is NULL. ctrl_app_start() composes MAAP only when cfg supplies it.
 bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg,
 			 maap_allocation_fn allocation, void *ctx, uint64_t preferred);
 

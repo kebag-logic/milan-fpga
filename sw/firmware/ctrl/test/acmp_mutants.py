@@ -909,7 +909,10 @@ MUTANTS = (
            "\t\t\t\t  !acmp_mbx_attach(&app->acmp, &app->loop))) {\n\t\treturn false;\n\t}\n\tif (!adp_mbx_init(",
            "acmp", "AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract",
            "B0 the app with ACMP starts on the model"),
-    Mutant("app-acmp-never-composed", "app/ctrl_app.c", "\treturn cfg->acmp == NULL ||", "\treturn true ||",
+    # round 6: the compose's ACMP step is a guarded block before MAAP's (lane
+    # F2), so the defect skips the block rather than the return; same meaning
+    Mutant("app-acmp-never-composed", "app/ctrl_app.c", "\tif (cfg->acmp != NULL &&\n",
+           "\tif (false && cfg->acmp != NULL &&\n",
            "acmp", "AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract",
            "U5 ACMP binds its channel and stands in front of ADP's handler"),
     # the binding owner on the store (N)
