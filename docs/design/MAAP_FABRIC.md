@@ -33,42 +33,110 @@ documentation comments).
 
 ## Contents
 
-- **[Reference contract (byte-extracted from an independent AVB implementation)](#reference-contract-byte-extracted-from-an-independent-avb-implementation)** -- The wire bytes and the IDLE/PROBE/ANNOUNCE machine as the reference implementation actually behaves, including the deliberate quirk: the reference sets LENGTH = 28 where 1722 says `control_data_length` = 16, and we match the reference bytes. Also the rule that the address is only valid in ANNOUNCE.
+- **[Annex B contract](#annex-b-contract)** -- The wire bytes, the Table B.7 walk, the timer draws and the conflict cells as IEEE 1722-2016 Annex B defines them and `KL_maap` implements them since #686, clause by clause. Also the deviations that remain outside #686's items, and the reference-implementation contract it replaced.
 - **[Fabric integration](#fabric-integration)** -- Where `KL_maap` attaches (RX monitor tap on subtype 0xFE; TX as the second leg of the ONE control-lane merge), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP`; note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
 - **[The block ⇄ per-source bridge (KL_pp_maap_shim)](#the-block--per-source-bridge-kl_pp_maap_shim)** -- How one block claim answers N per-source ALLOC_DA requests, why `s` gets `base + s`, why a refusal is a state and not an error, and why RELEASE frees nothing.
 - **[Open decisions](#open-decisions)** -- Both are now SETTLED, and the load-bearing one settled itself structurally: AAF admission ANDs the DA because the declaration cannot exist without it.
 - **[Appendix: GET_DYNAMIC_INFO 0x4B contract](#appendix-get_dynamic_info-0x4b-contract)** -- Unrelated to MAAP. Records the current IEEE 1722.1-2021 batch contract and points to the processor implementation.
 
-## Reference contract (byte-extracted from an independent AVB implementation)
+## Annex B contract
 
-- Pool base `91:E0:F0:00:00:00`, size `0xFE00`; conflict compare = first
-  4 bytes equal pool base, then 16-bit `{addr[4],addr[5]}` range overlap.
-- Destination MAC `91:E0:F0:00:FF:00`, ethertype `0x22F0`, subtype MAAP
-  (0xFE), `maap_version = 1` (hdr SUB2/status field), message_type in the
-  control-AVTPDU sub1 field: PROBE=1 DEFEND=2 ANNOUNCE=3.
-- PDU after the 4-byte control header: stream_id(8, sent 0) +
-  request_start(6) + request_count(2) + conflict_start(6) +
-  conflict_count(2). The reference sets LENGTH = sizeof(packet) = 28
-  (note: 1722 says control_data_length = 16; match the REFERENCE bytes,
-  golden-frame the TB against it).
-- State machine: IDLE / PROBE / ANNOUNCE.
-  - `make_new_address(range=8)`: offset = rand % (0xFE00 − range),
-    count = range, state = PROBE, probe_count = 3,
-    timeout = 500 ms + rand(0..100 ms).
-  - Periodic: PROBE → send PROBE ×3 at the probe interval, then →
-    ANNOUNCE; ANNOUNCE → send ANNOUNCE every 3000 ms + rand(0..2000 ms).
-  - RX PROBE conflicting: if we are PROBING → new random address;
-    if ANNOUNCE → send DEFEND carrying the conflict range.
-  - RX DEFEND or ANNOUNCE conflicting (checks the CONFLICT fields of
-    DEFEND, REQUEST fields of ANNOUNCE — reference passes p->conflict_*
-    for both) → new random address unconditionally.
-  - Address is valid ONLY in ANNOUNCE state (`avb_maap_get_address`
-    returns EAGAIN otherwise).
+IEEE 1722-2016 Annex B is the authority for `KL_maap` (#686). The engine is
+one Table B.7 machine for one contiguous block of `count_i` addresses. Its
+`state_o` names map onto Table B.6 as IDLE = INITIAL, PROBE = PROBE and
+ANNOUNCE = DEFEND.
+
+**Wire (B.2, B.4).**
+
+- The pool is `91:E0:F0:00:00:00` plus a 16-bit offset, `0xFE00` addresses
+  (Table B.9). The claimed block always fits inside it.
+- EtherType `0x22F0`, subtype MAAP (`0xFE`), `sv` 0, `version` 0,
+  `maap_version` 1 (B.2.3.1), `stream_id` 0 (B.2.4).
+- `control_data_length` is 16 in every MAAP frame (B.2.1).
+- PROBE and ANNOUNCE go to `91:E0:F0:00:FF:00` (Table B.10). A DEFEND goes
+  to the source MAC of the PROBE that caused it (B.2.1). That MAC is latched
+  when the DEFEND is requested, so a later frame cannot redirect it.
+- PROBE and ANNOUNCE carry this station's range in requested_* and zero
+  conflict_* (B.3.6.5, B.3.6.7). A DEFEND carries the overlap of the PROBE's
+  range with this station's in conflict_* (B.2.7, B.2.8).
+- Every per-frame field is latched at the send request. A Restart! taken
+  while a frame waits on the wire therefore cannot rewrite that frame.
+- Frames are 60 bytes, zero-padded. RX parsing accepts every
+  `maap_version` (B.2.3.2 to B.2.3.4) and ignores reserved message types
+  (B.2.2).
+
+**Walk (Table B.7, Table B.8, B.3.4).**
+
+- Begin! is `enable_i` rising; generate_address uses the provisioning seed
+  once (note a) and otherwise a random offset. A conflict's Restart! always
+  draws a random offset.
+- ReserveAddress! sends the first PROBE at once. The probe timer then sends
+  three retransmissions (`MAAP_PROBE_RETRANSMITS` = 3), four PROBEs in total.
+- The decrement to zero is probeCount!: the first ANNOUNCE goes at once,
+  back to back with the fourth PROBE. The engine enters ANNOUNCE (Table B.7
+  DEFEND) and `addr_valid_o` rises. The announce timer then repeats the
+  ANNOUNCE.
+- B.3.4.2 bounds the probe interval strictly between 500 and 600 ms. B.3.4.1
+  bounds the announce interval strictly between 30 and 32 s. A timer load of
+  N ms expires after more than N-1 ms and at most N ms plus one cycle, and a
+  send can also wait for a frame already on the wire. So the engine draws N
+  from a centred sub-range: 518 + 0..63 ms for the probe timer (17 ms of
+  margin at each end) and 30488 + 0..1023 ms for the announce timer (487 ms).
+  Both draws use a free-running 16-bit LFSR, so successive intervals differ.
+- `enable_i` falling acts like Release!: back to IDLE at once.
+
+**Conflict detection (B.3.2, Table B.7 note b).**
+
+- Only a PDU whose range shares an address with this station's block is an
+  event. The ranges are half-open, so an adjacent range is not a conflict,
+  and a range of count 0 never conflicts.
+- A PROBE or ANNOUNCE is judged on its requested_* range (B.2.5, B.2.6). Its
+  conflict_* fields are zero (B.2.7, B.2.8), so they are never its range. A
+  DEFEND is judged on its conflict_* range, the defender's addresses.
+- The range's first four octets must be the pool's, `91:E0:F0:00`.
+
+**Conflict cells (Table B.7).**
+
+| Received, conflicting | in PROBE | in ANNOUNCE (Table B.7 DEFEND) |
+|---|---|---|
+| PROBE (rProbe!) | Restart! | sDefend, unless a frame is already on the wire |
+| DEFEND (rDefend!) | Restart! | Restart! |
+| ANNOUNCE (rAnnounce!) | Restart! | compare_MAC (B.3.6.4); Restart! only when this station is not the lower |
+
+compare_MAC compares the two MACs octet-reversed, with the last octet most
+significant. When it is TRUE (this station is the lower), the PDU causes no
+action (note d). One decision is taken per cycle, in priority order: disable,
+Restart!, sDefend, then the timer's own send. A send deferred by any of them
+happens on a later cycle.
+
+**Remaining deviations outside #686's items.** These are recorded here and
+not changed by #686; each needs its own decision.
+
+- Table B.7 applies compare_MAC (note d) in the rProbe!/PROBE and
+  rDefend!/DEFEND cells too. `KL_maap` re-addresses in both cells without it.
+- B.3.6.6 echoes the PROBE's requested_start_address and requested_count in
+  the DEFEND. `KL_maap` sends this station's own range there.
+- B.3.6.1 wants a uniform draw from a generator with a period of at least
+  2^32 - 1, seeded from the sum of the MAC and the local real-time clock.
+  `KL_maap` uses a 16-bit LFSR seeded from the station MAC alone, folded
+  into the pool.
+- Table B.7 restarts on PortOperational! (B.3.5.9). `KL_maap` has no link
+  input, so a link that returns does not re-probe.
+- A PROBE parsed while any frame is on the wire is not defended. The prober
+  repeats its PROBE within 600 ms.
+- RX parsing is untagged only; a tagged MAAP PDU is ignored.
+
+**History.** Before #686 the engine followed the byte layout of a
+reference AVB implementation instead. It set `control_data_length` 28, sent
+the DEFEND to the multicast address, sent three PROBEs with the first one a
+probe interval late, drew probe intervals of 500 to 627 ms and announce
+intervals of 3 to 5.047 s, judged an ANNOUNCE on its conflict_* fields, and
+compared ranges with inclusive ends.
 
 ## Fabric integration
 
 - RX: observe `rx_axis_fabric` (subtype 0xFE @ ether 0x22F0), aligned-lane
-  parse (fields land in beats 1..4).
+  parse (fields land in beats 0 to 5).
 - **TX: the second leg of the ONE control-lane merge.** The TX arbiter
   cascade collapsed from eight muxes to four when the planes that fed the
   other merges were deleted; what is left on the control lane is
@@ -100,11 +168,13 @@ documentation comments).
   plane and the processor's AECP µCPU did not bring persistence back — there
   is no saved state and no fast-connect — so a boot-time MAAP_CTRL seed is the
   only continuity there is.
-- TB: golden frames vs the layout above; scenarios: 3-probe→announce
-  walk, probe-vs-probe restart, announce-defend, defend-loss restart,
-  conflict-window edges (start/end overlap), non-conflicting ranges
-  ignored, LFSR re-address distribution sanity; coverage gate ≥95 %
-  like avtp_rxmon.
+- TB: [`tb/verilator/maap`](../../tb/verilator/maap) grades the engine
+  against Annex B, not against itself. It checks golden Figure B.1 frames,
+  the four-PROBE walk at Begin! and Restart!, the DEFEND destination, every
+  conflict cell above with its note b range edges, and strict B.3.4
+  intervals over 150 walks and 24 announcements. Its `mutants.py` plants at
+  least one defect per #686 item and requires the named check to fail. The
+  coverage gate is 95 %, like avtp_rxmon.
 
 ## The block ⇄ per-source bridge (`KL_pp_maap_shim`)
 

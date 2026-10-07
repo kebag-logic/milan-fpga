@@ -958,8 +958,8 @@ arithmetic rather than a defect:
    Talker Advertise, MSRP/MVRP on the wire and every class-A tag.**
    `acmp_declaring_o` is reachable only through a MAAP `ALLOC_DA` success, and
    `KL_maap` is elaborated here at the silicon rate (`MAAP_CLK_HZ_P` defaults to
-   `MILAN_CLK_FREQ_HZ`), so its Annex B claim walk — 3 probes × ~500 ms plus
-   announce — is ~1.5·10⁸ cycles away. *Measured: still PROBING after
+   `MILAN_CLK_FREQ_HZ`), so its Annex B claim walk, four PROBEs about 550 ms
+   apart and then the announce, is ~1.6·10⁸ cycles away. *Measured: still PROBING after
    40,000,000 cycles.* Waiting would add ~25 minutes **per elaboration** to a
    ten-leg suite.
 3. **A MAAP-granted destination address for talkers `t > 0`**, which is the same

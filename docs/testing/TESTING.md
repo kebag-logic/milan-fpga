@@ -516,7 +516,7 @@ verdicts and for check counts.
 | [`tb/verilator/ifg`](../../tb/verilator/ifg) | — |
 | [`tb/verilator/lat_history_ring`](../../tb/verilator/lat_history_ring) | — |
 | [`tb/verilator/link_guard`](../../tb/verilator/link_guard) | — |
-| [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which remains the shipping allocator while the processor's internal MAAP engine is disabled |
+| [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which remains the shipping allocator while the processor's internal MAAP engine is disabled. Since #686 every check grades an IEEE 1722-2016 Annex B clause, and `mutants.py` plants at least one defect per #686 item that the named check must catch |
 | [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
 | [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery. Since #74 item 2 the real `KL_chan_map_capture` counters grade a lock raced onto the tick from either side, a held and a surplus frame there, and one free-running passage each way, with two mutants that must fail |
 | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a followed source, and since #629 (A2-a) at INTERNAL too; it free-runs only while the aligner is disengaged. Check 10 (#617) moves the trim on every cycle around the terminal count, every end move on both shapes: one tick per period, no counter wrap |
