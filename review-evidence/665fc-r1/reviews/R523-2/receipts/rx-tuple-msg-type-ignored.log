@@ -1,0 +1,8 @@
+  [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+  [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 an ANNOUNCE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+  [FAIL] Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 and each counts once in FILTER_MISMATCH got=0 exp=13
+  [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+== mbx (Wishbone host): checks: 316   failures: 6 ==
+RESULT: FAIL

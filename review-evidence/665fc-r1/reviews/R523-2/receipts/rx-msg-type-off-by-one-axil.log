@@ -1,0 +1,15 @@
+  [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+  [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+  [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+  [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+  [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+  [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+  [FAIL] Q9 and set no IRQ_STATUS.ERR             got=1 exp=0
+  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3
+  [FAIL] Q11 its record is the DEFEND, byte for byte
+  [FAIL] Q11 and FILTER_MISMATCH does not count it got=1 exp=0
+  [FAIL] Q11 a DEFEND to this interface's own MAC for a range beside this entity's: FILTER_MISMATCH does not count it got=1 exp=0
+  [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it got=1 exp=0
+  [FAIL] Q11 the DEFEND after them still reaches the MAAP ring got=5 exp=3
+== mbx (AXI4-Lite host): checks: 361   failures: 13 ==
+RESULT: FAIL

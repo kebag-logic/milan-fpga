@@ -1,0 +1,15 @@
+  [FAIL] Q3 under another control EtherType, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q6 untagged CRF to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 and each counts once in FILTER_MISMATCH got=0 exp=13
+  [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+== mbx (AXI4-Lite host): checks: 361   failures: 13 ==
+RESULT: FAIL

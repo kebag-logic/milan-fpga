@@ -1,0 +1,178 @@
+[
+  [
+    "control-0",
+    true,
+    [
+      "== mbx (Wishbone host): checks: 316   failures: 0 =="
+    ]
+  ],
+  [
+    "control-1",
+    true,
+    [
+      "== mbx (AXI4-Lite host): checks: 361   failures: 0 =="
+    ]
+  ],
+  [
+    "if2-control-0",
+    true,
+    [
+      "== mbx (Wishbone host, 2 interfaces): checks: 316   failures: 0 =="
+    ]
+  ],
+  [
+    "if2-control-1",
+    true,
+    [
+      "== mbx (AXI4-Lite host, 2 interfaces): checks: 361   failures: 0 =="
+    ]
+  ],
+  [
+    "rx-subtype-ignored",
+    true,
+    [
+      "  [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=0 exp=2"
+    ]
+  ],
+  [
+    "pkg-maap-defend-tuple-dropped",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3"
+    ]
+  ],
+  [
+    "pkg-maap-defend-tuple-dropped-axil",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3"
+    ]
+  ],
+  [
+    "rx-msg-type-off-by-one",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3"
+    ]
+  ],
+  [
+    "rx-msg-type-off-by-one-axil",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3"
+    ]
+  ],
+  [
+    "rx-classified-before-msg-type",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3"
+    ]
+  ],
+  [
+    "rx-classified-before-msg-type-axil",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3"
+    ]
+  ],
+  [
+    "model-control",
+    true,
+    ""
+  ],
+  [
+    "model-msg-type-off-by-one",
+    true,
+    [
+      "  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"
+    ]
+  ],
+  [
+    "model-tuple-msg-type-ignored",
+    true,
+    [
+      "  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: no RX record, no delivery"
+    ]
+  ],
+  [
+    "model-msg-type-refusal-uncounted",
+    true,
+    [
+      "  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once"
+    ]
+  ],
+  [
+    "model-defend-any-unicast",
+    true,
+    [
+      "  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to a unicast MAC no interface owns: no RX record, no delivery"
+    ]
+  ],
+  [
+    "port-control",
+    true,
+    ""
+  ],
+  [
+    "unit-control",
+    true,
+    ""
+  ],
+  [
+    "rx-tuple-msg-type-ignored",
+    true,
+    [
+      "  [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5"
+    ]
+  ],
+  [
+    "rx-own-unicast-never-counted",
+    true,
+    [
+      "  [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1"
+    ]
+  ],
+  [
+    "rx-tuple-msg-type-ignored-axil",
+    true,
+    [
+      "  [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5"
+    ]
+  ],
+  [
+    "rx-own-unicast-never-counted-axil",
+    true,
+    [
+      "  [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1"
+    ]
+  ],
+  [
+    "rx-defend-any-unicast",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to a unicast MAC no interface owns: no RX record, no delivery got=3 exp=5"
+    ]
+  ],
+  [
+    "rx-defend-any-unicast-axil",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to a unicast MAC no interface owns: no RX record, no delivery got=3 exp=5"
+    ]
+  ],
+  [
+    "rx-short-frame-never-classified",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1"
+    ]
+  ],
+  [
+    "rx-short-frame-never-classified-axil",
+    true,
+    [
+      "  [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1"
+    ]
+  ]
+]

@@ -1,0 +1,40 @@
+  [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=0 exp=2
+  [FAIL] C0 no ACMP frame lands in the ADP ring   got=2 exp=0
+  [FAIL] C1 AECP to this entity passes; to another does not got=0 exp=1
+  [FAIL] C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere got=7 exp=8
+  [FAIL] Q0 a valid frame reaches its channel (acmp, multicast) got=5 exp=1
+  [FAIL] Q0 its record is the frame, byte for byte (acmp, multicast)
+  [FAIL] Q0 a valid frame reaches its channel (aecp, command) got=5 exp=2
+  [FAIL] Q0 its record is the frame, byte for byte (aecp, command)
+  [FAIL] Q0 a valid frame reaches its channel (aecp, response) got=5 exp=2
+  [FAIL] Q0 its record is the frame, byte for byte (aecp, response)
+  [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+  [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+  [FAIL] Q4 with an unassigned AVTP subtype, it (adp): no RX record, no delivery got=0 exp=5
+  [FAIL] Q4 with an unassigned AVTP subtype, it (adp): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (acmp, multicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (acmp, own unicast): no RX record, no delivery got=1 exp=5
+  [FAIL] Q4 with an unassigned AVTP subtype, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (maap): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (maap): no RX record, no delivery got=3 exp=5
+  [FAIL] Q4 with an unassigned AVTP subtype, it (maap): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q6 untagged AAF to the ADP and ACMP address: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q6 untagged CRF to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring got=5 exp=2
+  [FAIL] Q7 its record is the response, byte for byte
+  [FAIL] Q7 every command type (even) for this target passes got=0 exp=8
+  [FAIL] Q7 every response type (odd) for this controller passes got=0 exp=8
+  [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=1 exp=3
+  [FAIL] Q8 rewritten, the new own MAC passes     got=5 exp=2
+  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3
+  [FAIL] Q11 its record is the DEFEND, byte for byte
+  [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 and each counts once in FILTER_MISMATCH got=0 exp=13
+  [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 the DEFEND after them still reaches the MAAP ring got=5 exp=3
+== mbx (Wishbone host): checks: 316   failures: 38 ==
+RESULT: FAIL

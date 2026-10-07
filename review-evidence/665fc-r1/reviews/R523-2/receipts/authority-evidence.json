@@ -1,0 +1,48 @@
+{
+  "public_assignment": "https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6026839422",
+  "public_author_packet": "https://github.com/kebag-logic/milan-fpga/tree/6a0ea99cd26559b983c918cd79d023efb0fa10c9/review-evidence/665fc-r1/author-r2",
+  "authority_checks": [
+    {
+      "authority": "IEEE 1722-2016 B.2.1 / Table B.1, printed pp.154-155",
+      "result": "PROBE and ANNOUNCE use MAAP multicast; DEFEND uses triggering PROBE source MAC; DEFEND message_type is 2. Checked directly in local PDF."
+    },
+    {
+      "authority": "IEEE 1722.1-2021 8.2.1 / Table B.1",
+      "result": "ACMP transmits multicast; ADP/ACMP address 91:E0:F0:01:00:00. Table visually checked because PDF text extraction corrupts numeric glyphs."
+    },
+    {
+      "authority": "IEEE 1722.1-2021 9.2.2.4 / 9.2.2.7 / 9.2.2.8",
+      "result": "AECP defined command/response parity and target/controller field meanings agree; reserved values follow documented repository policy."
+    },
+    {
+      "authority": "IEEE 802.1Q-2018 Table 10-1",
+      "result": "Customer Bridge MVRP uses 01:80:C2:00:00:21."
+    },
+    {
+      "authority": "Milan v1.2 5.4.5.3",
+      "result": "Entity sends CONTROLLER_AVAILABLE liveness request to registered controller and must observe reply."
+    }
+  ],
+  "area": {
+    "reported_before": [
+      2730,
+      2852
+    ],
+    "reported_after": [
+      2745,
+      2860
+    ],
+    "reported_delta": [
+      15,
+      8
+    ],
+    "reported_wns_ns": [
+      0.271,
+      0.186
+    ],
+    "measured_hdl_head": "dd86e68becc0d88c774a90cba8fd606ba10910b8",
+    "independent_measurement": false,
+    "audit": "Public summary and digest inventory inspected; raw reports are not present in the archive. Source lineage verified in source-invariants.json."
+  },
+  "scope": "No standards PDF content is included in publishable receipts."
+}
