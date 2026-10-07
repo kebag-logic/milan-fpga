@@ -1,0 +1,2291 @@
+{
+  "cd9825c9": {
+    "arms": 59,
+    "missing": [],
+    "changed_named_checks": [],
+    "changed_edits": [
+      "cancel_one_clock_late",
+      "dereg_lost_at_round_end"
+    ]
+  },
+  "2ad2f845": {
+    "arms": 65,
+    "missing": [],
+    "changed_named_checks": [],
+    "changed_edits": [
+      "dereg_lost_at_round_end"
+    ]
+  },
+  "ff581556": {
+    "arms": 68,
+    "missing": [],
+    "changed_named_checks": [],
+    "changed_edits": [
+      "cancel_one_clock_late",
+      "dereg_lost_at_round_end"
+    ]
+  },
+  "c9f74b68": {
+    "arms": 86,
+    "missing": [],
+    "changed_named_checks": [],
+    "changed_edits": []
+  },
+  "HEAD": {
+    "arms": 89,
+    "missing": [],
+    "changed_named_checks": [],
+    "changed_edits": []
+  },
+  "notify_plants": [
+    {
+      "mutant": "ident_two_frames",
+      "edits": 1,
+      "checks": [
+        "ID1: one press sends three"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_seq_per_frame",
+      "edits": 1,
+      "checks": [
+        "ID1b:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_no_rearm",
+      "edits": 1,
+      "checks": [
+        "ID2: held 2.5 s"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_rearm_from_third_frame",
+      "edits": 1,
+      "checks": [
+        "ID2: held 2.5 s",
+        "ID2d: burst 2 starts"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_burst_100ms",
+      "edits": 1,
+      "checks": [
+        "ID1c:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_t0_at_request",
+      "edits": 2,
+      "checks": [
+        "ID2d: burst 3 starts"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_burst_from_t0",
+      "edits": 1,
+      "checks": [
+        "ID7i:",
+        "ID5k:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_departure_is_retirement",
+      "edits": 1,
+      "checks": [
+        "ID7d:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_departure_unwired",
+      "edits": 1,
+      "checks": [
+        "ID7d:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_next_burst_at_once",
+      "edits": 2,
+      "checks": [
+        "ID3f:",
+        "ID7r:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_wait_ignores_gap",
+      "edits": 1,
+      "checks": [
+        "ID8c:",
+        "ID8h:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_press_not_latched",
+      "edits": 1,
+      "checks": [
+        "ID8: a 30 ms press"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_burst_press_not_latched",
+      "edits": 1,
+      "checks": [
+        "ID8o:",
+        "ID8s:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_departure_ignores_ready",
+      "edits": 1,
+      "checks": [
+        "ID9d:",
+        "ID9h:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_burst_deadline_one_tick_short",
+      "edits": 1,
+      "checks": [
+        "FT2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_t0_same_ms",
+      "edits": 1,
+      "checks": [
+        "FT4:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_cut_on_release",
+      "edits": 1,
+      "checks": [
+        "ID1: one press sends three"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_release_ignored",
+      "edits": 1,
+      "checks": [
+        "ID1: one press sends three",
+        "ID2e:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_unicast_da",
+      "edits": 1,
+      "checks": [
+        "ID1: one press sends three"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_face_taken_mid_job",
+      "edits": 1,
+      "checks": [
+        "ID5f:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ident_built_at_default",
+      "edits": 2,
+      "checks": [
+        "ID0: with the parameter at 0"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "enq_dropped_configuration",
+      "edits": 1,
+      "checks": [
+        "NP1 SET_CONFIGURATION(1): exactly one"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "enq_dropped_stream_info",
+      "edits": 1,
+      "checks": [
+        "NP3 SET_STREAM_INFO: exactly one"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "class_4_mapped_to_rate",
+      "edits": 1,
+      "checks": [
+        "NP4 SET_CONTROL(IDENTIFY 255): exactly one"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "class_9_mapped_to_control",
+      "edits": 1,
+      "checks": [
+        "NP6 STOP_STREAMING: exactly one"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "requester_not_excluded",
+      "edits": 1,
+      "checks": [
+        "NP1 SET_CONFIGURATION(1): the requester receives no"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "entry_seq_not_advanced",
+      "edits": 1,
+      "checks": [
+        "NP1b SET_CONFIGURATION(0): it is byte-exact"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "stream_info_get_body",
+      "edits": 1,
+      "checks": [
+        "NP3 SET_STREAM_INFO: it is byte-exact"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "counter_limit_500ms",
+      "edits": 1,
+      "checks": [
+        "ST2b: descriptor 0005:0"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "fan_out_skips_row_0",
+      "edits": 1,
+      "checks": [
+        "ST1b:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "refresh_resets_seq",
+      "edits": 1,
+      "checks": [
+        "RN: 720 seeded steps"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "foreign_unlock_allowed",
+      "edits": 1,
+      "checks": [
+        "RN: 720 seeded steps"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "lock_taker_notified",
+      "edits": 1,
+      "checks": [
+        "RN: 720 seeded steps"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "deregister_keeps_row",
+      "edits": 1,
+      "checks": [
+        "RN: 720 seeded steps"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "registry_holds_15",
+      "edits": 1,
+      "checks": [
+        "RN: 720 seeded steps"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "set_control_ignores_lock",
+      "edits": 1,
+      "checks": [
+        "RN: 720 seeded steps"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "inflight_highest_free_id",
+      "edits": 1,
+      "checks": [
+        "R: a seeded session"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "inflight_match_ignores_seq",
+      "edits": 1,
+      "checks": [
+        "R: a seeded session"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "inflight_cancel_keeps_timer",
+      "edits": 1,
+      "checks": [
+        "R: a seeded session"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "inflight_shared_seq",
+      "edits": 1,
+      "checks": [
+        "R: a seeded session"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ix_old_identity_kept",
+      "edits": 1,
+      "checks": [
+        "IX1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ix_new_identity_unset",
+      "edits": 1,
+      "checks": [
+        "IX3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ix_last_chunk_ignored",
+      "edits": 1,
+      "checks": [
+        "IX2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "ix_rewrite_unmatched",
+      "edits": 1,
+      "checks": [
+        "IX4:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "override_set_only",
+      "edits": 1,
+      "checks": [
+        "IX6:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "own_compare_new_row",
+      "edits": 1,
+      "checks": [
+        "IX5:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "stamp_read_without_valid",
+      "edits": 1,
+      "checks": [
+        "TS3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "counter_spacing_from_selection",
+      "edits": 1,
+      "checks": [
+        "CS2b:",
+        "CS2c:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "counter_spacing_from_selection_tw",
+      "edits": 1,
+      "checks": [
+        "TW1:",
+        "TW2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "counter_stamp_at_send_only",
+      "edits": 1,
+      "checks": [
+        "TW2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "counter_stamp_first_job_only",
+      "edits": 1,
+      "checks": [
+        "TW1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "counter_limit_500ms_cs",
+      "edits": 1,
+      "checks": [
+        "CS2a:",
+        "CS2b:",
+        "CS2c:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "registry_holds_15_cs",
+      "edits": 1,
+      "checks": [
+        "CS1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "dereg_mid_round_no_hold",
+      "edits": 1,
+      "checks": [
+        "DR1:",
+        "DR2:",
+        "DR3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "dereg_pending_stops_follow",
+      "edits": 1,
+      "checks": [
+        "DR3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "dereg_lost_at_round_end",
+      "edits": 1,
+      "checks": [
+        "DR1b:",
+        "DR2b:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "avb_domain_term_dropped",
+      "edits": 1,
+      "checks": [
+        "DN1b:",
+        "DN1c:",
+        "DN2b:",
+        "DN2c:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "avb_link_term_dropped",
+      "edits": 1,
+      "checks": [
+        "DN4b:",
+        "DN4c:",
+        "DN4d:",
+        "DN4e:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "asp_takes_domain",
+      "edits": 1,
+      "checks": [
+        "DN1b:",
+        "DN2b:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "avb_notify_not_interface",
+      "edits": 1,
+      "checks": [
+        "DN4c:",
+        "DN4e:",
+        "DN1c:",
+        "DN2c:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "domain_same_readopted",
+      "edits": 1,
+      "checks": [
+        "DN3:",
+        "DN3b:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "adoption_no_strobe",
+      "edits": 1,
+      "checks": [
+        "<bench-switch-model>:",
+        "DN2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "revert_strobes_at_defaults",
+      "edits": 1,
+      "checks": [
+        "DN4:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "registry_never_claims",
+      "edits": 1,
+      "checks": [
+        "DN0:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "restore_never_done",
+      "edits": 1,
+      "checks": [
+        "notify bench: blank NVM"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "withdraw_unregistered",
+      "edits": 3,
+      "checks": [
+        "WD1:",
+        "WD2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "withdraw_abort_ignored",
+      "edits": 1,
+      "checks": [
+        "WD2:",
+        "WD3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "cancel_one_clock_late",
+      "edits": 3,
+      "checks": [
+        "CX1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "port_not_compared",
+      "edits": 1,
+      "checks": [
+        "PT2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "port_not_latched",
+      "edits": 1,
+      "checks": [
+        "PT2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "port_not_stored",
+      "edits": 1,
+      "checks": [
+        "PT3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "avb_counter_row_dropped",
+      "edits": 1,
+      "checks": [
+        "CK1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "avb_counter_row_collapsed",
+      "edits": 1,
+      "checks": [
+        "CK1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "avb_counter_named_clock",
+      "edits": 1,
+      "checks": [
+        "CK1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "avb_counter_any_index",
+      "edits": 1,
+      "checks": [
+        "CK4:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "avb_counter_name_overlaps_clock",
+      "edits": 1,
+      "checks": [
+        "CK5:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "rgy_port_tied_zero",
+      "edits": 1,
+      "checks": [
+        "IF3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "cancel_one_per_command",
+      "edits": 1,
+      "checks": [
+        "CA1:",
+        "CA1b:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "report_fail_ignores_probe",
+      "edits": 1,
+      "checks": [
+        "CA2:",
+        "CA3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "report_rsp_ignores_probe",
+      "edits": 1,
+      "checks": [
+        "CA2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "owner_turns_dropped",
+      "edits": 1,
+      "checks": [
+        "CA3:",
+        "CA4:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "settle_dropped",
+      "edits": 1,
+      "checks": [
+        "CA4:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "depth_shared",
+      "edits": 1,
+      "checks": [
+        "PD1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "depth_not_keyed",
+      "edits": 1,
+      "checks": [
+        "PD1:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "registry_tag_port_bits",
+      "edits": 1,
+      "checks": [
+        "PD2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "monitor_tag_port_bits",
+      "edits": 1,
+      "checks": [
+        "PD2:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "expiry_port_dropped",
+      "edits": 1,
+      "checks": [
+        "PD3:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "rgy_port_from_latest_frame",
+      "edits": 1,
+      "checks": [
+        "IF3:",
+        "IF3b:"
+      ],
+      "planted": true
+    },
+    {
+      "mutant": "dereg_matches_other_port",
+      "edits": 1,
+      "checks": [
+        "IF3b:"
+      ],
+      "planted": true
+    }
+  ],
+  "patches": [
+    {
+      "path": "tb/adp_engine/mutations/arc-bind-keeps-discovered.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-departing-silent.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-discover-no-noadp-arm.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-fresh-no-rearm.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-fresh-no-store.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-fresh-store-max.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-fresh-store-plus-one.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-noadp-expiry-silent.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-not-discovered-no-guard.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-restart-detector-off-by-one.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/arc-restart-skips-guard.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-dependent-field.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-frozen-at-top.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-nonzero-for-valid.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-overlay-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-read-live.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-valid-any-selector.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-valid-hard-reset.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-valid-no-reset.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-valid-not-sticky.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/cfg-valid-ucpu-bus.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/disc-departing-ignores-interface.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/disc-fresh-checks-gm.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/disc-not-discovered-checks-index.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/disc-not-discovered-checks-interface.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/disc-restart-not-rediscovered.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/disc-stray-noadp-departs.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/disc-unbind-keeps-timer.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/gate-enable-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-aidx-reset-by-index.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-egress-collapsed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-gm-sample-collapsed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-gm-slice-reversed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-ingress-collapsed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-ingress-forced-one.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-link-collapsed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-link-fall-collapsed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-pdu-index-collapsed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-top-count-collapsed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-top-ingress-collapsed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-top-ingress-live.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-top-range-floor-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/if-top-range-unguarded.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-delay-answers-discover.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-delay-ignores-link-down.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-delay-shutdown-silent.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-departing-keeps-index.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-down-answers-discover.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-down-answers-gm-change.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-down-shutdown-departs.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-foreign-discover-answered.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-link-down-keeps-timer.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/adp_engine/mutations/walk-stale-draw-arms.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/compare-mac-forward.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/defend-rdefend-ignored.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/defend-rdefend-no-tiebreak.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/drain-waits-for-the-link.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/fit-compare-forced-true.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/fit-compare-off-by-one.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/idle-serves-a-latched-expiry-first.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/ival-sends-after-release.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/off-waits-for-an-edge.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/post-publishes-after-release.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/probe-rannounce-tiebreak.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/probe-rprobe-never-yields.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/release-keeps-draw-mark.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/release-waits-for-draw.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/rx-release-returns-to-idle.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/seed-clamp-off-by-one.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/seed-clamp-removed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/seed-rearmed-on-idle-release-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/teardown-keeps-announce-timer.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/tx-path-absorbs-release.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/tx-set-omits-alloc.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/tx-set-omits-commit.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/tx-set-omits-gwait.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/tx-set-omits-lane.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/tx-set-omits-write.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/validator-maap-version-1-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/maap/mutations/yield-reuses-range.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/a5b-reboot-success-arm.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/line-buffer-fixed-592.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/m9-guard-add-mappings.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/m9-guard-dynamic-info.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/m9-guard-get-name.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/m9-guard-remove-mappings.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-name.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-format.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-info.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/ov-oversize-at-576.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/ov-oversize-never.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/ov-top-oversize-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-base-no-overlay.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-cfg-any.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/rd-tail-uncut.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-branch-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-preload-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-target-next-word.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-avb-not-supported.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-block-beats-swapped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-change-type-from-index.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-ckd-not-supported.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-index-from-type.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-locate-ignored.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-avb-any-index.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-avb-as-clock.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-avb-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-ckd-any-index.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-ckd-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-no-window.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-one-window.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-stri-past-shape.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/ctr-notify-stro-past-shape.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/store-counts-domain-strobes.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/ctr_mutations/store-link-detector-resets-up.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/acmp-waits-for-aecp.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-armed-at-admission.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-boot-hold-not-exempt.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-edit-preempted.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-gdi-runs-on.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-kill-ack-keeps-owner.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-kill-tied-off.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-lock-preempted.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-mvu-forced-status-10.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-non-aem-forced-status-10.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-preempt-after-effect.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-registry-preempted.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dl-released-before-queued.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/dlkill-always-misbehaving.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/fanout-never-ends.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-acmp-reads-as-steps.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-barrier-no-priority.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-clock-as-lock.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-clock-as-ro.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-clock-key-none.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-foreign-target-classified.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-gdi-as-barrier.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-gdi-key-none.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-identify-as-ro.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-identify-key-none.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-lock-not-lockop.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-map-as-ro.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-map-key-none.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-name-as-ro.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-name-as-stream.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-name-key-none.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-reads-keyed-none.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-registry-as-ro.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-response-classified.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-setcfg-not-barrier.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-stream-key-none.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-stub-restored.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/hz-talker-keyed-as-listener.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/mvu-echo-slot-std.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/mvu-fault-status-10.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/mvu-silent.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/td-lock-default-59s.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/td-tl-default-301s.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/ucpu-preempt-cuts-a-wait.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/ucpu-preempt-keeps-the-body.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/pp_top/mutations/ucpu-preempt-repeats.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/action-omitted.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/already-full-missed.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/bad-listener-length.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/before-slot.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/canceled-content-never-drains.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/count-up-unsends.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/draw-kind-0.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/empty-canceled-pdu.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/encoder-peer-ignored.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/expiry-congestion.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/expiry-event.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/expiry-only-redraw.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/expiry-outranks-peer.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/full-drain-missing.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/join-ms-400.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/join-sent-at-handover.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/leaveall-expiry-lost.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/licence-ignores-join.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/listener-lane-cut.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/listener-lost-txla.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/listener-no-expiry.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/listener-no-own.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/listener-no-renewal.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/listener-sid-ignored.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/listener-strict-lv.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/lv-expiry-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/lv-expiry-last.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/lv-expiry-masked.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/lv-never-ends.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/lv-second-lv-ends.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/lv-sweep-misses-collision.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/missing-registrar-edge.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/mvrp-expiry-only-redraw.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/mvrp-flag-at-expiry.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/mvrp-passive-lost.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/mvrp-stale-expiry-honoured.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/mvrp-supersedes-msrp.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/my-cancel-eats-new-intent.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/my-drop-join-during-wait.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/my-edge-cancel-lost.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/my-expiry-pulse.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/my-join-edge-peer.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/my-la-outranks-leave.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/my-no-walk-at-sLA.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/my-reuse-flags-ignore-cancel.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/own-flags-missing.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/pending-peer-ignored.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/periodic-ms-3000.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/preparation-before-slot.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-accept-edge-drain-lost.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-cancel-consumes-new-intent.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-cancel-latch-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-collect-blocks-pushes.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-expiry-pulse-restored.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-flag-ignores-edge-peer.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-join-coalesce-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-join-start-guard-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-la-only-emission-lost.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-mvrp-start-during-prepare.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-rearm-no-deadline.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-rearm-no-inflight.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-reuse-without-action.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/r-sink-receive-priority-lost.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/rearm-at-issue.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/receive-priority-lost.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/renewal-congestion.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/repeated-action.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/repeated-expiry-queued.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/reserved-slot-not-reused.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/reset-retains-intent.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/round-completion-lost.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/slope-read-source-0.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/slope-store-source-0-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/slope-stored-at-source-0.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/slope-stored-at-stage-2-index.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/stale-expiry-honoured.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/table-one-short.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/talker-lost-txla.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/talker-no-expiry.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/talker-no-own.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/talker-no-renewal.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/talker-strict-lv.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/talker-vid-unreset.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-full-guard-31.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-head-at-write-pointer.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-heads-swapped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-listener-push-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-ls-head-reads-tk-ram.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-ls-write-ignores-full.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-ls-written-at-tk-pointer.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-tk-head-read-ahead.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-tk-write-at-rptr.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tf-tk-write-ignores-full.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/tx-strobe-any-app.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/walk-record-written-on-close.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wid-flops-da-of-gate-source.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wid-flops-sid-of-source-0.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wid-flops-vid-of-source-0.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wid-ram-first-open-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wid-ram-read-at-gate-source.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wid-ram-read-neighbour.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wsid-flops-of-control-sink.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wsid-flops-read-sink-0.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wsid-ram-first-settle-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wsid-ram-written-on-teardown.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wsid-write-ignores-ready.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wtsp-first-open-only.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wtsp-latency-field-shifted.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wtsp-latency-shifted.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wtsp-prio-rank-swapped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wtsp-rank-dropped.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wtsp-read-at-gate-source.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wtsp-read-at-source-0.patch",
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "path": "tb/srp_top/mutations/wtsp-write-ignores-ready.patch",
+      "rc": 0,
+      "output": ""
+    }
+  ],
+  "donor_blobs": {
+    "hdl/aecp/KL_aecp_notify.sv": "c8fbce303ba609efa3be86e71ccbc22d1e6a184b",
+    "tb/aecp_notify/port_tuple.hpp": "0812ef47d1c2bb15da8788f274e23b78aa792352",
+    "tb/pp_top/interface_phases.hpp": "2ed7c1273c10be9ac51777a13220a6581cca7ae1",
+    "tb/adp_engine/sim_if2.cpp": "aecd22a99582f864c467bca1fd96d7fe0994a069"
+  },
+  "WD_DN_body_identity": true,
+  "tally_extraction": {
+    "same_reporting_body": true,
+    "same_main_prefix": true,
+    "old_main_lines": 102,
+    "new_main_lines": 89
+  }
+}

@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -778,7 +778,7 @@
+     //! remove and later reuse a row while its old availability exchange is
+     //! still live. Cancel before clearing the row, just as an incoming
+     //! command cancels a superseded probe.
+-    assign cx_ok_w   = ca_cancel_ok_w
++    assign cx_ok_w   = 1'b0
+                        || ((n_st_r == N_DRAIN) && ca_probe_r[pd_ix_w]);
+     assign cx_ix_w   = ((n_st_r == N_DRAIN) && ca_probe_r[pd_ix_w])
+                        ? pd_ix_w : ca_cancel_ix_w;

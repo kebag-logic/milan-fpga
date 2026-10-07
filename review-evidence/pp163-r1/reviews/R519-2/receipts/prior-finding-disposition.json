@@ -1,0 +1,16 @@
+[
+  {
+    "review": "R518-1",
+    "head": "cd9825c947cf67b735d26cc1c42541ccd9d7f637",
+    "source": "https://github.com/kebag-logic/milan-fpga/blob/c4a23f5a47804a521c54ada84a175b3c11df86d5/review-evidence/pp163-r1/reviews/R518-1/REPORT.md",
+    "finding": "**S1 \u2014 SUGGESTION \u2014 Tests, Docs, Robustness.** Artifact: public `author/HANDOFF.md:38` and `:340`, together with the published evidence inventory. Authority/evidence: acceptance items 1\u20132 require the full arbiter input-cone survey; the packet provides grouped results and hashes but omits `arb_cone.tcl`, its summarizer and the integrated raw table. Impact: a public-only reviewer can reconcile the family coverage and totals but cannot inspect the exact cell/pin filters or reproduce the per-pair extraction from the supplied artifacts. Required outcome if adopted: publish those scripts plus an explicit cell/pin inventory and raw table, or a documented public regeneration command. Verification: enumerate all 187 retained cells/561 selected pins, explain discarded/constant endpoints, and reproduce both totals and extrema. This is a reproducibility improvement, not evidence of an omitted retained cell or a failing path; it does not leave a lens unclean.",
+    "disposition": "RETAINED as SUGGESTION at c4539ff1. The public round-3 archive still lacks the traversal script and full integrated pair reports. No MINOR/MAJOR/BLOCKER existed in this prior report."
+  },
+  {
+    "review": "R519-1",
+    "head": "cd9825c947cf67b735d26cc1c42541ccd9d7f637",
+    "source": "https://github.com/kebag-logic/milan-fpga/blob/c4a23f5a47804a521c54ada84a175b3c11df86d5/review-evidence/pp163-r1/reviews/R519-1/REPORT.md",
+    "finding": "**R519-1-S1 \u2014 SUGGESTION \u2014 Tests, Docs.** Artifact: the immutable public evidence inventory and its handoff \u00a71/\u00a79. Authority/evidence: #163 asks for all arbiter cones and endpoints; the public packet contains grouped summaries and hashes, but omits `scripts/arb_cone.tcl`, the complete integrated endpoint/pair TSVs and full timing reports. Impact: a public reader can reconcile every register family and the reported totals, but cannot independently inspect or replay the traversal from this packet alone. Requested outcome: publish the exact traversal script, sequential-cell/pin inventory and full before/after pair reports with their hashes alongside the evidence. Verification: reproduce the 187-cell coverage, listed endpoint pins, 263,154/17,990 pairs and 146,535/0 above-threshold totals with the same recipe. This is an evidence-replay improvement, with no identified incorrect measurement or blocking acceptance defect.",
+    "disposition": "RETAINED as SUGGESTION at c4539ff1. The public round-3 archive still lacks the traversal script and full integrated pair reports. No MINOR/MAJOR/BLOCKER existed in this prior report."
+  }
+]

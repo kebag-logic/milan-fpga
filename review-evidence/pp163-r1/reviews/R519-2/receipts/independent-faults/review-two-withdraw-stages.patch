@@ -1,0 +1,19 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -4452,10 +4452,15 @@
+   //! itself is sent: the originator drops that acceptance (the entry is gone)
+   //! and the pool frees the slot after its last byte.
+   logic [7:0]              org_withdraw_mask_r;
++  logic [7:0] review_delay;
++  always_ff @(posedge clk_i) begin
++    if (!rst_n) review_delay <= '0;
++    else review_delay <= org_withdraw_slot_mask_w;
++  end
+ 
+   always_ff @(posedge clk_i) begin : withdraw_mask_stage
+     if (!rst_n) org_withdraw_mask_r <= '0;
+-    else        org_withdraw_mask_r <= org_withdraw_slot_mask_w;
++    else        org_withdraw_mask_r <= review_delay;
+   end
+ 
+   logic [LANE_N_C-1:0]              arb_req_w;

@@ -1,0 +1,11 @@
+{
+  "controls": 89,
+  "each_has_one_README_row": true,
+  "CA4_bound": "gap >= 4, unchanged from c9f74b68; measures notification-engine settle before the top withdraw register",
+  "changed_edit_reasons": {
+    "cancel_one_clock_late": "#69 moved the single-interface choice to g_ca_own. Delay command cancel there, preserve immediate TIME_LIMITED cancellation. CX1 requirement unchanged.",
+    "dereg_lost_at_round_end": "#69 expanded the registry to N_ROW_C; end-of-round selector changes N_CTRL_P to N_ROW_C in both original and replacement text. DR1b/DR2b requirements unchanged."
+  },
+  "changed_failure_record": "ix_new_identity_unset additionally fails CX1, with reason recorded in the README",
+  "diagram": "docs/diagrams/21-integration-faces.svg rendered and visually inspected; interface index text and parameter inventory are legible and inside their boxes"
+}

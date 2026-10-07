@@ -1,0 +1,112 @@
+make: Entering directory '$PACKET/scratch/docs'
+matrix: 115 REQ rows, 17 GAP findings, OK
+parameters: top 29, guide 29, diagram 29, OK
+matrix: OK (94 rows, 0 untested)
+links: 1179 checked, OK
+wavedrom: 18 blocks checked, OK
+error: could not lock config file $SOURCE/.git/config: File exists
+fatal: could not set 'core.repositoryformatversion' to '0'
+SELFTEST FAIL: case 1: want [] rc 0, got rc 1
+FIGURE FAIL: docs/diagrams/README.md: lists 20-a.svg, which is not in docs/diagrams
+figures: 0 draw.io, 0 WaveDrom, 0 hand-authored, 1 FAILURES
+
+SELFTEST FAIL: case 2: want ['20-a.png: not a figure format'] rc 1, got rc 1
+FIGURE FAIL: docs/diagrams/README.md: lists 20-a.svg, which is not in docs/diagrams
+figures: 0 draw.io, 0 WaveDrom, 0 hand-authored, 1 FAILURES
+
+SELFTEST FAIL: case 3: want ['25-c.svg: SVG with no .drawio source'] rc 1, got rc 1
+FIGURE FAIL: docs/diagrams/README.md: lists 20-a.svg, which is not in docs/diagrams
+figures: 0 draw.io, 0 WaveDrom, 0 hand-authored, 1 FAILURES
+
+SELFTEST FAIL: case 4: want ['20-a.svg: not well-formed XML'] rc 1, got rc 1
+FIGURE FAIL: docs/diagrams/README.md: lists 20-a.svg, which is not in docs/diagrams
+figures: 0 draw.io, 0 WaveDrom, 0 hand-authored, 1 FAILURES
+
+SELFTEST FAIL: case 5: want ['sub/20-a.svg: not a figure format'] rc 1, got rc 1
+FIGURE FAIL: docs/diagrams/README.md: lists 20-a.svg, which is not in docs/diagrams
+figures: 0 draw.io, 0 WaveDrom, 0 hand-authored, 1 FAILURES
+
+SELFTEST FAIL: case 6: want ['20-a.svg: carries <image>'] rc 1, got rc 1
+FIGURE FAIL: docs/diagrams/README.md: lists 20-a.svg, which is not in docs/diagrams
+figures: 0 draw.io, 0 WaveDrom, 0 hand-authored, 1 FAILURES
+
+Traceback (most recent call last):
+  File "$PACKET/scratch/docs/scripts/check-figures.py", line 242, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/docs/scripts/check-figures.py", line 238, in main
+    return selftest() if args.selftest else check(args.root)
+           ~~~~~~~~^^
+  File "$PACKET/scratch/docs/scripts/check-figures.py", line 212, in selftest
+    subprocess.run(["git", "init", "-q", str(root)], check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'init', '-q', '/tmp/tmpin3wpob5']' returned non-zero exit status 128.
+make: *** [Makefile:52: figures] Error 1
+make: *** Waiting for unfinished jobs....
+SELFTEST FAIL: case 7: want ['P-MISSING-1'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 8: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 9: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 10: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 11: want ['P-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 12: want ['T-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 13: want ['T-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 14: want ['T-MRP-NOPE'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 15: want ['T-NVM-RS-TYPO'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 16: want ['T-MRP-{...}'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 17: want ['P-RX'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 18: want ['T-MRP-NOPE'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 19: want ['T-BUDGET-AECP-XX'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 20: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 21: want ['T-ADP-DELAY(-...)'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 22: want ['T-NOFAMILY-*'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 23: want ['P-RX-SLOT-2'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 24: want ['P-RX-SLOTS-2'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 25: want ['P-ONE-X'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 26: want ['P-EN-C'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 30 cases, 20 FAILURES
+make: *** [Makefile:47: ids] Error 1
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+make: Leaving directory '$PACKET/scratch/docs'

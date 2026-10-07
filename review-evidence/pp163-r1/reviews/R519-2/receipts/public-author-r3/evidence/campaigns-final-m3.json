@@ -1,0 +1,1091 @@
+{
+  "camp-acmp": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": false,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": false,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 37,
+      "m3base": 37,
+      "m3final": 37
+    },
+    "last": {
+      "m2head": "ACMP mutations: 33 of 33 KILLED by their named checks; goldens PASS",
+      "m3base": "ACMP mutations: 33 of 33 KILLED by their named checks; goldens PASS",
+      "m3final": "ACMP mutations: 33 of 33 KILLED by their named checks; goldens PASS"
+    }
+  },
+  "camp-adp": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {
+          "control adp_engine interfaces": {
+            "before": null,
+            "after": {
+              "lines": [
+                "control adp_engine interfaces: rc=0 PASS"
+              ]
+            }
+          },
+          "control pp_top if-guards": {
+            "before": null,
+            "after": {
+              "lines": [
+                "control pp_top if-guards: rc=0 PASS"
+              ]
+            }
+          },
+          "control pp_top interfaces": {
+            "before": null,
+            "after": {
+              "lines": [
+                "control pp_top interfaces: rc=0 PASS"
+              ]
+            }
+          },
+          "if-aidx-reset-by-index": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-aidx-reset-by-index: rc=2 failures=3 named=1 KILLED",
+                "    FAIL: IF0: both advertise machines reset to DOWN with available_index 0",
+                "    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (1 frame(s))",
+                "    FAIL: IF4: each interface's frames carry its own available_index, 0 then +1 per frame of that interface (3 and 3 frames; next indices 3 and 4)"
+              ]
+            }
+          },
+          "if-egress-collapsed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-egress-collapsed: rc=2 failures=5 named=1 KILLED",
+                "    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (0 frame(s))",
+                "    FAIL: IF4: each interface's frames carry its own available_index, 0 then +1 per frame of that interface (7 and 0 frames; next indices 3 and 4)",
+                "    FAIL: IF5: ENTITY_DISCOVER on interface 1, both machines WAITING, restarts interface 1's advertise machine alone: it leaves WAITING (state 1) and advertises 4100 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 3)",
+                "    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 2/2)",
+                "    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (2 and 0 frames)"
+              ]
+            }
+          },
+          "if-gm-sample-collapsed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-gm-sample-collapsed: rc=2 failures=2 named=1 KILLED",
+                "    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (1 frame(s))",
+                "    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (1 and 1 frames)"
+              ]
+            }
+          },
+          "if-gm-slice-reversed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-gm-slice-reversed: rc=2 failures=5 named=1 KILLED",
+                "    FAIL: IF2: interface 0's ENTITY_AVAILABLE is byte-exact: interface_index 0, interface 0's grandmaster and domain, available_index 0, and its TX request names interface 0",
+                "    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (1 frame(s))",
+                "    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 1/3)",
+                "    FAIL: IF8: T1's ENTITY_AVAILABLE carrying interface 1's grandmaster and domain is not matched when received on interface 0, and discovers sink 0 when received on interface 1 (0 event(s) after interface 0, 0 in all)",
+                "    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (1 and 1 frames)"
+              ]
+            }
+          },
+          "if-ingress-collapsed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-ingress-collapsed: rc=2 failures=3 named=1 KILLED",
+                "    FAIL: IF5: ENTITY_DISCOVER on interface 1, both machines WAITING, restarts interface 1's advertise machine alone: it leaves WAITING (state 3) and advertises 21 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 1)",
+                "    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 1/2)",
+                "    FAIL: IF8: T1's ENTITY_AVAILABLE carrying interface 1's grandmaster and domain is not matched when received on interface 0, and discovers sink 0 when received on interface 1 (0 event(s) after interface 0, 0 in all)"
+              ]
+            }
+          },
+          "if-ingress-forced-one": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-ingress-forced-one: rc=2 failures=2 named=1 KILLED",
+                "    FAIL: IF5: ENTITY_DISCOVER on interface 0, both machines WAITING, restarts interface 0's advertise machine alone: it leaves WAITING (state 3) and advertises 21 ms later, inside T-ADP-DELAY; interface 1 stays WAITING (state 1)",
+                "    FAIL: IF8: T1's ENTITY_AVAILABLE carrying interface 1's grandmaster and domain is not matched when received on interface 0, and discovers sink 0 when received on interface 1 (1 event(s) after interface 0, 3 in all)"
+              ]
+            }
+          },
+          "if-link-collapsed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-link-collapsed: rc=2 failures=2 named=1 KILLED",
+                "    FAIL: IF1: enabled with interface 0's link alone up, interface 0 advertises within T-ADP-DELAY-START and interface 1 stays DOWN and silent (states 3/2, 0 frame(s) on interface 1)",
+                "    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 1/2)"
+              ]
+            }
+          },
+          "if-link-fall-collapsed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-link-fall-collapsed: rc=2 failures=1 named=1 KILLED",
+                "    FAIL: IF7: interface 1's LINK_DOWN takes interface 1 to DOWN with no frame at all, while interface 0 keeps advertising (states 3/2; 1 and 1 frames)"
+              ]
+            }
+          },
+          "if-pdu-index-collapsed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-pdu-index-collapsed: rc=2 failures=2 named=1 KILLED",
+                "    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (1 frame(s))",
+                "    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (1 and 1 frames)"
+              ]
+            }
+          },
+          "if-top-count-collapsed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-top-count-collapsed: rc=2 failures=3 named=1 KILLED",
+                "    FAIL: IF1: with two interfaces each advertise machine sends its own ENTITY_AVAILABLE inside T-ADP-DELAY-START, byte-exact with interface_index 0 and 1 and available_index 0 (1 ADPDU(s))",
+                "    FAIL: IF2: ENTITY_DISCOVER received on interface 1 restarts interface 1's advertise machine alone: it leaves WAITING (state 0) and advertises 0 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 2)",
+                "    FAIL: IF2: ENTITY_DISCOVER received on interface 0 restarts interface 0's advertise machine alone: it leaves WAITING (state 2) and advertises 223 ms later, inside T-ADP-DELAY; interface 1 stays WAITING (state 0)"
+              ]
+            }
+          },
+          "if-top-count-collapsed-lint": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-top-count-collapsed-lint: rc=2 failures=1 named=1 KILLED",
+                "    FAIL: if guard 2: must lint clean (verilator rc 1)"
+              ]
+            }
+          },
+          "if-top-ingress-collapsed": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-top-ingress-collapsed: rc=2 failures=3 named=1 KILLED",
+                "    FAIL: IF2: ENTITY_DISCOVER received on interface 1 restarts interface 1's advertise machine alone: it leaves WAITING (state 3) and advertises 0 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 2)",
+                "    FAIL: IF3: C's REGISTER on interface 1, run after a frame received on interface 0, makes interface 1's entry: the next lock reaches C at sequence_id 0 and 2, the unlock at 1 and 3 (REGISTER SUCCESS, after the held push yes)",
+                "    FAIL: IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (1 and 0 push(es))"
+              ]
+            }
+          },
+          "if-top-ingress-live": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-top-ingress-live: rc=2 failures=2 named=1 KILLED",
+                "    FAIL: IF2: ENTITY_DISCOVER received on interface 1 restarts interface 1's advertise machine alone: it leaves WAITING (state 3) and advertises 0 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 2)",
+                "    FAIL: IF2: ENTITY_DISCOVER received on interface 0 restarts interface 0's advertise machine alone: it leaves WAITING (state 3) and advertises 3893 ms later, inside T-ADP-DELAY; interface 1 stays WAITING (state 2)"
+              ]
+            }
+          },
+          "if-top-range-floor-dropped": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-top-range-floor-dropped: rc=2 failures=1 named=1 KILLED",
+                "    FAIL: if guard 0: must be refused: N_AVB_IF_P=0 is outside 1 to 2 (verilator rc 1)"
+              ]
+            }
+          },
+          "if-top-range-floor-off-by-one": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-top-range-floor-off-by-one: rc=2 failures=1 named=1 KILLED",
+                "    FAIL: if guard 1: must lint clean (verilator rc 1)"
+              ]
+            }
+          },
+          "if-top-range-unguarded": {
+            "before": null,
+            "after": {
+              "lines": [
+                "if-top-range-unguarded: rc=2 failures=1 named=1 KILLED",
+                "    FAIL: if guard 3: must be refused: N_AVB_IF_P=3 is outside 1 to 2 (verilator rc 1)"
+              ]
+            }
+          }
+        },
+        "driver_log_identical": false,
+        "driver_log_identical_when_sorted": false
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 43,
+      "m3base": 62,
+      "m3final": 62
+    },
+    "last": {
+      "m2head": "43 checks: 43 PASS, 0 FAIL",
+      "m3base": "62 checks: 62 PASS, 0 FAIL",
+      "m3final": "62 checks: 62 PASS, 0 FAIL"
+    }
+  },
+  "camp-aecp": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 0,
+      "m3base": 0,
+      "m3final": 0
+    },
+    "last": {
+      "m2head": "67 checks: 67 PASS, 0 FAIL",
+      "m3base": "67 checks: 67 PASS, 0 FAIL",
+      "m3final": "67 checks: 67 PASS, 0 FAIL"
+    }
+  },
+  "camp-aecp_dispatch": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 44,
+      "m3base": 44,
+      "m3final": 44
+    },
+    "last": {
+      "m2head": "44 checks: 44 PASS, 0 FAIL",
+      "m3base": "44 checks: 44 PASS, 0 FAIL",
+      "m3final": "44 checks: 44 PASS, 0 FAIL"
+    }
+  },
+  "camp-ctr": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 0,
+      "m3base": 0,
+      "m3final": 0
+    },
+    "last": {
+      "m2head": "18 checks: 18 PASS, 0 FAIL",
+      "m3base": "18 checks: 18 PASS, 0 FAIL",
+      "m3final": "18 checks: 18 PASS, 0 FAIL"
+    }
+  },
+  "camp-d3": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": false,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": false,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 116,
+      "m3base": 116,
+      "m3final": 116
+    },
+    "last": {
+      "m2head": "D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS",
+      "m3base": "D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS",
+      "m3final": "D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS"
+    }
+  },
+  "camp-gsi": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 22,
+      "m3base": 22,
+      "m3final": 22
+    },
+    "last": {
+      "m2head": "GSI mutations: 20 detected by named checks; golden and restored PASS",
+      "m3base": "GSI mutations: 20 detected by named checks; golden and restored PASS",
+      "m3final": "GSI mutations: 20 detected by named checks; golden and restored PASS"
+    }
+  },
+  "camp-maap": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 0,
+      "m3base": 0,
+      "m3final": 0
+    },
+    "last": {
+      "m2head": "32 checks: 32 PASS, 0 FAIL",
+      "m3base": "32 checks: 32 PASS, 0 FAIL",
+      "m3final": "32 checks: 32 PASS, 0 FAIL"
+    }
+  },
+  "camp-name_wr": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 3,
+      "m3base": 3,
+      "m3final": 3
+    },
+    "last": {
+      "m2head": "Name-write mutation: decode killed; golden and restored PASS",
+      "m3base": "Name-write mutation: decode killed; golden and restored PASS",
+      "m3final": "Name-write mutation: decode killed; golden and restored PASS"
+    }
+  },
+  "camp-notify": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {
+          "results.json:avb_counter_any_index": {
+            "before": null,
+            "after": {
+              "mutant": "avb_counter_any_index",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CK4:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0009:0)",
+                "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 6, 0009:1, 8 ms after interface 1's)",
+                "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1",
+                "CK4: AVB_INTERFACE 2 names no interface of a two-interface build: no GET_COUNTERS in two seconds (one presented on 0009:1)",
+                "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:1)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:avb_counter_name_overlaps_clock": {
+            "before": null,
+            "after": {
+              "mutant": "avb_counter_name_overlaps_clock",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CK5:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:0)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:avb_counter_named_clock": {
+            "before": null,
+            "after": {
+              "mutant": "avb_counter_named_clock",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CK1:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0024:0)",
+                "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:avb_counter_row_collapsed": {
+            "before": null,
+            "after": {
+              "mutant": "avb_counter_row_collapsed",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CK1:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0009:0)",
+                "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 0, 0000:0, 4294964291 ms after interface 1's)",
+                "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:avb_counter_row_dropped": {
+            "before": null,
+            "after": {
+              "mutant": "avb_counter_row_dropped",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CK1:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 0, 0000:0)",
+                "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 0 on index 0, want 1000 to 1008 on index 1"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:cancel_one_per_command": {
+            "before": null,
+            "after": {
+              "mutant": "cancel_one_per_command",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CA1:",
+                "CA1b:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CA1: E holds an entry on each port and both probes are out (owners 0x3); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+                "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:depth_not_keyed": {
+            "before": null,
+            "after": {
+              "mutant": "depth_not_keyed",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "PD1:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 1 1 1 1, 2 entries)",
+                "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (2 draws, 4 arms)",
+                "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (1 entries, DEREGISTER to 020000000001), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+                "CA1: E holds an entry on each port and both probes are out (owners 0x0); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+                "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), no job, and 1 draw(s), the two E's command asked",
+                "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (0 cancel(s), owners 0x0, 0 entries)",
+                "CA3: the rows of one index take turns: A's probe goes out alone (0 probe(s)), its failure removes A (DEREGISTER to 000000000000, 2 entries), and B's probe follows (0)",
+                "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:depth_shared": {
+            "before": null,
+            "after": {
+              "mutant": "depth_shared",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "PD1:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 0 0 1 1, 4 entries)",
+                "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)",
+                "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (3 entries, DEREGISTER to 020000000004), and row 1's monitor deadline probes row 1's controller, CA owner 0 (1 probe(s))",
+                "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+                "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+                "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:dereg_matches_other_port": {
+            "before": null,
+            "after": {
+              "mutant": "dereg_matches_other_port",
+              "suite": "./obj_if2/Vpp_top_if2",
+              "build_rc": 0,
+              "run_rc": 1,
+              "completed": true,
+              "named_checks": [
+                "IF3b:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (2 and 1 push(es))"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:expiry_port_dropped": {
+            "before": null,
+            "after": {
+              "mutant": "expiry_port_dropped",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "PD3:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (4 entries, DEREGISTER to 000000000000), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+                "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+                "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 1 entries), and B's probe follows (0)",
+                "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:golden-aecp_notify-interfaces": {
+            "before": null,
+            "after": {
+              "mutant": "golden-aecp_notify-interfaces",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 0,
+              "completed": true,
+              "named_checks": [],
+              "missing": [],
+              "failing_checks": [],
+              "verdict": "PASS"
+            }
+          },
+          "results.json:golden-pp_top-obj_if2_Vpp_top_if2": {
+            "before": null,
+            "after": {
+              "mutant": "golden-pp_top-obj_if2_Vpp_top_if2",
+              "suite": "./obj_if2/Vpp_top_if2",
+              "build_rc": 0,
+              "run_rc": 0,
+              "completed": true,
+              "named_checks": [],
+              "missing": [],
+              "failing_checks": [],
+              "verdict": "PASS"
+            }
+          },
+          "results.json:monitor_tag_port_bits": {
+            "before": null,
+            "after": {
+              "mutant": "monitor_tag_port_bits",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "PD2:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:owner_turns_dropped": {
+            "before": null,
+            "after": {
+              "mutant": "owner_turns_dropped",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CA3:",
+                "CA4:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CA3: the rows of one index take turns: A's probe goes out alone (2 probe(s)), its failure removes A (DEREGISTER to 02000000000a, 1 entries), and B's probe follows (0)",
+                "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (2 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:port_not_compared": {
+            "before": null,
+            "after": {
+              "mutant": "port_not_compared",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "PT2:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on port 1 is a second (results 0 and 0, 1 then 1 entries)",
+                "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+                "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 1 entries)",
+                "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 0 entries)",
+                "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (0 notification(s))",
+                "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+                "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), no job, and 1 draw(s), the two E's command asked"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:port_not_latched": {
+            "before": null,
+            "after": {
+              "mutant": "port_not_latched",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "PT2:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on port 1 is a second (results 0 and 0, 1 then 1 entries)",
+                "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+                "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 1 entries)",
+                "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 0 entries)",
+                "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (0 notification(s))",
+                "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 1 1 1 1, 2 entries)",
+                "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (2 draws, 4 arms)",
+                "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (2 entries, DEREGISTER to 000000000000), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+                "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+                "CA2: the cancelled exchanges' late failures and responses touch nothing: 1 entries (want 3), a job presented, and 1 draw(s), the two E's command asked",
+                "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 1 entries), and B's probe follows (0)",
+                "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:port_not_stored": {
+            "before": null,
+            "after": {
+              "mutant": "port_not_stored",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "PT3:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 3 entries)",
+                "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 3 entries)",
+                "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (3 notification(s))",
+                "PT7: DEREGISTER from E on port 0 removes the last entry (result 0, 2 entries)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:registry_tag_port_bits": {
+            "before": null,
+            "after": {
+              "mutant": "registry_tag_port_bits",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "PD2:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:report_fail_ignores_probe": {
+            "before": null,
+            "after": {
+              "mutant": "report_fail_ignores_probe",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CA2:",
+                "CA3:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+                "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 02000000000a, 1 entries), and B's probe follows (0)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:report_rsp_ignores_probe": {
+            "before": null,
+            "after": {
+              "mutant": "report_rsp_ignores_probe",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CA2:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CA2: the cancelled exchanges' late failures and responses touch nothing: 3 entries (want 3), no job, and 3 draw(s), the two E's command asked"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:rgy_port_from_latest_frame": {
+            "before": null,
+            "after": {
+              "mutant": "rgy_port_from_latest_frame",
+              "suite": "./obj_if2/Vpp_top_if2",
+              "build_rc": 0,
+              "run_rc": 1,
+              "completed": true,
+              "named_checks": [
+                "IF3:",
+                "IF3b:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "IF3: C's REGISTER on interface 1, run after a frame received on interface 0, makes interface 1's entry: the next lock reaches C at sequence_id 0 and 2, the unlock at 1 and 3 (REGISTER SUCCESS, after the held push yes)",
+                "IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (1 and 0 push(es))"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:rgy_port_tied_zero": {
+            "before": null,
+            "after": {
+              "mutant": "rgy_port_tied_zero",
+              "suite": "./obj_if2/Vpp_top_if2",
+              "build_rc": 0,
+              "run_rc": 1,
+              "completed": true,
+              "named_checks": [
+                "IF3:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "IF3: C's REGISTER on interface 1, run after a frame received on interface 0, makes interface 1's entry: the next lock reaches C at sequence_id 0 and 2, the unlock at 1 and 3 (REGISTER SUCCESS, after the held push yes)",
+                "IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (1 and 0 push(es))"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:settle_dropped": {
+            "before": null,
+            "after": {
+              "mutant": "settle_dropped",
+              "suite": "make interfaces",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CA4:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken 1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (2 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+              ],
+              "verdict": "KILLED"
+            }
+          }
+        },
+        "driver_log_identical": false,
+        "driver_log_identical_when_sorted": false
+      },
+      "m3base": {
+        "changed_records": {
+          "results.json:cancel_one_clock_late": {
+            "before": null,
+            "after": {
+              "mutant": "cancel_one_clock_late",
+              "suite": "make run",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "CX1:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "IX3: the registered identity matches in the command's cycle",
+                "CX1: a command from the probing controller cancels its probe in the command's own clock (probe live 1, cancelled then 0) and in no later one (1 of 8)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:golden-pp_top-withdraw-only": {
+            "before": null,
+            "after": {
+              "mutant": "golden-pp_top-withdraw-only",
+              "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+              "build_rc": 0,
+              "run_rc": 0,
+              "completed": true,
+              "named_checks": [],
+              "missing": [],
+              "failing_checks": [],
+              "verdict": "PASS"
+            }
+          },
+          "results.json:ix_new_identity_unset": {
+            "before": {
+              "mutant": "ix_new_identity_unset",
+              "suite": "make run",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "IX3:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "IX3: the registered identity matches in the command's cycle",
+                "IX4: a command two cycles after its REGISTER keeps the row against a failed probe in the same cycle",
+                "IX6b: after the rewrite, E's command keeps the row through the index"
+              ],
+              "verdict": "KILLED"
+            },
+            "after": {
+              "mutant": "ix_new_identity_unset",
+              "suite": "make run",
+              "build_rc": 0,
+              "run_rc": 2,
+              "completed": true,
+              "named_checks": [
+                "IX3:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "IX3: the registered identity matches in the command's cycle",
+                "IX4: a command two cycles after its REGISTER keeps the row against a failed probe in the same cycle",
+                "IX6b: after the rewrite, E's command keeps the row through the index",
+                "CX1: a command from the probing controller cancels its probe in the command's own clock (probe live 1, cancelled then 0) and in no later one (0 of 8)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:withdraw_abort_ignored": {
+            "before": null,
+            "after": {
+              "mutant": "withdraw_abort_ignored",
+              "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+              "build_rc": 0,
+              "run_rc": 1,
+              "completed": true,
+              "named_checks": [
+                "WD2:",
+                "WD3:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "WD2: a cancellation on the clock the arbiter selects a queued probe withdraws that selection one clock later, before the pool starts it (select clock 1)",
+                "WD3: that probe never reaches the wire, both answers leave, and the slots, the originator and its lane return idle (0 probe(s), deregistration 0, answers 0, idle 0)"
+              ],
+              "verdict": "KILLED"
+            }
+          },
+          "results.json:withdraw_unregistered": {
+            "before": null,
+            "after": {
+              "mutant": "withdraw_unregistered",
+              "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+              "build_rc": 0,
+              "run_rc": 1,
+              "completed": true,
+              "named_checks": [
+                "WD1:",
+                "WD2:"
+              ],
+              "missing": [],
+              "failing_checks": [
+                "WD1: a cancellation on the clock the arbiter accepts a queued probe no longer stops it: it leaves once, byte-exact, and nothing follows (accept clock 1, 0 probe(s), exact 1, deregistration 0, answers 1, slots and originator idle 1)",
+                "WD2: a cancellation on the clock the arbiter selects a queued probe withdraws that selection one clock later, before the pool starts it (select clock 1)"
+              ],
+              "verdict": "KILLED"
+            }
+          }
+        },
+        "driver_log_identical": false,
+        "driver_log_identical_when_sorted": false
+      }
+    },
+    "record_counts": {
+      "m2head": 77,
+      "m3base": 96,
+      "m3final": 100
+    },
+    "last": {
+      "m2head": "C6 notification mutations: 68 of 68 KILLED by their named checks; goldens PASS",
+      "m3base": "C6 notification mutations: 86 of 86 KILLED by their named checks; goldens PASS",
+      "m3final": "C6 notification mutations: 89 of 89 KILLED by their named checks; goldens PASS"
+    }
+  },
+  "camp-retry": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 0,
+      "m3base": 0,
+      "m3final": 0
+    },
+    "last": {
+      "m2head": "PASS: 62 mutants killed; 7 equivalence controls; 1 performance controls; baseline and restored rc 0",
+      "m3base": "PASS: 62 mutants killed; 7 equivalence controls; 1 performance controls; baseline and restored rc 0",
+      "m3final": "PASS: 62 mutants killed; 7 equivalence controls; 1 performance controls; baseline and restored rc 0"
+    }
+  },
+  "camp-srp_admission": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 0,
+      "m3base": 0,
+      "m3final": 0
+    },
+    "last": {
+      "m2head": "12 checks: 12 PASS, 0 FAIL",
+      "m3base": "12 checks: 12 PASS, 0 FAIL",
+      "m3final": "12 checks: 12 PASS, 0 FAIL"
+    }
+  },
+  "camp-srp_top": {
+    "comparisons": {
+      "m2head": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      },
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m2head": 0,
+      "m3base": 0,
+      "m3final": 0
+    },
+    "last": {
+      "m2head": "137 checks: 137 PASS, 0 FAIL",
+      "m3base": "137 checks: 137 PASS, 0 FAIL",
+      "m3final": "137 checks: 137 PASS, 0 FAIL"
+    }
+  },
+  "camp-txarb": {
+    "comparisons": {
+      "m3base": {
+        "changed_records": {},
+        "driver_log_identical": true,
+        "driver_log_identical_when_sorted": true
+      }
+    },
+    "record_counts": {
+      "m3base": 0,
+      "m3final": 0
+    },
+    "last": {
+      "m3base": "M5 {\"rc\": 2, \"tally\": \"66 checks: 64 PASS, 2 FAIL\", \"failing\": 2, \"first\": [\"H withdrawn selection produces no grant or frame\", \"H aborted start leaves the committed slot untouched\"]}",
+      "m3final": "M5 {\"rc\": 2, \"tally\": \"66 checks: 64 PASS, 2 FAIL\", \"failing\": 2, \"first\": [\"H withdrawn selection produces no grant or frame\", \"H aborted start leaves the committed slot untouched\"]}"
+    }
+  }
+}

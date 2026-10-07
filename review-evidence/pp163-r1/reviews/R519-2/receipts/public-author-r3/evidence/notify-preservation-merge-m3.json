@@ -1,0 +1,158 @@
+{
+  "revision": "5fe5ea579e27b1bf6529e97dae44c94281f35764",
+  "round2_legacy_records_identical": 77,
+  "main_legacy_except_added_cx_identical": true,
+  "new_interface_controls": [
+    {
+      "mutant": "avb_counter_any_index",
+      "required": [
+        "CK4:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "avb_counter_name_overlaps_clock",
+      "required": [
+        "CK5:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "avb_counter_named_clock",
+      "required": [
+        "CK1:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "avb_counter_row_collapsed",
+      "required": [
+        "CK1:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "avb_counter_row_dropped",
+      "required": [
+        "CK1:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "cancel_one_per_command",
+      "required": [
+        "CA1:",
+        "CA1b:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "depth_not_keyed",
+      "required": [
+        "PD1:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "depth_shared",
+      "required": [
+        "PD1:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "dereg_matches_other_port",
+      "required": [
+        "IF3b:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "expiry_port_dropped",
+      "required": [
+        "PD3:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "monitor_tag_port_bits",
+      "required": [
+        "PD2:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "owner_turns_dropped",
+      "required": [
+        "CA3:",
+        "CA4:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "port_not_compared",
+      "required": [
+        "PT2:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "port_not_latched",
+      "required": [
+        "PT2:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "port_not_stored",
+      "required": [
+        "PT3:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "registry_tag_port_bits",
+      "required": [
+        "PD2:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "report_fail_ignores_probe",
+      "required": [
+        "CA2:",
+        "CA3:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "report_rsp_ignores_probe",
+      "required": [
+        "CA2:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "rgy_port_from_latest_frame",
+      "required": [
+        "IF3:",
+        "IF3b:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "rgy_port_tied_zero",
+      "required": [
+        "IF3:"
+      ],
+      "verdict": "KILLED"
+    },
+    {
+      "mutant": "settle_dropped",
+      "required": [
+        "CA4:"
+      ],
+      "verdict": "KILLED"
+    }
+  ]
+}

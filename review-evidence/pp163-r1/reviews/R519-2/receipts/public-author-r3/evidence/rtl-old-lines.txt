@@ -1,0 +1,12 @@
+    logic [2:0] key_w, best_w;
+    // every fresh native (1_cc); ties resolve to the lowest index
+    pick_ok_w = 1'b0;
+    best_w    = 3'b111;
+      key_w = {~aged_w[i], PRIO_MAP_P[2*i +: 2]};
+      if (elig_w[i] && (!pick_ok_w || (key_w < best_w))) begin
+        pick_ok_w = 1'b1;
+        pick_w    = REQ_IX_W_C'(i);
+        best_w    = key_w;
+                                   && org_withdraw_slot_mask_w[laneq_org_r[0]];
+          && !org_withdraw_slot_mask_w[laneq_org_r[i]]) begin
+  assign arb_start_abort_w = org_withdraw_slot_mask_w[ser_slot_w]

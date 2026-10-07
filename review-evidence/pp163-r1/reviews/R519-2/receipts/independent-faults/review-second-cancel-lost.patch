@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -767,7 +767,7 @@
+         cx_pend_r   <= '0;
+         cx_settle_r <= 2'd0;
+       end else begin
+-        cx_pend_r <= cx_work_w;
++        cx_pend_r <= '0;
+         if (cx_ok_w) cx_pend_r[cx_ix_w] <= 1'b0;
+         if (cx_ok_w)                  cx_settle_r <= CX_SETTLE_C;
+         else if (cx_settle_r != 2'd0) cx_settle_r <= cx_settle_r - 2'd1;

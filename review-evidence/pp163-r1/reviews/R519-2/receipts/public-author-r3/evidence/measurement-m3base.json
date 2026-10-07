@@ -1,0 +1,139 @@
+{
+  "label": "m3base",
+  "area": {
+    "KL_pp_shadow": {
+      "lut": 23179,
+      "ff": 19779
+    },
+    "u_pp": {
+      "lut": 22517,
+      "ff": 18941
+    },
+    "(u_pp)": {
+      "lut": 939,
+      "ff": 2033
+    },
+    "u_notify": {
+      "lut": 2125,
+      "ff": 1256
+    },
+    "u_originator": {
+      "lut": 697,
+      "ff": 885
+    },
+    "u_tx_arbiter": {
+      "lut": 185,
+      "ff": 187
+    }
+  },
+  "timing": {
+    "setup": {
+      "failing_endpoints": 16,
+      "worst_slack_ns": -3.562,
+      "total_violation_ns": -37.519
+    },
+    "hold": {
+      "failing_endpoints": 0,
+      "worst_slack_ns": 0.159,
+      "total_violation_ns": 0.0
+    }
+  },
+  "cone": {
+    "sequential_cells": 187,
+    "queried_endpoint_pins": 561,
+    "queried_startpoints": 1631,
+    "reported_startpoints": 1631,
+    "reported_endpoints": 543,
+    "pairs": 263154,
+    "above_20": 146535,
+    "max_levels": 51,
+    "min_slack_ns": -3.562,
+    "pairs_without_slack": 12219,
+    "histogram": {
+      "0": 1,
+      "1": 693,
+      "2": 798,
+      "3": 3266,
+      "4": 4758,
+      "5": 2544,
+      "6": 1500,
+      "7": 2269,
+      "8": 510,
+      "9": 2376,
+      "10": 1155,
+      "11": 140,
+      "12": 717,
+      "13": 1477,
+      "14": 8078,
+      "15": 15919,
+      "16": 18518,
+      "17": 12709,
+      "18": 12465,
+      "19": 12848,
+      "20": 13878,
+      "21": 19179,
+      "22": 25511,
+      "23": 21567,
+      "24": 18456,
+      "25": 11498,
+      "26": 3606,
+      "27": 3787,
+      "28": 3804,
+      "29": 4431,
+      "30": 7049,
+      "31": 4962,
+      "32": 5139,
+      "33": 5646,
+      "34": 2608,
+      "35": 1614,
+      "36": 1328,
+      "37": 988,
+      "38": 886,
+      "39": 952,
+      "40": 798,
+      "41": 709,
+      "42": 505,
+      "43": 302,
+      "44": 323,
+      "45": 256,
+      "46": 157,
+      "47": 171,
+      "48": 128,
+      "49": 93,
+      "50": 70,
+      "51": 12
+    }
+  },
+  "worst_five": [
+    {
+      "slack_ns": -3.562,
+      "source": "u_pp/u_notify/pend_r_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/slot_r_reg[0]/D",
+      "levels": 47
+    },
+    {
+      "slack_ns": -3.562,
+      "source": "u_pp/u_notify/pend_r_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/slot_r_reg[1]/D",
+      "levels": 47
+    },
+    {
+      "slack_ns": -3.562,
+      "source": "u_pp/u_notify/pend_r_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/slot_r_reg[2]/D",
+      "levels": 47
+    },
+    {
+      "slack_ns": -3.417,
+      "source": "u_pp/u_notify/pend_r_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/owner_r_reg[0]/D",
+      "levels": 46
+    },
+    {
+      "slack_ns": -2.93,
+      "source": "u_pp/u_notify/pend_r_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/owner_r_reg[1]/D",
+      "levels": 45
+    }
+  ]
+}

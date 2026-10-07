@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -561,7 +561,7 @@
+     assign wk_hit_w = valid_r[wk_ix_r] && (row_eid_w == hold_eid_r)
+                       && (row_mac_w == hold_mac_r)
+                       && (port_r[wk_ix_r] == hold_port_r);
+-    assign wk_port_ok_w = (PORT_W_C'(wk_ix_r) == hold_port_r);
++    assign wk_port_ok_w = (PORT_W_C'(wk_ix_r) == hold_port_r) && !hold_port_r;
+   end else begin : g_no_port
+     assign wk_hit_w = valid_r[wk_ix_r] && (row_eid_w == hold_eid_r)
+                       && (row_mac_w == hold_mac_r);

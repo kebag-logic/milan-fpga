@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -4575,7 +4575,7 @@
+   logic [7:0]  arb_tx_data_w;
+   logic        arb_start_abort_w;
+ 
+-  assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]
++  assign arb_start_abort_w = org_withdraw_slot_mask_w[ser_slot_w]
+                            || (txs_release_valid_w
+                                && (txs_release_slot_w == ser_slot_w));
+ 
