@@ -1,0 +1,9 @@
+{
+  "remote": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+  "head": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+  "branch": "pp163-txarb-cone",
+  "status": "",
+  "commits": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82\n5fe5ea579e27b1bf6529e97dae44c94281f35764\nKeep the merged top bench runner within the parent function limit\n\n5fe5ea579e27b1bf6529e97dae44c94281f35764\nff58155657c3496d862710dab48357fd8f8d4102 c9f74b6866a63dd3c0e4534724bfc07a86ad142b\nMerge main c9f74b68 (#69) into pp163-txarb-cone",
+  "diff_stat": "docs/architecture/03_packet_engine.md |   1 +\n hdl/packet_engine/KL_pp_tx_arbiter.sv |  26 +++--\n hdl/top/protocol_processor_top.sv     |  23 +++-\n tb/aecp_notify/README.md              |  41 ++++++--\n tb/aecp_notify/sim_main.cpp           |  60 +++++++++--\n tb/pp_top/Makefile                    |   6 +-\n tb/pp_top/README.md                   |  68 ++++++++++--\n tb/pp_top/notify_mutants.py           |  38 ++++++-\n tb/pp_top/notify_phases.hpp           | 191 ++++++++++++++++++++++++++++++++++\n tb/pp_top/pp_top_wrap.sv              |  15 +++\n tb/pp_top/sim_main.cpp                |  45 +++++---\n tb/tx_arbiter/README.md               |  11 +-\n 12 files changed, 472 insertions(+), 53 deletions(-)",
+  "followup_files": "tb/pp_top/sim_main.cpp"
+}

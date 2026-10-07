@@ -1,0 +1,126 @@
+hdl/packet_engine/KL_pp_originator.sv
+195:   always_comb begin : cancel_pending_pick
+196:     cancel_work_w = cancel_pend_r;
+197:     if (cancel_valid_i && cancel_hit_w)
+198:       cancel_work_w[cancel_ix_w] = 1'b1;
+199:     cancel_pend_ok_w = 1'b0;
+200:     cancel_pend_ix_w = '0;
+201:     for (int i = int'(INFLIGHT_P) - 1; i >= 0; i--) begin
+202:       if (cancel_work_w[i]) begin
+203:         cancel_pend_ok_w = 1'b1;
+204:         cancel_pend_ix_w = IFL_AW_C'(i);
+205:       end
+206:     end
+207:   end
+208: 
+
+hdl/packet_engine/KL_pp_originator.sv
+300:   // -------------------------------------------------- one event per cycle
+301:   // Priority response > parked cancel > TX acceptance > expiry > issue: the
+302:   // event kinds share the timer arm port and the hold/release/send pulse lanes,
+303:   // so exactly one proceeds per cycle. Only issue can be backpressured.
+304:   logic ev_rsp_w, ev_cancel_w, ev_accept_w, ev_exp_w, ev_iss_w;
+305: 
+306:   assign ev_rsp_w    = rsp_valid_i && hit_ok_w;
+307:   assign ev_cancel_w = !ev_rsp_w && cancel_pend_ok_w;
+308:   assign ev_accept_w = !ev_rsp_w && !ev_cancel_w && accept_ok_w;
+309:   assign ev_exp_w    = !ev_rsp_w && !ev_cancel_w && !ev_accept_w && pend_ok_w;
+310:   assign iss_ready_o = free_ok_w && !ev_rsp_w && !ev_cancel_w
+311:                      && !ev_accept_w && !pend_ok_w;
+312:   assign ev_iss_w    = iss_valid_i && iss_ready_o;
+313: 
+314:   // Expose every slot that must be withdrawn before serializer acceptance.
+315:   // The mask is combinational from the current response/cancel decision so
+316:   // the TX lane can suppress a selected request before the registered release
+317:   // reaches the shared slot pool. Stored cancellations remain masked while a
+318:   // response for another entry consumes the single action lane.
+319:   always_comb begin : withdraw_mask
+320:     withdraw_slot_mask_o = '0;
+321:     for (int i = 0; i < int'(INFLIGHT_P); i++) begin
+322:       if (cancel_work_w[i] && valid_r[i])
+323:         withdraw_slot_mask_o[txs_r[i]] = 1'b1;
+324:     end
+325:     if (ev_rsp_w)
+326:       withdraw_slot_mask_o[txs_r[hit_ix_w]] = 1'b1;
+327:     if (ev_exp_w && valid_r[pend_ix_w] && retried_r[pend_ix_w])
+328:       withdraw_slot_mask_o[txs_r[pend_ix_w]] = 1'b1;
+329:   end
+
+hdl/packet_engine/KL_pp_originator.sv
+436:       send_valid_o    <= 1'b0;
+437:       resend_valid_o  <= 1'b0;
+438:       hold_valid_o    <= 1'b0;
+439:       release_valid_o <= 1'b0;
+440:       tmr_arm_valid_o <= 1'b0;
+441:       if (ev_rsp_w) begin
+442:         // route + disarm + release; the entry frees this edge
+443:         rt_valid_o            <= 1'b1;
+444:         rt_owner_o            <= owner_r[hit_ix_w];
+445:         rt_id_o               <= hit_ix_w;
+446:         release_valid_o       <= 1'b1;
+447:         release_slot_o        <= txs_r[hit_ix_w];
+448:         tmr_arm_valid_o       <= 1'b1;
+449:         tmr_arm_cancel_o      <= 1'b1;
+450:         tmr_arm_slot_o        <= tslot_r[hit_ix_w];
+451:         tmr_arm_owner_o       <= {TMR_TAG_P, hit_ix_w};
+452:         tmr_arm_deadline_ms_o <= 32'd0;
+453:       end else if (ev_cancel_w) begin
+454:         // A valid command from this owner proves liveness and supersedes
+455:         // the probe. Free the immutable retry slot and disarm its timeout.
+456:         release_valid_o       <= 1'b1;
+457:         release_slot_o        <= txs_r[cancel_pend_ix_w];
+458:         tmr_arm_valid_o       <= 1'b1;
+459:         tmr_arm_cancel_o      <= 1'b1;
+460:         tmr_arm_slot_o        <= tslot_r[cancel_pend_ix_w];
+461:         tmr_arm_owner_o       <= {TMR_TAG_P, cancel_pend_ix_w};
+462:         tmr_arm_deadline_ms_o <= 32'd0;
+463:       end else if (ev_accept_w) begin
+464:         // Start the attempt budget only after the arbiter transfers this
+465:         // handle to the serializer. Queueing delay is outside that budget.
+
+hdl/aecp/KL_aecp_notify.sv
+776:   end else begin : g_ca_own
+777:     //! one interface: a row is its own CA owner. A TIME_LIMITED drain can
+778:     //! remove and later reuse a row while its old availability exchange is
+779:     //! still live. Cancel before clearing the row, just as an incoming
+780:     //! command cancels a superseded probe.
+781:     assign cx_ok_w   = ca_cancel_ok_w
+782:                        || ((n_st_r == N_DRAIN) && ca_probe_r[pd_ix_w]);
+783:     assign cx_ix_w   = ((n_st_r == N_DRAIN) && ca_probe_r[pd_ix_w])
+784:                        ? pd_ix_w : ca_cancel_ix_w;
+785:     assign cr_ok_w   = ca_rsp_valid_i && (32'(ca_rsp_owner_i) < N_CTRL_P)
+786:                        && !rx_cmd_hit_w[cr_ix_w] && valid_r[cr_ix_w];
+787:     assign cr_ix_w   = CIX_W_C'(ca_rsp_owner_i);
+788:     assign cf_ok_w   = ca_fail_valid_i && (32'(ca_fail_owner_i) < N_CTRL_P)
+789:                        && !rx_cmd_hit_w[cf_ix_w] && valid_r[cf_ix_w];
+
+hdl/top/protocol_processor_top.sv
+4444:   //! The originator's withdraw mask, one cycle late (#163). The mask is
+4445:   //! combinational from the originator's response, cancel and expiry choice,
+4446:   //! whose cones (the registry's identity index, the received header, the
+4447:   //! response CAM) reached the TX arbiter's slot and state registers through
+4448:   //! the lane request and start_abort_i: 51 logic levels at the 50 MHz clock.
+4449:   //! Every reader below takes this copy, so a withdrawal reaches the lane
+4450:   //! queue and the arbiter in the cycle the originator's registered release
+4451:   //! reaches the pool. A frame the arbiter accepts in the cancelling cycle
+4452:   //! itself is sent: the originator drops that acceptance (the entry is gone)
+4453:   //! and the pool frees the slot after its last byte.
+4454:   logic [7:0]              org_withdraw_mask_r;
+4455: 
+4456:   always_ff @(posedge clk_i) begin : withdraw_mask_stage
+4457:     if (!rst_n) org_withdraw_mask_r <= '0;
+4458:     else        org_withdraw_mask_r <= org_withdraw_slot_mask_w;
+4459:   end
+
+hdl/top/protocol_processor_top.sv
+4578:   assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]
+4579:                            || (txs_release_valid_w
+4580:                                && (txs_release_slot_w == ser_slot_w));
+4581: 
+
+docs/architecture/03_packet_engine.md
+486: | Priorities | ACMP (tightest budget, `T-BUDGET-ACMP-RESP`) > AECP solicited + originator commands > notification bursts > ADP periodic |
+487: | Frame-atomic | grant holds sof→eof ([F02.4](02_interfaces.md#fig-02-txwave)); no preemption |
+488: | Withdrawal | an originated exchange cancelled before the serializer accepts its frame leaves the originator lane and the arbiter's pre-start abort one clock after the originator takes the cancellation (a registered mask, in the clock its registered release reaches the slot pool); a frame accepted in the cancelling clock itself is sent, and its slot is freed after its last byte |
+489: | Starvation guard | aging promotes any requester older than `T-TX-AGING` to priority 1 |
+490: | Notification pacing | fan-out engine spaces bursts so ≥ 1 slot/frame-time remains for solicited traffic; counters class additionally rate-limited ≤ 1/descriptor/s |

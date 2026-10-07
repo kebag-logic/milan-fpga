@@ -1,0 +1,61 @@
+{
+  "public_blobs_validated": 80,
+  "numeric_parameters": 19,
+  "regenerated_images": [
+    {
+      "name": "ltn_rom.hex",
+      "bytes": 6138,
+      "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956",
+      "match": true
+    },
+    {
+      "name": "ucode.hex",
+      "bytes": 26624,
+      "sha256": "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8",
+      "match": true
+    },
+    {
+      "name": "alinx_ax7101_sram.init",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "match": true
+    }
+  ],
+  "other_images": "Firmware ROM, auxiliary memory and clock-processor image identities are from the published manifest/audit, not fresh builds.",
+  "source_donor_matches": [
+    {
+      "path": "hdl/aecp/KL_aecp_notify.sv",
+      "donor": "c9f74b68",
+      "head_blob": "c8fbce303ba609efa3be86e71ccbc22d1e6a184b",
+      "donor_blob": "c8fbce303ba609efa3be86e71ccbc22d1e6a184b",
+      "match": true
+    },
+    {
+      "path": "hdl/packet_engine/KL_pp_tx_arbiter.sv",
+      "donor": "cd9825c9",
+      "head_blob": "f6130635dbab12527595cc0661c9c5619d5259dc",
+      "donor_blob": "f6130635dbab12527595cc0661c9c5619d5259dc",
+      "match": true
+    }
+  ],
+  "reported_measurement": {
+    "wns": 3.337,
+    "whs": 0.159,
+    "pairs": 17990,
+    "max_levels": 16,
+    "above_20": 0,
+    "own_delta": {
+      "lut": -110,
+      "ff": 6
+    }
+  },
+  "published_execution_rcs": {
+    "record-m3final.rc": 0,
+    "cone-m3final.rc": 0,
+    "gate-m3final.rc": 0,
+    "ooc-m3final.rc": 0,
+    "prepare-m3final.rc": 0,
+    "paths-m3final.rc": 0
+  },
+  "limits": "Summary arithmetic/result linkage checked; no synthesis, route or full path-table replay performed."
+}

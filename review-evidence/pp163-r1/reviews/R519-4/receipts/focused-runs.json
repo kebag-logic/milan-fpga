@@ -1,0 +1,27 @@
+[
+  {
+    "name": "independent-inputs",
+    "argv": [
+      "python3",
+      "$REVIEWS/pp163-r519-4-packet/scripts/verify_inputs.py",
+      "$REVIEWS/r519-4-pp163",
+      "$REVIEWS/pp163-r519-4-packet"
+    ],
+    "cwd": "processor clone",
+    "rc": 0,
+    "seconds": 0.416
+  },
+  {
+    "name": "tx-arbiter",
+    "argv": [
+      "make",
+      "-j16",
+      "run",
+      "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+      "VFLAGS=--cc --exe --build -j 8 --top-module tx_arbiter_harness -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS \"-std=c++17 -O2 -Wall -Wextra\""
+    ],
+    "cwd": "scratch/focused-source/tb/tx_arbiter",
+    "rc": 0,
+    "seconds": 1.118
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "15_datapath": {
+    "pattern": "^\\s*(?:\\[|\\d+ checks|checks:|RESULT\\b|it broke \\d+ check|milan_datapath:|media_aclk:|==.*checks:|RENDER:|TALKER:|LISTENER:|EVENT:|TU:|COINCIDENT:|TX flags |simulated_cycles=|gmstep:|COUNTERS:|TDM:|AAF:|CRF:)",
+    "excluded_build_records": [
+      "[endstation_builder]",
+      "[gen_aemi_image]"
+    ],
+    "counts": {
+      "base": 11916,
+      "final": 11916
+    },
+    "identical_when_sorted": true,
+    "sorted_record_sha256": "e04c345da96593e5e46cd20acb8cad5064bf375263f367e3a3ef97567cf2f446"
+  },
+  "16_render": {
+    "pattern": "^\\s*(?:\\[|\\d+ checks|checks:|RESULT\\b|it broke \\d+ check|milan_datapath:|media_aclk:|==.*checks:|RENDER:|TALKER:|LISTENER:|EVENT:|TU:|COINCIDENT:|TX flags |simulated_cycles=|gmstep:|COUNTERS:|TDM:|AAF:|CRF:)",
+    "excluded_build_records": [
+      "[endstation_builder]",
+      "[gen_aemi_image]"
+    ],
+    "counts": {
+      "base": 117,
+      "final": 117
+    },
+    "identical_when_sorted": true,
+    "sorted_record_sha256": "10ae3a28f8b669bd1433cb6c5f3be718a99cb6eef4a5a36c2bc5a98544989209"
+  }
+}

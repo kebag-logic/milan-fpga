@@ -1,0 +1,1135 @@
+{
+  "rev": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+  "arms": 89,
+  "edits": 96,
+  "records": [
+    {
+      "mutant": "ident_two_frames",
+      "required_checks": [
+        "ID1: one press sends three"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_seq_per_frame",
+      "required_checks": [
+        "ID1b:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_no_rearm",
+      "required_checks": [
+        "ID2: held 2.5 s"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_rearm_from_third_frame",
+      "required_checks": [
+        "ID2: held 2.5 s",
+        "ID2d: burst 2 starts"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_burst_100ms",
+      "required_checks": [
+        "ID1c:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_t0_at_request",
+      "required_checks": [
+        "ID2d: burst 3 starts"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        },
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_burst_from_t0",
+      "required_checks": [
+        "ID7i:",
+        "ID5k:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_departure_is_retirement",
+      "required_checks": [
+        "ID7d:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_departure_unwired",
+      "required_checks": [
+        "ID7d:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_next_burst_at_once",
+      "required_checks": [
+        "ID3f:",
+        "ID7r:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        },
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_wait_ignores_gap",
+      "required_checks": [
+        "ID8c:",
+        "ID8h:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_press_not_latched",
+      "required_checks": [
+        "ID8: a 30 ms press"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_burst_press_not_latched",
+      "required_checks": [
+        "ID8o:",
+        "ID8s:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_departure_ignores_ready",
+      "required_checks": [
+        "ID9d:",
+        "ID9h:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_burst_deadline_one_tick_short",
+      "required_checks": [
+        "FT2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_t0_same_ms",
+      "required_checks": [
+        "FT4:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_cut_on_release",
+      "required_checks": [
+        "ID1: one press sends three"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_release_ignored",
+      "required_checks": [
+        "ID1: one press sends three",
+        "ID2e:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_unicast_da",
+      "required_checks": [
+        "ID1: one press sends three"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_face_taken_mid_job",
+      "required_checks": [
+        "ID5f:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ident_built_at_default",
+      "required_checks": [
+        "ID0: with the parameter at 0"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        },
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "enq_dropped_configuration",
+      "required_checks": [
+        "NP1 SET_CONFIGURATION(1): exactly one"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/ucode/gen_ucode.py",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "enq_dropped_stream_info",
+      "required_checks": [
+        "NP3 SET_STREAM_INFO: exactly one"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/ucode/gen_ucode.py",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "class_4_mapped_to_rate",
+      "required_checks": [
+        "NP4 SET_CONTROL(IDENTIFY 255): exactly one"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "class_9_mapped_to_control",
+      "required_checks": [
+        "NP6 STOP_STREAMING: exactly one"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "requester_not_excluded",
+      "required_checks": [
+        "NP1 SET_CONFIGURATION(1): the requester receives no"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "entry_seq_not_advanced",
+      "required_checks": [
+        "NP1b SET_CONFIGURATION(0): it is byte-exact"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "stream_info_get_body",
+      "required_checks": [
+        "NP3 SET_STREAM_INFO: it is byte-exact"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_engine.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "counter_limit_500ms",
+      "required_checks": [
+        "ST2b: descriptor 0005:0"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "fan_out_skips_row_0",
+      "required_checks": [
+        "ST1b:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "refresh_resets_seq",
+      "required_checks": [
+        "RN: 720 seeded steps"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "foreign_unlock_allowed",
+      "required_checks": [
+        "RN: 720 seeded steps"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "lock_taker_notified",
+      "required_checks": [
+        "RN: 720 seeded steps"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "deregister_keeps_row",
+      "required_checks": [
+        "RN: 720 seeded steps"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "registry_holds_15",
+      "required_checks": [
+        "RN: 720 seeded steps"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "set_control_ignores_lock",
+      "required_checks": [
+        "RN: 720 seeded steps"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/ucode/gen_ucode.py",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "inflight_highest_free_id",
+      "required_checks": [
+        "R: a seeded session"
+      ],
+      "edits": [
+        {
+          "file": "hdl/packet_engine/KL_pp_originator.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "inflight_match_ignores_seq",
+      "required_checks": [
+        "R: a seeded session"
+      ],
+      "edits": [
+        {
+          "file": "hdl/packet_engine/KL_pp_originator.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "inflight_cancel_keeps_timer",
+      "required_checks": [
+        "R: a seeded session"
+      ],
+      "edits": [
+        {
+          "file": "hdl/packet_engine/KL_pp_originator.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "inflight_shared_seq",
+      "required_checks": [
+        "R: a seeded session"
+      ],
+      "edits": [
+        {
+          "file": "hdl/packet_engine/KL_pp_originator.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ix_old_identity_kept",
+      "required_checks": [
+        "IX1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ix_new_identity_unset",
+      "required_checks": [
+        "IX3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ix_last_chunk_ignored",
+      "required_checks": [
+        "IX2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "ix_rewrite_unmatched",
+      "required_checks": [
+        "IX4:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "override_set_only",
+      "required_checks": [
+        "IX6:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "own_compare_new_row",
+      "required_checks": [
+        "IX5:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "stamp_read_without_valid",
+      "required_checks": [
+        "TS3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "counter_spacing_from_selection",
+      "required_checks": [
+        "CS2b:",
+        "CS2c:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "counter_spacing_from_selection_tw",
+      "required_checks": [
+        "TW1:",
+        "TW2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "counter_stamp_at_send_only",
+      "required_checks": [
+        "TW2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "counter_stamp_first_job_only",
+      "required_checks": [
+        "TW1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "counter_limit_500ms_cs",
+      "required_checks": [
+        "CS2a:",
+        "CS2b:",
+        "CS2c:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "registry_holds_15_cs",
+      "required_checks": [
+        "CS1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "dereg_mid_round_no_hold",
+      "required_checks": [
+        "DR1:",
+        "DR2:",
+        "DR3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "dereg_pending_stops_follow",
+      "required_checks": [
+        "DR3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "dereg_lost_at_round_end",
+      "required_checks": [
+        "DR1b:",
+        "DR2b:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "avb_domain_term_dropped",
+      "required_checks": [
+        "DN1b:",
+        "DN1c:",
+        "DN2b:",
+        "DN2c:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "avb_link_term_dropped",
+      "required_checks": [
+        "DN4b:",
+        "DN4c:",
+        "DN4d:",
+        "DN4e:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "asp_takes_domain",
+      "required_checks": [
+        "DN1b:",
+        "DN2b:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "avb_notify_not_interface",
+      "required_checks": [
+        "DN4c:",
+        "DN4e:",
+        "DN1c:",
+        "DN2c:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "domain_same_readopted",
+      "required_checks": [
+        "DN3:",
+        "DN3b:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/srp/KL_srp_domain.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "adoption_no_strobe",
+      "required_checks": [
+        "<bench-switch-model>:",
+        "DN2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/srp/KL_srp_domain.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "revert_strobes_at_defaults",
+      "required_checks": [
+        "DN4:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/srp/KL_srp_domain.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "registry_never_claims",
+      "required_checks": [
+        "DN0:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "restore_never_done",
+      "required_checks": [
+        "notify bench: blank NVM"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "withdraw_unregistered",
+      "required_checks": [
+        "WD1:",
+        "WD2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        },
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        },
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "withdraw_abort_ignored",
+      "required_checks": [
+        "WD2:",
+        "WD3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "cancel_one_clock_late",
+      "required_checks": [
+        "CX1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        },
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        },
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "port_not_compared",
+      "required_checks": [
+        "PT2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "port_not_latched",
+      "required_checks": [
+        "PT2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "port_not_stored",
+      "required_checks": [
+        "PT3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "avb_counter_row_dropped",
+      "required_checks": [
+        "CK1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "avb_counter_row_collapsed",
+      "required_checks": [
+        "CK1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "avb_counter_named_clock",
+      "required_checks": [
+        "CK1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "avb_counter_any_index",
+      "required_checks": [
+        "CK4:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "avb_counter_name_overlaps_clock",
+      "required_checks": [
+        "CK5:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "rgy_port_tied_zero",
+      "required_checks": [
+        "IF3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "cancel_one_per_command",
+      "required_checks": [
+        "CA1:",
+        "CA1b:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "report_fail_ignores_probe",
+      "required_checks": [
+        "CA2:",
+        "CA3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "report_rsp_ignores_probe",
+      "required_checks": [
+        "CA2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "owner_turns_dropped",
+      "required_checks": [
+        "CA3:",
+        "CA4:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "settle_dropped",
+      "required_checks": [
+        "CA4:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "depth_shared",
+      "required_checks": [
+        "PD1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "depth_not_keyed",
+      "required_checks": [
+        "PD1:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "registry_tag_port_bits",
+      "required_checks": [
+        "PD2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "monitor_tag_port_bits",
+      "required_checks": [
+        "PD2:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "expiry_port_dropped",
+      "required_checks": [
+        "PD3:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "rgy_port_from_latest_frame",
+      "required_checks": [
+        "IF3:",
+        "IF3b:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "matches": 1
+        }
+      ]
+    },
+    {
+      "mutant": "dereg_matches_other_port",
+      "required_checks": [
+        "IF3b:"
+      ],
+      "edits": [
+        {
+          "file": "hdl/aecp/KL_aecp_notify.sv",
+          "matches": 1
+        }
+      ]
+    }
+  ]
+}

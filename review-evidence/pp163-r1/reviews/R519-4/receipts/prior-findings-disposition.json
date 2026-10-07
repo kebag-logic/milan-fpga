@@ -1,0 +1,112 @@
+{
+  "observed_utc": "2026-10-07T07:42:47.201885+00:00",
+  "head": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+  "issue_comment_count": 8,
+  "pr_comment_count": 13,
+  "submitted_reviews": 0,
+  "inline_reviews": 0,
+  "read_order": "Independent source pass and independent-verdict-ledger.md written before another reviewer report was read. New R518-2 F1 and manager acceptance were observed afterward. Final ledger supersedes the initial snapshot.",
+  "review_comments": [
+    {
+      "id": 6023961268,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166#issuecomment-6023961268",
+      "created_at": "2026-10-06T19:33:17Z",
+      "first_line": "[R518] POSITIVE - exact head cd9825c947cf67b735d26cc1c42541ccd9d7f637",
+      "body_sha256": "d5c7e5aefadd8f76a001be31fc5f150e582a2232b2cbe188af4a792a6f8032e8"
+    },
+    {
+      "id": 6023982628,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166#issuecomment-6023982628",
+      "created_at": "2026-10-06T19:34:35Z",
+      "first_line": "[R519] POSITIVE - exact head cd9825c947cf67b735d26cc1c42541ccd9d7f637",
+      "body_sha256": "7883bbffc5a0de596c1a837d801c1f075893340afda5b5bb01891308a53c416d"
+    },
+    {
+      "id": 6032812507,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166#issuecomment-6032812507",
+      "created_at": "2026-10-07T07:05:16Z",
+      "first_line": "[R519] NEGATIVE - exact head c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "body_sha256": "c013eec67ddf2ffdb699a42f4c0772a00c90401952659a301ad71312c2b5c567"
+    },
+    {
+      "id": 6033100876,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166#issuecomment-6033100876",
+      "created_at": "2026-10-07T07:25:52Z",
+      "first_line": "[R519] NEGATIVE - exact head c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "body_sha256": "3c5f5071486194f38a67bf519c62b060dc26f694e5b3761ef3489ca7bf875633"
+    },
+    {
+      "id": 6033168474,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166#issuecomment-6033168474",
+      "created_at": "2026-10-07T07:30:33Z",
+      "first_line": "[R518] NEGATIVE - exact head c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+      "body_sha256": "c11f0c5e2454ac95b1ff1ace54a95f41206ce17c9fdb6b52e896757fb05ffcb8"
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "R519-2-F1 (retained by R519-3)",
+      "severity": "MINOR",
+      "lenses": [
+        "Conformance",
+        "Tests",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": "independent-inputs.json; all 124 file components and three replay implementations match"
+    },
+    {
+      "id": "R518-2-S2",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Tests",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": "same digest replay; protocol_processor_top.sv independently matches exact-head blob and component"
+    },
+    {
+      "id": "R518-2-F1",
+      "severity": "MINOR",
+      "lenses": [
+        "Conformance",
+        "Robustness",
+        "Tests",
+        "Docs"
+      ],
+      "status": "RETAINED OPEN",
+      "evidence": "public review 6033168474; manager acceptance 6033185530; independently examined originator event priority/mask and top readers; no new top stimulus run",
+      "lens_note": "Original attribution Robustness, Tests, Docs retained. Conformance additionally attributed here because frozen acceptance item 2 requires grading the added cycle."
+    },
+    {
+      "id": "R519-2-S2",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Robustness",
+        "Tests"
+      ],
+      "status": "SUPERSEDED BY R518-2-F1",
+      "evidence": "The prior surviving delay variant is now covered by an accepted MINOR finding; it is not treated as an optional-only limitation."
+    },
+    {
+      "id": "R518-1-S1 / R519-1-S1 / R518-2-S1",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Robustness",
+        "Tests",
+        "Docs"
+      ],
+      "status": "RETAINED NARROWED",
+      "evidence": "Transcripts expose traversal commands; complete before/after pair tables, explicit per-pin inventory and summary transformation remain absent."
+    },
+    {
+      "id": "R518-2-S3",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "RETAINED",
+      "evidence": "09_verification.md:297-321 lacks WD/CX/index entry and --withdraw-only; README line 15 wrap suggestion retained."
+    }
+  ]
+}
