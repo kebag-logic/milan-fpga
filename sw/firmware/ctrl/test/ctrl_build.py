@@ -33,16 +33,17 @@ TB_COMMON = ROOT / "tb/common"
 
 #: The firmware every target links: the driver, the loop, the port layer, ADP, the app.
 PORTABLE = ("mbx/mbx.c", "loop/ctrl_loop.c", "port/ctrl_pool.c", "port/ctrl_debug.c", "port/shlan_port.c",
-            "adp/adp.c", "adp/adp_mbx.c", "app/ctrl_app.c")
+            "adp/adp.c", "adp/adp_mbx.c", "maap/maap.c", "maap/maap_mbx.c", "maap/maap_csr.c", "app/ctrl_app.c")
 #: The host side: the model and mbx_hal.h on it. Test equipment, never measured.
 HOST = ("host/mbx_model.c", "host/mbx_plat_host.c")
-INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "app", "test")
-C_FLAGS = ("-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "-pedantic")
+INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "maap", "app", "test")
+C_FLAGS = ("-std=c11", "-O2", "-DNDEBUG", "-Wall", "-Wextra", "-Werror", "-pedantic")
 
-RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-std=c11", "-Wall",
+RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-DNDEBUG",
+              "-std=c11", "-Wall",
               "-Wextra", "-Werror", "-pedantic", "-fstack-usage", "-DCTRL_MBX_BASE=0x80000000u")
-#: Runtime interfaces an object-only check may leave undefined; ADP's re-entry
-#: guard asserts in this (NDEBUG-free) build.
+#: Runtime interfaces an object-only check may leave undefined, including the
+#: assertion handler when a debug build enables a protocol's re-entry guard.
 RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf", "__assert_fail"})
 
 
@@ -57,7 +58,7 @@ class Tree:
     src: Path
     out: Path
     reuse: Path
-    build: fw_gtest.Build = field(default_factory=fw_gtest.Build)
+    build: fw_gtest.Build = field(default_factory=lambda: fw_gtest.Build(jobs=4))
 
 
 @dataclass(frozen=True)
