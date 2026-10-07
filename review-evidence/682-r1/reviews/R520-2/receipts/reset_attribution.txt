@@ -1,0 +1,16 @@
+# synchronous-reset wording at both pins (line count, sha256 prefix of matching lines)
+ead80360 docs/guides/integrator.md 2 c054d353ccc54dfb
+ead80360 docs/architecture/02_interfaces.md 2 1096799f02278d2e
+2ad2f845 docs/guides/integrator.md 2 c054d353ccc54dfb
+2ad2f845 docs/architecture/02_interfaces.md 2 1096799f02278d2e
+
+# commit introducing 02 section 2 rule 5 synchronous reset
+371505db5ca3f95117e04bfd32a06b4912dd219b State in 02 §2 rule 5 the synchronous active-low reset the RTL implements
+ancestor of ead80360: yes
+ancestor of PR #156 head: yes
+
+# reset-related changed lines in PR #156 (merge 21c6f70 vs first parent)
+(end: lines containing "synchronous")
+
+# processor PR #156 body, #71 line (public)
+- **#71:** integrator §3 requires whole, FCS-good frames because RX has no error/abort input. REQ-REU-003 names the integrator as owner of the dual-clock FIFOs. Acceptance 2's synchronous reset wording came from merged PR #157; this lane supplies acceptance 1 and 3.

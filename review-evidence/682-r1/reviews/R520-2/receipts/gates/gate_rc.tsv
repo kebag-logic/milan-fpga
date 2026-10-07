@@ -1,0 +1,13 @@
+head	0	git rev-parse HEAD HEAD^{tree}
+gen_toc_selftest	0	$MARKDOWN_PYTHON scripts/gen_toc.py --selftest
+gen_toc_anchors	0	$MARKDOWN_PYTHON scripts/gen_toc.py --verify-anchors
+gen_toc_check	0	$MARKDOWN_PYTHON scripts/gen_toc.py --check
+docs_check	0	$MARKDOWN_PYTHON scripts/docs_check.py
+doc_style	0	$MARKDOWN_PYTHON scripts/check_doc_style.py
+doc_style_selftest	0	$MARKDOWN_PYTHON scripts/check_doc_style.py --selftest
+em_dash	0	$MARKDOWN_PYTHON scripts/check_em_dash.py --base e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+pp_baseline_selftest	0	$MARKDOWN_PYTHON syn/ooc/pp_baseline.py --selftest
+diff_check	0	git diff --check e21c1ca024d37ea188ad15b5c8f9c2dae18628df HEAD
+status	0	git status --porcelain=v1 --untracked-files=all
+pp_resource_gate_selftest	0	python3 syn/ooc/pp_resource_gate.py --selftest
+check_baseline	0	python3 syn/ooc/pp_resource_gate.py check-baseline

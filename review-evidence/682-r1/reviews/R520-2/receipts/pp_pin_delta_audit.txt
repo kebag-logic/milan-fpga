@@ -1,0 +1,31 @@
+# processor first-parent merges ead80360..2ad2f845
+2ad2f845dd583f8310075fa2380cb60a04fd091a Merge pull request #164 from Mister-M-alt/pp42-domain-notify
+86a7b0c57831c15e9cd8b42d64cc4a9843f4e726 Merge pull request #162 from Mister-M-alt/pp22-decl-order
+7e5415e069cae46b63cafcc9e6ac9f68e058d9d0 Merge pull request #160 from Mister-M-alt/pp134-lv-leave
+e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8 Merge pull request #161 from Mister-M-alt/pp158-dereg-round
+21c6f7096ac80007f723de59c6f717f55bd34cfc Merge pull request #156 from Mister-M-alt/c11-docs-gates
+054d01c79e59c3f80454ad9cdefd8e914b540bb4 Merge pull request #159 from Mister-M-alt/pp148-notify-spacing
+
+# hdl/top identity
+hdl/top: identical
+098c5381f47a941950826c3860e646977aee70e9
+098c5381f47a941950826c3860e646977aee70e9
+
+# hdl diffstat
+ hdl/aecp/KL_aecp_notify.sv              | 26 ++++++++++++++++++++------
+ hdl/packet_engine/KL_pp_originator.sv   |  6 +++---
+ hdl/packet_engine/KL_pp_rx_validator.sv |  4 ++--
+ hdl/packet_engine/KL_pp_side_port.sv    |  8 ++++----
+ hdl/packet_engine/KL_pp_trace_ring.sv   | 10 +++++-----
+ hdl/packet_engine/KL_pp_tx_slots.sv     |  2 +-
+ hdl/srp/KL_srp_listener_fsm.sv          | 11 +++++++----
+ hdl/srp/KL_srp_talker_fsm.sv            |  9 ++++++---
+ 8 files changed, 48 insertions(+), 28 deletions(-)
+
+# added/removed hdl lines naming input/output/inout/parameter/localparam/module (expect none)
+2
+-    input  wire  [RECORD_W_P-1:0] wr_data_i,   //! the record (class-A framed event)
++    input  wire  [RECORD_W_P-1:0] wr_data_i,   //! the record (one 128-bit event)
+hdl/packet_engine/KL_pp_trace_ring.sv | -    input  wire  [RECORD_W_P-1:0] wr_data_i,   //! the record (class-A framed event)
+hdl/packet_engine/KL_pp_trace_ring.sv | +    input  wire  [RECORD_W_P-1:0] wr_data_i,   //! the record (one 128-bit event)
+# note: the two wr_data_i lines differ only in the trailing comment; declaration text before '//!' is identical

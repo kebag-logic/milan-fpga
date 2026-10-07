@@ -1,0 +1,8 @@
+P1_drop_contents_entry	1	KILLED	$MARKDOWN_PYTHON scripts/gen_toc.py --check
+P2_rename_heading	1	KILLED	$MARKDOWN_PYTHON scripts/gen_toc.py --check
+P3_em_dash_added_line	0	SURVIVED	$MARKDOWN_PYTHON scripts/check_em_dash.py --base e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+P4_long_sentence	1	KILLED	$MARKDOWN_PYTHON scripts/check_doc_style.py
+P5_em_dash_recipe	0	SURVIVED	$MARKDOWN_PYTHON scripts/check_em_dash.py --base e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+P6_flag_cap_wrong	1	KILLED	$MARKDOWN_PYTHON syn/ooc/pp_baseline.py --selftest
+P7_flag_ignored	1	KILLED	$MARKDOWN_PYTHON syn/ooc/pp_baseline.py --selftest
+P8_drop_recipe_flag	0	SURVIVED	$MARKDOWN_PYTHON scripts/docs_check.py
