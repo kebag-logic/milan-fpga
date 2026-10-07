@@ -1,0 +1,7 @@
+make: Entering directory '<packet>/scratch/probe/obj'
+g++  -I.  -MMD -I<simulator-distribution>/usr/share/verilator/include -I<simulator-distribution>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o probe.o <packet>/scripts/probe.cpp
+g++    probe.o verilated.o verilated_threads.o VKL_maap__ALL.a    -pthread -lpthread -latomic   -o <packet>/scratch/probe/run
+make: Leaving directory '<packet>/scratch/probe/obj'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.922 s (elab=0.000, cvt=0.000, bld=0.921); cpu 0.001 s on 4 threads; allocated 16.492 MB

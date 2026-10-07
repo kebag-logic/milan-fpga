@@ -1,0 +1,14 @@
+range/state matrix cases=144 mismatches=0
+[PASS] shared overlap and rAnnounce row
+mac=020000000001 announce_samples=24 distinct_intervals=23 305510 305660 305920 306230 306400 307130 308500 308650 308970 309860 310860 311480 311500 311950 312020 312360 312870 313530 313920 314110 314250 314510 314570
+[PASS] announce strict bounds
+[PASS] normal MAC randomized announce
+mac=02000000ace1 announce_samples=24 distinct_intervals=1 304880
+[PASS] announce strict bounds
+[FAIL] zero-state MAC randomized announce
+stalled requested_count beat before=004000f0e0910800 after=004000f0e0910900 valid=1
+[FAIL] every per-frame field remains latched under stall
+[PASS] reset while stalled clears allocation and TX
+seeded offset=feff count=8 valid=1
+[FAIL] documented pool containment includes seed
+independent probes: pass=5 fail=3
