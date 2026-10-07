@@ -102,12 +102,15 @@ Keep `--timing-opt`, `--floorplan` and every emitted design argument.
 Keep `--vivado-max-threads 32`.
 Never substitute an uninitialized firmware ROM.
 
-For a memory-constrained measurement, pass `--single-thread-synthesis` to the
-baseline helper for each endpoint. It emits `set_param synth.maxThreads 1`
-before the exported commands, leaving `general.maxThreads` and the directives
-unchanged. The resource gate records this setting in the flow identity.
-Changing it requires a new baseline; do not compare its figures as an RTL-only
-delta against a baseline recorded without it.
+Current baseline F was recorded with `--single-thread-synthesis`.
+Every measurement judged against F must pass that flag.
+This applies to `route-1x1`, `ooc-1x1` and `ooc-8x8`.
+The baseline helper emits `set_param synth.maxThreads 1` before synthesis.
+It leaves `general.maxThreads` and the directives unchanged.
+The resource gate records this setting in the flow identity.
+Dropping it requires re-recording all three endpoints at the base.
+Do that before measuring the candidate under the changed flow.
+Comparisons across different flow identities return exit 2.
 
 ## Integrated measurements
 
@@ -118,8 +121,9 @@ The 1x1 endpoint follows the recipe through routing.
 The 8x8 endpoint stops after synthesis.
 
 ```sh
-python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware"
-python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" --synthesis-only
+python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" --single-thread-synthesis
+python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" \
+  --synthesis-only --single-thread-synthesis
 (
   cd "$WORK/ax7101/gateware"
   vivado -mode batch -source baseline_integrated.tcl -nojournal -log baseline.log
@@ -182,9 +186,10 @@ Repeat the export steps using a separate work directory.
 Prepare that export with the additional attribution switch:
 
 ```sh
-python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" --attribution-only
+python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" \
+  --attribution-only --single-thread-synthesis
 python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" \
-  --synthesis-only --attribution-only
+  --synthesis-only --attribution-only --single-thread-synthesis
 ```
 
 Run the generated integrated scripts exactly as above.
@@ -258,6 +263,7 @@ The script refuses ambiguous blocks and unsupported default expressions.
 ```sh
 for shape in ax7101 ax8x8; do
   python3 syn/ooc/pp_baseline.py "$WORK/$shape/gateware" \
+    --single-thread-synthesis \
     --output "$WORK/$shape-ooc" \
     --integrated-log "$WORK/$shape/gateware/baseline.log"
   (
@@ -451,7 +457,8 @@ git diff --check
 [`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one measurement directory.
 It compares the directory with an endpoint of [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json).
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the policy.
-Run the shipping route and the 1x1 standalone synthesis as above.
+Run the shipping route and both standalone syntheses as above.
+Pass `--single-thread-synthesis` when preparing every endpoint compared against F.
 Use `--integrated-clock` for every standalone endpoint the gate judges.
 
 ```sh
