@@ -29,9 +29,13 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            is programmed with (boot_policy.fabric_constants), compiled with
            (the builder's ADP shape include) and the processor's
            ADP_ENTITY_CAPS_C;
+  maap     Annex B transitions and PDUs, allocation CSR writes and the H-MAAP
+           host mailbox hook; maap_if2 repeats the hook at two interfaces;
+  maap_debug the no-synchronous-callback assertion in a debug build;
   rv32     the portable set and the MMIO platform cross-compiled freestanding
            for RV32I with the pinned SDK, every undefined symbol a C-library
            string or format function or a libgcc helper (no heap, no OS);
+           CTRL_RV32_CC can select an installed bare-metal compiler explicitly;
   lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
@@ -77,11 +81,12 @@ from ctrl_reuse import cut_reuse  # noqa: E402
 
 def coverage(out: Path, lwsrp: Path | None) -> int:
     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
-    tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True))
+    tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True, jobs=4))
     try:
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
-                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree)]
+                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree), ctrl_arms.arm_maap(tree),
+                    ctrl_arms.arm_maap_if2(tree)]
         if lwsrp is not None:
             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
     except Refusal as exc:
@@ -98,9 +103,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--require-rv32", action="store_true", help="fail, not skip, when no RV32 compiler is found")
     ap.add_argument("--lwsrp", type=Path, help="a lwSRP checkout: also run the lwSRP port arm")
     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
+    ap.add_argument("--mutation-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
+                    help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
     args = ap.parse_args(argv)
+    if args.mutation_shard is not None:
+        index, count = args.mutation_shard
+        if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
+            ap.error("mutation shard requires --self-test and 0 <= INDEX < COUNT <= mutant count")
+        ctrl_mutants.MUTANTS = ctrl_mutants.MUTANTS[index::count]
     if args.coverage is not None:
         return coverage(args.coverage.resolve(), args.lwsrp)
     print(f"toolchain: {fw_gtest.toolchain()}")
@@ -111,7 +123,8 @@ def main(argv: list[str] | None = None) -> int:
             cut_reuse(tree.reuse)
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
-                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32)]
+                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+                        ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree)]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
         except Refusal as exc:

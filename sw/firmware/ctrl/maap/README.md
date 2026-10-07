@@ -1,0 +1,150 @@
+<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+# Bare-metal MAAP
+
+F2 supplies an opt-in MAAP owner for the control loop.
+The shipping image still uses the fabric owner.
+IEEE 1722-2016 Annex B defines the protocol.
+The [service contract](../../../../docs/reference/FR_NFR.md#342-control-service-test-hooks)
+defines H-MAAP; host evidence does not establish target or wire timing.
+
+## Contents
+
+- **[Core](#core)** -- Annex B state, wire, randomization and bounded storage.
+- **[Integration](#integration)** -- Mailbox ownership and existing stream CSR output.
+- **[Service evidence](#service-evidence)** -- Observation points, work bounds and proof limits.
+- **[Verification](#verification)** -- Unit, coverage, mutation and differential gates.
+
+## Core
+
+[`maap.c`](maap.c) implements B.3.2/Table B.7 in static storage.
+Each interface owns an INITIAL, PROBE or DEFEND state and one timer.
+ReserveAddress sends an initial PROBE, then three retransmissions.
+The last retransmission precedes ANNOUNCE and acquisition publication.
+B.3.3/Table B.8 supplies the timer constants and retransmission count.
+B.3.5.5 and B.3.6.4 select conflict handling by state and reversed-octet MAC priority.
+B.3.6.6 sends DEFEND to the requesting source, echoing its range and the intersection.
+Loss withdraws the old allocation before selecting and probing another range.
+Release stops the timer, drops obsolete output and leaves INITIAL.
+Starting with a down link also withdraws the previous allocation.
+
+B.2 encoding uses control_data_length 16, MAAP version 1 and a zero stream ID.
+Frames are padded to 60 bytes; the receiver accepts the complete 42-byte minimum.
+Known messages from older or future MAAP versions follow B.2.3.
+It rejects truncated data, invalid AVTP headers and nonmatching destinations.
+Only DEFEND may use the receiving interface's unicast MAC.
+B.4 limits allocations to the dynamic pool, including the final fitting range.
+
+A maximal-period xorshift32 uses the low MAC-plus-clock sum from B.3.6.1.
+A zero seed becomes one; deterministic rejection sampling removes modulo bias.
+Draws reserve the service allowance at both strict interval endpoints:
+511 to 589 ms for probes, 30011 to 31989 ms for announcements.
+With at most 10 ms jitter at each commitment, intervals remain strictly inside
+B.3.4.2's 500/600 ms and B.3.4.1's 30/32 s endpoints.
+Wire egress error still needs measurement before a placement switch.
+
+Sixteen static frame slots retain ordered output across backpressure.
+Each call attempts at most two sends; overflow is counted as unserved work.
+A stalled timer retains its original expiry obligation until output drains.
+An over-budget recovery is still a timing failure.
+Every public event entry guards synchronous reentry: debug builds assert;
+release builds count and ignore the nested call, as required by #678.
+Initialization is permitted only before binding ports.
+
+| IEEE 1722-2016 clause | Implementation obligation |
+|---|---|
+| B.2.1, B.2.2, Table B.1 | Ethernet destination, source, length and defined message types |
+| B.2.3.1 through B.2.3.4 | Current version and compatible reception across versions |
+| B.2.4 through B.2.8 | Zero stream ID, requested range and conflict intersection fields |
+| B.3.2, Table B.7 | Ordered state actions, ignored cells, acquisition and conflict retry |
+| B.3.3, Table B.8 | Retransmission count and timer constants |
+| B.3.4.1, B.3.4.2 | Strict randomized announcement and probe intervals |
+| B.3.5.1 through B.3.5.4 | Begin, release, restart and reserve events |
+| B.3.5.5 through B.3.5.9 | Conflicting receive events, count exhaustion and operational port |
+| B.3.6.1 through B.3.6.4 | Address draw, counter initialization/decrement and MAC comparison |
+| B.3.6.5 through B.3.6.7 | PROBE, DEFEND and ANNOUNCE transmission actions |
+| B.4, Tables B.9 and B.10 | Dynamic address pool and reserved protocol multicast address |
+
+## Integration
+
+[`maap_mbx.c`](maap_mbx.c) binds the FC `maap` channel and indexed link events.
+Each interface has a distinct timer slot and generation tag.
+Stale expiries and foreign interface records cannot change its state.
+The contract's single MAAP range filter covers the envelope of live ranges;
+the indexed core performs the exact overlap test.
+Ports return without blocking and must never invoke a core synchronously.
+
+Call `ctrl_app_start_maap` with an allocation callback for the experimental composition.
+It preserves ADP startup, uses separate timer slots and opens ADP plus MAAP.
+The ordinary `ctrl_app_start` remains the ADP-only entry point.
+No builder placement switch or shipping firmware entry point changes.
+
+[`maap_csr_allocation`](maap_csr.c) names the allocation output interface.
+Its ordered `maap_csr_port` accesses target the existing datapath CSR window
+for the selected interface, documented in the [register map](../../../../docs/reference/REGISTER_MAP.md).
+The platform supplies those read/write operations and exclusive stream-window ownership.
+The callback first clears AAF and CRF admission and fabric MAAP enable.
+It writes AAF stream zero through 0x658/0x65c, later AAF streams through
+STRM_SEL and 0x81c/0x820, then CRF through 0x75c/0x760.
+Stream k receives base+k; CRF receives base+AAF-output-count.
+It restores STRM_SEL and the supplied boot-policy controls after programming.
+A count mismatch leaves admission closed and increments a refusal counter.
+Loss closes admission immediately; no register definitions change.
+
+The platform must quiesce pre-existing media before first ownership transfer.
+The host CSR tests establish ordered programming, not fabric frame quiescence.
+The later placement integration owns target bus arbitration and boot-policy binding.
+
+## Service evidence
+
+H-MAAP records original RX_HEAD publication or the armed timer deadline,
+then observes the accepted complete MAAP TX_HEAD write.
+The host's monotonic model clock is independent of PHC time.
+It assigns 100 ns per ordered mailbox access, with 1 ms timer resolution.
+These are explicit simulation assumptions, not a measured core clock.
+The required project service limit is 10 ms, below the shared 50 ms ceiling.
+
+A 60-byte send costs 19 mailbox accesses; an arm costs three including the clock read.
+A cancel costs one and filter publication costs three.
+The final probe expiry costs at most 48 accesses: two sends, two arms,
+one cancel and allocation publication.
+Receive and per-interface poll callbacks also have a conservative 48-access bound.
+This excludes the allocation callback's separate datapath CSR accesses;
+that callback must remain bounded and nonblocking.
+A standalone MAAP loop pass costs at most
+8*(6+48) + 2*(20+48) + interfaces*48 accesses: 616 for one interface, 664 for two.
+The receive bound includes the channel's maximum 64-byte record.
+Other protocol callbacks must be added for a composed loop.
+
+Tests include event and receive backlog, timer wrap, stale tags, link loss,
+short TX stalls and an 11 ms stall that must fail the original bound after recovery.
+The full-ring case cannot restart its clock when room returns.
+Host results prove access counts and model-time assertions only.
+Target CPU time, CSR arbitration, egress, NVM overlap, all placement combinations,
+audio deadlines and bench acceptance remain later integration obligations.
+
+## Verification
+
+The control gate runs the core/CSR tests and H-MAAP at one and two interfaces.
+Release coverage measures the original portable C sources.
+The debug assertion has a separate expected-abort test.
+New firmware must have 100% line and branch coverage without exclusions.
+`maap_mutants.py` plants protocol, wire, timer, ordering, adapter and output defects;
+the named test and failure text must match, not merely a failed executable.
+The campaign can be partitioned with `--self-test --mutation-shard INDEX COUNT`.
+Run every zero-based index to cover the complete campaign.
+
+```sh
+CTRL_RV32_CC=riscv64-elf-gcc python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+python3 sw/firmware/gtest/tally_selftest.py
+python3 sw/firmware/gtest/fw_coverage.py --selftest
+python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+python3 sw/firmware/ctrl/test/maap_differential.py --self-test
+```
+
+Use the repository-pinned simulator for the last command.
+Set TMPDIR to disk-backed scratch before running the gates.
+The differential drives shared probe, per-state conflict, loss and retry stimulus
+through the C core and the unchanged parent MAAP engine.
+Annex B is the oracle; #686 records the parent's different retransmission count,
+length field, DEFEND destination, ANNOUNCE handling and announcement interval.
+The test checks those differences explicitly rather than accepting arbitrary divergence.

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import sys
@@ -31,6 +32,37 @@ def arm_adp(tree: Tree) -> Outcome:
     """The ADP core, its adapter and the latency bounds."""
     objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ("test_adp.cpp",), "adp/tests")
     return execute("adp", link(tree, "test_adp", objs))
+
+
+def arm_maap(tree: Tree) -> Outcome:
+    """Annex B core, allocation CSR port and H-MAAP on the host mailbox."""
+    objs = firmware(tree, PORTABLE, "maap")
+    results = [execute("maap", link(tree, name.removesuffix(".cpp"),
+                                   objs + compile_tests(tree, (name,), "maap/tests")))
+               for name in ("test_maap.cpp", "test_maap_mbx.cpp")]
+    return Outcome("maap", max(r.rc for r in results), "\n".join(r.log for r in results))
+
+
+def arm_maap_debug(tree: Tree) -> Outcome:
+    """Debug builds assert on synchronous port reentry; release is measured."""
+    objs = compile_c(tree, sources(tree, ("maap/maap.c",)), "maap_debug", ("-UNDEBUG",), measured=False)
+    test = compile_tests(tree, ("test_maap_debug.cpp",), "maap_debug/tests")
+    return execute("maap_debug", link(tree, "test_maap_debug", objs + test))
+
+
+def arm_maap_if2(tree: Tree) -> Outcome:
+    """The real generator's two-interface contract, on the same host checks."""
+    out = tree.out / "maap_if2"
+    result = run([sys.executable, str(ROOT / "sw/mailbox/gen_mailbox.py"),
+                  "--variant-interfaces", "2", "--out", str(out / "gen")])
+    if result.returncode != 0:
+        raise Refusal(result.stdout + result.stderr)
+    extra = (f"-include{out / 'gen/mbx_contract.h'}",)
+    objs = compile_c(tree, sources(tree, PORTABLE), "maap_if2", extra)
+    objs += compile_c(tree, sources(tree, ("host/mbx_model.c", "host/mbx_plat_host.c")),
+                      "maap_if2/host", extra, measured=False)
+    test = compile_tests(tree, ("test_maap_mbx.cpp",), "maap_if2/tests", extra)
+    return execute("maap_if2", link(tree, "test_maap_if2", objs + test))
 
 
 def arm_unit(tree: Tree) -> Outcome:
@@ -154,7 +186,13 @@ def arm_entity(tree: Tree) -> Outcome:
 # ---- rv32: freestanding RV32I build, no heap and no OS ---------------------------------
 
 def rv32_compiler() -> str | None:
-    """The first RV32 compiler present, the pinned SDK's first."""
+    """An explicit bare-metal compiler, otherwise the first installed candidate."""
+    explicit = os.environ.get("CTRL_RV32_CC")
+    if explicit:
+        found = shutil.which(explicit)
+        if found is None:
+            raise Refusal("CTRL_RV32_CC does not name an executable compiler")
+        return found
     for cand in RV32_CANDIDATES:
         found = shutil.which(cand)
         if found is not None:
