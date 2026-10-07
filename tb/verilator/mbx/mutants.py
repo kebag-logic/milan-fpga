@@ -372,6 +372,20 @@ ARMS += (
            "else match_r[e] <= match_r[e];", "Q18 one stalled while BOUND_EN is cleared and set again"),
     *_both("rx-bound-live-while-owed", "KL_mbx_rx.sv", " && !owed_r[int'(fif_w) * int'(NB_C) + e];", ";",
            "Q19 one stalled while BOUND_EN is set again alone"),
+    # round 4 (R530-2-F1): the verdict reads the table of the interface the frame
+    # arrived on, not the one presented with the next frame, at one interface
+    # and at two; and the owed copy gates each interface's own entries
+    *_both("rx-bound-verdict-of-the-presented-interface", "KL_mbx_rx.sv",
+           "assign {fok_w, fif_w} = (int'(if_r) < int'(MBX_N_IF_C)) ? {1'b1, if_r} : '0;",
+           "assign {fok_w, fif_w} = (int'(rx_if_i) < int'(MBX_N_IF_C)) ? {1'b1, rx_if_i} : '0;",
+           "Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone"),
+    *_both("rx-bound-verdict-of-the-presented-interface-if2", "KL_mbx_rx.sv",
+           "assign {fok_w, fif_w} = (int'(if_r) < int'(MBX_N_IF_C)) ? {1'b1, if_r} : '0;",
+           "assign {fok_w, fif_w} = (int'(rx_if_i) < int'(MBX_N_IF_C)) ? {1'b1, rx_if_i} : '0;",
+           "Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone",
+           2),
+    *_both("rx-bound-live-reads-interface-0-owed", "KL_mbx_rx.sv", " && !owed_r[int'(fif_w) * int'(NB_C) + e];",
+           " && !owed_r[e];", "Q23 on each interface past the first, one stalled while BOUND_EN is set again alone", 2),
     # the copier: owed by BOUND_EN set and by a word written while it is, giving
     # way to the host's reads, starting over on a rewrite, reaching every entry
     *_both("rx-bound-copy-not-owed-on-enable", "KL_mbx_rx.sv",
