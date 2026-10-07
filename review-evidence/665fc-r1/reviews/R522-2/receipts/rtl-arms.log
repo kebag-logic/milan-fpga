@@ -1,0 +1,149 @@
+control host 0: rc=0 ['== mbx (Wishbone host): checks: 316   failures: 0 ==']
+control host 1: rc=0 ['== mbx (AXI4-Lite host): checks: 361   failures: 0 ==']
+[caught] rx-subtype-ignored: rc=1 38 fail(s); == mbx (Wishbone host): checks: 316   failures: 38 ==
+      [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=0 exp=2
+      [FAIL] C0 no ACMP frame lands in the ADP ring   got=2 exp=0
+      [FAIL] C1 AECP to this entity passes; to another does not got=0 exp=1
+      [FAIL] C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere got=7 exp=8
+      [FAIL] Q0 a valid frame reaches its channel (acmp, multicast) got=5 exp=1
+      [FAIL] Q0 its record is the frame, byte for byte (acmp, multicast)
+[caught] pkg-maap-defend-tuple-dropped: rc=1 13 fail(s); == mbx (Wishbone host): checks: 316   failures: 13 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] pkg-maap-defend-tuple-dropped-axil: rc=1 13 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 13 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] rx-msg-type-off-by-one: rc=1 13 fail(s); == mbx (Wishbone host): checks: 316   failures: 13 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] rx-msg-type-off-by-one-axil: rc=1 13 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 13 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] rx-classified-before-msg-type: rc=1 13 fail(s); == mbx (Wishbone host): checks: 316   failures: 13 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] rx-classified-before-msg-type-axil: rc=1 13 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 13 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] rx-tuple-msg-type-ignored: rc=1 6 fail(s); == mbx (Wishbone host): checks: 316   failures: 6 ==
+      [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 an ANNOUNCE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 and each counts once in FILTER_MISMATCH got=0 exp=13
+      [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+[caught] rx-tuple-msg-type-ignored-axil: rc=1 6 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 6 ==
+      [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 an ANNOUNCE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 and each counts once in FILTER_MISMATCH got=0 exp=13
+      [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+[caught] rx-own-unicast-never-counted: rc=1 13 fail(s); == mbx (Wishbone host): checks: 316   failures: 13 ==
+      [FAIL] Q3 under another control EtherType, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q4 with an unassigned AVTP subtype, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q3 under another control EtherType, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q3 under another control EtherType, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+[caught] rx-own-unicast-never-counted-axil: rc=1 13 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 13 ==
+      [FAIL] Q3 under another control EtherType, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q4 with an unassigned AVTP subtype, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q3 under another control EtherType, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q3 under another control EtherType, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+[caught] rx-defend-any-unicast: rc=1 6 fail(s); == mbx (Wishbone host): checks: 316   failures: 6 ==
+      [FAIL] Q2 to another destination MAC, it (maap, DEFEND to own unicast): no RX record, no delivery got=3 exp=5
+      [FAIL] Q2 to another destination MAC, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q8 another interface's own MAC, or one on an index with no interface, reaches no ring got=1 exp=0
+      [FAIL] Q8 and counts once each in FILTER_MISMATCH got=2 exp=3
+      [FAIL] Q11 a DEFEND to a unicast MAC no interface owns: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 a DEFEND to a unicast MAC no interface owns: FILTER_MISMATCH counts it once got=0 exp=1
+[caught] rx-defend-any-unicast-axil: rc=1 6 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 6 ==
+      [FAIL] Q2 to another destination MAC, it (maap, DEFEND to own unicast): no RX record, no delivery got=3 exp=5
+      [FAIL] Q2 to another destination MAC, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q8 another interface's own MAC, or one on an index with no interface, reaches no ring got=1 exp=0
+      [FAIL] Q8 and counts once each in FILTER_MISMATCH got=2 exp=3
+      [FAIL] Q11 a DEFEND to a unicast MAC no interface owns: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 a DEFEND to a unicast MAC no interface owns: FILTER_MISMATCH counts it once got=0 exp=1
+[caught] rx-short-frame-never-classified: rc=1 2 fail(s); == mbx (Wishbone host): checks: 316   failures: 2 ==
+      [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 the DEFEND after them still reaches the MAAP ring got=5 exp=3
+[caught] rx-short-frame-never-classified-axil: rc=1 2 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 2 ==
+      [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 the DEFEND after them still reaches the MAAP ring got=5 exp=3
+[ESCAPED] rev-short-frame-stale-subtype: rc=0 0 fail(s); == mbx (Wishbone host): checks: 316   failures: 0 ==
+[ESCAPED] rev-short-frame-stale-subtype-axil: rc=0 0 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 0 ==
+[caught] rev-decided-twice: rc=1 2 fail(s); == mbx (Wishbone host): checks: 316   failures: 2 ==
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q11 its record is the DEFEND, byte for byte
+[caught] rev-decided-twice-axil: rc=1 2 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 2 ==
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q11 its record is the DEFEND, byte for byte
+[caught] rev-tuple-msg-from-register: rc=1 13 fail(s); == mbx (Wishbone host): checks: 316   failures: 13 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] rev-tuple-msg-from-register-axil: rc=1 13 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 13 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] rev-pkg-defend-mask-all: rc=1 6 fail(s); == mbx (Wishbone host): checks: 316   failures: 6 ==
+      [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 an ANNOUNCE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 and each counts once in FILTER_MISMATCH got=0 exp=13
+      [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+[caught] rev-pkg-defend-mask-all-axil: rc=1 6 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 6 ==
+      [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 an ANNOUNCE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+      [FAIL] Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+      [FAIL] Q11 and each counts once in FILTER_MISMATCH got=0 exp=13
+      [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+[caught] rev-pkg-defend-mask-probe: rc=1 15 fail(s); == mbx (Wishbone host): checks: 316   failures: 15 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[caught] rev-pkg-defend-mask-probe-axil: rc=1 15 fail(s); == mbx (AXI4-Lite host): checks: 361   failures: 15 ==
+      [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+      [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast) got=1 exp=0
+      [FAIL] Q0 and sets no IRQ_STATUS.ERR            got=1 exp=0
+      [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+      [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6

@@ -1,0 +1,84 @@
+[ok] positive control, host 0: == mbx (Wishbone host): checks: 316   failures: 0 ==
+[ok] positive control, host 1: == mbx (AXI4-Lite host): checks: 361   failures: 0 ==
+[ok] rx-msg-type-ignored: 9 check(s) failed; first: [FAIL] F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed got=5 exp=2
+[ok] rx-eq-own-is-eq-zero: 26 check(s) failed; first: [FAIL] F2 ENTITY_DISCOVER for this entity passes got=1 exp=2
+[ok] rx-field-length-unchecked: 1 check(s) failed; first: [FAIL] F2 a DISCOVER truncated inside its entity_id field is not passed got=3 exp=2
+[ok] rx-writes-past-free-space: 8 check(s) failed; first: [FAIL] D0 a frame the free space cannot hold counts in RX_DROP got=0 exp=1
+[ok] rx-bucket-never-drains: 6 check(s) failed; first: [FAIL] T0 a burst of the bucket's depth passes  got=10 exp=8
+[ok] rx-lanes-big-endian: 15 check(s) failed; first: [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[ok] rx-subtype-ignored: 38 check(s) failed; first: [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=0 exp=2
+[ok] tx-reserved-word-unchecked: 7 check(s) failed; first: [FAIL] X1 a malformed TX record counts once in TX_ERR got=1 exp=2
+[ok] tx-refusal-no-flush: 13 check(s) failed; first: [FAIL] X1 a malformed TX record counts once in TX_ERR got=3 exp=1
+[ok] tx-round-robin: 3 check(s) failed; first: [FAIL] X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+[ok] tx-seq-wrap-unsigned: 1 check(s) failed; first: [FAIL] X2 SEQ 0xFFFF leaves before SEQ 0x0000 (modulo 2^16)
+[ok] tx-ties-fixed-priority: 1 check(s) failed; first: [FAIL] X2 equal SEQs leave round-robin from the channel served last
+[ok] evt-rearm-keeps-tag: 3 check(s) failed; first: [FAIL] M0 with the tag of its arm               got=0x0 exp=0x1234
+[ok] evt-cancel-arms: 1 check(s) failed; first: [FAIL] M0 no event by +4 ms: slot 3 not before its deadline, slot 4 cancelled, slot 5 re-armed
+[ok] evt-tick-count-lost: 1 check(s) failed; first: [FAIL] K1 carrying every tick                   got=1 exp=5
+[ok] top-tick-always-enabled: 4 check(s) failed; first: [FAIL] M1 a cancelled slot and the replaced arm post nothing
+[ok] top-gm-hi-live: 1 check(s) failed; first: [FAIL] G0 GM_HI reads the snapshot GM_LO took   got=0x33333333 exp=0x11111111
+[ok] top-partial-strobe-accepted: 1 check(s) failed; first: [FAIL] R2 a write with a partial strobe leaves the register got=0xa5a5a5a5 exp=0x0
+[ok] top-irq-ignores-enable: 1 check(s) failed; first: [FAIL] R2 a cause that is not enabled leaves the line low got=1 exp=0
+[ok] rx-maap-empty-count-overlaps: 2 check(s) failed; first: [FAIL] C2 MAAP PROBE/DEFEND/ANNOUNCE overlapping this range pass; adjacent, empty or other types do not got=4 exp=3
+[ok] rx-drop-uncounted: 3 check(s) failed; first: [FAIL] D0 a frame the free space cannot hold counts in RX_DROP got=0 exp=1
+[ok] rx-refill-slow: 2 check(s) failed; first: [FAIL] T1 one refill period buys exactly one more frame got=8 exp=9
+[ok] tx-lanes-reversed: 4 check(s) failed; first: [FAIL] X0 the first frame leaves byte for byte, wire order
+[ok] evt-link-never-posts: 7 check(s) failed; first: [FAIL] E0 an enabled event level raises the interrupt got=0 exp=1
+[ok] evt-gm-domain-dropped: 1 check(s) failed; first: [FAIL] E1 GM DOMAIN                             got=0 exp=7
+[ok] evt-expires-late: 9 check(s) failed; first: [FAIL] E2 the ring is full of expiries          got=0 exp=64
+[ok] top-irq-enable-unmasked: 1 check(s) failed; first: [FAIL] R1 IRQ_ENABLE keeps RX[7:0], EVT and ERR only got=0xffffffff exp=0x800001ff
+[ok] rx-closed-channel-stores: 9 check(s) failed; first: [FAIL] F0 a closed channel stores nothing       got=23 exp=0
+[ok] rx-second-ethertype-ignored: 29 check(s) failed; first: [FAIL] C3 every MSRP and MVRP PDU reaches the SRP ring got=1 exp=2
+[ok] rx-tail-unguarded: 2 check(s) failed; first: [FAIL] H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays got=23 exp=0
+[ok] tx-head-unguarded: 2 check(s) failed; first: [FAIL] H1 a TX_HEAD more than the ring ahead of TX_TAIL is refused: TX_ERR counts it got=0 exp=1
+[ok] evt-tail-unguarded: 1 check(s) failed; first: [FAIL] H2 an EVT_TAIL ahead of EVT_HEAD posts nothing: EVT_HEAD stays got=4 exp=0
+[ok] evt-only-exact-deadline: 1 check(s) failed; first: [FAIL] M2 a deadline already past expires at once got=0x0 exp=0x66
+[ok] wb-address-shifted: 176 check(s) failed; first: [FAIL] R0 CAPS.N_CH                             got=0 exp=5
+[ok] axil-read-uses-write-address: 172 check(s) failed; first: [FAIL] R0 CAPS.N_CH                             got=0 exp=5
+[ok] axil-arready-follows-awvalid: 3 check(s) failed; first: [FAIL] A3 AW, W and AR offered in one cycle are all taken at its edge
+[ok] axil-awready-waits-for-wvalid: 2 check(s) failed; first: [FAIL] A1 AW offered alone is taken without its W
+[ok] axil-write-without-w: 3 check(s) failed; first: [FAIL] A1 and no B answers it before its W
+[ok] axil-write-ignores-b-slot: 2 check(s) failed; first: [FAIL] A3 a read is answered within 8 clocks while writes keep coming
+[ok] axil-b-dropped-without-bready: 3 check(s) failed; first: [FAIL] A4 BVALID holds for 10 clocks while BREADY is low (A3.2.1)
+[ok] axil-r-dropped-without-rready: 3 check(s) failed; first: [FAIL] A5 RVALID holds for 10 clocks while RREADY is low (A3.2.1)
+[ok] axil-rdata-follows-port: 41 check(s) failed; first: [FAIL] F1 record LEN                            got=0 exp=82
+[ok] axil-read-before-write: 4 check(s) failed; first: [FAIL] A3 the read is answered by one R         got=0 exp=1
+[ok] axil-wready-while-issuing: 4 check(s) failed; first: [FAIL] A7 four back-to-back writes, AW beside W, are answered by exactly four B got=2 exp=4
+[ok] axil-awready-while-issuing: 4 check(s) failed; first: [FAIL] A7 four back-to-back writes, AW beside W, are answered by exactly four B got=2 exp=4
+[ok] axil-reset-keeps-aw: 6 check(s) failed; first: [FAIL] A6 an AW taken before a reset is forgotten: a W after it completes nothing
+[ok] rx-tpid-matches-a-tuple: 2 check(s) failed; first: [FAIL] Q1 tagged, it (srp MSRP): no RX record, no delivery got=4 exp=5
+[ok] rx-dst-ignored: 58 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (adp): no RX record, no delivery got=0 exp=5
+[ok] rx-multicast-dst-ignored: 48 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (adp): no RX record, no delivery got=0 exp=5
+[ok] rx-ethertype-ignored: 33 check(s) failed; first: [FAIL] Q3 under another control EtherType, it (adp): no RX record, no delivery got=0 exp=5
+[ok] rx-own-any-unicast: 20 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (acmp, multicast): no RX record, no delivery got=1 exp=5
+[ok] rx-own-mac-of-interface-0: 2 check(s) failed; first: [FAIL] Q8 another interface's own MAC, or one on an index with no interface, reaches no ring got=3 exp=0
+[ok] rx-own-mac-low-word-only: 2 check(s) failed; first: [FAIL] Q8 a MAC differing from OWN_MAC in MAC[47:32] only: no RX record, no delivery got=2 exp=5
+[ok] top-own-mac-halves-swapped: 33 check(s) failed; first: [FAIL] C1 AECP to this entity passes; to another does not got=0 exp=1
+[ok] top-own-mac-hi-read-from-lo: 1 check(s) failed; first: [FAIL] R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+[ok] pkg-aecp-command-only: 5 check(s) failed; first: [FAIL] Q0 a valid frame reaches its channel (aecp, response) got=5 exp=2
+[ok] pkg-aecp-target-term-any-type: 3 check(s) failed; first: [FAIL] Q5 an AECP response for another controller, even to this target: no RX record, no delivery got=2 exp=5
+[ok] pkg-aecp-controller-term-any-type: 2 check(s) failed; first: [FAIL] Q5 an AECP command for another target, even with this controller: no RX record, no delivery got=2 exp=5
+[ok] rx-mismatch-never-counted: 47 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once got=0 exp=1
+[ok] rx-mismatch-counts-valid: 26 check(s) failed; first: [FAIL] Q0 a valid frame never counts in FILTER_MISMATCH (adp) got=1 exp=0
+[ok] rx-mismatch-counts-any-ethertype: 14 check(s) failed; first: [FAIL] Q1 tagged, it (adp): FILTER_MISMATCH does not count it got=1 exp=0
+[ok] rx-mismatch-counts-identity-refusals: 13 check(s) failed; first: [FAIL] Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it got=1 exp=0
+[ok] rx-mismatch-counted-twice: 46 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once got=2 exp=1
+[ok] rx-mismatch-needs-an-open-channel: 4 check(s) failed; first: [FAIL] Q9 with every channel closed, an untagged AAF: FILTER_MISMATCH counts it once got=0 exp=1
+[ok] rx-short-frame-counted: 2 check(s) failed; first: [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=7 exp=6
+[ok] rx-mismatch-sets-no-err: 1 check(s) failed; first: [FAIL] Q9 a mismatch sets IRQ_STATUS.ERR        got=0 exp=1
+[ok] rx-refusal-takes-a-token: 2 check(s) failed; first: [FAIL] Q10 refusals by the filter take no token: a full burst still passes after them got=9 exp=8
+[ok] pkg-maap-defend-tuple-dropped: 13 check(s) failed; first: [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+[ok] pkg-maap-defend-tuple-dropped-axil: 13 check(s) failed; first: [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+[ok] rx-msg-type-off-by-one: 13 check(s) failed; first: [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+[ok] rx-msg-type-off-by-one-axil: 13 check(s) failed; first: [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+[ok] rx-classified-before-msg-type: 13 check(s) failed; first: [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+[ok] rx-classified-before-msg-type-axil: 13 check(s) failed; first: [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+[ok] rx-tuple-msg-type-ignored: 6 check(s) failed; first: [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+[ok] rx-tuple-msg-type-ignored-axil: 6 check(s) failed; first: [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=3 exp=5
+[ok] rx-own-unicast-never-counted: 13 check(s) failed; first: [FAIL] Q3 under another control EtherType, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+[ok] rx-own-unicast-never-counted-axil: 13 check(s) failed; first: [FAIL] Q3 under another control EtherType, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+[ok] rx-defend-any-unicast: 6 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (maap, DEFEND to own unicast): no RX record, no delivery got=3 exp=5
+[ok] rx-defend-any-unicast-axil: 6 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (maap, DEFEND to own unicast): no RX record, no delivery got=3 exp=5
+[ok] rx-short-frame-never-classified: 2 check(s) failed; first: [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+[ok] rx-short-frame-never-classified-axil: 2 check(s) failed; first: [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+mbx mutants: 81 of 81 caught

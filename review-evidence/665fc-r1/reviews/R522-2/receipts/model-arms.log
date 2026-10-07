@@ -1,0 +1,34 @@
+control (model arm, unplanted): rc=0; tail: ['  verdict: PASS (22 tests, 0 failures, exit 0)']
+[caught] model-msg-type-off-by-one: rc=1, 13 [FAIL] line(s); needle 'Q11 a DEFEND to this interface's own MAC reaches the MAAP ring'
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (maap, DEFEND to own unicast)
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast)
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 and sets no IRQ_STATUS.ERR
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 and set no IRQ_STATUS.ERR
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC reaches the MAAP ring
+[caught] model-tuple-msg-type-ignored: rc=1, 6 [FAIL] line(s); needle 'Q11 a PROBE to this interface's own MAC: no RX record'
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: no RX record, no delivery
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 an ANNOUNCE to this interface's own MAC: no RX record, no delivery
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 and each counts once in FILTER_MISMATCH
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once
+[caught] model-msg-type-refusal-uncounted: rc=1, 4 [FAIL] line(s); needle 'Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once'
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 and each counts once in FILTER_MISMATCH
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once
+[caught] model-defend-any-unicast: rc=1, 4 [FAIL] line(s); needle 'Q11 a DEFEND to a unicast MAC no interface owns: no RX record'
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (maap, DEFEND to own unicast): no RX record, no delivery
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to a unicast MAC no interface owns: no RX record, no delivery
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to a unicast MAC no interface owns: FILTER_MISMATCH counts it once
+[caught] rev-model-msg-past-end: rc=1, 1 [FAIL] line(s); needle 'Q11'
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once
+[caught] rev-model-own-any-dst: rc=1, 4 [FAIL] line(s); needle 'Q11'
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (maap, DEFEND to own unicast): no RX record, no delivery
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to a unicast MAC no interface owns: no RX record, no delivery
+      [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to a unicast MAC no interface owns: FILTER_MISMATCH counts it once

@@ -1,0 +1,791 @@
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:18:27: Parameter is not used: 'MBX_VERSION_MAJOR_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   18 |   localparam int unsigned MBX_VERSION_MAJOR_C = 32'd2;
+      |                           ^~~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/UNUSEDPARAM?v=5.050
+                      ... Use "/* verilator lint_off UNUSEDPARAM */" and lint_on around source to disable this message.
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:20:27: Parameter is not used: 'MBX_VERSION_MINOR_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   20 |   localparam int unsigned MBX_VERSION_MINOR_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:22:27: Parameter is not used: 'MBX_MAGIC_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   22 |   localparam int unsigned MBX_MAGIC_C = 32'h00004D42;
+      |                           ^~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:24:27: Parameter is not used: 'MBX_WINDOW_BYTES_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   24 |   localparam int unsigned MBX_WINDOW_BYTES_C = 32'h00008000;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:26:27: Parameter is not used: 'MBX_REGISTER_SPACE_BYTES_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   26 |   localparam int unsigned MBX_REGISTER_SPACE_BYTES_C = 32'h00000400;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:30:27: Parameter is not used: 'MBX_N_TIMERS_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   30 |   localparam int unsigned MBX_N_TIMERS_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:32:27: Parameter is not used: 'MBX_TICK_MS_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   32 |   localparam int unsigned MBX_TICK_MS_C = 32'd10;
+      |                           ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:36:27: Parameter is not used: 'MBX_INDEX_BITS_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   36 |   localparam int unsigned MBX_INDEX_BITS_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:58:27: Parameter is not used: 'MBX_TEST_NONE_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   58 |   localparam int unsigned MBX_TEST_NONE_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:68:27: Parameter is not used: 'MBX_TMR_OP_ARM_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   68 |   localparam int unsigned MBX_TMR_OP_ARM_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:70:27: Parameter is not used: 'MBX_TMR_OP_CANCEL_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   70 |   localparam int unsigned MBX_TMR_OP_CANCEL_C = 32'd2;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:72:27: Parameter is not used: 'MBX_REG_ID_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   72 |   localparam int unsigned MBX_REG_ID_C = 32'h00000000;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:74:27: Parameter is not used: 'MBX_ID_MINOR_LSB_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   74 |   localparam int unsigned MBX_ID_MINOR_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:76:27: Parameter is not used: 'MBX_ID_MINOR_WIDTH_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   76 |   localparam int unsigned MBX_ID_MINOR_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:78:27: Parameter is not used: 'MBX_ID_MAJOR_LSB_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   78 |   localparam int unsigned MBX_ID_MAJOR_LSB_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:80:27: Parameter is not used: 'MBX_ID_MAJOR_WIDTH_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   80 |   localparam int unsigned MBX_ID_MAJOR_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:82:27: Parameter is not used: 'MBX_ID_MAGIC_LSB_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   82 |   localparam int unsigned MBX_ID_MAGIC_LSB_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:84:27: Parameter is not used: 'MBX_ID_MAGIC_WIDTH_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   84 |   localparam int unsigned MBX_ID_MAGIC_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:86:27: Parameter is not used: 'MBX_REG_CAPS_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   86 |   localparam int unsigned MBX_REG_CAPS_C = 32'h00000004;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:88:27: Parameter is not used: 'MBX_CAPS_N_CH_LSB_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   88 |   localparam int unsigned MBX_CAPS_N_CH_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:90:27: Parameter is not used: 'MBX_CAPS_N_CH_WIDTH_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   90 |   localparam int unsigned MBX_CAPS_N_CH_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:92:27: Parameter is not used: 'MBX_CAPS_N_IF_LSB_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   92 |   localparam int unsigned MBX_CAPS_N_IF_LSB_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:94:27: Parameter is not used: 'MBX_CAPS_N_IF_WIDTH_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   94 |   localparam int unsigned MBX_CAPS_N_IF_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:96:27: Parameter is not used: 'MBX_CAPS_N_TIMERS_LSB_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   96 |   localparam int unsigned MBX_CAPS_N_TIMERS_LSB_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:98:27: Parameter is not used: 'MBX_CAPS_N_TIMERS_WIDTH_C'
+                                                                : ... note: In instance 'KL_mbx_rx'
+   98 |   localparam int unsigned MBX_CAPS_N_TIMERS_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:100:27: Parameter is not used: 'MBX_CAPS_EVT_WORDS_LOG2_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  100 |   localparam int unsigned MBX_CAPS_EVT_WORDS_LOG2_LSB_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:102:27: Parameter is not used: 'MBX_CAPS_EVT_WORDS_LOG2_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  102 |   localparam int unsigned MBX_CAPS_EVT_WORDS_LOG2_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:104:27: Parameter is not used: 'MBX_REG_IRQ_STATUS_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  104 |   localparam int unsigned MBX_REG_IRQ_STATUS_C = 32'h00000008;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:106:27: Parameter is not used: 'MBX_IRQ_STATUS_RX_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  106 |   localparam int unsigned MBX_IRQ_STATUS_RX_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:108:27: Parameter is not used: 'MBX_IRQ_STATUS_RX_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  108 |   localparam int unsigned MBX_IRQ_STATUS_RX_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:110:27: Parameter is not used: 'MBX_IRQ_STATUS_EVT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  110 |   localparam int unsigned MBX_IRQ_STATUS_EVT_LSB_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:112:27: Parameter is not used: 'MBX_IRQ_STATUS_EVT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  112 |   localparam int unsigned MBX_IRQ_STATUS_EVT_WIDTH_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:114:27: Parameter is not used: 'MBX_IRQ_STATUS_ERR_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  114 |   localparam int unsigned MBX_IRQ_STATUS_ERR_LSB_C = 32'd31;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:116:27: Parameter is not used: 'MBX_IRQ_STATUS_ERR_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  116 |   localparam int unsigned MBX_IRQ_STATUS_ERR_WIDTH_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:118:27: Parameter is not used: 'MBX_REG_IRQ_ENABLE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  118 |   localparam int unsigned MBX_REG_IRQ_ENABLE_C = 32'h0000000C;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:120:27: Parameter is not used: 'MBX_IRQ_ENABLE_RX_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  120 |   localparam int unsigned MBX_IRQ_ENABLE_RX_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:122:27: Parameter is not used: 'MBX_IRQ_ENABLE_RX_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  122 |   localparam int unsigned MBX_IRQ_ENABLE_RX_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:124:27: Parameter is not used: 'MBX_IRQ_ENABLE_EVT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  124 |   localparam int unsigned MBX_IRQ_ENABLE_EVT_LSB_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:126:27: Parameter is not used: 'MBX_IRQ_ENABLE_EVT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  126 |   localparam int unsigned MBX_IRQ_ENABLE_EVT_WIDTH_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:128:27: Parameter is not used: 'MBX_IRQ_ENABLE_ERR_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  128 |   localparam int unsigned MBX_IRQ_ENABLE_ERR_LSB_C = 32'd31;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:130:27: Parameter is not used: 'MBX_IRQ_ENABLE_ERR_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  130 |   localparam int unsigned MBX_IRQ_ENABLE_ERR_WIDTH_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:132:27: Parameter is not used: 'MBX_REG_NOW_MS_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  132 |   localparam int unsigned MBX_REG_NOW_MS_C = 32'h00000010;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:134:27: Parameter is not used: 'MBX_NOW_MS_MS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  134 |   localparam int unsigned MBX_NOW_MS_MS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:136:27: Parameter is not used: 'MBX_NOW_MS_MS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  136 |   localparam int unsigned MBX_NOW_MS_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:138:27: Parameter is not used: 'MBX_REG_LINK_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  138 |   localparam int unsigned MBX_REG_LINK_C = 32'h00000014;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:140:27: Parameter is not used: 'MBX_LINK_UP_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  140 |   localparam int unsigned MBX_LINK_UP_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:142:27: Parameter is not used: 'MBX_LINK_UP_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  142 |   localparam int unsigned MBX_LINK_UP_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:144:27: Parameter is not used: 'MBX_REG_TICK_CTL_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  144 |   localparam int unsigned MBX_REG_TICK_CTL_C = 32'h00000018;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:146:27: Parameter is not used: 'MBX_TICK_CTL_EN_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  146 |   localparam int unsigned MBX_TICK_CTL_EN_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:148:27: Parameter is not used: 'MBX_TICK_CTL_EN_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  148 |   localparam int unsigned MBX_TICK_CTL_EN_WIDTH_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:150:27: Parameter is not used: 'MBX_REG_OWN_EID_LO_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  150 |   localparam int unsigned MBX_REG_OWN_EID_LO_C = 32'h00000020;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:152:27: Parameter is not used: 'MBX_OWN_EID_LO_EID_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  152 |   localparam int unsigned MBX_OWN_EID_LO_EID_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:154:27: Parameter is not used: 'MBX_OWN_EID_LO_EID_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  154 |   localparam int unsigned MBX_OWN_EID_LO_EID_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:156:27: Parameter is not used: 'MBX_REG_OWN_EID_HI_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  156 |   localparam int unsigned MBX_REG_OWN_EID_HI_C = 32'h00000024;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:158:27: Parameter is not used: 'MBX_OWN_EID_HI_EID_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  158 |   localparam int unsigned MBX_OWN_EID_HI_EID_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:160:27: Parameter is not used: 'MBX_OWN_EID_HI_EID_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  160 |   localparam int unsigned MBX_OWN_EID_HI_EID_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:162:27: Parameter is not used: 'MBX_REG_FILTER_EN_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  162 |   localparam int unsigned MBX_REG_FILTER_EN_C = 32'h00000028;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:164:27: Parameter is not used: 'MBX_FILTER_EN_OPEN_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  164 |   localparam int unsigned MBX_FILTER_EN_OPEN_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:166:27: Parameter is not used: 'MBX_FILTER_EN_OPEN_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  166 |   localparam int unsigned MBX_FILTER_EN_OPEN_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:168:27: Parameter is not used: 'MBX_REG_MAAP_BASE_LO_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  168 |   localparam int unsigned MBX_REG_MAAP_BASE_LO_C = 32'h0000002C;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:170:27: Parameter is not used: 'MBX_MAAP_BASE_LO_ADDR_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  170 |   localparam int unsigned MBX_MAAP_BASE_LO_ADDR_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:172:27: Parameter is not used: 'MBX_MAAP_BASE_LO_ADDR_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  172 |   localparam int unsigned MBX_MAAP_BASE_LO_ADDR_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:174:27: Parameter is not used: 'MBX_REG_MAAP_BASE_HI_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  174 |   localparam int unsigned MBX_REG_MAAP_BASE_HI_C = 32'h00000030;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:176:27: Parameter is not used: 'MBX_MAAP_BASE_HI_ADDR_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  176 |   localparam int unsigned MBX_MAAP_BASE_HI_ADDR_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:178:27: Parameter is not used: 'MBX_MAAP_BASE_HI_ADDR_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  178 |   localparam int unsigned MBX_MAAP_BASE_HI_ADDR_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:180:27: Parameter is not used: 'MBX_REG_MAAP_COUNT_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  180 |   localparam int unsigned MBX_REG_MAAP_COUNT_C = 32'h00000034;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:182:27: Parameter is not used: 'MBX_MAAP_COUNT_COUNT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  182 |   localparam int unsigned MBX_MAAP_COUNT_COUNT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:184:27: Parameter is not used: 'MBX_MAAP_COUNT_COUNT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  184 |   localparam int unsigned MBX_MAAP_COUNT_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:186:27: Parameter is not used: 'MBX_REG_TMR_DEADLINE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  186 |   localparam int unsigned MBX_REG_TMR_DEADLINE_C = 32'h00000038;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:188:27: Parameter is not used: 'MBX_TMR_DEADLINE_MS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  188 |   localparam int unsigned MBX_TMR_DEADLINE_MS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:190:27: Parameter is not used: 'MBX_TMR_DEADLINE_MS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  190 |   localparam int unsigned MBX_TMR_DEADLINE_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:192:27: Parameter is not used: 'MBX_REG_TMR_CMD_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  192 |   localparam int unsigned MBX_REG_TMR_CMD_C = 32'h0000003C;
+      |                           ^~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:194:27: Parameter is not used: 'MBX_TMR_CMD_SLOT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  194 |   localparam int unsigned MBX_TMR_CMD_SLOT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:196:27: Parameter is not used: 'MBX_TMR_CMD_SLOT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  196 |   localparam int unsigned MBX_TMR_CMD_SLOT_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:198:27: Parameter is not used: 'MBX_TMR_CMD_TAG_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  198 |   localparam int unsigned MBX_TMR_CMD_TAG_LSB_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:200:27: Parameter is not used: 'MBX_TMR_CMD_TAG_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  200 |   localparam int unsigned MBX_TMR_CMD_TAG_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:202:27: Parameter is not used: 'MBX_TMR_CMD_OP_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  202 |   localparam int unsigned MBX_TMR_CMD_OP_LSB_C = 32'd30;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:204:27: Parameter is not used: 'MBX_TMR_CMD_OP_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  204 |   localparam int unsigned MBX_TMR_CMD_OP_WIDTH_C = 32'd2;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:206:27: Parameter is not used: 'MBX_REG_EVT_HEAD_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  206 |   localparam int unsigned MBX_REG_EVT_HEAD_C = 32'h00000060;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:208:27: Parameter is not used: 'MBX_EVT_HEAD_WORDS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  208 |   localparam int unsigned MBX_EVT_HEAD_WORDS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:210:27: Parameter is not used: 'MBX_EVT_HEAD_WORDS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  210 |   localparam int unsigned MBX_EVT_HEAD_WORDS_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:212:27: Parameter is not used: 'MBX_REG_EVT_TAIL_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  212 |   localparam int unsigned MBX_REG_EVT_TAIL_C = 32'h00000064;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:214:27: Parameter is not used: 'MBX_EVT_TAIL_WORDS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  214 |   localparam int unsigned MBX_EVT_TAIL_WORDS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:216:27: Parameter is not used: 'MBX_EVT_TAIL_WORDS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  216 |   localparam int unsigned MBX_EVT_TAIL_WORDS_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:218:27: Parameter is not used: 'MBX_REG_BUS_ERR_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  218 |   localparam int unsigned MBX_REG_BUS_ERR_C = 32'h00000070;
+      |                           ^~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:220:27: Parameter is not used: 'MBX_BUS_ERR_COUNT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  220 |   localparam int unsigned MBX_BUS_ERR_COUNT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:222:27: Parameter is not used: 'MBX_BUS_ERR_COUNT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  222 |   localparam int unsigned MBX_BUS_ERR_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:224:27: Parameter is not used: 'MBX_REG_FILTER_MISMATCH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  224 |   localparam int unsigned MBX_REG_FILTER_MISMATCH_C = 32'h00000074;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:226:27: Parameter is not used: 'MBX_FILTER_MISMATCH_COUNT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  226 |   localparam int unsigned MBX_FILTER_MISMATCH_COUNT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:228:27: Parameter is not used: 'MBX_FILTER_MISMATCH_COUNT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  228 |   localparam int unsigned MBX_FILTER_MISMATCH_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:230:27: Parameter is not used: 'MBX_IF_BASE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  230 |   localparam int unsigned MBX_IF_BASE_C = 32'h00000040;
+      |                           ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:232:27: Parameter is not used: 'MBX_IF_STRIDE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  232 |   localparam int unsigned MBX_IF_STRIDE_C = 32'h00000010;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:234:27: Parameter is not used: 'MBX_IF_REG_GM_LO_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  234 |   localparam int unsigned MBX_IF_REG_GM_LO_C = 32'h00000000;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:236:27: Parameter is not used: 'MBX_GM_LO_ID_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  236 |   localparam int unsigned MBX_GM_LO_ID_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:238:27: Parameter is not used: 'MBX_GM_LO_ID_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  238 |   localparam int unsigned MBX_GM_LO_ID_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:240:27: Parameter is not used: 'MBX_IF_REG_GM_HI_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  240 |   localparam int unsigned MBX_IF_REG_GM_HI_C = 32'h00000004;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:242:27: Parameter is not used: 'MBX_GM_HI_ID_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  242 |   localparam int unsigned MBX_GM_HI_ID_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:244:27: Parameter is not used: 'MBX_GM_HI_ID_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  244 |   localparam int unsigned MBX_GM_HI_ID_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:246:27: Parameter is not used: 'MBX_IF_REG_DOMAIN_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  246 |   localparam int unsigned MBX_IF_REG_DOMAIN_C = 32'h00000008;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:248:27: Parameter is not used: 'MBX_DOMAIN_NUMBER_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  248 |   localparam int unsigned MBX_DOMAIN_NUMBER_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:250:27: Parameter is not used: 'MBX_DOMAIN_NUMBER_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  250 |   localparam int unsigned MBX_DOMAIN_NUMBER_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:252:27: Parameter is not used: 'MBX_IFF_BASE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  252 |   localparam int unsigned MBX_IFF_BASE_C = 32'h00000080;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:254:27: Parameter is not used: 'MBX_IFF_STRIDE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  254 |   localparam int unsigned MBX_IFF_STRIDE_C = 32'h00000008;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:256:27: Parameter is not used: 'MBX_IFF_REG_OWN_MAC_LO_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  256 |   localparam int unsigned MBX_IFF_REG_OWN_MAC_LO_C = 32'h00000000;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:258:27: Parameter is not used: 'MBX_OWN_MAC_LO_MAC_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  258 |   localparam int unsigned MBX_OWN_MAC_LO_MAC_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:260:27: Parameter is not used: 'MBX_OWN_MAC_LO_MAC_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  260 |   localparam int unsigned MBX_OWN_MAC_LO_MAC_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:262:27: Parameter is not used: 'MBX_IFF_REG_OWN_MAC_HI_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  262 |   localparam int unsigned MBX_IFF_REG_OWN_MAC_HI_C = 32'h00000004;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:264:27: Parameter is not used: 'MBX_OWN_MAC_HI_MAC_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  264 |   localparam int unsigned MBX_OWN_MAC_HI_MAC_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:266:27: Parameter is not used: 'MBX_OWN_MAC_HI_MAC_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  266 |   localparam int unsigned MBX_OWN_MAC_HI_MAC_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:268:27: Parameter is not used: 'MBX_CH_BASE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  268 |   localparam int unsigned MBX_CH_BASE_C = 32'h00000100;
+      |                           ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:270:27: Parameter is not used: 'MBX_CH_STRIDE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  270 |   localparam int unsigned MBX_CH_STRIDE_C = 32'h00000020;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:272:27: Parameter is not used: 'MBX_CH_REG_RX_HEAD_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  272 |   localparam int unsigned MBX_CH_REG_RX_HEAD_C = 32'h00000000;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:274:27: Parameter is not used: 'MBX_RX_HEAD_WORDS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  274 |   localparam int unsigned MBX_RX_HEAD_WORDS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:276:27: Parameter is not used: 'MBX_RX_HEAD_WORDS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  276 |   localparam int unsigned MBX_RX_HEAD_WORDS_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:278:27: Parameter is not used: 'MBX_CH_REG_RX_TAIL_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  278 |   localparam int unsigned MBX_CH_REG_RX_TAIL_C = 32'h00000004;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:280:27: Parameter is not used: 'MBX_RX_TAIL_WORDS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  280 |   localparam int unsigned MBX_RX_TAIL_WORDS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:282:27: Parameter is not used: 'MBX_RX_TAIL_WORDS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  282 |   localparam int unsigned MBX_RX_TAIL_WORDS_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:284:27: Parameter is not used: 'MBX_CH_REG_TX_HEAD_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  284 |   localparam int unsigned MBX_CH_REG_TX_HEAD_C = 32'h00000008;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:286:27: Parameter is not used: 'MBX_TX_HEAD_WORDS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  286 |   localparam int unsigned MBX_TX_HEAD_WORDS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:288:27: Parameter is not used: 'MBX_TX_HEAD_WORDS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  288 |   localparam int unsigned MBX_TX_HEAD_WORDS_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:290:27: Parameter is not used: 'MBX_CH_REG_TX_TAIL_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  290 |   localparam int unsigned MBX_CH_REG_TX_TAIL_C = 32'h0000000C;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:292:27: Parameter is not used: 'MBX_TX_TAIL_WORDS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  292 |   localparam int unsigned MBX_TX_TAIL_WORDS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:294:27: Parameter is not used: 'MBX_TX_TAIL_WORDS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  294 |   localparam int unsigned MBX_TX_TAIL_WORDS_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:296:27: Parameter is not used: 'MBX_CH_REG_RX_DROP_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  296 |   localparam int unsigned MBX_CH_REG_RX_DROP_C = 32'h00000010;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:298:27: Parameter is not used: 'MBX_RX_DROP_COUNT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  298 |   localparam int unsigned MBX_RX_DROP_COUNT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:300:27: Parameter is not used: 'MBX_RX_DROP_COUNT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  300 |   localparam int unsigned MBX_RX_DROP_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:302:27: Parameter is not used: 'MBX_CH_REG_RATE_DROP_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  302 |   localparam int unsigned MBX_CH_REG_RATE_DROP_C = 32'h00000014;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:304:27: Parameter is not used: 'MBX_RATE_DROP_COUNT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  304 |   localparam int unsigned MBX_RATE_DROP_COUNT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:306:27: Parameter is not used: 'MBX_RATE_DROP_COUNT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  306 |   localparam int unsigned MBX_RATE_DROP_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:308:27: Parameter is not used: 'MBX_CH_REG_TX_ERR_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  308 |   localparam int unsigned MBX_CH_REG_TX_ERR_C = 32'h00000018;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:310:27: Parameter is not used: 'MBX_TX_ERR_COUNT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  310 |   localparam int unsigned MBX_TX_ERR_COUNT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:312:27: Parameter is not used: 'MBX_TX_ERR_COUNT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  312 |   localparam int unsigned MBX_TX_ERR_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:314:27: Parameter is not used: 'MBX_CH_REG_RX_PASS_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  314 |   localparam int unsigned MBX_CH_REG_RX_PASS_C = 32'h0000001C;
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:316:27: Parameter is not used: 'MBX_RX_PASS_COUNT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  316 |   localparam int unsigned MBX_RX_PASS_COUNT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:318:27: Parameter is not used: 'MBX_RX_PASS_COUNT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  318 |   localparam int unsigned MBX_RX_PASS_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:322:27: Parameter is not used: 'MBX_RX_HDR_WORDS_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  322 |   localparam int unsigned MBX_RX_HDR_WORDS_C = 32'd2;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:324:27: Parameter is not used: 'MBX_TX_KIND_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  324 |   localparam int unsigned MBX_TX_KIND_C = 32'd2;
+      |                           ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:326:27: Parameter is not used: 'MBX_TX_HDR_WORDS_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  326 |   localparam int unsigned MBX_TX_HDR_WORDS_C = 32'd2;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:328:27: Parameter is not used: 'MBX_EV_WORDS_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  328 |   localparam int unsigned MBX_EV_WORDS_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:330:27: Parameter is not used: 'MBX_EVT_BASE_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  330 |   localparam int unsigned MBX_EVT_BASE_C = 32'h00000400;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:332:27: Parameter is not used: 'MBX_EVT_WORDS_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  332 |   localparam int unsigned MBX_EVT_WORDS_C = 32'd64;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:336:27: Parameter is not used: 'MBX_RXREC_W0_LEN_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  336 |   localparam int unsigned MBX_RXREC_W0_LEN_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:340:27: Parameter is not used: 'MBX_RXREC_W0_IF_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  340 |   localparam int unsigned MBX_RXREC_W0_IF_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:344:27: Parameter is not used: 'MBX_RXREC_W0_KIND_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  344 |   localparam int unsigned MBX_RXREC_W0_KIND_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:348:27: Parameter is not used: 'MBX_RXREC_W1_ARRIVAL_MS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  348 |   localparam int unsigned MBX_RXREC_W1_ARRIVAL_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:350:27: Parameter is not used: 'MBX_TXREC_W0_LEN_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  350 |   localparam int unsigned MBX_TXREC_W0_LEN_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:352:27: Parameter is not used: 'MBX_TXREC_W0_LEN_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  352 |   localparam int unsigned MBX_TXREC_W0_LEN_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:354:27: Parameter is not used: 'MBX_TXREC_W0_IF_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  354 |   localparam int unsigned MBX_TXREC_W0_IF_LSB_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:356:27: Parameter is not used: 'MBX_TXREC_W0_IF_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  356 |   localparam int unsigned MBX_TXREC_W0_IF_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:358:27: Parameter is not used: 'MBX_TXREC_W0_KIND_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  358 |   localparam int unsigned MBX_TXREC_W0_KIND_LSB_C = 32'd28;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:360:27: Parameter is not used: 'MBX_TXREC_W0_KIND_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  360 |   localparam int unsigned MBX_TXREC_W0_KIND_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:362:27: Parameter is not used: 'MBX_TXREC_W1_SEQ_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  362 |   localparam int unsigned MBX_TXREC_W1_SEQ_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:364:27: Parameter is not used: 'MBX_TXREC_W1_SEQ_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  364 |   localparam int unsigned MBX_TXREC_W1_SEQ_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:366:27: Parameter is not used: 'MBX_TXREC_W1_RSVD_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  366 |   localparam int unsigned MBX_TXREC_W1_RSVD_LSB_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:368:27: Parameter is not used: 'MBX_TXREC_W1_RSVD_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  368 |   localparam int unsigned MBX_TXREC_W1_RSVD_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:370:27: Parameter is not used: 'MBX_EVREC_W0_TYPE_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  370 |   localparam int unsigned MBX_EVREC_W0_TYPE_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:372:27: Parameter is not used: 'MBX_EVREC_W0_TYPE_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  372 |   localparam int unsigned MBX_EVREC_W0_TYPE_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:374:27: Parameter is not used: 'MBX_EVREC_W0_IF_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  374 |   localparam int unsigned MBX_EVREC_W0_IF_LSB_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:376:27: Parameter is not used: 'MBX_EVREC_W0_IF_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  376 |   localparam int unsigned MBX_EVREC_W0_IF_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:378:27: Parameter is not used: 'MBX_EVREC_W0_SEQ_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  378 |   localparam int unsigned MBX_EVREC_W0_SEQ_LSB_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:380:27: Parameter is not used: 'MBX_EVREC_W0_SEQ_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  380 |   localparam int unsigned MBX_EVREC_W0_SEQ_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:382:27: Parameter is not used: 'MBX_EV_TYPE_TIMER_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  382 |   localparam int unsigned MBX_EV_TYPE_TIMER_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:384:27: Parameter is not used: 'MBX_EV_TIMER_W1_TAG_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  384 |   localparam int unsigned MBX_EV_TIMER_W1_TAG_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:386:27: Parameter is not used: 'MBX_EV_TIMER_W1_TAG_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  386 |   localparam int unsigned MBX_EV_TIMER_W1_TAG_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:388:27: Parameter is not used: 'MBX_EV_TIMER_W1_SLOT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  388 |   localparam int unsigned MBX_EV_TIMER_W1_SLOT_LSB_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:390:27: Parameter is not used: 'MBX_EV_TIMER_W1_SLOT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  390 |   localparam int unsigned MBX_EV_TIMER_W1_SLOT_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:392:27: Parameter is not used: 'MBX_EV_TIMER_W2_DEADLINE_MS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  392 |   localparam int unsigned MBX_EV_TIMER_W2_DEADLINE_MS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:394:27: Parameter is not used: 'MBX_EV_TIMER_W2_DEADLINE_MS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  394 |   localparam int unsigned MBX_EV_TIMER_W2_DEADLINE_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:396:27: Parameter is not used: 'MBX_EV_TIMER_W3_NOW_MS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  396 |   localparam int unsigned MBX_EV_TIMER_W3_NOW_MS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:398:27: Parameter is not used: 'MBX_EV_TIMER_W3_NOW_MS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  398 |   localparam int unsigned MBX_EV_TIMER_W3_NOW_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:400:27: Parameter is not used: 'MBX_EV_TYPE_LINK_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  400 |   localparam int unsigned MBX_EV_TYPE_LINK_C = 32'd2;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:402:27: Parameter is not used: 'MBX_EV_LINK_W1_UP_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  402 |   localparam int unsigned MBX_EV_LINK_W1_UP_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:404:27: Parameter is not used: 'MBX_EV_LINK_W1_UP_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  404 |   localparam int unsigned MBX_EV_LINK_W1_UP_WIDTH_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:406:27: Parameter is not used: 'MBX_EV_LINK_W3_NOW_MS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  406 |   localparam int unsigned MBX_EV_LINK_W3_NOW_MS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:408:27: Parameter is not used: 'MBX_EV_LINK_W3_NOW_MS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  408 |   localparam int unsigned MBX_EV_LINK_W3_NOW_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:410:27: Parameter is not used: 'MBX_EV_TYPE_GM_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  410 |   localparam int unsigned MBX_EV_TYPE_GM_C = 32'd3;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:412:27: Parameter is not used: 'MBX_EV_GM_W1_ID_LO_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  412 |   localparam int unsigned MBX_EV_GM_W1_ID_LO_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:414:27: Parameter is not used: 'MBX_EV_GM_W1_ID_LO_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  414 |   localparam int unsigned MBX_EV_GM_W1_ID_LO_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:416:27: Parameter is not used: 'MBX_EV_GM_W2_ID_HI_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  416 |   localparam int unsigned MBX_EV_GM_W2_ID_HI_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:418:27: Parameter is not used: 'MBX_EV_GM_W2_ID_HI_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  418 |   localparam int unsigned MBX_EV_GM_W2_ID_HI_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:420:27: Parameter is not used: 'MBX_EV_GM_W3_DOMAIN_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  420 |   localparam int unsigned MBX_EV_GM_W3_DOMAIN_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:422:27: Parameter is not used: 'MBX_EV_GM_W3_DOMAIN_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  422 |   localparam int unsigned MBX_EV_GM_W3_DOMAIN_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:424:27: Parameter is not used: 'MBX_EV_TYPE_TICK_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  424 |   localparam int unsigned MBX_EV_TYPE_TICK_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:426:27: Parameter is not used: 'MBX_EV_TICK_W1_COUNT_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  426 |   localparam int unsigned MBX_EV_TICK_W1_COUNT_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:428:27: Parameter is not used: 'MBX_EV_TICK_W1_COUNT_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  428 |   localparam int unsigned MBX_EV_TICK_W1_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:430:27: Parameter is not used: 'MBX_EV_TICK_W3_NOW_MS_LSB_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  430 |   localparam int unsigned MBX_EV_TICK_W3_NOW_MS_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:432:27: Parameter is not used: 'MBX_EV_TICK_W3_NOW_MS_WIDTH_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  432 |   localparam int unsigned MBX_EV_TICK_W3_NOW_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:434:27: Parameter is not used: 'MBX_CH_ADP_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  434 |   localparam int unsigned MBX_CH_ADP_C = 32'd0;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:490:27: Parameter is not used: 'MBX_CH_ACMP_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  490 |   localparam int unsigned MBX_CH_ACMP_C = 32'd1;
+      |                           ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:546:27: Parameter is not used: 'MBX_CH_AECP_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  546 |   localparam int unsigned MBX_CH_AECP_C = 32'd2;
+      |                           ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:602:27: Parameter is not used: 'MBX_CH_MAAP_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  602 |   localparam int unsigned MBX_CH_MAAP_C = 32'd3;
+      |                           ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:658:27: Parameter is not used: 'MBX_CH_SRP_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  658 |   localparam int unsigned MBX_CH_SRP_C = 32'd4;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:720:27: Parameter is not used: 'MBX_ADDR_W_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  720 |   localparam int unsigned MBX_ADDR_W_C = 32'd13;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:722:27: Parameter is not used: 'MBX_FRAME_BYTES_MAX_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  722 |   localparam int unsigned MBX_FRAME_BYTES_MAX_C = 32'd1514;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:725:27: Parameter is not used: 'MBX_CH_RX_BASE_TBL_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  725 |   localparam int unsigned MBX_CH_RX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RX_BASE_C, MBX_CH_ACMP_RX_BASE_C, MBX_CH_AECP_RX_BASE_C, MBX_CH_MAAP_RX_BASE_C, MBX_CH_SRP_RX_BASE_C};
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:729:27: Parameter is not used: 'MBX_CH_TX_BASE_TBL_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  729 |   localparam int unsigned MBX_CH_TX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_TX_BASE_C, MBX_CH_ACMP_TX_BASE_C, MBX_CH_AECP_TX_BASE_C, MBX_CH_MAAP_TX_BASE_C, MBX_CH_SRP_TX_BASE_C};
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: head/hdl/milan/mailbox/KL_mbx_pkg.sv:731:27: Parameter is not used: 'MBX_CH_TX_WORDS_TBL_C'
+                                                                 : ... note: In instance 'KL_mbx_rx'
+  731 |   localparam int unsigned MBX_CH_TX_WORDS_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_TX_WORDS_C, MBX_CH_ACMP_TX_WORDS_C, MBX_CH_AECP_TX_WORDS_C, MBX_CH_MAAP_TX_WORDS_C, MBX_CH_SRP_TX_WORDS_C};
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Error: Exiting due to 197 warning(s)
