@@ -141,6 +141,7 @@ class ChanMapCaptureHarness {
   void lrc_pulse();
   void lrc_expect_frame(const char* tag, const char* what, const std::array<int, 6>& want);
   void lrc_unprimed_and_hold();
+  void lrc_hold_before_first_commit(bool pulse);
   void lrc_hold_one();
   void lrc_drop();
   void lrc_drop_five();
@@ -1705,7 +1706,9 @@ void ChanMapCaptureHarness::pin_settle_recentre_centres_the_loop_queues() {
   // left before its first beat need no action; four left hold one pop;
   // none left hold five pops; six left drop the oldest before the pop.
   // Both pairs act together, once, without counting the declared action
-  // as a slip. Unprimed, flush and coincident-first-beat cases remain pinned.
+  // as a slip, including a held walk that lands before a pair's first
+  // commit of the PDU. Unprimed, flush and coincident-first-beat cases
+  // remain pinned.
   printf("\n[LRC] the settle recentre puts a stream's LOOP queues on 11 events\n");
   lb_set_chans(kLrcStream, 4);
   a_map_wr(1, ent_lb(1, kLrcStream, 0));      // t1 pair0 <- s5 ch0/ch1
@@ -1716,9 +1719,13 @@ void ChanMapCaptureHarness::pin_settle_recentre_centres_the_loop_queues() {
   // starved pairs would count dups on the lane's one counter
   dut->a_lb_flush_i = 0xFF; cyc(); dut->a_lb_flush_i = 0; cyc(2);
   lrc_align();
+  lrc_hold_before_first_commit(false);  // its genuine dup lands before d0
+  lrc_wipe();
+  lrc_align();
   const long d0 = dut->a_dup_cnt_o;
   const long k0 = dut->a_skip_cnt_o;
   lrc_unprimed_and_hold();
+  lrc_hold_before_first_commit(true);
   lrc_hold_one();
   lrc_drop();
   lrc_drop_five();
@@ -1743,6 +1750,53 @@ void ChanMapCaptureHarness::lrc_unprimed_and_hold() {
     ck("LRC: none left holds five pops (e6 repeats five times, then e7)", lrc_same(ev, {6, 6, 6, 6, 6, 7}), 1);
   drv_lb_pdu(S, 4, 6, 13);           // five left: on target, fill 11
   if (lrc_frame("after hold five", S, ev))
+    ck("LRC: ...and holds no sixth: e8..e13 follow in order", lrc_same(ev, {8, 9, 10, 11, 12, 13}), 1);
+}
+
+//! none left, and a walk between the PDU's first beat (the decision, pair
+//! 0's event) and pair 1's first commit: pair 1 is still empty at that
+//! walk. With the pulse the walk is the first of the five declared holds
+//! on both pairs and counts no dup (R474-2 F1). Without it, the identical
+//! stimulus is one genuine dup on pair 1, which shows the walk lands in
+//! that gap; the caller runs that variant outside the counter window.
+void ChanMapCaptureHarness::lrc_hold_before_first_commit(bool pulse) {
+  const int S = kLrcStream;
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);            // primes, fill 6
+  for (int i = 0; i < 6; i++) a_tick(); // e1..e6 out: nothing left
+  if (pulse) lrc_pulse();
+  std::vector<uint32_t> smp;
+  for (int e = 0; e < 6; e++)
+    for (int c = 0; c < 4; c++) smp.push_back(LBV(S, c, 7 + e));
+  afr.clear();
+  const long dA = dut->a_dup_cnt_o;
+  const long kA = dut->a_skip_cnt_o;
+  dut->lb_tuser_i = S;
+  for (size_t i = 0; i < smp.size(); i += 2) {
+    dut->lb_tdata_i = lb_beat(smp[i], smp[i + 1]);
+    dut->lb_tvalid_i = 1;
+    dut->lb_tlast_i = (i + 2 >= smp.size());
+    cyc();
+    if (i == 0) {                     // pair 0's e7 only: walk before pair 1's
+      dut->lb_tvalid_i = 0; dut->lb_tdata_i = 0; cyc(2);
+      a_tick();
+    }
+  }
+  dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0; dut->lb_tdata_i = 0; cyc(2);
+  const long walk_dups = static_cast<long>(dut->a_dup_cnt_o) - dA;
+  if (!pulse) {
+    ck("LRC CONTROL: without the pulse that walk finds pair 1 empty (one dup)", walk_dups, 1);
+    return;
+  }
+  for (int i = 0; i < 5; i++) a_tick();
+  lrc_expect_frame("hold before a commit", "LRC: a walk before pair 1's first commit is the first of five holds (e6 x5, then e7)",
+                   {6, 6, 6, 6, 6, 7});
+  ck("LRC: that held walk on a still-empty pair counts no dup", static_cast<long>(dut->a_dup_cnt_o) - dA, 0);
+  ck("LRC: ...and no skip", static_cast<long>(dut->a_skip_cnt_o) - kA, 0);
+  std::array<int, 6> ev{};
+  drv_lb_pdu(S, 4, 6, 13);           // five left: on target, fill 11
+  if (lrc_frame("after the early hold", S, ev))
     ck("LRC: ...and holds no sixth: e8..e13 follow in order", lrc_same(ev, {8, 9, 10, 11, 12, 13}), 1);
 }
 

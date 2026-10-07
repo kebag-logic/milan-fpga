@@ -36,6 +36,12 @@ NO-ARM: remove excursion arming under a running INTERNAL stream. The fine
   while its peak error remains below the former four-band threshold.
 SINGLE-DROP: replace the full-side correction with one drop. The ten-event
   pre-PDU fill must then fail the LRC wire expectation for five drops.
+HELD-DUP: count every held pop as a loopback dup. The declared holds must
+  then fail the LRC case for a walk before a pair's first commit, the LRC
+  counter check and the span checks' counter check.
+STARVED-HELD-DUP: count a held pop as a dup only where the pair is still
+  empty (R474-2 F1). Only the LRC case for a walk before a pair's first
+  commit reaches that state, so it and the LRC counter check must fail.
 NO-RECOVERY: let the excursion arm while recovering. The three-quantum hold
   then causes two actions, one from the aligner's own recovery swing.
 HIGH-ARM: raise the arm above the one-quantum pull's +9-cycle peak. Its
@@ -62,9 +68,15 @@ SMALL_PULLIN = ["--case", "pullin", "--hold-us", "42.64", "--latency-us", "204.4
 PULLIN = ["--case", "pullin", "--latency-us", "210.42", "--after-s", "1.5"]
 
 #: (name, wrapper define or None, [(shipped text, planted text)] in the datapath,
-#:  [(shipped text, planted text)] in the capture crossbar, leg, the check that must fail)
+#:  [(shipped text, planted text)] in the capture crossbar, leg, the check or
+#:  checks that must all fail)
 Plant = list[tuple[str, str]]
-Mutant = tuple[str, str | None, Plant, Plant, list[str], str]
+Mutant = tuple[str, str | None, Plant, Plant, list[str], str | tuple[str, ...]]
+#: built and run through chmap_capture's recipe, not follow_ring's
+CAPTURE_SUITE = {"SINGLE-DROP", "HELD-DUP", "STARVED-HELD-DUP"}
+POP_DUP = "&& q_fed_r[pop_pair_w] && (pop_cnt_w == '0) && !pop_hold_w;"
+EARLY_HOLD = "LRC: that held walk on a still-empty pair counts no dup"
+LRC_DUPS = "LRC: no recentre moved the dup counter"
 MUTANTS: tuple[Mutant, ...] = (
     ("NO-ARM", None,
      [("                      (settle_exc_w && !settle_pend_r && !settle_recover_r);\n",
@@ -89,6 +101,12 @@ MUTANTS: tuple[Mutant, ...] = (
      [("? LB_DROPW_C'(32'(rc_left_w) - LB_LEFT_C) : '0;",
        "? LB_DROPW_C'(1) : '0;")], [],
      "LRC: ten left drops five excess events on both pairs"),
+    ("HELD-DUP", None, [],
+     [(POP_DUP, "&& q_fed_r[pop_pair_w] && ((pop_cnt_w == '0) || pop_hold_w);")], [],
+     (EARLY_HOLD, LRC_DUPS, "SPAN: no action counted as a duplicate")),
+    ("STARVED-HELD-DUP", None, [],
+     [(POP_DUP, "&& q_fed_r[pop_pair_w] && (pop_cnt_w == '0);")], [],
+     (EARLY_HOLD, LRC_DUPS)),
     ("NO-SETTLE", None,
      [("          settle_recentre_p_r <= 1'b1;\n", "          settle_recentre_p_r <= 1'b0;\n")], [],
      PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
@@ -125,7 +143,7 @@ def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
     name, define, edits, cmap_edits, leg, check = mutant
     mdir = mdir_root / name.lower()
     mdir.mkdir(parents=True, exist_ok=True)
-    suite = HERE.parent / "chmap_capture" if name == "SINGLE-DROP" else HERE
+    suite = HERE.parent / "chmap_capture" if name in CAPTURE_SUITE else HERE
     make = ["make", "-j16", "-s", "--no-print-directory", "-C", str(suite), "build",
             "VERILATOR_JOBS=16", f"MDIR={mdir}"]
     if name in {"NO-ARM", "NO-RECOVERY", "HIGH-ARM", "QUIET-ARM"}:
@@ -145,13 +163,14 @@ def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
     (mdir / "build.rc").write_text(f"{build.returncode}\n")
     if build.returncode != 0:
         return name, False, f"did not build (rc {build.returncode})\n{build.stdout[-2000:]}{build.stderr[-2000:]}"
-    executable = "Vchmap_wrap" if name == "SINGLE-DROP" else "Vfollow_ring"
+    executable = "Vchmap_wrap" if name in CAPTURE_SUITE else "Vfollow_ring"
     argv = [str(mdir / executable), *leg]
     (mdir / "run.command.json").write_text(json.dumps(argv) + "\n")
     run = subprocess.run(argv, capture_output=True, text=True, check=False)
     (mdir / "run.log").write_text(run.stdout + run.stderr)
     (mdir / "run.rc").write_text(f"{run.returncode}\n")
-    killed = run.returncode != 0 and f"[FAIL] {check}" in run.stdout
+    checks = (check,) if isinstance(check, str) else check
+    killed = run.returncode != 0 and all(f"[FAIL] {c}" in run.stdout for c in checks)
     return name, killed, run.stdout
 
 
@@ -169,7 +188,8 @@ def main() -> int:
         for fut in cf.as_completed(futs):
             name, killed, out = fut.result()
             check = futs[fut][5]
-            print(f"[MUTANT] {name}: {'caught' if killed else 'SURVIVED'} by \"{check}\"", flush=True)
+            named = check if isinstance(check, str) else "\" and \"".join(check)
+            print(f"[MUTANT] {name}: {'caught' if killed else 'SURVIVED'} by \"{named}\"", flush=True)
             if not killed:
                 print(out)
                 survivors += 1

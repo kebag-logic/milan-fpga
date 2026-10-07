@@ -891,8 +891,10 @@ module KL_chan_map_capture #(
   wire [LB_QPTRW_C:0] pop_drop_n_w =
       ((LB_QPTRW_C+1)'(act_drop_r[32'(pop_pair_w) / LB_PPS_C]) < pop_cnt_w)
           ? (LB_QPTRW_C+1)'(act_drop_r[32'(pop_pair_w) / LB_PPS_C]) : pop_cnt_w - 1'b1;
+  //! a held walk is the declared repeat, not a dup, even on a pair whose
+  //! first commit of the PDU has not landed yet
   wire pop_dup_w = pop_visit_w && q_primed_r[pop_pair_w]
-                   && q_fed_r[pop_pair_w] && (pop_cnt_w == '0);
+                   && q_fed_r[pop_pair_w] && (pop_cnt_w == '0) && !pop_hold_w;
   //! the visit's read pointer, past a dropped event, and what it consumes
   wire [LB_QPTRW_C-1:0] pop_rd_w = q_rd_r[pop_pair_w]
                                    + LB_QPTRW_C'(pop_drop_n_w);
