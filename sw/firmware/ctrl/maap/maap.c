@@ -3,7 +3,9 @@
 // Annex B state transitions with bounded output storage and deferred service.
 #include "maap.h"
 
+#ifndef NDEBUG
 #include <assert.h>
+#endif
 #include <string.h>
 
 #include "wire.h"
@@ -12,7 +14,9 @@ static bool enter(struct maap *m)
 {
 	if (m->in_call) {
 		m->reentries++;
+#ifndef NDEBUG
 		assert(!m->in_call);
+#endif
 		return false;
 	}
 	m->in_call = true;
