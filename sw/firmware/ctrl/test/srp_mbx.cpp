@@ -555,8 +555,8 @@ TEST_F(Srp, OldReceiveBacklogCannotRegisterAcrossLinkRestart) {
         auto ready=frame(3,identity(i),1,2);
         for(unsigned k=0;k<CTRL_LOOP_RX_PER_PASS+1;++k)
             ASSERT_TRUE(mbx_model_rx(&model,ready.data(),ready.size(),i));
-        mbx_model_set_link(&model,i,false); settle();
-        mbx_model_set_link(&model,i,true); settle(); advance(200);
+        mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true);
+        settle(); advance(200);
         EXPECT_FALSE(adapter.ifs[i].active[0]);
         EXPECT_CALL(licence,Change(i,0,true)); offer(ready,i);
         EXPECT_TRUE(adapter.ifs[i].active[0]);
