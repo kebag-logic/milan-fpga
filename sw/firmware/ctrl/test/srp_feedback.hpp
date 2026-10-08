@@ -82,6 +82,61 @@ TEST_F(SrpFeedback, SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) {
     }
 }
 
+// Failed Lv followed by New in one PDU must retain the withdrawal, even
+// though the final registrar snapshot again contains the same Failed Talker.
+TEST_F(SrpFeedback, FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) {
+    for (unsigned k=0;k<2u;++k) {
+        bind(k); response(k,k); registration(k,true,0,k);
+        ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
+        ASSERT_TRUE(core()->sinks[k].tk_failed);
+        auto frame=talker(k,true,5), join=talker(k,true,0);
+        frame.resize(frame.size()-2u); // Replace PDU EndMark with a second Message.
+        frame.insert(frame.end(),join.begin()+15,join.end());
+        const auto received=srp_adapter.received;
+        queue(k,frame); settle();
+        ASSERT_EQ(srp_adapter.received-received,1u);
+        reprobed(k);
+    }
+}
+
+// Advertise -> Failed JoinIn is continuous, but the following Failed Lv
+// withdraws that replacement before Advertise returns in the same PDU.
+TEST_F(SrpFeedback, FailedReplacementWithdrawnInsideOnePduStillReprobes) {
+    for (unsigned k=0;k<2u;++k) {
+        bind(k); response(k,k); registration(k,false,0,k);
+        ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
+        auto frame=talker(k,true,1);
+        for (const auto& next : {talker(k,true,5),talker(k,false,1)}) {
+            frame.resize(frame.size()-2u);
+            frame.insert(frame.end(),next.begin()+15,next.end());
+        }
+        const auto received=srp_adapter.received;
+        queue(k,frame); settle();
+        ASSERT_EQ(srp_adapter.received-received,1u);
+        reprobed(k);
+    }
+}
+
+// New can register both kinds. Failed Lv plus Advertise refresh in one PDU
+// leaves Advertise registered throughout: only the kind changes at delivery.
+TEST_F(SrpFeedback, BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal) {
+    for (unsigned k=0;k<2u;++k) {
+        bind(k); response(k,k); registration(k,false,0,k); registration(k,true,0,k);
+        ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
+        ASSERT_EQ(sink(k).registered_kinds,3u) << "both kinds registered";
+        ASSERT_TRUE(core()->sinks[k].tk_failed);
+        auto frame=talker(k,true,5), refresh=talker(k,false,1);
+        frame.resize(frame.size()-2u);
+        frame.insert(frame.end(),refresh.begin()+15,refresh.end());
+        const auto received=srp_adapter.received;
+        queue(k,frame); settle();
+        ASSERT_EQ(srp_adapter.received-received,1u);
+        EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK) << "continuous Advertise is not withdrawn";
+        EXPECT_TRUE(sink(k).bound);
+        current_kind(k,false);
+    }
+}
+
 TEST_F(SrpFeedback, SinglePduKindReplacementsRemainContinuous) {
     for (bool initial_failed : {false,true}) {
         if (initial_failed) { TearDown(); SetUp(); }
