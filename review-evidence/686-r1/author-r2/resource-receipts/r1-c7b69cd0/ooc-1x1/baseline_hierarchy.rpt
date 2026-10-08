@@ -1,0 +1,84 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Wed Oct  7 22:41:26 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_utilization -hierarchical -hierarchical_depth 10 -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
+| Design       : KL_pp_shadow
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-----------------------------+-------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+|           Instance          |                Module               | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
++-----------------------------+-------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+| KL_pp_shadow                |                               (top) |      23178 |      20450 |    2728 |    0 | 19776 |     16 |      3 |          8 |
+|   (KL_pp_shadow)            |                               (top) |         11 |         11 |       0 |    0 |   327 |      0 |      0 |          0 |
+|   ctl_fifo                  |                           axis_fifo |         79 |         79 |       0 |    0 |    33 |      1 |      1 |          0 |
+|   u_nvm                     |                      KL_nvm_backend |        599 |        599 |       0 |    0 |   476 |      0 |      0 |          4 |
+|   u_pp                      |              protocol_processor_top |      22498 |      19770 |    2728 |    0 | 18940 |     15 |      2 |          4 |
+|     (u_pp)                  |              protocol_processor_top |        803 |        557 |     246 |    0 |  2032 |      0 |      0 |          0 |
+|     g_rx_pool[0].u_rx_slots |                      KL_pp_rx_slots |         39 |         39 |       0 |    0 |    38 |      1 |      0 |          0 |
+|     g_rx_pool[1].u_rx_slots |                    KL_pp_rx_slots_0 |         28 |         28 |       0 |    0 |    22 |      1 |      0 |          0 |
+|     g_rx_pool[2].u_rx_slots |                    KL_pp_rx_slots_1 |         50 |         50 |       0 |    0 |    62 |      1 |      0 |          0 |
+|     g_rx_pool[4].u_rx_slots |                    KL_pp_rx_slots_2 |         32 |         32 |       0 |    0 |    22 |      1 |      0 |          0 |
+|     g_rx_pool[5].u_rx_slots |                    KL_pp_rx_slots_3 |        103 |        103 |       0 |    0 |    62 |      1 |      0 |          0 |
+|     u_adp                   |                       KL_adp_engine |        517 |        469 |      48 |    0 |   479 |      0 |      0 |          1 |
+|     u_aecp                  |                      KL_aecp_engine |       6168 |       5904 |     264 |    0 |  3598 |      6 |      0 |          1 |
+|       (u_aecp)              |                      KL_aecp_engine |       1388 |       1388 |       0 |    0 |  1098 |      1 |      0 |          0 |
+|       u_d3                  |                  KL_aecp_nvm_writer |       1694 |       1650 |      44 |    0 |   583 |      0 |      0 |          0 |
+|       u_dyn                 |                   KL_aecp_dyn_state |        136 |        136 |       0 |    0 |   468 |      0 |      0 |          0 |
+|       u_resp                |                    KL_aecp_resp_buf |        312 |        312 |       0 |    0 |   260 |      0 |      0 |          0 |
+|       u_store               |                  KL_aecp_desc_store |       1025 |        937 |      88 |    0 |   694 |      2 |      0 |          1 |
+|       u_ucpu                |                        KL_aecp_ucpu |       1637 |       1505 |     132 |    0 |   495 |      3 |      0 |          0 |
+|     u_ca_builder            |               KL_aecp_ca_originator |        156 |        156 |       0 |    0 |   152 |      0 |      0 |          0 |
+|     u_desc_mem_guard        |              KL_aecp_desc_mem_guard |          1 |          1 |       0 |    0 |     1 |      0 |      0 |          0 |
+|     u_dispatch              |                      KL_pp_dispatch |        841 |        325 |     516 |    0 |   815 |      0 |      0 |          0 |
+|       (u_dispatch)          |                      KL_pp_dispatch |         34 |         34 |       0 |    0 |    48 |      0 |      0 |          0 |
+|       u_acmp_q              |                 KL_pp_dispatch_fifo |        291 |        155 |     136 |    0 |   204 |      0 |      0 |          0 |
+|       u_adp_q               |               KL_pp_dispatch_fifo_4 |         71 |         11 |      60 |    0 |    88 |      0 |      0 |          0 |
+|       u_aecp_q              |               KL_pp_dispatch_fifo_5 |        305 |        113 |     192 |    0 |   287 |      0 |      0 |          0 |
+|       u_maap_q              | KL_pp_dispatch_fifo__parameterized0 |        140 |         12 |     128 |    0 |   188 |      0 |      0 |          0 |
+|     u_event_router          |                  KL_pp_event_router |        230 |        230 |       0 |    0 |    51 |      0 |      0 |          0 |
+|     u_listener              |                 KL_pp_acmp_listener |       1559 |       1351 |     208 |    0 |  1054 |      0 |      0 |          0 |
+|     u_lsn_admit             |                KL_pp_acmp_lsn_admit |          0 |          0 |       0 |    0 |     1 |      0 |      0 |          0 |
+|     u_maap                  |                          KL_pp_maap |        670 |        670 |       0 |    0 |   499 |      0 |      0 |          0 |
+|     u_mrp_strip             |                        KL_mrp_strip |         77 |         77 |       0 |    0 |   107 |      1 |      0 |          0 |
+|     u_normalizer            |                    KL_pp_normalizer |         55 |         55 |       0 |    0 |   353 |      0 |      0 |          0 |
+|     u_notify                |                      KL_aecp_notify |       2054 |       1094 |     960 |    0 |  1255 |      0 |      0 |          0 |
+|     u_nvm_arb               |                   KL_pp_nvm_mgr_arb |          7 |          7 |       0 |    0 |     4 |      0 |      0 |          0 |
+|     u_nvm_port              |                      KL_pp_nvm_port |        538 |        538 |       0 |    0 |   160 |      0 |      0 |          0 |
+|     u_nvm_shadow            |                  KL_acmp_nvm_shadow |        810 |        710 |     100 |    0 |  1118 |      0 |      0 |          0 |
+|     u_originator            |                    KL_pp_originator |        722 |        702 |      20 |    0 |   885 |      0 |      0 |          0 |
+|     u_prng                  |                          KL_pp_prng |        157 |        157 |       0 |    0 |   150 |      0 |      0 |          0 |
+|     u_release_merge         |                 KL_pp_release_merge |          0 |          0 |       0 |    0 |     4 |      0 |      0 |          0 |
+|     u_rx_validator          |                  KL_pp_rx_validator |        527 |        527 |       0 |    0 |   789 |      0 |      1 |          0 |
+|     u_scoreboard            |                    KL_pp_scoreboard |        126 |        126 |       0 |    0 |   169 |      0 |      0 |          0 |
+|     u_side_port             |                     KL_pp_side_port |         54 |         54 |       0 |    0 |     6 |      0 |      0 |          0 |
+|     u_srp                   |                          KL_srp_top |       3878 |       3568 |     310 |    0 |  3979 |      0 |      1 |          2 |
+|       (u_srp)               |                          KL_srp_top |        241 |        177 |      64 |    0 |   545 |      0 |      0 |          0 |
+|       u_admission           |                    KL_srp_admission |        359 |        335 |      24 |    0 |   207 |      0 |      0 |          2 |
+|       u_decoder             |                      KL_srp_decoder |        602 |        602 |       0 |    0 |   630 |      0 |      1 |          0 |
+|       u_domain              |                       KL_srp_domain |         53 |         53 |       0 |    0 |   108 |      0 |      0 |          0 |
+|       u_encoder             |                      KL_srp_encoder |       1460 |       1286 |     174 |    0 |  1086 |      0 |      0 |          0 |
+|       u_listener            |                 KL_srp_listener_fsm |        366 |        366 |       0 |    0 |   667 |      0 |      0 |          0 |
+|       u_talker              |                   KL_srp_talker_fsm |        653 |        617 |      36 |    0 |   610 |      0 |      0 |          0 |
+|       u_vlan                |                         KL_srp_vlan |        144 |        132 |      12 |    0 |   126 |      0 |      0 |          0 |
+|     u_talker                |                      KL_acmp_talker |        821 |        765 |      56 |    0 |   551 |      0 |      0 |          0 |
+|     u_timer                 |                 KL_pp_timer_service |        921 |        921 |       0 |    0 |   179 |      1 |      0 |          0 |
+|     u_trace                 |                    KL_pp_trace_ring |         30 |         30 |       0 |    0 |    18 |      1 |      0 |          0 |
+|     u_tx_arbiter            |                    KL_pp_tx_arbiter |        198 |        198 |       0 |    0 |   187 |      0 |      0 |          0 |
+|     u_tx_slots              |                      KL_pp_tx_slots |        337 |        337 |       0 |    0 |   138 |      1 |      0 |          0 |
++-----------------------------+-------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+
+
