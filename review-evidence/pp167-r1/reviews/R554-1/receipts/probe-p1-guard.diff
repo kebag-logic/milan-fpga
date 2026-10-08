@@ -1,0 +1,4 @@
+802c802
+<                        && !rx_cmd_hit_w[cf_ix_w] && valid_r[cf_ix_w];
+---
+>                        && !rx_cmd_hit_w[cf_ix_w] && valid_r[cf_ix_w] && !cx_wait_w[cf_ix_w];

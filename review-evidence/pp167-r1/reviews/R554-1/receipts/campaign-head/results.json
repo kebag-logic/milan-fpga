@@ -1,0 +1,716 @@
+[
+ {
+  "mutant": "golden-aecp_notify-collision",
+  "suite": "make collision",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-aecp_notify-identify",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-aecp_notify-interfaces",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-withdraw-only",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "ident_burst_deadline_one_tick_short",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "FT2: frame 1 left two clocks before a ms boundary, and frame 2 is presented T-IDENT-BURST after that boundary, never one tick sooner: 14900004 clocks, want 15000000 to 15000008"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_t0_same_ms",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "FT4: held, the next burst starts at Figure 7-142's timeout, T-IDENT-REARM after the boundary two clocks after the first frame left, never one tick sooner: 99900004 clocks, want 100000000 to 100000008"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ix_old_identity_kept",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX1: the reused row no longer matches its previous controller"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ix_new_identity_unset",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX3: the registered identity matches in the command's cycle",
+   "IX4: a command two cycles after its REGISTER keeps the row against a failed probe in the same cycle",
+   "IX6b: after the rewrite, E's command keeps the row through the index",
+   "CX1: a command from the probing controller cancels its probe in the command's own clock (probe live 1, cancelled then 0) and in no later one (0 of 8)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ix_last_chunk_ignored",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX2: no identity one bit from a registered one matches (4 of 112 did)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ix_rewrite_unmatched",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX4: a command two cycles after its REGISTER keeps the row against a failed probe in the same cycle",
+   "IX6: after that reset, E registered into the same row keeps it against a failed probe in its row write's own cycle (0 rows live)",
+   "IX6b: after the rewrite, E's command keeps the row through the index"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "override_set_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX6:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX6: after that reset, E registered into the same row keeps it against a failed probe in its row write's own cycle (0 rows live)",
+   "IX6b: after the rewrite, E's command keeps the row through the index"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "own_compare_new_row",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX5:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX5: in the row write's own cycle, the reused row's previous controller C, which rows_r still holds, keeps the row against a failed probe in the same cycle (1 rows live)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "stamp_read_without_valid",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TS3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS3: after a warm reset, a change in that same second goes out at once"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_spacing_from_selection_tw",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:",
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3005, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31504, the next at ms 31512, want 32504 to 32512 (2 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_stamp_at_send_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31504, the next at ms 31512, want 32504 to 32512 (2 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_stamp_first_job_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3007, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 7503, want 7504 to 7512",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31504, the next at ms 31512, want 32504 to 32512 (2 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dereg_mid_round_no_hold",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "DR1:",
+   "DR2:",
+   "DR3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR1: in a GET_COUNTERS round on 0009:0, C's registration expires while its job waits, and the round's remaining controller D still receives the round's GET_COUNTERS 0009:0 (2 jobs after the drain)",
+   "DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (2 jobs after the drain)",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31513, the next at ms 0, want 32513 to 32521 (1 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dereg_pending_stops_follow",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "DR3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31504, the next at ms 31512, want 32504 to 32512 (2 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dereg_lost_at_round_end",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "DR1b:",
+   "DR2b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR1b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once",
+   "DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "withdraw_unregistered",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "WD1:",
+   "WD2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD1: a cancellation on the clock the arbiter accepts a queued probe no longer stops it: it leaves once, byte-exact, and nothing follows (accept clock 1, 0 probe(s), exact 1, deregistration 0, answers 1, slots and originator idle 1)",
+   "WD2: a cancellation on the clock the arbiter selects a queued probe withdraws that selection one clock later, before the pool starts it (select clock 1)",
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "withdraw_abort_ignored",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "WD2:",
+   "WD3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD2: a cancellation on the clock the arbiter selects a queued probe withdraws that selection one clock later, before the pool starts it (select clock 1)",
+   "WD3: that probe never reaches the wire, both answers leave, and the slots, the originator and its lane return idle (0 probe(s), deregistration 0, answers 0, idle 0)",
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "withdraw_mask_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "WD4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "withdraw_two_clocks",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "WD4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cancel_one_clock_late",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CX1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX3: the registered identity matches in the command's cycle",
+   "CX1: a command from the probing controller cancels its probe in the command's own clock (probe live 1, cancelled then 0) and in no later one (1 of 8)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "port_not_compared",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on port 1 is a second (results 0 and 0, 1 then 1 entries)",
+   "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 1 entries)",
+   "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 0 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (0 notification(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), no job, and 1 draw(s), the two E's command asked"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "port_not_latched",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on port 1 is a second (results 0 and 0, 1 then 1 entries)",
+   "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 1 entries)",
+   "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 0 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (0 notification(s))",
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 1 1 1 1, 2 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (2 draws, 4 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (2 entries, DEREGISTER to 000000000000), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 1 entries (want 3), a job presented, and 1 draw(s), the two E's command asked",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 1 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "port_not_stored",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 3 entries)",
+   "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 3 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (3 notification(s))",
+   "PT7: DEREGISTER from E on port 0 removes the last entry (result 0, 2 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_row_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 0, 0000:0)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 0 on index 0, want 1000 to 1008 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_row_collapsed",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0009:0)",
+   "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 0, 0000:0, 4294964291 ms after interface 1's)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_named_clock",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0024:0)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_any_index",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0009:0)",
+   "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 6, 0009:1, 8 ms after interface 1's)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1",
+   "CK4: AVB_INTERFACE 2 names no interface of a two-interface build: no GET_COUNTERS in two seconds (one presented on 0009:1)",
+   "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_name_overlaps_clock",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK5:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cancel_one_per_command",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA1:",
+   "CA1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA1: E holds an entry on each port and both probes are out (owners 0x3); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "report_fail_ignores_probe",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA2:",
+   "CA3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 02000000000a, 1 entries), and B's probe follows (0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "report_rsp_ignores_probe",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 3 entries (want 3), no job, and 3 draw(s), the two E's command asked"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "owner_turns_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA3:",
+   "CA4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA3: the rows of one index take turns: A's probe goes out alone (2 probe(s)), its failure removes A (DEREGISTER to 02000000000a, 1 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (2 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "settle_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken 1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (2 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "depth_shared",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 0 0 1 1, 4 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (3 entries, DEREGISTER to 020000000004), and row 1's monitor deadline probes row 1's controller, CA owner 0 (1 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "depth_not_keyed",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 1 1 1 1, 2 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (2 draws, 4 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (1 entries, DEREGISTER to 020000000001), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x0); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), no job, and 1 draw(s), the two E's command asked",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (0 cancel(s), owners 0x0, 0 entries)",
+   "CA3: the rows of one index take turns: A's probe goes out alone (0 probe(s)), its failure removes A (DEREGISTER to 000000000000, 2 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_tag_port_bits",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "monitor_tag_port_bits",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "expiry_port_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (4 entries, DEREGISTER to 000000000000), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 1 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cancel_collision_drops_command",
+  "suite": "make collision",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "SC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "SC1: a TIME_LIMITED drain and another controller's command in the same cycle cancel both probes exactly once, for either row order"
+  ],
+  "verdict": "KILLED"
+ }
+]

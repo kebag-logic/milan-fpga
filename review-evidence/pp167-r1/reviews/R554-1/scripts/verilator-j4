@@ -1,0 +1,7 @@
+#!/bin/sh
+# Pinned Verilator 5.050, compile parallelism capped at 4 for --build runs.
+# PINNED_VERILATOR must name the pinned wrapper.
+for a in "$@"; do
+  if [ "$a" = "--build" ]; then exec "$PINNED_VERILATOR" "$@" -j 4; fi
+done
+exec "$PINNED_VERILATOR" "$@"
