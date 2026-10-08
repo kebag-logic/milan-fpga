@@ -1,0 +1,34 @@
+33 defects at IF=1: ['binding-debug-guard', 'binding-delivery-missing', 'binding-synchronous', 'binding-poll-adds-access', 'binding-interface-lost', 'binding-sink-lost', 'binding-refusal-dropped', 'binding-owed-retry-dropped', 'binding-unbind-lost', 'binding-replacement-lost', 'binding-pending-sleeps', 'binding-count-overflow', 'binding-poll-overflow', 'binding-reattach-recurses', 'feedback-advertise-missing', 'feedback-failed-as-advertise', 'feedback-withdrawal-missing', 'feedback-sink-crossed', 'feedback-interface-suppressed', 'feedback-repeated', 'binding-park-keeps-old', 'binding-invalid-retries', 'binding-invalid-upper-bound', 'binding-park-never-clears', 'srp-term-fixed', 'srp-term-transmit-count', 'srp-term-interface-count', 'srp-term-send-cost', 'srp-term-event-record', 'srp-term-rx-count', 'srp-term-pass-poll', 'srp-poll-extra-read', 'srp-send-extra-read']
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+[ok] feedback-advertise-missing: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+[ok] feedback-failed-as-advertise: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+[ok] feedback-withdrawal-missing: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+[ok] feedback-sink-crossed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+[ok] feedback-interface-suppressed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+[ok] feedback-repeated: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+[ok] binding-park-keeps-old: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+[ok] binding-invalid-retries: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+[ok] binding-invalid-upper-bound: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+[ok] binding-park-never-clears: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+[ok] srp-term-fixed: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-transmit-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll transmit count is funded independently
+[ok] srp-term-interface-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-send-cost: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+[ok] srp-term-event-record: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+[ok] srp-term-rx-count: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+[ok] srp-term-pass-poll: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] srp-send-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record accesses

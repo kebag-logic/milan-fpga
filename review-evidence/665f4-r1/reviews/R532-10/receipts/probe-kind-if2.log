@@ -1,0 +1,106 @@
+wrote $PACKET/scratch/runs/kind6-if2/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/runs/kind6-if2/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/runs/kind6-if2/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = SrpBinding.R10*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from SrpBinding
+[ RUN      ] SrpBinding.R10KindChangeWhileSettledReachesAcmp
+  R10 kind A->F sink 0: srp desired 1, acmp state 7 tk_failed 0 impossible 0
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:40: Failure
+Value of: core()->sinks[k].tk_failed
+  Actual: false
+Expected: true
+R10 Advertise->Failed reaches ACMP's REGISTERING_FAILED
+
+  [FAIL] SrpBinding.R10KindChangeWhileSettledReachesAcmp: R10 Advertise->Failed reaches ACMP's REGISTERING_FAILED
+  R10 kind A->F sink 0: GET_RX_STATE_RESPONSE flags 0x0002
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:43: Failure
+Value of: flags>=0 && (flags&0x0040u)!=0
+  Actual: false
+Expected: true
+R10 wire REGISTERING_FAILED after A->F
+
+  [FAIL] SrpBinding.R10KindChangeWhileSettledReachesAcmp: R10 wire REGISTERING_FAILED after A->F
+  R10 kind A->F sink 1: srp desired 1, acmp state 7 tk_failed 0 impossible 0
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:40: Failure
+Value of: core()->sinks[k].tk_failed
+  Actual: false
+Expected: true
+R10 Advertise->Failed reaches ACMP's REGISTERING_FAILED
+
+  [FAIL] SrpBinding.R10KindChangeWhileSettledReachesAcmp: R10 Advertise->Failed reaches ACMP's REGISTERING_FAILED
+  R10 kind A->F sink 1: GET_RX_STATE_RESPONSE flags 0x0002
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:43: Failure
+Value of: flags>=0 && (flags&0x0040u)!=0
+  Actual: false
+Expected: true
+R10 wire REGISTERING_FAILED after A->F
+
+  [FAIL] SrpBinding.R10KindChangeWhileSettledReachesAcmp: R10 wire REGISTERING_FAILED after A->F
+[  FAILED  ] SrpBinding.R10KindChangeWhileSettledReachesAcmp (0 ms)
+[ RUN      ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp
+  R10 kind F->A sink 0: srp desired 2, acmp state 7 tk_failed 1 impossible 0
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:67: Failure
+Value of: core()->sinks[k].tk_failed
+  Actual: true
+Expected: false
+R10 Failed->Advertise clears ACMP's REGISTERING_FAILED
+
+  [FAIL] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp: R10 Failed->Advertise clears ACMP's REGISTERING_FAILED
+  R10 kind F->A sink 0: GET_RX_STATE_RESPONSE flags 0x0042
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:70: Failure
+Value of: flags>=0 && (flags&0x0040u)==0
+  Actual: false
+Expected: true
+R10 wire REGISTERING_FAILED after F->A
+
+  [FAIL] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp: R10 wire REGISTERING_FAILED after F->A
+  R10 kind F->A sink 1: srp desired 2, acmp state 7 tk_failed 1 impossible 0
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:67: Failure
+Value of: core()->sinks[k].tk_failed
+  Actual: true
+Expected: false
+R10 Failed->Advertise clears ACMP's REGISTERING_FAILED
+
+  [FAIL] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp: R10 Failed->Advertise clears ACMP's REGISTERING_FAILED
+  R10 kind F->A sink 1: GET_RX_STATE_RESPONSE flags 0x0042
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:70: Failure
+Value of: flags>=0 && (flags&0x0040u)==0
+  Actual: false
+Expected: true
+R10 wire REGISTERING_FAILED after F->A
+
+  [FAIL] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp: R10 wire REGISTERING_FAILED after F->A
+[  FAILED  ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp (0 ms)
+[ RUN      ] SrpBinding.R10WithdrawalFeedbackCostFitsAllowance
+  R10 polls 5: deliver index fn==poll4 1
+  R10 before delivery sink 0: srp desired 0 acmp state 7
+  R10 before delivery sink 1: srp desired 0 acmp state 7
+  R10 withdrawal feedback for 2 sinks: 0 accesses; allowance 64 (per sink 4)
+$PACKET/scratch/clone/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:90: Failure
+Expected: (cost) > (0u), actual: 0 vs 0
+the measured poll did the withdrawal
+
+  [FAIL] SrpBinding.R10WithdrawalFeedbackCostFitsAllowance: the measured poll did the withdrawal
+[  FAILED  ] SrpBinding.R10WithdrawalFeedbackCostFitsAllowance (0 ms)
+[ RUN      ] SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance
+  R10 discovered sink 0: 1 adp_armed 1
+  R10 discovered sink 1: 1 adp_armed 1
+  R10 discovered withdrawal feedback for 2 sinks: 7 accesses; states 2 2; allowance 64 (per sink 4)
+[       OK ] SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance (0 ms)
+[----------] 4 tests from SrpBinding (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] SrpBinding.R10KindChangeWhileSettledReachesAcmp
+[  FAILED  ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp
+[  FAILED  ] SrpBinding.R10WithdrawalFeedbackCostFitsAllowance
+
+ 3 FAILED TESTS
+== ctrl ADP ACMP MAAP SRP composition: checks: 4   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 4 checks, exit 1)
+[FAIL] srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8 filter=SrpBinding.R10* asan=False rc=1

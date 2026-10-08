@@ -1,0 +1,18 @@
+Note: Google Test filter = SrpBinding.R10Replacement*:SrpBinding.R10Earlier*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpBinding
+[ RUN      ] SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration
+  R10 replacement awaiting delivery: request pending 1, srp still holds old 1, acmp state 6
+[       OK ] SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration (0 ms)
+[ RUN      ] SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake
+[       OK ] SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake (0 ms)
+[----------] 2 tests from SrpBinding (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+[PASS] srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8 filter=SrpBinding.R10Replacement*:SrpBinding.R10Earlier* asan=False rc=0

@@ -1,0 +1,8 @@
+[ESCAPED] r10-transient-refusal-forgotten IF=1 rc=0 failing=[]
+[CAUGHT] r10-parked-retire-refusal-sleeps IF=1 rc=1 failing=['  [FAIL] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding:     Which is: true']
+[ESCAPED] r10-feedback-ignores-pending IF=1 rc=0 failing=[]
+[ESCAPED] r10-feedback-allowance-quarter IF=1 rc=0 failing=[]
+[ESCAPED] r10-feedback-allowance-eight IF=1 rc=0 failing=[]
+[ESCAPED] r10-feedback-interface-zero IF=1 rc=0 failing=[]
+[CAUGHT] r10-park-vid0-missed IF=1 rc=1 failing=['  [FAIL] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink: permanent refusal allows sleep', '  [FAIL] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink: permanent refusal is visible', '  [FAIL] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink: Expected: false', '  [FAIL] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink: parked request does not keep loop awake']
+[CAUGHT] r10-park-ignores-unbind IF=1 rc=1 failing=['  [FAIL] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding: Expected: false', '  [FAIL] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding: Expected: false', '  [FAIL] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding: Expected: false', '  [FAIL] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding: Expected: false']
