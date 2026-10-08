@@ -1,0 +1,27 @@
+{"name": "clean", "build_rc": 0, "run_rc": 0, "named_failure": null, "passed": true}
+{"name": "cdl_28", "build_rc": 0, "run_rc": 1, "named_failure": "B.2.1 cdl 16 (Begin! PROBE 1)", "passed": true}
+{"name": "defend_destination_not_latched", "build_rc": 0, "run_rc": 1, "named_failure": "B.2.1 DEFEND DA latched at send", "passed": true}
+{"name": "every_frame_to_the_prober", "build_rc": 0, "run_rc": 1, "named_failure": "B.2.1 PROBE DA multicast (Begin! 1)", "passed": true}
+{"name": "defend_to_multicast", "build_rc": 0, "run_rc": 1, "named_failure": "B.2.1 DEFEND DA = PROBE source (above)", "passed": true}
+{"name": "announce_base_3s", "build_rc": 0, "run_rc": 1, "named_failure": "B.3.4.1 announce T > 30 s", "passed": true}
+{"name": "probe_base_500", "build_rc": 0, "run_rc": 1, "named_failure": "B.3.4.2 probe T > 500 ms (campaign)", "passed": true}
+{"name": "probe_draw_7_bits", "build_rc": 0, "run_rc": 1, "named_failure": "B.3.4.2 probe T < 600 ms (campaign)", "passed": true}
+{"name": "announce_draw_11_bits", "build_rc": 0, "run_rc": 1, "named_failure": "B.3.4.1 announce T < 32 s", "passed": true}
+{"name": "announce_not_randomized", "build_rc": 0, "run_rc": 1, "named_failure": "B.3.4.1 announce T randomized", "passed": true}
+{"name": "zero_seed_freezes_the_probe_draw", "build_rc": 0, "run_rc": 1, "named_failure": "B.3.4.2 probe T randomized (zero-seed MAC)", "passed": true}
+{"name": "zero_seed_freezes_the_announce_draw", "build_rc": 0, "run_rc": 1, "named_failure": "B.3.4.1 announce T randomized (zero-seed MAC)", "passed": true}
+{"name": "announce_judged_on_conflict_fields", "build_rc": 0, "run_rc": 1, "named_failure": "B.2.7 ANNOUNCE conflict_* is not its range", "passed": true}
+{"name": "inclusive_range_end", "build_rc": 0, "run_rc": 1, "named_failure": "note b adjacent above: no conflict", "passed": true}
+{"name": "inclusive_range_start", "build_rc": 0, "run_rc": 1, "named_failure": "note b adjacent below: no conflict", "passed": true}
+{"name": "no_compare_mac", "build_rc": 0, "run_rc": 1, "named_failure": "T.B7 note d: lower MAC keeps range", "passed": true}
+{"name": "empty_range_conflicts", "build_rc": 0, "run_rc": 1, "named_failure": "note b empty range: no conflict", "passed": true}
+{"name": "compare_mac_while_probing", "build_rc": 0, "run_rc": 1, "named_failure": "T.B7 rAnnounce!/PROBE: no compare_MAC", "passed": true}
+{"name": "compare_mac_unreversed", "build_rc": 0, "run_rc": 1, "named_failure": "T.B7 rAnnounce!/DEFEND: re-address", "passed": true}
+{"name": "first_probe_after_a_timer", "build_rc": 0, "run_rc": 1, "named_failure": "T.B7 Begin!: first PROBE at once", "passed": true}
+{"name": "three_probes", "build_rc": 0, "run_rc": 1, "named_failure": "T.B7 Begin!: four PROBEs before ANNOUNCE", "passed": true}
+{"name": "restart_probe_after_a_timer", "build_rc": 0, "run_rc": 1, "named_failure": "T.B7 Restart!: first PROBE at once", "passed": true}
+{"name": "overlap_count_to_our_end", "build_rc": 0, "run_rc": 1, "named_failure": "B.2.8 conflict_count = overlap (below)", "passed": true}
+{"name": "announce_after_a_timer", "build_rc": 0, "run_rc": 1, "named_failure": "T.B7 probeCount!: ANNOUNCE at once (Begin!)", "passed": true}
+{"name": "restart_rewrites_the_frame_on_the_wire", "build_rc": 0, "run_rc": 1, "named_failure": "frame on the wire keeps its offset", "passed": true}
+{"name": "defend_rewrites_the_frame_on_the_wire", "build_rc": 0, "run_rc": 1, "named_failure": "PROBE mid-frame: frame on the wire byte-identical", "passed": true}
+{"name": "own_empty_range_conflicts", "build_rc": 0, "run_rc": 1, "named_failure": "note b: this station's empty range never conflicts", "passed": true}
