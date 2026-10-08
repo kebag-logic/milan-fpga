@@ -1,0 +1,1095 @@
+[
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "implementation.tcl",
+      "-nojournal",
+      "-log",
+      "AltSpreadLogic_high-implementation.vendor.log"
+    ],
+    "cwd": "$WORK/timing/ax7101-AltSpreadLogic_high/gateware",
+    "env": {},
+    "rc": 0,
+    "seconds": 2426.2,
+    "peak_memory_bytes": 9430986752,
+    "resource_interruption": false,
+    "name": "AltSpreadLogic_high-implementation"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "$WORK/functional/route/sw/litex/layout_from_soch.py",
+      "$WORK/timing/ax7101-AltSpreadLogic_high",
+      "--bit",
+      "$WORK/timing/ax7101-AltSpreadLogic_high/gateware/alinx_ax7101.bit"
+    ],
+    "cwd": "$WORK/functional/route",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 1291448320,
+    "resource_interruption": false,
+    "name": "AltSpreadLogic_high-manifest"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "implementation.tcl",
+      "-nojournal",
+      "-log",
+      "ExtraPostPlacementOpt-implementation.vendor.log"
+    ],
+    "cwd": "$WORK/timing/ax7101/gateware",
+    "env": {},
+    "rc": 0,
+    "seconds": 1401.2,
+    "peak_memory_bytes": 9432924160,
+    "resource_interruption": false,
+    "name": "ExtraPostPlacementOpt-implementation"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "$WORK/functional/route/sw/litex/layout_from_soch.py",
+      "$WORK/timing/ax7101",
+      "--bit",
+      "$WORK/timing/ax7101/gateware/alinx_ax7101.bit"
+    ],
+    "cwd": "$WORK/functional/route",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 1689595904,
+    "resource_interruption": false,
+    "name": "ExtraPostPlacementOpt-manifest"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "implementation.tcl",
+      "-nojournal",
+      "-log",
+      "ExtraTimingOpt-implementation.vendor.log"
+    ],
+    "cwd": "$WORK/timing/ax7101-ExtraTimingOpt/gateware",
+    "env": {},
+    "rc": 0,
+    "seconds": 2443.8,
+    "peak_memory_bytes": 9407266816,
+    "resource_interruption": false,
+    "name": "ExtraTimingOpt-implementation"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "$WORK/functional/route/sw/litex/layout_from_soch.py",
+      "$WORK/timing/ax7101-ExtraTimingOpt",
+      "--bit",
+      "$WORK/timing/ax7101-ExtraTimingOpt/gateware/alinx_ax7101.bit"
+    ],
+    "cwd": "$WORK/functional/route",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 2013581312,
+    "resource_interruption": false,
+    "name": "ExtraTimingOpt-manifest"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "$WORK/campaign.py",
+      "--repo",
+      "$WORK/functional/campaign",
+      "--exe",
+      "$WORK/follow-model/Vfollow_ring",
+      "--out",
+      "$WORK/arrival",
+      "--jobs",
+      "16"
+    ],
+    "cwd": "$WORK/functional/campaign/tb/verilator/follow_ring",
+    "rc": 0,
+    "seconds": 7076.8,
+    "name": "arrival"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_baseline.py",
+      "--selftest"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 0.1,
+    "name": "baseline-selftest"
+  },
+  {
+    "argv": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 1,
+    "seconds": 0.3,
+    "name": "bdd-rerun"
+  },
+  {
+    "argv": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$WORK/functional/physical/tests",
+    "rc": 0,
+    "seconds": 2.3,
+    "name": "bdd-tests"
+  },
+  {
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 125,
+    "seconds": 0.0,
+    "name": "bdd"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "cwd": "$WORK/functional/builder",
+    "rc": 0,
+    "seconds": 1645.6,
+    "name": "builder"
+  },
+  {
+    "argv": [
+      "make",
+      "-j16"
+    ],
+    "cwd": "$WORK/functional/dev-render/tb/verilator/milan_dp_render",
+    "rc": 0,
+    "seconds": 777.0,
+    "name": "dev-render-default"
+  },
+  {
+    "argv": [
+      "make",
+      "-j16",
+      "tdm8render-mutants"
+    ],
+    "cwd": "$WORK/functional/dev-render/tb/verilator/milan_dp_render",
+    "rc": 2,
+    "seconds": 5037.1,
+    "name": "dev-render-mutants"
+  },
+  {
+    "argv": [
+      "make",
+      "-j16",
+      "build",
+      "MDIR=$WORK/follow-model"
+    ],
+    "cwd": "$WORK/functional/campaign/tb/verilator/follow_ring",
+    "rc": 0,
+    "seconds": 6.8,
+    "name": "follow-build"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sweep.py",
+      "pullin",
+      "--exe",
+      "$WORK/follow-model/Vfollow_ring",
+      "--out",
+      "$WORK/follow-pullin",
+      "--jobs",
+      "16",
+      "--hold-us",
+      "52",
+      "56"
+    ],
+    "cwd": "$WORK/functional/campaign/tb/verilator/follow_ring",
+    "rc": 0,
+    "seconds": 253.6,
+    "name": "follow-pullin"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 0.4,
+    "name": "fw-coverage-selftest"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 179.9,
+    "name": "fw-coverage"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 99.2,
+    "name": "fw-ctrl"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+      "--require-rv32",
+      "--out",
+      "$WORK/fw-image-controls"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 17.0,
+    "name": "fw-image-controls"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/ctrl_image.py",
+      "--out",
+      "$WORK/fw-image"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 10.1,
+    "name": "fw-image"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--mutation-shard",
+      "0",
+      "4",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": -15,
+    "seconds": 804.7,
+    "name": "fw-mutants-interleaved-shard-0"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--mutation-shard",
+      "1",
+      "4",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": -15,
+    "seconds": 804.7,
+    "name": "fw-mutants-interleaved-shard-1"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--mutation-shard",
+      "2",
+      "4",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": -15,
+    "seconds": 804.7,
+    "name": "fw-mutants-interleaved-shard-2"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--mutation-shard",
+      "3",
+      "4",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": -15,
+    "seconds": 804.7,
+    "name": "fw-mutants-interleaved-shard-3"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "firmware_shards.py"
+    ],
+    "cwd": "$WORK",
+    "rc": 1,
+    "seconds": 804.8,
+    "name": "fw-mutants-interleaved"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": -15,
+    "seconds": 1976.1,
+    "name": "fw-mutants-interrupted"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--slice",
+      "1/4",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 2311.1,
+    "name": "fw-mutants-shard-0"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--slice",
+      "2/4",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 3073.7,
+    "name": "fw-mutants-shard-1"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--slice",
+      "3/4",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 2642.7,
+    "name": "fw-mutants-shard-2"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--slice",
+      "4/4",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 2766.9,
+    "name": "fw-mutants-shard-3"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "firmware_shards.py"
+    ],
+    "cwd": "$WORK",
+    "rc": 0,
+    "seconds": 3073.8,
+    "name": "fw-mutants"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 102.1,
+    "name": "fw-nvm"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 7.7,
+    "name": "fw-rv32"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/tally_selftest.py"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 4.3,
+    "name": "fw-tally"
+  },
+  {
+    "argv": [
+      "$HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "sw/litex/test_gmii_rx_capture.py",
+      "--emit-dir",
+      "$WORK/gmii-fixtures"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 0.2,
+    "name": "gmii-capture"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-log",
+      "gmii-placement.vendor.log",
+      "-source",
+      "$WORK/functional/route/sw/litex/gmii_rx_capture_check.tcl",
+      "-tclargs",
+      "$WORK/gmii-fixtures"
+    ],
+    "cwd": "$WORK/gmii-fixtures",
+    "env": {},
+    "rc": 0,
+    "seconds": 70.0,
+    "peak_memory_bytes": 4259725312,
+    "resource_interruption": false,
+    "name": "gmii-placement"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "baseline_integrated.tcl",
+      "-nojournal",
+      "-log",
+      "integrated-8x8-synthesis.vendor.log"
+    ],
+    "cwd": "$WORK/timing/ax8x8/gateware",
+    "env": {},
+    "rc": 0,
+    "seconds": 3315.7,
+    "peak_memory_bytes": 13355253760,
+    "resource_interruption": false,
+    "name": "integrated-8x8-synthesis"
+  },
+  {
+    "argv": [
+      "bash",
+      "scripts/run_litex_sims.sh",
+      "--selftest"
+    ],
+    "cwd": "$WORK/functional/campaign",
+    "env": {
+      "LITEX_SIM_TIMEOUT": "14400"
+    },
+    "rc": 0,
+    "seconds": 3.4,
+    "name": "litex-controls"
+  },
+  {
+    "argv": [
+      "bash",
+      "scripts/run_litex_sims.sh",
+      "$WORK/litex-sims"
+    ],
+    "cwd": "$WORK/functional/campaign",
+    "env": {
+      "LITEX_SIM_TIMEOUT": "14400"
+    },
+    "rc": 0,
+    "seconds": 220.6,
+    "name": "litex-sims"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "baseline_ooc.tcl",
+      "-nojournal",
+      "-log",
+      "ooc-1x1.vendor.log"
+    ],
+    "cwd": "$WORK/timing/ooc-1x1",
+    "env": {},
+    "rc": 0,
+    "seconds": 1292.5,
+    "peak_memory_bytes": 8016711680,
+    "resource_interruption": false,
+    "name": "ooc-1x1"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "baseline_ooc.tcl",
+      "-nojournal",
+      "-log",
+      "ooc-8x8.vendor.log"
+    ],
+    "cwd": "$WORK/timing/ooc-8x8",
+    "env": {},
+    "rc": 0,
+    "seconds": 2962.9,
+    "peak_memory_bytes": 9246822400,
+    "resource_interruption": false,
+    "name": "ooc-8x8"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "$WORK/grade_area.py"
+    ],
+    "cwd": "$WORK",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 2251411456,
+    "resource_interruption": false,
+    "name": "own-area-grade"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "ooc.tcl",
+      "-nojournal",
+      "-log",
+      "own-cmc_base.vendor.log"
+    ],
+    "cwd": "$WORK/area-ooc",
+    "env": {
+      "ONLY": "cmc_base"
+    },
+    "rc": 0,
+    "seconds": 55.0,
+    "peak_memory_bytes": 4190375936,
+    "resource_interruption": false,
+    "name": "own-cmc_base"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "ooc.tcl",
+      "-nojournal",
+      "-log",
+      "own-cmc_head.vendor.log"
+    ],
+    "cwd": "$WORK/area-ooc",
+    "env": {
+      "ONLY": "cmc_head"
+    },
+    "rc": 0,
+    "seconds": 56.0,
+    "peak_memory_bytes": 4209192960,
+    "resource_interruption": false,
+    "name": "own-cmc_head"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "ooc.tcl",
+      "-nojournal",
+      "-log",
+      "own-settle_base.vendor.log"
+    ],
+    "cwd": "$WORK/area-ooc",
+    "env": {
+      "ONLY": "settle_base"
+    },
+    "rc": 0,
+    "seconds": 843.3,
+    "peak_memory_bytes": 4131655680,
+    "resource_interruption": false,
+    "name": "own-settle_base"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "ooc.tcl",
+      "-nojournal",
+      "-log",
+      "own-settle_head.vendor.log"
+    ],
+    "cwd": "$WORK/area-ooc",
+    "env": {
+      "ONLY": "settle_head"
+    },
+    "rc": 0,
+    "seconds": 38.0,
+    "peak_memory_bytes": 4151963648,
+    "resource_interruption": false,
+    "name": "own-settle_head"
+  },
+  {
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$WORK/physical",
+      "--physical-gptp"
+    ],
+    "cwd": "$WORK/functional/builder",
+    "rc": 0,
+    "seconds": 6342.3,
+    "name": "physical"
+  },
+  {
+    "argv": [
+      "bash",
+      "syn/yosys/run.sh"
+    ],
+    "cwd": "$WORK/functional/builder",
+    "rc": 0,
+    "seconds": 2318.7,
+    "name": "portability"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_baseline.py",
+      "$WORK/timing/ax7101/gateware",
+      "--output",
+      "$WORK/timing/ooc-1x1",
+      "--integrated-log",
+      "$WORK/timing/ax7101/gateware/shipping-synthesis.vendor.log",
+      "--integrated-clock",
+      "--single-thread-synthesis"
+    ],
+    "cwd": "$WORK/functional/route",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 2198474752,
+    "resource_interruption": false,
+    "name": "prepare-ooc-1x1"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_baseline.py",
+      "$WORK/timing/ax8x8/gateware",
+      "--output",
+      "$WORK/timing/ooc-8x8",
+      "--integrated-log",
+      "$WORK/timing/ax8x8/gateware/integrated-8x8-synthesis.vendor.log",
+      "--integrated-clock",
+      "--single-thread-synthesis"
+    ],
+    "cwd": "$WORK/functional/route",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 2214109184,
+    "resource_interruption": false,
+    "name": "prepare-ooc-8x8"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "quiet_distributions.py",
+      "$WORK/arrival",
+      "--band",
+      "2",
+      "--out",
+      "$WORK/quiet.json"
+    ],
+    "cwd": "$WORK/functional/campaign/tb/verilator/follow_ring",
+    "rc": 0,
+    "seconds": 0.2,
+    "name": "quiet-reader"
+  },
+  {
+    "argv": [
+      "make",
+      "-j16",
+      "tdm8render-law-boundary",
+      "LAW_BOUNDARY_JOBS=16"
+    ],
+    "cwd": "$WORK/functional/render-boundary/tb/verilator/milan_dp_render",
+    "rc": 0,
+    "seconds": 2926.9,
+    "name": "render-boundary"
+  },
+  {
+    "argv": [
+      "make",
+      "-j16"
+    ],
+    "cwd": "$WORK/functional/render/tb/verilator/milan_dp_render",
+    "rc": 0,
+    "seconds": 1408.9,
+    "name": "render-default"
+  },
+  {
+    "argv": [
+      "make",
+      "-j16",
+      "tdm8render-mutants"
+    ],
+    "cwd": "$WORK/functional/render/tb/verilator/milan_dp_render",
+    "rc": 2,
+    "seconds": 7065.6,
+    "name": "render-mutants"
+  },
+  {
+    "argv": [
+      "make",
+      "-j16",
+      "tdm8render-pullin",
+      "PULLIN_JOBS=16"
+    ],
+    "cwd": "$WORK/functional/render-pullin/tb/verilator/milan_dp_render",
+    "rc": 0,
+    "seconds": 2199.0,
+    "name": "render-pullin"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 0.1,
+    "name": "resource-baseline"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "$WORK/timing/ooc-1x1",
+      "--endpoint",
+      "ooc-1x1"
+    ],
+    "cwd": "$WORK/functional/route",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 2213810176,
+    "resource_interruption": false,
+    "name": "resource-ooc-1x1"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "$WORK/timing/ooc-8x8",
+      "--endpoint",
+      "ooc-8x8"
+    ],
+    "cwd": "$WORK/functional/route",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 2242723840,
+    "resource_interruption": false,
+    "name": "resource-ooc-8x8"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "$WORK/timing/ax7101/gateware",
+      "--endpoint",
+      "route-1x1"
+    ],
+    "cwd": "$WORK/functional/route",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 2019340288,
+    "resource_interruption": false,
+    "name": "resource-route-1x1"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_resource_gate.py",
+      "--selftest"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 2.4,
+    "name": "resource-selftest"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "synthesis_only.tcl",
+      "-nojournal",
+      "-log",
+      "shipping-synthesis.vendor.log"
+    ],
+    "cwd": "$WORK/timing/ax7101/gateware",
+    "env": {},
+    "rc": 0,
+    "seconds": 1995.8,
+    "peak_memory_bytes": 10344321024,
+    "resource_interruption": false,
+    "name": "shipping-synthesis"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 3.5,
+    "name": "source-controls"
+  },
+  {
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$WORK/sweep-rerun/0",
+      "--shard",
+      "0/2"
+    ],
+    "cwd": "$WORK/functional/sweep",
+    "rc": 0,
+    "seconds": 8381.9,
+    "name": "sweep-0-rerun"
+  },
+  {
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$WORK/sweep/0",
+      "--shard",
+      "0/2"
+    ],
+    "cwd": "$WORK/functional/sweep",
+    "rc": 2,
+    "seconds": 55.7,
+    "name": "sweep-0"
+  },
+  {
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$WORK/sweep-rerun/1",
+      "--shard",
+      "1/2"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 2432.8,
+    "name": "sweep-1-rerun"
+  },
+  {
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$WORK/sweep/1",
+      "--shard",
+      "1/2"
+    ],
+    "cwd": "$WORK/functional/sweep",
+    "rc": 2,
+    "seconds": 52.2,
+    "name": "sweep-1"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "$WORK/grade_vendor.py"
+    ],
+    "cwd": "$WORK",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.0,
+    "peak_memory_bytes": 2013405184,
+    "resource_interruption": false,
+    "name": "timing-grade"
+  },
+  {
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "python3",
+      "-B",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "cwd": "$REPO",
+    "env": {},
+    "rc": 0,
+    "seconds": 161.1,
+    "peak_memory_bytes": 1371078656,
+    "resource_interruption": false,
+    "name": "vendor-parser"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tb/tools/avtp_wire_truth.py",
+      "--self-test"
+    ],
+    "cwd": "$WORK/functional/physical",
+    "rc": 0,
+    "seconds": 0.1,
+    "name": "wire-controls"
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "job": "integrated-8x8-synthesis",
+  "main_pid": 1895569,
+  "worker_pid": 1903512,
+  "worker_is_main_descendant": true,
+  "worker_role": "Internal synthesis task_worker.tcl process",
+  "ancestry": [
+    {
+      "pid": 1903512,
+      "parent": 1903479,
+      "process": "vivado"
+    },
+    {
+      "pid": 1903479,
+      "parent": 1903461,
+      "process": "loader"
+    },
+    {
+      "pid": 1903461,
+      "parent": 1895675,
+      "process": "vivado"
+    },
+    {
+      "pid": 1895675,
+      "parent": 1895643,
+      "process": "parallel_synth_"
+    },
+    {
+      "pid": 1895643,
+      "parent": 1895627,
+      "process": "loader"
+    },
+    {
+      "pid": 1895627,
+      "parent": 1895569,
+      "process": "vivado"
+    },
+    {
+      "pid": 1895569,
+      "parent": 1895537,
+      "process": "vivado"
+    }
+  ]
+}

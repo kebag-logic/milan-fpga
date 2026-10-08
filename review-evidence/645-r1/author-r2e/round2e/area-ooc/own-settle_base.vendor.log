@@ -1,0 +1,275 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Oct  8 10:56:47 2026
+# Process ID         : 2323778
+# Current directory  : $WORK/area-ooc
+# Command line       : vivado -mode batch -source ooc.tcl -nojournal -log own-settle_base.vendor.log
+# Log file           : $WORK/area-ooc/own-settle_base.vendor.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 44436 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source ooc.tcl
+# set PART xc7a100tfgg484-2
+# set CMC_G {N_SLOTS_P=4 N_TDM_P=8 TDM_FRAME_PAIRS_P=4 N_LB_STREAMS_P=1 N_LB_CH_P=8}
+# set CFGS [list \
+#   [list settle_base settle_base {settle_base.sv} {} {axis_clk}] \
+#   [list settle_head settle_new {settle_new.sv} {} {axis_clk}] \
+#   [list cmc_base KL_chan_map_capture {cmc_base.sv} $CMC_G {clk_i}] \
+#   [list cmc_head KL_chan_map_capture {cmc_head.sv} $CMC_G {clk_i}] \
+# ]
+# set sel {}
+# if {[info exists ::env(ONLY)] && $::env(ONLY) ne ""} { set sel [split $::env(ONLY) ,] }
+# foreach c $CFGS {
+#   lassign $c tag top files gens clks
+#   if {[llength $sel] && [lsearch -exact $sel $tag] < 0} continue
+#   puts "=== OOC $tag ($top)"
+#   foreach f $files { read_verilog -sv $f }
+#   set gargs {}
+#   foreach g $gens { lappend gargs -generic $g }
+#   set xdc "xdc_$tag.xdc"
+#   set fh [open $xdc w]
+#   foreach k $clks { puts $fh "create_clock -period 20.000 -name $k \[get_ports $k\]" }
+#   close $fh
+#   read_xdc -mode out_of_context $xdc
+#   synth_design -top $top -part $PART -mode out_of_context -include_dirs [pwd] {*}$gargs
+#   report_utilization -file util_$tag.rpt
+#   report_utilization -hierarchical -file util_hier_$tag.rpt
+#   report_timing_summary -max_paths 3 -file timing_$tag.rpt
+#   set f [open ffs_$tag.txt w]
+#   foreach r [get_cells -hier -filter {IS_PRIMITIVE && PRIMITIVE_GROUP == FLOP_LATCH}] { puts $f $r }
+#   close $f
+#   set f [open cells_$tag.tsv w]
+#   foreach c [get_cells -hier -filter {IS_PRIMITIVE}] { puts $f "$c\t[get_property REF_NAME $c]" }
+#   close $f
+#   close_design
+# }
+=== OOC settle_base (settle_base)
+Command: synth_design -top settle_base -part xc7a100tfgg484-2 -mode out_of_context -include_dirs $WORK/area-ooc
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 2326576
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2377.883 ; gain = 383.234 ; free physical = 10004 ; free virtual = 38202
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'settle_base' [$WORK/area-ooc/settle_base.sv:1]
+INFO: [Synth 8-6155] done synthesizing module 'settle_base' (0#1) [$WORK/area-ooc/settle_base.sv:1]
+WARNING: [Synth 8-3917] design settle_base has port lb_recentre_p_o driven by constant 0
+WARNING: [Synth 8-7129] Port mcsrv_locked_w in module settle_base is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2461.820 ; gain = 467.172 ; free physical = 10743 ; free virtual = 38954
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2479.633 ; gain = 484.984 ; free physical = 10713 ; free virtual = 38923
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2479.633 ; gain = 484.984 ; free physical = 10713 ; free virtual = 38923
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2479.633 ; gain = 0.000 ; free physical = 10712 ; free virtual = 38923
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [$WORK/area-ooc/xdc_settle_base.xdc]
+Finished Parsing XDC File [$WORK/area-ooc/xdc_settle_base.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2781.465 ; gain = 0.000 ; free physical = 11174 ; free virtual = 39387
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 2781.500 ; gain = 0.000 ; free physical = 11130 ; free virtual = 39344
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 2781.500 ; gain = 786.852 ; free physical = 10666 ; free virtual = 39081
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 2789.469 ; gain = 794.820 ; free physical = 10665 ; free virtual = 39080
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 2789.469 ; gain = 794.820 ; free physical = 10657 ; free virtual = 39072
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 2789.469 ; gain = 794.820 ; free physical = 10696 ; free virtual = 39112
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   16 Bit       Adders := 1     
++---Registers : 
+	               16 Bit    Registers := 1     
+	                1 Bit    Registers := 3     
++---Muxes : 
+	   2 Input   16 Bit        Muxes := 1     
+	   2 Input    1 Bit        Muxes := 8     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-3917] design settle_base has port lb_recentre_p_o driven by constant 0
+WARNING: [Synth 8-7129] Port mcsrv_locked_w in module settle_base is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2789.469 ; gain = 794.820 ; free physical = 11455 ; free virtual = 39869
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:17 ; elapsed = 00:00:18 . Memory (MB): peak = 2854.469 ; gain = 859.820 ; free physical = 11800 ; free virtual = 40635
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:17 ; elapsed = 00:00:18 . Memory (MB): peak = 2874.500 ; gain = 879.852 ; free physical = 11739 ; free virtual = 40575
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:17 ; elapsed = 00:00:18 . Memory (MB): peak = 2875.508 ; gain = 880.859 ; free physical = 11843 ; free virtual = 40679
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3072.320 ; gain = 1077.672 ; free physical = 9816 ; free virtual = 38668
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3072.320 ; gain = 1077.672 ; free physical = 9812 ; free virtual = 38664
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3072.320 ; gain = 1077.672 ; free physical = 9807 ; free virtual = 38659
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 3072.320 ; gain = 1077.672 ; free physical = 9802 ; free virtual = 38654
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 3072.320 ; gain = 1077.672 ; free physical = 9799 ; free virtual = 38651
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 3072.320 ; gain = 1077.672 ; free physical = 9792 ; free virtual = 38644
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-------+------+
+|      |Cell   |Count |
++------+-------+------+
+|1     |CARRY4 |    16|
+|2     |LUT1   |    19|
+|3     |LUT2   |     4|
+|4     |LUT4   |     2|
+|5     |LUT5   |     9|
+|6     |LUT6   |     9|
+|7     |FDRE   |    51|
++------+-------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 3072.320 ; gain = 1077.672 ; free physical = 9784 ; free virtual = 38636
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 2 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 3072.320 ; gain = 775.805 ; free physical = 9667 ; free virtual = 38519
+Synthesis Optimization Complete : Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 3072.328 ; gain = 1077.672 ; free physical = 9663 ; free virtual = 38515
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3072.328 ; gain = 0.000 ; free physical = 9616 ; free virtual = 38468
+INFO: [Netlist 29-17] Analyzing 16 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [$WORK/area-ooc/xdc_settle_base.xdc]
+Finished Parsing XDC File [$WORK/area-ooc/xdc_settle_base.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3072.328 ; gain = 0.000 ; free physical = 10462 ; free virtual = 39329
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Synth Design complete | Checksum: b882763d
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+17 Infos, 4 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:27 ; elapsed = 00:00:26 . Memory (MB): peak = 3072.355 ; gain = 1077.707 ; free physical = 10323 ; free virtual = 39196
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2350.195; main = 2261.810; forked = 343.750
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4021.930; main = 3072.324; forked = 1032.418
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "axis_clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+# puts "=== OOC ALL DONE"
+=== OOC ALL DONE
+INFO: [Common 17-206] Exiting Vivado at Thu Oct  8 10:57:23 2026...

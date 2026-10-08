@@ -1,0 +1,424 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] arm model
+    == mbx (host model): checks: 23   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (23 tests, 0 failures, exit 0)
+[ok] arm port
+    == ctrl port, driver and loop (host model): checks: 31   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (31 tests, 0 failures, exit 0)
+[ok] arm adp
+    C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+    C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+    C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+    C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+    C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+    C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+    C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+    backlog: 16 event records, 30 centiseconds, 28 receive records
+    passes: events by 2, ENTITY_AVAILABLE in 2 (175 accesses), receive ring by 14 (457 accesses), idle at 15; worst pass 105 accesses
+    F5 the costliest pass of the backlog         105 accesses (bound 407)
+    E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  63 accesses (bound 1628)
+    E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  69 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+    == ctrl ADP slice (fake ports and host model): checks: 26   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (26 tests, 0 failures, exit 0)
+[ok] arm unit
+    == ctrl units on the HAL and port-layer mocks: checks: 24   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (24 tests, 0 failures, exit 0)
+    == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm walk
+    walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+    == ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (41 tests, 0 failures, exit 0)
+[ok] arm acmp
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          25 accesses (bound 9108)
+    E2 3 owed ahead: room to response                                         100 accesses (bound 9108)
+    E2 7 owed ahead: room to response                                         200 accesses (bound 9108)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 193 accesses
+    F3 the worst pass of the backlog                                          193 accesses (bound 1012)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22264)
+    three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 231 accesses
+    F6 the worst pass of the three-way backlog                                231 accesses (bound 1580)
+    == ctrl ACMP core and adapter (fake ports and host model): checks: 84   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (84 tests, 0 failures, exit 0)
+[ok] arm acmpwalk
+    == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (127 tests, 0 failures, exit 0)
+[ok] arm acmpnvm
+    == ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (7 tests, 0 failures, exit 0)
+[ok] arm acmpif2
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 1                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     49 accesses (bound 49)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 28)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 1                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                               12 accesses (bound 13)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 1   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          25 accesses (bound 9387)
+    E2 3 owed ahead: room to response                                         100 accesses (bound 9387)
+    E2 7 owed ahead: room to response                                         200 accesses (bound 9387)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 195 accesses
+    F3 the worst pass of the backlog                                          195 accesses (bound 1043)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22946)
+    three-way backlog: 14 event records, 12 acmp and 7 maap records; worst pass 233 accesses
+    F6 the worst pass of the three-way backlog                                233 accesses (bound 1659)
+    == ctrl ACMP adapter on the two-interface contract (host model): checks: 22   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (22 tests, 0 failures, exit 0)
+[ok] arm entity
+    == ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+[ok] arm rv32
+    riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 15 objects
+    size (text data bss dec): 34256 0 178 34434
+    largest static frame: 256 bytes (not a call-chain bound)
+    undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+    == ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+    RESULT: PASS
+[ok] arm maap
+    == ctrl MAAP Annex B: checks: 37   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (37 tests, 0 failures, exit 0)
+    H-MAAP timer 0: 30 accesses, 8300 ns from original deadline (model)
+    H-MAAP timer 1: 30 accesses, 11300 ns from original deadline (model)
+    H-MAAP timer 2: 56 accesses, 16600 ns from original deadline (model)
+    H-MAAP timer 3: 30 accesses, 19900 ns from original deadline (model)
+    H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+    H-MAAP wake interface 0: 4700 ns from RX_HEAD (model)
+    == ctrl H-MAAP mailbox: checks: 12   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (12 tests, 0 failures, exit 0)
+[ok] arm maap_debug
+    == ctrl MAAP debug port contract: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm maap_if2
+    H-MAAP timer 0: 30 accesses, 12200 ns from original deadline (model)
+    H-MAAP timer 1: 30 accesses, 15200 ns from original deadline (model)
+    H-MAAP timer 2: 56 accesses, 20500 ns from original deadline (model)
+    H-MAAP timer 3: 30 accesses, 23800 ns from original deadline (model)
+    H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+    H-MAAP wake interface 0: 4700 ns from RX_HEAD (model)
+    H-MAAP wake interface 1: 4700 ns from RX_HEAD (model)
+    H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)
+    == ctrl H-MAAP mailbox: checks: 13   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (13 tests, 0 failures, exit 0)
+[ok] arm reentry_debug
+    == ADP debug re-entry: checks: 122   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (122 tests, 0 failures, exit 0)
+[ok] arm reentry_release
+    == ADP release re-entry: checks: 122   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (122 tests, 0 failures, exit 0)
+[ok] mutant acmp-bind-change-before-response (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the change is reported after the response was taken (#653)
+[ok] mutant acmp-nothing-persisted (acmp, acmpnvm): 32 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding is saved (5.5.2.4)
+[ok] mutant acmp-unbind-not-persisted (acmpnvm, acmpwalk): 8 check(s) failed
+    first: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+[ok] mutant acmp-rebind-not-persisted (acmpnvm, acmp): 28 check(s) failed
+    first: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+[ok] mutant acmp-streaming-wait-ignored (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding parameters are the command's; STREAMING_WAIT binds it stopped
+[ok] mutant acmp-sw-read-from-fast-connect (acmp): 10 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+[ok] mutant acmp-getrx-count-unbound (acmp, acmpwalk): 2 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 0
+[ok] mutant acmp-getrx-no-fast-connect (acmp, acmpwalk): 15 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 1
+[ok] mutant acmp-getrx-no-registering-failed (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+[ok] mutant acmp-unknown-sink-silent (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId: A2 a command for a sink the entity lacks is answered, msg 6
+[ok] mutant acmp-unbind-echoes-the-talker (acmp, acmpwalk): 16 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 UNBIND_RX_RESPONSE is Table 5.36: talker_entity_id and talker_unique_id 0, in state 0
+[ok] mutant acmp-unbind-keeps-srp (acmp, acmpwalk): 4 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 a settled sink stops SRP before the response (5.5.3.5.39, .45)
+[ok] mutant acmp-unbind-srp-after-response (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 a settled sink stops SRP before the response (5.5.3.5.39, .45)
+[ok] mutant acmp-unbind-keeps-discovery (acmp, acmpwalk): 17 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 then UNBOUND, binding cleared, nothing running, in state 1
+[ok] mutant acmp-unbind-change-before-response (acmp): 7 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 the change is reported after the response (#653), in state 1
+[ok] mutant acmp-not-authorized-is-13 (acmp, acmpwalk): 8 check(s) failed
+    first: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 CONTROLLER_NOT_AUTHORIZED (16, IEEE 1722.1-2021 Table 8-3), fields echoed (Tables 5.31, 5.35)
+[ok] mutant acmp-lock-ignored (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 one response
+[ok] mutant acmp-lock-refuses-the-holder (acmp): 9 check(s) failed
+    first: [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 the locking controller binds
+[ok] mutant acmp-get-rx-state-locked (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 GET_RX_STATE asks no lock (5.5.3.5.4)
+[ok] mutant acmp-rebind-same-reprobes (acmp, acmpwalk): 10 check(s) failed
+    first: [FAIL] AcmpCore.A5RebindTheSameSourceUpdatesAndExits: A5 a re-bind of the same source sends the response alone, state 1
+[ok] mutant acmp-rebind-same-keeps-the-controller (acmp): 8 check(s) failed
+    first: [FAIL] AcmpCore.A5RebindTheSameSourceUpdatesAndExits: A5 the controller and STREAMING_WAIT are updated, state 1
+[ok] mutant acmp-bind-new-keeps-srp (acmp, acmpwalk): 4 check(s) failed
+    first: [FAIL] AcmpCore.A6BindAnotherSourceRestartsTheSink: A6 SRP is stopped and its parameters cleared only when settled (5.5.3.5.37, .43), state 6
+[ok] mutant acmp-bind-same-talker-is-the-same-source (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding: A6 the same talker with another talker_unique_id is a new source: a new probe
+[ok] mutant acmp-sequence-id-never-advances (acmp, acmp): 14 check(s) failed
+    first: [FAIL] AcmpCore.A12DelaySendsANewProbe: A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+[ok] mutant acmp-sequence-id-per-sink (acmp, acmpwalk): 170 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 PROBE_TX_COMMAND is Table 5.33 field by field
+[ok] mutant acmp-response-keyed-on-the-source (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId: A7 the response belongs to the sink its listener_unique_id names, not to every sink probing that source
+[ok] mutant acmp-guard-controller-dropped (acmp, acmpwalk): 13 check(s) failed
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+[ok] mutant acmp-guard-talker-dropped (acmp, acmpwalk): 12 check(s) failed
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+[ok] mutant acmp-guard-unique-id-dropped (acmp, acmpwalk): 11 check(s) failed
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+[ok] mutant acmp-guard-sequence-id-dropped (acmp, acmpwalk): 10 check(s) failed
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+[ok] mutant acmp-guard-reads-the-binding (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding: A7 the answer to the probe sent before a re-bind still matches the probe that was sent
+[ok] mutant acmp-responses-taken-outside-probing (acmp, acmpwalk): 55 check(s) failed
+    first: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 0
+[ok] mutant acmp-vlan-masked (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly
+[ok] mutant acmp-no-tk-1s (acmp, acmpwalk): 15 check(s) failed
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+[ok] mutant acmp-settle-starts-no-srp (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 SRP is started
+[ok] mutant acmp-settle-swaps-stream-fields (acmp, acmpwalk): 26 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 6
+[ok] mutant acmp-failure-status-dropped (acmp, acmpwalk): 15 check(s) failed
+    first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 3
+[ok] mutant acmp-failure-retries-at-200ms (acmp, acmpwalk): 11 check(s) failed
+    first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 and TMR_RETRY 4 s
+[ok] mutant acmp-duplicate-takes-a-new-sequence-id (acmp, acmpwalk): 26 check(s) failed
+    first: [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 an exact duplicate of the first probe, same sequence_id (5.5.3.5.16)
+[ok] mutant acmp-second-timeout-keeps-status-0 (acmp, acmp, acmpwalk): 10 check(s) failed
+    first: [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 the second: no frame, LISTENER_TALKER_TIMEOUT, TMR_RETRY 4 s (5.5.3.5.23)
+[ok] mutant acmp-no-duplicate (acmp, acmpwalk): 52 check(s) failed
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 SUCCESS: SETTLED_NO_RSV, PROBING_COMPLETED, state 4
+[ok] mutant acmp-retry-ignores-discovery (acmp, acmpwalk): 14 check(s) failed
+    first: [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 TMR_RETRY, talker discovered: TMR_DELAY 0 to 1 s, PRB_W_DELAY (5.5.3.5.30 step 2)
+[ok] mutant acmp-retry-zeroes-the-status (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 and the ACMP status stays: step 2 sets none
+[ok] mutant acmp-delay-resends-the-old-probe (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A12DelaySendsANewProbe: A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+[ok] mutant acmp-no-tk-keeps-srp (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 TMR_NO_TK clears the SRP parameters and stops SRP (5.5.3.5.36 step 1)
+[ok] mutant acmp-reprobe-ignores-discovery (acmp, acmp, acmpwalk): 14 check(s) failed
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+[ok] mutant acmp-registered-anywhere (acmp, acmpwalk): 32 check(s) failed
+    first: [FAIL] AcmpCore.A14RegisteredSettlesTheReservation: A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 0
+[ok] mutant acmp-registered-keeps-no-tk (acmp, acmpwalk): 18 check(s) failed
+    first: [FAIL] AcmpCore.A14RegisteredSettlesTheReservation: A14 EVT_TK_REGISTERED: TMR_NO_TK cleared, SETTLED_RSV_OK (5.5.3.5.42)
+[ok] mutant acmp-registered-kind-dropped (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+[ok] mutant acmp-unregistered-anywhere (acmp, acmpwalk): 27 check(s) failed
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 0
+[ok] mutant acmp-unregistered-keeps-srp (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped, PRB_W_AVAIL (5.5.3.5.48 steps 1, 2)
+[ok] mutant acmp-timer-at-the-latest-deadline (acmp): 15 check(s) failed
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 each interface's timer is armed at the earliest deadline of its own sinks
+[ok] mutant acmp-timer-port-called-every-time (acmp): 8 check(s) failed
+    first: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 2
+[ok] mutant acmp-timer-never-stopped (acmp, acmp): 22 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 and the interface's timer is stopped, in state 1
+[ok] mutant acmp-expiry-takes-every-interface (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry takes the due timers only, of its own interface's sinks
+[ok] mutant acmp-expiry-not-consumed (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+[ok] mutant acmp-zero-delay-waits (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A18AZeroDelayProbesInTheSameExpiry: A18 TMR_RETRY drawing 0 ms sends its probe in the same expiry
+[ok] mutant acmp-delay-up-to-4s (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A18AZeroDelayProbesInTheSameExpiry: A18 the longest draw is 1000 ms (Table 5.29)
+[ok] mutant acmp-seed-at-every-draw (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw: A18 and never again
+[ok] mutant acmp-rng-left-at-0 (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw: A18 a seed that cancels the state to 0 leaves it 1: xorshift never leaves 0
+[ok] mutant acmp-response-passes-an-owed-frame (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A19NothingPassesAnOwedFrame: A19 a response does not pass one already owed
+[ok] mutant acmp-poll-drains-everything (acmp, acmp): 18 check(s) failed
+    first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 one frame per poll: the probe is still owed after the response
+[ok] mutant acmp-change-not-held-for-its-response (acmp, acmp): 12 check(s) failed
+    first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 but its change is not reported while its response waits (#653)
+[ok] mutant acmp-full-queue-acts (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs: A19 a command whose response would find the queue full is dropped before it changes anything
+[ok] mutant acmp-lost-probe-uncounted (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered: A19 a probe the full queue cannot take is lost and counted; TMR_NO_RESP will send its duplicate
+[ok] mutant acmp-first-owed-releases-every-change (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether: A19 the bind's response left but the unbind's is still owed: the sink's change still waits
+[ok] mutant acmp-poll-newest-first (acmp, acmp): 26 check(s) failed
+    first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 the oldest first: the response
+[ok] mutant acmp-probe-tx-reports-asking-failed (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0
+[ok] mutant acmp-probe-tx-echoes-every-flag (acmpwalk): 1 check(s) failed
+    first: [FAIL] TalkerWalk.TW1ProbeTheFlagLawAndTheSource: TW1 PROBE_TX: SUCCESS, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED forced 0, the source's stream (F05.11; Milan v1.2 Table 5.43)
+[ok] mutant acmp-probe-tx-any-interface (acmp, acmpwalk): 2 check(s) failed
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 a probe from another interface than the source's: INCOMPATIBLE_REQUEST (5.5.4.1 step 2, Table 5.41)
+[ok] mutant acmp-probe-tx-no-destination-mac-check (acmp, acmpwalk): 2 check(s) failed
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 no destination MAC: TALKER_DEST_MAC_FAILED (Table 5.42)
+[ok] mutant acmp-disconnect-always-succeeds (acmp, acmpwalk): 2 check(s) failed
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Table 5.44)
+[ok] mutant acmp-unknown-source-answered (acmp, acmpwalk): 6 check(s) failed
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 an unknown source: TALKER_UNKNOWN_ID (Table 5.40)
+[ok] mutant acmp-get-tx-state-echoes-the-listener (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+[ok] mutant acmp-get-tx-state-registering-failed-0 (acmp, acmpwalk): 2 check(s) failed
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+[ok] mutant acmp-get-tx-state-unheld-mac (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 with no destination MAC held, none is reported
+[ok] mutant acmp-get-tx-connection-supported (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_CONNECTION: NOT_SUPPORTED, fields echoed (5.5.4.4, Table 5.48)
+[ok] mutant acmp-every-listener-is-this-one (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A21MessagesNotForThisEntityAreIgnored: A21 commands for another listener or talker, every response but PROBE_TX_RESPONSE and the reserved types are ignored (5.5.3.1, 8.2.1.9, 8.2.1.10)
+[ok] mutant acmp-every-talker-is-this-one (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A21MessagesNotForThisEntityAreIgnored: A21 commands for another listener or talker, every response but PROBE_TX_RESPONSE and the reserved types are ignored (5.5.3.1, 8.2.1.9, 8.2.1.10)
+[ok] mutant acmp-short-pdu-read (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A21MalformedFramesAreCounted: A21 a frame shorter than the Milan ACMPDU, another EtherType or subtype, or an unknown interface is counted and not read (5.5.2.2)
+[ok] mutant acmp-longer-pdu-refused (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A21MalformedFramesAreCounted: A21 the longer IEEE 1722.1-2021 PDU is accepted (5.5.2.2)
+[ok] mutant acmp-discovery-reads-no-grandmaster (acmp, acmpwalk): 22 check(s) failed
+    first: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster is ignored (5.6.4.5.1 step 1)
+[ok] mutant acmp-discovery-reads-no-domain (acmp, acmpwalk): 9 check(s) failed
+    first: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 and from another domain
+[ok] mutant acmp-valid-time-in-seconds (acmp, acmpwalk): 22 check(s) failed
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+[ok] mutant acmp-discovered-interface-unchecked (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+[ok] mutant acmp-restart-on-a-smaller-index-only (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+[ok] mutant acmp-restart-raises-no-discovered (acmp, acmpwalk): 5 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+[ok] mutant acmp-restart-mismatch-keeps-aging (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 index <= last from another grandmaster: EVT_TK_DEPARTED, TMR_NO_ADP stopped, TK_NOT_DISCOVERED (2b)
+[ok] mutant acmp-refresh-notes-no-index (acmp, acmpwalk): 7 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 a rising available_index is noted and TMR_NO_ADP restarted, no event (step 3)
+[ok] mutant acmp-departing-taken-undiscovered (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING in TK_NOT_DISCOVERED is ignored (Table 5.54 -)
+[ok] mutant acmp-departing-interface-unchecked (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING with another interface_index is ignored (5.6.4.5.3 step 1)
+[ok] mutant acmp-departing-keeps-aging (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING: TMR_NO_ADP stopped, TK_NOT_DISCOVERED, EVT_TK_DEPARTED (5.6.4.5.3)
+[ok] mutant acmp-no-aging (acmp, acmpwalk): 6 check(s) failed
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED (5.6.4.5.4)
+[ok] mutant acmp-discovery-on-every-interface (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on
+[ok] mutant acmp-discovery-on-unbound-sinks (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 an unbound sink runs no discovery
+[ok] mutant acmp-grandmaster-sampled-for-the-refresh (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+[ok] mutant acmp-grandmaster-sampled-per-sink (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 and the grandmaster is sampled once for the frame
+[ok] mutant acmp-reentry-unguarded (acmp, acmp): 48 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+[ok] mutant acmp-reentry-untrapped (acmp): 20 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+[ok] mutant acmp-send-port-unflagged (acmp): 14 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+[ok] mutant acmp-timer-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 1 is guarded
+[ok] mutant acmp-gptp-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 2 is guarded
+[ok] mutant acmp-clock-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 3 is guarded
+[ok] mutant acmp-seed-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 4 is guarded
+[ok] mutant acmp-lock-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 5 is guarded
+[ok] mutant acmp-source-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 6 is guarded
+[ok] mutant acmp-srp-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 7 is guarded
+[ok] mutant acmp-persist-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 8 is guarded
+[ok] mutant acmp-changed-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 9 is guarded
+[ok] mutant acmp-restore-lands-in-prb-w-resp (acmp, acmpnvm): 20 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+[ok] mutant acmp-restore-starts-no-discovery (acmp, acmpnvm): 14 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+[ok] mutant acmp-restore-announced (acmpnvm): 2 check(s) failed
+    first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 probing saves nothing
+[ok] mutant acmp-record-flags-swapped (acmpnvm): 2 check(s) failed
+    first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+[ok] mutant acmp-record-unique-id-little-endian (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the latch gives the same record back
+[ok] mutant acmp-restore-unique-id-little-endian (acmp): 5 check(s) failed
+    first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the record's flags and parameters, big-endian (the processor's BINDING payload)
+[ok] mutant acmp-roll-back-keeps-the-bindings (acmp, acmpnvm): 4 check(s) failed
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 the roll-back drops every restored binding, keeps each sink's interface, calls no port
+[ok] mutant acmp-unbound-record-not-zero (acmp): 35 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding is saved (5.5.2.4)
+[ok] mutant acmp-started-not-saved (acmp, acmpnvm): 3 check(s) failed
+    first: [FAIL] AcmpCore.A24StartedIsSavedAndReported: A24 the started state is saved (5.3.8.7) and is a Table 5.22 item
+mutants: 118 of 118 caught (slice 2 of 4 of 469)
+test_ctrl_firmware: PASS

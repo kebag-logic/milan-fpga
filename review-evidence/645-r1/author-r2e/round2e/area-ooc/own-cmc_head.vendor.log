@@ -1,0 +1,409 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Oct  8 10:58:58 2026
+# Process ID         : 2355431
+# Current directory  : $WORK/area-ooc
+# Command line       : vivado -mode batch -source ooc.tcl -nojournal -log own-cmc_head.vendor.log
+# Log file           : $WORK/area-ooc/own-cmc_head.vendor.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 47405 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source ooc.tcl
+# set PART xc7a100tfgg484-2
+# set CMC_G {N_SLOTS_P=4 N_TDM_P=8 TDM_FRAME_PAIRS_P=4 N_LB_STREAMS_P=1 N_LB_CH_P=8}
+# set CFGS [list \
+#   [list settle_base settle_base {settle_base.sv} {} {axis_clk}] \
+#   [list settle_head settle_new {settle_new.sv} {} {axis_clk}] \
+#   [list cmc_base KL_chan_map_capture {cmc_base.sv} $CMC_G {clk_i}] \
+#   [list cmc_head KL_chan_map_capture {cmc_head.sv} $CMC_G {clk_i}] \
+# ]
+# set sel {}
+# if {[info exists ::env(ONLY)] && $::env(ONLY) ne ""} { set sel [split $::env(ONLY) ,] }
+# foreach c $CFGS {
+#   lassign $c tag top files gens clks
+#   if {[llength $sel] && [lsearch -exact $sel $tag] < 0} continue
+#   puts "=== OOC $tag ($top)"
+#   foreach f $files { read_verilog -sv $f }
+#   set gargs {}
+#   foreach g $gens { lappend gargs -generic $g }
+#   set xdc "xdc_$tag.xdc"
+#   set fh [open $xdc w]
+#   foreach k $clks { puts $fh "create_clock -period 20.000 -name $k \[get_ports $k\]" }
+#   close $fh
+#   read_xdc -mode out_of_context $xdc
+#   synth_design -top $top -part $PART -mode out_of_context -include_dirs [pwd] {*}$gargs
+#   report_utilization -file util_$tag.rpt
+#   report_utilization -hierarchical -file util_hier_$tag.rpt
+#   report_timing_summary -max_paths 3 -file timing_$tag.rpt
+#   set f [open ffs_$tag.txt w]
+#   foreach r [get_cells -hier -filter {IS_PRIMITIVE && PRIMITIVE_GROUP == FLOP_LATCH}] { puts $f $r }
+#   close $f
+#   set f [open cells_$tag.tsv w]
+#   foreach c [get_cells -hier -filter {IS_PRIMITIVE}] { puts $f "$c\t[get_property REF_NAME $c]" }
+#   close $f
+#   close_design
+# }
+=== OOC cmc_head (KL_chan_map_capture)
+Command: synth_design -top KL_chan_map_capture -part xc7a100tfgg484-2 -mode out_of_context -include_dirs $WORK/area-ooc -generic N_SLOTS_P=4 -generic N_TDM_P=8 -generic TDM_FRAME_PAIRS_P=4 -generic N_LB_STREAMS_P=1 -generic N_LB_CH_P=8
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 2359461
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2377.246 ; gain = 379.602 ; free physical = 14158 ; free virtual = 44634
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'KL_chan_map_capture' [$WORK/area-ooc/cmc_head.sv:366]
+	Parameter N_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter N_TDM_P bound to: 32'b00000000000000000000000000001000 
+	Parameter TDM_FRAME_PAIRS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter N_LB_STREAMS_P bound to: 32'b00000000000000000000000000000001 
+	Parameter N_LB_CH_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$WORK/area-ooc/cmc_head.sv:1235]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$WORK/area-ooc/cmc_head.sv:1235]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$WORK/area-ooc/cmc_head.sv:1162]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$WORK/area-ooc/cmc_head.sv:1277]
+INFO: [Synth 8-226] default block is never used [$WORK/area-ooc/cmc_head.sv:1277]
+INFO: [Synth 8-6155] done synthesizing module 'KL_chan_map_capture' (0#1) [$WORK/area-ooc/cmc_head.sv:366]
+WARNING: [Synth 8-6014] Unused sequential element tdm_stage_r_reg[3] was removed.  [$WORK/area-ooc/cmc_head.sv:621]
+WARNING: [Synth 8-4767] Trying to implement RAM 'skid_addr_r_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons. [$WORK/area-ooc/cmc_head.sv:1014]
+Reason is one or more of the following :
+	1: RAM has multiple writes via different ports in same process. If RAM inferencing intended, write to one port per process. 
+	2: Invalid write to RAM. 
+	3: Invalid write to RAM. 
+	4: No valid clock found for write to RAM. 
+WARNING: [Synth 8-4767] Trying to implement RAM 'skid_data_r_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons. [$WORK/area-ooc/cmc_head.sv:830]
+Reason is one or more of the following :
+	1: RAM has multiple writes via different ports in same process. If RAM inferencing intended, write to one port per process. 
+	2: Invalid write to RAM. 
+	3: Invalid write to RAM. 
+	4: No valid clock found for write to RAM. 
+WARNING: [Synth 8-7129] Port lb_tdata_i[63] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[62] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[61] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[60] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[59] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[58] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[57] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[56] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[31] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[30] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[29] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[28] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[27] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[26] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[25] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[24] in module KL_chan_map_capture is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2471.215 ; gain = 473.570 ; free physical = 13547 ; free virtual = 44046
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2486.059 ; gain = 488.414 ; free physical = 13800 ; free virtual = 44298
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2486.059 ; gain = 488.414 ; free physical = 13800 ; free virtual = 44298
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2486.059 ; gain = 0.000 ; free physical = 13768 ; free virtual = 44267
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [$WORK/area-ooc/xdc_cmc_head.xdc]
+Finished Parsing XDC File [$WORK/area-ooc/xdc_cmc_head.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2789.891 ; gain = 0.000 ; free physical = 12956 ; free virtual = 43459
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2789.926 ; gain = 0.000 ; free physical = 13125 ; free virtual = 43628
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2789.926 ; gain = 792.281 ; free physical = 13752 ; free virtual = 44258
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2797.895 ; gain = 800.250 ; free physical = 13752 ; free virtual = 44258
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2797.895 ; gain = 800.250 ; free physical = 13752 ; free virtual = 44258
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'st_r_reg' in module 'KL_chan_map_capture'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+               CM_IDLE_S |                               00 |                               00
+                CM_POP_S |                               01 |                               01
+               CM_STEP_S |                               10 |                               10
+                CM_GAP_S |                               11 |                               11
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'st_r_reg' using encoding 'sequential' in module 'KL_chan_map_capture'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2797.895 ; gain = 800.250 ; free physical = 14826 ; free virtual = 45146
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   32 Bit       Adders := 1     
+	   2 Input   17 Bit       Adders := 2     
+	   2 Input    5 Bit       Adders := 3     
+	   3 Input    5 Bit       Adders := 3     
+	   2 Input    4 Bit       Adders := 5     
+	   3 Input    4 Bit       Adders := 2     
+	   2 Input    3 Bit       Adders := 3     
+	   3 Input    3 Bit       Adders := 1     
+	   5 Input    3 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 3     
+	   3 Input    2 Bit       Adders := 2     
++---Registers : 
+	               48 Bit    Registers := 21    
+	               24 Bit    Registers := 3     
+	               16 Bit    Registers := 2     
+	               15 Bit    Registers := 1     
+	               13 Bit    Registers := 8     
+	                5 Bit    Registers := 5     
+	                4 Bit    Registers := 19    
+	                3 Bit    Registers := 7     
+	                2 Bit    Registers := 9     
+	                1 Bit    Registers := 13    
++---RAMs : 
+	               3K Bit	(64 X 48 bit)          RAMs := 1     
++---Muxes : 
+	   2 Input  192 Bit        Muxes := 1     
+	   2 Input   48 Bit        Muxes := 16    
+	   4 Input   48 Bit        Muxes := 6     
+	   2 Input   24 Bit        Muxes := 3     
+	   2 Input   15 Bit        Muxes := 1     
+	   2 Input    8 Bit        Muxes := 1     
+	   4 Input    5 Bit        Muxes := 3     
+	   2 Input    5 Bit        Muxes := 10    
+	   2 Input    4 Bit        Muxes := 21    
+	   4 Input    4 Bit        Muxes := 3     
+	   4 Input    3 Bit        Muxes := 2     
+	   2 Input    3 Bit        Muxes := 10    
+	   4 Input    2 Bit        Muxes := 4     
+	   2 Input    2 Bit        Muxes := 13    
+	   2 Input    1 Bit        Muxes := 89    
+	   4 Input    1 Bit        Muxes := 11    
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-3917] design KL_chan_map_capture has port pair_slot_o[4] driven by constant 0
+WARNING: [Synth 8-3917] design KL_chan_map_capture has port pair_slot_o[3] driven by constant 0
+WARNING: [Synth 8-3917] design KL_chan_map_capture has port pair_slot_o[2] driven by constant 0
+WARNING: [Synth 8-7129] Port lb_tdata_i[63] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[62] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[61] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[60] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[59] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[58] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[57] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[56] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[31] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[30] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[29] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[28] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[27] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[26] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[25] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[24] in module KL_chan_map_capture is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:18 ; elapsed = 00:00:19 . Memory (MB): peak = 2820.902 ; gain = 823.258 ; free physical = 14797 ; free virtual = 45154
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++--------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name         | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++--------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|KL_chan_map_capture | lb_q_r_reg | 64 x 48(READ_FIRST)    | W |   | 64 x 48(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
++--------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:23 ; elapsed = 00:00:24 . Memory (MB): peak = 2871.840 ; gain = 874.195 ; free physical = 14011 ; free virtual = 44211
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:32 ; elapsed = 00:00:33 . Memory (MB): peak = 3001.426 ; gain = 1003.781 ; free physical = 11907 ; free virtual = 42484
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++--------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name         | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++--------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|KL_chan_map_capture | lb_q_r_reg | 64 x 48(READ_FIRST)    | W |   | 64 x 48(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
++--------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance lb_q_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:33 ; elapsed = 00:00:34 . Memory (MB): peak = 3009.434 ; gain = 1011.789 ; free physical = 12170 ; free virtual = 42559
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:36 ; elapsed = 00:00:37 . Memory (MB): peak = 3126.246 ; gain = 1128.602 ; free physical = 12061 ; free virtual = 42455
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:36 ; elapsed = 00:00:37 . Memory (MB): peak = 3126.246 ; gain = 1128.602 ; free physical = 12061 ; free virtual = 42455
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:36 ; elapsed = 00:00:38 . Memory (MB): peak = 3126.246 ; gain = 1128.602 ; free physical = 12007 ; free virtual = 42401
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:36 ; elapsed = 00:00:38 . Memory (MB): peak = 3126.246 ; gain = 1128.602 ; free physical = 12007 ; free virtual = 42401
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:36 ; elapsed = 00:00:38 . Memory (MB): peak = 3129.215 ; gain = 1131.570 ; free physical = 11967 ; free virtual = 42361
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:36 ; elapsed = 00:00:38 . Memory (MB): peak = 3129.215 ; gain = 1131.570 ; free physical = 11967 ; free virtual = 42361
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |    24|
+|2     |LUT1     |     6|
+|3     |LUT2     |    76|
+|4     |LUT3     |    86|
+|5     |LUT4     |    97|
+|6     |LUT5     |   146|
+|7     |LUT6     |   849|
+|8     |MUXF7    |    13|
+|9     |RAMB36E1 |     1|
+|10    |FDRE     |  1371|
+|11    |FDSE     |     1|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:36 ; elapsed = 00:00:38 . Memory (MB): peak = 3129.215 ; gain = 1131.570 ; free physical = 11959 ; free virtual = 42353
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 19 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:35 ; elapsed = 00:00:36 . Memory (MB): peak = 3129.215 ; gain = 827.703 ; free physical = 12191 ; free virtual = 42584
+Synthesis Optimization Complete : Time (s): cpu = 00:00:36 ; elapsed = 00:00:38 . Memory (MB): peak = 3129.223 ; gain = 1131.570 ; free physical = 12187 ; free virtual = 42580
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3129.223 ; gain = 0.000 ; free physical = 12323 ; free virtual = 42716
+INFO: [Netlist 29-17] Analyzing 38 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 2 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'KL_chan_map_capture' is not ideal for floorplanning, since the cellview 'KL_chan_map_capture' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [$WORK/area-ooc/xdc_cmc_head.xdc]
+Finished Parsing XDC File [$WORK/area-ooc/xdc_cmc_head.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3377.336 ; gain = 0.000 ; free physical = 12659 ; free virtual = 43055
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Synth Design complete | Checksum: 6b9b2b98
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+25 Infos, 39 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:43 ; elapsed = 00:00:43 . Memory (MB): peak = 3377.371 ; gain = 1379.727 ; free physical = 12602 ; free virtual = 42998
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2352.518; main = 2332.919; forked = 343.852
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4020.293; main = 3377.340; forked = 1032.418
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk_i" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+report_timing_summary: Time (s): cpu = 00:00:14 ; elapsed = 00:00:06 . Memory (MB): peak = 3377.371 ; gain = 0.000 ; free physical = 13733 ; free virtual = 44313
+# puts "=== OOC ALL DONE"
+=== OOC ALL DONE
+INFO: [Common 17-206] Exiting Vivado at Thu Oct  8 10:59:51 2026...
