@@ -1,0 +1,9 @@
+Published receipts and scripts had absolute host paths replaced, byte for byte, after the runs:
+  $PACKET  - this review packet's directory
+  $CLONE   - the reviewer's detached clone at the exact head
+  $SIMPIN  - the directory holding the pinned simulator 5.050 launcher
+  $SIMROOT - the pinned simulator's installation root
+  $HOME    - the reviewing account's home directory
+No other byte of any receipt was changed. Disposable trees (the candidate copy the suites ran in, the
+private documentation-renderer environment and fetched public evidence) live under $PACKET/scratch and
+are not published.

@@ -1,0 +1,43 @@
+archive rc=0 | archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+baremetal_only rc=0 | baremetal-only: OK (0 findings across 1205 tracked first-party file(s))
+ci_events_check rc=0 | ci_events: OK (1741 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events_selftest rc=0 | selftest: PASS (1741 contract items, 2362 arms)
+ci_scope_selftest rc=0 | selftest: PASS
+cpp_idiom rc=0 |   build without warnings: 0 <= 0
+diagram_pngs rc=0 | diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+doc_map rc=0 | documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+doc_paths rc=0 | doc path gate: OK (949 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+docs_check rc=0 | docs_check: 0 finding(s) across 200 md files + 1207 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc_style rc=0 | documentation style: OK (22 current documents)
+dp_srcs_datapath rc=0 | $PACKET/scratch/tree/hdl/milan/milan_datapath.sv
+em_dash_selftest rc=0 | check_em_dash selftest: PASS (339 arm(s))
+em_dash_vs_dev_parent rc=0 | check_em_dash: 0 finding(s) over 301 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6aa25dec..HEAD]
+em_dash_vs_pr_parent rc=0 | check_em_dash: 0 finding(s) over 741 added line(s) in 18 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [85db3534..HEAD]
+fail_fast rc=0 |   the ratchets can be lowered to 80, 4 and 0
+feature_status rc=0 | feature_status: 0 finding(s)
+gen_toc_anchors rc=0 | anchor check: 416 existing cross-page fragment links reproduced
+gen_toc_check rc=0 | TOC gate: OK (140 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+gen_toc_selftest rc=0 | TOC selftest: PASS (1501/1501 arm(s))
+gptp_docs rc=0 | gPTP documentation: OK (8 current pages)
+hygiene rc=0 | HYGIENE RATCHET: PASS (3 population(s), 1079 file(s))
+lint_rtl rc=0 | LINT GATE: PASS (90 violation(s) <= ratchet 90; 18 waived, 0 justified lint_off)
+module_matrix rc=0 | traceability matrix up to date (77 modules, 0 untested <= ratchet 0, 0 archived)
+naming rc=0 | NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+nvm_record_space rc=0 | 0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+port_contracts rc=0 |   review inventory: 93 open and 49 literal-bound named connection(s), 59 without a local rationale (all recorded; none may be added); 317 test-only hi
+pp_srcs rc=0 |   prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+py_idiom rc=0 |   over-long line: 0 <= 0
+resource_baseline rc=0 | baseline PASS: 3 endpoints
+resource_gate_selftest rc=0 | resource gate selftest: 260 arms and 500 generated cases PASS
+rtl_source_lists rc=0 | RTL source-list gate: OK (108 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorde
+sh_idiom rc=0 |   top-heavy long script: 0 <= 0
+soc_sources rc=0 | SoC source gate: OK (43 instantiated modules all registered, 77 sources all present)
+solution_docs rc=0 | solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+submodule_boundaries rc=0 | submodule diagram: OK (5 exact gitlinks, decoded PNG)
+submodule_docs rc=0 | submodule documentation: OK (5 exact gitlinks)
+sv_idiom rc=0 | SystemVerilog idiom gate: OK (137 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always
+test_evidence_check rc=0 |   the mutation ratchet can be lowered to 70
+test_evidence_selftest rc=0 | 105 checks: 105 PASS, 0 FAIL
+timesync_chain rc=0 | time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+todo_ownership rc=0 | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 40 near-miss occurrence(s) on 33 line(s) correctly not treated as markers; 1139 first-party fil
+wire_accountability rc=0 | RESULT: PASS

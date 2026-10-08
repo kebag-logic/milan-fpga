@@ -1,0 +1,14 @@
+python3 mutants.py --jobs 4
+[MUTANT] HIGH-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] NO-RECOVERY: caught by "[PULLIN] exactly one settle recentre from the transient to the hold's end"
+[MUTANT] QUIET-ARM: caught by "[STEADY] INTERNAL without a hold has no pending settle"
+[MUTANT] NO-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] NO-SETTLE: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] SINGLE-DROP: caught by "LRC: ten left drops five excess events on both pairs"
+[MUTANT] STARVED-HELD-DUP: caught by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter"
+[MUTANT] HELD-DUP: caught by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter" and "SPAN: no action counted as a duplicate"
+[MUTANT] RENDER-ONLY: caught by "[B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)"
+[MUTANT] EARLY: caught by "[B8] the render stage is on its law after the settle recentre"
+[MUTANT] OVERSHOOT: caught by "[B8] no loopback slip after the settle recentre"
+[MUTANT] W1: caught by "[SW] AAF to CRF: the switch moved the loopback margin less than 0.1 tick before its settle"
+follow_ring mutants: 12/12 caught

@@ -1,0 +1,28 @@
+recorded baseline (#686): {'LUT': 50391, 'FF': 54263, 'SLICE': 15788, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 14, 'WNS_ns': 0.241, 'WHS_ns': 0.029, 'CARRY4': 3372}
+F baseline used by #645: {'LUT': 49957, 'FF': 54274, 'SLICE': 15734, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 14, 'WNS_ns': 0.124, 'WHS_ns': 0.031, 'CARRY4': 3385}
+#645 published candidate: {'LUT': 49913, 'FF': 54309, 'SLICE': 15754, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 14, 'WNS_ns': 0.057, 'WHS_ns': 0.024, 'CARRY4': 3389}
+== A. #645 published figures vs #686 record -> exit 0
+  figure        baseline   candidate     delta  verdict
+  LUT              50391       49913      -478  ok, below the baseline
+  FF               54263       54309        46  ok
+  SLICE            15788       15754       -34  ok, below the baseline
+  RAMB36              74          74         0  ok
+  RAMB18              27          27         0  ok
+  DSP                 14          14         0  ok
+  WNS_ns           0.241       0.057    -0.184  ok
+  WHS_ns           0.029       0.024    -0.005  ok
+  route status: complete, no unrouted net and no routing error
+  RESULT: PASS
+== B. linear estimate #686 + (#645 - F) -> exit 0
+  figure        baseline   candidate     delta  verdict
+  LUT              50391       50347       -44  ok, below the baseline
+  FF               54263       54298        35  ok
+  SLICE            15788       15808        20  ok
+  RAMB36              74          74         0  ok
+  RAMB18              27          27         0  ok
+  DSP                 14          14         0  ok
+  WNS_ns           0.241       0.174    -0.067  ok
+  WHS_ns           0.029       0.022    -0.007  ok
+  route status: complete, no unrouted net and no routing error
+  RESULT: PASS
+floor margin of the #645 measured WNS: 0.027 ns

@@ -1,0 +1,18 @@
+ax1x1gptp physical leg: candidate run vs the author's published round-2e milan_dp_gptp.log at 85db3534
+check-name lines ('[ ok ]'/'[FAIL]' with values stripped):
+source check lines: 143  candidate check lines: 143
+IDENTICAL check-name sequence
+summary (candidate):
+RECENTRE WIRE decision=1 output_pdu=9822 declared_step=-5 observed_step=-5 events dup=0 skip=0
+RECENTRE WIRE decision=2 output_pdu=95985 declared_step=-5 observed_step=-5 events dup=0 skip=0
+  [ ok ] declared recentre is consecutive within at most two output PDUs got=0 exp=0
+  [ ok ] every declared recentre step reached the wire got=2 exp=2
+  [ ok ] declared recentres leave both loopback slip counters unchanged got=0 exp=0
+== ax1x1gptp physical: checks: 143   failures: 0 ==
+RESULT: PASS
+wall_clock_seconds=3586.63 process_exit_status=0
+summary (source):
+RECENTRE WIRE decision=1 output_pdu=9822 declared_step=-5 observed_step=-5 events dup=0 skip=0
+RECENTRE WIRE decision=2 output_pdu=95985 declared_step=-5 observed_step=-5 events dup=0 skip=0
+== ax1x1gptp physical: checks: 143   failures: 0 ==
+RESULT: simulation stdout byte-identical to the source run (lines after the run command, excluding wall-clock and make lines); sha256 a770c0f7da28ccfb005e98234b38a3e141d55b0b4918641d222b9b674583d74f
