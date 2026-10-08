@@ -1,0 +1,538 @@
+{
+  "base": "ed340b9b85258194247334b85e62cf9c23d4d051",
+  "head": "f3fef22448ce4f9bed8fd249a21a5d472148bd3d",
+  "processor": {
+    "base": {
+      "suites": {
+        "command": "scripts/run_suites.sh",
+        "rc": 0,
+        "log": "logs/base-suites.log",
+        "rc_file": "logs/base-suites.rc",
+        "bytes": 1750,
+        "sha256": "0c3961a9af10b59244f732fe51e166c3dff0113bacb60612fdd7e3a0e541c6e2"
+      },
+      "lint": {
+        "command": "scripts/lint_hdl.sh",
+        "rc": 0,
+        "log": "logs/base-lint.log",
+        "rc_file": "logs/base-lint.rc",
+        "bytes": 1056,
+        "sha256": "9a3703ba1ec6767b277e9d5102c94a93fe107454da19d13cab518ba312cd1e81"
+      },
+      "check": {
+        "command": "make -j16 check",
+        "rc": 0,
+        "log": "logs/base-check.log",
+        "rc_file": "logs/base-check.rc",
+        "bytes": 410,
+        "sha256": "5e44313193ea2c939bc180730a5f44bf431b457cdc020399975d1df914cd4011"
+      },
+      "matrix": {
+        "command": "scripts/gen_matrix.py --check",
+        "rc": 0,
+        "log": "logs/base-matrix.log",
+        "rc_file": "logs/base-matrix.rc",
+        "bytes": 33,
+        "sha256": "7a2c98136a0892f195fa6a08ad82dfe7e36e8a81d0732cb304584f31e966e097"
+      },
+      "yosys": {
+        "command": "syn/yosys/run.sh",
+        "rc": 0,
+        "log": "logs/base-yosys.log",
+        "rc_file": "logs/base-yosys.rc",
+        "bytes": 3548,
+        "sha256": "a96c08bb081f580a19d2fdd119bc20ea36c11895e01f445abb76554e6ce75c17"
+      }
+    },
+    "head": {
+      "suites": {
+        "command": "scripts/run_suites.sh",
+        "rc": 0,
+        "log": "logs/head-suites.log",
+        "rc_file": "logs/head-suites.rc",
+        "bytes": 1750,
+        "sha256": "40ac441279c149f477ff19b2ffe5a011d0e94ed7047a4ab96180e875d53ce0ac"
+      },
+      "lint": {
+        "command": "scripts/lint_hdl.sh",
+        "rc": 0,
+        "log": "logs/head-lint.log",
+        "rc_file": "logs/head-lint.rc",
+        "bytes": 1056,
+        "sha256": "9a3703ba1ec6767b277e9d5102c94a93fe107454da19d13cab518ba312cd1e81"
+      },
+      "check": {
+        "command": "make -j16 check",
+        "rc": 0,
+        "log": "logs/head-check.log",
+        "rc_file": "logs/head-check.rc",
+        "bytes": 410,
+        "sha256": "5e44313193ea2c939bc180730a5f44bf431b457cdc020399975d1df914cd4011"
+      },
+      "matrix": {
+        "command": "scripts/gen_matrix.py --check",
+        "rc": 0,
+        "log": "logs/head-matrix.log",
+        "rc_file": "logs/head-matrix.rc",
+        "bytes": 33,
+        "sha256": "7a2c98136a0892f195fa6a08ad82dfe7e36e8a81d0732cb304584f31e966e097"
+      },
+      "yosys": {
+        "command": "syn/yosys/run.sh",
+        "rc": 0,
+        "log": "logs/head-yosys.log",
+        "rc_file": "logs/head-yosys.rc",
+        "bytes": 3548,
+        "sha256": "1c74e4145f2426e344b8b61c8b7bcbf00cd2c4ed1d906cb8bc38b841ea58967f"
+      }
+    }
+  },
+  "campaigns": {
+    "base": {
+      "notify": {
+        "command": "python3 tb/pp_top/notify_mutants.py --output WORK/base-campaigns/notify --jobs 2",
+        "rc": 0,
+        "log": "logs/base-notify.log",
+        "rc_file": "logs/base-notify.rc",
+        "bytes": 7371,
+        "sha256": "36ffce403a4ee778dae5922173fe35943ea86db312f6e836466af93ad660dc94"
+      },
+      "d3": {
+        "command": "python3 tb/pp_top/d3_mutants.py --output WORK/base-campaigns/d3 --jobs 2",
+        "rc": 0,
+        "log": "logs/base-d3.log",
+        "rc_file": "logs/base-d3.rc",
+        "bytes": 8131,
+        "sha256": "ff22cd0ba3ac49bdd2cf86936226a865fd6f208ee8efac24e38fd38a51d8521c"
+      },
+      "adp": {
+        "command": "python3 tb/adp_engine/mutants.py --output WORK/base-campaigns/adp --jobs 2",
+        "rc": 0,
+        "log": "logs/base-adp.log",
+        "rc_file": "logs/base-adp.rc",
+        "bytes": 41287,
+        "sha256": "626bf24bb89741ea9873253aa22f351084f68fa7f0594e5063435f9684995354"
+      },
+      "aecp": {
+        "command": "python3 tb/pp_top/aecp_mutants.py --output WORK/base-campaigns/aecp --jobs 2",
+        "rc": 0,
+        "log": "logs/base-aecp.log",
+        "rc_file": "logs/base-aecp.rc",
+        "bytes": 78512,
+        "sha256": "53d881784de32314b33d1e973813dacb1f3d85468dc2d1e6e94b1efe1d5ab698"
+      },
+      "dispatch": {
+        "command": "python3 tb/pp_top/aecp_dispatch_mutants.py --output WORK/base-campaigns/dispatch --jobs 2",
+        "rc": 0,
+        "log": "logs/base-dispatch.log",
+        "rc_file": "logs/base-dispatch.rc",
+        "bytes": 28893,
+        "sha256": "0dd8b97ab8f9a89f6dad0388f0e6c83eb7bd37eb5a6f5bf47eda9954ff4222f6"
+      },
+      "acmp": {
+        "command": "python3 tb/pp_top/acmp_mutants.py --output WORK/base-campaigns/acmp --jobs 2",
+        "rc": 0,
+        "log": "logs/base-acmp.log",
+        "rc_file": "logs/base-acmp.rc",
+        "bytes": 2904,
+        "sha256": "9d683f0f763f3b2ac93bdfbd465bc885aa708393649de16609c78f362acbacae"
+      },
+      "gsi": {
+        "command": "python3 tb/pp_top/gsi_mutants.py --output WORK/base-campaigns/gsi --jobs 2",
+        "rc": 0,
+        "log": "logs/base-gsi.log",
+        "rc_file": "logs/base-gsi.rc",
+        "bytes": 4150,
+        "sha256": "5f6d67707db7bfed9d8aa1e323a7f3b0884134404c78e43b0b2afbd99953237b"
+      },
+      "name": {
+        "command": "python3 tb/pp_top/name_wr_mutant.py --output WORK/base-campaigns/name",
+        "rc": 0,
+        "log": "logs/base-name.log",
+        "rc_file": "logs/base-name.rc",
+        "bytes": 2550,
+        "sha256": "055560a7d55d359d9281385f1d47fcddba0b082ac963195a2ce4201fdd4efe7a"
+      },
+      "ctr": {
+        "command": "python3 tb/pp_top/ctr_mutants.py --output WORK/base-campaigns/ctr --jobs 2",
+        "rc": 0,
+        "log": "logs/base-ctr.log",
+        "rc_file": "logs/base-ctr.rc",
+        "bytes": 11207,
+        "sha256": "dcd55eac8ffb06c36b2366e59a0ef5c517271e7751a3e948aa650dcffa178570"
+      },
+      "maap": {
+        "command": "python3 tb/maap/mutants.py --output WORK/base-campaigns/maap --jobs 2",
+        "rc": 0,
+        "log": "logs/base-maap.log",
+        "rc_file": "logs/base-maap.rc",
+        "bytes": 7591,
+        "sha256": "823ef7e638f720b03e151b4954e75a5b023fa034efda1171f57264a208ff3c81"
+      }
+    },
+    "head": {
+      "notify": {
+        "command": "python3 tb/pp_top/notify_mutants.py --output WORK/head-campaigns/notify --jobs 2",
+        "rc": 0,
+        "log": "logs/head-notify.log",
+        "rc_file": "logs/head-notify.rc",
+        "bytes": 7514,
+        "sha256": "30f15d50acd3c3dc894c3436161902237138744fbaee94c9adab69775019766c"
+      },
+      "d3": {
+        "command": "python3 tb/pp_top/d3_mutants.py --output WORK/head-campaigns/d3 --jobs 2",
+        "rc": 0,
+        "log": "logs/head-d3.log",
+        "rc_file": "logs/head-d3.rc",
+        "bytes": 8131,
+        "sha256": "7bd0a52446adf51b2b987f62fe68b415e3b84bea2ce74c4bd947a21a8a3b2fca"
+      },
+      "adp": {
+        "command": "python3 tb/adp_engine/mutants.py --output WORK/head-campaigns/adp --jobs 2",
+        "rc": 0,
+        "log": "logs/head-adp.log",
+        "rc_file": "logs/head-adp.rc",
+        "bytes": 41287,
+        "sha256": "626bf24bb89741ea9873253aa22f351084f68fa7f0594e5063435f9684995354"
+      },
+      "aecp": {
+        "command": "python3 tb/pp_top/aecp_mutants.py --output WORK/head-campaigns/aecp --jobs 2",
+        "rc": 0,
+        "log": "logs/head-aecp.log",
+        "rc_file": "logs/head-aecp.rc",
+        "bytes": 78512,
+        "sha256": "53d881784de32314b33d1e973813dacb1f3d85468dc2d1e6e94b1efe1d5ab698"
+      },
+      "dispatch": {
+        "command": "python3 tb/pp_top/aecp_dispatch_mutants.py --output WORK/head-campaigns/dispatch --jobs 2",
+        "rc": 0,
+        "log": "logs/head-dispatch.log",
+        "rc_file": "logs/head-dispatch.rc",
+        "bytes": 28893,
+        "sha256": "0dd8b97ab8f9a89f6dad0388f0e6c83eb7bd37eb5a6f5bf47eda9954ff4222f6"
+      },
+      "acmp": {
+        "command": "python3 tb/pp_top/acmp_mutants.py --output WORK/head-campaigns/acmp --jobs 2",
+        "rc": 0,
+        "log": "logs/head-acmp.log",
+        "rc_file": "logs/head-acmp.rc",
+        "bytes": 2904,
+        "sha256": "8b5323a6fca3e3f747c611648ca22afe9fb5bba8ff2979ccffaac7f8bf896c35"
+      },
+      "gsi": {
+        "command": "python3 tb/pp_top/gsi_mutants.py --output WORK/head-campaigns/gsi --jobs 2",
+        "rc": 0,
+        "log": "logs/head-gsi.log",
+        "rc_file": "logs/head-gsi.rc",
+        "bytes": 4150,
+        "sha256": "5f6d67707db7bfed9d8aa1e323a7f3b0884134404c78e43b0b2afbd99953237b"
+      },
+      "name": {
+        "command": "python3 tb/pp_top/name_wr_mutant.py --output WORK/head-campaigns/name",
+        "rc": 0,
+        "log": "logs/head-name.log",
+        "rc_file": "logs/head-name.rc",
+        "bytes": 2550,
+        "sha256": "055560a7d55d359d9281385f1d47fcddba0b082ac963195a2ce4201fdd4efe7a"
+      },
+      "ctr": {
+        "command": "python3 tb/pp_top/ctr_mutants.py --output WORK/head-campaigns/ctr --jobs 2",
+        "rc": 0,
+        "log": "logs/head-ctr.log",
+        "rc_file": "logs/head-ctr.rc",
+        "bytes": 11207,
+        "sha256": "dcd55eac8ffb06c36b2366e59a0ef5c517271e7751a3e948aa650dcffa178570"
+      },
+      "maap": {
+        "command": "python3 tb/maap/mutants.py --output WORK/head-campaigns/maap --jobs 2",
+        "rc": 0,
+        "log": "logs/head-maap.log",
+        "rc_file": "logs/head-maap.rc",
+        "bytes": 7591,
+        "sha256": "823ef7e638f720b03e151b4954e75a5b023fa034efda1171f57264a208ff3c81"
+      }
+    }
+  },
+  "parent": {
+    "base": {
+      "01-cpp": {
+        "command": "python3 scripts/check_cpp_idiom.py",
+        "rc": 0,
+        "log": "logs/parent-base-01-cpp.log",
+        "rc_file": "logs/parent-base-01-cpp.rc",
+        "bytes": 315,
+        "sha256": "61d5bfc3a0d8263a6b2f8163e1be25d28b1efa2b5a1455f2eece14de2dee6f23"
+      },
+      "02-py": {
+        "command": "python3 scripts/check_py_idiom.py",
+        "rc": 0,
+        "log": "logs/parent-base-02-py.log",
+        "rc_file": "logs/parent-base-02-py.rc",
+        "bytes": 461,
+        "sha256": "f90b70f128b3003efbd7983ab5efa81c081bbc238dfb981ac3c6e8209b36b58e"
+      },
+      "03-sources": {
+        "command": "python3 scripts/check_rtl_source_lists.py",
+        "rc": 0,
+        "log": "logs/parent-base-03-sources.log",
+        "rc_file": "logs/parent-base-03-sources.rc",
+        "bytes": 153,
+        "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95"
+      },
+      "04-ppsrcs": {
+        "command": "python3 scripts/pp_srcs.py --check --selftest",
+        "rc": 0,
+        "log": "logs/parent-base-04-ppsrcs.log",
+        "rc_file": "logs/parent-base-04-ppsrcs.rc",
+        "bytes": 955,
+        "sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+      },
+      "05-ports": {
+        "command": "python3 scripts/check_port_contracts.py",
+        "rc": 0,
+        "log": "logs/parent-base-05-ports.log",
+        "rc_file": "logs/parent-base-05-ports.rc",
+        "bytes": 536,
+        "sha256": "d497ccf16e51fb29ea053c4b643856ed3a2a7bb9884d25cee9ff0b2caffcd86f"
+      },
+      "06-naming": {
+        "command": "python3 scripts/measure_naming.py --check",
+        "rc": 0,
+        "log": "logs/parent-base-06-naming.log",
+        "rc_file": "logs/parent-base-06-naming.rc",
+        "bytes": 36608,
+        "sha256": "a7be749d4a5998ae719dcaa0233f6b5d3261b158472113e5e913c4ddbeaf59a8"
+      },
+      "07-evidence": {
+        "command": "python3 scripts/measure_test_evidence.py --check",
+        "rc": 0,
+        "log": "logs/parent-base-07-evidence.log",
+        "rc_file": "logs/parent-base-07-evidence.rc",
+        "bytes": 13902,
+        "sha256": "bb9aadc07a14eb4e219e87fa681571c7886f1ef0be545cbae69d099b66fd7f44"
+      },
+      "08-docs": {
+        "command": "python3 scripts/docs_check.py",
+        "rc": 0,
+        "log": "logs/parent-base-08-docs.log",
+        "rc_file": "logs/parent-base-08-docs.rc",
+        "bytes": 127,
+        "sha256": "6a6b0baa714d34c94d863882cab86a5eac8309164fc1a6c99cb5659f049510ee"
+      },
+      "09-xvlog": {
+        "command": "python3 scripts/xvlog_gate.py --check",
+        "rc": 0,
+        "log": "logs/ooc-base-xvlog.log",
+        "rc_file": "logs/ooc-base-xvlog.rc",
+        "bytes": 721,
+        "sha256": "e27381bd6c7cc4f10813a659904ea62c9a493ca01bd2a0def25414baa35cb4bf"
+      },
+      "10-builder": {
+        "command": "python3 sw/builder/test_builder.py",
+        "rc": 0,
+        "log": "logs/parent-base-10-builder.log",
+        "rc_file": "logs/parent-base-10-builder.rc",
+        "bytes": 101912,
+        "sha256": "63bfd8db80129f688c6c72e03984e41634ec0ef3ac2b47103f1940bea7aec0bc"
+      },
+      "11-lint": {
+        "command": "python3 scripts/lint_rtl.py --check",
+        "rc": 0,
+        "log": "logs/parent-base-11-lint.log",
+        "rc_file": "logs/parent-base-11-lint.rc",
+        "bytes": 14186,
+        "sha256": "9087b44973869192bcab894931d990c7976fb895a8d92b6c243c555087f69d6e"
+      },
+      "12-shadow": {
+        "command": "make -j16 -C tb/verilator/pp_shadow",
+        "rc": 0,
+        "log": "logs/parent-base-12-shadow.log",
+        "rc_file": "logs/parent-base-12-shadow.rc",
+        "bytes": 336939,
+        "sha256": "e3c5f0d363040ee1c42659ba656bfa6756938b5682ce1ef92715e1b6875ed7ca"
+      },
+      "13-nvm-lint": {
+        "command": "make -j16 -C tb/verilator/nvm_cosim lint",
+        "rc": 0,
+        "log": "logs/parent-base-13-nvm-lint.log",
+        "rc_file": "logs/parent-base-13-nvm-lint.rc",
+        "bytes": 29888,
+        "sha256": "5fc20a00d23514af634c1c506e9a32939ad8c7a998b13f4b221f8c123ad0efa5"
+      },
+      "14-nvm-quick": {
+        "command": "make -j16 -C tb/verilator/nvm_cosim quick JOBS=4 POOL=2",
+        "rc": 0,
+        "log": "logs/parent-base-14-nvm-quick.log",
+        "rc_file": "logs/parent-base-14-nvm-quick.rc",
+        "bytes": 394,
+        "sha256": "f894ddc2873c14f0d6108f89e810275a9c1b63eb76f3d147eed191872cac6258"
+      },
+      "15-datapath": {
+        "command": "make -j16 -C tb/verilator/milan_dp SIM_JOBS=2",
+        "rc": 0,
+        "log": "logs/parent-base-15-datapath.log",
+        "rc_file": "logs/parent-base-15-datapath.rc",
+        "bytes": 2160564,
+        "sha256": "938d944ac8a4c25f020ba7d99510b5299f169a5143e7d004351b47ebe0260a33"
+      },
+      "16-render": {
+        "command": "make -j16 -C tb/verilator/milan_dp_render",
+        "rc": 0,
+        "log": "logs/parent-base-16-render.log",
+        "rc_file": "logs/parent-base-16-render.rc",
+        "bytes": 184639,
+        "sha256": "89baa675a78e394fbb6d0619910a932064b44860e602d4fac43ab1dfbff01088"
+      },
+      "17-shell": {
+        "command": "python3 scripts/check_sh_idiom.py",
+        "rc": 0,
+        "log": "logs/parent-base-17-shell.log",
+        "rc_file": "logs/parent-base-17-shell.rc",
+        "bytes": 235,
+        "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9"
+      }
+    },
+    "head": {
+      "01-cpp": {
+        "command": "python3 scripts/check_cpp_idiom.py",
+        "rc": 0,
+        "log": "logs/parent-head-01-cpp.log",
+        "rc_file": "logs/parent-head-01-cpp.rc",
+        "bytes": 315,
+        "sha256": "61d5bfc3a0d8263a6b2f8163e1be25d28b1efa2b5a1455f2eece14de2dee6f23"
+      },
+      "02-py": {
+        "command": "python3 scripts/check_py_idiom.py",
+        "rc": 0,
+        "log": "logs/parent-head-02-py.log",
+        "rc_file": "logs/parent-head-02-py.rc",
+        "bytes": 461,
+        "sha256": "92a72ebade605940ed270dcbe393444336b9cbfac09ce8635b13c079a3fde359"
+      },
+      "03-sources": {
+        "command": "python3 scripts/check_rtl_source_lists.py",
+        "rc": 0,
+        "log": "logs/parent-head-03-sources.log",
+        "rc_file": "logs/parent-head-03-sources.rc",
+        "bytes": 153,
+        "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95"
+      },
+      "04-ppsrcs": {
+        "command": "python3 scripts/pp_srcs.py --check --selftest",
+        "rc": 0,
+        "log": "logs/parent-head-04-ppsrcs.log",
+        "rc_file": "logs/parent-head-04-ppsrcs.rc",
+        "bytes": 955,
+        "sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+      },
+      "05-ports": {
+        "command": "python3 scripts/check_port_contracts.py",
+        "rc": 0,
+        "log": "logs/parent-head-05-ports.log",
+        "rc_file": "logs/parent-head-05-ports.rc",
+        "bytes": 536,
+        "sha256": "d497ccf16e51fb29ea053c4b643856ed3a2a7bb9884d25cee9ff0b2caffcd86f"
+      },
+      "06-naming": {
+        "command": "python3 scripts/measure_naming.py --check",
+        "rc": 0,
+        "log": "logs/parent-head-06-naming.log",
+        "rc_file": "logs/parent-head-06-naming.rc",
+        "bytes": 36608,
+        "sha256": "a7be749d4a5998ae719dcaa0233f6b5d3261b158472113e5e913c4ddbeaf59a8"
+      },
+      "07-evidence": {
+        "command": "python3 scripts/measure_test_evidence.py --check",
+        "rc": 0,
+        "log": "logs/parent-head-07-evidence.log",
+        "rc_file": "logs/parent-head-07-evidence.rc",
+        "bytes": 13902,
+        "sha256": "bb9aadc07a14eb4e219e87fa681571c7886f1ef0be545cbae69d099b66fd7f44"
+      },
+      "08-docs": {
+        "command": "python3 scripts/docs_check.py",
+        "rc": 0,
+        "log": "logs/parent-head-08-docs.log",
+        "rc_file": "logs/parent-head-08-docs.rc",
+        "bytes": 127,
+        "sha256": "6a6b0baa714d34c94d863882cab86a5eac8309164fc1a6c99cb5659f049510ee"
+      },
+      "09-xvlog": {
+        "command": "python3 scripts/xvlog_gate.py --check",
+        "rc": 0,
+        "log": "logs/ooc-head-xvlog.log",
+        "rc_file": "logs/ooc-head-xvlog.rc",
+        "bytes": 721,
+        "sha256": "997e89bc9a7ff0dd083ca124ff5a1877d9bce9cb3ef5a9f2b5f3fd8422e4e241"
+      },
+      "10-builder": {
+        "command": "python3 sw/builder/test_builder.py",
+        "rc": 0,
+        "log": "logs/parent-head-10-builder.log",
+        "rc_file": "logs/parent-head-10-builder.rc",
+        "bytes": 101910,
+        "sha256": "b4b11c2db67d9e6d6102b99ebdb3dd1af2b5bbf44e19ca5d32c3f213cf089e49"
+      },
+      "11-lint": {
+        "command": "python3 scripts/lint_rtl.py --check",
+        "rc": 0,
+        "log": "logs/parent-head-11-lint.log",
+        "rc_file": "logs/parent-head-11-lint.rc",
+        "bytes": 14186,
+        "sha256": "9087b44973869192bcab894931d990c7976fb895a8d92b6c243c555087f69d6e"
+      },
+      "12-shadow": {
+        "command": "make -j16 -C tb/verilator/pp_shadow",
+        "rc": 0,
+        "log": "logs/parent-head-12-shadow.log",
+        "rc_file": "logs/parent-head-12-shadow.rc",
+        "bytes": 342274,
+        "sha256": "ffbf3281402c77971203682ebdb3717ce7b5dcf583b06f0fe56a5cb5afe2568e"
+      },
+      "13-nvm-lint": {
+        "command": "make -j16 -C tb/verilator/nvm_cosim lint",
+        "rc": 0,
+        "log": "logs/parent-head-13-nvm-lint.log",
+        "rc_file": "logs/parent-head-13-nvm-lint.rc",
+        "bytes": 29864,
+        "sha256": "3eb872d152b4389504b85df420c7e430353b359ab2b1e36f35aead0a1457cfd3"
+      },
+      "14-nvm-quick": {
+        "command": "make -j16 -C tb/verilator/nvm_cosim quick JOBS=4 POOL=2",
+        "rc": 0,
+        "log": "logs/parent-head-14-nvm-quick.log",
+        "rc_file": "logs/parent-head-14-nvm-quick.rc",
+        "bytes": 394,
+        "sha256": "f894ddc2873c14f0d6108f89e810275a9c1b63eb76f3d147eed191872cac6258"
+      },
+      "15-datapath": {
+        "command": "make -j16 -C tb/verilator/milan_dp SIM_JOBS=2",
+        "rc": 0,
+        "log": "logs/parent-head-15-datapath.log",
+        "rc_file": "logs/parent-head-15-datapath.rc",
+        "bytes": 1109466,
+        "sha256": "6b7900b92e72d03a0effb03285d59ba3f1493ae22f460268c0aeca55e214c42e"
+      },
+      "16-render": {
+        "command": "make -j16 -C tb/verilator/milan_dp_render",
+        "rc": 0,
+        "log": "logs/parent-head-16-render.log",
+        "rc_file": "logs/parent-head-16-render.rc",
+        "bytes": 187356,
+        "sha256": "b63e6e96e3168b0481c2e4f8564f2893da760a786ede646c7bab1b0201aaedbc"
+      },
+      "17-shell": {
+        "command": "python3 scripts/check_sh_idiom.py",
+        "rc": 0,
+        "log": "logs/parent-head-17-shell.log",
+        "rc_file": "logs/parent-head-17-shell.rc",
+        "bytes": 235,
+        "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9"
+      }
+    }
+  },
+  "required_gates_all_zero": true,
+  "negative_control_expected_rc": 2,
+  "source_closure_note": "The production RTL is unchanged since 81d42ba; final notification harness since 9e907de; final notification mutation definitions since b5c1cce. Final documentation is f3fef22. Earlier completed gates use the identical final inputs they compile or grade. Area inputs match measured 521373f.",
+  "superseded_attempts_note": "Individual final receipts are authoritative. Earlier coordination files include stopped notification/parent attempts and an unsupported pool request; these remain retained under superseded or pool-limit names."
+}
