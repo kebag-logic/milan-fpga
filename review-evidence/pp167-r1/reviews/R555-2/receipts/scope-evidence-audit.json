@@ -1,0 +1,481 @@
+{
+  "head": "1411117e646023cb236de02e3acaf9bdfcef49e3",
+  "base": "ed340b9b85258194247334b85e62cf9c23d4d051",
+  "previous": "f3fef22448ce4f9bed8fd249a21a5d472148bd3d",
+  "published_manifest_verified_files": [
+    "author-r2/HANDOFF.md",
+    "author-r2/round2/campaign-maap-artifacts.json",
+    "author-r2/round2/campaign-notify-artifacts.json",
+    "author-r2/round2/campaign-acmp-artifacts.json",
+    "author-r2/round2/area-artifacts.json",
+    "author-r2/round2/record-comparison.json",
+    "author-r2/round2/environment-receipts.json",
+    "author-r2/round2/campaign-adp-artifacts.json",
+    "author-r2/round2/export-proof.json",
+    "author-r2/round2/campaign-name-artifacts.json",
+    "author-r2/round2/campaign-d3-artifacts.json",
+    "author-r2/round2/campaign-aecp-artifacts.json",
+    "author-r2/round2/source-base.json",
+    "author-r2/round2/parent-comparison.json",
+    "author-r2/round2/parent-nvm-artifacts.json",
+    "author-r2/round2/campaign-dispatch-artifacts.json",
+    "author-r2/round2/suite-comparison.json",
+    "author-r2/round2/recipe-artifacts.json",
+    "author-r2/round2/parent-final-state.json",
+    "author-r2/round2/campaign-ctr-artifacts.json",
+    "author-r2/round2/count-two-proof.json",
+    "author-r2/round2/parent-nvm-records.json",
+    "author-r2/round2/shadow-record-inputs.json",
+    "author-r2/round2/run-artifacts.json",
+    "author-r2/round2/plant-base.json",
+    "author-r2/round2/scope-proof.json",
+    "author-r2/round2/area-comparison.json",
+    "author-r2/round2/export-artifacts.json",
+    "author-r2/round2/final-receipts.json",
+    "author-r2/round2/evidence-index.json",
+    "author-r2/round2/source-head.json",
+    "author-r2/round2/probe-proof.json",
+    "author-r2/round2/plant-head.json",
+    "author-r2/round2/round1-record-comparison.json",
+    "author-r2/round2/review-artifacts.json",
+    "author-r2/round2/campaign-gsi-artifacts.json",
+    "author-r2/round2/processor-static-comparison.json"
+  ],
+  "source_receipts_verified": [
+    {
+      "revision": "ed340b9b85258194247334b85e62cf9c23d4d051",
+      "files_matched": 581
+    },
+    {
+      "revision": "1411117e646023cb236de02e3acaf9bdfcef49e3",
+      "files_matched": 581
+    }
+  ],
+  "guard_removed_equals_previous": true,
+  "count_two_equals_previous": true,
+  "count_two_equals_base_except_zero_tie": true,
+  "unchanged_port_parameter_header": true,
+  "unchanged_files": [
+    "hdl/top/protocol_processor_top.sv",
+    "hdl/common/pp_pkg.sv",
+    "hdl/packet_engine/KL_pp_originator.sv",
+    "hdl/aecp/KL_aecp_ca_originator.sv",
+    "docs/architecture/07_memory_maps.md",
+    "tb/aecp_notify/port_tuple.hpp"
+  ],
+  "independent_notification_plants": 93,
+  "published_all_plant_totals": {
+    "base": {
+      "total": 628,
+      "by_kind": {
+        "patch": 298,
+        "exact": 234,
+        "other": 94,
+        "observation": 2
+      }
+    },
+    "head": {
+      "total": 630,
+      "by_kind": {
+        "patch": 298,
+        "exact": 236,
+        "other": 94,
+        "observation": 2
+      }
+    }
+  },
+  "published_gate_rc_checks": [
+    {
+      "group": "processor",
+      "revision_label": "base",
+      "gate": "suites",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "base",
+      "gate": "lint",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "base",
+      "gate": "check",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "base",
+      "gate": "matrix",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "base",
+      "gate": "yosys",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "head",
+      "gate": "suites",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "head",
+      "gate": "lint",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "head",
+      "gate": "check",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "head",
+      "gate": "matrix",
+      "rc": 0
+    },
+    {
+      "group": "processor",
+      "revision_label": "head",
+      "gate": "yosys",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "notify",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "d3",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "adp",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "aecp",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "dispatch",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "acmp",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "gsi",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "name",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "ctr",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "base",
+      "gate": "maap",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "notify",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "d3",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "adp",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "aecp",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "dispatch",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "acmp",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "gsi",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "name",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "ctr",
+      "rc": 0
+    },
+    {
+      "group": "campaigns",
+      "revision_label": "head",
+      "gate": "maap",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "01-cpp",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "02-py",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "03-sources",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "04-ppsrcs",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "05-ports",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "06-naming",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "07-evidence",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "08-docs",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "09-xvlog",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "10-builder",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "11-lint",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "12-shadow",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "13-nvm-lint",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "14-nvm-quick",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "15-datapath",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "16-render",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "base",
+      "gate": "17-shell",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "01-cpp",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "02-py",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "03-sources",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "04-ppsrcs",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "05-ports",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "06-naming",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "07-evidence",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "08-docs",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "09-xvlog",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "10-builder",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "11-lint",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "12-shadow",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "13-nvm-lint",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "14-nvm-quick",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "15-datapath",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "16-render",
+      "rc": 0
+    },
+    {
+      "group": "parent",
+      "revision_label": "head",
+      "gate": "17-shell",
+      "rc": 0
+    }
+  ],
+  "published_area_delta": {
+    "LUT": 11.0,
+    "FF": 20.0,
+    "BRAM": 0.0,
+    "DSP": 0.0
+  },
+  "published_images_equal": true,
+  "no_source_submodules": true
+}

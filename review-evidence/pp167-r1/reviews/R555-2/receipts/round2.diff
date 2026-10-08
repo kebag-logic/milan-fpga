@@ -1,0 +1,317 @@
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index b14c6d9..99d3938 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -920,9 +920,13 @@ At one interface, a TIME_LIMITED drain can cancel one row's probe in the same
+ cycle that another controller's command supersedes its probe. The drain keeps
+ priority on the single cancellation face; the command's cancellation remains
+ pending until sent, using the same per-row pending-drain rule as the count-two
+-path. An uncontended command still cancels in its own cycle. `tb/aecp_notify`
++path. A failure report for a row whose command cancellation remains pending is
++ignored, including the cycle that emits that deferred cancel; it cannot remove
++the live row or queue its DEREGISTER. An uncontended command still cancels in its own cycle. `tb/aecp_notify`
+ SC1 grades both row orders and detects a control that drops the pending cancel
+-(issue #167); the count-two CA1b path is unchanged.
++(issue #167). SC2 presents the commanding owner's failure one cycle after the
++coincidence and detects removal of the pending-cancel report guard. The count-two
++CA1b path is unchanged.
+ 
+ **Storage (issue #232, 2026-10-03).** Each array of `KL_aecp_notify` and the
+ primitive it is built for. The measured mapping, before and after, is recorded on
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index 18890e1..8074f72 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -799,7 +799,8 @@ module KL_aecp_notify
+                        && !rx_cmd_hit_w[cr_ix_w] && valid_r[cr_ix_w];
+     assign cr_ix_w   = CIX_W_C'(ca_rsp_owner_i);
+     assign cf_ok_w   = ca_fail_valid_i && (32'(ca_fail_owner_i) < N_CTRL_P)
+-                       && !rx_cmd_hit_w[cf_ix_w] && valid_r[cf_ix_w];
++                       && !rx_cmd_hit_w[cf_ix_w] && valid_r[cf_ix_w]
++                       && !cx_wait_w[cf_ix_w];
+     assign cf_ix_w   = CIX_W_C'(ca_fail_owner_i);
+     assign ca_hold_w = '0;
+   end
+diff --git a/tb/aecp_notify/Makefile b/tb/aecp_notify/Makefile
+index d9618f5..faaf218 100644
+--- a/tb/aecp_notify/Makefile
++++ b/tb/aecp_notify/Makefile
+@@ -6,7 +6,7 @@
+ # section FT, the identify schedule at the full timebase; the third sets
+ # P-N-AVB-INTERFACES to 2 and runs sections PT and CK, the registry port and
+ # the per-interface counter rows (README). Each binary prints its own build's
+-# count; the default suite adds SC1 as a fourth run and sums all four.
++# count; the default suite adds SC1 and SC2 as isolated runs and sums all five.
+ VERILATOR ?= verilator
+ HDL        = ../../hdl
+ TOP        = KL_aecp_notify
+@@ -55,18 +55,23 @@ run:
+ 	    obj_dir/build_tally.txt
+ 
+ # The existing run target retains its three mutation records. The default
+-# suite also runs SC1 on the same one-interface binary and sums all four runs.
++# suite also runs SC1 and SC2 on the same one-interface binary and sums all five runs.
+ collision:
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vaecp_notify_sim
+ 	./obj_dir/Vaecp_notify_sim --cancel-collision-only
+ 
++failure-window:
++	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vaecp_notify_sim
++	./obj_dir/Vaecp_notify_sim --cancel-failure-only
++
+ check:
+ 	$(MAKE) run
+ 	./obj_dir/Vaecp_notify_sim --cancel-collision-only
+-	@awk '{c += $$1; f += $$2} END {if (NR != 4) {print "FAIL: " NR " run tallies, expected 4"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
++	./obj_dir/Vaecp_notify_sim --cancel-failure-only
++	@awk '{c += $$1; f += $$2} END {if (NR != 5) {print "FAIL: " NR " run tallies, expected 5"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+ 	    obj_dir/build_tally.txt
+ 
+ clean:
+ 	rm -rf obj_dir obj_idn obj_if2
+ 
+-.PHONY: check collision run identify-build identify interfaces-build interfaces clean
++.PHONY: check collision failure-window run identify-build identify interfaces-build interfaces clean
+diff --git a/tb/aecp_notify/README.md b/tb/aecp_notify/README.md
+index 941cac4..fafdba5 100644
+--- a/tb/aecp_notify/README.md
++++ b/tb/aecp_notify/README.md
+@@ -27,12 +27,13 @@ Run `make`. Exit status zero and the printed check tally are required.
+ | `obj_if2/Vaecp_notify_if2` | `N_IF_P` = 2, P-N-AVB-INTERFACES (`AECP_NOTIFY_IF2`) | sections PT (6 checks), CK (5 checks), PD (3 checks) and CA (5 checks) alone, from `port_tuple.hpp` |
+ 
+ Each run prints its own count, and the Makefile prints the canonical tally.
+-The default `make` runs the three builds and SC1 as a fourth run of the first
+-binary (`--cancel-collision-only`). `make run` retains the existing three-run
+-record; `make collision` runs SC1 alone. `make identify` builds and runs the
++The default `make` runs the three builds and SC1 and SC2 as separate runs of the
++first binary (`--cancel-collision-only` and `--cancel-failure-only`). `make run`
++retains the existing three-run record; `make collision` runs SC1 alone and
++`make failure-window` runs SC2 alone. `make identify` builds and runs the
+ second build alone (the identify mutation campaign's arm), and `make interfaces`
+ the third (the notify campaign's arms for issue #69). The combined suite has
+-66 checks: 42 in the first run, 4 in FT, 19 in PT/CK/PD/CA and 1 in SC. CX keeps its
++67 checks: 42 in the first run, 4 in FT, 19 in PT/CK/PD/CA and 2 in SC. CX keeps its
+ one-interface cancellation-clock premise; CA4 measures the engine's settle
+ interval, before the top's withdraw register, so its four-cycle lower bound
+ is unchanged by #163.
+@@ -338,5 +339,15 @@ existing pending-cancel drain unchanged.
+ | Mutant | Planted | Failing checks |
+ |---|---|---|
+ | `cancel_collision_drops_command` | the count-one pending cancels are discarded each cycle | SC1 |
+-
+-The control is an arm of `tb/pp_top/notify_mutants.py`.
++| `cancel_pending_accepts_failure` | a failure is accepted while its owner's cancellation is pending | SC2 |
++
++**SC2** repeats the coincidence in both row orders and presents a failure for
++the commanding owner exactly one cycle later, as in the review's P1 probe.
++Both cancellations must still occur exactly once, the commanding row must stay
++registered, and no DEREGISTER may target that live controller during the
++400-cycle watch. The expired controller must still receive its own DEREGISTER.
++Removing the pending-cancel failure guard fails SC2 in both row orders: zero
++entries remain and a DEREGISTER targets the live controller. SC2 runs separately
++so every existing campaign arm retains its previous failing-check record.
++
++Both controls are arms of `tb/pp_top/notify_mutants.py`.
+diff --git a/tb/aecp_notify/sim_main.cpp b/tb/aecp_notify/sim_main.cpp
+index 5b2f857..fd349bf 100644
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -52,7 +52,7 @@ struct Harness {
+   int checks = 0;
+   int fails = 0;
+ 
+-  int run(bool collision_only = false);
++  int run(bool collision_only = false, bool failure_window_only = false);
+   void initialize_inputs();
+   bool cancels_row0(uint64_t eid, uint64_t mac);
+   void identity_index(uint64_t eid_old, uint64_t mac_old, uint64_t eid, uint64_t mac);
+@@ -87,6 +87,7 @@ struct Harness {
+   void dereg_round_waits();
+   void cancel_clock();
+   void cancel_collision();
++  void cancel_failure_window();
+ 
+   void tick() {
+     d->now_ms_i = now;
+@@ -232,12 +233,16 @@ void Harness::initialize_inputs() {
+   idle(2);
+ }
+ 
+-int Harness::run(bool collision_only) {
++int Harness::run(bool collision_only, bool failure_window_only) {
+   const milan::tb::Model<VKL_aecp_notify> model;
+   VKL_aecp_notify* const dut = model.get();
+   d = dut;
+   initialize_inputs();
+ 
++  if (failure_window_only) {
++    cancel_failure_window();
++    return fails ? 1 : 0;
++  }
+   if (collision_only) {
+     cancel_collision();
+     return fails ? 1 : 0;
+@@ -356,6 +361,85 @@ void Harness::cancel_collision() {
+         "cycle cancel both probes exactly once, for either row order");
+ }
+ 
++// SC2: the same coincidence as SC1, with the commanding owner's failure
++// reported one cycle later, while its cancellation is pending (probe P1).
++// That stale failure must not remove the live row or target it with DEREGISTER.
++void Harness::cancel_failure_window() {
++  bool exact = true;
++  for (unsigned expired = 0; expired < N_CTRL; ++expired) {
++    warm_reset();
++    d->rx_cmd_valid_i = 0;
++    d->ca_ready_i = 1;
++    d->uns_done_i = 1;
++    d->prng_draw_busy_i = 1;
++    const std::array<uint64_t, N_CTRL> eids = {0x1111000000000001ull, EID_C};
++    const std::array<uint64_t, N_CTRL> macs = {0x020000000001ull, MAC_C};
++    for (unsigned row = 0; row < N_CTRL; ++row) {
++      exact &= registers(eids[row], macs[row], row == expired);
++      exact &= draws();
++      expire(REGMON_BASE + N_CTRL + row, OWN_MON | row);
++      bool probe = false;
++      for (int c = 0; c < PROBE_WAIT_CYCLES; ++c) {
++        d->clk_i = 0;
++        d->eval();
++        if (d->ca_valid_o) {
++          probe = d->ca_owner_o == row && d->ca_ctlr_eid_o == eids[row]
++                  && static_cast<uint64_t>(d->ca_mac_o) == macs[row];
++          tick();
++          break;
++        }
++        tick();
++      }
++      exact &= probe;
++    }
++    expire(REGMON_BASE + expired, OWN_TL | expired);
++    std::array<unsigned, N_CTRL> cancels = {};
++    int met_at = -1;
++    bool reported = false;
++    unsigned dereg_live = 0;
++    bool targeted = false;
++    for (int c = 0; c < 50 * DRAIN_WATCH_CYCLES; ++c) {
++      d->rx_cmd_valid_i = 0;
++      d->ca_fail_valid_i = 0;
++      d->clk_i = 0;
++      d->eval();
++      if (met_at < 0 && d->ca_cancel_valid_o && d->ca_cancel_owner_o == expired) {
++        met_at = c;
++        d->rx_cmd_eid_i = eids[1 - expired];
++        d->rx_cmd_mac_i = macs[1 - expired];
++        d->rx_cmd_valid_i = 1;
++        d->eval();
++      }
++      if (met_at >= 0 && c == met_at + 1) {
++        d->ca_fail_valid_i = 1;
++        d->ca_fail_owner_i = 1 - expired;
++        d->eval();
++        reported = true;
++      }
++      if (d->ca_cancel_valid_o) {
++        if (d->ca_cancel_owner_o < N_CTRL) ++cancels[d->ca_cancel_owner_o];
++        else exact = false;
++      }
++      if (d->uns_valid_o && d->uns_kind_o == KIND_DEREG
++          && static_cast<uint64_t>(d->uns_mac_o) == macs[1 - expired]) ++dereg_live;
++      if (d->uns_valid_o) {
++        targeted = d->uns_kind_o == KIND_DEREG
++                   && static_cast<uint64_t>(d->uns_mac_o) == macs[expired];
++        exact &= targeted;
++      }
++      tick();
++    }
++    d->rx_cmd_valid_i = 0;
++    d->ca_fail_valid_i = 0;
++    exact &= met_at >= 0 && reported && dereg_live == 0 && targeted && cancels[0] == 1 && cancels[1] == 1
++             && d->dbg_reg_cnt_o == 1;
++    printf("  [i] SC2: expired owner %u, cancels {%u,%u}, %u entry, live DEREGISTER %u\n",
++           expired, cancels[0], cancels[1], d->dbg_reg_cnt_o, dereg_live);
++  }
++  CHECK(exact, "SC2: a failure one cycle after the cancellation coincidence leaves the "
++        "commanding controller registered without DEREGISTER, for either row order");
++}
++
+ // ---- IX: the identity index (issue #232) ------------------------------------
+ // The availability monitor matches a command's {eid, mac} against every row in
+ // the command's own cycle, through a LUTRAM index rather than a comparator per
+@@ -1022,7 +1106,7 @@ int IdentHarness::run() {
+ 
+ int main(int argc, char** argv) {
+   Verilated::commandArgs(argc, argv);
+-  //! The Makefile sums the four runs of three builds. Only its last line
++  //! The Makefile sums the five runs of three builds. Only its last line
+   //! has the canonical tally shape consumed by run_suites.sh.
+ #ifdef AECP_NOTIFY_IDENT
+   IdentHarness harness;
+@@ -1035,8 +1119,9 @@ int main(int argc, char** argv) {
+ #else
+   Harness harness;
+   const bool collision_only = argc == 2 && std::string(argv[1]) == "--cancel-collision-only";
+-  const char* const build = collision_only ? "collision" : "default";
+-  const int rc = harness.run(collision_only);
++  const bool failure_window_only = argc == 2 && std::string(argv[1]) == "--cancel-failure-only";
++  const char* const build = failure_window_only ? "failure" : collision_only ? "collision" : "default";
++  const int rc = harness.run(collision_only, failure_window_only);
+ #endif
+   printf("[build %s] %d checks, %d failures\n", build, harness.checks, harness.fails);
+   FILE* acc = fopen("obj_dir/build_tally.txt", "a");
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index a198808..614d3da 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2654,6 +2654,12 @@ leaving the pending drain's acknowledgment immediate; delaying both would
+ repeat the late pulse as well as delaying it. Its IX3/CX1 record is unchanged.
+ The count-two CA1b control remains unchanged.
+ 
++Issue #167 round 2 adds `cancel_pending_accepts_failure`, for 93 controls.
++It removes the count-one pending-cancel failure guard. The isolated SC2 run
++presents a failure for the commanding owner one cycle after the coincidence:
++the registration must survive without a DEREGISTER, in both row orders. Its
++control fails SC2; every earlier arm retains its recorded failures.
++
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+ | `ident_two_frames` | a burst of two | 35, ID1 first |
+@@ -2741,6 +2747,7 @@ The count-two CA1b control remains unchanged.
+ | `monitor_tag_port_bits` | a monitor arm's owner tag takes the row's port bits | 1: `tb/aecp_notify` PD2 |
+ | `expiry_port_dropped` | an expiry is decoded to the port-0 row of its tag's index | 4: `tb/aecp_notify` PD3, CA1, CA3, CA4 |
+ | `cancel_collision_drops_command` | the count-one pending cancels are discarded each cycle | 1: `tb/aecp_notify` SC1 |
++| `cancel_pending_accepts_failure` | a failure is accepted while its owner's cancellation is pending | 1: `tb/aecp_notify` SC2 |
+ | `cancel_one_per_command` | a cancel not sent in its cycle is dropped (review R512-1 F1, probe P3) | 2: `tb/aecp_notify` CA1, CA1b |
+ | `report_fail_ignores_probe` | a failure is taken for its owner's last row, live probe or not | 2: `tb/aecp_notify` CA2, CA3 |
+ | `report_rsp_ignores_probe` | a response is taken likewise | 1: `tb/aecp_notify` CA2 |
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+index 159fb01..593a1c3 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -28,7 +28,7 @@ of rows that share a controller or a CA owner (review R512-1: sections PD and CA
+ IF3 and IF3b's held commands), and the originator's withdraw mask one clock late at
+ the top (issue #163: tb/pp_top section WD and tb/aecp_notify section CX), and
+ the simultaneous drain and command cancellation at one interface (issue #167:
+-tb/aecp_notify section SC). The suite
++tb/aecp_notify section SC), including a failure one cycle after the coincidence. The suite
+ READMEs carry the matching mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+@@ -572,9 +572,17 @@ SAME_CYCLE_CANCEL = (
+         ("SC1:",)),
+ )
+ 
++FAILURE_WINDOW = Suite("tb/aecp_notify", (), ("make", "failure-window"))
++DEFERRED_FAILURE = (
++    Mutant("cancel_pending_accepts_failure", FAILURE_WINDOW, (
++        (NTFY, " && valid_r[cf_ix_w]\n                       && !cx_wait_w[cf_ix_w];\n",
++         " && valid_r[cf_ix_w];\n"),),
++        ("SC2:",)),
++)
++
+ MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+            + DEREG_MID_ROUND + DOMAIN_NOTIFY + WITHDRAW_STAGE + INTERFACE_ROWS + INTERFACE_DEPTH_PROBES
+-           + SAME_CYCLE_CANCEL)
++           + SAME_CYCLE_CANCEL + DEFERRED_FAILURE)
+ TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                    r" \d+ checks, \d+ failures"
+                    r"|\[build \w+\] \d+ checks, \d+ failures"

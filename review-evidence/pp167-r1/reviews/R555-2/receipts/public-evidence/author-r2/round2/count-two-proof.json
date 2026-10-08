@@ -1,0 +1,129 @@
+{
+  "base": "ed340b9b85258194247334b85e62cf9c23d4d051",
+  "head": "1411117e646023cb236de02e3acaf9bdfcef49e3",
+  "count_two_goldens": {
+    "golden-aecp_notify-interfaces": {
+      "mutant": "golden-aecp_notify-interfaces",
+      "suite": "make interfaces",
+      "build_rc": 0,
+      "run_rc": 0,
+      "completed": true,
+      "named_checks": [],
+      "missing": [],
+      "failing_checks": [],
+      "verdict": "PASS"
+    },
+    "golden-pp_top-obj_if2_Vpp_top_if2": {
+      "mutant": "golden-pp_top-obj_if2_Vpp_top_if2",
+      "suite": "./obj_if2/Vpp_top_if2",
+      "build_rc": 0,
+      "run_rc": 0,
+      "completed": true,
+      "named_checks": [],
+      "missing": [],
+      "failing_checks": [],
+      "verdict": "PASS"
+    }
+  },
+  "count_two_control": {
+    "mutant": "cancel_one_per_command",
+    "suite": "make interfaces",
+    "build_rc": 0,
+    "run_rc": 2,
+    "completed": true,
+    "named_checks": [
+      "CA1:",
+      "CA1b:"
+    ],
+    "missing": [],
+    "failing_checks": [
+      "CA1: E holds an entry on each port and both probes are out (owners 0x3); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+      "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+    ],
+    "verdict": "KILLED"
+  },
+  "count_two_control_identical": true,
+  "late_control_identical": true,
+  "new_golden": {
+    "mutant": "golden-aecp_notify-collision",
+    "suite": "make collision",
+    "build_rc": 0,
+    "run_rc": 0,
+    "completed": true,
+    "named_checks": [],
+    "missing": [],
+    "failing_checks": [],
+    "verdict": "PASS"
+  },
+  "new_control": {
+    "mutant": "cancel_collision_drops_command",
+    "suite": "make collision",
+    "build_rc": 0,
+    "run_rc": 2,
+    "completed": true,
+    "named_checks": [
+      "SC1:"
+    ],
+    "missing": [],
+    "failing_checks": [
+      "SC1: a TIME_LIMITED drain and another controller's command in the same cycle cancel both probes exactly once, for either row order"
+    ],
+    "verdict": "KILLED"
+  },
+  "original_rtl_collision_rc": 2,
+  "original_rtl_collision_log": "../logs/head-collision-original-final.log",
+  "new_failure_golden": {
+    "mutant": "golden-aecp_notify-failure-window",
+    "suite": "make failure-window",
+    "build_rc": 0,
+    "run_rc": 0,
+    "completed": true,
+    "named_checks": [],
+    "missing": [],
+    "failing_checks": [],
+    "verdict": "PASS"
+  },
+  "new_failure_control": {
+    "mutant": "cancel_pending_accepts_failure",
+    "suite": "make failure-window",
+    "build_rc": 0,
+    "run_rc": 2,
+    "completed": true,
+    "named_checks": [
+      "SC2:"
+    ],
+    "missing": [],
+    "failing_checks": [
+      "SC2: a failure one cycle after the cancellation coincidence leaves the commanding controller registered without DEREGISTER, for either row order"
+    ],
+    "verdict": "KILLED"
+  },
+  "collision_records": {
+    "original_rtl": [
+      "[i] SC1: expired owner 0, cancels {1,0}, 1 entry, collision met",
+      "[i] SC1: expired owner 1, cancels {0,1}, 1 entry, collision met",
+      "FAIL: SC1: a TIME_LIMITED drain and another controller's command in the same cycle cancel both probes exactly once, for either row order",
+      "[build collision] 1 checks, 1 failures"
+    ],
+    "head": [
+      "[i] SC1: expired owner 0, cancels {1,1}, 1 entry, collision met",
+      "[i] SC1: expired owner 1, cancels {1,1}, 1 entry, collision met",
+      "[build collision] 1 checks, 0 failures"
+    ],
+    "planted_control": [
+      "[i] SC1: expired owner 0, cancels {1,0}, 1 entry, collision met",
+      "[i] SC1: expired owner 1, cancels {0,1}, 1 entry, collision met",
+      "FAIL: SC1: a TIME_LIMITED drain and another controller's command in the same cycle cancel both probes exactly once, for either row order",
+      "[build collision] 1 checks, 1 failures"
+    ]
+  },
+  "count_two_tallies": {
+    "golden-aecp_notify-interfaces": [
+      "[build interfaces] 19 checks, 0 failures"
+    ],
+    "golden-pp_top-obj_if2_Vpp_top_if2": [
+      "IF: 6 checks, 0 failures",
+      "[build interfaces, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6 checks, 0 failures"
+    ]
+  }
+}

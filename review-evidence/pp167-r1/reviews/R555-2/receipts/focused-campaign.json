@@ -1,0 +1,21 @@
+{
+  "name": "focused-campaign",
+  "argv": [
+    "python3",
+    "tb/pp_top/notify_mutants.py",
+    "--output",
+    "$REVIEWS/pp167-r555-2-packet/receipts/focused-campaign",
+    "--verilator",
+    "$REVIEWS/pp167-r555-2-packet/scripts/limited_verilator.py",
+    "--jobs",
+    "2",
+    "--only",
+    "cancel_collision_drops_command",
+    "cancel_pending_accepts_failure",
+    "cancel_one_clock_late",
+    "cancel_one_per_command"
+  ],
+  "cwd": "scratch/head",
+  "rc": 0,
+  "seconds": 70.749
+}
