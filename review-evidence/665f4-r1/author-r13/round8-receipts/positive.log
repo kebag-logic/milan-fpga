@@ -1,0 +1,12 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+REFUSED: srp_app.cpp does not compile:
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp: In member function ‘virtual void {anonymous}::SrpApp_AllThreeProtocolsShareTheLoopAndWakeSources_Test::TestBody()’:
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:29:106: error: missing initializer for member ‘ctrl_app_config::acmp’ [-Werror=missing-field-initializers]
+   29 |     ctrl_app_config cfg{&entity,0,arena,sizeof(arena),srp_pool_classes,SRP_POOL_N_CLASSES,nullptr,nullptr};
+      |                                                                                                          ^
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:29:106: error: missing initializer for member ‘ctrl_app_config::acmp_env’ [-Werror=missing-field-initializers]
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:29:106: error: missing initializer for member ‘ctrl_app_config::maap_allocation’ [-Werror=missing-field-initializers]
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:29:106: error: missing initializer for member ‘ctrl_app_config::maap_ctx’ [-Werror=missing-field-initializers]
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:29:106: error: missing initializer for member ‘ctrl_app_config::maap_preferred’ [-Werror=missing-field-initializers]
+cc1plus: all warnings being treated as errors
+

@@ -1,0 +1,40 @@
+START new-plants-verified
+{"command": ["python3", "$SCRATCH/new_plants.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 111.905, "log": "new-plants-verified.log", "size": 13505, "sha256": "f102851bf4d2e1d78c7e37daf358875ee04564b91288673f795435617079efa0"}
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+START ci-scope
+{"command": ["python3", "scripts/ci_scope.py", "--selftest"], "cwd": "$SOURCE", "rc": 0, "seconds": 5.778, "log": "ci-scope.log", "size": 6877, "sha256": "c02517598f82288a24c3271175fd5447213baa39154815edb15d6118a003c926"}
+  ok   mutation: sw/firmware/ filed as docs-only is rejected
+  ok   mutation: sw/firmware/gtest/ filed as docs-only is rejected
+  ok   mutation: .py filed as docs-only is rejected
+  ok   mutation: .json filed as docs-only is rejected
+  ok   mutation: .svg filed as docs-only is rejected
+  ok   mutation: gate-read docs/AAF_LATENCY_TAPS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/AAF_LATENCY_TAPS.md once the table drops it
+  ok   mutation: gate-read docs/design/AREA_BUDGET.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/design/AREA_BUDGET.md once the table drops it
+  ok   mutation: gate-read docs/reference/MAILBOX_CONTRACT.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/MAILBOX_CONTRACT.md once the table drops it
+  ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS

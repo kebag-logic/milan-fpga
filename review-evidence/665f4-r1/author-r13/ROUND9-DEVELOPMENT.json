@@ -1,0 +1,214 @@
+[
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/reviews/R532-8/scripts/probe_acmp_a0.py",
+      "$SOURCE",
+      "$SCRATCH/acmp-asan-build"
+    ],
+    "rc": 0,
+    "seconds": 81.464,
+    "log": "acmp-asan.log",
+    "size": 653,
+    "sha256": "6903bbacd6f66cee870c81d183e23f30dc36eb84d3f3e752b4dd4c60949783d9",
+    "label": "acmp-asan",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/acmp-asan.log",
+      "size": 653,
+      "sha256": "6903bbacd6f66cee870c81d183e23f30dc36eb84d3f3e752b4dd4c60949783d9"
+    },
+    "disposition": "Superseded by the committed-head sanitizer rerun."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/campaign-final"
+    ],
+    "rc": -15,
+    "seconds": 669.772,
+    "log": "campaign-final.log",
+    "size": 109730,
+    "sha256": "7c127698c4979e1566cb1435efd049a74c4e0f0ce96e73bd06d9b3339dbf7266",
+    "label": "campaign-final",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/campaign-final.log",
+      "size": 102955,
+      "sha256": "a6278e8fd24eb6273e9964facedcd2d58c546c6ceef911a9632b6b939ddf6110"
+    },
+    "disposition": "Stopped after adding the final refusal-isolation plant; complete gate restarted at the committed head."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/campaign"
+    ],
+    "rc": -15,
+    "seconds": 167.352,
+    "log": "campaign.log",
+    "size": 2682,
+    "sha256": "f20c6e67a7399877a81eb8af42417aad6e28a07669b1e2150e34ebeac4e1c91d",
+    "label": "campaign",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/campaign.log",
+      "size": 2232,
+      "sha256": "2f741d0d8374f4db3dcf4820c70941d7a729ee931c1756b6897df644b628a2d3"
+    },
+    "disposition": "Stopped after source changes; complete gate restarted at the committed head."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--write",
+      "--jobs",
+      "4",
+      "--keep",
+      "$SCRATCH/coverage-write"
+    ],
+    "rc": 1,
+    "seconds": 228.072,
+    "log": "coverage-write.log",
+    "size": 3509,
+    "sha256": "33d6a7f5a98438bdfc8e49ac347e1516d579b704d7cef3456464b80b4efa5957",
+    "label": "coverage-write",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/coverage-write.log",
+      "size": 3509,
+      "sha256": "33d6a7f5a98438bdfc8e49ac347e1516d579b704d7cef3456464b80b4efa5957"
+    },
+    "disposition": "Coverage exposed missing refusal isolation between sinks; added the case and a discriminating plant. Final writer and checker both pass."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 0,
+    "seconds": 31.559,
+    "log": "focused.log",
+    "size": 18618,
+    "sha256": "65f4e6dafaf2a32c83ebbc8a8c1f8b177d59fe0ace8f5912cd6edfb696ef05c4",
+    "label": "focused",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/focused.log",
+      "size": 18468,
+      "sha256": "b5520cae72756b1a7e212e1022bfbf9890699e8c14010d34fed79446f061ca7f"
+    },
+    "disposition": "Initial composition positives, superseded by committed-head campaign and coverage."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 1,
+    "seconds": 7.134,
+    "log": "focused2.log",
+    "size": 1345,
+    "sha256": "641843fa6f74810a924d319141089ddbbb1bcfeabb2307df2d3efcd8c0984137",
+    "label": "focused2",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/focused2.log",
+      "size": 1324,
+      "sha256": "7fa5cb46382f694d4a5fb3fa1e2c05abb94a77890350bcbd864170d879a0105f"
+    },
+    "disposition": "The isolated receive measurement needed to consume its real ring record past the lifecycle fence; corrected."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 0,
+    "seconds": 33.795,
+    "log": "focused3.log",
+    "size": 19772,
+    "sha256": "66eaf4607c64feb0819f8874f703a222b81f1da1dd476e0f74d0c29d228879c2",
+    "label": "focused3",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/focused3.log",
+      "size": 19622,
+      "sha256": "f0b42bd5d11598f2e27b23ffe78c370ba8ef793ab0d753306f48d55c80f8477a"
+    },
+    "disposition": "Development positives, superseded by committed-head campaign and coverage."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/images.py"
+    ],
+    "rc": 0,
+    "seconds": 10.17,
+    "log": "images.log",
+    "size": 5100,
+    "sha256": "a4b6b7eb60a791a926c9fb8f91e4926712f383171cc574f868e6f78372671145",
+    "label": "images",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/images.log",
+      "size": 4950,
+      "sha256": "9b825817bea0621a90c4b52d40520dccff2a33cd77e41906da43a7e657ff0df0"
+    },
+    "disposition": "Superseded after adding the repeated-attachment refusal."
+  },
+  {
+    "command": [
+      "make",
+      "-C",
+      "$SCRATCH/mailbox/tb/verilator/mbx",
+      "-j8",
+      "VBUILD_JOBS=2"
+    ],
+    "rc": 2,
+    "seconds": 0.004,
+    "log": "mailbox-final.log",
+    "size": 215,
+    "sha256": "21de96276eaf92d9771dbf7c88aca42e138de38ded9eee9506025475a4dca4bf",
+    "label": "mailbox-final",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/mailbox-final.log",
+      "size": 148,
+      "sha256": "49e9288d0a99201baaa355955303636814d73ed850d75896efdd2ed0f634dfe1"
+    },
+    "disposition": "A setup archive used the wrong RTL directory; corrected to hdl/milan/mailbox before the successful complete gate."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/new_plants.py"
+    ],
+    "rc": 1,
+    "seconds": 137.168,
+    "log": "new-plants.log",
+    "size": 13720,
+    "sha256": "98fca0ff05a8ba9be4fd30f7bede5f3443bb799b3711d0cf3dbf4258116d3d9b",
+    "label": "new-plants",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round9-receipts/new-plants.log",
+      "size": 12145,
+      "sha256": "306784ca7bc9b8d4b9e139932c7e1fcb2092585f69e127bc6d23bcd7fbfcc648"
+    },
+    "disposition": "One plant triggered a compiler warning instead of its observable; fixed its syntax. Final plants all fail the named runtime assertion."
+  }
+]

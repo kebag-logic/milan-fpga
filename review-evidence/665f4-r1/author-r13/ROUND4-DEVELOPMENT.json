@@ -1,0 +1,41 @@
+[
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/new_campaign.py"
+    ],
+    "rc": 1,
+    "seconds": 14.348,
+    "log": "new-campaign.log",
+    "size": 9714,
+    "sha256": "db2fa143d24b6912a84c1a5340dee82888e0ba07e2bd2f7693d779e9c1365179"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 1,
+    "seconds": 1.72,
+    "log": "cpp-idiom.log",
+    "size": 133,
+    "sha256": "4b2948acf3e530fa27356e9cb01e7746de47c651ec0cfe6a64cdc8d5020f7ed5"
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/firmware"
+    ],
+    "rc": 1,
+    "seconds": 412.579,
+    "log": "firmware.log",
+    "size": 100529,
+    "sha256": "4cb654040274359db335a25795371dd7c58f95aea5de2169ce8fc53feb41d3bf"
+  }
+]

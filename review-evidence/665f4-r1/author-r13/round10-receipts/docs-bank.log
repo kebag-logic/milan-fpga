@@ -1,0 +1,801 @@
+START docs-02
+START docs-00
+START docs-01
+{"command": ["python3", "scripts/gen_hdl_reference.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.424, "log": "docs-00.log", "size": 415, "sha256": "45015e0b44a17e479b01f40a0513bec0daf548ff8069f8e9993385711fa5ea57"}
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: 1111111111111111111111111111111111111111
+Supported sections: 4 (3 modules, 1 packages)
+Module diagrams: 3
+Known limitations:
+  - hdl/bus.sv: interface sample_if
+  - hdl/double.sv: module second
+Wrote: $SCRATCH/hdl-reference-selftest-qigkutmi/positive/index.html
+HDL reference self-test: 44/44 arms passed
+START docs-03
+{"command": ["python3", "scripts/gen_hdl_reference.py", "--output", "$SCRATCH/milan-hdl-reference"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 2.88, "log": "docs-01.log", "size": 414, "sha256": "1579297459bd74330895d159b4accff6138042d7be0999309b8a42d1c2925e3f"}
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: da36eb15f38d23aa4cddc9183e62e0a94f339dd9
+Supported sections: 80 (77 modules, 3 packages)
+Module diagrams: 77
+Known limitations:
+  - hdl/common/axi_stream_if.sv: interface axi_stream_if
+  - hdl/ieee1722/aaf/KL_aaf_latency_taps.sv: module KL_aaf_latency_taps
+Wrote: $SCRATCH/milan-hdl-reference/index.html
+START docs-04
+{"command": ["python3", "scripts/check_doc_style.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.065, "log": "docs-04.log", "size": 47, "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"}
+documentation style: OK (22 current documents)
+START docs-05
+{"command": ["python3", "scripts/check_doc_style.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.119, "log": "docs-05.log", "size": 33, "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"}
+documentation style selftest: OK
+START docs-06
+{"command": ["python3", "scripts/check_gptp_docs.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.267, "log": "docs-06.log", "size": 41, "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d"}
+gPTP documentation: OK (8 current pages)
+START docs-07
+{"command": ["python3", "scripts/check_gptp_docs.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.269, "log": "docs-07.log", "size": 46, "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e"}
+gPTP documentation selftest: OK (30 controls)
+START docs-08
+{"command": ["python3", "docs/DOC_MAP.gen.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.821, "log": "docs-08.log", "size": 61, "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16"}
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+START docs-09
+{"command": ["python3", "docs/DOC_MAP.gen.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.824, "log": "docs-09.log", "size": 60, "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9"}
+documentation map selftest: OK (valid wrong-raster control)
+START docs-10
+{"command": ["python3", "docs/diagrams/timesync_chain.gen.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.824, "log": "docs-10.log", "size": 60, "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4"}
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+START docs-11
+{"command": ["python3", "scripts/docs_check.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 7.115, "log": "docs-02.log", "size": 128, "sha256": "c7e4c7add177811afa0e1fcf8b71eb6f2377c1539a826e76c72df8429097083b"}
+docs_check: 0 finding(s) across 200 md files + 1186 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+START docs-12
+{"command": ["python3", "scripts/check_solution_docs.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.166, "log": "docs-12.log", "size": 87, "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"}
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+START docs-13
+{"command": ["python3", "docs/diagrams/timesync_chain.gen.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.973, "log": "docs-11.log", "size": 61, "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa"}
+time-sync diagram selftest: OK (source, status, XML, raster)
+START docs-14
+{"command": ["python3", "docs/diagrams/submodule_boundaries.gen.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.768, "log": "docs-14.log", "size": 54, "sha256": "d1ae5c433282f7f6f0b3df74fb92180c7567e27714311c0b98d16e6f237f8e55"}
+submodule diagram: OK (5 exact gitlinks, decoded PNG)
+START docs-15
+{"command": ["python3", "docs/diagrams/submodule_boundaries.gen.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.868, "log": "docs-15.log", "size": 60, "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889"}
+submodule diagram selftest: OK (valid wrong-raster control)
+START docs-16
+{"command": ["python3", "scripts/check_em_dash.py", "--base", "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 9.31, "log": "docs-03.log", "size": 140, "sha256": "8fc7ab9330915a121826c1db825859f1d4bf78b604b852f697a1c5884e44d7d7"}
+check_em_dash: 0 finding(s) over 467 added line(s) in 8 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d8b355fe..HEAD]
+START docs-17
+{"command": ["python3", "scripts/check_submodule_docs.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.12, "log": "docs-17.log", "size": 66, "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b"}
+submodule documentation selftest: OK (table and diagram controls)
+START docs-18
+{"command": ["python3", "scripts/gen_wavedrom.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.273, "log": "docs-18.log", "size": 77, "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42"}
+gen_wavedrom selftest: OK (metadata, checksum, and raster-manifest controls)
+START docs-19
+{"command": ["python3", "scripts/check_solution_docs.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 3.231, "log": "docs-13.log", "size": 59, "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30"}
+solution documentation selftest: OK (43 mutation controls)
+START docs-20
+{"command": ["python3", "scripts/check_submodule_docs.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.31, "log": "docs-16.log", "size": 47, "sha256": "79be302e03c97636315bf0b9d13d7d4160d1b0ac67f93f42874e51838b6de78c"}
+submodule documentation: OK (5 exact gitlinks)
+START docs-21
+{"command": ["python3", "scripts/gen_wavedrom.py", "docs/diagrams/wd_axis_backpressure.json", "--background=white", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.673, "log": "docs-19.log", "size": 58, "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3"}
+WaveDrom current: docs/diagrams/wd_axis_backpressure.json
+START docs-22
+{"command": ["python3", "scripts/gen_wavedrom.py", "docs/diagrams/wd_cdc_handshake.json", "--background=white", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.775, "log": "docs-20.log", "size": 54, "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5"}
+WaveDrom current: docs/diagrams/wd_cdc_handshake.json
+START docs-23
+{"command": ["python3", "scripts/gen_wavedrom.py", "docs/diagrams/wd_gptp_pdelay.json", "--background=white", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.675, "log": "docs-21.log", "size": 52, "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9"}
+WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+START docs-24
+{"command": ["python3", "scripts/check_diagram_pngs.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.672, "log": "docs-22.log", "size": 66, "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51"}
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+START docs-25
+{"command": ["python3", "scripts/check_feature_status.py", "--self-test"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.292, "log": "docs-24.log", "size": 1500, "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"}
+  PASS  an adjective is not a count
+  PASS  claim wrapped across lines
+  PASS  wrapped version claim still read
+  PASS  claim inside a block quote
+  PASS  count in a fact block ignored
+  PASS  documented order reversed
+  PASS  order block required
+  PASS  order block unregistered
+  PASS  boot order source tie
+  PASS  boot order reversed in firmware
+  PASS  boot step absent
+  PASS  commented boot call ignored
+  PASS  missing milan_init refused
+  PASS  value register required
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+START docs-26
+{"command": ["python3", "scripts/check_gptp_docs.py", "--with-submodule"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.469, "log": "docs-26.log", "size": 66, "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41"}
+gPTP documentation: OK (8 current pages, donor checkout verified)
+START docs-27
+{"command": ["python3", "docs/traceability/gen_module_matrix.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.799, "log": "docs-25.log", "size": 118, "sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc"}
+traceability generator controls: 5/5
+traceability matrix up to date (77 modules, 0 untested <= ratchet 0, 0 archived)
+START docs-28
+{"command": ["python3", "scripts/measure_control_flow.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.368, "log": "docs-28.log", "size": 2565, "sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b"}
+[PASS] sv: a struct member is a target of its own
+[PASS] sv: a whole-struct default then a member override is order dependent
+[PASS] sv: two members of one struct are different targets
+[PASS] sv: a concatenation writes each of its elements
+[PASS] sv: a concatenation element re-written alone is order dependent
+[PASS] sv: writes to different constant bits are disjoint
+[PASS] sv: writes to overlapping slices are order dependent
+[PASS] sv: a variable index may overlap anything
+[PASS] sv: a block without begin is measured
+[PASS] sv: a begin inside a string does not unbalance the block
+[PASS] sv: a compiler directive right before the closing end does not unbalance the block
+[PASS] sv: begin/case nesting is counted inside the block
+[PASS] sv: every always header form opens a block, with or without begin
+[PASS] sv: an unclosed block is reported by line, and the next block is still measured
+[PASS] population: protocol-processor contributes Python files to the scan
+[PASS] population: gptp-processor contributes Python files to the scan
+
+45 checks: 45 PASS, 0 FAIL
+START docs-29
+{"command": ["python3", "scripts/measure_cohesion.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.116, "log": "docs-29.log", "size": 728, "sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363"}
+[PASS] write: nested part select
+[PASS] write: after begin
+[PASS] write: after a closing paren
+[PASS] write: after else
+[PASS] write: after a case label
+[PASS] write: comparison is not a write
+[PASS] write: comparison inside a wider condition
+[PASS] shared write is one owner
+[PASS] independent state is two owners
+[PASS] read of another owner's state couples
+[PASS] transitive coupling closes the chain
+[PASS] a comment cannot couple two owners
+[PASS] nested begin/end does not end the block early
+[PASS] a bit-select write is still a write
+[PASS] block finder counts every always_ff
+[PASS] files with multiple modules are measured per module
+
+18 checks: 18 PASS, 0 FAIL
+START docs-30
+{"command": ["make", "-C", "gptp-processor", "docs"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.482, "log": "docs-27.log", "size": 2706, "sha256": "f714c03cc25cf5d3626ce8d740c840470fdebce7fa13d3ff63a7eeb7df09c732"}
+EXACT hdl/top/KL_gptp_engine.sv#L349 (Accepted-beat result face): assign txts_ready_o  = !txts_pend_r && rst_n;
+EXACT hdl/top/KL_gptp_engine.sv#L240 (Reset-backed pairing validity): logic t1v_valid_r, pdwait_valid_r;
+EXACT hdl/top/KL_gptp_engine.sv#L100 (Transmit admission credit): input  wire         tx_credit_i,
+EXACT hdl/top/KL_gptp_engine.sv#L385 (Eight timer slots): KL_gptp_timer #(
+EXACT hdl/top/KL_gptp_engine.sv#L20 (Six state regions): //                  0  message bank      RO  (parser-written, PING-PONG
+EXACT hdl/wire/KL_gptp_tx_slot.sv#L117 (Stable stalled transmission): assign tx_valid_o = ser_run_r;
+EXACT hdl/top/KL_gptp_engine.sv#L124 (Committed publication): output logic        pub_commit_o,
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L105 (1,024-word microcode ROM): // ------------------------------------------------------------------ ROM
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L113 (Sixteen registers): // 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).
+EXACT hdl/top/KL_gptp_engine.sv#L109 (Registered policy slew level): output logic        phc_slew_active_o,
+EXACT hdl/top/KL_gptp_engine.sv#L929 (Registered policy slew level): 2'd2: begin
+EXACT hdl/top/KL_gptp_engine.sv#L934 (Registered policy slew level): 2'd3: begin
+EXACT hdl/ucode/gen_gptp_ucode.py#L837 (Registered policy slew level): def prog_leg_slew(base: int) -> Prog:
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L456 (Ignored receive flag bits): 11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
+source evidence: 20 exact, 0 findings
+python3 scripts/check_source_evidence.py --selftest
+source evidence selftest: PASS (7 arms)
+make: Leaving directory '$BUILDER_TREE/gptp-processor'
+START docs-31
+{"command": ["python3", "scripts/check_diagram_pngs.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 11.444, "log": "docs-23.log", "size": 59, "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5"}
+diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+START docs-32
+{"command": ["python3", "scripts/ci_rv32_sdk_selftest.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 3.002, "log": "docs-32.log", "size": 6389, "sha256": "5c197a91c2bce162c858c58370c1427806f55133ae54aed4645e715dcc630945"}
+SDK argv: ["$SCRATCH/rv32-installer-test-w1x6v86h/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$SCRATCH/rv32-installer-test-w1x6v86h/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["$SCRATCH/rv32-installer-test-w1x6v86h/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$SCRATCH/rv32-installer-test-w1x6v86h/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$SCRATCH/rv32-installer-test-w1x6v86h/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$SCRATCH/rv32-installer-test-w1x6v86h/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+Cached identification must agree with the program actually invoked. ... SDK argv: ["$SCRATCH/rv32-installer-test-7iuel4zr/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$SCRATCH/rv32-installer-test-7iuel4zr/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$SCRATCH/rv32-installer-test-7iuel4zr/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$SCRATCH/rv32-installer-test-7iuel4zr/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 2.763s
+
+OK
+START docs-33
+{"command": ["python3", "scripts/ci_rv32_sdk.py", "--destination", "$SDK"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.021, "log": "docs-33.log", "size": 1501, "sha256": "817bee33c7348e43502b4167a374a68511bda120ea38ed7e129b9ddfac1fd8c4"}
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$SDK", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$SDK/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$SDK/bin/toolchain-wrapper", "sysroot": "$SDK/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+SDK cache hit: verified
+START docs-34
+{"command": ["python3", "scripts/check_nvm_record_space.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 3.936, "log": "docs-34.log", "size": 2578, "sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0"}
+BINDING base read from the donor: REC_ID_BASE_P = 0x20, LAYOUT_VER_P = 0x02
+deadlines: T-NVM-COMMIT-TIMEOUT = 8000 ms, T-NVM-WRITER-ALIVE = 2000 ms, heartbeat = 500 ms
+endstation_arty_4x4          names= 55 records= 88 top_id=0xB6 image=  4808 B (7% of a slot) F07.8 floor= 88/256 commit<=3.10 s
+endstation_arty_8ch          names= 87 records=120 top_id=0xD6 image=  7368 B (11% of a slot) F07.8 floor=120/256 commit<=3.15 s
+endstation_arty_current      names= 29 records= 42 top_id=0x9C image=  2516 B (3% of a slot) F07.8 floor= 42/256 commit<=3.05 s
+endstation_ax7101_1x1_tdm8   names= 39 records= 54 top_id=0xA6 image=  3336 B (5% of a slot) F07.8 floor= 54/256 commit<=3.07 s
+endstation_ax7101_8x8: MAPS_OUT[0]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[1]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[2]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[3]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[4]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[5]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[6]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s
+docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: every allocation-table figure at 1x1 (endstation_ax7101_1x1_tdm8), 8x8 (endstation_ax7101_8x8) is the derived one
+
+0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied
+START docs-35
+{"command": ["python3", "scripts/check_baremetal_only.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 17.556, "log": "docs-31.log", "size": 43, "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8"}
+baremetal-only selftest: PASS (700 arm(s))
+START docs-36
+{"command": ["python3", "scripts/check_nvm_capture.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.324, "log": "docs-36.log", "size": 324, "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"}
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+PASS: capture census, clocks, both timing arms and receipt agree
+START docs-37
+{"command": ["python3", "scripts/check_baremetal_only.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 23.11, "log": "docs-30.log", "size": 72, "sha256": "d5a37be67129ebe9b50af7daefb0b09fa4aa3a9a8310738cfc48263b5a7acad7"}
+baremetal-only: OK (0 findings across 1184 tracked first-party file(s))
+START docs-38
+{"command": ["python3", "scripts/check_soc_sources.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.265, "log": "docs-38.log", "size": 85, "sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033"}
+SoC source gate: OK (43 instantiated modules all registered, 77 sources all present)
+START docs-39
+{"command": ["python3", "scripts/check_soc_sources.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.316, "log": "docs-39.log", "size": 1501, "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0"}
+[PASS] a nested include is followed and a header including itself ends
+[PASS] an include with a directory part resolves beside the includer
+[PASS] an include no file answers to is reported by name
+[PASS] a header under the search roots resolves from anywhere
+[PASS] a live row is a row
+[PASS] a commented-out row is not a row
+[PASS] a path in a trailing comment or a docstring is not a row
+[PASS] a conditional registration beside the list is read
+[PASS] a path inside a message string is not a registration
+[PASS] the derived half is reported as the starred call, not guessed from syntax
+[PASS] a vendored .v entry counts as a source
+[PASS] a file without the list is refused, not read as empty
+[PASS] a row that is neither a path nor a derived expansion is refused
+[PASS] the live datapath's first hop is registered and present
+[PASS] commenting out the live row that carries cdc_pulse.sv is a MISSING SOURCE
+[PASS] a column-0 instantiation added to the live datapath reaches the first hop
+
+25 checks: 25 PASS, 0 FAIL
+START docs-40
+{"command": ["python3", "sw/litex/iob_pack_selftest.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 5.04, "log": "docs-40.log", "size": 3147, "sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad"}
+  [KILL] mutant 'a far side that answered nothing taken for INERT': 5 check(s) notice it
+  [KILL] mutant 'the two counts of constrained ports not crossed': 1 check(s) notice it
+  [KILL] mutant 'a run that selected no port taken for a clean one': 2 check(s) notice it
+  [KILL] mutant 'every input load taken for a register': 2 check(s) notice it
+  [KILL] mutant 'an input with no register taken for INERT': 1 check(s) notice it
+  [KILL] mutant 'an empty answer behind a delay element taken for reached': 1 check(s) notice it
+  [KILL] mutant 'the delay partition not made to account for every load': 1 check(s) notice it
+  [KILL] mutant 'an output pin whose net answers no driver taken for reached': 1 check(s) notice it
+  [KILL] mutant 'an output parked by a constant taken for untraversable': 1 check(s) notice it
+  [KILL] mutant 'a missing .xdc taken for a constraint-free build': 1 check(s) notice it
+  [KILL] mutant '-quiet back on the port's net query': 1 check(s) notice it
+  [KILL] mutant 'a per-pin answer taken apart and rebuilt': 1 check(s) notice it
+  [KILL] mutant 'the same rebuild spelled with eval': 1 check(s) notice it
+  [KILL] mutant 'the same rebuild spelled with lmap': 1 check(s) notice it
+  [KILL] mutant 'the same rebuild spelled with join and split': 1 check(s) notice it
+  [KILL] mutant 'a query that raised while grading a port taken for INERT': 1 check(s) notice it
+  [KILL] mutant 'the graded port not printed before the re-raise': 1 check(s) notice it
+iob_pack_selftest: 21 arms, 21 mutants, 0 failure(s)
+START docs-41
+{"command": ["python3", "scripts/check_rtl_source_lists.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 2.174, "log": "docs-41.log", "size": 153, "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95"}
+RTL source-list gate: OK (108 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)
+START docs-42
+{"command": ["python3", "scripts/check_rtl_source_lists.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 3.397, "log": "docs-42.log", "size": 3300, "sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d"}
+[PASS] a `)` inside a comment or quotes does not close the array
+[PASS] the commented-out top is refused as unrecorded, not credited
+[PASS] the commented-out top reaches the verdict as TOPS DRIFT and exit 1
+[PASS] bash itself reads every fixture the way the parser does
+[PASS] an array that is never closed is refused, not read to the end of the file
+[PASS] declarations are modules only - packages and interfaces are not tops
+[PASS] adding a declared module that the tops array does not name is refused
+[PASS] a recorded omission is debt, not a refusal
+[PASS] a recorded name that became a top is refused as stale
+[PASS] removing a declared module from the tops array is refused
+[PASS] the budget names each omission with its reason
+[PASS] the live processor tops array was read
+[PASS] every recorded omission is real drift at this pin, and every drift is recorded
+[PASS] a live top taken out of the array, unrecorded, reaches the verdict as TOPS DRIFT and exit 1
+[PASS] its record left behind once it is a top again reaches the verdict as STALE RECORD and exit 1
+[PASS] a new declared processor module is refused by the live comparison
+
+50 checks: 50 PASS, 0 FAIL
+START docs-43
+{"command": ["python3", "scripts/measure_naming.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.569, "log": "docs-43.log", "size": 36608, "sha256": "0ece46e4cc0fc61cd15de56f4fd34704f1ca469845684b20d7a6d118d890d49e"}
+protocol-processor/hdl/srp/KL_srp_encoder.sv:KL_srp_encoder: wr_len_o — documented in bytes, not named for it: committed frame length in bytes
+protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top: TP_DEPTH_P — documented in bytes, not named for it: decoder Listener three-packed buffer depth in bytes
+protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top: wr_len_o — documented in bytes, not named for it: committed frame length in bytes
+protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top: draw_kind_o — documented in ms, not named for it: constant 3 = 10000..15000 ms (F08.2)
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: DESC_BASE_P — documented in bytes, not named for it: ---- descriptor image in the integrator's MAIN MEMORY (07 §3.3) ------ The entity model does NOT live on chip: the reference consumer's is 22,561 bytes at the 8x8 shape and the reference part measured 131 of 135 block-RAM tiles used. It lives in DDR3 on the reference board, reached through the vendor-neutral read-only master below.  Every address is a COMPILE-TIME parameter — the DRAM map is fixed when the bitstream is built, so a runtime base would only buy a 32-bit port and the flops behind it. Software loads and CRC-checks the image at DESC_BASE_P before restore_go_i; if it has not (or loaded a truncated one), the store's magic + version + checksum header check fails and the D3 restore, which cannot prove the image, ends CLOSED with AECP held: never a garbage descriptor on the wire.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: RESP_BASE_P — documented in bytes, not named for it: ---- AECP response buffer in the integrator's MAIN MEMORY (03 §7) --- The response an AECP command builds is up to 16 + DESC_LINE_BYTES_P bytes (592 at the default line), and it does not live on chip either. Held as fabric state it measured 5,079 flip-flops on the reference part and was the state the placer could not pack on a die whose block RAM was already 100 % used. Same rule as the image above: a COMPILE-TIME base, never a register. UNLIKE the image this region is WRITTEN by the processor, so the integrator must reserve `16 + DESC_LINE_BYTES_P` bytes there that nothing else writes, and it must not overlap `DESC_BASE_P`. The processor writes nothing past them.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: nvm_unflushed_o — documented in cycles, not named for it: per-sink UNFLUSHED binding state, the manager's own dirty vector (KL_acmp_nvm_shadow dirty_r, a clk_i register read combinationally). Bit k rises on the cycle the manager ACCEPTS a changed persisted set for sink k — two clk_i cycles after cap_wr_i, because the capture is pipelined one stage and the accept is the compare against the shadow, so a write-back that changes no persisted field never raises it — and falls on the cycle its commit reports done, or, on retry exhaustion, on the same cycle nvm_alarm_o rises. A tainted commit (a capture that hit the sink mid-flush) holds it: the burst re-serializes fresh data. An integrator publishing a "saved state pending" bit ORs this vector with d3_unflushed_o below (aecp_dyn_dirty_o stays a diagnostic); without it a binding taken inside the manager's debounce window reads durable.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: srp_acc_latency_o — documented in ns, not named for it: per-sink registered accumulated_latency, ns, RAW — the consumer adds its own ingress delay
+
+tree                 files  ports params documented undocumented unit-named matches excluded mismatched candidates
+gptp-processor           6    125      6        107           24          7      26       25          0          1
+protocol-processor      46   1759    305       1944          120        114     240      218          1         22
+superproject            81   2088    323       2171          240        150     328      256          3         72
+total                  133   3972    634       4222          384        271     594      499          4         95
+
+95 candidate(s): 91 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3972 ports and 634 parameters scanned, 384 with no //! and so not judged here, 499 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+START docs-44
+{"command": ["python3", "scripts/measure_naming.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.518, "log": "docs-44.log", "size": 4026, "sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02"}
+[PASS] every spelling in both vocabularies has a family, and aliases share it
+[PASS] undocumented ports are counted, not silently skipped
+[PASS] a recorded candidate that is still a candidate is neither new nor gone
+[PASS] a new identity is refused
+[PASS] a processor identity is spelled submodule:path, never as a source literal
+[PASS] a recorded port that merely lost the unit from its comment is refused as stripped
+[PASS] a recorded port renamed with its unit has left legitimately
+[PASS] a recorded port that was removed has left legitimately
+[PASS] a recorded mismatch that is still one is neither new nor gone
+[PASS] a recorded mismatch whose comment now names the name's unit has left legitimately
+[PASS] a recorded mismatch that merely lost the unit from its comment is refused as stripped
+[PASS] a name without a unit still cannot leave by a comment edit
+[PASS] the live scan reads the tree
+[PASS] the live scan reaches gptp-processor
+[PASS] the live scan reaches protocol-processor
+[PASS] the budget is keyed on identity, not a count
+
+66 checks: 66 PASS, 0 FAIL
+START docs-45
+{"command": ["python3", "scripts/check_port_contracts.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 2.779, "log": "docs-45.log", "size": 421, "sha256": "c4a0b9e89f19df346a9b837d45d0eb04d65ab38de0a07edd5adef08c408ef5f8"}
+port contract gate: OK (3972 first-party port(s): hdl 2088, gptp-processor 125, protocol-processor 1759; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 49 literal-bound named connection(s), 59 without a local rationale (all recorded; none may be added); 317 test-only hierarchical observation(s)
+START docs-46
+{"command": ["python3", "scripts/check_port_contracts.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 3.231, "log": "docs-46.log", "size": 4619, "sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e"}
+[PASS] a tracked HDL path that is absent, a directory or a symlink is refused, by name
+[PASS] an empty population is refused
+[PASS] a tree with no file is refused, by name
+[PASS] a tree with files but no parsed port is refused, by name
+[PASS] a whole population is accepted
+[PASS] the live population is whole
+[PASS] the live scan reads the tree
+[PASS] the live scan reaches hdl
+[PASS] the live scan reaches gptp-processor
+[PASS] the live scan reaches protocol-processor
+[PASS] lint_rtl's exclusion list is empty today, so every tracked .sv/.svh is in the population
+[PASS] the `import` header of milan_datapath.sv contributes its ports
+[PASS] the `import` header of KL_gptp_engine.sv contributes its ports
+[PASS] the `import` header of protocol_processor_top.sv contributes its ports
+[PASS] the .svh files are in the binding population
+[PASS] the tree's interface is not a hierarchical root
+
+82 checks: 82 PASS, 0 FAIL
+START docs-47
+{"command": ["python3", "scripts/measure_fail_fast.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 2.027, "log": "docs-47.log", "size": 6085, "sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e"}
+   protocol-processor/hdl/top/KL_mrp_strip.sv:KL_mrp_strip
+
+measured shell population: 26 shell scripts, 5 workflow files, 104 Makefiles (recipe lines); Python and Tcl are not measured
+
+pipelines that discard their producer's exit code (4):
+   gptp-processor/syn/ooc/run.sh:34  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" ucpu_util.rpt | head -20
+   gptp-processor/syn/ooc/run.sh:36  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" engine_util.rpt | head -20
+   tb/verilator/avtp_rxmon/Makefile:56  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+   tb/verilator/maap/Makefile:27  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+
+captured verdicts whose exit status is discarded (0):
+
+waived by site, with a reason (2):
+   .github/workflows/rtl-fast.yml:104  the grep IS the version assertion; its status is the verdict
+   .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (80 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 80, 4 and 0
+START docs-48
+{"command": ["python3", "scripts/measure_fail_fast.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 2.596, "log": "docs-48.log", "size": 6597, "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a"}
+[PASS] an argument-form substitution is the consumer's verdict and is not modelled
+[PASS] a workflow step starts with errexit, so a bare capture there is not discarded
+[PASS] a capture inside a comment is not a finding
+[PASS] a capture inside a subshell that set errexit is protected only there
+[PASS] the version assertion is waived by SITE, with a reason
+[PASS] the same line at another path is masked, not waived
+[PASS] a NEW `--version | grep` is masked: the waiver is not a substring
+[PASS] a gate verdict carrying --version is masked, not waived
+[PASS] an unterminated here-document makes the unit unreadable, never a pass
+[PASS] the live scan reads the tree
+[PASS] the guarded set is not empty
+[PASS] the gptp-processor modules in the `int unsigned`/`string` idiom are in the population
+[PASS] KL_media_nco, the house form the guide cites, is counted guarded
+[PASS] every site waiver names a line that exists and is masked without it
+[PASS] the live scan reaches both processor submodules' shell wrappers
+[PASS] the Makefile population is first-party only and not empty
+
+106 checks: 106 PASS, 0 FAIL
+START docs-49
+{"command": ["python3", "scripts/check_todo_ownership.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.885, "log": "docs-49.log", "size": 161, "sha256": "18dac1744dc672fdc4a371a3c583efb5039b0d91919d5b01c0c66d2cb72c3b1c"}
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 37 near-miss occurrence(s) on 30 line(s) correctly not treated as markers; 1117 first-party file(s) read)
+START docs-50
+{"command": ["python3", "scripts/check_todo_ownership.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.933, "log": "docs-50.log", "size": 2584, "sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b"}
+[PASS] Tcl has no apostrophe quoting
+[PASS] an apostrophe inside a YAML word is prose
+[PASS] every registered type is read with its own comment syntax
+[PASS] a Gherkin step is not a comment; a Gherkin comment line is
+[PASS] markdown and images are not read
+[PASS] a vendor gitlink is dropped and a project processor is kept
+[PASS] every registered first-party type is read and the rest is not
+[PASS] an empty population is refused
+[PASS] a population missing a processor is refused
+[PASS] a population without the superproject is refused
+[PASS] a complete population is judged
+[PASS] this checker carries no marker of its own
+[PASS] the live population reaches both processors, the gptp bench, RTL headers, Makefiles and this gate, and no vendor tree
+[PASS] every reported occurrence is a real line of its file that carries the word reported
+[PASS] the scan skips markdown
+[PASS] a host without git is refused by name, never passed
+
+45 checks: 45 PASS, 0 FAIL
+START docs-51
+{"command": ["python3", "scripts/measure_test_evidence.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 7.288, "log": "docs-51.log", "size": 14871, "sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf"}
+   tb/verilator/pp_shadow/pending_mutant.py: mutation campaign; restores the late mark trigger in a copy and requires both K10/K12 durability checks to fail
+   tb/verilator/ptp_ts/sva_campaign.py: mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a scratch copy and requires the named SVA property, or for one row the scoreboard, to fail; no expected value is read from the text
+   tb/verilator/render_setpoint/mutants.py: mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure
+   tb/verilator/rx_filter/binding_mutant.py: mutation campaign; it ties a real named binding low and requires failure
+   tb/verilator/tcam/mutants.py: mutation campaign; it injects three RTL defects and requires failure
+   tb/verilator/tkdiag/mcr_mutants.py: mutation campaign; it plants one of four restart-engine defects against the #387 pending-restart merge and its wire boundary into a copy and requires a named failure
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 60 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (71 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 71
+START docs-52
+{"command": ["python3", "scripts/measure_test_evidence.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 7.188, "log": "docs-52.log", "size": 5895, "sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2"}
+[PASS] a changed suite budget is rejected: PHYSICAL_GPTP=0
+[PASS] a changed suite budget is rejected: [ "$PHYSICAL_GPTP" = 1 ]
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-1800
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-2400
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-3600
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-4800
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-5400
+[PASS] a changed suite budget is rejected: capture_coherence)
+[PASS] a changed suite budget is rejected: milan_dp_gptp)
+[PASS] a changed suite budget is rejected: milan_dp_mclk)
+[PASS] a changed suite budget is rejected: milan_dp)
+[PASS] a changed suite budget is rejected: TMO=$(suite_timeout "$suite")
+[PASS] the live scan sees the suites
+[PASS] both sides of the mutation split are non-empty
+[PASS] every live arm sits on a target the entry executes
+[PASS] every DUT-source reader has a current disposition
+
+105 checks: 105 PASS, 0 FAIL
+START docs-53
+{"command": ["python3", "scripts/check_hygiene.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.416, "log": "docs-53.log", "size": 2000, "sha256": "16836cd37442af9df8a8574d17cef4bfab2cf723a422776c76c5fb214dc2ac6b"}
+  sw/litex/milan_soc.py
+  tb/avtp_packet_gen_sv/examples/top.tcl
+  tb/itests/ptp_timestamp/tb_ptp_ts_top.tcl
+  tb/utests/1722/kl-avtp-common-parser/tb_top.tcl
+  tb/utests/ptp_timestamp/tb_ptp_ts_core.tcl
+  tb/utests/ptp_timestamp/tb_timestamp_counter.tcl
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 1059 file(s))
+START docs-54
+{"command": ["python3", "scripts/check_hygiene.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.416, "log": "docs-54.log", "size": 1847, "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8"}
+[PASS] whitespace after a closing quote is formatting
+[PASS] a repaired line whose quotes do not balance is reported
+[PASS] a make variable's value is reported, a make comment is not
+[PASS] a superproject finding does not ride in a processor's free slot
+[PASS] a processor finding at its own ratchet passes
+[PASS] a budget without a population's section is a missing ratchet
+[PASS] a population with no file is refused
+[PASS] a processor off its pin is refused before anything is read
+[PASS] the live scan reads the tree
+[PASS] the live scan reaches both project processor submodules
+[PASS] generated files are actually being skipped
+[PASS] the hand-written gate the R2 review found exempt is scanned
+[PASS] a tab in a tracked makefile is not judged
+[PASS] a CRLF in that makefile is
+[PASS] trailing whitespace in a tracked .xdc is caught
+[PASS] the budget carries every population
+
+35 checks: 35 PASS, 0 FAIL
+START docs-55
+{"command": ["python3", "scripts/check_sv_idiom.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.465, "log": "docs-55.log", "size": 218, "sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167"}
+SystemVerilog idiom gate: OK (137 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+START docs-56
+{"command": ["python3", "scripts/check_sv_idiom.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.568, "log": "docs-56.log", "size": 2955, "sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b"}
+[PASS] a population without the superproject tree is refused
+[PASS] a complete population is not refused
+[PASS] a count above its budget fails the ratchet
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget passes and names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] a malformed budget value is no entry
+[PASS] an absent budget file is an empty budget
+[PASS] the live scan reads the tree
+[PASS] the live scan reaches both project processor submodules
+[PASS] the live population is complete
+[PASS] lint_rtl's exclusion list is empty today, so no first-party HDL file is outside this population
+[PASS] every HDL exception has a reason and evidence
+[PASS] the live scan still detects a planted finding
+[PASS] a clean tree is allowed to be clean
+[PASS] the checked-in budget carries every ratcheted key
+
+55 checks: 55 PASS, 0 FAIL
+START docs-57
+{"command": ["python3", "scripts/check_cpp_idiom.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.721, "log": "docs-57.log", "size": 316, "sha256": "3995005e9e2174d709f5e7189ac038bc0ee6c2115a94579a8f79eff28adc7977"}
+cpp idiom: 307 first-party translation units, 148 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+START docs-58
+{"command": ["python3", "scripts/check_cpp_idiom.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1.925, "log": "docs-58.log", "size": 3593, "sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9"}
+[PASS] a population missing a processor is refused
+[PASS] the live scan still detects a planted file-scope mutable
+[PASS] the live scan still detects a planted multi-declarator declaration
+[PASS] the live scan still detects a planted long function
+[PASS] a clean tree is allowed to be clean
+[PASS] the checked-in budget carries every ratcheted key
+[PASS] a build with no warning flags is a finding
+[PASS] a build with both warning flags is not a finding
+[PASS] a flag enabled for only one of several builds is a finding
+[PASS] a Makefile with no -CFLAGS is not judged
+[PASS] a -CFLAGS group continued across lines is one group
+[PASS] an escaped quote inside a -CFLAGS group does not end it
+[PASS] a -CFLAGS mentioned in a comment is not a build line
+[PASS] the testbench Makefile population is non-empty
+[PASS] the shared harness header exists
+[PASS] the harness header copies agree
+
+75 checks: 75 PASS, 0 FAIL
+START docs-59
+{"command": ["python3", "scripts/check_nvm_record_space.py", "--self-test"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 58.101, "log": "docs-35.log", "size": 7010, "sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6"}
+BINDING base read from the donor: REC_ID_BASE_P = 0x20, LAYOUT_VER_P = 0x02
+deadlines: T-NVM-COMMIT-TIMEOUT = 8000 ms, T-NVM-WRITER-ALIVE = 2000 ms, heartbeat = 500 ms
+endstation_arty_4x4          names= 55 records= 88 top_id=0xB6 image=  4808 B (7% of a slot) F07.8 floor= 88/256 commit<=3.10 s
+endstation_arty_8ch          names= 87 records=120 top_id=0xD6 image=  7368 B (11% of a slot) F07.8 floor=120/256 commit<=3.15 s
+endstation_arty_current      names= 29 records= 42 top_id=0x9C image=  2516 B (3% of a slot) F07.8 floor= 42/256 commit<=3.05 s
+endstation_ax7101_1x1_tdm8   names= 39 records= 54 top_id=0xA6 image=  3336 B (5% of a slot) F07.8 floor= 54/256 commit<=3.07 s
+endstation_ax7101_8x8: MAPS_OUT[0]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[1]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[2]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[3]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[4]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[5]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[6]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s
+docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: every allocation-table figure at 1x1 (endstation_ax7101_1x1_tdm8), 8x8 (endstation_ax7101_8x8) is the derived one
+
+0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied
+START docs-60
+{"command": ["python3", "scripts/check_py_idiom.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 4.129, "log": "docs-59.log", "size": 461, "sha256": "d4beba022271fe0d509c57b6629ba108e784945289709df5d9c5d4c6ff9901a1"}
+py idiom: 353 first-party modules, 210979 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+START docs-61
+{"command": ["python3", "scripts/check_sh_idiom.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.265, "log": "docs-61.log", "size": 235, "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9"}
+sh idiom: 24 first-party scripts
+  backtick substitution: 0
+  cd without a failure path: 0
+  branch on $?: 0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+START docs-62
+{"command": ["python3", "scripts/check_sh_idiom.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.265, "log": "docs-62.log", "size": 2461, "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57"}
+[PASS] a [[ ]] test does not word-split
+[PASS] a deliberate split carrying a shellcheck directive is not a finding
+[PASS] an expansion inside a comment is not a finding
+[PASS] a long top-level script is a finding
+[PASS] a long decomposed script is not a finding
+[PASS] a short top-level script is not a finding
+[PASS] a count above its budget fails the ratchet
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] the scan reaches the tracked shell
+[PASS] the live population is complete
+[PASS] an empty population is refused
+[PASS] generated shell is out of scope
+[PASS] the ratcheted populations are non-empty
+[PASS] the checked-in budget carries every ratcheted key
+
+48 checks: 48 PASS, 0 FAIL
+START docs-63
+{"command": ["python3", "scripts/ci_events.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.215, "log": "docs-63.log", "size": 167, "sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77"}
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1741 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+START docs-64
+{"command": ["python3", "scripts/check_py_idiom.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 4.176, "log": "docs-60.log", "size": 2531, "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"}
+[PASS] an over-long line is a finding
+[PASS] a line at the limit is not a finding
+[PASS] a construct quoted in a docstring is not a finding
+[PASS] a count above its budget fails the ratchet
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget passes and names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] a malformed budget value is no entry
+[PASS] the scan reaches over 100 first-party modules
+[PASS] the scan reaches protocol-processor
+[PASS] the scan reaches gptp-processor
+[PASS] the live population is complete
+[PASS] an empty population is refused
+[PASS] a population missing a tree is refused
+[PASS] the ratcheted populations are non-empty
+[PASS] the checked-in budget carries every ratcheted key
+
+54 checks: 54 PASS, 0 FAIL
+START docs-65
+{"command": ["python3", "scripts/check_doc_paths.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.115, "log": "docs-65.log", "size": 85, "sha256": "5ca295666fc62a598fe7531ca268ec26dd5dc67f288d45749cbc6ad41868e020"}
+doc path gate: OK (938 cited paths all resolve; 10 line anchor(s) within their file)
+START docs-66
+{"command": ["python3", "scripts/check_archive.py"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.416, "log": "docs-66.log", "size": 93, "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"}
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+START docs-67
+{"command": ["python3", "scripts/check_archive.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.065, "log": "docs-67.log", "size": 35, "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a"}
+archive selftest: OK (24 controls)
+START docs-68
+{"command": ["python3", "scripts/gen_toc.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.968, "log": "docs-68.log", "size": 38, "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32"}
+TOC selftest: PASS (1501/1501 arm(s))
+START docs-69
+{"command": ["python3", "scripts/gen_toc.py", "--verify-anchors"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 3.075, "log": "docs-69.log", "size": 64, "sha256": "430bb37be8d5cab195e105701ade176505e6f8533ed7f1554cb9087b4160a341"}
+anchor check: 402 existing cross-page fragment links reproduced
+START docs-70
+{"command": ["python3", "scripts/gen_toc.py", "--check"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 5.335, "log": "docs-70.log", "size": 94, "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a"}
+TOC gate: OK (140 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+START docs-71
+{"command": ["python3", "avdecc/gen_aem_store.py", "--self-test"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.216, "log": "docs-71.log", "size": 3596, "sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022"}
+  [ok  ] the 6 open stream_channel deviation(s) are exactly the recorded ones
+  [ok  ] with an empty allowlist the deviation FAILS (the list is load-bearing)
+
+=== two-level directory gate self-test ===
+  [ok  ] a shuffled directory entry (contiguity)
+         -> descriptor type 0x0005 rows are not contiguous in the directory (row 4 re-opens a run closed at row 1) - the two-level accessor needs one run per type
+  [ok  ] same-type entries out of index order
+         -> type 0x0005 descriptor_index not zero-based ascending: row 3 carries index 1, expected 0
+  [ok  ] an off-by-one level-1 row base is refused
+         -> two-level directory diverges from the linear scan at type 0x0005 index 0: linear (1, 574, 154), two-level (1, 728, 146)
+  [ok  ] a mask bit on an unnamed type is refused
+         -> structural name lookup diverges from the NAMED table at type 0x000D index 0 name_index 0: table (0, 0), structural (1, 1651)
+
+=== Milan 6.4 Base format family (builtin model) ===
+  [ok  ] FORMATS (STREAM_INPUT): all 5 48 kHz Base channel counts [1, 2, 4, 6, 8] covered by 2 entries (6.5's ut string does the family)
+  [ok  ] without the ut entry the family check REPORTS [1, 4, 6, 8] missing
+
+gen_aem_store self-test: PASS
+START docs-72
+{"command": ["python3", "scripts/ci_events.py", "--selftest"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 18.882, "log": "docs-64.log", "size": 151471, "sha256": "db420a4b83a96d53cefdd88cc69322ed20d7ac02ec28012258d3175fdb7eea37"}
+  ok   rtl-script-439 firmware-unit step 9 empty record
+  ok   rtl-script-439 firmware-unit step 9 blank record
+  ok   rtl-script-439 firmware-unit step 9 wrong-type record
+  ok   rtl-script-439 firmware-unit step 9 stale record
+  ok   rtl-script-439 firmware-unit step 9 maintained record
+  ok   canonical pins are whitespace-invariant (assert step, decision step, ownership step, the aggregates' tally and worker-result steps, fast scope step, fast verdict step, verifier step, the four documentation gate steps and the elaborate scope step; carrier-script-407 every carrier body)
+  ok   rtl-script-439 every body accepts existing whitespace normalization
+  ok   default-branch: schedule on dev passes
+  ok   default-branch: dispatch on dev passes
+  ok   default-branch: schedule on main refuses, naming main
+  ok   default-branch: dispatch on main refuses
+  ok   default-branch: schedule with an unreadable value refuses
+  ok   default-branch: schedule with an empty value refuses
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (1741 contract items, 2362 arms)
+START docs-73
+{"command": ["python3", "scripts/check_deploy_shape.py", "--self-test"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 0.871, "log": "docs-73.log", "size": 9306, "sha256": "cfda42233a00e7eb3b6bff6cbc98f803ec9d59b3fbcf38d98931a676a8e06ae8"}
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --audio-interface-render: launch line '(absent)' != config-implied '8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --board: launch line 'arty' != config-implied 'ax7101' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --eth-port: launch line '(absent)' != config-implied 'e1' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --floorplan: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --gptp-egress-lat-ns: launch line '(absent)' != config-implied '219' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --gptp-ingress-lat-ns: launch line '(absent)' != config-implied '656' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --gtx-tx-invert: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --loopback-lane: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --no-i2s-playback: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --no-render-lpf: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --num-streams: launch line '4' != config-implied '1' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --sys-clk-freq: launch line '83.333e6' != config-implied '(absent)' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --talker-wire-chans: launch line '4' != config-implied '8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh would build endstation_ax7101_1x1_tdm8.yaml with --audio-interface-render (absent) where the config declares 8 render slots: milan_datapath would elaborate AUDIO_IF_RENDER_SLOTS_P = 0, take the g_tdm_render_parked arm and tie tdm_dout_o (J11.5) to 1'b0, so the board would render silence
+  [selftest] OK: 16 drift(s) reported
+  [selftest] the sourced fragment defines no shape - expecting REJECT:
+DEPLOY SHAPE DRIFT: deploy.sh build --dry-run exited 2; it said: deploy: $BUILDER_TREE/configs/generated/sweep_opts_ax7101.sh defines no OPTS
+  [selftest] OK: 1 drift(s) reported
+START docs-74
+{"command": ["python3", "scripts/check_sweep_shape.py", "--self-test"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 17.823, "log": "docs-72.log", "size": 19754, "sha256": "5a4cb5177c6dc6d29cd8e12a86e47350f5bc3c97971598ebaf91fb71fb402398"}
+  [self-test] BUILD_CFG is an absolute path to a real config - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2 naming the rule ('DIRECTLY under configs/')
+  [self-test] BUILD_CFG is a .yml spelling, whose artefact path the launcher would miss - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2 naming the rule ('DIRECTLY under configs/')
+  [self-test] BUILD_CFG=configs/endstation_ax7101_8x8.yaml on cfg_arty - expecting ACCEPT:
+  [self-test] OK: the recipe was rebound to a config under configs/
+  [self-test] unbound cfg_* recipe - expecting REJECT:
+SHAPE DRIFT: build.sh cfg_unbound_selftest has no config binding in BUILD_CFGS; an ungraded recipe could silently build a different shape
+  [self-test] OK: unbound cfg_* recipe rejected
+  [self-test] build.sh without the seed export - expecting REJECT:
+SHAPE DRIFT: tmpsegf41he.sh: launches milan_soc.py without `export PYTHONHASHSEED=0`; the CPU netlist name would depend on the process
+  [self-test] OK: 1 drift(s) reported
+  [self-test] sweep.sh without the seed export - expecting REJECT:
+SHAPE DRIFT: tmp60ps6had.sh: launches milan_soc.py without `export PYTHONHASHSEED=0`; the CPU netlist name would depend on the process
+  [self-test] OK: 1 drift(s) reported
+  [self-test] build.sh exporting the seed after exec - expecting REJECT:
+SHAPE DRIFT: tmpo366v9e_.sh: `export PYTHONHASHSEED=0` on line 523 comes after the milan_soc.py launch on line 498
+  [self-test] OK: 1 drift(s) reported
+{"command": ["python3", "sw/firmware/nvm_hosttest/test_nvm_firmware.py", "--self-test"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 91.666, "log": "docs-37.log", "size": 5189, "sha256": "4928189ff11ec557fe7fa80a3eb28b91ba56eed839cb6accf24847335a2d516d"}
+PHY_PUBLISH value=3 up=2 down=1
+PHY_PUBLISH value=9 up=2 down=1
+PHY_PUBLISH value=1 up=2 down=1
+PHY_PUBLISH value=0 up=2 down=2
+PHY_PUBLISH value=11 up=3 down=2
+PHY_PUBLISH value=0 up=3 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=0 up=4 down=4
+PHY_PUBLISH value=0 up=4 down=4
+PHY_PUBLISH value=11 up=5 down=4
+PHY_OK transfers=78 delay_cycles=319488
+PHY_MUTANT no-publish: caught
+PHY_MUTANT defer-recovery: caught
+PHY_MUTANT late-sample: caught
+PHY_MUTANT ack-ignored: caught
+saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+{"command": ["python3", "scripts/check_entity_shape.py", "--self-test"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 60.881, "log": "docs-74.log", "size": 25730, "sha256": "255ea708026c040ee205b9439089d03f681f50ceac10fa51c38190c96768f047"}
+         (rejected by: 0x618 has NO write arm: got True, expected False)
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   MUTATION rejected: milan_datapath recomputes the talker context count = True
+         (rejected by: ACMP talker contexts sized by ADP_TALKER_SRC_C: got False, expected True)
+
+== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==
+  milan_csr VERSION: 0x0002_0003 -> major 2, minor 3
+  [ok]   MUTATION rejected: milan_csr VERSION moved out from under the entity model = True
+         (rejected by: endstation_arty_4x4: emitted firmware_version: got '2.96.0', expected '2.3.0')
+  [ok]   MUTATION rejected: a config declares its own firmware_version = True
+         (rejected by: ConfigError: entity.firmware_version: remove it. The firmware version is derived from the gateware's VERSION parameter (hdl/common/csr/milan_csr.sv), which is where it lives; this build derives '2.96.0'. For a firmware respin with no CSR-ABI change use entity.firmware_rev.)
+
+== short_listener  (7x8) ==
+  [ok]   MUTATION rejected: config edited without regenerating its shape include = True
+         (rejected by: short_listener: configs/generated copy is current: got False, expected True)
+----------------------------------------------------------------------
+checks: 222   failures: 0
+RESULT: PASS

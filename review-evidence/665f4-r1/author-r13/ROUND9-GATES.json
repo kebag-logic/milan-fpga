@@ -1,0 +1,2052 @@
+{
+  "head": "edeef61c5a0cc6c18caa61db4019a8e378baf366",
+  "environment": {
+    "TMPDIR": "$SCRATCH",
+    "MILAN_RV32_CC": "$SDK/bin/riscv32-buildroot-linux-gnu-gcc",
+    "VERILATOR": "$PINNED_HDL_LIMITED",
+    "VERILATOR_JOBS": "2",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PATH_prefix": "$DOCS_ENV/bin and the pinned HDL compiler directory"
+  },
+  "receipts": [
+    {
+      "command": [
+        "python3",
+        "$SCRATCH/reviews/R532-8/scripts/probe_acmp_a0.py",
+        "$SOURCE",
+        "$SCRATCH/acmp-asan-final-build"
+      ],
+      "rc": 0,
+      "seconds": 71.873,
+      "log": "acmp-asan-final.log",
+      "size": 653,
+      "sha256": "6903bbacd6f66cee870c81d183e23f30dc36eb84d3f3e752b4dd4c60949783d9",
+      "label": "acmp-asan-final",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/acmp-asan-final.log",
+        "size": 653,
+        "sha256": "6903bbacd6f66cee870c81d183e23f30dc36eb84d3f3e752b4dd4c60949783d9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$SCRATCH/reviews/R533-8/binding_required.py"
+      ],
+      "rc": 0,
+      "seconds": 19.899,
+      "log": "binding-probe.log",
+      "size": 1972,
+      "sha256": "c14cdc8771e53a24758181011f9acb8351f9a89e7b0cb7314fae4b727d1fae39",
+      "label": "binding-probe",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/binding-probe.log",
+        "size": 1897,
+        "sha256": "cd14fbb819008c777c9e21d2228af0c88abf5c7722ae8235bb925196bd8cc943"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$SCRATCH/reviews/R533-8/check_bounds.py"
+      ],
+      "rc": 0,
+      "seconds": 0.466,
+      "log": "bound-table.log",
+      "size": 1924,
+      "sha256": "341ef4c34fca76d4c8b1c79ab364dc07dddf48a8ba588686237753089cbf3386",
+      "label": "bound-table",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/bound-table.log",
+        "size": 1774,
+        "sha256": "6d6fb80e88af051e464f598a2453da6c202a116c468c7b2e8968cd606ccee40e"
+      }
+    },
+    {
+      "command": [
+        "env",
+        "MAKEFLAGS=-j8",
+        "python3",
+        "sw/builder/test_builder.py",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "seconds": 1224.443,
+      "log": "builder-final.log",
+      "size": 101948,
+      "sha256": "f8a046c80390adb92140abc36a2f5f3a84c199a162e2748d65f86ec4172563f1",
+      "label": "builder-final",
+      "working_directory": "$BUILDER_TREE",
+      "retained_log": {
+        "path": "round9-receipts/builder-final.log",
+        "size": 100831,
+        "sha256": "b4ebec72019d2723f3eb568b2f3bea868b01d45e9e12a8b52ef846f1fc453863"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "4",
+        "--build-dir",
+        "$SCRATCH/campaign-verified"
+      ],
+      "rc": 0,
+      "seconds": 1553.049,
+      "log": "campaign-verified.log",
+      "size": 240635,
+      "sha256": "c1ddd5697b56a3b73054bf442e961d13e56b676c77b08bf660567a8df5d53035",
+      "label": "campaign-verified",
+      "working_directory": "$SOURCE",
+      "retained_log": null
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 5.636,
+      "log": "ci-scope.log",
+      "size": 6877,
+      "sha256": "c02517598f82288a24c3271175fd5447213baa39154815edb15d6118a003c926",
+      "label": "ci-scope",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/ci-scope.log",
+        "size": 6877,
+        "sha256": "c02517598f82288a24c3271175fd5447213baa39154815edb15d6118a003c926"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--absent",
+        "--audit",
+        "$SCRATCH/rv32-absent.jsonl"
+      ],
+      "rc": 0,
+      "seconds": 581.477,
+      "log": "compiler-absent.log",
+      "size": 50536,
+      "sha256": "001af9ec3b170bc6eb6d64ead64eba4ed2a5f5477de740e637531f0aecbf1b02",
+      "label": "compiler-absent",
+      "working_directory": "$BUILDER_TREE",
+      "retained_log": {
+        "path": "round9-receipts/compiler-absent.log",
+        "size": 50511,
+        "sha256": "dfb3d16a8020f2a6740a2a34f648cca18e477f24f2ed395589bbb621950bb30d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 1.718,
+      "log": "compiler-controls.log",
+      "size": 138,
+      "sha256": "f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7",
+      "label": "compiler-controls",
+      "working_directory": "$BUILDER_TREE",
+      "retained_log": {
+        "path": "round9-receipts/compiler-controls.log",
+        "size": 138,
+        "sha256": "f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--sdk-destination",
+        "$SDK",
+        "--audit",
+        "$SCRATCH/rv32-pinned.jsonl"
+      ],
+      "rc": 0,
+      "seconds": 1021.593,
+      "log": "compiler-pinned.log",
+      "size": 51054,
+      "sha256": "c9fb8bb3cb9ec1e8b52fc41eb34ecc6447f2c9dc7f8d71ba7b40b8cdfe62b107",
+      "label": "compiler-pinned",
+      "working_directory": "$BUILDER_TREE",
+      "retained_log": {
+        "path": "round9-receipts/compiler-pinned.log",
+        "size": 50716,
+        "sha256": "034c594aa47fb9c70dd88bd28185f90be273028c969aa0ceca5e905fbedb1158"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--check",
+        "--jobs",
+        "4",
+        "--keep",
+        "$SCRATCH/coverage-check"
+      ],
+      "rc": 0,
+      "seconds": 231.366,
+      "log": "coverage-check.log",
+      "size": 3455,
+      "sha256": "0718933c1975bcd19eba68d75468e2d4534918e45874c33c91eba18e75d053e3",
+      "label": "coverage-check",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/coverage-check.log",
+        "size": 3455,
+        "sha256": "0718933c1975bcd19eba68d75468e2d4534918e45874c33c91eba18e75d053e3"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "log": "coverage-selftest.log",
+      "size": 3710,
+      "sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b",
+      "label": "coverage-selftest",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/coverage-selftest.log",
+        "size": 3710,
+        "sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--write",
+        "--jobs",
+        "4",
+        "--keep",
+        "$SCRATCH/coverage-write-final"
+      ],
+      "rc": 0,
+      "seconds": 224.792,
+      "log": "coverage-write-final.log",
+      "size": 3476,
+      "sha256": "eb693a879734656dac339f3abc28c19e52f03c832b15730b976aef28392541e8",
+      "label": "coverage-write-final",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/coverage-write-final.log",
+        "size": 3476,
+        "sha256": "eb693a879734656dac339f3abc28c19e52f03c832b15730b976aef28392541e8"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_hdl_reference.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.215,
+      "log": "docs-00.log",
+      "size": 414,
+      "sha256": "18b63788f660b68760c6bd1e7072e1f8543a9210e7c1065ca39d49ccac1a577c",
+      "label": "docs-00",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-00.log",
+        "size": 389,
+        "sha256": "c647c549628e3f808150ecd02977d7746924704a60be34ec417a4235bcaf8351"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_hdl_reference.py",
+        "--output",
+        "$SCRATCH/milan-hdl-reference"
+      ],
+      "rc": 0,
+      "seconds": 1.843,
+      "log": "docs-01.log",
+      "size": 413,
+      "sha256": "4e115749d6968b0de0e2654ee8ad5bd1e5969032f4dc645d30dcd7c97f5aa5c8",
+      "label": "docs-01",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-01.log",
+        "size": 388,
+        "sha256": "1e232e36e3340e608cab66dc3060e5a48390ef4684c39d02d5d585ac780e773f"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 5.771,
+      "log": "docs-02.log",
+      "size": 128,
+      "sha256": "6537a28d48ee37946ff07af7e1794f11cda8b4a2a485fb8cb45f47d2095dbc1c",
+      "label": "docs-02",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-02.log",
+        "size": 128,
+        "sha256": "6537a28d48ee37946ff07af7e1794f11cda8b4a2a485fb8cb45f47d2095dbc1c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"
+      ],
+      "rc": 0,
+      "seconds": 3.538,
+      "log": "docs-03.log",
+      "size": 140,
+      "sha256": "b80230dea6c5b9e964e0a18c9d3e442eb8a3a869b3df9d02c39bfc9617ea3690",
+      "label": "docs-03",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-03.log",
+        "size": 140,
+        "sha256": "b80230dea6c5b9e964e0a18c9d3e442eb8a3a869b3df9d02c39bfc9617ea3690"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "log": "docs-04.log",
+      "size": 47,
+      "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+      "label": "docs-04",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-04.log",
+        "size": 47,
+        "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "log": "docs-05.log",
+      "size": 33,
+      "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+      "label": "docs-05",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-05.log",
+        "size": 33,
+        "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.215,
+      "log": "docs-06.log",
+      "size": 41,
+      "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d",
+      "label": "docs-06",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-06.log",
+        "size": 41,
+        "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.215,
+      "log": "docs-07.log",
+      "size": 46,
+      "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e",
+      "label": "docs-07",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-07.log",
+        "size": 46,
+        "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.468,
+      "log": "docs-08.log",
+      "size": 61,
+      "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+      "label": "docs-08",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-08.log",
+        "size": 61,
+        "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.566,
+      "log": "docs-09.log",
+      "size": 60,
+      "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+      "label": "docs-09",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-09.log",
+        "size": 60,
+        "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.434,
+      "log": "docs-10.log",
+      "size": 60,
+      "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4",
+      "label": "docs-10",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-10.log",
+        "size": 60,
+        "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.516,
+      "log": "docs-11.log",
+      "size": 61,
+      "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa",
+      "label": "docs-11",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-11.log",
+        "size": 61,
+        "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "log": "docs-12.log",
+      "size": 87,
+      "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+      "label": "docs-12",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-12.log",
+        "size": 87,
+        "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 2.801,
+      "log": "docs-13.log",
+      "size": 59,
+      "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30",
+      "label": "docs-13",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-13.log",
+        "size": 59,
+        "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.566,
+      "log": "docs-14.log",
+      "size": 54,
+      "sha256": "d1ae5c433282f7f6f0b3df74fb92180c7567e27714311c0b98d16e6f237f8e55",
+      "label": "docs-14",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-14.log",
+        "size": 54,
+        "sha256": "d1ae5c433282f7f6f0b3df74fb92180c7567e27714311c0b98d16e6f237f8e55"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.616,
+      "log": "docs-15.log",
+      "size": 60,
+      "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889",
+      "label": "docs-15",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-15.log",
+        "size": 60,
+        "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.566,
+      "log": "docs-16.log",
+      "size": 47,
+      "sha256": "79be302e03c97636315bf0b9d13d7d4160d1b0ac67f93f42874e51838b6de78c",
+      "label": "docs-16",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-16.log",
+        "size": 47,
+        "sha256": "79be302e03c97636315bf0b9d13d7d4160d1b0ac67f93f42874e51838b6de78c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.067,
+      "log": "docs-17.log",
+      "size": 66,
+      "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+      "label": "docs-17",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-17.log",
+        "size": 66,
+        "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "log": "docs-18.log",
+      "size": 77,
+      "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42",
+      "label": "docs-18",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-18.log",
+        "size": 77,
+        "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_axis_backpressure.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.315,
+      "log": "docs-19.log",
+      "size": 58,
+      "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3",
+      "label": "docs-19",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-19.log",
+        "size": 58,
+        "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_cdc_handshake.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "log": "docs-20.log",
+      "size": 54,
+      "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5",
+      "label": "docs-20",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-20.log",
+        "size": 54,
+        "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_gptp_pdelay.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "log": "docs-21.log",
+      "size": 52,
+      "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9",
+      "label": "docs-21",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-21.log",
+        "size": 52,
+        "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_diagram_pngs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.416,
+      "log": "docs-22.log",
+      "size": 66,
+      "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51",
+      "label": "docs-22",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-22.log",
+        "size": 66,
+        "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_diagram_pngs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 7.711,
+      "log": "docs-23.log",
+      "size": 59,
+      "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5",
+      "label": "docs-23",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-23.log",
+        "size": 59,
+        "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.966,
+      "log": "docs-24.log",
+      "size": 1500,
+      "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+      "label": "docs-24",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-24.log",
+        "size": 1500,
+        "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 1.267,
+      "log": "docs-25.log",
+      "size": 118,
+      "sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc",
+      "label": "docs-25",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-25.log",
+        "size": 118,
+        "sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--with-submodule"
+      ],
+      "rc": 0,
+      "seconds": 0.214,
+      "log": "docs-26.log",
+      "size": 66,
+      "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41",
+      "label": "docs-26",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-26.log",
+        "size": 66,
+        "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41"
+      }
+    },
+    {
+      "command": [
+        "make",
+        "-C",
+        "gptp-processor",
+        "docs"
+      ],
+      "rc": 0,
+      "seconds": 0.768,
+      "log": "docs-27.log",
+      "size": 2668,
+      "sha256": "a4af3015d9c6ced375d65a0284c5936d6b40247347da058fee9503a41badf40f",
+      "label": "docs-27",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-27.log",
+        "size": 2626,
+        "sha256": "2d2c3119250a7cab0dae68eba2b739fecdc1beda838652555a03844f268df6ae"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "log": "docs-28.log",
+      "size": 2565,
+      "sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b",
+      "label": "docs-28",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-28.log",
+        "size": 2565,
+        "sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "log": "docs-29.log",
+      "size": 728,
+      "sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363",
+      "label": "docs-29",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-29.log",
+        "size": 728,
+        "sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 19.547,
+      "log": "docs-30.log",
+      "size": 72,
+      "sha256": "b7b60aff4663f9da5c2684d08907575710af4b3d049a7576bdedb5b3160166b0",
+      "label": "docs-30",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-30.log",
+        "size": 72,
+        "sha256": "b7b60aff4663f9da5c2684d08907575710af4b3d049a7576bdedb5b3160166b0"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 7.049,
+      "log": "docs-31.log",
+      "size": 43,
+      "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+      "label": "docs-31",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-31.log",
+        "size": 43,
+        "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 1.218,
+      "log": "docs-32.log",
+      "size": 6368,
+      "sha256": "babcd7582b4442ae10768ffe17b97aa17208cefa6744e19ec9c071800bbfde9d",
+      "label": "docs-32",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-32.log",
+        "size": 5843,
+        "sha256": "c1b479a0541c7332d154e0abe64215033634d4439d5544b47280b43c9b56e04d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk.py",
+        "--destination",
+        "$SDK"
+      ],
+      "rc": 0,
+      "seconds": 1.326,
+      "log": "docs-33.log",
+      "size": 1501,
+      "sha256": "817bee33c7348e43502b4167a374a68511bda120ea38ed7e129b9ddfac1fd8c4",
+      "label": "docs-33",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-33.log",
+        "size": 1253,
+        "sha256": "1cec9c57c8583dbbfdb8c5916521e58815e539248bb9ef30a6b5bd76405140c2"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "rc": 0,
+      "seconds": 2.675,
+      "log": "docs-34.log",
+      "size": 2578,
+      "sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0",
+      "label": "docs-34",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-34.log",
+        "size": 2578,
+        "sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 47.427,
+      "log": "docs-35.log",
+      "size": 7010,
+      "sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6",
+      "label": "docs-35",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-35.log",
+        "size": 7010,
+        "sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "rc": 0,
+      "seconds": 1.018,
+      "log": "docs-36.log",
+      "size": 324,
+      "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+      "label": "docs-36",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-36.log",
+        "size": 324,
+        "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 79.453,
+      "log": "docs-37.log",
+      "size": 5189,
+      "sha256": "4928189ff11ec557fe7fa80a3eb28b91ba56eed839cb6accf24847335a2d516d",
+      "label": "docs-37",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-37.log",
+        "size": 5189,
+        "sha256": "4928189ff11ec557fe7fa80a3eb28b91ba56eed839cb6accf24847335a2d516d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "rc": 0,
+      "seconds": 0.165,
+      "log": "docs-38.log",
+      "size": 85,
+      "sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+      "label": "docs-38",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-38.log",
+        "size": 85,
+        "sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.265,
+      "log": "docs-39.log",
+      "size": 1501,
+      "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+      "label": "docs-39",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-39.log",
+        "size": 1501,
+        "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/litex/iob_pack_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 2.574,
+      "log": "docs-40.log",
+      "size": 3147,
+      "sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad",
+      "label": "docs-40",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-40.log",
+        "size": 3147,
+        "sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "rc": 0,
+      "seconds": 1.67,
+      "log": "docs-41.log",
+      "size": 153,
+      "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+      "label": "docs-41",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-41.log",
+        "size": 153,
+        "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 3.026,
+      "log": "docs-42.log",
+      "size": 3300,
+      "sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+      "label": "docs-42",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-42.log",
+        "size": 3300,
+        "sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.515,
+      "log": "docs-43.log",
+      "size": 36608,
+      "sha256": "0ece46e4cc0fc61cd15de56f4fd34704f1ca469845684b20d7a6d118d890d49e",
+      "label": "docs-43",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-43.log",
+        "size": 36608,
+        "sha256": "0ece46e4cc0fc61cd15de56f4fd34704f1ca469845684b20d7a6d118d890d49e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.566,
+      "log": "docs-44.log",
+      "size": 4026,
+      "sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02",
+      "label": "docs-44",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-44.log",
+        "size": 4026,
+        "sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "rc": 0,
+      "seconds": 2.822,
+      "log": "docs-45.log",
+      "size": 421,
+      "sha256": "c4a0b9e89f19df346a9b837d45d0eb04d65ab38de0a07edd5adef08c408ef5f8",
+      "label": "docs-45",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-45.log",
+        "size": 421,
+        "sha256": "c4a0b9e89f19df346a9b837d45d0eb04d65ab38de0a07edd5adef08c408ef5f8"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 3.127,
+      "log": "docs-46.log",
+      "size": 4619,
+      "sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e",
+      "label": "docs-46",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-46.log",
+        "size": 4619,
+        "sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 1.823,
+      "log": "docs-47.log",
+      "size": 6085,
+      "sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e",
+      "label": "docs-47",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-47.log",
+        "size": 6085,
+        "sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 1.621,
+      "log": "docs-48.log",
+      "size": 6597,
+      "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a",
+      "label": "docs-48",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-48.log",
+        "size": 6597,
+        "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "rc": 0,
+      "seconds": 1.819,
+      "log": "docs-49.log",
+      "size": 161,
+      "sha256": "da4ec2e5dabe6b0615d1dee8b05c07346773341e8d498a30c89ea78fce4a7f92",
+      "label": "docs-49",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-49.log",
+        "size": 161,
+        "sha256": "da4ec2e5dabe6b0615d1dee8b05c07346773341e8d498a30c89ea78fce4a7f92"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 1.77,
+      "log": "docs-50.log",
+      "size": 2584,
+      "sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b",
+      "label": "docs-50",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-50.log",
+        "size": 2584,
+        "sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 6.648,
+      "log": "docs-51.log",
+      "size": 14871,
+      "sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf",
+      "label": "docs-51",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-51.log",
+        "size": 14871,
+        "sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 7.035,
+      "log": "docs-52.log",
+      "size": 5895,
+      "sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+      "label": "docs-52",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-52.log",
+        "size": 5895,
+        "sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "log": "docs-53.log",
+      "size": 2000,
+      "sha256": "2a7eef25729000a4c5f954b0d143352423424deeb2135e80489b185078f47a9b",
+      "label": "docs-53",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-53.log",
+        "size": 2000,
+        "sha256": "2a7eef25729000a4c5f954b0d143352423424deeb2135e80489b185078f47a9b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "log": "docs-54.log",
+      "size": 1847,
+      "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+      "label": "docs-54",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-54.log",
+        "size": 1847,
+        "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 0.516,
+      "log": "docs-55.log",
+      "size": 218,
+      "sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167",
+      "label": "docs-55",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-55.log",
+        "size": 218,
+        "sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.516,
+      "log": "docs-56.log",
+      "size": 2955,
+      "sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b",
+      "label": "docs-56",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-56.log",
+        "size": 2955,
+        "sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 1.772,
+      "log": "docs-57.log",
+      "size": 316,
+      "sha256": "9abaae0e78d11833d393e5bcaa2efd1de9f39b3b651a9fefe69fa30c52a9d681",
+      "label": "docs-57",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-57.log",
+        "size": 316,
+        "sha256": "9abaae0e78d11833d393e5bcaa2efd1de9f39b3b651a9fefe69fa30c52a9d681"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 1.877,
+      "log": "docs-58.log",
+      "size": 3593,
+      "sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9",
+      "label": "docs-58",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-58.log",
+        "size": 3593,
+        "sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 4.688,
+      "log": "docs-59.log",
+      "size": 461,
+      "sha256": "15110269267b6e95f7a1324501ae028b67fc95f1d279bd49e2018e3e5ede7af4",
+      "label": "docs-59",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-59.log",
+        "size": 461,
+        "sha256": "15110269267b6e95f7a1324501ae028b67fc95f1d279bd49e2018e3e5ede7af4"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 4.398,
+      "log": "docs-60.log",
+      "size": 2531,
+      "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+      "label": "docs-60",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-60.log",
+        "size": 2531,
+        "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 0.265,
+      "log": "docs-61.log",
+      "size": 235,
+      "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+      "label": "docs-61",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-61.log",
+        "size": 235,
+        "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.265,
+      "log": "docs-62.log",
+      "size": 2461,
+      "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+      "label": "docs-62",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-62.log",
+        "size": 2461,
+        "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.214,
+      "log": "docs-63.log",
+      "size": 167,
+      "sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77",
+      "label": "docs-63",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-63.log",
+        "size": 167,
+        "sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 17.912,
+      "log": "docs-64.log",
+      "size": 151471,
+      "sha256": "db420a4b83a96d53cefdd88cc69322ed20d7ac02ec28012258d3175fdb7eea37",
+      "label": "docs-64",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-64.log",
+        "size": 151471,
+        "sha256": "db420a4b83a96d53cefdd88cc69322ed20d7ac02ec28012258d3175fdb7eea37"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "seconds": 0.129,
+      "log": "docs-65.log",
+      "size": 85,
+      "sha256": "5ca295666fc62a598fe7531ca268ec26dd5dc67f288d45749cbc6ad41868e020",
+      "label": "docs-65",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-65.log",
+        "size": 85,
+        "sha256": "5ca295666fc62a598fe7531ca268ec26dd5dc67f288d45749cbc6ad41868e020"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "log": "docs-66.log",
+      "size": 93,
+      "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+      "label": "docs-66",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-66.log",
+        "size": 93,
+        "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_archive.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.114,
+      "log": "docs-67.log",
+      "size": 35,
+      "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a",
+      "label": "docs-67",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-67.log",
+        "size": 35,
+        "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.916,
+      "log": "docs-68.log",
+      "size": 38,
+      "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+      "label": "docs-68",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-68.log",
+        "size": 38,
+        "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "rc": 0,
+      "seconds": 3.223,
+      "log": "docs-69.log",
+      "size": 64,
+      "sha256": "430bb37be8d5cab195e105701ade176505e6f8533ed7f1554cb9087b4160a341",
+      "label": "docs-69",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-69.log",
+        "size": 64,
+        "sha256": "430bb37be8d5cab195e105701ade176505e6f8533ed7f1554cb9087b4160a341"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 4.776,
+      "log": "docs-70.log",
+      "size": 94,
+      "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a",
+      "label": "docs-70",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-70.log",
+        "size": 94,
+        "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "avdecc/gen_aem_store.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.114,
+      "log": "docs-71.log",
+      "size": 3596,
+      "sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+      "label": "docs-71",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-71.log",
+        "size": 3596,
+        "sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 15.235,
+      "log": "docs-72.log",
+      "size": 19678,
+      "sha256": "ece419d1b63efb59649b2d55257feb21673bfa9a00c4e0671c5b625c706dd474",
+      "label": "docs-72",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-72.log",
+        "size": 19594,
+        "sha256": "3a84eb8afe365a7df69cb56d69bf57cc1389241998c0ac69f67705e66c33a5c2"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_deploy_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.469,
+      "log": "docs-73.log",
+      "size": 9268,
+      "sha256": "e424a100293545585d0d9cd212edab2d524ee6f56cdc0568f1cb9684f6049274",
+      "label": "docs-73",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-73.log",
+        "size": 9226,
+        "sha256": "1adf286f29854f1f75c6333aa89ced6f54776d05fcb93d53b1da8119749dcc3c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_entity_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 58.8,
+      "log": "docs-74.log",
+      "size": 25693,
+      "sha256": "016d0ddb5406a250386877b6de32a63744377f51b3c0ed4249a855b6c681ddb2",
+      "label": "docs-74",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-74.log",
+        "size": 25672,
+        "sha256": "ca40578969adf3c37b6ec950a10d98d17ea73df70d1c3059a1512d123b418365"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "rc": 0,
+      "seconds": 1.068,
+      "log": "docs-archive-feature.log",
+      "size": 29,
+      "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+      "label": "docs-archive-feature",
+      "working_directory": "$SCRATCH/committed-source",
+      "retained_log": {
+        "path": "round9-receipts/docs-archive-feature.log",
+        "size": 29,
+        "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 5.843,
+      "log": "docs-archive.log",
+      "size": 196,
+      "sha256": "fad5ebd53aeac0652e099a33e7e2f1f9c20cff72c054f79137c3755e283e244b",
+      "label": "docs-archive",
+      "working_directory": "$SCRATCH/committed-source",
+      "retained_log": {
+        "path": "round9-receipts/docs-archive.log",
+        "size": 196,
+        "sha256": "fad5ebd53aeac0652e099a33e7e2f1f9c20cff72c054f79137c3755e283e244b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 5.84,
+      "log": "docs-final.log",
+      "size": 128,
+      "sha256": "6537a28d48ee37946ff07af7e1794f11cda8b4a2a485fb8cb45f47d2095dbc1c",
+      "label": "docs-final",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-final.log",
+        "size": 128,
+        "sha256": "6537a28d48ee37946ff07af7e1794f11cda8b4a2a485fb8cb45f47d2095dbc1c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "log": "docs-selftest.log",
+      "size": 56,
+      "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+      "label": "docs-selftest",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-selftest.log",
+        "size": 56,
+        "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_wire_accountability.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.316,
+      "log": "docs-wire.log",
+      "size": 4965,
+      "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4",
+      "label": "docs-wire",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/docs-wire.log",
+        "size": 4965,
+        "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"
+      ],
+      "rc": 0,
+      "seconds": 3.63,
+      "log": "em-dash-final.log",
+      "size": 140,
+      "sha256": "b80230dea6c5b9e964e0a18c9d3e442eb8a3a869b3df9d02c39bfc9617ea3690",
+      "label": "em-dash-final",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/em-dash-final.log",
+        "size": 140,
+        "sha256": "b80230dea6c5b9e964e0a18c9d3e442eb8a3a869b3df9d02c39bfc9617ea3690"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/ctrl_image.py",
+        "--out",
+        "$SCRATCH/f3-images"
+      ],
+      "rc": 0,
+      "seconds": 4.174,
+      "log": "f3-images.log",
+      "size": 2382,
+      "sha256": "c0cdf4b5a631bc9b7af89a8d277bb4892f38e5bc6f7eb67d0d141b77c53b8d3c",
+      "label": "f3-images",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/f3-images.log",
+        "size": 2351,
+        "sha256": "238a0452362436b336e98d0d1469e48e0b012590e493746a963111c4e938fa8e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "seconds": 8.937,
+      "log": "image-selftest.log",
+      "size": 3543,
+      "sha256": "d928c2bde9799f22cfed58b8cbf19e60ed3f59d95d5ad27752a19665022e4eda",
+      "label": "image-selftest",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/image-selftest.log",
+        "size": 3512,
+        "sha256": "ce8d704086617ca1b7c997c5966d62e4f3bce8fed5d02f6177f91f8373a3e6bf"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$SCRATCH/images.py"
+      ],
+      "rc": 0,
+      "seconds": 9.744,
+      "log": "images-final.log",
+      "size": 5100,
+      "sha256": "660d863566f920b2683bf02d9e4fb8bcdf7a3432ab926988fb6e98c8eb202ac9",
+      "label": "images-final",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/images-final.log",
+        "size": 4950,
+        "sha256": "336523a38e5057c966dbe76ee8e1511ad67ef023e8b0ad9d9e6d416bcd4841ca"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/maap_differential.py",
+        "--self-test",
+        "--keep",
+        "$SCRATCH/maap-diff"
+      ],
+      "rc": 0,
+      "seconds": 144.545,
+      "log": "maap-diff.log",
+      "size": 13101121,
+      "sha256": "9766f2ae186bf75de53e373d8c887e62832232901cfb599d94dfb023000bb00b",
+      "label": "maap-diff",
+      "working_directory": "$SOURCE",
+      "retained_log": null
+    },
+    {
+      "command": [
+        "python3",
+        "sw/mailbox/gen_mailbox.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "log": "mailbox-contract.log",
+      "size": 26,
+      "sha256": "9bb7d3a8faff1627f39a3bb7c9462a0b15ec8dd6c94a44c48d2fc7ac515a982f",
+      "label": "mailbox-contract",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/mailbox-contract.log",
+        "size": 26,
+        "sha256": "9bb7d3a8faff1627f39a3bb7c9462a0b15ec8dd6c94a44c48d2fc7ac515a982f"
+      }
+    },
+    {
+      "command": [
+        "make",
+        "-C",
+        "$SCRATCH/mailbox/tb/verilator/mbx",
+        "-j8",
+        "VBUILD_JOBS=2"
+      ],
+      "rc": 0,
+      "seconds": 30.34,
+      "log": "mailbox-verified.log",
+      "size": 83282,
+      "sha256": "50de0e7723b950c0b5f8bd027fcdf650e01ed4fe6cc7a08d7e2ce6cc35dab648",
+      "label": "mailbox-verified",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/mailbox-verified.log",
+        "size": 61597,
+        "sha256": "21895882d663f0a090ba5e416c58774660b8474ebd861ca16e3949bd634cfbd1"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$SCRATCH/new_plants.py"
+      ],
+      "rc": 0,
+      "seconds": 141.678,
+      "log": "new-plants-final.log",
+      "size": 13992,
+      "sha256": "9063d75630a226f7d5cb1f204c81ec31e75c021cb7d9c2fddff5edfa5c59b0c4",
+      "label": "new-plants-final",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/new-plants-final.log",
+        "size": 12417,
+        "sha256": "6843e1c7222a49e883695f70d92a231d2b9968673b978b07109608016859e4db"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "4"
+      ],
+      "rc": 0,
+      "seconds": 1887.939,
+      "log": "nvm-campaign.log",
+      "size": 23916,
+      "sha256": "3d26c4a38d77be6e10582d286b22c50340120372f6ac0221df23c46daf639402",
+      "label": "nvm-campaign",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/nvm-campaign.log",
+        "size": 23916,
+        "sha256": "3d26c4a38d77be6e10582d286b22c50340120372f6ac0221df23c46daf639402"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$SCRATCH/remaining_plants.py"
+      ],
+      "rc": 0,
+      "seconds": 18.482,
+      "log": "remaining-plants.log",
+      "size": 750,
+      "sha256": "1ee7eb1c86e56240437fc2f20f7a6a10f1bf0967b3dbae2272da405575dec24c",
+      "label": "remaining-plants",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/remaining-plants.log",
+        "size": 675,
+        "sha256": "87ed8de06f1e22f7d591b3f37873e130b17cfbcca5d1695454bf4b3122d3defe"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$SCRATCH/reviewer_bounds.py"
+      ],
+      "rc": 0,
+      "seconds": 134.577,
+      "log": "reviewer-bounds.log",
+      "size": 6346,
+      "sha256": "0999238540ee2308c07a6b74be1e27e98453fe6b855fee76e0c60245b2157a40",
+      "label": "reviewer-bounds",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/reviewer-bounds.log",
+        "size": 5428,
+        "sha256": "310613b7b4c4cfcc2a62e01fb9f5d8ad77c8bb119ba90ba13c784175e109465a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_rv32_selftest.py",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "seconds": 6.328,
+      "log": "rv32-selftest.log",
+      "size": 793,
+      "sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94",
+      "label": "rv32-selftest",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/rv32-selftest.log",
+        "size": 793,
+        "sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94"
+      }
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "f74b9403b330ce316eeec6f724846f16def98443",
+        "HEAD"
+      ],
+      "rc": 0,
+      "seconds": 0.016,
+      "log": "source-diff.log",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "label": "source-diff",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/source-diff.log",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/tally_selftest.py",
+        "--mutants"
+      ],
+      "rc": 0,
+      "seconds": 55.396,
+      "log": "tally-mutants.log",
+      "size": 3982,
+      "sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11",
+      "label": "tally-mutants",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/tally-mutants.log",
+        "size": 3982,
+        "sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 4.778,
+      "log": "toc.log",
+      "size": 94,
+      "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a",
+      "label": "toc",
+      "working_directory": "$SOURCE",
+      "retained_log": {
+        "path": "round9-receipts/toc.log",
+        "size": 94,
+        "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a"
+      }
+    }
+  ]
+}

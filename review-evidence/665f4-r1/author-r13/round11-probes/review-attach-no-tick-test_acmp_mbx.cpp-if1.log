@@ -1,0 +1,191 @@
+[==========] Running 44 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 21 tests from AcmpMailbox
+[ RUN      ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[       OK ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder (0 ms)
+[ RUN      ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[       OK ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused (0 ms)
+[ RUN      ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[       OK ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot (0 ms)
+[ RUN      ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[       OK ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded (0 ms)
+[ RUN      ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[       OK ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp (0 ms)
+[ RUN      ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[       OK ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces (0 ms)
+[ RUN      ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[       OK ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding (0 ms)
+[ RUN      ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[       OK ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing (0 ms)
+[ RUN      ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+  C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+  C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+  C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+[       OK ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem (0 ms)
+[ RUN      ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+  C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+  C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+  C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+  C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+  C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+[       OK ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+  C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+  C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+[       OK ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord (0 ms)
+[ RUN      ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+  C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+[       OK ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[       OK ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt (0 ms)
+[ RUN      ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+  E2 0 owed ahead: room to response                                          25 accesses (bound 9108)
+  E2 3 owed ahead: room to response                                         100 accesses (bound 9108)
+  E2 7 owed ahead: room to response                                         200 accesses (bound 9108)
+[       OK ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1 (0 ms)
+[ RUN      ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+  backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 193 accesses
+  F3 the worst pass of the backlog                                          193 accesses (bound 1012)
+[       OK ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[       OK ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing (0 ms)
+[ RUN      ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+  adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+  F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22264)
+[       OK ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+  three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 265 accesses
+  F6 the worst pass of the four-way backlog                                 265 accesses (bound 3224)
+[       OK ] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound (0 ms)
+[ RUN      ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[       OK ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract (0 ms)
+[ RUN      ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[       OK ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen (0 ms)
+[ RUN      ] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+[       OK ] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened (0 ms)
+[----------] 21 tests from AcmpMailbox (1 ms total)
+
+[----------] 1 test from AcmpAdapterUnit
+[ RUN      ] AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[       OK ] AcmpAdapterUnit.B7RefusalsOfTheAdapter (0 ms)
+[----------] 1 test from AcmpAdapterUnit (0 ms total)
+
+[----------] 11 tests from SrpBinding
+[ RUN      ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface
+[       OK ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface (0 ms)
+[ RUN      ] SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry
+[       OK ] SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry (0 ms)
+[ RUN      ] SrpBinding.OwedTransmissionRetriesAfterCommit
+$SOURCE/sw/firmware/ctrl/test/srp_binding.hpp:149: Failure
+Expected: (srp_adapter.owed_len) > (0u), actual: 0 vs 0
+
+  [FAIL] SrpBinding.OwedTransmissionRetriesAfterCommit: Expected: (srp_adapter.owed_len) > (0u), actual: 0 vs 0
+[  FAILED  ] SrpBinding.OwedTransmissionRetriesAfterCommit (0 ms)
+[ RUN      ] SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding
+[       OK ] SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding (0 ms)
+[ RUN      ] SrpBinding.ReplacementSupersedesPendingIdentity
+[       OK ] SrpBinding.ReplacementSupersedesPendingIdentity (0 ms)
+[ RUN      ] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink
+[       OK ] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink (0 ms)
+[ RUN      ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding
+[       OK ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding (0 ms)
+[ RUN      ] SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline
+[       OK ] SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline (0 ms)
+[ RUN      ] SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes
+[       OK ] SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes (0 ms)
+[ RUN      ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity
+[       OK ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity (0 ms)
+[ RUN      ] SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding
+[       OK ] SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding (0 ms)
+[----------] 11 tests from SrpBinding (1 ms total)
+
+[----------] 11 tests from SrpFeedback
+[ RUN      ] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView
+[       OK ] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView
+[       OK ] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:97: Failure
+Value of: sink(k).withdrawn
+  Actual: false
+Expected: true
+expiry retained before receive
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: expiry retained before receive
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:30: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+retained withdrawal reprobes
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: retained withdrawal reprobes
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:31: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+retained withdrawal retires binding
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: retained withdrawal retires binding
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:97: Failure
+Value of: sink(k).withdrawn
+  Actual: false
+Expected: true
+expiry retained before receive
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: expiry retained before receive
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:30: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+retained withdrawal reprobes
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: retained withdrawal reprobes
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:31: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+retained withdrawal retires binding
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: retained withdrawal retires binding
+[  FAILED  ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder
+[       OK ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder (0 ms)
+[ RUN      ] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder
+[       OK ] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder (0 ms)
+[ RUN      ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream
+[       OK ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream (0 ms)
+[ RUN      ] SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration
+[       OK ] SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration (0 ms)
+[ RUN      ] SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake
+[       OK ] SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake (0 ms)
+[ RUN      ] SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath
+feedback: IF=1 initial=0 sinks=2 accesses=5 allowance=12
+feedback: IF=1 initial=1 sinks=2 accesses=5 allowance=12
+[       OK ] SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath (0 ms)
+[----------] 11 tests from SrpFeedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 44 tests from 4 test suites ran. (4 ms total)
+[  PASSED  ] 42 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] SrpBinding.OwedTransmissionRetriesAfterCommit
+[  FAILED  ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent
+
+ 2 FAILED TESTS
+== ctrl ADP ACMP MAAP SRP composition: checks: 44   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 44 checks, exit 1)

@@ -1,0 +1,59 @@
+[
+  {
+    "plant": "feedback-leave-clears-advertise-only",
+    "reviewer_equivalent": "q04-leave-clears-advertise-only",
+    "test": "SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent",
+    "observable": "retained withdrawal reprobes",
+    "same_replacement": true,
+    "runs": [
+      {
+        "interfaces": 1,
+        "log": "named-plants-if1/feedback-leave-clears-advertise-only.log",
+        "named_catch": true
+      },
+      {
+        "interfaces": 2,
+        "log": "named-plants-if2/feedback-leave-clears-advertise-only.log",
+        "named_catch": true
+      }
+    ]
+  },
+  {
+    "plant": "feedback-failed-indication-as-advertise",
+    "reviewer_equivalent": "q13-failed-indication-as-advertise",
+    "test": "SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes",
+    "observable": "retained withdrawal reprobes",
+    "same_replacement": true,
+    "runs": [
+      {
+        "interfaces": 1,
+        "log": "named-plants-if1/feedback-failed-indication-as-advertise.log",
+        "named_catch": true
+      },
+      {
+        "interfaces": 2,
+        "log": "named-plants-if2/feedback-failed-indication-as-advertise.log",
+        "named_catch": true
+      }
+    ]
+  },
+  {
+    "plant": "feedback-change-clears-both-kinds",
+    "reviewer_equivalent": "q06-change-clears-both-kinds",
+    "test": "SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal",
+    "observable": "continuous Advertise is not withdrawn",
+    "same_replacement": true,
+    "runs": [
+      {
+        "interfaces": 1,
+        "log": "named-plants-if1/feedback-change-clears-both-kinds.log",
+        "named_catch": true
+      },
+      {
+        "interfaces": 2,
+        "log": "named-plants-if2/feedback-change-clears-both-kinds.log",
+        "named_catch": true
+      }
+    ]
+  }
+]

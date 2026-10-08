@@ -1,0 +1,255 @@
+{
+  "head": "efea74858dffc482820d4f19c26c38796a57ff75",
+  "plants": [
+    {
+      "plant": "feedback-advertise-missing",
+      "test": "SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline",
+      "observable": "Advertise reaches ACMP",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-failed-as-advertise",
+      "test": "SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes",
+      "observable": "Failed flag reaches ACMP",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-withdrawal-missing",
+      "test": "SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes",
+      "observable": "withdrawal reaches ACMP",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-sink-crossed",
+      "test": "SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity",
+      "observable": "feedback keeps sink identity",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-interface-suppressed",
+      "test": "SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity",
+      "observable": "feedback uses configured interface",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-repeated",
+      "test": "SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline",
+      "observable": "unchanged registration is delivered once",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-kind-failed-lost",
+      "test": "SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView",
+      "observable": "current kind reaches ACMP",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-kind-advertise-lost",
+      "test": "SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView",
+      "observable": "current kind reaches ACMP",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-withdrawal-overwritten",
+      "test": "SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent",
+      "observable": "retained withdrawal reprobes",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-intrapdu-lost",
+      "test": "SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent",
+      "observable": "retained withdrawal reprobes",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-expiry-lost",
+      "test": "SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent",
+      "observable": "expiry retained before receive",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-first-registration-lost",
+      "test": "SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder",
+      "observable": "retained withdrawal reprobes",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-kind-order-lost",
+      "test": "SrpFeedback.KindThenWithdrawalIsDeliveredInOrder",
+      "observable": "kind precedes withdrawal",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-supersession-lost",
+      "test": "SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream",
+      "observable": "kind preserves settled state",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-withdrawal-sink-crossed",
+      "test": "SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream",
+      "observable": "retained withdrawal reprobes",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-advertise-copy-lost",
+      "test": "SrpFeedback.SinglePduKindReplacementsRemainContinuous",
+      "observable": "kind preserves settled state",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-failed-copy-lost",
+      "test": "SrpFeedback.SinglePduKindReplacementsRemainContinuous",
+      "observable": "kind preserves settled state",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "feedback-identity-copy-stale",
+      "test": "SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws",
+      "observable": "retained withdrawal reprobes",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "p11-supersession-kind-stale",
+      "test": "SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv",
+      "observable": "retired kind cannot settle the new epoch",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "p11-reset-withdrawal-lost",
+      "test": "SrpFeedback.LinkResetWithdrawsTheSettledRegistration",
+      "observable": "link reset withdraws registration",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "p11-postwithdrawal-kind-overwrite",
+      "test": "SrpFeedback.LaterKindAfterWithdrawalIsNotReported",
+      "observable": "retained pre-withdrawal kind",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "r10-feedback-ignores-pending",
+      "test": "SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration",
+      "observable": "old registration cannot settle replacement",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "r10-transient-refusal-forgotten",
+      "test": "SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake",
+      "observable": "earlier refusal keeps delivery awake",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "r10-feedback-allowance-quarter",
+      "test": "SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath",
+      "observable": "measured feedback per sink allowance",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    },
+    {
+      "plant": "r10-feedback-allowance-eight",
+      "test": "SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath",
+      "observable": "measured feedback per sink allowance",
+      "interfaces": [
+        1,
+        2
+      ],
+      "result": "caught by named FT assertion"
+    }
+  ]
+}

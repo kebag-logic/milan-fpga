@@ -1,0 +1,148 @@
+{
+  "builder_difference": [
+    "sw/firmware/ctrl/test/acmp_review_mutants.py"
+  ],
+  "head": "b98eb2d5a21522bab3bc6bb943332cf8edf11893",
+  "base": "82a79638405c3365e4078da471be56758f8dd679",
+  "commits": [
+    {
+      "sha": "14f091be8f1ea9c6cb23159fb55bccfebcbc2766",
+      "subject": "Preserve per-binding SRP feedback through ACMP delivery",
+      "parents": [
+        "82a79638405c3365e4078da471be56758f8dd679"
+      ],
+      "configured_identity_matches": true
+    },
+    {
+      "sha": "803e8c3c9e7506c4f004d562437ae4f374fbad8e",
+      "subject": "Keep feedback plants compilable after event dispatch changes",
+      "parents": [
+        "14f091be8f1ea9c6cb23159fb55bccfebcbc2766"
+      ],
+      "configured_identity_matches": true
+    },
+    {
+      "sha": "b98eb2d5a21522bab3bc6bb943332cf8edf11893",
+      "subject": "Align the ACMP open reentry plant with the expanded entry list",
+      "parents": [
+        "803e8c3c9e7506c4f004d562437ae4f374fbad8e"
+      ],
+      "configured_identity_matches": true
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "size": 66926,
+      "sha256": "68a10cf5d991ab16845c0ef5f8edc24df572d836ae14b92c4370997b1b05eda5"
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "size": 32186,
+      "sha256": "5e64133a6573603c27bb803877feaeed34d1d1ca06dd819feb7ebb1c537ee673"
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp.c",
+      "size": 39584,
+      "sha256": "361ac852b68d4100f9da68b109e523da628b8a674065143b7b5887cb835cb6ad"
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp.h",
+      "size": 23077,
+      "sha256": "9444106ae0a1114c88c1cf8d479d8385e7c5ebfbf60c7b147cb3dfed2e9f9270"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.h",
+      "size": 7549,
+      "sha256": "7c26f5dfeaca836cfad02a17bc00d1e5f4dc39ba0879cf7b68f6fdaba28503c5"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app_srp.c",
+      "size": 5263,
+      "sha256": "13bc42d30f6a88eba48c6f4624a84844f4d9a4cfb922dd5b5a945f00f32993a5"
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/README.md",
+      "size": 21066,
+      "sha256": "0bd49f7d39130a01c03668fc2e88b9e16f8e21b6b72180e4646e38f092641b23"
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/srp_mbx.c",
+      "size": 26144,
+      "sha256": "4e547be0c8a1b7f98a8bfb016773f4b53c65b93f03b52543f8b045d34b8d4f7d"
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/srp_mbx.h",
+      "size": 3756,
+      "sha256": "f95dd4f16459413fd7ed44061993cb95aeb83e35cd400d91306fdf44b145a4cc"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_mutants.py",
+      "size": 77532,
+      "sha256": "488e08bf9dfa07bad8bfb892f5a1cd4ef0106a096554c7d339ff31f6322721da"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_review_mutants.py",
+      "size": 33276,
+      "sha256": "a98d6a96f47d2c2f6c290a684986e36f1ec951f332aa7930c80707acf107655d"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_binding.hpp",
+      "size": 15144,
+      "sha256": "43fa25f7171769942cf8c137c03462988f2797d2f2305ba16f516c7eca1c10ce"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_feedback.hpp",
+      "size": 8428,
+      "sha256": "65c93ca71e1f998c348ef72afcc1d4a935b05c51cd8d38a0ac317df6e935dc69"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_mutants.py",
+      "size": 46170,
+      "sha256": "9b5b609e92ce9850b19870cde01ab470f801496b1a59bc31a0528c870cb92cbb"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp.cpp",
+      "size": 91824,
+      "sha256": "01142b10e90e757af8cb204181225cba56b9b637d703a67a95dd16d7ca30e7c2"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp_mbx.cpp",
+      "size": 59534,
+      "sha256": "da07d4a09bf2a58f5b8008c56d1e59ac522dcff5a9686e50805a5dc7bb9248ac"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "size": 12946,
+      "sha256": "b67eede4efec08152d8fd70f09d781febdeb9a05e7135574272ae5dd32fd46df"
+    },
+    {
+      "path": "sw/firmware/gtest/coverage.ratchet",
+      "size": 1684,
+      "sha256": "7c5358c51626b3b8a75cc4eeab2457f3d889a066b9940790bfe500ab0f6b4474"
+    }
+  ],
+  "unchanged_protected_paths": [
+    "hdl",
+    "tb",
+    "sw/mailbox",
+    "sw/builder",
+    "configs",
+    ".github",
+    ".gitmodules",
+    "third_party",
+    "protocol-processor",
+    "gptp-processor",
+    "external",
+    "sw/firmware/ctrl/mbx",
+    "sw/firmware/ctrl/loop",
+    "sw/firmware/ctrl/srp/srp_bounds.h"
+  ],
+  "implementation_head": "14f091be8f1ea9c6cb23159fb55bccfebcbc2766",
+  "builder_head": "803e8c3c9e7506c4f004d562437ae4f374fbad8e",
+  "final_test_only_changes": [
+    "sw/firmware/ctrl/test/acmp_review_mutants.py",
+    "sw/firmware/ctrl/test/srp_mutants.py"
+  ],
+  "evidence_equivalence": "The two follow-up commits keep two replacements compilable and correct the open-entry oracle index. Production sources, positive executable tests, coverage ratchet, image inputs and mailbox inputs are byte-identical to the implementation commit. The final mutation campaign uses the final candidate. The builder ran at 803e8c3c9e7506c4f004d562437ae4f374fbad8e; its only difference is the ACMP mutation-oracle index in acmp_review_mutants.py, which builder gates do not consume."
+}

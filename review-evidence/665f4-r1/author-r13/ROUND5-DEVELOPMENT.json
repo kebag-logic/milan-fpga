@@ -1,0 +1,58 @@
+[
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/firmware"
+    ],
+    "rc": 1,
+    "seconds": 158.322,
+    "log": "firmware.log",
+    "size": 37593,
+    "sha256": "405d7225e768a5931d235e061a42edcd8d3499c412e82e4aa5711ab145c501dd",
+    "label": "firmware",
+    "explanation": "Four exhaustion fixtures refused reception before reaching the intended adapter allocation; stage RX before saturating the pool.",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "$SCRATCH/coverage"
+    ],
+    "rc": 2,
+    "seconds": 67.225,
+    "log": "coverage.log",
+    "size": 596,
+    "sha256": "e844d21a7cba8a4c67fdbd0e16407ccc6ead6f6bc28e5ec14f99479876047ecc",
+    "label": "coverage",
+    "explanation": "The same four fixture failures; no ratchet or exclusion change.",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "make",
+      "-C",
+      "$SCRATCH/mailbox/tb/verilator/mbx",
+      "-j2",
+      "VERILATOR=$SCRATCH_PARENT/verilator-j8"
+    ],
+    "rc": 2,
+    "seconds": 0.264,
+    "log": "mailbox.log",
+    "size": 6453,
+    "sha256": "68b2b7c324d3f9dd1efe2824499dda5a66f54a0daeaaf976d338680c481a3fb4",
+    "label": "mailbox",
+    "explanation": "The first scratch copy omitted the tracked shared harness header; include tb/common before rerunning.",
+    "counted_as_final_evidence": false
+  }
+]
