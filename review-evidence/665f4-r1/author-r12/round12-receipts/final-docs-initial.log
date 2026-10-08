@@ -1,0 +1,83 @@
+START em-dash-final
+{"command": ["python3", "scripts/check_em_dash.py", "--base", "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"], "cwd": "$SOURCE", "rc": 0, "seconds": 4.178, "log": "em-dash-final.log", "size": 141, "sha256": "90b224a3d1fe44c2121aa513620c42b43ae5ba38be26840e005165f21bbedc8b"}
+check_em_dash: 0 finding(s) over 864 added line(s) in 15 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d8b355fe..HEAD]
+START docs-final
+{"command": ["python3", "scripts/docs_check.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 5.534, "log": "docs-final.log", "size": 128, "sha256": "03c9094ff213e3c806d007b5cbf63cf12e2c229ff5118b64a3de3e36b4738bc1"}
+docs_check: 0 finding(s) across 200 md files + 1191 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+START docs-wire
+{"command": ["python3", "scripts/check_wire_accountability.py", "--self-test"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.265, "log": "docs-wire.log", "size": 4965, "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4"}
+  [ok]   KL_aaf_packetizer resets every talker's chans from the constant
+  [ok]   milan_datapath guards the constant against the front-end supply
+  [ok]   W5: fill covers N_STREAMS x WIRE_CHANS/2 pair slots (ZF_TOTAL_C)
+  [ok]   W5: KL_pair_zero_fill instantiated over that span
+  [ok]   W5: the fill grid is the AUDIO clock /512 (48.000 kHz exactly), CDC'd
+  [ok]   W5: the packetizer bypass leg consumes the FILLED stream
+  [ok]   W5: the 8.3b blend arm exists (KL_pair_blend, I2S = pair slot 0)
+
+== self-test: the gate bites in both directions ==
+  [ok]   arty_current (streams clean to the reference device): clean - as expected
+  [ok]   ax7101_8x8 (W1 closed by the master, W3 closed by the fill): clean - as expected
+  [ok]   ax7101_8x8 with the TDM master removed (the 07-27 fabric): findings - as expected
+  [ok]   datapath with the silence fill deleted: findings - as expected
+  self-test: PASS
+
+----------------------------------------------------------------------
+checks: 77   findings: 0
+RESULT: PASS
+START cpp-final
+{"command": ["python3", "scripts/check_cpp_idiom.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 1.668, "log": "cpp-final.log", "size": 316, "sha256": "c4e43580d928601e38756c0a0ed7007f62e742d81ef33787999b457eb26f922f"}
+cpp idiom: 308 first-party translation units, 149 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+START py-final
+{"command": ["python3", "scripts/check_py_idiom.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 4.581, "log": "py-final.log", "size": 461, "sha256": "dc2020882620bab0c6a7e7763aa76f079d669d88046a3896f8d17f1a762e0284"}
+py idiom: 356 first-party modules, 211903 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+START toc-final
+{"command": ["python3", "scripts/gen_toc.py", "--check"], "cwd": "$SOURCE", "rc": 0, "seconds": 5.281, "log": "toc-final.log", "size": 94, "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a"}
+TOC gate: OK (140 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+START doc-paths-final
+{"command": ["python3", "scripts/check_doc_paths.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.114, "log": "doc-paths-final.log", "size": 85, "sha256": "70c8e47e3559e105d88dd49af8a9c3d19f1e64164278275ea93fa07d6f56369b"}
+doc path gate: OK (941 cited paths all resolve; 10 line anchor(s) within their file)
+START doc-style-final
+{"command": ["python3", "scripts/check_doc_style.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.114, "log": "doc-style-final.log", "size": 47, "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"}
+documentation style: OK (22 current documents)
+START source-diff
+{"command": ["git", "diff", "--check", "82a79638405c3365e4078da471be56758f8dd679", "HEAD"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.032, "log": "source-diff.log", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+
+START docs-archive
+{"command": ["python3", "scripts/docs_check.py"], "cwd": "$ARCHIVE_TREE", "rc": 1, "seconds": 5.53, "log": "docs-archive.log", "size": 402, "sha256": "76f0c062a5c53ea6a687731ef69e22726546b1b16453287cdaafe47e4e398782"}
+sw/firmware/ctrl/srp/README.md:75: broken link -> ../../../../third_party/lwSRP/doc/integrator.md
+sw/firmware/ctrl/srp/README.md:76: broken link -> ../../../../third_party/lwSRP/src/include/shish_lan/mrp.h
+docs_check: 2 finding(s) across 200 md files + 1191 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+Traceback (most recent call last):
+  File "$SCRATCH/final_docs.py", line 20, in <module>
+    subprocess.run([sys.executable,str(r/"run.py"),label,*command],cwd=dest,check=True,timeout=550)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['$DOCS_ENV/bin/python3', '$SCRATCH/run.py', 'docs-archive', 'python3', 'scripts/docs_check.py']' returned non-zero exit status 1.

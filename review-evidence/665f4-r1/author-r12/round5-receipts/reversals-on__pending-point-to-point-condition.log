@@ -1,0 +1,27 @@
+Test project $SCRATCH/reversals-on/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.13 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+$SCRATCH/reversals-on/source/tests/unit/integration_test.c:284: Failure: integration_suite -> pending_applicant_joinin_obeys_note_four 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[9]
+		expected value:			[1]
+
+  "integration_suite": 386 passes, 1 failure in 11ms.
+  "milan_suite": 430 passes in 8ms.
+  "boundaries_suite": 17156 passes in 87ms.
+Completed "main": 19888 passes, 1 failure in 129ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.13 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

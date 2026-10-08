@@ -1,0 +1,37 @@
+Note: Google Test filter = SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpLatency
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Change(0, 0, false)
+Google Mock tried the following 1 expectation, but it didn't match:
+
+$SOURCE/sw/firmware/ctrl/test/srp_latency.cpp:120: EXPECT_CALL(licence, Change(0,0,true))...
+  Expected arg #2: is equal to true
+           Actual: false
+         Expected: to be called once
+           Actual: called once - saturated and active
+
+  [FAIL] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog:            Actual: called once - saturated and active
+$SOURCE/sw/firmware/ctrl/test/srp_latency.cpp:123: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: false
+Expected: true
+
+  [FAIL] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog: Expected: true
+[  FAILED  ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[----------] 1 test from SrpLatency (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+
+ 1 FAILED TEST
+== ctrl SRP service latency: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

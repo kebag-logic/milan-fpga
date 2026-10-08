@@ -1,0 +1,408 @@
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+srp-$REVIEW_PACKET/scripts/r532_hol_probe-if2-endstation_ax7101_1x1_tdm8 0 [==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from R532Hol
+[ RUN      ] R532Hol.ControlTwoDomainValues
+N=2 bytes=37 pending=0 refused=0 received=2 malformed=0 pool_in_use=23
+  t+5s pending=0 refused=0 received=3 active=0 pool_in_use=21
+  t+10s pending=0 refused=0 received=3 active=0 pool_in_use=21
+  t+15s pending=0 refused=0 received=3 active=0 pool_in_use=21
+  t+20s pending=0 refused=0 received=3 active=0 pool_in_use=20
+  t+25s pending=0 refused=0 received=3 active=0 pool_in_use=20
+  t+30s pending=0 refused=0 received=3 active=0 pool_in_use=20
+[       OK ] R532Hol.ControlTwoDomainValues (5 ms)
+[ RUN      ] R532Hol.ManyDomainValuesInOneValidPdu
+N=150 bytes=1073 pending=1073 refused=501 received=1 malformed=0 pool_in_use=67
+  t+5s pending=0 refused=99903 received=2 active=0 pool_in_use=65
+  t+10s pending=0 refused=99903 received=2 active=0 pool_in_use=65
+  t+15s pending=0 refused=99903 received=2 active=0 pool_in_use=65
+  t+20s pending=0 refused=99903 received=2 active=0 pool_in_use=20
+  t+25s pending=0 refused=99903 received=2 active=0 pool_in_use=20
+  t+30s pending=0 refused=99903 received=2 active=0 pool_in_use=20
+[       OK ] R532Hol.ManyDomainValuesInOneValidPdu (968 ms)
+[ RUN      ] R532Hol.TwelveDomainValues
+N=12 bytes=107 pending=0 refused=0 received=2 malformed=0 pool_in_use=33
+  t+5s pending=0 refused=0 received=3 active=0 pool_in_use=31
+  t+10s pending=0 refused=0 received=3 active=0 pool_in_use=31
+  t+15s pending=0 refused=0 received=3 active=0 pool_in_use=31
+  t+20s pending=0 refused=0 received=3 active=0 pool_in_use=20
+  t+25s pending=0 refused=0 received=3 active=0 pool_in_use=20
+  t+30s pending=0 refused=0 received=3 active=0 pool_in_use=20
+[       OK ] R532Hol.TwelveDomainValues (6 ms)
+[ RUN      ] R532Hol.TwentyDomainValues
+N=20 bytes=163 pending=0 refused=0 received=2 malformed=0 pool_in_use=41
+  t+5s pending=0 refused=0 received=3 active=0 pool_in_use=39
+  t+10s pending=0 refused=0 received=3 active=0 pool_in_use=39
+  t+15s pending=0 refused=0 received=3 active=0 pool_in_use=39
+  t+20s pending=0 refused=0 received=3 active=0 pool_in_use=20
+  t+25s pending=0 refused=0 received=3 active=0 pool_in_use=20
+  t+30s pending=0 refused=0 received=3 active=0 pool_in_use=20
+[       OK ] R532Hol.TwentyDomainValues (7 ms)
+[ RUN      ] R532Hol.ThirtyDomainValues
+N=30 bytes=233 pending=0 refused=0 received=2 malformed=0 pool_in_use=51
+  t+5s pending=0 refused=0 received=3 active=0 pool_in_use=49
+  t+10s pending=0 refused=0 received=3 active=0 pool_in_use=49
+  t+15s pending=0 refused=0 received=3 active=0 pool_in_use=49
+  t+20s pending=0 refused=0 received=3 active=0 pool_in_use=20
+  t+25s pending=0 refused=0 received=3 active=0 pool_in_use=20
+  t+30s pending=0 refused=0 received=3 active=0 pool_in_use=20
+[       OK ] R532Hol.ThirtyDomainValues (8 ms)
+[----------] 5 tests from R532Hol (997 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (997 ms total)
+[  PASSED  ] 5 tests.
+== R532-6 head-of-line probe: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+srp-$REVIEW_PACKET/scripts/r532_hol_probe-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from R532Hol
+[ RUN      ] R532Hol.ControlTwoDomainValues
+N=2 bytes=37 pending=0 refused=0 received=2 malformed=0 pool_in_use=13
+  t+5s pending=0 refused=0 received=3 active=0 pool_in_use=11
+  t+10s pending=0 refused=0 received=3 active=0 pool_in_use=11
+  t+15s pending=0 refused=0 received=3 active=0 pool_in_use=11
+  t+20s pending=0 refused=0 received=3 active=0 pool_in_use=10
+  t+25s pending=0 refused=0 received=3 active=0 pool_in_use=10
+  t+30s pending=0 refused=0 received=3 active=0 pool_in_use=10
+[       OK ] R532Hol.ControlTwoDomainValues (3 ms)
+[ RUN      ] R532Hol.ManyDomainValuesInOneValidPdu
+N=150 bytes=1073 pending=1073 refused=501 received=1 malformed=0 pool_in_use=33
+  t+5s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+10s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+15s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+20s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+  t+25s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+  t+30s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+[       OK ] R532Hol.ManyDomainValuesInOneValidPdu (348 ms)
+[ RUN      ] R532Hol.TwelveDomainValues
+N=12 bytes=107 pending=0 refused=0 received=2 malformed=0 pool_in_use=23
+  t+5s pending=0 refused=0 received=3 active=0 pool_in_use=21
+  t+10s pending=0 refused=0 received=3 active=0 pool_in_use=21
+  t+15s pending=0 refused=0 received=3 active=0 pool_in_use=21
+  t+20s pending=0 refused=0 received=3 active=0 pool_in_use=10
+  t+25s pending=0 refused=0 received=3 active=0 pool_in_use=10
+  t+30s pending=0 refused=0 received=3 active=0 pool_in_use=10
+[       OK ] R532Hol.TwelveDomainValues (4 ms)
+[ RUN      ] R532Hol.TwentyDomainValues
+N=20 bytes=163 pending=0 refused=0 received=2 malformed=0 pool_in_use=31
+  t+5s pending=0 refused=0 received=3 active=0 pool_in_use=29
+  t+10s pending=0 refused=0 received=3 active=0 pool_in_use=29
+  t+15s pending=0 refused=0 received=3 active=0 pool_in_use=29
+  t+20s pending=0 refused=0 received=3 active=0 pool_in_use=10
+  t+25s pending=0 refused=0 received=3 active=0 pool_in_use=10
+  t+30s pending=0 refused=0 received=3 active=0 pool_in_use=10
+[       OK ] R532Hol.TwentyDomainValues (5 ms)
+[ RUN      ] R532Hol.ThirtyDomainValues
+N=30 bytes=233 pending=233 refused=501 received=1 malformed=0 pool_in_use=33
+  t+5s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+10s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+15s pending=0 refused=99903 received=2 active=0 pool_in_use=31
+  t+20s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+  t+25s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+  t+30s pending=0 refused=99903 received=2 active=0 pool_in_use=10
+[       OK ] R532Hol.ThirtyDomainValues (234 ms)
+[----------] 5 tests from R532Hol (597 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (597 ms total)
+[  PASSED  ] 5 tests.
+== R532-6 head-of-line probe: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_flood_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_flood_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_flood_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+srp-$REVIEW_PACKET/scripts/r532_flood_probe-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.FloodThenListenerLeaveRevocationTime
+PROBE flood pushed=60 pending=0 refused=21538 received=24 active=1 pool_in_use=33
+PROBE flood lv revoked_after_ms=0 active=0 pending=0 received+1 malformed=0 pool_in_use=32
+[       OK ] Srp.FloodThenListenerLeaveRevocationTime (10 ms)
+[----------] 1 test from Srp (10 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (10 ms total)
+[  PASSED  ] 1 test.
+== R532-6 flood probe: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+srp-$REVIEW_PACKET/scripts/r532_flood_probe-if2-endstation_ax7101_1x1_tdm8 0 [==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.FloodThenListenerLeaveRevocationTime
+PROBE flood pushed=60 pending=0 refused=20554 received=48 active=1 pool_in_use=67
+PROBE flood lv revoked_after_ms=0 active=0 pending=0 received+1 malformed=0 pool_in_use=66
+[       OK ] Srp.FloodThenListenerLeaveRevocationTime (21 ms)
+[----------] 1 test from Srp (21 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (21 ms total)
+[  PASSED  ] 1 test.
+== R532-6 flood probe: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r533_5_independent-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r533_5_independent-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r533_5_independent-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+srp-$REVIEW_PACKET/scripts/r533_5_independent-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[ RUN      ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[ RUN      ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+[ RUN      ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+withdraw/recovery: active=0 received=2 malformed=0 stops=1
+[       OK ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[----------] 4 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+== independent dependency seams: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
+srp-$REVIEW_PACKET/scripts/r533_5_independent-if2-endstation_ax7101_1x1_tdm8 0 [==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[ RUN      ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[ RUN      ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+[ RUN      ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+withdraw/recovery: active=0 received=2 malformed=0 stops=1
+[       OK ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[----------] 4 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+== independent dependency seams: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-$REVIEW_PACKET/scripts/r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+srp-$REVIEW_PACKET/scripts/r532_retry_probes-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from R532
+[ RUN      ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery
+exhausted: pending=35 refused=68 received=1 malformed=0
+[       OK ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery (0 ms)
+[ RUN      ] R532.SleepingLoopRetriesOnTickWithoutPeerInput
+retry after recovery waited 10 ms
+[       OK ] R532.SleepingLoopRetriesOnTickWithoutPeerInput (0 ms)
+[ RUN      ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder
+[       OK ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder (0 ms)
+[ RUN      ] R532.RetainedFirstInterfacePrecedesLaterInterface
+[       OK ] R532.RetainedFirstInterfacePrecedesLaterInterface (0 ms)
+[ RUN      ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly
+[       OK ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly (0 ms)
+[ RUN      ] R532.OnlyMalformedInputCountsMalformed
+[       OK ] R532.OnlyMalformedInputCountsMalformed (0 ms)
+[----------] 6 tests from R532 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 6 tests.
+== R532-6 receive retry probes: checks: 6   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)
+srp-$REVIEW_PACKET/scripts/r532_retry_probes-if2-endstation_ax7101_1x1_tdm8 0 [==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from R532
+[ RUN      ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery
+exhausted: pending=35 refused=68 received=1 malformed=0
+[       OK ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery (0 ms)
+[ RUN      ] R532.SleepingLoopRetriesOnTickWithoutPeerInput
+retry after recovery waited 10 ms
+[       OK ] R532.SleepingLoopRetriesOnTickWithoutPeerInput (0 ms)
+[ RUN      ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder
+[       OK ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder (0 ms)
+[ RUN      ] R532.RetainedFirstInterfacePrecedesLaterInterface
+[       OK ] R532.RetainedFirstInterfacePrecedesLaterInterface (0 ms)
+[ RUN      ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly
+[       OK ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly (0 ms)
+[ RUN      ] R532.OnlyMalformedInputCountsMalformed
+[       OK ] R532.OnlyMalformedInputCountsMalformed (0 ms)
+[----------] 6 tests from R532 (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 6 tests.
+== R532-6 receive retry probes: checks: 6   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)
+wrote $SCRATCH/probe-build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 17 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 17 tests from SrpRetry
+[ RUN      ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[ RUN      ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+[ RUN      ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+[       OK ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[ RUN      ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[ RUN      ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[ RUN      ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[ RUN      ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[ RUN      ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[       OK ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs
+[       OK ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[ RUN      ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[       OK ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (164 ms)
+[ RUN      ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+[       OK ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap (0 ms)
+[ RUN      ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord
+[       OK ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord (0 ms)
+[ RUN      ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard
+[       OK ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard (0 ms)
+[ RUN      ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+[       OK ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline (1 ms)
+[ RUN      ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave
+[       OK ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave (10 ms)
+[----------] 17 tests from SrpRetry (178 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 1 test suite ran. (178 ms total)
+[  PASSED  ] 17 tests.
+== ctrl SRP receive recovery: checks: 17   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (17 tests, 0 failures, exit 0)
+srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8 0 [==========] Running 17 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 17 tests from SrpRetry
+[ RUN      ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[ RUN      ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+[ RUN      ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+[       OK ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[ RUN      ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[ RUN      ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[ RUN      ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[ RUN      ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[ RUN      ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[       OK ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs
+[       OK ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[ RUN      ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[       OK ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (355 ms)
+[ RUN      ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+[       OK ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap (0 ms)
+[ RUN      ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord
+[       OK ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord (0 ms)
+[ RUN      ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard
+[       OK ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard (0 ms)
+[ RUN      ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+[       OK ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline (2 ms)
+[ RUN      ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave
+[       OK ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave (17 ms)
+[----------] 17 tests from SrpRetry (376 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 1 test suite ran. (376 ms total)
+[  PASSED  ] 17 tests.
+== ctrl SRP receive recovery: checks: 17   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (17 tests, 0 failures, exit 0)
+wrote $SCRATCH/probe-build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/probe-build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+srp-srp_latency-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpLatency
+[ RUN      ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+H-SRP if=1 path=startup elapsed_ns=1005300 wait_ms=0 service_ns=1005300 accesses=56
+H-SRP if=1 path=JoinTime elapsed_ns=1015300 wait_ms=0 service_ns=1015300 accesses=212
+H-SRP if=1 path=periodic elapsed_ns=1015700 wait_ms=0 service_ns=1015700 accesses=517
+H-SRP if=1 path=MVRP LeaveAll elapsed_ns=1002400 wait_ms=0 service_ns=1002400 accesses=17568
+H-SRP if=1 path=MSRP LeaveAll elapsed_ns=1006800 wait_ms=0 service_ns=1006800 accesses=20450
+[       OK ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget (0 ms)
+[ RUN      ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+H-SRP if=1 path=RX to licence elapsed_ns=1001900 wait_ms=0 service_ns=1001900 accesses=228
+H-SRP if=1 path=malformed discard elapsed_ns=1002300 wait_ms=0 service_ns=1002300 accesses=254
+H-SRP if=1 path=Domain to declarations elapsed_ns=200995000 wait_ms=200 service_ns=995000 accesses=436
+H-SRP if=1 path=Talker RX to Listener elapsed_ns=200998700 wait_ms=200 service_ns=998700 accesses=623
+H-SRP if=1 path=unbind to withdrawal elapsed_ns=200999300 wait_ms=200 service_ns=999300 accesses=780
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=1 path=LeaveTime to stop elapsed_ns=1001100 wait_ms=0 service_ns=1001100 accesses=666
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+H-SRP if=1 path=RX storage recovery elapsed_ns=1983200 wait_ms=0 service_ns=1983200 accesses=262
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 5 tests from SrpLatency (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 5 tests.
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+srp-srp_latency-if2-endstation_ax7101_1x1_tdm8 0 [==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpLatency
+[ RUN      ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+H-SRP if=2 path=startup elapsed_ns=1010200 wait_ms=0 service_ns=1010200 accesses=106
+H-SRP if=2 path=JoinTime elapsed_ns=1019800 wait_ms=0 service_ns=1019800 accesses=308
+H-SRP if=2 path=periodic elapsed_ns=1020400 wait_ms=0 service_ns=1020400 accesses=696
+H-SRP if=2 path=MVRP LeaveAll elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=20577
+H-SRP if=2 path=MSRP LeaveAll elapsed_ns=1006900 wait_ms=0 service_ns=1006900 accesses=21625
+H-SRP if=2 path=MVRP LeaveAll elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=23112
+H-SRP if=2 path=MSRP LeaveAll elapsed_ns=1006900 wait_ms=0 service_ns=1006900 accesses=24087
+[       OK ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget (1 ms)
+[ RUN      ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+H-SRP if=2 path=RX to licence elapsed_ns=1001900 wait_ms=0 service_ns=1001900 accesses=324
+H-SRP if=2 path=malformed discard elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=354
+H-SRP if=2 path=Domain to declarations elapsed_ns=200993300 wait_ms=200 service_ns=993300 accesses=573
+H-SRP if=2 path=Talker RX to Listener elapsed_ns=200995400 wait_ms=200 service_ns=995400 accesses=766
+H-SRP if=2 path=unbind to withdrawal elapsed_ns=201003400 wait_ms=200 service_ns=1003400 accesses=969
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=2 path=LeaveTime to stop elapsed_ns=1001100 wait_ms=0 service_ns=1001100 accesses=998
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+H-SRP if=2 path=RX storage recovery elapsed_ns=1978500 wait_ms=0 service_ns=1978500 accesses=363
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 5 tests from SrpLatency (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 5 tests.
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)

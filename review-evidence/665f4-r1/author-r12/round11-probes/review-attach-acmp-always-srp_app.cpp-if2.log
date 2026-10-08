@@ -1,0 +1,69 @@
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpApp
+[ RUN      ] SrpApp.AttachRefusalPreservesExistingComposition
+[       OK ] SrpApp.AttachRefusalPreservesExistingComposition (0 ms)
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:52: Failure
+Expected equality of these values:
+  model.filter_en
+    Which is: 27
+  channels
+    Which is: 25
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources:     Which is: 25
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:53: Failure
+Expected equality of these values:
+  model.irq_enable
+    Which is: 283
+  (channels<<0u)|(1u<<8u)
+    Which is: 281
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources:     Which is: 281
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:55: Failure
+Expected equality of these values:
+  app.loop.n_polls
+    Which is: 4
+  3u
+    Which is: 3
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources:     Which is: 3
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:58: Failure
+Expected equality of these values:
+  model.filter_en
+    Which is: 27
+  channels
+    Which is: 25
+
+  [FAIL] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources:     Which is: 25
+[  FAILED  ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 2 tests from SrpApp (0 ms total)
+
+[----------] 3 tests from Srp
+[ RUN      ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+  SRP event bound: 1 accesses, bound 1
+  SRP refused receive bound: 2 accesses, bound 2
+  SRP retained receive poll bound: 4 accesses, bound 1540
+  SRP transmitting poll bound: 91 accesses, bound 1540
+  SRP maximum TX record bound: 383 accesses, bound 383
+  SRP maximum RX record bound: 383 accesses, bound 383
+  SRP complete pass bound: 389 accesses, bound 2366
+[       OK ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds (0 ms)
+[ RUN      ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+  SRP poll terms: fixed 8, calls 4, real send accesses 1532, envelope 1540/1540
+[       OK ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks (0 ms)
+[ RUN      ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives
+  SRP pass terms: event 56, receive 770, poll 1540, envelope 2366/2366
+[       OK ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives (0 ms)
+[----------] 3 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+
+ 1 FAILED TEST
+== ctrl ADP MAAP SRP composition: checks: 5   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 5 checks, exit 1)

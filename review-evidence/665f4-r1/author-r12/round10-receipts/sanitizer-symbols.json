@@ -1,0 +1,114 @@
+{
+  "instrumented_suites": [
+    {
+      "executable": "asan/clang-asan/srp/srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "000000000054d6c0 T __asan_report_load1",
+        "000000000054d9c0 T __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "asan/clang-asan/srp/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "000000000054d6c0 T __asan_report_load1",
+        "000000000054d9c0 T __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "asan/clang-asan/srp/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "0000000000549cc0 T __asan_report_load1",
+        "0000000000549fc0 T __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "asan/clang-asan/srp/srp-srp_app-if1-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "0000000000549cc0 T __asan_report_load1",
+        "0000000000549fc0 T __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "asan/gcc-asan/srp/srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "                 U __asan_report_load1",
+        "                 U __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "asan/gcc-asan/srp/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "                 U __asan_report_load1",
+        "                 U __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "asan/gcc-asan/srp/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "                 U __asan_report_load1",
+        "                 U __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "asan/gcc-asan/srp/srp-srp_app-if1-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "                 U __asan_report_load1",
+        "                 U __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "park-check/clang/srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "000000000054d6c0 T __asan_report_load1",
+        "000000000054d9c0 T __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "park-check/clang/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "000000000054d6c0 T __asan_report_load1",
+        "000000000054d9c0 T __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "park-check/gcc/srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "                 U __asan_report_load1",
+        "                 U __asan_report_load16"
+      ]
+    },
+    {
+      "executable": "park-check/gcc/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/suite",
+      "symbols": [
+        "                 U __asan_report_load1",
+        "                 U __asan_report_load16"
+      ]
+    }
+  ],
+  "a0": [
+    {
+      "path": "asan/gcc-asan/base/build/test_acmp",
+      "size": 8391728,
+      "sha256": "848a11244e2d028b6987d19817f38fac53e2a629162a4e419e7b0ac714ece35b",
+      "asan_report_load_symbol": true
+    },
+    {
+      "path": "asan/gcc-asan/plant/build/test_acmp",
+      "size": 8391736,
+      "sha256": "60865fa0aa790468c3a87423b3fd4dfa2f4d0c4805504cea24abbba717c366aa",
+      "asan_report_load_symbol": true
+    },
+    {
+      "path": "asan/clang-asan/base/build/test_acmp",
+      "size": 6766136,
+      "sha256": "057ba6001ba2e9821bfe6aeb8f8c86e96dbd2811b86070c009611818204ffbc3",
+      "asan_report_load_symbol": true
+    },
+    {
+      "path": "asan/clang-asan/plant/build/test_acmp",
+      "size": 6766152,
+      "sha256": "77b1bf031e2262f49985dcb9e50c3ad4d5f5ac3e37283ab1d74f33c43ead54ae",
+      "asan_report_load_symbol": true
+    }
+  ]
+}

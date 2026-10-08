@@ -1,0 +1,146 @@
+[
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/builder_all.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 3139.711,
+    "log": "builder-all.log",
+    "size": 2162,
+    "sha256": "bb98f6230d694ac72df8d71ac7232db792ac28ea0bda539e9bc3acba90666635",
+    "label": "builder-all",
+    "retained_log": {
+      "path": "round12-receipts/builder-all.log",
+      "size": 2128,
+      "sha256": "7a5d1575101496df3b6634fdf650dfa0ebd5391354645b9c0a489b35105e0dc3"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/compiler_gates.py"
+    ],
+    "cwd": "$COMPILER_TREE",
+    "rc": 0,
+    "seconds": 1953.704,
+    "log": "compiler-bank.log",
+    "size": 68804,
+    "sha256": "918e9095f8f82ad1afb0bd8602f9a4ae43c54ac080dc6667ec157e23208bd597",
+    "label": "compiler-bank",
+    "retained_log": {
+      "path": "round12-receipts/compiler-bank.log",
+      "size": 68619,
+      "sha256": "3accaf2fdb5f23539bfa18b8ccb510c80646554ac0caebdce6fd0547fa00c7dc"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/docs.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 168.157,
+    "log": "docs-bank.log",
+    "size": 67454,
+    "sha256": "6e048f3064bd63b817a8cdecdf57e4582231a7c9cad567d5d4eaa9edcc443465",
+    "label": "docs-bank",
+    "retained_log": {
+      "path": "round12-receipts/docs-bank.log",
+      "size": 65220,
+      "sha256": "127e03a4959ea3443974b39816ce028f9ccc45ab285d11b4b2d8bacbeb3e1497"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/extra_gates.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 2624.472,
+    "log": "extra-gates.log",
+    "size": 12806,
+    "sha256": "2535dd98ba25b8f372919efac1017df714732820ad590f45a076d43f66dc2afd",
+    "label": "extra-gates",
+    "retained_log": {
+      "path": "round12-receipts/extra-gates.log",
+      "size": 12612,
+      "sha256": "028bec99f73dc1bf8fd0fc4f96f15148a9ff4bf127d29a5891ece56f5e491416"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/final_docs.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 35.685,
+    "log": "final-docs.log",
+    "size": 5499,
+    "sha256": "f4a9a62a645a5547a1d6531ac446c8da41630bf063b14f29b707a46a51a188a3",
+    "label": "final-docs",
+    "retained_log": {
+      "path": "round12-receipts/final-docs.log",
+      "size": 5234,
+      "sha256": "015eb4cd9660d65b5fd3d6b67a6144d2c8698a93e4c91cfa3057173359655886"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/followups.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 1099.938,
+    "log": "followups.log",
+    "size": 17976,
+    "sha256": "8968e9bd625cfcff17b34c1c61bdc716b1c4bf5b191ee54db96a7dc070aeac45",
+    "label": "followups",
+    "retained_log": {
+      "path": "round12-receipts/followups.log",
+      "size": 16320,
+      "sha256": "e309241c422821aa29740b3a5fc575d94c5aeea0907aab6504241570892b9900"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/mailbox.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 39.05,
+    "log": "mailbox-job.log",
+    "size": 1493,
+    "sha256": "97531915b1dcc116c807662d5b3d25b52fa6902a7c5538f0544dec155a1da16e",
+    "label": "mailbox-job",
+    "retained_log": {
+      "path": "round12-receipts/mailbox-job.log",
+      "size": 1425,
+      "sha256": "1db91cac61b5c893de58afa95d33684e9b29cd7db5dbb24f200a66a2ab5ee82f"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/resources.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 5166.752,
+    "log": "resource-monitor.log",
+    "size": 52,
+    "sha256": "36315efc87a09b8fdc837e3c9ceb857ae3018f8f035046d87be8ec31d9deea01",
+    "label": "resource-monitor",
+    "retained_log": {
+      "path": "round12-receipts/resource-monitor.log",
+      "size": 52,
+      "sha256": "36315efc87a09b8fdc837e3c9ceb857ae3018f8f035046d87be8ec31d9deea01"
+    }
+  }
+]

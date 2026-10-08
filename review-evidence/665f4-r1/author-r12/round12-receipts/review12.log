@@ -1,0 +1,127 @@
+Note: Google Test filter = R11Feedback.*:R533Feedback.*:SrpBinding.R10KindChange*:SrpBinding.R10FailedToAdvertise*:SrpBinding.R10DiscoveredWithdrawal*:SrpBinding.R10Replacement*:SrpBinding.R10Earlier*
+[==========] Running 13 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpBinding
+[ RUN      ] SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration
+  R10 replacement awaiting delivery: request pending 1, srp still holds old 1, acmp state 6
+[       OK ] SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration (0 ms)
+[ RUN      ] SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake
+[       OK ] SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake (0 ms)
+[ RUN      ] SrpBinding.R10KindChangeWhileSettledReachesAcmp
+  R10 kind A->F sink 0: srp desired 1, acmp state 7 tk_failed 1 impossible 0
+  R10 kind A->F sink 0: GET_RX_STATE_RESPONSE flags 0x0042
+  R10 kind A->F sink 1: srp desired 1, acmp state 7 tk_failed 1 impossible 0
+  R10 kind A->F sink 1: GET_RX_STATE_RESPONSE flags 0x0042
+[       OK ] SrpBinding.R10KindChangeWhileSettledReachesAcmp (0 ms)
+[ RUN      ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp
+  R10 kind F->A sink 0: srp desired 2, acmp state 7 tk_failed 0 impossible 0
+  R10 kind F->A sink 0: GET_RX_STATE_RESPONSE flags 0x0002
+  R10 kind F->A sink 1: srp desired 2, acmp state 7 tk_failed 0 impossible 0
+  R10 kind F->A sink 1: GET_RX_STATE_RESPONSE flags 0x0002
+[       OK ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp (0 ms)
+[ RUN      ] SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance
+  R10 discovered sink 0: 1 adp_armed 1
+  R10 discovered sink 1: 1 adp_armed 1
+  R10 discovered withdrawal feedback for 2 sinks: 5 accesses; states 2 2; allowance 96 (per sink 6)
+[       OK ] SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance (0 ms)
+[----------] 5 tests from SrpBinding (1 ms total)
+
+[----------] 4 tests from R533Feedback
+[ RUN      ] R533Feedback.R533FailedReplacementUpdatesReportedRegistration
+probe: IF=1 sink=0 port=0 SRP desired=1 ACMP failed=1 wire flags=0x42 expected failed=1
+probe: IF=1 sink=1 port=0 SRP desired=1 ACMP failed=1 wire flags=0x42 expected failed=1
+[       OK ] R533Feedback.R533FailedReplacementUpdatesReportedRegistration (0 ms)
+[ RUN      ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure
+probe: IF=1 sink=0 port=0 SRP desired=2 ACMP failed=0 wire flags=0x2 expected failed=0
+probe: IF=1 sink=1 port=0 SRP desired=2 ACMP failed=0 wire flags=0x2 expected failed=0
+[       OK ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure (0 ms)
+[ RUN      ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes
+probe: IF=1 sink=0 port=0 two records received; ACMP state=1 SRP bound=0 desired=0
+probe: IF=1 sink=1 port=0 two records received; ACMP state=1 SRP bound=0 desired=0
+[       OK ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes (0 ms)
+[ RUN      ] R533Feedback.R533SeparatePassWithdrawalDoesReprobe
+[       OK ] R533Feedback.R533SeparatePassWithdrawalDoesReprobe (0 ms)
+[----------] 4 tests from R533Feedback (0 ms total)
+
+[----------] 4 tests from R11Feedback
+[ RUN      ] R11Feedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv
+[       OK ] R11Feedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv (0 ms)
+[ RUN      ] R11Feedback.LinkResetWithdrawsTheSettledRegistration
+[       OK ] R11Feedback.LinkResetWithdrawsTheSettledRegistration (0 ms)
+[ RUN      ] R11Feedback.LaterKindAfterWithdrawalIsNotReported
+[       OK ] R11Feedback.LaterKindAfterWithdrawalIsNotReported (0 ms)
+[ RUN      ] R11Feedback.UnchangedRepeatsAreIdempotent
+[       OK ] R11Feedback.UnchangedRepeatsAreIdempotent (0 ms)
+[----------] 4 tests from R11Feedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 13 tests from 3 test suites ran. (1 ms total)
+[  PASSED  ] 13 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 13   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (13 tests, 0 failures, exit 0)
+wrote $SCRATCH/review12-build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review12-build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review12-build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = R11Feedback.*:R533Feedback.*:SrpBinding.R10KindChange*:SrpBinding.R10FailedToAdvertise*:SrpBinding.R10DiscoveredWithdrawal*:SrpBinding.R10Replacement*:SrpBinding.R10Earlier*
+[==========] Running 13 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpBinding
+[ RUN      ] SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration
+  R10 replacement awaiting delivery: request pending 1, srp still holds old 1, acmp state 6
+[       OK ] SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration (0 ms)
+[ RUN      ] SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake
+[       OK ] SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake (0 ms)
+[ RUN      ] SrpBinding.R10KindChangeWhileSettledReachesAcmp
+  R10 kind A->F sink 0: srp desired 1, acmp state 7 tk_failed 1 impossible 0
+  R10 kind A->F sink 0: GET_RX_STATE_RESPONSE flags 0x0042
+  R10 kind A->F sink 1: srp desired 1, acmp state 7 tk_failed 1 impossible 0
+  R10 kind A->F sink 1: GET_RX_STATE_RESPONSE flags 0x0042
+[       OK ] SrpBinding.R10KindChangeWhileSettledReachesAcmp (0 ms)
+[ RUN      ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp
+  R10 kind F->A sink 0: srp desired 2, acmp state 7 tk_failed 0 impossible 0
+  R10 kind F->A sink 0: GET_RX_STATE_RESPONSE flags 0x0002
+  R10 kind F->A sink 1: srp desired 2, acmp state 7 tk_failed 0 impossible 0
+  R10 kind F->A sink 1: GET_RX_STATE_RESPONSE flags 0x0002
+[       OK ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp (0 ms)
+[ RUN      ] SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance
+  R10 discovered sink 0: 1 adp_armed 1
+  R10 discovered sink 1: 1 adp_armed 1
+  R10 discovered withdrawal feedback for 2 sinks: 7 accesses; states 2 2; allowance 96 (per sink 6)
+[       OK ] SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance (0 ms)
+[----------] 5 tests from SrpBinding (1 ms total)
+
+[----------] 4 tests from R533Feedback
+[ RUN      ] R533Feedback.R533FailedReplacementUpdatesReportedRegistration
+probe: IF=2 sink=0 port=0 SRP desired=1 ACMP failed=1 wire flags=0x42 expected failed=1
+probe: IF=2 sink=1 port=1 SRP desired=1 ACMP failed=1 wire flags=0x42 expected failed=1
+[       OK ] R533Feedback.R533FailedReplacementUpdatesReportedRegistration (0 ms)
+[ RUN      ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure
+probe: IF=2 sink=0 port=0 SRP desired=2 ACMP failed=0 wire flags=0x2 expected failed=0
+probe: IF=2 sink=1 port=1 SRP desired=2 ACMP failed=0 wire flags=0x2 expected failed=0
+[       OK ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure (0 ms)
+[ RUN      ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes
+probe: IF=2 sink=0 port=0 two records received; ACMP state=1 SRP bound=0 desired=0
+probe: IF=2 sink=1 port=1 two records received; ACMP state=1 SRP bound=0 desired=0
+[       OK ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes (0 ms)
+[ RUN      ] R533Feedback.R533SeparatePassWithdrawalDoesReprobe
+[       OK ] R533Feedback.R533SeparatePassWithdrawalDoesReprobe (0 ms)
+[----------] 4 tests from R533Feedback (0 ms total)
+
+[----------] 4 tests from R11Feedback
+[ RUN      ] R11Feedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv
+[       OK ] R11Feedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv (0 ms)
+[ RUN      ] R11Feedback.LinkResetWithdrawsTheSettledRegistration
+[       OK ] R11Feedback.LinkResetWithdrawsTheSettledRegistration (0 ms)
+[ RUN      ] R11Feedback.LaterKindAfterWithdrawalIsNotReported
+[       OK ] R11Feedback.LaterKindAfterWithdrawalIsNotReported (0 ms)
+[ RUN      ] R11Feedback.UnchangedRepeatsAreIdempotent
+[       OK ] R11Feedback.UnchangedRepeatsAreIdempotent (0 ms)
+[----------] 4 tests from R11Feedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 13 tests from 3 test suites ran. (2 ms total)
+[  PASSED  ] 13 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 13   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (13 tests, 0 failures, exit 0)

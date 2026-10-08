@@ -1,0 +1,32 @@
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from SrpLatency
+[ RUN      ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+H-SRP if=2 path=startup elapsed_ns=1010200 wait_ms=0 service_ns=1010200 accesses=106
+H-SRP if=2 path=JoinTime elapsed_ns=1019800 wait_ms=0 service_ns=1019800 accesses=308
+H-SRP if=2 path=periodic elapsed_ns=1020400 wait_ms=0 service_ns=1020400 accesses=696
+H-SRP if=2 path=MVRP LeaveAll elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=20577
+H-SRP if=2 path=MSRP LeaveAll elapsed_ns=1006900 wait_ms=0 service_ns=1006900 accesses=21625
+H-SRP if=2 path=MVRP LeaveAll elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=23112
+H-SRP if=2 path=MSRP LeaveAll elapsed_ns=1006900 wait_ms=0 service_ns=1006900 accesses=24087
+[       OK ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget (1 ms)
+[ RUN      ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+H-SRP if=2 path=RX to licence elapsed_ns=1001900 wait_ms=0 service_ns=1001900 accesses=324
+H-SRP if=2 path=malformed discard elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=354
+H-SRP if=2 path=Domain to declarations elapsed_ns=200993300 wait_ms=200 service_ns=993300 accesses=573
+H-SRP if=2 path=Talker RX to Listener elapsed_ns=200995400 wait_ms=200 service_ns=995400 accesses=766
+H-SRP if=2 path=unbind to withdrawal elapsed_ns=201003400 wait_ms=200 service_ns=1003400 accesses=969
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=2 path=LeaveTime to stop elapsed_ns=1001100 wait_ms=0 service_ns=1001100 accesses=998
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[----------] 4 tests from SrpLatency (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 4 tests.
+== ctrl SRP service latency: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)

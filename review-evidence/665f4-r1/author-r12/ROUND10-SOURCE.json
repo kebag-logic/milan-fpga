@@ -1,0 +1,120 @@
+{
+  "head": "82a79638405c3365e4078da471be56758f8dd679",
+  "base": "edeef61c5a0cc6c18caa61db4019a8e378baf366",
+  "commits": [
+    {
+      "sha": "da36eb15f38d23aa4cddc9183e62e0a94f339dd9",
+      "subject": "Deliver SRP registration feedback and verify every service-bound term",
+      "parents": [
+        "edeef61c5a0cc6c18caa61db4019a8e378baf366"
+      ],
+      "configured_identity_matches": true
+    },
+    {
+      "sha": "82a79638405c3365e4078da471be56758f8dd679",
+      "subject": "Ratchet registration coverage and run new SRP plants at both interface counts",
+      "parents": [
+        "da36eb15f38d23aa4cddc9183e62e0a94f339dd9"
+      ],
+      "configured_identity_matches": true
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "size": 66731,
+      "sha256": "4ec7a319cd78b04378e5d80605c03917fef3d7937cfe66054e45a33e1c0dafcf"
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "size": 31480,
+      "sha256": "3f5c46fb0f47bfa1b0816d8281d23ce58d57f8ad113c642dd3dc53879798c2bf"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.h",
+      "size": 7531,
+      "sha256": "5195fcfec7f3b3c80efac9d645d4259e9a184a245181a2d3e71558e633b71066"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app_srp.c",
+      "size": 4606,
+      "sha256": "571413d82e9719edddaaef72d4f0a122b28dd7d80539a2ab082e4e7c0ba8ef22"
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/README.md",
+      "size": 19277,
+      "sha256": "44d7b96e2053b9b66c02d3a0724061ebed15b422542cf0d101f18bcee8141f6e"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_app.cpp",
+      "size": 11969,
+      "sha256": "d2631ac977cff4c14072f6bc019727ac50c200ef7fac84b7a3bf259c404bfa09"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_arms.py",
+      "size": 7146,
+      "sha256": "4e7f3767de80b12fed9f32c0d86100ebcd63cd552c71665227bb862be38f6866"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_binding.hpp",
+      "size": 14968,
+      "sha256": "052b9aa6e528e5bd511c546bec7bf041d856f142e6bbbc20af94910df6340104"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_cost_probe.hpp",
+      "size": 1793,
+      "sha256": "db5cc96fd296e8bd1dd8c8619f0c49a062316a0cb4ad7c4752693a77254df8ee"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_mutants.py",
+      "size": 42295,
+      "sha256": "ac06b67a1a34ca5656a29853f23495bb218c6602d0fa72a97ec4cd232a369411"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp_mbx.cpp",
+      "size": 59506,
+      "sha256": "19a04743a0b88505095cd86f7e46e0359e523017ef2197c6d0fde0c872703059"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "size": 12938,
+      "sha256": "f9f041d985b029182fd9a60d816924e931b9fb93ef4fa95483d779434e2b4be6"
+    },
+    {
+      "path": "sw/firmware/gtest/coverage.ratchet",
+      "size": 1684,
+      "sha256": "b5a0c8d8f2326ba139adfaafa0c475a1052f71b6e96b996936f11f6b58ad1b1b"
+    }
+  ],
+  "unchanged_protected_paths": [
+    "hdl",
+    "tb",
+    "sw/mailbox",
+    "sw/builder",
+    "configs",
+    ".github",
+    ".gitmodules",
+    "third_party",
+    "protocol-processor",
+    "gptp-processor",
+    "external",
+    "sw/firmware/ctrl/acmp",
+    "sw/firmware/ctrl/mbx",
+    "sw/firmware/ctrl/loop",
+    "sw/firmware/ctrl/srp/srp_mbx.c",
+    "sw/firmware/ctrl/srp/srp_mbx.h",
+    "sw/firmware/ctrl/srp/srp_bounds.h"
+  ],
+  "implementation_inventory_head": "da36eb15f38d23aa4cddc9183e62e0a94f339dd9",
+  "changed_since_implementation_inventory": [
+    "sw/firmware/gtest/coverage.ratchet"
+  ],
+  "builder_revision_difference": [
+    "sw/firmware/ctrl/app/ctrl_app.h",
+    "sw/firmware/ctrl/test/srp_binding.hpp",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/gtest/coverage.ratchet"
+  ],
+  "inventory_file_count": 1210,
+  "builder_input_equivalence": "Production behavior and builder inputs unchanged; final header edit is prose only. Final tests and ratchet are verified by the final coverage run; new plants run in both interface campaigns."
+}
