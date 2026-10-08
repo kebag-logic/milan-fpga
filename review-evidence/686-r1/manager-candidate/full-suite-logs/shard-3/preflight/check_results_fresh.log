@@ -1,0 +1,19 @@
+  [ok] identical                  want OK           got OK
+  [ok] timestamp moved only       want OK           got OK
+  [ok] section row differs        want STALE        got STALE
+  [ok] headline count differs     want STALE        got STALE
+  [ok] never committed            want STALE        got STALE
+  [ok] campaign skipped           want SKIP         got SKIP
+  [ok] stray skip beside a tally  want OK           got OK
+  [ok] stamp shape off the headline want STALE        got STALE
+  [ok] stamp not at end of line   want STALE        got STALE
+  [ok] log says nothing           want UNVERIFIABLE got UNVERIFIABLE
+  [ok] artifact is a leftover     want UNVERIFIABLE got UNVERIFIABLE
+  [ok] sections do not sum        want UNVERIFIABLE got UNVERIFIABLE
+  [ok] only the gap column disagrees want UNVERIFIABLE got UNVERIFIABLE
+  [ok] only the fail column disagrees want UNVERIFIABLE got UNVERIFIABLE
+  [ok] rows under a lookalike heading want OK           got OK
+  [ok] wider row inside the block want OK           got OK
+  [ok] campaign wrote nothing     want UNVERIFIABLE got UNVERIFIABLE
+  [ok] artifact has no headline   want UNVERIFIABLE got UNVERIFIABLE
+check_results_fresh self-test: 18 checks: 18 PASS, 0 FAIL
