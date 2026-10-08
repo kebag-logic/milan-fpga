@@ -1,0 +1,447 @@
+{
+ "kind": "ooc",
+ "identity": {
+  "tool": "Vivado v.2026.1 (lin64) Build 6511674",
+  "device": "xc7a100tfgg484-2",
+  "design": "KL_pp_shadow",
+  "state": "Synthesized",
+  "flow": [
+   "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+   "set_param general.maxThreads 32",
+   "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+  ],
+  "standalone_clock_ns": [
+   "20.000"
+  ]
+ },
+ "inputs_sha256": "30948570d668cbf9997ef3bd98138e73635d9b8f95549eac9f4f30e4c43c63c8",
+ "figures": {
+  "LUT": 29853,
+  "FF": 27370,
+  "BRAM_TILE": 23.5,
+  "RAMB36": 21,
+  "RAMB18": 5,
+  "DSP": 8,
+  "WNS_ns": -4.095,
+  "WHS_ns": 0.159,
+  "CARRY4": 1889
+ },
+ "scopes": {
+  "wrapper": {
+   "LUT": 29853,
+   "FF": 27370,
+   "RAMB36": 21,
+   "RAMB18": 5,
+   "DSP": 8,
+   "CARRY4": 1889
+  },
+  "ctl_fifo": {
+   "LUT": 79,
+   "FF": 33,
+   "RAMB36": 1,
+   "RAMB18": 1,
+   "DSP": 0,
+   "CARRY4": 3
+  },
+  "u_nvm": {
+   "LUT": 1116,
+   "FF": 1034,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 4,
+   "CARRY4": 57
+  },
+  "u_pp": {
+   "LUT": 28657,
+   "FF": 25976,
+   "RAMB36": 20,
+   "RAMB18": 4,
+   "DSP": 4,
+   "CARRY4": 1807
+  },
+  "u_pp/g_rx_pool[0].u_rx_slots": {
+   "LUT": 39,
+   "FF": 38,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 7
+  },
+  "u_pp/g_rx_pool[1].u_rx_slots": {
+   "LUT": 29,
+   "FF": 22,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 3
+  },
+  "u_pp/g_rx_pool[2].u_rx_slots": {
+   "LUT": 51,
+   "FF": 62,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 2
+  },
+  "u_pp/g_rx_pool[4].u_rx_slots": {
+   "LUT": 40,
+   "FF": 22,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 3
+  },
+  "u_pp/g_rx_pool[5].u_rx_slots": {
+   "LUT": 90,
+   "FF": 62,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 3
+  },
+  "u_pp/u_adp": {
+   "LUT": 695,
+   "FF": 465,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 1,
+   "CARRY4": 86
+  },
+  "u_pp/u_aecp": {
+   "LUT": 7277,
+   "FF": 4919,
+   "RAMB36": 7,
+   "RAMB18": 0,
+   "DSP": 1,
+   "CARRY4": 368
+  },
+  "u_pp/u_aecp/u_d3": {
+   "LUT": 2299,
+   "FF": 765,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 86
+  },
+  "u_pp/u_aecp/u_dyn": {
+   "LUT": 497,
+   "FF": 1609,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 14
+  },
+  "u_pp/u_aecp/u_resp": {
+   "LUT": 416,
+   "FF": 260,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 16
+  },
+  "u_pp/u_aecp/u_store": {
+   "LUT": 1116,
+   "FF": 694,
+   "RAMB36": 3,
+   "RAMB18": 0,
+   "DSP": 1,
+   "CARRY4": 111
+  },
+  "u_pp/u_aecp/u_ucpu": {
+   "LUT": 1592,
+   "FF": 495,
+   "RAMB36": 3,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 68
+  },
+  "u_pp/u_ca_builder": {
+   "LUT": 167,
+   "FF": 152,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_desc_mem_guard": {
+   "LUT": 2,
+   "FF": 1,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_dispatch": {
+   "LUT": 891,
+   "FF": 815,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 18
+  },
+  "u_pp/u_dispatch/u_acmp_q": {
+   "LUT": 289,
+   "FF": 204,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_dispatch/u_adp_q": {
+   "LUT": 79,
+   "FF": 88,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_dispatch/u_aecp_q": {
+   "LUT": 362,
+   "FF": 287,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 6
+  },
+  "u_pp/u_dispatch/u_maap_q": {
+   "LUT": 132,
+   "FF": 188,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_event_router": {
+   "LUT": 344,
+   "FF": 129,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_listener": {
+   "LUT": 1693,
+   "FF": 1082,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 32
+  },
+  "u_pp/u_lsn_admit": {
+   "LUT": 3,
+   "FF": 1,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_maap": {
+   "LUT": 717,
+   "FF": 506,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 90
+  },
+  "u_pp/u_mrp_strip": {
+   "LUT": 72,
+   "FF": 107,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 17
+  },
+  "u_pp/u_normalizer": {
+   "LUT": 81,
+   "FF": 353,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 6
+  },
+  "u_pp/u_notify": {
+   "LUT": 2143,
+   "FF": 1753,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 42
+  },
+  "u_pp/u_nvm_arb": {
+   "LUT": 25,
+   "FF": 4,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_nvm_port": {
+   "LUT": 519,
+   "FF": 160,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 72
+  },
+  "u_pp/u_nvm_shadow": {
+   "LUT": 785,
+   "FF": 1013,
+   "RAMB36": 2,
+   "RAMB18": 1,
+   "DSP": 0,
+   "CARRY4": 51
+  },
+  "u_pp/u_originator": {
+   "LUT": 657,
+   "FF": 881,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 60
+  },
+  "u_pp/u_prng": {
+   "LUT": 159,
+   "FF": 150,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 24
+  },
+  "u_pp/u_release_merge": {
+   "LUT": 0,
+   "FF": 4,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_rx_validator": {
+   "LUT": 480,
+   "FF": 789,
+   "RAMB36": 0,
+   "RAMB18": 1,
+   "DSP": 0,
+   "CARRY4": 35
+  },
+  "u_pp/u_scoreboard": {
+   "LUT": 133,
+   "FF": 169,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 16
+  },
+  "u_pp/u_side_port": {
+   "LUT": 54,
+   "FF": 6,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_srp": {
+   "LUT": 7171,
+   "FF": 7747,
+   "RAMB36": 0,
+   "RAMB18": 1,
+   "DSP": 2,
+   "CARRY4": 471
+  },
+  "u_pp/u_srp/u_admission": {
+   "LUT": 826,
+   "FF": 689,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 2,
+   "CARRY4": 31
+  },
+  "u_pp/u_srp/u_decoder": {
+   "LUT": 906,
+   "FF": 630,
+   "RAMB36": 0,
+   "RAMB18": 1,
+   "DSP": 0,
+   "CARRY4": 73
+  },
+  "u_pp/u_srp/u_domain": {
+   "LUT": 43,
+   "FF": 108,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 0
+  },
+  "u_pp/u_srp/u_encoder": {
+   "LUT": 1449,
+   "FF": 1089,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 106
+  },
+  "u_pp/u_srp/u_listener": {
+   "LUT": 1777,
+   "FF": 2615,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 132
+  },
+  "u_pp/u_srp/u_talker": {
+   "LUT": 1550,
+   "FF": 1787,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 124
+  },
+  "u_pp/u_srp/u_vlan": {
+   "LUT": 398,
+   "FF": 126,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 5
+  },
+  "u_pp/u_talker": {
+   "LUT": 1416,
+   "FF": 569,
+   "RAMB36": 1,
+   "RAMB18": 1,
+   "DSP": 0,
+   "CARRY4": 19
+  },
+  "u_pp/u_timer": {
+   "LUT": 1635,
+   "FF": 217,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 349
+  },
+  "u_pp/u_trace": {
+   "LUT": 23,
+   "FF": 18,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 4
+  },
+  "u_pp/u_tx_arbiter": {
+   "LUT": 188,
+   "FF": 187,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 4
+  },
+  "u_pp/u_tx_slots": {
+   "LUT": 340,
+   "FF": 138,
+   "RAMB36": 1,
+   "RAMB18": 0,
+   "DSP": 0,
+   "CARRY4": 5
+  }
+ }
+}
