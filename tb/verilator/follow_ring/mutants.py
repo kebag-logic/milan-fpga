@@ -3,13 +3,14 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """follow_ring's mutation arm: each planted defect must fail its named check.
 
-  mutants.py [--mdir DIR] [--jobs N]
+  mutants.py [--mdir DIR] [--jobs N] [--select NAME ...]
 
 The #645 ruling's planted controls, on the settle recentre that
 milan_datapath ships (dp_glue.py copies it, so each is a planted COPY of
 milan_datapath.sv the build reads through DP_SRC, never an edit of a tracked
-file), the stage-1 W1 arm, and one on the loopback ring's own recentre (a
-planted COPY of KL_chan_map_capture.sv through CMAP_SRC):
+file), the stage-1 W1 arm, and four on the loopback ring (planted COPIES of
+KL_chan_map_capture.sv through CMAP_SRC: OVERSHOOT in follow_ring,
+SINGLE-DROP, HELD-DUP and STARVED-HELD-DUP in chmap_capture):
 
 NO-SETTLE: the settle recentre never pulses. An INTERNAL pull-in under a
   running stream then keeps its shift (#647): the pull-in leg at a feed phase
