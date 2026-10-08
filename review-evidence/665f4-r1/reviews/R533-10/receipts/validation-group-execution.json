@@ -1,0 +1,55 @@
+[
+  {
+    "name": "plants-if1",
+    "argv": [
+      "python3",
+      "$PACKET/scripts/focused.py",
+      "plants",
+      "--interfaces",
+      "1",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 162.158
+  },
+  {
+    "name": "plants-if2",
+    "argv": [
+      "python3",
+      "$PACKET/scripts/focused.py",
+      "plants",
+      "--interfaces",
+      "2",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 165.291
+  },
+  {
+    "name": "coverage",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "$PACKET/scratch/coverage"
+    ],
+    "rc": 0,
+    "seconds": 226.069
+  },
+  {
+    "name": "sdk",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk.py",
+      "--destination",
+      "$PACKET/scratch/sdk"
+    ],
+    "rc": 0,
+    "seconds": 18.574
+  }
+]

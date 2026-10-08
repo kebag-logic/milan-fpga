@@ -1,0 +1,100 @@
+Note: Google Test filter = R533Feedback.R533*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from R533Feedback
+[ RUN      ] R533Feedback.R533FailedReplacementUpdatesReportedRegistration
+probe: IF=1 sink=0 port=0 SRP desired=1 ACMP failed=0 wire flags=0x2 expected failed=1
+$PACKET/scratch/independent-if1/tests/test_acmp_mbx.cpp:1256: Failure
+Expected equality of these values:
+  bool(response.flags & 0x0040u)
+    Which is: false
+  failed
+    Which is: true
+Table 5.39 GET_RX_STATE must report the current registration type
+
+  [FAIL] R533Feedback.R533FailedReplacementUpdatesReportedRegistration: Table 5.39 GET_RX_STATE must report the current registration type
+probe: IF=1 sink=1 port=0 SRP desired=1 ACMP failed=0 wire flags=0x2 expected failed=1
+$PACKET/scratch/independent-if1/tests/test_acmp_mbx.cpp:1256: Failure
+Expected equality of these values:
+  bool(response.flags & 0x0040u)
+    Which is: false
+  failed
+    Which is: true
+Table 5.39 GET_RX_STATE must report the current registration type
+
+  [FAIL] R533Feedback.R533FailedReplacementUpdatesReportedRegistration: Table 5.39 GET_RX_STATE must report the current registration type
+[  FAILED  ] R533Feedback.R533FailedReplacementUpdatesReportedRegistration (0 ms)
+[ RUN      ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure
+probe: IF=1 sink=0 port=0 SRP desired=2 ACMP failed=1 wire flags=0x42 expected failed=0
+$PACKET/scratch/independent-if1/tests/test_acmp_mbx.cpp:1256: Failure
+Expected equality of these values:
+  bool(response.flags & 0x0040u)
+    Which is: true
+  failed
+    Which is: false
+Table 5.39 GET_RX_STATE must report the current registration type
+
+  [FAIL] R533Feedback.R533AdvertiseReplacementClearsReportedFailure: Table 5.39 GET_RX_STATE must report the current registration type
+probe: IF=1 sink=1 port=0 SRP desired=2 ACMP failed=1 wire flags=0x42 expected failed=0
+$PACKET/scratch/independent-if1/tests/test_acmp_mbx.cpp:1256: Failure
+Expected equality of these values:
+  bool(response.flags & 0x0040u)
+    Which is: true
+  failed
+    Which is: false
+Table 5.39 GET_RX_STATE must report the current registration type
+
+  [FAIL] R533Feedback.R533AdvertiseReplacementClearsReportedFailure: Table 5.39 GET_RX_STATE must report the current registration type
+[  FAILED  ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure (0 ms)
+[ RUN      ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes
+probe: IF=1 sink=0 port=0 two records received; ACMP state=7 SRP bound=1 desired=2
+$PACKET/scratch/independent-if1/tests/test_acmp_mbx.cpp:1298: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+withdrawal triggers Milan 5.5.3.5.48
+
+  [FAIL] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes: withdrawal triggers Milan 5.5.3.5.48
+$PACKET/scratch/independent-if1/tests/test_acmp_mbx.cpp:1299: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+withdrawal stops SRP before another probe
+
+  [FAIL] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes: withdrawal stops SRP before another probe
+probe: IF=1 sink=1 port=0 two records received; ACMP state=7 SRP bound=1 desired=2
+$PACKET/scratch/independent-if1/tests/test_acmp_mbx.cpp:1298: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+withdrawal triggers Milan 5.5.3.5.48
+
+  [FAIL] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes: withdrawal triggers Milan 5.5.3.5.48
+$PACKET/scratch/independent-if1/tests/test_acmp_mbx.cpp:1299: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+withdrawal stops SRP before another probe
+
+  [FAIL] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes: withdrawal stops SRP before another probe
+[  FAILED  ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes (0 ms)
+[ RUN      ] R533Feedback.R533SeparatePassWithdrawalDoesReprobe
+[       OK ] R533Feedback.R533SeparatePassWithdrawalDoesReprobe (0 ms)
+[----------] 4 tests from R533Feedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] R533Feedback.R533FailedReplacementUpdatesReportedRegistration
+[  FAILED  ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure
+[  FAILED  ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes
+
+ 3 FAILED TESTS
+== ctrl ADP ACMP MAAP SRP composition: checks: 4   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 4 checks, exit 1)

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "native-if1",
+    "argv": [
+      "python3",
+      "@PACKET@/scripts/focused.py",
+      "native",
+      "--interfaces",
+      "1",
+      "--jobs",
+      "4"
+    ]
+  },
+  {
+    "name": "native-if2",
+    "argv": [
+      "python3",
+      "@PACKET@/scripts/focused.py",
+      "native",
+      "--interfaces",
+      "2",
+      "--jobs",
+      "4"
+    ]
+  }
+]

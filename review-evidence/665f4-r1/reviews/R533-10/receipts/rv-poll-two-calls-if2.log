@@ -1,0 +1,58 @@
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpApp
+[ RUN      ] SrpApp.AttachRefusalPreservesExistingComposition
+[       OK ] SrpApp.AttachRefusalPreservesExistingComposition (0 ms)
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[       OK ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 2 tests from SrpApp (0 ms total)
+
+[----------] 3 tests from Srp
+[ RUN      ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+  SRP event bound: 1 accesses, bound 1
+  SRP refused receive bound: 2 accesses, bound 2
+  SRP retained receive poll bound: 4 accesses, bound 774
+  SRP transmitting poll bound: 91 accesses, bound 774
+  SRP maximum TX record bound: 383 accesses, bound 383
+  SRP maximum RX record bound: 383 accesses, bound 383
+  SRP complete pass bound: 389 accesses, bound 1600
+[       OK ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds (0 ms)
+[ RUN      ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:176: Failure
+Expected: (static_cast<int64_t>(fixed)) <= (static_cast<int64_t>((2u * (4u + 1u * (2u + 2u + (1514u + 3u) / 4u))))-2*2u*(2u + 2u + (1514u + 3u) / 4u)), actual: 8 vs -758
+poll fixed term is funded independently
+
+  [FAIL] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks: poll fixed term is funded independently
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:186: Failure
+Expected: (static_cast<int64_t>(observed.calls)) <= ((static_cast<int64_t>((2u * (4u + 1u * (2u + 2u + (1514u + 3u) / 4u))))-static_cast<int64_t>(fixed))/(2u + 2u + (1514u + 3u) / 4u)), actual: 4 vs 2
+poll transmit count is funded independently
+
+  [FAIL] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks: poll transmit count is funded independently
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:189: Failure
+Expected: (fixed+observed.accesses) <= ((2u * (4u + 1u * (2u + 2u + (1514u + 3u) / 4u)))), actual: 1540 vs 774
+measured complete poll envelope
+
+  [FAIL] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks: measured complete poll envelope
+  SRP poll terms: fixed 8, calls 4, real send accesses 1532, envelope 1540/774
+[  FAILED  ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks (0 ms)
+[ RUN      ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:229: Failure
+Expected: (pass_envelope) <= ((8u * (4u + 2u + 1u) + 2u * ((2u + 2u + (1514u + 3u) / 4u) + 2u) + (2u * (4u + 1u * (2u + 2u + (1514u + 3u) / 4u))))), actual: 2366 vs 1600
+pass funds the independently measured poll envelope
+
+  [FAIL] Srp.PassFundsEveryEventRecordAndBothMaximumReceives: pass funds the independently measured poll envelope
+  SRP pass terms: event 56, receive 770, poll 1540, envelope 2366/1600
+[  FAILED  ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives (0 ms)
+[----------] 3 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+[  FAILED  ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives
+
+ 2 FAILED TESTS
+== ctrl ADP MAAP SRP composition: checks: 5   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 5 checks, exit 1)

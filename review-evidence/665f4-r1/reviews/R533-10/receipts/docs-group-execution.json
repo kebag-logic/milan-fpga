@@ -1,0 +1,107 @@
+[
+  {
+    "name": "docs-0",
+    "argv": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.144
+  },
+  {
+    "name": "docs-1",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.317
+  },
+  {
+    "name": "docs-2",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.063
+  },
+  {
+    "name": "docs-3",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.089
+  },
+  {
+    "name": "docs-4",
+    "argv": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.887
+  },
+  {
+    "name": "docs-5",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.182
+  },
+  {
+    "name": "docs-6",
+    "argv": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.492
+  },
+  {
+    "name": "docs-7",
+    "argv": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.401
+  },
+  {
+    "name": "docs-8",
+    "argv": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.338
+  },
+  {
+    "name": "docs-9",
+    "argv": [
+      "$DOCS_PYTHON",
+      "scripts/check_em_dash.py",
+      "--base",
+      "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"
+    ],
+    "rc": 0,
+    "seconds": 3.118
+  },
+  {
+    "name": "docs-10",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "d8b355fe..82a79638"
+    ],
+    "rc": 0,
+    "seconds": 0.013
+  }
+]

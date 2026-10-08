@@ -1,0 +1,30 @@
+Note: Google Test filter = Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+  SRP event bound: 1 accesses, bound 1
+  SRP refused receive bound: 2 accesses, bound 2
+  SRP retained receive poll bound: 4 accesses, bound 1536
+  SRP transmitting poll bound: 91 accesses, bound 1536
+  SRP maximum TX record bound: 383 accesses, bound 382
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:99: Failure
+Expected: (actual) <= (limit), actual: 383 vs 382
+SRP maximum TX record bound
+
+  [FAIL] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds: SRP maximum TX record bound
+  SRP maximum RX record bound: 383 accesses, bound 383
+  SRP complete pass bound: 389 accesses, bound 2362
+[  FAILED  ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+
+ 1 FAILED TEST
+== ctrl ADP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

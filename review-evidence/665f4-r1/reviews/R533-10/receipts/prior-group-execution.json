@@ -1,0 +1,56 @@
+[
+  {
+    "name": "prior-if1",
+    "argv": [
+      "python3",
+      "$PACKET/scripts/focused.py",
+      "prior",
+      "--interfaces",
+      "1",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 9.512
+  },
+  {
+    "name": "prior-bounds-if1",
+    "argv": [
+      "python3",
+      "$PACKET/scripts/prior_bounds.py",
+      "--interfaces",
+      "1",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 36.749
+  },
+  {
+    "name": "prior-if2",
+    "argv": [
+      "python3",
+      "$PACKET/scripts/focused.py",
+      "prior",
+      "--interfaces",
+      "2",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 9.121
+  },
+  {
+    "name": "prior-bounds-if2",
+    "argv": [
+      "python3",
+      "$PACKET/scripts/prior_bounds.py",
+      "--interfaces",
+      "2",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 36.573
+  }
+]

@@ -1,0 +1,85 @@
+[
+  {
+    "name": "docs-0",
+    "argv": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-1",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ]
+  },
+  {
+    "name": "docs-2",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ]
+  },
+  {
+    "name": "docs-3",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ]
+  },
+  {
+    "name": "docs-4",
+    "argv": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ]
+  },
+  {
+    "name": "docs-5",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ]
+  },
+  {
+    "name": "docs-6",
+    "argv": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ]
+  },
+  {
+    "name": "docs-7",
+    "argv": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-8",
+    "argv": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ]
+  },
+  {
+    "name": "docs-9",
+    "argv": [
+      "@DOCS_PYTHON@",
+      "scripts/check_em_dash.py",
+      "--base",
+      "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"
+    ]
+  },
+  {
+    "name": "docs-10",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "d8b355fe..82a79638"
+    ]
+  }
+]
