@@ -1,0 +1,8 @@
+307c307
+<   assign ev_cancel_w = !ev_rsp_w && cancel_pend_ok_w;
+---
+>   assign ev_cancel_w = !ev_rsp_w && !pend_ok_w && cancel_pend_ok_w;
+309c309
+<   assign ev_exp_w    = !ev_rsp_w && !ev_cancel_w && !ev_accept_w && pend_ok_w;
+---
+>   assign ev_exp_w    = !ev_rsp_w && !ev_accept_w && pend_ok_w;
