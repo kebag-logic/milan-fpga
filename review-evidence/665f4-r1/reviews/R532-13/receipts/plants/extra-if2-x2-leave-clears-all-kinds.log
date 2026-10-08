@@ -1,0 +1,66 @@
+Note: Google Test filter = SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpFeedback
+[ RUN      ] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal
+$REVIEWS/r532-13-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:134: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 1
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+continuous Advertise is not withdrawn
+
+  [FAIL] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal: continuous Advertise is not withdrawn
+$REVIEWS/r532-13-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:135: Failure
+Value of: sink(k).bound
+  Actual: false
+Expected: true
+
+  [FAIL] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal: Expected: true
+$REVIEWS/r532-13-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:7: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 1
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+kind preserves settled state
+
+  [FAIL] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal: kind preserves settled state
+$REVIEWS/r532-13-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:134: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 1
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+continuous Advertise is not withdrawn
+
+  [FAIL] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal: continuous Advertise is not withdrawn
+$REVIEWS/r532-13-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:135: Failure
+Value of: sink(k).bound
+  Actual: false
+Expected: true
+
+  [FAIL] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal: Expected: true
+$REVIEWS/r532-13-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:7: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 1
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+kind preserves settled state
+
+  [FAIL] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal: kind preserves settled state
+[  FAILED  ] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal (0 ms)
+[----------] 1 test from SrpFeedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

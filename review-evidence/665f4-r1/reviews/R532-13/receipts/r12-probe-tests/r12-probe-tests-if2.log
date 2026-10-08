@@ -1,0 +1,58 @@
+Note: Google Test filter = SrpFeedback.*
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from SrpFeedback
+[ RUN      ] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView
+[       OK ] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView
+[       OK ] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes
+[       OK ] SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes (0 ms)
+[ RUN      ] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal
+[       OK ] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal (0 ms)
+[ RUN      ] SrpFeedback.SinglePduKindReplacementsRemainContinuous
+[       OK ] SrpFeedback.SinglePduKindReplacementsRemainContinuous (0 ms)
+[ RUN      ] SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws
+[       OK ] SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws (0 ms)
+[ RUN      ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent (1 ms)
+[ RUN      ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder
+[       OK ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder (0 ms)
+[ RUN      ] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder
+[       OK ] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder (0 ms)
+[ RUN      ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream
+[       OK ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream (0 ms)
+[ RUN      ] SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv
+[       OK ] SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv (0 ms)
+[ RUN      ] SrpFeedback.LinkResetWithdrawsTheSettledRegistration
+[       OK ] SrpFeedback.LinkResetWithdrawsTheSettledRegistration (0 ms)
+[ RUN      ] SrpFeedback.LaterKindAfterWithdrawalIsNotReported
+[       OK ] SrpFeedback.LaterKindAfterWithdrawalIsNotReported (0 ms)
+[ RUN      ] SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration
+[       OK ] SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration (0 ms)
+[ RUN      ] SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake
+[       OK ] SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake (0 ms)
+[ RUN      ] SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath
+feedback: IF=2 initial=0 sinks=2 accesses=7 allowance=12
+feedback: IF=2 initial=1 sinks=2 accesses=11 allowance=12
+[       OK ] SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath (0 ms)
+[ RUN      ] SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal
+[       OK ] SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal (0 ms)
+[ RUN      ] SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes
+[       OK ] SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes (0 ms)
+[----------] 22 tests from SrpFeedback (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 22 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 22   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (22 tests, 0 failures, exit 0)
