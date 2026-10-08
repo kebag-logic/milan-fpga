@@ -1,0 +1,27 @@
+{
+  "input_evidence_commit": "ef69cd574960ff0ed632630d82d41383e38b1acc",
+  "header_sha256": "7fa2d66d681f1ceaf8a0dbcbf2e98bb602bd7b4a22b081bc29fd53042ea45c32",
+  "pairs": [
+    {
+      "original": "q04-leave-clears-advertise-only",
+      "standing": "feedback-leave-clears-advertise-only",
+      "same_replacement": true,
+      "test": "SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent",
+      "observable": "retained withdrawal reprobes"
+    },
+    {
+      "original": "q06-change-clears-both-kinds",
+      "standing": "feedback-change-clears-both-kinds",
+      "same_replacement": true,
+      "test": "SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal",
+      "observable": "continuous Advertise is not withdrawn"
+    },
+    {
+      "original": "q13-failed-indication-as-advertise",
+      "standing": "feedback-failed-indication-as-advertise",
+      "same_replacement": true,
+      "test": "SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes",
+      "observable": "retained withdrawal reprobes"
+    }
+  ]
+}

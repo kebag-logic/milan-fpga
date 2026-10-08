@@ -1,0 +1,43 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.84,
+    "log": "docs_check.log",
+    "tail": "docs_check: 0 finding(s) across 200 md files + 1191 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]\n"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.49,
+    "log": "check_py_idiom.log",
+    "tail": "py idiom: 356 first-party modules, 211916 lines\n  bare except: 0\n  mutable default argument: 0\n  shell invocation: 0\n  shadowed builtin: 0\n  wildcard import: 0\n  dynamic eval/exec: 0\n  unparseable source: 0\n  long function: 9 <= 9\n  long module: 10 <= 10\n  unannotated public function: 0 <= 0\n  undocumented public function: 0 <= 0\n  os.path use: 1 <= 1\n  unmanaged open: 0 <= 0\n  too many parameters: 7 <= 7\n  global statement: 0 <= 0\n  over-long line: 0 <= 0\n"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.65,
+    "log": "check_cpp_idiom.log",
+    "tail": "cpp idiom: 308 first-party translation units, 149 of them C\n  naked new/delete: 0\n  goto: 0\n  unbounded C call: 0\n  c-style cast: 0 <= 0\n  file-scope mutable: 0 <= 0\n  macro constant: 0 <= 0\n  unnamed enum block: 0 <= 0\n  multi-declarator declaration: 0 <= 0\n  long function: 0 <= 0\n  build without warnings: 0 <= 0\n"
+  },
+  {
+    "command": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.12,
+    "log": "gen_mailbox.log",
+    "tail": "gen_mailbox: 0 finding(s)\n"
+  }
+]

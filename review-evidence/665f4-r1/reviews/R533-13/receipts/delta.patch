@@ -1,0 +1,103 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 45c74ec54..1465eac40 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -292,7 +292,7 @@ flowchart TB
+   window base from the SoC's generated memory map (`CTRL_MBX_BASE`); the host
+   implementation drives the mailbox model and counts every access.
+ - **lwSRP's port layer** is provided here, with lwSRP's own prototypes, as
+-  of lwSRP `19f5796b63652eb1151906de73cb827d4980a53f` (fetched from
++  of lwSRP `9197193e47a6bb1c45a56d90a18c1784123aba44` (fetched from
+   `https://github.com/kebag-logic/lwSRP` and checked out at that revision;
+   the host test's lwSRP arm refuses another revision or an edited `src/`):
+   `shlan_malloc`, `shlan_calloc` and `shlan_free` on a static block pool, and
+diff --git a/sw/firmware/ctrl/test/srp_feedback.hpp b/sw/firmware/ctrl/test/srp_feedback.hpp
+index 52a9bd44e..9acd52d43 100644
+--- a/sw/firmware/ctrl/test/srp_feedback.hpp
++++ b/sw/firmware/ctrl/test/srp_feedback.hpp
+@@ -82,6 +82,61 @@ TEST_F(SrpFeedback, SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) {
+     }
+ }
+ 
++// Failed Lv followed by New in one PDU must retain the withdrawal, even
++// though the final registrar snapshot again contains the same Failed Talker.
++TEST_F(SrpFeedback, FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) {
++    for (unsigned k=0;k<2u;++k) {
++        bind(k); response(k,k); registration(k,true,0,k);
++        ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
++        ASSERT_TRUE(core()->sinks[k].tk_failed);
++        auto frame=talker(k,true,5), join=talker(k,true,0);
++        frame.resize(frame.size()-2u); // Replace PDU EndMark with a second Message.
++        frame.insert(frame.end(),join.begin()+15,join.end());
++        const auto received=srp_adapter.received;
++        queue(k,frame); settle();
++        ASSERT_EQ(srp_adapter.received-received,1u);
++        reprobed(k);
++    }
++}
++
++// Advertise -> Failed JoinIn is continuous, but the following Failed Lv
++// withdraws that replacement before Advertise returns in the same PDU.
++TEST_F(SrpFeedback, FailedReplacementWithdrawnInsideOnePduStillReprobes) {
++    for (unsigned k=0;k<2u;++k) {
++        bind(k); response(k,k); registration(k,false,0,k);
++        ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
++        auto frame=talker(k,true,1);
++        for (const auto& next : {talker(k,true,5),talker(k,false,1)}) {
++            frame.resize(frame.size()-2u);
++            frame.insert(frame.end(),next.begin()+15,next.end());
++        }
++        const auto received=srp_adapter.received;
++        queue(k,frame); settle();
++        ASSERT_EQ(srp_adapter.received-received,1u);
++        reprobed(k);
++    }
++}
++
++// New can register both kinds. Failed Lv plus Advertise refresh in one PDU
++// leaves Advertise registered throughout: only the kind changes at delivery.
++TEST_F(SrpFeedback, BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal) {
++    for (unsigned k=0;k<2u;++k) {
++        bind(k); response(k,k); registration(k,false,0,k); registration(k,true,0,k);
++        ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
++        ASSERT_EQ(sink(k).registered_kinds,3u) << "both kinds registered";
++        ASSERT_TRUE(core()->sinks[k].tk_failed);
++        auto frame=talker(k,true,5), refresh=talker(k,false,1);
++        frame.resize(frame.size()-2u);
++        frame.insert(frame.end(),refresh.begin()+15,refresh.end());
++        const auto received=srp_adapter.received;
++        queue(k,frame); settle();
++        ASSERT_EQ(srp_adapter.received-received,1u);
++        EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK) << "continuous Advertise is not withdrawn";
++        EXPECT_TRUE(sink(k).bound);
++        current_kind(k,false);
++    }
++}
++
+ TEST_F(SrpFeedback, SinglePduKindReplacementsRemainContinuous) {
+     for (bool initial_failed : {false,true}) {
+         if (initial_failed) { TearDown(); SetUp(); }
+diff --git a/sw/firmware/ctrl/test/srp_mutants.py b/sw/firmware/ctrl/test/srp_mutants.py
+index 8c1d232d6..13abbad5d 100644
+--- a/sw/firmware/ctrl/test/srp_mutants.py
++++ b/sw/firmware/ctrl/test/srp_mutants.py
+@@ -799,6 +799,19 @@ DEFECTS = (
+            '        capture(s,previous);',
+            '        (void)previous;',
+            'retained withdrawal reprobes', suite='test_acmp_mbx.cpp'),
++    Defect('feedback-leave-clears-advertise-only',
++           'SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent',
++           'talker_changed(from_ctx(ctx),value,type == MSRP_ATTR_TYPE_TALKER_FAILED ? 1u : 2u,false);',
++           'talker_changed(from_ctx(ctx),value,2u,false);',
++           'retained withdrawal reprobes', suite='test_acmp_mbx.cpp'),
++    Defect('feedback-failed-indication-as-advertise','SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes',
++           'talker_changed(from_ctx(ctx),&value->talker,1u,true);',
++           'talker_changed(from_ctx(ctx),&value->talker,2u,true);',
++           'retained withdrawal reprobes', suite='test_acmp_mbx.cpp'),
++    Defect('feedback-change-clears-both-kinds','SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal',
++           '            s->registered_kinds &= (uint8_t)~kind;',
++           '            s->registered_kinds = 0;',
++           'continuous Advertise is not withdrawn', suite='test_acmp_mbx.cpp'),
+     Defect('feedback-expiry-lost','SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent',
+            '        s->withdrawn = true;', '        s->withdrawn = false;',
+            'expiry retained before receive', suite='test_acmp_mbx.cpp'),
