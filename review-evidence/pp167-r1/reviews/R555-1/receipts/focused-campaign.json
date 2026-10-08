@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "tb/pp_top/notify_mutants.py",
+    "--output",
+    "$REVIEWS/pp167-r555-1-packet/receipts/focused-campaign",
+    "--verilator",
+    "$REVIEWS/pp167-r555-1-packet/scripts/limited_verilator.py",
+    "--jobs",
+    "2",
+    "--only",
+    "cancel_collision_drops_command",
+    "cancel_one_clock_late",
+    "cancel_one_per_command"
+  ],
+  "cwd": "$REVIEWS/r555-1-pp167",
+  "rc": 1,
+  "seconds": 0.416,
+  "finished_utc": "2026-10-08T04:57:39.728116+00:00"
+}

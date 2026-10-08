@@ -1,0 +1,19 @@
+{
+  "command": [
+    "$REVIEWS/pp167-r555-1-packet/scripts/limited_verilator.py",
+    "--lint-only",
+    "-Wall",
+    "-Wno-DECLFILENAME",
+    "-Wno-UNUSEDSIGNAL",
+    "-Wno-UNUSEDPARAM",
+    "--top-module",
+    "KL_aecp_notify",
+    "-GN_IF_P=2",
+    "hdl/common/pp_pkg.sv",
+    "hdl/aecp/KL_aecp_notify.sv"
+  ],
+  "cwd": "$REVIEWS/pp167-r555-1-packet/scratch/head",
+  "rc": 0,
+  "seconds": 1.567,
+  "finished_utc": "2026-10-08T05:02:26.439178+00:00"
+}

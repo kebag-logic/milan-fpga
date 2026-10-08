@@ -1,0 +1,9 @@
+COMMAND ["make", "-j16", "VERILATOR=$REVIEWS/pp167-r555-1-packet/scripts/limited_verilator.py"]
+make run
+make[1]: Entering directory '$REVIEWS/pp167-r555-1-packet/scratch/head/tb/aecp_notify'
+$REVIEWS/pp167-r555-1-packet/scripts/limited_verilator.py --cc --exe --build -j 0 --top-module KL_aecp_notify -GN_CTRL_P=2 -GN_STREAM_IN_P=1 -GN_STREAM_OUT_P=1 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp167-r555-1-packet/scratch/head/tb/aecp_notify -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/aecp/KL_aecp_notify.sv sim_main.cpp -o Vaecp_notify_sim
+%Error: Invalid option: --jobs
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+make[1]: *** [Makefile:46: run] Error 1
+make[1]: Leaving directory '$REVIEWS/pp167-r555-1-packet/scratch/head/tb/aecp_notify'
+make: *** [Makefile:64: check] Error 2

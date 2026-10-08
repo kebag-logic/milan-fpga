@@ -1,0 +1,5 @@
+COMMAND ["python3", "$REVIEWS/pp167-r555-1-packet/scripts/audit_public_and_scope.py", "$REVIEWS/r555-1-pp167"]
+  File "$REVIEWS/pp167-r555-1-packet/scripts/audit_public_and_scope.py", line 37
+    def declaration(s): return s[s.index("module KL_aecp_notify"):s.index("
+                                                                          ^
+SyntaxError: unterminated string literal (detected at line 37)

@@ -1,0 +1,8 @@
+COMMAND ["python3", "tb/pp_top/notify_mutants.py", "--output", "$REVIEWS/pp167-r555-1-packet/receipts/focused-campaign-rerun", "--verilator", "$REVIEWS/pp167-r555-1-packet/scripts/limited_verilator.py", "--jobs", "4", "--only", "cancel_collision_drops_command", "cancel_one_clock_late", "cancel_one_per_command"]
+{"mutant": "golden-aecp_notify-collision", "verdict": "PASS"}
+{"mutant": "golden-aecp_notify-interfaces", "verdict": "PASS"}
+{"mutant": "golden-aecp_notify-run", "verdict": "PASS"}
+{"mutant": "cancel_one_clock_late", "verdict": "KILLED", "missing": []}
+{"mutant": "cancel_collision_drops_command", "verdict": "KILLED", "missing": []}
+{"mutant": "cancel_one_per_command", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 3 of 3 KILLED by their named checks; goldens PASS

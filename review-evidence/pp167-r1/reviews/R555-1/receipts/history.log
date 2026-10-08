@@ -1,0 +1,63 @@
+commit f3fef22448ce4f9bed8fd249a21a5d472148bd3d
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Thu Oct 8 06:09:53 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Thu Oct 8 06:09:53 2026 +0200
+
+    Document the delayed cancellation control boundary
+
+ tb/pp_top/README.md | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+commit b5c1cce956477d7ee754fd300797dadd855436a6
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Thu Oct 8 06:07:12 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Thu Oct 8 06:07:12 2026 +0200
+
+    Preserve the delayed cancellation control at the output
+
+ tb/pp_top/notify_mutants.py | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+commit 9e907de9821a07d6e80cbc9adf85ec127ac94782
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Thu Oct 8 05:34:11 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Thu Oct 8 05:34:11 2026 +0200
+
+    Separate notification harness input initialization
+
+ tb/aecp_notify/sim_main.cpp | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+commit 521373f6672f0058c859961e33f2cab04afb328c
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Thu Oct 8 04:21:21 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Thu Oct 8 04:21:21 2026 +0200
+
+    Run the collision check separately to preserve mutation records
+
+ tb/aecp_notify/Makefile     | 18 +++++++++++++++---
+ tb/aecp_notify/README.md    | 10 ++++++----
+ tb/aecp_notify/sim_main.cpp | 24 +++++++++++++++---------
+ tb/pp_top/README.md         |  3 ++-
+ tb/pp_top/notify_mutants.py |  3 ++-
+ 5 files changed, 40 insertions(+), 18 deletions(-)
+
+commit 81d42bac0727a9f1ad997d7b7c09e7be6fc1ae73
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Thu Oct 8 04:07:29 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Thu Oct 8 04:07:29 2026 +0200
+
+    Retain coincident availability cancellations at one interface
+
+ docs/architecture/06_aecp_engine.md |  9 +++++
+ hdl/aecp/KL_aecp_notify.sv          | 17 +++++++--
+ tb/aecp_notify/README.md            | 28 +++++++++++++--
+ tb/aecp_notify/sim_main.cpp         | 70 +++++++++++++++++++++++++++++++++++++
+ tb/pp_top/README.md                 |  6 ++++
+ tb/pp_top/notify_mutants.py         | 16 +++++++--
+ 6 files changed, 139 insertions(+), 7 deletions(-)
