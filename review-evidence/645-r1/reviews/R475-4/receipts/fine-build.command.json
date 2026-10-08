@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/follow_ring",
+    "build",
+    "VERILATOR_JOBS=8",
+    "VERILATOR=<simulator>",
+    "CLK_HZ=25000000",
+    "FRAME_DIV=64",
+    "MDIR=<packet>/scratch/fine"
+  ],
+  "cwd": "."
+}

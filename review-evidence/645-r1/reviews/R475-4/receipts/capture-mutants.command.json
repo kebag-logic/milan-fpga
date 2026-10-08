@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "tb/verilator/follow_ring/mutants.py",
+    "--mdir",
+    "<packet>/scratch/mutants",
+    "--jobs",
+    "1",
+    "--select",
+    "SINGLE-DROP",
+    "HELD-DUP",
+    "STARVED-HELD-DUP"
+  ],
+  "cwd": "."
+}
