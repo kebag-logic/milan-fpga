@@ -29,6 +29,7 @@ struct srp_sink {
     bool vlan_sent;
     uint8_t desired;
     uint8_t declared;
+    uint8_t registered_kinds; // copied indication state: bit 0 Failed, bit 1 Advertise
     // Latest continuous kind before the first withdrawal of this binding.
     // A later receive cannot erase that withdrawal before ACMP consumes it.
     uint8_t feedback_kind;

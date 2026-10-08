@@ -732,8 +732,10 @@ retained SRP registration, kind changes and withdrawal after SRP returns.
 A subsequent registration cannot erase an earlier withdrawal.
 Accepted ACMP replacement retires obsolete feedback. Binding delivery
 itself makes no mailbox access; the feedback allowance covers ACMP timer work.
-CPU work and external port costs require separate
-measurement; this table bounds mailbox accesses only.
+CPU work and external port costs require separate measurement.
+Filter observation scans sinks once per received AttributeEvent.
+Registrar visits occur before/after receive, after ticks and during polling.
+Target calibration must include both costs; this table bounds mailbox accesses only.
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
 |---|---:|---:|---:|

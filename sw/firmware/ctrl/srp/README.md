@@ -69,8 +69,12 @@ Withdrawal terminates the binding; subsequent feedback belongs to that retired e
 This bounded representation cannot overflow.
 
 Observation follows each wire AttributeEvent and centisecond tick.
-The receive-interest callback observes the preceding completed event.
-It uses the read-only registrar visitor, with no protocol mutation.
+Talker indications copy registration kinds into per-sink adapter state.
+The receive-interest callback observes the preceding event from those copies.
+It never calls its owning application.
+This obeys lwSRP's [integrator contract](../../../../third_party/lwSRP/doc/integrator.md#lifetime-and-concurrency)
+and [filter contract](../../../../third_party/lwSRP/src/include/shish_lan/mrp.h).
+Registrar visits run outside callbacks, before and after receive.
 Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
 Lv then New remains two transitions, even inside one PDU.
@@ -254,7 +258,10 @@ build failures do not count as catches.
 all four modules, checks deferred delivery, refusal/recovery, expiry, unbind,
 replacement and interface/sink isolation, with named plants at both interface counts.
 `srp_feedback.hpp` checks both kind changes through GET_RX_STATE responses.
-It also checks retained withdrawal, expiry/receive ordering and supersession.
+It also checks retained withdrawal and expiry/receive ordering.
+Identical-identity supersession cannot reuse an undelivered withdrawal's old kind.
+Settled link resets reprobe, including down/up before delivery.
+Post-withdrawal kind changes cannot produce obsolete view notifications.
 Discovered-talker withdrawals measure the per-sink feedback allowance.
 Named plants understate that allowance and remove each delivery guarantee.
 `srp_app.cpp` counts actual mailbox accesses in the event, refused-receive,

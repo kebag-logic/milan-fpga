@@ -25,6 +25,7 @@ static bool poll(void *ctx);
 static void receive(void *ctx, const struct mbx_frame *frame);
 static void on_event(void *ctx, const struct mbx_event *event);
 static void snapshot(struct srp_interface *i);
+static void capture(struct srp_sink *s, uint8_t previous);
 
 static bool enter(struct srp_mbx *m)
 {
@@ -75,10 +76,42 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
     }
 }
 
+// Indications copy registration changes only. The filter below closes the
+// preceding complete wire event, after both halves of an atomic replacement.
+static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv *v,
+                           uint8_t kind, bool registered)
+{
+    for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+        struct srp_sink *s = &i->sinks[k];
+        if (s->bound && memcmp(s->stream_id.bytes,v->stream_id.bytes,8) == 0) {
+            s->registered_kinds &= (uint8_t)~kind;
+            if (registered && memcmp(s->dest_mac,v->dest_mac,6) == 0 && s->vid == v->vlan_id) {
+                s->registered_kinds |= kind;
+            }
+        }
+    }
+}
+
+static void advertised(struct msrp_ctx *ctx, uint8_t port,
+                       const struct msrp_talker_adv *value, bool is_new)
+{
+    (void)port; (void)is_new;
+    talker_changed(from_ctx(ctx),value,2u,true);
+}
+
+static void failed(struct msrp_ctx *ctx, uint8_t port,
+                   const struct msrp_talker_failed *value, bool is_new)
+{
+    (void)port; (void)is_new;
+    talker_changed(from_ctx(ctx),&value->talker,1u,true);
+}
+
 static void left(struct msrp_ctx *ctx, uint8_t port, uint8_t type, const void *value)
 {
     if (type == MSRP_ATTR_TYPE_LISTENER) {
         listener(ctx,port,value,MSRP_LISTENER_DECL_IGNORE,false);
+    } else if (type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) {
+        talker_changed(from_ctx(ctx),value,type == MSRP_ATTR_TYPE_TALKER_FAILED ? 1u : 2u,false);
     }
 }
 
@@ -127,10 +160,15 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
 {
     (void)port;
     struct srp_interface *i = ctx;
-    // Observe the previous complete wire AttributeEvent. A kind replacement
-    // is atomic inside one event; a following Lv/New pair is two events.
-    // The visitor is read-only: no protocol entry or delivery occurs here.
-    snapshot(i);
+    // lwSRP doc/integrator.md:321-323 and mrp.h:288-290 forbid reentry.
+    // Observe the previous complete event from copied indication data only.
+    // Atomic replacement stays continuous; Lv then New remains two events.
+    for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+        struct srp_sink *s = &i->sinks[k];
+        uint8_t previous = s->desired;
+        s->desired = (s->registered_kinds & 1u) ? 1u : (s->registered_kinds & 2u);
+        capture(s,previous);
+    }
     if (type == MSRP_ATTR_TYPE_DOMAIN) {
         const struct msrp_domain *d = value;
         return d->class_id == 6 && d->vid > 0 && d->vid < 4095;
@@ -169,7 +207,8 @@ static bool interested_mvrp(void *ctx, uint8_t port, uint8_t type, const void *v
 
 static bool create_participants(struct srp_interface *i)
 {
-    i->msrp_ctx = (struct msrp_ctx){.on_domain=domain,.on_listener=listener,.on_leave=left};
+    i->msrp_ctx = (struct msrp_ctx){.on_domain=domain,.on_listener=listener,.on_leave=left,
+                                    .on_talker_advertise=advertised,.on_talker_failed=failed};
     i->msrp = msrp_app_create(1,&i->msrp_ctx);
     i->mvrp = mvrp_app_create(1,&i->mvrp_ctx);
     if (!i->msrp || !i->mvrp) {
@@ -382,6 +421,10 @@ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
         ++m->malformed;
         return true;
     }
+    if (i->msrp) {
+        // Seed copied kinds from the registrar before entering any callback.
+        snapshot(i);
+    }
     int result = app ? mrp_rx(app,0,frame->bytes + 14,frame->len - 14u) : -SHLAN_ERROR_NO_MEMORY;
     if (i->msrp) {
         // Include the last event, also when an earlier event applied before
@@ -504,8 +547,12 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
                 memcmp(sink->dest_mac,v->dest_mac,6) == 0 && sink->vid == v->vlan_id) {
                 if (status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED) {
                     sink->desired = 1;
-                } else if (sink->desired != 1) {
-                    sink->desired = 2;
+                    sink->registered_kinds |= 1u;
+                } else {
+                    sink->registered_kinds |= 2u;
+                    if (sink->desired != 1) {
+                        sink->desired = 2;
+                    }
                 }
             }
         }
@@ -529,6 +576,7 @@ static void snapshot(struct srp_interface *i)
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         previous[k] = i->sinks[k].desired;
         i->sinks[k].desired = 0;
+        i->sinks[k].registered_kinds = 0;
     }
     (void)mrp_attr_visit(i->msrp,0,registrations,i);
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
@@ -645,6 +693,7 @@ static void reset_interface(struct srp_interface *i)
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         uint8_t previous = i->sinks[k].desired;
         i->sinks[k].desired = 0; i->sinks[k].declared = 0;
+        i->sinks[k].registered_kinds = 0;
         capture(&i->sinks[k],previous);
         i->sinks[k].vlan_requested = false; i->sinks[k].vlan_sent = false;
     }

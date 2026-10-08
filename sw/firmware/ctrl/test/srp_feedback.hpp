@@ -82,6 +82,40 @@ TEST_F(SrpFeedback, SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) {
     }
 }
 
+TEST_F(SrpFeedback, SinglePduKindReplacementsRemainContinuous) {
+    for (bool initial_failed : {false,true}) {
+        if (initial_failed) { TearDown(); SetUp(); }
+        for (unsigned k=0;k<2u;++k) {
+            bind(k); response(k,k); registration(k,initial_failed,0,k);
+            auto frame=talker(k,!initial_failed,1);
+            for (unsigned repeat=0;repeat<2u;++repeat) {
+                const auto next=talker(k,initial_failed,1);
+                frame.resize(frame.size()-2u);
+                frame.insert(frame.end(),next.begin()+15,next.end());
+            }
+            queue(k,frame); settle();
+            current_kind(k,initial_failed);
+            EXPECT_TRUE(sink(k).bound) << "atomic replacements retain binding";
+        }
+    }
+}
+
+TEST_F(SrpFeedback, SinglePduIdentityMismatchThenRecoveryStillWithdraws) {
+    for (bool wrong_vid : {false,true}) {
+        if (wrong_vid) { TearDown(); SetUp(); }
+        for (unsigned k=0;k<2u;++k) {
+            bind(k); response(k,k); registration(k,false,0,k);
+            auto frame=talker(k,false,0);
+            frame[wrong_vid ? 36 : 29] ^= 1u; // Same StreamID, changed VID or destination.
+            const auto recovery=talker(k,false,0);
+            frame.resize(frame.size()-2u);
+            frame.insert(frame.end(),recovery.begin()+15,recovery.end());
+            queue(k,frame); settle();
+            reprobed(k);
+        }
+    }
+}
+
 TEST_F(SrpFeedback, ExpiryThenRegistrationRetainsTheFirstEvent) {
     for (unsigned k=0;k<2u;++k) {
         bind(k); response(k,k); registration(k,false,0,k);
@@ -141,6 +175,67 @@ TEST_F(SrpFeedback, WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream) {
         settle();
         current_kind(k,false);
         EXPECT_TRUE(sink(k).bound) << "supersession retires obsolete withdrawal";
+    }
+}
+
+// An undelivered withdrawal followed by an ACMP rebind to the identical SRP
+// identity: no Talker is registered any more, so the new epoch must settle
+// SETTLED_NO_RSV, never RSV_OK from the retired epoch's kind.
+TEST_F(SrpFeedback, IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv) {
+    for (unsigned k=0;k<2u;++k) {
+        bind(k); response(k,k); registration(k,false,0,k);
+        ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
+        without_delivery([&] {
+            registration(k,false,5,k);   // Lv: registrar empties at once (Milan rapid leave)
+            auto p=command(spec::MSG_BIND_RX_COMMAND,k); p.talker=kTkB;
+            ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[k])); settle();
+            response(k,k);               // identical StreamID, destination and VID
+        });
+        settle();
+        EXPECT_TRUE(sink(k).bound);
+        EXPECT_EQ(sink(k).desired,0u) << "no Talker registered";
+        EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_NO_RSV) << "retired kind cannot settle the new epoch";
+        EXPECT_EQ(core()->impossible,0u);
+    }
+}
+
+// A link reset destroys the registrar: the settled sink must observe a
+// withdrawal and reprobe, also when the Talker re-registers before delivery.
+TEST_F(SrpFeedback, LinkResetWithdrawsTheSettledRegistration) {
+    for (bool rejoin : {false,true}) {
+        if (rejoin) { TearDown(); SetUp(); }
+        for (unsigned k=0;k<2u;++k) {
+            bind(k); response(k,k); registration(k,false,0,k);
+            ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
+            const unsigned i=acfg.sink_interface[k];
+            without_delivery([&] {
+                mbx_model_set_link(&model,i,false); settle();
+                if (rejoin) { mbx_model_set_link(&model,i,true); settle(); registration(k,false,0,k); }
+            });
+            settle();
+            EXPECT_EQ(core()->sinks[k].state,ACMP_PRB_W_AVAIL) << "link reset withdraws registration";
+            EXPECT_EQ(core()->impossible,0u);
+            if (!rejoin) { mbx_model_set_link(&model,i,true); settle(); }
+            unbind(k);
+        }
+    }
+}
+
+// A withdrawal retains its preceding kind: a later Failed registration in
+// the same pass must not be reported before the withdrawal reprobes.
+TEST_F(SrpFeedback, LaterKindAfterWithdrawalIsNotReported) {
+    for (unsigned k=0;k<2u;++k) {
+        bind(k); response(k,k); registration(k,false,0,k);
+        ASSERT_FALSE(core()->sinks[k].tk_failed);
+        without_delivery([&] { registration(k,false,5,k); registration(k,true,0,k); });
+        bool saw_failed=false;
+        fk.hook_kind=Call::CHANGED;
+        fk.hook=[&] { saw_failed=saw_failed || core()->sinks[k].tk_failed; };
+        settle();
+        EXPECT_FALSE(saw_failed) << "retained pre-withdrawal kind";
+        EXPECT_EQ(core()->sinks[k].state,ACMP_PRB_W_AVAIL);
+        EXPECT_EQ(core()->impossible,0u);
+        fk.hook=nullptr;
     }
 }
 
