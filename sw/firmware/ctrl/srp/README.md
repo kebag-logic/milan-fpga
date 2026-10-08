@@ -50,11 +50,37 @@ It opens SRP reception and its interrupt, and enables centisecond delivery.
 SRP owns no one-shot fabric timer slot: lwSRP timers use the shared tick.
 The other three modules retain disjoint runs of `MBX_N_IF` slots.
 The isolated adapter uses `srp_mbx_attach` before opening its loop.
-The composition also observes the per-sink registration snapshot after SRP returns.
+The composition consumes retained per-sink feedback after SRP returns.
 A matching Advertise calls `acmp_tk_registered(sink, false)` and a matching
 Failed calls it with `true`, when the sink is SETTLED_NO_RSV.
+A continuous kind change calls `acmp_tk_kind_changed(sink, failed)`.
+This updates SETTLED_RSV_OK's REGISTERING_FAILED view (Milan Table 5.23).
+It neither reprobes nor repeats Table 5.30's EVT_TK_REGISTERED.
+Unchanged kinds remain idempotent.
 Withdrawal calls `acmp_tk_unregistered(sink)` from SETTLED_RSV_OK.
 Each uses the accepted binding on the sink's configured interface.
+
+Feedback retains the latest continuous kind before the first withdrawal.
+Consecutive kind changes coalesce as view updates.
+The first withdrawal remains latched until composition consumption.
+Later registration cannot erase it or replace its preceding kind.
+Registration precedes withdrawal when both await delivery.
+Withdrawal terminates the binding; subsequent feedback belongs to that retired epoch.
+This bounded representation cannot overflow.
+
+Observation follows each wire AttributeEvent and centisecond tick.
+The receive-interest callback observes the preceding completed event.
+It uses the read-only registrar visitor, with no protocol mutation.
+Receive return observes the last event, including partial allocation refusal.
+Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
+Lv then New remains two transitions, even inside one PDU.
+Expiry before receive remains visible, as does interface reset.
+Poll observation covers a newly accepted binding's existing registrations.
+No observer calls ACMP or delivers a port action.
+
+Pending ACMP intent gates obsolete feedback immediately.
+Accepted intent retires feedback, even for identical stream identities.
+A refused replacement cannot settle from the previous binding's registration.
 These serialized entries obey #678 and Milan v1.2 5.5.3.5.42/5.5.3.5.48.
 A refreshed healthy Talker keeps the listener settled past TMR_NO_TK.
 VID 0 and VID >= 4095 park the request, visible through
@@ -227,6 +253,10 @@ build failures do not count as catches.
 `srp_binding.hpp` feeds real BIND_RX and PROBE_TX_RESPONSE records through
 all four modules, checks deferred delivery, refusal/recovery, expiry, unbind,
 replacement and interface/sink isolation, with named plants at both interface counts.
+`srp_feedback.hpp` checks both kind changes through GET_RX_STATE responses.
+It also checks retained withdrawal, expiry/receive ordering and supersession.
+Discovered-talker withdrawals measure the per-sink feedback allowance.
+Named plants understate that allowance and remove each delivery guarantee.
 `srp_app.cpp` counts actual mailbox accesses in the event, refused-receive,
 retained-receive poll, transmitting poll, maximum RX/TX record and full-pass paths.
 Each bound term has a named planted understatement at one and two interfaces.

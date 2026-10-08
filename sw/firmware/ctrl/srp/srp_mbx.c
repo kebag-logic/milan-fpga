@@ -24,6 +24,7 @@ static void tick(void);
 static bool poll(void *ctx);
 static void receive(void *ctx, const struct mbx_frame *frame);
 static void on_event(void *ctx, const struct mbx_event *event);
+static void snapshot(struct srp_interface *i);
 
 static bool enter(struct srp_mbx *m)
 {
@@ -45,6 +46,11 @@ static void tick(void)
         return;
     }
     shlan_timer_tick();
+    for (unsigned n = 0; n < MBX_N_IF; ++n) {
+        if (m->ifs[n].msrp) {
+            snapshot(&m->ifs[n]);
+        }
+    }
     m->busy = false;
 }
 
@@ -121,6 +127,10 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
 {
     (void)port;
     struct srp_interface *i = ctx;
+    // Observe the previous complete wire AttributeEvent. A kind replacement
+    // is atomic inside one event; a following Lv/New pair is two events.
+    // The visitor is read-only: no protocol entry or delivery occurs here.
+    snapshot(i);
     if (type == MSRP_ATTR_TYPE_DOMAIN) {
         const struct msrp_domain *d = value;
         return d->class_id == 6 && d->vid > 0 && d->vid < 4095;
@@ -373,6 +383,11 @@ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
         return true;
     }
     int result = app ? mrp_rx(app,0,frame->bytes + 14,frame->len - 14u) : -SHLAN_ERROR_NO_MEMORY;
+    if (i->msrp) {
+        // Include the last event, also when an earlier event applied before
+        // allocation refusal. Identical receive retries remain idempotent.
+        snapshot(i);
+    }
     if (result == -SHLAN_ERROR_NO_MEMORY) {
         ++m->refused;
         return false;
@@ -497,6 +512,30 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
     }
 }
 
+static void capture(struct srp_sink *s, uint8_t previous)
+{
+    if (previous && !s->desired) {
+        s->withdrawn = true;
+    }
+    if (!s->withdrawn && s->desired) {
+        s->feedback_kind = s->desired;
+    }
+}
+
+static void snapshot(struct srp_interface *i)
+{
+    uint8_t previous[CTRL_SRP_SINKS];
+    memset(i->registered,0,sizeof(i->registered));
+    for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+        previous[k] = i->sinks[k].desired;
+        i->sinks[k].desired = 0;
+    }
+    (void)mrp_attr_visit(i->msrp,0,registrations,i);
+    for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+        capture(&i->sinks[k],previous[k]);
+    }
+}
+
 static bool change_domain(struct srp_interface *i)
 {
     if (!i->domain_owed) {
@@ -604,7 +643,9 @@ static void reset_interface(struct srp_interface *i)
     msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
     i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+        uint8_t previous = i->sinks[k].desired;
         i->sinks[k].desired = 0; i->sinks[k].declared = 0;
+        capture(&i->sinks[k],previous);
         i->sinks[k].vlan_requested = false; i->sinks[k].vlan_sent = false;
     }
     if (!open_interface(i)) {
@@ -670,11 +711,7 @@ static bool poll(void *ctx)
                 expire_receive(m);
             }
         }
-        memset(i->registered,0,sizeof(i->registered));
-        for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
-            i->sinks[k].desired = 0;
-        }
-        (void)mrp_attr_visit(i->msrp,0,registrations,i);
+        snapshot(i);
         for (unsigned s = 0; s < CTRL_SRP_SOURCES; ++s) {
             if (i->stop_owed[s]) {
                 i->stop_owed[s] = false;

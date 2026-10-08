@@ -131,10 +131,20 @@ VID 0 or VID >= 4095 sets the readable per-request `parked` state.
 A parked request permits sleep until ACMP replaces or withdraws it.
 Unbind and replacement supersede the prior request; no callback enters SRP.
 The supplied ACMP SRP callback observes intent; it must not deliver it itself.
-After SRP returns, the same poll reports matching per-sink Talker registration
-to ACMP: Advertise or Failed enters SETTLED_RSV_OK; withdrawal reprobes.
-The snapshot uses the configured interface and only the accepted binding.
-Repeated registration is not a new event under Milan Table 5.30.
+After SRP returns, that poll delivers retained Talker feedback.
+Feedback belongs to each accepted sink binding and configured interface.
+Advertise or Failed enters SETTLED_RSV_OK; withdrawal stops SRP and reprobes.
+A continuous kind change calls `acmp_tk_kind_changed`, updating REGISTERING_FAILED.
+This view-only entry is allowed solely in SETTLED_RSV_OK.
+It neither reprobes nor replays Table 5.30's EVT_TK_REGISTERED.
+Milan Table 5.23 defines the current kind's reported flag.
+[The round-11 decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6049530812)
+authorizes this ACMP interface extension.
+Unchanged registration is idempotent; pending replacement blocks obsolete feedback.
+SRP retains the first withdrawal despite subsequent re-registration.
+Registration precedes withdrawal when both await delivery.
+Accepted replacement retires feedback, including identical stream identities.
+The [adapter contract](srp/README.md) explains event observation.
 Both directions obey #678: no protocol entry occurs inside a port callback.
 Other environment callbacks retain their original context.
 Keep application and adapter storage alive until loop service stops.
@@ -142,10 +152,11 @@ Keep application and adapter storage alive until loop service stops.
 `CTRL_APP_PASS_MAX` bounds all four modules: `ACMP_MBX_PASS_MAX` already
 includes ADP, then add `MAAP_MBX_PASS_MAX` and `SRP_MBX_PASS_MAX`, subtracting
 two copies of the shared event reads, then adding `CTRL_APP_SRP_FEEDBACK_MAX`.
-Feedback costs at most four accesses per configured sink: clock, seed and
-one timer re-arm on withdrawal; registration only stops or re-arms a timer.
-The static maximum of 16 sinks contributes 64 accesses.
-The result is 3,192 accesses at one interface and 4,041 at two. The SRP bound counts one maximum-size frame per
+Feedback costs at most six accesses per sink.
+Registration and withdrawal can each stop or re-arm a timer.
+Withdrawal can also read the clock and initial random seed.
+The static maximum of 16 sinks contributes 96 accesses.
+The result is 3,224 accesses at one interface and 4,073 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most two calls per interface, receive readiness and
 retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
 The feedback allowance covers the same poll's ACMP registration entries.

@@ -29,6 +29,10 @@ struct srp_sink {
     bool vlan_sent;
     uint8_t desired;
     uint8_t declared;
+    // Latest continuous kind before the first withdrawal of this binding.
+    // A later receive cannot erase that withdrawal before ACMP consumes it.
+    uint8_t feedback_kind;
+    bool withdrawn;
 };
 struct srp_mbx;
 struct srp_interface {

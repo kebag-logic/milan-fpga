@@ -270,7 +270,12 @@ TEST_F(SrpBinding, AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline) {
 }
 
 TEST_F(SrpBinding, FailedRegistrationReachesAcmpAndWithdrawalReprobes) {
-    for (unsigned k=0;k<2u;++k) { bind(k); response(k,k); registration(k,true,0,k); }
+    for (unsigned k=0;k<2u;++k) {
+        bind(k); response(k,k);
+        without_delivery([&]{registration(k,true,0,k);});
+        app.loop.polls[4].fn(app.loop.polls[4].ctx);
+        EXPECT_TRUE(core()->sinks[k].tk_failed) << "Failed flag reaches ACMP";
+    }
     for (unsigned k=0;k<2u;++k) {
         EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK) << "Failed registration reaches ACMP";
         EXPECT_TRUE(core()->sinks[k].tk_failed) << "Failed flag reaches ACMP";

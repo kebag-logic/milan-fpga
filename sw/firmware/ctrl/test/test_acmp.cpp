@@ -748,6 +748,34 @@ TEST_F(AcmpCore, A15UnregisteredReprobes) {
     EXPECT_EQ(a.impossible, 2u) << "A15 as is one for a sink the entity lacks";
 }
 
+TEST_F(AcmpCore, KindChangesOnlyTheSettledView) {
+    to_state(0, ACMP_SETTLED_RSV_OK);
+    for (bool failed : {true, false}) {
+        fk.clear();
+        acmp_tk_kind_changed(&a, 0, failed);
+        EXPECT_EQ(view(0).registering_failed, failed) << "kind updates the reported view";
+        EXPECT_EQ(a.sinks[0].state, ACMP_SETTLED_RSV_OK) << "kind preserves settlement";
+        EXPECT_EQ(fk.count(Call::CHANGED), 1u) << "kind change notifies once";
+        EXPECT_EQ(fk.count(Call::SRP), 0u) << "kind does not reprobe";
+        acmp_tk_kind_changed(&a, 0, failed);
+        EXPECT_EQ(fk.count(Call::CHANGED), 1u) << "same kind is idempotent";
+    }
+    for (acmp_sink_state st : kStates) {
+        if (st == ACMP_SETTLED_RSV_OK) { continue; }
+        SetUp();
+        to_state(0, st);
+        fk.clear();
+        const acmp_sink before = a.sinks[0];
+        acmp_tk_kind_changed(&a, 0, true);
+        EXPECT_EQ(a.impossible, 1u) << "kind refuses non-settled state";
+        EXPECT_EQ(a.sinks[0].state, before.state);
+        EXPECT_EQ(a.sinks[0].tk_failed, before.tk_failed);
+        EXPECT_TRUE(fk.calls.empty());
+    }
+    acmp_tk_kind_changed(&a, cfg.n_sinks, false);
+    EXPECT_EQ(a.impossible, 2u) << "kind refuses unknown sink";
+}
+
 // ---- A16: sequence IDs (IEEE 1722.1-2021 8.2.1.15) ----------------------------------------
 
 TEST_F(AcmpCore, A16OneCounterForEveryNewProbe) {
@@ -1258,6 +1286,7 @@ TEST_F(AcmpCore, A23EveryEntryRefusesACallFromInsideAPort) {
         [&] { acmp_adp_rx(&a, 0, adpf.data(), adpf.size()); },
         [&] { acmp_timer_expired(&a, 0); },
         [&] { acmp_tk_registered(&a, 0, false); },
+        [&] { acmp_tk_kind_changed(&a, 0, false); },
         [&] { acmp_tk_unregistered(&a, 0); },
         [&] { EXPECT_FALSE(acmp_set_started(&a, 0, false)); },
         [&] { static_cast<void>(acmp_poll(&a)); },

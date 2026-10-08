@@ -712,13 +712,14 @@ At F0's assumed 1 us per access, only the event bound still fits T_svc
 under the ceiling (17.38 ms), and the one behind a full adp ring exceeds it
 (34.76 ms).
 
-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,192
-accesses at one interface and 4,041 at two. `ACMP_MBX_PASS_MAX` already
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,224
+accesses at one interface and 4,073 at two. `ACMP_MBX_PASS_MAX` already
 includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
 sets of event-record reads: the eight shared records are each read once.
-Add `CTRL_APP_SRP_FEEDBACK_MAX`: four accesses per sink, at most 16 sinks,
-for the clock, seed and timer re-arm when a registration withdrawal reprobes.
-A registration itself only stops or re-arms a timer.
+Add `CTRL_APP_SRP_FEEDBACK_MAX`: six accesses per sink, at most 16 sinks.
+Registration followed by withdrawal can stop or re-arm two timers.
+Withdrawal can also read the clock and initial random seed.
+Kind updates preserve state and require no additional mailbox access.
 `srp_bounds.h` derives SRP's 1,596 / 2,366 accesses from the maximum frame,
 two transmit calls per interface, bounded reception, link reconciliation and
 retry clocks. lwSRP sends at most one frame per call. Its centisecond callbacks
@@ -727,17 +728,19 @@ per sink and delivers them in a fifth poll after SRP service returns.
 It preserves the configured interface, retries transient refusals, and supersedes
 pending requests on unbind or replacement. Invalid VIDs are parked visibly
 until another request, allowing the loop to sleep. The poll also delivers
-SRP registration and withdrawal to ACMP after SRP returns. Binding delivery
+retained SRP registration, kind changes and withdrawal after SRP returns.
+A subsequent registration cannot erase an earlier withdrawal.
+Accepted ACMP replacement retires obsolete feedback. Binding delivery
 itself makes no mailbox access; the feedback allowance covers ACMP timer work.
 CPU work and external port costs require separate
 measurement; this table bounds mailbox accesses only.
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
 |---|---:|---:|---:|
-| an event behind 15 others | 2 | 9,576 / 12,123 | 1.04 / 0.82 us |
-| an ACMP command behind a full acmp ring | 10 | 35,112 / 44,451 | 0.28 / 0.22 us |
-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 70,224 / 88,902 | 0.14 / 0.11 us |
-| a response with 7 frames owed ahead of it | 8, after room returns | 28,728 / 36,369 | 0.34 / 0.27 us |
+| an event behind 15 others | 2 | 9,672 / 12,219 | 1.03 / 0.81 us |
+| an ACMP command behind a full acmp ring | 10 | 35,464 / 44,803 | 0.28 / 0.22 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 70,928 / 89,606 | 0.14 / 0.11 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 29,016 / 36,657 | 0.34 / 0.27 us |
 
 At 1 us per access, only the one-interface event envelope fits T_svc = 10 ms;
 the two-interface event envelope and the other rows do not. The 20 ms ACMP

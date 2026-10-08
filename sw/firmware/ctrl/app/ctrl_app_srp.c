@@ -58,6 +58,7 @@ static bool deliver(void *ctx)
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
         struct ctrl_app_srp_request *r = &app->srp_requests[sink];
         unsigned interface = app->acmp.acmp.cfg.sink_interface[sink];
+        struct srp_sink *s = &app->srp->ifs[interface].sinks[sink];
         if (r->parked) {
             // A replacement can overtake the old unbind in the request slot.
             // Retire that accepted binding, then leave the invalid request idle.
@@ -73,16 +74,27 @@ static bool deliver(void *ctx)
             wire_put_be(mac,r->stream.dest_mac,6);
             if (srp_mbx_bind(app->srp,interface,sink,r->bound ? &id : NULL,mac,r->stream.vlan_id)) {
                 r->pending = false;
+                // A new ACMP epoch supersedes even identical SRP identities.
+                s->feedback_kind = s->desired;
+                s->withdrawn = false;
             }
         }
-        // SRP computed this snapshot before returning from its poll. Never
+        // SRP retained this event prefix before returning from its poll. Never
         // feed an old binding's registration to a replacement awaiting delivery.
         if (!r->pending && r->bound) {
-            uint8_t registered = app->srp->ifs[interface].sinks[sink].desired;
+            uint8_t registered = s->feedback_kind;
             enum acmp_sink_state state = app->acmp.acmp.sinks[sink].state;
             if (registered && state == ACMP_SETTLED_NO_RSV) {
                 acmp_tk_registered(&app->acmp.acmp,sink,registered == 1u);
-            } else if (!registered && state == ACMP_SETTLED_RSV_OK) {
+            } else if (registered &&
+                       app->acmp.acmp.sinks[sink].tk_failed != (registered == 1u)) {
+                // Accepted intent is settled; every settled exit requests stop.
+                // Thus a registered sink outside NO_RSV is already RSV_OK.
+                acmp_tk_kind_changed(&app->acmp.acmp,sink,registered == 1u);
+            }
+            if (s->withdrawn) {
+                // The retained kind has been delivered above, before its loss.
+                s->withdrawn = false;
                 acmp_tk_unregistered(&app->acmp.acmp,sink);
             }
         }
