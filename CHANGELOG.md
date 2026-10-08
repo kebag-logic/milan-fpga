@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
 - **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
 - **[Unreleased - processor pin ead80360](#unreleased---processor-pin-ead80360)** -- A silent NVM device is answered.
 - **[Unreleased - CRF unbind counts its unlock](#unreleased---crf-unbind-counts-its-unlock)** -- Counted at the unbind.
@@ -39,6 +40,35 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 2ad2f845
+
+- Issue #682 adopts processor `2ad2f845`.
+- That pin carries processor PRs #156 and #159 to #162.
+- It also carries #164.
+- GET_COUNTERS notification spacing is now measured at grant (#148).
+- Later MAC stalls remain a wire-gap limitation.
+- The capture harness finishes frames crossing its observation boundary.
+- That extension stops after at most 2,048 cycles.
+- C11 documents the landed byte interfaces and TX backpressure.
+- It also documents complete FCS-good RX frames.
+- SRP registrar expiry precedes same-clock reception (#134).
+- Lv and LeaveAll finish MT; New and Join renew IN.
+- A held DEREGISTER waits for the notification round boundary (#158).
+- Subsequent controllers keep their notifications.
+- Its contents stay unchanged, but delivery can arrive later.
+- Existing declarations now precede use (#22).
+- The parent analysis budget has zero processor findings.
+- Domain and link-edge notification triggers gain tests (#42).
+- The parent still owns GET_AVB_INFO mapping words.
+- The processor top remains byte-identical to `ead80360`.
+- No port, parameter or register changes require parent adaptation.
+- The resource gate records this image as baseline F.
+- The ROM ledger adds `2ad2f845` rows; both ROMs are unchanged.
+- The capture census, receipt and product firmware remain unchanged.
+- After merge, the manager repeats #608 withdrawal cycles.
+- The manager also reads #658's default map.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - power-on audio maps
 

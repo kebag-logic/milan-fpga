@@ -507,6 +507,18 @@ def export_selftest() -> None:
             report = next(line for line in script.splitlines() if "-file baseline_hierarchy.rpt" in line)
             if "-hierarchical_min_primitive_count 0" not in report:
                 raise AssertionError(f"hierarchy report filters small consumers: {filename}")
+            arguments = [str(gateware)]
+            if evidence is not None:
+                arguments += ["--output", str(destination), "--integrated-log", str(evidence)]
+            if synth_only:
+                arguments.append("--synthesis-only")
+            main(arguments)
+            if (destination / filename).read_text() != script:
+                raise AssertionError(f"default CLI changes the exported recipe: {filename}")
+            main(arguments + ["--single-thread-synthesis"])
+            capped = (destination / filename).read_text()
+            if capped != "set_param synth.maxThreads 1\n" + script:
+                raise AssertionError(f"synthesis worker cap changes more than its flow setting: {filename}")
         prepare(gateware, gateware, None, True, attribution_only=True)
         script = (gateware / "baseline_integrated.tcl").read_text()
         constraint = (gateware / "baseline_boundary.xdc").read_text()
@@ -530,7 +542,7 @@ def export_selftest() -> None:
                     raise AssertionError("wrong in-repository refusal") from error
             else:
                 raise AssertionError("in-repository output accepted")
-        print("baseline export selftest: 3 default scripts, attribution constraint, "
+        print("baseline export selftest: 3 default and worker-capped scripts, attribution constraint, "
               "CLI containment refusal PASS")
 
 
@@ -547,6 +559,8 @@ def main(argv: list[str] | None = None) -> None:
                         help="preserve the integrated protocol-wrapper boundary")
     parser.add_argument("--integrated-clock", action="store_true",
                         help="standalone: constrain clk_i at the bound CLK_HZ_P, not 10 ns")
+    parser.add_argument("--single-thread-synthesis", action="store_true",
+                        help="emit synth.maxThreads=1 in the recorded measurement flow")
     args = parser.parse_args(argv)
     if args.selftest:
         selftest()
@@ -564,6 +578,9 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("--integrated-clock requires the standalone endpoint")
     prepare(gateware, output, args.integrated_log, args.synthesis_only,
             args.attribution_only, args.integrated_clock)
+    if args.single_thread_synthesis:
+        script = output / ("baseline_ooc.tcl" if args.integrated_log else "baseline_integrated.tcl")
+        script.write_text("set_param synth.maxThreads 1\n" + script.read_text())
 
 
 if __name__ == "__main__":

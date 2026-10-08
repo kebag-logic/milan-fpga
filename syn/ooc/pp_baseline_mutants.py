@@ -10,6 +10,8 @@ import tempfile
 
 
 MUTANTS = {
+    "synthesis worker cap ignored": ("    if args.single_thread_synthesis:\n", "    if False:\n"),
+    "synthesis worker cap enabled by default": ("    if args.single_thread_synthesis:\n", "    if True:\n"),
     "ROM error promotion": ("    prefix += ROM_ERROR\n", "    pass\n"),
     "readmemh inventory equality": (
         '    if expected != {Path(row["path"]).name for row in inputs}:\n',

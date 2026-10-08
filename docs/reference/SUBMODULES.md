@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `ead8036035affd53ef4b29979190f2f4f67084c0` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `9197193e47a6bb1c45a56d90a18c1784123aba44` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
@@ -156,6 +156,35 @@ The parent can observe these processor changes.
 | C7 documents the integrator-owned `ctr_*` counters face | `milan_datapath` already meets it |
 | #143 adds `--jobs` to the processor's mutation campaigns | No parent change |
 
+Issue #682 adopts processor pin `2ad2f845`.
+
+| Processor lane | Merged PR | Parent-visible result |
+|---|---|---|
+| #148, counter notification spacing | [159](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/159) | The spacing stamp follows each waiting job through grant; the parent harness completes frames crossing an observation boundary |
+| C11, interface documentation | [156](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156) | Documents the landed byte interfaces, TX backpressure and complete FCS-good RX frames |
+| #134, SRP registrar expiry | [160](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/160) | Expiry precedes reception on a simultaneous event; Lv and LeaveAll finish MT, while New and Join renew IN |
+| #158, mid-round DEREGISTER | [161](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/161) | A held DEREGISTER waits for the round boundary, preserving subsequent controllers' notifications |
+| #22, declaration order | [162](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162) | Existing declarations precede use; the parent analysis budget has zero processor findings |
+| #42, Domain notifications | [164](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/164) | Tests Domain and link-edge notification triggers; the parent still owns the mapping words |
+
+The processor top is byte-identical to the previous pin.
+
+No port, parameter or register changes require parent adaptation.
+
+Both processor ROM digests match the `ead80360` rows.
+
+Counter spacing is measured at grant.
+
+Later MAC stalls remain a wire-gap limitation.
+
+The held DEREGISTER retains its contents but can arrive later.
+
+After merge, the manager repeats #608 withdrawal cycles.
+
+The manager also reads #658's default map.
+
+This adoption checks the resource baseline and capture receipt.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
@@ -264,18 +293,15 @@ Window overlap preserves lock until measured correction completes.
 - [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md)
 - [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md)
 
-Protocol donor prose retains these known contradictions.
+Processor PR 156 resolves both former RX-interface contradictions.
 
-Use root RTL for integration truth.
+The current guide describes byte-wide RX without a ready input.
 
-Imported prose never defines root runtime behavior.
+Its historical word-stream contract remains linked from the donor documentation.
 
-| Conflict | Implementation evidence |
-|---|---|
-| Protocol interface guide shows word-wide RX | Landed processor receives bytes |
-| Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
+The integrator supplies complete, FCS-good frames.
 
-Track donor repairs separately.
+Root RTL remains the authority for parent runtime wiring.
 
 Historical audit exceptions remain open disclosures.
 PR13/PR6 branch continuity is UNKNOWN.
