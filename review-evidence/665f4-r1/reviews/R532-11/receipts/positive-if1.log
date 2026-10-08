@@ -1,0 +1,7 @@
+[PASS] srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8 rc=0 [  PASSED  ] 53 tests. | == ctrl SRP mailbox: checks: 53   failures: 0 ==
+[PASS] srp-debug-if1-endstation_ax7101_1x1_tdm8 rc=0 [  PASSED  ] 3 tests. | == ctrl SRP debug guard: checks: 3   failures: 0 ==
+[PASS] srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8 rc=0 [  PASSED  ] 17 tests. | == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+[PASS] srp-srp_app-if1-endstation_ax7101_1x1_tdm8 rc=0   SRP poll terms: fixed 4, calls 2, real send accesses 766, envelope 770/770 |   SRP pass terms: event 56, receive 770, poll 770, envelope 1596/1596 | [  PASSED  ] 5 tests. | == ctrl ADP MAAP SRP composition: checks: 5   failures: 0 ==
+[PASS] srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8 rc=0 [  PASSED  ] 44 tests. | == ctrl ADP ACMP MAAP SRP composition: checks: 44   failures: 0 ==
+[PASS] srp-srp_latency-if1-endstation_ax7101_1x1_tdm8 rc=0 H-SRP if=1 path=LeaveTime to stop elapsed_ns=1001100 wait_ms=0 service_ns=1001100 accesses=666 | H-SRP if=1 path=RX storage recovery elapsed_ns=1983200 wait_ms=0 service_ns=1983200 accesses=262 | [  PASSED  ] 5 tests. | == ctrl SRP service latency: checks: 5   failures: 0 ==
+[PASS] srp-srp_walk-if1-endstation_ax7101_1x1_tdm8 rc=0 [  PASSED  ] 5 tests. | == ctrl SRP processor wire differential: checks: 5   failures: 0 ==

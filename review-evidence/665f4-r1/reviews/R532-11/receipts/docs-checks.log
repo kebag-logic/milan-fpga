@@ -1,0 +1,13 @@
+rc=0 :: python3 -B scripts/docs_check.py :: docs_check: 0 finding(s) across 200 md files + 1187 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls
+rc=0 :: python3 -B scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+rc=0 :: python3 -B scripts/check_doc_paths.py :: doc path gate: OK (938 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=2 :: python3 -B scripts/check_em_dash.py --base d8b355fe0f41d49dca6cae1cd8b3826e2edde364 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --req
+rc=2 :: python3 -B scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+rc=0 :: python3 -B scripts/check_cpp_idiom.py ::   build without warnings: 0 <= 0
+rc=0 :: python3 -B scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 :: python3 -B sw/mailbox/gen_mailbox.py --check :: gen_mailbox: 0 finding(s)
+rc=0 :: python3 -B scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 1060 file(s))
+rc=0 :: python3 -B scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 1185 tracked first-party file(s))
+rc=0 :: git diff --check 82a79638405c3365e4078da471be56758f8dd679 HEAD :: 
+rc=0 :: python -B scripts/check_em_dash.py --base d8b355fe0f41d49dca6cae1cd8b3826e2edde364 (scratch venv, tools/markdown/requirements.txt) :: check_em_dash: 0 finding(s) over 511 added line(s) in 8 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/3
+rc=0 :: python -B scripts/gen_toc.py --check (scratch venv, tools/markdown/requirements.txt) :: TOC gate: OK (140 page(s) carry an annotated contents list, 17 below the 3-section threshold)

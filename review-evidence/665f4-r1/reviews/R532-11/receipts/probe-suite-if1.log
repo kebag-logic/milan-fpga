@@ -1,0 +1,110 @@
+Note: Google Test filter = SrpFeedback.*:SrpBinding.*:R11Feedback.*
+[==========] Running 32 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 17 tests from SrpBinding
+[ RUN      ] SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration
+  R10 replacement awaiting delivery: request pending 1, srp still holds old 1, acmp state 6
+[       OK ] SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration (0 ms)
+[ RUN      ] SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake
+[       OK ] SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake (0 ms)
+[ RUN      ] SrpBinding.R10KindChangeWhileSettledReachesAcmp
+  R10 kind A->F sink 0: srp desired 1, acmp state 7 tk_failed 1 impossible 0
+  R10 kind A->F sink 0: GET_RX_STATE_RESPONSE flags 0x0042
+  R10 kind A->F sink 1: srp desired 1, acmp state 7 tk_failed 1 impossible 0
+  R10 kind A->F sink 1: GET_RX_STATE_RESPONSE flags 0x0042
+[       OK ] SrpBinding.R10KindChangeWhileSettledReachesAcmp (0 ms)
+[ RUN      ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp
+  R10 kind F->A sink 0: srp desired 2, acmp state 7 tk_failed 0 impossible 0
+  R10 kind F->A sink 0: GET_RX_STATE_RESPONSE flags 0x0002
+  R10 kind F->A sink 1: srp desired 2, acmp state 7 tk_failed 0 impossible 0
+  R10 kind F->A sink 1: GET_RX_STATE_RESPONSE flags 0x0002
+[       OK ] SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp (0 ms)
+[ RUN      ] SrpBinding.R10WithdrawalFeedbackCostFitsAllowance
+  R10 polls 5: deliver index fn==poll4 1
+  R10 before delivery sink 0: srp desired 0 acmp state 7
+  R10 before delivery sink 1: srp desired 0 acmp state 7
+  R10 withdrawal feedback for 2 sinks: 0 accesses; allowance 96 (per sink 6)
+$REVIEWS/665f4-r532-11-packet/scratch/probe-repo/sw/firmware/ctrl/test/r532_10_probe_kind.hpp:90: Failure
+Expected: (cost) > (0u), actual: 0 vs 0
+the measured poll did the withdrawal
+
+  [FAIL] SrpBinding.R10WithdrawalFeedbackCostFitsAllowance: the measured poll did the withdrawal
+[  FAILED  ] SrpBinding.R10WithdrawalFeedbackCostFitsAllowance (0 ms)
+[ RUN      ] SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance
+  R10 discovered sink 0: 1 adp_armed 1
+  R10 discovered sink 1: 1 adp_armed 1
+  R10 discovered withdrawal feedback for 2 sinks: 5 accesses; states 2 2; allowance 96 (per sink 6)
+[       OK ] SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance (0 ms)
+[ RUN      ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface
+[       OK ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface (0 ms)
+[ RUN      ] SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry
+[       OK ] SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry (0 ms)
+[ RUN      ] SrpBinding.OwedTransmissionRetriesAfterCommit
+[       OK ] SrpBinding.OwedTransmissionRetriesAfterCommit (0 ms)
+[ RUN      ] SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding
+[       OK ] SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding (0 ms)
+[ RUN      ] SrpBinding.ReplacementSupersedesPendingIdentity
+[       OK ] SrpBinding.ReplacementSupersedesPendingIdentity (0 ms)
+[ RUN      ] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink
+[       OK ] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink (0 ms)
+[ RUN      ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding
+[       OK ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding (0 ms)
+[ RUN      ] SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline
+[       OK ] SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline (0 ms)
+[ RUN      ] SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes
+[       OK ] SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes (0 ms)
+[ RUN      ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity
+[       OK ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity (0 ms)
+[ RUN      ] SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding
+[       OK ] SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding (0 ms)
+[----------] 17 tests from SrpBinding (2 ms total)
+
+[----------] 11 tests from SrpFeedback
+[ RUN      ] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView
+[       OK ] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView
+[       OK ] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder
+[       OK ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder (0 ms)
+[ RUN      ] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder
+[       OK ] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder (0 ms)
+[ RUN      ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream
+[       OK ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream (0 ms)
+[ RUN      ] SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration
+[       OK ] SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration (0 ms)
+[ RUN      ] SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake
+[       OK ] SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake (0 ms)
+[ RUN      ] SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath
+feedback: IF=1 initial=0 sinks=2 accesses=5 allowance=12
+feedback: IF=1 initial=1 sinks=2 accesses=5 allowance=12
+[       OK ] SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath (0 ms)
+[----------] 11 tests from SrpFeedback (1 ms total)
+
+[----------] 4 tests from R11Feedback
+[ RUN      ] R11Feedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv
+[       OK ] R11Feedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv (0 ms)
+[ RUN      ] R11Feedback.LinkResetWithdrawsTheSettledRegistration
+[       OK ] R11Feedback.LinkResetWithdrawsTheSettledRegistration (0 ms)
+[ RUN      ] R11Feedback.LaterKindAfterWithdrawalIsNotReported
+[       OK ] R11Feedback.LaterKindAfterWithdrawalIsNotReported (0 ms)
+[ RUN      ] R11Feedback.UnchangedRepeatsAreIdempotent
+[       OK ] R11Feedback.UnchangedRepeatsAreIdempotent (0 ms)
+[----------] 4 tests from R11Feedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 32 tests from 3 test suites ran. (4 ms total)
+[  PASSED  ] 31 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpBinding.R10WithdrawalFeedbackCostFitsAllowance
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 32   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 32 checks, exit 1)
+[FAIL] srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8 filter=SrpFeedback.*:SrpBinding.*:R11Feedback.* asan=False rc=1

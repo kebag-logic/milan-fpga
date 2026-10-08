@@ -1,0 +1,13 @@
+[ok] mutant acmp-unregistered-anywhere (acmp, acmpwalk): 27 check(s) failed
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 0
+[ok] mutant acmp-kind-lost (acmp): 5 check(s) failed
+    first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind updates the reported view
+[ok] mutant acmp-kind-any-state (acmp): 15 check(s) failed
+    first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind refuses non-settled state
+[ok] mutant acmp-unregistered-keeps-srp (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped, PRB_W_AVAIL (5.5.3.5.48 steps 1, 2)
+[ok] mutant acmp-open-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+[ok] mutant p11-acmp-kind-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 4
+mutants: 6 of 6 caught

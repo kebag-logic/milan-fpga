@@ -1,0 +1,6 @@
+Provisional (written 2026-10-08 before reading any prior public review finding on PR #690):
+Verdict: NEGATIVE at b98eb2d5a21522bab3bc6bb943332cf8edf11893
+F1 MINOR RTL+Docs: srp_mbx.c:133 snapshot() -> mrp_attr_visit(i->msrp) from inside the MSRP rx filter (called from mrp_rx of the same app); lwSRP doc/integrator.md:321 and mrp.h:288-290 forbid filters re-entering the owning application; undisclosed in README/acmp contract.
+F2 MINOR Tests+Docs: three documented feedback guarantees have no discriminating standing test: identical-identity reseed (ctrl_app_srp.c:78), reset withdrawal latch (srp_mbx.c:645), post-withdrawal kind retention (srp_mbx.c:520); plants escape whole test_acmp_mbx.cpp at IF=1/2, caught by reviewer probes; README claim "remove each delivery guarantee" overstated.
+S1 SUGGESTION: per-attribute registrar scan cost in the filter (CPU, unmeasured).
+Ledger: Conformance CLEAN, RTL UNCLEAN(F1), Robustness CLEAN, Tests UNCLEAN(F2), Docs UNCLEAN(F1,F2) -- pending images/coverage results.
