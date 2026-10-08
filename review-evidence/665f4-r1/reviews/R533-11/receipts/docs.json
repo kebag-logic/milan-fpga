@@ -1,0 +1,71 @@
+[
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.146
+  },
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.878
+  },
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.07
+  },
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.823
+  },
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 5.106
+  },
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.744
+  },
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"
+    ],
+    "rc": 0,
+    "seconds": 4.312
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "d8b355fe0f41d49dca6cae1cd8b3826e2edde364..HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.024
+  }
+]

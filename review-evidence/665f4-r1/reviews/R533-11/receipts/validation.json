@@ -1,0 +1,45 @@
+[
+  {
+    "name": "focused-if1",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$REVIEWS/665f4-r533-11-packet/scripts/validate.py",
+      "--worker",
+      "1",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 118.486
+  },
+  {
+    "name": "focused-if2",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$REVIEWS/665f4-r533-11-packet/scripts/validate.py",
+      "--worker",
+      "2",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 121.918
+  },
+  {
+    "name": "coverage",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "$REVIEWS/665f4-r533-11-packet/scratch/coverage"
+    ],
+    "rc": 0,
+    "seconds": 246.158
+  }
+]

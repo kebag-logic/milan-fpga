@@ -1,0 +1,68 @@
+Note: Google Test filter = SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpFeedback
+[ RUN      ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:30: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 6
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+retained withdrawal reprobes
+
+  [FAIL] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder: retained withdrawal reprobes
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:31: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+retained withdrawal retires binding
+
+  [FAIL] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder: retained withdrawal retires binding
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:32: Failure
+Expected equality of these values:
+  core()->impossible
+    Which is: 1
+  0u
+    Which is: 0
+feedback stays ordered
+
+  [FAIL] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder: feedback stays ordered
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:30: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 6
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+retained withdrawal reprobes
+
+  [FAIL] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder: retained withdrawal reprobes
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:31: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+retained withdrawal retires binding
+
+  [FAIL] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder: retained withdrawal retires binding
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:32: Failure
+Expected equality of these values:
+  core()->impossible
+    Which is: 2
+  0u
+    Which is: 0
+feedback stays ordered
+
+  [FAIL] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder: feedback stays ordered
+[  FAILED  ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder (0 ms)
+[----------] 1 test from SrpFeedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

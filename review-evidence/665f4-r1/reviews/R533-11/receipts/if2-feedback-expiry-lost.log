@@ -1,0 +1,64 @@
+Note: Google Test filter = SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpFeedback
+[ RUN      ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:97: Failure
+Value of: sink(k).withdrawn
+  Actual: false
+Expected: true
+expiry retained before receive
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: expiry retained before receive
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:30: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+retained withdrawal reprobes
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: retained withdrawal reprobes
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:31: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+retained withdrawal retires binding
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: retained withdrawal retires binding
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:97: Failure
+Value of: sink(k).withdrawn
+  Actual: false
+Expected: true
+expiry retained before receive
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: expiry retained before receive
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:30: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+retained withdrawal reprobes
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: retained withdrawal reprobes
+$REVIEWS/r533-11-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:31: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+retained withdrawal retires binding
+
+  [FAIL] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent: retained withdrawal retires binding
+[  FAILED  ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent (1 ms)
+[----------] 1 test from SrpFeedback (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
