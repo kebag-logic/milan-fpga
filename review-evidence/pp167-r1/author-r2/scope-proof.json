@@ -1,0 +1,72 @@
+{
+  "base": "ed340b9b85258194247334b85e62cf9c23d4d051",
+  "head": "f3fef22448ce4f9bed8fd249a21a5d472148bd3d",
+  "module_declaration_identical": true,
+  "count_two_branch_identical_after_removing_zero_tie": true,
+  "count_two_control_identical": true,
+  "unchanged_files": [
+    {
+      "file": "hdl/top/protocol_processor_top.sv",
+      "sha256": "7abc4b2b9af751211a543f47849bd9d4e7682a52d62899a68d1fdbf5172408e4",
+      "bytes": 243455
+    },
+    {
+      "file": "hdl/common/pp_pkg.sv",
+      "sha256": "790a076a1490418a9e7a7c1a044a56016135e1b2cfaa780c44ca3e7f8be2ab0f",
+      "bytes": 17744
+    },
+    {
+      "file": "tb/aecp_notify/port_tuple.hpp",
+      "sha256": "a2c08b57c99d9df5b08f1331fceb0183baf5706934c10f36acb0ae0204d75da8",
+      "bytes": 26932
+    }
+  ],
+  "head_export_matches_changed_files": [
+    "docs/architecture/06_aecp_engine.md",
+    "hdl/aecp/KL_aecp_notify.sv",
+    "tb/aecp_notify/Makefile",
+    "tb/aecp_notify/README.md",
+    "tb/aecp_notify/sim_main.cpp",
+    "tb/pp_top/README.md",
+    "tb/pp_top/notify_mutants.py"
+  ],
+  "area_measured_commit": "521373f6672f0058c859961e33f2cab04afb328c",
+  "area_inputs_unchanged_at_head": true,
+  "since_area_measurement": [
+    "tb/aecp_notify/sim_main.cpp",
+    "tb/pp_top/README.md",
+    "tb/pp_top/notify_mutants.py"
+  ],
+  "commits": [
+    {
+      "commit": "f3fef22448ce4f9bed8fd249a21a5d472148bd3d",
+      "subject": "Document the delayed cancellation control boundary"
+    },
+    {
+      "commit": "b5c1cce956477d7ee754fd300797dadd855436a6",
+      "subject": "Preserve the delayed cancellation control at the output"
+    },
+    {
+      "commit": "9e907de9821a07d6e80cbc9adf85ec127ac94782",
+      "subject": "Separate notification harness input initialization"
+    },
+    {
+      "commit": "521373f6672f0058c859961e33f2cab04afb328c",
+      "subject": "Run the collision check separately to preserve mutation records"
+    },
+    {
+      "commit": "81d42bac0727a9f1ad997d7b7c09e7be6fc1ae73",
+      "subject": "Retain coincident availability cancellations at one interface"
+    }
+  ],
+  "changed_files": [
+    "docs/architecture/06_aecp_engine.md",
+    "hdl/aecp/KL_aecp_notify.sv",
+    "tb/aecp_notify/Makefile",
+    "tb/aecp_notify/README.md",
+    "tb/aecp_notify/sim_main.cpp",
+    "tb/pp_top/README.md",
+    "tb/pp_top/notify_mutants.py"
+  ],
+  "final_worktree_clean": true
+}
