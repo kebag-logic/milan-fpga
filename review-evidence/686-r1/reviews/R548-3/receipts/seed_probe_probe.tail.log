@@ -1,0 +1,30 @@
+[BOOT] identity, the firmware boot values, the MAAP claim started
+[A] the Run B opening: probe refused, MAAP grant, Talker Advertise declared and admitted, NO Listener Ready - nothing may be emitted
+[B] the listener's retry succeeds and the switch declares Listener Ready
+[B2] the AAF listener unbinds; the switch withdraws that Listener
+[C] bound, the probe window long closed, across the Run B LeaveAll exchange: no self-Leave, no licence drop
+[F] Stream Output 1's Milan v1.2 5.3.7.7 Table 5.4 counters (observation interval 2000 ms here)
+[D] the Listener declaration changes: Asking Failed, then Ready Failed
+[F] ...and they restart at the next STREAM_START
+[E] the CRF listener unbinds inside a fresh probe window
+[G/H] #551: real admission ceiling and both round phases
+[G] source 0, admission phase 0: refused re-declaration
+[H] source 0, admission phase 0: admitted re-declaration
+[I] source 0, admission phase 0: refused re-declaration
+[J] source 0, admission phase 0: admitted re-declaration
+[G] source 0, admission phase 1: refused re-declaration
+[H] source 0, admission phase 1: admitted re-declaration
+[I] source 0, admission phase 1: refused re-declaration
+[J] source 0, admission phase 1: admitted re-declaration
+[G] source 1, admission phase 0: refused re-declaration
+[H] source 1, admission phase 0: admitted re-declaration
+[I] source 1, admission phase 0: refused re-declaration
+[J] source 1, admission phase 0: admitted re-declaration
+[G] source 1, admission phase 1: refused re-declaration
+[H] source 1, admission phase 1: admitted re-declaration
+[I] source 1, admission phase 1: refused re-declaration
+[J] source 1, admission phase 1: admitted re-declaration
+[INV] over the whole run, every cycle
+checks: 417   failures: 0
+RESULT: PASS
+R548-PROBE PASS: edges 17453852 post-reset 17453844 mismatches 0 counterfactual-equal 0 harness-rc 0
