@@ -1,0 +1,83 @@
+{
+  "resource_files_checked": 186,
+  "resources": [
+    {
+      "endpoint": "route-1x1",
+      "record_equals_head": true,
+      "repository_input_hashes_verified": 122,
+      "inputs_sha256": "0c3280d1a541d53c7d56e0dd9493b11d8f58074dec3a81feb5ac93ba70f0e0f9",
+      "figures": {
+        "LUT": 50391,
+        "FF": 54263,
+        "SLICE": 15788,
+        "BRAM_TILE": 87.5,
+        "RAMB36": 74,
+        "RAMB18": 27,
+        "DSP": 14,
+        "WNS_ns": 0.241,
+        "WHS_ns": 0.029,
+        "CARRY4": 3372
+      }
+    },
+    {
+      "endpoint": "ooc-1x1",
+      "record_equals_head": true,
+      "repository_input_hashes_verified": 119,
+      "inputs_sha256": "9782839eeb68d59bbdd0f081d1d2a6d9d1d2c11390c8bab29089f16c4e2f9616",
+      "figures": {
+        "LUT": 23179,
+        "FF": 19779,
+        "BRAM_TILE": 17.5,
+        "RAMB36": 16,
+        "RAMB18": 3,
+        "DSP": 8,
+        "WNS_ns": -3.562,
+        "WHS_ns": 0.159,
+        "CARRY4": 1494
+      }
+    },
+    {
+      "endpoint": "ooc-8x8",
+      "record_equals_head": true,
+      "repository_input_hashes_verified": 119,
+      "inputs_sha256": "776f4f7f267fc8a85b792d5342787ea3ef78566f0fcd3b0330838659e36b5b2f",
+      "figures": {
+        "LUT": 30135,
+        "FF": 27380,
+        "BRAM_TILE": 23.5,
+        "RAMB36": 21,
+        "RAMB18": 5,
+        "DSP": 8,
+        "WNS_ns": -2.278,
+        "WHS_ns": 0.159,
+        "CARRY4": 1889
+      }
+    }
+  ],
+  "candidate_banks": [
+    {
+      "bank": "manager-builder",
+      "rows": 48,
+      "zero_statuses": 48,
+      "commit": "1351f398f9e0c246888b9ac5286db8370a3bc1f3",
+      "tree": "140c3b838ef3a1f72e2669744871a48b83911311",
+      "base": "b959830acd53a868febfe362974e33e144481aa7"
+    },
+    {
+      "bank": "full-native",
+      "rows": 5,
+      "zero_statuses": 5,
+      "commit": "1351f398f9e0c246888b9ac5286db8370a3bc1f3",
+      "tree": "140c3b838ef3a1f72e2669744871a48b83911311",
+      "base": "b959830acd53a868febfe362974e33e144481aa7"
+    }
+  ],
+  "candidate_association": "Cross-checked published integrity/results/completion receipts; candidate Git objects not available through public commit API",
+  "source_bank_scope": "No exact-source manager bank logs in the supplied archive; candidate receipts explicitly validate another commit/tree",
+  "calibration": "NOT RUN",
+  "physical_interop": "NOT RUN",
+  "hosted_success": 22,
+  "hosted_skipped": [
+    "Physical gPTP (nightly and manual)"
+  ]
+}

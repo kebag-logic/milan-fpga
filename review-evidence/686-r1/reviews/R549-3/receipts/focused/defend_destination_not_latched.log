@@ -1,0 +1,182 @@
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+
+[1] reset/idle
+  [ ok ] state IDLE                                   = 0
+  [ ok ] addr not valid                               = 0
+  [ ok ] no frame while disabled                      = 0
+
+[2] Begin!: four golden PROBEs, the first at once, then ANNOUNCE at once
+  [ ok ] state PROBE                                  = 1
+  [ ok ] offset inside pool                           = 1
+  [ ok ] offset leaves room for the range cases       = 1
+  [ ok ] Begin! PROBE 1 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 1)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 1)          = 1
+  [ ok ] Begin! PROBE 2 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 2)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 2)          = 1
+  [ ok ] Begin! PROBE 3 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 3)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 3)          = 1
+  [ ok ] address not valid before the fourth PROBE    = 0
+  [ ok ] Begin! PROBE 4 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 4)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 4)          = 1
+  [ ok ] Begin! ANNOUNCE = golden (B.2/B.3.6.7)       = 1
+  [ ok ] Begin!: address valid in ANNOUNCE            = 1
+  [ ok ] T.B7 Begin!: first PROBE at once             = 1
+  [ ok ] T.B7 Begin!: four PROBEs before ANNOUNCE     = 4
+  [ ok ] T.B7 probeCount!: ANNOUNCE at once (Begin!)  = 1
+  [ ok ] state ANNOUNCE after four PROBEs             = 2
+  [ ok ] addr = pool base + offset                    = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+
+[3] B.3.4.1: ANNOUNCE every 30 s < T < 32 s, randomized, multicast
+  [i]    24 ANNOUNCE intervals: 305310..315010 cycles
+  [ ok ] B.3.4.1 announce T > 30 s                    = 1
+  [ ok ] B.3.4.1 announce T < 32 s                    = 1
+  [ ok ] B.3.4.1 announce T randomized                = 1
+  [ ok ] B.2.1 ANNOUNCE DA multicast                  = 1
+  [ ok ] B.2.1 cdl 16 (ANNOUNCE)                      = 16
+
+[4] announced + conflicting PROBE -> DEFEND to the prober (B.2.1)
+  [ ok ] above: DEFEND emitted promptly               = 1
+  [ ok ] B.2.1 DEFEND DA = PROBE source (above)       = 1
+  [ ok ] B.2.1 cdl 16 (DEFEND above)                  = 16
+  [ ok ] above: SA, ethertype, subtype                = 1
+  [ ok ] B.2.7 conflict_start = overlap (above)       = 160395285252965
+  [ ok ] B.2.8 conflict_count = overlap (above)       = 4
+  [ ok ] still ANNOUNCE                               = 2
+  [ ok ] defends counted                              = 1
+
+[4b] the prober's range starts below ours, another prober
+  [ ok ] below: DEFEND emitted promptly               = 1
+  [ ok ] B.2.1 DEFEND DA = PROBE source (below)       = 1
+  [ ok ] B.2.1 cdl 16 (DEFEND below)                  = 16
+  [ ok ] below: SA, ethertype, subtype                = 1
+  [ ok ] B.2.7 conflict_start = overlap (below)       = 160395285252961
+  [ ok ] B.2.8 conflict_count = overlap (below)       = 4
+
+[4c] DEFEND held by backpressure; a later PDU must not redirect it
+  [FAIL] B.2.1 DEFEND DA latched at send              got=0 exp=1
+  [ ok ] B.2.7 one-address overlap start              = 19297
+  [ ok ] B.2.8 one-address overlap count              = 1
+  [ ok ] defends = 3                                  = 3
+
+[4d] note b applies to PROBE: adjacent and empty ranges get no DEFEND
+  [ ok ] note b: no DEFEND for non-conflicting PROBEs = 0
+  [ ok ] defends still 3                              = 3
+
+[4e] unknown message type ignored (B.2.2)
+  [ ok ] unknown msg: still ANNOUNCE                  = 2
+
+[4f] the ANNOUNCE after the DEFENDs is multicast again
+  [ ok ] B.2.1 ANNOUNCE DA multicast after DEFEND     = 1
+
+[5] ANNOUNCE conflict detection (B.3.2, Table B.7 notes b and d)
+  [ ok ] T.B7 note d: lower MAC keeps range           = 1
+  [ ok ] B.2.7 ANNOUNCE conflict_* is not its range   = 1
+  [ ok ] note b adjacent above: no conflict           = 1
+  [ ok ] note b adjacent below: no conflict           = 1
+  [ ok ] note b empty range: no conflict              = 1
+  [ ok ] no re-address so far                         = 0
+
+[5b] one shared address, peer below: rAnnounce!/DEFEND re-addresses
+  [ ok ] T.B7 rAnnounce!/DEFEND: re-address           = 1
+  [ ok ] addr dropped                                 = 0
+  [ ok ] offset changed                               = 1
+  [ ok ] conflicts counted                            = 1
+  [ ok ] T.B7 Restart!: first PROBE at once           = 1
+  [ ok ] Restart! PROBE carries the new range         = 1
+
+[5c] ANNOUNCE while probing: rAnnounce!/PROBE yields without compare_MAC
+  [ ok ] T.B7 rAnnounce!/PROBE: no compare_MAC        = 1
+  [ ok ] Restart! PROBE 1 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 1)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 1)        = 1
+  [ ok ] Restart! PROBE 2 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 2)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 2)        = 1
+  [ ok ] Restart! PROBE 3 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 3)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 3)        = 1
+  [ ok ] address not valid before the fourth PROBE    = 0
+  [ ok ] Restart! PROBE 4 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 4)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 4)        = 1
+  [ ok ] Restart! ANNOUNCE = golden (B.2/B.3.6.7)     = 1
+  [ ok ] Restart!: address valid in ANNOUNCE          = 1
+  [ ok ] T.B7 Restart!: first PROBE at once           = 1
+  [ ok ] T.B7 Restart!: four PROBEs before ANNOUNCE   = 4
+  [ ok ] T.B7 probeCount!: ANNOUNCE at once (Restart!) = 1
+
+[6a] a conflicting PROBE parsed while an ANNOUNCE is part-way out on the
+     wire leaves that frame byte-identical and gets no DEFEND
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] PROBE mid-frame: frame on the wire byte-identical = 1
+  [ ok ] PROBE mid-frame: no DEFEND                   = 1
+  [ ok ] PROBE mid-frame: range kept                  = 1
+
+[6] a Restart! while an ANNOUNCE waits on the wire leaves it intact
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] DEFEND re-addresses (state PROBE)            = 1
+  [ ok ] frame on the wire keeps its offset           = 1
+  [ ok ] then the new range's PROBE                   = 1
+
+[7] DEFEND judged on conflict_*; PROBE while probing re-addresses silently
+  [ ok ] DEFEND with conflicting conflict_*: re-address = 1
+  [ ok ] conflicts +1                                 = 4
+  [ ok ] DEFEND judged on conflict_* only             = 22577
+  [ ok ] probing + PROBE: still PROBE                 = 1
+  [ ok ] probing + PROBE: offset changed              = 1
+  [ ok ] probing + PROBE: no DEFEND                   = 3
+  [ ok ] conflicts +2                                 = 5
+
+[8] non-conflicting + non-pool PDUs ignored
+  [ ok ] offset stable                                = 38746
+  [ ok ] conflicts unchanged                          = 5
+  [ ok ] note b: this station's empty range never conflicts = 1
+
+[8b] maap_version handling (IEEE 1722-2016 B.2.3.2: a future-version
+     PDU must STILL count as a conflict for its ranges; lower/equal
+     versions processed normally)
+  [ ok ] ver7: conflict honored (re-address)          = 1
+  [ ok ] ver7: conflicts +1                           = 6
+  [ ok ] ver0: conflict honored (re-address)          = 1
+  [ ok ] ver0: conflicts +2                           = 7
+  [ ok ] ver7 disjoint: ignored                       = 51973
+  [ ok ] ver7 disjoint: conflicts still +2            = 7
+
+[9] B.3.4.2 over 150 walks: every PROBE interval strictly inside
+    500..600 ms, and the draw reaches both ends of 518..581 ms
+  [ ok ] campaign: every walk four PROBEs + ANNOUNCE  = 0
+  [ ok ] campaign: T.B7 Begin!: first PROBE at once   = 1
+  [i]    456 PROBE intervals: 5180..5811 cycles
+  [ ok ] B.3.4.2 probe T > 500 ms (campaign)          = 1
+  [ ok ] B.3.4.2 probe T < 600 ms (campaign)          = 1
+  [ ok ] probe draw reaches its low end               = 1
+  [ ok ] probe draw reaches its high end              = 1
+
+[10] disable -> IDLE; seeded re-enable claims the seed at once
+  [ ok ] IDLE on disable                              = 0
+  [ ok ] addr dropped on disable                      = 0
+  [ ok ] seeded offset                                = 4660
+  [ ok ] PROBE with seed                              = 1
+  [ ok ] T.B7 note a: seeded PROBE at once            = 1
+
+[11] B.3.4: a station MAC that folds the LFSR seed to zero
+     (02:00:00:00:AC:E1) still draws random probe and announce intervals
+  [ ok ] zero-seed MAC: four PROBEs, then ANNOUNCEs   = 1
+  [i]    6 timer PROBE intervals, 6 distinct; 3 timer ANNOUNCE intervals, 3 distinct
+  [ ok ] B.3.4.2 probe T in bounds (zero-seed MAC)    = 1
+  [ ok ] B.3.4.2 probe T randomized (zero-seed MAC)   = 1
+  [ ok ] B.3.4.1 announce T in bounds (zero-seed MAC) = 1
+  [ ok ] B.3.4.1 announce T randomized (zero-seed MAC) = 1
+
+======================================================================
+KL_maap: 130 checks, 1 failures
