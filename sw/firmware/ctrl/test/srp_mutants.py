@@ -707,7 +707,7 @@ DEFECTS = (
 
     Defect('feedback-advertise-missing','SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline',
            'if (registered && state == ACMP_SETTLED_NO_RSV)',
-           'if (false)',
+           'if (state == ACMP_SETTLED_NO_RSV && false)',
            'Advertise reaches ACMP', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('feedback-failed-as-advertise','SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes',
            'acmp_tk_registered(&app->acmp.acmp,sink,registered == 1u)',
@@ -727,7 +727,7 @@ DEFECTS = (
            'feedback uses configured interface', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('feedback-repeated','SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline',
            'if (registered && state == ACMP_SETTLED_NO_RSV)',
-           'if (registered)',
+           'if ((void)state, registered)',
            'unchanged registration is delivered once', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-park-keeps-old','SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding',
            'r->pending = app->srp->ifs[interface].sinks[sink].bound &&',
