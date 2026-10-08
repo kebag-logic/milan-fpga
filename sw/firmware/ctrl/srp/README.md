@@ -72,8 +72,8 @@ Observation follows each wire AttributeEvent and centisecond tick.
 Talker indications copy registration kinds into per-sink adapter state.
 The receive-interest callback observes the preceding event from those copies.
 It never calls its owning application.
-This obeys lwSRP's [integrator contract](../../../../third_party/lwSRP/doc/integrator.md#lifetime-and-concurrency)
-and [filter contract](../../../../third_party/lwSRP/src/include/shish_lan/mrp.h).
+This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/9197193e47a6bb1c45a56d90a18c1784123aba44/doc/integrator.md#L321-L323)
+and [filter contract](https://github.com/kebag-logic/lwSRP/blob/9197193e47a6bb1c45a56d90a18c1784123aba44/src/include/shish_lan/mrp.h#L288-L290).
 Registrar visits run outside callbacks, before and after receive.
 Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
