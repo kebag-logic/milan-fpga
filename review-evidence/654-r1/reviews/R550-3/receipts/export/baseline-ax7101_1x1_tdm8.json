@@ -1,0 +1,182 @@
+{
+  "config": "ax7101_1x1_tdm8",
+  "argv": [
+    "--board",
+    "ax7101",
+    "--milan-clk-freq",
+    "50e6",
+    "--gtx-tx-invert",
+    "--floorplan",
+    "--eth-port",
+    "e1",
+    "--no-i2s-playback",
+    "--no-render-lpf",
+    "--num-streams",
+    "1",
+    "--audio-interface",
+    "tdm8",
+    "--audio-interface-master",
+    "--audio-interface-render",
+    "8",
+    "--talker-wire-chans",
+    "8",
+    "--loopback-lane",
+    "--fabric-gptp",
+    "--gptp-ingress-lat-ns",
+    "656",
+    "--gptp-egress-lat-ns",
+    "219",
+    "--cpu",
+    "vexiiriscv",
+    "--software-profile",
+    "baremetal",
+    "--xlen",
+    "32",
+    "--full",
+    "--with-spiflash",
+    "--flashboot",
+    "baremetal",
+    "--timing-opt",
+    "--l2-bytes",
+    "0",
+    "--uart-baudrate",
+    "115200",
+    "--cpu-count",
+    "1",
+    "--entity-gen-dir",
+    "<packet>/scratch/probe/configs/generated/endstation_ax7101_1x1_tdm8",
+    "--output-dir",
+    "<packet>/scratch/measure/exports/ax7101_1x1_tdm8",
+    "--no-compile-software"
+  ],
+  "files": {
+    "export/aem_desc.bin": {
+      "bytes": 7512,
+      "sha256": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d"
+    },
+    "export/aem_desc.json": {
+      "bytes": 266,
+      "sha256": "ba08511e11780706f723baeb3335e3254e3606d523796aeb7eefc7c01f469947"
+    },
+    "export/aem_desc.map": {
+      "bytes": 1600,
+      "sha256": "24d2d0122d4d73a32b4d87a5fc689d8c560d38826aa4c5eacc88a6d353436d99"
+    },
+    "export/csr.csv": {
+      "bytes": 9035,
+      "sha256": "127ce106599d28ec4f157eef979cc366f7f546b63408254f197e4fe74e286564"
+    },
+    "export/csr.json": {
+      "bytes": 15821,
+      "sha256": "1868b0fc62fb32fd994e477827c20bbb31f5ad1a5d018a7f6527d8e0de4cc68c"
+    },
+    "export/flashboot_layout.json": {
+      "bytes": 715,
+      "sha256": "487d89f7231a009aae9ad91b928f78592b8129a3b242727aeeb5bfcc942a4aca"
+    },
+    "export/gateware/alinx_ax7101.tcl": {
+      "bytes": 33441,
+      "sha256": "efa99af517f37cd1a7e22e2342b2694492cdf5a01c3f6713e7a382f3b703245f"
+    },
+    "export/gateware/alinx_ax7101.v": {
+      "bytes": 1763130,
+      "sha256": "053e928b18d9e636cc266d8183bca81eefe500efc284673c9654f8aeb9021ea1"
+    },
+    "export/gateware/alinx_ax7101.xdc": {
+      "bytes": 19504,
+      "sha256": "81bbf89c34dd0e911c43a66a00533145544e15f2d5b4a45727b954f678793b2d"
+    },
+    "export/gateware/alinx_ax7101_mem.init": {
+      "bytes": 147,
+      "sha256": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335"
+    },
+    "export/gateware/alinx_ax7101_rom.init": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "export/gateware/alinx_ax7101_sram.init": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "export/gateware/build_alinx_ax7101.sh": {
+      "bytes": 91,
+      "sha256": "cbbbfde27360f056256e74c8ca7d3749d554b6ad636a1cac1c0deb21c5422d56"
+    },
+    "export/software/include/generated/csr.h": {
+      "bytes": 30683,
+      "sha256": "98586fc23cd0f9369a90e1d69c1e7e27cd0ef4c811b411b54c654dc7990d2ca7"
+    },
+    "export/software/include/generated/git.h": {
+      "bytes": 319,
+      "sha256": "e974db5b9a41270c49d688447e4a07425d9c60f3d2efb00f6751c18841745d56"
+    },
+    "export/software/include/generated/mem.h": {
+      "bytes": 2032,
+      "sha256": "ef5f977d5c52382b628ae65650003e3266ebe9f5d71011fbd0e814b822a8996b"
+    },
+    "export/software/include/generated/output_format.ld": {
+      "bytes": 35,
+      "sha256": "14009799501c0b832653a9a146767576a62a6df1266dbdb8b2b224f111c74422"
+    },
+    "export/software/include/generated/regions.ld": {
+      "bytes": 415,
+      "sha256": "e28d856906eb49e4ba7e456a5875ecf6c1eac089199d0d821a8ed0944e8c8af6"
+    },
+    "export/software/include/generated/sdram_phy.h": {
+      "bytes": 3665,
+      "sha256": "dd0d197d6e10ffe4f00b8e4f82aff8c05a537f37afa5316f67c0a3155807ead6"
+    },
+    "export/software/include/generated/soc.h": {
+      "bytes": 11949,
+      "sha256": "4361bcbc674c48f5cc5d3b9cb378c82fd7b7d1f9646a57802236c1a35b6586de"
+    },
+    "export/software/include/generated/variables.mak": {
+      "bytes": 2559,
+      "sha256": "ac6cc71fd7431fcf0052d8a12f74e2219a4c355bf2bdfdf4b1dd707af811c121"
+    },
+    "builder/adp_shape_defaults.svh": {
+      "bytes": 8119,
+      "sha256": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb"
+    },
+    "builder/aecp_aem_rom.svh": {
+      "bytes": 41787,
+      "sha256": "177a57df296814573c33261a67999ff9a1db9022d4d87a1370c72f935e0fc3f5"
+    },
+    "builder/aem_overlay.json": {
+      "bytes": 7333,
+      "sha256": "53c6770faa1e7994d419a5134285c792a896af9ce8537a273729319a3227692c"
+    },
+    "builder/build_plan.md": {
+      "bytes": 10841,
+      "sha256": "699ffe19b99c826d9531279760934625baf3106aff3ac1ae80a7e44d894e965f"
+    },
+    "builder/gptp_ucode.hex": {
+      "bytes": 13312,
+      "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b"
+    },
+    "builder/lwsrp_csr_defaults.svh": {
+      "bytes": 2190,
+      "sha256": "0e9df2d455d90782c87546dab4dd1fe7b5fb7f4bc81074e910ba71ddc7016d74"
+    },
+    "builder/lwsrp_table.json": {
+      "bytes": 2289,
+      "sha256": "61b2e71d9a40c61bfb0eaf884af6257b1b030e441c5f507f99720d0c18dad47d"
+    },
+    "builder/lwsrp_table.svh": {
+      "bytes": 3832,
+      "sha256": "8209fdee3cd744d24a066b76017f71f16d87f636c4470eb95e9f986dce550522"
+    },
+    "builder/platform_shape.json": {
+      "bytes": 253,
+      "sha256": "0325a3cc988f7f97b34997ef3ac53c6624edfc62b0bd4b5ffb42dc72894ddae7"
+    },
+    "builder/soc_params.json": {
+      "bytes": 799,
+      "sha256": "d5ec9866f86c339dc1c178c31c7800a359813660d9cbcc95e242e1e29b13c516"
+    },
+    "shape/gen/adp_shape_defaults.svh": {
+      "bytes": 8119,
+      "sha256": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb"
+    }
+  }
+}

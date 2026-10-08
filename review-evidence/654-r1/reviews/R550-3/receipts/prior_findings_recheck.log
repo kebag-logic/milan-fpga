@@ -1,0 +1,15 @@
+# candidate b959830a, CLI L2 tokens (PYTHONHASHSEED=0)
+## --l2-bytes 1e-400
+milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes
+rc=2
+## --l2-bytes -1e-400
+milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes
+rc=2
+## --l2-bytes 0.5
+milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes
+rc=2
+## --l2-bytes 8192
+milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2
+rc=2
+## constructor validator cpu='bogus' l2_bytes=0
+ValueError: unsupported CPU 'bogus'; expected vexiiriscv or naxriscv

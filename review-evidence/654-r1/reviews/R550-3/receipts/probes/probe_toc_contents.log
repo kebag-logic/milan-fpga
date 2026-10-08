@@ -1,0 +1,10 @@
+## clean run
+TOC gate: OK (139 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+ docs/integration/BUILDING.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+## planted run
+  TOC DRIFT docs/integration/BUILDING.md  (headings changed, or a description is still 'TODO describe this section')
+
+1 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>
+then WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.
+toc_contents: clean_rc=0 planted_rc=1 restored=yes KILLED

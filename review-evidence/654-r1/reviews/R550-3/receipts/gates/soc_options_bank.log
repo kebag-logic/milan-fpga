@@ -1,0 +1,14 @@
+# cmd: <bench-litex>/venv/bin/python3 sw/builder/test_soc_options.py
+# head: b959830acd53a868febfe362974e33e144481aa7
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+RESULT: PASS
+# rc=0 seconds=21

@@ -1,0 +1,47 @@
+## clean run
+== test_soc_option_refusals
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+RESULT: PASS
+== test_soc_option_refusals returned
+== test_toolchain_patches_are_applied
+  [gate 23h] the 5 patches in sw/litex/patches are the 5 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 4 installed files byte for byte, including 1 that two patches share and must therefore compose on ({'gmii.py': ['0002-liteeth-gmii-tx-clk-invert.patch', '0007-liteeth-gmii-rx-capture.patch']}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+== test_toolchain_patches_are_applied returned
+== test_toolchain_patch_gate_bites
+  [gate 23h mutation] 5/5 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 5 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+== test_toolchain_patch_gate_bites returned
+builder subset: 3/3 arms ran, no skip recorded
+ sw/litex/patches/apply.sh | 1 -
+ 1 file changed, 1 deletion(-)
+## planted run
+== test_soc_option_refusals
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+RESULT: PASS
+== test_soc_option_refusals returned
+== test_toolchain_patches_are_applied
+Traceback (most recent call last):
+  File "<packet>/builder_subset.py", line 22, in <module>
+    fn()
+    ~~^^
+  File "<packet>/scratch/probe/sw/builder/test_builder.py", line 24343, in test_toolchain_patches_are_applied
+    assert listed == on_disk, (
+           ^^^^^^^^^^^^^^^^^
+AssertionError: sw/litex/patches and apply.sh's SERIES disagree, which is how 0002-vexiiriscv-l2-depth-args sat unapplied while four configs needed it: only in the directory ['0007-liteeth-gmii-rx-capture.patch'], only in SERIES []
+apply_series_0007: clean_rc=0 planted_rc=1 restored=yes KILLED

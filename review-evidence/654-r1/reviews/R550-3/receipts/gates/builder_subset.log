@@ -1,0 +1,23 @@
+# cmd: <bench-litex>/venv/bin/python3 -I <packet>/builder_subset.py
+# head: b959830acd53a868febfe362974e33e144481aa7
+== test_soc_option_refusals
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+RESULT: PASS
+== test_soc_option_refusals returned
+== test_toolchain_patches_are_applied
+  [gate 23h] the 5 patches in sw/litex/patches are the 5 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 4 installed files byte for byte, including 1 that two patches share and must therefore compose on ({'gmii.py': ['0002-liteeth-gmii-tx-clk-invert.patch', '0007-liteeth-gmii-rx-capture.patch']}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+== test_toolchain_patches_are_applied returned
+== test_toolchain_patch_gate_bites
+  [gate 23h mutation] 5/5 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 5 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+== test_toolchain_patch_gate_bites returned
+builder subset: 3/3 arms ran, no skip recorded
+# rc=0 seconds=24

@@ -1,0 +1,34 @@
+# name|kind|command  (D docs interpreter, L LiteX interpreter, S shell)
+# <packet> stands for the directory holding this file; substitute it before running.
+# Environment used: PATH led by the scoped Verilator 5.050 wrapper, MILAN_LITEX_PYTHON
+# and the L interpreter = the bench LiteX venv, VERILATOR_JOBS=4, MAKEFLAGS=-j8.
+docs_check|D|scripts/docs_check.py
+doc_style|D|scripts/check_doc_style.py
+doc_paths|D|scripts/check_doc_paths.py
+toc_check|D|scripts/gen_toc.py --check
+toc_anchors|D|scripts/gen_toc.py --verify-anchors
+em_dash_dev_parent|D|scripts/check_em_dash.py --base 99e4eb6c14462aafa84bb1ac597fd241abc1a240
+em_dash_pr_base|D|scripts/check_em_dash.py --base e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+em_dash_selftest|D|scripts/check_em_dash.py --selftest
+solution_docs|D|scripts/check_solution_docs.py
+feature_status|D|scripts/check_feature_status.py
+py_idiom|D|scripts/check_py_idiom.py
+soc_sources|D|scripts/check_soc_sources.py
+hygiene|D|scripts/check_hygiene.py --check
+fail_fast|D|scripts/measure_fail_fast.py --check
+naming|D|scripts/measure_naming.py --check
+test_evidence|D|scripts/measure_test_evidence.py --check
+sweep_shape_selftest|D|scripts/check_sweep_shape.py --self-test
+deploy_shape_selftest|D|scripts/check_deploy_shape.py --selftest
+entity_shape_selftest|D|scripts/check_entity_shape.py --self-test
+gptp_docs|D|scripts/check_gptp_docs.py
+submodule_docs|D|scripts/check_submodule_docs.py
+port_contracts|D|scripts/check_port_contracts.py
+todo_ownership|D|scripts/check_todo_ownership.py
+baremetal_only|D|scripts/check_baremetal_only.py --check
+module_matrix|D|docs/traceability/gen_module_matrix.py --check
+ci_events_check|D|scripts/ci_events.py --check
+ci_events_selftest|D|scripts/ci_events.py --selftest
+soc_options_bank|L|sw/builder/test_soc_options.py
+builder_subset|L|-I <packet>/builder_subset.py
+litex_sims|S|scripts/run_litex_sims.sh <packet>/scratch/litex-sims

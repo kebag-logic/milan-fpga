@@ -1,0 +1,26 @@
+candidate b959830acd53a868febfe362974e33e144481aa7 parents: 99e4eb6c14462aafa84bb1ac597fd241abc1a240 853a7357ba86d758a0e38f65db89a6187fb547bc
+merge-base(dev, pr) = e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+git merge-tree --write-tree dev pr = be74ac164d59496f91af1474ca0621e2ce09aac0  (candidate tree be74ac164d59496f91af1474ca0621e2ce09aac0)
+## files changed by PR since base
+docs/integration/BUILDING.md
+sw/builder/test_builder.py
+sw/builder/test_soc_options.py
+sw/litex/milan_soc.py
+## files changed by dev since PR base: 91
+## intersection
+docs/integration/BUILDING.md
+## blobs (base / pr / dev / candidate)
+docs/integration/BUILDING.md 65f9cf23616d481e10d3c0b1b81a2ae64409bf31 fa4fcc1d35300305117910c77424cbfd54757d7c 79f1fcc9a671c815bc1460d6a4f7845ab08b89ab 8e513e16200f80ab373454957d25f393bcc69f95
+sw/builder/test_builder.py 477ad91fc4e66606aa8dd84839e41fe9ddc3a2e4 4e9fb30a72efa26b6420cdb08807cf74e8d30302 477ad91fc4e66606aa8dd84839e41fe9ddc3a2e4 4e9fb30a72efa26b6420cdb08807cf74e8d30302
+sw/builder/test_soc_options.py absent f12c185d826f50e15ff74108942c540d44017943 absent f12c185d826f50e15ff74108942c540d44017943
+sw/litex/milan_soc.py 551d6aae90b9ff0521c3af2d258ddd55de957da8 6f36cdcc4c88d745bc8a84123cfc3825470484d0 551d6aae90b9ff0521c3af2d258ddd55de957da8 6f36cdcc4c88d745bc8a84123cfc3825470484d0
+## candidate-vs-dev patch equals pr-vs-base patch (index/hunk headers ignored)
+SAME
+## BUILDING.md 3-way merge-file of base, pr, dev
+merge-file rc=0 conflicts=0 if rc 0
+re-merge identical to candidate blob
+1d9ffa278f9695e11ccd376ccb538d60dbbce904fb0303b73df6c14847802a84  853a7357b.md
+9db558b45ff577d068a29d7d5b81fe2fe45314c34e09a058db7db44c6356d453  99e4eb6c1.md
+e4add2030aff60a9e1bcc43c648f60c77cd8ca56d840b65a4dd87564c85ba79f  b959830ac.md
+dcfd4d299b3e261f29342dc39f5837db4ba2c888d3843e69e627109df419101c  e21c1ca024d37ea188ad15b5c8f9c2dae18628df.md
+e4add2030aff60a9e1bcc43c648f60c77cd8ca56d840b65a4dd87564c85ba79f  remerge.md
