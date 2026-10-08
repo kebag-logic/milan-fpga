@@ -1,0 +1,474 @@
+EXCERPT: final portion only. Original bytes and SHA-256 are in the inventory.
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal input live_state_changed got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 input: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 input GET_AUDIO_MAP record count       got=0x00000001 exp=0x00000001
+  [PASS] K12 input GET_AUDIO_MAP exact record       got=0x00000001 exp=0x00000001
+  [PASS] K12 input no_durable_claim_over_unsaved    got=0x00000000 exp=0x00000000
+  [PASS] K12 input pending_from_accepting_edge      got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 input first write 144, mark 159, tail 15 cycles
+  [PASS] K12 input live_state_changed               got=0x00000001 exp=0x00000001
+  [PASS] K12 input sticky_pending_PP_STAT           got=0x00000001 exp=0x00000001
+  [PASS] K12 input sticky_pending_PP_NVM_STAT       got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0 response status       got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 remove input first write 12765, mark 12780, tail 15 cycles
+  [PASS] K12 remove input live_state_changed        got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 static output refused: response status got=0x0000000B exp=0x0000000B
+  [PASS] K12 static output refused no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes     response status       got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 remove input first write 12765, mark 12780, tail 15 cycles
+  [PASS] K12 remove input live_state_changed        got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 static output refused: response status got=0x0000000B exp=0x0000000B
+  [PASS] K12 static output refused no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes    x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 remove input first write 12765, mark 12780, tail 15 cycles
+  [PASS] K12 remove input live_state_changed        got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input sticky_pending                  got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused live_state_changed got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K reset live_state_changed                 got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_STAT             got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_NVM_STAT         got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 609 checks, 0 failures
+RESULT: PASS
+                  got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused live_state_changed got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K reset live_state_changed                 got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_STAT             got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_NVM_STAT         got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 609 checks, 0 failures
+RESULT: PASS
+aved got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 remove input first write 12765, mark 12780, tail 15 cycles
+  [PASS] K12 remove input live_state_changed        got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 boot: the output map starts empty: response status got=0x00000000 exp=0x00000000
+  [PASS] K12 boot: the output map starts empty GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PAS_PP_STAT    got=0x00000001 exp=0x00000001
+  [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 static output refused: response status got=0x0000000B exp=0x0000000B
+  [PASS] K12 static output refused no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused live_state_changed got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 static output refused sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K reset live_state_changed                 got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_STAT             got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_NVM_STAT         got=0x00000000 exp=0x00000000
+[CRF_STOP] #608 IN withdrawal, own LeaveAll expiry and restart
+  [PASS] PP_CTRL reads back                         got=0x00000001 exp=0x00000001
+  [PASS] #608 real MAAP block claimed               got=0x00000001 exp=0x00000001
+  [PASS] #608 no Listener means no CRF licence      got=0x00000000 exp=0x00000000
+  [PASS] #608 CRF actually transmits before withdrawal at least two complete tagged CRF PDUs
+  [PASS] #608 CRF licence is active                 got=0x00000001 exp=0x00000001
+  [PASS] #608 observed CRF cadence equals one PDU period independent 512 * 96 audio-clock cadence
+  [PASS] #608 withdrawal closes the CRF licence within one PDU got=0x00000000 exp=0x00000000
+  [PASS] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000001 exp=0x00000001
+  [PASS] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000000 exp=0x00000000
+  [PASS] #608 at most one in-flight PDU completes   a started PDU may drain without truncation
+  [PASS] #608 hold creates no duplicate STREAM_STOP got=0x00000001 exp=0x00000001
+CRF_STOP phase=ordinary-IN withdrawal_cycle=43134456 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=0 stop_after=1
+  [PASS] #608 CRF actually transmits before withdrawal at least two complete tagged CRF PDUs
+  [PASS] #608 CRF licence is active                 got=0x00000001 exp=0x00000001
+  [PASS] #608 observed CRF cadence equals one PDU period independent 512 * 96 audio-clock cadence
+  [PASS] #608 own LeaveAll deadline is still ahead  deadline captured before its timer fires
+  [PASS] #608 expiry-window stimulus reaches deadline + 1 ms got=0x00002712 exp=0x00002712
+  [PASS] #608 timer expiry preserves IN until own transmit action got=0x00000001 exp=0x00000001
+CRF_STOP own_deadline_ms=10001 withdrawal_ms=10002 registrar=1
+  [PASS] #608 withdrawal closes the CRF licence within one PDU got=0x00000000 exp=0x00000000
+  [PASS] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000002 exp=0x00000002
+  [PASS] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000000 exp=0x00000000
+  [PASS] #608 at most one in-flight PDU completes   a started PDU may drain without truncation
+  [PASS] #608 hold creates no duplicate STREAM_STOP got=0x00000002 exp=0x00000002
+CRF_STOP phase=own-expiry-before-transmit withdrawal_cycle=43782718 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=1 stop_after=2
+  [PASS] #608 CRF actually transmits before withdrawal at least two complete tagged CRF PDUs
+  [PASS] #608 CRF licence is active                 got=0x00000001 exp=0x00000001
+  [PASS] #608 observed CRF cadence equals one PDU period independent 512 * 96 audio-clock cadence
+  [PASS] #608 withdrawal closes the CRF licence within one PDU got=0x00000000 exp=0x00000000
+  [PASS] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000003 exp=0x00000003
+  [PASS] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000000 exp=0x00000000
+  [PASS] #608 at most one in-flight PDU completes   a started PDU may drain without truncation
+  [PASS] #608 hold creates no duplicate STREAM_STOP got=0x00000003 exp=0x00000003
+CRF_STOP phase=reconnected-IN withdrawal_cycle=44179738 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=2 stop_after=3
+  [PASS] #608 three withdrawals count three stops   got=0x00000003 exp=0x00000003
+----------------------------------------------------------------
+pp_shadow: 649 checks, 0 failures
+RESULT: PASS
+S] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records live_state_changed        got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records sticky_pending_PP_STAT    got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 refused record output: response status got=0x00000007 exp=0x00000007
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 refused record output: response status got=0x00000000 exp=0x00000000
+  [PASS] K12 refused record output GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K12 refused record output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 refused record output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 refused record output live_state_changed got=0x00000000 exp=0x00000000
+  [PASS] K12 refused record output sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 refused record output sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 partial refusal output: response status got=0x00000007 exp=0x00000007
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 partial refusal output: response status got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal output GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal output live_state_changed got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal output sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 partial refusal output sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 output: response status                got=0x00000000 exp=0x00000000
+  [PASS] K12 output GET_AUDIO_MAP record count      got=0x00000001 exp=0x00000001
+  [PASS] K12 output GET_AUDIO_MAP exact record      got=0x00000001 exp=0x00000001
+  [PASS] K12 no_durable_claim_over_unsaved          got=0x00000000 exp=0x00000000
+  [PASS] K12 pending_from_accepting_edge            got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 first write 145, mark 160, tail 15 cycles
+  [PASS] K12 live_state_changed                     got=0x00000001 exp=0x00000001
+  [PASS] K12 sticky_pending_PP_STAT                 got=0x00000001 exp=0x00000001
+  [PASS] K12 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output: response status      got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output: response status      got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output live_state_changed    got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output: response status         got=0x00000000 exp=0x00000000
+  [PASS] K12 remove output GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output: response status         got=0x00000000 exp=0x00000000
+  [PASS] K12 remove output GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K12 remove output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 remove output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 remove output first write 12766, mark 12781, tail 15 cycles
+  [PASS] K12 remove output live_state_changed       got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output sticky_pending_PP_STAT   got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K reset live_state_changed                 got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_STAT             got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_NVM_STAT         got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 317 checks, 0 failures
+RESULT: PASS
+make: Leaving directory '$WORK/functional/sweep/tb/verilator/pp_shadow'

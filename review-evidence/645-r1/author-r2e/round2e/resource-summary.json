@@ -1,0 +1,129 @@
+{
+  "head": "85db353400c6bf3965d279a9f5b5d47e08a0d1ed",
+  "baseline_sha256": "aa8f90e775e76603d6179867abef9ecd7c13c91947c478ffcd12477e443128ef",
+  "rows": [
+    {
+      "endpoint": "route-1x1",
+      "rc": 0,
+      "baseline": {
+        "LUT": 49957,
+        "FF": 54274,
+        "SLICE": 15734,
+        "BRAM_TILE": 87.5,
+        "RAMB36": 74,
+        "RAMB18": 27,
+        "DSP": 14,
+        "WNS_ns": 0.124,
+        "WHS_ns": 0.031,
+        "CARRY4": 3385
+      },
+      "candidate": {
+        "LUT": 49913,
+        "FF": 54309,
+        "SLICE": 15754,
+        "BRAM_TILE": 87.5,
+        "RAMB36": 74,
+        "RAMB18": 27,
+        "DSP": 14,
+        "WNS_ns": 0.057,
+        "WHS_ns": 0.024,
+        "CARRY4": 3389
+      },
+      "delta": {
+        "LUT": -44,
+        "FF": 35,
+        "SLICE": 20,
+        "BRAM_TILE": 0.0,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0,
+        "WNS_ns": -0.067,
+        "WHS_ns": -0.007,
+        "CARRY4": 4
+      },
+      "identity_matches": true,
+      "baseline_inputs_sha256": "fe05182f7b303a175afa44006cd6098d34b8887b3b9296aaffda9415ea928b63",
+      "candidate_inputs_sha256": "ea2af1d9ccf732eea20216af35bd608d938cf73fd0b8f4614671dd537fdf3240"
+    },
+    {
+      "endpoint": "ooc-1x1",
+      "rc": 0,
+      "baseline": {
+        "LUT": 23179,
+        "FF": 19779,
+        "BRAM_TILE": 17.5,
+        "RAMB36": 16,
+        "RAMB18": 3,
+        "DSP": 8,
+        "WNS_ns": -3.562,
+        "WHS_ns": 0.159,
+        "CARRY4": 1494
+      },
+      "candidate": {
+        "LUT": 23179,
+        "FF": 19779,
+        "BRAM_TILE": 17.5,
+        "RAMB36": 16,
+        "RAMB18": 3,
+        "DSP": 8,
+        "WNS_ns": -3.562,
+        "WHS_ns": 0.159,
+        "CARRY4": 1494
+      },
+      "delta": {
+        "LUT": 0,
+        "FF": 0,
+        "BRAM_TILE": 0.0,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0,
+        "WNS_ns": 0.0,
+        "WHS_ns": 0.0,
+        "CARRY4": 0
+      },
+      "identity_matches": true,
+      "baseline_inputs_sha256": "949b816238370a52d9b9aa89c7d77e004c7d019479e88085172ddf793fc3fe7a",
+      "candidate_inputs_sha256": "490d3d3504c38c38077f50135b5be6ef044798421194771f28f5e6ac59509537"
+    },
+    {
+      "endpoint": "ooc-8x8",
+      "rc": 0,
+      "baseline": {
+        "LUT": 30135,
+        "FF": 27380,
+        "BRAM_TILE": 23.5,
+        "RAMB36": 21,
+        "RAMB18": 5,
+        "DSP": 8,
+        "WNS_ns": -2.278,
+        "WHS_ns": 0.159,
+        "CARRY4": 1889
+      },
+      "candidate": {
+        "LUT": 30135,
+        "FF": 27380,
+        "BRAM_TILE": 23.5,
+        "RAMB36": 21,
+        "RAMB18": 5,
+        "DSP": 8,
+        "WNS_ns": -2.278,
+        "WHS_ns": 0.159,
+        "CARRY4": 1889
+      },
+      "delta": {
+        "LUT": 0,
+        "FF": 0,
+        "BRAM_TILE": 0.0,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0,
+        "WNS_ns": 0.0,
+        "WHS_ns": 0.0,
+        "CARRY4": 0
+      },
+      "identity_matches": true,
+      "baseline_inputs_sha256": "53980010e27e5caca27d026414fab6ee7db387b3adeaddb6433d74d8339cffa5",
+      "candidate_inputs_sha256": "cd8846504071823c80296341715e16a887991b38f525ffca7f141e118552593a"
+    }
+  ]
+}

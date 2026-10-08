@@ -1,0 +1,995 @@
+{
+  "head": "85db353400c6bf3965d279a9f5b5d47e08a0d1ed",
+  "base": "2525eae9567865a8bc741901914bdf5a1caf2c26",
+  "shared_infrastructure_policy": "Run the whole parent sweep and all lane campaigns; this map names additional direct consumers, not exclusions.",
+  "rows": [
+    {
+      "path": "CHANGELOG.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/design/AREA_BUDGET.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/diagrams/PNG_MANIFEST.json",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/diagrams/submodule_boundaries.drawio",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/diagrams/submodule_boundaries.png",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/diagrams/submodule_boundaries.svg",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/findings/234_PP_SHADOW_AREA_BASELINE.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/findings/README.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/integration/BUILDING.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/reference/MAILBOX_CONTRACT.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/reference/SUBMODULES.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/testing/PP_SHADOW_BASELINE_RECIPE.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "docs/testing/TESTING.md",
+      "checks": [
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx.sv",
+      "checks": [
+        "firmware",
+        "full-sweep",
+        "physical-gptp",
+        "portability",
+        "resource-endpoints",
+        "shipping-timing",
+        "vendor-parser"
+      ]
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_pkg.sv",
+      "checks": [
+        "firmware",
+        "full-sweep",
+        "physical-gptp",
+        "portability",
+        "resource-endpoints",
+        "shipping-timing",
+        "vendor-parser"
+      ]
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_rx.sv",
+      "checks": [
+        "firmware",
+        "full-sweep",
+        "physical-gptp",
+        "portability",
+        "resource-endpoints",
+        "shipping-timing",
+        "vendor-parser"
+      ]
+    },
+    {
+      "path": "protocol-processor",
+      "checks": [
+        "arrival-128",
+        "firmware",
+        "follow-ring",
+        "full-sweep",
+        "physical-gptp",
+        "pullin-32",
+        "render-law-boundary",
+        "render-mutants-dev-comparison",
+        "render-pullin",
+        "resource-endpoints",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "scripts/port_docs.budget",
+      "checks": [
+        "portability",
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "scripts/run_litex_sims.sh",
+      "checks": [
+        "builder",
+        "full-sweep",
+        "standalone-litex-controls",
+        "standalone-litex-sims"
+      ]
+    },
+    {
+      "path": "scripts/xvlog.budget",
+      "checks": [
+        "source-doc-gates",
+        "vendor-parser"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp.h",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp_mbx.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp_mbx.h",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp_nvm.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp_nvm.h",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.h",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_model.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_model.h",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/README.md",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.h",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx_contract.h",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_fake.hpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_if2.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_mutants.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_review_mutants.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_walk.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/adp_walk.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_arms.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_build.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_image.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_mutant.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_mutants.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_reuse.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/maap_mutants.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image.ld",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image_arith.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image_main.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image_rt.c",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image_start.S",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp_mbx.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp_nvm.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_adp.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_maap_mbx.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_unit_driver.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_unit_seams.cpp",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/README.md",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/gtest/README.md",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/firmware/gtest/coverage.ratchet",
+      "checks": [
+        "builder",
+        "firmware-coverage",
+        "firmware-image",
+        "firmware-mutations-469",
+        "firmware-rv32",
+        "firmware-unit",
+        "full-sweep",
+        "shipping-timing"
+      ]
+    },
+    {
+      "path": "sw/litex/gmii_rx_capture.xdc",
+      "checks": [
+        "builder",
+        "gmii-cycle-controls",
+        "gmii-placement-controls",
+        "resource-endpoints",
+        "shipping-timing-full-iob",
+        "standalone-litex-sims"
+      ]
+    },
+    {
+      "path": "sw/litex/gmii_rx_capture_check.tcl",
+      "checks": [
+        "builder",
+        "gmii-cycle-controls",
+        "gmii-placement-controls",
+        "resource-endpoints",
+        "shipping-timing-full-iob",
+        "standalone-litex-sims"
+      ]
+    },
+    {
+      "path": "sw/litex/iob_pack_selftest.py",
+      "checks": [
+        "builder",
+        "gmii-cycle-controls",
+        "gmii-placement-controls",
+        "resource-endpoints",
+        "shipping-timing-full-iob",
+        "standalone-litex-sims"
+      ]
+    },
+    {
+      "path": "sw/litex/patches/0007-liteeth-gmii-rx-capture.patch",
+      "checks": [
+        "builder",
+        "gmii-cycle-controls",
+        "gmii-placement-controls",
+        "resource-endpoints",
+        "shipping-timing-full-iob",
+        "standalone-litex-sims"
+      ]
+    },
+    {
+      "path": "sw/litex/patches/README.md",
+      "checks": [
+        "builder",
+        "gmii-cycle-controls",
+        "gmii-placement-controls",
+        "resource-endpoints",
+        "shipping-timing-full-iob",
+        "standalone-litex-sims"
+      ]
+    },
+    {
+      "path": "sw/litex/patches/apply.sh",
+      "checks": [
+        "builder",
+        "gmii-cycle-controls",
+        "gmii-placement-controls",
+        "resource-endpoints",
+        "shipping-timing-full-iob",
+        "standalone-litex-sims"
+      ]
+    },
+    {
+      "path": "sw/litex/test_gmii_rx_capture.py",
+      "checks": [
+        "builder",
+        "gmii-cycle-controls",
+        "gmii-placement-controls",
+        "resource-endpoints",
+        "shipping-timing-full-iob",
+        "standalone-litex-sims"
+      ]
+    },
+    {
+      "path": "sw/mailbox/gen_mailbox.py",
+      "checks": [
+        "builder",
+        "firmware",
+        "full-sweep",
+        "shipping-timing",
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "sw/mailbox/mailbox.yaml",
+      "checks": [
+        "builder",
+        "firmware",
+        "full-sweep",
+        "shipping-timing",
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "sw/mailbox/mailbox_emit.py",
+      "checks": [
+        "builder",
+        "firmware",
+        "full-sweep",
+        "shipping-timing",
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "sw/mailbox/mailbox_model.py",
+      "checks": [
+        "builder",
+        "firmware",
+        "full-sweep",
+        "shipping-timing",
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "sw/mailbox/mailbox_skeleton.py",
+      "checks": [
+        "builder",
+        "firmware",
+        "full-sweep",
+        "shipping-timing",
+        "source-doc-gates"
+      ]
+    },
+    {
+      "path": "syn/ooc/pp_baseline.py",
+      "checks": [
+        "resource-ooc-1x1",
+        "resource-ooc-8x8",
+        "resource-route-1x1",
+        "resource-selftests"
+      ]
+    },
+    {
+      "path": "syn/ooc/pp_baseline_mutants.py",
+      "checks": [
+        "resource-ooc-1x1",
+        "resource-ooc-8x8",
+        "resource-route-1x1",
+        "resource-selftests"
+      ]
+    },
+    {
+      "path": "syn/ooc/pp_resource_baseline.json",
+      "checks": [
+        "resource-ooc-1x1",
+        "resource-ooc-8x8",
+        "resource-route-1x1",
+        "resource-selftests"
+      ]
+    },
+    {
+      "path": "syn/yosys/rom_digests.tsv",
+      "checks": [
+        "portability",
+        "rom-digest-checks"
+      ]
+    },
+    {
+      "path": "tb/verilator/follow_ring/mutants.py",
+      "checks": [
+        "arrival-128",
+        "follow-ring-12-controls",
+        "pullin-32"
+      ]
+    },
+    {
+      "path": "tb/verilator/gptp_txts/generated/mac_tx_chain.v",
+      "checks": [
+        "builder",
+        "full-sweep",
+        "physical-gptp"
+      ]
+    },
+    {
+      "path": "tb/verilator/gptp_txts/generated/manifest.json",
+      "checks": [
+        "builder",
+        "full-sweep",
+        "physical-gptp"
+      ]
+    },
+    {
+      "path": "tb/verilator/mbx/Makefile",
+      "checks": [
+        "firmware",
+        "full-sweep"
+      ]
+    },
+    {
+      "path": "tb/verilator/mbx/README.md",
+      "checks": [
+        "firmware",
+        "full-sweep"
+      ]
+    },
+    {
+      "path": "tb/verilator/mbx/bench.hpp",
+      "checks": [
+        "firmware",
+        "full-sweep"
+      ]
+    },
+    {
+      "path": "tb/verilator/mbx/cosim_main.cpp",
+      "checks": [
+        "firmware",
+        "full-sweep"
+      ]
+    },
+    {
+      "path": "tb/verilator/mbx/mutants.py",
+      "checks": [
+        "firmware",
+        "full-sweep"
+      ]
+    },
+    {
+      "path": "tb/verilator/mbx/sim_main.cpp",
+      "checks": [
+        "firmware",
+        "full-sweep"
+      ]
+    },
+    {
+      "path": "tb/verilator/mbx/suite.hpp",
+      "checks": [
+        "firmware",
+        "full-sweep"
+      ]
+    },
+    {
+      "path": "tb/verilator/milan_dp/sim_nxn.cpp",
+      "checks": [
+        "full-sweep-datapath-pool-loopback-render",
+        "physical-gptp",
+        "render-law-boundary",
+        "render-mutants-dev-comparison",
+        "render-pullin"
+      ]
+    }
+  ]
+}

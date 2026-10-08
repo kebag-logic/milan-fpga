@@ -1,0 +1,41 @@
+compiler: $HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0; libgcc.a sha256 faef00acffa378a84c98c04cb6e548ed3881d7f90048f998f2efaf02c5cb280a (not linked)
+shape endstation_ax7101_1x1_tdm8: 2 STREAM_INPUTs, 2 STREAM_OUTPUTs
+  section         head
+  text          33,444
+  rodata           748
+  data               0
+  bss           12,416
+  total         46,608
+  load image (text + rodata + data) 34,192; with bss 46,608 of the 131,072-byte budget (35.6 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,361 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 508 bytes (__lshrdi3, __muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    app                        7,904
+    nvm_stage                  3,344
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    nvm_payload                  136
+    acmp_cfg                      88
+  struct ctrl_app, by part (sizeof): app 7,904, acmp 4,720, loop 1,748, maap 1,104, pool 204, adp 124
+shape endstation_ax7101_8x8: 9 STREAM_INPUTs, 9 STREAM_OUTPUTs
+  section         head
+  text          33,448
+  rodata           748
+  data               0
+  bss           22,784
+  total         56,980
+  load image (text + rodata + data) 34,196; with bss 56,980 of the 131,072-byte budget (43.5 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,362 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 508 bytes (__lshrdi3, __muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    nvm_stage                 13,264
+    app                        7,904
+    nvm_payload                  576
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    acmp_cfg                      88
+  struct ctrl_app, by part (sizeof): app 7,904, acmp 4,720, loop 1,748, maap 1,104, pool 204, adp 124
