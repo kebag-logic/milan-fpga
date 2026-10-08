@@ -1,0 +1,49 @@
+# git rev-parse
+bcbf382e5f4d17ccfd8ae75a80bbc45902c75b7d
+9a5bb28e18469943b28e1ece0194dc9693e0d5b7
+4b2b3045188f7c1403a5bafb56f7e9edc059a6dd
+# diff --name-status 1411117e..bcbf382e
+M	docs/architecture/09_verification.md
+# ls-tree diff excluding 09_verification.md (empty = identical blobs and modes)
+IDENTICAL
+# gitlinks (mode 160000) at head
+(end gitlinks)
+# commit bcbf382e parents and files
+bcbf382e5f4d17ccfd8ae75a80bbc45902c75b7d 1411117e646023cb236de02e3acaf9bdfcef49e3
+hackerman-kl <hackerman-kl@kebag-logic.com>
+Register the SC cancellation-coincidence section in the verification document
+
+ docs/architecture/09_verification.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+# full diff 1411117e..bcbf382e
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 6d1edd6..e6db8b9 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -298,7 +298,7 @@ the [`tb/pp_top` README](../../tb/pp_top/README.md).
+ 
+ Each section runs on a fresh processor of its own in `tb/pp_top` (`--notify-only`,
+ `--spacing-only`, `--domain-notify-only`, `--withdraw-only`, `--identify-only`, and the suite's third build
+-for section ID), plus one section of the originator's unit suite and six of the
++for section ID), plus one section of the originator's unit suite and seven of the
+ notification block's:
+ 
+ | Category | Section | What it proves |
+@@ -318,6 +318,7 @@ notification block's:
+ | DIR | `tb/aecp_notify` TW | a counter round that waits for the TX slot: the next round waits a second from the round's last send, never from its selection, and a change made while a job waits more than a second still waits a second after that send |
+ | DIR | `tb/aecp_notify` DR | a DEREGISTER drained between two jobs of a round, after a TIME_LIMITED expiry or a failed CONTROLLER_AVAILABLE retry: the round's remaining controller still receives the round's notification (a GET_COUNTERS and a SET_NAME round), the expired controller alone its own DEREGISTER, and with the drained row's next job held for the TX slot the next counter round still waits a second from that controller's send |
+ | TIM | `tb/aecp_notify` CX | the superseding command presents exactly one availability cancellation in its own clock, before the top's registered mask |
++| TIM | `tb/aecp_notify` SC (#167) | at one interface, a TIME_LIMITED drain and another controller's command in the same clock send both availability cancellations exactly once, in either row order; a failure for the commanding owner presented in the deferred cancellation's clock leaves that controller registered and sends no DEREGISTER |
+ 
+ The mutation records are in the two suites' READMEs; `tb/pp_top/notify_mutants.py`
+ plants the pp_top controls.
+# PR diffstat ed340b9..bcbf382e
+ docs/architecture/06_aecp_engine.md  |  13 +++
+ docs/architecture/09_verification.md |   3 +-
+ hdl/aecp/KL_aecp_notify.sv           |  20 +++-
+ tb/aecp_notify/Makefile              |  23 ++++-
+ tb/aecp_notify/README.md             |  43 +++++++-
+ tb/aecp_notify/sim_main.cpp          | 190 ++++++++++++++++++++++++++++++++---
+ tb/pp_top/README.md                  |  17 ++++
+ tb/pp_top/notify_mutants.py          |  45 +++++++--
+ 8 files changed, 323 insertions(+), 31 deletions(-)
