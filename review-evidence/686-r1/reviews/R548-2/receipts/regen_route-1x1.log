@@ -1,0 +1,13 @@
+route-1x1: kind route; unresolved placeholders []
+route-1x1: identity {"tool": "Vivado v.2026.1 (lin64) Build 6511674", "device": "xc7a100tfgg484-2", "design": "alinx_ax7101", "state": "Physopt postRoute", "flow": ["set_param synth.maxThreads 1", "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2", "set_param general.maxThreads 32", "synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2", "opt_design -directive ExploreArea", "kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}", "place_design -directive ExtraPostPlacementOpt", "phys_opt_design -directive AggressiveExplore", "route_design -directive AggressiveExplore", "phys_opt_design -directive AggressiveExplore"], "standalone_clock_ns": []}
+route-1x1: inputs_sha256 0c3280d1a541d53c7d56e0dd9493b11d8f58074dec3a81feb5ac93ba70f0e0f9
+route-1x1: figures {"BRAM_TILE": 87.5, "CARRY4": 3372, "DSP": 14, "FF": 54263, "LUT": 50391, "RAMB18": 27, "RAMB36": 74, "SLICE": 15788, "WHS_ns": 0.029, "WNS_ns": 0.241}
+route-1x1: kind           vs committed head record: EQUAL
+route-1x1: identity       vs committed head record: EQUAL
+route-1x1: inputs_sha256  vs committed head record: EQUAL
+route-1x1: figures        vs committed head record: EQUAL
+route-1x1: scopes         vs committed head record: EQUAL
+route-1x1: whole record vs receipt record.json: EQUAL
+route-1x1: route status complete
+route-1x1: RECORD EQUAL
+rc=0

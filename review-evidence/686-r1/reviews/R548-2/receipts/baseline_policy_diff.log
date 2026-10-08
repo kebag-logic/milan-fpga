@@ -1,0 +1,22 @@
+top keys equal: True
+endpoints: True ['ooc-1x1', 'ooc-8x8', 'route-1x1']
+route-1x1 keys ['ceiling', 'floor', 'measured', 'record', 'tolerance']
+  differs: record
+  differs: measured
+   record.inputs_sha256 differs
+   record.figures differs
+   record.scopes differs
+  identity flow equal: True
+  measured: 2026-10-08, issue #686: RTL inputs at e519e31ff55af7dcae253da280baad531a7ad40c, the merge of dev 291710b180ca9196780a6d17f2517957c9bcb89c into the #686 lane, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a, KL_maap conformed to IEEE 1722-2016 Annex B; explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process; every tolerance, floor and ceiling unchanged. Pr
+ooc-1x1 keys ['measured', 'record', 'tolerance']
+  differs: record
+  differs: measured
+   record.inputs_sha256 differs
+  identity flow equal: True
+  measured: 2026-10-08, issue #686: RTL inputs at e519e31ff55af7dcae253da280baad531a7ad40c, the merge of dev 291710b180ca9196780a6d17f2517957c9bcb89c into the #686 lane, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a, KL_maap conformed to IEEE 1722-2016 Annex B; explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process; every tolerance, floor and ceiling unchanged. Pr
+ooc-8x8 keys ['measured', 'record', 'tolerance']
+  differs: record
+  differs: measured
+   record.inputs_sha256 differs
+  identity flow equal: True
+  measured: 2026-10-08, issue #686: RTL inputs at e519e31ff55af7dcae253da280baad531a7ad40c, the merge of dev 291710b180ca9196780a6d17f2517957c9bcb89c into the #686 lane, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a, KL_maap conformed to IEEE 1722-2016 Annex B; explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process; every tolerance, floor and ceiling unchanged. Pr

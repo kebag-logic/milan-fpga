@@ -1,0 +1,13 @@
+control_unchanged: expect=PASS result=PASSED fails=0 first=
+equivalent_fix_other_constant: expect=PASS result=PASSED fails=0 first=
+guard_compares_wrong_value: expect=KILL result=KILLED fails=2 first=[FAIL] B.3.4.2 probe T randomized (zero-seed MAC)   got=0 exp=1
+seed_forced_zero_always: expect=KILL result=KILLED fails=15 first=[FAIL] offset leaves room for the range cases       got=0 exp=1
+probe_draw_constant: expect=KILL result=KILLED fails=2 first=[FAIL] probe draw reaches its high end              got=0 exp=1
+announce_draw_constant: expect=KILL result=KILLED fails=2 first=[FAIL] B.3.4.1 announce T randomized                got=0 exp=1
+probe_draw_one_bit: expect=PASS? result=KILLED fails=1 first=[FAIL] probe draw reaches its high end              got=0 exp=1
+defend_guard_only_after_first_beat: expect=KILL result=PASSED fails=0 first=
+defend_guard_only_while_stalled: expect=KILL? result=PASSED fails=0 first=
+defend_guard_removed: expect=KILL result=KILLED fails=2 first=[FAIL] PROBE mid-frame: frame on the wire byte-identical got=0 exp=1
+own_empty_range_conflicts_in_announce_only: expect=KILL? result=PASSED fails=0 first=
+defend_dst_live_not_latched: expect=KILL result=KILLED fails=1 first=[FAIL] B.2.1 DEFEND DA latched at send              got=0 exp=1
+rc=0
