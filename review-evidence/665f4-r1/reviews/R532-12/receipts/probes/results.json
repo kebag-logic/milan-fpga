@@ -1,0 +1,366 @@
+[
+ {
+  "name": "q01-precedence-advertise-first@test_acmp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q01-precedence-advertise-first@test_acmp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q01-precedence-advertise-first@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q01-precedence-advertise-first@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q02-no-pre-receive-seed@test_acmp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q02-no-pre-receive-seed@test_acmp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q02-no-pre-receive-seed@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q02-no-pre-receive-seed@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q03-leave-ignores-talkers@test_acmp_mbx",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q03-leave-ignores-talkers@test_acmp_mbx",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q03-leave-ignores-talkers@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q03-leave-ignores-talkers@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q04-leave-clears-advertise-only@test_acmp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q04-leave-clears-advertise-only@test_acmp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q04-leave-clears-advertise-only@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q04-leave-clears-advertise-only@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q05-set-ignores-identity@test_acmp_mbx",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q05-set-ignores-identity@test_acmp_mbx",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q05-set-ignores-identity@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q05-set-ignores-identity@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q06-change-clears-both-kinds@test_acmp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q06-change-clears-both-kinds@test_acmp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q06-change-clears-both-kinds@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q06-change-clears-both-kinds@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q07-seed-drops-failed@test_acmp_mbx",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q07-seed-drops-failed@test_acmp_mbx",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q07-seed-drops-failed@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q07-seed-drops-failed@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q08-seed-drops-advertise@test_acmp_mbx",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q08-seed-drops-advertise@test_acmp_mbx",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q08-seed-drops-advertise@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q08-seed-drops-advertise@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q09-filter-no-observation@test_acmp_mbx",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q09-filter-no-observation@test_acmp_mbx",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q09-filter-no-observation@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q09-filter-no-observation@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q10-filter-reenters-visitor@test_acmp_mbx",
+  "if": 1,
+  "status": "BUILD-REFUSED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q10-filter-reenters-visitor@test_acmp_mbx",
+  "if": 2,
+  "status": "BUILD-REFUSED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q10-filter-reenters-visitor@srp_mbx",
+  "if": 1,
+  "status": "BUILD-REFUSED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q10-filter-reenters-visitor@srp_mbx",
+  "if": 2,
+  "status": "BUILD-REFUSED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q11-reset-keeps-kinds@test_acmp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q11-reset-keeps-kinds@test_acmp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q11-reset-keeps-kinds@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q11-reset-keeps-kinds@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q12-snapshot-keeps-kinds@test_acmp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q12-snapshot-keeps-kinds@test_acmp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q12-snapshot-keeps-kinds@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q12-snapshot-keeps-kinds@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q13-failed-indication-as-advertise@test_acmp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q13-failed-indication-as-advertise@test_acmp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q13-failed-indication-as-advertise@srp_mbx",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ },
+ {
+  "name": "q13-failed-indication-as-advertise@srp_mbx",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "ANY",
+  "test": "*"
+ }
+]

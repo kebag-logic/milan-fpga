@@ -1,0 +1,5 @@
+  [gate 23h] the 5 patches in sw/litex/patches are the 5 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 4 installed files byte for byte, including 1 that two patches share and must therefore compose on ({'gmii.py': ['0002-liteeth-gmii-tx-clk-invert.patch', '0007-liteeth-gmii-rx-capture.patch']}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+RAN test_toolchain_patches_are_applied ok
+  [gate 23h mutation] 5/5 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 5 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+RAN test_toolchain_patch_gate_bites ok
+gate23h: PASS (3.7s)

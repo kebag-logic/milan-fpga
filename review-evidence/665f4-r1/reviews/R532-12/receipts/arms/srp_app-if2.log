@@ -1,0 +1,33 @@
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpApp
+[ RUN      ] SrpApp.AttachRefusalPreservesExistingComposition
+[       OK ] SrpApp.AttachRefusalPreservesExistingComposition (0 ms)
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[       OK ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 2 tests from SrpApp (1 ms total)
+
+[----------] 3 tests from Srp
+[ RUN      ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+  SRP event bound: 1 accesses, bound 1
+  SRP refused receive bound: 2 accesses, bound 2
+  SRP retained receive poll bound: 4 accesses, bound 1540
+  SRP transmitting poll bound: 91 accesses, bound 1540
+  SRP maximum TX record bound: 383 accesses, bound 383
+  SRP maximum RX record bound: 383 accesses, bound 383
+  SRP complete pass bound: 389 accesses, bound 2366
+[       OK ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds (0 ms)
+[ RUN      ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+  SRP poll terms: fixed 8, calls 4, real send accesses 1532, envelope 1540/1540
+[       OK ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks (0 ms)
+[ RUN      ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives
+  SRP pass terms: event 56, receive 770, poll 1540, envelope 2366/2366
+[       OK ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives (0 ms)
+[----------] 3 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 5 tests.
+== ctrl ADP MAAP SRP composition: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)

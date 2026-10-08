@@ -1,0 +1,22 @@
+merge d1fe17d13 parents: b98eb2d5a21522bab3bc6bb943332cf8edf11893 99e4eb6c14462aafa84bb1ac597fd241abc1a240
+automatic merge-tree (conflict-marked) 0082f31302c170557bb1650d063a6a262b90bbb9; recorded merge tree 3cefb0de227483376cb90baab99af33153e2fcd7
+paths differing from automatic merge:
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/reference/SUBMODULES.md
+conflicted paths reported by merge-tree:
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/reference/SUBMODULES.md
+SUBMODULES.md pin rows at head:
+25:| `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+26:| `third_party/lwSRP` | `9197193e47a6bb1c45a56d90a18c1784123aba44` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+275:| `protocol-processor` | `protocol-processor/scripts/run_suites.sh` | `make -C tb/verilator/pp_shadow` |
+278:| `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+conflict markers at head in those files: docs/reference/SUBMODULES.md:0 docs/diagrams/submodule_boundaries.drawio:0 docs/diagrams/PNG_MANIFEST.json:0 
+dev 99e4eb6c vs head, protected paths (hdl sw/mailbox syn constraints tb sw/litex sw/builder configs gitlinks): 0 files
+lane parent b98eb2d5 vs merge, sw/firmware sw/mailbox hdl: 0 files
+dev d8b355fe..99e4eb6c touching sw/firmware sw/mailbox hdl/milan/mailbox: 0 files
+post-merge lane commits touch: docs/design/MAILBOX_SPLIT.md sw/firmware/ctrl/srp/README.md sw/firmware/ctrl/srp/srp_mbx.c sw/firmware/ctrl/srp/srp_mbx.h sw/firmware/ctrl/test/srp_feedback.hpp sw/firmware/ctrl/test/srp_mutants.py sw/firmware/ctrl/test/test_ctrl_firmware.py sw/firmware/gtest/coverage.ratchet 

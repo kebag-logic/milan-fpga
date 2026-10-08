@@ -1,0 +1,352 @@
+[
+ {
+  "name": "feedback-advertise-missing",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline"
+ },
+ {
+  "name": "feedback-advertise-missing",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline"
+ },
+ {
+  "name": "feedback-failed-as-advertise",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes"
+ },
+ {
+  "name": "feedback-failed-as-advertise",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes"
+ },
+ {
+  "name": "feedback-withdrawal-missing",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes"
+ },
+ {
+  "name": "feedback-withdrawal-missing",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes"
+ },
+ {
+  "name": "feedback-sink-crossed",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity"
+ },
+ {
+  "name": "feedback-sink-crossed",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity"
+ },
+ {
+  "name": "feedback-interface-suppressed",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity"
+ },
+ {
+  "name": "feedback-interface-suppressed",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity"
+ },
+ {
+  "name": "feedback-repeated",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline"
+ },
+ {
+  "name": "feedback-repeated",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline"
+ },
+ {
+  "name": "feedback-kind-failed-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView"
+ },
+ {
+  "name": "feedback-kind-failed-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView"
+ },
+ {
+  "name": "feedback-kind-advertise-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView"
+ },
+ {
+  "name": "feedback-kind-advertise-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView"
+ },
+ {
+  "name": "feedback-withdrawal-overwritten",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "feedback-withdrawal-overwritten",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "feedback-intrapdu-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "feedback-intrapdu-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "feedback-expiry-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "feedback-expiry-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "feedback-first-registration-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder"
+ },
+ {
+  "name": "feedback-first-registration-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder"
+ },
+ {
+  "name": "feedback-kind-order-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.KindThenWithdrawalIsDeliveredInOrder"
+ },
+ {
+  "name": "feedback-kind-order-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.KindThenWithdrawalIsDeliveredInOrder"
+ },
+ {
+  "name": "feedback-supersession-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream"
+ },
+ {
+  "name": "feedback-supersession-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream"
+ },
+ {
+  "name": "feedback-withdrawal-sink-crossed",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream"
+ },
+ {
+  "name": "feedback-withdrawal-sink-crossed",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream"
+ },
+ {
+  "name": "feedback-advertise-copy-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.SinglePduKindReplacementsRemainContinuous"
+ },
+ {
+  "name": "feedback-advertise-copy-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.SinglePduKindReplacementsRemainContinuous"
+ },
+ {
+  "name": "feedback-failed-copy-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.SinglePduKindReplacementsRemainContinuous"
+ },
+ {
+  "name": "feedback-failed-copy-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.SinglePduKindReplacementsRemainContinuous"
+ },
+ {
+  "name": "feedback-identity-copy-stale",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws"
+ },
+ {
+  "name": "feedback-identity-copy-stale",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws"
+ },
+ {
+  "name": "p11-supersession-kind-stale",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv"
+ },
+ {
+  "name": "p11-supersession-kind-stale",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv"
+ },
+ {
+  "name": "p11-reset-withdrawal-lost",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.LinkResetWithdrawsTheSettledRegistration"
+ },
+ {
+  "name": "p11-reset-withdrawal-lost",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.LinkResetWithdrawsTheSettledRegistration"
+ },
+ {
+  "name": "p11-postwithdrawal-kind-overwrite",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.LaterKindAfterWithdrawalIsNotReported"
+ },
+ {
+  "name": "p11-postwithdrawal-kind-overwrite",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.LaterKindAfterWithdrawalIsNotReported"
+ },
+ {
+  "name": "r10-feedback-ignores-pending",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration"
+ },
+ {
+  "name": "r10-feedback-ignores-pending",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration"
+ },
+ {
+  "name": "r10-transient-refusal-forgotten",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake"
+ },
+ {
+  "name": "r10-transient-refusal-forgotten",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake"
+ },
+ {
+  "name": "r10-feedback-allowance-quarter",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath"
+ },
+ {
+  "name": "r10-feedback-allowance-quarter",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath"
+ },
+ {
+  "name": "r10-feedback-allowance-eight",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath"
+ },
+ {
+  "name": "r10-feedback-allowance-eight",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath"
+ }
+]

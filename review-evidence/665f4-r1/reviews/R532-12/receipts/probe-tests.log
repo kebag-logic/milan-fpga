@@ -1,0 +1,36 @@
+[SURVIVED] t1-baseline IF=1 (SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) expected=SURVIVED
+[SURVIVED] t1-baseline IF=2 (SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) expected=SURVIVED
+[CAUGHT] t1-q04-leave-clears-advertise-only IF=1 (SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) expected=CAUGHT
+[CAUGHT] t1-q04-leave-clears-advertise-only IF=2 (SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent) expected=CAUGHT
+[SURVIVED] t2-baseline IF=1 (SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal) expected=SURVIVED
+[SURVIVED] t2-baseline IF=2 (SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal) expected=SURVIVED
+[CAUGHT] t2-q06-change-clears-both-kinds IF=1 (SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal) expected=CAUGHT
+[CAUGHT] t2-q06-change-clears-both-kinds IF=2 (SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal) expected=CAUGHT
+[SURVIVED] t3-baseline IF=1 (SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes) expected=SURVIVED
+[SURVIVED] t3-baseline IF=2 (SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes) expected=SURVIVED
+[CAUGHT] t3-q13-failed-indication-as-advertise IF=1 (SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes) expected=CAUGHT
+[CAUGHT] t3-q13-failed-indication-as-advertise IF=2 (SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes) expected=CAUGHT
+[CAUGHT] t3-q04-leave-clears-advertise-only IF=1 (SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes) expected=CAUGHT
+[CAUGHT] t3-q04-leave-clears-advertise-only IF=2 (SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes) expected=CAUGHT
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t2-q06-change-clears-both-kinds-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t2-q06-change-clears-both-kinds-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t2-q06-change-clears-both-kinds-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t1-q04-leave-clears-advertise-only-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t1-q04-leave-clears-advertise-only-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t1-q04-leave-clears-advertise-only-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t1-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t1-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t1-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-q13-failed-indication-as-advertise-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-q13-failed-indication-as-advertise-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-q13-failed-indication-as-advertise-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t2-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t2-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t2-baseline-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-q04-leave-clears-advertise-only-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-q04-leave-clears-advertise-only-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f4-r532-12-packet/scratch/probe-tests-run/work-t3-q04-leave-clears-advertise-only-if2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+probes: PASS (14 entries)

@@ -1,0 +1,50 @@
+Note: Google Test filter = SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpFeedback
+[ RUN      ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:30: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+retained withdrawal reprobes
+
+  [FAIL] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent: retained withdrawal reprobes
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:31: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+retained withdrawal retires binding
+
+  [FAIL] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent: retained withdrawal retires binding
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:30: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+retained withdrawal reprobes
+
+  [FAIL] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent: retained withdrawal reprobes
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:31: Failure
+Value of: sink(k).bound
+  Actual: true
+Expected: false
+retained withdrawal retires binding
+
+  [FAIL] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent: retained withdrawal retires binding
+[  FAILED  ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[----------] 1 test from SrpFeedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

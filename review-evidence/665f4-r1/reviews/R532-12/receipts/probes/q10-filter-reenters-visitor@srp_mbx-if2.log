@@ -1,0 +1,6 @@
+REFUSED: srp_mbx.c does not compile:
+$REVIEWS/665f4-r532-12-packet/scratch/probes/work-q10-filter-reenters-visitor@srp_mbx-if2/ctrl/srp/srp_mbx.c: In function ‘interested_msrp’:
+$REVIEWS/665f4-r532-12-packet/scratch/probes/work-q10-filter-reenters-visitor@srp_mbx-if2/ctrl/srp/srp_mbx.c:167:28: error: comparison of unsigned expression in ‘< 0’ is always false [-Werror=type-limits]
+  167 |     for (unsigned k = 0; k < 0u; ++k) {
+      |                            ^
+cc1: all warnings being treated as errors

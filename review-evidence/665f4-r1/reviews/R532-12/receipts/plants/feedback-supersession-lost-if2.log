@@ -1,0 +1,50 @@
+Note: Google Test filter = SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpFeedback
+[ RUN      ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:7: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 1
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+kind preserves settled state
+
+  [FAIL] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream: kind preserves settled state
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:177: Failure
+Value of: sink(k).bound
+  Actual: false
+Expected: true
+supersession retires obsolete withdrawal
+
+  [FAIL] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream: supersession retires obsolete withdrawal
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:7: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 1
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+kind preserves settled state
+
+  [FAIL] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream: kind preserves settled state
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_feedback.hpp:177: Failure
+Value of: sink(k).bound
+  Actual: false
+Expected: true
+supersession retires obsolete withdrawal
+
+  [FAIL] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream: supersession retires obsolete withdrawal
+[  FAILED  ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream (0 ms)
+[----------] 1 test from SrpFeedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

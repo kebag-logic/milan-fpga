@@ -1,0 +1,7 @@
+[R532] provisional verdict, written before reading any other reviewer's report for this round or the previous one.
+Head efea74858dffc482820d4f19c26c38796a57ff75, tree 4e28d2409425b352c51d79526e4b48d6c93a38b7.
+Provisional verdict: NEGATIVE (one open MINOR).
+R532-12-F1 MINOR Tests: the kind-specific half of the round-12 copy observation (Failed leave clearing, Failed set, per-kind clear) has no discriminating test. Plants q04, q06 and q13 survive test_acmp_mbx.cpp and srp_mbx.cpp at IF=1/2. Reviewer probe tests pass at the head and catch each plant at IF=1/2.
+R532-12-S1 SUGGESTION RTL/Tests: no debug enforcement detects a restored reentrant registrar visit in the rx filter (q10b survives plain, composition and debug suites).
+Prior own findings: R532-11-F1 resolved; R532-11-F2 resolved; R532-11-S1 taken.
+Provisional ledger: Conformance CLEAN; RTL CLEAN; Robustness CLEAN; Tests UNCLEAN (F1); Docs CLEAN. Covering round R532-12 at efea74858dffc482820d4f19c26c38796a57ff75.

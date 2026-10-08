@@ -1,0 +1,42 @@
+Note: Google Test filter = SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBinding
+[ RUN      ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_binding.hpp:308: Failure
+Expected equality of these values:
+  core()->sinks[1].state
+    Which is: 6
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+second interface registration delivered; feedback keeps sink identity
+
+  [FAIL] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity: second interface registration delivered; feedback keeps sink identity
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_binding.hpp:309: Failure
+Value of: core()->sinks[1].tk_failed
+  Actual: false
+Expected: true
+
+  [FAIL] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity: Expected: true
+$REVIEWS/r532-12-665f4/sw/firmware/ctrl/test/srp_binding.hpp:312: Failure
+Expected equality of these values:
+  core()->sinks[1].state
+    Which is: 6
+  ACMP_SETTLED_RSV_OK
+    Which is: 7
+other sink survives unbind
+
+  [FAIL] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity: other sink survives unbind
+[  FAILED  ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity (0 ms)
+[----------] 1 test from SrpBinding (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

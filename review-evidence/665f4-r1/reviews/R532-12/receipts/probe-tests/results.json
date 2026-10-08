@@ -1,0 +1,100 @@
+[
+ {
+  "name": "t1-baseline",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "SURVIVED",
+  "test": "SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "t1-baseline",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "SURVIVED",
+  "test": "SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "t1-q04-leave-clears-advertise-only",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "t1-q04-leave-clears-advertise-only",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.R12FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent"
+ },
+ {
+  "name": "t2-baseline",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "SURVIVED",
+  "test": "SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal"
+ },
+ {
+  "name": "t2-baseline",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "SURVIVED",
+  "test": "SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal"
+ },
+ {
+  "name": "t2-q06-change-clears-both-kinds",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal"
+ },
+ {
+  "name": "t2-q06-change-clears-both-kinds",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.R12BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal"
+ },
+ {
+  "name": "t3-baseline",
+  "if": 1,
+  "status": "SURVIVED",
+  "expected": "SURVIVED",
+  "test": "SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes"
+ },
+ {
+  "name": "t3-baseline",
+  "if": 2,
+  "status": "SURVIVED",
+  "expected": "SURVIVED",
+  "test": "SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes"
+ },
+ {
+  "name": "t3-q13-failed-indication-as-advertise",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes"
+ },
+ {
+  "name": "t3-q13-failed-indication-as-advertise",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes"
+ },
+ {
+  "name": "t3-q04-leave-clears-advertise-only",
+  "if": 1,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes"
+ },
+ {
+  "name": "t3-q04-leave-clears-advertise-only",
+  "if": 2,
+  "status": "CAUGHT",
+  "expected": "CAUGHT",
+  "test": "SrpFeedback.R12FailedReplacementWithdrawnInsideOnePduStillReprobes"
+ }
+]

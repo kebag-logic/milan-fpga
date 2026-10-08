@@ -1,0 +1,45 @@
+[==========] Running 17 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 17 tests from SrpRetry
+[ RUN      ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[ RUN      ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+[ RUN      ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+[       OK ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[ RUN      ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[ RUN      ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[ RUN      ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[ RUN      ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[ RUN      ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[       OK ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs
+[       OK ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[ RUN      ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[       OK ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (471 ms)
+[ RUN      ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+[       OK ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap (0 ms)
+[ RUN      ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord
+[       OK ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord (0 ms)
+[ RUN      ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard
+[       OK ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard (0 ms)
+[ RUN      ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+[       OK ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline (2 ms)
+[ RUN      ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave
+[       OK ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave (22 ms)
+[----------] 17 tests from SrpRetry (500 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 1 test suite ran. (500 ms total)
+[  PASSED  ] 17 tests.
+== ctrl SRP receive recovery: checks: 17   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (17 tests, 0 failures, exit 0)
