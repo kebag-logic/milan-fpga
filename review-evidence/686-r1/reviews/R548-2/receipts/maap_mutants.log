@@ -1,0 +1,54 @@
+[ok] clean: rc=0
+[ok] cdl_28: rc=1
+  named rejection: B.2.1 cdl 16 (Begin! PROBE 1)
+[ok] defend_to_multicast: rc=1
+  named rejection: B.2.1 DEFEND DA = PROBE source (above)
+[ok] defend_destination_not_latched: rc=1
+  named rejection: B.2.1 DEFEND DA latched at send
+[ok] every_frame_to_the_prober: rc=1
+  named rejection: B.2.1 PROBE DA multicast (Begin! 1)
+[ok] probe_draw_7_bits: rc=1
+  named rejection: B.3.4.2 probe T < 600 ms (campaign)
+[ok] probe_base_500: rc=1
+  named rejection: B.3.4.2 probe T > 500 ms (campaign)
+[ok] announce_base_3s: rc=1
+  named rejection: B.3.4.1 announce T > 30 s
+[ok] announce_draw_11_bits: rc=1
+  named rejection: B.3.4.1 announce T < 32 s
+[ok] announce_not_randomized: rc=1
+  named rejection: B.3.4.1 announce T randomized
+[ok] zero_seed_freezes_the_probe_draw: rc=1
+  named rejection: B.3.4.2 probe T randomized (zero-seed MAC)
+[ok] zero_seed_freezes_the_announce_draw: rc=1
+  named rejection: B.3.4.1 announce T randomized (zero-seed MAC)
+[ok] announce_judged_on_conflict_fields: rc=1
+  named rejection: B.2.7 ANNOUNCE conflict_* is not its range
+[ok] inclusive_range_end: rc=1
+  named rejection: note b adjacent above: no conflict
+[ok] inclusive_range_start: rc=1
+  named rejection: note b adjacent below: no conflict
+[ok] empty_range_conflicts: rc=1
+  named rejection: note b empty range: no conflict
+[ok] no_compare_mac: rc=1
+  named rejection: T.B7 note d: lower MAC keeps range
+[ok] compare_mac_while_probing: rc=1
+  named rejection: T.B7 rAnnounce!/PROBE: no compare_MAC
+[ok] compare_mac_unreversed: rc=1
+  named rejection: T.B7 rAnnounce!/DEFEND: re-address
+[ok] three_probes: rc=1
+  named rejection: T.B7 Begin!: four PROBEs before ANNOUNCE
+[ok] first_probe_after_a_timer: rc=1
+  named rejection: T.B7 Begin!: first PROBE at once
+[ok] restart_probe_after_a_timer: rc=1
+  named rejection: T.B7 Restart!: first PROBE at once
+[ok] announce_after_a_timer: rc=1
+  named rejection: T.B7 probeCount!: ANNOUNCE at once (Begin!)
+[ok] restart_rewrites_the_frame_on_the_wire: rc=1
+  named rejection: frame on the wire keeps its offset
+[ok] overlap_count_to_our_end: rc=1
+  named rejection: B.2.8 conflict_count = overlap (below)
+[ok] defend_rewrites_the_frame_on_the_wire: rc=1
+  named rejection: PROBE mid-frame: frame on the wire byte-identical
+[ok] own_empty_range_conflicts: rc=1
+  named rejection: note b: this station's empty range never conflicts
+== maap mutants: checks: 27   failures: 0 ==
