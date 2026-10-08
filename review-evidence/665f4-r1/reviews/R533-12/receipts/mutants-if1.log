@@ -1,0 +1,9 @@
+Scoped SRP campaign: mutants-if1; jobs=3
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+RESULT: PASS

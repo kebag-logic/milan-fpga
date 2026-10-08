@@ -1,0 +1,6 @@
+{
+  "source_base": "99e4eb6c14462aafa84bb1ac597fd241abc1a240",
+  "builder_snapshot": "7b47f333ecde4af16e32ca95730f56c3c454d0eb",
+  "head": "efea74858dffc482820d4f19c26c38796a57ff75",
+  "snapshot_to_head_diff": "diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py\nindex 854a13163..c1f6479eb 100644\n--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py\n+++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py\n@@ -200,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:\n                 try:\n                     srp_mutants.DEFECTS = tuple(d for d in complete_srp_table\n                                               if d.name.startswith((\"four-way-\", \"binding-\", \"feedback-\", \"r10-\",\n-                                                                    \"srp-bound-\", \"srp-term-\",\n+                                                                    \"p11-\", \"srp-bound-\", \"srp-term-\",\n                                                                     \"srp-poll-extra\", \"srp-send-extra\")))\n                     failed = srp_mutants.campaign(out / \"srp-if1-mutants\", args.lwsrp.resolve(), args.jobs, 1) or failed\n                 finally:\n"
+}

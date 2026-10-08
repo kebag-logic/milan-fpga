@@ -1,0 +1,54 @@
+Note: Google Test filter = SrpFeedback.LinkResetWithdrawsTheSettledRegistration
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpFeedback
+[ RUN      ] SrpFeedback.LinkResetWithdrawsTheSettledRegistration
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:216: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+link reset withdraws registration
+
+  [FAIL] SrpFeedback.LinkResetWithdrawsTheSettledRegistration: link reset withdraws registration
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:216: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+link reset withdraws registration
+
+  [FAIL] SrpFeedback.LinkResetWithdrawsTheSettledRegistration: link reset withdraws registration
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:216: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+link reset withdraws registration
+
+  [FAIL] SrpFeedback.LinkResetWithdrawsTheSettledRegistration: link reset withdraws registration
+$SOURCE/sw/firmware/ctrl/test/srp_feedback.hpp:216: Failure
+Expected equality of these values:
+  core()->sinks[k].state
+    Which is: 7
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+link reset withdraws registration
+
+  [FAIL] SrpFeedback.LinkResetWithdrawsTheSettledRegistration: link reset withdraws registration
+[  FAILED  ] SrpFeedback.LinkResetWithdrawsTheSettledRegistration (0 ms)
+[----------] 1 test from SrpFeedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpFeedback.LinkResetWithdrawsTheSettledRegistration
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

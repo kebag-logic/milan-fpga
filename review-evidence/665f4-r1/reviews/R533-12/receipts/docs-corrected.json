@@ -1,0 +1,33 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_cpp_idiom.py",
+      "--check"
+    ],
+    "rc": 2,
+    "log": "receipts/docs-corrected-0.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py",
+      "--check"
+    ],
+    "rc": 2,
+    "log": "receipts/docs-corrected-1.log"
+  },
+  {
+    "command": [
+      "$PACKET/scratch/docs-venv/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "99e4eb6c14462aafa84bb1ac597fd241abc1a240"
+    ],
+    "rc": 0,
+    "log": "receipts/docs-corrected-2.log"
+  }
+]

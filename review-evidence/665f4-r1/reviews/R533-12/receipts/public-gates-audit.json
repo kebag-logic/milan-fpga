@@ -1,0 +1,1492 @@
+{
+  "commit": "30357b9239a8a5e88298e662b65a20fda1a8b9a2",
+  "head": "efea74858dffc482820d4f19c26c38796a57ff75",
+  "gate_count": 114,
+  "all_rc_zero": true,
+  "all_retained_hashes_match": true,
+  "metadata_only_count": 2,
+  "rows": [
+    {
+      "label": "asan-final",
+      "command": [
+        "python3",
+        "$SCRATCH/asan.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/asan-final.log",
+      "bytes": 5208,
+      "sha256": "c8ed1829b1ccc3035d948cf9895495fa30fe838f56ad8a734d50e5ba629477df",
+      "hash_matches": true
+    },
+    {
+      "label": "binding-probe",
+      "command": [
+        "python3",
+        "$SCRATCH/binding_required.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/binding-probe.log",
+      "bytes": 1852,
+      "sha256": "0185e7a5fd1f4d88e2b2ee4920dd55178eccc1cb41516bbda3b1599fc9f3a1d2",
+      "hash_matches": true
+    },
+    {
+      "label": "bound-table",
+      "command": [
+        "python3",
+        "$SCRATCH/check_bounds.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/bound-table.log",
+      "bytes": 1728,
+      "sha256": "aa143b932b112aedadad76585e01399566a7d6f95eb0302fe737d21f4da9da81",
+      "hash_matches": true
+    },
+    {
+      "label": "builder",
+      "command": [
+        "env",
+        "MAKEFLAGS=-j8",
+        "python3",
+        "sw/builder/test_builder.py",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/builder.log",
+      "bytes": 100920,
+      "sha256": "83e24583c970f013518d6fb4d4c4fd161d1335dadb85ed274b0920b40ffe4107",
+      "hash_matches": true
+    },
+    {
+      "label": "campaign",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "4",
+        "--build-dir",
+        "$SCRATCH/campaign"
+      ],
+      "rc": 0,
+      "metadata_only": true
+    },
+    {
+      "label": "ci-scope",
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/ci-scope.log",
+      "bytes": 6877,
+      "sha256": "c02517598f82288a24c3271175fd5447213baa39154815edb15d6118a003c926",
+      "hash_matches": true
+    },
+    {
+      "label": "compiler-absent",
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--absent",
+        "--audit",
+        "$SCRATCH/rv32-absent.jsonl"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/compiler-absent.log",
+      "bytes": 50511,
+      "sha256": "dfb3d16a8020f2a6740a2a34f648cca18e477f24f2ed395589bbb621950bb30d",
+      "hash_matches": true
+    },
+    {
+      "label": "compiler-controls",
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/compiler-controls.log",
+      "bytes": 138,
+      "sha256": "f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7",
+      "hash_matches": true
+    },
+    {
+      "label": "compiler-pinned",
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--sdk-destination",
+        "$SDK",
+        "--audit",
+        "$SCRATCH/rv32-pinned.jsonl"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/compiler-pinned.log",
+      "bytes": 50716,
+      "sha256": "034c594aa47fb9c70dd88bd28185f90be273028c969aa0ceca5e905fbedb1158",
+      "hash_matches": true
+    },
+    {
+      "label": "coverage-check",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--check",
+        "--jobs",
+        "4",
+        "--keep",
+        "$SCRATCH/coverage-check-if1-selection"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/coverage-check.log",
+      "bytes": 3455,
+      "sha256": "83069047a6e365bd825ccd5acabf949c07e01336403302f4189ba2a027edc61f",
+      "hash_matches": true
+    },
+    {
+      "label": "coverage-selftest",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/coverage-selftest.log",
+      "bytes": 3710,
+      "sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b",
+      "hash_matches": true
+    },
+    {
+      "label": "coverage-write",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--write",
+        "--jobs",
+        "4",
+        "--lwsrp",
+        "third_party/lwSRP",
+        "--keep",
+        "$SCRATCH/coverage-final"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/coverage-write.log",
+      "bytes": 3476,
+      "sha256": "37549e63f46af961db9a2737bcd51ea97219c8be1df0d33e75d8992653929f7f",
+      "hash_matches": true
+    },
+    {
+      "label": "cpp-final",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/cpp-final.log",
+      "bytes": 316,
+      "sha256": "c4e43580d928601e38756c0a0ed7007f62e742d81ef33787999b457eb26f922f",
+      "hash_matches": true
+    },
+    {
+      "label": "doc-paths-final",
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/doc-paths-final.log",
+      "bytes": 85,
+      "sha256": "70c8e47e3559e105d88dd49af8a9c3d19f1e64164278275ea93fa07d6f56369b",
+      "hash_matches": true
+    },
+    {
+      "label": "doc-style-final",
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/doc-style-final.log",
+      "bytes": 47,
+      "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-00",
+      "command": [
+        "python3",
+        "scripts/gen_hdl_reference.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-00.log",
+      "bytes": 389,
+      "sha256": "ed18485beb06261ce203fc126ad02cead66768dc3703527b989b4aa9d96f47de",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-01",
+      "command": [
+        "python3",
+        "scripts/gen_hdl_reference.py",
+        "--output",
+        "$SCRATCH/milan-hdl-reference"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-01.log",
+      "bytes": 388,
+      "sha256": "b20e214652d12179c28f262e37f522b00d9222d3d040b5854ed21aa6a0a630a3",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-02",
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-02.log",
+      "bytes": 128,
+      "sha256": "03c9094ff213e3c806d007b5cbf63cf12e2c229ff5118b64a3de3e36b4738bc1",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-03",
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-03.log",
+      "bytes": 141,
+      "sha256": "69cd2dcbd0c1b440cd7bc35ddf235d2876d1463212c2fd28c6d9929036a3e35d",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-04",
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-04.log",
+      "bytes": 47,
+      "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-05",
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-05.log",
+      "bytes": 33,
+      "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-06",
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-06.log",
+      "bytes": 41,
+      "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-07",
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-07.log",
+      "bytes": 46,
+      "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-08",
+      "command": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-08.log",
+      "bytes": 61,
+      "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-09",
+      "command": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-09.log",
+      "bytes": 60,
+      "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-10",
+      "command": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-10.log",
+      "bytes": 60,
+      "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-11",
+      "command": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-11.log",
+      "bytes": 61,
+      "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-12",
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-12.log",
+      "bytes": 87,
+      "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-13",
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-13.log",
+      "bytes": 59,
+      "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-14",
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-14.log",
+      "bytes": 54,
+      "sha256": "d1ae5c433282f7f6f0b3df74fb92180c7567e27714311c0b98d16e6f237f8e55",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-15",
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-15.log",
+      "bytes": 60,
+      "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-16",
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-16.log",
+      "bytes": 47,
+      "sha256": "79be302e03c97636315bf0b9d13d7d4160d1b0ac67f93f42874e51838b6de78c",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-17",
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-17.log",
+      "bytes": 66,
+      "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-18",
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-18.log",
+      "bytes": 77,
+      "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-19",
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_axis_backpressure.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-19.log",
+      "bytes": 58,
+      "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-20",
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_cdc_handshake.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-20.log",
+      "bytes": 54,
+      "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-21",
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_gptp_pdelay.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-21.log",
+      "bytes": 52,
+      "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-22",
+      "command": [
+        "python3",
+        "scripts/check_diagram_pngs.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-22.log",
+      "bytes": 66,
+      "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-23",
+      "command": [
+        "python3",
+        "scripts/check_diagram_pngs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-23.log",
+      "bytes": 59,
+      "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-24",
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-24.log",
+      "bytes": 1500,
+      "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-25",
+      "command": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-25.log",
+      "bytes": 118,
+      "sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-26",
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--with-submodule"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-26.log",
+      "bytes": 66,
+      "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-27",
+      "command": [
+        "make",
+        "-C",
+        "gptp-processor",
+        "docs"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-27.log",
+      "bytes": 2626,
+      "sha256": "2d2c3119250a7cab0dae68eba2b739fecdc1beda838652555a03844f268df6ae",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-28",
+      "command": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-28.log",
+      "bytes": 2565,
+      "sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-29",
+      "command": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-29.log",
+      "bytes": 728,
+      "sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-30",
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-30.log",
+      "bytes": 72,
+      "sha256": "5856a73c909c1a82bfed7c1ea70e5214349dc945a7e3989e08cb4265997f63d3",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-31",
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-31.log",
+      "bytes": 43,
+      "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-32",
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-32.log",
+      "bytes": 5843,
+      "sha256": "649ba4d33319d79e07ae513c66b4b720c85f286a3dd7a6d4f9223cd6517ca82d",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-33",
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk.py",
+        "--destination",
+        "$SDK"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-33.log",
+      "bytes": 1253,
+      "sha256": "1cec9c57c8583dbbfdb8c5916521e58815e539248bb9ef30a6b5bd76405140c2",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-34",
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-34.log",
+      "bytes": 2578,
+      "sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-35",
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-35.log",
+      "bytes": 7010,
+      "sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-36",
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-36.log",
+      "bytes": 324,
+      "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-37",
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-37.log",
+      "bytes": 5189,
+      "sha256": "4928189ff11ec557fe7fa80a3eb28b91ba56eed839cb6accf24847335a2d516d",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-38",
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-38.log",
+      "bytes": 85,
+      "sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-39",
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-39.log",
+      "bytes": 1501,
+      "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-40",
+      "command": [
+        "python3",
+        "sw/litex/iob_pack_selftest.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-40.log",
+      "bytes": 3208,
+      "sha256": "36285e124542418c660615cce715d7a1479327c9e1d849139a46b86f00868f3f",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-41",
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-41.log",
+      "bytes": 153,
+      "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-42",
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-42.log",
+      "bytes": 3300,
+      "sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-43",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-43.log",
+      "bytes": 36608,
+      "sha256": "0ece46e4cc0fc61cd15de56f4fd34704f1ca469845684b20d7a6d118d890d49e",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-44",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-44.log",
+      "bytes": 4026,
+      "sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-45",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-45.log",
+      "bytes": 421,
+      "sha256": "c4a0b9e89f19df346a9b837d45d0eb04d65ab38de0a07edd5adef08c408ef5f8",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-46",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-46.log",
+      "bytes": 4619,
+      "sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-47",
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-47.log",
+      "bytes": 6085,
+      "sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-48",
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-48.log",
+      "bytes": 6597,
+      "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-49",
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-49.log",
+      "bytes": 161,
+      "sha256": "3c59f22784200901ba3b70073fd723f68144dd48a7fe76972c5bc7132365ce51",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-50",
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-50.log",
+      "bytes": 2584,
+      "sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-51",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-51.log",
+      "bytes": 14871,
+      "sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-52",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-52.log",
+      "bytes": 5895,
+      "sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-53",
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-53.log",
+      "bytes": 2000,
+      "sha256": "f75f93e8ae0271eeeafdd63ba9c66b09cba2a8bbbe0e2d0cff7b774acdcdcc7e",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-54",
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-54.log",
+      "bytes": 1847,
+      "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-55",
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-55.log",
+      "bytes": 218,
+      "sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-56",
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-56.log",
+      "bytes": 2955,
+      "sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-57",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-57.log",
+      "bytes": 316,
+      "sha256": "c4e43580d928601e38756c0a0ed7007f62e742d81ef33787999b457eb26f922f",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-58",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-58.log",
+      "bytes": 3593,
+      "sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-59",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-59.log",
+      "bytes": 461,
+      "sha256": "dc2020882620bab0c6a7e7763aa76f079d669d88046a3896f8d17f1a762e0284",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-60",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-60.log",
+      "bytes": 2531,
+      "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-61",
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-61.log",
+      "bytes": 235,
+      "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-62",
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-62.log",
+      "bytes": 2461,
+      "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-63",
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-63.log",
+      "bytes": 167,
+      "sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-64",
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-64.log",
+      "bytes": 151471,
+      "sha256": "db420a4b83a96d53cefdd88cc69322ed20d7ac02ec28012258d3175fdb7eea37",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-65",
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-65.log",
+      "bytes": 85,
+      "sha256": "70c8e47e3559e105d88dd49af8a9c3d19f1e64164278275ea93fa07d6f56369b",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-66",
+      "command": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-66.log",
+      "bytes": 93,
+      "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-67",
+      "command": [
+        "python3",
+        "scripts/check_archive.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-67.log",
+      "bytes": 35,
+      "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-68",
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-68.log",
+      "bytes": 38,
+      "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-69",
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-69.log",
+      "bytes": 64,
+      "sha256": "71715a2e3743a6d5702b9477f7f321bed5b7db2dd068f95d98eb1b3e8147d036",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-70",
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-70.log",
+      "bytes": 94,
+      "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-71",
+      "command": [
+        "python3",
+        "avdecc/gen_aem_store.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-71.log",
+      "bytes": 3596,
+      "sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-72",
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-72.log",
+      "bytes": 19594,
+      "sha256": "944b7de27d24610b429e606756890773e452fa570ea3f39e6ac6aa0cf6b53eef",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-73",
+      "command": [
+        "python3",
+        "scripts/check_deploy_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-73.log",
+      "bytes": 9226,
+      "sha256": "1adf286f29854f1f75c6333aa89ced6f54776d05fcb93d53b1da8119749dcc3c",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-74",
+      "command": [
+        "python3",
+        "scripts/check_entity_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-74.log",
+      "bytes": 25672,
+      "sha256": "ca40578969adf3c37b6ec950a10d98d17ea73df70d1c3059a1512d123b418365",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-archive-feature",
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-archive-feature.log",
+      "bytes": 29,
+      "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-archive",
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-archive.log",
+      "bytes": 196,
+      "sha256": "06a3dc54a73d1c0a68523d1ed92241e2dca7eee05706d891dd48d62814c2eab0",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-final",
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-final.log",
+      "bytes": 128,
+      "sha256": "03c9094ff213e3c806d007b5cbf63cf12e2c229ff5118b64a3de3e36b4738bc1",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-selftest",
+      "command": [
+        "python3",
+        "scripts/docs_check.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-selftest.log",
+      "bytes": 56,
+      "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+      "hash_matches": true
+    },
+    {
+      "label": "docs-wire",
+      "command": [
+        "python3",
+        "scripts/check_wire_accountability.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/docs-wire.log",
+      "bytes": 4965,
+      "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4",
+      "hash_matches": true
+    },
+    {
+      "label": "em-dash-final",
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/em-dash-final.log",
+      "bytes": 141,
+      "sha256": "90b224a3d1fe44c2121aa513620c42b43ae5ba38be26840e005165f21bbedc8b",
+      "hash_matches": true
+    },
+    {
+      "label": "f3-images",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/ctrl_image.py",
+        "--out",
+        "$SCRATCH/f3-images"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/f3-images.log",
+      "bytes": 2351,
+      "sha256": "238a0452362436b336e98d0d1469e48e0b012590e493746a963111c4e938fa8e",
+      "hash_matches": true
+    },
+    {
+      "label": "image-selftest",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/image-selftest.log",
+      "bytes": 3512,
+      "sha256": "ce8d704086617ca1b7c997c5966d62e4f3bce8fed5d02f6177f91f8373a3e6bf",
+      "hash_matches": true
+    },
+    {
+      "label": "images-final",
+      "command": [
+        "python3",
+        "$SCRATCH/images.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/images-final.log",
+      "bytes": 4950,
+      "sha256": "d6bbb19ffc73e1fd42722913ffdf2c91f19bbdf582abfec4614ba8fa4bc73eb9",
+      "hash_matches": true
+    },
+    {
+      "label": "maap-diff",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/maap_differential.py",
+        "--self-test",
+        "--keep",
+        "$SCRATCH/maap-diff"
+      ],
+      "rc": 0,
+      "metadata_only": true
+    },
+    {
+      "label": "mailbox-contract",
+      "command": [
+        "python3",
+        "sw/mailbox/gen_mailbox.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/mailbox-contract.log",
+      "bytes": 26,
+      "sha256": "9bb7d3a8faff1627f39a3bb7c9462a0b15ec8dd6c94a44c48d2fc7ac515a982f",
+      "hash_matches": true
+    },
+    {
+      "label": "mailbox",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/mbx",
+        "-j8",
+        "VBUILD_JOBS=2"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/mailbox.log",
+      "bytes": 75314,
+      "sha256": "af6466b652c3a5f6495eb75565b9af94da601893f8165787691a267772852b47",
+      "hash_matches": true
+    },
+    {
+      "label": "new-plants-final",
+      "command": [
+        "python3",
+        "$SCRATCH/new_plants.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/new-plants-final.log",
+      "bytes": 15813,
+      "sha256": "32760ca14e89bc1cc0b741ead996300fd483c9c32f491e0f62746390b83469f7",
+      "hash_matches": true
+    },
+    {
+      "label": "nvm-campaign",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "4"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/nvm-campaign.log",
+      "bytes": 23916,
+      "sha256": "88b70a901e50279d386598e757b512ea7e318d4389148ff6f27b6ef58055ebb2",
+      "hash_matches": true
+    },
+    {
+      "label": "park-check",
+      "command": [
+        "python3",
+        "$SCRATCH/park_check.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/park-check.log",
+      "bytes": 3418,
+      "sha256": "9f93e0b634cbc1a2a44fef1c23b10feaa18c6a59e75ba54c39a2dff81bd52452",
+      "hash_matches": true
+    },
+    {
+      "label": "py-final",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/py-final.log",
+      "bytes": 461,
+      "sha256": "dc2020882620bab0c6a7e7763aa76f079d669d88046a3896f8d17f1a762e0284",
+      "hash_matches": true
+    },
+    {
+      "label": "reentry-oracle",
+      "command": [
+        "python3",
+        "$SCRATCH/reentry_oracle.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/reentry-oracle.log",
+      "bytes": 234,
+      "sha256": "8fba4a1619f81c70a074afc2ea2cec9e0df93d894b89ca3081dc5e12d4b714a1",
+      "hash_matches": true
+    },
+    {
+      "label": "review11-final",
+      "command": [
+        "python3",
+        "$SCRATCH/review11.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/review11-final.log",
+      "bytes": 7104,
+      "sha256": "91b4a9c1c8e89b65e3c2956497cdaeb2d458d60b375bec919e2b6f608ccabce5",
+      "hash_matches": true
+    },
+    {
+      "label": "review12-final",
+      "command": [
+        "python3",
+        "$SCRATCH/review12.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/review12-final.log",
+      "bytes": 8430,
+      "sha256": "2c43ce98a34d29f85cdd5d843ad19426cb097348cfb6caab1050c9ae2a94f129",
+      "hash_matches": true
+    },
+    {
+      "label": "reviewer-probes",
+      "command": [
+        "python3",
+        "$SCRATCH/review_probes.py"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/reviewer-probes.log",
+      "bytes": 15493,
+      "sha256": "d9a85ae658a6899901ff3d3268a4ceac830cc332d4264269c1931515681d40e6",
+      "hash_matches": true
+    },
+    {
+      "label": "rv32-selftest",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_rv32_selftest.py",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/rv32-selftest.log",
+      "bytes": 793,
+      "sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94",
+      "hash_matches": true
+    },
+    {
+      "label": "source-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "82a79638405c3365e4078da471be56758f8dd679",
+        "HEAD"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/source-diff.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "hash_matches": true
+    },
+    {
+      "label": "tally-mutants",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/tally_selftest.py",
+        "--mutants"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/tally-mutants.log",
+      "bytes": 3982,
+      "sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11",
+      "hash_matches": true
+    },
+    {
+      "label": "toc-final",
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "path": "review-evidence/665f4-r1/author-r12/round12-receipts/toc-final.log",
+      "bytes": 94,
+      "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a",
+      "hash_matches": true
+    }
+  ]
+}

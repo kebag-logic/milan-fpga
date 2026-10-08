@@ -1,0 +1,67 @@
+{
+  "head": "efea74858dffc482820d4f19c26c38796a57ff75",
+  "tree": "4e28d2409425b352c51d79526e4b48d6c93a38b7",
+  "merge_parents": [
+    "b98eb2d5a21522bab3bc6bb943332cf8edf11893",
+    "99e4eb6c14462aafa84bb1ac597fd241abc1a240"
+  ],
+  "checks": {
+    "hdl": {
+      "diff_from_dev": [],
+      "merge_diff_from_previous_head": []
+    },
+    "sw/mailbox": {
+      "diff_from_dev": [],
+      "merge_diff_from_previous_head": []
+    },
+    "sw/litex": {
+      "diff_from_dev": [],
+      "merge_diff_from_previous_head": [
+        "sw/litex/gmii_rx_capture.xdc",
+        "sw/litex/gmii_rx_capture_check.tcl",
+        "sw/litex/iob_pack_selftest.py",
+        "sw/litex/patches/0007-liteeth-gmii-rx-capture.patch",
+        "sw/litex/patches/README.md",
+        "sw/litex/patches/apply.sh",
+        "sw/litex/test_gmii_rx_capture.py"
+      ]
+    },
+    "protocol-processor": {
+      "diff_from_dev": [],
+      "merge_diff_from_previous_head": [
+        "protocol-processor"
+      ]
+    },
+    "gptp-processor": {
+      "diff_from_dev": [],
+      "merge_diff_from_previous_head": []
+    },
+    "sw/firmware/ctrl/test/ctrl_image.py": {
+      "diff_from_dev": [],
+      "merge_diff_from_previous_head": []
+    },
+    "sw/firmware/ctrl/app/ctrl_app.c": {
+      "diff_from_dev": [],
+      "merge_diff_from_previous_head": []
+    },
+    "sw/firmware/ctrl/acmp": {
+      "diff_from_dev": [
+        "sw/firmware/ctrl/acmp/acmp.c",
+        "sw/firmware/ctrl/acmp/acmp.h"
+      ],
+      "merge_diff_from_previous_head": []
+    }
+  },
+  "postmerge_changes": [
+    "docs/design/MAILBOX_SPLIT.md",
+    "sw/firmware/ctrl/srp/README.md",
+    "sw/firmware/ctrl/srp/srp_mbx.c",
+    "sw/firmware/ctrl/srp/srp_mbx.h",
+    "sw/firmware/ctrl/test/srp_feedback.hpp",
+    "sw/firmware/ctrl/test/srp_mutants.py",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/gtest/coverage.ratchet"
+  ],
+  "f3_f4_firmware_unchanged_by_merge": true,
+  "source_is_descendant_of_dev": true
+}
