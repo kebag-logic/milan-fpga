@@ -1,0 +1,13 @@
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +5.770..+5.772 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.682..8.684 (out of band 0), end-to-pop clearance 0.316 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +5.770..+5.904 ticks; render n 1600 fill 14..14 (off-law 0), delay 8.682..8.817 (out of band 0), end-to-pop clearance 0.183 ticks
+  info: after the settle           [   5.439,    6.100) s: ring slips 0+0, margin +5.894..+5.898 ticks; render n 5288 fill 14..14 (off-law 0), delay 8.807..8.813 (out of band 0), end-to-pop clearance 0.187 ticks
+  info: [PULLIN]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.894..+5.898 ticks, render fill 14..14 delay 8.807..8.813, on the law
+MARGINS: [PULLIN] empty 5.894400 full 5.178240 ticks
+  info: [PULLIN]: settle recentre 0.8386 s after the start
+ERROR-DISTRIBUTION: INTERNAL before hold window 4.100000000 4.600000000 samples 24000 axis_hz 25000000 histogram -1:47 0:23909 1:44
+ERROR-DISTRIBUTION: INTERNAL after hold window 4.600000000 6.100044280 samples 72001 axis_hz 25000000 histogram -9:1569 -8:6168 -7:3951 -6:3473 -5:3463 -4:3795 -3:4572 -2:6387 -1:14494 0:16453 1:310 2:290 3:267 4:251 5:240 6:226 7:211 8:204 9:195 10:184 11:179 12:173 13:164 14:159 15:151 16:150 17:143 18:138 19:135 20:133 21:126 22:125 23:120 24:119 25:113 26:112 27:110 28:108 29:103 30:104 31:101 32:98 33:94 34:95 35:92 36:90 37:90 38:87 39:85 40:85 41:82 42:82 43:81 44:78 45:78 46:75 47:76 48:73 49:75 50:71 51:71 52:68 53:70 54:68 55:66 56:67 57:65 58:64 59:63 60:63 61:62 62:61 63:61 64:60 65:36
+ERROR-DISTRIBUTION: INTERNAL after settle window 5.438737500 6.100044280 samples 31742 axis_hz 25000000 histogram -2:1825 -1:13805 0:16112
+RESULT-647: latency 210.42 us hold 44.3 us: delay 8.682..8.684 -> 8.807..8.813 ticks (shift +0.127), fill 14..14 -> 14..14, clearance 0.316 -> 0.187 ticks, settle +0.839 s after the hold, recentres 1, loopback slips 0 before the settle and 0 after: ON THE LAW
+RECOVERY: action 5.438628980 rearmed 5.481295860 duration 0.042666880 s quiet_ticks 2048
+== follow_ring: checks: 18   failures: 0 ==
+RESULT: PASS

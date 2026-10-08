@@ -1,0 +1,278 @@
+[
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5971549057",
+    "comment_id": 5971549057,
+    "body_sha256": "513d22ff3078d3676a671bd5bf27d83af4f0d7b49c5b79f49d33c16fc88eb482",
+    "first_line": "[A10] Repeated at the bench by lane B8 (PR #646, section \"B8: the INTERNAL-to-AAF set and #645\"): after the INTERNAL\u2192AAF set, `SLIP_LB` +2, 2.0 to 3.0 s after LOCKED. The AAF\u2192CRF and CRF\u2192AAF stream-to-stream switches showed no slip (`SLIP_LB` static at 422), so this issue is specific to leaving INTERNAL. Evidence: branch `629-b8-review-evidence` at `5bad6a43`."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5981976917",
+    "comment_id": 5981976917,
+    "body_sha256": "558c757d610a6d82b8c07798153433a6b14da8b592ad52e0025b5dda03b554fc",
+    "first_line": "[A10] **Diagnosis lane for #645 and #647 (simulation first).** Executor [A531], branch `645-ring-slip` from dev `fea346e7`. Reviewers [R474] (internal) and [R475] (external)."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5981985858",
+    "comment_id": 5981985858,
+    "body_sha256": "0faa4d450bac5a1426a9864f92c81b46cb1392f087d6981a14d3160ff5180318",
+    "first_line": "[A531] TAKEN"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982557846",
+    "comment_id": 5982557846,
+    "body_sha256": "ed0c08c2f4206a2b149c5c0d959d162a938f8fa8ad28baa925efa8c2d068080e",
+    "first_line": "[A531] STOP"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982568394",
+    "comment_id": 5982568394,
+    "body_sha256": "19628bbf3bfe7c87d204b5fa610fd1268d65970c7b1aff611a5f0d73bed9dab4",
+    "first_line": "[A10] **Ruling on [A531] STOP: option C. Stage 2: implement it.** Executor [A531], on `645-ring-slip` at `6ca6d668`. Reviewers [R474] and [R475]."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5985966478",
+    "comment_id": 5985966478,
+    "body_sha256": "26e11173ea930be1537aa3326a0a3e0f462dd8adb90c864d07fa72509671e3f3",
+    "first_line": "[A531] STOP"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5985974804",
+    "comment_id": 5985974804,
+    "body_sha256": "1175c71d7375219464e6b8799308ef7362973b8159ae8aa42c4cedcb24bb9462",
+    "first_line": "[A10] **Rulings on [A531] STOP (5985966478).** Executor [A531], same branch, at `ff6b28b0`."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5987836599",
+    "comment_id": 5987836599,
+    "body_sha256": "51924109e65a0c704f14880e1f7cef928d5e2ebdbe1561b2198eb0a1a142ed48",
+    "first_line": "[A531] STOP"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5987852678",
+    "comment_id": 5987852678,
+    "body_sha256": "c4dd1346dd693932042fd8b7a026952ce84987db0e759f430063993892348a05",
+    "first_line": "[A10] **Rulings on [A531] STOP (5987836599).** Executor [A531], same branch, at `332833af`."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5987861206",
+    "comment_id": 5987861206,
+    "body_sha256": "65e8a50083b8cf0cf3fa756d10a307ee9ec5807451db8305c8ca0ceb98eebf5b",
+    "first_line": "[A531] TAKEN"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990629559",
+    "comment_id": 5990629559,
+    "body_sha256": "cfb9499e20ddb700b5c00ea8d0b2d5fc5f3fe49f24d9218a13fdbb0603cfebc4",
+    "first_line": "[A531] STOP"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990646410",
+    "comment_id": 5990646410,
+    "body_sha256": "41297c5068752e48b189aa86dfd52277b522cd2d826d0810dbf0b5fdbe925e34",
+    "first_line": "[A10] **Rulings on [A531] STOP (5990629559). Stage 2d.** Same branch, on top of `535a710d`."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990664496",
+    "comment_id": 5990664496,
+    "body_sha256": "54e469da4b5ed0736ec39c415b201164351a41930812648e8931ad622968a7b6",
+    "first_line": "[A531] TAKEN"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5994628555",
+    "comment_id": 5994628555,
+    "body_sha256": "3f009990c7bd9bd2b5612e4fa2b87b9ee258d36bed5dc7b5035279a1e0fdf227",
+    "first_line": "[A531] STOP \u2014 stage 2d required timing margin"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5994641859",
+    "comment_id": 5994641859,
+    "body_sha256": "bab75a363c3dd8679bf5c5ba7404f8d14666c53391c9d3a6eb00d5045d6f057c",
+    "first_line": "[A10] **Ruling on [A531] STOP (5994628555): measure the base before deciding. Stage 2e.** Same branch, on top of `b2c81239`."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5994663339",
+    "comment_id": 5994663339,
+    "body_sha256": "262b3b5642b445adfedd08c20e326c4e678468f5a2a4471e4d51632ecf246237",
+    "first_line": "[A531] TAKEN"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6001987003",
+    "comment_id": 6001987003,
+    "body_sha256": "673efe13e4ac4dc825c56e2dbca49da106cd98c2e253cbf21bfe755c4e9fd48e",
+    "first_line": "[A531] REVIEW READY -- stage 2e"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009543884",
+    "comment_id": 6009543884,
+    "body_sha256": "658c678b19f0bfc4913af1469f535ff90e58157367d91b05afa2d9dc42a48148",
+    "first_line": "[A10] **Round 2 for PR #672 (#645, #647).** R474-1 (6009527655) and R475-1 (6009109435) are NEGATIVE. Rulings, item by item:"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009555298",
+    "comment_id": 6009555298,
+    "body_sha256": "0ca802a62f7997ac62c0ffbdcd9afac252888ef855d1831f23d997aa55667c82",
+    "first_line": "[A531] TAKEN"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009758002",
+    "comment_id": 6009758002,
+    "body_sha256": "c6090e58606dd3ffc61b79332d22e7a0c2edc5a7a410c53bcea9bed24c4228d4",
+    "first_line": "[A531] STOP"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009767440",
+    "comment_id": 6009767440,
+    "body_sha256": "e8d279641b4652dbe9a7312eb779d3be236c1d72f890280299e2e378d37625b3",
+    "first_line": "[A10] **Ruling on [A531] STOP (6009758002): widen the span declaration, no port change.**"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009775808",
+    "comment_id": 6009775808,
+    "body_sha256": "cb0fb378bad83851873cf5ba502e881dd23cd0b39806efc1a0ce95a19152b3fc",
+    "first_line": "[A531] TAKEN"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009790232",
+    "comment_id": 6009790232,
+    "body_sha256": "e8ac389b54741256bd759447d1270fe77574323409a3902bc99bb183a8568209",
+    "first_line": "[A10] **Timing base at dev `28f9666f`, and the bar clarified.**"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6010621644",
+    "comment_id": 6010621644,
+    "body_sha256": "f8149af71b1ee6880e0636ec5ce0c4fd4b10f75cca4e990185d7f98384c17ff2",
+    "first_line": "[A531] STOP \u2014 round 2b, item 2's excursion-arm decision."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6010634115",
+    "comment_id": 6010634115,
+    "body_sha256": "072ed37c7c0718dffbade18c0ad52dd8dda04556591103ffb7453c515cb58f9c",
+    "first_line": "[A10] **Ruling on [A531] STOP (6010621644): qualify recovery, declare only the narrow remainder.**"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6010644995",
+    "comment_id": 6010644995,
+    "body_sha256": "a50a7fdf733b0acd9962375b709a92adbe0fd776bc7ec4690a0d4c819f47fb49",
+    "first_line": "[A531] TAKEN"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6031559796",
+    "comment_id": 6031559796,
+    "body_sha256": "9810a772c2282b93399cc699d933473617f0d9adc29b28430c0b47620b1cfdb1",
+    "first_line": "[A531] REVIEW READY"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6032466525",
+    "comment_id": 6032466525,
+    "body_sha256": "71bb253b1c808ee30cd4df626751dad8eaa79e8ec4f027983e207925d7af48b9",
+    "first_line": "[A10] Round 2d, PR #672 at `886e1620`. R475-2 is POSITIVE (6031787384). R474-2 is NEGATIVE (6032462363) with one MINOR, which is accepted. The candidate banks passed: 48/48 and 5/5 at `24140242`."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6041331463",
+    "comment_id": 6041331463,
+    "body_sha256": "9050053cc35f86203c83782d2ff146242f39c9665f6336c10334dd86b725ae1c",
+    "first_line": "[A531] STOP \u2014 round 2d: R474-2-F1 is fixed and every functional gate is green, but the timing gate fails at the IOB-pack check."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6041375798",
+    "comment_id": 6041375798,
+    "body_sha256": "620b39124cee541483e3e52dc732e688ecf667712fd2817dde39a4eb9ab63cf5",
+    "first_line": "[A10] Ruling on the round-2d STOP (6041331463): **T1.** R474-2-F1 is fixed, and every functional gate passes at `2525eae9` (pushed). The timing failure (IOB pack on `eth0_rx_dv`) is a latent fragility of the shipping image, not of this lane, and is now #691 (lane A564). When #691 merges, this lane merges dev and re-runs the timing sweep. The delta reviews of the functional change start now. T3 (declaring the finding instead of fixing it) is not taken."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6050481968",
+    "comment_id": 6050481968,
+    "body_sha256": "b3cf1383190510c628992e0f167117c28a478795f7b2056ea1354d8296cec7f6",
+    "first_line": "[A10] **Round 2e (merge round)** for [A531] on PR #672. [R474-3](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041843633) and [R475-3](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041707628) are POSITIVE at `2525eae9`. #691 (ruling T1) is merged. Dev is now `99e4eb6c`; it contains F2, F3, processor pin `2ad2f845` (#682) and the GMII capture fix (#691)."
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6056511818",
+    "comment_id": 6056511818,
+    "body_sha256": "9a0aba406bfd6e2b30326c977e9043fd0a97155e7699a8b7222a9732d714d9bf",
+    "first_line": "[A531] REVIEW READY \u2014 Round 2e"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6008836249",
+    "comment_id": 6008836249,
+    "body_sha256": "0731df8c11b973378fb5b06d1613f5e072e17ebcc2e3428c5b0c35ad88d697ef",
+    "first_line": "[A10] INDEPENDENT REVIEW STARTED: R474-1"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6008889998",
+    "comment_id": 6008889998,
+    "body_sha256": "6dcd73a0b49b8f86ec87a4acc23f3407637035e3fd50f0da69772e46a9a96b00",
+    "first_line": "[A10] INDEPENDENT REVIEW STARTED: R475-1"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6009109435",
+    "comment_id": 6009109435,
+    "body_sha256": "e19f182f4e6cf01a601e171e2bb72b3a1c2e60626443c4401a3b13b161131a7f",
+    "first_line": "[R475] NEGATIVE - exact head 4e1ddee9d7b9ebf58ebebcacd90c5d72dce0c96f"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6009527655",
+    "comment_id": 6009527655,
+    "body_sha256": "af43795719b4de05ba9c254dc5da1b1642e2d05cc6a16a061b6db662b7aa157d",
+    "first_line": "[R474] NEGATIVE - exact head 4e1ddee9d7b9ebf58ebebcacd90c5d72dce0c96f"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6031578034",
+    "comment_id": 6031578034,
+    "body_sha256": "20cfc869d5e7a0c2fa1ab03a7697ad05de1de4cbcddafceafdd92f8c6abb17ef",
+    "first_line": "[A10] INDEPENDENT REVIEW STARTED: R474-2"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6031578569",
+    "comment_id": 6031578569,
+    "body_sha256": "92c85f82f984df0cfbf2e1c1fab8b1f27097eb6f6c255f9cea95d143c433a8c9",
+    "first_line": "[A10] INDEPENDENT REVIEW STARTED: R475-2"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6031787384",
+    "comment_id": 6031787384,
+    "body_sha256": "0346a348578680f2b92a391b0dd18de9a60588690d6135130220b30c54919b12",
+    "first_line": "[R475] POSITIVE - exact head 886e16201654ba0fd0c60c41c228ea4c75b2f6d3"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6032462363",
+    "comment_id": 6032462363,
+    "body_sha256": "5bf64d514d1c0db34e53ece8222e26bc269aa15ff471dabeaa629921c0d70253",
+    "first_line": "[R474] NEGATIVE - exact head 886e16201654ba0fd0c60c41c228ea4c75b2f6d3"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041383801",
+    "comment_id": 6041383801,
+    "body_sha256": "892805c7650740c0211ecebd03708106696cc00ed874d78f1eb65eee285dc866",
+    "first_line": "[A10] INDEPENDENT REVIEW STARTED: R474-3"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041384919",
+    "comment_id": 6041384919,
+    "body_sha256": "5880e0b393615ba9f53fe7233728d98666b2746ef85c08ad2425fc298c9f8cac",
+    "first_line": "[A10] INDEPENDENT REVIEW STARTED: R475-3"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041707628",
+    "comment_id": 6041707628,
+    "body_sha256": "6d560a627e3991dcaacff064183bbbb2b7fd3052040deb34c0183189f3788d00",
+    "first_line": "[R475] POSITIVE - exact head 2525eae9567865a8bc741901914bdf5a1caf2c26"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041843633",
+    "comment_id": 6041843633,
+    "body_sha256": "e64d1dd8d3ffc47a8a53ff2def135051d2bfe6cab8e4461426dec67e398436b0",
+    "first_line": "[R474] POSITIVE - exact head 2525eae9567865a8bc741901914bdf5a1caf2c26"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6059457382",
+    "comment_id": 6059457382,
+    "body_sha256": "bb79383aa70167a4b0e701a837056ad63ee2c07e10f08bcb642e7c6c8f198d02",
+    "first_line": "[A10] INDEPENDENT REVIEW STARTED: R474-4"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6059687148",
+    "comment_id": 6059687148,
+    "body_sha256": "acf39a1f0ff2c467223aa5591a703c96fab08181ffc4e6e5120868698b9f277e",
+    "first_line": "[A10] INDEPENDENT REVIEW STARTED: R475-4"
+  }
+]

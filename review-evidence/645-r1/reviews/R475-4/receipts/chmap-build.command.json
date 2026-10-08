@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/chmap_capture",
+    "build",
+    "VERILATOR_JOBS=8",
+    "VERILATOR=<simulator>",
+    "MDIR=<packet>/scratch/chmap"
+  ],
+  "cwd": "."
+}
