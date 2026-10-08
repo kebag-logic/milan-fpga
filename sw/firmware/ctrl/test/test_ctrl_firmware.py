@@ -200,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:
                 try:
                     srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                               if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
-                                                                    "srp-bound-", "srp-term-",
+                                                                    "p11-", "srp-bound-", "srp-term-",
                                                                     "srp-poll-extra", "srp-send-extra")))
                     failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
                 finally:
