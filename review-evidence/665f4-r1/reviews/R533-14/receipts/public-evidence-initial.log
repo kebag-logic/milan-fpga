@@ -1,0 +1,16 @@
+PASS: all 87 successful command records match publisher original/public hash mapping; 11 path-redacted logs
+PASS: published source/isolated-runner identity names exact reviewed head and runner digest
+PASS: published offline runner log has 442 passing checks
+PASS published mutation missing-trusted-entry: named assertion failed
+PASS published mutation missing-materialization: named assertion failed
+PASS published mutation ignore-manifest-equality: named assertion failed
+PASS published mutation ignore-manifest-addition: named assertion failed
+PASS published mutation ignore-duplicate-key: named assertion failed
+PASS published mutation ignore-url-change: named assertion failed
+PASS published mutation ignore-gitlink-omission: named assertion failed
+PASS published mutation ignore-gitlink-addition: named assertion failed
+Traceback (most recent call last):
+  File "$REVIEWS/665f4-r533-14-packet/scripts/audit_public_receipts.py", line 53, in <module>
+    assert "51 arms" in ctrl and "1252 checks" in ctrl
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

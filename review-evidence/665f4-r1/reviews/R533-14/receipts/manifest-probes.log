@@ -1,0 +1,22 @@
+PASS: exact five-entry manifest; independent literal fixture; sole production addition is approved lwSRP tuple
+PASS: four public HTTPS dependencies, external excluded, required-submodule derivation unchanged
+PASS: every other top-level AST node unchanged, including all production functions and other tests
+PASS: one commit, two assigned files; no RTL, firmware, workflow or gitlink delta
+PASS independent Git-config oracle: drops lwSRP: manifest
+PASS independent Git-config oracle: duplicates lwSRP: duplicate
+PASS independent Git-config oracle: adds another lwSRP: manifest
+PASS independent Git-config oracle: redirects lwSRP: manifest
+PASS independent Git-config oracle: drops lwSRP gitlink: gitlinks
+PASS independent Git-config oracle: adds lwSRP gitlink: gitlinks
+PASS independent Git-config oracle: wrong lwSRP path: manifest
+PASS independent Git-config oracle: SSH lwSRP URL: manifest
+PASS independent Git-config oracle: escape lwSRP path: manifest
+PASS independent Git-config oracle: custom lwSRP update: manifest
+PASS standing-plant reasoning: drops lwSRP: unchanged gitlinks cannot mask removed config refusal
+PASS standing-plant reasoning: adds another lwSRP: unchanged gitlinks cannot mask removed config refusal
+PASS independent inventory controls reject omitted manifest entry and omitted materialization path
+PASS prose enumeration: five gitlinks; four fetched public dependencies; HTTPS only; external never fetched
+PASS manager procedure: trusted live-dev source plus only the tuple preserves every existing production node
+trusted-base SHA256=79579e6b618f1d05fae202018e18f066a23cd8d667202fdbe03b561ecad638f8
+inert manifest-only adaptation SHA256=35d2cd4436a9beab31e59be1e67d7eadef28b8e448401ee7717c0af4836e67d4
+LIMIT: static inspection and independent data probes only; no runner or runner self-test executed

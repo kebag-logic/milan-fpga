@@ -1,0 +1,194 @@
+https://github.com/kebag-logic/milan-fpga/issues/665
+**Owner direction, 2026-10-05:** write the software side of the Mark II split now, in parallel with the protocol-processor program. The requirement change (#664) still waits for the PP program to finish.
+
+## Scope
+
+Bare-metal firmware on the on-chip RISC-V for:
+- **ADP**;
+- **ACMP** (decided earlier the same day);
+- **MAAP**;
+- **SRP** (MRP, with MSRP and MVRP);
+- **AECP**: descriptor serving, commands, and the unsolicited notifications. The owner added AECP the same day;
+- **the NV memory handling**: read the saved entity state from the flash at boot, apply it, and write it back on change (the #70 saved-state design).
+
+It sits behind the packet-mailbox and ingress-filter contract recorded on #640: block RAM rings, doorbell and interrupt, 32-bit accesses, no DMA, a bus adapter per host, portable C behind a small HAL, one YAML contract. It must port to a hard core.
+
+The fabric keeps:
+- framing and timestamps;
+- the gPTP plane;
+- the timers that carry hard deadlines, posted to the core as events;
+- the ingress filter.
+
+## Rules while #664 is open
+
+- Everything lands behind a build switch whose default is the current all-fabric placement. No shipping-image change.
+- The firmware builds and is tested on the host against a mailbox model. The existing processor suites' stimulus is reused through that model wherever possible, so each protocol's checks carry over.
+- Each protocol states its firmware service-latency bound per response path and tests it, as NFR-SCOUT-03 will require after #664.
+- Portable C (C11), no compiler intrinsics in protocol code, and a fixed-width, byte-order-explicit wire layer.
+
+## Lanes (in order)
+
+- **F0, the contract and harness (first).** The mailbox and ingress-filter YAML contract and its generator (fabric module skeleton, C header, docs), the HAL, the host mailbox model and test harness. The ADP firmware is the first vertical slice through it.
+- **F1, NV memory handling.** Flash read at boot, validation per the #70 saved-state format (KLJ2), apply, and the write and commit path, ported from `sw/firmware/milan_baremetal` and the processor writer's rules. It can start alongside F0 against the HAL draft.
+- **F2, MAAP.**
+- **F3, ACMP.**
+- **F4, SRP (MRP, MSRP, MVRP).**
+- **F5, AECP** (descriptor serving, commands, notifications).
+
+F2 to F5 start once F0's contract merges, so the protocols share one interface.
+
+Relates to #640, #664, #70, and milestone 13.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5992455815
+[A10] **Owner directive, 2026-10-05 12:14: bare-metal first, and reuse lwSRP.** "The solution need to be baremetal first in mind, re-use the lwSRP available on the kebag logic github."
+
+What this changes for #665 and every lane under it:
+
+1. **Bare-metal first.** The firmware runs with no OS: a single event loop driven by the mailbox doorbell, interrupts and fabric-posted timer events.
+   - No heap: every allocation comes from static pools sized from the entity model at build time.
+   - No dynamic threads, and no OS service in protocol code.
+   - An RTOS port (lwSRP has Zephyr glue, for example) may come later as an adapter. It is not the design target.
+2. **SRP is lwSRP**, from https://github.com/kebag-logic/lwSRP (MRP, MSRP with FourPacked listener declarations, MVRP, MMRP; ports-and-adapters C11). F4 integrates lwSRP and does not write SRP again:
+   - an end-station adapter on the mailbox contract, in place of its switch-oriented `sim_adapter`;
+   - a bare-metal port: `shlan_malloc`/`shlan_calloc`/`shlan_free` on a static pool, `shlan_printf` on a debug sink, and `shlan_timer_tick()` at the centisecond, driven by the fabric's timer event;
+   - fixes found during integration go to lwSRP as PRs, not as a private copy.
+3. **F0's HAL must carry lwSRP's port layer.** The contract must carry MRP PDUs and the timer event in the form lwSRP's `mrp_pdu` codec and timer port take.
+4. **The same pattern applies to the other protocols.** ADP, ACMP, MAAP and AECP are written as portable C11 ports-and-adapters modules like lwSRP, host-testable with cgreen and behave where that fits.
+
+F0 (A542) is restarted with this directive, keeping its partial work.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6008744385
+[A10] Owner directive (2026-10-06): all the Mark II software must be fully unit-tested. Decision and plan:
+
+**Framework: GoogleTest with GoogleMock.** It is packaged for the build host and the hosted runners (`libgtest-dev`, `libgmock-dev`). GoogleMock mocks the seams the firmware already has: the mailbox HAL, the flash port and lwSRP's port layer. The firmware stays C11; the tests are C++ and include the C headers through `extern "C"`.
+
+**What "fully tested" means for #665:**
+- Every public function in `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` has unit tests, including every protocol state-machine transition and every error return.
+- CI measures line and branch coverage with gcov for each PR. The target is 100 % branch coverage of the protocol and saved-state code. Every exclusion is listed with its reason in the test README, and a ratchet gate refuses any drop in coverage.
+- The suites print the `checks: N   failures: M` tally that `scripts/suite_tally.py` reads, through a GoogleTest event listener. The existing mutation arms stay and are graded as before.
+- lwSRP: its own upstream suites run unchanged at the pinned commit. GoogleTest covers only our adapter. A coverage gap in lwSRP is fixed upstream by a PR.
+
+**Order:**
+- F0 (#668) and F1 (#669) merge as they are; their hand-rolled checks and mutation arms pass.
+- **FT** (new lane, follows F0): the GoogleTest harness, the tally listener, CI wiring and the coverage gate. It also ports the F0 and F1 host checks (`test_check.h`, `test_adp.c`, the ctrl_nvm checks) to GoogleTest.
+- F2 to F5 start on top of FT, and each lands with its GoogleTest unit tests at the coverage target.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6009661573
+[A10] **Acceptance additions for the F-lanes**, from the ticket re-assessment (#415 6009637220) and the owner's closure of #653 (2026-10-06):
+
+- **F5 (AECP):** the MEDIA_UNLOCKED counters notification goes out after the UNBIND_RX response (#653 rule). The saved channel-map restore and roll-back of #637 are applied by the core. AECP tables come from the single command model if processor #73 has landed.
+- **F4 (SRP on lwSRP):** grade the #608 case: a withdrawal meets an LV registrar after a LeaveAll, and the talker stops (processor #134's fabric rule).
+- **All lanes:** key ADP state per AVB interface; the mailbox contract carries the interface index (processor #69, redundancy path kept open). Measure each path's service latency against its normative timeout (NFR-SCOUT-03, #397 re-opened).
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6030279477
+[A10] **Lane F4 for #665: SRP on the bare-metal core, on lwSRP.** Executor [A560], reviewers [R532] (internal) and [R533] (external). Branch `665-f4-srp` from the FC round-2 head `db9aa8c9` (PR #685). Merge dev with `--no-ff` at the end, once FC is in dev.
+
+**Owner decisions (10-07, in session).**
+- lwSRP is licensed **Apache-2.0**; companies may contribute.
+- F4 does the licensing work. Every lwSRP commit so far is the owner's (company and personal accounts), so the owner can license it.
+
+Directives: bare metal first and reuse lwSRP (5992455815); full GoogleTest/GoogleMock at the 100 % ratchet (6008744385); state keyed per AVB interface (6009661573); no synchronous port callbacks (#678).
+
+**Part A: lwSRP licensing**, on a local branch `apache-2.0` in a lwSRP clone. The manager pushes it and opens the lwSRP PR, which gets two reviews.
+1. Add `LICENSE` with the full Apache-2.0 text, and a `NOTICE` naming the copyright holder (kebag-logic).
+2. Add `SPDX-License-Identifier: Apache-2.0` to every source, header, build and test file, in that file's comment syntax.
+3. Add a README licence section.
+4. STOP if any file is third-party or carries another licence.
+
+**Part B: the bare-metal port and the end-station adapter.** lwSRP fixes go on separate lwSRP branches, one topic each, as lwSRP PRs and never as a private copy. lwSRP's own cgreen and behave suites must pass on each.
+1. **lwSRP in the parent.** Add lwSRP as a submodule at `third_party/lwSRP`, pinned to an exact commit. The firmware build and the FT harness compile it for the host and for RV32 (ilp32d, freestanding, no hosted libc, matching #679).
+2. **Port.**
+   - `shlan_malloc`, `shlan_calloc` and `shlan_free` on a static pool, sized from the entity model at build time, with exhaustion counted and refused rather than crashing;
+   - `shlan_printf` on a debug sink;
+   - `shlan_timer_tick()` at the centisecond, from the fabric timer event.
+3. **End-station adapter on the mailbox.** It replaces `sim_adapter`. MSRP and MVRP PDUs come in on FC's srp channels and go out through the TX path, with per-interface state and port selection, owed frames in commit order, and no synchronous callbacks.
+4. **Declarations.**
+   - Talker Advertise or Failed for every stream output from start-up (Milan v1.2 5.5.2.7);
+   - Listener declarations, through a port, for each bound sink;
+   - MVRP for the SR class VID (VID 2);
+   - Domain per IEEE 802.1Q-2018 clause 35.
+
+   Expose the port that the ACMP core (F3) calls. Wire it in `ctrl_app` if F3 is in your base by the end; otherwise state the wiring as owed.
+5. **The #608 case** (6009661573): a withdrawal meets an LV registrar after a LeaveAll, and the talker stops, as in processor #134's fabric rule. Grade it on the core.
+6. **Latency.** Measure each path's service latency against its normative timer: MRP JoinTime, LeaveTime and LeaveAll (802.1Q-2018 10.7.11; Milan Table 4.3), against T_svc = 10 ms (NFR-SCOUT-03).
+
+**Part C: evidence.**
+- GoogleTest/GoogleMock for the port, the adapter and the declarations, at the 100 % ratchet with no new exclusion, and a planted defect per check.
+- A differential against the processor's SRP (the `tb/srp_top` and `tb/srp_stream_fsms` stimulus) on the wire. Record each difference with its clause; 802.1Q is the oracle, not the processor.
+- Run at one and two interfaces.
+- Gates: `make -C tb/verilator/mbx`, `gen_mailbox.py --check`, the builder bank, the docs gates.
+
+**Scope.** No RTL change. The default all-fabric build and the shipping image stay unchanged (STOP otherwise).
+
+**Note.** lwSRP is private until the owner makes it public, so hosted CI cannot fetch the submodule until then. That gates the merge of F4, not this work.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6030870481
+[A10] **Acceptance addition for every F-lane and the default flip: linked firmware size against the block-RAM budget.**
+
+With DDR3 dropped (decision D4, #640 5991591637), the Mark II firmware and its data live in block RAM. Today the F-lanes report object sizes only. Under the 10 % reserve, the XC7A100T leaves about 50 RAMB36 tiles for the firmware after Mark II's fabric changes, which is about 128 KB at 4.5 KB per tile. A firmware near 256 KB would not fit.
+
+- Each F-lane reports the linked RV32 image of the composed `ctrl_app` at its head: text, rodata, data and bss, plus the static pools sized from the entity model. Report it for the shipping shape and the largest supported shape, with the delta from its base.
+- The default flip (#664 decision 3) needs a routed Mark II image that shows LUT, FF and RAMB36 use against NFR-RES-01, with the firmware in block RAM.
+- If the linked image is heading past about 128 KB, the manager raises it with the owner before the flip. The fallback is the XC7A200T (AX7201), which needs no RTL change.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6037276691
+[A10] F4 round 5 (lwSRP re-pin), PR #690 at `6f7deea1`. R532-4 (6037270410) and R533-4 (6036993961) are both POSITIVE. lwSRP is now **public**: PR #12 merged, and after the history e-mail rewrite its `main` is `a4cbe41d`. The current pin `23d9a817` predates lwSRP rounds 3-7 and the rewrite.
+
+1. **Re-pin.** Re-pin `third_party/lwSRP` to lwSRP `main` `a4cbe41d`. lwSRP rounds 3-7 changed:
+   - receive validation (atomic refusal);
+   - higher-version skips;
+   - propagation retention after allocation failure;
+   - the pending-Flush snapshot;
+   - LV changed-value indication;
+   - callback ordering.
+
+   Adapt the adapter only where the lwSRP API or behaviour requires it, and state each change.
+2. **lwSRP note 4/5 tests.** Bring the branch `f4-applicant-notes` (`72209a53`, rewritten) up to lwSRP `main` with a `--no-ff` merge on a local lwSRP branch. Keep its tests and reversals passing in both profiles. The manager opens its lwSRP PR.
+3. **Residue R532-2-R2.** Fix the stale publication wording in the PR body.
+4. **Re-run.** Re-run all of the following against the new pin:
+   - the firmware gates at the 100 % ratchet;
+   - the SRP walk, differential and campaign;
+   - the linked composition size;
+   - `make -C tb/verilator/mbx`;
+   - the docs gates.
+
+   The builder bank and the compiler-absent check stay with the manager.
+
+Use one-line commits; no rebase and no amend. Then post REVIEW READY (or STOP) with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6055458854
+[A10] **F4 round 14 (act runner manifest)** for [A560] on PR #690. [R532-13](https://github.com/kebag-logic/milan-fpga/pull/690#issuecomment-6052690604) and [R533-13](https://github.com/kebag-logic/milan-fpga/pull/690#issuecomment-6052580165) are POSITIVE at `154722e1`. The manager's candidate bank passed (builder 48/48, native 5/5).
+
+The trusted act replay refused the head: `candidate .gitmodules differs from the trusted manifest (unexpected 'submodule.third_party/lwSRP.path')`.
+- `scripts/act_ci.py` (`TRUSTED_SUBMODULES`, line 207) compares `.gitmodules` exactly. This PR adds `third_party/lwSRP` without adding it to that manifest.
+- After merge, every later PR's act would also be refused, so the manifest change belongs in this PR.
+
+1. Add `("third_party/lwSRP", "third_party/lwSRP", "https://github.com/kebag-logic/lwSRP.git")` to `TRUSTED_SUBMODULES`. It must match `.gitmodules` exactly, so `REQUIRED_SUBMODULES` materialises it over public HTTPS.
+2. Update every act-runner contract and self-test that enumerates the trusted submodules. Add a check that a candidate whose `.gitmodules` adds or drops lwSRP is refused, with a planted control.
+3. Run the act runner's own self-tests and contract gate, the docs gates and the builder bank. Run the ctrl suite once to confirm nothing else moved.
+
+The manager will run this PR's act replay with dev's trusted runner plus exactly this manifest entry, reviewed by diff and recorded on the PR, because a trusted runner from dev cannot accept a new submodule.
+
+Commit on `154722e1`, with no merge, rebase or amend. Then post REVIEW READY.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6055933097
+[A560] REVIEW READY
+Commit: fe1cd0679f5028c749af7242c903a82ca2b3d692
+Round 14, parent 154722e14781c7373f3229420b6e007f9bcf9835.
+
+Added the exact lwSRP tuple to the trusted replay manifest. Updated its independent inventory/materialization checks, six refusal cases, two standing trust plants and the enumerated CI contract. Only scripts/act_ci.py and docs/testing/CI_WORKFLOWS.md change.
+
+Validation: 442 offline runner checks; eight named source-mutation check/plant pairs; CI contract 1741 items / 2362 controls; 75 docs commands plus both source-archive gates; complete ctrl suite 51 arms / 1252 checks; builder; pinned SDK audit with 2146 compiler invocations and zero omitted arms. All 87 final command receipts return 0. Builder gate 11 calibration is explicitly NOT RUN because its physical place report is absent.
+
+All assigned criteria are met. HANDOFF.md and PR-BODY.md retain earlier rounds and add Round 14 evidence, limits and reproduction details. Independent review and manager-owned trusted replay remain pending.
+

@@ -1,0 +1,56 @@
+[
+  {
+    "name": "baseline",
+    "passed": true,
+    "failures": 0,
+    "exception": null
+  },
+  {
+    "name": "missing-trusted-entry",
+    "passed": true,
+    "failures": 1,
+    "exception": "candidate .gitmodules differs from the trusted manifest (unexpected 'submodule.third_party/lwSRP.path')"
+  },
+  {
+    "name": "missing-materialization",
+    "passed": true,
+    "failures": 1,
+    "exception": null
+  },
+  {
+    "name": "ignore-manifest-equality",
+    "passed": true,
+    "failures": 5,
+    "exception": null
+  },
+  {
+    "name": "ignore-manifest-addition",
+    "passed": true,
+    "failures": 5,
+    "exception": null
+  },
+  {
+    "name": "ignore-duplicate-key",
+    "passed": true,
+    "failures": 1,
+    "exception": null
+  },
+  {
+    "name": "ignore-url-change",
+    "passed": true,
+    "failures": 5,
+    "exception": null
+  },
+  {
+    "name": "ignore-gitlink-omission",
+    "passed": true,
+    "failures": 3,
+    "exception": null
+  },
+  {
+    "name": "ignore-gitlink-addition",
+    "passed": true,
+    "failures": 3,
+    "exception": null
+  }
+]

@@ -1,0 +1,141 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 6d5735c8a..84b7fe427 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1541,14 +1541,14 @@ otherwise complete local head-tree run.
+ 
+ Before any candidate-directed network operation, the runner parses the exact
+ committed `.gitmodules` blob and requires the trusted name/path/URL pairs with
+-no duplicate or extra configuration. It also requires the matching four
++no duplicate or extra configuration. It also requires the matching five
+ gitlink paths. Git disables every transport by default and enables only HTTPS;
+ the inactive SSH-only `external` entry must match the trusted manifest but is
+ never fetched. Only then, and only after selected workflows pass their static
+-sandbox scan, does the temporary checkout initialize the three allowlisted
++sandbox scan, does the temporary checkout initialize the four allowlisted
+ public pinned dependencies (`third_party/verilog-axis`, `protocol-processor`,
+-and `gptp-processor`). This gives act's local checkout copier the submodule-path
+-parity that a hosted checkout exposes; each workflow's own submodule update
++`gptp-processor`, and `third_party/lwSRP`). This gives act's checkout copier
++the submodule-path parity that a hosted checkout exposes; each workflow's own submodule update
+ remains the authoritative, idempotent check of those pins.
+ 
+ The runner then populates the per-run action cache itself, serially, before
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index 28f365a0e..588d24b41 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -226,6 +226,11 @@ TRUSTED_SUBMODULES = (
+         "gptp-processor",
+         "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+     ),
++    (
++        "third_party/lwSRP",
++        "third_party/lwSRP",
++        "https://github.com/kebag-logic/lwSRP.git",
++    ),
+ )
+ REQUIRED_SUBMODULES = tuple(
+     path for name, path, _url in TRUSTED_SUBMODULES if name != "external"
+@@ -10582,14 +10587,26 @@ def selftest_submodule_manifest(tally: SelftestTally, git_fixture: GitFixture) -
+     refused = tally.refused
+     repo = git_fixture.repo
+     test_git = git_fixture.test_git
++    # Independent fixture: deriving this from TRUSTED_SUBMODULES hid an
++    # omitted dependency because both the candidate and oracle omitted it.
++    manifest = (
++        ("external", "external", "git@github.com:kebag-logic/fpga-avb-ethernet.git"),
++        ("third_party/verilog-axis", "third_party/verilog-axis",
++         "https://github.com/alexforencich/verilog-axis"),
++        ("protocol-processor", "protocol-processor",
++         "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git"),
++        ("gptp-processor", "gptp-processor", "https://github.com/Mister-M-alt/FPGA-gPTP.git"),
++        ("third_party/lwSRP", "third_party/lwSRP", "https://github.com/kebag-logic/lwSRP.git"),
++    )
++    check("the trusted manifest includes exactly the five approved entries", TRUSTED_SUBMODULES == manifest)
+     gitmodules_text = "".join(
+         f'[submodule "{name}"]\n\tpath = {path}\n\turl = {url}\n'
+-        for name, path, url in TRUSTED_SUBMODULES
++        for name, path, url in manifest
+     )
+     (repo / ".gitmodules").write_text(gitmodules_text, encoding="utf-8")
+     test_git("add", ".gitmodules")
+     gitlink_oid = "9" * 40
+-    trusted_gitlinks = tuple(path for _name, path, _url in TRUSTED_SUBMODULES)
++    trusted_gitlinks = tuple(path for _name, path, _url in manifest)
+     for gitlink in trusted_gitlinks:
+         test_git(
+             "update-index",
+@@ -10602,6 +10619,16 @@ def selftest_submodule_manifest(tally: SelftestTally, git_fixture: GitFixture) -
+     validate_submodule_manifest(repo, manifest_commit, trusted_gitlinks)
+     check("the exact trusted submodule manifest is accepted", True)
+ 
++    with mock.patch.object(sys.modules[__name__], "capture", return_value="") as fetched:
++        initialize_required_submodules(repo, repo.parent)
++    check(
++        "materialization fetches all four public pins including lwSRP and excludes external",
++        fetched.call_args.args[0]
++        == [*git_prefix(), "-C", str(repo), "submodule", "update", "--init", "--",
++            "third_party/verilog-axis", "protocol-processor", "gptp-processor", "third_party/lwSRP"],
++    )
++    selftest_lwsrp_manifest(tally, git_fixture, gitmodules_text, trusted_gitlinks)
++
+     hostile_manifest = gitmodules_text.replace(
+         "https://github.com/alexforencich/verilog-axis",
+         "https://127.0.0.1:9/attacker/verilog-axis",
+@@ -10647,6 +10674,55 @@ def selftest_submodule_manifest(tally: SelftestTally, git_fixture: GitFixture) -
+     )
+ 
+ 
++def selftest_lwsrp_manifest(
++    tally: SelftestTally, git_fixture: GitFixture, manifest: str, gitlinks: tuple[str, ...]
++) -> None:
++    """Arms: lwSRP additions, omissions and redirections fail before materialization."""
++    repo = git_fixture.repo
++    test_git = git_fixture.test_git
++    stanza = ('[submodule "third_party/lwSRP"]\n\tpath = third_party/lwSRP\n'
++              '\turl = https://github.com/kebag-logic/lwSRP.git\n')
++    variants = (
++        ("drops lwSRP", manifest.replace(stanza, ""), gitlinks),
++        ("duplicates lwSRP", manifest + stanza, gitlinks),
++        ("adds another lwSRP", manifest + stanza.replace("third_party/lwSRP", "third_party/lwSRP-extra"),
++         gitlinks),
++        ("redirects lwSRP", manifest.replace("https://github.com/kebag-logic/lwSRP.git",
++                                             "https://127.0.0.1:9/attacker/lwSRP.git"), gitlinks),
++        ("drops lwSRP gitlink", manifest, gitlinks[:-1]),
++        ("adds lwSRP gitlink", manifest, (*gitlinks, "third_party/lwSRP-extra")),
++    )
++    for label, candidate, candidate_links in variants:
++        (repo / ".gitmodules").write_text(candidate, encoding="utf-8")
++        test_git("add", ".gitmodules")
++        test_git("commit", "--quiet", "--allow-empty", "-m", label)
++        commit = test_git("rev-parse", "HEAD")
++        tally.refused(
++            f"candidate that {label} is refused before fetch",
++            lambda: validate_submodule_manifest(repo, commit, candidate_links),
++        )
++        if label not in ("drops lwSRP", "adds another lwSRP"):
++            continue
++        # Plant candidate-controlled trust for each config-only omission or
++        # addition. The unchanged gitlink check cannot mask the missing refusal.
++        candidate_config = expected_submodule_config()
++        for suffix, value in (("path", "third_party/lwSRP"),
++                              ("url", "https://github.com/kebag-logic/lwSRP.git")):
++            if label == "drops lwSRP":
++                candidate_config.pop(f"submodule.third_party/lwSRP.{suffix}")
++            else:
++                candidate_config[f"submodule.third_party/lwSRP-extra.{suffix}"] = (
++                    value + "-extra" if suffix == "path" else value
++                )
++        planted = SelftestTally()
++        with mock.patch.object(sys.modules[__name__], "expected_submodule_config",
++                               return_value=candidate_config), contextlib.redirect_stdout(io.StringIO()):
++            planted.refused(
++                label, lambda: validate_submodule_manifest(repo, commit, candidate_links)
++            )
++        tally.check(f"{label} control catches candidate-controlled trust", planted.failures == 1)
++
++
+ def selftest_sandbox_policy(tally: SelftestTally, repo: pathlib.Path) -> None:
+     """Arms: every job-level and step-level authority the sandbox forbids is refused before act."""
+     refused = tally.refused
