@@ -16,6 +16,9 @@
 //                                                 (ctrl_pool.h), never a heap
 //   shlan_printf                              ->  the debug sink (ctrl_debug.h)
 //
+// No allocation or debug port may call back into a protocol core synchronously.
+// Receive and expiry delivery belongs to the one event loop.
+//
 // and the event loop (../loop/ctrl_loop.h) calls each registered
 // centisecond consumer, lwSRP's shlan_timer_tick among them, once per tick
 // the fabric's TICK event counts. The prototypes below are lwSRP's,

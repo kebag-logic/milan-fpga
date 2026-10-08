@@ -17,7 +17,7 @@
 //       pass in which it is committed with k frames owed ahead of it;
 //   F   the bound with full legal backlogs: both rings full, every pass and
 //       path held to the stated figures, events first in every pass; with
-//       lane F2's MAAP composed too, every pass held to CTRL_APP_PASS_MAX;
+//       lane F2's MAAP composed too, every pass held to CTRL_APP_THREE_PASS_MAX;
 //   U   the composition: ACMP after ADP, nothing read before the contract
 //       check, the boot order's two halves; ADP, ACMP and lane F2's MAAP in
 //       one app (the attach order, every channel and its interrupt opened,
@@ -53,6 +53,10 @@
 #include "mbx_model.h"
 #include "mbx_wire.h"
 #include "wire.h"
+#ifdef CTRL_APP_TEST_SRP
+#include "srp_fixture.hpp"
+FW_TALLY_LABEL("ctrl ADP ACMP MAAP SRP composition");
+#endif
 
 using namespace acmp_test;
 
@@ -62,8 +66,17 @@ const adp_entity kEntity = {kOwn, 0x99AABBCCDDEEFF01ull, kMac0, 0xC588u, 2u, 0x4
 
 struct mbx_model model;
 struct ctrl_app app;
+#ifdef CTRL_APP_TEST_SRP
+srp_mbx srp_adapter{};
+srp_source srp_sources[MBX_N_IF][CTRL_SRP_SOURCES]{};
+alignas(std::max_align_t) std::uint8_t arena[SRP_POOL_ARENA_BYTES];
+#define kClasses srp_pool_classes
+#define kClassCount SRP_POOL_N_CLASSES
+#else
 alignas(std::max_align_t) std::uint8_t arena[1024];
 const ctrl_pool_class kClasses[] = {{32u, 8u}};
+#define kClassCount 1u
+#endif
 acmp_config acfg;
 
 // Two sinks and two sources, each k on interface k % MBX_N_IF: at two
@@ -90,7 +103,7 @@ constexpr unsigned slot(unsigned i) {
 }
 
 ctrl_app_config app_config() {
-    return ctrl_app_config{&kEntity, 0, arena, sizeof arena, kClasses, 1, nullptr, nullptr, &acfg, &kEnv,
+    return ctrl_app_config{&kEntity, 0, arena, sizeof arena, kClasses, kClassCount, nullptr, nullptr, &acfg, &kEnv,
                            nullptr, nullptr, 0};
 }
 
@@ -920,6 +933,36 @@ std::array<std::uint8_t, 60> maap_probe(std::uint16_t count) {
     return f;
 }
 
+#ifdef CTRL_APP_TEST_SRP
+void attach_srp() {
+    srp_mbx_config cfg{};
+    cfg.link_rate_bps = 1000000000u;
+    cfg.licence = [](void*, unsigned, unsigned, bool) {};
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        cfg.mac[i] = kEntity.mac;
+        cfg.sources[i] = srp_sources[i];
+        for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
+            auto& v = srp_sources[i][k].value;
+            wire_put_be(v.stream_id.bytes, kEntity.mac, 6);
+            wire_put_be(v.stream_id.bytes + 6, k, 2);
+            v.vlan_id = 2; v.max_frame_size = 224;
+            v.max_interval_frames = 1; v.priority_and_rank = 0x60;
+        }
+    }
+    ASSERT_TRUE(srp_mbx_init(&srp_adapter, &cfg));
+    ASSERT_TRUE(ctrl_app_attach_srp(&app, &srp_adapter));
+}
+
+std::array<std::uint8_t, 60> srp_record() {
+    // Empty MVRP PDU: protocol version zero, two-byte EndMark, Ethernet pad.
+    std::array<std::uint8_t, 60> f{};
+    wire_put_be(f.data(), 0x0180c2000021ull, 6);
+    wire_put_be(f.data() + 6, 0x060000000040ull, 6);
+    wire_put_be(f.data() + 12, 0x88f5u, 2);
+    return f;
+}
+#endif
+
 TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
     mbx_model_reset(&model);
     for (unsigned i = 0; i < MBX_N_IF; ++i) {
@@ -928,6 +971,9 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
     }
     const ctrl_app_config cfg = three_way();
     ASSERT_TRUE(ctrl_app_start(&app, &cfg));
+    #ifdef CTRL_APP_TEST_SRP
+    attach_srp();
+    #endif
     settle();
     for (unsigned k = 0; k < acfg.n_sinks; ++k) {
         bind(k);
@@ -950,18 +996,31 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
         const auto f = maap_probe(static_cast<std::uint16_t>(1u + j % 8u));
         maap_stored += mbx_model_rx(&model, f.data(), f.size(), 0) ? 1u : 0u;
     }
+    unsigned srp_stored = 0;
+#ifdef CTRL_APP_TEST_SRP
+    for (unsigned j = 0; j < 1000u && model.ch[MBX_CH_SRP].rx_drop == 0u; ++j) {
+        const auto f = srp_record();
+        srp_stored += mbx_model_rx(&model, f.data(), f.size(), j % MBX_N_IF) ? 1u : 0u;
+    }
+    ASSERT_GT(srp_stored, 0u) << "F6 SRP backlog is present";
+#endif
     const unsigned events = static_cast<std::uint16_t>(model.evt_head - model.evt_tail) / MBX_EV_WORDS;
     ASSERT_TRUE(events > 0u && acmp_stored > 0u && maap_stored > 0u) << "F6 events, acmp and maap records wait";
     std::uint64_t worst = 0;
-    std::uint32_t rx0 = app.loop.stats.rx_records;
     std::uint32_t events0 = app.loop.stats.events;
     unsigned at = 0;
-    for (unsigned q = 1; q <= 64u && at == 0u; ++q) {
+    unsigned srp_at = srp_stored == 0u ? 1u : 0u;
+    for (unsigned q = 1; q <= 64u && (at == 0u || srp_at == 0u); ++q) {
         std::uint64_t n = pass();
         worst = n > worst ? n : worst;
-        at = app.loop.stats.rx_records - rx0 >= acmp_stored + maap_stored && app.loop.stats.events - events0 >= events
-                 ? q
-                 : 0u;
+        if (at == 0u && model.ch[MBX_CH_ACMP].rx_tail == model.ch[MBX_CH_ACMP].rx_head &&
+            model.ch[MBX_CH_MAAP].rx_tail == model.ch[MBX_CH_MAAP].rx_head &&
+            app.loop.stats.events - events0 >= events) {
+            at = q;
+        }
+        if (srp_at == 0u && model.ch[MBX_CH_SRP].rx_tail == model.ch[MBX_CH_SRP].rx_head) {
+            srp_at = q;
+        }
     }
     std::printf("  three-way backlog: %u event records, %u acmp and %u maap records; worst pass %u accesses\n", events,
                 acmp_stored, maap_stored, static_cast<unsigned>(worst));
@@ -970,10 +1029,23 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
     // The bound is the two published passes, ADP and ACMP's (acmp_mbx.h) and
     // MAAP's own (maap_mbx.h), with each event record's 6 accesses, which both
     // count, taken once: the measured worst pass above cannot pin it.
-    EXPECT_EQ(CTRL_APP_PASS_MAX,
+    EXPECT_EQ(CTRL_APP_THREE_PASS_MAX,
               ACMP_MBX_PASS_MAX + MAAP_MBX_PASS_MAX - CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
         << "F6 the three-way bound is both modules' passes with each event record taken once";
-    bound("F6 the worst pass of the three-way backlog", worst, CTRL_APP_PASS_MAX);
+    #ifdef CTRL_APP_TEST_SRP
+    bound("F6 the worst pass of the four-way backlog", worst, CTRL_APP_PASS_MAX);
+#else
+    bound("F6 the worst pass of the three-way backlog", worst, CTRL_APP_THREE_PASS_MAX);
+#endif
+#ifdef CTRL_APP_TEST_SRP
+    EXPECT_EQ(CTRL_APP_PASS_MAX, ACMP_MBX_PASS_MAX + MAAP_MBX_PASS_MAX + SRP_MBX_PASS_MAX -
+              2u * CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u) + CTRL_APP_SRP_FEEDBACK_MAX)
+        << "F6 four modules count each shared event record once";
+    EXPECT_TRUE(srp_at > 0u && srp_at <= CTRL_LOOP_EVT_PASSES + CTRL_LOOP_RX_PASSES(MBX_CH_SRP_RX_WORDS))
+        << "F6 SRP backlog drains after the event prefix";
+    EXPECT_EQ(model.ch[MBX_CH_SRP].rx_tail, model.ch[MBX_CH_SRP].rx_head) << "F6 SRP backlog drains";
+    srp_mbx_destroy(&srp_adapter);
+#endif
     settle();
 }
 
@@ -1004,6 +1076,32 @@ TEST_F(AcmpMailbox, U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract) {
     acfg = bad;
     EXPECT_FALSE(ctrl_app_compose(&app, &cfg)) << "U5 an ACMP configuration the module refuses fails the composition";
 }
+
+#ifdef CTRL_APP_TEST_SRP
+void wake_on_srp() {
+    // Quiesce, then inject from the sleeping HAL. Only an enabled interrupt
+    // permits the next loop step, so polling cannot hide a missing SRP bit.
+    settle();
+    struct Wake { unsigned waits = 0; bool irq = false; } wake;
+    mbx_model_bind(&model, [](void* ctx) {
+        auto& w = *static_cast<Wake*>(ctx);
+        ++w.waits;
+        EXPECT_FALSE(mbx_model_irq(&model)) << "U6 idle before SRP arrival";
+        const auto f = srp_record();
+        EXPECT_TRUE(mbx_model_rx(&model, f.data(), f.size(), MBX_N_IF - 1u));
+        w.irq = mbx_model_irq(&model);
+    }, &wake);
+    const unsigned received = srp_adapter.received;
+    ctrl_loop_step(&app.loop);
+    EXPECT_EQ(wake.waits, 1u) << "U6 loop really slept";
+    EXPECT_TRUE(wake.irq) << "U6 idle loop wakes for SRP alone";
+    if (wake.irq) {
+        ctrl_loop_step(&app.loop);
+    }
+    EXPECT_EQ(srp_adapter.received, received + 1u) << "U6 waking consumes the SRP record";
+    mbx_model_bind(&model, nullptr, nullptr);
+}
+#endif
 
 TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen) {
     mbx_model_reset(&model);
@@ -1044,6 +1142,18 @@ TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelO
     for (unsigned i = 0; i < MBX_N_IF; ++i) {
         EXPECT_EQ(app.maap.ifs[i].core.state, MAAP_PROBE) << on_if(i, "U6 MAAP probes from the open");
     }
+#ifdef CTRL_APP_TEST_SRP
+    attach_srp();
+    const std::uint32_t four_channels = channels | (1u << MBX_CH_SRP);
+    EXPECT_EQ(model.filter_en, four_channels) << "U6 four receive channels and no others";
+    EXPECT_EQ(model.irq_enable, mbx_place(four_channels, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH) |
+              mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH))
+        << "U6 exact four-channel receive and event interrupt mask";
+    EXPECT_TRUE(app.loop.n_sinks == 4u && app.loop.sinks[3].ctx == &srp_adapter &&
+                app.loop.n_polls == 5u && app.loop.polls[3].ctx == &srp_adapter &&
+                app.loop.polls[4].ctx == &app && app.loop.n_ticks == 1u)
+        << "U6 SRP attaches after ADP ACMP MAAP and uses the shared tick";
+#endif
     // Four seconds: MAAP's probes and its acquisition, ADP's advertisements and
     // the restored sink's TMR_NO_ADP, each on its own slots.
     for (unsigned ms = 0; ms < 4000u; ms += 10u) {
@@ -1082,6 +1192,10 @@ TEST_F(AcmpMailbox, U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelO
     }
     EXPECT_TRUE(published.valid && published.base == kMaapBase && published.count == kEntity.talker_stream_sources)
         << "U6 the acquired range reaches the stream-address port";
+#ifdef CTRL_APP_TEST_SRP
+    wake_on_srp();
+    srp_mbx_destroy(&srp_adapter);
+#endif
 }
 
 TEST_F(AcmpMailbox, U7TheThreeWayCompositionRefusesWithNothingOpened) {
@@ -1111,3 +1225,8 @@ TEST_F(AcmpMailbox, U7TheThreeWayCompositionRefusesWithNothingOpened) {
 }
 
 }  // namespace
+
+#ifdef CTRL_APP_TEST_SRP
+#include "srp_binding.hpp"
+#include "srp_feedback.hpp"
+#endif

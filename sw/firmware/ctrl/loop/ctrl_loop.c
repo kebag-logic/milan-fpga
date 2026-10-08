@@ -25,6 +25,13 @@ bool ctrl_loop_bind_rx(struct ctrl_loop *l, unsigned ch, ctrl_rx_fn fn, void *ct
 	return true;
 }
 
+void ctrl_loop_set_rx_ready(struct ctrl_loop *l, unsigned ch, bool (*ready)(void *ctx))
+{
+    if (ch < MBX_N_CH) {
+        l->rx[ch].ready = ready;
+    }
+}
+
 bool ctrl_loop_add_sink(struct ctrl_loop *l, ctrl_event_fn fn, void *ctx)
 {
 	if (l->n_sinks >= CTRL_LOOP_MAX_SINKS || fn == NULL) {
@@ -115,6 +122,9 @@ static unsigned service_rx(struct ctrl_loop *l, unsigned ch)
 {
 	unsigned n = 0;
 	for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {
+		if (l->rx[ch].ready != NULL && !l->rx[ch].ready(l->rx[ch].ctx)) {
+			break;
+		}
 		enum mbx_status st = mbx_rx_take(ch, &l->frame);
 		if (st == MBX_STATUS_EMPTY) {
 			break;

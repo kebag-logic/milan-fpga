@@ -28751,6 +28751,14 @@ def test_nvm_firmware_shapes() -> None:
          "--self-test"], check=True, cwd=ROOT, timeout=600)
 
 
+def test_soc_option_refusals() -> None:
+    """Refuse ignored CPU options before setup, including planted missing checks."""
+    python = _litex_or_skip("654 CPU options")
+    if python is not None:
+        subprocess.run([python, str(ROOT / "sw/builder/test_soc_options.py")],
+                       check=True, cwd=ROOT, timeout=300)
+
+
 def test_clock_crossing_constraints() -> None:
     """Run shipping elaborations, scoped exceptions and implementation-log controls."""
     python = _litex_or_skip("607 clock constraints")
@@ -29052,7 +29060,7 @@ if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
-    for fn in (test_commercial_timing_grade,
+    for fn in (test_soc_option_refusals, test_commercial_timing_grade,
                test_baremetal_clock_contract, test_rom_clock_contract, test_rom_clock_skip_reaches_the_ledger,
                test_extra_sweep_clocks, test_tap_clock_docs,
                test_sim_clock, test_extra_sweep_invocation, test_builder_clock_source,

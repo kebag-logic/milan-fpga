@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Shared-stimulus MAAP wire differential against the unchanged parent engine."""
+"""Shared-stimulus MAAP wire differential: the C core and the parent fabric engine (#686)."""
 from __future__ import annotations
 
 import argparse
@@ -52,16 +52,16 @@ def sensitivity(out: Path) -> int:
              ("release", "maap/maap.c", "m->state = MAAP_INITIAL;\n\tm->queued = 0;",
               "m->state = MAAP_DEFEND;\n\tm->queued = 0;", "MaapDifferential.ReleaseAndRetry"), *cells]
     delay = "base + MAAP_SERVICE_MS + 1u + draw(m, variation - 2u * MAAP_SERVICE_MS - 1u)"
-    timing = "MaapDifferential.ProbeTimingAndParentDelta"
+    timing = "MaapDifferential.ProbeTimingAndCount"
     # R529-1's 1 ms escape and both strict boundary controls.
     for ms in (1, 500, 600):
         cases.append((f"probe-{ms}ms", "maap/maap.c", delay,
                       f"announce ? {delay} : {ms}u", timing))
     cases.append(("parent-probe-bound", "test/test_maap_differential.cpp",
-                  "kParentProbeMaxMs = 627", "kParentProbeMaxMs = 499", timing))
+                  "kParentProbeMaxMs = 581", "kParentProbeMaxMs = 499", timing))
     cases.append(("parent-probe-count", "test/test_maap_differential.cpp",
-                  'ASSERT_EQ(f.frames.size(), 4u) << "#686 parent three',
-                  'ASSERT_EQ(f.frames.size(), 5u) << "#686 parent three', timing))
+                  'ASSERT_EQ(f.frames.size(), 5u) << "Table B.7 parent four',
+                  'ASSERT_EQ(f.frames.size(), 4u) << "Table B.7 parent four', timing))
     escaped = 0
     for name, path, old, new, test in cases:
         copy = out / name / "ctrl"

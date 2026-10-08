@@ -27,6 +27,7 @@ EDGE_LABELS = {
     "protocol-processor": "wrapper",
     "gptp-processor": "wrapper",
     "third_party/verilog-axis": "RTL",
+    "third_party/lwSRP": "C port",
     "external": "legacy",
 }
 

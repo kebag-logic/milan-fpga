@@ -8,12 +8,12 @@ import re
 import shutil
 import sys
 from pathlib import Path
+from subprocess import CompletedProcess
 
 from ctrl_build import (CTRL, HERE, HOST, NVM_DIR, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
                         TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
                         run, sources)
 import fw_rv32
-
 
 def arm_model(tree: Tree) -> Outcome:
     """The RTL's mailbox checks, on the host model."""
@@ -356,10 +356,10 @@ LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c"
 #: The lwSRP revision port/shlan_port.h is written against (it restates that
 #: revision's src/ports/alloc.h). Fetch it with
 #:     git clone https://github.com/kebag-logic/lwSRP lwSRP
-#:     git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
+#:     git -C lwSRP checkout 9197193e47a6bb1c45a56d90a18c1784123aba44
 #: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
 LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
-LWSRP_REV = "19f5796b63652eb1151906de73cb827d4980a53f"
+LWSRP_REV = "9197193e47a6bb1c45a56d90a18c1784123aba44"
 #: Every source and header the arm compiles lives under this directory.
 LWSRP_TREE = "src"
 
@@ -370,12 +370,17 @@ def lwsrp_pin(lwsrp: Path) -> str:
     `--no-optional-locks` keeps `git status` from refreshing the index, so a
     read-only checkout is read and never written.
     """
-    head = run(["git", "-C", str(lwsrp), "rev-parse", "HEAD"]).stdout.strip()
+    def checked_git(args: list[str]) -> CompletedProcess[str]:
+        """Check the dependency root before each command in that checkout."""
+        top = run(["git", "-C", str(lwsrp), "rev-parse", "--show-toplevel"])
+        if top.returncode or Path(top.stdout.strip()).resolve() != lwsrp.resolve():
+            raise Refusal("lwSRP is not its own checkout")
+        return run(["git", "--no-optional-locks", "-C", str(lwsrp), *args])
+    head = checked_git(["rev-parse", "HEAD"]).stdout.strip()
     if head != LWSRP_REV:
         raise Refusal(f"lwSRP at {head or 'no git HEAD'} is not the pinned {LWSRP_REV} "
                       f"(fetch {LWSRP_URL} and check the pin out)")
-    dirty = run(["git", "--no-optional-locks", "-C", str(lwsrp), "status", "--porcelain", "--untracked-files=all",
-                 "--", LWSRP_TREE])
+    dirty = checked_git(["status", "--porcelain", "--untracked-files=all", "--", LWSRP_TREE])
     if dirty.returncode != 0 or dirty.stdout.strip():
         changed = ", ".join(ln[3:] for ln in dirty.stdout.splitlines()) or dirty.stderr.strip()
         raise Refusal(f"lwSRP's {LWSRP_TREE}/ differs from the pinned {LWSRP_REV[:8]}: {changed}")

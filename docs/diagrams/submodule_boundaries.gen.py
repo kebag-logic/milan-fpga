@@ -40,7 +40,7 @@ from png_artifact import (  # noqa: E402
 
 BASE = ROOT / "docs" / "diagrams" / "submodule_boundaries"
 WIDTH = 1500
-HEIGHT = 900
+HEIGHT = 1100
 RASTER_WIDTH = 2400
 DRAWIO_HASH_KEY = "Milan-Drawio-SHA256"
 MANIFEST = ROOT / "docs" / "diagrams" / "PNG_MANIFEST.json"
@@ -90,6 +90,16 @@ ROLES = {
         "ACTIVE VENDOR",
         "#FFF3E0",
         "#EF6C00",
+    ),
+    "third_party/lwSRP": Role(
+        "Bare-metal MRP, MSRP and MVRP library",
+        "sw/firmware/ctrl/srp/srp_mbx.c",
+        "mailbox adapter",
+        "cgreen and behave",
+        "sw/firmware/ctrl/test",
+        "CORE SRP",
+        "#FFF8E1",
+        "#8D6E00",
     ),
     "external": Role(
         "Historical Ethernet MAC import",
@@ -177,6 +187,7 @@ def module_positions() -> dict[str, tuple[int, int]]:
         "gptp-processor": (35, 500),
         "third_party/verilog-axis": (1045, 135),
         "external": (1045, 500),
+        "third_party/lwSRP": (540, 675),
     }
 
 
@@ -186,7 +197,7 @@ def _svg_header() -> list[str]:
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" '
         f'height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" '
         'font-family="Helvetica,Arial,sans-serif">',
-        '<rect width="1500" height="900" fill="#FAFAFA"/>',
+        f'<rect width="{WIDTH}" height="{HEIGHT}" fill="#FAFAFA"/>',
         '<defs><marker id="arrow" markerWidth="12" markerHeight="12" '
         'refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" '
         'fill="#455A64"/></marker></defs>',
@@ -226,13 +237,14 @@ def _svg_root_box() -> list[str]:
 
 
 def _svg_connections() -> list[str]:
-    """The four labelled elbows from each submodule card to the root box."""
+    """The labelled connections from each submodule card to the root box."""
     lines: list[str] = []
     connections = {
         "protocol-processor": ((455, 260), (540, 350), "wrapper"),
         "gptp-processor": ((455, 625), (540, 500), "wrapper"),
         "third_party/verilog-axis": ((1045, 260), (960, 350), "RTL"),
         "external": ((1045, 625), (960, 535), "legacy"),
+        "third_party/lwSRP": ((750, 675), (750, 580), "C port"),
     }
     for path, (start, end, label) in connections.items():
         dash = ' stroke-dasharray="9,7"' if path == "external" else ""
@@ -245,7 +257,7 @@ def _svg_connections() -> list[str]:
             f'marker-end="url(#arrow)"{dash}/>'
         )
         lines.append(
-            f'<text x="{middle}" y="{(sy + ey) // 2 - 7}" '
+            f'<text x="{middle + (40 if sx == ex else 0)}" y="{(sy + ey) // 2 - 7}" '
             f'text-anchor="middle" font-size="16" fill="#37474F">'
             f'{esc(label)}</text>'
         )
@@ -296,11 +308,11 @@ def _svg_module_card(path: str, module: Submodule, x: int, y: int) -> list[str]:
 def _svg_evidence_rule() -> list[str]:
     """The closing rule: donor suites run before root integration suites."""
     return [
-        '<rect x="190" y="785" width="1120" height="70" rx="12" '
+        '<rect x="190" y="1000" width="1120" height="70" rx="12" '
         'fill="#FFFFFF" stroke="#78909C" stroke-width="2"/>',
-        '<text x="750" y="813" text-anchor="middle" font-size="18" '
+        '<text x="750" y="1028" text-anchor="middle" font-size="18" '
         'font-weight="bold" fill="#263238">Evidence rule</text>',
-        '<text x="750" y="839" text-anchor="middle" font-size="17" '
+        '<text x="750" y="1054" text-anchor="middle" font-size="17" '
         'fill="#455A64">Run donor suites before root integration suites.</text>',
         '</svg>',
     ]
@@ -354,13 +366,14 @@ def _module_label(path: str, module: Submodule) -> str:
 
 
 def _edge_cells(module_ids: dict[str, str]) -> list[str]:
-    """The four labelled edges from each submodule vertex to the root."""
+    """The labelled edges from each submodule vertex to the root."""
     cells: list[str] = []
     edges = [
         ("protocol-processor", "wrapper", False),
         ("gptp-processor", "wrapper", False),
         ("third_party/verilog-axis", "RTL", False),
         ("external", "legacy", True),
+        ("third_party/lwSRP", "C port", False),
     ]
     for index, (path, label, dashed) in enumerate(edges, start=1):
         style = (
@@ -416,7 +429,7 @@ def drawio(modules: list[Submodule]) -> str:
     cells.extend(_edge_cells(module_ids))
     cells.append(_vertex_cell(
         "evidence",
-        Box(190, 785, 1120, 70),
+        Box(190, 1000, 1120, 70),
         "<b>Evidence rule</b><br>"
         "Run donor suites before root integration suites.",
         ("#FFFFFF", "#78909C"),
@@ -425,7 +438,7 @@ def drawio(modules: list[Submodule]) -> str:
     body = "".join(cells)
     return (
         '<mxfile host="app.diagrams.net"><diagram name="submodules">'
-        f'<mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" '
+        f'<mxGraphModel dx="{WIDTH}" dy="{HEIGHT}" grid="1" gridSize="10" '
         f'guides="1" page="1" pageScale="1" pageWidth="{WIDTH}" '
         f'pageHeight="{HEIGHT}" math="0" shadow="0"><root>{body}</root>'
         '</mxGraphModel></diagram></mxfile>\n'

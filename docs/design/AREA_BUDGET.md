@@ -99,10 +99,13 @@ named campaign before quoting the resulting image as release-ready.
 
 Issue #234 first measured the shipping 1x1 image at dev `1269cdaf`, processor pin `631eeb34`.
 Later records cover PR #634 and #661's adoption of processor `ead80360`.
-The current record is [combination F](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845), measured for #682 at parent `4d253880` after merging dev `79b086d4`, processor `2ad2f845`.
+[Combination F](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845) was measured for #682 at parent `4d253880` after merging dev `79b086d4`, processor `2ad2f845`.
 It explicitly limits synthesis to one worker; the flow identity records this memory setting.
-The flow identity matches E; the changed tracked resource input is the parent AAF packetizer from dev.
-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) holds the measurements, differences and receipts.
+The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) holds those measurements, differences and receipts.
+Issue #686 re-recorded all three endpoints on 2026-10-08 at `e519e31f`, its merge of dev `291710b1`, after `KL_maap`'s Annex B change.
+That measurement is the gate's record.
+Its flow identity matches F, the one synthesis worker included.
+Its repository inputs differ from F's only in `KL_maap.sv` and comment lines of `milan_datapath.sv`; the processor pins are F's.
 
 ### Headroom target
 
@@ -112,29 +115,30 @@ The adopted image does not meet it:
 
 | Resource | Device | Shipping route, processor `2ad2f845` | Used | Target | Status |
 |---|---:|---:|---:|---|---|
-| Slice LUT | 63,400 | 49,957 | 78.80 % | NFR-RES-01: at most 38,040 (60 %) | not met, 11,917 over |
-| Slice register | 126,800 | 54,274 | 42.80 % | none stated | - |
-| Slice | 15,850 | 15,734 | 99.27 % | must stay below the device to place | 116 free |
+| Slice LUT | 63,400 | 50,391 | 79.48 % | NFR-RES-01: at most 38,040 (60 %) | not met, 12,351 over |
+| Slice register | 126,800 | 54,263 | 42.79 % | none stated | - |
+| Slice | 15,850 | 15,788 | 99.61 % | must stay below the device to place | 62 free |
 | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
 | DSP | 240 | 14 | 5.83 % | none stated | - |
-| WNS / WHS | - | +0.124 / +0.031 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
+| WNS / WHS | - | +0.241 / +0.029 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
-The slice row is the binding limit: placement has 116 slices left.
-The routed critical path has 18 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
-The previous E image used 49,888 LUTs and 15,805 slices, 45 free, at +0.101 / +0.031 ns.
-The baseline records all endpoint and sub-block differences.
-The comparison follows the changed parent input with the processor pin and recipe identity unchanged.
+The table is the gate's record.
+The slice row is the binding limit: placement has 62 slices left.
+The routed critical path, 41 logic levels, lies inside the protocol processor, from `u_notify` to `u_tx_arbiter`.
+The F image before it used 49,957 LUTs and 15,734 slices, 116 free, at +0.124 / +0.031 ns; its critical path had 18 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
+The E image before F used 49,888 LUTs and 15,805 slices, 45 free, at +0.101 / +0.031 ns.
+The baseline records F's endpoint and sub-block differences from E.
 
 ### Allocation to the protocol processor
 
 The standalone wrapper uses 23,179 LUTs, 36.6 % of the device, at the shipping clock.
 Epic #229's milestone keeps the non-CPU stack under 30 %, 19,020 LUTs.
-Read as `milan_datapath`, that stack names 41,394 LUTs in the routed image, 65.3 % of the device.
-The wrapper names 23,128 of them in that rebuilt hierarchy.
+Read as `milan_datapath`, that stack names 41,809 LUTs in the routed image, 65.9 % of the device.
+The wrapper names 23,081 of them in that rebuilt hierarchy.
 On any reading, the wrapper alone exceeds the milestone.
 
-Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 11,211 LUTs.
-That requires removing 11,917 LUTs, 52 % of the wrapper.
+Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 10,730 LUTs.
+That requires removing 12,351 LUTs, 54 % of the wrapper.
 The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that NFR-RES-01 stays at 60 %.
 It is met by a redesign in milestone "Optimisations Mark II" (#640), after Instrument verification.
 Until then the gate holds every resource at its recorded value: no material growth.
@@ -162,7 +166,7 @@ It also requires the route's BRAM tile ceiling.
 
 Growth beyond a tolerance, a ceiling crossed or a timing floor crossed exits 1.
 A route whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
-The 0.25 ns fall limit matters only once the route has margin; at +0.124 ns the floor still binds first, after a fall of 0.094 ns.
+The 0.25 ns fall limit matters only once the route has margin; at +0.241 ns the floor still binds first, after a fall of 0.211 ns.
 One more RAMB36, RAMB18 or DSP is always material.
 A primitive count moves only when storage or arithmetic changes its mapping.
 
@@ -197,6 +201,9 @@ The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline
 The [second re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-05-processor-ead80360) records the adopted `ead80360` image on dev `506d91db` for #661.
 The [third re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-06-processor-2ad2f845) records processor `2ad2f845` on dev `bd884631` for #682, including its changed measurement flow.
 The [fourth re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845) records the same processor after #682 merges dev `79b086d4`, under the same measurement flow.
+The fifth records #686's `KL_maap` change on its merge of dev `291710b1`, under the same flow.
+Against F, its route moved by +434 LUTs, -11 FFs and +54 slices, and its WNS rose from +0.124 to +0.241 ns while WHS fell from +0.031 to +0.029 ns; both standalone records kept every figure.
+In the routed hierarchy `KL_maap` uses 429 LUTs and 279 FFs, against 479 and 267 for the previous `KL_maap` in the [resource map](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md), and the wrapper 47 LUTs fewer than F; the rest of the LUT growth lies in blocks the change does not touch.
 
 The gate refuses, with exit 2, to compare across a tool or recipe change.
 That covers the Vivado build, the device, the design and its state, every flow command and the standalone clock.

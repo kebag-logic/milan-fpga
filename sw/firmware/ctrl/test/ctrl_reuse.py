@@ -48,6 +48,9 @@ REUSE = (
 
 def git(*args: str, cwd: Path = ROOT) -> str:
     """One git answer, with replace refs ignored; a failure refuses."""
+    if cwd.resolve() != ROOT.resolve() and args != ("rev-parse", "--show-toplevel"):
+        if Path(git("rev-parse", "--show-toplevel", cwd=cwd)).resolve() != cwd.resolve():
+            raise Refusal("dependency directory is not its own checkout")
     res = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, check=False,
                          env={**os.environ, "GIT_NO_REPLACE_OBJECTS": "1"})
     if res.returncode != 0:

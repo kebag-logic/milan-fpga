@@ -69,6 +69,11 @@ DUT_READER_DISPOSITIONS = {
         "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "
         "refill, accept-edge, ignored-validity and PI-resume defects; "
         "no expectations read from RTL",
+    "tb/verilator/maap/mutants.py":
+        "mutation campaign; it plants one #686 Annex B defect from its own table (DEFEND destination "
+        "and length, timer draws, ANNOUNCE conflict detection, PROBE count and timing) into a scratch "
+        "copy of KL_maap, builds the suite with the Makefile's own recipe and requires the named check "
+        "to fail; every expected value comes from the IEEE 1722-2016 clause, none from the RTL text",
     "gptp-processor/tb/check_phc_contract.py":
         "structural boundary check; it asserts required/forbidden tokens, not behavior",
     "gptp-processor/tb/tsngen/mutants.py":

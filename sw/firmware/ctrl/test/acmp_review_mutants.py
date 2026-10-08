@@ -253,7 +253,7 @@ MUTANTS = (
            "void acmp_open(struct acmp *a)\n{\n\tif (!enter(a)) {\n\t\treturn;\n\t}\n",
            "void acmp_open(struct acmp *a)\n{\n",
            "acmp", "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
-           "A23 a call made from inside the send port is refused, counted and trapped, entry 9"),
+           "A23 a call made from inside the send port is refused, counted and trapped, entry 10"),
     Mutant("app-acmp-never-opened", "app/ctrl_app.c", "\t\tacmp_mbx_open(&app->acmp);\n", "",
            "acmp", "AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract",
            "U5 and writes the bound-talker entry of the binding restored",
@@ -395,7 +395,7 @@ MUTANTS = (
            "acmp", U7, "U7 the explicit MAAP entry refuses a missing stream-address port", (("maap", EXPLICIT, ""),)),
     Mutant("app-maap-entry-drops-preferred", APP, "\twith.maap_preferred = preferred;\n", "\t(void)preferred;\n",
            "maap", EXPLICIT, ""),
-    # round 6: the three-way pass bound (CTRL_APP_PASS_MAX)
+    # round 6: the three-way pass bound (CTRL_APP_THREE_PASS_MAX)
     Mutant("app-three-way-pass-overrun", "maap/maap_mbx.c", "\tmaap_rx(&m->ifs[f->interface].core",
            "\tfor (unsigned k = 0; k < 2000u; ++k) {\n\t\t(void)mbx_now_ms();\n\t}\n"
            "\tmaap_rx(&m->ifs[f->interface].core",
@@ -409,8 +409,8 @@ MUTANTS = (
            "acmpif2", U6, "U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1"),
     # round 7 (R530-5-S1): the three-way bound against the two published passes
     Mutant("app-three-way-bound-drops-maap", "app/ctrl_app.h",
-           "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)",
-           "#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX)",
+           "#define CTRL_APP_THREE_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)",
+           "#define CTRL_APP_THREE_PASS_MAX (ACMP_MBX_PASS_MAX)",
            "acmp", F6, "F6 the three-way bound is both modules' passes",
            (("acmpif2", F6, "F6 the three-way bound is both modules' passes"),)),
     Mutant("app-three-way-bound-one-maap-poll", "app/ctrl_app.h",

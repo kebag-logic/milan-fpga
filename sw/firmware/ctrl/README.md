@@ -6,9 +6,9 @@ mailbox ([design](../../../docs/design/MAILBOX_SPLIT.md),
 [contract](../../../docs/reference/MAILBOX_CONTRACT.md)). No OS, no heap, no
 threads: one event loop, static state, and a static pool behind lwSRP's
 allocation port. Lane F0 carries the mailbox driver, the HAL, lwSRP's port
-layer, the loop and the ADP slice; lane F2 the opt-in [MAAP owner](maap/README.md);
-lane F3 the ACMP module; the other protocols follow in F4 and F5. Each
-protocol has its own core and mailbox adapter.
+layer, the loop and the ADP slice; F2 adds the opt-in [MAAP owner](maap/README.md),
+F3 the ACMP module, and F4 the [SRP adapter](srp/README.md) on pinned lwSRP.
+Each protocol has its own core and mailbox adapter.
 
 `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test`
 is the gate: exit 0 = every arm passed and every planted defect was caught.
@@ -39,8 +39,9 @@ is an integration obligation, not a target-time result established here.
 | [`loop/`](loop) | the event loop: events first, bounded passes, the TICK fan-out in slices, sleep only when nothing is owed, the bring-up order, and the latency bound's assumptions |
 | [`adp/`](adp) | the ADP core (no mailbox), its mailbox adapter with the latency bounds, and `adp_entity.py` |
 | [`maap/`](maap) | the Annex B core, per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
+| [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
 | [`acmp/`](acmp) | the ACMP core (no mailbox), its mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
-| [`app/`](app) | the static composition a platform starts, in two calls: compose, then open |
+| [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
 | [`test/`](test) | the host tests and their driver |
@@ -104,7 +105,7 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
   refuses an entity with no talker source), and a preferred MAAP range
   that starts outside the B.4 pool (IEEE 1722-2016 Table B.9) or runs past
   its end. A refusal stops the composition before the later modules attach.
-- **The pass bound.** A pass of the three costs at most `CTRL_APP_PASS_MAX`
+- **The pass bound.** A pass of the three costs at most `CTRL_APP_THREE_PASS_MAX`
   mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,012 at
   one interface) plus MAAP's share of 568, its costliest action on each of
   the 8 events (48), its 2 records of the maap channel (20 + 48) and its
@@ -115,6 +116,55 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
   count of `acmp_mbx.h` and of the MAAP page holds in the composed loop
   with this pass in place of its own
   ([design page](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)).
+
+After the open, initialize SRP on the application's static pool and call
+`ctrl_app_attach_srp()` before entering the loop. This fourth attachment retains
+ADP, ACMP and MAAP receive/filter bits, adds SRP's receive interrupt, and enables
+the centisecond tick. SRP uses no one-shot timer slot. Its participant timers
+share the tick; the three runs of fabric slots above remain disjoint.
+A failed attachment preserves the running three-module composition.
+With ACMP present, attachment also installs a composition-owned request per sink.
+The ACMP callback copies the latest bind or unbind, preserving its sink index.
+A fifth poll delivers requests after SRP service returns, using each sink's
+configured interface. Transient refusal keeps the request pending and the loop awake.
+VID 0 or VID >= 4095 sets the readable per-request `parked` state.
+A parked request permits sleep until ACMP replaces or withdraws it.
+Unbind and replacement supersede the prior request; no callback enters SRP.
+The supplied ACMP SRP callback observes intent; it must not deliver it itself.
+After SRP returns, that poll delivers retained Talker feedback.
+Feedback belongs to each accepted sink binding and configured interface.
+Advertise or Failed enters SETTLED_RSV_OK; withdrawal stops SRP and reprobes.
+A continuous kind change calls `acmp_tk_kind_changed`, updating REGISTERING_FAILED.
+This view-only entry is allowed solely in SETTLED_RSV_OK.
+It neither reprobes nor replays Table 5.30's EVT_TK_REGISTERED.
+Milan Table 5.23 defines the current kind's reported flag.
+[The round-11 decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6049530812)
+authorizes this ACMP interface extension.
+Unchanged registration is idempotent; pending replacement blocks obsolete feedback.
+SRP retains the first withdrawal despite subsequent re-registration.
+Registration precedes withdrawal when both await delivery.
+Accepted replacement retires feedback, including identical stream identities.
+The [adapter contract](srp/README.md) explains event observation.
+Both directions obey #678: no protocol entry occurs inside a port callback.
+Other environment callbacks retain their original context.
+Keep application and adapter storage alive until loop service stops.
+
+`CTRL_APP_PASS_MAX` bounds all four modules: `ACMP_MBX_PASS_MAX` already
+includes ADP, then add `MAAP_MBX_PASS_MAX` and `SRP_MBX_PASS_MAX`, subtracting
+two copies of the shared event reads, then adding `CTRL_APP_SRP_FEEDBACK_MAX`.
+Feedback costs at most six accesses per sink.
+Registration and withdrawal can each stop or re-arm a timer.
+Withdrawal can also read the clock and initial random seed.
+The static maximum of 16 sinks contributes 96 accesses.
+The result is 3,224 accesses at one interface and 4,073 at two. The SRP bound counts one maximum-size frame per
+library transmit call, at most two calls per interface, receive readiness and
+retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
+The feedback allowance covers the same poll's ACMP registration entries.
+It excludes CPU work and external ports.
+The SRP arm also builds U6/F6 with all four modules at each interface count:
+exact interrupt mask, an idle HAL awakened by SRP alone, ordered attachment,
+disjoint timer slots, full receive backlogs and the algebraic pass bound.
+The exact-mask, SRP-only wake and algebraic-bound checks have named planted defects.
 
 MAAP's allocation reaches ACMP's talker only through the integrator's
 `source` port (`acmp.h`): the port reports `dest_mac_valid` and the stream's
@@ -153,7 +203,10 @@ hand-rolled checks and the coverage ratchet are described in
 | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
 | `maap`, `maap_if2`, `maap_debug` | `test_maap.cpp`, `test_maap_mbx.cpp`, `test_maap_debug.cpp` | Annex B, stream CSR output, H-MAAP at one/two interfaces, and synchronous reentry refusal |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
-| `lwsrp` | `lwsrp_port.cpp` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+| `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+
+The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,
+debug, shape and processor-wire arms at one and two interfaces.
 
 ### Reusing the processor's stimulus
 
@@ -277,20 +330,26 @@ Freestanding declarations avoid the SDK's hosted C headers.
 GCC supplies its own freestanding integer and varargs headers.
 `MILAN_RV32_CC` selects an explicit compiler for local validation.
 See [the harness](../gtest/README.md#rv32-object-builds) for evidence limits.
-lwSRP is referenced, never vendored, at the
-revision `ctrl_arms.LWSRP_REV` records,
-`19f5796b63652eb1151906de73cb827d4980a53f`:
+The SDK distribution is `ilp32d`; the core uses RV32I/ILP32.
+The CI firmware step also requires the control mutation campaign.
 
-```sh
-git clone https://github.com/kebag-logic/lwSRP lwSRP
-git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
-```
-
-The `lwsrp` arm refuses another HEAD, and a checkout whose `src/` (every
-source and header it compiles) differs from that revision. Moving the pin is
-a reviewed change to `LWSRP_REV`.
+Initialize `third_party/lwSRP` at its recorded gitlink before running the gate.
+An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
+`9197193e47a6bb1c45a56d90a18c1784123aba44`, with every compiled source unchanged.
+Moving either pin requires a reviewed change.
+The pin is published on public lwSRP `main`, including PR #12 and PR #15.
+Anonymous HTTPS checkout needs no repository credentials.
 
 ## Linked size
+
+Two independent measurement fixtures survive the F3/F4 merge.
+`ctrl_image.py` retains F3's ADP/ACMP/MAAP and saved-state composition below.
+`ctrl_srp_image.py` measures ADP/ACMP/MAAP/SRP with the entity-sized pool,
+verified bare-metal runtime archives and an 8192-byte stack reservation;
+see the [SRP recipe](srp/README.md#evidence).
+Neither fixture is a shipping or booted image, and neither connects the
+integrator's live stream, persistence and media owners completely.
+
 
 `ctrl_image.py` links the firmware as a Mark II platform composes it
 ([`rv32_image/image_main.c`](test/rv32_image/image_main.c)): the app with
@@ -304,8 +363,7 @@ reaches counts (#665, acceptance addition 6030870481). The integrator's
 owners (the lock, the sources, SRP, the notifier, every other saved group,
 the CSR window's two accesses) are stubs; the C runtime the SoC's libbase supplies is linked from byte-loop
 stand-ins, reported apart (64 bytes: `memset` and `memcpy`, the only ones the
-composition reaches); lwSRP's pool is the host tests' 256 bytes until F4
-sizes it; the stack is not counted. `--base REV` measures another revision's
+composition reaches); lwSRP's pool is the host tests' 256 bytes in this fixture; `ctrl_srp_image.py` measures the entity-sized pool; the stack is not counted. `--base REV` measures another revision's
 firmware with the same harness.
 
 No library is linked. The pinned SDK's `libgcc.a` is built for its one

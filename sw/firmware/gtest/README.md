@@ -407,12 +407,10 @@ and this coverage gate with its planted cases. `scripts/ci_events.py` pins
 the job's steps and the `rtl-fast` aggregate's verdict on it, and
 `scripts/act_ci.py` replays it with the rest of `rtl-fast.yml`.
 
-Two groups stay with local gates:
-- the ctrl gate's `lwsrp` arm: lwSRP is a private repository the workflow's
-  token cannot read. The coverage ratchet reads the same with and without
-  it;
-- both gates' planted-defect campaigns (`--self-test`) and the tally
-  listener's (`tally_selftest.py --mutants`).
+F4 initializes the public lwSRP submodule at its exact pin.
+The control gate includes lwSRP, SRP and its mutation campaign.
+The saved-state mutation campaign (`--self-test`) remains a local gate.
+The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
 
 The versions this harness was built and measured with:
 
@@ -426,10 +424,9 @@ Both measure the same per-file coverage, and every row of
 
 ## Not in this lane
 
-lwSRP's own upstream suites are not run here. They run with lane F4, when
-lwSRP is vendored at its pin, and a coverage gap in lwSRP is fixed upstream.
-The `lwsrp` arm covers only this firmware's port layer under lwSRP's MRP
-core. lwSRP's timer port keeps every timer it was given in one list with no
-removal, so an application destroyed and created again leaves its timers, in
-freed blocks, on the list `shlan_timer_tick` walks; the arm creates one
-application for its run, as a boot does, and F4 inherits that constraint.
+lwSRP's own upstream suites belong to the dependency's validation.
+Coverage gaps there are fixed upstream.
+The `lwsrp` arm covers this firmware's port layer.
+The pinned dependency removes timers when participants are destroyed.
+F4 tests destruction, recreation and link resets through the adapter.
+See the [SRP evidence](../ctrl/srp/README.md#evidence).

@@ -264,11 +264,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! EVERYTHING in docs/AAF_LATENCY_TAPS.md: the CAP-SOF/SOF-EOF/EOF-MAC
   //! silicon numbers cannot be reproduced on a pruned bitstream.
   parameter int LTAP_P = 1,
-  //! MAAP engine (KL_maap, 621 LUT / 268 FF measured). 0 prunes it, ties
-  //! addr_valid_o = 0 and parks its low-rate TX port. Term-by-term that is
-  //! the state a build with MAAP_CTRL.en = 0 is in today: eff_aaf_dmac falls
-  //! back to the CSR-provisioned AAF_DMAC and the admission gate's MAAP term
-  //! (~cfg_maap_enable | maap_addr_valid) is satisfied by its first half.
+  //! MAAP engine (KL_maap, 515 LUT / 278 FF by syn/yosys/ooc.sh). 0 prunes
+  //! it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
+  //! that is the state a build with MAAP_CTRL.en = 0 is in today:
+  //! eff_aaf_dmac falls back to the CSR-provisioned AAF_DMAC and the
+  //! admission gate's MAAP term (~cfg_maap_enable | maap_addr_valid) is
+  //! satisfied by its first half.
   //! CAUTION: with the engine pruned, setting MAAP_CTRL.en = 1 would pin
   //! admission SHUT (the claim can never complete), so the CSR bit is
   //! effectively reserved. The builder requires MAAP for every supported
@@ -277,10 +278,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! KL_maap's millisecond base, for SIMULATION time compression only (the
   //! CLKV_QTICK_CYC_P / PP_TIM_DIV_*_P precedent). DERIVED from the real
   //! clock declaration, never mirrored, so a silicon build is bit-identical
-  //! to what shipped. A harness lowers it so the 3-probe / 500 ms Annex B
-  //! claim walk completes in a few hundred thousand cycles instead of the
-  //! 1.5e8 a real 100 MHz clock needs - the ONLY way a testbench can see
-  //! addr_valid_o assert at all.
+  //! to what shipped. A harness lowers it so the four-PROBE Annex B claim
+  //! walk (three 500..600 ms probe intervals) completes in a few hundred
+  //! thousand cycles instead of the 1.6e8 a real 100 MHz clock needs - the
+  //! ONLY way a testbench can see addr_valid_o assert at all.
   parameter int MAAP_CLK_HZ_P = MILAN_CLK_FREQ_HZ,
   //! I2S DAC playback (KL_i2s_playback, 552 LUT / 624 FF measured). 0 prunes
   //! the serializer and its rate servo: the four i2s_dac_* pins park at 0 and

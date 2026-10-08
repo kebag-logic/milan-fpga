@@ -2341,13 +2341,12 @@ RTL_STEP_LISTS = {
              'python3 syn/yosys/cache_selftest.py',
          )},
     ),
-    # #679: both object builds require the SDK, installed before either.
-    # Freestanding headers exclude the SDK's hosted libc. The ctrl gate's
-    # opt-in lwSRP arm and both mutation campaigns remain local gates.
+    # #665 lanes FT/F4: the pinned SDK precedes the required freestanding
+    # control builds. SRP uses the exact lwSRP submodule and mutation campaign.
     (RTL_FAST, FIRMWARE_UNIT_JOB): (
         {"uses": "actions/checkout@v4"},
         {"name": "Fetch RTL dependencies",
-         "run": RTL_FETCH_SCRIPT},
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP",)},
         {"name": "Install GoogleTest and GoogleMock and print the versions",
          "run": (
              'set -euo pipefail',
@@ -2366,11 +2365,11 @@ RTL_STEP_LISTS = {
          "with": RV32_CACHE_WITH},
         {"name": "Install and verify the pinned RV32 SDK",
          "run": RV32_INSTALL},
-        {"name": "Run the control-plane firmware suites and its RV32 build",
+        {"name": "Run the control-plane firmware suites and RV32 builds",
          "run": (
              'set -euo pipefail',
              'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32',
+             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
          )},
         {"name": "Run the saved-state store suites and its RV32 build",
          "run": (
@@ -7764,9 +7763,9 @@ def _rv32_sdk_arms() -> list[Arm]:
                      "(`Install and verify the pinned RV32 SDK`)"))
         if path == RTL_FAST:
             # Each missing compiler must refuse, never silently skip a build.
-            for script, label in (("test_ctrl_firmware.py", "control-plane firmware"),
-                                  ("test_ctrl_nvm.py", "saved-state store")):
-                step_name = f"Run the {label} suites and its RV32 build"
+            for script, step_name in (
+                    ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
+                    ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build")):
                 suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
                 arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
                              _m_step_key_any(path, jid, script, "run",

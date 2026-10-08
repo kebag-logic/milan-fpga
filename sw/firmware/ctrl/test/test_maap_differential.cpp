@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
-// Shared stimulus, separate Annex B and legacy-fabric expectations (#686).
+// Shared stimulus; Annex B grades the core and the fabric engine (#686).
 #include <gtest/gtest.h>
 #include <array>
 #include <cstdint>
@@ -97,7 +97,7 @@ struct Fabric {
         for (unsigned k = 0; k < budget && frames.size() < n; ++k) step();
         ASSERT_GE(frames.size(), n) << "parent produces expected output";
     }
-    void acquire() { begin(); frames_until(4); ASSERT_EQ(model->state_o, 2u); }
+    void acquire() { begin(); frames_until(5); ASSERT_EQ(model->state_o, 2u); }
     void receive(const Frame& f) {
         for (unsigned at = 0; at < 60; at += 8) {
             std::uint64_t word = 0;
@@ -109,28 +109,33 @@ struct Fabric {
     }
 };
 
+// 10 cycles/ms. A frame takes 8 beats; an event's frame completes 8 to 12
+// cycles after it when the engine sends at once.
+constexpr unsigned kFrameAtOnceCycles = 12;
+
 TEST(MaapDifferential, ProbeSequenceWireAndCadence) {
     Software s; Fabric f; s.acquire(); f.acquire();
-    ASSERT_EQ(s.frames.size(), 5u); ASSERT_EQ(f.frames.size(), 4u);
+    ASSERT_EQ(s.frames.size(), 5u); ASSERT_EQ(f.frames.size(), 5u);
     for (unsigned k = 0; k < 5; ++k) {
         EXPECT_EQ(s.frames[k], input(k == 4 ? 3u : 1u, kMac)) << "Annex B core wire";
+        EXPECT_EQ(f.frames[k], s.frames[k]) << "parent wire equals the core (B.2.1, #686)";
     }
-    for (unsigned k = 0; k < 3; ++k) {
-        Frame legacy = s.frames[k]; legacy[17] = 28;
-        EXPECT_EQ(f.frames[k], legacy) << "raw PROBE differs only in known parent length";
-    }
-    Frame legacy = s.frames.back(); legacy[17] = 28;
-    EXPECT_EQ(f.frames.back(), legacy) << "raw ANNOUNCE differs only in known parent length";
-    EXPECT_EQ(s.frames[3][15], 1u); EXPECT_EQ(f.frames[3][15], 3u);
-    EXPECT_GT(s.core.last_delay_ms, 30000u);
-    auto start = f.cycles; f.frames_until(5);
-    EXPECT_LT(f.cycles - start, 51000u) << "parent 3 second announcement deviation retained";
-    std::puts("DIFF #686: core initial+3 retransmissions, parent 3 total with delayed first; CDL 16/28; announce 30-32 s/3-5.047 s");
+    EXPECT_EQ(s.frames[3][15], 1u); EXPECT_EQ(f.frames[3][15], 1u);
+    EXPECT_LE(f.frame_cycles[4] - f.frame_cycles[3], kFrameAtOnceCycles)
+        << "parent probeCount! sends the first ANNOUNCE at once (Table B.7)";
+    EXPECT_GT(s.core.last_delay_ms, 30000u); EXPECT_LT(s.core.last_delay_ms, 32000u);
+    f.frames_until(6, 330000);
+    const auto announce = f.frame_cycles[5] - f.frame_cycles[4];
+    EXPECT_EQ(f.frames[5], s.frames[4]) << "parent re-announces the same range";
+    EXPECT_GT(announce, 300000u) << "parent announce T > 30 s (B.3.4.1)";
+    EXPECT_LT(announce, 320000u) << "parent announce T < 32 s (B.3.4.1)";
+    std::printf("  parent ANNOUNCE interval: %u cycles (10 cycles/ms)\n", announce);
+    std::puts("DIFF #686: conformed; core and parent initial+3 retransmissions, CDL 16, announce 30-32 s");
 }
 
 bool core_probe_interval(unsigned ms) { return ms > 500u && ms < 600u; }
 
-TEST(MaapDifferential, ProbeTimingAndParentDelta) {
+TEST(MaapDifferential, ProbeTimingAndCount) {
     // B.3.4.2's strict endpoints; the same predicate grades observed sends.
     EXPECT_FALSE(core_probe_interval(1)); EXPECT_FALSE(core_probe_interval(500));
     EXPECT_TRUE(core_probe_interval(501)); EXPECT_TRUE(core_probe_interval(599));
@@ -139,39 +144,52 @@ TEST(MaapDifferential, ProbeTimingAndParentDelta) {
     const auto begin_cycles = f.cycles;
     s.begin(); f.begin();
     ASSERT_EQ(s.frame_ms.size(), 1u); EXPECT_EQ(s.frame_ms[0], 0u);
-    EXPECT_TRUE(f.frames.empty()) << "#686 parent delays initial PROBE";
+    f.frames_until(1, kFrameAtOnceCycles);
+    EXPECT_LE(f.frame_cycles[0] - begin_cycles, kFrameAtOnceCycles)
+        << "parent Begin! sends the first PROBE at once (Table B.7)";
     for (unsigned k = 0; k < 3; ++k) s.expire();
-    f.frames_until(4);
+    f.frames_until(5);
     ASSERT_EQ(s.frames.size(), 5u) << "Table B.7 four PROBEs then ANNOUNCE";
-    ASSERT_EQ(f.frames.size(), 4u) << "#686 parent three PROBEs then ANNOUNCE";
+    ASSERT_EQ(f.frames.size(), 5u) << "Table B.7 parent four PROBEs then ANNOUNCE";
     for (unsigned k = 1; k < 4; ++k) {
         EXPECT_TRUE(core_probe_interval(s.frame_ms[k] - s.frame_ms[k - 1]))
             << "core observed PROBE interval strictly inside 500..600 ms";
     }
-    // 10 cycles/ms. Include <=1 ms tick phase/serialization uncertainty for
-    // enable-to-first completion; equal-length subsequent frames cancel it.
-    constexpr unsigned kParentProbeMaxMs = 627;
-    for (unsigned k = 0; k < 3; ++k) {
-        EXPECT_EQ(f.frames[k][15], 1u);
-        auto elapsed = f.frame_cycles[k] - (k == 0 ? begin_cycles : f.frame_cycles[k - 1]);
-        EXPECT_GE(elapsed, 4990u) << "#686 parent probe minimum with observation error";
-        EXPECT_LE(elapsed, (kParentProbeMaxMs + 1u) * 10u) << "#686 parent probe maximum with observation error";
+    // Equal-length frames: completion intervals are send intervals. The
+    // parent draws 518..581 ms (KL_maap PROBE_MIN_MS_C + 0..63); a send at an
+    // arbitrary tick phase can observe up to 1 ms less, never more than 1 cycle more.
+    constexpr unsigned kParentProbeMinMs = 518;
+    constexpr unsigned kParentProbeMaxMs = 581;
+    for (unsigned k = 0; k < 4; ++k) EXPECT_EQ(f.frames[k][15], 1u);
+    EXPECT_EQ(f.frames[4][15], 3u);
+    for (unsigned k = 1; k < 4; ++k) {
+        auto elapsed = f.frame_cycles[k] - f.frame_cycles[k - 1];
+        EXPECT_TRUE(elapsed > 5000u && elapsed < 6000u)
+            << "parent observed PROBE interval strictly inside 500..600 ms";
+        EXPECT_GE(elapsed, (kParentProbeMinMs - 1u) * 10u) << "parent probe draw minimum";
+        EXPECT_LE(elapsed, kParentProbeMaxMs * 10u + 1u) << "parent probe draw maximum";
         std::printf("  parent PROBE %u: %u cycles (10 cycles/ms)\n", k, elapsed);
     }
     unsigned parent_minimum = 10000;
     unsigned parent_maximum = 0;
     for (unsigned phase = 0; phase < 1024; ++phase) {
         Fabric sampled;
-        sampled.step(phase); sampled.begin(); sampled.frames_until(3);
-        for (unsigned k = 1; k < 3; ++k) {
+        sampled.step(phase); sampled.begin(); sampled.frames_until(4);
+        for (unsigned k = 1; k < 4; ++k) {
             auto cycles = sampled.frame_cycles[k] - sampled.frame_cycles[k - 1];
-            EXPECT_GE(cycles, 5000u); EXPECT_LE(cycles, kParentProbeMaxMs * 10u);
+            EXPECT_GT(cycles, 5000u); EXPECT_LT(cycles, 6000u);
+            EXPECT_GE(cycles, (kParentProbeMinMs - 1u) * 10u);
+            EXPECT_LE(cycles, kParentProbeMaxMs * 10u + 1u);
             parent_minimum = std::min(parent_minimum, cycles);
             parent_maximum = std::max(parent_maximum, cycles);
         }
     }
-    EXPECT_EQ(parent_minimum, 5000u); EXPECT_EQ(parent_maximum, 6270u)
-        << "#686 parent actually exceeds Annex B probe upper bound";
+    std::printf("  parent PROBE intervals over 1024 phases: %u..%u cycles\n",
+                parent_minimum, parent_maximum);
+    EXPECT_LE(parent_minimum, (kParentProbeMinMs + 2u) * 10u)
+        << "phase sampling reaches the parent's lowest draws";
+    EXPECT_GE(parent_maximum, (kParentProbeMaxMs - 2u) * 10u)
+        << "phase sampling reaches the parent's highest draws";
     // Reach both firmware draw boundaries through the real timer port.
     unsigned minimum = 1000;
     unsigned maximum = 0;
@@ -184,7 +202,7 @@ TEST(MaapDifferential, ProbeTimingAndParentDelta) {
         }
     }
     EXPECT_EQ(minimum, 511u); EXPECT_EQ(maximum, 589u);
-    std::puts("DIFF #686: core 500 < probe T < 600 ms; parent draws 500..627 ms; core 4 PROBEs, parent 3 delayed PROBEs");
+    std::puts("DIFF #686: conformed; core 511..589 ms and parent 518..581 ms draws, both 4 PROBEs, the first at once");
 }
 
 class DifferentialCell : public ::testing::TestWithParam<int> {};
@@ -202,21 +220,16 @@ TEST_P(DifferentialCell, SharedConflict) {
     }
     if (state == 2 && type == 1) {
         ASSERT_EQ(s.frames.size(), before + 1); ASSERT_EQ(f.frames.size(), parent_before + 1);
-        Frame legacy = s.frames.back(); put(legacy, 0, 6, MAAP_MULTICAST); legacy[17] = 28;
-        EXPECT_EQ(f.frames.back(), legacy) << "raw DEFEND known destination and length differences";
+        EXPECT_EQ(f.frames.back(), s.frames.back()) << "raw DEFEND equals the core (B.2.1, #686)";
     } else {
         EXPECT_EQ(s.core.state, MAAP_PROBE); EXPECT_EQ(s.core.conflicts, 1u);
         EXPECT_FALSE(s.core.valid); EXPECT_EQ(s.frames.back()[15], 1u);
-        if (type == 3) {
-            EXPECT_EQ(f.model->conflicts_o, 0u) << "parent ignores ANNOUNCE requested range";
-        } else {
-            EXPECT_EQ(f.model->state_o, 1u); EXPECT_EQ(f.model->conflicts_o, 1u);
-            f.frames_until(parent_before + 1);
-            const auto& a = s.frames.back(); const auto& b = f.frames.back();
-            for (unsigned byte = 0; byte < 60; ++byte) {
-                if (byte == 17 || (byte >= 26 && byte < 32)) continue;
-                EXPECT_EQ(a[byte], b[byte]) << "retry wire, excluding CDL and independent random allocation";
-            }
+        EXPECT_EQ(f.model->state_o, 1u); EXPECT_EQ(f.model->conflicts_o, 1u);
+        f.frames_until(parent_before + 1);
+        const auto& a = s.frames.back(); const auto& b = f.frames.back();
+        for (unsigned byte = 0; byte < 60; ++byte) {
+            if (byte >= 26 && byte < 32) continue;
+            EXPECT_EQ(a[byte], b[byte]) << "retry wire, excluding independent random allocation";
         }
     }
     std::printf("DIFF state=%u input=%u core-conflicts=%u parent-conflicts=%u\n",

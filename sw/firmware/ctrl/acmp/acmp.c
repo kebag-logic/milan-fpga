@@ -1129,6 +1129,19 @@ void acmp_tk_registered(struct acmp *a, unsigned sink, bool failed)
 	finish(a);
 }
 
+void acmp_tk_kind_changed(struct acmp *a, unsigned sink, bool failed)
+{
+	if (!enter(a)) {
+		return;
+	}
+	if (sink >= a->cfg.n_sinks || a->sinks[sink].state != ACMP_SETTLED_RSV_OK) {
+		a->impossible++;
+		return;
+	}
+	a->sinks[sink].tk_failed = failed;
+	finish(a);
+}
+
 void acmp_tk_unregistered(struct acmp *a, unsigned sink)
 {
 	if (!enter(a)) {

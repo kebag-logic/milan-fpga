@@ -97,6 +97,7 @@ typedef void (*ctrl_tick_fn)(void);
 typedef bool (*ctrl_poll_fn)(void *ctx);   // true while the module still owes output
 
 struct ctrl_loop_rx {
+	bool (*ready)(void *ctx);
 	ctrl_rx_fn fn;
 	void *ctx;
 };
@@ -137,6 +138,7 @@ void ctrl_loop_init(struct ctrl_loop *l);
 
 // Bind a module. False when the table is full or the channel is unknown.
 bool ctrl_loop_bind_rx(struct ctrl_loop *l, unsigned ch, ctrl_rx_fn fn, void *ctx);
+void ctrl_loop_set_rx_ready(struct ctrl_loop *l, unsigned ch, bool (*ready)(void *ctx));
 bool ctrl_loop_add_sink(struct ctrl_loop *l, ctrl_event_fn fn, void *ctx);
 bool ctrl_loop_add_tick(struct ctrl_loop *l, ctrl_tick_fn fn);
 bool ctrl_loop_add_poll(struct ctrl_loop *l, ctrl_poll_fn fn, void *ctx);
