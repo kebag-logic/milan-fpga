@@ -1,0 +1,161 @@
+Note: Google Test filter = SrpBinding*Probe.*
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBindingProbe
+[ RUN      ] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk
+  probe: sink 0 acmp state 7 srp bound 1 desired 2
+  probe: sink 1 acmp state 7 srp bound 1 desired 2
+[       OK ] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk (0 ms)
+[----------] 1 test from SrpBindingProbe (0 ms total)
+
+[----------] 1 test from SrpBindingVidProbe
+[ RUN      ] SrpBindingVidProbe.InvalidVidKeepsTheLoopAwakeWithoutInput
+  probe: t=5 s acmp state 6 (6=SETTLED_NO_RSV) srp bound 0 request pending 0
+  probe: 12 s without input: 1205 non-idle passes, first idle pass at 1 ms, owed passes 15
+[       OK ] SrpBindingVidProbe.InvalidVidKeepsTheLoopAwakeWithoutInput (1 ms)
+[----------] 1 test from SrpBindingVidProbe (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (2 ms total)
+[  PASSED  ] 2 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+wrote $SCRATCH/review-positive/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-positive/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-positive/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = SrpBinding*Probe.*
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBindingProbe
+[ RUN      ] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk
+  probe: sink 0 acmp state 7 srp bound 1 desired 2
+  probe: sink 1 acmp state 7 srp bound 1 desired 2
+[       OK ] SrpBindingProbe.RegisteredTalkerReachesAcmpAndBindingSurvivesNoTk (1 ms)
+[----------] 1 test from SrpBindingProbe (1 ms total)
+
+[----------] 1 test from SrpBindingVidProbe
+[ RUN      ] SrpBindingVidProbe.InvalidVidKeepsTheLoopAwakeWithoutInput
+  probe: t=5 s acmp state 6 (6=SETTLED_NO_RSV) srp bound 0 request pending 0
+  probe: 12 s without input: 1205 non-idle passes, first idle pass at 1 ms, owed passes 15
+[       OK ] SrpBindingVidProbe.InvalidVidKeepsTheLoopAwakeWithoutInput (2 ms)
+[----------] 1 test from SrpBindingVidProbe (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (4 ms total)
+[  PASSED  ] 2 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+{'plant': 'rv-poll-fixed', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'rv-poll-fixed', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'rv-poll-two-calls', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'rv-poll-two-calls', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'rv-poll-per-if', 'interfaces': 1, 'result': 'equivalent (one interface)', 'failing_suites': 0}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'rv-poll-per-if', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'rv-pass-event-words', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'rv-pass-event-words', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'rv-pass-rx-count', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'rv-pass-rx-count', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'rv-pass-poll-half', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'rv-pass-poll-half', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'srp-poll-drops-tx', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'srp-poll-drops-tx', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'srp-pass-drops-rx-and-poll', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'srp-pass-drops-rx-and-poll', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'srp-rx-max-zero', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'srp-rx-max-zero', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'srp-event-max-zero', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'srp-event-max-zero', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'attach-acmp-always', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'attach-acmp-always', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'attach-no-tick', 'interfaces': 1, 'result': 'caught', 'failing_suites': 2}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'attach-no-tick', 'interfaces': 2, 'result': 'caught', 'failing_suites': 2}
+{'plant': 'code-poll-extra-read', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'code-poll-extra-read', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'code-send-extra-read', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'code-send-extra-read', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}

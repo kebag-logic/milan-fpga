@@ -1,0 +1,58 @@
+[
+  {
+    "name": "run.py",
+    "original": {
+      "size": 1190,
+      "sha256": "1ef010f34b8c1106fef0c9d4526b12d918c24fe1a024aba80225eb93c0d79c06"
+    },
+    "normalized_source": "import hashlib,json,os,subprocess,sys,time\nfrom pathlib import Path\nroot=Path(__file__).resolve().parent\nlabel=sys.argv[1]\ncommand=sys.argv[2:]\nenv=os.environ.copy()\nenv.update(TMPDIR=str(root),PYTHONDONTWRITEBYTECODE=\"1\",PYTHONUNBUFFERED=\"1\",\n VERILATOR=\"$PINNED_HDL\",VERILATOR_JOBS=\"2\",\n MILAN_RV32_CC=str(root.parent/\"rv32-sdk/bin/riscv32-buildroot-linux-gnu-gcc\"))\nenv[\"PATH\"]=str(root.parent/\"round3/venv/bin\")+\":$VALIDATION_TOOLS/pinned-verilator-5.050:\"+env[\"PATH\"]\nlog=root/(label+\".log\")\nstart=time.monotonic()\nprint(\"START\",label,flush=True)\nwith log.open(\"w\") as stream:\n try:\n  rc=subprocess.run(command,env=env,stdout=stream,stderr=subprocess.STDOUT,timeout=21600).returncode\n except subprocess.TimeoutExpired:\n  rc=124\nrecord=dict(command=command,rc=rc,seconds=round(time.monotonic()-start,3),log=log.name,\n size=log.stat().st_size,sha256=hashlib.sha256(log.read_bytes()).hexdigest())\n(root/(label+\".rc\")).write_text(str(rc)+\"\\n\")\n(root/(label+\".json\")).write_text(json.dumps(record,indent=2)+\"\\n\")\nprint(json.dumps(record),flush=True)\nprint(\"\\n\".join(log.read_text(errors=\"replace\").splitlines()[-18:]),flush=True)\nraise SystemExit(rc)\n"
+  },
+  {
+    "name": "images.py",
+    "original": {
+      "size": 1175,
+      "sha256": "73ab92551e5fa74c8329b3f3e14fb0a48ba2c8960bf19abcba0ccc8100a87eee"
+    },
+    "normalized_source": "import json,hashlib,subprocess,sys\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\nruntime=r.parent/\"round2/runtime-final\"\nfor item in json.loads((runtime/\"provenance.json\").read_text())[\"files\"]:\n assert hashlib.sha256(Path(item[\"path\"]).read_bytes()).hexdigest()==item[\"sha256\"]\nreports=[]\nfor version in (\"head\",):\n for shape in (\"endstation_ax7101_1x1_tdm8\",\"endstation_ax7101_8x8\"):\n  for n in (1,2):\n   out=r/f\"image-{version}-{shape}-if{n}\"\n   command=[sys.executable,str(r/\"historical_image.py\") if version!=\"head\" else \"sw/firmware/ctrl/test/ctrl_srp_image.py\",\n    \"--config\",f\"configs/{shape}.yaml\",\"--interfaces\",str(n),\"--output\",str(out),\n    \"--libc\",str(runtime/\"libc.a\"),\"--compiler-runtime\",str(runtime/\"libcompiler_rt.a\")]\n   if version==\"lane-base\": command += [\"--without-srp\",\"--ctrl-source\",str(r/\"lane-base/sw/firmware/ctrl\")]\n   if version==\"round5\": command += [\"--ctrl-source\",str(r/\"round5/sw/firmware/ctrl\")]\n   subprocess.run(command,check=True,timeout=120)\n   report=json.loads((out/\"size.json\").read_text()); report[\"version\"]=version\n   reports.append(report)\n(r/\"image-results.json\").write_text(json.dumps(reports,indent=2)+\"\\n\")\n"
+  },
+  {
+    "name": "focused.py",
+    "original": {
+      "size": 444,
+      "sha256": "591de7ceacca525b17e9a03e350ac0bf761f0338348d7cada0ab32847d07febb"
+    },
+    "normalized_source": "from pathlib import Path\nimport sys\nsys.path.insert(0, str(Path.cwd()/\"sw/firmware/ctrl/test\"))\nimport srp_arms,fw_gtest\nfrom ctrl_build import CTRL,ROOT,Tree\nr=Path(__file__).resolve().parent\nfor n in (1,2):\n for suite in (\"srp_app.cpp\",\"test_acmp_mbx.cpp\"):\n  o=srp_arms.arm_srp(Tree(CTRL,r/\"focused\",r/\"focused/reuse\",fw_gtest.Build(jobs=4)),ROOT/\"third_party/lwSRP\",n,test=suite)\n  print(o.log,flush=True)\n  if o.rc: raise SystemExit(o.rc)\n"
+  },
+  {
+    "name": "docs.py",
+    "original": {
+      "size": 447,
+      "sha256": "590ab48d85eb81fbfd1f510a5ff667cd3384371c62c6cc29a18e45a2cef96906"
+    },
+    "normalized_source": "import concurrent.futures,json,subprocess,sys\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\ncommands=json.loads((r/\"docs-commands.json\").read_text())\ndef run(pair):\n index,item=pair\n return subprocess.run([sys.executable,str(r/\"run.py\"),f\"docs-{index:02d}\",*item[\"command\"]]).returncode\nwith concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:\n results=list(pool.map(run,enumerate(commands)))\nraise SystemExit(any(results))\n"
+  },
+  {
+    "name": "final_docs.py",
+    "original": {
+      "size": 1090,
+      "sha256": "9a31f61a6c677fce9eb84360b6c2009f3bccb7b41110b63558c62577b8dda2de"
+    },
+    "normalized_source": "import subprocess,sys,tarfile\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\ncommands=[(\"em-dash-final\",[\"python3\",\"scripts/check_em_dash.py\",\"--base\",\"d8b355fe0f41d49dca6cae1cd8b3826e2edde364\"]),\n (\"docs-final\",[\"python3\",\"scripts/docs_check.py\"]),\n (\"docs-wire\",[\"python3\",\"scripts/check_wire_accountability.py\",\"--self-test\"]),\n (\"ci-scope\",[\"python3\",\"scripts/ci_scope.py\",\"--selftest\"]),\n (\"source-diff\",[\"git\",\"diff\",\"--check\",\"f74b9403b330ce316eeec6f724846f16def98443\",\"HEAD\"])]\nfor label,command in commands:\n subprocess.run([sys.executable,str(r/\"run.py\"),label,*command],check=True,timeout=550)\na=r/\"committed-source.tar\"; dest=r/\"committed-source\"; dest.mkdir(exist_ok=True)\nsubprocess.run([\"git\",\"archive\",\"--format=tar\",\"--output\",str(a),\"HEAD\"],check=True)\nwith tarfile.open(a) as f: f.extractall(dest,filter=\"data\")\nfor label,command in [(\"docs-archive\",[\"python3\",\"scripts/docs_check.py\"]),\n (\"docs-archive-feature\",[\"python3\",\"scripts/check_feature_status.py\"])]:\n subprocess.run([sys.executable,str(r/\"run.py\"),label,*command],cwd=dest,check=True,timeout=550)\n"
+  },
+  {
+    "name": "compiler-steps.py",
+    "original": {
+      "size": 382,
+      "sha256": "1b3ae736864b25759718dd741742940fb655f33f3ebb91f59015c4911671a2f3"
+    },
+    "normalized_source": "from pathlib import Path\nimport subprocess,sys\nr=Path(__file__).resolve().parent\nfor label,cmd in [\n (\"compiler-controls\",[\"python3\",\"sw/builder/test_firmware_compiler.py\",\"--selftest\"]),\n (\"compiler-absent\",[\"python3\",\"sw/builder/test_firmware_compiler.py\",\"--absent\",\"--audit\",str(r/\"rv32-absent.jsonl\")])]:\n subprocess.run([sys.executable,str(r/\"run.py\"),label,*cmd],check=True)\n"
+  },
+  {
+    "name": "shared.py",
+    "original": {
+      "size": 658,
+      "sha256": "3efc9152cb72929d621e47e5c83f3aee2ee877496235f430ca2d91835b923c1d"
+    },
+    "normalized_source": "import subprocess,sys\nfrom pathlib import Path\nr=Path(__file__).resolve().parent\ncommands=[\n(\"coverage-selftest\",[\"python3\",\"sw/firmware/gtest/fw_coverage.py\",\"--selftest\"]),\n(\"rv32-selftest\",[\"python3\",\"sw/firmware/gtest/fw_rv32_selftest.py\",\"--require-rv32\"]),\n(\"tally-mutants\",[\"python3\",\"sw/firmware/gtest/tally_selftest.py\",\"--mutants\"]),\n(\"mailbox-contract\",[\"python3\",\"sw/mailbox/gen_mailbox.py\",\"--check\"]),\n(\"docs-selftest\",[\"python3\",\"scripts/docs_check.py\",\"--selftest\"])]\nfor label,command in commands:\n result=subprocess.run([sys.executable,str(r/\"run.py\"),label,*command],timeout=550)\n if result.returncode: raise SystemExit(result.returncode)\n"
+  }
+]

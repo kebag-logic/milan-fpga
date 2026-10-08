@@ -1,0 +1,41 @@
+{
+  "head": "b98eb2d5a21522bab3bc6bb943332cf8edf11893",
+  "implementation_head": "14f091be8f1ea9c6cb23159fb55bccfebcbc2766",
+  "results": [
+    {
+      "interfaces": 1,
+      "passed_tests": [
+        "SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration",
+        "SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake",
+        "SrpBinding.R10KindChangeWhileSettledReachesAcmp",
+        "SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp",
+        "SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance",
+        "R533Feedback.R533FailedReplacementUpdatesReportedRegistration",
+        "R533Feedback.R533AdvertiseReplacementClearsReportedFailure",
+        "R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes",
+        "R533Feedback.R533SeparatePassWithdrawalDoesReprobe"
+      ],
+      "log": "review11-if1.log",
+      "log_size": 3377,
+      "log_sha256": "139ee381223435f2e548bee5950441d1acc709a3cafad246ab8fbdc78dc94cdc"
+    },
+    {
+      "interfaces": 2,
+      "passed_tests": [
+        "SrpBinding.R10ReplacementAwaitingDeliveryGetsNoOldRegistration",
+        "SrpBinding.R10EarlierSinkTransientRefusalKeepsDeliveryAwake",
+        "SrpBinding.R10KindChangeWhileSettledReachesAcmp",
+        "SrpBinding.R10FailedToAdvertiseWhileSettledReachesAcmp",
+        "SrpBinding.R10DiscoveredWithdrawalFeedbackCostFitsAllowance",
+        "R533Feedback.R533FailedReplacementUpdatesReportedRegistration",
+        "R533Feedback.R533AdvertiseReplacementClearsReportedFailure",
+        "R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes",
+        "R533Feedback.R533SeparatePassWithdrawalDoesReprobe"
+      ],
+      "log": "review11-if2.log",
+      "log_size": 3377,
+      "log_sha256": "e8536c990070c5f57829fbfd128702a6d5ea2403d1bb98df58e5121149683723"
+    }
+  ],
+  "excluded_diagnostic": "R10WithdrawalFeedbackCostFitsAllowance requests nonzero access on the known zero-access undiscovered path. The assignment instead requires the discovered funded path, which is included verbatim."
+}

@@ -1,0 +1,152 @@
+COMMAND ['cmake', '-S', '$LWSRP', '-B', '$SCRATCH/upstream-off', '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_PREFIX_PATH=$CGREEN', '-DLWSRP_MILAN=OFF']
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/upstream-off
+COMMAND ['cmake', '--build', '$SCRATCH/upstream-off', '--parallel', '2']
+[  5%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 10%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 15%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 20%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 25%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 35%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 50%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 55%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 65%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 70%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 75%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 80%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 85%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+COMMAND ['ctest', '--test-dir', '$SCRATCH/upstream-off', '--output-on-failure']
+Test project $SCRATCH/upstream-off
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.04 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.04 sec
+COMMAND ['$SCRATCH/upstream-off/unit_tests']
+Running "main" (46 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 104 passes in 4ms.
+  "integration_suite": 380 passes in 10ms.
+  "milan_suite": 381 passes in 6ms.
+Completed "main": 2675 passes in 39ms.
+COMMAND ['behave', '--no-capture', '-f', 'plain']
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management
+  Background: 
+
+  Scenario: Enable a port
+    Given the switch is connected ... passed in 0.000s
+    When port 0 is enabled ... passed in 0.000s
+    Then port 0 should be active ... passed in 0.000s
+
+  Scenario: Disable a port
+    Given the switch is connected ... passed in 0.000s
+    Given port 0 is enabled ... passed in 0.000s
+    When port 0 is disabled ... passed in 0.000s
+    Then port 0 should be inactive ... passed in 0.000s
+
+  Scenario: Reject an out-of-range port
+    Given the switch is connected ... passed in 0.000s
+    When port 255 is enabled ... passed in 0.000s
+    Then the operation should fail ... passed in 0.000s
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.000s
+COMMAND ['cmake', '-S', '$LWSRP', '-B', '$SCRATCH/upstream-on', '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_PREFIX_PATH=$CGREEN', '-DLWSRP_MILAN=ON']
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/upstream-on
+COMMAND ['cmake', '--build', '$SCRATCH/upstream-on', '--parallel', '2']
+[  5%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 10%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 15%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 20%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 25%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 35%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 50%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 55%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 65%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 70%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 75%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 80%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 85%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+COMMAND ['ctest', '--test-dir', '$SCRATCH/upstream-on', '--output-on-failure']
+Test project $SCRATCH/upstream-on
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.04 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.04 sec
+COMMAND ['$SCRATCH/upstream-on/unit_tests']
+Running "main" (46 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 104 passes in 4ms.
+  "integration_suite": 380 passes in 10ms.
+  "milan_suite": 369 passes in 7ms.
+Completed "main": 2663 passes in 39ms.
+COMMAND ['behave', '--no-capture', '-f', 'plain']
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management
+  Background: 
+
+  Scenario: Enable a port
+    Given the switch is connected ... passed in 0.000s
+    When port 0 is enabled ... passed in 0.000s
+    Then port 0 should be active ... passed in 0.000s
+
+  Scenario: Disable a port
+    Given the switch is connected ... passed in 0.000s
+    Given port 0 is enabled ... passed in 0.000s
+    When port 0 is disabled ... passed in 0.000s
+    Then port 0 should be inactive ... passed in 0.000s
+
+  Scenario: Reject an out-of-range port
+    Given the switch is connected ... passed in 0.000s
+    When port 255 is enabled ... passed in 0.000s
+    Then the operation should fail ... passed in 0.000s
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.000s

@@ -1,0 +1,189 @@
+[
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/campaign"
+    ],
+    "rc": 143,
+    "log": "campaign.log",
+    "size": 3909,
+    "sha256": "b35f00841095d55746c95366317ab7712e52ae1e35d9bfe3a99244389eadc715",
+    "reason": "Superseded after extending the standing one-interface mutation selection; final complete driver rerun required.",
+    "label": "campaign",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/campaign.log",
+      "size": 3207,
+      "sha256": "3ebbdc8dbed1b1f58aae1d99798f0bf6a20eab5424966b26b0cfd66e0ca629f1"
+    },
+    "disposition": "Stopped after extending the IF=1 mutation selection; complete campaign restarted."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "$SCRATCH/coverage-dev"
+    ],
+    "rc": 0,
+    "seconds": 208.201,
+    "log": "coverage-dev.log",
+    "size": 3455,
+    "sha256": "e0d203fff030988a2d5a723b5e05c0ad0542879e4ec65e1a01ba4b8d8e50839e",
+    "label": "coverage-dev",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/coverage-dev.log",
+      "size": 3455,
+      "sha256": "e0d203fff030988a2d5a723b5e05c0ad0542879e4ec65e1a01ba4b8d8e50839e"
+    },
+    "disposition": "Development coverage before accepted-binding retirement code; superseded by final writer and checker."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--write",
+      "--jobs",
+      "4",
+      "--keep",
+      "$SCRATCH/coverage-write"
+    ],
+    "rc": 1,
+    "seconds": 243.041,
+    "log": "coverage-write.log",
+    "size": 3511,
+    "sha256": "c8189802c19c32df3b86ca7d993d202cd4413ab2600347ad162ba9b072105e09",
+    "label": "coverage-write",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/coverage-write.log",
+      "size": 3511,
+      "sha256": "c8189802c19c32df3b86ca7d993d202cd4413ab2600347ad162ba9b072105e09"
+    },
+    "disposition": "One short-circuit branch lacked two simultaneous parked refusals; expanded the real two-sink case. Final coverage is complete."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 1,
+    "seconds": 16.909,
+    "log": "focused.log",
+    "size": 12777,
+    "sha256": "eee89af1bb7adf931b17657e29119917482ca01497e281318d5a3e459ced6eaa",
+    "label": "focused",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/focused.log",
+      "size": 12546,
+      "sha256": "654dbe220dac2a137f6445a71dcd65fc02ee03b5dcbd18d5354a4326702fb7ea"
+    },
+    "disposition": "Initial fixture assumed delayed withdrawal; Milan rapid leave is immediate. Corrected fixture before positive and mutation runs."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 1,
+    "seconds": 13.44,
+    "log": "focused2.log",
+    "size": 13206,
+    "sha256": "479031d292fa6092c896b9178a4e01f39aff4820e687f3d822407e4133882f5c",
+    "label": "focused2",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/focused2.log",
+      "size": 12975,
+      "sha256": "0e60353511092efecaba3cbf6b770e7a4f483b12c3b0eb60aac1b6d6f490a2b3"
+    },
+    "disposition": "Fixture assumed delayed withdrawal; corrected to immediate participant withdrawal with deferred ACMP feedback."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 1,
+    "seconds": 14.597,
+    "log": "focused3.log",
+    "size": 10398,
+    "sha256": "3243fa21c4f4d16976f9617c6cd9796c0d5a998cb7974f20876848639df89b04",
+    "label": "focused3",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/focused3.log",
+      "size": 10356,
+      "sha256": "830dc1c9eab1e02efbdbdf1449b8682f6f972db785f811c5b18968bf74cbf861"
+    },
+    "disposition": "Invalid-VID loop exhausted ACMP tokens between cases; advance the real clock between requests."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 0,
+    "seconds": 27.987,
+    "log": "focused4.log",
+    "size": 21868,
+    "sha256": "ddaee8e01ddf01f7cf58d0b05115de3a85dda976b6cfbc7c368181b8d5b7dcfd",
+    "label": "focused4",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/focused4.log",
+      "size": 21712,
+      "sha256": "72ce5058098af32a72ba07e9da66cd1c732a905d621883de7e955d7d6bf5e059"
+    },
+    "disposition": "Development positive before adding accepted-binding retirement case; superseded by full campaign and coverage."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "rc": 0,
+    "seconds": 31.421,
+    "log": "focused5.log",
+    "size": 22190,
+    "sha256": "2f6d11ebedf1d4e44f5e059c82f72505c2e4037286b151d43ab41af60ab5f7e5",
+    "label": "focused5",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/focused5.log",
+      "size": 22034,
+      "sha256": "3e1c35125a85c575c698b39606aa7b5ece3c6467800410e0ee9df286507a8004"
+    },
+    "disposition": "Development positive before expanding parked retirement to two sinks; final coverage and sanitizer runs include both sinks."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/new_plants.py"
+    ],
+    "rc": 1,
+    "seconds": 294.974,
+    "log": "new-plants.log",
+    "size": 32115,
+    "sha256": "f1cdbf3d642b0782488296eea73f05bb2b400ecd253bf99428e8bcfc0b2016ae",
+    "label": "new-plants",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round10-receipts/new-plants.log",
+      "size": 28475,
+      "sha256": "8732592794b01f52e1ee49f45d2f90387581629b649f920175423ef2230d1dfc"
+    },
+    "disposition": "The interface-loss plant produced an out-of-bounds compiler refusal; moved its change to the binding argument so the named runtime assertion detects it."
+  }
+]

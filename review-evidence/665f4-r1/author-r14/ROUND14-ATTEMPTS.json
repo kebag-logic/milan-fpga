@@ -1,0 +1,22 @@
+[
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/integrity.py",
+      "$SOURCE",
+      "$SCRATCH/integrity-result.json"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 1,
+    "seconds": 0.214,
+    "log": "integrity-initial.log",
+    "size": 391,
+    "sha256": "92ca060960873e4048e0aaa9c5dd852bae0bde052a1ef1f310419b7785a0dae4",
+    "disposition": "Scratch checker corrected to hash committed symbolic-link text; final integrity check rc 0."
+  },
+  {
+    "label": "idle compiler prerequisite wait",
+    "test_started": false,
+    "disposition": "Replaced by an independent concurrent scratch worktree before compiler execution."
+  }
+]

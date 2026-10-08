@@ -1,0 +1,125 @@
+START nvm-campaign
+{"command": ["python3", "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py", "--require-rv32", "--self-test", "--jobs", "4"], "cwd": "$SOURCE", "rc": 0, "seconds": 2330.013, "log": "nvm-campaign.log", "size": 23916, "sha256": "88b70a901e50279d386598e757b512ea7e318d4389148ff6f27b6ef58055ebb2"}
+  self-test OK: descending_pages           caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/model: model: invariant descending=13
+  self-test OK: capture_in_one_step        caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant step_max=6040 > step_bound=278
+  self-test OK: spin_wait                  caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant max_call_us=2999900 > 250
+  self-test OK: litespi_no_wren            caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/litespi: --litespi: invariant ls_no_wel=14
+  self-test OK: litespi_status_ignored     caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/litespi: --litespi: invariant while_busy=14
+  self-test OK: litespi_no_guard           caught by port_guard; first: [FAIL] NvmLitespi.port_guard: --litespi: invariant while_busy=3
+  self-test OK: phc_time                   caught by time_base; first: [FAIL] NvmLitespi.time_base: PHC -60000 ms in the window: erase -1 us after the change
+  self-test OK: clock_not_accumulated      caught by time_base; first: [FAIL] NvmLitespi.time_base: a window across the counter's wrap: erase 502406 us after the change
+  self-test OK: ticks_per_us_truncated     caught by port_clock, time_base at 83333000 Hz; first: [FAIL] NvmLitespi.time_base: PHC -60000 ms in the window: erase 997402 us after the change
+  self-test OK: xfer_unbounded             caught by port_stall; first: [FAIL] NvmLitespi.port_stall: --litespi: invariant ls_hung=1
+  self-test OK: open_unbounded             caught by port_stall; first: [FAIL] NvmLitespi.port_stall: --litespi: invariant ls_hung=1
+  self-test OK: call_deadline_ignored      caught by port_deadline, port_drain_deadline; first: [FAIL] NvmLitespi.port_deadline: --litespi: invariant protected=3
+  self-test OK: drain_deadline_ignored     caught by port_drain_deadline; first: [FAIL] NvmLitespiPort.port_drain_deadline:            Actual: called 4096 times - over-saturated and active
+  self-test OK: read_runs_past_device      caught by port_read_range; first: [FAIL] NvmLitespiPort.port_read_range: a read running past it is refused
+  self-test OK: deadline_per_wait          caught by port_deadline; first: [FAIL] NvmLitespi.port_deadline: --litespi: invariant max_call_us=2231 > 2213
+  self-test OK: program_across_page        caught by port_write_refusals; first: [FAIL] NvmLitespiPort.port_write_refusals:     Function call: timer(3, 1)
+  self-test OK: stall_ignored              caught by port_stall; first: [FAIL] NvmLitespi.port_stall: stalled master tx:1:10:0: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'at
+saved-state store gate (#665 F1): OK across 5 shape(s), 435 tests, and all 109 planted defects reddened
+START maap-diff
+{"command": ["python3", "sw/firmware/ctrl/test/maap_differential.py", "--self-test", "--keep", "$SCRATCH/maap-diff"], "cwd": "$SOURCE", "rc": 0, "seconds": 183.131, "log": "maap-diff.log", "size": 13148217, "sha256": "6adb7e83ce0930e9fa6c632e62475f8c8ed49ae60b10531bb53cf82bc2e4b974"}
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (15 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (14 ms)
+[----------] 9 tests from AllStates/DifferentialCell (47 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 2 test suites ran. (104 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndParentDelta
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant parent-probe-count: MaapDifferential.ProbeTimingAndParentDelta
+differential mutants: 16/16 caught
+START image-selftest
+{"command": ["python3", "sw/firmware/ctrl/test/ctrl_image_selftest.py", "--require-rv32"], "cwd": "$SOURCE", "rc": 0, "seconds": 14.451, "log": "image-selftest.log", "size": 3543, "sha256": "d928c2bde9799f22cfed58b8cbf19e60ed3f59d95d5ad27752a19665022e4eda"}
+PASS: audit: refused wfi (privileged): .text: 1 words outside RV32I, the first 0x10500073 at 0x4
+PASS: audit: refused slli a0, a0, 32 (a 6-bit shift): .text: 1 words outside RV32I, the first 0x02051513 at 0x4
+PASS: audit: refused an all-zero word: .text: 1 words outside RV32I, the first 0x00000000 at 0x4
+PASS: audit: refused RVC: e_flags 0x1, not 0: RVC
+PASS: audit: refused single-float ABI: e_flags 0x2, not 0: a hardware-float ABI
+PASS: audit: refused double-float ABI: e_flags 0x4, not 0: a hardware-float ABI
+PASS: audit: refused RVE: e_flags 0x8, not 0: RVE
+PASS: audit: refused Ztso: e_flags 0x10, not 0: Ztso
+PASS: audit: refused an unnamed e_flags bit: e_flags 0x20, not 0: bits RV32I ILP32 does not set
+PASS: audit: refused x86-64 machine: machine 62, not RISC-V; architecture attribute [], not RV32I alone
+PASS: audit: refused relocatable: ELF type 1, not an executable
+PASS: audit: refused 64-bit class: header8.elf is not a little-endian ELF32 file
+PASS: audit: refused big-endian: header9.elf is not a little-endian ELF32 file
+PASS: measure: endstation_ax7101_1x1_tdm8 as shipped (RV32I audit: e_flags 0, rv32i2p1, 8,367 words all RV32I base instructions, nothing undefined)
+PASS: measure: refused an RV32IM soft-float library: the image at endstation_ax7101_1x1_tdm8 is not RV32I ILP32: architecture attribute ['rv32i2p1_m2p0_zmmul1p0'], not RV32I alone; .text: 13 words outside RV32I, the first 0x02b50533 at 0x80c0
+PASS: measure: refused a library of the pinned SDK's multilib (rv32imafd, ilp32d): libbad.a(bad.o): can't link double-float modules with soft-float modules
+PASS: measure: refused a helper that calls itself: mulsi3-star_image_arith.o calls helpers: __mulsi3
+ctrl_image self-test: 33 checks PASS
+START coverage-selftest
+{"command": ["python3", "sw/firmware/gtest/fw_coverage.py", "--selftest"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.817, "log": "coverage-selftest.log", "size": 3710, "sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b"}
+[ok] an exclusion gone stale: the line it names runs now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion that names less than is uncovered: exclusion sw/firmware/ctrl/x.c g(): line 10 is unexecuted, and no row names it
+[ok] the uncovered arc moved to the statement's other arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [2] of the statement's 2 are uncovered, the row names [1]
+[ok] the uncovered arc and line moved to another statement, the function's totals unchanged: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion whose statement has another number of arcs: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: the statement (lines 9-9) has 2 arcs, the row says 3
+[ok] an exclusion naming a line no line from the statement on holds: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no line from the statement's on holds `return 8;`
+[ok] two exclusions naming one arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: names an arc or a line another row of the function names
+[ok] an exclusion whose items cannot be read: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: cannot read 'one arc'
+[ok] two builds of one source merge to the union: no finding
+[ok] a build with fewer arcs on a line covers none of the longer build's: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a test, a host model and a source outside the tree are not measured: no finding
+[ok] an exception edge is not a branch: no finding
+[ok] gcc and gcov on this host read as planted: no finding
+[ok] gcc: a compensating swap, the control measurement: no finding
+[ok] gcc: a compensating swap, refused with the function's totals unchanged: exclusion sw/firmware/ctrl/swap.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] gcc: a condition over two lines, the control measurement: no finding
+[ok] gcc: a condition over two lines, its other operand uncovered instead: exclusion sw/firmware/ctrl/two_lines.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]
+coverage self-test: 28 of 28 planted cases read as planted
+START rv32-selftest
+{"command": ["python3", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"], "cwd": "$SOURCE", "rc": 0, "seconds": 10.2, "log": "rv32-selftest.log", "size": 793, "sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94"}
+PASS: explicit absent compiler is refused without fallback
+PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+PASS: caught hosted headers restored
+PASS: caught freestanding disabled
+PASS: caught RV64 object
+PASS: caught hard-float object
+PASS: caught compressed ISA object
+PASS: caught multiply ISA object
+PASS: caught malformed object and dynamic stack report
+PASS: ctrl rejects malloc
+PASS: ctrl rejects __unexpected_service
+PASS: ctrl rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects malloc
+PASS: ctrl_nvm rejects __unexpected_service
+PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects restored stack-protector dependency
+RV32 build self-test: 17 checks PASS
+START tally-mutants
+{"command": ["python3", "sw/firmware/gtest/tally_selftest.py", "--mutants"], "cwd": "$SOURCE", "rc": 0, "seconds": 84.374, "log": "tally-mutants.log", "size": 3982, "sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11"}
+[caught] suite-failure-not-counted: SetUpFails.*, TearDownFails.* (tally checks 1 failures 1, want checks 1 failures 2)
+[caught] crash-tally-passes: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] crashed-test-not-counted: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (tally checks 0 failures 1, want checks 1 failures 1)
+[caught] early-exit-tally-passes: Exit.Zero (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] disabled-not-counted: Disabled.*, DISABLED_Suite.* (tally checks 0 failures 0, want checks 0 failures 1)
+[caught] result-always-pass: Fail.*, Crash.Segv, Exit.Zero, Skip.*, Disabled.*, TearDownFails.*, ProgramFails.* (RESULT lines ['PASS'], want ['FAIL']); also Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill, DISABLED_Suite.*, SetUpFails.*, Throw.*
+[caught] tests-not-counted: Pass.*, Fail.* (tally checks 0 failures 0, want checks 1 failures 0); also ProgramFails.*, SetUpFails.*, Skip.*, TearDownFails.*, Throw.*
+[caught] fail-line-dropped: Fail.* (no [FAIL] line names Fail.Expect); also Throw.*
+[caught] no-atexit: Exit.Zero (not one listener tally line: [])
+[caught] no-signal-handler: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (not one listener tally line: [])
+[caught] sigsegv-unhandled: Crash.Segv (not one listener tally line: [])
+[caught] sigbus-unhandled: Crash.Bus (not one listener tally line: [])
+[caught] sigfpe-unhandled: Crash.Fpe (not one listener tally line: [])
+[caught] sigill-unhandled: Crash.Ill (not one listener tally line: [])
+[caught] sigabrt-unhandled: Crash.Abort (not one listener tally line: [])
+[caught] program-failure-not-counted: ProgramFails.* (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] disabled-suite-not-counted: DISABLED_Suite.* (tally checks 0 failures 0, want checks 0 failures 1)
+listener defects: 18 of 18 caught
+START mailbox-contract
+{"command": ["python3", "sw/mailbox/gen_mailbox.py", "--check"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.265, "log": "mailbox-contract.log", "size": 26, "sha256": "9bb7d3a8faff1627f39a3bb7c9462a0b15ec8dd6c94a44c48d2fc7ac515a982f"}
+gen_mailbox: 0 finding(s)
+START docs-selftest
+{"command": ["python3", "scripts/docs_check.py", "--selftest"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.265, "log": "docs-selftest.log", "size": 56, "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339"}
+docs_check selftest: PASS (23 scrub + 4 routing arm(s))

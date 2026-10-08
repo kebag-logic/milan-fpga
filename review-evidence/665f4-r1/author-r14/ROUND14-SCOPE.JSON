@@ -1,0 +1,38 @@
+{
+  "head": "fe1cd0679f5028c749af7242c903a82ca2b3d692",
+  "changed_paths": [
+    "docs/testing/CI_WORKFLOWS.md",
+    "scripts/act_ci.py"
+  ],
+  "manifest": [
+    [
+      "external",
+      "external",
+      "git@github.com:kebag-logic/fpga-avb-ethernet.git"
+    ],
+    [
+      "third_party/verilog-axis",
+      "third_party/verilog-axis",
+      "https://github.com/alexforencich/verilog-axis"
+    ],
+    [
+      "protocol-processor",
+      "protocol-processor",
+      "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git"
+    ],
+    [
+      "gptp-processor",
+      "gptp-processor",
+      "https://github.com/Mister-M-alt/FPGA-gPTP.git"
+    ],
+    [
+      "third_party/lwSRP",
+      "third_party/lwSRP",
+      "https://github.com/kebag-logic/lwSRP.git"
+    ]
+  ],
+  "exact_manifest": true,
+  "runner_sha256": "35890beace97bf9e2b26bb24a8016b585767e24566ffbf9a62a0ada0beccfd66",
+  "runner_size": 568102,
+  "disposable_runner_matches_head": true
+}

@@ -1,0 +1,168 @@
+START images-final
+{"command": ["python3", "$SCRATCH/images.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 9.706, "log": "images-final.log", "size": 5106, "sha256": "75783188f6eba21d31a0d8a9e5996e992b70d27ac24d9e5c2d5de1aa83b3dde8"}
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "ad58aefcca43955cf230f42fbc18d9352ec7caea57c68a0a3f7416c271604c97"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 67480,
+      "sha256": "ff251effcd92e74caf4afbaf8c9a79ee40979760b6b942bdec6f0b63914a4d48"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 89279,
+      "sha256": "8c13f40223a828a9a76548022d1ff23cef69e42240462b24b2326631585b5d02"
+    }
+  ],
+  "ram_sections": 122218,
+  "ram_span": 122240
+}
+START f3-images
+{"command": ["python3", "sw/firmware/ctrl/test/ctrl_image.py", "--out", "$SCRATCH/f3-images"], "cwd": "$SOURCE", "rc": 0, "seconds": 4.132, "log": "f3-images.log", "size": 2382, "sha256": "c0cdf4b5a631bc9b7af89a8d277bb4892f38e5bc6f7eb67d0d141b77c53b8d3c"}
+  text          33,472
+  rodata           748
+  data               0
+  bss           23,344
+  total         57,564
+  load image (text + rodata + data) 34,220; with bss 57,564 of the 131,072-byte budget (43.9 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,368 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 508 bytes (__lshrdi3, __muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    nvm_stage                 13,264
+    app                        8,472
+    nvm_payload                  576
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    acmp_cfg                      88
+  struct ctrl_app, by part (sizeof): app 8,472, acmp 4,728, loop 1,768, maap 1,104, pool 204, adp 124
+START review11-final
+{"command": ["python3", "$SCRATCH/review11.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 21.13, "log": "review11-final.log", "size": 7182, "sha256": "261462ebc7411e94fda29c74e565f25f5005841b5bcd7f7679fa73d1990876e6"}
+[ RUN      ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure
+probe: IF=2 sink=0 port=0 SRP desired=2 ACMP failed=0 wire flags=0x2 expected failed=0
+probe: IF=2 sink=1 port=1 SRP desired=2 ACMP failed=0 wire flags=0x2 expected failed=0
+[       OK ] R533Feedback.R533AdvertiseReplacementClearsReportedFailure (0 ms)
+[ RUN      ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes
+probe: IF=2 sink=0 port=0 two records received; ACMP state=1 SRP bound=0 desired=0
+probe: IF=2 sink=1 port=1 two records received; ACMP state=1 SRP bound=0 desired=0
+[       OK ] R533Feedback.R533WithdrawalBeforeReregistrationStillReprobes (0 ms)
+[ RUN      ] R533Feedback.R533SeparatePassWithdrawalDoesReprobe
+[       OK ] R533Feedback.R533SeparatePassWithdrawalDoesReprobe (0 ms)
+[----------] 4 tests from R533Feedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 9 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
+START reviewer-probes
+{"command": ["python3", "$SCRATCH/review_probes.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 320.71, "log": "reviewer-probes.log", "size": 17755, "sha256": "fde4aee2a8090d17141df88027f60a5b6e640da64727286999e2de7d20fd01b8"}
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'attach-no-tick', 'interfaces': 2, 'result': 'caught', 'failing_suites': 2}
+{'plant': 'code-poll-extra-read', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'code-poll-extra-read', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+{'plant': 'code-send-extra-read', 'interfaces': 1, 'result': 'caught', 'failing_suites': 1}
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/review-plant-work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+{'plant': 'code-send-extra-read', 'interfaces': 2, 'result': 'caught', 'failing_suites': 1}
+START binding-probe
+{"command": ["python3", "$SCRATCH/binding_required.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 21.214, "log": "binding-probe.log", "size": 1930, "sha256": "2594ccad1eaa44d590451c32c1c53b1bcb1fbe001fff00b129c8d4f7d7d71be6"}
+wrote $SCRATCH/scratch/binding-probe/if2/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpMailbox
+[ RUN      ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+R533 interface=0 ACMP_requested=1 SRP_bound=1
+R533 interface=1 ACMP_requested=1 SRP_bound=1
+[       OK ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp (0 ms)
+[----------] 1 test from AcmpMailbox (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+PASS: accepted ACMP requests reach the attached adapter at IF=1 and IF=2
+START park-check
+{"command": ["python3", "$SCRATCH/park_check.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 59.719, "log": "park-check.log", "size": 3574, "sha256": "e86a50dbe1024f2b3a1b8d03f870a73a306d192acf2b9978d6d6a336bf6215e2"}
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote $SCRATCH/park-check/clang/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/park-check/clang/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/park-check/clang/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBinding
+[ RUN      ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding
+[       OK ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding (0 ms)
+[----------] 1 test from SrpBinding (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+START asan-final
+{"command": ["python3", "$SCRATCH/asan.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 162.739, "log": "asan-final.log", "size": 2220, "sha256": "71f1c09fefb39ff0acb007ed9c41edcb76fc5e25dcaa6872fa9f2756870a14b8"}
+wrote $SCRATCH/asan/gcc-asan/srp/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/asan/gcc-asan/srp/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/asan/gcc-asan/srp/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+gcc-asan 2 test_acmp_mbx.cpp PASS
+clang-plain base rc 0 expected
+clang-plain planted rc 1 expected
+clang-asan base rc 0 expected
+clang-asan planted rc 1 expected
+clang-asan 1 srp_app.cpp PASS
+clang-asan 1 test_acmp_mbx.cpp PASS
+wrote $SCRATCH/asan/clang-asan/srp/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/asan/clang-asan/srp/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/asan/clang-asan/srp/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+clang-asan 2 srp_app.cpp PASS
+wrote $SCRATCH/asan/clang-asan/srp/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/asan/clang-asan/srp/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/asan/clang-asan/srp/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+clang-asan 2 test_acmp_mbx.cpp PASS
+START new-plants-verified
+{"command": ["python3", "$SCRATCH/new_plants.py"], "cwd": "$SOURCE", "rc": 1, "seconds": 106.236, "log": "new-plants-verified.log", "size": 14965, "sha256": "66ded19bbf5c7d879c614f95c82e8d8c3e879fb9a16db7ec19de73103ee05e93"}
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/new-plants-if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+Traceback (most recent call last):
+  File "$SCRATCH/followups.py", line 16, in <module>
+    subprocess.run([sys.executable,str(r/"run.py"),label,*command],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['$DOCS_ENV/bin/python3', '$SCRATCH/run.py', 'new-plants-verified', 'python3', '$SCRATCH/new_plants.py']' returned non-zero exit status 1.

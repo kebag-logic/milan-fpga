@@ -1,0 +1,49 @@
+{
+  "head": "efea74858dffc482820d4f19c26c38796a57ff75",
+  "campaign": {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/campaign"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 2183.883,
+    "log": "campaign.log",
+    "size": 262690,
+    "sha256": "c459efb558d68cec84a742e1fae4554355356c7ceb3411689ba0109393cf2370",
+    "label": "campaign",
+    "retained_log": null
+  },
+  "plants": [
+    {
+      "plant": "p11-supersession-kind-stale",
+      "standing_campaign_catches": 2,
+      "interfaces": [
+        1,
+        2
+      ]
+    },
+    {
+      "plant": "p11-reset-withdrawal-lost",
+      "standing_campaign_catches": 2,
+      "interfaces": [
+        1,
+        2
+      ]
+    },
+    {
+      "plant": "p11-postwithdrawal-kind-overwrite",
+      "standing_campaign_catches": 2,
+      "interfaces": [
+        1,
+        2
+      ]
+    }
+  ]
+}

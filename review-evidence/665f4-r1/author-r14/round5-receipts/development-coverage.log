@@ -1,0 +1,11 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[FAIL] ctrl coverage run
+    == ctrl SRP service latency: checks: 4   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (4 tests, 0 failures, exit 0)
+[ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+test_ctrl_firmware coverage run: FAIL
+UNMEASURED: the ctrl gate failed in coverage mode (exit 1)

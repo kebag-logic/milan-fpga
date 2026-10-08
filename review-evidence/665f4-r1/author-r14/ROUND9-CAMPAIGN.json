@@ -1,0 +1,654 @@
+{
+  "head": "edeef61c5a0cc6c18caa61db4019a8e378baf366",
+  "control_plants": 469,
+  "srp_if2_plants": 129,
+  "srp_if1_plants": 28,
+  "pin_controls": 2,
+  "srp_detections": [
+    {
+      "name": "startup-vid",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "short-leave",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "asking-is-ready",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "ignore-link",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "failed-listener-ready",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "ignore-peer-domain",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "rx-overtakes-owed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "rx-overtakes-expiry",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "reentry-uncounted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "invalid-vid",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "failed-init-leaks",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "missing-port-accepted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "attach-nonatomic",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "malformed-uncounted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "reset-skips-recreate",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "readyfailed-ignored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "foreign-domain-stored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "foreign-vlan-stored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "sink-da-ignored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "admission-ceiling-ignored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "domain-refusal-lost",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "listener-refusal-lost",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "other-link-cancels-owed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "duplicate-tick-owner",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "binding-debug-guard",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "receive-debug-guard",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "tick-debug-guard",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "licence-before-vlan",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "unbind-shared-listener",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "withdraw-bound-domain",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "withdraw-same-domain",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "sink-vlan-refusal-lost",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "ready-before-vlan",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "latency-missing-startup",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "latency-domain-unserviced",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "latency-leave-origin",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "latency-relaxed-budget",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "walk-domain-ignored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "walk-match-da-ignored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "walk-leave-shortened",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "walk-startup-is-join",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "walk-malformed-uncounted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "shape-last-output-missing",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "tag-overhead-omitted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "preamble-ifg-omitted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "ninety-percent-ceiling",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "readyfailed-callback-stop",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "short-link-interruption-ignored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "old-prefix-accepted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "shared-identity-overwritten",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "event-reentry-unguarded",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "failed-interface-starves-peer",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "backlogged-old-prefix-accepted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "link-level-loss-ignored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "reset-leaks-owned-participants",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "downlink-receive-accepted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "delayed-in-listener",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "delayed-in-talker",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "attach-ignores-current-link",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "cancelled-link-never-recovers",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "rebind-loses-shared-applicant",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "consecutive-rebind-loses-applicant",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "joining-binding-loses-applicant",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "applicant-inherited-across-streams",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "final-unbind-withdraws-domain-vid",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "last-ineligible-vid-leaks",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "reset-keeps-owed-domain",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "reset-keeps-sink-vlan",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "shared-ready-uses-first-vlan",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "milan-rapid-leave-leaks-to-mvrp",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-retry-removed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "partial-receive-retry-removed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-record-lost",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-refusal-malformed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-overtakes-retained",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "reset-keeps-retained-receive",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "peer-reset-cancels-retained-receive",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "destroy-keeps-retained-receive",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "bind-overtakes-retained-receive",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "composition-attach-omitted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "composition-srp-irq-omitted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "composition-srp-tick-omitted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "recreated-receive-retry-removed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "mvrp-receive-retry-removed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-retry-passes-owed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-retry-passes-backlog",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "future-receive-refused",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "invalid-suffix-uncounted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "composition-refusal-ignored",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "recovery-latency-retry-removed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-retention-unbounded",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-retention-short",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-retention-late",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-discard-uncounted",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-discard-malformed",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-discard-as-success",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-queue-renews-deadline",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-first-refusal-never-expires",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-expiry-precedes-recovery",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-recreate-never-expires",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-flood-unbounded",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "receive-deadline-not-modular",
+      "required_occurrences": 1,
+      "observed_occurrences": 1
+    },
+    {
+      "name": "four-way-srp-irq-missing",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "four-way-srp-wake-missing",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "four-way-acmp-enable-lost",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "four-way-unbound-irq-enabled",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "four-way-bound-drops-srp",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "four-way-bound-duplicates-events",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-delivery-missing",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-synchronous",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-poll-adds-access",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-interface-lost",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-sink-lost",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-refusal-dropped",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-owed-retry-dropped",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-unbind-lost",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-replacement-lost",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-pending-sleeps",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-first-refusal-forgotten",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-count-overflow",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-poll-overflow",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "binding-reattach-recurses",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "srp-bound-event",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "srp-bound-receive",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "srp-bound-poll-transmit",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "srp-bound-poll",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "srp-bound-tx-record",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "srp-bound-rx-record",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    },
+    {
+      "name": "srp-bound-pass",
+      "required_occurrences": 2,
+      "observed_occurrences": 2
+    }
+  ]
+}

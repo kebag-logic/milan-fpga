@@ -1,0 +1,6 @@
+rv-poll-fixed	srp/srp_bounds.h	(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))	(MBX_N_IF * (0u + 2u * SRP_MBX_TX_MAX))
+rv-poll-two-calls	srp/srp_bounds.h	(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))	(MBX_N_IF * (4u + 1u * SRP_MBX_TX_MAX))
+rv-poll-per-if	srp/srp_bounds.h	(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))	(1u * (4u + 2u * SRP_MBX_TX_MAX))
+rv-pass-event-words	srp/srp_bounds.h	CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX)	CTRL_LOOP_EVENTS_PER_PASS * (SRP_MBX_EVENT_MAX)
+rv-pass-rx-count	srp/srp_bounds.h	CTRL_LOOP_RX_PER_PASS * (SRP_MBX_RX_RECORD_MAX	1u * (SRP_MBX_RX_RECORD_MAX
+rv-pass-poll-half	srp/srp_bounds.h	SRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX)	SRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX / 2u)

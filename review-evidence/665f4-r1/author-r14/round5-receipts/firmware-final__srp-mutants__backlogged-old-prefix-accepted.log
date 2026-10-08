@@ -1,0 +1,67 @@
+Note: Google Test filter = Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Change(0, 0, true)
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart:     Function call: Change(0, 0, true)
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:572: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: false
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Change(1, 0, true)
+Google Mock tried the following 2 expectations, but none matched:
+
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:573: tried expectation #0: EXPECT_CALL(licence, Change(i,0,true))...
+  Expected arg #0: is equal to 0
+           Actual: 1
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:575: tried expectation #1: EXPECT_CALL(licence, Change(i,0,false))...
+  Expected arg #0: is equal to 0
+           Actual: 1
+  Expected arg #2: is equal to false
+           Actual: true
+         Expected: to be called once
+           Actual: called once - saturated and active
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart:            Actual: called once - saturated and active
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:572: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: false
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:573: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart:            Actual: never called - unsatisfied and active
+$SOURCE/sw/firmware/ctrl/test/srp_mbx.cpp:573: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

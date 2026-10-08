@@ -1,0 +1,383 @@
+[
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/asan.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 152.549,
+    "log": "asan.log",
+    "size": 2220,
+    "sha256": "71f1c09fefb39ff0acb007ed9c41edcb76fc5e25dcaa6872fa9f2756870a14b8",
+    "label": "asan",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/asan.log",
+      "size": 1908,
+      "sha256": "ff9edee3b7a8406d8b707859e3b86516ead4b9654cd476ecd9969d33350d738b"
+    },
+    "disposition": "Passing development matrix; superseded by asan-final at the frozen implementation."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/builder_bank.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": -15,
+    "seconds": 1014.933,
+    "log": "builder-bank-wait-superseded.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "label": "builder-bank-wait-superseded",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/builder-bank-wait-superseded.log",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "disposition": "Waiting-only scheduler retired before starting a builder. The independent builder then started once measured memory allowed concurrency; its final receipt is builder."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/campaign-final"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 143,
+    "seconds": null,
+    "log": "campaign-development.log",
+    "size": 4491,
+    "sha256": "f5756cb01afcfcd7e5a45bf7dff97c702ca6322774368462cc9e933a04033d83",
+    "disposition": "Cancelled during positives after simplifying the redundant composition guards; the complete final campaign supersedes this attempt.",
+    "label": "campaign-development",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/campaign-development.log",
+      "size": 3711,
+      "sha256": "856940717344664d77afa1024a2a36919b8efe900815da682d7874dd599b3f19"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/campaign-verified"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 1,
+    "seconds": 1704.471,
+    "log": "campaign-final.log",
+    "size": 265244,
+    "sha256": "f22fb932a1791e83bb369191f66a6ff8379d7b4eefac047fb1b03773bdb0c93b",
+    "label": "campaign-final",
+    "working_directory": "$SOURCE",
+    "retained_log": null,
+    "disposition": "470 of 471 control plants met their named oracle. The acmp_open plant correctly failed entry 10, but its oracle still requested the prior entry 9. Corrected that exact expected index and reran the complete campaign as campaign-verified-final."
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/campaign-final"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 143,
+    "seconds": null,
+    "log": "campaign-plant-development.log",
+    "size": 143453,
+    "sha256": "3cf10287fb5005670d422cd53a6e490e0d66e3a82e2494cbfeb1154fcacbf2af",
+    "disposition": "Cancelled during the earlier control plant bank after identifying the inherited SRP compilation issue. Superseded by the complete final campaign.",
+    "label": "campaign-plant-development",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/campaign-plant-development.log",
+      "size": 136407,
+      "sha256": "d4be6d322ab8261ec9ea345ff2a844e9b823dea7d8046c18ee9fe66986c3d118"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--write",
+      "--jobs",
+      "4",
+      "--lwsrp",
+      "third_party/lwSRP",
+      "--keep",
+      "$SCRATCH/coverage-write"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 1,
+    "seconds": 209.214,
+    "log": "coverage-write.log",
+    "size": 3511,
+    "sha256": "3b117ffedc15682ea8575d30b23097add2750de5ef47a663dff4358184e7a1c2",
+    "label": "coverage-write",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/coverage-write.log",
+      "size": 3511,
+      "sha256": "3b117ffedc15682ea8575d30b23097add2750de5ef47a663dff4358184e7a1c2"
+    },
+    "disposition": "Found two unreachable composition state-guard arcs. Simplified redundant guards using the existing accepted-binding/settled-exit contract; full writer and checker pass with no exclusions."
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 1.618,
+    "log": "cpp-dev.log",
+    "size": 316,
+    "sha256": "c4e43580d928601e38756c0a0ed7007f62e742d81ef33787999b457eb26f922f",
+    "label": "cpp-dev",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/cpp-dev.log",
+      "size": 316,
+      "sha256": "c4e43580d928601e38756c0a0ed7007f62e742d81ef33787999b457eb26f922f"
+    },
+    "disposition": "Development check; final named gate supplies candidate evidence."
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "doc-style-dev.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "label": "doc-style-dev",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/doc-style-dev.log",
+      "size": 47,
+      "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+    },
+    "disposition": "Development check; final named gate supplies candidate evidence."
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 5.478,
+    "log": "docs-dev.log",
+    "size": 128,
+    "sha256": "1e4389204cb4dadcacef77733b6ad357f116a41ecaa9359d9667310208e3b154",
+    "label": "docs-dev",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/docs-dev.log",
+      "size": 128,
+      "sha256": "1e4389204cb4dadcacef77733b6ad357f116a41ecaa9359d9667310208e3b154"
+    },
+    "disposition": "Development check; final named gate supplies candidate evidence."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 1,
+    "seconds": 15.597,
+    "log": "focused.log",
+    "size": 12194,
+    "sha256": "4be8b488ceb41c03b23f9cf271562470c818e643c841700835fe69b311a7004d",
+    "label": "focused",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/focused.log",
+      "size": 12173,
+      "sha256": "f7990fda96a30fe219574de4d53d04bd119150ca007e3945f85d6a421d4039db"
+    },
+    "disposition": "Supersession fixture sent an unsolicited probe response after withdrawal. Corrected by starting a fresh binding before replacing it."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/focused.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 28.67,
+    "log": "focused2.log",
+    "size": 25913,
+    "sha256": "09d69a158a7460c84f29c252840c3cae2ca74eb54d24b8f52ed0ff61bbbb7e9e",
+    "label": "focused2",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/focused2.log",
+      "size": 25757,
+      "sha256": "7e6a24820564d760ab4cad1114a57c27c2526d29fb2b3ca8d1aa90e5666e928a"
+    },
+    "disposition": "Passing development run before final first-seed measurement and guard simplification; superseded by final coverage and full campaign."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/followups.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 1,
+    "seconds": 706.052,
+    "log": "followups-development.log",
+    "size": 14311,
+    "sha256": "d5494fa63b43d36d5e04a5076eef88e35a849c842fbb747fb14fb1ddcf7f7ebd",
+    "label": "followups-development",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/followups-development.log",
+      "size": 12814,
+      "sha256": "873dc9d5b227ae32c86606a7e20b73394c846ea2cfa6519d1f20ff35184861cc"
+    },
+    "disposition": "Aggregate stopped at the preceding plant compilation failure. Prior successful individual receipts remain; final followups reruns the corrected selection and remaining scope controls."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/images.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 9.346,
+    "log": "images.log",
+    "size": 5106,
+    "sha256": "ad807a148533e42e97aafc5c052d28c02e0605448e644ae318eb23e82d4d6646",
+    "label": "images",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/images.log",
+      "size": 4950,
+      "sha256": "14599804e1c18275079523e8508eca33f7c61b66c95cfafb5e84563ba9c23a67"
+    },
+    "disposition": "Earlier guard form; images-final is authoritative."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/new_plants.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 103.796,
+    "log": "new-plants-final.log",
+    "size": 12766,
+    "sha256": "40972662a6b694ab6b038011dbc979bb0d134b9940090256a44d9f15784d9dcd",
+    "label": "new-plants-final",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/new-plants-final.log",
+      "size": 11362,
+      "sha256": "740540429292e7b3af84c16c37e09675031185af4a5d47ca77f2b166c9657db8"
+    },
+    "disposition": "Passing development selection before the final guard simplification and withdrawal-isolation plant. Superseded by new-plants-verified and both complete SRP banks."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/new_plants.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 1,
+    "seconds": 106.236,
+    "log": "new-plants-verified-development.log",
+    "size": 14965,
+    "sha256": "66ded19bbf5c7d879c614f95c82e8d8c3e879fb9a16db7ec19de73103ee05e93",
+    "label": "new-plants-verified-development",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/new-plants-verified-development.log",
+      "size": 13275,
+      "sha256": "81a860cea91a3abe77c2872397b2cd0cd421a8b46a6ee7749d062629ff76d74e"
+    },
+    "disposition": "Two inherited replacements removed the only state use and failed compilation. Replacements now consume it; final individual and complete campaigns require named assertion failures."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/new_plants.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 1,
+    "seconds": 108.024,
+    "log": "new-plants.log",
+    "size": 15440,
+    "sha256": "198db0bda3f35ee31cdbd4da547749ef17bc7334b8c7d2f886fddc745ff96e46",
+    "label": "new-plants",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/new-plants.log",
+      "size": 14036,
+      "sha256": "c2ecbba2a25076fd0d6242d48c7f8bbf5a4b7c433a7568a44419cf99f6928a45"
+    },
+    "disposition": "An initial Failed-kind defect was repaired by the next kind update before its test observed it; assertion moved to the first delivery. The expiry plant removed a redundant observation; replaced by loss of the retained transition."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/reentry_oracle.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 1,
+    "seconds": 9.742,
+    "log": "reentry-oracle-development.log",
+    "size": 8550,
+    "sha256": "b8bdd48bb6c33925e3fee4dd1ba70e6580a45544a3fce6ddc94630aa4d9998a4",
+    "label": "reentry-oracle-development",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/reentry-oracle-development.log",
+      "size": 8550,
+      "sha256": "b8bdd48bb6c33925e3fee4dd1ba70e6580a45544a3fce6ddc94630aa4d9998a4"
+    },
+    "disposition": "The isolated helper shortened the full mutation table, triggering the repository-wide unnamed-test check despite the intended plant being caught. The corrected helper uses the driver shard argument and retains the full table."
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/review11.py"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 0,
+    "seconds": 21.469,
+    "log": "review11.log",
+    "size": 7182,
+    "sha256": "261462ebc7411e94fda29c74e565f25f5005841b5bcd7f7679fa73d1990876e6",
+    "label": "review11",
+    "working_directory": "$SOURCE",
+    "retained_log": {
+      "path": "round11-receipts/review11.log",
+      "size": 7104,
+      "sha256": "ea99cd48aea94e9b5df196fba31f90eb11814eb60204d4bebcf87138c3a883c2"
+    },
+    "disposition": "Passing development probes; review11-final is authoritative."
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/coverage"
+    ],
+    "cwd": "$SOURCE",
+    "rc": 2,
+    "seconds": 0.114,
+    "log": "coverage.log",
+    "size": 229,
+    "sha256": "c229e47bf7cf98dd1cd9bd90ee870184a9473e815ecdbb13e53cb75d042e9a84",
+    "disposition": "Superseded invocation: unsupported --build-dir; --keep command passes."
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 1,
+    "disposition": "One new 126-column line; follow-up commit wraps it and the final gate returns zero."
+  }
+]

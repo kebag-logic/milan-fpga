@@ -1,0 +1,20 @@
+START builder
+{"command": ["env", "MAKEFLAGS=-j8", "python3", "sw/builder/test_builder.py", "--require-rv32"], "cwd": "$BUILDER_TREE", "rc": 0, "seconds": 1166.768, "log": "builder.log", "size": 101990, "sha256": "c3998f7adb63fb26754c9eee8906473fa69c8c74bd96f428fc61935d28dc1dd8"}
+  [gate 36b] source list in header: L6 domain-source-offset
+  [gate 36b] padded source offset: L6 domain-source-offset
+  [gate 36b] SoC image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] SoC image without 0x0024: L1 required-type
+test_shipping_image_contract_presence:
+  [gate 36b] builder image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] builder image without 0x0024: L1 required-type
+test_pp_shadow_audio_unit_rates_match_config:
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+test_descriptor_fields_name_this_device:
+  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+test_name_count_fits_the_nvm_name_block:
+  [gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:247; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127
+  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated
+
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk ($USER_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN

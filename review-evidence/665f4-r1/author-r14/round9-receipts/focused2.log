@@ -1,0 +1,33 @@
+[==========] Running 3 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpApp
+[ RUN      ] SrpApp.AttachRefusalPreservesExistingComposition
+[       OK ] SrpApp.AttachRefusalPreservesExistingComposition (0 ms)
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[       OK ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 2 tests from SrpApp (0 ms total)
+
+[----------] 1 test from Srp
+[ RUN      ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+  SRP event bound: 1 accesses, bound 1
+$SOURCE/sw/firmware/ctrl/test/srp_app.cpp:113: Failure
+Expected equality of these values:
+  adapter.pending_rx.len
+    Which is: 0
+  rx.len
+    Which is: 30
+
+  [FAIL] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds:     Which is: 30
+[  FAILED  ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+
+ 1 FAILED TEST
+== ctrl ADP MAAP SRP composition: checks: 3   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 3 checks, exit 1)

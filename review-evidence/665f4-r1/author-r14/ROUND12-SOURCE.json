@@ -1,0 +1,99 @@
+{
+  "head": "efea74858dffc482820d4f19c26c38796a57ff75",
+  "base": "b98eb2d5a21522bab3bc6bb943332cf8edf11893",
+  "first_parent_commits": [
+    {
+      "commit": "d1fe17d13c9ab976dd11667f36231718314ef7c6",
+      "subject": "Merge dev for pinned builder support",
+      "parents": [
+        "b98eb2d5a21522bab3bc6bb943332cf8edf11893",
+        "99e4eb6c14462aafa84bb1ac597fd241abc1a240"
+      ],
+      "configured_identity_matches": true
+    },
+    {
+      "commit": "959238f1bca3673da0b79cc8f210ac3bb6bc94e6",
+      "subject": "Observe SRP feedback without callback reentry",
+      "parents": [
+        "d1fe17d13c9ab976dd11667f36231718314ef7c6"
+      ],
+      "configured_identity_matches": true
+    },
+    {
+      "commit": "7b47f333ecde4af16e32ca95730f56c3c454d0eb",
+      "subject": "Pin SRP contract citations for standalone source archives",
+      "parents": [
+        "959238f1bca3673da0b79cc8f210ac3bb6bc94e6"
+      ],
+      "configured_identity_matches": true
+    },
+    {
+      "commit": "efea74858dffc482820d4f19c26c38796a57ff75",
+      "subject": "Exercise reviewer feedback plants at both interface counts",
+      "parents": [
+        "7b47f333ecde4af16e32ca95730f56c3c454d0eb"
+      ],
+      "configured_identity_matches": true
+    }
+  ],
+  "changes": [
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "size": 67112,
+      "sha256": "52ef68a576cb93bd2f07c5a97078e3b3fb9815f0fc6972302f1b0c5353b12702"
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/README.md",
+      "size": 21687,
+      "sha256": "34f2a4be7abc6d2a3eb73d5f483dc5d167454ab1dbead3dd02fff502d343dde6"
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/srp_mbx.c",
+      "size": 28211,
+      "sha256": "9a3c0ad19e90af38c0e1c6aedea081ff9d36a1622c695f2254c4a0d58fcece2b"
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/srp_mbx.h",
+      "size": 3844,
+      "sha256": "33d60c87644c66865dbf29a414bb3beae844f6ed7a9a0ced64117caf28a96367"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_feedback.hpp",
+      "size": 12770,
+      "sha256": "418674e2d61921ac7c4e521d2dc2f42809d96a2f0cd49c62682dc72d6c4b4724"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_mutants.py",
+      "size": 47678,
+      "sha256": "652da2453045e9eb687d4725c84a3b0943afd276ddfd457ef019f3f7146b94f1"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "size": 12954,
+      "sha256": "9d054ce15ade5b3dc03c7d02c7e991554be89ed696fcfaad5d6256293f39bfbb"
+    },
+    {
+      "path": "sw/firmware/gtest/coverage.ratchet",
+      "size": 1684,
+      "sha256": "c07f3c6224d08206e0e8389b18d3efbcb067400a0bc7642d62a63f940e0a1f6f"
+    }
+  ],
+  "protected_paths_unchanged_since_authorized_merge": true,
+  "merge_conflict_resolution": [
+    "docs/reference/SUBMODULES.md",
+    "docs/diagrams/submodule_boundaries.drawio",
+    "docs/diagrams/submodule_boundaries.png",
+    "docs/diagrams/PNG_MANIFEST.json"
+  ],
+  "diagram_regenerated_and_visually_checked": true,
+  "audit_snapshot_head": "7b47f333ecde4af16e32ca95730f56c3c454d0eb",
+  "candidate_delta_from_audit_snapshot": [
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py"
+  ],
+  "audit_snapshot_delta_note": "One selection prefix includes the three named reviewer plants in the standing IF=1 mutation pass. Builder, compiler, firmware C/C++, library, image and sanitizer inputs are unchanged. The full firmware campaign, coverage check and final documentation checks are rerun at the candidate.",
+  "runtime_source_stable_since": "959238f1bca3673da0b79cc8f210ac3bb6bc94e6",
+  "subsequent_paths": [
+    "sw/firmware/ctrl/srp/README.md",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py"
+  ]
+}
