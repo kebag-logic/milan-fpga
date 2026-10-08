@@ -1,0 +1,49 @@
+{
+  "p1_resume": [
+    "[probe P1] fail_at=0 setup=1 met=1 cancels={1,1} owner1_cancel_offset=1 registry_count=1 dereg_cycles_to_commanding_controller=0",
+    "[probe P1] fail_at=1 setup=1 met=1 cancels={1,1} owner1_cancel_offset=1 registry_count=0 dereg_cycles_to_commanding_controller=1",
+    "[probe P1] fail_at=2 setup=1 met=1 cancels={1,1} owner1_cancel_offset=1 registry_count=0 dereg_cycles_to_commanding_controller=1",
+    "[build default] 0 checks, 0 failures"
+  ],
+  "p1_head": [
+    "[probe P1] fail_at=0 setup=1 met=1 cancels={1,1} owner1_cancel_offset=1 registry_count=1 dereg_cycles_to_commanding_controller=0",
+    "[probe P1] fail_at=1 setup=1 met=1 cancels={1,1} owner1_cancel_offset=1 registry_count=1 dereg_cycles_to_commanding_controller=0",
+    "[probe P1] fail_at=2 setup=1 met=1 cancels={1,1} owner1_cancel_offset=1 registry_count=0 dereg_cycles_to_commanding_controller=1",
+    "[build default] 0 checks, 0 failures"
+  ],
+  "p2_unchanged": true,
+  "p2": [
+    "[probe P2] cancel_at_E=0 fail_for_owner1=1 fail_offset_from_E=1",
+    "[probe P2] cancel_at_E=1 fail_for_owner1=0 fail_offset_from_E=-1",
+    "[probe P2] cancel_at_E=-1 fail_for_owner1=1 fail_offset_from_E=1"
+  ],
+  "guard_control": [
+    {
+      "mutant": "golden-aecp_notify-failure-window",
+      "suite": "make failure-window",
+      "build_rc": 0,
+      "run_rc": 0,
+      "completed": true,
+      "named_checks": [],
+      "missing": [],
+      "failing_checks": [],
+      "verdict": "PASS"
+    },
+    {
+      "mutant": "cancel_pending_accepts_failure",
+      "suite": "make failure-window",
+      "build_rc": 0,
+      "run_rc": 2,
+      "completed": true,
+      "named_checks": [
+        "SC2:"
+      ],
+      "missing": [],
+      "failing_checks": [
+        "SC2: a failure one cycle after the cancellation coincidence leaves the commanding controller registered without DEREGISTER, for either row order"
+      ],
+      "verdict": "KILLED"
+    }
+  ],
+  "guard_removed_rtl_equals_reviewed_head": true
+}

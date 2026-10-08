@@ -1,0 +1,99 @@
+{
+  "notify": {
+    "logs": 104,
+    "graded_logs": 104,
+    "json_equal": true,
+    "added": [
+      {
+        "mutant": "cancel_pending_accepts_failure",
+        "suite": "make failure-window",
+        "build_rc": 0,
+        "run_rc": 2,
+        "completed": true,
+        "named_checks": [
+          "SC2:"
+        ],
+        "missing": [],
+        "failing_checks": [
+          "SC2: a failure one cycle after the cancellation coincidence leaves the commanding controller registered without DEREGISTER, for either row order"
+        ],
+        "verdict": "KILLED"
+      },
+      {
+        "mutant": "golden-aecp_notify-failure-window",
+        "suite": "make failure-window",
+        "build_rc": 0,
+        "run_rc": 0,
+        "completed": true,
+        "named_checks": [],
+        "missing": [],
+        "failing_checks": [],
+        "verdict": "PASS"
+      }
+    ],
+    "differences": []
+  },
+  "d3": {
+    "logs": 116,
+    "graded_logs": 116,
+    "json_equal": true,
+    "added": [],
+    "differences": []
+  },
+  "adp": {
+    "logs": 62,
+    "graded_logs": 62,
+    "json_equal": null,
+    "added": [],
+    "differences": []
+  },
+  "aecp": {
+    "logs": 67,
+    "graded_logs": 67,
+    "json_equal": null,
+    "added": [],
+    "differences": []
+  },
+  "dispatch": {
+    "logs": 44,
+    "graded_logs": 44,
+    "json_equal": true,
+    "added": [],
+    "differences": []
+  },
+  "acmp": {
+    "logs": 37,
+    "graded_logs": 37,
+    "json_equal": true,
+    "added": [],
+    "differences": []
+  },
+  "gsi": {
+    "logs": 44,
+    "graded_logs": 22,
+    "json_equal": true,
+    "added": [],
+    "differences": []
+  },
+  "name": {
+    "logs": 6,
+    "graded_logs": 3,
+    "json_equal": true,
+    "added": [],
+    "differences": []
+  },
+  "ctr": {
+    "logs": 18,
+    "graded_logs": 18,
+    "json_equal": null,
+    "added": [],
+    "differences": []
+  },
+  "maap": {
+    "logs": 32,
+    "graded_logs": 32,
+    "json_equal": null,
+    "added": [],
+    "differences": []
+  }
+}

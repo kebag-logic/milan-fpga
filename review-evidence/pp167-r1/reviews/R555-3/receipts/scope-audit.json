@@ -1,0 +1,47 @@
+{
+  "head": "bcbf382e5f4d17ccfd8ae75a80bbc45902c75b7d",
+  "baseline": "1411117e646023cb236de02e3acaf9bdfcef49e3",
+  "changed_paths": [
+    "docs/architecture/09_verification.md"
+  ],
+  "unchanged_objects": {
+    "hdl": {
+      "baseline_object": "4d21ab6512ec2293cec6f43ff9456784c7f6c642",
+      "head_object": "4d21ab6512ec2293cec6f43ff9456784c7f6c642"
+    },
+    "tb": {
+      "baseline_object": "98fde28dc5c7e4dd6375dbac67d84820efecc038",
+      "head_object": "98fde28dc5c7e4dd6375dbac67d84820efecc038"
+    },
+    "scripts": {
+      "baseline_object": "316cdbc84b54f7cf2172e272594f1ec2aa88686a",
+      "head_object": "316cdbc84b54f7cf2172e272594f1ec2aa88686a"
+    },
+    "syn": {
+      "baseline_object": "a5e560a610a05d27d0c184285253d1763a1ec3de",
+      "head_object": "a5e560a610a05d27d0c184285253d1763a1ec3de"
+    },
+    "docs/architecture/06_aecp_engine.md": {
+      "baseline_object": "99d3938f92e3458aa51b785608cbc3d6d1a1d513",
+      "head_object": "99d3938f92e3458aa51b785608cbc3d6d1a1d513"
+    },
+    "docs/architecture/07_memory_maps.md": {
+      "baseline_object": "a16b87cf1c4cc879ca00a349ea8a939d834779e6",
+      "head_object": "a16b87cf1c4cc879ca00a349ea8a939d834779e6"
+    }
+  },
+  "identical_non_delta_blob_and_mode_entries": 580,
+  "notification_section_count": 7,
+  "notification_rows": [
+    "| TIM | `tb/aecp_notify` FT (second build, `P-EN-IDENTIFY-NOTIFICATION` = 1) | the schedule's one-tick margins at the full timebase (the F01.5 default `P-CLK-HZ`; the pp_top bench's compressed tick cannot resolve them): a frame that leaves two clocks before a ms boundary is followed `T-IDENT-BURST` after that boundary, never a tick sooner; Figure 7-142's timeout counts from the boundary after the first frame left |",
+    "| DIR | `tb/aecp_notify` IX | the registry's identity index: a reused row refuses its previous controller, no identity one bit from a registered one matches, and in both cycles of a REGISTER's rewrite a command matching what `rows_r` holds still wins against a failed probe in the same cycle: in the row write's own cycle the reused row's previous controller, and, after a reset in that cycle, the row's identity, which the index then lacks |",
+    "| DIR | `tb/aecp_notify` TS | the counter throttle stamps' valid bit: a second change in the same second is held, and after a warm reset a change in that second goes out at once |",
+    "| DIR | `tb/aecp_notify` TW | a counter round that waits for the TX slot: the next round waits a second from the round's last send, never from its selection, and a change made while a job waits more than a second still waits a second after that send |",
+    "| DIR | `tb/aecp_notify` DR | a DEREGISTER drained between two jobs of a round, after a TIME_LIMITED expiry or a failed CONTROLLER_AVAILABLE retry: the round's remaining controller still receives the round's notification (a GET_COUNTERS and a SET_NAME round), the expired controller alone its own DEREGISTER, and with the drained row's next job held for the TX slot the next counter round still waits a second from that controller's send |",
+    "| TIM | `tb/aecp_notify` CX | the superseding command presents exactly one availability cancellation in its own clock, before the top's registered mask |",
+    "| TIM | `tb/aecp_notify` SC (#167) | at one interface, a TIME_LIMITED drain and another controller's command in the same clock send both availability cancellations exactly once, in either row order; a failure for the commanding owner presented in the deferred cancellation's clock leaves that controller registered and sends no DEREGISTER |"
+  ],
+  "count_two_branch_equal_to_source_base_except_inactive_zero_tie": true,
+  "required_submodule_gitlinks": [],
+  "note": "The processor tree contains no gitlinks; parent integration is outside this clone."
+}

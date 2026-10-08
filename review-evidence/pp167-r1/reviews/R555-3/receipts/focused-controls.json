@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "$REVIEWS/r555-3-pp167/tb/pp_top/notify_mutants.py",
+    "--output",
+    "$REVIEWS/pp167-r555-3-packet/receipts/focused-controls",
+    "--jobs",
+    "2",
+    "--verilator",
+    "$REVIEWS/pp167-r555-3-packet/scripts/limited_verilator.py",
+    "--only",
+    "cancel_collision_drops_command",
+    "cancel_pending_accepts_failure"
+  ],
+  "cwd": "$REVIEWS/r555-3-pp167",
+  "started": "2026-10-08T12:40:59.205769+00:00",
+  "finished": "2026-10-08T12:41:16.892079+00:00",
+  "rc": 0,
+  "compiler_workers_per_build": 4
+}

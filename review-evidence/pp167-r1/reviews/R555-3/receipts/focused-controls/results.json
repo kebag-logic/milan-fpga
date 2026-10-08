@@ -1,0 +1,54 @@
+[
+ {
+  "mutant": "golden-aecp_notify-collision",
+  "suite": "make collision",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-aecp_notify-failure-window",
+  "suite": "make failure-window",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "cancel_pending_accepts_failure",
+  "suite": "make failure-window",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "SC2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "SC2: a failure one cycle after the cancellation coincidence leaves the commanding controller registered without DEREGISTER, for either row order"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cancel_collision_drops_command",
+  "suite": "make collision",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "SC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "SC1: a TIME_LIMITED drain and another controller's command in the same cycle cancel both probes exactly once, for either row order"
+  ],
+  "verdict": "KILLED"
+ }
+]
