@@ -253,7 +253,7 @@ MUTANTS = (
            "void acmp_open(struct acmp *a)\n{\n\tif (!enter(a)) {\n\t\treturn;\n\t}\n",
            "void acmp_open(struct acmp *a)\n{\n",
            "acmp", "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
-           "A23 a call made from inside the send port is refused, counted and trapped, entry 9"),
+           "A23 a call made from inside the send port is refused, counted and trapped, entry 10"),
     Mutant("app-acmp-never-opened", "app/ctrl_app.c", "\t\tacmp_mbx_open(&app->acmp);\n", "",
            "acmp", "AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract",
            "U5 and writes the bound-talker entry of the binding restored",
