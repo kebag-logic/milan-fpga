@@ -1,0 +1,79 @@
+FAIL archive hash: r1-c7b69cd0/recipe/orchestration/ooc.sh: expected 4240a680a9745d40630893587174cbffdb5339b4a8c66d6c55cff3684c25af9f, actual 63e1e44eee1c05d13f800871ca189324148291d02e15b99dacf562ed60ed018b
+FAIL archive hash: r1-c7b69cd0/recipe/orchestration/route.sh: expected fe0efea86792393a8989391b459bb48bf369bcac16377a2fdeac2aece584456c, actual c6f8148dbdecc93aa56d4c757b26b4bc8f273a654ca9edb188ccde3d7577c6b9
+FAIL archive hash: r2-48f12dc1/recipe/orchestration/ooc.sh: expected 6284434e2db3064d7ab57c896af1a1f95d2c5e745954916265f3e018732ccceb, actual d1ff02f1ad7c57f913070b76fadc6bd490b1bdc3667a55dbf19f5d974ba90e00
+FAIL archive hash: r2-48f12dc1/recipe/orchestration/route.sh: expected d926c011e025a53517bbf44f0213956b6576dc8c0d041ad2dc773f60c58c0992, actual 0b6ac93aee58e76fa05c26ebd2e6be9774ec6f5e9ca52bf0eb0661ade1cf367b
+Archive manifest: 186 files, 4 hash mismatches, no unlisted files.
+r2-48f12dc1-route-1x1 rc 0
+route status: complete
+route-1x1: inputs_sha256 0c3280d1a541d53c7d56e0dd9493b11d8f58074dec3a81feb5ac93ba70f0e0f9
+route-1x1: LUT 50391, FF 54263, SLICE 15788, BRAM_TILE 87.5, RAMB36 74, RAMB18 27, DSP 14, WNS_ns 0.241, WHS_ns 0.029, CARRY4 3372
+route-1x1: record EQUAL
+
+r1-c7b69cd0-route-1x1 rc 0
+route status: complete
+route-1x1: inputs_sha256 f76f9b167d0381fd6c9b78cc833c452b62a8e75eb2c39d9b737d2d6fe5600db8
+route-1x1: LUT 50088, FF 54188, SLICE 15843, BRAM_TILE 87.5, RAMB36 74, RAMB18 27, DSP 14, WNS_ns 0.317, WHS_ns 0.036, CARRY4 3372
+route-1x1: record EQUAL
+
+r2-48f12dc1-ooc-1x1 rc 0
+ooc-1x1: inputs_sha256 9782839eeb68d59bbdd0f081d1d2a6d9d1d2c11390c8bab29089f16c4e2f9616
+ooc-1x1: LUT 23179, FF 19779, BRAM_TILE 17.5, RAMB36 16, RAMB18 3, DSP 8, WNS_ns -3.562, WHS_ns 0.159, CARRY4 1494
+ooc-1x1: record EQUAL
+
+r1-c7b69cd0-ooc-1x1 rc 0
+ooc-1x1: inputs_sha256 a80dd3e4d79584617090bbb16a7ee434875455e23c2c407cf58ac3b3611853c1
+ooc-1x1: LUT 23178, FF 19776, BRAM_TILE 17.5, RAMB36 16, RAMB18 3, DSP 8, WNS_ns -2.58, WHS_ns 0.159, CARRY4 1494
+ooc-1x1: record EQUAL
+
+r2-48f12dc1-ooc-8x8 rc 0
+ooc-8x8: inputs_sha256 776f4f7f267fc8a85b792d5342787ea3ef78566f0fcd3b0330838659e36b5b2f
+ooc-8x8: LUT 30135, FF 27380, BRAM_TILE 23.5, RAMB36 21, RAMB18 5, DSP 8, WNS_ns -2.278, WHS_ns 0.159, CARRY4 1889
+ooc-8x8: record EQUAL
+
+r1-c7b69cd0-ooc-8x8 rc 0
+ooc-8x8: inputs_sha256 30948570d668cbf9997ef3bd98138e73635d9b8f95549eac9f4f30e4c43c63c8
+ooc-8x8: LUT 29853, FF 27370, BRAM_TILE 23.5, RAMB36 21, RAMB18 5, DSP 8, WNS_ns -4.095, WHS_ns 0.159, CARRY4 1889
+ooc-8x8: record EQUAL
+
+route-1x1 against baseline F: rc 0
+figure        baseline   candidate     delta  verdict
+LUT              49957       50391       434  ok
+FF               54274       54263       -11  ok, below the baseline
+SLICE            15734       15788        54  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.124       0.241     0.117  ok
+WHS_ns           0.031       0.029    -0.002  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT -48, FF -2
+  wrapper: LUT -47, FF -2
+  u_pp/u_aecp/u_dyn: LUT -41, FF +0
+  u_pp/u_srp/u_listener: LUT -27, FF +0
+  u_pp/u_aecp: LUT -25, FF +0
+  u_pp/u_talker: LUT -20, FF +0
+  u_pp/u_aecp/u_d3: LUT +18, FF +0
+  u_pp/u_originator: LUT +12, FF +0
+  u_pp/u_notify: LUT -7, FF -2
+  u_pp/u_srp/u_vlan: LUT -9, FF +0
+  u_pp/u_srp/u_admission: LUT +8, FF +0
+  u_pp/u_srp/u_domain: LUT -8, FF +0
+RESULT: PASS
+ooc-1x1 against baseline F: rc 0
+figure        baseline   candidate     delta  verdict
+LUT              23179       23179         0  ok
+FF               19779       19779         0  ok
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+RESULT: PASS
+ooc-8x8 against baseline F: rc 0
+figure        baseline   candidate     delta  verdict
+LUT              30135       30135         0  ok
+FF               27380       27380         0  ok
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+RESULT: PASS
+PASS: all six records reproduced; current policies unchanged and all three endpoints pass baseline F.
