@@ -8,6 +8,11 @@ The series contains:
 
 - `0002-liteeth-gmii-tx-clk-invert.patch`: expose the AX7101 GMII transmit
   clock phase control used by `milan_soc.py --gtx-tx-invert`.
+- `0007-liteeth-gmii-rx-capture.patch`: capture RX pads without reset.
+  Sample reset alongside data and valid, then mask their outputs.
+  This preserves synchronous reset behavior and the existing latency.
+  Reset logic cannot precede the input flops through control-set remapping.
+  RX-error remains unused; MII has no required RX IOB capture.
 - `0004-vexiiriscv-baremetal-variant.patch`: add the cacheless, machine-mode
   RV32I Vexii variant and publish an MMU constant only when one exists.
 - `0005-vexiiriscv-cacheless-litex.patch`: connect the cacheless instruction and

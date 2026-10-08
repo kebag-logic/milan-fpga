@@ -6,6 +6,8 @@
 #   0002-liteeth-gmii-tx-clk-invert.patch -> liteeth (GMII gtx_clk 180° option; fixes the
 #                                            marginal RTL8211E TX setup/hold — used by
 #                                            milan_soc.py --gtx-tx-invert)
+#   0007-liteeth-gmii-rx-capture.patch -> liteeth (resetless GMII RX pad capture;
+#                                         sampled reset masks valid/data after it)
 #   0004-vexiiriscv-baremetal-variant.patch -> litex (RV32I, M-mode-only CPU variant)
 #   0006-bios-dispatch-hook.patch -> litex (per-line service and link guard)
 #   0005-vexiiriscv-cacheless-litex.patch -> pythondata-cpu-vexiiriscv (connect the
@@ -32,6 +34,7 @@ REV=""
 #   <tree-key> <patch file>
 SERIES=(
     "liteeth 0002-liteeth-gmii-tx-clk-invert.patch"
+    "liteeth 0007-liteeth-gmii-rx-capture.patch"
     "litex   0004-vexiiriscv-baremetal-variant.patch"
     "litex   0006-bios-dispatch-hook.patch"
     "pythondata_cpu_vexiiriscv 0005-vexiiriscv-cacheless-litex.patch"

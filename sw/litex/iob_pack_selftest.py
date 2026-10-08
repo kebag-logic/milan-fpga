@@ -383,6 +383,16 @@ def blinded_delay_in(port: str) -> Netlist:
     return net
 
 
+def reset_before_d() -> Netlist:
+    """A synchronous reset remapped ahead of the RX-valid capture (#691)."""
+    port = "eth0_rx_dv"
+    net = planted_in(port, [("LUT2", "SLICE_X0Y119")])
+    net.pin(f"{port}_dst0", "O", "OUT", "reset_masked_d")
+    net.cells["rx_valid_capture"] = ("FDRE", "SLICE_X0Y119")
+    net.pin("rx_valid_capture", "D", "IN", "reset_masked_d")
+    return net
+
+
 def unconstrained() -> Netlist:
     """The shipping shape with every IOB property answering nothing."""
     net = shipping()
@@ -493,6 +503,9 @@ ARMS = (
     Arm("rx pin read only by LUTs, no register",
         planted_in(RX, [("LUT3", "SLICE_X0Y122")]), 1, RX,
         (f"FAIL  {RX}: IN, no register reads the pad, only:",)),
+    Arm("RX-valid reset remapped into a LUT before capture D",
+        reset_before_d(), 1, "eth0_rx_dv",
+        ("FAIL  eth0_rx_dv: IN, no register reads the pad, only:",)),
     Arm("bidirectional port", inout(), 1, "eth0_mdio",
         ("FAIL  eth0_mdio: direction INOUT",)),
     Arm("unpacked output, and the port's net answers no pin",
