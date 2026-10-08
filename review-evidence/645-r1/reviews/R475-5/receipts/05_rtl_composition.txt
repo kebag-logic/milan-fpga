@@ -1,0 +1,20 @@
+Changed lines in hdl/milan/milan_datapath.sv between PR head 85db3534 and candidate (the dev-side delta):
+19
+of which not '//' comment lines:
+0
+Changed lines between dev 6aa25dec and candidate in milan_datapath.sv (the PR-side delta) hunks:
+@@ -1218,0 +1219,5 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -1306,0 +1312,3 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -6010,0 +6019,4 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -6012 +6024,2 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -6552,0 +6566,88 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -6560,2 +6661,3 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -6563,0 +6666 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+KL_maap.sv blob: dev 6adb624a58c094f502e0e03be9773f90b8509ed9 candidate 6adb624a58c094f502e0e03be9773f90b8509ed9
+KL_chan_map_capture.sv blob: PR 58539a09fd8cd99f5f2124c378f0331bbedfa72e candidate 58539a09fd8cd99f5f2124c378f0331bbedfa72e
+Dev-side RTL (*.sv/*.v) paths changed since merge base:
+hdl/ieee1722/maap/KL_maap.sv
+hdl/milan/milan_datapath.sv
+PR-side RTL paths changed since merge base:
+hdl/ieee1722/aaf/KL_chan_map_capture.sv
+hdl/milan/milan_datapath.sv

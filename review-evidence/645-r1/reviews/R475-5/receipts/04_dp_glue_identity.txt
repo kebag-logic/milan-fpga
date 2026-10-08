@@ -1,0 +1,24 @@
+dp_glue.py (candidate copy) run over milan_datapath.sv from PR head 85db3534 and from candidate 17c39e57:
+8b243c9978fbda9d6b46be90157ccc14b022a01bcd36d4df03fc4b1f2e6a3672  glue_pr.svh
+c49ba12c2d6461559e2d4dad58accaefde4eeed578c3ca9840418df150c5c9ce  glue_cand.svh
+full outputs differ only in '//' provenance lines (source file name, +1 line offsets from the dev-side MAAP comment):
+3,9c3,9
+< // ---- clock-source decode: DP:1592-1629
+< // ---- servo reference mux (W2): DP:5976-5997
+< // ---- aligner select, keep-off and tick: DP:6158-6169
+< // ---- servo window: DP:6021-6021
+< // ---- #386 settled-grid recentre: DP:6517-6564
+< // ---- #645 settle recentre: DP:6588-6652
+< // ---- render recentre pulse: DP:6663-6666
+---
+> // ---- clock-source decode: DP:1593-1630
+> // ---- servo reference mux (W2): DP:5977-5998
+> // ---- aligner select, keep-off and tick: DP:6159-6170
+> // ---- servo window: DP:6022-6022
+> // ---- #386 settled-grid recentre: DP:6518-6565
+> // ---- #645 settle recentre: DP:6589-6653
+> // ---- render recentre pulse: DP:6664-6667
+non-comment lines: 190 vs 190
+99e78387510e08c9f9f97e6685b74576d6fb11b555a435623a043f1af8d7ef0e  glue_pr.code
+99e78387510e08c9f9f97e6685b74576d6fb11b555a435623a043f1af8d7ef0e  glue_cand.code
+RESULT: extracted glue code identical

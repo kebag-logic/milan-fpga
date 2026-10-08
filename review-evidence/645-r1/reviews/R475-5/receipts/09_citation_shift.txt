@@ -1,0 +1,315 @@
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:231 cites milan_datapath.sv:607 origin=dev+pr side=85db3534
+    side text: //      The servo engages while a CRF or AAF CLOCK_SOURCE is followed
+    candidate: //      tie: ps_clk = axis_clk, drp_rdy/do = 0, locked = 1, ps_done = 0.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:291 cites milan_datapath.sv:704 origin=dev+pr side=85db3534
+    side text: //! the CLOCK_DOMAIN's count, identity list).
+    candidate: //! 16'hFFFF fold does; the processor cannot store one (its range check is
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:292 cites milan_datapath.sv:1554 origin=dev+pr side=6aa25dec
+    side text: //! the lwSRP listener socket (CSR override retained as the manual lever),
+    candidate: //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:292 cites milan_datapath.sv:1554 origin=dev+pr side=85db3534
+    side text: wire [15:0]              acmp_cmd_count, acmp_resp_count;
+    candidate: //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:292 cites milan_datapath.sv:1570 origin=dev+pr side=6aa25dec
+    side text: //! told and the number of contexts that can answer it are ONE constant.
+    candidate: //! g_acmp_crf_src). N = 1 keeps the byte-identical single-source shape.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:292 cites milan_datapath.sv:1570 origin=dev+pr side=85db3534
+    side text: //! THE ENTITY SHAPE IS DEFINED BY THE CONFIG, NOT BY THIS FILE.
+    candidate: //! g_acmp_crf_src). N = 1 keeps the byte-identical single-source shape.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:293 cites milan_datapath.sv:5508 origin=dev+pr side=6aa25dec
+    side text: 5'd1 : begin
+    candidate: //! aimed at a different index restarts the set rather than mixing
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:293 cites milan_datapath.sv:5508 origin=dev+pr side=85db3534
+    side text: //! two listeners' halves into one 64-bit value
+    candidate: //! aimed at a different index restarts the set rather than mixing
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:293 cites milan_datapath.sv:5572 origin=dev+pr side=6aa25dec
+    side text: aaf_chn_clamp = (c < 4'd2)  ? 4'd2
+    candidate: //  Row 0 (the legacy talker+listener pair) is untouched: it keeps
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:293 cites milan_datapath.sv:5572 origin=dev+pr side=85db3534
+    side text: //  LWSRP_TSPEC verbatim, silicon-proven, per the no-regression axiom.
+    candidate: //  Row 0 (the legacy talker+listener pair) is untouched: it keeps
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:294 cites milan_datapath.sv:5530 origin=dev+pr side=6aa25dec
+    side text: wing_stg_vld_r  <= 1'b0;   //! staging is spent by its commit
+    candidate: wing_route_we_r <= 1'b1;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:294 cites milan_datapath.sv:5530 origin=dev+pr side=85db3534
+    side text: wing_idx_r      <= {1'b0, wing_wr_idx_w};
+    candidate: wing_route_we_r <= 1'b1;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:294 cites milan_datapath.sv:5534 origin=dev+pr side=6aa25dec
+    side text: end
+    candidate: wing_sid_r      <= wing_stg_hit_w ? {wing_sid_hi_r, wing_sid_lo_r}
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:294 cites milan_datapath.sv:5534 origin=dev+pr side=85db3534
+    side text: : 64'd0;
+    candidate: wing_sid_r      <= wing_stg_hit_w ? {wing_sid_hi_r, wing_sid_lo_r}
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:301 cites milan_datapath.sv:5608 origin=dev+pr side=6aa25dec
+    side text: (tctx_w0_wr_w && (32'(csr_tctx_wr_addr_w[6:4]) == gc))
+    candidate: wire       tctx_w0_wr_w = csr_tctx_wr_p_w &&
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:301 cites milan_datapath.sv:5608 origin=dev+pr side=85db3534
+    side text: (csr_tctx_wr_addr_w[3:0] == 4'd0) &&
+    candidate: wire       tctx_w0_wr_w = csr_tctx_wr_p_w &&
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:301 cites milan_datapath.sv:5612 origin=dev+pr side=6aa25dec
+    side text: //! round away - the table's own note says "One more byte is added to
+    candidate: wire [15:0] tctx_maxf_w [N_STREAMS];
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:301 cites milan_datapath.sv:5612 origin=dev+pr side=85db3534
+    side text: generate
+    candidate: wire [15:0] tctx_maxf_w [N_STREAMS];
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:305 cites milan_datapath.sv:5733 origin=dev+pr side=6aa25dec
+    side text: //! Stream Input counters "each time the Stream Input changes its state
+    candidate: .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:305 cites milan_datapath.sv:5733 origin=dev+pr side=85db3534
+    side text: //! task #32: every entry rides its own sink's bind level, so an UNBIND
+    candidate: .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:305 cites milan_datapath.sv:5748 origin=dev+pr side=6aa25dec
+    side text: .TDATA_WIDTH (TDATA_WIDTH), .BIG_ENDIAN (0), .N_STREAMS (N_STREAMS)
+    candidate: .wr_en_i (wing_tbl_we_r), .wr_idx_i (wing_idx_r),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:305 cites milan_datapath.sv:5748 origin=dev+pr side=85db3534
+    side text: .wr_sid_i (wing_sid_r), .wr_valid_i (wing_en_r),
+    candidate: .wr_en_i (wing_tbl_we_r), .wr_idx_i (wing_idx_r),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:306 cites milan_datapath.sv:5713 origin=dev+pr side=6aa25dec
+    side text: crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
+    candidate: always_comb begin : crft_stat_pack
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:306 cites milan_datapath.sv:5713 origin=dev+pr side=85db3534
+    side text: crft_stat_c        = 32'd0;
+    candidate: always_comb begin : crft_stat_pack
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:306 cites milan_datapath.sv:5718 origin=dev+pr side=6aa25dec
+    side text: 
+    candidate: crft_stat_c[4]     = 1'b0;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:306 cites milan_datapath.sv:5718 origin=dev+pr side=85db3534
+    side text: crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
+    candidate: crft_stat_c[4]     = 1'b0;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:308 cites milan_datapath.sv:3108 origin=dev+pr side=6aa25dec
+    side text: wire        aaf_frame_mr_w;
+    candidate: //  clause's interval + reset-on-start semantics. The streaming level is
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:308 cites milan_datapath.sv:3108 origin=dev+pr side=85db3534
+    side text: //  the COMPOSED per-talker admission gate; the CRF context's level is its
+    candidate: //  clause's interval + reset-on-start semantics. The streaming level is
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:308 cites milan_datapath.sv:3156 origin=dev+pr side=6aa25dec
+    side text: tkd_crfq_r     <= 32'd0;
+    candidate: //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:308 cites milan_datapath.sv:3156 origin=dev+pr side=85db3534
+    side text: //! AAF frame pulse occupies the diag event port (events are ~8.5 k/s
+    candidate: //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:309 cites milan_datapath.sv:3180 origin=dev+pr side=6aa25dec
+    side text: //  crf_locked_w falling IS the disruption: KL_crf_rx drops lock after
+    candidate: end endgenerate
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:309 cites milan_datapath.sv:3180 origin=dev+pr side=85db3534
+    side text: // --------------------------------------------------------------------------
+    candidate: end endgenerate
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:309 cites milan_datapath.sv:3203 origin=dev+pr side=6aa25dec
+    side text: //! own scoping and not a convenience: "If a Listener is receiving both a
+    candidate: always_ff @(posedge axis_clk) begin : mcr_trigger
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:309 cites milan_datapath.sv:3203 origin=dev+pr side=85db3534
+    side text: if (!axis_resetn) tkd_crflk_q_r <= 1'b0;
+    candidate: always_ff @(posedge axis_clk) begin : mcr_trigger
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:311 cites milan_datapath.sv:6079 origin=dev+pr side=6aa25dec
+    side text: //  publishes a TDM frame whole at its close, the strobe of pair
+    candidate: //  The one-grid rule now holds in its strongest form, as a CHAIN with one
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:311 cites milan_datapath.sv:6079 origin=dev+pr side=85db3534
+    side text: //  master per link: CRF -> KL_mmcm_drp_servo -> the physical audio clock
+    candidate: //  The one-grid rule now holds in its strongest form, as a CHAIN with one
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:311 cites milan_datapath.sv:6126 origin=dev+pr side=6aa25dec
+    side text: //
+    candidate: //     declaration, copied out of this file, and refuses to build unless
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:311 cites milan_datapath.sv:6126 origin=dev+pr side=85db3534
+    side text: //     the instance below binds it).
+    candidate: //     declaration, copied out of this file, and refuses to build unless
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:312 cites milan_datapath.sv:3469 origin=dev+pr side=6aa25dec
+    side text: wire  [31:0] ctr_ans_raw_w;
+    candidate: //! combinationally (the audio-map page scans and the Tables 5.9-5.12 flag
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:312 cites milan_datapath.sv:3469 origin=dev+pr side=85db3534
+    side text: //! terms are over a nanosecond deep), and landed back in the engine's
+    candidate: //! combinationally (the audio-map page scans and the Tables 5.9-5.12 flag
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:312 cites milan_datapath.sv:3475 origin=dev+pr side=6aa25dec
+    side text: && (ctrq_index_r == pp_ctr_desc_index_w)
+    candidate: //! integrator-hold checks in the harnesses), and the per-beat cost is two
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:312 cites milan_datapath.sv:3475 origin=dev+pr side=85db3534
+    side text: //! 10 ns cycles against millisecond commands.
+    candidate: //! integrator-hold checks in the harnesses), and the per-beat cost is two
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:313 cites milan_datapath.sv:5418 origin=dev+pr side=6aa25dec
+    side text: assign acmp_tbl_gnt_w = 1'b0;
+    candidate: assign acmpl_tk_avail = 1'b0;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:313 cites milan_datapath.sv:5418 origin=dev+pr side=85db3534
+    side text: assign acmpl_lstn_declare = 1'b0;
+    candidate: assign acmpl_tk_avail = 1'b0;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:313 cites milan_datapath.sv:5446 origin=dev+pr side=6aa25dec
+    side text: //! per-stream bind LEVEL and the per-stream bind FALL, so "a bind fall on a
+    candidate: //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:313 cites milan_datapath.sv:5446 origin=dev+pr side=85db3534
+    side text: //! below).
+    candidate: //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:316 cites milan_datapath.sv:5858 origin=dev+pr side=6aa25dec
+    side text: .mr_toggle_p_o (crf_mr_toggle_p_w),
+    candidate: .pullbase_i  (avtprx_ts),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:316 cites milan_datapath.sv:5858 origin=dev+pr side=85db3534
+    side text: .fsh_i       (avtprx_fsh),
+    candidate: .pullbase_i  (avtprx_ts),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:316 cites milan_datapath.sv:5865 origin=dev+pr side=6aa25dec
+    side text: //! ACMP sink-1 bind wins; the CSR pair stays the manual bench lever
+    candidate: //! under the clock-source gate the clause itself scopes it with.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:316 cites milan_datapath.sv:5865 origin=dev+pr side=85db3534
+    side text: .mr_toggle_p_o (crf_mr_toggle_p_w),
+    candidate: //! under the clock-source gate the clause itself scopes it with.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:317 cites milan_datapath.sv:2576 origin=dev+pr side=6aa25dec
+    side text: .i_aaf_gate           (aaf_gate),
+    candidate: .i_acmp_talker_active (acmp_talker_active),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:317 cites milan_datapath.sv:2576 origin=dev+pr side=85db3534
+    side text: //! per-stream talker truth vectors (window honesty, 2026-07-26)
+    candidate: .i_acmp_talker_active (acmp_talker_active),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:325 cites milan_datapath.sv:5756 origin=dev+pr side=6aa25dec
+    side text: .s_tkeep_i  (rx_axis_from_mac.tkeep),
+    candidate: .TDATA_WIDTH (TDATA_WIDTH), .BIG_ENDIAN (0), .N_STREAMS (N_STREAMS)
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:325 cites milan_datapath.sv:5756 origin=dev+pr side=85db3534
+    side text: ) avtp_rx_parser (
+    candidate: .TDATA_WIDTH (TDATA_WIDTH), .BIG_ENDIAN (0), .N_STREAMS (N_STREAMS)
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:325 cites milan_datapath.sv:5758 origin=dev+pr side=6aa25dec
+    side text: .s_tready_i (rx_axis_from_mac.tready),
+    candidate: .clk (axis_clk), .resetn (axis_resetn),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:325 cites milan_datapath.sv:5758 origin=dev+pr side=85db3534
+    side text: .cfg_stream_id_i (strtbl_sid_w),
+    candidate: .clk (axis_clk), .resetn (axis_resetn),
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:430 cites milan_datapath.sv:5418 origin=dev+pr side=6aa25dec
+    side text: assign acmp_tbl_gnt_w = 1'b0;
+    candidate: assign acmpl_tk_avail = 1'b0;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:430 cites milan_datapath.sv:5418 origin=dev+pr side=85db3534
+    side text: assign acmpl_lstn_declare = 1'b0;
+    candidate: assign acmpl_tk_avail = 1'b0;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:430 cites milan_datapath.sv:5446 origin=dev+pr side=6aa25dec
+    side text: //! per-stream bind LEVEL and the per-stream bind FALL, so "a bind fall on a
+    candidate: //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:430 cites milan_datapath.sv:5446 origin=dev+pr side=85db3534
+    side text: //! below).
+    candidate: //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:439 cites milan_datapath.sv:5530 origin=dev+pr side=6aa25dec
+    side text: wing_stg_vld_r  <= 1'b0;   //! staging is spent by its commit
+    candidate: wing_route_we_r <= 1'b1;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:439 cites milan_datapath.sv:5530 origin=dev+pr side=85db3534
+    side text: wing_idx_r      <= {1'b0, wing_wr_idx_w};
+    candidate: wing_route_we_r <= 1'b1;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:439 cites milan_datapath.sv:5534 origin=dev+pr side=6aa25dec
+    side text: end
+    candidate: wing_sid_r      <= wing_stg_hit_w ? {wing_sid_hi_r, wing_sid_lo_r}
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:439 cites milan_datapath.sv:5534 origin=dev+pr side=85db3534
+    side text: : 64'd0;
+    candidate: wing_sid_r      <= wing_stg_hit_w ? {wing_sid_hi_r, wing_sid_lo_r}
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1008 cites milan_datapath.sv:1560 origin=dev+pr side=6aa25dec
+    side text: //! ACMP talker source contexts = the N audio talkers plus, at N > 1, the
+    candidate: wire [11:0]              cfg_aaf_vid;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1008 cites milan_datapath.sv:1560 origin=dev+pr side=85db3534
+    side text: //! Milan talker SM (docs/overview/ARCHITECTURE.md): ACMP probe state,
+    candidate: wire [11:0]              cfg_aaf_vid;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1008 cites milan_datapath.sv:1570 origin=dev+pr side=6aa25dec
+    side text: //! told and the number of contexts that can answer it are ONE constant.
+    candidate: //! g_acmp_crf_src). N = 1 keeps the byte-identical single-source shape.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1008 cites milan_datapath.sv:1570 origin=dev+pr side=85db3534
+    side text: //! THE ENTITY SHAPE IS DEFINED BY THE CONFIG, NOT BY THIS FILE.
+    candidate: //! g_acmp_crf_src). N = 1 keeps the byte-identical single-source shape.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1352 cites milan_datapath.sv:5713 origin=dev+pr side=6aa25dec
+    side text: crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
+    candidate: always_comb begin : crft_stat_pack
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1352 cites milan_datapath.sv:5713 origin=dev+pr side=85db3534
+    side text: crft_stat_c        = 32'd0;
+    candidate: always_comb begin : crft_stat_pack
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1352 cites milan_datapath.sv:5718 origin=dev+pr side=6aa25dec
+    side text: 
+    candidate: crft_stat_c[4]     = 1'b0;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1352 cites milan_datapath.sv:5718 origin=dev+pr side=85db3534
+    side text: crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
+    candidate: crft_stat_c[4]     = 1'b0;
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1369 cites milan_datapath.sv:3469 origin=dev+pr side=6aa25dec
+    side text: wire  [31:0] ctr_ans_raw_w;
+    candidate: //! combinationally (the audio-map page scans and the Tables 5.9-5.12 flag
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1369 cites milan_datapath.sv:3469 origin=dev+pr side=85db3534
+    side text: //! terms are over a nanosecond deep), and landed back in the engine's
+    candidate: //! combinationally (the audio-map page scans and the Tables 5.9-5.12 flag
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1369 cites milan_datapath.sv:3475 origin=dev+pr side=6aa25dec
+    side text: && (ctrq_index_r == pp_ctr_desc_index_w)
+    candidate: //! integrator-hold checks in the harnesses), and the per-beat cost is two
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1369 cites milan_datapath.sv:3475 origin=dev+pr side=85db3534
+    side text: //! 10 ns cycles against millisecond commands.
+    candidate: //! integrator-hold checks in the harnesses), and the per-beat cost is two
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1458 cites milan_datapath.sv:607 origin=dev+pr side=85db3534
+    side text: //      The servo engages while a CRF or AAF CLOCK_SOURCE is followed
+    candidate: //      tie: ps_clk = axis_clk, drp_rdy/do = 0, locked = 1, ps_done = 0.
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1570 cites milan_datapath.sv:705 origin=dev+pr side=85db3534
+    side text: //!
+    candidate: //! the CLOCK_DOMAIN's count, identity list).
+MOVED docs/development/CODE_QUALITY.md:1885 cites milan_datapath.sv:808 origin=dev+pr side=85db3534
+    side text: //! aliases the legacy CSR config (golden byte-compare proven); talkers
+    candidate: //! front-end (x1) + the shared N-context packetizer (TCTX). Talker 0
+MOVED docs/findings/234_PP_SHADOW_AREA_BASELINE.md:111 cites milan_datapath.sv:3168 origin=dev+pr side=6aa25dec
+    side text: generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
+    candidate: if (crft_count_w != tkd_crfq_r) tkd_crf_pend_r <= 1'b1;
+MOVED docs/findings/234_PP_SHADOW_AREA_BASELINE.md:111 cites milan_datapath.sv:3168 origin=dev+pr side=85db3534
+    side text: else if (tkd_crf_p_w)           tkd_crf_pend_r <= 1'b0;
+    candidate: if (crft_count_w != tkd_crfq_r) tkd_crf_pend_r <= 1'b1;
+MOVED docs/findings/234_PP_SHADOW_AREA_BASELINE.md:208 cites milan_datapath.sv:3168 origin=dev+pr side=6aa25dec
+    side text: generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
+    candidate: if (crft_count_w != tkd_crfq_r) tkd_crf_pend_r <= 1'b1;
+MOVED docs/findings/234_PP_SHADOW_AREA_BASELINE.md:208 cites milan_datapath.sv:3168 origin=dev+pr side=85db3534
+    side text: else if (tkd_crf_p_w)           tkd_crf_pend_r <= 1'b0;
+    candidate: if (crft_count_w != tkd_crfq_r) tkd_crf_pend_r <= 1'b1;
+MOVED docs/findings/234_PP_SHADOW_AREA_BASELINE.md:345 cites milan_datapath.sv:7681 origin=dev+pr side=6aa25dec
+    side text: //!     (1722.1-2021 6.2.6, Milan 5.6.3.5.7) and a GET_AVB_INFO trigger
+    candidate: txarb_stall_sticky_r <= 8'h0;
+MOVED docs/findings/234_PP_SHADOW_AREA_BASELINE.md:345 cites milan_datapath.sv:7681 origin=dev+pr side=85db3534
+    side text: end else begin
+    candidate: txarb_stall_sticky_r <= 8'h0;
+MOVED docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:428 cites milan_datapath.sv:445 origin=dev+pr side=85db3534
+    side text: //! CONTRACT, not by convention - KL_crf_tx divides it by 512 for the 48 kHz
+    candidate: //! A SEPARATE net from clk_audio_i on purpose: clk_audio_i is 24.576 MHz by
+MOVED docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:573 cites milan_datapath.sv:1636 origin=dev+pr side=6aa25dec
+    side text: //! The 0x0015 claim that a gateware "cannot be handed another shape's
+    candidate: //! g_acmp_crf_src drives exactly ONE more, so the only shapes this module
+MOVED docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:573 cites milan_datapath.sv:1636 origin=dev+pr side=85db3534
+    side text: //! can actually implement are ACMP_SRC_C == N_STREAMS (no CRF output) and
+    candidate: //! g_acmp_crf_src drives exactly ONE more, so the only shapes this module
+MOVED docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:724 cites milan_datapath.sv:969 origin=dev+pr side=85db3534
+    side text: else if (AUDIO_IF_RENDER_SLOTS_P > CHMAP_RPHYS_TDM_N_C)
+    candidate: AUDIO_IF_RENDER_SLOTS_P, AUDIO_IF_SLOTS_P);
+MOVED docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:724 cites milan_datapath.sv:976 origin=dev+pr side=85db3534
+    side text: $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d. Both directions rid
+    candidate: AUDIO_IF_RENDER_SLOTS_P < AUDIO_IF_SLOTS_P)
+MOVED hdl/milan/milan_datapath.sv:7317 cites milan_datapath.sv:3608 origin=dev+pr side=6aa25dec
+    side text: if (pp_gm_id_change_p_w)          ctr_gmchg_r  <= ctr_gmchg_r  + 32'd1;
+    candidate: ctr_munlock_r<= 32'd0;
+MOVED hdl/milan/milan_datapath.sv:7317 cites milan_datapath.sv:3608 origin=dev+pr side=85db3534
+    side text: end else begin
+    candidate: ctr_munlock_r<= 32'd0;
+MOVED hdl/milan/milan_datapath.sv:7317 cites milan_datapath.sv:3614 origin=dev+pr side=6aa25dec
+    side text: //! ONE interface and ONE clock domain in every shipped shape, so index 0
+    candidate: if (ctr_avb_link_edge_w &&  eff_link_w) ctr_linkup_r <= ctr_linkup_r + 32'd1;
+MOVED hdl/milan/milan_datapath.sv:7317 cites milan_datapath.sv:3614 origin=dev+pr side=85db3534
+    side text: if (ctr_avb_link_edge_w && !eff_link_w) ctr_linkdn_r <= ctr_linkdn_r + 32'd1;
+    candidate: if (ctr_avb_link_edge_w &&  eff_link_w) ctr_linkup_r <= ctr_linkup_r + 32'd1;
+MOVED scripts/check_hygiene.py:40 cites milan_datapath.sv:808 origin=dev+pr side=85db3534
+    side text: //! aliases the legacy CSR config (golden byte-compare proven); talkers
+    candidate: //! front-end (x1) + the shared N-context packetizer (TCTX). Talker 0
+MOVED syn/ooc/milan_datapath_ooc.tcl:78 cites milan_datapath.sv:1526 origin=dev+pr side=6aa25dec
+    side text: wire [15:0] cfg_adp_listener_sinks, cfg_adp_listener_caps;
+    candidate: //! readback port would be a second copy of a constant.
+MOVED syn/ooc/milan_datapath_ooc.tcl:78 cites milan_datapath.sv:1526 origin=dev+pr side=85db3534
+    side text: wire [31:0] gptp_lat_ns_pub_w = (GPTP_PLANE_EN_P != 1'b0)
+    candidate: //! readback port would be a second copy of a constant.
+MOVED tb/verilator/milan_dp/sim_nxn.cpp:9266 cites milan_datapath.sv:694 origin=dev+pr side=85db3534
+    side text: //! (media_clk_resolve, after the shape include below), and every consumer
+    candidate: //! source per AAF listener (#629 D1) - happens in ONE registered block
+MOVED scripts/gen_toc_shapes.json:5015 cites TESTING.md:605 origin=dev+pr side=6aa25dec
+    side text: ```
+    candidate: 
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:267 cites test_builder.py:19580 origin=dev+pr side=6aa25dec
+    side text: # `input_stream` always has a STREAM_INPUT to be located on: the loader
+    candidate: try:
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:267 cites test_builder.py:19590 origin=dev+pr side=6aa25dec
+    side text: eb.load_config(p)
+    candidate: # config with 'crf' dropped as well builds, and emits the sources it
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:365 cites test_builder.py:19588 origin=dev+pr side=6aa25dec
+    side text: try:
+    candidate: p.unlink()
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1454 cites test_builder.py:19580 origin=dev+pr side=6aa25dec
+    side text: # `input_stream` always has a STREAM_INPUT to be located on: the loader
+    candidate: try:
+MOVED docs/design/MEDIA_CLOCK_FOLLOWING.md:1454 cites test_builder.py:19590 origin=dev+pr side=6aa25dec
+    side text: eb.load_config(p)
+    candidate: # config with 'crf' dropped as well builds, and emits the sources it
+moved citations: 104
+
+Interpretation: every MOVED citation above has origin=dev+pr, i.e. the citing line is byte-identical in both parents; such citations predate the merge base and were moved by each side independently before this merge. 'git diff 99e4eb6c..85db3534' and 'git diff 99e4eb6c..6aa25dec' add no line citing any of the five both-sides files by line number, so the composition introduces no newly stale line citation.

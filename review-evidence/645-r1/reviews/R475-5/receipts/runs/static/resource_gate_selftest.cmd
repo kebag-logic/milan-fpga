@@ -1,0 +1,5 @@
+argv: sh -c python3 syn/ooc/pp_resource_gate.py --selftest
+cwd: $PACKET/scratch/tree
+start_utc: 2026-10-08T12:59:45Z
+end_utc: 2026-10-08T12:59:47Z
+wall_seconds: 2
