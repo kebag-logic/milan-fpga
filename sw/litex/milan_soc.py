@@ -35,6 +35,7 @@ import sys
 import subprocess
 import json
 import argparse
+from decimal import Decimal, InvalidOperation
 import binascii
 import runpy
 from pathlib import Path
@@ -2569,6 +2570,35 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
         print("[milan] --ctrl-mailbox: the CPU has no interrupt controller; firmware polls the mailbox")
 
 
+def _parse_l2_bytes(token: str) -> Decimal:
+    """Preserve fractional CLI tokens until whole-byte validation."""
+    try:
+        return Decimal(token)
+    except InvalidOperation as exc:
+        raise argparse.ArgumentTypeError(
+            "--l2-bytes must be a finite, non-negative whole number of bytes") from exc
+
+
+def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | None) -> None:
+    """Refuse CPU requests this recipe cannot honor, before CPU setup."""
+    if cpu not in ("vexiiriscv", "naxriscv"):
+        raise ValueError(f"unsupported CPU {cpu!r}; expected vexiiriscv or naxriscv")
+    if l2_bytes is not None:
+        size = Decimal(l2_bytes)
+        if not size.is_finite() or size < 0 or size != size.to_integral_value():
+            raise ValueError("--l2-bytes must be a finite, non-negative whole number of bytes")
+    if cpu == "vexiiriscv":
+        if with_fpu:
+            raise ValueError("--with-fpu is unsupported by the VexiiRiscv recipe; "
+                             "it does not enable floating-point hardware")
+        if l2_bytes:
+            raise ValueError("--l2-bytes must be 0 or omitted for the cacheless "
+                             "VexiiRiscv recipe; without a data cache it builds no L2")
+    if cpu == "naxriscv" and l2_bytes == 0:
+        raise ValueError("NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; "
+                         "omit the option or request a positive size")
+
+
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
                  with_milan=True, with_mac=False, with_dram=False,
@@ -2591,6 +2621,7 @@ class MilanSoC(SoCCore):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
             raise ValueError("unsupported software profile")
+        _validate_cpu_options(cpu, with_fpu, l2_bytes)
         # Resolve the one PHC owner once, before it fans out into RTL, firmware
         # constants and the flash artifact contract.  `none` is a real state
         # for the documented --no-milan bare-SoC path; a missing value is not
@@ -3448,7 +3479,8 @@ def main() -> None:
                     choices=("baremetal",),
                     help="firmware shape; the product uses the cacheless RV32I "
                          "M-mode Vexii core and Milan UART/CSR firmware")
-    ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
+    ap.add_argument("--with-fpu", action="store_true",
+                    help="unsupported by the VexiiRiscv recipe and baremetal product profile")
     ap.add_argument("--scala-args",   action="append", default=[],
                     help="extra NaxRiscv scala args, e.g. "
                          "alu-count=1,decode-count=1 (append)")
@@ -3460,8 +3492,8 @@ def main() -> None:
                     help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
                          "arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, "
                          "second Milan node for AVDECC interop).")
-    ap.add_argument("--l2-bytes", default=None, type=float,
-                    help="shared-L2 size in bytes (the cacheless RV32I product recipes state 0)")
+    ap.add_argument("--l2-bytes", default=None, type=_parse_l2_bytes,
+                    help="shared-L2 bytes; omit or use 0 for the cacheless VexiiRiscv product")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
                     help="separate Milan and CPU domain in Hz; must equal CPU_HZ in "
                          "tb/verilator/nvm_capture_cpu/recipe.py (bare-metal build contract), "
@@ -3767,6 +3799,10 @@ def main() -> None:
     builder_args(ap)
     args = ap.parse_args()
 
+    try:
+        _validate_cpu_options(args.cpu, args.with_fpu, args.l2_bytes)
+    except ValueError as exc:
+        ap.error(str(exc))
     if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
         ap.error("--software-profile baremetal requires --cpu vexiiriscv "
                  "--xlen 32 --cpu-count 1")
