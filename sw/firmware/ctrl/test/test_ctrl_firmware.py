@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Gate: the control-plane firmware of #665 lane F0, built and run on the host.
+"""Gate: the control-plane firmware of #665 (lanes F0 and F3), built and run on the host.
 
 WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
 compiled for the host exactly as the target compiles it, against the mailbox
@@ -27,6 +27,26 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            entity constants, its model_frame builder and its Table 5.51
            transcription ADV), driving the firmware through the model
            (adp_walk.cpp). The pin and the file's blob are proved first;
+  acmp     the ACMP core over fake ports (every Milan v1.2 5.5.3 transition,
+           the talker's 5.5.4 answers, the 5.6.4 discovery machine, the saved
+           record, the no-callback guard), then its mailbox adapter on the
+           model: the timers on the interface's slot, the ADP channel's tap,
+           every path's service cost (the H-ACMP and H-DISC hooks), owed frames
+           and the response before its notification, the adp channel's
+           bound-talker table (test_acmp.cpp, test_acmp_mbx.cpp);
+  acmpif2  test_acmp_mbx.cpp again, the firmware and the model compiled
+           against the contract elaborated for two AVB interfaces (written by
+           gen_mailbox.py into the build), so the adapter's per-interface
+           slots, tags, gPTP pair, table and paths run at two interfaces;
+  acmpwalk the PROCESSOR's own ACMP expectations, cut out of the pinned
+           submodule at build time: its F05.3 matrix model of Milan Table 5.30
+           (tb/acmp_listener), its Table 5.54 transcription (tb/adp_engine) and
+           its F05.11 constants (tb/acmp_talker), against the firmware's core,
+           every difference asserted to be what it is (acmp_walk.cpp);
+  acmpnvm  the ACMP core and its binding owner (acmp_nvm.c) on lane F1's store
+           over the host flash model at the shipping 1x1 shape: a bind saved
+           and fast-connected after a power cycle, an unread slot refusing
+           persistence (test_acmp_nvm.cpp);
   entity   for every shipped config, the ENTITY_AVAILABLE the firmware builds
            from adp_entity.py's header, field by field against what the fabric
            is programmed with (boot_policy.fabric_constants), compiled with
@@ -51,7 +71,9 @@ Every arm but rv32 and entity's header generation is a GoogleTest binary
 --self-test then plants each defect of ctrl_mutants.py into a COPY of the
 firmware tree and requires the named GoogleTest test of the named arm to
 fail on the check's own words; with --lwsrp it also requires the pin to
-refuse an edited and a moved clone.
+refuse an edited and a moved clone. --slice K/N plants only slice K of N of
+the table (contiguous, in table order), so N runs, each its own command,
+plant every defect once.
 
 --coverage DIR builds the firmware with gcov's instrumentation into DIR and
 runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
@@ -59,6 +81,7 @@ runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
 Usage:
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+    python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice 2/4
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --coverage <dir> [--lwsrp <lwSRP checkout>]
 
@@ -90,7 +113,8 @@ def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:
     try:
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
-                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree), ctrl_arms.arm_maap(tree),
+                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree), ctrl_arms.arm_acmpwalk(tree),
+                    ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_entity(tree), ctrl_arms.arm_maap(tree),
                     ctrl_arms.arm_maap_if2(tree),
                     ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
         if lwsrp is not None:
@@ -101,6 +125,14 @@ def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:
     failed = ctrl_arms.report(outcomes)
     print(f"test_ctrl_firmware coverage run: {'FAIL' if failed else 'PASS'}")
     return 1 if failed else 0
+
+
+def part(text: str) -> tuple[int, int]:
+    """K/N, 1 <= K <= N: one slice of the planted-defect table."""
+    k, _, n = text.partition("/")
+    if not (k.isdigit() and n.isdigit() and 1 <= int(k) <= int(n)):
+        raise argparse.ArgumentTypeError(f"{text!r} is not K/N with 1 <= K <= N")
+    return int(k), int(n)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -114,6 +146,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel compilation")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
+    ap.add_argument("--slice", type=part, default=(1, 1), metavar="K/N",
+                    help="with --self-test: plant slice K of N of the defect table (contiguous, in table order)")
     args = ap.parse_args(argv)
     if args.mutation_shard is not None:
         index, count = args.mutation_shard
@@ -129,7 +163,8 @@ def main(argv: list[str] | None = None) -> int:
             tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
             cut_reuse(tree.reuse)
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
-                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
+                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
+                        ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
                         ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
                         ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
@@ -140,7 +175,7 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         failed = ctrl_arms.report(outcomes)
         if args.self_test and not failed:
-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs)
+            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice)
             if args.lwsrp is not None:
                 try:
                     failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed

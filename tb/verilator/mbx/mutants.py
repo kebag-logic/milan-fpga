@@ -9,8 +9,11 @@ suite's harness against the copy with the Makefile's own recipe (read through
 `make print-vflags`, never restated here) through the adapter the arm names,
 runs it, and requires the run to complete with exit 1 and a `[FAIL]` line
 naming the arm's check. A positive control, the unmodified RTL through both
-adapters, runs first. The tree is never written: every build directory is
-under the scratch root.
+adapters, runs first. An arm that names two interfaces builds the contract's
+two-interface variant, which the generator writes into the copy (as `make
+run-if2` does into its build directory), so a defect only another interface
+shows is graded there; that variant has its own positive controls. The tree
+is never written: every build directory is under the scratch root.
 
 Usage:
     python3 tb/verilator/mbx/mutants.py [--jobs N] [--keep DIR]
@@ -36,6 +39,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RTL = HERE.parents[2] / "hdl" / "milan" / "mailbox"
+GEN = HERE.parents[2] / "sw" / "mailbox" / "gen_mailbox.py"
+CONTRACT_INC = HERE.parents[2] / "sw" / "firmware" / "ctrl" / "mbx"   # the Makefile's CONTRACT_INC
 RTL_FILES = ("KL_mbx_pkg.sv", "KL_mbx_ring.sv", "KL_mbx_rx.sv", "KL_mbx_tx.sv", "KL_mbx_evt.sv", "KL_mbx.sv",
              "KL_mbx_wb.sv", "KL_mbx_axil.sv")
 
@@ -50,6 +55,7 @@ class Arm:
     new: str
     host: int
     needle: str
+    ifs: int = 1        # the contract's interface count the arm builds; 2 is the generator's variant
 
 
 ARMS = (
@@ -195,7 +201,8 @@ ARMS = (
         "(MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && own_if_w && dst_r == own_mac_w)",
         "(MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && !dst_r[40])", 0,
         "Q2 to another destination MAC, it (aecp, command)"),
-    Arm("rx-own-mac-of-interface-0", "KL_mbx_rx.sv", "if (int'(if_r) == i) begin", "if (i == 0) begin", 0,
+    Arm("rx-own-mac-of-interface-0", "KL_mbx_rx.sv", "if (int'(if_r) == i) begin\n        own_mac_w",
+        "if (i == 0) begin\n        own_mac_w", 0,
         "Q8 another interface's own MAC, or one on an index with no interface, reaches no ring"),
     Arm("rx-own-mac-low-word-only", "KL_mbx_rx.sv", "&& own_if_w && dst_r == own_mac_w)",
         "&& own_if_w && dst_r[31:0] == own_mac_w[31:0])", 0, "Q8 a MAC differing from OWN_MAC in MAC[47:32] only"),
@@ -244,9 +251,9 @@ ARMS = (
 )
 
 
-def _both(name: str, path: str, old: str, new: str, needle: str) -> tuple[Arm, Arm]:
+def _both(name: str, path: str, old: str, new: str, needle: str, ifs: int = 1) -> tuple[Arm, Arm]:
     """One defect planted through each bus adapter: `name` on Wishbone, `name-axil` on AXI4-Lite."""
-    return Arm(name, path, old, new, 0, needle), Arm(f"{name}-axil", path, old, new, 1, needle)
+    return Arm(name, path, old, new, 0, needle, ifs), Arm(f"{name}-axil", path, old, new, 1, needle, ifs)
 
 
 #: ---- lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1),
@@ -287,6 +294,127 @@ ARMS += (
 )
 
 
+#: ---- lane F3: the adp channel's bound talkers (#665, comment 6029368753),
+#: one defect per rule through both adapters (the model's twins are in
+#: sw/firmware/ctrl/test/ctrl_mutants.py). Round 3 holds the table in
+#: distributed RAM and compares it byte by byte (comment 6032450078): the
+#: round-2 rules are planted on the lines that now carry them ----
+ARMS += (
+    # an ENTITY_AVAILABLE or ENTITY_DEPARTING of a bound talker passes: the term
+    # dropped from the contract, the identity's halves swapped into the compare
+    *_both("pkg-adp-bound-term-dropped", "KL_mbx_pkg.sv", "MBX_CH_ADP_T2_TEST_C = 32'd5;",
+           "MBX_CH_ADP_T2_TEST_C = 32'd0;", "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    *_both("rx-bound-copy-halves-swapped", "KL_mbx_rx.sv", "RW_C'(2 * int'(cp_k_r) + int'(cp_b_r[2]))",
+           "RW_C'(2 * int'(cp_k_r) + int'(!cp_b_r[2]))",
+           "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    # only those two message types, only the whole identity, only an enabled entry
+    *_both("pkg-adp-bound-term-any-type", "KL_mbx_pkg.sv", "MBX_CH_ADP_T2_MSG_MASK_C = 32'h00000003;",
+           "MBX_CH_ADP_T2_MSG_MASK_C = 32'h0000FFFF;",
+           "Q12 no other message_type of a bound talker passes on its entity_id"),
+    *_both("rx-bound-low-word-only", "KL_mbx_rx.sv", "(cnt_r == 11'(BO_C) || match_r[e])",
+           "(cnt_r == 11'(BO_C + 4) || match_r[e])", "Q12 an entity_id differing from the entry in [63:32] only"),
+    *_both("rx-bound-enable-ignored", "KL_mbx_rx.sv", "live_w[e] = fok_w && en_r[int'(fif_w) * int'(NB_C) + e] && ",
+           "live_w[e] = fok_w && ", "Q12 an entry with BOUND_EN clear, its identity still written"),
+    *_both("rx-bound-field-length-unchecked", "KL_mbx_rx.sv",
+           "MBX_TEST_EQ_BOUND_C:      if (field_ok && bound_hit_w)", "MBX_TEST_EQ_BOUND_C:      if (bound_hit_w)",
+           "Q12 an ENTITY_AVAILABLE of a bound talker that ends inside its entity_id"),
+    # every entry takes part, and each is written and read at its own address
+    *_both("rx-bound-first-entry-only", "KL_mbx_rx.sv", "assign bound_hit_w = |(match_r & live_w);",
+           "assign bound_hit_w = match_r[0] && live_w[0];", "Q12 the last entry passes its talker"),
+    *_both("rx-bound-entry-write-lands-in-entry-0", "KL_mbx_rx.sv",
+           "assign rb_wa_w = RW_C'(2 * int'(hk_w) + int'(hhi_w));", "assign rb_wa_w = RW_C'(int'(hhi_w));",
+           "R1 each bound-talker entry keeps"),
+    *_both("top-bound-entry-decoded-as-0", "KL_mbx.sv", "bnd_entry_w = 5'(entry);", "bnd_entry_w = '0;",
+           "R1 each bound-talker entry keeps"),
+    *_both("top-bound-en-read-from-eid", "KL_mbx.sv",
+           "reg_rdata_w = mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C);",
+           "reg_rdata_w = bnd_eid_w;", "R1 each bound-talker entry keeps"),
+    # the table read is the arrival interface's: at one interface an index with
+    # no interface behind it shows it, at two the other interface's table does
+    *_both("rx-bound-table-of-interface-0", "KL_mbx_rx.sv",
+           "assign {fok_w, fif_w} = (int'(if_r) < int'(MBX_N_IF_C)) ? {1'b1, if_r} : '0;",
+           "assign {fok_w, fif_w} = {1'b1, MBX_IF_W_C'(0)};",
+           "Q13 on another interface, or an index with no interface, it reaches no ring"),
+    *_both("rx-bound-enable-of-interface-0", "KL_mbx_rx.sv", "en_r[int'(fif_w) * int'(NB_C) + e]", "en_r[e]",
+           "Q13 a talker bound on interface i passes on interface i", 2),
+    *_both("top-bound-write-ignores-interface", "KL_mbx.sv",
+           "bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));", "bnd_if_w    = '0;",
+           "Q13 a talker bound on interface i passes on interface i", 2),
+    *_both("rx-bound-taps-of-interface-0", "KL_mbx_rx.sv",
+           "eq_w[e]   = rx_data_i == c_tap_w[int'(fif_w) * int'(NB_C) + e];", "eq_w[e]   = rx_data_i == c_tap_w[e];",
+           "Q13 a talker bound on interface i passes on interface i", 2),
+    *_both("rx-bound-copy-into-interface-0", "KL_mbx_rx.sv", "c_sh_w[k] = cp_step_w && int'(cp_k_r) == k;",
+           "c_sh_w[k] = cp_step_w && int'(cp_k_r) % int'(NB_C) == k;",
+           "Q13 a talker bound on interface i passes on interface i", 2),
+    # round 3: each identity byte against the same byte of every entry, as it
+    # arrives: a wrong tap, the copier's bytes in the wrong lanes, a byte left out
+    *_both("rx-bound-byte-index-off-by-one", "KL_mbx_rx.sv", "assign c_tap_w[k] = sr_r[cmp_b_w];",
+           "assign c_tap_w[k] = sr_r[cmp_b_w + 3'd1];",
+           "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    *_both("rx-bound-copy-lanes-reversed", "KL_mbx_rx.sv", "rb_q_w[8 * int'(cp_b_r[1:0]) +: 8]",
+           "rb_q_w[8 * (3 - int'(cp_b_r[1:0])) +: 8]",
+           "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    *_both("rx-bound-last-byte-uncompared", "KL_mbx_rx.sv", "(32'(cnt_r) - BO_C < 32'd8)",
+           "(32'(cnt_r) - BO_C < 32'd7)",
+           "Q15 an entity_id differing from the entry in one identity byte is refused"),
+    # the match flag is the frame's own: never armed again, or the last
+    # frame's carried into the first byte of the next
+    *_both("rx-bound-flag-never-rearmed", "KL_mbx_rx.sv", "(cnt_r == 11'(BO_C) || match_r[e])", "match_r[e]",
+           "Q14 the bound talker's right after it passes"),
+    *_both("rx-bound-flag-carried-into-the-next-frame", "KL_mbx_rx.sv",
+           "match_r[e] <= live_w[e] && eq_w[e] && (cnt_r == 11'(BO_C) || match_r[e]);",
+           "match_r[e] <= live_w[e] && (eq_w[e] || (cnt_r == 11'(BO_C) && match_r[e])) "
+           "&& (cnt_r == 11'(BO_C) || match_r[e]);",
+           "Q14 right after that, one differing from it in the first identity byte only"),
+    # an entry takes part from the first identity byte to the verdict only
+    # while BOUND_EN is set and no copy of it is owed
+    *_both("rx-bound-liveness-at-the-verdict-only", "KL_mbx_rx.sv", "else match_r[e] <= match_r[e] && live_w[e];",
+           "else match_r[e] <= match_r[e];", "Q18 one stalled while BOUND_EN is cleared and set again"),
+    *_both("rx-bound-live-while-owed", "KL_mbx_rx.sv", " && !owed_r[int'(fif_w) * int'(NB_C) + e];", ";",
+           "Q19 one stalled while BOUND_EN is set again alone"),
+    # round 4 (R530-2-F1): the verdict reads the table of the interface the frame
+    # arrived on, not the one presented with the next frame, at one interface
+    # and at two; and the owed copy gates each interface's own entries
+    *_both("rx-bound-verdict-of-the-presented-interface", "KL_mbx_rx.sv",
+           "assign {fok_w, fif_w} = (int'(if_r) < int'(MBX_N_IF_C)) ? {1'b1, if_r} : '0;",
+           "assign {fok_w, fif_w} = (int'(rx_if_i) < int'(MBX_N_IF_C)) ? {1'b1, rx_if_i} : '0;",
+           "Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone"),
+    *_both("rx-bound-verdict-of-the-presented-interface-if2", "KL_mbx_rx.sv",
+           "assign {fok_w, fif_w} = (int'(if_r) < int'(MBX_N_IF_C)) ? {1'b1, if_r} : '0;",
+           "assign {fok_w, fif_w} = (int'(rx_if_i) < int'(MBX_N_IF_C)) ? {1'b1, rx_if_i} : '0;",
+           "Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone",
+           2),
+    *_both("rx-bound-live-reads-interface-0-owed", "KL_mbx_rx.sv", " && !owed_r[int'(fif_w) * int'(NB_C) + e];",
+           " && !owed_r[e];", "Q23 on each interface past the first, one stalled while BOUND_EN is set again alone", 2),
+    # the copier: owed by BOUND_EN set and by a word written while it is, giving
+    # way to the host's reads, starting over on a rewrite, reaching every entry
+    *_both("rx-bound-copy-not-owed-on-enable", "KL_mbx_rx.sv",
+           "(heid_w ? en_r[hk_w] : bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C])", "(heid_w && en_r[hk_w])",
+           "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    *_both("rx-bound-copy-not-owed-on-rewrite", "KL_mbx_rx.sv",
+           "(heid_w ? en_r[hk_w] : bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C])",
+           "(!heid_w && bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C])", "Q16 the new talker passes"),
+    *_both("rx-bound-copy-ignores-the-host", "KL_mbx_rx.sv", "assign cp_step_w = cp_busy_r && !bnd_req_i;",
+           "assign cp_step_w = cp_busy_r;", "Q20 the entry copied meanwhile passes its talker"),
+    *_both("rx-bound-copy-not-restarted", "KL_mbx_rx.sv",
+           "        if (cp_busy_r && hk_w == cp_k_r) cp_b_r <= '0;\n", "",
+           "Q21 BOUND_EID_LO rewritten at each of 32 clocks"),
+    *_both("rx-bound-scan-skips-the-last-entry", "KL_mbx_rx.sv", "(32'(cp_k_r) == NE_C - 1)",
+           "(32'(cp_k_r) == NE_C - 2)",
+           "Q12 the last entry passes its talker"),
+    # distributed RAM keeps its contents through a reset: a word not written
+    # since reads 0 and is copied as 0
+    *_both("rx-bound-unwritten-word-copied-raw", "KL_mbx_rx.sv",
+           "c_d_w = rb_vld_w ? rb_q_w[8 * int'(cp_b_r[1:0]) +: 8] : 8'd0;",
+           "c_d_w = rb_q_w[8 * int'(cp_b_r[1:0]) +: 8];",
+           "Q17 it holds talker 0, whose ENTITY_AVAILABLE passes"),
+    *_both("top-bound-unwritten-word-read-raw", "KL_mbx.sv", " && bnd_eid_vld_w) reg_rdata_w = bnd_eid_w;",
+           ") reg_rdata_w = bnd_eid_w;", "Q17 after a reset every entry of every interface's table reads 0 again"),
+    *_both("rx-bound-valid-kept-through-reset", "KL_mbx_rx.sv", "      vlo_r     <= '0;\n", "",
+           "Q17 after a reset every entry of every interface's table reads 0 again"),
+)
+
+
 #: One defect per leaf and one in the skeleton, and one in the filter's tuple: the arms the suite's default target runs.
 QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted",
          "rx-dst-ignored")
@@ -299,11 +427,27 @@ def recipe() -> list[str]:
     return [w for w in res.stdout.splitlines() if w]
 
 
-def build_and_run(rtl_dir: Path, work: Path, host: int) -> tuple[int, str]:
-    """Build the suite against rtl_dir through one adapter and run it."""
+def variant(copy: Path, ifs: int) -> None:
+    """The contract's `ifs`-interface package, skeleton and header, written by
+    the generator over the copy's (never the tree's)."""
+    res = subprocess.run([sys.executable, "-B", str(GEN), "--variant-interfaces", str(ifs), "--out", str(copy)],
+                         capture_output=True, text=True, check=False)
+    if res.returncode != 0:
+        raise ValueError(f"the {ifs}-interface variant was refused: {res.stdout}{res.stderr}")
+
+
+def build_and_run(rtl_dir: Path, work: Path, host: int, ifs: int = 1) -> tuple[int, str]:
+    """Build the suite against rtl_dir through one adapter and run it; a
+    variant's C++ side includes the variant's header, which rtl_dir holds."""
     work.mkdir(parents=True, exist_ok=True)
-    argv = recipe() + [f"-GHOST_P={host}", "--Mdir", str(work / "obj"), "-j", "4",
-                       *[str(rtl_dir / f) for f in RTL_FILES], "tb_mbx_top.sv", "sim_main.cpp", "-o", "Vmbx"]
+    argv = recipe()
+    if ifs != 1:
+        include = f"-I{CONTRACT_INC}"
+        if not any(include in w for w in argv):
+            raise ValueError(f"the Makefile's recipe names no {include} to replace with the variant's header")
+        argv = [w.replace(include, f"-I{rtl_dir}") for w in argv]
+    argv += [f"-GHOST_P={host}", "--Mdir", str(work / "obj"), "-j", "4",
+             *[str(rtl_dir / f) for f in RTL_FILES], "tb_mbx_top.sv", "sim_main.cpp", "-o", "Vmbx"]
     built = subprocess.run(argv, cwd=HERE, capture_output=True, text=True, check=False)
     if built.returncode != 0:
         return 2, built.stdout + built.stderr
@@ -315,6 +459,8 @@ def plant(arm: Arm, root: Path) -> Path:
     """A copy of the RTL with the arm's defect written into it."""
     copy = root / arm.name / "rtl"
     shutil.copytree(RTL, copy)
+    if arm.ifs != 1:
+        variant(copy, arm.ifs)
     target = copy / arm.path
     text = target.read_text(encoding="utf-8")
     if text.count(arm.old) != 1:
@@ -325,7 +471,7 @@ def plant(arm: Arm, root: Path) -> Path:
 
 def run_arm(arm: Arm, root: Path) -> tuple[Arm, bool, str]:
     """One arm's verdict and its first failing line."""
-    rc, log = build_and_run(plant(arm, root), root / arm.name, arm.host)
+    rc, log = build_and_run(plant(arm, root), root / arm.name, arm.host, arm.ifs)
     fails = [ln.strip() for ln in log.splitlines() if "[FAIL]" in ln]
     caught = rc == 1 and any(arm.needle in ln for ln in fails)
     detail = fails[0] if fails else (log.strip().splitlines() or ["no output"])[-1]
@@ -343,12 +489,23 @@ def main(argv: list[str] | None = None) -> int:
     with tempfile.TemporaryDirectory(prefix="mbx-mutants-") as tmp:
         root = args.keep.resolve() if args.keep else Path(tmp)
         bad = 0
-        for host in () if args.quick else (0, 1):
-            rc, log = build_and_run(RTL, root / f"control-{host}", host)
-            tally = [ln for ln in log.splitlines() if "checks:" in ln]
-            verdict = tally[-1] if tally else log[-200:]
-            print(f"[{'ok' if rc == 0 else 'FAIL'}] positive control, host {host}: {verdict}")
-            bad += rc != 0
+        try:
+            for ifs in () if args.quick else sorted({1} | {a.ifs for a in arms}):
+                rtl = RTL
+                if ifs != 1:
+                    rtl = root / f"control-if{ifs}" / "rtl"
+                    shutil.copytree(RTL, rtl)
+                    variant(rtl, ifs)
+                for host in (0, 1):
+                    rc, log = build_and_run(rtl, root / f"control-if{ifs}-{host}", host, ifs)
+                    tally = [ln for ln in log.splitlines() if "checks:" in ln]
+                    verdict = tally[-1] if tally else log[-200:]
+                    print(f"[{'ok' if rc == 0 else 'FAIL'}] positive control, {ifs} interface(s), host {host}: "
+                          f"{verdict}")
+                    bad += rc != 0
+        except ValueError as exc:
+            print(f"REFUSED: {exc}")
+            return 2
         try:
             with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
                 results = list(pool.map(lambda a: run_arm(a, root), arms))

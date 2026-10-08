@@ -120,8 +120,14 @@ class Bench {
 
     //! Queue one frame on the ingress stream; it leaves at the RTL's pace.
     void send_frame(const std::vector<std::uint8_t>& frame, unsigned iface) {
-        for (std::size_t i = 0; i < frame.size(); ++i) {
-            rx_q_.push_back(RxByte{frame[i], i + 1 == frame.size(), iface});
+        send_bytes(frame, iface, true);
+    }
+
+    //! Queue part of a frame: its last byte ends the frame only when `ends`,
+    //! so the stream stalls between two parts while the queue is empty.
+    void send_bytes(const std::vector<std::uint8_t>& bytes, unsigned iface, bool ends) {
+        for (std::size_t i = 0; i < bytes.size(); ++i) {
+            rx_q_.push_back(RxByte{bytes[i], ends && i + 1 == bytes.size(), iface});
         }
     }
 
@@ -144,6 +150,9 @@ class Bench {
     }
 
     bool tx_done(std::size_t n) const { return tx_frames.size() > n || (tx_frames.size() == n && !tx_open_); }
+
+    //! A frame is on the TX stream now, its last byte not yet taken.
+    bool tx_open() const { return tx_open_; }
 
     //! The TX sink takes a byte on cycles where the pattern's bit is set
     //! (bit k of `pattern` for cycle k modulo 8); 0xFF is always ready.

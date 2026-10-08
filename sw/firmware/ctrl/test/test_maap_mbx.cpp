@@ -251,7 +251,8 @@ TEST_F(MaapHost, ExplicitAppComposition) {
     static std::array<std::uint8_t, 1024> arena;
     const ctrl_pool_class classes[] = {{64, 4}};
     adp_entity entity{}; entity.mac = kMac; entity.entity_id = 1; entity.talker_stream_sources = 8;
-    ctrl_app_config config{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr};
+    ctrl_app_config config{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr, nullptr, nullptr,
+                           nullptr, nullptr, 0};
     ctrl_app app{};
     for (unsigned k = 0; k < MBX_N_IF; ++k) mbx_model_set_link(&model, k, true);
     EXPECT_FALSE(ctrl_app_start_maap(&app, &config, allocation, this, MAAP_POOL_BASE - 1));
@@ -275,7 +276,8 @@ TEST_F(MaapHost, AppWaitWakesForMaapWithinBudget) {
     std::array<std::uint8_t, 1024> arena{};
     const ctrl_pool_class classes[] = {{64, 4}};
     adp_entity entity{}; entity.mac = kMac; entity.entity_id = 1; entity.talker_stream_sources = 8;
-    ctrl_app_config config{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr};
+    ctrl_app_config config{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr, nullptr, nullptr,
+                           nullptr, nullptr, 0};
     ctrl_app app{};
     for (unsigned k = 0; k < MBX_N_IF; ++k) mbx_model_set_link(&model, k, true);
     ASSERT_TRUE(ctrl_app_start_maap(&app, &config, allocation, this, kBase));
