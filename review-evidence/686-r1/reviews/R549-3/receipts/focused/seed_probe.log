@@ -1,0 +1,8 @@
+PASS zero MAC at reset seeds both instances to ACE1
+PASS different MAC writes after reset do not alter the shared free-running sequence
+PASS module samples distinct MAC values when supplied during reset
+PASS MAC folding to zero takes nonzero fallback
+PASS fallback advances after reset
+PASS all 65535 nonzero states avoid zero in one step
+PASS zero is the only fixed point across all 65536 states
+seed probe: 7 checks, 0 failures
