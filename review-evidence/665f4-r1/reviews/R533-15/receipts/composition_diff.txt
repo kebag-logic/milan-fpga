@@ -1,0 +1,69 @@
+# candidate vs dev parent (expect only the F4 one-line edit)
+warning: unable to find all commit-graph files
+diff --git a/sw/firmware/ctrl/maap/README.md b/sw/firmware/ctrl/maap/README.md
+index 6be767e73..a3febabc6 100644
+--- a/sw/firmware/ctrl/maap/README.md
++++ b/sw/firmware/ctrl/maap/README.md
+@@ -131,7 +131,7 @@ that callback must remain bounded and nonblocking.
+ A standalone MAAP loop pass costs at most
+ 8*(6+48) + 2*(20+48) + interfaces*48 accesses: 616 for one interface, 664 for two.
+ The receive bound includes the channel's maximum 64-byte record.
+-Composed with ADP and ACMP, a pass costs at most `CTRL_APP_PASS_MAX` (`ctrl_app.h`):
++Composed with ADP and ACMP, a pass costs at most `CTRL_APP_THREE_PASS_MAX` (`ctrl_app.h`):
+ 1,580 accesses for one interface, 1,659 for two.
+ 
+ Tests include event and receive backlog, timer wrap, stale tags, link loss,
+# candidate vs PR head (expect only the #686 hunk)
+warning: unable to find all commit-graph files
+diff --git a/sw/firmware/ctrl/maap/README.md b/sw/firmware/ctrl/maap/README.md
+index adca6e066..a3febabc6 100644
+--- a/sw/firmware/ctrl/maap/README.md
++++ b/sw/firmware/ctrl/maap/README.md
+@@ -168,20 +168,25 @@ python3 sw/firmware/ctrl/test/maap_differential.py --self-test
+ Use the repository-pinned simulator for the last command.
+ Set TMPDIR to disk-backed scratch before running the gates.
+ The differential drives shared probe, per-state conflict, loss and retry stimulus
+-through the C core and the unchanged parent MAAP engine.
+-Annex B is the oracle; #686 records these parent deviations:
+-
+-- Three delayed PROBEs versus four starting immediately (Table B.7).
+-- Probe draws of 500..627 ms versus strict 500/600 ms endpoints.
+-- Control-data length 28 versus 16 (B.2.1).
+-- Multicast DEFEND versus the triggering source destination (B.2.1).
+-- ANNOUNCE conflicts tested against conflict fields (Table B.7).
+-- Announcement draws of 3..5.047 s versus strict 30/32 s endpoints.
+-
++through the C core and the parent MAAP engine.
++Annex B is the oracle for both.
++#686 conformed the parent on the six deviations this differential recorded:
++
++- Four PROBEs, the first at Begin! (Table B.7), not three delayed ones.
++- Probe draws strictly inside 500/600 ms (B.3.4.2), not 500..627 ms.
++- Control-data length 16 (B.2.1), not 28.
++- DEFEND to the triggering PROBE's source (B.2.1), not to the multicast address.
++- ANNOUNCE conflicts judged on the requested range (Table B.7), not the conflict fields.
++- Announcement draws strictly inside 30/32 s (B.3.4.1), not 3..5.047 s.
++
++The parent's frames now equal the core's for every shared stimulus.
++The parent deviations that remain are listed in the
++[fabric MAAP contract](../../../../docs/design/MAAP_FABRIC.md#annex-b-contract).
++This stimulus does not reach them.
+ The differential observes software deadlines and parent frame completion cycles.
+-Initial parent observations include one millisecond of tick/serialization uncertainty.
+-Later equal-length frames cancel that error in interval measurements.
+-Varying the start phase reaches both 500/627 ms parent boundaries.
++Equal-length frames make completion intervals equal send intervals.
++A send at an arbitrary tick phase observes up to 1 ms less than the parent's draw.
++Varying the start phase reaches both ends of the parent's 518..581 ms draw.
+ Firmware sends span both 511/589 ms guarded draw boundaries.
+ Named controls reject 1, 500 and 600 ms probe intervals.
+ Separate controls falsify the parent probe bound and count expectations.
+# clean re-merge tree
+warning: unable to find all commit-graph files
+f0780a31280924c73fa225bf0bd6d70c93eb4cae
+# overlap of changed paths since merge base 99e4eb6c
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+sw/firmware/ctrl/maap/README.md
+# candidate minus dev, ctrl/ paths changed by dev (expect empty: PR does not touch them)
+warning: unable to find all commit-graph files
