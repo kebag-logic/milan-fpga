@@ -1,0 +1,82 @@
+10589a10590,10601
+>     # Independent fixture: deriving this from TRUSTED_SUBMODULES hid an
+>     # omitted dependency because both the candidate and oracle omitted it.
+>     manifest = (
+>         ("external", "external", "git@github.com:kebag-logic/fpga-avb-ethernet.git"),
+>         ("third_party/verilog-axis", "third_party/verilog-axis",
+>          "https://github.com/alexforencich/verilog-axis"),
+>         ("protocol-processor", "protocol-processor",
+>          "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git"),
+>         ("gptp-processor", "gptp-processor", "https://github.com/Mister-M-alt/FPGA-gPTP.git"),
+>         ("third_party/lwSRP", "third_party/lwSRP", "https://github.com/kebag-logic/lwSRP.git"),
+>     )
+>     check("the trusted manifest includes exactly the five approved entries", TRUSTED_SUBMODULES == manifest)
+10592c10604
+<         for name, path, url in TRUSTED_SUBMODULES
+---
+>         for name, path, url in manifest
+10597c10609
+<     trusted_gitlinks = tuple(path for _name, path, _url in TRUSTED_SUBMODULES)
+---
+>     trusted_gitlinks = tuple(path for _name, path, _url in manifest)
+10609a10622,10631
+>     with mock.patch.object(sys.modules[__name__], "capture", return_value="") as fetched:
+>         initialize_required_submodules(repo, repo.parent)
+>     check(
+>         "materialization fetches all four public pins including lwSRP and excludes external",
+>         fetched.call_args.args[0]
+>         == [*git_prefix(), "-C", str(repo), "submodule", "update", "--init", "--",
+>             "third_party/verilog-axis", "protocol-processor", "gptp-processor", "third_party/lwSRP"],
+>     )
+>     selftest_lwsrp_manifest(tally, git_fixture, gitmodules_text, trusted_gitlinks)
+> 
+10652a10675,10723
+> 
+> 
+> def selftest_lwsrp_manifest(
+>     tally: SelftestTally, git_fixture: GitFixture, manifest: str, gitlinks: tuple[str, ...]
+> ) -> None:
+>     """Arms: lwSRP additions, omissions and redirections fail before materialization."""
+>     repo = git_fixture.repo
+>     test_git = git_fixture.test_git
+>     stanza = ('[submodule "third_party/lwSRP"]\n\tpath = third_party/lwSRP\n'
+>               '\turl = https://github.com/kebag-logic/lwSRP.git\n')
+>     variants = (
+>         ("drops lwSRP", manifest.replace(stanza, ""), gitlinks),
+>         ("duplicates lwSRP", manifest + stanza, gitlinks),
+>         ("adds another lwSRP", manifest + stanza.replace("third_party/lwSRP", "third_party/lwSRP-extra"),
+>          gitlinks),
+>         ("redirects lwSRP", manifest.replace("https://github.com/kebag-logic/lwSRP.git",
+>                                              "https://127.0.0.1:9/attacker/lwSRP.git"), gitlinks),
+>         ("drops lwSRP gitlink", manifest, gitlinks[:-1]),
+>         ("adds lwSRP gitlink", manifest, (*gitlinks, "third_party/lwSRP-extra")),
+>     )
+>     for label, candidate, candidate_links in variants:
+>         (repo / ".gitmodules").write_text(candidate, encoding="utf-8")
+>         test_git("add", ".gitmodules")
+>         test_git("commit", "--quiet", "--allow-empty", "-m", label)
+>         commit = test_git("rev-parse", "HEAD")
+>         tally.refused(
+>             f"candidate that {label} is refused before fetch",
+>             lambda: validate_submodule_manifest(repo, commit, candidate_links),
+>         )
+>         if label not in ("drops lwSRP", "adds another lwSRP"):
+>             continue
+>         # Plant candidate-controlled trust for each config-only omission or
+>         # addition. The unchanged gitlink check cannot mask the missing refusal.
+>         candidate_config = expected_submodule_config()
+>         for suffix, value in (("path", "third_party/lwSRP"),
+>                               ("url", "https://github.com/kebag-logic/lwSRP.git")):
+>             if label == "drops lwSRP":
+>                 candidate_config.pop(f"submodule.third_party/lwSRP.{suffix}")
+>             else:
+>                 candidate_config[f"submodule.third_party/lwSRP-extra.{suffix}"] = (
+>                     value + "-extra" if suffix == "path" else value
+>                 )
+>         planted = SelftestTally()
+>         with mock.patch.object(sys.modules[__name__], "expected_submodule_config",
+>                                return_value=candidate_config), contextlib.redirect_stdout(io.StringIO()):
+>             planted.refused(
+>                 label, lambda: validate_submodule_manifest(repo, commit, candidate_links)
+>             )
+>         tally.check(f"{label} control catches candidate-controlled trust", planted.failures == 1)

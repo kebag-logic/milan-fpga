@@ -1,0 +1,16 @@
+  ok   the trusted manifest includes exactly the five approved entries
+  ok   the exact trusted submodule manifest is accepted
+  ok   materialization fetches all four public pins including lwSRP and excludes external
+  ok   candidate that drops lwSRP is refused before fetch
+  ok   drops lwSRP control catches candidate-controlled trust
+  ok   candidate that duplicates lwSRP is refused before fetch
+  ok   candidate that adds another lwSRP is refused before fetch
+  ok   adds another lwSRP control catches candidate-controlled trust
+  ok   candidate that redirects lwSRP is refused before fetch
+  FAIL candidate that drops lwSRP gitlink is refused before fetch
+  ok   candidate that adds lwSRP gitlink is refused before fetch
+  ok   candidate submodule URL changes are refused before fetch
+  ok   candidate submodule update commands are refused before fetch
+  ok   candidate gitlink path changes are refused before fetch
+  ok   Git disables every protocol except credential-free HTTPS
+RESULT V7-gitlink-subset-only failures=1 crashed=0

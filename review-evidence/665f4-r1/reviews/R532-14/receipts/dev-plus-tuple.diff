@@ -1,0 +1,14 @@
+--- scratch/act_ci.dev17f.py	2026-10-08 10:34:47.057000000 +0200
++++ scratch/act_ci.dev17f-plus-tuple.py	2026-10-08 10:36:41.807895801 +0200
+@@ -226,6 +226,11 @@
+         "gptp-processor",
+         "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+     ),
++    (
++        "third_party/lwSRP",
++        "third_party/lwSRP",
++        "https://github.com/kebag-logic/lwSRP.git",
++    ),
+ )
+ REQUIRED_SUBMODULES = tuple(
+     path for name, path, _url in TRUSTED_SUBMODULES if name != "external"

@@ -1,0 +1,12 @@
+REQUIRED_SUBMODULES ['third_party/verilog-axis', 'protocol-processor', 'gptp-processor', 'third_party/lwSRP']
+prefix ['-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false', '-c', 'credential.helper=', '-c', 'protocol.allow=never', '-c', 'protocol.https.allow=always']
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)
+ 9197193e47a6bb1c45a56d90a18c1784123aba44 third_party/lwSRP (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+external: populated=False configured_url=- trusted_url=git@github.com:kebag-logic/fpga-avb-ethernet.git
+third_party/verilog-axis: populated=True configured_url=https://github.com/alexforencich/verilog-axis trusted_url=https://github.com/alexforencich/verilog-axis
+protocol-processor: populated=True configured_url=https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git trusted_url=https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+gptp-processor: populated=True configured_url=https://github.com/Mister-M-alt/FPGA-gPTP.git trusted_url=https://github.com/Mister-M-alt/FPGA-gPTP.git
+third_party/lwSRP: populated=True configured_url=https://github.com/kebag-logic/lwSRP.git trusted_url=https://github.com/kebag-logic/lwSRP.git
