@@ -1541,14 +1541,14 @@ otherwise complete local head-tree run.
 
 Before any candidate-directed network operation, the runner parses the exact
 committed `.gitmodules` blob and requires the trusted name/path/URL pairs with
-no duplicate or extra configuration. It also requires the matching four
+no duplicate or extra configuration. It also requires the matching five
 gitlink paths. Git disables every transport by default and enables only HTTPS;
 the inactive SSH-only `external` entry must match the trusted manifest but is
 never fetched. Only then, and only after selected workflows pass their static
-sandbox scan, does the temporary checkout initialize the three allowlisted
+sandbox scan, does the temporary checkout initialize the four allowlisted
 public pinned dependencies (`third_party/verilog-axis`, `protocol-processor`,
-and `gptp-processor`). This gives act's local checkout copier the submodule-path
-parity that a hosted checkout exposes; each workflow's own submodule update
+`gptp-processor`, and `third_party/lwSRP`). This gives act's checkout copier
+the submodule-path parity that a hosted checkout exposes; each workflow's own submodule update
 remains the authoritative, idempotent check of those pins.
 
 The runner then populates the per-run action cache itself, serially, before
