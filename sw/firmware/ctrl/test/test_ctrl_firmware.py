@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Gate: the control-plane firmware of #665 (lanes F0 and F3), built and run on the host.
+"""Gate: the control-plane firmware of #665 lanes F0 to F4, built and run on the host.
 
 WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
 compiled for the host exactly as the target compiles it, against the mailbox
@@ -60,20 +60,22 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            every undefined symbol a named runtime interface (string, format
            or assertion) or arithmetic helper, with ELF ABI and static-frame
            checks (no heap, no OS);
-  lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
+  lwsrp    lwSRP's own MRP core on the port layer and
            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
            with its src/ unmodified, or the arm refuses.
+  srp      per-interface MSRP/MVRP, static entity shapes, service latency,
+           debug reentry guards and processor-derived wire stimuli.
 
 Every arm but rv32 and entity's header generation is a GoogleTest binary
 (sw/firmware/gtest/README.md), graded by the tally it prints.
 
 --self-test then plants each defect of ctrl_mutants.py into a COPY of the
 firmware tree and requires the named GoogleTest test of the named arm to
-fail on the check's own words; with --lwsrp it also requires the pin to
-refuse an edited and a moved clone. --slice K/N plants only slice K of N of
-the table (contiguous, in table order), so N runs, each its own command,
-plant every defect once.
+fail on the check's own words; srp_mutants.py does the same for SRP.
+The pin must refuse an edited and a moved clone. --slice K/N plants a contiguous
+slice of the complete control table; --mutation-shard INDEX COUNT uses interleaved
+partitions instead. Each mode covers the entire table across its partitions.
 
 --coverage DIR builds the firmware with gcov's instrumentation into DIR and
 runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
@@ -102,12 +104,14 @@ sys.path.insert(0, str(HERE))
 
 import ctrl_arms  # noqa: E402
 import ctrl_mutants  # noqa: E402
+import srp_arms  # noqa: E402
+import srp_mutants  # noqa: E402
 import fw_gtest  # noqa: E402
 from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
 
 
-def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:
+def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
     tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True, jobs=jobs))
     try:
@@ -119,6 +123,10 @@ def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:
                     ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
         if lwsrp is not None:
             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
+        for i in (1, 2):
+            for suite in ("srp_mbx.cpp", "srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
+                          "srp_latency.cpp", "srp_walk.cpp"):
+                outcomes.append(srp_arms.arm_srp(tree, lwsrp.resolve(), i, test=suite))
     except Refusal as exc:
         print(f"REFUSED: {exc}")
         return 2
@@ -139,21 +147,24 @@ def main(argv: list[str] | None = None) -> int:
     """Run the arms, then the planted defects when asked."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--require-rv32", action="store_true", help="fail, not skip, when no RV32 compiler is found")
-    ap.add_argument("--lwsrp", type=Path, help="a lwSRP checkout: also run the lwSRP port arm")
+    ap.add_argument("--lwsrp", type=Path, default=CTRL.parents[2] / "third_party/lwSRP",
+                    help="an exact pinned lwSRP checkout (default: the submodule)")
     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
     ap.add_argument("--mutation-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
                     help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
-    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel compilation")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
+    ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
     ap.add_argument("--slice", type=part, default=(1, 1), metavar="K/N",
-                    help="with --self-test: plant slice K of N of the defect table (contiguous, in table order)")
+                    help="with --self-test: plant slice K of N of the defect table")
     args = ap.parse_args(argv)
+    args.jobs = min(4, max(1, args.jobs))
     if args.mutation_shard is not None:
         index, count = args.mutation_shard
         if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
             ap.error("mutation shard requires --self-test and 0 <= INDEX < COUNT <= mutant count")
-        ctrl_mutants.MUTANTS = ctrl_mutants.MUTANTS[index::count]
+        if args.slice != (1, 1):
+            ap.error("choose either --slice or --mutation-shard")
     if args.coverage is not None:
         return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
     print(f"toolchain: {fw_gtest.toolchain()}")
@@ -170,13 +181,30 @@ def main(argv: list[str] | None = None) -> int:
                         ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
+                for i in (1, 2):
+                    outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
+                    outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
+                    for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
+                          "srp_latency.cpp", "srp_walk.cpp"):
+                        outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+                outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
         except Refusal as exc:
             print(f"REFUSED: {exc}")
             return 2
         failed = ctrl_arms.report(outcomes)
         if args.self_test and not failed:
-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice)
+            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice, args.mutation_shard)
             if args.lwsrp is not None:
+                failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
+                complete_srp_table = srp_mutants.DEFECTS
+                try:
+                    srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+                                              if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
+                                                                    "p11-", "srp-bound-", "srp-term-",
+                                                                    "srp-poll-extra", "srp-send-extra")))
+                    failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
+                finally:
+                    srp_mutants.DEFECTS = complete_srp_table
                 try:
                     failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
                 except Refusal as exc:

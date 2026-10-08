@@ -52,14 +52,11 @@ pull-request update and on every push to `dev`. It produces one stable
   Their freestanding headers exclude the SDK's hosted C library.
   The RV32 self-test plants header, ABI, and runtime-dependency defects.
   These builds report objects and frames, not linked-image bounds.
-  Two groups stay local (see [Local commands](#local-commands)):
-  - the ctrl gate's opt-in `lwsrp` arm. lwSRP is a private repository the
-    workflow's token cannot read; the ratchet reads the same with and
-    without that arm.
-  - both gates' planted-defect campaigns (`--self-test`).
-
-  The tally listener's planted defects (`tally_selftest.py --mutants`) are a
-  local campaign too; the job runs its planted cases.
+  F4 initializes the public lwSRP submodule at its exact pin.
+  The control gate includes lwSRP, SRP and its mutation campaign.
+  The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
+  The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
+  The job runs the tally listener's planted cases.
 
 A change containing only documentation skips the Verilator and Yosys setup
 jobs and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
@@ -1544,14 +1541,14 @@ otherwise complete local head-tree run.
 
 Before any candidate-directed network operation, the runner parses the exact
 committed `.gitmodules` blob and requires the trusted name/path/URL pairs with
-no duplicate or extra configuration. It also requires the matching four
+no duplicate or extra configuration. It also requires the matching five
 gitlink paths. Git disables every transport by default and enables only HTTPS;
 the inactive SSH-only `external` entry must match the trusted manifest but is
 never fetched. Only then, and only after selected workflows pass their static
-sandbox scan, does the temporary checkout initialize the three allowlisted
+sandbox scan, does the temporary checkout initialize the four allowlisted
 public pinned dependencies (`third_party/verilog-axis`, `protocol-processor`,
-and `gptp-processor`). This gives act's local checkout copier the submodule-path
-parity that a hosted checkout exposes; each workflow's own submodule update
+`gptp-processor`, and `third_party/lwSRP`). This gives act's checkout copier
+the submodule-path parity that a hosted checkout exposes; each workflow's own submodule update
 remains the authoritative, idempotent check of those pins.
 
 The runner then populates the per-run action cache itself, serially, before
@@ -2296,8 +2293,10 @@ syn/yosys/run.sh --mode elaborate --no-structural \
 ```
 
 The bare-metal firmware's host suites run locally as `firmware-unit` runs
-them, and their planted-defect campaigns, which no hosted job runs, are added
-with `--self-test`, and the tally listener's with `--mutants`
+them. F4 fetches the pinned lwSRP submodule and installs the pinned SDK before
+the required RV32 control build and its `--self-test` mutation campaign.
+The saved-state campaign remains a local `--self-test` addition, and the
+tally listener's campaign uses `--mutants`
 ([the harness page](../../sw/firmware/gtest/README.md#run)):
 
 ```sh

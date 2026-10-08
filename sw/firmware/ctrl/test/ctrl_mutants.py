@@ -470,7 +470,7 @@ MUTANTS += maap_mutants(Mutant)
 
 def plant(m: Mutant, root: Path) -> Path:
     """A copy of the firmware tree with the mutant written into it."""
-    copy = root / m.name / "ctrl"
+    copy = root / "work" / "ctrl"
     if copy.exists():
         shutil.rmtree(copy)
     shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"))
@@ -536,7 +536,8 @@ def sliced(part: tuple[int, int]) -> tuple[Mutant, ...]:
     return MUTANTS[(k - 1) * size:k * size]
 
 
-def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1)) -> bool:
+def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
+             shard: list[int] | None = None) -> bool:
     """Plant every mutant of slice `part` (k of n; the whole table by
     default); True when one escaped. One build serves every copy, so a test
     object is compiled again only where a planted header changes what it
@@ -553,9 +554,9 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1))
     for test in unnamed:
         print(f"[ESCAPED] no defect names the test {test}")
     escaped = 0
-    table = sliced(part)
+    table = sliced(part) if shard is None else MUTANTS[shard[0]::shard[1]]
     for m in table:
-        tree = Tree(plant(m, root), root / m.name / "build", reuse, build)
+        tree = Tree(plant(m, root), root / "work" / "build", reuse, build)
         missed = []
         fails: list[str] = []
         for arm, test, needle in m.kills():
@@ -571,7 +572,7 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1))
         if fails:
             print(f"    first: {fails[0]}")
         escaped += 0 if not missed else 1
-        shutil.rmtree(root / m.name, ignore_errors=True)
+    shutil.rmtree(root / "work", ignore_errors=True)
     where = "" if part == (1, 1) else f" (slice {part[0]} of {part[1]} of {len(MUTANTS)})"
     print(f"mutants: {len(table) - escaped} of {len(table)} caught{where}"
           f"{'' if not unnamed else f'; {len(unnamed)} test(s) named by no defect'}")

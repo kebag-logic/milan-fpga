@@ -236,9 +236,10 @@ jobs:
   # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
   # are the distribution's packages, and the install step prints the
   # versions and the compiler and gcov the ratchet is measured with.
-  # The ctrl gate's lwsrp arm stays opt-in: the workflow token cannot
-  # read that private dependency. Both firmware mutation campaigns remain
-  # local gates. The SDK is installed before either required RV32 arm.
+  # F4 requires the exact lwSRP submodule and the freestanding RV32 control
+  # build after SDK installation, plus the control mutation campaign. The
+  # public dependency is fetched at the reviewed gitlink.
+  # The saved-state and tally mutation campaigns remain additional local gates.
   firmware-unit:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -247,7 +248,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
 
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |
@@ -273,11 +274,11 @@ jobs:
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
 
-      - name: Run the control-plane firmware suites and its RV32 build
+      - name: Run the control-plane firmware suites and RV32 builds
         run: |
           set -euo pipefail
           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
-          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
+          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
 
       - name: Run the saved-state store suites and its RV32 build
         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"

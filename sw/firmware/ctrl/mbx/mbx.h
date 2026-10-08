@@ -95,6 +95,13 @@ uint16_t mbx_filter_mismatch(void);
 // case the ring is resynchronised to RX_HEAD.
 enum mbx_status mbx_rx_take(unsigned ch, struct mbx_frame *f);
 
+// Snapshot the published RX prefix and test whether the consumed cursor is
+// still at or before it. A lifecycle consumer can discard that prefix for
+// one interface while retaining other interfaces. Check on each bounded
+// pass; comparison is modulo 2^16 and must not span 32768 consumed words.
+uint16_t mbx_rx_mark(unsigned ch);
+bool mbx_rx_before(unsigned ch, uint16_t mark);
+
 // Write one frame as a TX record of channel ch and commit it (TX_HEAD).
 // FULL when the ring lacks the room now; BAD for a length outside 14 to the
 // channel's max_frame_bytes or an unknown interface. Frames leave in the

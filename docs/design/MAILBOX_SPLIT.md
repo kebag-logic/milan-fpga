@@ -292,7 +292,7 @@ flowchart TB
   window base from the SoC's generated memory map (`CTRL_MBX_BASE`); the host
   implementation drives the mailbox model and counts every access.
 - **lwSRP's port layer** is provided here, with lwSRP's own prototypes, as
-  of lwSRP `19f5796b63652eb1151906de73cb827d4980a53f` (fetched from
+  of lwSRP `9197193e47a6bb1c45a56d90a18c1784123aba44` (fetched from
   `https://github.com/kebag-logic/lwSRP` and checked out at that revision;
   the host test's lwSRP arm refuses another revision or an edited `src/`):
   `shlan_malloc`, `shlan_calloc` and `shlan_free` on a static block pool, and
@@ -690,7 +690,7 @@ composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
 with margin) needs the datapath tap and is not measured here.
 
 With lane F2's MAAP composed as well, a pass costs at most 1,580 accesses
-(`CTRL_APP_PASS_MAX`; 1,659 at two interfaces). MAAP adds its costliest
+(`CTRL_APP_THREE_PASS_MAX`; 1,659 at two interfaces). MAAP adds its costliest
 action on each of the 8 events (48), its 2 records of the maap channel
 (20 + 48) and its poll (48). Each input is taken by the same pass as above,
 so each bound is that pass count, plus one, times 1,580:
@@ -711,6 +711,50 @@ At F0's assumed 1 us per access, only the event bound still fits T_svc
 (14.22 ms, under the ceiling); the bound behind a full acmp ring stays
 under the ceiling (17.38 ms), and the one behind a full adp ring exceeds it
 (34.76 ms).
+
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,224
+accesses at one interface and 4,073 at two. `ACMP_MBX_PASS_MAX` already
+includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
+sets of event-record reads: the eight shared records are each read once.
+Add `CTRL_APP_SRP_FEEDBACK_MAX`: six accesses per sink, at most 16 sinks.
+Registration followed by withdrawal can stop or re-arm two timers.
+Withdrawal can also read the clock and initial random seed.
+Kind updates preserve state and require no additional mailbox access.
+`srp_bounds.h` derives SRP's 1,596 / 2,366 accesses from the maximum frame,
+two transmit calls per interface, bounded reception, link reconciliation and
+retry clocks. lwSRP sends at most one frame per call. Its centisecond callbacks
+make no mailbox access. The composition now queues ACMP's binding requests
+per sink and delivers them in a fifth poll after SRP service returns.
+It preserves the configured interface, retries transient refusals, and supersedes
+pending requests on unbind or replacement. Invalid VIDs are parked visibly
+until another request, allowing the loop to sleep. The poll also delivers
+retained SRP registration, kind changes and withdrawal after SRP returns.
+A subsequent registration cannot erase an earlier withdrawal.
+Accepted ACMP replacement retires obsolete feedback. Binding delivery
+itself makes no mailbox access; the feedback allowance covers ACMP timer work.
+CPU work and external port costs require separate measurement.
+Filter observation scans sinks once per received AttributeEvent.
+Registrar visits occur before/after receive, after ticks and during polling.
+Target calibration must include both costs; this table bounds mailbox accesses only.
+
+| Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
+|---|---:|---:|---:|
+| an event behind 15 others | 2 | 9,672 / 12,219 | 1.03 / 0.81 us |
+| an ACMP command behind a full acmp ring | 10 | 35,464 / 44,803 | 0.28 / 0.22 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 70,928 / 89,606 | 0.14 / 0.11 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 29,016 / 36,657 | 0.34 / 0.27 us |
+
+At 1 us per access, only the one-interface event envelope fits T_svc = 10 ms;
+the two-interface event envelope and the other rows do not. The 20 ms ACMP
+ceiling still covers both event envelopes, but none of the other rows.
+No target timing acceptance is claimed. Backpressure and retained SRP input
+consume their original service interval; a retry or a normative wait never
+starts a new allowance. SRP can defer its own reception behind events or owed
+output, so these inherited ACMP/ADP pass counts are not SRP delivery bounds.
+The H-SRP tests separately measure that adapter's conditional service envelope.
+The U6/F6 SRP variants in `test_acmp_mbx.cpp` exercise all four modules at one
+and two interfaces, with an exact IRQ mask and an SRP-only wake from idle.
+SRP takes the shared tick, leaving ADP, ACMP and MAAP's timer slots disjoint.
 
 ### Differences from the processor
 
@@ -948,14 +992,16 @@ report_timing_summary -delay_type max
   levels and grandmaster inputs are held idle; the lanes that move a protocol
   connect them, with the clock crossing the datapath needs.
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
-  has no PDU transmit hook yet; F4 adds one as a lwSRP pull request, and its
-  frames then enter the SRP channel's transmit ring as header plus MRPDU.
+  has a PDU transmit hook in the public pin used by F4; its frames enter
+  the SRP channel's transmit ring as header plus MRPDU. Target integration
+  of the stream owners remains separate from the host composition.
 - **CPU cycles.** The latency bounds are counted in mailbox accesses; the
   cycle figure on the shipping core waits for the switch-on SoC in the CPU
   simulation. ACMP's backlog bounds fit T_svc only at 0.89 us per access or
   less, and H-DISC's behind a full adp ring at 0.44 us: the table's access
   times for T_svc ([ACMP service latency](#acmp-service-latency)). With MAAP
-  composed as well they are 0.57 us and 0.28 us.
+  composed as well they are 0.57 us and 0.28 us. With SRP they are 0.29 us
+  and 0.14 us at one interface, or 0.22 us and 0.11 us at two interfaces.
 - **ACMP's wire round trip** (H-ACMP, under 200 ms with margin) waits for the
   datapath tap.
 - **The bound-talker term's area** is 57 LUTs over its target of 300

@@ -14,7 +14,9 @@
 // the ADP channel's AVAILABLE and DEPARTING tapped for the listener's
 // discovery, acmp_mbx.h). MAAP and ACMP are each composed only when the
 // configuration supplies them. Each later lane (SRP through lwSRP, AECP) adds
-// its adapter here and nowhere else.
+// its adapter here and nowhere else. F4 attaches SRP after open, before
+// servicing the loop, preserving every enabled channel and interrupt. SRP
+// uses the shared centisecond consumer and no one-shot fabric timer slot.
 //
 // THE ATTACH ORDER. ADP, then ACMP (it stands in front of ADP's handler of the
 // adp channel), then MAAP, all before the open, so the open enables every
@@ -40,6 +42,7 @@
 #include "ctrl_loop.h"
 #include "ctrl_pool.h"
 #include "maap_mbx.h"
+#include "../srp/srp_bounds.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +55,7 @@ extern "C" {
 #define CTRL_APP_ACMP_FIRST_SLOT (CTRL_APP_ADP_FIRST_SLOT + MBX_N_IF)
 #define CTRL_APP_MAAP_FIRST_SLOT (CTRL_APP_ACMP_FIRST_SLOT + MBX_N_IF)
 
-// A pass of the three-way composition costs at most CTRL_APP_PASS_MAX mailbox
+// A pass without SRP costs at most CTRL_APP_THREE_PASS_MAX mailbox
 // accesses: a pass of ADP and ACMP (ACMP_MBX_PASS_MAX, acmp_mbx.h), whose
 // terms already hold every event record's own words, plus MAAP's share
 // (maap_mbx.h): its costliest action on each of the pass's events, its two
@@ -63,14 +66,35 @@ extern "C" {
 #define CTRL_APP_MAAP_PASS_SHARE                                                                                   \
 	(CTRL_LOOP_EVENTS_PER_PASS * MAAP_MBX_EVENT_MAX +                                                          \
 	 CTRL_LOOP_RX_PER_PASS * (CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MBX_N_IF * MAAP_MBX_POLL_MAX)
-#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)
+#define CTRL_APP_THREE_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)
+// Registration then withdrawal can each stop/re-arm one timer (two accesses).
+// Withdrawal can also read the clock and first-draw seed for discovery delay.
+#define CTRL_APP_SRP_FEEDBACK_MAX (ACMP_MAX_SINKS * 6u)
+// ACMP's published pass already includes ADP. Each additional module shares
+// the same event-record reads; all four retain their own handler/poll terms.
+#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX - \
+	CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u) + CTRL_APP_SRP_FEEDBACK_MAX)
 
+// One latest request per entity sink; its configured interface never changes.
+// Storage belongs to the composition, independent of the callback's lifetime.
+struct ctrl_app_srp_request {
+	struct acmp_stream stream;
+	bool bound;
+	bool pending;
+	bool parked; // invalid VID; cleared only by the next ACMP request
+};
+
+struct srp_mbx;
 struct ctrl_app {
 	struct ctrl_pool pool;
 	struct ctrl_loop loop;
 	struct adp_mbx adp;
 	struct acmp_mbx acmp;
 	struct maap_mbx maap;
+	struct srp_mbx *srp;
+	const struct acmp_env *acmp_owner;
+	struct acmp_env acmp_delivery;
+	struct ctrl_app_srp_request srp_requests[ACMP_MAX_SINKS];
 };
 
 struct ctrl_app_config {
@@ -113,6 +137,19 @@ bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg);
 // is NULL. ctrl_app_start() composes MAAP only when cfg supplies it.
 bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg,
 			 maap_allocation_fn allocation, void *ctx, uint64_t preferred);
+
+// MAAP must be composed. After open (or start_maap), initialize SRP on app's
+// pool and attach it here before servicing the loop. Use the entity MAC on
+// each SRP interface, as MAAP/ADP do. A refusal preserves the running
+// ADP/ACMP/MAAP composition and leaves SRP unattached.
+// With ACMP, attachment owns deferred binding delivery and registration
+// feedback. Invalid VID requests are parked; transient refusals retry. The
+// supplied SRP callback remains a request observer; it must not deliver the
+// binding itself or reenter any protocol. Other environment ports retain ctx.
+// Attachment refuses an ACMP sink count larger than the generated SRP shape.
+// Keep both objects alive until loop service stops; destroy SRP before the pool.
+// Recompose the application before attaching another SRP instance.
+bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp);
 
 #ifdef __cplusplus
 }

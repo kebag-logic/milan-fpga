@@ -185,6 +185,16 @@ enum mbx_status mbx_rx_take(unsigned ch, struct mbx_frame *f)
 	return MBX_STATUS_OK;
 }
 
+uint16_t mbx_rx_mark(unsigned ch)
+{
+    return ch < MBX_N_CH ? counter(ch_reg(ch, MBX_CH_REG_RX_HEAD)) : 0u;
+}
+
+bool mbx_rx_before(unsigned ch, uint16_t mark)
+{
+    return ch < MBX_N_CH && (uint16_t)(mark - rx_tail[ch]) < 0x8000u;
+}
+
 static void tx_word(unsigned ch, uint32_t index, uint32_t value)
 {
 	mbx_hal_write32(tx_base[ch] + 4u * (index & (tx_words[ch] - 1u)), value);

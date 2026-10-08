@@ -417,6 +417,11 @@ void acmp_timer_expired(struct acmp *a, unsigned interface);
 // 5.29).
 void acmp_tk_registered(struct acmp *a, unsigned sink, bool failed);
 void acmp_tk_unregistered(struct acmp *a, unsigned sink);
+// A continuous registration's kind is a view attribute (Milan Table 5.23).
+// Only SETTLED_RSV_OK accepts this update: it changes REGISTERING_FAILED,
+// never the state or probe. It is not EVT_TK_REGISTERED, which Table 5.30
+// marks impossible in that state. Call outside all protocol/port callbacks.
+void acmp_tk_kind_changed(struct acmp *a, unsigned sink, bool failed);
 
 // The AECP side: START_STREAMING / STOP_STREAMING of a bound sink (Milan v1.2
 // 5.3.8.7). False for an unbound or unknown sink.
