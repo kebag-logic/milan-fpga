@@ -1,0 +1,44 @@
+[
+  {
+    "case": "clean",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_rejection": null,
+    "passed": true
+  },
+  {
+    "case": "cdl_28",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_rejection": "B.2.1 cdl 16 (Begin! PROBE 1)",
+    "passed": true
+  },
+  {
+    "case": "zero_seed_freezes_the_probe_draw",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_rejection": "B.3.4.2 probe T randomized (zero-seed MAC)",
+    "passed": true
+  },
+  {
+    "case": "announce_judged_on_conflict_fields",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_rejection": "B.2.7 ANNOUNCE conflict_* is not its range",
+    "passed": true
+  },
+  {
+    "case": "three_probes",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_rejection": "T.B7 Begin!: four PROBEs before ANNOUNCE",
+    "passed": true
+  },
+  {
+    "case": "defend_rewrites_the_frame_on_the_wire",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_rejection": "PROBE mid-frame: frame on the wire byte-identical",
+    "passed": true
+  }
+]

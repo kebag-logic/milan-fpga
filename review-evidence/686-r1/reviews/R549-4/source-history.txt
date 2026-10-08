@@ -1,0 +1,11 @@
+9c601b5983acfd60fb269b9a88c27b48cab7cf65 State that shipping MAAP seeds its LFSR before the station MAC is programmed
+48f12dc14099a3630a98eb07e9ec790695a72bfb Re-record the resource gate's three endpoints on the merge with dev 291710b1, single-thread synthesis as F, every tolerance, floor and ceiling unchanged
+e519e31ff55af7dcae253da280baad531a7ad40c Merge dev 291710b1 (#682, processor 2ad2f845 and baseline F) into the #686 lane, the resource records and their text from dev until the re-record on this result
+30fce4b0a989dedc93969fbc27053985894d9438 State KL_maap's frame snapshot, pool and seed bounds as built, the missed fourth PROBE as Table B.7 settles it, and refresh stale KL_maap comments
+359c42da735426cbacccfef840ed38ab2eb483a2 Grade a conflicting PROBE parsed while an ANNOUNCE is mid-frame and this station's empty range, each with a planted defect
+b2e786bb151dd410923769d6f90e41afb0fdb71d Seed KL_maap's LFSR with a nonzero constant when the station MAC folds it to zero, and grade a zero-seed MAC's B.3.4 timer draws
+c7b69cd0fb2bdf980546ab413b3b82198267cbd8 Re-record the resource gate's three endpoints after the KL_maap Annex B change, every tolerance, floor and ceiling unchanged
+7b289656833b9ccd1237cd91162ef0490205199d Probe the crflic leg's Run B opening while KL_maap still probes, not after its ANNOUNCE
+70297b2b490ea4710fac7d40e22ab8f4421877b3 Classify the maap mutation campaign as a DUT-source reader for the test-evidence ratchet
+c6f5357a530b6627e448f196dd687a7ceed4130c Document the Annex B contract of KL_maap and the deviations outside #686
+a8364df1c12f8811d3df574d6acebfb7aaf5e070 Conform KL_maap to IEEE 1722-2016 Annex B on the #686 items and grade each against its clause
