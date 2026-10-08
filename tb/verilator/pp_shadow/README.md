@@ -360,7 +360,7 @@ values feed the gateware only, and the C++ side is told the ratio by `-D` so
 the two cannot drift into disagreeing about what a millisecond is.
 
 **ONE GRID.** `KL_maap` keeps its *own* millisecond (`CLK_FREQ_HZ_P/1000`
-cycles) and its Annex B claim walk is 3 probes × ~500 ms — 1.5·10⁸ cycles at a
+cycles) and its Annex B claim walk is four PROBEs ~550 ms apart, 1.6·10⁸ cycles at a
 real 100 MHz, which no harness can run, so `addr_valid_o` would never assert and
 group I would be unreachable. `-GMAAP_CLK_HZ_P=100000` makes one MAAP
 millisecond 100 clk, **the same** compressed millisecond the processor uses.

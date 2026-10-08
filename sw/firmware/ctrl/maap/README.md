@@ -168,20 +168,25 @@ python3 sw/firmware/ctrl/test/maap_differential.py --self-test
 Use the repository-pinned simulator for the last command.
 Set TMPDIR to disk-backed scratch before running the gates.
 The differential drives shared probe, per-state conflict, loss and retry stimulus
-through the C core and the unchanged parent MAAP engine.
-Annex B is the oracle; #686 records these parent deviations:
+through the C core and the parent MAAP engine.
+Annex B is the oracle for both.
+#686 conformed the parent on the six deviations this differential recorded:
 
-- Three delayed PROBEs versus four starting immediately (Table B.7).
-- Probe draws of 500..627 ms versus strict 500/600 ms endpoints.
-- Control-data length 28 versus 16 (B.2.1).
-- Multicast DEFEND versus the triggering source destination (B.2.1).
-- ANNOUNCE conflicts tested against conflict fields (Table B.7).
-- Announcement draws of 3..5.047 s versus strict 30/32 s endpoints.
+- Four PROBEs, the first at Begin! (Table B.7), not three delayed ones.
+- Probe draws strictly inside 500/600 ms (B.3.4.2), not 500..627 ms.
+- Control-data length 16 (B.2.1), not 28.
+- DEFEND to the triggering PROBE's source (B.2.1), not to the multicast address.
+- ANNOUNCE conflicts judged on the requested range (Table B.7), not the conflict fields.
+- Announcement draws strictly inside 30/32 s (B.3.4.1), not 3..5.047 s.
 
+The parent's frames now equal the core's for every shared stimulus.
+The parent deviations that remain are listed in the
+[fabric MAAP contract](../../../../docs/design/MAAP_FABRIC.md#annex-b-contract).
+This stimulus does not reach them.
 The differential observes software deadlines and parent frame completion cycles.
-Initial parent observations include one millisecond of tick/serialization uncertainty.
-Later equal-length frames cancel that error in interval measurements.
-Varying the start phase reaches both 500/627 ms parent boundaries.
+Equal-length frames make completion intervals equal send intervals.
+A send at an arbitrary tick phase observes up to 1 ms less than the parent's draw.
+Varying the start phase reaches both ends of the parent's 518..581 ms draw.
 Firmware sends span both 511/589 ms guarded draw boundaries.
 Named controls reject 1, 500 and 600 ms probe intervals.
 Separate controls falsify the parent probe bound and count expectations.
