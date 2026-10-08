@@ -1,0 +1,50 @@
+{
+  "cwd": "$LANES/665f4-cand-full-native",
+  "head": "135cc8eee08aa4bea55965e897a0887178bc7448",
+  "base": "17f62ef64a66562384e8a93b1d6be6f86e51f95c",
+  "commands": [
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/665f4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "$MANAGEMENT/2026-09-23/parallel-suites.py",
+      "$VALIDATION_STORAGE/665f4-candidate-0923/full-suite-logs",
+      "5"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/665f4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "$VALIDATION_STORAGE/665f4-candidate-0923/yosys-results"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/665f4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "-c",
+      "cd protocol-processor && bash scripts/run_suites.sh"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/665f4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "make",
+      "-C",
+      "gptp-processor",
+      "all"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/665f4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "behave",
+      "tests/features"
+    ]
+  ],
+  "parallel": true
+}
