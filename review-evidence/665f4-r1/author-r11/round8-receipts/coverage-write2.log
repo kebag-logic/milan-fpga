@@ -1,0 +1,43 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] ctrl coverage run
+    == ctrl SRP service latency: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+test_ctrl_firmware coverage run: PASS
+[ok] ctrl_nvm coverage run
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+saved-state store coverage run: PASS
+file                                                 lines    branches   after exclusions
+sw/firmware/ctrl/acmp/acmp.c                     734/734     342/342     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/acmp/acmp_mbx.c                  73/73       26/26      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/acmp/acmp_nvm.c                  38/38       10/10      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/adp/adp.c                       204/206      95/102     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/adp/adp_mbx.c                    83/83       38/40      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app.c                   42/43       40/44      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app_srp.c               12/12        8/8       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/loop/ctrl_loop.c                101/101      62/62      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap.c                     209/209     140/140     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap_csr.c                  39/39       18/18      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap_mbx.c                  98/98       60/60      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/mbx/mbx.c                       189/189      74/74      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/mbx/mbx_wire.h                   15/15       12/12      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/mbx_plat_mmio.c             10/10        0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/ctrl_debug.c                19/19        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/ctrl_pool.c                 99/99       60/60      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/shlan_port.c                22/22        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/srp/srp_mbx.c                   469/469     438/438     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/wire/wire.h                      10/10        2/2       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_klj2.c                  198/199     106/110     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %
+recorded 22 files in sw/firmware/gtest/coverage.ratchet

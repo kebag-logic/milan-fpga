@@ -1,0 +1,33 @@
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpLatency
+[ RUN      ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+H-SRP if=1 path=startup elapsed_ns=1005300 wait_ms=0 service_ns=1005300 accesses=56
+H-SRP if=1 path=JoinTime elapsed_ns=1015300 wait_ms=0 service_ns=1015300 accesses=212
+H-SRP if=1 path=periodic elapsed_ns=1015700 wait_ms=0 service_ns=1015700 accesses=517
+H-SRP if=1 path=MVRP LeaveAll elapsed_ns=1002400 wait_ms=0 service_ns=1002400 accesses=17568
+H-SRP if=1 path=MSRP LeaveAll elapsed_ns=1006800 wait_ms=0 service_ns=1006800 accesses=20450
+[       OK ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget (0 ms)
+[ RUN      ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+H-SRP if=1 path=RX to licence elapsed_ns=1001900 wait_ms=0 service_ns=1001900 accesses=228
+H-SRP if=1 path=malformed discard elapsed_ns=1002300 wait_ms=0 service_ns=1002300 accesses=254
+H-SRP if=1 path=Domain to declarations elapsed_ns=200995000 wait_ms=200 service_ns=995000 accesses=436
+H-SRP if=1 path=Talker RX to Listener elapsed_ns=200998700 wait_ms=200 service_ns=998700 accesses=623
+H-SRP if=1 path=unbind to withdrawal elapsed_ns=200999300 wait_ms=200 service_ns=999300 accesses=780
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=1 path=LeaveTime to stop elapsed_ns=1001100 wait_ms=0 service_ns=1001100 accesses=666
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+H-SRP if=1 path=RX storage recovery elapsed_ns=1983100 wait_ms=0 service_ns=1983100 accesses=258
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 5 tests from SrpLatency (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 5 tests.
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)

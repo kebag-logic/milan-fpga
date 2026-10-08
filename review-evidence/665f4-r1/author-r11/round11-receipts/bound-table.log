@@ -1,0 +1,82 @@
+wrote $SCRATCH/scratch/bounds/gen-if1/KL_mbx_pkg.sv (1 interfaces)
+wrote $SCRATCH/scratch/bounds/gen-if1/KL_mbx.sv (1 interfaces)
+wrote $SCRATCH/scratch/bounds/gen-if1/mbx_contract.h (1 interfaces)
+wrote $SCRATCH/scratch/bounds/gen-if2/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/scratch/bounds/gen-if2/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/scratch/bounds/gen-if2/mbx_contract.h (2 interfaces)
+{
+  "compiled_macros": [
+    {
+      "interfaces": 1,
+      "adp": 407,
+      "acmp_including_adp": 1012,
+      "maap": 616,
+      "srp": 1596,
+      "shared_event_reads": 48,
+      "feedback": 96,
+      "total": 3224
+    },
+    {
+      "interfaces": 2,
+      "adp": 438,
+      "acmp_including_adp": 1043,
+      "maap": 664,
+      "srp": 2366,
+      "shared_event_reads": 48,
+      "feedback": 96,
+      "total": 4073
+    }
+  ],
+  "recomputed_table": [
+    {
+      "input": "event",
+      "taken_by_pass": 2,
+      "accesses": [
+        9672,
+        12219
+      ],
+      "microseconds_per_access_for_10ms": [
+        1.03,
+        0.81
+      ]
+    },
+    {
+      "input": "ACMP",
+      "taken_by_pass": 10,
+      "accesses": [
+        35464,
+        44803
+      ],
+      "microseconds_per_access_for_10ms": [
+        0.28,
+        0.22
+      ]
+    },
+    {
+      "input": "ADP",
+      "taken_by_pass": 21,
+      "accesses": [
+        70928,
+        89606
+      ],
+      "microseconds_per_access_for_10ms": [
+        0.14,
+        0.11
+      ]
+    },
+    {
+      "input": "owed response",
+      "taken_by_pass": 8,
+      "accesses": [
+        29016,
+        36657
+      ],
+      "microseconds_per_access_for_10ms": [
+        0.34,
+        0.27
+      ]
+    }
+  ],
+  "doc_table_matches": true,
+  "R532_7_R1_exact_fix_present": true
+}

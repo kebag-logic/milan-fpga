@@ -1,0 +1,273 @@
+{
+  "head": "c1049de1970e93d2c36ace62891ee9d947cd3191",
+  "parent_clean": true,
+  "modules": [
+    {
+      "path": "protocol-processor",
+      "head": "ead8036035affd53ef4b29979190f2f4f67084c0",
+      "clean": true
+    },
+    {
+      "path": "gptp-processor",
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "clean": true
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "clean": true
+    },
+    {
+      "path": "third_party/lwSRP",
+      "head": "23d9a8173b07503a0ee6e8528f922fceab4e67f0",
+      "clean": true
+    }
+  ],
+  "upstream_topic": "495520f5e02dd077fc9b1451942b25ec95afa1b8",
+  "upstream_production_identical": true,
+  "mailbox_inputs": [
+    {
+      "path": "hdl/milan/mailbox/KL_mbx.sv",
+      "sha256": "5fcbd5ea9edc877caadfa0782b2cf0c1bd7567dfff97f2f015e2b9a56217168c"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_axil.sv",
+      "sha256": "4b1a0fcb5c6ba431fc9b63b4f94ac1660599b17d6744f9c1ff3e7392c1a9aaae"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_evt.sv",
+      "sha256": "11bbe504a88838478148b6c7d0a2a8fe35ed89e8075fe182e50e9f9e143780fd"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_pkg.sv",
+      "sha256": "1bf989cce109b3e2ec9fc6c81716c8efc7f4d420271108a3fd63cf899cad0d3f"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_ring.sv",
+      "sha256": "6f306c031d6a851c4223b96591ff5dd8852eae44e82962f00d74cfdccd6dfa3c"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_rx.sv",
+      "sha256": "0742fa744e71cda4794a1853ce00614ac80df93823c540043d49fd9aaf4655ce"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_tx.sv",
+      "sha256": "840ede25d27b69bf78042adcc8cd58e317d1ab0bd388fa5ff9049428373de663"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_wb.sv",
+      "sha256": "01efd0c3d6e8f027cd1b2946b9fe9e0c25dff009ea55819777e9add35be2e329"
+    },
+    {
+      "path": "hdl/milan/mailbox/README-tests.md",
+      "sha256": "7e2225f17e0396baa820a19e0a1ac5bff434175d727a4a60622939645067bcc9"
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "sha256": "6ef8c97683ca4e4f31e417bdf2c5070cf301d83c15d583aa53cc8e6f22348a89"
+    },
+    {
+      "path": "sw/firmware/ctrl/adp/adp.c",
+      "sha256": "2d5e3cca0ed659e39776f59c425618f27ab56d2109257ff4aa15c08ca1665098"
+    },
+    {
+      "path": "sw/firmware/ctrl/adp/adp.h",
+      "sha256": "86ba5211b43cb6507ffd070cff4d2bba8de003a7a6aa290da7bd1c33029d566d"
+    },
+    {
+      "path": "sw/firmware/ctrl/adp/adp_entity.py",
+      "sha256": "c25c50618798991fcc852cd7fbd69e125d10f9269ba6b198f5787f66fe2c7053"
+    },
+    {
+      "path": "sw/firmware/ctrl/adp/adp_mbx.c",
+      "sha256": "d09da4b83a889d018b7d99abb47297c457f29d2d475b8d71aa827bbce22c2b65"
+    },
+    {
+      "path": "sw/firmware/ctrl/adp/adp_mbx.h",
+      "sha256": "2c359e801a36b1864a7b490419787a36cc7c3f39d1b2d73d2235ff67ace34dd4"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.c",
+      "sha256": "58831a9577d46d0b6b6a605d985d9163b6ca1c05aa64cf80ea1cf34e1520730a"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.h",
+      "sha256": "323ead94c6af52581531be33d4c40cb6a287c9e162524f81b2202582622b2e5e"
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_model.c",
+      "sha256": "ac962ec13bc2271c1ed2e0f1959df98728e46e5b5c502036b10e8549a74cb6b6"
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_model.h",
+      "sha256": "1bdfeb482a69b6f4e0a277624b521215b6537e0ea134f4bd5bcd596664b91244"
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_plat_host.c",
+      "sha256": "9e3cab42acb87388a285fb092edaabd255d557a7b5a1f225337b3ec0bc481d7b"
+    },
+    {
+      "path": "sw/firmware/ctrl/loop/ctrl_loop.c",
+      "sha256": "92362008a2999331692c1c1832bfd6be8701328ddb011db55c4e5262ea6bc76e"
+    },
+    {
+      "path": "sw/firmware/ctrl/loop/ctrl_loop.h",
+      "sha256": "74eff7d0459a9237113cf7fc07e0a3291dd888478ae45fe2b0e25f4f8c0ba60f"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.c",
+      "sha256": "edb09dec268bac02b60b5aeebb12b67e9a0df6c16c3fbf680242f1284c8c11d8"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.h",
+      "sha256": "6bb0d2aa8cdddc82114b62a9560088c86c3dbe3e1dd862dbda5381b8cca73cda"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx_contract.h",
+      "sha256": "52fac020cf24a5cafcf1741c0ce7ce1c0e433acb387a24eac71e905be22a5754"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx_hal.h",
+      "sha256": "24d36afba0d2640805e3227b5af43e6aa5d6e10a14546315bc2e1f2d1684f9f6"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx_wire.h",
+      "sha256": "afafa414d313249be6230240d02537f040cd4f2a54527ce00f6e4a2b9abc503a"
+    },
+    {
+      "path": "sw/firmware/ctrl/plat/mbx_plat_mmio.c",
+      "sha256": "00603de0514377e4696fa1ca1119db8dacce09f375170804bf56dac54e30db49"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/ctrl_debug.c",
+      "sha256": "2c8ffb83c4480e42adef7c63f536d27ca8e9f7b4f97b57567749a788245cc24a"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/ctrl_debug.h",
+      "sha256": "388e9026fcbbd73a150a068064b1d0146c21c4d1cabf064c027e795799d3054f"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/ctrl_pool.c",
+      "sha256": "6432e9fb3039c3e54e8fafea8a05c4c87b648d783e2be01aa32e5224dd1458de"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/ctrl_pool.h",
+      "sha256": "f0419f453f3ac99c6de8c1b7764d63dbd10fa82c942ca522303f1f9488a84e96"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/shlan_port.c",
+      "sha256": "911a05da93897b39c78daddc5b57156deeb620bc436a59869828dc8ffaf89287"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/shlan_port.h",
+      "sha256": "cc19b4e4c30182368ab8087701c98e0800e6ae582c9dfad6811e4f8f9e67a0fe"
+    },
+    {
+      "path": "sw/firmware/ctrl/wire/wire.h",
+      "sha256": "89ee8e024512fa3a07a0c4d8ee9e5570b97955353c467c2a2e2c758658083157"
+    },
+    {
+      "path": "sw/mailbox/gen_mailbox.py",
+      "sha256": "0abc7e134d5f7e77505b83948b91eabedf9091a5fed67e59a886a3b9ef73e963"
+    },
+    {
+      "path": "sw/mailbox/mailbox.yaml",
+      "sha256": "9ad06bbda35b9034850bc1c8448b4f372f0567e96a8311caa749ef574d726319"
+    },
+    {
+      "path": "sw/mailbox/mailbox_emit.py",
+      "sha256": "79a8d9ca4a80854aadc872775988d366f76b5ec4d83bcddda4f10b3e5954964a"
+    },
+    {
+      "path": "sw/mailbox/mailbox_model.py",
+      "sha256": "2ed340f67e35b41eccff4610fa124321e1ed6548f04487efdfcb233e5c7c600d"
+    },
+    {
+      "path": "sw/mailbox/mailbox_skeleton.py",
+      "sha256": "5c435ea0af0965e7fe96ee40c9ddd8eea7f06d6844dcff209610fdf8dc9726b6"
+    },
+    {
+      "path": "tb/common/axi_stream_driver.svh",
+      "sha256": "cbe11755cb92665177270e2f4f9181f1e8b2b887feddf50cec6beb50e1801e2e"
+    },
+    {
+      "path": "tb/common/gen_declaration_fixture.py",
+      "sha256": "3da67d4257252eb670c8fd257baa4f67a4a83e86c0ee703e60bc2c9d2f83fe0f"
+    },
+    {
+      "path": "tb/common/gptp_launch_observer.hpp",
+      "sha256": "242b4d0a8be755b2b8a89d341741d0ffa159adca820395035c197b5a5e80c8d1"
+    },
+    {
+      "path": "tb/common/gptp_tx_flags.hpp",
+      "sha256": "6b094533f70ca158a61de596e89b73f627567d5be724564e7a3d6f8b07774389"
+    },
+    {
+      "path": "tb/common/sva/axis_mux_rr_2in_1out_bind.sv",
+      "sha256": "d072ec87ebf41372c35cf911648cfb45ad45289cf846a9490716894ae689847d"
+    },
+    {
+      "path": "tb/common/sva/axis_mux_rr_2in_1out_sva.sv",
+      "sha256": "f75b11e5d1599d47c5882b029958a06ad4f39ee40290036648d60e9bc620cdae"
+    },
+    {
+      "path": "tb/common/sva/axis_stream_source_sva.sv",
+      "sha256": "167a9933a4a6f00b4155ab827b9f23324b79e7c67149300568cb2e51a55b411d"
+    },
+    {
+      "path": "tb/common/verilator_harness.hpp",
+      "sha256": "7366ad0590aa52af2d7a75b8448fc57ccc318ee6b3acc6810848d29b86766ec9"
+    },
+    {
+      "path": "tb/verilator/mbx/Makefile",
+      "sha256": "b965f9211956ed0f278f5e6dff0bf0144729c7f67cf7608a57adbbff8e46987e"
+    },
+    {
+      "path": "tb/verilator/mbx/README.md",
+      "sha256": "c7023d5e1937352e6874dc06fee8cdcd1d85bc27b56b64401260ccf0628fd497"
+    },
+    {
+      "path": "tb/verilator/mbx/axil_checks.hpp",
+      "sha256": "5eb4070181775c2f73d6ffac25e6d15b65ff975a35f5f8b09ba8df4c4021b0c3"
+    },
+    {
+      "path": "tb/verilator/mbx/bench.hpp",
+      "sha256": "4f6ccc0d46c802479ef493a08483c7cfe513eb1ba99ea1ebf5ad20089089945c"
+    },
+    {
+      "path": "tb/verilator/mbx/cosim_main.cpp",
+      "sha256": "dfbbacbbe12fbcce4081d58858f3c9c5f4ac8a5674c44dc9975de589e4c427df"
+    },
+    {
+      "path": "tb/verilator/mbx/frames.hpp",
+      "sha256": "866596f9b5699ede7d7a00fd996b0d66690ad8cabe31d7051f61a58bb80f5396"
+    },
+    {
+      "path": "tb/verilator/mbx/model_main.cpp",
+      "sha256": "6f053193a80f46cf9c3afffc7d16841e798946600395e1ff779c9f5034755b1f"
+    },
+    {
+      "path": "tb/verilator/mbx/mutants.py",
+      "sha256": "d36108518f3f26fd5aa7d85f6f9c9f146502007f5cc4e1d6c4a1f4de19fa8d9d"
+    },
+    {
+      "path": "tb/verilator/mbx/sim_main.cpp",
+      "sha256": "d4766a5ce7d3e4c5a836fc80f7c87af0f22cd1fc30cf5d8a77d108097d4082ab"
+    },
+    {
+      "path": "tb/verilator/mbx/suite.hpp",
+      "sha256": "1f0a6c078b874e74683230705243696cbf4be4132cc4b83b718d1417f0610a02"
+    },
+    {
+      "path": "tb/verilator/mbx/tb_mbx_top.sv",
+      "sha256": "9b2c604e9bd8502ae07b93c43a354545b4531ba35bac79de3ab96746e0e678bb"
+    }
+  ],
+  "resources": {
+    "memory_current": 1045311488,
+    "memory_peak": 10242949120,
+    "memory_max": 12884901888,
+    "data_free_bytes": 77002481664,
+    "ignored_generated_residue_moved_to_scratch": true
+  }
+}

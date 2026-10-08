@@ -1,0 +1,6 @@
+control gcc: rc=0 A0-sources-check-failed=False verdict: PASS (84 tests, 0 failures, exit 0)
+control gcc+asan: rc=0 A0-sources-check-failed=False verdict: PASS (84 tests, 0 failures, exit 0)
+control clang: rc=0 A0-sources-check-failed=False verdict: PASS (84 tests, 0 failures, exit 0)
+planted gcc: rc=1 A0-sources-check-failed=True verdict: FAIL (its tallies report 1 failure(s) across 84 checks, exit 1)
+planted gcc+asan: rc=1 A0-sources-check-failed=True verdict: FAIL (its tallies report 1 failure(s) across 84 checks, exit 1)
+planted clang: rc=1 A0-sources-check-failed=True verdict: FAIL (its tallies report 1 failure(s) across 84 checks, exit 1)

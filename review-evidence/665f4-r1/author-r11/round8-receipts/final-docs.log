@@ -1,0 +1,55 @@
+START em-dash-final
+{"command": ["python3", "scripts/check_em_dash.py", "--base", "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"], "rc": 0, "seconds": 3.679, "log": "em-dash-final.log", "size": 140, "sha256": "b3d560c3819bbe17a45cee8ab728888101539bf565b9a505185b5af406da22e8"}
+check_em_dash: 0 finding(s) over 392 added line(s) in 7 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d8b355fe..HEAD]
+START docs-final
+{"command": ["python3", "scripts/docs_check.py"], "rc": 0, "seconds": 5.881, "log": "docs-final.log", "size": 128, "sha256": "cd77933e9c487be671001a179a7774c72f33c0151d1c2cdd8d157deb36a79a6b"}
+docs_check: 0 finding(s) across 200 md files + 1184 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+START docs-wire
+{"command": ["python3", "scripts/check_wire_accountability.py", "--self-test"], "rc": 0, "seconds": 0.314, "log": "docs-wire.log", "size": 4965, "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4"}
+  [ok]   KL_aaf_packetizer resets every talker's chans from the constant
+  [ok]   milan_datapath guards the constant against the front-end supply
+  [ok]   W5: fill covers N_STREAMS x WIRE_CHANS/2 pair slots (ZF_TOTAL_C)
+  [ok]   W5: KL_pair_zero_fill instantiated over that span
+  [ok]   W5: the fill grid is the AUDIO clock /512 (48.000 kHz exactly), CDC'd
+  [ok]   W5: the packetizer bypass leg consumes the FILLED stream
+  [ok]   W5: the 8.3b blend arm exists (KL_pair_blend, I2S = pair slot 0)
+
+== self-test: the gate bites in both directions ==
+  [ok]   arty_current (streams clean to the reference device): clean - as expected
+  [ok]   ax7101_8x8 (W1 closed by the master, W3 closed by the fill): clean - as expected
+  [ok]   ax7101_8x8 with the TDM master removed (the 07-27 fabric): findings - as expected
+  [ok]   datapath with the silence fill deleted: findings - as expected
+  self-test: PASS
+
+----------------------------------------------------------------------
+checks: 77   findings: 0
+RESULT: PASS
+START ci-scope
+{"command": ["python3", "scripts/ci_scope.py", "--selftest"], "rc": 0, "seconds": 5.399, "log": "ci-scope.log", "size": 6877, "sha256": "c02517598f82288a24c3271175fd5447213baa39154815edb15d6118a003c926"}
+  ok   mutation: sw/firmware/ filed as docs-only is rejected
+  ok   mutation: sw/firmware/gtest/ filed as docs-only is rejected
+  ok   mutation: .py filed as docs-only is rejected
+  ok   mutation: .json filed as docs-only is rejected
+  ok   mutation: .svg filed as docs-only is rejected
+  ok   mutation: gate-read docs/AAF_LATENCY_TAPS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/AAF_LATENCY_TAPS.md once the table drops it
+  ok   mutation: gate-read docs/design/AREA_BUDGET.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/design/AREA_BUDGET.md once the table drops it
+  ok   mutation: gate-read docs/reference/MAILBOX_CONTRACT.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/MAILBOX_CONTRACT.md once the table drops it
+  ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+START source-diff
+{"command": ["git", "diff", "--check", "f74b9403b330ce316eeec6f724846f16def98443", "HEAD"], "rc": 0, "seconds": 0.016, "log": "source-diff.log", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+
+START docs-archive
+{"command": ["python3", "scripts/docs_check.py"], "rc": 0, "seconds": 5.833, "log": "docs-archive.log", "size": 196, "sha256": "21b5b9b394624927cb9e2b3dbd80ae843be453aa0c18423ccb2825d098ddf45f"}
+docs_check: 0 finding(s) across 200 md files + 1184 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+START docs-archive-feature
+{"command": ["python3", "scripts/check_feature_status.py"], "rc": 0, "seconds": 1.116, "log": "docs-archive-feature.log", "size": 29, "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0"}
+feature_status: 0 finding(s)

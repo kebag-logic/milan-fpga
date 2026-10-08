@@ -1,0 +1,152 @@
+{
+  "not_final_evidence": true,
+  "notes": [
+    "A 200 ms draft deadline rejected the existing 600 ms recoverable-TX case; the final policy is 1000 ms.",
+    "One scripted draft edit was placed in the wrong helper and corrected before validation.",
+    "Historical size helper import failures and an unsupported NVM --build-dir option were corrected; final invocations all pass."
+  ],
+  "records": [
+    {
+      "label": "coverage-initial",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--check",
+        "--jobs",
+        "4",
+        "--keep",
+        "$SCRATCH/coverage-initial"
+      ],
+      "rc": 0,
+      "seconds": 216.803,
+      "log": "coverage-initial.log",
+      "size": 3134,
+      "sha256": "95e9ac8a40cd41e1ccdf7b63eeef334b7879d72dfa929b95a6b636afdbc5c316"
+    },
+    {
+      "label": "early-style",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 2.07,
+      "log": "early-style.log",
+      "size": 316,
+      "sha256": "48f6cd47027175360704aab24d6a30d021ecc29a00f2ce6a6902b5c468b60eba"
+    },
+    {
+      "label": "firmware-nvm",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+        "--require-rv32",
+        "--jobs",
+        "4",
+        "--build-dir",
+        "$SCRATCH/nvm-build"
+      ],
+      "rc": 2,
+      "seconds": 0.164,
+      "log": "firmware-nvm.log",
+      "size": 243,
+      "sha256": "33589089d0c841d246affafccf4fd7ebdf6ba83ff1ed0be59c15c8a874f36387"
+    },
+    {
+      "label": "linked-size-complete",
+      "command": [
+        "python3",
+        "$SCRATCH/images.py"
+      ],
+      "rc": 1,
+      "seconds": 0.265,
+      "log": "linked-size-complete.log",
+      "size": 1452,
+      "sha256": "c7e5f1296e590bc958afc6acb56db94d955bf6725f2970881a934222bbca4d34"
+    },
+    {
+      "label": "linked-size-final",
+      "command": [
+        "python3",
+        "$SCRATCH/images.py"
+      ],
+      "rc": 1,
+      "seconds": 0.365,
+      "log": "linked-size-final.log",
+      "size": 1194,
+      "sha256": "c356472acdc8f07859441c4da239abdc6f5a0bd67ada0e709b16b559ee176e0c"
+    },
+    {
+      "label": "linked-size",
+      "command": [
+        "python3",
+        "$SCRATCH/images.py"
+      ],
+      "rc": 1,
+      "seconds": 0.215,
+      "log": "linked-size.log",
+      "size": 1896,
+      "sha256": "8da0efc717c037d1b219baccc7af8e51a29288e2330833e77c07979dbbd72dac"
+    },
+    {
+      "label": "new-plants",
+      "command": [
+        "python3",
+        "$SCRATCH/new_plants.py"
+      ],
+      "rc": 0,
+      "seconds": 27.693,
+      "log": "new-plants.log",
+      "size": 6223,
+      "sha256": "bbd0f925c598bf7dab52213a5fd18eda3fc29e74e24ffbbf956800af4f4ec406"
+    },
+    {
+      "label": "probes-bound-corrected",
+      "command": [
+        "python3",
+        "$SCRATCH/probes.py"
+      ],
+      "rc": 0,
+      "seconds": 37.417,
+      "log": "probes-bound-corrected.log",
+      "size": 26197,
+      "sha256": "2cb897818fa8382815d5fe8985e950e4c7f1e2b91d202c42872bd515de76c3b1"
+    },
+    {
+      "label": "probes-bound",
+      "command": [
+        "python3",
+        "$SCRATCH/probes.py"
+      ],
+      "rc": 1,
+      "seconds": 1.418,
+      "log": "probes-bound.log",
+      "size": 4615,
+      "sha256": "0baef20e34a11235c5991244e8e9ffaee7ba74114b1187b79db1ddb35c172bbb"
+    },
+    {
+      "label": "probes-initial",
+      "command": [
+        "python3",
+        "$SCRATCH/probes.py"
+      ],
+      "rc": 1,
+      "seconds": 39.295,
+      "log": "probes-initial.log",
+      "size": 27965,
+      "sha256": "ed12c0203414cab262bbf18dad145547417bb920e060777dc3558ab2c0204cc1"
+    },
+    {
+      "label": "probes-regressions",
+      "command": [
+        "python3",
+        "$SCRATCH/probes.py"
+      ],
+      "rc": 0,
+      "seconds": 35.538,
+      "log": "probes-regressions.log",
+      "size": 27761,
+      "sha256": "1fccdd409ecf3cb549186b2d9e0adb6f33caace5f73ebc93f05c28401add3156"
+    }
+  ]
+}

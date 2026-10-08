@@ -1,0 +1,9 @@
+{"requested_argv": ["$BUILDER_SDK/bin/riscv32-linux-gcc", "--version"], "actual_argv": null, "result": "deliberately absent"}
+{"requested_argv": ["riscv64-elf-gcc", "--version"], "actual_argv": null, "result": "deliberately absent"}
+{"requested_argv": ["riscv32-unknown-elf-gcc", "--version"], "actual_argv": null, "result": "deliberately absent"}
+{"requested_argv": ["cc", "--version"], "actual_argv": ["cc", "--version"], "returncode": 0}
+{"requested_argv": ["gcc", "--version"], "actual_argv": ["gcc", "--version"], "returncode": 0}
+{"requested_argv": ["cc", "-S", "-o", "$SCRATCH/milan-cc-fphlgjdw/p.s", "$SCRATCH/milan-cc-fphlgjdw/probe.c"], "actual_argv": ["cc", "-S", "-o", "$SCRATCH/milan-cc-fphlgjdw/p.s", "$SCRATCH/milan-cc-fphlgjdw/probe.c"], "returncode": 1}
+{"requested_argv": ["cc", "-march=rv32i", "-mabi=ilp32", "-S", "-o", "$SCRATCH/milan-cc-4wbwycbb/p.s", "$SCRATCH/milan-cc-4wbwycbb/probe.c"], "actual_argv": ["cc", "-march=rv32i", "-mabi=ilp32", "-S", "-o", "$SCRATCH/milan-cc-4wbwycbb/p.s", "$SCRATCH/milan-cc-4wbwycbb/probe.c"], "returncode": 1}
+{"requested_argv": ["gcc", "-S", "-o", "$SCRATCH/milan-cc-kinhctlv/p.s", "$SCRATCH/milan-cc-kinhctlv/probe.c"], "actual_argv": ["gcc", "-S", "-o", "$SCRATCH/milan-cc-kinhctlv/p.s", "$SCRATCH/milan-cc-kinhctlv/probe.c"], "returncode": 1}
+{"requested_argv": ["gcc", "-march=rv32i", "-mabi=ilp32", "-S", "-o", "$SCRATCH/milan-cc-lpomaajf/p.s", "$SCRATCH/milan-cc-lpomaajf/probe.c"], "actual_argv": ["gcc", "-march=rv32i", "-mabi=ilp32", "-S", "-o", "$SCRATCH/milan-cc-lpomaajf/p.s", "$SCRATCH/milan-cc-lpomaajf/probe.c"], "returncode": 1}

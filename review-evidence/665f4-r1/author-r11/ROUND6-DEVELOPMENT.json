@@ -1,0 +1,166 @@
+[
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/campaign.py"
+    ],
+    "rc": 1,
+    "seconds": 159.726,
+    "log": "campaign-initial.log",
+    "size": 46212,
+    "sha256": "7591367d01b7485bf8669bb49920c2857dcd9e3688e65f9b118ff6768a56083d",
+    "label": "campaign-initial",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "$SCRATCH/coverage-initial"
+    ],
+    "rc": 1,
+    "seconds": 182.402,
+    "log": "coverage-initial.log",
+    "size": 3315,
+    "sha256": "4d1a05e2ec1300eed206efc1445a28fc49bd1b3722b3d9da1da0d8f4c3012026",
+    "label": "coverage-initial",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 1,
+    "seconds": 0.064,
+    "log": "docs-04.log",
+    "size": 174,
+    "sha256": "1fc8b68d08f73ff13d0c74b2d559105aaceadae0b1018d56ee04102700f5b18e",
+    "label": "docs-04",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 1,
+    "seconds": 1.569,
+    "log": "docs-57.log",
+    "size": 133,
+    "sha256": "8d123a4604a46d0efb8164ec7a9a948eb6dac6a5c8086440176409ce793924d5",
+    "label": "docs-57",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 1,
+    "seconds": 4.076,
+    "log": "docs-59.log",
+    "size": 118,
+    "sha256": "d8c70e73fb504d97cfa8341e4ff40fd133a05e48257a14ea9ba333202df44bcb",
+    "label": "docs-59",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/firmware-positive"
+    ],
+    "rc": 1,
+    "seconds": 179.084,
+    "log": "firmware-positive.log",
+    "size": 51075,
+    "sha256": "1c7957e837e08689a50859c6822c70eb3961af2a5047f6eec2bba9b9de0b5197",
+    "label": "firmware-positive",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--mutation-shard",
+      "0",
+      "2",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/firmware-shard0"
+    ],
+    "rc": 1,
+    "seconds": 184.171,
+    "log": "firmware-shard0.log",
+    "size": 50599,
+    "sha256": "11ff2f0160a99ffbb56a9f7a84d365a4a256f7cfa52337b2ee866dc1972225fe",
+    "label": "firmware-shard0",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/integrity.py"
+    ],
+    "rc": 1,
+    "seconds": 0.515,
+    "log": "integrity.log",
+    "size": 453,
+    "sha256": "66b11db12003b9cce8bc70af3e668d33f85f74272b1b84caaefc5c8224508a5d",
+    "label": "integrity-initial",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/srp_positives.py",
+      "srp_rx_retry.cpp"
+    ],
+    "rc": 1,
+    "seconds": 6.027,
+    "log": "rx-tests-extended.log",
+    "size": 2824,
+    "sha256": "5096d0f9cd66bfee84cf4676edbe418560f147d6c7702808adeede94618a11c5",
+    "label": "rx-tests-extended",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/srp_positives.py",
+      "srp_rx_retry.cpp"
+    ],
+    "rc": 1,
+    "seconds": 6.428,
+    "log": "rx-tests-initial.log",
+    "size": 3648,
+    "sha256": "29300141b92968db45e64d8d2d228c09ebfea2d6d907e7ad4a28aeb0d8560f5f",
+    "label": "rx-tests-initial",
+    "counted_as_final_evidence": false
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/campaign.py"
+    ],
+    "rc": 1,
+    "seconds": 172.928,
+    "log": "srp-campaign.log",
+    "size": 49891,
+    "sha256": "aac46e16f7f753fd8fd596ab5e020b04fc7196171b34a14def82069fff27a265",
+    "label": "srp-campaign",
+    "counted_as_final_evidence": false
+  }
+]
