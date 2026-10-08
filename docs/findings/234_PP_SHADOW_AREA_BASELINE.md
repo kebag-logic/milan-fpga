@@ -2,7 +2,7 @@
 
 Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
 The [2026-10-07 re-baseline](#re-baseline-of-2026-10-07-processor-2ad2f845) records processor pin `2ad2f845` after merging dev `79b086d4` for #682.
-It is the resource gate's current record.
+It was the resource gate's record until 2026-10-08, when issue #686 re-recorded the three endpoints on its merge of dev `291710b1`; the [area budget](../design/AREA_BUDGET.md#headroom-target) gives that record.
 The later sections preserve combinations A, B, C, D and E as history.
 The adoption changes the processor gitlink; the later dev merge also changes the parent AAF packetizer.
 No processor source is edited.
