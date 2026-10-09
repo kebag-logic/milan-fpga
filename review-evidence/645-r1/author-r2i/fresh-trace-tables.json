@@ -1,0 +1,212 @@
+[
+  {
+    "case": "pullin",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/jobs/trace-pullin.log",
+      "$BUILD_AREA/traces/pullin.pdu.csv",
+      "$BUILD_AREA/traces/pullin.servo.csv",
+      "--origin-s",
+      "4.6",
+      "--from-s",
+      "0",
+      "--to-s",
+      "1.5",
+      "--step-s",
+      ".1",
+      "--csv",
+      "$BUILD_AREA/fresh-tables/pullin.csv"
+    ],
+    "rc": 0,
+    "counts": [
+      0,
+      0,
+      1
+    ],
+    "event_bin": "+0.90",
+    "bounded_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/jobs/trace-pullin.log",
+      "$BUILD_AREA/fresh-tables/pullin.pdu-window.csv",
+      "$BUILD_AREA/traces/pullin.servo.csv",
+      "--origin-s",
+      "4.6",
+      "--from-s",
+      "0.7",
+      "--to-s",
+      "1.0",
+      "--step-s",
+      ".1",
+      "--csv",
+      "$BUILD_AREA/fresh-tables/pullin.bounded.csv"
+    ],
+    "bounded_rc": 0,
+    "bounded_matches_full": true,
+    "inputs": [
+      {
+        "path": "$BUILD_AREA/jobs/trace-pullin.log",
+        "sha256": "631bceaa9e89126d07173a2124d8ade2f01051da42aefb5e7552d6268c0d0a07",
+        "bytes": 2687
+      },
+      {
+        "path": "$BUILD_AREA/traces/pullin.pdu.csv",
+        "sha256": "2ef5204421f523ae9d9a9306b7bd75e237fcb27c9934543bcc6b7615b4f5accf",
+        "bytes": 1781418
+      },
+      {
+        "path": "$BUILD_AREA/traces/pullin.servo.csv",
+        "sha256": "ce1ef8b0a2bc9bb29be8eeebecc92fa0d727c4ccb1d452fb81f365b41e0ad33c",
+        "bytes": 69
+      }
+    ],
+    "bounded_input": {
+      "path": "$BUILD_AREA/fresh-tables/pullin.pdu-window.csv",
+      "sha256": "dbdfe0cc6b2fcb5d6588fff7730bc7a59150bbc5de8ef136da418e50709da237",
+      "bytes": 98481
+    }
+  },
+  {
+    "case": "duplicate",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/jobs/trace-duplicate.log",
+      "$BUILD_AREA/traces/duplicate.pdu.csv",
+      "$BUILD_AREA/traces/duplicate.servo.csv",
+      "--origin-s",
+      "0",
+      "--from-s",
+      "1.25",
+      "--to-s",
+      "1.75",
+      "--step-s",
+      ".25",
+      "--csv",
+      "$BUILD_AREA/fresh-tables/duplicate.csv"
+    ],
+    "rc": 0,
+    "counts": [
+      1,
+      0,
+      0
+    ],
+    "event_bin": "+1.75",
+    "bounded_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/jobs/trace-duplicate.log",
+      "$BUILD_AREA/fresh-tables/duplicate.pdu-window.csv",
+      "$BUILD_AREA/traces/duplicate.servo.csv",
+      "--origin-s",
+      "0",
+      "--from-s",
+      "1.25",
+      "--to-s",
+      "1.75",
+      "--step-s",
+      ".25",
+      "--csv",
+      "$BUILD_AREA/fresh-tables/duplicate.bounded.csv"
+    ],
+    "bounded_rc": 0,
+    "bounded_matches_full": true,
+    "inputs": [
+      {
+        "path": "$BUILD_AREA/jobs/trace-duplicate.log",
+        "sha256": "d6670a63251838e5053e5faf40a7a557933d1311e4f20cf3f41aa7816ced5b05",
+        "bytes": 2825
+      },
+      {
+        "path": "$BUILD_AREA/traces/duplicate.pdu.csv",
+        "sha256": "7ee7c16f95bd5a093884ab5db8a35b86816bd7de74fe1ab03d03b05307a66033",
+        "bytes": 6822950
+      },
+      {
+        "path": "$BUILD_AREA/traces/duplicate.servo.csv",
+        "sha256": "bd353ae4166648001f15c3906cca9b374059f84a8ba29214058a097c93f6fda7",
+        "bytes": 1354
+      }
+    ],
+    "bounded_input": {
+      "path": "$BUILD_AREA/fresh-tables/duplicate.pdu-window.csv",
+      "sha256": "0fe0285f2939260eb5e6a2dcb09032527432cb32518d2dc58f4afe69c0be413d",
+      "bytes": 164081
+    }
+  },
+  {
+    "case": "skip",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/jobs/trace-skip.log",
+      "$BUILD_AREA/traces/skip.pdu.csv",
+      "$BUILD_AREA/traces/skip.servo.csv",
+      "--origin-s",
+      "0",
+      "--from-s",
+      "38.5",
+      "--to-s",
+      "38.75",
+      "--step-s",
+      ".25",
+      "--csv",
+      "$BUILD_AREA/fresh-tables/skip.csv"
+    ],
+    "rc": 0,
+    "counts": [
+      1,
+      1,
+      0
+    ],
+    "event_bin": "+38.75",
+    "bounded_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/jobs/trace-skip.log",
+      "$BUILD_AREA/fresh-tables/skip.pdu-window.csv",
+      "$BUILD_AREA/traces/skip.servo.csv",
+      "--origin-s",
+      "0",
+      "--from-s",
+      "38.5",
+      "--to-s",
+      "38.75",
+      "--step-s",
+      ".25",
+      "--csv",
+      "$BUILD_AREA/fresh-tables/skip.bounded.csv"
+    ],
+    "bounded_rc": 0,
+    "bounded_matches_full": true,
+    "inputs": [
+      {
+        "path": "$BUILD_AREA/jobs/trace-skip.log",
+        "sha256": "0ebf8a431eb000f741e0f6226ef939dec7b4afd2b6dc626e25e7e45d19208e1a",
+        "bytes": 2918
+      },
+      {
+        "path": "$BUILD_AREA/traces/skip.pdu.csv",
+        "sha256": "b3ca2d0336b301fa3122c64f1ea70008ce6fb139c4b715854dc01819a8522f74",
+        "bytes": 21998488
+      },
+      {
+        "path": "$BUILD_AREA/traces/skip.servo.csv",
+        "sha256": "4fc66c045267cfa3c4c1fb2a54019f1c84b7bfb43f6b561bf0dd87f967a7156f",
+        "bytes": 1241
+      }
+    ],
+    "bounded_input": {
+      "path": "$BUILD_AREA/fresh-tables/skip.pdu-window.csv",
+      "sha256": "13b51d129afa2a0786f637ab16b89e0f12cdfa2a90d437226a6a32d58adbae21",
+      "bytes": 90081
+    }
+  }
+]

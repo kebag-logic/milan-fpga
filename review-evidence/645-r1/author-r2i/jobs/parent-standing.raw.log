@@ -1,0 +1,413 @@
+.FFFFFFFFFFFFFFF...F.FFFFFF
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='interior', kind='dup', instant='1.2')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 118, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(row[column], str(int(present and counted)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '1' != '0'
+- 1
++ 0
+
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='interior', kind='skip', instant='1.2')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 118, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(row[column], str(int(present and counted)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '1' != '0'
+- 1
++ 0
+
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='interior', kind='recentre', instant='1.2')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 118, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(row[column], str(int(present and counted)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '1' != '0'
+- 1
++ 0
+
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='start', kind='dup', instant='.3')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 118, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(row[column], str(int(present and counted)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '0' != '1'
+- 0
++ 1
+
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='start', kind='skip', instant='.3')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 118, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(row[column], str(int(present and counted)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '0' != '1'
+- 0
++ 1
+
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='start', kind='recentre', instant='.3')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 118, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(row[column], str(int(present and counted)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '0' != '1'
+- 0
++ 1
+
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='dup', instant='.299999999')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='dup', instant='.3')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='dup', instant='.300000001')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='skip', instant='.299999999')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='skip', instant='.3')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='skip', instant='.300000001')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='recentre', instant='.299999999')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='recentre', instant='.3')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus) (case='end', kind='recentre', instant='.300000001')
+Both inputs include the start, exclude the end, and own each edge.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 112, in test_decimal_boundaries_for_events_and_pdus
+    self.assertEqual(tuple(r["t_s"] for r in rows), labels)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('+0.10', '+0.20', '+0.20') != ('+0.10', '+0.20')
+
+First tuple contains 1 additional elements.
+First extra element 2:
+'+0.20'
+
+- ('+0.10', '+0.20', '+0.20')
+?           ---------
+
++ ('+0.10', '+0.20')
+
+======================================================================
+FAIL: test_partial_last_bin_and_servo_timestamp (__main__.TraceTableTests.test_partial_last_bin_and_servo_timestamp)
+A short final bin clips at the exact end; servo snapshots stay exact.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 153, in test_partial_last_bin_and_servo_timestamp
+    self.assertEqual([r["slips"] for r in rows], ["0", "0", "1"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['0', '0', '2'] != ['0', '0', '1']
+
+First differing element 2:
+'2'
+'1'
+
+- ['0', '0', '2']
+?             ^
+
++ ['0', '0', '1']
+?             ^
+
+
+======================================================================
+FAIL: test_subnanosecond_sides_remain_distinct (__main__.TraceTableTests.test_subnanosecond_sides_remain_distinct) (kind='dup', instant='1.2')
+No grace interval or decimal precision rounding absorbs neighbours.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 137, in test_subnanosecond_sides_remain_distinct
+    self.assertEqual([r[key] for r in rows],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     [str(int(i == owner)) for i in range(4)])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['0', '1', '0', '0'] != ['0', '0', '1', '0']
+
+First differing element 1:
+'1'
+'0'
+
+- ['0', '1', '0', '0']
+?            -----
+
++ ['0', '0', '1', '0']
+?       +++++
+
+
+======================================================================
+FAIL: test_subnanosecond_sides_remain_distinct (__main__.TraceTableTests.test_subnanosecond_sides_remain_distinct) (kind='dup', instant='1.200000000000000000000000000001')
+No grace interval or decimal precision rounding absorbs neighbours.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 137, in test_subnanosecond_sides_remain_distinct
+    self.assertEqual([r[key] for r in rows],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     [str(int(i == owner)) for i in range(4)])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['0', '1', '0', '0'] != ['0', '0', '1', '0']
+
+First differing element 1:
+'1'
+'0'
+
+- ['0', '1', '0', '0']
+?            -----
+
++ ['0', '0', '1', '0']
+?       +++++
+
+
+======================================================================
+FAIL: test_subnanosecond_sides_remain_distinct (__main__.TraceTableTests.test_subnanosecond_sides_remain_distinct) (kind='skip', instant='1.2')
+No grace interval or decimal precision rounding absorbs neighbours.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 137, in test_subnanosecond_sides_remain_distinct
+    self.assertEqual([r[key] for r in rows],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     [str(int(i == owner)) for i in range(4)])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['0', '1', '0', '0'] != ['0', '0', '1', '0']
+
+First differing element 1:
+'1'
+'0'
+
+- ['0', '1', '0', '0']
+?            -----
+
++ ['0', '0', '1', '0']
+?       +++++
+
+
+======================================================================
+FAIL: test_subnanosecond_sides_remain_distinct (__main__.TraceTableTests.test_subnanosecond_sides_remain_distinct) (kind='skip', instant='1.200000000000000000000000000001')
+No grace interval or decimal precision rounding absorbs neighbours.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 137, in test_subnanosecond_sides_remain_distinct
+    self.assertEqual([r[key] for r in rows],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     [str(int(i == owner)) for i in range(4)])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['0', '1', '0', '0'] != ['0', '0', '1', '0']
+
+First differing element 1:
+'1'
+'0'
+
+- ['0', '1', '0', '0']
+?            -----
+
++ ['0', '0', '1', '0']
+?       +++++
+
+
+======================================================================
+FAIL: test_subnanosecond_sides_remain_distinct (__main__.TraceTableTests.test_subnanosecond_sides_remain_distinct) (kind='recentre', instant='1.2')
+No grace interval or decimal precision rounding absorbs neighbours.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 137, in test_subnanosecond_sides_remain_distinct
+    self.assertEqual([r[key] for r in rows],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     [str(int(i == owner)) for i in range(4)])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['0', '1', '0', '0'] != ['0', '0', '1', '0']
+
+First differing element 1:
+'1'
+'0'
+
+- ['0', '1', '0', '0']
+?            -----
+
++ ['0', '0', '1', '0']
+?       +++++
+
+
+======================================================================
+FAIL: test_subnanosecond_sides_remain_distinct (__main__.TraceTableTests.test_subnanosecond_sides_remain_distinct) (kind='recentre', instant='1.200000000000000000000000000001')
+No grace interval or decimal precision rounding absorbs neighbours.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py", line 137, in test_subnanosecond_sides_remain_distinct
+    self.assertEqual([r[key] for r in rows],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     [str(int(i == owner)) for i in range(4)])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['0', '1', '0', '0'] != ['0', '0', '1', '0']
+
+First differing element 1:
+'1'
+'0'
+
+- ['0', '1', '0', '0']
+?            -----
+
++ ['0', '0', '1', '0']
+?       +++++
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.008s
+
+FAILED (failures=22)

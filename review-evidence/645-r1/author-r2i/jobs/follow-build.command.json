@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/follow_ring",
+    "build",
+    "MDIR=$BUILD_AREA/build",
+    "VERILATOR=$TOOLS/pinned-verilator-5.050/verilator"
+  ],
+  "cwd": "$LANE",
+  "cpus": "48-51"
+}
