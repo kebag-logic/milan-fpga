@@ -101,6 +101,9 @@ sv2v turns an elaboration-time `$error` in a generate block into an `initial $di
 So a point the RTL refuses still maps, with no error: neither `ooc.sh` nor `run.sh` looks for the converted message.
 `yosys_sweep.py guards` lints every point with Verilator 5.050, which evaluates those guards and reports each as `USERERROR`.
 A point whose guard fires, or whose shape the builder refuses, is listed in [the refusals](#guard-refusals) and left out of every fit.
+Issue #651 subsequently adds guard enforcement to both synthesis flows.
+Their converted error tasks now fail when their generate branch activates.
+The measurements below retain their original method and revision.
 A point with no guard record, or whose lint hit a hard error, is not treated as clean: `resmap_models.py` stops and names it.
 
 ### Vivado calibration anchors
