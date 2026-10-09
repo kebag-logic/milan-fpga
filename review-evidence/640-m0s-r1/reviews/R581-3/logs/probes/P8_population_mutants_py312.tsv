@@ -1,0 +1,9 @@
+mutant	file	snippet	gate_rc	verdict	last line
+M0 control	None	ok	0	CONTROL-PASS	placement gate: unchanged acceptance schema, record and policy PASS
+M1 printed record judged	pp_resource_gate.py	ok	1	DETECTED	AssertionError: wrapper replaced printed record: wanted 0 / "kind": "route", got (2, ['NOT COMPARABLE: wrong placement all-fabric: wrapper (KL_pp_shadow) count 
+M2 population judged before identity	pp_resource_gate.py	ok	1	DETECTED	AssertionError: wrapper replaced check: wanted 2 / wrapper (KL_pp_shadow), got (0, ['endpoint route-1x1: /tmp/pp-placement-gate-3o6a8god/all-fabric/gateware', '
+M3 all-fabric mailbox tolerated	pp_placement.py	ok	1	DETECTED	AssertionError: processor-maap excess check: wanted 2 / processor-maap (KL_pp_maap), got (0, ['endpoint route-1x1: /tmp/pp-placement-gate-jc3utv6k/all-fabric/ga
+M4 all-fabric roles may be absent	pp_placement.py	ok	1	DETECTED	AssertionError: wrapper replaced check: wanted 2 / wrapper (KL_pp_shadow), got (0, ['endpoint route-1x1: /tmp/pp-placement-gate-vfbz9kug/all-fabric/gateware', '
+M5 census names only the first problem	pp_placement.py	ok	1	DETECTED	AssertionError: wrapper-retaining f0-f4 without marker check: wanted 2 / acmp-listener (KL_pp_acmp_listener), got (2, ['endpoint route-1x1: /tmp/pp-placement-ga
+M6 record --write refusal after write	pp_resource_gate.py	ok	1	DETECTED	AssertionError: wrapper replaced record: wanted 2 / wrapper (KL_pp_shadow), got (0, ['{', ' "kind": "route",', ' "identity": {', '  "tool": "Vivado v.2026.1 (li
+M7 own-row skip widened to every parenthesised module	pp_placement.py	ok	1	DETECTED	'endpoint route: /tmp/pp-resource-gate-8in1k_8v/route/arm/gateware\nNOT COMPARABLE: wrong placement all-fabric: adp (KL_adp_engine) count 0, expected 1..1; wron

@@ -1,0 +1,19 @@
+usage: pp_resource_gate.py [-h] [--endpoint ENDPOINT]
+                           [--placement {all-fabric,f0-f4,full-split}]
+                           [--baseline BASELINE] [--budget BUDGET] [--write]
+                           [--selftest] [--fuzz N] [--seed SEED]
+                           [{check,record,check-baseline}] [directory]
+pp_resource_gate.py: error: unrecognized arguments: /tmp/pp-placement-gate-diqygfpw/all-fabric/gateware
+Traceback (most recent call last):
+  File "$PACKET/scratch/base_d10/syn/ooc/pp_resource_gate.py", line 785, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$PACKET/scratch/base_d10/syn/ooc/pp_resource_gate.py", line 733, in main
+    gate_selftest()
+  File "$PACKET/scratch/base_d10/syn/ooc/pp_placement_selftest.py", line 291, in gate_selftest
+    all_fabric_selftest(root, baseline)
+  File "$PACKET/scratch/base_d10/syn/ooc/pp_placement_selftest.py", line 248, in all_fabric_selftest
+    expect_case(label + " " + command[0], result, 2, f"{role} ({MODULES[ROLES.index(role)]})")
+  File "$PACKET/scratch/base_d10/syn/ooc/pp_placement_selftest.py", line 213, in expect_case
+    raise AssertionError(f"{label}: wanted {status} / {reason}, got {result}")
+AssertionError: wrapper replaced record: wanted 2 / wrapper (KL_pp_shadow), got (2, ['exited through argparse'])
