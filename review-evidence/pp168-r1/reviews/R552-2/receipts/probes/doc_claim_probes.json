@@ -1,0 +1,76 @@
+[
+ {
+  "probe": "E1_overlay_mask_removed",
+  "suite": "tb/acmp_listener",
+  "rc": 2,
+  "tally": "3167 checks: 3070 PASS, 97 FAIL",
+  "fail_count": 97,
+  "first_fails": [
+   "F05.3 BIND_SAME x UNB: settled got 0099aabbccddeeff/000000000000/0 want 0000000000000000/000000000000/0",
+   "F05.3 BIND_SAME x PWA: settled got 0011223344556677/000000000000/0 want 0000000000000000/000000000000/0",
+   "F05.3 BIND_SAME x PWD: settled got 0011223344556677/000000000000/0 want 0000000000000000/000000000000/0",
+   "F05.3 BIND_SAME x PWR: settled got 0011223344556677/000000000000/0 want 0000000000000000/000000000000/0",
+   "F05.3 BIND_SAME x PW2: settled got 0011223344556677/000000000000/0 want 0000000000000000/000000000000/0",
+   "F05.3 BIND_SAME x PWT: settled got 0011223344556677/000000000000/0 want 0000000000000000/000000000000/0",
+   "F05.3 BIND_NEW x UNB: settled got 0011223344556677/000000000000/0 want 0000000000000000/000000000000/0",
+   "F05.3 BIND_NEW x PWA: settled got 0011223344556677/000000000000/0 want 0000000000000000/000000000000/0"
+  ],
+  "verdict": "FAIL"
+ },
+ {
+  "probe": "E2_a12_clear_removed",
+  "suite": "tb/acmp_listener",
+  "rc": 0,
+  "tally": "3167 checks: 3167 PASS, 0 FAIL",
+  "fail_count": 0,
+  "first_fails": [],
+  "verdict": "PASS"
+ },
+ {
+  "probe": "E3_a5_clear_removed",
+  "suite": "tb/acmp_listener",
+  "rc": 2,
+  "tally": "3167 checks: 3166 PASS, 1 FAIL",
+  "fail_count": 1,
+  "first_fails": [
+   "F05.3 BIND_NEW x PWT: pbsta/acmpsta got 2/5 want 2/0"
+  ],
+  "verdict": "FAIL"
+ },
+ {
+  "probe": "E4_a10_erases_overlay",
+  "suite": "tb/acmp_listener",
+  "rc": 0,
+  "tally": "3167 checks: 3167 PASS, 0 FAIL",
+  "fail_count": 0,
+  "first_fails": [],
+  "verdict": "PASS"
+ },
+ {
+  "probe": "E5_disconnect_index_only",
+  "suite": "tb/acmp_talker",
+  "rc": 0,
+  "tally": "1376 checks: 1376 PASS, 0 FAIL",
+  "fail_count": 0,
+  "first_fails": [],
+  "verdict": "PASS"
+ },
+ {
+  "probe": "G_listener_golden",
+  "suite": "tb/acmp_listener",
+  "rc": 0,
+  "tally": "3167 checks: 3167 PASS, 0 FAIL",
+  "fail_count": 0,
+  "first_fails": [],
+  "verdict": "PASS"
+ },
+ {
+  "probe": "G_talker_golden",
+  "suite": "tb/acmp_talker",
+  "rc": 0,
+  "tally": "1376 checks: 1376 PASS, 0 FAIL",
+  "fail_count": 0,
+  "first_fails": [],
+  "verdict": "PASS"
+ }
+]
