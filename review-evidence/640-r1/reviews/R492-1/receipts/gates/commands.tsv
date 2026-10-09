@@ -1,0 +1,47 @@
+docs_check	<pinned-md-python> scripts/docs_check.py
+docs_self	<pinned-md-python> scripts/docs_check.py --selftest
+feature_status	<pinned-md-python> scripts/check_feature_status.py
+feature_self	<pinned-md-python> scripts/check_feature_status.py --self-test
+em_dash	<pinned-md-python> scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+em_dash_self	<pinned-md-python> scripts/check_em_dash.py --selftest
+doc_style	<pinned-md-python> scripts/check_doc_style.py
+doc_style_self	<pinned-md-python> scripts/check_doc_style.py --selftest
+gptp_docs	<pinned-md-python> scripts/check_gptp_docs.py --with-submodule
+gptp_docs_self	<pinned-md-python> scripts/check_gptp_docs.py --selftest
+doc_map	<pinned-md-python> docs/DOC_MAP.gen.py --check
+doc_map_self	<pinned-md-python> docs/DOC_MAP.gen.py --selftest
+timesync	<pinned-md-python> docs/diagrams/timesync_chain.gen.py --check
+timesync_self	<pinned-md-python> docs/diagrams/timesync_chain.gen.py --selftest
+solution	<pinned-md-python> scripts/check_solution_docs.py
+solution_self	<pinned-md-python> scripts/check_solution_docs.py --selftest
+submodule_diagram	<pinned-md-python> docs/diagrams/submodule_boundaries.gen.py --check
+submodule_diagram_self	<pinned-md-python> docs/diagrams/submodule_boundaries.gen.py --selftest
+submodule_docs	<pinned-md-python> scripts/check_submodule_docs.py
+submodule_docs_self	<pinned-md-python> scripts/check_submodule_docs.py --selftest
+diagram_pngs	<pinned-md-python> scripts/check_diagram_pngs.py
+diagram_pngs_self	<pinned-md-python> scripts/check_diagram_pngs.py --selftest
+module_matrix	<pinned-md-python> docs/traceability/gen_module_matrix.py --check
+baremetal	<pinned-md-python> scripts/check_baremetal_only.py --check
+baremetal_self	<pinned-md-python> scripts/check_baremetal_only.py --selftest
+doc_paths	<pinned-md-python> scripts/check_doc_paths.py
+archive	<pinned-md-python> scripts/check_archive.py
+archive_self	<pinned-md-python> scripts/check_archive.py --selftest
+toc_self	<pinned-md-python> scripts/gen_toc.py --selftest
+toc_anchors	<pinned-md-python> scripts/gen_toc.py --verify-anchors
+toc_check	<pinned-md-python> scripts/gen_toc.py --check
+todo	<pinned-md-python> scripts/check_todo_ownership.py
+hygiene	<pinned-md-python> scripts/check_hygiene.py --check
+wire	<pinned-md-python> scripts/check_wire_accountability.py --self-test
+resource_baseline	<pinned-md-python> syn/ooc/pp_resource_gate.py check-baseline
+resource_self	<pinned-md-python> syn/ooc/pp_resource_gate.py --selftest
+resource_mutants	<pinned-md-python> syn/ooc/pp_resource_gate_mutants.py
+ci_scope	<pinned-md-python> scripts/ci_scope.py --selftest
+ci_events	<pinned-md-python> scripts/ci_events.py --check
+wavedrom_self	<pinned-md-python> scripts/gen_wavedrom.py --selftest
+wavedrom_axis	<pinned-md-python> scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+wavedrom_cdc	<pinned-md-python> scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+wavedrom_gptp	<pinned-md-python> scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+pp_sources	<pinned-md-python> scripts/pp_srcs.py --check --selftest
+docs_nogit	env GIT_DIR=/dev/null <pinned-md-python> scripts/docs_check.py
+diff_base	git diff --check 5603c353137e90c1fa95429f6d00ef7a2298d9ee HEAD
+diff_tree	git diff --check
