@@ -44,6 +44,11 @@ Counter notifications are limited per descriptor from the latest recipient's
 completed transmission. Controller probes use a 30-60 s monitor interval,
 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
 
+Unavailable notification snapshots retain their event and retry after 1 ms.
+Other eligible snapshots continue during that wait.
+The retry timer permits the event loop to sleep.
+Backpressure retains the completed snapshot and its remaining recipients.
+
 [`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel and one timer slot. Accepted
 TX_HEAD publication and completed TX_TAIL retirement are separate events. The
 adapter retains completion cookies until the final frame words retire and reads

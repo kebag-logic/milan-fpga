@@ -109,7 +109,9 @@ struct aecp_registration {
 struct aecp_event {
 	uint32_t counter_at;
 	uint32_t cookie;
+	uint32_t retry_at;
 	uint8_t pending;
+	uint8_t retry_pending;
 	bool counter_sent;
 	bool awaiting_output;
 	uint8_t overrides; // bit 0 scalar, bit 1 latency: a default-valued SET counts

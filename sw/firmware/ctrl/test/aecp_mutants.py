@@ -32,6 +32,16 @@ def defect(name: str, file: str, old: str, new: str,
 
 
 DEFECTS = (
+    defect('unavailable-head-blocks-notices', 'aecp.c',
+           'e->retry_at = a->now + 1u;',
+           'e->retry_at = a->now + 1u; return true;',
+           ('Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin',
+            'backpressure retains the built independent snapshot')),
+    defect('unavailable-retry-spins', 'aecp.c',
+           'e->retry_at = a->now + 1u;',
+           'e->retry_at = a->now;',
+           ('Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin',
+            'failed snapshots wait for a timed retry')),
     defect('stream-info-request-echo', 'aecp_commands.c',
            'memcpy(out + 8, d->value + 74, 8u);',
            'memcpy(out + 8, in + 8, len >= 16u ? 8u : 0u);',

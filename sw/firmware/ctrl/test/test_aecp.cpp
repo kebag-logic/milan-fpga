@@ -924,10 +924,46 @@ TEST_F(Core, FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded)
     EXPECT_EQ(events[&desc(5)-descriptors.data()].pending,9u);
     EXPECT_EQ(events[&desc(0)-descriptors.data()].pending,0u);
     EXPECT_EQ(events[&desc(36)-descriptors.data()].pending,0u);
-    observations=true;drain();ASSERT_EQ(sent.size(),2u);
+    observations=true;++ms;drain();ASSERT_EQ(sent.size(),2u);
     EXPECT_EQ(get(sent[0].second,36,2),0x800fu);
     EXPECT_EQ(get(sent[1].second,36,2),0x8029u);
     EXPECT_EQ(events[&desc(5)-descriptors.data()].pending,0u);
+}
+
+TEST_F(Core, UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin)
+{
+    for(unsigned i=0;i<AECP_TEST_INTERFACES;++i)register_controller(CTLR+i,i);
+    sent.clear();unsigned reads=0;bool recovered=false,counters_ready=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){
+        ++reads;*v={};return recovered;});
+    ON_CALL(mock,Counters).WillByDefault([&](unsigned,uint16_t t,uint16_t,aecp_counters*v){
+        ++reads;v->valid=1;v->value[0]=42;return counters_ready||t!=5;});
+    aecp_changed(&a,5,0,9);aecp_changed(&a,6,0,1);
+    aecp_changed(&a,9,0,14);aecp_changed(&a,36,0,8);
+    room=false;EXPECT_TRUE(aecp_poll(&a));
+    auto attempts=reads;
+    for(unsigned n=0;n<20;++n)EXPECT_TRUE(aecp_poll(&a));
+    EXPECT_EQ(reads,attempts)<<"backpressure retains the built independent snapshot";
+    room=true;drain();
+    EXPECT_EQ(sent.size(),4u*AECP_TEST_INTERFACES)<<"available descriptors progress past failed snapshots";
+    for(unsigned i=0;i<AECP_TEST_INTERFACES;++i){
+        unsigned count=0;for(auto&p:sent)count+=p.first==i;
+        EXPECT_EQ(count,4u)<<"independent notices reach every interface";
+    }
+    attempts=reads;
+    for(unsigned n=0;n<20;++n)EXPECT_FALSE(aecp_poll(&a))<<"failed snapshots permit loop sleep";
+    EXPECT_EQ(reads,attempts)<<"failed snapshots wait for a timed retry";
+    EXPECT_CALL(mock,Timer(true,1)).Times(testing::AtLeast(1));
+    EXPECT_FALSE(aecp_poll(&a));testing::Mock::VerifyAndClearExpectations(&mock);
+    counters_ready=true;ms=1;sent.clear();drain();
+    EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"same descriptor counters recover while its stream stays unavailable";
+    recovered=true;ms=2;drain();
+    EXPECT_EQ(sent.size(),3u*AECP_TEST_INTERFACES)<<"every retained failed event recovers";
+    for(auto &e:events)EXPECT_EQ(e.retry_pending,0u);
+    aecp_changed(&a,5,0,8);sent.clear();ms=1000;drain();EXPECT_TRUE(sent.empty());
+    ms=1001;drain();EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"recovered counters retain completion spacing";
+    ms=UINT32_MAX;recovered=false;aecp_changed(&a,5,0,1);sent.clear();drain();
+    recovered=true;ms=0;drain();EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"retry deadline survives clock wrap";
 }
 
 TEST_F(Core, StaticMapsPreventOrphaningFormats)

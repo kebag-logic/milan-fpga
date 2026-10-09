@@ -78,7 +78,12 @@ static void arm(struct aecp *a)
 	}
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_event *e = &a->cfg.events[n];
-		if ((e->pending & 8u) != 0u && e->counter_sent && !e->awaiting_output &&
+		if (e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))) {
+			deadline = e->retry_at;
+			armed = true;
+		}
+		if ((e->pending & 8u) != 0u && (e->retry_pending & 8u) == 0u &&
+		    e->counter_sent && !e->awaiting_output &&
 		    (!armed || due(deadline, e->counter_at))) {
 			deadline = e->counter_at;
 			armed = true;
@@ -422,8 +427,12 @@ static bool asynchronous(struct aecp *a)
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_event *e = &a->cfg.events[n];
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
+		if (e->retry_pending != 0u && due(a->now, e->retry_at)) {
+			e->retry_pending = 0u;
+		}
 		for (unsigned bit = 0; bit < 4u; ++bit) {
 			if ((e->pending & (1u << bit)) == 0u ||
+			    (e->retry_pending & (1u << bit)) != 0u ||
 			    (bit == 3u && (e->awaiting_output || (e->counter_sent && !due(a->now, e->counter_at))))) {
 				continue;
 			}
@@ -438,14 +447,18 @@ static bool asynchronous(struct aecp *a)
 			unsigned status = aecp_command(a, 0, commands[bit], input, 4u, a->response + 38, &bytes);
 			if (status == AECP_SUCCESS) {
 				e->pending &= (uint8_t)~(1u << bit);
+				e->retry_pending &= (uint8_t)~(1u << bit);
 				finish(a, status, bytes);
 				a->response_owed = false;
 				a->notify = true;
 				if (bit == 3u) {
 					a->counter_event = n;
 				}
+				return true;
 			}
-			return true;
+			// Keep the event; other snapshots progress before this retry.
+			e->retry_pending |= (uint8_t)(1u << bit);
+			e->retry_at = a->now + 1u;
 		}
 	}
 	return false;
