@@ -61,7 +61,9 @@ enum aecp_change {
 // completion/event delivery is deferred to the event loop (#678).
 struct aecp_ports {
 	void *ctx;
-	bool (*send)(void *, unsigned, const uint8_t *, size_t);
+	// Completion identifies the accepted cookie, after the final output beat.
+	// Deliver aecp_tx_complete later, never from inside send.
+	bool (*send)(void *, unsigned, const uint8_t *, size_t, uint32_t cookie);
 	uint32_t (*now_ms)(void *);
 	uint32_t (*random)(void *);
 	void (*timer)(void *, bool, uint32_t);
@@ -86,8 +88,9 @@ struct aecp_registration {
 // recipient of that descriptor's snapshot.
 struct aecp_event {
 	uint32_t counter_at;
+	uint32_t cookie;
 	uint8_t pending;
-	bool counter_sent;
+	bool counter_sent, awaiting_output;
 };
 struct aecp_config {
 	uint64_t entity_id, mac[AECP_INTERFACES];
@@ -114,6 +117,7 @@ struct aecp {
 	int probe_recipient;
 	size_t counter_event;
 	uint32_t start_deadline;
+	uint32_t tx_cookie;
 	uint32_t malformed, ignored, busy_drops, reentries;
 };
 
@@ -123,6 +127,9 @@ bool aecp_ready(const struct aecp *);
 void aecp_rx(struct aecp *, unsigned interface, const uint8_t *, size_t);
 bool aecp_poll(struct aecp *);
 void aecp_start_done(struct aecp *, bool success, bool changed);
+// departure_ms is the final output beat's time, or a later observation of it.
+// A later cookie for the same descriptor supersedes an earlier completion.
+void aecp_tx_complete(struct aecp *, uint32_t cookie, uint32_t departure_ms);
 // Table 5.22 events: bit 0 STREAM_INFO, bit 1 AVB_INFO, bit 2 AS_PATH,
 // bit 3 COUNTERS. Call after causal ACMP responses have committed (#653).
 void aecp_changed(struct aecp *, uint16_t type, uint16_t index, unsigned events);

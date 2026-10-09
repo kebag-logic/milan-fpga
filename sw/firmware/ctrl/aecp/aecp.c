@@ -78,7 +78,7 @@ static void arm(struct aecp *a)
 	}
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_event *e = &a->cfg.events[n];
-		if ((e->pending & 8u) != 0u && e->counter_sent &&
+		if ((e->pending & 8u) != 0u && e->counter_sent && !e->awaiting_output &&
 		    (!armed || due(deadline, e->counter_at))) {
 			deadline = e->counter_at;
 			armed = true;
@@ -138,7 +138,7 @@ void aecp_open(struct aecp *a)
 
 bool aecp_ready(const struct aecp *a)
 {
-	return a->open && !a->response_owed && !a->notify && !a->start_pending;
+	return a->open && !a->response_owed && !a->notify;
 }
 
 bool aecp_locked(const struct aecp *a, uint64_t *owner)
@@ -183,9 +183,9 @@ unsigned aecp_registry_command(struct aecp *a, unsigned interface, uint16_t cmd,
 	return AECP_SUCCESS;
 }
 
-static bool probe_reply(struct aecp *a, unsigned interface, const uint8_t *p, size_t bytes)
+static bool probe_reply(struct aecp *a, unsigned interface, const uint8_t *p)
 {
-	if (bytes < 24u || (wire_be16(p + 22) & 0xbfffu) != 3u || wire_be64(p + 12) != a->cfg.entity_id) {
+	if ((wire_be16(p + 22) & 0xbfffu) != 3u || wire_be64(p + 12) != a->cfg.entity_id) {
 		return false;
 	}
 	for (unsigned n = 0; n < AECP_REGISTRATIONS; ++n) {
@@ -206,6 +206,7 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 	unsigned status = 1u;
 	if (bytes >= 32u && wire_be32(p + 22) == 0x001bc50au && wire_be16(p + 26) == 0xc100u) {
 		unsigned cmd = (unsigned)wire_be16(p + 28) & 0x7fffu;
+		a->response[42] &= 0x7fu;
 		if (cmd == 0u) {
 			memset(a->response + 44, 0, 14u);
 			wire_put_be(a->response + 46, 1u, 4);
@@ -248,7 +249,7 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 	}
 	(void)now(a);
 	if (msg == 1u) {
-		if (!probe_reply(a, interface, p, bytes)) {
+		if (!probe_reply(a, interface, p)) {
 			++a->ignored;
 		}
 		arm(a);
@@ -315,9 +316,32 @@ void aecp_changed(struct aecp *a, uint16_t type, uint16_t index, unsigned events
 static bool send(struct aecp *a)
 {
 	a->in_port = true;
-	bool ok = a->ports->send(a->ports->ctx, a->response_interface, a->response, a->response_bytes);
+	bool ok = a->ports->send(a->ports->ctx, a->response_interface, a->response, a->response_bytes, a->tx_cookie);
 	a->in_port = false;
+	if (ok) {
+		if (a->counter_event < a->cfg.model->count) {
+			struct aecp_event *e = &a->cfg.events[a->counter_event];
+			e->cookie = a->tx_cookie;
+			e->awaiting_output = true;
+		}
+		++a->tx_cookie;
+	}
 	return ok;
+}
+
+void aecp_tx_complete(struct aecp *a, uint32_t cookie, uint32_t departure_ms)
+{
+	if (!enter(a)) {
+		return;
+	}
+	for (size_t n = 0; n < a->cfg.model->count; ++n) {
+		struct aecp_event *e = &a->cfg.events[n];
+		if (e->awaiting_output && e->cookie == cookie) {
+			e->awaiting_output = false;
+			e->counter_sent = true;
+			e->counter_at = departure_ms + 1000u;
+		}
+	}
 }
 
 static bool transmit(struct aecp *a)
@@ -349,11 +373,6 @@ static bool transmit(struct aecp *a)
 			++r->sequence;
 		}
 		++a->recipient;
-	}
-	if (a->notify && a->counter_event < a->cfg.model->count) {
-		struct aecp_event *e = &a->cfg.events[a->counter_event];
-		e->counter_sent = true;
-		e->counter_at = now(a) + 1000u;
 	}
 	a->notify = false;
 	return false;
@@ -400,7 +419,7 @@ static bool asynchronous(struct aecp *a)
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 		for (unsigned bit = 0; bit < 4u; ++bit) {
 			if ((e->pending & (1u << bit)) == 0u ||
-			    (bit == 3u && e->counter_sent && !due(a->now, e->counter_at))) {
+			    (bit == 3u && (e->awaiting_output || (e->counter_sent && !due(a->now, e->counter_at))))) {
 				continue;
 			}
 			e->pending &= (uint8_t)~(1u << bit);

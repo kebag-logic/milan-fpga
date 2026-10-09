@@ -118,7 +118,7 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 static unsigned name_offset(uint16_t type, uint16_t name)
 {
 	if (type == 0u) {
-		return name < 2u ? 48u + 128u * name : 0u;
+		return name < 2u ? 48u + 132u * name : 0u;
 	}
 	switch (type) {
 	case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8:
