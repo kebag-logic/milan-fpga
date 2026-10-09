@@ -12,12 +12,14 @@
 // once). #696 also grades the DEFEND requested-range echo (B.3.6.6).
 // Scaled clock: CLK_FREQ_HZ_P=10000 -> 1 ms = 10 cycles.
 #include "VKL_maap.h"
+#include "VKL_maap___024root.h"
 #include "verilated.h"
 #include "../../common/verilator_harness.hpp"
 #if VM_COVERAGE
 #include "verilated_cov.h"
 #endif
 #include <algorithm>
+#include <array>
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
@@ -44,7 +46,8 @@ constexpr int kSettleCyc = 50;
 constexpr uint16_t kMaxOffset = 0xFDF8;
 constexpr uint16_t kCount = 8;
 constexpr uint64_t kMaapDst = 0x91E0F000FF00ULL;     // Table B.10
-constexpr uint64_t kStationMac = 0x020000000001ULL;  // reversed: 01:..:02
+// Keep the direct first-enable seed away from pool edges for range fixtures.
+constexpr uint64_t kStationMac = 0x020000001001ULL;  // reversed: 01:10:..:02
 // compare_MAC operands (B.3.6.4 compares octet-reversed MACs). kPeerAbove
 // reverses to BB:AA:99:88:77:66, above this station, so compare_MAC is TRUE
 // and this station keeps its range. kPeerBelow reverses to 00:AA:..:66,
@@ -52,9 +55,8 @@ constexpr uint64_t kStationMac = 0x020000000001ULL;  // reversed: 01:..:02
 // which is what lets a reversal defect show.
 constexpr uint64_t kPeerAbove = 0x66778899AABBULL;
 constexpr uint64_t kPeerBelow = 0x66778899AA00ULL;
-// a station MAC whose two low 16-bit halves XOR to 0xACE1, which folds the
-// LFSR's MAC seed to zero (the LFSR's fixed point)
-constexpr uint64_t kZeroSeedMac = 0x02000000ACE1ULL;
+// A unicast MAC whose low 32 bits sum with clock zero to the fixed point.
+constexpr uint64_t kZeroSeedMac = 0x020000000000ULL;
 // timing campaign size: walks restarted by disable/enable
 constexpr int kTimingWalks = 150;
 constexpr int kAnnounceSamples = 24;
@@ -195,6 +197,11 @@ class MaapHarness {
     void port_return_reprobes();
     void supplied_seed_bounds();
     void truncated_pdus_have_no_effect();
+    void generator_period_and_seed();
+    using GeneratorMap = std::array<uint32_t, 32>;
+    static uint32_t apply_generator_map(const GeneratorMap& map, uint32_t state);
+    static uint32_t jump_generator(GeneratorMap map, uint32_t state, uint64_t steps);
+    uint32_t generator_step(uint32_t state);
 
     const milan::tb::Model<VKL_maap> model;
     VKL_maap* dut = model.get();
@@ -213,6 +220,7 @@ class MaapHarness {
 
 void MaapHarness::bring_up_idle(){
     dut->station_mac_i=kStationMac;
+    dut->realtime_ns_i=0;
     dut->enable_i=0; dut->count_i=kCount; dut->port_operational_i=1;
     dut->seed_offset_i=0; dut->seed_valid_i=0;
     dut->m_axis_tready=1; dut->rx_tvalid_i=0;
@@ -816,6 +824,88 @@ void MaapHarness::truncated_pdus_have_no_effect(){
     }
 }
 
+// Learn one-step transitions by clocking the RTL, then check the order of
+// its linear map. For N = 2^32 - 1, N's prime factors are 3, 5, 17, 257,
+// and 65537. Returning after N steps and after none of N/q proves that the
+// seed-1 orbit has exactly N states, covering every nonzero 32-bit state.
+uint32_t MaapHarness::apply_generator_map(const GeneratorMap& map, uint32_t state) {
+    uint32_t result=0;
+    for (unsigned bit=0;bit<map.size();++bit)
+        if (state & (uint32_t{1}<<bit)) result ^= map[bit];
+    return result;
+}
+
+uint32_t MaapHarness::jump_generator(GeneratorMap map, uint32_t state, uint64_t steps) {
+    while (steps) {
+        if (steps & 1) state=apply_generator_map(map,state);
+        GeneratorMap squared{};
+        for (unsigned bit=0;bit<map.size();++bit)
+            squared[bit]=apply_generator_map(map,map[bit]);
+        map=squared;
+        steps >>= 1;
+    }
+    return state;
+}
+
+uint32_t MaapHarness::generator_step(uint32_t state) {
+    dut->rootp->KL_maap__DOT__lfsr_r=state;
+    cyc();
+    return dut->rootp->KL_maap__DOT__lfsr_r;
+}
+
+void MaapHarness::generator_period_and_seed() {
+    bring_up_idle();
+    GeneratorMap map{};
+    for (unsigned bit=0;bit<map.size();++bit)
+        map[bit]=generator_step(uint32_t{1}<<bit);
+    bool linear=true;
+    for (uint32_t state : {0u,1u,0x12345678u,UINT32_MAX,0x80000001u})
+        linear &= generator_step(state)==apply_generator_map(map,state);
+    uint32_t sample=0x9e3779b9u;
+    for (unsigned i=0;i<128;++i) {
+        sample=sample*1664525u+1013904223u;
+        linear &= generator_step(sample)==apply_generator_map(map,sample);
+    }
+    bool maximal=linear && jump_generator(map,1,UINT32_MAX)==1;
+    for (uint32_t factor : {3u,5u,17u,257u,65537u})
+        maximal &= jump_generator(map,1,UINT32_MAX/factor)!=1;
+    ck("M3 B.3.6.1 generator period is 2^32-1",maximal,1);
+
+    struct SeedCase { uint64_t mac; uint32_t clock; };
+    const std::array<SeedCase,5> seeds{{
+        {0x020000000000ULL,0},
+        {kStationMac,17},
+        {0x020012345678ULL,0x01020304u},
+        {0x0200ffffffffULL,1},
+        {0x020000000000ULL,0xffff1234u},
+    }};
+    bool seeded=true;
+    bool continuous=true;
+    for (const auto& test : seeds) {
+        bring_up_idle();
+        dut->station_mac_i=test.mac;
+        dut->realtime_ns_i=test.clock;
+        dut->enable_i=1;
+        cyc();
+        uint32_t observed=dut->rootp->KL_maap__DOT__lfsr_r;
+        const uint32_t expected=static_cast<uint32_t>(test.mac+test.clock);
+        seeded &= expected ? observed==expected : observed!=0;
+        // First enable is the seeding boundary. A later Release!/Begin!
+        // continues the generator even if the MAC and clock have changed.
+        dut->station_mac_i=test.mac ^ 0x000100000001ULL;
+        dut->realtime_ns_i=test.clock+32;
+        dut->enable_i=0;
+        cyc();
+        continuous &= dut->rootp->KL_maap__DOT__lfsr_r==apply_generator_map(map,observed);
+        observed=dut->rootp->KL_maap__DOT__lfsr_r;
+        dut->enable_i=1;
+        cyc();
+        continuous &= dut->rootp->KL_maap__DOT__lfsr_r==apply_generator_map(map,observed);
+    }
+    ck("M3 B.3.6.1 first enable seeds MAC plus clock",seeded,1);
+    ck("M3 Release/Begin retains the generator sequence",continuous,1);
+}
+
 int MaapHarness::run(){
     bring_up_idle();
     check_reset_idle();
@@ -836,6 +926,7 @@ int MaapHarness::run(){
     port_return_reprobes();
     supplied_seed_bounds();
     truncated_pdus_have_no_effect();
+    generator_period_and_seed();
 
     printf("\n======================================================================\n");
     printf("KL_maap: %ld checks, %ld failures\n", checks, fails);

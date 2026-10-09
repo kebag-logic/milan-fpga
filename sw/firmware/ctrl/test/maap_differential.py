@@ -63,8 +63,8 @@ def sensitivity(out: Path) -> int:
                   'ASSERT_EQ(f.frames.size(), 5u) << "Table B.7 parent four',
                   'ASSERT_EQ(f.frames.size(), 4u) << "Table B.7 parent four', timing))
     cases.append(("parent-ignores-mac", "hdl/ieee1722/maap/KL_maap.sv",
-                  "16'hACE1 ^ station_mac_i[15:0] ^ station_mac_i[31:16]",
-                  "16'hAC61", timing))
+                  "station_mac_i[31:0] + realtime_ns_i",
+                  "32'hAC61", timing))
     escaped = 0
     for name, path, old, new, test in cases:
         copy = out / name / "ctrl"

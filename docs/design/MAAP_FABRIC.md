@@ -94,13 +94,12 @@ ANNOUNCE = DEFEND.
   send can also wait for a frame already on the wire. So the engine draws N
   from a centred sub-range: 518 + 0..63 ms for the probe timer (17 ms of
   margin at each end) and 30488 + 0..1023 ms for the announce timer (487 ms).
-  Both draws come from a free-running 16-bit LFSR.
-  The first enable samples the programmed station MAC (#696 M4).
+  Both draws come from a free-running 32-bit LFSR with period 2^32 - 1.
+  First enable samples the low 32 bits of the sum of the programmed MAC
+  and the local real-time clock (#696 M4/M3, B.3.6.1).
   Reset initializes a constant and clears the seed-sampled flag.
   Later Release!/Begin! events preserve the running sequence.
-  A folded zero seed takes the nonzero constant instead.
-  This prevents the all-zero fixed point for every MAC.
-  The longer generator and clock seed remain M3 work.
+  A zero sum takes a nonzero constant to avoid the all-zero fixed point.
 - `enable_i` falling acts like Release!: back to IDLE at once.
 - `port_operational_i` rising implements PortOperational! (B.3.5.9, Table B.7).
   An enabled active engine immediately revokes validity and re-probes.
@@ -136,10 +135,13 @@ happens on a later cycle.
 **Remaining deviations outside #686's items.** These are recorded here and
 not changed by #686; each needs its own decision.
 
-- B.3.6.1 wants a uniform draw from a generator with a period of at least
-  2^32 - 1, seeded from the sum of the MAC and the local real-time clock.
-  `KL_maap` uses a 16-bit LFSR folded into the pool.
-  First enable samples the programmed MAC; clock seeding remains absent.
+- B.3.6.1 requires uniform address selection.
+  Folding and clipping the generator's low 16 bits into the pool remains biased.
+  M3 now supplies the 2^32 - 1 period and MAC-plus-clock seed.
+  Its 1x1 recipe measures `g_maap.maap_engine` at 441 LUT / 340 FF.
+  Against `6aa25dec` (439 LUT / 280 FF), growth is +2 LUT / +60 FF.
+  This fits the +60 / +60 ceiling and uses its full FF allowance.
+  The pool mapping remains a separate deviation; full B.3.6.1 conformance is not claimed.
 - One shared response buffer covers a PROBE during PROBE/ANNOUNCE transmission (#696 M6).
   Its destination, requested range and overlap remain until transmission completes.
   Pending and transmitting DEFENDs occupy that same buffer.
@@ -180,11 +182,18 @@ compared ranges with inclusive ends.
   selects the fabric `KL_maap` leg through `KL_pp_maap_shim`. Lane 0 of
   `A_TXARB_DIAG 0x784` supervises that merge — **anything decoding `0x784` by
   the old eight-lane numbering now reads the wrong mux.**
-- Randomness: first enable samples `cfg_mac_addr` after firmware programming.
+- Randomness: first enable samples `cfg_mac_addr` after firmware programming
+  and adds `ptp_now_w[31:0]`, the existing local PHC's low nanosecond bits.
+  The PHC and MAAP share the synchronous clock contract documented at the counter.
   Interval jitter uses the same free-running LFSR.
   The default MAAP target exercises the real CSR/datapath path.
-  Equally timed stations with different programmed MACs draw different intervals.
+  The two equally timed test stations use different programmed MACs and draw different intervals.
   Restoring reset-time sampling fails that check.
+  Same-MAC stations enabled at different PHC times also draw different intervals.
+  Ignoring the clock fails that integration check.
+  The unit suite observes the generator's linear transition map and checks its order.
+  Short-period, nonlinear-trap, missing-clock, XOR-seed and repeated-seed defects
+  fail the named M3 checks.
 - Outputs: `maap_addr[47:0]`, `maap_valid` (ANNOUNCE state) → the datapath's
   `eff_aaf_dmac` mux into the AAF framer dmac when
   `MAAP_CTRL.en=1 && maap_valid`, **and** the block side of

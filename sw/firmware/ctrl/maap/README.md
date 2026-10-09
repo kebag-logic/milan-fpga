@@ -187,6 +187,7 @@ The differential observes software deadlines and parent frame completion cycles.
 Equal-length frames make completion intervals equal send intervals.
 A send at an arbitrary tick phase observes up to 1 ms less than the parent's draw.
 The sweep programs 1,024 MAC identities before first enable.
+Its isolated parent clock input is held at zero; the datapath suite checks the live PHC seed.
 Both draw endpoints are required within the strict timer bounds.
 A generator ignoring the MAC fails the draw-coverage check.
 Firmware sends span both 511/589 ms guarded draw boundaries.

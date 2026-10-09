@@ -69,7 +69,7 @@ struct Fabric {
     unsigned bytes = 0;
     unsigned cycles = 0;
     Fabric() {
-        model->station_mac_i = kMac; model->count_i = 8;
+        model->station_mac_i = kMac; model->count_i = 8; model->realtime_ns_i = 0;
         model->seed_offset_i = 0x100; model->seed_valid_i = 1;
         model->enable_i = 0; model->rx_tvalid_i = 0; model->rx_tready_i = 1;
         model->m_axis_tready = 1; model->rst_n = 0; step(6); model->rst_n = 1; step(3);

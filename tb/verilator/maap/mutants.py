@@ -31,11 +31,25 @@ BEGIN_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at on
 RESTART_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
                  "            state_r      <= PROBE_S;\n            if (restart_w)")
 CELL = "((state_r == PROBE_S) || !mac_lower_w)"
-SEED = "(mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w"
+SEED = "(mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w"
 SUPPORTING = 0
 
 #: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
 MUTANTS = (
+    ("m3_short_period", "M3",
+     "{lfsr_r[30:0],\n                               lfsr_r[31] ^ lfsr_r[21] ^ lfsr_r[1] ^ lfsr_r[0]}",
+     "{16'd0, lfsr_r[14:0], lfsr_r[15] ^ lfsr_r[14] ^ lfsr_r[12] ^ lfsr_r[3]}",
+     "M3 B.3.6.1 generator period is 2^32-1"),
+    ("m3_trap_outside_basis", "M3",
+     "lfsr_next_w = {lfsr_r[30:0],",
+     "lfsr_next_w = (lfsr_r == 32'h12345678) ? 32'd0 : {lfsr_r[30:0],",
+     "M3 B.3.6.1 generator period is 2^32-1"),
+    ("m3_ignores_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
+     "station_mac_i[31:0]", "M3 B.3.6.1 first enable seeds MAC plus clock"),
+    ("m3_xors_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
+     "station_mac_i[31:0] ^ realtime_ns_i", "M3 B.3.6.1 first enable seeds MAC plus clock"),
+    ("m3_reseeds_after_release", "M3", "enable_i && !rng_seeded_r", "enable_i",
+     "M3 Release/Begin retains the generator sequence"),
     ("m6_overwrite_active_response", "M6",
      "&& !(tx_busy_r && tx_msg_r == MSG_DEFEND_C)", "",
      "M6 occupied response buffer preserves active DEFEND"),
@@ -190,7 +204,7 @@ def main() -> int:
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
         results.append(run_case(work, "m4_datapath_clean", source, None, True))
-        anchor = "      lfsr_r       <= 16'hACE1;\n      rng_seeded_r <= 1'b0;"
+        anchor = "      lfsr_r       <= 32'hACE1;\n      rng_seeded_r <= 1'b0;"
         replacement = "      lfsr_r       <= enable_seed_w;\n      rng_seeded_r <= 1'b1;"
         if source.count(anchor) != 1:
             print("[ESCAPED] M4: expected exactly one reset-seed anchor")
@@ -207,6 +221,14 @@ def main() -> int:
             results.append(run_case(
                 work, "m5_datapath_ignores_link", source.replace(anchor, "else if (restart_w)"),
                 "M5 datapath: link return starts four fresh PROBEs", True))
+        anchor = "station_mac_i[31:0] + realtime_ns_i"
+        if source.count(anchor) != 1:
+            print("[ESCAPED] M3: expected exactly one clock-seed anchor")
+            results.append(False)
+        else:
+            results.append(run_case(
+                work, "m3_datapath_ignores_clock", source.replace(anchor, "station_mac_i[31:0]"),
+                "M3 datapath: real-time clock changes probe intervals", True))
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
     return 1 if failures else 0

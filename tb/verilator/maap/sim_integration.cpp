@@ -13,7 +13,7 @@ namespace {
 constexpr unsigned kControlEgressBudget = 2000;
 class SeedHarness {
  public:
-    std::vector<unsigned> intervals(unsigned mac_last) {
+    std::vector<unsigned> intervals(unsigned mac_last, unsigned enable_delay=0) {
         dut->axis_resetn = 0;
         dut->gtx_resetn = 0;
         dut->m_axis_mac_tx_tready = 1;
@@ -25,8 +25,9 @@ class SeedHarness {
         dut->gtx_resetn = 1;
         for (int i = 0; i < 16; ++i) cycle();
         // Wire MAC 02:00:00:00:00:xx, programmed only after reset.
-        if (!write(0x71c, 5) || !write(0x108, 2) || !write(0x10c, mac_last << 8)
-            || !write(0x6cc, 0x801)) return {};
+        if (!write(0x71c, 5) || !write(0x108, 2) || !write(0x10c, mac_last << 8)) return {};
+        for (unsigned i=0;i<enable_delay;++i) cycle();
+        if (!write(0x6cc, 0x801)) return {};
         for (unsigned i = 0; i < 25000 && starts.size() < 4; ++i) cycle();
         if (starts.size() != 4 || !frames_ok) return {};
         std::vector<unsigned> result;
@@ -141,7 +142,27 @@ int main(int argc, char** argv) {
                 different ? "ok" : "FAIL");
     std::printf("[%s] M5 datapath: link return starts four fresh PROBEs\n",
                 link_ok ? "ok" : "FAIL");
-    const unsigned failures=(!different)+(!link_ok);
-    std::printf("MAAP integration: 2 checks, %u failures\n", failures);
+    // Delay by whole scaled milliseconds: the timer divider phase stays
+    // identical, while the real PHC advances before the first enable.
+    std::array<std::vector<unsigned>,2> clock_intervals;
+    for (unsigned i=0;i<clock_intervals.size();++i) {
+        SeedHarness station;
+        clock_intervals[i]=station.intervals(1,(i+1)*1000);
+        std::printf("clock trial %u probe intervals:",i);
+        for (unsigned value : clock_intervals[i]) std::printf(" %u",value);
+        std::puts("");
+    }
+    // Both starts follow the initial egress gap. Compare later intervals
+    // so an initial scheduling delay cannot stand in for clock seeding.
+    bool clock_ok=clock_intervals[0].size()==3 && clock_intervals[1].size()==3;
+    if (clock_ok)
+        clock_ok=clock_intervals[0][1]!=clock_intervals[1][1]
+            || clock_intervals[0][2]!=clock_intervals[1][2];
+    for (const auto& trial : clock_intervals)
+        for (unsigned value : trial) clock_ok &= value>5000 && value<6000;
+    std::printf("[%s] M3 datapath: real-time clock changes probe intervals\n",
+                clock_ok ? "ok" : "FAIL");
+    const unsigned failures=(!different)+(!link_ok)+(!clock_ok);
+    std::printf("MAAP integration: 3 checks, %u failures\n", failures);
     return failures ? 1 : 0;
 }

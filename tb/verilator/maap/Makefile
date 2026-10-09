@@ -15,7 +15,7 @@ MAAP_RTL  ?= $(RTL_DIR)/ieee1722/maap/KL_maap.sv
 MDIR      ?= obj_dir
 COV_MDIR  ?= obj_cov
 VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) \
-         -GCLK_FREQ_HZ_P=10000 \
+         -GCLK_FREQ_HZ_P=10000 --public-flat-rw \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
          -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra"

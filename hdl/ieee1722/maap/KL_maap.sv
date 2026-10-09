@@ -41,10 +41,11 @@
                   PROBE or ANNOUNCE on its requested_* fields (B.2.5-B.2.8).
 
                 Deviations (documented in MAAP_FABRIC.md, outside #686's
-                items): a 16-bit station-MAC-seeded LFSR draws the offset
-                (B.3.6.1); RX parse is untagged-only. One response buffer
-                retains a PROBE during PROBE/ANNOUNCE transmission; further
-                PROBEs while a DEFEND is pending or transmitting are lost.
+                items): the offset folds a generator draw into the pool
+                rather than drawing uniformly (B.3.6.1); RX is untagged-only.
+                One response buffer retains a PROBE during PROBE/ANNOUNCE
+                transmission; further PROBEs while a DEFEND is pending or
+                transmitting are lost.
                 Supplied seeds are validated against Table B.9.
 
                 Persistence (reference load/save_state) is softcore
@@ -80,6 +81,7 @@ module KL_maap #(
   input  wire         enable_i,          //! CSR MAAP_CTRL.en (0 = engine idle)
   input  wire         port_operational_i, //! axis-clock link level; rising re-probes
   input  wire [7:0]   count_i,           //! block size to claim (reference: 8)
+  input  wire [31:0]  realtime_ns_i,     //! local real-time clock, synchronous
   input  wire [47:0]  station_mac_i,     //! source MAC ([47:40] = first wire byte)
   input  wire [15:0]  seed_offset_i,     //! provisioning: preferred offset
   input  wire         seed_valid_i,      //! 1 = first probe uses seed_offset_i
@@ -136,17 +138,15 @@ module KL_maap #(
   logic         tick_ms_w;
   assign tick_ms_w = (tickdiv_r == '0);
 
-  //! 16-bit Fibonacci LFSR (x^16+x^15+x^13+x^4+1), station-MAC seeded.
-  //! All-zero is its only fixed point and no other state reaches it (the
-  //! step is an invertible linear map), so the enable seed is never zero:
-  //! a MAC that folds to zero (mac[15:0] ^ mac[31:16] == 0xACE1) takes the
-  //! constant instead, and the B.3.4 timer draws stay random for every MAC.
-  logic [15:0]  lfsr_r;
+  //! B.3.6.1: 32-bit Fibonacci LFSR, period 2^32 - 1.
+  //! First enable samples the low 32 bits of MAC plus local real-time clock.
+  //! The all-zero seed takes a nonzero fallback to avoid the fixed point.
+  logic [31:0]  lfsr_r;
   logic         rng_seeded_r;           //! first enable follows MAC programming
-  wire  [15:0]  lfsr_next_w = {lfsr_r[14:0],
-                               lfsr_r[15] ^ lfsr_r[14] ^ lfsr_r[12] ^ lfsr_r[3]};
-  wire  [15:0]  mac_seed_w  = 16'hACE1 ^ station_mac_i[15:0] ^ station_mac_i[31:16];
-  wire  [15:0]  enable_seed_w = (mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w;
+  wire  [31:0]  lfsr_next_w = {lfsr_r[30:0],
+                               lfsr_r[31] ^ lfsr_r[21] ^ lfsr_r[1] ^ lfsr_r[0]};
+  wire  [31:0]  mac_seed_w  = station_mac_i[31:0] + realtime_ns_i;
+  wire  [31:0]  enable_seed_w = (mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w;
 
   // ---- claim state ----------------------------------------------------------
   logic [15:0]  offset_r;
@@ -304,8 +304,8 @@ module KL_maap #(
   //! generate_address for Begin!: use a valid provisioning seed once (note a).
   //! An invalid seed falls back to the normal bounded random draw.
   wire [15:0] new_off_w = seed_valid_i && !seed_used_r && seed_in_pool_w
-                          ? seed_offset_i : rand_offset(rng_seeded_r ? lfsr_next_w
-                                                                    : enable_seed_w, count_i);
+                          ? seed_offset_i : rand_offset(rng_seeded_r ? lfsr_next_w[15:0]
+                                                                    : enable_seed_w[15:0], count_i);
 
   always_ff @(posedge clk_i) begin : maap_sm
     if (!rst_n) begin
@@ -314,7 +314,7 @@ module KL_maap #(
       probe_left_r <= '0;
       timer_ms_r   <= '0;
       tickdiv_r    <= '0;
-      lfsr_r       <= 16'hACE1;
+      lfsr_r       <= 32'hACE1;
       rng_seeded_r <= 1'b0;
       seed_used_r  <= 1'b0;
       port_operational_r <= 1'b0;
@@ -345,9 +345,9 @@ module KL_maap #(
       rx_done_p <= 1'b0;
       port_operational_r <= port_operational_i;
 
-      //! free-running entropy + ms tick
+      //! free-running generator + ms tick
       lfsr_r    <= lfsr_next_w;
-      //! Firmware programs the MAC after reset. Sample it at first enable,
+      //! Firmware programs the MAC after reset. Sample MAC + clock at first enable,
       //! then keep the generator running across Release!/Begin! retries.
       if (enable_i && !rng_seeded_r) begin
         lfsr_r       <= enable_seed_w;
@@ -431,7 +431,7 @@ module KL_maap #(
         PROBE_S, ANNOUNCE_S : begin
           if (!enable_i) state_r <= IDLE_S;
           else if (restart_w || port_operational_p) begin //! Table B.7 restart
-            offset_r     <= rand_offset(lfsr_r, count_i);
+            offset_r     <= rand_offset(lfsr_r[15:0], count_i);
             probe_left_r <= 3'(PROBE_SENDS_C);
             timer_ms_r   <= '0;                 //! sProbe at once
             state_r      <= PROBE_S;
