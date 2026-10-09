@@ -1,0 +1,110 @@
+[
+  {
+    "probe": "asm-formfeed-before-hash",
+    "compiled": {
+      "rv32": {
+        "rc": 0,
+        "stderr": ""
+      }
+    },
+    "compiler_comment": {
+      "rv32": true
+    },
+    "gate_errors": [],
+    "verdict": "GAP"
+  },
+  {
+    "probe": "asm-define-body-formfeed",
+    "compiled": {
+      "rv32": {
+        "rc": 0,
+        "stderr": ""
+      }
+    },
+    "compiler_comment": {
+      "rv32": true
+    },
+    "gate_errors": [],
+    "verdict": "GAP"
+  },
+  {
+    "probe": "asm-verticaltab-before-hash",
+    "compiled": {
+      "rv32": {
+        "rc": 0,
+        "stderr": ""
+      }
+    },
+    "compiler_comment": {
+      "rv32": true
+    },
+    "gate_errors": [],
+    "verdict": "GAP"
+  },
+  {
+    "probe": "header-cxx-digit-separator",
+    "compiled": {
+      "gcc-c": {
+        "rc": 0,
+        "stderr": ""
+      },
+      "clang-c": {
+        "rc": 0,
+        "stderr": ""
+      },
+      "g++": {
+        "rc": 0,
+        "stderr": ""
+      },
+      "clang++": {
+        "rc": 0,
+        "stderr": ""
+      }
+    },
+    "compiler_comment": {
+      "gcc-c": false,
+      "clang-c": false,
+      "g++": true,
+      "clang++": true
+    },
+    "gate_errors": [],
+    "verdict": "GAP"
+  },
+  {
+    "probe": "control-asm-hash",
+    "compiled": {
+      "rv32": {
+        "rc": 0,
+        "stderr": ""
+      }
+    },
+    "compiler_comment": {
+      "rv32": true
+    },
+    "gate_errors": [
+      "line 1: unsupported comment"
+    ],
+    "verdict": "REFUSED"
+  },
+  {
+    "probe": "control-c-line-comment",
+    "compiled": {
+      "gcc-c": {
+        "rc": 0,
+        "stderr": ""
+      },
+      "g++": {
+        "rc": 0,
+        "stderr": ""
+      }
+    },
+    "compiler_comment": {
+      "gcc-c": true,
+      "g++": true
+    },
+    "gate_errors": [
+      "line 1: unsupported comment"
+    ],
+    "verdict": "REFUSED"
+  }
+]
