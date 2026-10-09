@@ -1,0 +1,10 @@
+make: Entering directory '$VALIDATION_STORAGE/pp168-a567/recovery/temp/adp-mutants-s0wojig3/tb/pp_top'
+if guard 1: lints clean
+if guard 2: lints clean
+if guard 0: refused: N_AVB_IF_P=0 is outside 1 to 2
+FAIL: if guard 3: must be refused: N_AVB_IF_P=3 is outside 1 to 2 (verilator rc 1)
+    %Warning-USERERROR: ../../hdl/aecp/KL_aecp_notify.sv:367:5: KL_aecp_notify: rows {index, port} need N_IF_P=3 a power of two and N_CTRL_P=16 above 1
+    %Warning-WIDTHEXPAND: ../../hdl/top/protocol_processor_top.sv:2043:8: Output port connection 'txreq_if_o' expects 2 bits on the pin connection, but pin connection's VARREF 'adp_txreq_if_nc_w' generates 1 bits.
+if guards: 4 checks, 1 failing
+make: *** [Makefile:231: if-guards] Error 1
+make: Leaving directory '$VALIDATION_STORAGE/pp168-a567/recovery/temp/adp-mutants-s0wojig3/tb/pp_top'

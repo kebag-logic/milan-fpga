@@ -1,0 +1,140 @@
+[
+  {
+    "tree": "processor",
+    "argv": [
+      "git",
+      "remote",
+      "get-url",
+      "origin"
+    ],
+    "rc": 0,
+    "stdout": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git\n",
+    "stderr": ""
+  },
+  {
+    "tree": "processor",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "rc": 0,
+    "stdout": "ed340b9b85258194247334b85e62cf9c23d4d051\n",
+    "stderr": ""
+  },
+  {
+    "tree": "processor",
+    "argv": [
+      "git",
+      "branch",
+      "--show-current"
+    ],
+    "rc": 0,
+    "stdout": "pp168-acmp-fields\n",
+    "stderr": ""
+  },
+  {
+    "tree": "processor",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all"
+    ],
+    "rc": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "tree": "processor",
+    "argv": [
+      "git",
+      "diff",
+      "--exit-code"
+    ],
+    "rc": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "tree": "processor",
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--exit-code"
+    ],
+    "rc": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "tree": "scratch-parent",
+    "argv": [
+      "git",
+      "remote",
+      "get-url",
+      "origin"
+    ],
+    "rc": 0,
+    "stdout": "https://github.com/kebag-logic/milan-fpga.git\n",
+    "stderr": ""
+  },
+  {
+    "tree": "scratch-parent",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "rc": 0,
+    "stdout": "28f9666feab2b2ba287643c63ed3a16b1e0bb863\n",
+    "stderr": ""
+  },
+  {
+    "tree": "scratch-parent",
+    "argv": [
+      "git",
+      "ls-files",
+      "--stage",
+      "protocol-processor"
+    ],
+    "rc": 0,
+    "stdout": "160000 ed340b9b85258194247334b85e62cf9c23d4d051 0\tprotocol-processor\n",
+    "stderr": ""
+  },
+  {
+    "tree": "scratch-parent",
+    "argv": [
+      "git",
+      "diff",
+      "--stat"
+    ],
+    "rc": 0,
+    "stdout": " scripts/xvlog.budget              | 4 +---\n tb/verilator/milan_dp/sim_nxn.cpp | 7 +++++--\n 2 files changed, 6 insertions(+), 5 deletions(-)\n",
+    "stderr": ""
+  },
+  {
+    "tree": "scratch-parent",
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--stat"
+    ],
+    "rc": 0,
+    "stdout": " protocol-processor | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
+    "stderr": ""
+  },
+  {
+    "tree": "scratch-parent",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

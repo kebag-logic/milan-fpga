@@ -1,0 +1,104 @@
+{
+  "mutation_campaigns": 13,
+  "included_in_suite_bank": [
+    "tb/pp_top/if_guards.py",
+    "tb/nvm_port/measure_figures.py"
+  ],
+  "excluded": [
+    {
+      "path": "tb/common/mutant_pool.py",
+      "reason": "shared helper, no standalone campaign"
+    },
+    {
+      "path": "tb/desc_mem_guard/mutate.py",
+      "reason": "builds only descriptor store, descriptor guard and its wrapper; no changed source"
+    }
+  ],
+  "driver_scan": [
+    {
+      "driver": "tb/acmp_talker/retry_mutants.py",
+      "changed_module_named": true,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/adp_engine/mutants.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/common/mutant_pool.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/desc_mem_guard/mutate.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/maap/mutants.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/nvm_port/measure_figures.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/acmp_mutants.py",
+      "changed_module_named": true,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/aecp_dispatch_mutants.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/aecp_mutants.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/ctr_mutants.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/d3_mutants.py",
+      "changed_module_named": true,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/gsi_mutants.py",
+      "changed_module_named": true,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/if_guards.py",
+      "changed_module_named": true,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/name_wr_mutant.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/pp_top/notify_mutants.py",
+      "changed_module_named": true,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/srp_admission/mutants.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    },
+    {
+      "driver": "tb/srp_top/mutants.py",
+      "changed_module_named": false,
+      "all_hdl_glob": false
+    }
+  ]
+}

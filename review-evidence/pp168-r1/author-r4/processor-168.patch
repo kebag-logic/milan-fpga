@@ -1,0 +1,961 @@
+diff --git a/hdl/acmp/KL_acmp_talker.sv b/hdl/acmp/KL_acmp_talker.sv
+index c410514..a87f00f 100644
+--- a/hdl/acmp/KL_acmp_talker.sv
++++ b/hdl/acmp/KL_acmp_talker.sv
+@@ -24,7 +24,7 @@
+ //                  - GET_TX_STATE zeroes the listener fields and reads
+ //                    REGISTERING_FAILED LIVE (= 1 iff the registered
+ //                    Listener attribute is ASKING_FAILED).
+-//                DISCONNECT_TX is always SUCCESS and changes nothing;
++//                DISCONNECT_TX validates the source and otherwise changes nothing;
+ //                GET_TX_CONNECTION is NOT_SUPPORTED (Table 5.48). A PROBE_TX
+ //                whose ingress interface is not the output's AVB interface
+ //                is SILENTLY ignored (the doc's impl choice, taken here as
+@@ -1299,8 +1299,9 @@ module KL_acmp_talker
+         end
+ 
+         MT_DISC_TX_C: begin
+-          resp_valid_o        = 1'b1;   // always SUCCESS, changes nothing
+-          resp_status_o       = ST_SUCCESS_C;
++          // Milan 5.5.4.2 step 1 and Tables 5.44/5.45.
++          resp_valid_o        = 1'b1;
++          resp_status_o       = uid_valid_w ? ST_SUCCESS_C : ST_TALKER_UNKNOWN_C;
+           resp_listener_eid_o = pdu_leid_r;
+           resp_listener_uid_o = pdu_luid_r;
+         end
+diff --git a/hdl/acmp/KL_pp_acmp_listener.sv b/hdl/acmp/KL_pp_acmp_listener.sv
+index 082b6da..f3c616b 100644
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -184,7 +184,7 @@ module KL_pp_acmp_listener
+     output logic                         act_settle_o,    //! A15: SRP listen + the bound view's stream
+     output logic [63:0]                  act_settle_sid_o,//! settled stream_id
+     output logic [47:0]                  act_settle_da_o, //! settled stream_dest_mac
+-    output logic [11:0]                  act_settle_vlan_o,//! settled stream_vlan_id
++    output logic [15:0]                  act_settle_vlan_o,//! settled stream_vlan_id
+     output logic                         act_teardown_o,  //! A8: WITHDRAW_LISTENER
+     output logic                         act_disc_arm_o,  //! A4: arm discovery SM (04 §6.2)
+     output logic [63:0]                  act_disc_talker_eid_o, //! talker to watch
+@@ -227,9 +227,10 @@ module KL_pp_acmp_listener
+     //! changes both lands both in one cycle.
+     output logic                         act_strt_chg_o,
+     output logic                         act_strt_cmd_chg_o,
+-    //! THE RECORD RAM WRITE BUS, and FUNCTIONAL despite the `dbg_` prefix
+-    //! (kept for the suites that shadow it): it is the single writer's
+-    //! view that KL_acmp_nvm_shadow captures and that protocol_processor_top
++    //! THE PUBLISHED RECORD WRITE VIEW, functional despite the `dbg_` prefix.
++    //! The private probe-controller overlay reads as zero stream-ID here
++    //! until settlement (Milan 5.3.8.9). It is the single writer's view that
++    //! KL_acmp_nvm_shadow captures and that protocol_processor_top
+     //! mirrors into the GET_STREAM_INFO pbsta/acmpsta view and its change
+     //! compare. Every record write - reset sweep, boot preload, walk
+     //! write-back - appears here exactly once. Do not leave it unconnected.
+@@ -523,7 +524,15 @@ module KL_pp_acmp_listener
+   assign rxs_rd_slot_o = rxslot_r[RXS_SLOT_W_C-1:0];
+ 
+   // ------------------------------------------------------- classification
+-  assign probe_match_w = (ctlr_x_r == rec_r.bind_ctlr_eid)
++  // Milan 5.5.3.5.17/.18: a same-talker rebind updates the binding,
++  // while the outstanding probe retains its original controller. The
++  // private RAM shares the stream-id word between these disjoint lifetimes;
++  // its published record still reports zero stream-id until settlement.
++  logic [63:0] probe_ctlr_w;
++  assign probe_ctlr_w = ((rec_r.sm_state == 3'(LSM_PWR))
++                         || (rec_r.sm_state == 3'(LSM_PW2)))
++                       ? rec_r.settled_stream_id : rec_r.bind_ctlr_eid;
++  assign probe_match_w = (ctlr_x_r == probe_ctlr_w)
+                       && (tk_eid_f_r == rec_r.talker_eid)
+                       && (tk_uid_f_r == rec_r.talker_uid)
+                       && (seq_x_r == rec_r.probe_seq);
+@@ -670,10 +679,8 @@ module KL_pp_acmp_listener
+         b_flags_w = flags_f_r & AFLG_STREAMING_WAIT_C;
+       end
+       B_UNBIND: begin
+-        // A7: SUCCESS, command talker fields echoed
++        // Milan Table 5.36: both talker fields are zero on success.
+         b_msg_w   = AMSG_UNBIND_RX_RESP_C;
+-        b_tkeid_w = tk_eid_f_r;
+-        b_tkuid_w = tk_uid_f_r;
+       end
+       B_GETRX: begin
+         // A16: F05.14 — SUCCESS always, content by state
+@@ -688,13 +695,13 @@ module KL_pp_acmp_listener
+                     : 16'd0;
+         b_sid_w   = settled_w ? rec_r.settled_stream_id : 64'd0;
+         b_da_w    = settled_w ? rec_r.settled_da : 48'd0;
+-        b_vlan_w  = settled_w ? {4'd0, rec_r.settled_vlan} : 16'd0;
++        b_vlan_w  = settled_w ? rec_r.settled_vlan : 16'd0;
+       end
+       default: begin
+         // B_PROBE — A5/A13: {FAST_CONNECT=1, SW=0, cc=0, stream 0},
+         // regenerated from the record (Milan exact duplicate, 03 §5)
+         b_msg_w   = AMSG_PROBE_TX_CMD_C;
+-        b_ctlr_w  = rec_r.bind_ctlr_eid;
++        b_ctlr_w  = rec_r.settled_stream_id;
+         b_tkeid_w = rec_r.talker_eid;
+         b_tkuid_w = rec_r.talker_uid;
+         b_luid_w  = 16'(32'(sink_r));
+@@ -768,7 +775,15 @@ module KL_pp_acmp_listener
+   assign dbg_strq_drop_o  = dbg_strq_drop_r;
+   assign dbg_recwr_o      = recwr_en_w;
+   assign dbg_recwr_sink_o = recwr_addr_w;
+-  assign dbg_recwr_rec_o  = recwr_data_w;
++  acmp_rec_t published_rec_w;
++  always_comb begin : published_record
++    published_rec_w = recwr_rec_w;
++    if ((recwr_rec_w.sm_state != 3'(LSM_SNR))
++        && (recwr_rec_w.sm_state != 3'(LSM_SOK))) begin
++      published_rec_w.settled_stream_id = 64'd0;
++    end
++  end
++  assign dbg_recwr_rec_o  = ACMP_REC_W_C'(published_rec_w);
+ 
+   // ------------------------------------------------------------ static outs
+   assign draw_kind_o     = PRNG_KIND_ACMP_DELAY_C;
+@@ -779,7 +794,7 @@ module KL_pp_acmp_listener
+   assign act_sink_o      = sink_r;
+   assign act_settle_sid_o  = sid_f_r;
+   assign act_settle_da_o   = da_f_r;
+-  assign act_settle_vlan_o = vlan_f_r[11:0];
++  assign act_settle_vlan_o = vlan_f_r;
+ 
+   // ------------------------------------------------------------ pendexp
+   logic pend_clr_a11_w;
+@@ -1169,7 +1184,7 @@ module KL_pp_acmp_listener
+                 act_teardown_o        <= 1'b1;
+                 rec_r.settled_stream_id <= 64'd0;
+                 rec_r.settled_da      <= 48'd0;
+-                rec_r.settled_vlan    <= 12'd0;
++                rec_r.settled_vlan    <= 16'd0;
+                 rec_r.f_tk_reg        <= 1'b0;
+                 rec_r.f_srp_decl      <= 2'd0;
+                 cellmut_r             <= 1'b1;
+@@ -1229,6 +1244,7 @@ module KL_pp_acmp_listener
+                 rec_r.talker_uid    <= 16'd0;
+                 rec_r.bind_ctlr_eid <= 64'd0;
+                 rec_r.probe_seq     <= 16'd0;
++                rec_r.settled_stream_id <= 64'd0;
+                 rec_r.f_bound       <= 1'b0;
+                 rec_r.f_sw          <= 1'b0;
+                 rec_r.f_started     <= 1'b0;
+@@ -1241,7 +1257,8 @@ module KL_pp_acmp_listener
+               end
+               5'(ACT_A12_C): begin       // arm T-ACMP-DELAY via PRNG draw
+                 rec_r.pbsta   <= PB_ACTIVE_C;
+-                rec_r.acmpsta <= 5'd0;
++                // Milan 5.5.3.5.30 step 2 preserves the retry status.
++                if (evt_r != LEV_TMR_RETRY) rec_r.acmpsta <= 5'd0;
+                 cellmut_r     <= 1'b1;
+                 draw_issued_r <= 1'b0;
+                 ord_r         <= ord_r;  // hold: X_DRAW advances on return
+@@ -1268,7 +1285,7 @@ module KL_pp_acmp_listener
+               5'(ACT_A15_C): begin       // settle: latch params, arm NOTK
+                 rec_r.settled_stream_id <= sid_f_r;
+                 rec_r.settled_da        <= da_f_r;
+-                rec_r.settled_vlan      <= vlan_f_r[11:0];
++                rec_r.settled_vlan      <= vlan_f_r;
+                 rec_r.f_srp_decl[0]     <= 1'b1;
+                 rec_r.pbsta             <= PB_COMPLETED_C;
+                 rec_r.acmpsta           <= 5'd0;
+@@ -1308,10 +1325,12 @@ module KL_pp_acmp_listener
+               end
+               default: begin             // ACT_A5_C: probe #1, fresh seq
+                 rec_r.probe_seq <= probe_ctr_r;
++                rec_r.settled_stream_id <= rec_r.bind_ctlr_eid;
+                 probe_ctr_r     <= probe_ctr_r + 16'd1;
+                 rec_r.f_retried <= 1'b0;
+                 rec_r.pbsta     <= PB_ACTIVE_C;
+-                rec_r.acmpsta   <= 5'd0;
++                // Milan 5.5.3.5.10 leaves the prior probe status unchanged.
++                if (evt_r != LEV_TMR_DELAY) rec_r.acmpsta <= 5'd0;
+                 cellmut_r       <= 1'b1;
+                 bk_r            <= B_PROBE;
+                 ord_r           <= ord_r;
+diff --git a/hdl/acmp/pp_acmp_pkg.sv b/hdl/acmp/pp_acmp_pkg.sv
+index 5e5c122..0aabb9b 100644
+--- a/hdl/acmp/pp_acmp_pkg.sv
++++ b/hdl/acmp/pp_acmp_pkg.sv
+@@ -120,7 +120,7 @@ package pp_acmp_pkg;
+   localparam logic [4:0] AST_SUCCESS_C                 = 5'd0;
+   localparam logic [4:0] AST_LISTENER_UNKNOWN_ID_C     = 5'd1;
+   localparam logic [4:0] AST_LISTENER_TALKER_TIMEOUT_C = 5'd7;
+-  localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd13;
++  localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd16;
+ 
+   // ---- ACMPDU flags masks (F05.13; MSB-first wire warning applies) -------
+   localparam logic [15:0] AFLG_FAST_CONNECT_C   = 16'h0002;
+@@ -149,8 +149,7 @@ package pp_acmp_pkg;
+     logic [7:0]  sm_tmr_handle;      // [367:360] shared SM timer slot (08 §5)
+     logic [7:0]  saved_if_index;     // [359:352] discovery-saved interface
+     logic [31:0] last_avail_index;   // [351:320] owned by ADP (04), preserved
+-    logic [3:0]  rsv1;               // [319:316]
+-    logic [11:0] settled_vlan;       // [315:304] settled SRP params (A15)
++    logic [15:0] settled_vlan;       // [319:304] Milan 5.3.8.9: full wire value
+     logic [47:0] settled_da;         // [303:256]
+     logic [63:0] settled_stream_id;  // [255:192]
+     logic [63:0] bind_ctlr_eid;      // [191:128]
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 7177006..554b201 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1018,7 +1018,7 @@ module protocol_processor_top
+   logic [N_STREAM_IN_P-1:0]        bound_r;
+   logic [N_STREAM_IN_P-1:0][63:0]  bound_sid_r;
+   logic [N_STREAM_IN_P-1:0][47:0]  bound_dmac_r;
+-  logic [N_STREAM_IN_P-1:0][11:0]  bound_vlan_r;
++  logic [N_STREAM_IN_P-1:0][15:0]  bound_vlan_r;
+   logic [N_STREAM_IN_P-1:0][63:0]  bound_eid_r;
+ 
+   logic        lstn_dbg_busy_w;
+@@ -1037,7 +1037,10 @@ module protocol_processor_top
+   assign acmp_bound_eid_o  = bound_eid_r;
+   assign acmp_bound_sid_o  = bound_sid_r;
+   assign acmp_bound_dmac_o = bound_dmac_r;
+-  assign acmp_bound_vlan_o = bound_vlan_r;
++  // Parent-visible VID remains 12 bits; internal ACMP retains all 16 bits.
++  for (genvar v = 0; v < N_STREAM_IN_P; v++) begin : bound_vlan_view
++    assign acmp_bound_vlan_o[v*12 +: 12] = bound_vlan_r[v][11:0];
++  end
+ 
+   //! not "nc" any more: this is the live available_index, published below.
+   //! One 32-bit index per AVB interface, interface 0 in the low word.
+@@ -1895,7 +1898,7 @@ module protocol_processor_top
+   logic        lstn_act_settle_w, lstn_act_teardown_w;
+   logic [63:0] lstn_act_settle_sid_w;
+   logic [47:0] lstn_act_settle_da_w;
+-  logic [11:0] lstn_act_settle_vlan_w;
++  logic [15:0] lstn_act_settle_vlan_w;
+ 
+   always_ff @(posedge clk_i) begin : binding_view
+     if (!rst_n) begin
+@@ -1927,7 +1930,7 @@ module protocol_processor_top
+         //! never describe stream Y (Milan §5.3.8.9).
+         bound_sid_r [lstn_act_sink_w] <= 64'd0;
+         bound_dmac_r[lstn_act_sink_w] <= 48'd0;
+-        bound_vlan_r[lstn_act_sink_w] <= 12'd0;
++        bound_vlan_r[lstn_act_sink_w] <= 16'd0;
+       end
+     end
+   end
+@@ -2708,7 +2711,7 @@ module protocol_processor_top
+                            index: 8'(lstn_act_sink_w),
+                            sid:   lstn_act_settle_sid_w,
+                            da:    lstn_act_settle_da_w,
+-                           vid:   lstn_act_settle_vlan_w,
++                           vid:   lstn_act_settle_vlan_w[11:0],
+                            mfs:   16'd0,
+                            lstn:  2'd2};
+         end
+@@ -3529,6 +3532,11 @@ module protocol_processor_top
+       case (gsi_sel_o)
+         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
++        // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
++        4'd6: aecp_gsi_data_w = {
++            ((32'(gsi_desc_index_o) < N_STREAM_IN_P)
++             && (gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C))
++              ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+         default: begin end
+       endcase
+diff --git a/tb/acmp_listener/README.md b/tb/acmp_listener/README.md
+index ee4cc30..47e7707 100644
+--- a/tb/acmp_listener/README.md
++++ b/tb/acmp_listener/README.md
+@@ -4,7 +4,7 @@
+ Proves the ROM-driven Milan listener-SM executor
+ (`hdl/acmp/KL_pp_acmp_listener.sv`) against the full F05.3 transition matrix of
+ [05 §6.3](../../docs/architecture/05_acmp_engine.md): `make` = generate the
+-ROM + build + run, exit 0 = PASS, 3111 checks.
++ROM + build + run, exit 0 = PASS, 3167 checks.
+ 
+ **The MTXW walk** ([09 §3](../../docs/architecture/09_verification.md)):
+ every one of the 112 cells (14 events x 8 states) is driven against an
+@@ -123,3 +123,42 @@ top's pbsta/acmpsta compare registers on, so the two OR into one
+ notification); a re-bind that keeps STREAMING_WAIT raises none. Mutation-proven
+ 2026-09-24 in a scratch copy: excluding walks that run A2 from the trigger
+ again → 2 of 2544 FAIL (RV8b, RV8d).
++
++## ACMP response fields (issue 168)
++
++The matrix expectations follow Milan v1.2 Table 5.36 (successful UNBIND clears
++both talker fields), 5.5.3.5.30 step 2 and 5.5.3.5.10 (the discovered retry and subsequent
++delay expiry retain ACMP status),
++and IEEE 1722.1-2021 Table 8-3 (lock refusal status 16). VLAN settlement and
++readback retain all 16 received bits under Milan 5.3.8.9 and Table 5.38.
++
++`field_cases.hpp` adds 56 checks through the transport harness. Its probe
++identity comes from the emitted command. Same-talker rebind updates the binding
++controller while responses and the byte-identical retry still use the sent
++probe's controller (5.5.3.5.16 step 1, .17 step 2 and .18 step 1).
++The private record RAM shares its stream-ID word between pending-probe controller
++and settled stream-ID lifetimes. The published record reports zero stream-ID
++while unsettled, and the binding controller remains independently current.
++
++The issue 168 controls in `tb/pp_top/acmp_mutants.py` require these witnesses:
++
++| Mutant | Required failing check |
++|---|---|
++| `unbind_talker_echo` | LD1 zero talker fields |
++| `retry_status_cleared` | LD2 retained error at the retry-delay transition |
++| `retry_probe_status_cleared` | LD2 retained error when the delay expires (5.5.3.5.10) |
++| `lock_status_13` | LD3 status 16 for both BIND and UNBIND |
++| `lock_gate_bypassed` | LD3 binding unchanged after both refusals |
++| `settled_vlan_truncated` | Full VLAN in GET_RX_STATE |
++| `settlement_vlan_truncated` | Full VLAN on the settlement action |
++| `probe_guard_current_controller` | Accept the sent controller and reject its replacement |
++| `probe_retry_current_controller` | Byte-identical retry after rebind |
++
++Every control must build, finish the suite and fail its named assertion;
++compilation failure is not a killed defect. Historical mutation counts above
++remain the results at their stated dates.
++
++`field_reset_blocked` prevents the initialization sweep from completing and
++must fail the new transport/setup checks as well as the named frame-presence
++checks. This grades the setup itself rather than treating a skipped field
++comparison as coverage.
+diff --git a/tb/acmp_listener/field_cases.hpp b/tb/acmp_listener/field_cases.hpp
+new file mode 100644
+index 0000000..e168fdd
+--- /dev/null
++++ b/tb/acmp_listener/field_cases.hpp
+@@ -0,0 +1,158 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Issue 168 clause checks through direct transport observations.
++struct FieldCases {
++  const milan::tb::Model<VKL_pp_acmp_listener> dut;
++  Harness h{dut.get()};
++  int checks = 0;
++  int fails = 0;
++
++  FieldCases() {
++    auto* d = dut.get();
++    d->rst_n = 0; d->txn_valid_i = 0; d->evt_tk_valid_i = 0;
++    d->pre_valid_i = 0; d->lock_held_i = 0; d->lock_ctlr_i = 0;
++    d->entity_id_i = OUR_EID;
++    for (int i = 0; i < 4; ++i) h.tick();
++    d->rst_n = 1;
++    for (int i = 0; i < 12; ++i) h.tick();
++    CHECK(d->txn_ready_o == 1, "field check reset completes");
++    h.col.clear();
++  }
++  void drive(const Stim& s) {
++    h.col.clear();
++    CHECK(h.drive(0, s), "field check stimulus completes");
++  }
++  Pdu bind(uint64_t controller) {
++    Stim s; s.msg = M_BIND; s.tk_eid = TK_A; s.tk_uid = TKUID_A;
++    s.ctlr = controller; s.seq = 0x4100;
++    drive(s);
++    Pdu probe{};
++    for (const auto& frame : h.col.frames)
++      if (frame.b[1] == M_PROBE_CMD) probe = frame;
++    CHECK(h.col.frames.size() == 1 || h.col.frames.size() == 2, "field bind responds");
++    return probe;
++  }
++  Stim response(const Pdu& probe) {
++    auto read = [&](int off, int n) {
++      uint64_t v = 0;
++      for (int i = 0; i < n; ++i) v = (v << 8) | probe.b[off + i];
++      return v;
++    };
++    Stim s; s.msg = M_PROBE_RESP; s.ctlr = read(12, 8);
++    s.tk_eid = read(20, 8); s.tk_uid = uint16_t(read(36, 2));
++    s.seq = uint16_t(read(48, 2)); s.sid = 0x5544332211002233ull;
++    s.da = 0x91E0F0004455ull; s.vlan = 2;
++    return s;
++  }
++  int vlan() {
++    const Pdu probe = bind(CTL1);
++    auto s = response(probe); s.vlan = 0xF123;
++    drive(s);
++    CHECK(h.col.settle, "VLAN response settles");
++    printf("FIELD VLAN received=0x%04x action=0x%04x record=0x%04x\n",
++           s.vlan, h.col.settle_vlan, h.shadow[0].vlan);
++    // Milan v1.2 5.3.8.9: preserve the received SRP parameter.
++    CHECK(h.col.settle_vlan == s.vlan, "VLAN full field at settle action");
++    Stim get; get.msg = M_GETRX; get.ctlr = CTL1; get.seq = 0x4300;
++    drive(get);
++    CHECK(h.col.frames.size() == 1, "VLAN GET_RX_STATE response exists");
++    if (h.col.frames.size() == 1) {
++      const auto& p = h.col.frames[0];
++      unsigned observed = (unsigned(p.b[52]) << 8) | p.b[53];
++      printf("FIELD VLAN GET_RX_STATE=0x%04x expected=0x%04x\n", observed, s.vlan);
++      // Milan v1.2 Table 5.38 and 5.3.8.9.
++      CHECK(observed == s.vlan, "VLAN full field in GET_RX_STATE");
++    }
++    return fails;
++  }
++  int old_controller() {
++    const Pdu probe = bind(CTL1);
++    bind(CTL2);
++    CHECK(h.shadow[0].bind_ctlr == CTL2 && h.shadow[0].sm == S_PWR,
++          "same-talker rebind changes binding controller while probe remains pending");
++    drive(response(probe));
++    printf("FIELD saved-controller response settle=%u state=%s\n",
++           unsigned(h.col.settle), SN[h.shadow[0].sm]);
++    // Milan v1.2 5.5.3.5.17 step 2 and 5.5.3.5.18 step 1.
++    CHECK(h.col.settle && h.shadow[0].sm == S_SNR,
++          "guard accepts controller from sent probe after same-talker rebind");
++    return fails;
++  }
++  int new_controller() {
++    const Pdu probe = bind(CTL1);
++    bind(CTL2);
++    auto s = response(probe); s.ctlr = CTL2;
++    drive(s);
++    printf("FIELD current-controller response settle=%u state=%s\n",
++           unsigned(h.col.settle), SN[h.shadow[0].sm]);
++    // Milan v1.2 5.5.3.5.18 step 1: current binding is not the sent probe.
++    CHECK(!h.col.settle && h.shadow[0].sm == S_PWR,
++          "guard rejects controller absent from sent probe after same-talker rebind");
++    return fails;
++  }
++  int duplicate() {
++    const Pdu probe = bind(CTL1);
++    bind(CTL2);
++    Stim expiry; expiry.k = Stim::EXP;
++    drive(expiry);
++    CHECK(h.col.frames.size() == 1, "duplicate probe exists");
++    if (h.col.frames.size() == 1) {
++      const auto& retry = h.col.frames[0];
++      bool same = memcmp(probe.b, retry.b, PDU_BYTES) == 0;
++      printf("FIELD retry byte-identical=%u\n", unsigned(same));
++      // Milan v1.2 5.5.3.5.16 step 1.
++      CHECK(same, "retry preserves original probe after same-talker rebind");
++    }
++    return fails;
++  }
++
++  int unbind_fields() {
++    bind(CTL1);
++    Stim s; s.msg = M_UNBIND; s.ctlr = CTL1;
++    s.tk_eid = TK_A; s.tk_uid = TKUID_A; s.seq = 0x6101;
++    drive(s);
++    CHECK(h.col.frames.size() == 1, "LD1 response exists");
++    if (h.col.frames.size() == 1) {
++      const auto& frame = h.col.frames[0];
++      bool zero = true;
++      for (int i = 20; i < 28; ++i) zero = zero && frame.b[i] == 0;
++      zero = zero && frame.b[36] == 0 && frame.b[37] == 0;
++      // Milan v1.2 Table 5.36.
++      CHECK(zero, "LD1 successful unbind has zero talker fields");
++    }
++    return fails;
++  }
++  int retry_status() {
++    const Pdu probe = bind(CTL1);
++    auto s = response(probe); s.status = 5;
++    drive(s);
++    Stim discovered; discovered.k = Stim::TK; discovered.tk_kind = 0;
++    drive(discovered);
++    Stim expiry; expiry.k = Stim::EXP;
++    drive(expiry);
++    // Milan v1.2 5.5.3.5.30 step 2.
++    CHECK(h.shadow[0].sm == S_PWD && h.shadow[0].acmpsta == 5,
++          "LD2 discovered retry preserves received status");
++    drive(expiry);
++    // Milan 5.5.3.5.10: this transition also leaves status unchanged.
++    CHECK(h.shadow[0].sm == S_PWR && h.shadow[0].acmpsta == 5,
++          "LD2 retry probe preserves received status");
++    return fails;
++  }
++  int lock_status() {
++    bind(CTL1);
++    const auto before = h.shadow[0];
++    dut.get()->lock_held_i = 1; dut.get()->lock_ctlr_i = CTL1;
++    for (int msg : {M_BIND, M_UNBIND}) {
++      Stim s; s.msg = uint8_t(msg); s.ctlr = CTL2;
++      s.tk_eid = TK_A; s.tk_uid = TKUID_A;
++      drive(s);
++      // IEEE 1722.1-2021 Table 8-3, Milan Tables 5.31 and 5.35.
++      CHECK(h.col.frames.size() == 1 && (h.col.frames[0].b[2] >> 3) == 16,
++            "LD3 lock refusal status 16 for message %d", msg);
++      CHECK(h.shadow[0] == before && !h.col.nvm && !h.col.disc_arm
++            && !h.col.disc_disarm && !h.col.teardown,
++            "LD3 lock refusal preserves binding for message %d", msg);
++    }
++    return fails;
++  }
++};
+diff --git a/tb/acmp_listener/sim_main.cpp b/tb/acmp_listener/sim_main.cpp
+index 3bb7e3d..47dcf5f 100644
+--- a/tb/acmp_listener/sim_main.cpp
++++ b/tb/acmp_listener/sim_main.cpp
+@@ -54,7 +54,7 @@ constexpr int T_NOTK = 10000;
+ constexpr int ST_OK = 0;
+ constexpr int ST_LUID = 1;
+ constexpr int ST_TT = 7;
+-constexpr int ST_NOAUTH = 13;
++constexpr int ST_NOAUTH = 16;  // IEEE 1722.1-2021 Table 8-3
+ constexpr int ST_NOBW = 5;
+ constexpr int M_PROBE_CMD = 0;
+ constexpr int M_PROBE_RESP = 1;
+@@ -184,7 +184,7 @@ static Rec unpack(const uint32_t* w) {
+   r.talker_eid = wget(w, 32, 64);  r.talker_uid = uint16_t(wget(w, 96, 16));
+   r.probe_seq = uint16_t(wget(w, 112, 16));
+   r.bind_ctlr = wget(w, 128, 64);  r.sid = wget(w, 192, 64);
+-  r.da = wget(w, 256, 48);         r.vlan = uint16_t(wget(w, 304, 12));
++  r.da = wget(w, 256, 48);         r.vlan = uint16_t(wget(w, 304, 16));
+   r.last_avail = uint32_t(wget(w, 320, 32));
+   r.ifx = uint8_t(wget(w, 352, 8)); r.smh = uint8_t(wget(w, 360, 8));
+   r.noadp = uint8_t(wget(w, 368, 8));
+@@ -303,6 +303,7 @@ constexpr MCell M[N_ROWS][N_STATES] = {
+ struct Model {
+   Rec rec[N_SINKS];
+   uint16_t probe_ctr = 0;
++  uint64_t probe_ctlr[N_SINKS]{};
+   bool lock_held = false;
+   uint64_t lock_eid = 0;
+ 
+@@ -335,7 +336,7 @@ struct Model {
+                   s.uid, 0, 1, s.seq, uint16_t(s.flags & 0x0008), 0);
+   }
+   Pdu f_unbind(const Stim& s) const {
+-    return mk_pdu(M_UNBIND_R, ST_OK, 0, s.ctlr, s.tk_eid, OUR_EID, s.tk_uid,
++    return mk_pdu(M_UNBIND_R, ST_OK, 0, s.ctlr, 0, OUR_EID, 0,
+                   s.uid, 0, 0, s.seq, 0, 0);
+   }
+   Pdu f_getrx(int sink, const Stim& s) const {
+@@ -352,7 +353,7 @@ struct Model {
+   }
+   Pdu f_probe(int sink) const {
+     const Rec& r = rec[sink];
+-    return mk_pdu(M_PROBE_CMD, ST_OK, 0, r.bind_ctlr, r.talker_eid, OUR_EID,
++    return mk_pdu(M_PROBE_CMD, ST_OK, 0, probe_ctlr[sink], r.talker_eid, OUR_EID,
+                   r.talker_uid, uint16_t(sink), 0, 0, r.probe_seq, 0x0002, 0);
+   }
+   Pdu f_err(uint8_t msg, uint8_t status, const Stim& s) const {
+@@ -380,7 +381,9 @@ struct Model {
+     }
+     if (s.msg == M_PROBE_RESP) {
+       const Rec& r = rec[sink];
+-      if (!(s.ctlr == r.bind_ctlr && s.tk_eid == r.talker_eid &&
++      const uint64_t controller = (r.sm == S_PWR || r.sm == S_PW2)
++                                  ? probe_ctlr[sink] : r.bind_ctlr;
++      if (!(s.ctlr == controller && s.tk_eid == r.talker_eid &&
+             s.tk_uid == r.talker_uid && s.seq == r.probe_seq))
+         return false;  // 05 §3: silently ignore
+     }
+@@ -451,8 +454,10 @@ struct Model {
+           e.disc_arm = true; e.disc_eid = r.talker_eid; r.pbsta = 1;
+           mut = true; break;
+         case 5:
++          probe_ctlr[sink] = r.bind_ctlr;
+           r.probe_seq = probe_ctr++; r.retried = false; r.pbsta = 2;
+-          r.acmpsta = 0; e.frames.push_back(f_probe(sink));
++          if (row != R_TMR_DELAY) r.acmpsta = 0; // Milan 5.5.3.5.10
++          e.frames.push_back(f_probe(sink));
+           e.tops.push_back({false, NOW + T_CMD}); mut = true; break;
+         case 6:
+           // 5.5.3.5.6 step 2 re-bind: the binding parameters are UPDATED
+@@ -471,7 +476,8 @@ struct Model {
+           e.nvm = true; e.nvm_set = false; mut = true; break;
+         case 11: e.tops.push_back({true, 0}); break;
+         case 12:
+-          r.pbsta = 2; r.acmpsta = 0;
++          r.pbsta = 2;
++          if (row != R_TMR_RETRY) r.acmpsta = 0; // Milan 5.5.3.5.30 step 2
+           e.tops.push_back({false, NOW + DRAWVAL}); mut = true; break;
+         case 13:
+           r.retried = true; e.frames.push_back(f_probe(sink));
+@@ -481,10 +487,10 @@ struct Model {
+           r.acmpsta = (row == R_PROBE_FAIL) ? s.status : ST_TT;
+           mut = true; break;
+         case 15:
+-          r.sid = s.sid; r.da = s.da; r.vlan = uint16_t(s.vlan & 0xFFF);
++          r.sid = s.sid; r.da = s.da; r.vlan = s.vlan;
+           r.srp_decl |= 1; r.pbsta = 3; r.acmpsta = 0;
+           e.settle = true; e.settle_sid = s.sid; e.settle_da = s.da;
+-          e.settle_vlan = uint16_t(s.vlan & 0xFFF);
++          e.settle_vlan = s.vlan;
+           e.tops.push_back({false, NOW + T_NOTK}); mut = true; break;
+         case 16: e.frames.push_back(f_getrx(sink, s)); break;
+         case 17: r.pbsta = 1; r.acmpsta = 0; mut = true; break;
+@@ -718,6 +724,8 @@ struct Harness {
+ // The walk driver: the tally, the emulated faces and the matrix model live in
+ // one object, so no harness state sits at file scope (I.2).
+ // ==========================================================================
++#include "field_cases.hpp"
++
+ class ListenerWalk {
+  public:
+   explicit ListenerWalk(VKL_pp_acmp_listener* dut) : d(dut), h(dut) {}
+@@ -1779,6 +1787,16 @@ int ListenerWalk::run() {
+   check_started_face_error_paths(sk);
+   check_reset_sweep_clears_every_record();
+ 
++  for (auto test : {&FieldCases::vlan, &FieldCases::old_controller,
++                    &FieldCases::new_controller, &FieldCases::duplicate,
++                    &FieldCases::unbind_fields, &FieldCases::retry_status,
++                    &FieldCases::lock_status}) {
++    FieldCases fields;
++    (fields.*test)();
++    checks += fields.checks;
++    fails += fields.fails;
++  }
++
+   h.wait_idle();
+   CHECK(d->txn_ready_o == 1, "idle at the end");
+ 
+diff --git a/tb/acmp_talker/README.md b/tb/acmp_talker/README.md
+index 8081669..dc4360b 100644
+--- a/tb/acmp_talker/README.md
++++ b/tb/acmp_talker/README.md
+@@ -5,7 +5,7 @@ Proves the ACMP stateless talker responder + per-source DA-gate
+ (`hdl/acmp/KL_acmp_talker.sv`) against
+ [05 §6bis](../../docs/architecture/05_acmp_engine.md) (F05.11 decision tree +
+ F05.12 DA-gate) and the 08 §2/§5 timer contract: `make` = build + run, exit 0 =
+-PASS, 1342 checks. `make lint` runs the repo's zero-warning gate (no width
++PASS, 1376 checks. `make lint` runs the repo's zero-warning gate (no width
+ waivers).
+ 
+ The C++ harness is an independent model, never DUT logic: every expected
+@@ -25,7 +25,7 @@ listener fields zeroed and REGISTERING_FAILED read LIVE from the srp face
+ their deliberate difference is the check — and clear for a registered Ready
+ Failed (B6) and Ready (B7); TALKER_UNKNOWN_ID both verbs;
+ silently-ignored wrong-interface probe (retired + slot freed, no ping);
+-DISCONNECT_TX always-SUCCESS no-op; GET_TX_CONNECTION NOT_SUPPORTED; the V3
++DISCONNECT_TX validates the source and otherwise has no state effect; GET_TX_CONNECTION NOT_SUPPORTED; the V3
+ truncated-PDU rule (flags beyond a 44-byte PDU read as 0); freshness expiry
+ (withdraw only once fresh AND listener are both gone; DA kept); the MAAP
+ conflict flow (withdraw -> kind-3 draw -> arm now+2xdraw -> DEST_MAC_FAILED
+@@ -326,3 +326,18 @@ The separate `init_ready_no_en` performance control (review m28) can dispatch
+ extra no-op visits, but the action-side enable check still prevents allocation
+ for a disabled source. It must pass the documented suite bounds and is never
+ counted as an equivalent trace or a killed defect.
++
++## Invalid disconnect source (issue 168)
++
++TD1 adds 34 checks for source IDs 8 and 65535. Milan v1.2 5.5.4.2 step 1 and
++Table 5.44 require TALKER_UNKNOWN_ID; Table 5.45 retains SUCCESS for a valid
++source. Each response retains the defined identity fields and leaves the DA
++gate, allocator and timers unchanged. Existing valid-source expectations stay
++unchanged. `disconnect_invalid_success` in `tb/pp_top/acmp_mutants.py` restores
++the former unconditional success and must fail TD1's response-status checks.
++
++`disconnect_changes_gate` forces a declaration on DISCONNECT_TX and must fail
++TD1's no-state-effect check, independently of the response-status control.
++
++`disconnect_not_accepted` removes command acceptance and must fail TD1's
++consumption checks. A missing transaction cannot be mistaken for a no-op.
+diff --git a/tb/acmp_talker/sim_main.cpp b/tb/acmp_talker/sim_main.cpp
+index ec71065..82826ed 100644
+--- a/tb/acmp_talker/sim_main.cpp
++++ b/tb/acmp_talker/sim_main.cpp
+@@ -1183,6 +1183,15 @@ int Hn::run_suite() {
+   check_a_late_stale_response_is_swallowed();
+   check_a_teardown_while_the_maap_face_is_busy();
+   check_retry_cases();
++
++  // Milan 5.5.4.2 step 1 / Table 5.44: invalid sources are refused.
++  for (uint16_t uid : {uint16_t(8), uint16_t(0xFFFF)}) {
++    CHECK(send(MT_DISC, uid, C1, 0x168, L1, 7, 0xFFFF), "TD1 consumed");
++    Resp e = echo(MT_DISC, ST_TK_UNKNOWN, uid, C1, 0x168, L1, 7);
++    expect_resp("TD1 invalid disconnect", e);
++    CHECK(gates.empty() && arms.empty() && mreqs.empty(),
++          "TD1 invalid disconnect leaves source state unchanged");
++  }
+   return report();
+ }
+ 
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 213ecc4..1894b97 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2795,3 +2795,32 @@ range guard (`if-top-count-collapsed`, `if-top-count-collapsed-lint`,
+ campaign, whose README carries their record; `rgy_port_tied_zero`,
+ `rgy_port_from_latest_frame` and `dereg_matches_other_port` are in `notify_mutants.py`,
+ recorded in the table above.
++
++## Full input stream VLAN (issue 168)
++
++`VLAN168` in `gsi_internal.hpp` settles from a real PROBE_TX_RESPONSE carrying
++0xF123, then checks GET_RX_STATE and GET_STREAM_INFO for that full value.
++The published parent VID remains 0x123. Unbind clears the reported VLAN.
++Milan v1.2 5.3.8.9, Table 5.38 and 5.4.2.10 govern these expectations.
++GET_STREAM_INFO selector 6 retains the integrator's lower 48 bits and gets its
++upper 16 VLAN bits from the addressed input's settled state. An unsettled
++input reports zero; output selectors retain their existing behavior.
++
++The G and GI byte expectations now use zero VLAN when unsettled and the received
++VLAN when settled. AL1 and AS6 successful UNBIND replies now expect zero talker
++entity and unique IDs under Table 5.36. L4b lock refusal changes from status 13 to 16 under IEEE 1722.1-2021 Table 8-3.
++
++The ACMP campaign plants `stored_vlan_truncated` (GET_STREAM_INFO loses the
++upper bits), `gsi_vlan_external` (both retention and unbind readback fail),
++and `parent_vlan_shifted` (the parent VID loses its low-bit meaning).
++Existing controller-guard and settlement-VLAN mutation anchors track the
++corrected internal expressions while preserving their original planted defects.
++
++The `settled_vlan_truncated` control also runs against VLAN168's integrated
++GET_RX_STATE check, independently of its standalone listener witness.
++
++`RETRY-RETAIN` waits for the retry probe, then queries the retained timeout
++status under Milan 5.5.3.5.30 step 2 and 5.5.3.5.10. It replaces the former
++`RETRY-CLEAR` expectation of a status-clear notification: Table 5.22 does not
++notify a status value that did not change. `retry_probe_status_cleared` must
++fail the retained-status readback as well as the standalone listener check.
+diff --git a/tb/pp_top/acmp_mutants.py b/tb/pp_top/acmp_mutants.py
+index a6907ec..fa2be61 100755
+--- a/tb/pp_top/acmp_mutants.py
++++ b/tb/pp_top/acmp_mutants.py
+@@ -56,7 +56,7 @@ LISTENER = "hdl/acmp/KL_pp_acmp_listener.sv"
+ VALIDATOR = "hdl/packet_engine/KL_pp_rx_validator.sv"
+ 
+ MSG_OK = "  assign txn_msg_ok_w   = (txn_i.msg_type == AMSG_PROBE_TX_RESP_C)\n"
+-GUARD = ("  assign probe_match_w = (ctlr_x_r == rec_r.bind_ctlr_eid)\n"
++GUARD = ("  assign probe_match_w = (ctlr_x_r == probe_ctlr_w)\n"
+          "                      && (tk_eid_f_r == rec_r.talker_eid)\n"
+          "                      && (tk_uid_f_r == rec_r.talker_uid)\n"
+          "                      && (seq_x_r == rec_r.probe_seq);\n")
+@@ -79,7 +79,7 @@ INERT = (
+          "  assign txn_msg_ok_w   = 1'b1 || (txn_i.msg_type == AMSG_PROBE_TX_RESP_C)\n"),),
+         ("AI3: the sink never left PRB_W_RESP",)),
+     Mutant("guard_ctlr_dropped", ACMP_LISTENER, (
+-        (LISTENER, GUARD, guard_without("(ctlr_x_r == rec_r.bind_ctlr_eid)")),),
++        (LISTENER, GUARD, guard_without("(ctlr_x_r == probe_ctlr_w)")),),
+         ("B14 wrong controller_entity_id in PWR", "B14 wrong controller_entity_id in PW2")),
+     Mutant("guard_talker_eid_dropped", ACMP_LISTENER, (
+         (LISTENER, GUARD, guard_without("(tk_eid_f_r == rec_r.talker_eid)")),),
+@@ -129,7 +129,7 @@ SETTLE_PATH = (
+         (TOP, "lstn:  2'd2};", "lstn:  2'd0};"),),
+         (READY_NEW, READY_CLASS_D, NOTK_HELD)),
+     Mutant("st_ls_vid_dropped", PP_TOP, (
+-        (TOP, "vid:   lstn_act_settle_vlan_w,", "vid:   12'd0,"),),
++        (TOP, "vid:   lstn_act_settle_vlan_w[11:0],", "vid:   12'd0,"),),
+         (READY_NEW, READY_CLASS_D, NOTK_HELD)),
+     Mutant("st_ls_index_zero", PP_TOP, (
+         (TOP, "index: 8'(lstn_act_sink_w),", "index: 8'd0,"),),
+@@ -149,7 +149,7 @@ SETTLE_PATH = (
+     Mutant("bound_view_not_cleared", PP_TOP, (
+         (TOP, "        bound_sid_r [lstn_act_sink_w] <= 64'd0;\n"
+               "        bound_dmac_r[lstn_act_sink_w] <= 48'd0;\n"
+-              "        bound_vlan_r[lstn_act_sink_w] <= 12'd0;\n", ""),),
++              "        bound_vlan_r[lstn_act_sink_w] <= 16'd0;\n", ""),),
+         ("AS6: the bound view is cleared with the binding",)),
+     Mutant("matcher_da_ignored", PP_TOP, (
+         (SRP_LISTENER, "(evt_da_i == da_r[s])", "1'b1"),),
+@@ -231,9 +231,101 @@ STORAGE = (
+         (TOP, DROP_COUNT, "          arm_drop_r <= arm_drop_r + 16'd1;\n"),), AQ_DRIVE),
+ )
+ 
+-MUTANTS = INERT + LONG_FORM + SETTLE_PATH + STORAGE
+-TALLY = re.compile(r"^((?:ACMP|AQ): \d+ checks, \d+ failures|\d+ checks: \d+ PASS, \d+ FAIL)$",
+-                   re.M)
++ACMP_TALKER = Suite("tb/acmp_talker", (), ("make", "run"))
++PP_TOP_VLAN = Suite("tb/pp_top", ("make", "gsi-build"),
++                    ("./obj_dir/Vpp_top_sim", "--gsi-internal-only"))
++
++# Issue 168: each arm restores one clause defect and must fail its own check.
++FIELDS = (
++    Mutant("field_reset_blocked", ACMP_LISTENER, (
++        (LISTENER, "init_cnt_r <= init_cnt_r + (SINK_W_C+1)'(1);",
++         "init_cnt_r <= init_cnt_r;"),),
++        ("field check reset completes", "field check stimulus completes",
++         "field bind responds", "VLAN response settles",
++         "VLAN GET_RX_STATE response exists", "duplicate probe exists",
++         "LD1 response exists",
++         "same-talker rebind changes binding controller while probe remains pending")),
++    Mutant("disconnect_not_accepted", ACMP_TALKER, (
++        ("hdl/acmp/KL_acmp_talker.sv",
++         "assign txn_ready_o = (state_r == S_IDLE) && !gp_valid_r && txn_eligible_w;",
++         "assign txn_ready_o = (state_r == S_IDLE) && !gp_valid_r && txn_eligible_w"
++         " && (txn_in_w.msg_type != MT_DISC_TX_C);"),),
++        ("TD1 consumed",)),
++    Mutant("settled_vlan_truncated", PP_TOP_VLAN, (
++        (LISTENER, "rec_r.settled_vlan      <= vlan_f_r;",
++         "rec_r.settled_vlan      <= {4'd0, vlan_f_r[11:0]};"),),
++        ("VLAN168 GET_RX_STATE retains all received bits",)),
++    Mutant("unbind_talker_echo", ACMP_LISTENER, (
++        (LISTENER, "b_msg_w   = AMSG_UNBIND_RX_RESP_C;",
++         "b_msg_w   = AMSG_UNBIND_RX_RESP_C;\n"
++         "        b_tkeid_w = tk_eid_f_r; b_tkuid_w = tk_uid_f_r;"),),
++        ("LD1 successful unbind has zero talker fields",)),
++    Mutant("retry_status_cleared", ACMP_LISTENER, (
++        (LISTENER, "if (evt_r != LEV_TMR_RETRY) rec_r.acmpsta <= 5'd0;",
++         "rec_r.acmpsta <= 5'd0;"),),
++        ("LD2 discovered retry preserves received status",)),
++    Mutant("lock_status_13", ACMP_LISTENER, (
++        ("hdl/acmp/pp_acmp_pkg.sv", "AST_CONTROLLER_NOT_AUTH_C     = 5'd16",
++         "AST_CONTROLLER_NOT_AUTH_C     = 5'd13"),),
++        ("LD3 lock refusal status 16 for message 6",
++         "LD3 lock refusal status 16 for message 8")),
++    Mutant("disconnect_invalid_success", ACMP_TALKER, (
++        ("hdl/acmp/KL_acmp_talker.sv",
++         "uid_valid_w ? ST_SUCCESS_C : ST_TALKER_UNKNOWN_C", "ST_SUCCESS_C"),),
++        ("TD1 invalid disconnect",)),
++    Mutant("disconnect_changes_gate", ACMP_TALKER, (
++        ("hdl/acmp/KL_acmp_talker.sv", "gate_open_o      = txn_open_w;",
++         "gate_open_o      = txn_open_w || (txn_r.msg_type == MT_DISC_TX_C);"),),
++        ("TD1 invalid disconnect leaves source state unchanged",)),
++    Mutant("settled_vlan_truncated", ACMP_LISTENER, (
++        (LISTENER, "rec_r.settled_vlan      <= vlan_f_r;",
++         "rec_r.settled_vlan      <= {4'd0, vlan_f_r[11:0]};"),),
++        ("VLAN full field in GET_RX_STATE",)),
++    Mutant("settlement_vlan_truncated", ACMP_LISTENER, (
++        (LISTENER, "assign act_settle_vlan_o = vlan_f_r;",
++         "assign act_settle_vlan_o = {4'd0, vlan_f_r[11:0]};"),),
++        ("VLAN full field at settle action",)),
++    Mutant("gsi_vlan_external", PP_TOP_VLAN, (
++        (TOP, "? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]}",
++         "? gsi_data_i[63:48] : gsi_data_i[63:48], gsi_data_i[47:0]}"),),
++        ("VLAN168 GET_STREAM_INFO retains all received bits",
++         "VLAN168 unbind clears the full stored VLAN")),
++    Mutant("parent_vlan_shifted", PP_TOP_VLAN, (
++        (TOP, "bound_vlan_r[v][11:0]", "bound_vlan_r[v][15:4]"),),
++        ("VLAN168 parent VID remains the low 12 bits",)),
++    Mutant("retry_probe_status_cleared", ACMP_LISTENER, (
++        (LISTENER, "if (evt_r != LEV_TMR_DELAY) rec_r.acmpsta <= 5'd0;",
++         "rec_r.acmpsta <= 5'd0;"),),
++        ("LD2 retry probe preserves received status",)),
++    Mutant("retry_probe_status_cleared", PP_TOP_VLAN, (
++        (LISTENER, "if (evt_r != LEV_TMR_DELAY) rec_r.acmpsta <= 5'd0;",
++         "rec_r.acmpsta <= 5'd0;"),),
++        ("GI RETRY-RETAIN solicited: acmpsta sink 0 = 7",)),
++    Mutant("lock_gate_bypassed", ACMP_LISTENER, (
++        (LISTENER, "res_acts_w[ACT_A1_C] && lock_block_w",
++         "res_acts_w[ACT_A1_C] && 1'b0"),),
++        ("LD3 lock refusal preserves binding for message 6",
++         "LD3 lock refusal preserves binding for message 8")),
++    Mutant("stored_vlan_truncated", PP_TOP_VLAN, (
++        ("hdl/top/protocol_processor_top.sv",
++         "bound_vlan_r[lstn_act_sink_w] <= lstn_act_settle_vlan_w;",
++         "bound_vlan_r[lstn_act_sink_w] <= {4'd0, lstn_act_settle_vlan_w[11:0]};"),),
++        ("VLAN168 GET_STREAM_INFO retains all received bits",)),
++    Mutant("probe_guard_current_controller", ACMP_LISTENER, (
++        (LISTENER, "(ctlr_x_r == probe_ctlr_w)",
++         "(ctlr_x_r == rec_r.bind_ctlr_eid)"),),
++        ("guard accepts controller from sent probe after same-talker rebind",
++         "guard rejects controller absent from sent probe after same-talker rebind")),
++    Mutant("probe_retry_current_controller", ACMP_LISTENER, (
++        (LISTENER, "b_ctlr_w  = rec_r.settled_stream_id;",
++         "b_ctlr_w  = rec_r.bind_ctlr_eid;"),),
++        ("retry preserves original probe after same-talker rebind",)),
++)
++MUTANTS = INERT + LONG_FORM + SETTLE_PATH + STORAGE + FIELDS
++TALLY = re.compile(
++    r"^((?:ACMP|AQ|GI): \d+ checks, \d+ failures|"
++    r"\[build [^\n]+\] \d+ checks, \d+ failures|"
++    r"\d+ checks: \d+ PASS, \d+ FAIL)$", re.M)
+ 
+ 
+ def plant(tree: Path, edits: tuple[tuple[str, str, str], ...]) -> str:
+diff --git a/tb/pp_top/gsi_internal.hpp b/tb/pp_top/gsi_internal.hpp
+index a1229b7..9eb28c6 100644
+--- a/tb/pp_top/gsi_internal.hpp
++++ b/tb/pp_top/gsi_internal.hpp
+@@ -90,6 +90,7 @@ struct InternalStreamInfoPhase {
+           "GI %s %s: full failure bridge sink %u", phase, kind, sink);
+     auto body = StreamInfoPhase::gsi_body(0x0005, sink, known,
+                                         uint8_t((pb << 5) | acmp));
++    putbe(&body[44], pb == 3 ? 2 : 0, 2);
+     body[34] = code;
+     putbe(&body[36], bridge, 8);
+     if (io.gsi_fold_latency && known) putbe(&body[24], latency, 4);
+@@ -361,6 +362,37 @@ struct InternalStreamInfoPhase {
+                        1);
+   }
+ 
++  void vlan_retention() {
++    boot();
++    binding(0, true);
++    const auto sent = probe(0);
++    if (sent.size() != 70) return;
++    // Milan 5.3.8.9, Table 5.38 and 5.4.2.10. Use upper VLAN bits
++    // deliberately, and derive response identity from the actual probe.
++    io.feed(acmp_frame(T1_MAC, 1, 0, sid(0), fv_u64(sent, 26, 8),
++                      talker(0), EID, T1_UID, 0, da(0), 0,
++                      fv_u64(sent, 62, 2), 0, 0xF123));
++    io.run_ms(10);
++    const auto info = query(0);
++    CHECK(info.size() == 94 && fv_u64(info, 82, 2) == 0xF123,
++          "VLAN168 GET_STREAM_INFO retains all received bits");
++    CHECK((io.d->acmp_bound_vlan_o[0] & 0xFFFu) == 0x123,
++          "VLAN168 parent VID remains the low 12 bits");
++    io.q_acmp.clear();
++    io.feed(acmp_frame(CTLR_MAC, 10, 0, 0, CTLR_EID, 0, EID, 0, 0,
++                      0, 0, 0x1680, 0, 0));
++    const auto state = io.wait_frame(io.q_acmp, 400,
++        [](const std::vector<uint8_t>& f) {
++          return f.size() == 70 && (f[15] & 15) == 11;
++        });
++    CHECK(state.size() == 70 && fv_u64(state, 66, 2) == 0xF123,
++          "VLAN168 GET_RX_STATE retains all received bits");
++    binding(0, false);
++    const auto cleared = query(0);
++    CHECK(cleared.size() == 94 && fv_u64(cleared, 82, 2) == 0,
++          "VLAN168 unbind clears the full stored VLAN");
++  }
++
+   void run() {
+     io.dram = image(2);
+     io.gsi_retired_stuck = true;
+@@ -390,8 +422,11 @@ struct InternalStreamInfoPhase {
+     pair("MISSING", 2, 0, 0, 0, 0, false);
+     binding(2, false);
+     pair("MISSING-UNBIND", 2, 0, 0, 0, 0, false);
+-    pair("RETRY-CLEAR", 0, 2, 0, 0, 0, true, 5000);
+-    settle(0, probe(0));
++    // Milan 5.5.3.5.30 step 2 and .10 preserve the timeout status.
++    // With no status change, Table 5.22 supplies no notification to wait for.
++    const auto next_probe = probe(0, 5000);
++    check_frame(query(0), "RETRY-RETAIN", 0, 2, 7, 0, 0, false);
++    settle(0, next_probe);
+     discover(1);
+     pair("ACTIVE", 1, 2);
+     settle(1, probe(1));
+@@ -441,5 +476,6 @@ struct InternalStreamInfoPhase {
+     CHECK(io.q_aecp.empty(), "GI final: no duplicate notifications");
+     CHECK(io.gsi_internal_leaks == 0,
+           "GI internal seam: selectors 5/7 never requested from integrator");
++    vlan_retention();
+   }
+ };
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 1e5afa3..ae57cd7 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -5109,14 +5109,14 @@ struct LockPhase {
+     CHECK(!fl.empty() && ((fl[16] >> 3) & 0x1F) == 0,
+           "L4a: the gate test's own lock takes");
+     h.q_acmp.clear();
+-    // sink 2, from the NON-holder: CONTROLLER_NOT_AUTHORIZED (13)
++    // sink 2, from the NON-holder: CONTROLLER_NOT_AUTHORIZED (IEEE Table 8-3: 16)
+     auto bind2 = acmp_frame(C2_MAC, 6, 0, 0, CTLR2_EID, T1_EID, EID,
+                             T1_UID, 2, 0, 0, 0x4321, 0, 0);
+     h.feed(bind2);
+     auto f = h.wait_any(h.q_acmp, 400);
+     CHECK(!f.empty(), "L4: locked BIND_RX from a foreign controller answered");
+     CHECK(!f.empty() && (f[15] & 0x0F) == 7
+-          && ((f[16] >> 3) & 0x1F) == 13
++          && ((f[16] >> 3) & 0x1F) == 16
+           && f.size() > 53 && ((f[52] << 8) | f[53]) == 2,
+           "L4b: CONTROLLER_NOT_AUTHORIZED for sink 2 (msg %d st %d)",
+           f.empty() ? -1 : (f[15] & 0x0F),
+@@ -5311,6 +5311,7 @@ struct StreamInfoPhase {
+         putbe(&b[44], H::gsi_value(0, ty, ix, 6, 0), 8);
+         putbe(&b[52], static_cast<uint32_t>(H::gsi_value(0, ty, ix, 7, 0)), 4);
+         if (ty == 0x0005) {
++          putbe(&b[44], 0, 2); // Milan 5.3.8.9: unbound input VLAN is zero.
+           b[34] = 0;
+           putbe(&b[36], 0, 8);
+           putbe(&b[52], uint32_t(status) << 24, 4);
+@@ -9512,7 +9513,7 @@ struct AcmpPathPhase {
+     h2.feed(long_form(acmp_frame(CTLR_MAC, 8, 0, 0, CTLR_EID, T1_EID, EID,
+                                  T1_UID, LS, 0, 0, 0x4502, 0, 0)));
+     auto u = wait_acmp(9, 0x4502, 400);
+-    auto uw = acmp_frame(OWN_MAC, 9, 0, 0, CTLR_EID, T1_EID, EID, T1_UID, LS,
++    auto uw = acmp_frame(OWN_MAC, 9, 0, 0, CTLR_EID, 0, EID, 0, LS,
+                          0, 0, 0x4502, 0, 0);
+     CHECK(!u.empty() && u == uw,
+           "AL1: a 96-B UNBIND_RX is answered by the 56-B cdl-44 UNBIND_RX_RESPONSE");
+@@ -9716,7 +9717,7 @@ struct AcmpPathPhase {
+     h2.feed(acmp_frame(CTLR_MAC, 8, 0, 0, CTLR_EID, T1_EID, EID, T1_UID, LS,
+                        0, 0, 0x4815, 0, 0));
+     auto u = wait_acmp(9, 0x4815, 400);
+-    auto uw = acmp_frame(OWN_MAC, 9, 0, 0, CTLR_EID, T1_EID, EID, T1_UID, LS,
++    auto uw = acmp_frame(OWN_MAC, 9, 0, 0, CTLR_EID, 0, EID, 0, LS,
+                          0, 0, 0x4815, 0, 0);
+     CHECK(!u.empty() && u == uw, "AS6: UNBIND_RX_RESPONSE SUCCESS byte-exact");
+     if (!u.empty() && u != uw) { dump("got", u); dump("exp", uw); }
