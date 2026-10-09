@@ -53,7 +53,7 @@ builder, model, configuration or processor change; lane M2 made them.
 - **[Baseline](#baseline)** -- What bench lane B6 measured on the shipping image: CRF following works, AAF following is absent, and the two outputs disagree at INTERNAL.
 - **[Clause findings](#clause-findings)** -- The clause reading by question: a source per AAF input, a stopped stream, the `mr` rules, and what the current reading gets wrong.
 - **[Current state](#current-state)** -- The builder, entity model, processor and fabric as they are at dev `d4dd7426`, each fact with its `path:line`.
-- **[Design](#design)** -- The chain, the source order, the AAF clock meter with its rate estimator and loss rule, selection, switching, holdover, `mr`, A2, the domain counters, the phase gap and the area, with options.
+- **[Design](#design)** -- The chain, the source order, the AAF clock meter with its rate estimator and loss rule, selection, switching, the settle recentre, holdover, `mr`, A2, the domain counters, the phase gap and the area, with options.
 - **[Parent-visible changes](#parent-visible-changes)** -- Every requirement, configuration, builder, model, RTL, register, gate and document change in this repository.
 - **[Protocol-processor changes](#protocol-processor-changes)** -- The cross-repository plan under protocol-processor #141: no processor RTL change, its documentation and tests.
 - **[Test plan](#test-plan)** -- Simulation cases each with a failing mutant, and the bench cases by the B6 method.
@@ -1043,14 +1043,223 @@ Decision D3 is ruled W2.
 | **W2, ruled** | A switch between two followed sources keeps `follow_sel_r` high. On every change of the followed source the root presents the reference as unlocked for at least one cycle, so the servo always passes HOLDOVER, trim frozen, into ACQUIRE with its two-window skip and its lock count cleared (`:571-579`) | The existing HOLDOVER path; no trim step; the aligner stays engaged, so the packet grid never re-engages | A switch onto a CRF input that is already locked would otherwise keep LOCKED across the change; the one-cycle presentation is what prevents it, so a test grades it |
 
 Under W2 a switch between two streams is declared by one `mr` toggle, one #386
-recentre once the grid settles, and a few seconds of HOLDOVER and ACQUIRE:
-about 3 s onto a CRF input, and about 6 s onto an AAF input under E8. A
+recentre once the grid settles, a few seconds of HOLDOVER and ACQUIRE (about
+3 s onto a CRF input, and about 6 s onto an AAF input under E8), and one
+[settle recentre](#settle-recentre) 8 servo windows after LOCKED. A
 switch onto an AAF input also starts a new meter era: the meter re-locks after
 8 PDUs, and under E8 its rate is valid 4.096 s later. The switch leaves no frame slip,
 because the fine phase shift steps the audio clock glitch-free and the aligner
 holds the packet grid on it. A switch to or from INTERNAL behaves as the CRF
 switch does today: servo IDLE and an aligner disengage, or the reverse. Under
-A2-a the aligner stays engaged there too.
+A2-a the aligner stays engaged there too. A switch from INTERNAL onto a
+followed source is the one that moves a running stream: the servo locks
+frequency only, so the phase walks until it locks, and the loopback ring may
+slip within the [declared transient](#the-declared-transient) before the
+settle recentre.
+
+### Settle recentre
+
+Ruled on #645
+([ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982568394)),
+from the diagnosis in
+[#645's first STOP](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982557846).
+The loopback ring follows the
+[third ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5987852678):
+16 entries, with its target derived as (depth + 6) / 2 = 11 events. It
+answers #645 and #647.
+
+**Why.** The servo locks frequency only (`KL_mmcm_drp_servo.sv:22-34`). A
+switch from INTERNAL starts from the INTERNAL-to-source offset, the meter's
+E8 rate is valid only 4.1 s after the set, and so the phase of every running
+stream walks about 0.24 tick per ppm of that offset before LOCKED (1.43 ticks
+at the bench's 5.92 ppm) and a few hundredths after it. The #386 recentre
+fires 43 ms after the set, before that walk, and reaches the render stage
+alone. The capture crossbar's loopback ring, the one `SLIP_LB` counts, had no
+recentre at all: the beat at INTERNAL parks it within a tick of its empty
+edge, and the walk then left it anywhere in (0, 1) tick at LOCKED, where a
+late PDU slipped it seconds to tens of seconds later (#645). An aligner
+pull-in at INTERNAL, a held serial clock, moved a running stream by the
+folded phase step and armed no recentre at all (#647).
+
+**What.** One more recentre per transient, beside the #386 one, which stays
+the at-switch render recentre exactly as it was (`milan_datapath.sv`
+`g_src_recentre`):
+
+| Term | Value |
+|---|---|
+| Armed by | a change of the selected CLOCK_SOURCE index; the aligner's re-engagement; and, while none is pending, an aligner excursion past the two-axis-cycle quiet band outside recovery, which is how a pull-in under a running stream arms it |
+| Fires under following | once the servo has read LOCKED for 8 of its 512 ms windows running (196,608 media ticks, 4.096 s, from the servo's own window constant `MCSRV_WIN_LOG2_C`). The PI's phase tail falls about 0.64 a window, so 3 % of what was left at LOCKED is left at the recentre. A build with the servo pruned (`MCSERVO_P` = 0) never reads LOCKED, so there the ceiling fires it |
+| Fires at INTERNAL | once the engaged aligner has rested inside both its 1/64-sample settle band and the two-axis-cycle quiet band for 2,048 ticks running, or has remained disengaged for the same 2,048 ticks (no pull to wait out). An excursion while the recentre is pending restarts that run |
+| Ceiling | 2^20 media ticks (21.8 s) from the arming, whatever the loops do |
+| Reaches | the render stage, at its next PDU end (`render_recentre_p_w`), and the loopback ring of every stream the capture crossbar keeps (`KL_chan_map_capture` `lb_recentre_i`) |
+| Loopback target | 11 events at a class-A PDU end in a 16-entry ring: five events of the previous PDU still queued when the next one's first event lands, so that event pops 5 to 6 ticks after it lands. Decided as the stream's next PDU starts, on what its first pair has left: fewer than five holds the missing number of pops, one per walk; five does nothing; more than five drops exactly the excess above five from every pair before its next pop. All pairs act in the same walks, so they stay in lockstep |
+| Counted | the render stage counts it in `recentres_o`, as every recentre. On the loopback ring neither `SLIP_LB` counter moves: the recentre is the declared discontinuity, not a slip |
+
+**Quiet band and recovery.** The
+[recovery ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6010634115)
+replaces the former four-settle-band arm. The arm threshold is two axis
+cycles: twice the quiet +/-1-cycle excursion. Unlike the #386 settling band,
+it does not scale with the clock frequency. The absolute-error comparator
+arms strictly above that threshold. All 128 campaign phases, both offset
+signs crossed with four arrival envelopes, must contribute their complete
+signed quiet distributions before this choice is accepted; the standing
+`quiet_distributions.py` check rejects incomplete data and out-of-band
+excursions. Quiet windows are selected by stimulus time, not measured error.
+
+Measured at 6.25 MHz over all 128 phases and their 512 quiet windows,
+320,462,699 samples, the quiet error never leaves +/-1 axis cycle, so the
+band is exactly twice the largest quiet excursion. In every one of those
+runs the standing checks find no settle pulse, excursion arm or pending
+settle in a quiet window, and each of the run's three transients gets exactly
+one settle recentre. The preserved four-band implementation gives the same
+histograms, sample for sample, because the arm does not feed the aligner.
+
+| Axis clock | Quiet band | Use |
+|---|---|---|
+| 6.25 MHz | +/-320 ns | full arrival-phase campaigns |
+| 25 MHz | +/-80 ns | fine-pull boundary and recovery regressions |
+| 50 MHz | +/-40 ns | shipping board shapes |
+| 100 MHz | +/-20 ns | datapath integration benches |
+
+After every settle action, excursion arming is disabled until the engaged
+aligner spends 2,048 consecutive media ticks inside that quiet band.
+Disengagement or any out-of-band axis cycle restarts the recovery dwell.
+The counter is shared with the pending dwell; source changes and aligner
+re-engagement still arm immediately. This prevents the same pull's recovery
+undershoot from arming a second action. The controller regression compiles
+this production block at all four clock rates and checks the full dwell,
+interrupted dwell, reset, source-change priority, disengaged settling and
+ceiling. The fine-pull regression checks a +9-axis-cycle peak that crosses a
+gradable render-law boundary, while a no-hold leg must never arm.
+
+**Recovery-window residual.** A second INTERNAL pull beginning after the
+previous settle action but before this recovery qualification completes is
+not guaranteed another recentre. Its resulting render shift may persist.
+This exception applies only to that second pull; an isolated pull gets
+exactly one action and a pull starting after re-arm must restore the normal
+render law. The window is state-qualified, not a fixed timeout: continuing
+noise or further pulls can extend it. The evidence records the largest
+observed window over the declared stimulus set, not a finite bound for an
+arbitrarily disturbed input. The worst observed isolated-pull window is
+**0.551148640 s**, across 32 hold/arrival-phase cases at 6.25 MHz and the
+seven nonzero fine-hold cases at 25 MHz. It occurs after the 56 us hold at
+6.25 MHz. The longest fine-hold window is 0.538336080 s after a 43.29 us
+hold. Each completed recovery contains 2,048 uninterrupted quiet ticks;
+the minimum quiet dwell itself is 42.667 ms at 48 kHz. There is no finite
+worst-case duration if further disturbances prevent that dwell.
+
+`small_pulls.py` starts a second hold 0.10 s after a prior action, inside
+its measured 0.409918800 s isolated recovery, and grades the persistent
+render-law shift with no second action. Starting the same second hold
+1.50 s after the prior action instead must give one new action and restore
+the law. The second stimulus is independently checked against the actual
+recovery state, so moving it outside the declared window cannot pass the
+residual check.
+Removing recovery qualification, raising the arm above the +9-cycle pull,
+or lowering the quiet band to zero must each fail a named standing check.
+
+Measured in `tb/verilator/follow_ring` at the bench's offsets, the settle
+recentre fires 10.75 s after a set from INTERNAL (LOCKED at 6.66 s), 7.04 s
+after AAF to CRF and 9.96 s after CRF to AAF, each 4.096 s after LOCKED.
+After a 52 us serial-clock hold at INTERNAL it fires once the aligner rests
+in its band: 0.85 s after the hold at that suite's 6.25 MHz axis clock. A
+switch to INTERNAL arms it too: when the aligner never left the quiet band it
+fires in the #386 dwell's own cycle, so the render stage executes one
+recentre (`milan_dp_render` T31).
+
+**Storage and arrival envelope.** The ring holds one class-A PDU plus ten
+events of margin. At 1x1 it uses 64 words of 48 bits, up from 32;
+at 8x8 it is 512 by 48 bits, still within one RAMB36. Each pair pointer
+gains one bit. Synthesis chooses the memory primitive; the vendor area
+report records the mapping. The ruled PDU arrival envelope is 0 to 60 us late against
+the nominal PDU grid (about 2.9 ticks). Both the empty-side margin and the
+full-side margin must remain at least one tick at every campaign phase.
+The empty-side measure is the first event's push-to-pop interval; the
+full-side measure is the minimum interval from freeing a ring slot to
+reusing it for a new push, over every event of each PDU.
+
+**The loopback lane's latency.** The 11-event target puts the loopback
+ring's first event 5 to 6 ticks after its PDU lands, three ticks (62.5 us)
+later than the former 8-event target. That cost falls on the capture
+crossbar's diagnostic loopback, a received stream's channels re-sent by
+the DUT's talker. The declared AAF presentation path, listener render law,
+and rule that render latency equals the presentation time offset are
+unchanged. A bind still primes the ring where its first PDU lands; the
+next settle recentre centres it.
+
+#### The declared transient
+
+From a switch to its settle recentre the rings may move, and that is
+declared as part of the source switch, as #629's fabric item allows: the
+at-switch #386 render recentre, the servo's pull-in walk in both rings, and
+loopback slips within this bound. Measured in `tb/verilator/follow_ring` at
+the bench's 5.92 ppm between the DUT's INTERNAL clock and the followed
+talker, with the talker slow or fast, across 16 set phases over one
+INTERNAL beat and four arrival lateness models (none, 0 to 5 us uniform,
+2 us plus a rare 0 to 24 us tail, and 0 to 60 us uniform): at most 3 frames
+slipped from an INTERNAL-to-AAF set to its settle recentre, at most 2
+without the tail. The walk accounts for 2 (about 0.24 tick per ppm of
+offset, so the bound grows with it); the third is the tail meeting the ring
+near its empty edge during the walk. A stream-to-stream switch moves the
+ring's phase by hundredths of a tick and slipped nothing before its settle
+recentre under any of those arrival models. A slip
+counts as before the settle recentre only up to the end of the PDU the
+loopback ring decides on; one after that is the recentre's own.
+
+An aligner pull-in at INTERNAL is the same kind of transient, from the hold
+to its settle recentre: a pull toward the loopback ring's empty edge slips
+it once where the pull is larger than its margin. Measured over 16 feed
+phases: none at a 52 us hold (a +0.53-tick pull), and 4 phases slipped once
+at a 56 us hold (-0.33 tick). Every phase got exactly one settle recentre,
+0.85 s and 0.19 s after the two holds at follow_ring's 6.25 MHz axis clock.
+At `milan_dp_render`'s 100 MHz, the integration check waits for the settle
+pulse before grading the running stream. Its measured latency is retained
+in each run's log: the two-cycle quiet band is narrower in time at that
+clock rate, and the recovery trajectory also depends on prior activity.
+
+After an isolated transient's settle recentre nothing moves either ring:
+no loopback slip, the loopback ring centred, the render stage on its law.
+The follow_ring campaigns grade this at every phase. A further INTERNAL
+pull starting inside recovery has only the narrow residual declared above;
+it does not grant a slip allowance to a quiet running stream.
+
+Startup lock and reset reacquisition also arm the settle recentre. Their
+recentres are declared discontinuities, under the
+[stage-2d ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990646410),
+with the same bound as a source-change recentre. The
+[round-2 ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009543884)
+and [span amendment](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009767440)
+require a symmetric, exact action: the loopback ring holds at most five
+pops (five repeated sample events), or drops every excess event above five
+left before the PDU (up to eleven with depth sixteen). The decision uses the first pair's pre-PDU fill;
+every pair takes the same step, and neither `SLIP_LB` counter increments
+for that step. This bound describes the recentre itself, separately from
+the frequency-pull-in slips measured above.
+
+An ordering check accounts for the exact declared step in each output fed
+by that queue, recording its size in events and both slip counters. Its
+repeats or drops are consecutive source events and occupy at most two
+consecutive output PDUs: the PDU where the action starts and the next one.
+Independent talker enable histories give outputs different packet epochs.
+Every event outside the declared action remains strictly ordered, including
+other events in those PDUs. There is no grace interval. Nonconsecutive
+actions, a third affected PDU, any extra repeat or gap, and a step larger
+than declared must fail. The zero-glitch run in #396 grades steady state outside these
+declared startup, reset and source-change events; it does not turn a
+recentre into a steady-state slip allowance.
+
+**Why sixteen entries.** The former eight-entry ring had only about three
+ticks of combined early and late headroom. At the fixed target of eight,
+0 to 5 us uniform lateness caused four drops after 48 settle decisions:
+a late decision PDU left too little space for the next, earlier one.
+Sixteen entries with the derived target provide about five ticks on each
+side before arrival variation. The acceptance campaigns cover sixteen
+switch phases with no lateness, uniform 0 to 5 us, uniform 0 to 2 us plus
+a probability 1e-4 tail of 0 to 24 us, and uniform 0 to 60 us. They require
+zero slips from the decision PDU's end and at least one tick of margin on
+both sides. INTERNAL pull-in campaigns retain the same zero-slip bar.
+A 64-PDU reference window was rejected by the ruling: it delays the
+loopback action by about 8 ms and establishes no arrival bound.
 
 ### Lock loss, holdover and restart
 
@@ -1332,6 +1541,9 @@ pass.
 | Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index, reads back, and the decode follows it (the servo leaves IDLE for every stream source); `count` answers BAD_ARGUMENTS with the current index | The decode table generated from the previous shape: the last AAF index is accepted and reads back, but decodes as no source, so the follow check fails |
 | `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling, counted from the start of `[LAW]`'s own wait, and holds through every phase. Every phase is gradable: no PDU end has a pop within the ambiguity window below, and that margin is a check. At every PDU end the fill is exactly the setpoint plus that PDU, 14 events; every first event pops inside (8, 9] ticks of its PDU end, plus the pop pulse's one-cycle register | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check. Separately, the render setpoint one event low, and one event high: all 18 phases fail both the fill and the band check |
 | Same, `tdm8render-law-boundary` | The same phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, located from the +0 phase's own offsets, in three histories: the leg's own ascending scan, the band descending, and each phase within 12 cycles of it alone | Every phase is graded and passes, or is not gradable and fails nothing; each scan holds both kinds. Every window's nearest-pop range and walk is printed, and the largest walk beside the one the suite states | The render setpoint one event low, and one event high: no graded phase passes, and every graded phase fails both law checks |
+| Same, `[PULLIN]` (#647, the [settle recentre](#settle-recentre)) and `tdm8render-pullin` | INTERNAL after the settled report, a fresh stream at a `[LAW]` feed phase on the law, then T14's serial-clock hold (5,200 cycles, folded to half a sample) under the running stream, and up to 2 s of it for the settle recentre, the aligner traced every 64 ms. The explicit `tdm8render-pullin` target runs the standing phase, +1,562, after the full serial/CRF/LAW history (`--with-pullin`), plus all 18 `[LAW]` phases after boot, one leg each. The default target omits `[PULLIN]` | On the law before the hold; exactly one settle recentre after it, the one render recentre pulse since the hold and the one the stage executed; `SLIP_LB` static from it on; on the law again after it, at every phase the ambiguity window can grade (the standing phase must be gradable) | The settle recentre never pulses: the standing phase leaves the law after the hold |
+| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8 uses both peer offsets, -11.02 and +0.82 ppm against the DUT's -5.1 ppm INTERNAL clock. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock. `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us, 2 us plus a 1e-4 tail of 0 to 24 us, and 0 to 60 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us. `small_pulls.py` adds fine holds, a no-hold leg and two pulls on each side of recovery; `quiet_distributions.py` requires all 128 phases and complete signed histograms; `settle_control.py` checks the controller at all four axis rates | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (nominal margin in (5, 6] ticks), with at least one tick on both the empty and full sides, the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden); SINGLE-DROP, an incomplete full-side action; HELD-DUP, every held pop counted as a dup (the walk before a pair's first commit, the `[LRC]` counter check and the span counter check fail); STARVED-HELD-DUP, a held pop counted only on a still-empty pair (that walk and the `[LRC]` counter check fail); NO-ARM, a missed fine boundary; NO-RECOVERY, two actions from one hold; HIGH-ARM, a missed +9-cycle peak; QUIET-ARM, pending correction without a hold |
+| `tb/verilator/chmap_capture`, `[LRC]` | One 4-channel stream of the LOOP bucket, its six-event PDUs at one beat per cycle, `lb_recentre_i` pulsed before a PDU starting with none, four, five, six or ten events of the previous PDU left; none left with a walk between the PDU's first beat and the second pair's first commit, and the same stimulus without the pulse; unprimed; flushed after the pulse; the pulse on a PDU's first beat | None left holds five pops, four holds one pop, five moves nothing, six drops one and ten drops five, on both pairs in lockstep; the following PDU proves the action occurs once; an unprimed stream ignores the pulse, a flush cancels it, a pulse on a PDU's first beat acts at the next PDU; neither slip counter moves, including for a held walk on a pair still empty because its first commit of the PDU has not landed, where the same walk without the pulse counts one dup | (the module's own leg; the integration's planted controls are follow_ring's) |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
 
 **Why the switch row has three checks.** The round 3 evidence on PR #631
@@ -1425,9 +1637,11 @@ accepts this as a test correction, not a change to the law.
 - **What is not graded.** T30's own INTERNAL window opens while the aligner
   is still pulling the grid in after T14's serial-clock hold. It keeps its pin
   and A2-a checks and no longer grades the law. A stream already running
-  through such a pull-in keeps the displacement the pull gave it, one event
-  at some phases, because nothing re-centres it. That is the open design gap
-  [#647](https://github.com/kebag-logic/milan-fpga/issues/647).
+  through such a pull-in kept the displacement the pull gave it, one event
+  at some phases, because nothing re-centred it
+  ([#647](https://github.com/kebag-logic/milan-fpga/issues/647)). The
+  [settle recentre](#settle-recentre) now does, once the aligner rests in
+  its band again, and `[PULLIN]` grades it on a running stream.
 - **The boot pull-in.** From boot, at the model's 100 MHz, the aligner's
   error swings from about -200 cycles through zero to about +49 and then
   decays over some 10,000 ticks. The swing through zero spends just over
@@ -1561,3 +1775,10 @@ written, the implementation and the place it is recorded are:
 | Area: the meter at 270 to 420 FF | 636 FF out of context: the per-PDU and group-end pipelines register their 32-bit operands. LUT, 574, is inside the estimate | `syn/yosys/ooc.sh KL_aaf_clock_meter` (Yosys out of context: 574 LUT including 16 LUTRAM, 636 FF, 0 RAMB18, 0 DSP); [#629 STOP, item 8](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946475441) |
 | AECP walk mutant: "the decode table generated from the previous shape" | Planted as the decode table one source short in the root suite's schemata, where the last AAF index then decodes as no source | `tb/verilator/milan_dp_mclk/mclk_mutants.py` id 14 |
 | History restarts row: "`tu` taken from the `tv` net (the CRF wiring): the `tu` case fails" | The meter takes `tu` as a port, so this wiring mutant is planted where the wire is: the root suite binds the meter's `tu_i` to `avtprx_tv_bit`, and its leg A row, the followed talker's `tu` set and then cleared, must fail | `tb/verilator/milan_dp_mclk/mclk_mutants.py` id 15 |
+
+After M2, #645 and #647 added the [settle recentre](#settle-recentre)
+([ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982568394)):
+the "one #386 recentre" of a switch above is still the at-switch one, and
+the settle recentre follows it once the plane has settled. Its suites are
+the `follow_ring`, `[PULLIN]` and `[LRC]` rows of the
+[simulation plan](#simulation).
