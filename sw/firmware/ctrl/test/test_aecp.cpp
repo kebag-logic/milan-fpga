@@ -1190,6 +1190,15 @@ TEST_F(Core, CounterTimerArmsOnlyEligibleCompletedSnapshots)
     testing::Mock::VerifyAndClearExpectations(&mock);
     a.locked=false;e.awaiting_output=true;
     EXPECT_CALL(mock,Timer(false,_)).Times(1);aecp_open(&a);
+    testing::Mock::VerifyAndClearExpectations(&mock);
+    e.retry_pending=1;e.retry_at=750;
+    EXPECT_CALL(mock,Timer(true,750)).Times(1);aecp_open(&a);
+    testing::Mock::VerifyAndClearExpectations(&mock);
+    a.locked=true;a.lock_deadline=500;
+    EXPECT_CALL(mock,Timer(true,500)).Times(1);aecp_open(&a);
+    testing::Mock::VerifyAndClearExpectations(&mock);
+    e.retry_at=250;
+    EXPECT_CALL(mock,Timer(true,250)).Times(1);aecp_open(&a);
 }
 
 TEST_F(Core, MetadataConfigurationKeysAndRepeatedOverrides)

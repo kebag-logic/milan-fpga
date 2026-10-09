@@ -32,6 +32,11 @@ def defect(name: str, file: str, old: str, new: str,
 
 
 DEFECTS = (
+    defect('retry-timer-lost', 'aecp.c',
+           'e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))',
+           'e->retry_pending == 0u && (!armed || due(deadline, e->retry_at))',
+           ('Core.CounterTimerArmsOnlyEligibleCompletedSnapshots',
+            'Unexpected mock function call')),
     defect('entity-available-index-static', 'aecp_commands.c',
            'wire_put_be(out + 40, available, 4u);',
            '(void)available;',
@@ -361,8 +366,8 @@ DEFECTS = (
            ('Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse',
             'adapter.ports.send')),
     defect('latency-response-missing', 'aecp_commands.c',
-           'case 4: return descriptor(a, in, len, out, bytes);',
-           'case 4: a->start_pending = true; return descriptor(a, in, len, out, bytes);',
+           'case 4: return descriptor(a, interface, in, len, out, bytes);',
+           'case 4: a->start_pending = true; return descriptor(a, interface, in, len, out, bytes);',
            ('Latency.EveryCommandAndRefusalUsesOneArrivalBudget',
             'commits.size()')),
     defect('latency-budget-relaxed', 'test/aecp_latency_policy.hpp',
