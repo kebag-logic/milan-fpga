@@ -1,0 +1,24 @@
+[
+  {
+    "name": "parent-standing",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$BUILD_AREA/parent-reader/tb/verilator/follow_ring/test_trace_table.py"
+    ],
+    "raw_rc": 1,
+    "expected_rc": 1
+  },
+  {
+    "name": "parent-public",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$BUILD_AREA/review/scripts/decimal_boundaries.py",
+      "$BUILD_AREA/parent-reader",
+      "$BUILD_AREA/parent-public"
+    ],
+    "raw_rc": 1,
+    "expected_rc": 1
+  }
+]

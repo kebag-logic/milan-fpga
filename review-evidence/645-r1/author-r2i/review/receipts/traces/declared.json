@@ -1,0 +1,43 @@
+{
+  "stimulus": [
+    "--case",
+    "pullin",
+    "--latency-us",
+    "210.42",
+    "--after-s",
+    "1.5"
+  ],
+  "raw_rc": 0,
+  "wall_seconds": 37.184287201962434,
+  "event": 5.45411656,
+  "expected_counts": [
+    0,
+    0,
+    1
+  ],
+  "actual_counts": [
+    0,
+    0,
+    1
+  ],
+  "table_rc": 0,
+  "full_pdu_sha256": "2ef5204421f523ae9d9a9306b7bd75e237fcb27c9934543bcc6b7615b4f5accf",
+  "table_command": [
+    "/usr/bin/python3",
+    "-B",
+    "$REVIEWS/r475-7-645/tb/verilator/follow_ring/trace_table.py",
+    "$REVIEWS/645-r475-7-packet/receipts/traces/declared.log",
+    "$REVIEWS/645-r475-7-packet/receipts/traces/declared.pdu.csv",
+    "$REVIEWS/645-r475-7-packet/receipts/traces/declared.servo.csv",
+    "--origin-s",
+    "0",
+    "--from-s",
+    "5.45",
+    "--to-s",
+    "5.46",
+    "--step-s",
+    "0.01",
+    "--csv",
+    "$REVIEWS/645-r475-7-packet/receipts/traces/declared.table.csv"
+  ]
+}

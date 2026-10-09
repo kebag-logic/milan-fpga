@@ -1,0 +1,15 @@
+COMMAND: ["python3", "-B", "scripts/check_sh_idiom.py"]
+CPU LIST: 62
+MAKEFLAGS: unset
+COLD BUILD: False
+sh idiom: 24 first-party scripts
+  backtick substitution: 0
+  cd without a failure path: 0
+  branch on $?: 0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+
+WALL SECONDS: 1.001
+RETURN CODE: 0

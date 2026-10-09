@@ -1,0 +1,180 @@
+[
+  {
+    "case": "legacy",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/review/receipts/public/reviews/R474-5/receipts/trace-table-probe-inputs/run.log",
+      "$BUILD_AREA/review/receipts/public/reviews/R474-5/receipts/trace-table-probe-inputs/pdu.csv",
+      "$BUILD_AREA/review/receipts/public/reviews/R474-5/receipts/trace-table-probe-inputs/servo.csv",
+      "--from-s",
+      "0",
+      "--to-s",
+      "1",
+      "--step-s",
+      ".25",
+      "--csv",
+      "$BUILD_AREA/replayed-tables/legacy.csv"
+    ],
+    "rc": 0,
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "coverage": "unavailable",
+    "inputs": [
+      {
+        "path": "$BUILD_AREA/review/receipts/public/reviews/R474-5/receipts/trace-table-probe-inputs/run.log",
+        "sha256": "7c1825befbe757e2254833d9212d67aa3e71dceeafb8e424c3ff236d2e191b79",
+        "bytes": 38
+      },
+      {
+        "path": "$BUILD_AREA/review/receipts/public/reviews/R474-5/receipts/trace-table-probe-inputs/pdu.csv",
+        "sha256": "1748b07aabf5cd238b9112f56fb12d8cf746f1929873f1a4e2add40c89b75fc8",
+        "bytes": 42059
+      },
+      {
+        "path": "$BUILD_AREA/review/receipts/public/reviews/R474-5/receipts/trace-table-probe-inputs/servo.csv",
+        "sha256": "9252b3dbf513ee00850077f7cb7e0088f7f03b5e33050e27867ead181db91748",
+        "bytes": 62
+      }
+    ]
+  },
+  {
+    "case": "declared",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/review/receipts/traces/declared.log",
+      "$BUILD_AREA/review/receipts/traces/declared.pdu.csv",
+      "$BUILD_AREA/review/receipts/traces/declared.servo.csv",
+      "--origin-s",
+      "0",
+      "--from-s",
+      "5.45",
+      "--to-s",
+      "5.46",
+      "--step-s",
+      "0.01",
+      "--csv",
+      "$BUILD_AREA/replayed-tables/declared.csv"
+    ],
+    "rc": 0,
+    "counts": [
+      0,
+      0,
+      1
+    ],
+    "coverage": "complete",
+    "inputs": [
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/declared.log",
+        "sha256": "909b323abbe2b06e65ec0398a339ccf4417c8a4608e0a1d2ad93faa072af74da",
+        "bytes": 2373
+      },
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/declared.pdu.csv",
+        "sha256": "9fd8acad88502b67eb3376f94813f97fd5ea5b7298d1481db3863b586a7b055e",
+        "bytes": 3361
+      },
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/declared.servo.csv",
+        "sha256": "afb8cb20988c37ba6afd283005203c2bd33b0dc2601680f0b4ac681867a47fa4",
+        "bytes": 70
+      }
+    ]
+  },
+  {
+    "case": "duplicate",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/review/receipts/traces/duplicate.log",
+      "$BUILD_AREA/review/receipts/traces/duplicate.pdu.csv",
+      "$BUILD_AREA/review/receipts/traces/duplicate.servo.csv",
+      "--origin-s",
+      "0",
+      "--from-s",
+      "0.65",
+      "--to-s",
+      "0.66",
+      "--step-s",
+      "0.01",
+      "--csv",
+      "$BUILD_AREA/replayed-tables/duplicate.csv"
+    ],
+    "rc": 0,
+    "counts": [
+      1,
+      0,
+      0
+    ],
+    "coverage": "complete",
+    "inputs": [
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/duplicate.log",
+        "sha256": "48fbc9f3c27a07ddf7faa032f87e66183ce0d69f5451fa3616ddfe3b2a506c17",
+        "bytes": 3240
+      },
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/duplicate.pdu.csv",
+        "sha256": "2fc9dc8ee6291ff5bc5c4a8136eaace9762f85f261f72f89a461695573da5648",
+        "bytes": 3281
+      },
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/duplicate.servo.csv",
+        "sha256": "afb8cb20988c37ba6afd283005203c2bd33b0dc2601680f0b4ac681867a47fa4",
+        "bytes": 70
+      }
+    ]
+  },
+  {
+    "case": "skip",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$LANE/tb/verilator/follow_ring/trace_table.py",
+      "$BUILD_AREA/review/receipts/traces/skip.log",
+      "$BUILD_AREA/review/receipts/traces/skip.pdu.csv",
+      "$BUILD_AREA/review/receipts/traces/skip.servo.csv",
+      "--origin-s",
+      "0",
+      "--from-s",
+      "2.73",
+      "--to-s",
+      "2.7399999999999998",
+      "--step-s",
+      "0.01",
+      "--csv",
+      "$BUILD_AREA/replayed-tables/skip.csv"
+    ],
+    "rc": 0,
+    "counts": [
+      1,
+      1,
+      0
+    ],
+    "coverage": "complete",
+    "inputs": [
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/skip.log",
+        "sha256": "30f792b39e3e5e23b35255f35c18920b70d34e423bce659efe747e8d1e87262d",
+        "bytes": 3022
+      },
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/skip.pdu.csv",
+        "sha256": "14230da9c1cbbd58ef308c531f69d074aed8475fe7d1e25870e280192cbd6389",
+        "bytes": 3521
+      },
+      {
+        "path": "$BUILD_AREA/review/receipts/traces/skip.servo.csv",
+        "sha256": "afb8cb20988c37ba6afd283005203c2bd33b0dc2601680f0b4ac681867a47fa4",
+        "bytes": 70
+      }
+    ]
+  }
+]

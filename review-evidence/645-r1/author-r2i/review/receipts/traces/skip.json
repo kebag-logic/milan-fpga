@@ -1,0 +1,45 @@
+{
+  "stimulus": [
+    "--case",
+    "b8",
+    "--peer-ppm",
+    "100",
+    "--dwell-s",
+    "3",
+    "--hold-s",
+    "0.1"
+  ],
+  "raw_rc": 1,
+  "wall_seconds": 23.23372279899195,
+  "event": 2.739738,
+  "expected_counts": [
+    1,
+    1,
+    0
+  ],
+  "actual_counts": [
+    1,
+    1,
+    0
+  ],
+  "table_rc": 0,
+  "full_pdu_sha256": "450c4e0ccbbde123d13b2d210838aa548118427bf7e4b36213441a54681e37e5",
+  "table_command": [
+    "/usr/bin/python3",
+    "-B",
+    "$REVIEWS/r475-7-645/tb/verilator/follow_ring/trace_table.py",
+    "$REVIEWS/645-r475-7-packet/receipts/traces/skip.log",
+    "$REVIEWS/645-r475-7-packet/receipts/traces/skip.pdu.csv",
+    "$REVIEWS/645-r475-7-packet/receipts/traces/skip.servo.csv",
+    "--origin-s",
+    "0",
+    "--from-s",
+    "2.73",
+    "--to-s",
+    "2.7399999999999998",
+    "--step-s",
+    "0.01",
+    "--csv",
+    "$REVIEWS/645-r475-7-packet/receipts/traces/skip.table.csv"
+  ]
+}
