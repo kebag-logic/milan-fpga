@@ -1,7 +1,9 @@
 # Mark II area plan
 
 Stage 1 of issue #640: the measured baseline, the inventory, the redesign levers and the lane sequence that would bring the routed shipping image under NFR-RES-01's 60 percent LUT target.
-It was measured on 2026-10-05 at dev `e617275074e370cec342af99b929e2588fc8d43f`.
+The first measurements date from 2026-10-05 at dev `e617275074e370cec342af99b929e2588fc8d43f`.
+Round 1b records the later decisions after merging dev `5603c353`.
+The original estimates below precede those decisions; the following ledger revision replaces them.
 This page changes no RTL, configuration, register map or parameter.
 The manager rules on the lane sequence before any RTL work starts.
 Milestone 12 is due 2026-12-15, before the release gate of milestone 6, so the #396 soak and audio runs will run on the redesigned image.
@@ -16,7 +18,7 @@ Milestone 12 is due 2026-12-15, before the release gate of milestone 6, so the #
 - **[Ledger](#ledger)** -- What the shared sequencer displaces, block by block, and every lever subtracted from the projected start at central, low and high estimates.
 - **[Lane sequence](#lane-sequence)** -- The ordered lanes to 2026-12-15, each with its LUT target, repository, verification, risks and dependencies.
 - **[What holds throughout](#what-holds-throughout)** -- The suites and counts, ATDECC as the only source of state, the second port, the gate's re-record and timing.
-- **[Decisions needed](#decisions-needed)** -- The rulings the lanes need before any RTL work: the equivalence bar, diagnostics, internal timing, the SoC, the margin and the RISC-V direction.
+- **[Recorded decisions](#recorded-decisions)** -- The accepted rulings and the later default-split decisions that supersede the initial plan.
 - **[Method and receipts](#method-and-receipts)** -- The recipe, how a head the gate does not describe is mapped, the core pricing, and every run's exit status and log digest.
 
 ## Summary
@@ -27,7 +29,7 @@ Milestone 12 is due 2026-12-15, before the release gate of milestone 6, so the #
 - **What the levers give.** Inside today's requirements, the ten hardware levers in the [ledger](#ledger) sum to about 12,750 LUTs at central estimates and reach 37,568: under the limit by 472, short of the plan target by 1,428. One more engine-sharing lever reaches 36,368, still 228 above the plan target. Across the levers' ranges the result lies between about 33,000 and 41,900. **No priced sequence reaches the 5 percent margin at central estimates** (D8).
 - **What that rests on.** About 6,000 of the saving is one redesign that no prototype has measured yet: the protocol engines time-multiplexed onto one micro-coded sequencer (L1). Another 3,300 is the SoC side (on-chip main memory and a smaller control core), which needs owner decisions and a change to #70's staging buffers. Without the SoC levers the image stays near 40,900, over the limit.
 - **The RISC-V direction** (L2) is the one lever large enough to reach the target on its own, and it needs REQUIREMENTS section 1, NFR-SCOUT-02, NFR-SCOUT-03 and the ownership rule changed. It is priced, not planned.
-- **The schedule.** Ten weeks hold only if the [decisions](#decisions-needed) are taken before week 1 and the sequencer's three sub-lanes run in parallel from week 1. The plan should be re-measured when the sequencer's first sub-lane routes, in week 4.
+- **The schedule.** Ten weeks hold only if the [decisions](#recorded-decisions) are taken before week 1 and the sequencer's three sub-lanes run in parallel from week 1. The plan should be re-measured when the sequencer's first sub-lane routes, in week 4.
 - **No RTL, configuration or parameter changed here.** The resource gate's record is unchanged; it is re-recorded only by the lane that reaches the target (D7).
 
 ## Target
@@ -299,9 +301,9 @@ One engine serves several protocols, so contention must be bounded: the processo
 Response latency moves from under a microsecond to tens of microseconds: inside every normative timeout, but not cycle-exact.
 
 **Verification.** Every processor suite at its count (33 suites, about 1,021,600 checks at the second pin), lint, `make check`, the Yosys gate, and the `pp_top`, ACMP, ADP, notification, AECP, dispatch, D3, GSI and name-write campaigns at their recorded counts; the parent consumer set of 17; `pp_shadow`, `nvm_cosim` and the `milan_dp` suites; `check_nvm_capture.py` (8x8 capture at most 24.5 ms); the bench suite; the #396 soak.
-Cycle-exact lockstep against the old engines is not possible; equivalence is at the PDU and port-transaction level (see [decisions](#decisions-needed)).
+Cycle-exact lockstep against the old engines is not possible; equivalence is at the PDU and port-transaction level (see [decisions](#recorded-decisions)).
 
-**Protocol-visible effect.** None on the wire: every PDU's bytes, order and timeout behaviour are kept. The internal latency change needs the ruling in [decisions](#decisions-needed).
+**Protocol-visible effect.** None on the wire: every PDU's bytes, order and timeout behaviour are kept. The internal latency change needs the ruling in [decisions](#recorded-decisions).
 
 **Second port.** The sequencer's tables stay indexed by AVB interface (`N_IF_P`), as the ADP engine's are today, so a second interface adds table rows, not engines.
 
@@ -573,19 +575,46 @@ Each lane measures itself with the #234 recipe in a scratch parent, as #232, #23
 - **No port, register-map or wire change.** Register addresses, widths and reset values stay; every PDU keeps its bytes and its order.
 - **Timing at the shipping clock.** Each route meets the build gate (WNS at least +0.03 ns, WHS at least 0, every corner) at the 50 MHz datapath clock.
 
-## Decisions needed
+## Recorded decisions
 
-- **D1, the equivalence bar for a redesigned engine.** L1 cannot be cycle-exact. Proposed: PDU-level and port-transaction equivalence against the current engines, every suite at its count, and committed tests that pin a cycle re-targeted under review rather than deleted.
-- **D2, diagnostics in the shipping image.** Whether the shipping configuration drops the latency taps and probes (L6), with a diagnostic configuration kept buildable.
-- **D3, internal timing is not protocol-visible.** Whether a change of internal latency inside every normative timeout, with no wire change, counts as "no protocol-visible effect" for L1 and L7. #230's ruling excluded it from the cycle-exact pre-adoption track only.
-- **D4, on-chip main memory.** Whether the SoC drops DDR3 (L11a). It needs #70's staging buffers sized to the container and a memory-map change.
-- **D5, the control core.** Whether the control hart becomes a smaller cacheless RV32I core (L11b, about 1,700 LUTs, priced here), provided it holds the saved-state capture bound and the boot timing.
-- **D6, one engine for gPTP and AECP** (L10b): at central estimates M0 to M8 leave the margin short, so it is needed for any margin above 1.2 percent.
-- **D7, the re-baseline rule during Mark II.** The budget's rule makes every image-moving merge record its own re-baseline; the assignment re-records only at the target. Proposed: Mark II lanes record their measured image in this plan's ledger and leave the gate's record alone, since an improvement already passes; the rule's purpose, that growth is never hidden, holds because the gate still judges each lane against the last record.
-- **D8, the margin.** This plan reads "about 5 %" as 5 percent of the limit: at most 36,140 LUTs, 57.0 percent of the device; read as 5 points of the device it is 34,870. At central estimates the priced levers reach 37,568 (472 under the limit) without L10b and 36,368 with it, so neither reading is met. The ruling needed: accept a smaller margin, or close the last 1,400 to 2,700 LUTs with part of L2 (which needs D9), or decide after M3's first measured route.
-- **D9, the RISC-V direction** (L2). Its saving is the largest single figure here, and it needs REQUIREMENTS section 1, NFR-SCOUT-02 and NFR-SCOUT-03 and the ownership rule changed. It is not schedulable by 2026-12-15.
+Round 1b follows the [assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6080904058).
+Later decisions below supersede earlier alternatives explicitly.
+They authorize future implementation lanes, not RTL changes here.
 
-**Not a decision, a follow-up.** The [area budget](AREA_BUDGET.md#allocation-to-the-protocol-processor) still places the redesign "after Instrument verification"; the owner's correction of 2026-10-05 puts milestone 12 before P3 ([comment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5988555968)). The budget page is not edited here.
+| Decision | Recorded outcome | Plan consequence |
+|---|---|---|
+| D1, equivalence | [Manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268): PDU and port-transaction equivalence, every suite and campaign at its count | Retarget cycle-pinned checks under review; never delete them |
+| D2, diagnostics | [Owner decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637): diagnostics stay | Drop L6/M1's 700-LUT credit; retain equivalent diagnostics across placements |
+| D3, internal latency | [Manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268): deterministic tested bounds per response path | Preserve normative margin, fast connect, restart under one second and saved-state capture |
+| D4, main memory | [Owner decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637): replace DDR3 with on-chip memory | M8 sizes staging to each shape's container and plans the memory-map migration |
+| D5, control core | [Owner decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637): smaller cacheless RV32I, conditionally | Prove 8x8 capture <= 24.5 ms and boot timing; revert otherwise |
+| D6, engine sharing | Initially deferred by the manager; then [owner made M10 planned](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637) | Retain M10 for fabric AECP; the later split removes its default-image credit |
+| D7, re-record | [Manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268): intermediate measurements enter this ledger | Gate against the last record; M9 re-records at the target |
+| D8, margin | [Manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268): 38,040 LUT with timing is the bar | Aim at least 1 percent below it: <= 37,659 LUT; 5 percent was planning guidance |
+| D9, placement | Initially excluded by the [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637); subsequently made the [Mark II default](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991745829) | L2/F0-F5 replaces ACMP/ADP M3 work and M4; all-fabric stays supported |
+
+The placement decisions progressed as follows:
+
+1. [Milestone 13](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991605450) initially held the slow path separately.
+2. [Build-selectable placement](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991626132) initially proposed a CSR boundary.
+3. [Packet mailboxes](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991695093) superseded that CSR proposal, with ingress filtering and firmware restore.
+4. [Portable interface](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991737927) added ADP and GM-change events: memory-mapped block RAM rings, doorbell, interrupt, 32-bit accesses, no DMA, host bus adapters, portable C/HAL and one YAML contract.
+5. [Default split](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991745829) retained easy per-function build selection and the all-fabric option.
+6. [Before-release integration](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5993114362) brought ADP, ACMP, MAAP, SRP via lwSRP, AECP and saved-state handling into milestone 12. Milestone 13 retains the hard-core port.
+
+The last decision replaces M3's ACMP/ADP portion and M4 with F0-F5.
+M2, M5, M6, M7 and M8 remain area lanes.
+Functions change shipping placement only after suites and bench qualification.
+Unqualified functions retain fabric ownership.
+The #396 release campaigns then run on the qualified split image.
+
+The [approved #664 text](https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6015500032) is now merged.
+[Product ownership](../../REQUIREMENTS.md#1-product-ownership) and [NFR-SCOUT-02/03](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) govern implementation.
+The project service budget is 10 ms, separately from normative deadlines.
+Its approval supersedes the register's retained proposal wording.
+F2-F5 acceptance still precedes the shipping default flip.
+VERSION stays major 2 until that implementation; split images identify major 3.
+See the [version landing contract](../ARCHITECTURE_HW_SW_SPLIT.md#7-version-and-default-flip).
 
 ## Method and receipts
 
