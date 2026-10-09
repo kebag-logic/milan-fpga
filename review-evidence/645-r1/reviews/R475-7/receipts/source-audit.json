@@ -1,0 +1,51 @@
+{
+  "head": "8e4b1e53e9b5a8ef5f9854095347436ab84259b6",
+  "tree": "b80da0aa70f44ff35a872ffe003cb49c96cac709",
+  "parent": "1e79ebdc06528edff74c0a7f530f20f99e3326a2",
+  "base": "6aa25dec977c6ad78bf4ff6275de47fb81d0c246",
+  "delta_files": [
+    "docs/testing/TESTING.md",
+    "scripts/measure_test_evidence_readers.py",
+    "tb/verilator/follow_ring/Makefile",
+    "tb/verilator/follow_ring/sim_main.cpp",
+    "tb/verilator/follow_ring/test_trace_table.py",
+    "tb/verilator/follow_ring/trace_table.py",
+    "tb/verilator/milan_dp_render/Makefile"
+  ],
+  "commit_count": 1,
+  "rtl_config_resource_changes": false,
+  "targets_unchanged": true,
+  "suite_discovery_unchanged": true,
+  "retained_files": {
+    "scripts/run_all_suites.sh": "b36a1a6f50a1652c31cfa12717b4f86c5db13d6ed7b65fa3486414cd0a699eca",
+    "scripts/measure_test_evidence.py": "3cd7510a725e172eeb7a3ed9ee861978e78d00ec94e8f4c9080e8063395421d5",
+    "docs/testing/CI_WORKFLOWS.md": "5ea85600e3702c6045c0fb4de02e24b2441b6638d5967d7c75380c6ab48f1b8a",
+    "syn/ooc/pp_resource_baseline.json": "cf2eec5ce8e41d50f5308264a8608d7341ba142d6d3a04058e5572e1a8a29e41"
+  },
+  "resource_input_scope_unchanged_since": "4640d995",
+  "full_diff_sha256": "63a0d9770714334bbb9a400a5da898ec7eb492a3798d95d18256129621779314",
+  "figures": [
+    {
+      "suite": "follow_ring",
+      "previous_hosted": 1422.5,
+      "prior_local": 800.2,
+      "ratio_unrounded": 1.7776805798550361,
+      "ratio_used": 1.78,
+      "new_local_claim": 437.204,
+      "projection": 778.2,
+      "margin1440": 661.8,
+      "margin1800": 1021.8
+    },
+    {
+      "suite": "milan_dp_render",
+      "previous_hosted": 1093.9,
+      "prior_local": 826.7,
+      "ratio_unrounded": 1.3232127736784807,
+      "ratio_used": 1.324,
+      "new_local_claim": 793.308,
+      "projection": 1050.3,
+      "margin1440": 389.7,
+      "margin1800": 749.7
+    }
+  ]
+}
