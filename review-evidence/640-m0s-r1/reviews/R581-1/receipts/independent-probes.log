@@ -1,0 +1,79 @@
+BASELINE unchanged: cf2eec5ce8e41d50f5308264a8608d7341ba142d6d3a04058e5572e1a8a29e41 27995 bytes
+PASS: accepted schema and policy constants match base
+STORED RECORD REPLAY route-1x1 status 0 (not a new measurement)
+{"design": "alinx_ax7101", "device": "xc7a100tfgg484-2", "flow": ["set_param synth.maxThreads 1", "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2", "set_param general.maxThreads 32", "synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2", "opt_design -directive ExploreArea", "kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}", "place_design -directive ExtraPostPlacementOpt", "phys_opt_design -directive AggressiveExplore", "route_design -directive AggressiveExplore", "phys_opt_design -directive AggressiveExplore"], "standalone_clock_ns": [], "state": "Physopt postRoute", "tool": "Vivado v.2026.1 (lin64) Build 6511674"}
+{"BRAM_TILE": 87.5, "CARRY4": 3402, "DSP": 14, "FF": 54413, "LUT": 50267, "RAMB18": 27, "RAMB36": 74, "SLICE": 15779, "WHS_ns": 0.031, "WNS_ns": 0.299}
+figure        baseline   candidate     delta  verdict
+LUT              50267       50267         0  ok
+FF               54413       54413         0  ok
+SLICE            15779       15779         0  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.299       0.299       0.0  ok
+WHS_ns           0.031       0.031       0.0  ok
+RESULT: PASS
+PASS: base/head report parsing, input digest, figures, scopes and route-status parity route-1x1
+STORED RECORD REPLAY ooc-1x1 status 0 (not a new measurement)
+{"design": "KL_pp_shadow", "device": "xc7a100tfgg484-2", "flow": ["set_param synth.maxThreads 1", "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2", "set_param general.maxThreads 32", "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"], "standalone_clock_ns": ["20.000"], "state": "Synthesized", "tool": "Vivado v.2026.1 (lin64) Build 6511674"}
+{"BRAM_TILE": 17.5, "CARRY4": 1494, "DSP": 8, "FF": 19779, "LUT": 23179, "RAMB18": 3, "RAMB36": 16, "WHS_ns": 0.159, "WNS_ns": -3.562}
+figure        baseline   candidate     delta  verdict
+LUT              23179       23179         0  ok
+FF               19779       19779         0  ok
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+RESULT: PASS
+PASS: base/head report parsing, input digest, figures, scopes and route-status parity ooc-1x1
+STORED RECORD REPLAY ooc-8x8 status 0 (not a new measurement)
+{"design": "KL_pp_shadow", "device": "xc7a100tfgg484-2", "flow": ["set_param synth.maxThreads 1", "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2", "set_param general.maxThreads 32", "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"], "standalone_clock_ns": ["20.000"], "state": "Synthesized", "tool": "Vivado v.2026.1 (lin64) Build 6511674"}
+{"BRAM_TILE": 23.5, "CARRY4": 1889, "DSP": 8, "FF": 27380, "LUT": 30135, "RAMB18": 5, "RAMB36": 21, "WHS_ns": 0.159, "WNS_ns": -2.278}
+figure        baseline   candidate     delta  verdict
+LUT              30135       30135         0  ok
+FF               27380       27380         0  ok
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+RESULT: PASS
+PASS: base/head report parsing, input digest, figures, scopes and route-status parity ooc-8x8
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+PASS: base/head recipe byte parity route shape 1x1
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+PASS: base/head recipe byte parity integrated-synthesis shape 1x1
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/standalone-1/baseline_ooc.tcl
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/standalone-1/baseline_ooc.tcl
+PASS: base/head recipe byte parity standalone shape 1x1
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+PASS: base/head recipe byte parity route shape 8x8
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+PASS: base/head recipe byte parity integrated-synthesis shape 8x8
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/standalone-8/baseline_ooc.tcl
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/standalone-8/baseline_ooc.tcl
+PASS: base/head recipe byte parity standalone shape 8x8
+PASS named refusal f0-f4 oversized count placement f0-f4: invalid or duplicate role/count: 'f0-f4\tmailbox\t1111111111111111'
+PASS named refusal f0-f4 unicode count placement f0-f4: invalid or duplicate role/count: 'f0-f4\tmailbox\t１'
+PASS named refusal f0-f4 unknown role placement f0-f4: invalid or duplicate role/count: 'f0-f4\textra\t0'
+PASS named refusal f0-f4 duplicate required engine wrong placement f0-f4: gptp (KL_gptp_shadow) count 2, expected 1..1
+PASS named refusal f0-f4 missing mailbox wrong placement f0-f4: mailbox (KL_mbx) count 0, expected 1..1
+PASS named refusal f0-f4 retained moved engine wrong placement f0-f4: srp (KL_srp_top) count 1, expected 0..0
+PASS: partial placement accepts exactly zero or one wrapper
+PASS named refusal full-split oversized count placement full-split: invalid or duplicate role/count: 'full-split\tmailbox\t1111111111111111'
+PASS named refusal full-split unicode count placement full-split: invalid or duplicate role/count: 'full-split\tmailbox\t１'
+PASS named refusal full-split unknown role placement full-split: invalid or duplicate role/count: 'full-split\textra\t0'
+PASS named refusal full-split duplicate required engine wrong placement full-split: gptp (KL_gptp_shadow) count 2, expected 1..1
+PASS named refusal full-split missing mailbox wrong placement full-split: mailbox (KL_mbx) count 0, expected 1..1
+PASS named refusal full-split retained moved engine wrong placement full-split: srp (KL_srp_top) count 1, expected 0..0
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+PASS: entire generated Tcl f0-f4 none rc 0 PASS: both census stages executed
+PASS: entire generated Tcl f0-f4 early-adp rc 1 adp (KL_adp_engine)
+PASS: entire generated Tcl f0-f4 late-mailbox rc 1 mailbox (KL_mbx)
+$REVIEWS/640-m0s-r581-1-packet/scratch/independent-4l0h6qdm/export/baseline_integrated.tcl
+PASS: entire generated Tcl full-split none rc 0 PASS: both census stages executed
+PASS: entire generated Tcl full-split early-adp rc 1 adp (KL_adp_engine)
+PASS: entire generated Tcl full-split late-mailbox rc 1 mailbox (KL_mbx)
+PASS: legacy missing-wrapper fails by name: Expected exactly one protocol wrapper
+PASS: all independent probes; no accepted record or source byte changed

@@ -1,0 +1,217 @@
+[
+  {
+    "name": "ooc",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "syn/ooc/ooc_tcl_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 491.77
+  },
+  {
+    "name": "recipe",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "syn/ooc/pp_baseline.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.57
+  },
+  {
+    "name": "recipe-mutants",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "syn/ooc/pp_baseline_mutants.py"
+    ],
+    "rc": 0,
+    "seconds": 6.06
+  },
+  {
+    "name": "resource",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "syn/ooc/pp_resource_gate.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.52
+  },
+  {
+    "name": "resource-mutants",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-X",
+      "cpu_count=4",
+      "syn/ooc/pp_resource_gate_mutants.py"
+    ],
+    "rc": 0,
+    "seconds": 25.26
+  },
+  {
+    "name": "baseline",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "rc": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "reports",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "syn/ooc/pp_baseline_reports_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.07
+  },
+  {
+    "name": "builder-focused",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "$REVIEWS/640-m0s-r581-1-packet/scripts/focused_builder.py",
+      "$REVIEWS/r581-1-640-m0s",
+      "$REVIEWS/640-m0s-r581-1-packet/scratch"
+    ],
+    "rc": 0,
+    "seconds": 2.22
+  },
+  {
+    "name": "docs",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.55
+  },
+  {
+    "name": "docs-selftest",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.22
+  },
+  {
+    "name": "style",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "paths",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "solution",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.21
+  },
+  {
+    "name": "archive",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.47
+  },
+  {
+    "name": "toc",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 6.24
+  },
+  {
+    "name": "anchors",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 4.44
+  },
+  {
+    "name": "status",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 1.22
+  },
+  {
+    "name": "matrix",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.48
+  },
+  {
+    "name": "py-idiom",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 5.82
+  },
+  {
+    "name": "hygiene",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.58
+  },
+  {
+    "name": "sources",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.37
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "7c1b52bee26b497080ee22b1c1986109f80a5ee7"
+    ],
+    "rc": 0,
+    "seconds": 4.95
+  }
+]

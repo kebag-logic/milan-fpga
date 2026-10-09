@@ -1,0 +1,983 @@
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index 1e0fab0ca..281c167b0 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -344,8 +344,8 @@ Later qualification does not delay the pre-flip measurement requirement.
+ A missing route is a missed checkpoint, never a pass.
+ 
+ M0s supplies reviewed split-aware recipe and gate coverage before routing.
+-The current recipe requires one wrapper.
+-The complete split removes it.
++The all-fabric recipe requires its existing wrapper.
++Selected split recipes check their own engine population.
+ Keep named placement endpoints with comparable whole-image metrics.
+ Retain all-fabric shipping and standalone 1x1/8x8 references independently.
+ D7 compares M0s figures against the last accepted gate record.
+@@ -353,7 +353,31 @@ Later lane deltas also name their matching M0s placement.
+ Intermediate measurements enter the ledger; M9 alone re-records acceptance.
+ The week-4 checkpoint and M9 consume this measurement coverage.
+ The default flip additionally requires the selected functions' qualification.
+-This page changes no record, gate implementation or policy value.
++Acceptance records and policy values remain unchanged.
++
++### M0s step-1 intermediate status
++
++The [step-1 ledger](MARK_II_AREA_PLAN.md#m0s-step-1-intermediate-status) records **STOP** at base `7c1b52be`.
++F0-F4 firmware exists, but parent datapath integration is missing.
++The mailbox remains idle and the wrapper remains unconditional.
++Therefore no selected route or new area figure is reported.
++LUT, FF, slices, RAMB36/RAMB18 and timing are **not measured**.
++The accepted 50,267-LUT route remains the comparison record.
++Its 74 RAMB36 plus 27 RAMB18 still total 87.5 tiles.
++Those stored figures are not this lane's measurement.
++
++[Measurement support](../testing/PP_SHADOW_BASELINE_RECIPE.md#selected-placement-measurements) names all-fabric, F0-F4 and complete split selections.
++Missing or wrong-placement engines fail by name.
++Whole-image comparison retains every existing gate tolerance and timing requirement.
++The standalone 1x1/8x8 references retain their original recipes.
++Acceptance records, schema and policy are unchanged.
++Intermediate selected placements cannot re-record acceptance; M9 owns that step.
++
++The future route must reconcile actual firmware and retained storage.
++About 50 firmware tiles remains a budget, not measured consumption.
++Partial placement cannot borrow the full split's reclamation credits.
++The 121.5-tile ceiling preserves the separate 10 percent reserve.
++Missing measurements cannot qualify the default flip.
+ 
+ ### The resource gate
+ 
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index f51ebbec6..3737ce59e 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -631,6 +631,43 @@ No protocol surface is removed to achieve area savings.
+ 
+ ## Ledger
+ 
++### M0s step-1 intermediate status
++
++The [step-1 assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6086604096) first requires integrated F0-F4 placement.
++Inspection at assigned base `7c1b52be` fails that prerequisite.
++The [mailbox adapter](../../sw/litex/milan_soc.py) holds packet and event inputs idle.
++Its outgoing packet stream has no datapath consumer.
++The [datapath](../../hdl/milan/milan_datapath.sv) still instantiates the wrapper unconditionally.
++The [MAAP firmware contract](../../sw/firmware/ctrl/maap/README.md) leaves placement integration outstanding.
++Firmware presence therefore earns no engine-removal credit.
++
++| Intermediate checkpoint | LUT / FF / slices | RAMB36 / RAMB18 | WNS / WHS | Disposition |
++|---|---|---|---|---|
++| M0s step 1, F0-F4 with fabric AECP | Not measured | Not measured | Not measured | STOP: parent integration must connect the datapath |
++
++No route was started; no new resource figure is claimed.
++The last accepted gate record remains unchanged.
++Its 50,267 LUTs and 74/27 RAM primitives remain comparison anchors.
++These are stored figures, not measurements of this lane.
++The partial memory ledger still requires actual allocation and reconciliation.
++Neither the 50-tile firmware estimate nor complete-wrapper reclamation proves fit.
++The 121.5-tile ceiling and 10 percent reserve remain binding.
++
++Step 2 supplies [selected-placement measurement support](../testing/PP_SHADOW_BASELINE_RECIPE.md#selected-placement-measurements).
++It names `all-fabric`, `f0-f4` and `full-split` explicitly.
++Split runs check retained engines before implementation and after routing.
++The gate refuses mismatched placement or incomplete population evidence.
++Whole-image comparisons retain the existing tool/flow identity and policy.
++Both all-fabric standalone references remain independent and unchanged.
++The acceptance schema, thresholds and records are unchanged.
++Only M9 re-records acceptance.
++
++The parent integration lane must connect ingress, egress and events.
++It must select F0-F4 firmware and remove the corresponding engines.
++Media controls, counters and saved-state ownership must remain connected.
++Then repeat this prerequisite check and route the selected image.
++That route must replace this missing measurement with actual figures.
++
+ ### Default split saving basis
+ 
+ All savings below are estimates of the integrated 1x1 image.
+@@ -1016,16 +1053,16 @@ This separates integration cost from subsequent lane savings.
+ Missing or incomparable measurements cannot produce a pass.
+ Intermediate measurements enter this ledger; only M9 re-records acceptance.
+ 
+-The current [recipe](../../syn/ooc/pp_baseline.py) expects exactly one wrapper.
+-The complete split removes that wrapper.
+-M0s must therefore deliver reviewed split-aware recipe and gate coverage.
++The all-fabric [recipe](../../syn/ooc/pp_baseline.py) still requires its wrapper.
++The selected split recipe checks its own engine population.
++M0s supplies split-aware recipe and gate coverage for review.
+ It precedes both split routes, the checkpoint and default flip.
+ Name each measured placement and retain comparable whole-image metrics.
+ Preserve tool/flow identities, route completion, primitive counts and timing.
+ Retain the all-fabric shipping endpoint and standalone 1x1/8x8 references.
+ Later lanes record selected routes and both standalone references.
+ M9 consumes M0s coverage for final qualification and re-recording.
+-No gate, schema or policy implementation changes occur here.
++M0s changes measurement support only; acceptance schema and policy stay fixed.
+ 
+ ## What holds throughout
+ 
+diff --git a/docs/testing/PP_SHADOW_BASELINE_RECIPE.md b/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+index ef269d0b1..614f4e12e 100644
+--- a/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
++++ b/docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+@@ -9,6 +9,7 @@ The [baseline](../findings/PP_SHADOW_BASELINE.md) records the measured revisions
+ - **[Prerequisites](#prerequisites)** -- Prepare the checkout and build environment.
+ - **[Export the shipping builds](#export-the-shipping-builds)** -- Derive commands and compile firmware.
+ - **[Integrated measurements](#integrated-measurements)** -- Route 1x1 and synthesize 8x8.
++- **[Selected-placement measurements](#selected-placement-measurements)** -- Name split populations, check engine removal, and compare whole-image measurements without re-recording acceptance.
+ - **[Boundary-preserving attribution](#boundary-preserving-attribution)** -- Preserve ownership across synthesis optimization.
+ - **[Complete hierarchy rankings](#complete-hierarchy-rankings)** -- Include every reported direct child.
+ - **[Standalone measurements](#standalone-measurements)** -- Bind parameters from integrated elaboration.
+@@ -179,6 +180,102 @@ for directive in ("AltSpreadLogic_high", "ExtraTimingOpt"):
+ PY
+ ```
+ 
++## Selected-placement measurements
++
++M0s names three measurement populations for the shipping shape.
++The existing default remains `all-fabric`.
++Its route and standalone recipes remain unchanged.
++
++| Selection | Required retained control engines | Required absence |
++|---|---|---|
++| `all-fabric` | Existing shipping wrapper and protocol engines | Existing default export remains authoritative |
++| `f0-f4` | Fabric AECP, notifications, mailbox and gPTP | ADP, both ACMP engines, SRP and both MAAP implementations |
++| `full-split` | Mailbox and gPTP | Wrapper and all five fabric protocol engines, including notifications |
++
++The partial selection permits AECP inside or outside one wrapper.
++Standalone 1x1/8x8 references always use their all-fabric exports.
++Never derive those references from a partial or complete split.
++
++First qualify the parent integration and its firmware entry point.
++Selection here measures an existing export; it changes no placement switches.
++At `7c1b52be`, `--ctrl-mailbox` still has idle datapath connections.
++The wrapper is unconditional, and firmware ownership is unconnected.
++Therefore the first M0s route is **STOP**, pending parent integration.
++See the [intermediate ledger](../design/MARK_II_AREA_PLAN.md#m0s-step-1-intermediate-status).
++
++After that prerequisite passes, export into a fresh external directory.
++Retain the build's selected-placement arguments with its measurement.
++Use the same part, clocks, directives, seed and worker settings.
++For an already integrated F0-F4 export:
++
++```sh
++python3 syn/ooc/pp_baseline.py "$WORK/f0-f4/gateware" \
++  --placement f0-f4 --single-thread-synthesis
++(
++  cd "$WORK/f0-f4/gateware"
++  flock $VIVADO_LOCK vivado -mode batch \
++    -source baseline_integrated.tcl -nojournal -log baseline.log
++)
++python3 syn/ooc/pp_resource_gate.py check "$WORK/f0-f4/gateware" \
++  --endpoint route-1x1 --placement f0-f4
++```
++
++Use `full-split` for the later complete integration.
++Never overlap implementation with another heavy build.
++The selection requires an integrated endpoint without wrapper attribution.
++The recipe checks actual module identities immediately after synthesis.
++A retained moved engine fails by its placement and role.
++It checks again after implementation and writes `baseline_placement.tsv`.
++The gate independently validates that census against the requested selection.
++A mismatched selection, missing census or missing role exits 2.
++The legacy missing-wrapper refusal remains in force for all-fabric.
++
++The census uses original or current module reference names.
++It includes both parent and processor MAAP implementations.
++Renamed or flattened required modules require reviewed measurement adaptation.
++Missing required modules never silently count as an area saving.
++This census proves population, not firmware execution or mailbox connectivity.
++Integration evidence remains a prerequisite, independent of resource comparison.
++
++Split exports may omit ROM bindings belonging to removed protocols.
++Retained AECP microcode and gPTP microcode remain mandatory.
++Any binding still present receives the existing geometry checks.
++Generated firmware images retain their existing inventory and digest checks.
++ROM diagnostic promotion stays enabled before synthesis.
++
++Whole-image utilization, primitives, timing and route completion remain mandatory.
++Split hierarchy records use `image` as their attribution root.
++Wrapper-relative scope deltas are consequently not claimed across placements.
++Split internal timing covers the image, without wrapper boundary reports.
++The tool/flow identity and acceptance record shape remain unchanged.
++The input digest additionally binds the selected placement.
++
++Compare both selected routes against the accepted `route-1x1` record.
++Every existing tolerance, timing floor and BRAM ceiling still applies.
++A primitive increase still fails; it needs explicit disposition.
++A resource PASS alone establishes neither firmware qualification nor memory fit.
++Publish figures and memory reconciliation in the intermediate ledger.
++The firmware allocation is about 50 tiles, with 10 percent reserved.
++Partial placement cannot claim complete-split storage reclamation.
++Only M9 re-records acceptance; selected `record --write` is refused.
++Neither this step nor its tests rewrites the accepted baseline.
++
++The existing self-tests include selected-placement controls:
++
++```sh
++python3 syn/ooc/pp_baseline.py --selftest
++python3 syn/ooc/pp_baseline_mutants.py
++python3 syn/ooc/pp_resource_gate.py --selftest
++python3 -X cpu_count=4 syn/ooc/pp_resource_gate_mutants.py
++python3 syn/ooc/pp_resource_gate.py check-baseline
++```
++
++The census controls execute under `tclsh`, without implementation software.
++They reverse every required presence and absence by name.
++Gate fixtures include wrapper-free partial and complete split images.
++They also plant resource, timing, routing and identity failures.
++These synthetic controls establish tooling behavior, never routed measurements.
++
+ ## Boundary-preserving attribution
+ 
+ Keep the default run's whole-design totals as the baseline.
+diff --git a/syn/ooc/pp_baseline.py b/syn/ooc/pp_baseline.py
+index e472e7ee9..d14684a7b 100644
+--- a/syn/ooc/pp_baseline.py
++++ b/syn/ooc/pp_baseline.py
+@@ -15,8 +15,13 @@ import io
+ import json
+ from pathlib import Path
+ import re
++import sys
+ import tempfile
+ 
++# Checkpoint-report recipes also load this module by absolute filename.
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import pp_placement
++
+ 
+ ROM_ERROR = "set_msg_config -id {Synth 8-4445} -new_severity ERROR\n"
+ REPORTS = """
+@@ -146,7 +151,7 @@ def package_number(source: str, name: str) -> int:
+     return int(hits[0])
+ 
+ 
+-def inventory(gateware: Path, source: str) -> list[dict]:
++def inventory(gateware: Path, source: str, placement: str = "all-fabric") -> list[dict]:
+     """Bind control ROMs and generated firmware/memory inputs to their bytes."""
+     verilog = (gateware / "alinx_ax7101.v").read_text()
+     inputs = []
+@@ -171,6 +176,10 @@ def inventory(gateware: Path, source: str) -> list[dict]:
+             ("PP_UCODE_HEX_P", "ucpu_pkg.sv", "UPC_W_C", "UCODE_W_C"),
+             ("GPTP_UCODE_HEX_P", "gptp_ucpu_pkg.sv", "UPC_W_C", "UCODE_W_C")):
+         matches = re.findall(r"\." + parameter + r'\s*\("([^"\n]+)"\)', verilog)
++        removed = (placement == "full-split" and parameter.startswith("PP_")) or (
++            placement == "f0-f4" and parameter == "PP_TROM_HEX_P")
++        if removed and not matches:
++            continue
+         packages = [path for path in files if path.name == package]
+         if len(matches) != 1 or len(packages) != 1:
+             raise ValueError(f"ambiguous image or geometry source: {parameter}")
+@@ -247,6 +256,26 @@ def prepare(gateware: Path, output: Path, log: Path | None,
+     print(target)
+ 
+ 
++def prepare_split(gateware: Path, synthesis_only: bool, placement: str) -> None:
++    """Measure an existing split export, checking topology before implementation."""
++    source = (gateware / "alinx_ax7101.tcl").read_text()
++    prefix, rest = split_once(source, "# Add constraints")
++    marker = "# Add pre-optimize commands" if synthesis_only else "# Bitstream generation"
++    endpoint, _ = split_once(rest, marker)
++    script = pp_placement.MARKER + placement + "\n" + prefix + ROM_ERROR + "# Add constraints" + endpoint
++    commands = re.findall(r"^synth_design [^\n]+\n", script, re.M)
++    if len(commands) != 1:
++        raise ValueError("selected placement requires exactly one synthesis command")
++    script = script.replace(commands[0], commands[0] + pp_placement.census_tcl(placement))
++    script += pp_placement.census_tcl(placement, report=True) + REPORTS
++    script += pp_placement.scope_timing_tcl() + "\nquit\n"
++    images = inventory(gateware, source, placement)
++    (gateware / "baseline_images.json").write_text(json.dumps(images, indent=2) + "\n")
++    target = gateware / "baseline_integrated.tcl"
++    target.write_text(script)
++    print(target)
++
++
+ @contextlib.contextmanager
+ def expect_refusal(message: str, error_type: type[Exception] = ValueError) -> Iterator[None]:
+     """Require the intended refusal, never an unrelated exception."""
+@@ -530,6 +559,8 @@ def export_selftest() -> None:
+         export_inventory_selftest(gateware, source, verilog)
+         export_endpoint_selftest(gateware, standalone, log, source)
+         clock_selftest(gateware, standalone, log)
++        from pp_placement_selftest import recipe_selftest
++        recipe_selftest(gateware, standalone, log, source, verilog)
+         # Use an existing directory: no test output can be left in the tree.
+         # With the guard removed, prepare() reaches its directory mismatch;
+         # that ValueError must not count as the expected argparse refusal.
+@@ -551,6 +582,8 @@ def main(argv: list[str] | None = None) -> None:
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("gateware", type=Path, nargs="?")
+     parser.add_argument("--selftest", action="store_true")
++    parser.add_argument("--placement", choices=pp_placement.PLACEMENTS, default="all-fabric",
++                        help="measure an already integrated selected image; does not change build switches")
+     parser.add_argument("--output", type=Path)
+     parser.add_argument("--integrated-log", type=Path,
+                         help="derive standalone parameters from this synthesis log")
+@@ -576,8 +609,13 @@ def main(argv: list[str] | None = None) -> None:
+         parser.error("--synthesis-only and --attribution-only require the integrated endpoint")
+     if args.integrated_clock and not args.integrated_log:
+         parser.error("--integrated-clock requires the standalone endpoint")
+-    prepare(gateware, output, args.integrated_log, args.synthesis_only,
+-            args.attribution_only, args.integrated_clock)
++    if args.placement != "all-fabric":
++        if args.integrated_log or args.attribution_only or output != gateware:
++            parser.error("selected split placement requires an integrated endpoint without wrapper attribution")
++        prepare_split(gateware, args.synthesis_only, args.placement)
++    else:
++        prepare(gateware, output, args.integrated_log, args.synthesis_only,
++                args.attribution_only, args.integrated_clock)
+     if args.single_thread_synthesis:
+         script = output / ("baseline_ooc.tcl" if args.integrated_log else "baseline_integrated.tcl")
+         script.write_text("set_param synth.maxThreads 1\n" + script.read_text())
+diff --git a/syn/ooc/pp_baseline_mutants.py b/syn/ooc/pp_baseline_mutants.py
+index 724491201..3aa1e048c 100644
+--- a/syn/ooc/pp_baseline_mutants.py
++++ b/syn/ooc/pp_baseline_mutants.py
+@@ -5,11 +5,24 @@
+ import ast
+ from pathlib import Path
+ import subprocess
++import shutil
+ import sys
+ import tempfile
+ 
+ 
+ MUTANTS = {
++    "absolute-file recipe import broken": ('sys.path.insert(0, str(Path(__file__).resolve().parent))\n', ''),
++    "split dispatch ignored": ('    if args.placement != "all-fabric":\n', '    if False:\n'),
++    "split pre-route census omitted": (
++        'commands[0] + pp_placement.census_tcl(placement)', 'commands[0]'),
++    "split final census omitted": (
++        'pp_placement.census_tcl(placement, report=True) + REPORTS', 'REPORTS'),
++    "split timing assumes wrapper": ('pp_placement.scope_timing_tcl() + "\\nquit\\n"', 'SCOPE_TIMING + "\\nquit\\n"'),
++    "split ROM error promotion omitted": (' + prefix + ROM_ERROR + "# Add constraints"',
++                                         ' + prefix + "# Add constraints"'),
++    "split retained AECP ROM skipped": (
++        'placement == "f0-f4" and parameter == "PP_TROM_HEX_P"',
++        'placement == "f0-f4" and parameter.startswith("PP_")'),
+     "synthesis worker cap ignored": ("    if args.single_thread_synthesis:\n", "    if False:\n"),
+     "synthesis worker cap enabled by default": ("    if args.single_thread_synthesis:\n", "    if True:\n"),
+     "ROM error promotion": ("    prefix += ROM_ERROR\n", "    pass\n"),
+@@ -104,6 +117,8 @@ def main() -> None:
+             target = Path(tmp) / name / "syn/ooc/pp_baseline.py"
+             target.parent.mkdir(parents=True)
+             target.write_text(changed)
++            for sibling in ("pp_placement.py", "pp_placement_selftest.py"):
++                shutil.copy2(pristine.with_name(sibling), target.with_name(sibling))
+             result = subprocess.run([sys.executable, "-B", str(target), "--selftest"],
+                                     capture_output=True, text=True, timeout=60)
+             if (result.returncode == 0) != (change is None):
+diff --git a/syn/ooc/pp_placement.py b/syn/ooc/pp_placement.py
+new file mode 100644
+index 000000000..3760347c6
+--- /dev/null
++++ b/syn/ooc/pp_placement.py
+@@ -0,0 +1,120 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: MIT
++"""Name selected measurement populations without changing acceptance records.
++
++The post-synthesis and post-route census proves engine presence, not firmware
++ownership or mailbox wiring. Parent integration must establish those before a
++selected image is eligible for measurement (Mark II M0s, issue #640).
++"""
++
++from pathlib import Path
++import re
++
++
++PLACEMENTS = ("all-fabric", "f0-f4", "full-split")
++MARKER = "# baseline placement: "
++REPORT = "baseline_placement.tsv"
++HEADER = "placement\trole\tcount"
++# Both MAAP implementations must disappear when firmware owns MAAP.
++MODULES = {
++    "wrapper": "KL_pp_shadow",
++    "adp": "KL_adp_engine",
++    "acmp-listener": "KL_pp_acmp_listener",
++    "acmp-talker": "KL_acmp_talker",
++    "srp": "KL_srp_top",
++    "maap": "KL_maap",
++    "processor-maap": "KL_pp_maap",
++    "aecp": "KL_aecp_engine",
++    "notify": "KL_aecp_notify",
++    "mailbox": "KL_mbx",
++    "gptp": "KL_gptp_shadow",
++}
++
++
++def limits(placement: str, role: str) -> tuple[int, int]:
++    """Expected shipping, one-interface population at each selected placement."""
++    if placement not in PLACEMENTS:
++        raise ValueError(f"unknown placement: {placement}")
++    if placement == "all-fabric":
++        count = 0 if role in ("mailbox", "processor-maap") else 1
++        return count, count
++    if role in ("mailbox", "gptp"):
++        return 1, 1
++    if placement == "f0-f4":
++        if role == "wrapper":
++            return 0, 1  # AECP may remain wrapped or be instantiated directly.
++        if role in ("aecp", "notify"):
++            return 1, 1
++    return 0, 0
++
++
++def selection(script: str, requested: str) -> bool:
++    """Require explicit split intent; legacy recipes identify only all-fabric."""
++    if requested not in PLACEMENTS:
++        raise ValueError(f"unknown placement: {requested}")
++    markers = [line[len(MARKER):] for line in script.splitlines() if line.startswith(MARKER)]
++    if not markers and requested == "all-fabric":
++        return False
++    if markers != [requested]:
++        raise ValueError(f"wrong placement: requested {requested}, recipe names {markers or 'all-fabric'}")
++    return True
++
++
++def validate(directory: Path, script: str, requested: str) -> None:
++    """Refuse incomplete, duplicated or wrong-placement engine censuses by name."""
++    if not selection(script, requested):
++        return
++    lines = (directory / REPORT).read_text().splitlines()
++    if not lines or lines[0] != HEADER:
++        raise ValueError(f"placement {requested}: missing {REPORT} header")
++    counts = {}
++    for line in lines[1:]:
++        fields = line.split("\t")
++        if len(fields) != 3 or fields[0] != requested:
++            raise ValueError(f"wrong placement row: {line!r}; expected {requested}")
++        _, role, value = fields
++        if role not in MODULES or role in counts or not re.fullmatch(r"[0-9]{1,15}", value):
++            raise ValueError(f"placement {requested}: invalid or duplicate role/count: {line!r}")
++        counts[role] = int(value)
++    if counts.keys() != MODULES.keys():
++        raise ValueError(f"placement {requested}: missing roles {sorted(MODULES.keys() - counts.keys())}")
++    for role, count in counts.items():
++        low, high = limits(requested, role)
++        if not low <= count <= high:
++            raise ValueError(f"wrong placement {requested}: {role} ({MODULES[role]}) count {count}, "
++                             f"expected {low}..{high}")
++
++
++def census_tcl(placement: str, report: bool = False) -> str:
++    """Check actual retained module identities; optionally retain the final census."""
++    lines = [f"set baseline_placement {{{placement}}}"]
++    if report:
++        lines += [f"set placement_file [open {REPORT} w]", f'puts $placement_file "{HEADER}"']
++    for role, module in MODULES.items():
++        low, high = limits(placement, role)
++        lines += [
++            "set placement_cells [get_cells -quiet -hier -filter "
++            f"{{ORIG_REF_NAME == {module} || REF_NAME == {module}}}]",
++            "set placement_count [llength $placement_cells]",
++            f"if {{$placement_count < {low} || $placement_count > {high}}} {{",
++            f'  error "wrong placement {placement}: {role} ({module}) count $placement_count, expected {low}..{high}"',
++            "}",
++        ]
++        if report:
++            lines.append(f'puts $placement_file "{placement}\t{role}\t$placement_count"')
++    if report:
++        lines.append("close $placement_file")
++    return "\n".join(lines) + "\n"
++
++
++def scope_timing_tcl() -> str:
++    """Report image-internal timing without assuming a protocol wrapper exists."""
++    return '''
++set regs [get_cells -hier -filter {IS_SEQUENTIAL == 1}]
++set worst [get_timing_paths -from $regs -to $regs -max_paths 1]
++if {[llength $worst] != 1} { error "No internal timing path for selected image" }
++set tf [open baseline_scope_timing.tsv w]
++puts $tf "instance\\tsequential_cells\\tinternal_WNS_ns"
++puts $tf "image\\t[llength $regs]\\t[get_property SLACK $worst]"
++close $tf
++'''
+diff --git a/syn/ooc/pp_placement_selftest.py b/syn/ooc/pp_placement_selftest.py
+new file mode 100644
+index 000000000..8fb7758da
+--- /dev/null
++++ b/syn/ooc/pp_placement_selftest.py
+@@ -0,0 +1,246 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: MIT
++"""Selected-placement controls: execute Tcl and judge complete measurement fixtures."""
++
++import contextlib
++import copy
++import io
++import json
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++
++import pp_placement as placement
++
++
++# Independent oracle: the expected one-interface population, not limits().
++COUNTS = {
++    "all-fabric": (1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1),
++    "f0-f4": (1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1),
++    "full-split": (0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1),
++}
++ROLES = ("wrapper", "adp", "acmp-listener", "acmp-talker", "srp", "maap",
++         "processor-maap", "aecp", "notify", "mailbox", "gptp")
++MODULES = ("KL_pp_shadow", "KL_adp_engine", "KL_pp_acmp_listener", "KL_acmp_talker", "KL_srp_top",
++           "KL_maap", "KL_pp_maap", "KL_aecp_engine", "KL_aecp_notify", "KL_mbx", "KL_gptp_shadow")
++
++
++def census_text(selected: str, counts: tuple[int, ...]) -> str:
++    """Write a synthetic observed population using the independently specified roles."""
++    return "placement\trole\tcount\n" + "".join(
++        f"{selected}\t{role}\t{count}\n" for role, count in zip(ROLES, counts))
++
++
++def run_tcl(root: Path, selected: str, counts: tuple[int, ...], report: bool) -> subprocess.CompletedProcess:
++    """Execute the real census Tcl against a controlled retained-module query."""
++    observed = " ".join(f"{module} {count}" for module, count in zip(MODULES, counts))
++    script = f"set observed {{{observed}}}\n" + '''
++proc get_cells {args} {
++  global observed
++  set filter [lindex $args end]
++  if {![regexp {^ORIG_REF_NAME == (\\w+) \\|\\| REF_NAME == (\\w+)$} $filter -> original reference]
++      || $original ne $reference || ![dict exists $observed $original]} {
++    error "unexpected module identity query: $filter"
++  }
++  return [lrepeat [dict get $observed $original] instance]
++}
++'''
++    script += placement.census_tcl(selected, report)
++    path = root / "placement.tcl"
++    path.write_text(script)
++    return subprocess.run(["tclsh", str(path)], cwd=root, capture_output=True, text=True, timeout=10)
++
++
++def tcl_selftest(root: Path) -> None:
++    """Kill every retained/removed-role reversal in both census execution stages."""
++    for selected, counts in COUNTS.items():
++        for report in (False, True):
++            result = run_tcl(root, selected, counts, report)
++            if result.returncode != 0:
++                raise AssertionError(f"{selected} census control: {result.stderr}")
++            if report and (root / placement.REPORT).read_text() != census_text(selected, counts):
++                raise AssertionError("emitted placement census differs from the independent oracle")
++            for index, role in enumerate(ROLES):
++                changed = list(counts)
++                changed[index] = 2 if selected == "f0-f4" and role == "wrapper" else 1 - changed[index]
++                result = run_tcl(root, selected, tuple(changed), report)
++                if result.returncode == 0 or f"wrong placement {selected}: {role} (" not in result.stderr:
++                    raise AssertionError(f"{selected} {role}: missing named Tcl refusal: {result.stderr}")
++        print(f"placement Tcl {selected}: control and every role reversal at synthesis/route PASS")
++
++
++def recipe_selftest(gateware: Path, standalone: Path, log: Path, source: str, verilog: str) -> None:
++    """Preserve legacy recipes; allow only the selected population's removed ROMs."""
++    import pp_baseline as recipe
++    code = ("import importlib.util, sys; "
++            "spec = importlib.util.spec_from_file_location('baseline', sys.argv[1]); "
++            "module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)")
++    subprocess.run([sys.executable, "-I", "-B", "-c", code, str(Path(recipe.__file__).resolve())],
++                   cwd=gateware, check=True, capture_output=True, text=True, timeout=10)
++    recipe.prepare(gateware, gateware, None, False)
++    control = (gateware / "baseline_integrated.tcl").read_bytes()
++    recipe.main([str(gateware), "--placement", "all-fabric"])
++    if (gateware / "baseline_integrated.tcl").read_bytes() != control:
++        raise AssertionError("explicit all-fabric changed the original recipe")
++    generated = gateware / "alinx_ax7101.v"
++    try:
++        for selected, absent in (("f0-f4", ("PP_TROM_HEX_P",)),
++                                 ("full-split", ("PP_TROM_HEX_P", "PP_UCODE_HEX_P"))):
++            text = "\n".join(line for line in verilog.splitlines() if not any(key in line for key in absent))
++            generated.write_text(text)
++            recipe.main([str(gateware), "--placement", selected, "--single-thread-synthesis"])
++            script = (gateware / "baseline_integrated.tcl").read_text()
++            before = script.index("synth_design ")
++            after = script.index("# Add pre-optimize commands")
++            if not script.startswith("set_param synth.maxThreads 1\n"):
++                raise AssertionError("split recipe lost synthesis worker identity")
++            promotion = "set_msg_config -id {Synth 8-4445} -new_severity ERROR\n"
++            if script.count(promotion) != 1 or script.index(promotion) > before:
++                raise AssertionError("split recipe lost pre-synthesis ROM enforcement")
++            if not before < script.index("wrong placement") < after:
++                raise AssertionError("placement check must execute after synthesis, before implementation")
++            if script.count("wrong placement") != 22 or "baseline_pp_utilization.rpt" in script:
++                raise AssertionError("split recipe lacks both censuses or still assumes a wrapper")
++            if "No internal timing path for selected image" not in script:
++                raise AssertionError("selected image timing absent")
++            images = json.loads((gateware / "baseline_images.json").read_text())
++            if len(images) != 5 - len(absent):
++                raise AssertionError("removed protocol ROM still required or retained ROM missing")
++            with recipe.expect_refusal("ambiguous image or geometry source: GPTP_UCODE_HEX_P"):
++                generated.write_text(text.replace("GPTP_UCODE_HEX_P", "MISSING_P"))
++                recipe.inventory(gateware, source, selected)
++            generated.write_text(text)
++            for options in (["--integrated-log", str(log), "--output", str(standalone)],
++                            ["--attribution-only"], ["--output", str(standalone)]):
++                stderr = io.StringIO()
++                with contextlib.redirect_stderr(stderr), recipe.expect_refusal("2", SystemExit):
++                    recipe.main([str(gateware), "--placement", selected, *options])
++                if "selected split placement requires" not in stderr.getvalue():
++                    raise AssertionError("wrong split endpoint refusal")
++        generated.write_text(verilog.replace("PP_UCODE_HEX_P", "MISSING_P"))
++        with recipe.expect_refusal("ambiguous image or geometry source: PP_UCODE_HEX_P"):
++            recipe.inventory(gateware, source, "f0-f4")
++        tcl_selftest(gateware)
++    finally:
++        generated.write_text(verilog)
++    print("placement recipe: legacy parity, split preparation, ROM and endpoint refusals PASS")
++
++
++def selected_fixture(root: Path, selected: str) -> Path:
++    """Build a split fixture with no wrapper source or wrapper hierarchy."""
++    from pp_resource_gate_selftest import fixture
++    folder = fixture(root, "route")
++    wrapper = root / "repo/hdl/milan/KL_pp_shadow.sv"
++    datapath = wrapper.with_name("milan_datapath.sv")
++    wrapper.rename(datapath)
++    datapath.write_text("module milan_datapath; endmodule\n")
++    script = folder / "baseline_integrated.tcl"
++    script.write_text(placement.MARKER + selected + "\n" + script.read_text().replace(str(wrapper), str(datapath)))
++    hierarchy = folder / "baseline_hierarchy.rpt"
++    hierarchy.write_text("\n".join(hierarchy.read_text().splitlines()[:2]) + "\n")
++    counts = list(COUNTS[selected])
++    counts[0] = 0
++    (folder / placement.REPORT).write_text(census_text(selected, tuple(counts)))
++    return folder
++
++
++def expect_case(label: str, result: tuple[int, list[str]], status: int, reason: str) -> None:
++    """Require the precise verdict and named evidence for every planted case."""
++    code, lines = result
++    if code != status or reason not in "\n".join(lines):
++        raise AssertionError(f"{label}: wanted {status} / {reason}, got {result}")
++    print(f"placement gate {label}: expected exit {status}, {reason}: PASS")
++
++
++def gate_selftest() -> None:
++    """Compare split routes against unchanged policy and refuse mislabelled populations."""
++    import pp_resource_gate as gate
++    from pp_resource_gate_selftest import POLICY, cli, fixture, row
++    with tempfile.TemporaryDirectory(prefix="pp-placement-gate-") as tmp:
++        root = Path(tmp)
++        original = fixture(root / "base", "route")
++        entry = {"record": gate.record(original, "route"), **copy.deepcopy(POLICY)}
++        baseline = root / "baseline.json"
++        baseline.write_text(json.dumps({"endpoints": {"route-1x1": entry}}))
++        baseline_bytes = baseline.read_bytes()
++        for selected in ("f0-f4", "full-split"):
++            folder = selected_fixture(root / selected, selected)
++            arguments = (folder, "--endpoint", "route-1x1", "--baseline", baseline,
++                         "--placement", selected)
++            expect_case(selected, cli("check", *arguments), 0, f"placement {selected}")
++            recipe = folder / "baseline_integrated.tcl"
++            original_script = recipe.read_text()
++            marker = placement.MARKER + selected + "\n"
++            for label, changed in (("absent selection", original_script.replace(marker, "")),
++                                   ("duplicate selection", marker + original_script),
++                                   ("wrong selection", original_script.replace(marker,
++                                                                              placement.MARKER + "all-fabric\n"))):
++                recipe.write_text(changed)
++                expect_case(selected + " " + label, cli("check", *arguments), 2, "recipe names")
++            recipe.write_text(original_script)
++            candidate = gate.record(folder, "route", selected)
++            if gate.shape_problems(selected, {"record": candidate, **POLICY}):
++                raise AssertionError("split measurement departed from the existing acceptance record shape")
++            script = recipe.read_text()
++            if gate.inputs(folder, script, "f0-f4") == gate.inputs(folder, script, "full-split"):
++                raise AssertionError("input identity omits selected placement")
++            if candidate["identity"] != entry["record"]["identity"] or "image" not in candidate["scopes"]:
++                raise AssertionError("split measurement changed flow identity or omitted whole-image scopes")
++            if "no scope deltas claimed" not in "\n".join(gate.scope_deltas(entry["record"]["scopes"],
++                                                                                          candidate["scopes"])):
++                raise AssertionError("changed attribution roots reported as engine-removal savings")
++            expect_case(selected + " unselected", cli("check", folder, "--endpoint", "route-1x1",
++                                                       "--baseline", baseline), 2, "wrong placement")
++            expect_case(selected + " re-record", cli("record", *arguments, "--write"), 2, "M9")
++            gate_refusals(folder, selected, arguments)
++            for figure, before, after, reason in (("RAMB36", 4, 5, "RAMB36"),
++                                                  ("BRAM_TILE", 4.5, 5.5, "ceiling"),
++                                                  ("LUT", 1000, 1011, "LUT")):
++                filename, old, new = row(figure, before, after)
++                report = folder / filename
++                pristine = report.read_text()
++                report.write_text(pristine.replace(old, new))
++                expect_case(selected + " " + reason, cli("check", *arguments), 1, reason)
++                report.write_text(pristine)
++            for filename, old, new, reason in (
++                    ("baseline_timing.rpt", "0.100", "-0.001", "WHS_ns"),
++                    ("alinx_ax7101_route_status.rpt", "fully routed nets............. :         100",
++                     "fully routed nets............. :          99", "ROUTE INCOMPLETE"),
++                    ("baseline_utilization.rpt", "Build 6511674", "Build 6511675", "tool or recipe change")):
++                report = folder / filename
++                pristine = report.read_text()
++                report.write_text(pristine.replace(old, new))
++                expect_case(selected + " " + reason, cli("check", *arguments),
++                            2 if "recipe" in reason else 1, reason)
++                report.write_text(pristine)
++        if baseline.read_bytes() != baseline_bytes:
++            raise AssertionError("selected measurements changed acceptance baseline")
++        print("placement gate: unchanged acceptance schema, record and policy PASS")
++
++
++def gate_refusals(folder: Path, selected: str, arguments: tuple) -> None:
++    """Plant wrong ownership, missing evidence and malformed role counts independently."""
++    from pp_resource_gate_selftest import cli
++    report = folder / placement.REPORT
++    original = report.read_text()
++    counts = list(COUNTS[selected])
++    counts[0] = 0
++    plants = [("missing census", None, placement.REPORT),
++              ("wrong header", original.replace("placement\trole", "placement\towner"), "header"),
++              ("wrong placement", original.replace(selected, "all-fabric"), "wrong placement"),
++              ("missing wrapper row", "\n".join(line for line in original.splitlines()
++                                                 if "\twrapper\t" not in line), "missing roles"),
++              ("duplicate row", original + original.splitlines()[1] + "\n", "duplicate"),
++              ("invalid count", original.replace("\t0\n", "\t-1\n", 1), "invalid")]
++    for index, role in enumerate(ROLES):
++        changed = counts.copy()
++        changed[index] = 2 if selected == "f0-f4" and role == "wrapper" else 1 - changed[index]
++        plants.append((role, census_text(selected, tuple(changed)), f"{role} ({MODULES[index]})"))
++    for label, text, reason in plants:
++        if text is None:
++            report.unlink()
++        else:
++            report.write_text(text)
++        expect_case(selected + " " + label, cli("check", *arguments), 2, reason)
++        report.write_text(original)
+diff --git a/syn/ooc/pp_resource_gate.py b/syn/ooc/pp_resource_gate.py
+index 1d2ba6402..10d2f495b 100644
+--- a/syn/ooc/pp_resource_gate.py
++++ b/syn/ooc/pp_resource_gate.py
+@@ -61,6 +61,7 @@ import sys
+ import tempfile
+ 
+ from pp_baseline_rank import hierarchy, shown, whole
++import pp_placement
+ 
+ 
+ BASELINE = Path(__file__).with_name("pp_resource_baseline.json")
+@@ -165,15 +166,19 @@ def timing(text: str) -> dict[str, float]:
+     return {"WNS_ns": real(values[0], "WNS"), "WHS_ns": real(values[4], "WHS")}
+ 
+ 
+-def located(directory: Path, script: str) -> tuple[list[Path], tuple[str, ...]]:
++def located(directory: Path, script: str, placement: str = "all-fabric") -> tuple[list[Path], tuple[str, ...]]:
+     """Resolve every read or sourced file and the roots a generated file may name."""
+     sources = [Path(name) if Path(name).is_absolute() else directory / name
+                for name in READS.findall(script)]
+     generated = [path.parent for path in sources if path.name == "alinx_ax7101.v"]
+     repository = [path.parents[2] for path in sources
+                   if path.name == "KL_pp_shadow.sv" and path.parent.name == "milan" and len(path.parents) > 2]
++    if not repository and placement != "all-fabric":
++        repository = [path.parents[2] for path in sources
++                      if path.name == "milan_datapath.sv" and path.parent.name == "milan" and len(path.parents) > 2]
+     if len(generated) != 1 or len(repository) != 1:
+-        raise Refusal("the script must read exactly one generated top and one KL_pp_shadow.sv")
++        raise Refusal("the script must read exactly one generated top and one KL_pp_shadow.sv "
++                      "(or milan_datapath.sv for a selected split)")
+     headers = []
+     for group in INCLUDES.findall(script):
+         for folder in (Path(name) for name in group.split()):
+@@ -183,9 +188,9 @@ def located(directory: Path, script: str) -> tuple[list[Path], tuple[str, ...]]:
+     return sources + headers, (str(generated[0]), str(repository[0]), str(directory))
+ 
+ 
+-def inputs(directory: Path, script: str) -> str:
++def inputs(directory: Path, script: str, placement: str = "all-fabric") -> str:
+     """Digest every design input in script order, independent of where it was built."""
+-    files, roots = located(directory, script)
++    files, roots = located(directory, script, placement)
+     digest = hashlib.sha256()
+     for path in files:
+         if not path.is_file():
+@@ -206,6 +211,8 @@ def inputs(directory: Path, script: str) -> str:
+         raise Refusal("baseline_images.json is not a list of path and sha256 entries")
+     for image in sorted(images, key=lambda row: Path(row["path"]).name):
+         digest.update(f"{Path(image['path']).name}\0{image['sha256']}\0".encode())
++    if placement != "all-fabric":
++        digest.update(f"placement\0{placement}\0".encode())
+     return digest.hexdigest()
+ 
+ 
+@@ -240,10 +247,11 @@ def census(directory: Path) -> dict[str, int]:
+     return carry
+ 
+ 
+-def scopes(directory: Path, kind: str, carry: dict[str, int]) -> dict[str, dict[str, int]]:
+-    """Per-instance LUT, FF, RAMB, DSP and CARRY4 for the wrapper and three levels below."""
++def scopes(directory: Path, kind: str, carry: dict[str, int],
++           placement: str = "all-fabric") -> dict[str, dict[str, int]]:
++    """Count three hierarchy levels below the legacy wrapper or selected image."""
+     rows = hierarchy(directory / "baseline_hierarchy.rpt")
+-    root = ROOTS[kind]
++    root = ROOTS[kind] if placement == "all-fabric" else "alinx_ax7101"
+     if root not in rows:
+         raise Refusal(f"hierarchy report has no {root}")
+     result = {}
+@@ -251,6 +259,8 @@ def scopes(directory: Path, kind: str, carry: dict[str, int]) -> dict[str, dict[
+         inside = key == root or key.startswith(root + "/")
+         if inside and not key.endswith("/@own") and key.count("/") <= root.count("/") + 3:
+             relative = key.removeprefix(root).lstrip("/") or "wrapper"
++            if placement != "all-fabric":
++                relative = "image" + ("/" + key.removeprefix(root).lstrip("/") if key != root else "")
+             cells = key.split("/", 1)[1] if "/" in key else ""
+             result[relative] = {name: counts[name] for name in ("LUT", "FF", "RAMB36", "RAMB18", "DSP")}
+             result[relative]["CARRY4"] = carry.get(cells, 0)
+@@ -265,18 +275,21 @@ def kind_of(directory: Path) -> str:
+     return kinds[0]
+ 
+ 
+-def record(directory: Path, kind: str) -> dict:
++def record(directory: Path, kind: str, placement: str = "all-fabric") -> dict:
+     """Read one recipe measurement directory into a comparable record."""
+     try:
+         script = (directory / SCRIPTS[kind]).read_text()
++        if placement != "all-fabric" and kind != "route":
++            raise Refusal("selected split placement requires an integrated route")
++        pp_placement.validate(directory, script, placement)
+         report = (directory / "baseline_utilization.rpt").read_text()
+         figures = utilization(report, kind)
+         figures.update(timing((directory / "baseline_timing.rpt").read_text()))
+         carry = census(directory)
+         figures["CARRY4"] = carry[""]
+         return {"kind": kind, "identity": identity(directory, script, report),
+-                "inputs_sha256": inputs(directory, script), "figures": figures,
+-                "scopes": scopes(directory, kind, carry)}
++                "inputs_sha256": inputs(directory, script, placement), "figures": figures,
++                "scopes": scopes(directory, kind, carry, placement)}
+     except (OSError, ValueError, KeyError, IndexError, TypeError, RecursionError) as error:
+         raise Refusal(f"unreadable measurement {directory}: {type(error).__name__}: {error}") from error
+ 
+@@ -368,6 +381,8 @@ def verdict_for(entry: dict, figure: str, before: float, after: float) -> tuple[
+ 
+ def scope_deltas(before: dict, after: dict) -> list[str]:
+     """List the largest sub-block LUT and FF movements; reported, never gated."""
++    if ("image" in before) != ("image" in after):
++        return ["sub-block attribution roots differ: selected image versus wrapper; no scope deltas claimed"]
+     moves = []
+     for key in sorted(set(before) | set(after)):
+         old, new = before.get(key, {}), after.get(key, {})
+@@ -686,6 +701,8 @@ def main(argv: list[str] | None = None) -> int:
+     parser.add_argument("command", nargs="?", choices=("check", "record", "check-baseline"))
+     parser.add_argument("directory", type=Path, nargs="?")
+     parser.add_argument("--endpoint")
++    parser.add_argument("--placement", choices=pp_placement.PLACEMENTS, default="all-fabric",
++                        help="candidate placement; split routes compare with the unchanged route endpoint")
+     parser.add_argument("--baseline", type=Path, default=BASELINE)
+     parser.add_argument("--budget", type=Path, default=BUDGET, help="check-baseline: the page with the policy table")
+     parser.add_argument("--write", action="store_true", help="record: replace the endpoint's recorded figures")
+@@ -696,8 +713,14 @@ def main(argv: list[str] | None = None) -> int:
+     args = parser.parse_args(argv)
+     if args.selftest:
+         from pp_resource_gate_selftest import selftest
+-        return selftest()
++        result = selftest()
++        if result == 0:
++            from pp_placement_selftest import gate_selftest
++            gate_selftest()
++        return result
+     if args.fuzz is not None:
++        if args.placement != "all-fabric":
++            parser.error("--fuzz uses the all-fabric fixtures; split controls run under --selftest")
+         if args.directory is not None and args.endpoint is None:
+             parser.error("--fuzz on a measurement directory needs its --endpoint")
+         return fuzz(args.fuzz, args.seed, args.directory, args.endpoint, args.baseline, args.budget)
+@@ -705,6 +728,9 @@ def main(argv: list[str] | None = None) -> int:
+         parser.error("name a command, and for check or record a directory and an --endpoint")
+     printing = args.command == "record" and not args.write
+     try:
++        if args.placement != "all-fabric" and (args.write or args.command == "check-baseline"):
++            raise Refusal("selected placement supports intermediate measurement only; "
++                          "acceptance re-record belongs to M9")
+         baseline = {"endpoints": {}} if printing else load(args.baseline)
+         if args.command == "check-baseline":
+             problems = check_baseline(baseline, args.budget)
+@@ -718,7 +744,7 @@ def main(argv: list[str] | None = None) -> int:
+         if problems:
+             raise Refusal(f"baseline endpoint {args.endpoint} is unusable: {'; '.join(problems)}")
+         directory = args.directory.resolve()
+-        candidate = record(directory, kind_of(directory))
++        candidate = record(directory, kind_of(directory), args.placement)
+         unrouted = routing(directory, candidate["kind"]) if args.command == "check" else []
+         if args.command == "record":
+             emit([json.dumps(candidate, indent=1)])
+@@ -729,7 +755,8 @@ def main(argv: list[str] | None = None) -> int:
+                 args.baseline.write_text(text)
+             return 0
+         status, lines = judge(baseline["endpoints"][args.endpoint], candidate, unrouted)
+-        emit([f"endpoint {args.endpoint}: {args.directory}", *lines])
++        selected = [f"placement {args.placement}: intermediate comparison"] if args.placement != "all-fabric" else []
++        emit([f"endpoint {args.endpoint}: {args.directory}", *selected, *lines])
+         return status
+     except Exception as error:  # the barrier: whatever escapes, expected or not, is a reason and exit 2
+         emit([f"NOT COMPARABLE: {error if isinstance(error, Refusal) else f'{type(error).__name__}: {error}'}"])
+diff --git a/syn/ooc/pp_resource_gate_mutants.py b/syn/ooc/pp_resource_gate_mutants.py
+index 5af55edbb..2f1a0f9d5 100644
+--- a/syn/ooc/pp_resource_gate_mutants.py
++++ b/syn/ooc/pp_resource_gate_mutants.py
+@@ -92,7 +92,9 @@ MUTANTS = {
+     "generated-file roots": ('                text = text.replace(root, f"$ROOT{index}")\n', "                pass\n"),
+     "one generated top": ("    if len(generated) != 1 or len(repository) != 1:\n",
+                           "    if not generated or not repository:\n"),
+-    "wrapper source depth": (' and len(path.parents) > 2]', "]"),
++    "wrapper source depth": (
++        'path.name == "KL_pp_shadow.sv" and path.parent.name == "milan" and len(path.parents) > 2]',
++        'path.name == "KL_pp_shadow.sv" and path.parent.name == "milan"]'),
+     "read source presence": ("        if not path.is_file():\n", "        if False:\n"),
+     "include directory presence": ("            if not folder.is_dir():\n", "            if False:\n"),
+     "include headers": (
+@@ -137,8 +139,8 @@ MUTANTS = {
+                      '    print(text if True else "".join(char if char == "\\n"'),
+     "record --write validated": ("                load(args.baseline, text)  # never write",
+                                  "                pass  # never write"),
+-    "kind from the directory": ("        candidate = record(directory, kind_of(directory))\n",
+-                                '        candidate = record(directory, "route")\n'),
++    "kind from the directory": ("        candidate = record(directory, kind_of(directory), args.placement)\n",
++                                '        candidate = record(directory, "route", args.placement)\n'),
+     "unreadable baseline": ('raise Refusal(f"baseline {path} is unreadable: {error}") from error', "raise"),
+     "baseline NaN and Infinity": ("parse_constant=constant, ", ""),
+     "baseline decimals converted": ("parse_float=decimal,", ""),
+@@ -278,6 +280,16 @@ RANK_MUTANTS = {
+ }
+ 
+ 
++PLACEMENT_MUTANTS = {
++    "placement selection ignored": ('    if markers != [requested]:\n', '    if False:\n'),
++    "placement census ignored": ('    if not selection(script, requested):\n', '    if True:\n'),
++    "placement count limits ignored": ('        if not low <= count <= high:\n', '        if False:\n'),
++    "placement role completeness ignored": ('    if counts.keys() != MODULES.keys():\n', '    if False:\n'),
++    "placement row identity ignored": ('len(fields) != 3 or fields[0] != requested', 'len(fields) != 3'),
++    "placement duplicate role accepted": ('role not in MODULES or role in counts or', 'role not in MODULES or'),
++}
++
++
+ def run(tmp: Path, here: Path, name: str, target: str, change: tuple[str, str] | None) -> str:
+     """Apply one mutant to a copy of the three modules and require its self-test verdict; return the result."""
+     source = (here / target).read_text()
+@@ -290,7 +302,8 @@ def run(tmp: Path, here: Path, name: str, target: str, change: tuple[str, str] |
+     ast.parse(changed)
+     folder = tmp / name.replace(" ", "_")
+     folder.mkdir()
+-    for sibling in ("pp_resource_gate.py", "pp_baseline_rank.py", "pp_resource_gate_selftest.py"):
++    for sibling in ("pp_resource_gate.py", "pp_baseline_rank.py", "pp_resource_gate_selftest.py",
++                    "pp_placement.py", "pp_placement_selftest.py"):
+         shutil.copy2(here / sibling, folder / sibling)
+     (folder / target).write_text(changed)
+     result = subprocess.run([sys.executable, "-B", str(folder / "pp_resource_gate.py"), "--selftest"],
+@@ -305,12 +318,13 @@ def main() -> None:
+     here = Path(__file__).resolve().parent
+     jobs = [("control", "pp_resource_gate.py", None),
+             *((name, "pp_resource_gate.py", change) for name, change in MUTANTS.items()),
+-            *((name, "pp_baseline_rank.py", change) for name, change in RANK_MUTANTS.items())]
++            *((name, "pp_baseline_rank.py", change) for name, change in RANK_MUTANTS.items()),
++            *((name, "pp_placement.py", change) for name, change in PLACEMENT_MUTANTS.items())]
+     with tempfile.TemporaryDirectory(prefix="pp-resource-gate-mutants-") as tmp, \
+             concurrent.futures.ThreadPoolExecutor(os.cpu_count() or 1) as pool:
+         for line in pool.map(lambda job: run(Path(tmp), here, *job), jobs):
+             print(line)
+-    print(f"resource gate mutants: control passes, all {len(MUTANTS) + len(RANK_MUTANTS)} mutants fail")
++    print(f"resource gate mutants: control passes, all {len(jobs) - 1} mutants fail")
+ 
+ 
+ if __name__ == "__main__":

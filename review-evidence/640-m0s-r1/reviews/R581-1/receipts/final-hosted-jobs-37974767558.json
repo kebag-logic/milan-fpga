@@ -1,0 +1,249 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 113970148040,
+      "run_id": 37974767558,
+      "workflow_name": "elaborate",
+      "head_branch": "640-m0s",
+      "run_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/37974767558",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOP42Xbc8AAAAaiSZyyA",
+      "head_sha": "bc89f84e6757f8fcddf21958e99f40f17bc0ee1e",
+      "url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/jobs/113970148040",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37974767558/job/113970148040",
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-09T18:39:13Z",
+      "started_at": "2026-10-09T18:41:36Z",
+      "completed_at": null,
+      "name": "elaborate",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-09T18:41:37Z",
+          "completed_at": "2026-10-09T18:41:37Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-09T18:41:37Z",
+          "completed_at": "2026-10-09T18:41:53Z"
+        },
+        {
+          "name": "Decide whether this head needs an elaboration",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-09T18:41:53Z",
+          "completed_at": "2026-10-09T18:42:03Z"
+        },
+        {
+          "name": "Fetch the source dependencies the elaboration reads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-09T18:42:03Z",
+          "completed_at": "2026-10-09T18:42:05Z"
+        },
+        {
+          "name": "Install the pinned sv2v release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-09T18:42:05Z",
+          "completed_at": "2026-10-09T18:42:05Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-09T18:42:05Z",
+          "completed_at": "2026-10-09T18:42:05Z"
+        },
+        {
+          "name": "Cache the pinned pip downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-09T18:42:05Z",
+          "completed_at": "2026-10-09T18:42:06Z"
+        },
+        {
+          "name": "Install LiteX at the pinned revisions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-09T18:42:06Z",
+          "completed_at": "2026-10-09T18:42:29Z"
+        },
+        {
+          "name": "Cache the Scala toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-09T18:42:29Z",
+          "completed_at": "2026-10-09T18:42:31Z"
+        },
+        {
+          "name": "Cache the generated CPU metadata",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-09T18:42:31Z",
+          "completed_at": "2026-10-09T18:42:31Z"
+        },
+        {
+          "name": "Install sbt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-09T18:42:31Z",
+          "completed_at": "2026-10-09T18:42:33Z"
+        },
+        {
+          "name": "Place the VexiiRiscv source at the revision LiteX pins",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-09T18:42:33Z",
+          "completed_at": "2026-10-09T18:42:38Z"
+        },
+        {
+          "name": "Apply the toolchain patch series",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-09T18:42:38Z",
+          "completed_at": "2026-10-09T18:42:38Z"
+        },
+        {
+          "name": "Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-09T18:42:38Z",
+          "completed_at": "2026-10-09T18:42:40Z"
+        },
+        {
+          "name": "Install and verify the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-09T18:42:40Z",
+          "completed_at": "2026-10-09T18:42:43Z"
+        },
+        {
+          "name": "Elaboration gates",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 16,
+          "started_at": "2026-10-09T18:42:43Z",
+          "completed_at": null
+        },
+        {
+          "name": "Cache the pinned Verilator build",
+          "status": "pending",
+          "conclusion": null,
+          "number": 17,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Build Verilator from source on cache miss",
+          "status": "pending",
+          "conclusion": null,
+          "number": 18,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Put Verilator on PATH and prove the version",
+          "status": "pending",
+          "conclusion": null,
+          "number": 19,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Standalone LiteX simulation aggregate",
+          "status": "pending",
+          "conclusion": null,
+          "number": 20,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Keep the generated CPU netlist arguments for the next run",
+          "status": "pending",
+          "conclusion": null,
+          "number": 21,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache the pinned RV32 SDK",
+          "status": "pending",
+          "conclusion": null,
+          "number": 37,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache the generated CPU metadata",
+          "status": "pending",
+          "conclusion": null,
+          "number": 38,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache the Scala toolchain",
+          "status": "pending",
+          "conclusion": null,
+          "number": 39,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache the pinned pip downloads",
+          "status": "pending",
+          "conclusion": null,
+          "number": 40,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "pending",
+          "conclusion": null,
+          "number": 41,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "pending",
+          "conclusion": null,
+          "number": 42,
+          "started_at": null,
+          "completed_at": null
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/113970148040",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000026525,
+      "runner_name": "GitHub Actions 1000026525",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}
