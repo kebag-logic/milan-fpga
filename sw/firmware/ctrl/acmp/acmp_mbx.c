@@ -12,6 +12,7 @@
 // many entries as the core has sinks (the contract's bound_talkers).
 _Static_assert(MBX_N_TIMERS >= MBX_N_IF, "every interface needs a timer slot");
 _Static_assert(ACMP_MAX_SINKS <= MBX_N_BOUND, "every sink needs a bound-talker entry");
+_Static_assert(ACMP_MAX_SINKS <= MBX_N_PUB_SINKS, "every sink needs a publication entry");
 
 static bool port_send(void *ctx, unsigned interface, const uint8_t *frame, size_t len)
 {
@@ -62,6 +63,15 @@ static void port_admit(void *ctx, unsigned interface, unsigned sink, bool bound,
 	(void)mbx_filter_set_bound_talker(interface, sink, bound, talker_entity_id);
 }
 
+// Sink k is entry k of its interface's publication block, as of its
+// bound-talker table: the sinks fit (above) and the interfaces are the
+// mailbox's, so the driver's refusal never applies.
+static void port_publish(void *ctx, unsigned interface, unsigned sink, bool bound, uint64_t stream_id)
+{
+	(void)ctx;
+	(void)mbx_pub_sink(interface, sink, bound, stream_id);
+}
+
 bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const struct acmp_env *env,
 		   unsigned first_slot)
 {
@@ -78,6 +88,7 @@ bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const stru
 	m->ports.gptp = port_gptp;
 	m->ports.seed = port_seed;
 	m->ports.admit = port_admit;
+	m->ports.publish = port_publish;
 	for (unsigned k = 0; k < MBX_N_IF; ++k) {
 		m->ifs[k].slot = (uint8_t)(first_slot + k);
 	}

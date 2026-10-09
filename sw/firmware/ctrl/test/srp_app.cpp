@@ -146,6 +146,12 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
 } // namespace
 
 namespace {
+// The writes a callback makes into the publication block (contract 2.2).
+uint64_t pub_block_writes;
+void count_pub_writes(void*, bool write, uint32_t off, uint32_t) {
+    if (write && off>=MBX_PUB_BASE && off<MBX_PUB_BASE+MBX_N_IF*MBX_PUB_STRIDE) ++pub_block_writes;
+}
+
 TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     settle();
     auto poll=[&] { return srp_cost(model,[&]{loop.polls[0].fn(loop.polls[0].ctx);}); };
@@ -153,12 +159,18 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     EXPECT_EQ(idle,MBX_N_IF) << "one link read per interface";
     uint64_t reset_extra=0;
     uint64_t retry_extra=0;
+    uint64_t reset_pub=0;
     // Reset and retained reception are mutually exclusive on one interface.
     // Measure both branches separately, then add their increments to the one
-    // common link read. This reaches the conservative four-read envelope.
+    // common link read. This reaches the conservative four-read envelope;
+    // the reset's publication writes are the publication term's, counted apart.
     for (unsigned i=0;i<MBX_N_IF;++i) {
         mbx_model_set_link(&model,i,false);
+        pub_block_writes=0; mbx_host_trace(count_pub_writes,nullptr);
         reset_extra+=poll()-idle;
+        mbx_host_trace(nullptr,nullptr);
+        reset_pub+=pub_block_writes;
+        reset_extra-=pub_block_writes;
         settle();
         mbx_model_set_link(&model,i,true); settle();
         const auto f=frame(4,{6,3,0,7},0);
@@ -173,7 +185,10 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     }
     const uint64_t fixed=idle+reset_extra+retry_extra;
     EXPECT_EQ(fixed,MBX_N_IF*4u) << "fixed poll branch envelope";
-    EXPECT_LE(static_cast<int64_t>(fixed),static_cast<int64_t>(SRP_MBX_POLL_MAX)-2*MBX_N_IF*SRP_MBX_TX_MAX)
+    EXPECT_EQ(reset_pub,MBX_N_IF*SRP_MBX_PUB_RESET) << "a reset publishes LICENCE, SR_DOMAIN and IDLE_SLOPE once each";
+    const int64_t pub_term=static_cast<int64_t>(MBX_N_IF*SRP_MBX_PUB_POLL_MAX);
+    EXPECT_LE(static_cast<int64_t>(fixed),
+              static_cast<int64_t>(SRP_MBX_POLL_MAX)-pub_term-2*MBX_N_IF*SRP_MBX_TX_MAX)
         << "poll fixed term is funded independently";
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
     srp_probe={&model,0,0,0,true};
@@ -184,12 +199,44 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     EXPECT_EQ(observed.sends,observed.calls) << "every call reached real send_pdu";
     EXPECT_EQ(transmitting,idle+observed.accesses) << "transmitting poll adds only measured sends";
     EXPECT_LE(static_cast<int64_t>(observed.calls),
-              (static_cast<int64_t>(SRP_MBX_POLL_MAX)-static_cast<int64_t>(fixed))/SRP_MBX_TX_MAX)
+              (static_cast<int64_t>(SRP_MBX_POLL_MAX)-static_cast<int64_t>(fixed)-pub_term)/SRP_MBX_TX_MAX)
         << "poll transmit count is funded independently";
-    EXPECT_LE(fixed+observed.accesses,SRP_MBX_POLL_MAX) << "measured complete poll envelope";
+    EXPECT_LE(fixed+reset_pub+observed.accesses,SRP_MBX_POLL_MAX) << "measured complete poll envelope";
     std::printf("  SRP poll terms: fixed %u, calls %u, real send accesses %u, envelope %u/%u\n",
                 unsigned(fixed),observed.calls,unsigned(observed.accesses),
                 unsigned(fixed+observed.accesses),SRP_MBX_POLL_MAX);
+}
+
+// Each publication a poll may make, measured through the real callbacks: a
+// reset's three writes, a Domain adoption's two, one before each licence
+// change. SRP_MBX_PUB_POLL_MAX funds a reset, an adoption and two licence
+// changes for every source the publication block holds.
+TEST_F(Srp, PollPublicationTermIsMeasuredThroughRealCallbacks) {
+    settle();
+    auto pub=[&](auto action) {
+        pub_block_writes=0; mbx_host_trace(count_pub_writes,nullptr);
+        action();
+        mbx_host_trace(nullptr,nullptr);
+        return pub_block_writes;
+    };
+    auto poll=[&] { loop.polls[0].fn(loop.polls[0].ctx); };
+    mbx_model_set_link(&model,0,false);
+    const auto reset=pub(poll);
+    EXPECT_EQ(reset,SRP_MBX_PUB_RESET) << "a reset publishes LICENCE, SR_DOMAIN and IDLE_SLOPE once each";
+    mbx_model_set_link(&model,0,true); settle();
+    receive_before_poll(frame(4,{6,4,0,3},0));
+    const auto adoption=pub(poll);
+    EXPECT_EQ(adoption,2u) << "a Domain adoption publishes SR_DOMAIN and IDLE_SLOPE once each";
+    settle(); advance(200);
+    EXPECT_CALL(licence,Change(0,0,true));
+    receive_before_poll(frame(3,identity(0),1,2));
+    const auto grant=pub(poll);
+    EXPECT_EQ(grant,1u) << "a licence change publishes LICENCE once, before it is reported";
+    EXPECT_LE(reset+adoption+2u*MBX_N_PUB_SOURCES*grant,SRP_MBX_PUB_POLL_MAX)
+        << "the poll's publication term funds a reset, an adoption and two changes per source";
+    std::printf("  SRP publication terms: reset %u, adoption %u, licence change %u, term %u\n",
+                unsigned(reset),unsigned(adoption),unsigned(grant),SRP_MBX_PUB_POLL_MAX);
+    EXPECT_CALL(licence,Change(0,0,false));
 }
 
 TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
@@ -203,7 +250,7 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
     const auto events0=loop.stats.events;
     const auto events=srp_cost(model,[&]{ctrl_loop_service(&loop);});
     ASSERT_EQ(loop.stats.events-events0,CTRL_LOOP_EVENTS_PER_PASS);
-    EXPECT_EQ(events,CTRL_LOOP_EVENTS_PER_PASS*(MBX_EV_WORDS+2u+1u));
+    EXPECT_EQ(events,CTRL_LOOP_EVENTS_PER_PASS*(MBX_EV_WORDS+2u+1u+SRP_MBX_PUB_RESET));
     EXPECT_LE(static_cast<int64_t>(events),static_cast<int64_t>(SRP_MBX_PASS_MAX)-
               CTRL_LOOP_RX_PER_PASS*(SRP_MBX_RX_RECORD_MAX+SRP_MBX_RX_MAX)-SRP_MBX_POLL_MAX)
         << "pass event records are funded independently";
@@ -225,10 +272,10 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
     const auto receive_envelope=rx-1u+CTRL_LOOP_RX_PER_PASS;
     EXPECT_LE(static_cast<int64_t>(receive_envelope),static_cast<int64_t>(SRP_MBX_PASS_MAX)-events-SRP_MBX_POLL_MAX)
         << "pass receive count is funded independently";
-    const auto pass_envelope=events+receive_envelope+MBX_N_IF*(4u+2u*SRP_MBX_TX_MAX);
+    const auto pass_envelope=events+receive_envelope+MBX_N_IF*(4u+SRP_MBX_PUB_POLL_MAX+2u*SRP_MBX_TX_MAX);
     EXPECT_LE(pass_envelope,SRP_MBX_PASS_MAX) << "pass funds the independently measured poll envelope";
     std::printf("  SRP pass terms: event %u, receive %u, poll %u, envelope %u/%u\n",
-                unsigned(events),unsigned(receive_envelope),MBX_N_IF*(4u+2u*SRP_MBX_TX_MAX),
+                unsigned(events),unsigned(receive_envelope),MBX_N_IF*(4u+SRP_MBX_PUB_POLL_MAX+2u*SRP_MBX_TX_MAX),
                 unsigned(pass_envelope),SRP_MBX_PASS_MAX);
     loop.n_polls=1;
 }

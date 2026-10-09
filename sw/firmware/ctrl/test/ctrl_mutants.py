@@ -467,6 +467,112 @@ def unnamed_tests(test_dir: Path = Path(__file__).resolve().parent) -> list[str]
 
 MUTANTS += maap_mutants(Mutant)
 
+#: Lane F-INT: the publication block (#665, comment 6088423771). Each writer
+#: has a publish moved after what promises the value, a wrong field and a
+#: skipped publish; the driver's encoding and the model's twin of the RTL's
+#: rules are planted too. Each is killed by a test that names it.
+PUB_SINK_FIRST_WRITE = ("\tmbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);\n"
+                        "\tif (stream_id != 0u) {")
+ACMP_TRANSMIT = "\tpublish(a);\n\tif (a->owed_count == 0u && p_send(a, interface, frame)) {\n\t\treturn SENT;\n\t}"
+ACMP_PUB_STREAM = "uint64_t stream = settled ? s->stream.stream_id : 0u;"
+MAAP_GATE = "\t(void)mbx_pub_da_gate(interface, valid ? (uint32_t)((1u << count) - 1u) : 0u);\n"
+MAAP_REPORT = "\tm->allocation(m->allocation_ctx, interface, base, count, valid);"
+A31 = "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
+B10 = "AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse"
+MUTANTS += (
+    # the driver's encoding of each register
+    Mutant("pub-sid-valid-set-first", "mbx/mbx.c", PUB_SINK_FIRST_WRITE,
+           PUB_SINK_FIRST_WRITE.replace("binding);", "binding |\n\t\t\t(stream_id != 0u ? mbx_place(1u, "
+                                        "MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) : 0u));"),
+           "unit", "DriverUnit.D14PublicationBlock", "D14 SID_VALID is clear while the stream_id is written"),
+    Mutant("pub-sid-halves-swapped", "mbx/mbx.c", "mbx_place((uint32_t)stream_id, MBX_SID_LO_SID_LSB",
+           "mbx_place((uint32_t)(stream_id >> 32), MBX_SID_LO_SID_LSB",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 SID_LO holds stream_id[31:0]"),
+    Mutant("pub-domain-priority-and-vid-swapped", "mbx/mbx.c",
+           "mbx_place(vid, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |\n"
+           "\t\t\tmbx_place(priority, MBX_SR_DOMAIN_PRIORITY_LSB",
+           "mbx_place(priority, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |\n"
+           "\t\t\tmbx_place(vid, MBX_SR_DOMAIN_PRIORITY_LSB",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields"),
+    Mutant("pub-licence-in-the-da-gate", "mbx/mbx.c", "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
+           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_DA_GATE),",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 LICENCE.ACTIVE holds the licences"),
+    Mutant("pub-sink-past-the-block", "mbx/mbx.c", "if (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {",
+           "if (interface >= MBX_N_IF) {",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 a sink past the block's is refused"),
+    # the host model's twins of the RTL's rules (tb/verilator/mbx/mutants.py)
+    Mutant("model-pub-sid-not-gated", "host/mbx_model.c",
+           "\t\tif (mbx_field(binding, MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) != 0u) {",
+           "\t\tif (true) {",
+           "model", MODEL_GROUP + "Publication", "P3 with SID_VALID clear the datapath reads the stream_id as 0"),
+    Mutant("model-pub-hole-takes-a-write", "host/mbx_model.c", "m->pub[i][reg / 4u] = value & pub_mask(reg);",
+           "m->pub[i][reg / 4u] = value | (pub_mask(reg) & 0u);",
+           "model", MODEL_GROUP + "Publication", "P4 every hole of every interface block"),
+    Mutant("model-pub-every-sink-reads-entry-0", "host/mbx_model.c",
+           "(MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u", "MBX_PUB_SINK_BASE / 4u",
+           "model", MODEL_GROUP + "Publication", "P2 every field reaches the datapath on its own output"),
+    # ACMP: the binding published after the response that promises it, the
+    # end-of-entry publication skipped, wrong fields, the port unguarded
+    Mutant("pub-acmp-after-the-response", "acmp/acmp.c", ACMP_TRANSMIT,
+           "\tif (a->owed_count == 0u && p_send(a, interface, frame)) {\n\t\tpublish(a);\n\t\treturn SENT;\n"
+           "\t}\n\tpublish(a);",
+           "acmp", A31, "A31 the binding is published before the BIND_RX response",
+           (("acmp", B10, "B10 BINDING is written before the BIND_RX response's TX_HEAD commit"),)),
+    Mutant("pub-acmp-skipped-at-the-end-of-an-entry", "acmp/acmp.c", "\tpublish(a);\n\trearm(a);", "\trearm(a);",
+           "acmp", A31, "A31 a PROBE_TX_RESPONSE that settles publishes the stream",
+           (("acmp", "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens",
+             "A31 acmp_open publishes each restored binding"),
+            ("acmp", B10, "B10 a PROBE_TX_RESPONSE that settles publishes its stream"))),
+    Mutant("pub-acmp-talker-for-the-stream", "acmp/acmp.c", ACMP_PUB_STREAM,
+           "uint64_t stream = settled ? s->binding.talker_entity_id : 0u;",
+           "acmp", A31, "A31 the stream_id the response carried"),
+    Mutant("pub-acmp-stream-held-past-settlement", "acmp/acmp.c", ACMP_PUB_STREAM,
+           "uint64_t stream = s->bound ? (settled ? s->stream.stream_id : s->published_stream) : 0u;",
+           "acmp", "AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath",
+           "A31 TMR_NO_TK publishes the sink without its stream"),
+    Mutant("pub-acmp-every-sink-every-entry", "acmp/acmp.c",
+           "if (s->bound != s->published_bound || stream != s->published_stream) {", "if (true) {",
+           "acmp", "AcmpCore.A31OnlyAMovedPairIsPublished",
+           "A31 a re-bind to the same talker, a registration, a stop and a discovery move neither bound nor stream"),
+    Mutant("pub-acmp-port-unguarded", "acmp/acmp.c",
+           "\ta->in_port = true;\n\ta->ports->publish(a->ports->ctx, interface, sink, bound, stream);\n"
+           "\ta->in_port = false;",
+           "\ta->ports->publish(a->ports->ctx, interface, sink, bound, stream);",
+           "acmp", "AcmpCore.A31ACallBackFromThePublishPortIsRefused",
+           "A31 an UNBIND_RX and a poll from inside the publish port"),
+    Mutant("pub-acmp-reset-forgets-the-port", "acmp/acmp.c",
+           "\ts->published_bound = published_bound;\n\ts->published_stream = published_stream;",
+           "\t(void)published_bound;\n\t(void)published_stream;",
+           "acmp", "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens",
+           "A31 a sink the store resets is published unbound at the next open"),
+    Mutant("pub-acmp-adapter-drops-the-port", "acmp/acmp_mbx.c",
+           "\t(void)ctx;\n\t(void)mbx_pub_sink(interface, sink, bound, stream_id);",
+           "\t(void)ctx;\n\t(void)interface;\n\t(void)sink;\n\t(void)bound;\n\t(void)stream_id;",
+           "acmp", B10, "B10 a BIND_RX publishes its sink bound, with no stream",
+           (("acmp", "AcmpMailbox.B11RestoredBindingsArePublishedAtOpen",
+             "B11 the restored sink, and only it, is published bound on its interface"),)),
+    # MAAP: the DA gate published after the allocation is reported, skipped,
+    # one source short, held open while the range is invalid, past the block
+    Mutant("pub-maap-gate-after-the-report", "maap/maap_mbx.c", MAAP_GATE + MAAP_REPORT,
+           MAAP_REPORT + "\n" + MAAP_GATE.rstrip("\n"),
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "DA gate opens the eight sources before the allocation is reported"),
+    Mutant("pub-maap-gate-skipped", "maap/maap_mbx.c", MAAP_GATE, "",
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "DA gate opens the eight sources before the allocation is reported"),
+    Mutant("pub-maap-gate-one-source-short", "maap/maap_mbx.c", "(uint32_t)((1u << count) - 1u)",
+           "(uint32_t)((1u << (count - 1u)) - 1u)",
+           "maap", "MaapHost.CallbackWorkAndEveryOutputCount", "DA gate opens each of the count sources"),
+    Mutant("pub-maap-gate-open-while-invalid", "maap/maap_mbx.c", "valid ? (uint32_t)((1u << count) - 1u) : 0u",
+           "count != 0u ? (uint32_t)((1u << count) - 1u) : 0u",
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "DA gate closed while the range is only probed"),
+    Mutant("pub-maap-sources-past-the-block", "maap/maap_mbx.c",
+           "allocation == NULL || count > MBX_N_PUB_SOURCES) {", "allocation == NULL) {",
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "DA gate: more sources than the publication block has are refused"),
+)
+
 
 def plant(m: Mutant, root: Path) -> Path:
     """A copy of the firmware tree with the mutant written into it."""

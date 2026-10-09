@@ -86,6 +86,27 @@ bool mbx_filter_set_own_mac(unsigned interface, uint64_t mac);
 // a half-written entry never matches. False, writing nothing, for an interface
 // or an entry the contract does not have.
 bool mbx_filter_set_bound_talker(unsigned interface, unsigned entry, bool bound, uint64_t talker_entity_id);
+// The publication block (contract 2.2): the class-D state the firmware
+// owner publishes for interface `interface`'s datapath in the split placement
+// (#665, comment 6088423771). Each call writes one register, and returns
+// false, writing nothing, for an interface or a sink the contract does not
+// have. The caller writes each value before it sends the response that
+// promises it (docs/ARCHITECTURE_HW_SW_SPLIT.md, section 1).
+//   mbx_pub_da_gate     DA_GATE: bit s, MAAP holds source s's destination address
+//   mbx_pub_licence     LICENCE: bit s, source s holds its SRP licence
+//   mbx_pub_idle_slope  IDLE_SLOPE: the bandwidth SRP admitted, bits per second
+//   mbx_pub_domain      SR_DOMAIN: the operational SR class A priority and VID,
+//                       and whether they were adopted from a received Domain
+bool mbx_pub_da_gate(unsigned interface, uint32_t open);
+bool mbx_pub_licence(unsigned interface, uint32_t active);
+bool mbx_pub_idle_slope(unsigned interface, uint32_t bps);
+bool mbx_pub_domain(unsigned interface, bool adopted, uint8_t priority, uint16_t vid);
+// Sink `sink`'s BINDING: whether it is bound, and the stream_id it settled on,
+// 0 for none. BINDING is written first, with SID_VALID clear; a nonzero
+// stream_id is then written to SID_LO and SID_HI and published by setting
+// SID_VALID, so a half-written stream_id never reaches the datapath. One write
+// without a stream_id, four with one.
+bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, uint64_t stream_id);
 // FILTER_MISMATCH: untagged frames of a control EtherType that matched no
 // channel's tuple, saturating at 0xFFFF.
 uint16_t mbx_filter_mismatch(void);

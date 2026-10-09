@@ -13,6 +13,136 @@ std::vector<uint8_t> talker_value(const msrp_stream_id &sid, const uint8_t da[6]
     return value;
 }
 
+// ---- the publication block (lane F-INT; #665 comment 6088423771) -----------------
+
+mbx_model_pub pub_of(const mbx_model &m, unsigned i) {
+    mbx_model_pub v;
+    mbx_model_pub_view(&m,i,&v);
+    return v;
+}
+
+// The publication block as the fabric held it when each SRP record was
+// committed: the trace sees a write before the model applies it, so the
+// snapshot at a TX_HEAD write is what the datapath read while that frame left.
+struct Commit {
+    uint32_t frame;
+    mbx_model_pub pub[MBX_N_IF];
+};
+std::vector<Commit> commits_seen;
+const mbx_model *traced_model;
+
+void commit_trace(void *, bool write, uint32_t off, uint32_t) {
+    if (write && off==MBX_CH_BASE+MBX_CH_STRIDE*MBX_CH_SRP+MBX_CH_REG_TX_HEAD) {
+        Commit c{traced_model->tx_sent,{}};
+        for (unsigned i=0;i<MBX_N_IF;++i) mbx_model_pub_view(traced_model,i,&c.pub[i]);
+        commits_seen.push_back(c);
+    }
+}
+
+const Commit *commit_of(uint32_t frame) {
+    for (const auto &c:commits_seen) if (c.frame==frame) return &c;
+    return nullptr;
+}
+
+// Source 0, the one allocated, admitted at 1 Gb/s: (224 + 22 + 20) bytes, 8 bits,
+// 8000 frames/s (srp_mbx.c's admission, Ethernet overhead included).
+constexpr uint32_t kAdmittedBps=17024000u;
+
+TEST_F(Srp, PubDomainPrecedesEveryDeclarationThatCarriesIt) {
+    settle();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const auto v=pub_of(model,i);
+        EXPECT_TRUE(!v.adopted && v.priority==3u && v.vid==2u)
+            << "PUB the default Domain {priority 3, VID 2}, not adopted, from startup";
+    }
+    commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
+    offer(frame(4,{6,4,0,3},0)); advance(200);
+    mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle();
+    const uint32_t restarted=model.tx_sent;
+    advance(200);
+    mbx_host_trace(nullptr,nullptr);
+    capture();
+    unsigned adopted=0, restored=0;
+    for (const auto &d:declarations) {
+        if (d.interface!=0 || d.ethertype!=0x22ea || commit_of(d.frame)==nullptr) continue;
+        const auto &p=commit_of(d.frame)->pub[0];
+        const bool new_vid=d.value==std::vector<uint8_t>({6,4,0,3}) ||
+                           (d.type==1 && wire_be16(d.value.data()+14)==3u);
+        if (new_vid && d.frame<restarted) {
+            ++adopted;
+            EXPECT_TRUE(p.adopted && p.priority==4u && p.vid==3u)
+                << "PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it";
+        }
+        if (d.type==4 && d.value==std::vector<uint8_t>({6,3,0,2}) && d.frame>=restarted) {
+            ++restored;
+            EXPECT_TRUE(!p.adopted && p.priority==3u && p.vid==2u)
+                << "PUB after a link restart, the default Domain is published before it is declared again";
+        }
+    }
+    EXPECT_GT(adopted,0u) << "PUB the adopted Domain was declared";
+    EXPECT_GT(restored,0u) << "PUB the default Domain was declared again after the restart";
+    for (unsigned i=1;i<MBX_N_IF;++i) {
+        const auto v=pub_of(model,i);
+        EXPECT_TRUE(!v.adopted && v.priority==3u && v.vid==2u) << "PUB another interface keeps its own Domain";
+    }
+}
+
+TEST_F(Srp, PubLicenceIsSetAndClearedBeforeEachChangeIsReported) {
+    settle();
+    unsigned seen=0xFFFFu;
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        auto look=[&,i](unsigned,unsigned,bool) { seen=pub_of(model,i).licence; };
+        EXPECT_EQ(pub_of(model,i).licence,0u) << "PUB no licence before a Listener Ready";
+        EXPECT_CALL(licence,Change(i,0,true)).WillOnce(look); offer(frame(3,identity(i),1,2),i);
+        EXPECT_EQ(seen,1u) << "PUB LICENCE holds source 0's bit before the licence is reported";
+        EXPECT_CALL(licence,Change(i,0,false)).WillOnce(look); offer(frame(3,identity(i),5,2),i);
+        EXPECT_EQ(seen,0u) << "PUB LICENCE clears source 0's bit before the revocation is reported";
+        EXPECT_CALL(licence,Change(i,0,true)).WillOnce(look); offer(frame(3,identity(i),1,2),i);
+        EXPECT_CALL(licence,Change(i,0,false)).WillOnce(look);
+        mbx_model_set_link(&model,i,false); settle();
+        EXPECT_EQ(seen,0u) << "PUB a link loss clears LICENCE before the revocation is reported";
+        mbx_model_set_link(&model,i,true); settle();
+        ASSERT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence));
+    }
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
+    }
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,false)).WillOnce([&,i](unsigned,unsigned,bool) {
+            seen=pub_of(model,i).licence;
+            EXPECT_EQ(seen,0u) << "PUB destroy clears LICENCE before any revocation is reported";
+        });
+    }
+    srp_mbx_destroy(&adapter);
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+}
+
+TEST_F(Srp, PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits) {
+    settle();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).idle_slope,kAdmittedBps) << "PUB IDLE_SLOPE is the admitted bandwidth from startup";
+    }
+    const unsigned last=MBX_N_IF-1u;
+    // a value the firmware did not write, then a link restart: the slope is
+    // published again before the restart's first declaration leaves
+    mbx_model_write(&model,MBX_PUB_BASE+MBX_PUB_STRIDE*last+MBX_PUB_REG_IDLE_SLOPE,0u,0xFu);
+    ASSERT_EQ(pub_of(model,last).idle_slope,0u);
+    commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
+    const uint32_t first=model.tx_sent;
+    mbx_model_set_link(&model,last,false); settle(); mbx_model_set_link(&model,last,true); settle();
+    advance(200);
+    mbx_host_trace(nullptr,nullptr);
+    unsigned left=0;
+    for (const auto &c:commits_seen) {
+        const auto *f=mbx_model_tx_frame(&model,c.frame);
+        if (c.frame<first || f==nullptr || f->interface!=last) continue;
+        ++left;
+        EXPECT_EQ(c.pub[last].idle_slope,kAdmittedBps)
+            << "PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again";
+    }
+    EXPECT_GT(left,0u) << "PUB the restarted interface declared again";
+}
+
 TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
     settle();
     ASSERT_EQ(pool.refused,0u);

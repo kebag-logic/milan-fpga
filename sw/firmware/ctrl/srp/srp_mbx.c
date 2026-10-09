@@ -19,6 +19,9 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
 // This recovery limit does not extend the 10 ms service budget.
 #define SRP_RX_RETRY_MS 1000u
 
+// Every source has its bit of the publication block's LICENCE.
+_Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICENCE bit");
+
 static struct srp_mbx *timer_owner;
 static void tick(void);
 static bool poll(void *ctx);
@@ -53,6 +56,18 @@ static void tick(void)
         }
     }
     m->busy = false;
+}
+
+// The interface's licences as the fabric datapath reads them (the publication
+// block's LICENCE, bit s source s), written before any licence change is
+// reported, so the stream gate never trails the notification it causes.
+static void publish_licence(const struct srp_interface *i)
+{
+    uint32_t active = 0;
+    for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
+        active |= (i->active[k] ? 1u : 0u) << k;
+    }
+    (void)mbx_pub_licence(i->index,active);
 }
 
 static struct srp_interface *from_ctx(struct msrp_ctx *ctx)
@@ -153,6 +168,9 @@ static bool declare_sources(struct srp_interface *i)
             return false;
         }
     }
+    // The admitted bandwidth (IDLE_SLOPE), before these declarations are sent.
+    // used is at most three quarters of a 32-bit link rate.
+    (void)mbx_pub_idle_slope(i->index,(uint32_t)used);
     return true;
 }
 
@@ -221,6 +239,8 @@ static bool create_participants(struct srp_interface *i)
     mrp_set_rx_filter(i->mvrp,interested_mvrp,i);
     i->vlan_sent = false;
     i->domain = (struct msrp_domain){6,3,2};
+    // The default Domain, not adopted, before it is declared (SR_DOMAIN).
+    (void)mbx_pub_domain(i->index,false,i->domain.priority,i->domain.vid);
     if (mrp_mad_join(i->msrp,0,MSRP_ATTR_TYPE_DOMAIN,&i->domain,true) != 0 ||
         mvrp_declare(i->mvrp,0,2) != 0) {
         return false;
@@ -303,9 +323,16 @@ void srp_mbx_destroy(struct srp_mbx *m)
     }
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
         struct srp_interface *i = &m->ifs[n];
+        // Every licence closes on the datapath before any revocation is
+        // reported. An init refusal reaches here before i->index is set.
+        bool revoked[CTRL_SRP_SOURCES];
         for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
-            if (i->active[k]) {
-                i->active[k] = false;
+            revoked[k] = i->active[k];
+            i->active[k] = false;
+        }
+        (void)mbx_pub_licence(n,0u);
+        for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
+            if (revoked[k]) {
                 m->config.licence(m->config.ctx,n,k,false);
             }
         }
@@ -603,6 +630,8 @@ static bool change_domain(struct srp_interface *i)
         i->vlan_sent = false;
     }
     i->domain = i->next_domain;
+    // The adopted Domain, before the declarations that carry it (SR_DOMAIN).
+    (void)mbx_pub_domain(i->index,true,i->domain.priority,i->domain.vid);
     (void)mrp_mad_join(i->msrp,0,MSRP_ATTR_TYPE_DOMAIN,&i->domain,true);
     (void)declare_sources(i);
     i->domain_owed = false;
@@ -680,13 +709,19 @@ static void reset_interface(struct srp_interface *i)
     }
     i->rx_mark = mbx_rx_mark(MBX_CH_SRP);
     i->discard_prefix = true;
+    // Every licence closes on the datapath before any revocation is reported.
+    bool revoked[CTRL_SRP_SOURCES];
     for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
-        if (i->active[k]) {
-            i->active[k] = false;
+        revoked[k] = i->active[k];
+        i->active[k] = false;
+        i->stop_owed[k] = false;
+    }
+    publish_licence(i);
+    for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
+        if (revoked[k]) {
             ++m->stops;
             m->config.licence(m->config.ctx,i->index,k,false);
         }
-        i->stop_owed[k] = false;
     }
     msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
     i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;
@@ -766,6 +801,7 @@ static bool poll(void *ctx)
                 i->stop_owed[s] = false;
                 i->active[s] = false;
                 ++m->stops;
+                publish_licence(i);
                 m->config.licence(m->config.ctx,n,s,false);
             }
             bool active = i->link && i->vlan_sent && i->admitted[s] && i->registered[s];
@@ -774,6 +810,7 @@ static bool poll(void *ctx)
                     ++m->stops;
                 }
                 i->active[s] = active;
+                publish_licence(i);
                 m->config.licence(m->config.ctx,n,s,active);
             }
         }
