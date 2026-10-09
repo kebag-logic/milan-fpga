@@ -1,0 +1,41 @@
+{
+  "id": 113696564335,
+  "run_id": 37892515345,
+  "head_sha": "8e4b1e53e9b5a8ef5f9854095347436ab84259b6",
+  "status": "completed",
+  "conclusion": "success",
+  "labels": [
+    "ubuntu-latest"
+  ],
+  "started_at": "2026-10-09T06:15:17Z",
+  "completed_at": "2026-10-09T06:58:21Z",
+  "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37892515345/job/113696564335",
+  "windows": [
+    {
+      "suite": "follow_ring",
+      "previous_suite": "eth_tx_reset",
+      "start": "2026-10-09T06:17:15.1295239Z",
+      "end": "2026-10-09T06:35:49.3391593Z",
+      "seconds": 1114.2,
+      "unrounded_seconds": 1114.209636,
+      "margin_to_1440": 325.8,
+      "margin_to_1800": 685.8,
+      "verdict": "PASS"
+    },
+    {
+      "suite": "milan_dp_render",
+      "previous_suite": "ifg",
+      "start": "2026-10-09T06:37:10.7406002Z",
+      "end": "2026-10-09T06:57:29.4305475Z",
+      "seconds": 1218.7,
+      "unrounded_seconds": 1218.689947,
+      "margin_to_1440": 221.3,
+      "margin_to_1800": 581.3,
+      "verdict": "PASS"
+    }
+  ],
+  "method": "Successive suite verdict timestamps; sequential make -C including build time",
+  "raw_log_sha256": "d7ae7e49d237e8da6c96be21fa2f7bdac33d61b3060d1fcd088bc7d37a678142",
+  "raw_log_bytes": 26560,
+  "runner_image": "ubuntu-24.04"
+}

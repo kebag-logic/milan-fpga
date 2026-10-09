@@ -1,0 +1,105 @@
+[
+  {
+    "options": [
+      "--step-s",
+      "0"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: --step-s must be finite and positive\n"
+  },
+  {
+    "options": [
+      "--step-s",
+      "-.1"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: --step-s must be finite and positive\n"
+  },
+  {
+    "options": [
+      "--step-s",
+      "NaN"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: argument --step-s: time must be finite decimal seconds\n"
+  },
+  {
+    "options": [
+      "--step-s",
+      "Infinity"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: argument --step-s: time must be finite decimal seconds\n"
+  },
+  {
+    "options": [
+      "--step-s",
+      "-Infinity"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: argument --step-s: expected one argument\n"
+  },
+  {
+    "options": [
+      "--step-s",
+      "abc"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: argument --step-s: time must be finite decimal seconds\n"
+  },
+  {
+    "options": [
+      "--origin-s",
+      "NaN"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: argument --origin-s: time must be finite decimal seconds\n"
+  },
+  {
+    "options": [
+      "--from-s",
+      "Infinity"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: argument --from-s: time must be finite decimal seconds\n"
+  },
+  {
+    "options": [
+      "--to-s",
+      "NaN"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: argument --to-s: time must be finite decimal seconds\n"
+  },
+  {
+    "options": [
+      "--from-s",
+      "1",
+      "--to-s",
+      "1"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: the time range must be finite and increasing\n"
+  },
+  {
+    "options": [
+      "--from-s",
+      "2",
+      "--to-s",
+      "1"
+    ],
+    "rc": 2,
+    "pass": true,
+    "stderr": "usage: trace_table.py [-h] [--step-s STEP_S] [--from-s FROM_S] [--to-s TO_S]\n                      [--origin-s ORIGIN_S] [--csv CSV]\n                      log pdus servo\ntrace_table.py: error: the time range must be finite and increasing\n"
+  }
+]

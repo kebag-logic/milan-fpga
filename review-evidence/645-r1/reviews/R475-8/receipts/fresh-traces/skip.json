@@ -1,0 +1,54 @@
+{
+  "name": "skip",
+  "argv": [
+    "$PACKET/scratch/serial/tb/verilator/follow_ring/obj_dir/Vfollow_ring",
+    "--case",
+    "b8",
+    "--dwell-s",
+    "45",
+    "--set-phase",
+    "0.0",
+    "--hold-s",
+    "16",
+    "--peer-ppm",
+    "0.82",
+    "--trace",
+    "$PACKET/scratch/fresh-traces/skip.full.csv",
+    "--servo-trace",
+    "$PACKET/receipts/fresh-traces/skip.servo.csv"
+  ],
+  "reader_argv": [
+    "/usr/bin/python3",
+    "-B",
+    "$SOURCE/tb/verilator/follow_ring/trace_table.py",
+    "$PACKET/receipts/fresh-traces/skip.log",
+    "$PACKET/receipts/fresh-traces/skip.pdu.csv",
+    "$PACKET/receipts/fresh-traces/skip.servo.csv",
+    "--origin-s",
+    "0",
+    "--from-s",
+    "38.5",
+    "--to-s",
+    "38.75",
+    "--step-s",
+    ".25",
+    "--csv",
+    "$PACKET/receipts/fresh-traces/skip.table.csv"
+  ],
+  "elapsed_s": 384.9009831200001,
+  "run_rc": 0,
+  "reader_rc": 0,
+  "expected": [
+    1,
+    1,
+    0
+  ],
+  "actual": [
+    1,
+    1,
+    0
+  ],
+  "pass": true,
+  "full_trace_sha256": "b3ca2d0336b301fa3122c64f1ea70008ce6fb139c4b715854dc01819a8522f74",
+  "full_trace_bytes": 21998488
+}

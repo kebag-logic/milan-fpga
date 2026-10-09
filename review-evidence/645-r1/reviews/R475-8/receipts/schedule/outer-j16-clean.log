@@ -1,0 +1,21 @@
+make: Entering directory '$PACKET/scratch/schedule/outer-j16-clean'
+make -j4 b8 pullin small-pullin settle-control
+make[1]: Entering directory '$PACKET/scratch/schedule/outer-j16-clean'
+mkdir -p obj_dir
+make build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$PACKET/scratch/schedule/outer-j16-clean/obj_dir_fine
+python3 settle_control.py --sim $PACKET/scratch/schedule/worker.py \
+  --out $PACKET/scratch/schedule/outer-j16-clean/obj_dir_control --jobs 4
+python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv obj_dir/dp_glue.svh
+make[2]: Entering directory '$PACKET/scratch/schedule/outer-j16-clean'
+mkdir -p $PACKET/scratch/schedule/outer-j16-clean/obj_dir_fine
+python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv $PACKET/scratch/schedule/outer-j16-clean/obj_dir_fine/dp_glue.svh
+$PACKET/scratch/schedule/worker.py --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=6250000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+obj_dir  -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64" -Mdir obj_dir ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+$PACKET/scratch/schedule/worker.py --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=25000000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+$PACKET/scratch/schedule/outer-j16-clean/obj_dir_fine  -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64" -Mdir $PACKET/scratch/schedule/outer-j16-clean/obj_dir_fine ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+$PACKET/scratch/schedule/outer-j16-clean/obj_dir/Vfollow_ring --case b8 --dwell-s 1.0 --set-phase 0.0 --hold-s 16 --switch-hold-s 15
+$PACKET/scratch/schedule/outer-j16-clean/obj_dir/Vfollow_ring --case pullin --latency-us 210.42 --after-s 1.5
+make[2]: Leaving directory '$PACKET/scratch/schedule/outer-j16-clean'
+python3 small_pulls.py --exe $PACKET/scratch/schedule/outer-j16-clean/obj_dir_fine/Vfollow_ring \
+  --out $PACKET/scratch/schedule/outer-j16-clean/obj_dir_fine/results --jobs 4
+make[1]: Leaving directory '$PACKET/scratch/schedule/outer-j16-clean'
+make: Leaving directory '$PACKET/scratch/schedule/outer-j16-clean'
+make[1]: warning: -j4 forced in submake: resetting jobserver mode.

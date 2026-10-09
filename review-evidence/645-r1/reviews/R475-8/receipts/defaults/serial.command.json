@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "taskset",
+    "-c",
+    "112,113,114,115",
+    "timeout",
+    "1800",
+    "make",
+    "-C",
+    "$PACKET/scratch/serial/tb/verilator/follow_ring"
+  ],
+  "MAKEFLAGS": "unset",
+  "VERILATOR_JOBS": 2,
+  "SWEEP_JOBS": 2,
+  "uniform_compile_cap": 2
+}
