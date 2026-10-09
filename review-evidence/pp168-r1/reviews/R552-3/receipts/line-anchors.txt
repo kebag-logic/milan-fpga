@@ -1,0 +1,110 @@
+# exact-head line anchors at 5024dcad
+## docs/architecture/06_aecp_engine.md:1056-1083
+1056: **STREAM_INPUT triggers** (`protocol_processor_top` `stri_events`): the
+1057: pbsta/acmpsta compare off the listener record write bus pushes only on a
+1058: committed byte change, as on bind, unbind, settle or teardown. A discovered
+1059: retry (A12, then the A5 delay expiry) retains the status and pushes nothing
+1060: (Milan v1.2 §5.5.3.5.30 step 2, §5.5.3.5.10, Table 5.22). A retry with the
+1061: talker gone (A17) changes the status to PASSIVE/0 and pushes (§5.5.3.5.30
+1062: step 1). A repeated double probe timeout that leaves the status unchanged
+1063: pushes nothing.
+1064: 
+1065: The committed started/stopped change under a live binding also pushes
+1066: (`act_strt_chg_o`: the §5.5.3.5.6 re-bind short-circuit, and a re-bind to
+1067: another talker from a bound state). For a re-bind to another talker from
+1068: PRB_W_RESP that changes started/stopped, with no retained status the byte
+1069: stays ACTIVE/0, so `act_strt_chg_o` is the only push. With a retained status,
+1070: both listener terms fire on the same record write and their OR sends one
+1071: frame.
+1072: 
+1073: The other triggers are the SRP registration and unregistration events; SRP's committed
+1074: per-sink accumulated-latency change (`evt_tk_latency_chg_o`, including a
+1075: latency-only Talker refresh, with no pulse for an unchanged value); and SRP's
+1076: FailureInformation change strobe. Both change strobes feed only this notification (no
+1077: Listener re-declaration, no event-router or ACMP event, [10 §6.4](10_srp_engine.md)).
+1078: The SRP change strobes register on the attribute latch write alongside any
+1079: registration event; the per-sink OR therefore raises one event even if several
+1080: fields change together. No GET_COUNTERS rate limit applies to GET_STREAM_INFO.
+1081: The two listener terms register off the same record write, so a walk that
+1082: moves both pushes one frame. A START/STOP_STREAMING's own change is excluded:
+1083: the command sends its opcode-specific unsolicited response instead.
+## hdl/top/protocol_processor_top.sv:3486-3492
+3486:     end else begin
+3487:       lstn_gsi_changed_r <= '0;
+3488:       if (lstn_recwr_w) begin
+3489:         lstn_gsi_status_r[lstn_recwr_sink_w] <= lstn_gsi_status_w;
+3490:         lstn_gsi_changed_r[lstn_recwr_sink_w] <=
+3491:             (lstn_gsi_status_r[lstn_recwr_sink_w] != lstn_gsi_status_w);
+3492:       end
+## hdl/top/protocol_processor_top.sv:3549-3569
+3549: 
+3550:   //! Milan Table 5.22, STREAM_INPUT: one term per GET_STREAM_INFO-visible
+3551:   //! owner. The listener's committed record gives two: the pbsta/acmpsta
+3552:   //! compare (bind, unbind, settle, teardown, double timeout, retry) and
+3553:   //! the started/stopped change, including a re-bind that flips
+3554:   //! STREAMING_WAIT while pbsta/acmpsta stay put (PWR -> PWR). Both are
+3555:   //! registered off the SAME X_WB record write, so a walk that moves both
+3556:   //! lands them in one cycle and the OR pushes one frame. SRP gives the
+3557:   //! registration events, the FailureInformation change and the committed
+3558:   //! accumulated_latency change. These register on the same attribute write.
+3559:   always_comb begin : stri_events
+3560:     ntfy_stri_in_w  = '0;
+3561:     ntfy_stri_out_w = '0;
+3562:     for (int unsigned k = 0; k < N_STREAM_IN_P; k++) begin
+3563:       ntfy_stri_in_w[k] =
+3564:           (32'(lstn_act_sink_w) == k
+3565:            && lstn_act_strt_chg_w && !lstn_act_strt_cmd_chg_w)
+3566:           || lstn_gsi_changed_r[k]
+3567:           || srp_evt_tk_reg_w[k] || srp_evt_tk_unreg_w[k]
+3568:           || srp_evt_tk_fail_chg_w[k] || srp_evt_tk_latency_chg_w[k];
+3569:     end
+## hdl/acmp/KL_pp_acmp_listener.sv:333-337
+333:   //! (`A1 A11 A9 A2 A3 A4 A5` - no A10, so `f_bound` never drops while A2
+334:   //! rewrites `f_started`). The last one used to be excluded because A4's
+335:   //! discovery arm pushed for it upstream; that term is gone, and from
+336:   //! PRB_W_RESP the re-bind leaves pbsta/acmpsta at ACTIVE/0, so this pulse
+337:   //! is the ONLY notification of that started/stopped change.
+## hdl/acmp/KL_pp_acmp_listener.sv:1270-1274
+1270:               5'(ACT_A12_C): begin       // arm T-ACMP-DELAY via PRNG draw
+1271:                 rec_r.pbsta   <= PB_ACTIVE_C;
+1272:                 // Milan 5.5.3.5.30 step 2 preserves the retry status.
+1273:                 if (evt_r != LEV_TMR_RETRY) rec_r.acmpsta <= 5'd0;
+1274:                 cellmut_r     <= 1'b1;
+## hdl/acmp/KL_pp_acmp_listener.sv:1317-1321
+1317:               5'(ACT_A17_C): begin
+1318:                 rec_r.pbsta   <= PB_PASSIVE_C;
+1319:                 rec_r.acmpsta <= 5'd0;
+1320:                 cellmut_r     <= 1'b1;
+1321:               end
+## hdl/acmp/KL_pp_acmp_listener.sv:1335-1345
+1335:                 rec_r.pbsta           <= PB_PASSIVE_C;
+1336:                 cellmut_r             <= 1'b1;
+1337:               end
+1338:               default: begin             // ACT_A5_C: probe #1, fresh seq
+1339:                 rec_r.probe_seq <= probe_ctr_r;
+1340:                 rec_r.settled_stream_id <= rec_r.bind_ctlr_eid;
+1341:                 probe_ctr_r     <= probe_ctr_r + 16'd1;
+1342:                 rec_r.f_retried <= 1'b0;
+1343:                 rec_r.pbsta     <= PB_ACTIVE_C;
+1344:                 // Milan 5.5.3.5.10 leaves the prior probe status unchanged.
+1345:                 if (evt_r != LEV_TMR_DELAY) rec_r.acmpsta <= 5'd0;
+## hdl/acmp/KL_pp_acmp_listener.sv:1449-1458
+1449:           //! these pieces of information CHANGES"); a re-bind that flips
+1450:           //! STREAMING_WAIT pushes, which keying on the AECP request alone
+1451:           //! did not. That includes a BIND_NEW onto a bound sink (A2 without
+1452:           //! A10): nothing upstream pushes for it when pbsta/acmpsta stay put
+1453:           //! (see `bnd_was_r`), and when they move too, the pbsta compare
+1454:           //! fires in this same cycle, so the two OR into one frame.
+1455:           act_strt_chg_o <= cellmut_r && bnd_was_r && rec_r.f_bound
+1456:                             && (rec_r.f_started != strt_was_r);
+1457:           act_strt_cmd_chg_o <= cellmut_r && bnd_was_r && rec_r.f_bound
+1458:                                 && src_strq_r
+## tb/pp_top/gsi_internal.hpp:424-429
+424:     pair("MISSING-UNBIND", 2, 0, 0, 0, 0, false);
+425:     // Milan 5.5.3.5.30 step 2 and .10 preserve the timeout status.
+426:     // With no status change, Table 5.22 supplies no notification to wait for.
+427:     const auto next_probe = probe(0, 5000);
+428:     check_frame(query(0), "RETRY-RETAIN", 0, 2, 7, 0, 0, false);
+429:     settle(0, next_probe);
+## docs/architecture/05_acmp_engine.md:267-267
+267: | `BIND_RX` new/different source | PWR / A1 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A8 A9 A2 A3 A4 A5 | PWR / A1 A11 A8 A9 A2 A3 A4 A5 |
