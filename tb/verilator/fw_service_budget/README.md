@@ -81,7 +81,8 @@ These include the documented device maxima.
 Values outside those ranges fail before building or simulating.
 The largest plan has four erases and programs two journal images.
 Page counts come from generated image bytes.
-Even two full 64 KiB slots bound WIP at 14.56 seconds, below the 30-second guard.
+Two full 64 KiB slots bound WIP at 14.56 seconds.
+This remains below the 30-second guard.
 Measured no-WIP work leaves additional room inside that guard.
 This is a supported-scenario limit, not an arbitrary-stall guarantee.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Restore fatal elaboration tasks in lowered synthesis inputs (#651)."""
+"""Restore converted elaboration errors as `$error` tasks (#651)."""
 from __future__ import annotations
 
 import argparse
