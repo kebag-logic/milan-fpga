@@ -398,6 +398,30 @@ def _prove_classified_frozen_form(original: str, stale: Path) -> None:
             handle.write(original)
 
 
+def _prove_stopped_parse(original: str, stale: Path) -> None:
+    """A partial database cannot verify a consumer, even after a rule."""
+    import shape_consumer_inventory as inventory
+
+    name = _repo_spelling(stale)
+    try:
+        for prefix in ("", "fixture: missing-generated-input\n"):
+            text = prefix + "$(error planted stopped parse)\n" + original
+            stale.write_text(text, encoding="utf-8")
+            expect_fail("a stopped make parse leaves a partial database",
+                        lambda: gate.ck("I complete database required",
+                                        inventory.dangling_consumers(
+                                            name, text, set(gate.tracked_files())), []),
+                        (name, "make database unreadable"))
+        stale.write_text("fixture: missing-generated-input\n" + original,
+                         encoding="utf-8")
+        ok, prereqs = inventory.shape_prereqs_from_database(stale.parent, stale.name)
+        gate.ck("I missing build products do not stop database parsing", ok, True)
+        gate.ck("I complete database retains frozen shape prerequisites",
+                "../../../hdl/common/gen/adp_shape_defaults.svh" in prereqs, True)
+    finally:
+        stale.write_text(original, encoding="utf-8")
+
+
 def _prove_make_filenames(original: str, stale: Path) -> None:
     """Make consumers are recognised by GNU Make's own filename rules.
 
@@ -722,6 +746,7 @@ def self_test() -> None:
     _prove_unresolvable_make(original, stale)
     _prove_frozen_expansion(original, stale)
     _prove_classified_frozen_form(original, stale)
+    _prove_stopped_parse(original, stale)
     _prove_make_filenames(original, stale)
     src_cfg = gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"
     _prove_unit_counts(builder, src_cfg)
