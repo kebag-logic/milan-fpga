@@ -36,12 +36,28 @@ class Defect:
     path: str = "srp/srp_mbx.c"
     suite: str = "srp_mbx.cpp"
     debug: bool = False
+    also: tuple[tuple[str, str], ...] = ()   # further (old, new) edits of the same file, each at one site
 
 #: reset_interface's closure of every licence on the datapath, then the
 #: revocations it reports (the publication block, lane F-INT).
 REVOCATIONS_PUBLISHED = ('    publish_licence(i);\n    for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {\n'
                          '        if (revoked[k]) {\n            ++m->stops;\n'
                          '            m->config.licence(m->config.ctx,i->index,k,false);\n        }\n    }\n')
+DECLARE_SOURCES = 'static bool declare_sources(struct srp_interface *i)\n{'
+SEND_COMMITTED = '    m->owed_len = 0;\n    ++m->transmitted;\n    return 0;\n}'
+
+
+def held_back(name: str, test: str, site: str, publish: str, needle: str, slope: bool = False) -> Defect:
+    """The publish at `site` moved after the response: it is held back until
+    send_pdu has committed the interface's next MSRP frame, the frame that
+    carries what the value promises. A held slope keeps the value it had."""
+    late=(f'    if (s->app == s->interface->msrp && planted_held[s->interface->index]) {{\n'
+          f'        planted_held[s->interface->index] = false;\n        {publish}\n    }}\n')
+    held=' planted_slope[i->index] = (uint32_t)used;' if slope else ''
+    store='static uint32_t planted_slope[MBX_N_IF];\n' if slope else ''
+    return Defect(name,test,site,f'    planted_held[i->index] = true;{held}\n',needle,
+                  also=((DECLARE_SOURCES,f'static bool planted_held[MBX_N_IF];\n{store}\n{DECLARE_SOURCES}'),
+                        (SEND_COMMITTED,SEND_COMMITTED.replace('    return 0;\n',late+'    return 0;\n'))))
 
 DEFECTS = (
     Defect(
@@ -870,7 +886,8 @@ DEFECTS = (
     # lane F-INT: the publication block (#665, comment 6088423771). The licence
     # published after its report, skipped and on the wrong bit, and after the
     # revocations of a reset; destroy's closure skipped; the Domain and the
-    # slope skipped or wrong; the bounds' publication terms understated.
+    # slope skipped, wrong, or held back until the first MSRP frame carrying
+    # them has left; the bounds' publication terms understated.
     Defect('pub-licence-after-the-report','PubLicenceIsSetAndClearedBeforeEachChangeIsReported',
            '                publish_licence(i);\n                m->config.licence(m->config.ctx,n,s,active);',
            '                m->config.licence(m->config.ctx,n,s,active);\n                publish_licence(i);',
@@ -910,6 +927,20 @@ DEFECTS = (
            '(void)mbx_pub_idle_slope(i->index,(uint32_t)used);',
            '(void)mbx_pub_idle_slope(i->index,(uint32_t)(used / 2u));',
            'PUB IDLE_SLOPE is the admitted bandwidth from startup'),
+    held_back('pub-domain-adoption-after-the-declarations','PubDomainPrecedesEveryDeclarationThatCarriesIt',
+              '    (void)mbx_pub_domain(i->index,true,i->domain.priority,i->domain.vid);\n',
+              '(void)mbx_pub_domain(s->interface->index,true,s->interface->domain.priority,'
+              's->interface->domain.vid);',
+              'PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it'),
+    held_back('pub-domain-default-after-the-declarations','PubDomainPrecedesEveryDeclarationThatCarriesIt',
+              '    (void)mbx_pub_domain(i->index,false,i->domain.priority,i->domain.vid);\n',
+              '(void)mbx_pub_domain(s->interface->index,false,s->interface->domain.priority,'
+              's->interface->domain.vid);',
+              'PUB after a link restart, the default Domain is published before it is declared again'),
+    held_back('pub-slope-after-the-declarations','PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits',
+              '    (void)mbx_pub_idle_slope(i->index,(uint32_t)used);\n',
+              '(void)mbx_pub_idle_slope(s->interface->index,planted_slope[s->interface->index]);',
+              'PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again', slope=True),
     Defect('pub-term-poll-understated','PollPublicationTermIsMeasuredThroughRealCallbacks',
            '#define SRP_MBX_PUB_POLL_MAX (SRP_MBX_PUB_RESET + 2u + 2u * MBX_N_PUB_SOURCES)',
            '#define SRP_MBX_PUB_POLL_MAX (SRP_MBX_PUB_RESET + 2u)',
@@ -933,9 +964,11 @@ def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> boo
         shutil.copytree(CTRL,src,dirs_exist_ok=True,ignore=shutil.ignore_patterns("__pycache__","*.pyc"))
         target=src/d.path
         source=target.read_text()
-        if source.count(d.old)!=1:
-            raise Refusal(f"SRP defect {d.name} has {source.count(d.old)} planting sites")
-        target.write_text(source.replace(d.old,d.new))
+        for old,new in ((d.old,d.new),*d.also):
+            if source.count(old)!=1:
+                raise Refusal(f"SRP defect {d.name} has {source.count(old)} planting sites")
+            source=source.replace(old,new)
+        target.write_text(source)
         selected=d.test if "." in d.test else "Srp."+d.test
         try:
             result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,interfaces,

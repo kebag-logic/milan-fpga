@@ -57,8 +57,10 @@ TEST_F(Srp, PubDomainPrecedesEveryDeclarationThatCarriesIt) {
     }
     commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
     offer(frame(4,{6,4,0,3},0)); advance(200);
-    mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle();
+    // a down interface sends nothing: every later frame of it is the restart's,
+    // the first of them sent while the link comes back
     const uint32_t restarted=model.tx_sent;
+    mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle();
     advance(200);
     mbx_host_trace(nullptr,nullptr);
     capture();
