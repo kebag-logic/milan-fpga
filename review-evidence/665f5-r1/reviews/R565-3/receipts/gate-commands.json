@@ -1,0 +1,54 @@
+{
+  "firmware-bank": [
+    [
+      "/usr/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$REVIEWS/665f5-r565-3-packet/scratch/bank"
+    ]
+  ],
+  "aecp-suite": [
+    [
+      "/usr/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "--app",
+      "--interfaces",
+      "1",
+      "--output",
+      "$REVIEWS/665f5-r565-3-packet/scratch/aecp-if1"
+    ],
+    [
+      "/usr/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "--app",
+      "--interfaces",
+      "2",
+      "--output",
+      "$REVIEWS/665f5-r565-3-packet/scratch/aecp-if2"
+    ]
+  ],
+  "mailbox": [
+    [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/665f5-r565-3-packet/scratch/mailbox-tree/tb/verilator/mbx",
+      "VBUILD_JOBS=1",
+      "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator"
+    ]
+  ],
+  "mailbox-generator": [
+    [
+      "/usr/bin/python3",
+      "-B",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ]
+  ]
+}

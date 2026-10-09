@@ -1,0 +1,9 @@
+{
+  "source_head": "fb9c57d2ae3484804ff90f67feb57bf420c93dfa",
+  "unit_cap_bytes": 12884901888,
+  "memory_peak_bytes": 5765459968,
+  "foreground_only": true,
+  "initial_mailbox_scheduling_deviation": "The first quick campaign used its default four workers, each appending four compiler jobs. Combined configured concurrency could exceed sixteen; peak active compiler count was not sampled. Its result was superseded by a fresh run explicitly selecting --jobs 1.",
+  "accepted_mailbox_recipe": "scripts/run_mailbox.py; make -j16, VBUILD_JOBS=1, mutants.py --quick --jobs 1",
+  "probes_restore": "All production mutation sites in disposable copies restored by finally blocks; tracked checkout was never mutated."
+}

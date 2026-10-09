@@ -1,0 +1,51 @@
+[
+  {
+    "name": "nosub-applies-request-latency",
+    "caught": true,
+    "suite_rc": 1,
+    "checks": [
+      [
+        "Core.SetStreamInfoWithoutSubcommandPreservesState",
+        "no subcommand preserves stored latency"
+      ],
+      [
+        "Core.SetStreamInfoWithoutSubcommandPreservesState",
+        "no subcommand preserves saved override"
+      ],
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "ignored flags and no subcommand preserve latency"
+      ]
+    ]
+  },
+  {
+    "name": "nosub-reports-request-latency",
+    "caught": true,
+    "suite_rc": 1,
+    "checks": [
+      [
+        "Core.SetStreamInfoWithoutSubcommandPreservesState",
+        "no subcommand reports current latency, not requested latency"
+      ],
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "SET latency follows Milan success and current refusal rules"
+      ]
+    ]
+  },
+  {
+    "name": "nosub-notifies-change",
+    "caught": true,
+    "suite_rc": 1,
+    "checks": [
+      [
+        "Core.SetStreamInfoWithoutSubcommandPreservesState",
+        "no subcommand emits no change notification"
+      ],
+      [
+        "Core.SetStreamInfoWithoutSubcommandPreservesState",
+        "called more times than expected"
+      ]
+    ]
+  }
+]

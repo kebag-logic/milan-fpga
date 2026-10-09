@@ -1,0 +1,22 @@
+======================================================================
+======================================================================
+== mbx (Wishbone host): checks: 382   failures: 0 ==
+RESULT: PASS
+== mbx (AXI4-Lite host): checks: 427   failures: 0 ==
+RESULT: PASS
+======================================================================
+== mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 ==
+RESULT: PASS
+======================================================================
+== mbx (Wishbone host, 2 interfaces): checks: 384   failures: 0 ==
+RESULT: PASS
+== mbx (AXI4-Lite host, 2 interfaces): checks: 429   failures: 0 ==
+RESULT: PASS
+== mbx (host model, 2 interfaces): checks: 369   failures: 0 ==
+RESULT: PASS
+[ok] rx-lanes-big-endian: 16 check(s) failed; first: [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[ok] tx-refusal-no-flush: 13 check(s) failed; first: [FAIL] X1 a malformed TX record counts once in TX_ERR got=3 exp=1
+[ok] evt-tick-count-lost: 1 check(s) failed; first: [FAIL] K1 carrying every tick                   got=1 exp=5
+[ok] top-partial-strobe-accepted: 1 check(s) failed; first: [FAIL] R2 a write with a partial strobe leaves the register got=0xa5a5a5a5 exp=0x0
+[ok] rx-dst-ignored: 58 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (adp): no RX record, no delivery got=0 exp=5
+mbx mutants: 5 of 5 caught

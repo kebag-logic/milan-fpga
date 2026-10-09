@@ -1,0 +1,18 @@
+{
+  "name": "fresh-wire-one",
+  "argv": [
+    "python3",
+    "-B",
+    "sw/firmware/ctrl/test/aecp_wire.py",
+    "--reference",
+    "protocol-processor",
+    "--interfaces",
+    "1",
+    "--output",
+    "$REVIEWS/665f5-r565-3-packet/scratch/wire-one",
+    "--verilator",
+    "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator"
+  ],
+  "rc": 0,
+  "seconds": 53.28
+}

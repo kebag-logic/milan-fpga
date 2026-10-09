@@ -1,0 +1,18 @@
+{
+  "name": "fresh-wire-two",
+  "argv": [
+    "python3",
+    "-B",
+    "sw/firmware/ctrl/test/aecp_wire.py",
+    "--reference",
+    "$REVIEWS/665f5-r565-3-packet/scratch/reference-if2",
+    "--interfaces",
+    "2",
+    "--output",
+    "$REVIEWS/665f5-r565-3-packet/scratch/wire-two",
+    "--verilator",
+    "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator"
+  ],
+  "rc": 0,
+  "seconds": 109.01
+}
