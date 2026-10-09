@@ -403,7 +403,7 @@ The interface index remains in all contexts.
 F0-F5 transfers ADP, ACMP, MAAP, SRP and AECP control ownership.
 F1 supplies flash validation, boot apply and transactional write-back.
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) keeps one owner per function.
-The [mailbox contract](MAILBOX_SPLIT.md) provides filtered packet rings and events.
+The [mailbox contract](MAILBOX_SPLIT.md) provides filtered packet mailboxes and events.
 The earlier CSR-only interface proposal is superseded.
 
 **Saving:** estimated 14,000 LUTs, range 11,500-16,000.
@@ -619,7 +619,9 @@ Those are not independently subtracted elsewhere.
 Mailbox timers, filter, rings and TX arbitration already cost 3,102.
 No second cost is added for those same blocks.
 No LUT saving is credited for shared timers, trace, pools or dispatch.
-Their remaining 5,501 standalone wrapper LUTs provide unclaimed upside.
+The other 5,501 standalone wrapper LUTs receive no removal credit.
+That residual also includes processor MAAP, absent from the shipping image.
+It is not a guaranteed reserve or an additional saving.
 
 Central arithmetic: `18,107 - 3,102 - 1,000 = 14,005`.
 Round down to **14,000 LUTs saved**.
