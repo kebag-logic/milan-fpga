@@ -1,0 +1,35 @@
+Note: Google Test filter = Nvm.WholeMapFramingAndEmptySetAreDistinct
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Nvm
+[ RUN      ] Nvm.WholeMapFramingAndEmptySetAreDistinct
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:218: Failure
+Expected equality of these values:
+  owner.port.apply(&owner,NVM_G_MAPI,0,b.data(),b.size())
+    Which is: 0
+  NVM_REFUSED
+    Which is: 1
+
+  [FAIL] Nvm.WholeMapFramingAndEmptySetAreDistinct:     Which is: 1
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:219: Failure
+Expected equality of these values:
+  latch(NVM_G_MAPI,0,b.size())
+    Which is: { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), '\xFF' (255), ... }
+  initial
+    Which is: { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\x3' (3), '\0', '\0', ... }
+a hole cannot touch the current map
+
+  [FAIL] Nvm.WholeMapFramingAndEmptySetAreDistinct: a hole cannot touch the current map
+[  FAILED  ] Nvm.WholeMapFramingAndEmptySetAreDistinct (3 ms)
+[----------] 1 test from Nvm (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Nvm.WholeMapFramingAndEmptySetAreDistinct
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

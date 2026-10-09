@@ -1,0 +1,64 @@
+COMMAND ["python3", "-B", "sw/firmware/ctrl/test/ctrl_srp_image.py", "--with-aecp", "--config", "configs/endstation_ax7101_8x8.yaml", "--interfaces", "1", "--output", "$PACKET/scratch/size-8x8-if1", "--libc", "$PACKET/scratch/runtime-freestanding/libc.a", "--compiler-runtime", "$PACKET/scratch/runtime-freestanding/libcompiler_rt.a"]
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 82980,
+    ".rodata": 25158,
+    ".data": 448,
+    ".bss": 77428,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8472,
+    "image_arena": 24032,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2480,
+    "image_latency": 36,
+    "image_licences": 9,
+    "image_map_pools": 448,
+    "image_map_scratch": 576,
+    "image_maps": 4608,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_sources": 288,
+    "image_srp": 5240,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "434075d542821b58e95d5fc62e9a404364e84bb5217a1531f4908fdd46fe76b1"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "02303f083ac7146e9ead1d39a35cd8a43e73c46271644f7a46c2b02b7f4c5e09"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 135168,
+      "sha256": "71a7d72872f4dc78e9b0de4d17dd0af18dad3c456616c2779f9769546852146c"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 132877,
+      "sha256": "7e7369f38fe7676473f7c76d493965b58c6628daa991edacab4967ea7969ff71"
+    }
+  ],
+  "ram_sections": 194206,
+  "ram_span": 194224
+}

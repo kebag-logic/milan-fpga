@@ -1,0 +1,17 @@
+[
+  {
+    "name": "aecp-asan-app-if1",
+    "cwd": "$CHECKOUT",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "--asan",
+      "--interfaces",
+      "1",
+      "--output",
+      "$PACKET/scratch/aecp-asan-app-if1",
+      "--app"
+    ]
+  }
+]

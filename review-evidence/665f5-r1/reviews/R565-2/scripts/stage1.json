@@ -1,0 +1,53 @@
+[
+  {
+    "name": "firmware-bank",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$PACKET/scratch/firmware-bank"
+    ],
+    "cwd": "$CHECKOUT"
+  },
+  {
+    "name": "aecp-mutations",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_mutants.py",
+      "--output",
+      "$PACKET/scratch/aecp-mutants"
+    ],
+    "cwd": "$CHECKOUT"
+  },
+  {
+    "name": "mailbox",
+    "argv": [
+      "make",
+      "-j16",
+      "-C",
+      "tb/verilator/mbx",
+      "VBUILD_JOBS=1",
+      "VERILATOR=$PINNED_VERILATOR"
+    ],
+    "cwd": "$PACKET/scratch/mailbox-source",
+    "env": {
+      "VERILATOR": "$PINNED_VERILATOR",
+      "VBUILD_JOBS": "1"
+    }
+  },
+  {
+    "name": "mailbox-generator",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ],
+    "cwd": "$CHECKOUT"
+  }
+]

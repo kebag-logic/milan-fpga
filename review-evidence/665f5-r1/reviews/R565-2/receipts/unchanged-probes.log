@@ -1,0 +1,36 @@
+COMMAND ["python3", "-B", "$PACKET/scripts/run_probes.py", "$CHECKOUT", "$PACKET"]
+Note: Google Test filter = Core.R565*:Core.P2*:Core.P3*:Core.P6*
+[==========] Running 7 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 7 tests from Core
+[ RUN      ] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors
+[       OK ] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors (0 ms)
+[ RUN      ] Core.R565SetStreamInfoReturnsCurrentObservationFields
+[       OK ] Core.R565SetStreamInfoReturnsCurrentObservationFields (0 ms)
+[ RUN      ] Core.R565UnavailableStreamDoesNotStarveOtherNotices
+[       OK ] Core.R565UnavailableStreamDoesNotStarveOtherNotices (0 ms)
+[ RUN      ] Core.R565CrossInstanceCallbackIsRefused
+[       OK ] Core.R565CrossInstanceCallbackIsRefused (0 ms)
+[ RUN      ] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand
+PROBE P2 flags=0x20000000 status=0
+PROBE P2 flags=0x00000000 status=0
+PROBE P2 flags=0x20000004 status=0
+PROBE P2 flags=0x20000008 status=0
+[       OK ] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand (0 ms)
+[ RUN      ] Core.P3_HdcpApmCommandIsAcknowledgedNotImplemented
+PROBE P3 message_type=2 responses=1 ignored_delta=0 reply_type=3 status=1
+PROBE P3 message_type=4 responses=1 ignored_delta=0 reply_type=5 status=1
+PROBE P3 message_type=8 responses=1 ignored_delta=0 reply_type=9 status=1
+PROBE P3 message_type=14 responses=0 ignored_delta=1
+[       OK ] Core.P3_HdcpApmCommandIsAcknowledgedNotImplemented (0 ms)
+[ RUN      ] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices
+PROBE P6 sent=2 avb_counter_notices=1 clock_domain_counter_notices=1 busy_polls=2/100
+[       OK ] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices (0 ms)
+[----------] 7 tests from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 7 tests.
+== AECP core: checks: 7   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (7 tests, 0 failures, exit 0)

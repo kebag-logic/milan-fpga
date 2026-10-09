@@ -1,0 +1,28 @@
+[
+  {
+    "name": "unchanged-probes",
+    "cwd": "$CHECKOUT",
+    "argv": [
+      "python3",
+      "-B",
+      "$PACKET/scripts/run_probes.py",
+      "$CHECKOUT",
+      "$PACKET"
+    ]
+  },
+  {
+    "name": "runtime-rebuild",
+    "cwd": "$CHECKOUT",
+    "argv": [
+      "python3",
+      "-B",
+      "$PACKET/scripts/runtime.py",
+      "$CHECKOUT",
+      "$PACKET",
+      "$PICOLIBC",
+      "$COMPILER_RT",
+      "$LITEX_SOFTWARE",
+      "$RUNTIME_CC"
+    ]
+  }
+]

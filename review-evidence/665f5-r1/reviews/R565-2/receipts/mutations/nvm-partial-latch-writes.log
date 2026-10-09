@@ -1,0 +1,24 @@
+Note: Google Test filter = Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Nvm
+[ RUN      ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:299: Failure
+Value of: owner.port.latch(&owner,NVM_G_MAPO,0,b.data(),b.size()-1)
+  Actual: true
+Expected: false
+
+  [FAIL] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch: Expected: false
+[  FAILED  ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch (2 ms)
+[----------] 1 test from Nvm (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

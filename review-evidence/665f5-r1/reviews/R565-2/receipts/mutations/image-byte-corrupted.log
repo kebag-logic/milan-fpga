@@ -1,0 +1,801 @@
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Image
+[ RUN      ] Image.EveryDescriptor
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\xFF' (255), '\xFE' (254), '\0', '\0', '\x1' (1), '\0', '\x1B' (27), '\xC5' (197), '\xC1' (193), '\x93' (147), 'X' (88, 0x58), '\x93' (147), '\xE1' (225), '\0', '\0', '\xC5' (197), '\x88' (136), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\xFF' (255), '\xFE' (254), '\0', '\0', '\x1' (1), '\0', '\x1B' (27), '\xC5' (197), '\xC1' (193), '\x93' (147), 'X' (88, 0x58), '\x93' (147), '\xE1' (225), '\0', '\0', '\xC5' (197), '\x88' (136), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 256
+  d.type
+    Which is: 0
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x1' (1), '\0', '\0', 'D' (68, 0x44), 'e' (101, 0x65), 'f' (102, 0x66), 'a' (97, 0x61), 'u' (117, 0x75), 'l' (108, 0x6C), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x1' (1), '\0', '\0', 'D' (68, 0x44), 'e' (101, 0x65), 'f' (102, 0x66), 'a' (97, 0x61), 'u' (117, 0x75), 'l' (108, 0x6C), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 257
+  d.type
+    Which is: 1
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x2' (2), '\0', '\0', 'A' (65, 0x41), 'u' (117, 0x75), 'd' (100, 0x64), 'i' (105, 0x69), 'o' (111, 0x6F), ' ' (32, 0x20), 'U' (85, 0x55), 'n' (110, 0x6E), 'i' (105, 0x69), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x2' (2), '\0', '\0', 'A' (65, 0x41), 'u' (117, 0x75), 'd' (100, 0x64), 'i' (105, 0x69), 'o' (111, 0x6F), ' ' (32, 0x20), 'U' (85, 0x55), 'n' (110, 0x6E), 'i' (105, 0x69), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 258
+  d.type
+    Which is: 2
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x5' (5), '\0', '\0', 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x5' (5), '\0', '\0', 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 261
+  d.type
+    Which is: 5
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x5' (5), '\0', '\x1' (1), 'C' (67, 0x43), 'R' (82, 0x52), 'F' (70, 0x46), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x5' (5), '\0', '\x1' (1), 'C' (67, 0x43), 'R' (82, 0x52), 'F' (70, 0x46), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 261
+  d.type
+    Which is: 5
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x6' (6), '\0', '\0', 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x6' (6), '\0', '\0', 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 262
+  d.type
+    Which is: 6
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x6' (6), '\0', '\x1' (1), 'C' (67, 0x43), 'R' (82, 0x52), 'F' (70, 0x46), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x6' (6), '\0', '\x1' (1), 'C' (67, 0x43), 'R' (82, 0x52), 'F' (70, 0x46), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 262
+  d.type
+    Which is: 6
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\t' (9), '\0', '\0', 'A' (65, 0x41), 'V' (86, 0x56), 'B' (66, 0x42), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), 't' (116, 0x74), 'e' (101, 0x65), 'r' (114, 0x72), 'f' (102, 0x66), 'a' (97, 0x61), 'c' (99, 0x63), 'e' (101, 0x65), ' ' (32, 0x20), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\t' (9), '\0', '\0', 'A' (65, 0x41), 'V' (86, 0x56), 'B' (66, 0x42), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), 't' (116, 0x74), 'e' (101, 0x65), 'r' (114, 0x72), 'f' (102, 0x66), 'a' (97, 0x61), 'c' (99, 0x63), 'e' (101, 0x65), ' ' (32, 0x20), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 265
+  d.type
+    Which is: 9
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\n' (10, 0xA), '\0', '\0', 'I' (73, 0x49), 'n' (110, 0x6E), 't' (116, 0x74), 'e' (101, 0x65), 'r' (114, 0x72), 'n' (110, 0x6E), 'a' (97, 0x61), 'l' (108, 0x6C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\n' (10, 0xA), '\0', '\0', 'I' (73, 0x49), 'n' (110, 0x6E), 't' (116, 0x74), 'e' (101, 0x65), 'r' (114, 0x72), 'n' (110, 0x6E), 'a' (97, 0x61), 'l' (108, 0x6C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+@@ -1,2 +1,2 @@
+-{ '\x1' (1), '
++{ '\0', '
+ ' (10, 0xA), '\0', '\0', 'I' (73, 0x49), 'n' (110, 0x6E), 't' (116, 0x74), 'e' (101, 0x65), 'r' (114, 0x72), 'n' (110, 0x6E), 'a' (97, 0x61), 'l' (108, 0x6C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 266
+  d.type
+    Which is: 10
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\n' (10, 0xA), '\0', '\x1' (1), 'C' (67, 0x43), 'R' (82, 0x52), 'F' (70, 0x46), ' ' (32, 0x20), 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\n' (10, 0xA), '\0', '\x1' (1), 'C' (67, 0x43), 'R' (82, 0x52), 'F' (70, 0x46), ' ' (32, 0x20), 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+@@ -1,2 +1,2 @@
+-{ '\x1' (1), '
++{ '\0', '
+ ' (10, 0xA), '\0', '\x1' (1), 'C' (67, 0x43), 'R' (82, 0x52), 'F' (70, 0x46), ' ' (32, 0x20), 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 266
+  d.type
+    Which is: 10
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\n' (10, 0xA), '\0', '\x2' (2), 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\n' (10, 0xA), '\0', '\x2' (2), 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+@@ -1,2 +1,2 @@
+-{ '\x1' (1), '
++{ '\0', '
+ ' (10, 0xA), '\0', '\x2' (2), 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 266
+  d.type
+    Which is: 10
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\f' (12, 0xC), '\0', '\0', 'e' (101, 0x65), 'n' (110, 0x6E), '-' (45, 0x2D), 'E' (69, 0x45), 'N' (78, 0x4E), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\f' (12, 0xC), '\0', '\0', 'e' (101, 0x65), 'n' (110, 0x6E), '-' (45, 0x2D), 'E' (69, 0x45), 'N' (78, 0x4E), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 268
+  d.type
+    Which is: 12
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\r' (13, 0xD), '\0', '\0', 'M' (77, 0x4D), 'i' (105, 0x69), 'l' (108, 0x6C), 'a' (97, 0x61), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'P' (80, 0x50), 'G' (71, 0x47), 'A' (65, 0x41), ' ' (32, 0x20), '1' (49, 0x31), 'x' (120, 0x78), '1' (49, 0x31), ' ' (32, 0x20), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\r' (13, 0xD), '\0', '\0', 'M' (77, 0x4D), 'i' (105, 0x69), 'l' (108, 0x6C), 'a' (97, 0x61), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'P' (80, 0x50), 'G' (71, 0x47), 'A' (65, 0x41), ' ' (32, 0x20), '1' (49, 0x31), 'x' (120, 0x78), '1' (49, 0x31), ' ' (32, 0x20), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 269
+  d.type
+    Which is: 13
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\xE' (14), '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\b' (8), '\0', '\0', '\0', '\0', '\0', '\0' }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\xE' (14), '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\b' (8), '\0', '\0', '\0', '\0', '\0', '\0' }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 270
+  d.type
+    Which is: 14
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\xF' (15), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x11' (17), '\0', '\b' (8), '\0', '\0', '\0', '\0' }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\xF' (15), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x11' (17), '\0', '\b' (8), '\0', '\0', '\0', '\0' }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 271
+  d.type
+    Which is: 15
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\0', 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'F' (70, 0x46), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\0', 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'F' (70, 0x46), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x1' (1), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'F' (70, 0x46), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x1' (1), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'F' (70, 0x46), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x2' (2), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'F' (70, 0x46), 'C' (67, 0x43), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x2' (2), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'F' (70, 0x46), 'C' (67, 0x43), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x3' (3), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'L' (76, 0x4C), 'F' (70, 0x46), 'E' (69, 0x45), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x3' (3), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'L' (76, 0x4C), 'F' (70, 0x46), 'E' (69, 0x45), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x4' (4), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'R' (82, 0x52), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x4' (4), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'R' (82, 0x52), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x5' (5), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'R' (82, 0x52), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x5' (5), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'R' (82, 0x52), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x6' (6), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'S' (83, 0x53), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x6' (6), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'S' (83, 0x53), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\a' (7), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'S' (83, 0x53), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\a' (7), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'O' (79, 0x4F), 'u' (117, 0x75), 't' (116, 0x74), ' ' (32, 0x20), 'S' (83, 0x53), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\b' (8), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\b' (8), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\t' (9), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\t' (9), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\n' (10, 0xA), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'C' (67, 0x43), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\n' (10, 0xA), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'C' (67, 0x43), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+@@ -1,2 +1,2 @@
+-{ '\x1' (1), '\x14' (20), '\0', '
++{ '\0', '\x14' (20), '\0', '
+ ' (10, 0xA), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'F' (70, 0x46), 'C' (67, 0x43), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\v' (11, 0xB), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'L' (76, 0x4C), 'F' (70, 0x46), 'E' (69, 0x45), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\v' (11, 0xB), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'L' (76, 0x4C), 'F' (70, 0x46), 'E' (69, 0x45), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\f' (12, 0xC), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'R' (82, 0x52), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\f' (12, 0xC), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'R' (82, 0x52), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\r' (13, 0xD), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'R' (82, 0x52), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\r' (13, 0xD), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'R' (82, 0x52), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\xE' (14), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'S' (83, 0x53), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\xE' (14), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'S' (83, 0x53), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\xF' (15), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'S' (83, 0x53), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\xF' (15), 'T' (84, 0x54), 'D' (68, 0x44), 'M' (77, 0x4D), '8' (56, 0x38), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), 'S' (83, 0x53), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x10' (16), 'P' (80, 0x50), 'i' (105, 0x69), 'l' (108, 0x6C), 'o' (111, 0x6F), 't' (116, 0x74), ' ' (32, 0x20), 'T' (84, 0x54), 'o' (111, 0x6F), 'n' (110, 0x6E), 'e' (101, 0x65), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x10' (16), 'P' (80, 0x50), 'i' (105, 0x69), 'l' (108, 0x6C), 'o' (111, 0x6F), 't' (116, 0x74), ' ' (32, 0x20), 'T' (84, 0x54), 'o' (111, 0x6F), 'n' (110, 0x6E), 'e' (101, 0x65), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x11' (17), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'F' (70, 0x46), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x11' (17), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'F' (70, 0x46), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x12' (18), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'F' (70, 0x46), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x12' (18), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'F' (70, 0x46), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x13' (19), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'F' (70, 0x46), 'C' (67, 0x43), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x13' (19), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'F' (70, 0x46), 'C' (67, 0x43), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x14' (20), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'L' (76, 0x4C), 'F' (70, 0x46), 'E' (69, 0x45), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x14' (20), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'L' (76, 0x4C), 'F' (70, 0x46), 'E' (69, 0x45), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x15' (21), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'R' (82, 0x52), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x15' (21), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'R' (82, 0x52), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x16' (22), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'R' (82, 0x52), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x16' (22), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'R' (82, 0x52), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x17' (23), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'S' (83, 0x53), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x17' (23), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'S' (83, 0x53), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x14' (20), '\0', '\x18' (24), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'S' (83, 0x53), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x14' (20), '\0', '\x18' (24), 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'S' (83, 0x53), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 276
+  d.type
+    Which is: 20
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '\x1A' (26), '\0', '\0', 'I' (73, 0x49), 'd' (100, 0x64), 'e' (101, 0x65), 'n' (110, 0x6E), 't' (116, 0x74), 'i' (105, 0x69), 'f' (102, 0x66), 'y' (121, 0x79), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '\x1A' (26), '\0', '\0', 'I' (73, 0x49), 'd' (100, 0x64), 'e' (101, 0x65), 'n' (110, 0x6E), 't' (116, 0x74), 'i' (105, 0x69), 'f' (102, 0x66), 'y' (121, 0x79), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 282
+  d.type
+    Which is: 26
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:58: Failure
+Expected equality of these values:
+  std::vector<uint8_t>(d.value,d.value+d.length)
+    Which is: { '\x1' (1), '$' (36, 0x24), '\0', '\0', 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'R' (82, 0x52), 'e' (101, 0x65), 'f' (102, 0x66), 'e' (101, 0x65), 'r' (114, 0x72), 'e' (101, 0x65), 'n' (110, 0x6E), 'c' (99, 0x63), 'e' (101, 0x65), ' ' (32, 0x20), 'F' (70, 0x46), 'o' (111, 0x6F), 'r' (114, 0x72), 'm' (109, 0x6D), 'a' (97, 0x61), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  std::vector<uint8_t>(d.defaults,d.defaults+d.length)
+    Which is: { '\0', '$' (36, 0x24), '\0', '\0', 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'R' (82, 0x52), 'e' (101, 0x65), 'f' (102, 0x66), 'e' (101, 0x65), 'r' (114, 0x72), 'e' (101, 0x65), 'n' (110, 0x6E), 'c' (99, 0x63), 'e' (101, 0x65), ' ' (32, 0x20), 'F' (70, 0x46), 'o' (111, 0x6F), 'r' (114, 0x72), 'm' (109, 0x6D), 'a' (97, 0x61), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', ... }
+descriptor defaults survive the image load
+
+  [FAIL] Image.EveryDescriptor: descriptor defaults survive the image load
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp_image.cpp:62: Failure
+Expected equality of these values:
+  (d.value[0]<<8)|d.value[1]
+    Which is: 292
+  d.type
+    Which is: 36
+descriptor type matches its key
+
+  [FAIL] Image.EveryDescriptor: descriptor type matches its key
+[  FAILED  ] Image.EveryDescriptor (1 ms)
+[ RUN      ] Image.RejectHeader
+[       OK ] Image.RejectHeader (0 ms)
+[ RUN      ] Image.RejectDirectory
+[       OK ] Image.RejectDirectory (3 ms)
+[----------] 3 tests from Image (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (5 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Image.EveryDescriptor
+
+ 1 FAILED TEST
+== AECP descriptor image: checks: 3   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 3 checks, exit 1)

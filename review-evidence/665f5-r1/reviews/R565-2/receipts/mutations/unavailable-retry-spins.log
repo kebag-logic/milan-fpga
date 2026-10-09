@@ -1,0 +1,46 @@
+Note: Google Test filter = Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:1007: Failure
+Expected equality of these values:
+  reads
+    Which is: 77
+  attempts
+    Which is: 17
+failed snapshots wait for a timed retry
+
+  [FAIL] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin: failed snapshots wait for a timed retry
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Timer(true, 0)
+Google Mock tried the following 1 expectation, but it didn't match:
+
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:1008: EXPECT_CALL(mock, Timer(true,1))...
+  Expected arg #1: is equal to 1
+           Actual: 0
+         Expected: to be called at least once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin:            Actual: never called - unsatisfied and active
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:1008: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Timer(true,1))...
+         Expected: to be called at least once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin:            Actual: never called - unsatisfied and active
+[  FAILED  ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

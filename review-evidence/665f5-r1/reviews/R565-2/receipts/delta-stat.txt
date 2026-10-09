@@ -1,0 +1,19 @@
+ docs/design/MAILBOX_SPLIT.md                   |   2 +-
+ sw/firmware/ctrl/aecp/README.md                |  47 +++++-
+ sw/firmware/ctrl/aecp/aecp.c                   |  91 ++++++++---
+ sw/firmware/ctrl/aecp/aecp.h                   |   8 +-
+ sw/firmware/ctrl/aecp/aecp_commands.c          |  88 +++++++----
+ sw/firmware/ctrl/aecp/aecp_internal.h          |   4 +
+ sw/firmware/ctrl/aecp/aecp_maps.c              |   7 +-
+ sw/firmware/ctrl/aecp/aecp_mbx.c               |   8 +-
+ sw/firmware/ctrl/aecp/aecp_state.c             |   5 +-
+ sw/firmware/ctrl/app/ctrl_app_aecp.c           |   8 +-
+ sw/firmware/ctrl/test/aecp_callback_inputs.hpp |  33 ++++
+ sw/firmware/ctrl/test/aecp_mutants.py          |  56 ++++++-
+ sw/firmware/ctrl/test/aecp_wire.cpp            |   7 +
+ sw/firmware/ctrl/test/aecp_wire_model.hpp      |   9 +-
+ sw/firmware/ctrl/test/aecp_wire_oracle.py      |  31 +++-
+ sw/firmware/ctrl/test/test_aecp.cpp            | 207 ++++++++++++++++++++++++-
+ sw/firmware/ctrl/test/test_aecp_debug.cpp      |  29 ++--
+ sw/firmware/gtest/coverage.ratchet             |  10 +-
+ 18 files changed, 559 insertions(+), 91 deletions(-)

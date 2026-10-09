@@ -1,0 +1,53 @@
+Note: Google Test filter = Core.GroupNameDoesNotOverwriteFirmwareVersion:Core.NamesAndDescriptorOverlay:Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[==========] Running 3 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Nvm
+[ RUN      ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:204: Failure
+Expected equality of these values:
+  b
+    Which is: { '\0', '\x2' (2), '\0', '\0', '2' (50, 0x32), '.' (46, 0x2E), '9' (57, 0x39), '6' (54, 0x36), '.' (46, 0x2E), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  Bytes(d.defaults+offset,d.defaults+offset+64)
+    Which is: { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+  [FAIL] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords:     Which is: { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+[  FAILED  ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords (3 ms)
+[----------] 1 test from Nvm (4 ms total)
+
+[----------] 2 tests from Core
+[ RUN      ] Core.NamesAndDescriptorOverlay
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:642: Failure
+Expected equality of these values:
+  Bytes(d.value+offset,d.value+offset+64)
+    Which is: { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  Bytes(b.begin()+8,b.end())
+    Which is: { 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), 'B' (66, 0x42), ... }
+READ_DESCRIPTOR uses the same name
+
+  [FAIL] Core.NamesAndDescriptorOverlay: READ_DESCRIPTOR uses the same name
+[  FAILED  ] Core.NamesAndDescriptorOverlay (0 ms)
+[ RUN      ] Core.GroupNameDoesNotOverwriteFirmwareVersion
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:1331: Failure
+Expected equality of these values:
+  Bytes(out.begin()+42,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\xFF' (255), '\xFE' (254), '\0', '\0', '\x1' (1), '\0', '\x1B' (27), '\xC5' (197), '\xC1' (193), '\x93' (147), 'X' (88, 0x58), '\x93' (147), '\xE1' (225), '\0', '\0', '\xC5' (197), '\x88' (136), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), ... }
+  expected
+    Which is: { '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\xFF' (255), '\xFE' (254), '\0', '\0', '\x1' (1), '\0', '\x1B' (27), '\xC5' (197), '\xC1' (193), '\x93' (147), 'X' (88, 0x58), '\x93' (147), '\xE1' (225), '\0', '\0', '\xC5' (197), '\x88' (136), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), ... }
+IEEE Table 7-2 group_name changes only bytes 180 through 243
+
+  [FAIL] Core.GroupNameDoesNotOverwriteFirmwareVersion: IEEE Table 7-2 group_name changes only bytes 180 through 243
+[  FAILED  ] Core.GroupNameDoesNotOverwriteFirmwareVersion (0 ms)
+[----------] 2 tests from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 2 test suites ran. (4 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[  FAILED  ] Core.NamesAndDescriptorOverlay
+[  FAILED  ] Core.GroupNameDoesNotOverwriteFirmwareVersion
+
+ 3 FAILED TESTS
+== AECP core: checks: 3   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 3 checks, exit 1)

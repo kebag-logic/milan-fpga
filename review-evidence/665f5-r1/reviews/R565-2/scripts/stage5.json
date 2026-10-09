@@ -1,0 +1,35 @@
+[
+  {
+    "name": "firmware-bank-retry",
+    "cwd": "$CHECKOUT",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$PACKET/scratch/firmware-bank-retry"
+    ],
+    "timeout": 570
+  },
+  {
+    "name": "wire-if2",
+    "cwd": "$CHECKOUT",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_wire.py",
+      "--reference",
+      "$PACKET/scratch/processor-if2",
+      "--interfaces",
+      "2",
+      "--output",
+      "$PACKET/scratch/wire-if2",
+      "--verilator",
+      "$PINNED_VERILATOR"
+    ],
+    "timeout": 570
+  }
+]

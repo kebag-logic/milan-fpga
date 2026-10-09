@@ -1,0 +1,12 @@
+COMMAND ["python3", "-B", "$PACKET/scripts/verify_tree.py", "$CHECKOUT"]
+. 0ded1f269a44d107498f177c8276665656e07d30 PASS 1264 tracked blobs, bytes/modes/index
+gitlink external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+gitlink gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d PASS 104 tracked blobs, bytes/modes/index
+gitlink protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a
+protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a PASS 562 tracked blobs, bytes/modes/index
+gitlink third_party/lwSRP 9197193e47a6bb1c45a56d90a18c1784123aba44
+third_party/lwSRP 9197193e47a6bb1c45a56d90a18c1784123aba44 PASS 60 tracked blobs, bytes/modes/index
+gitlink third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce PASS 214 tracked blobs, bytes/modes/index
+PASS exact-head tracked identity and required submodules

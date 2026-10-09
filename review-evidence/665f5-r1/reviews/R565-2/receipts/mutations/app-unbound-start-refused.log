@@ -1,0 +1,34 @@
+Note: Google Test filter = App.UnboundStartAndStopAreSuccessfulNoOps
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from App
+[ RUN      ] App.UnboundStartAndStopAreSuccessfulNoOps
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:544: Failure
+Expected equality of these values:
+  get(p->bytes+16,2)>>11
+    Which is: 10
+  0u
+    Which is: 0
+
+  [FAIL] App.UnboundStartAndStopAreSuccessfulNoOps:     Which is: 0
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:544: Failure
+Expected equality of these values:
+  get(p->bytes+16,2)>>11
+    Which is: 10
+  0u
+    Which is: 0
+
+  [FAIL] App.UnboundStartAndStopAreSuccessfulNoOps:     Which is: 0
+[  FAILED  ] App.UnboundStartAndStopAreSuccessfulNoOps (3 ms)
+[----------] 1 test from App (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] App.UnboundStartAndStopAreSuccessfulNoOps
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

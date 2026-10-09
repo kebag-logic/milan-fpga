@@ -1,0 +1,22 @@
+[
+  {
+    "name": "wire-if1",
+    "cwd": "$CHECKOUT",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_wire.py",
+      "--reference",
+      "$CHECKOUT/protocol-processor",
+      "--interfaces",
+      "1",
+      "--output",
+      "$PACKET/scratch/wire-if1",
+      "--verilator",
+      "$PINNED_VERILATOR"
+    ],
+    "env": {
+      "VERILATOR_JOBS": "1"
+    }
+  }
+]

@@ -1,0 +1,63 @@
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 84220,
+    ".rodata": 11950,
+    ".data": 56,
+    ".bss": 48620,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 16,
+    "image_app": 9640,
+    "image_arena": 19840,
+    "image_binding": 40,
+    "image_descriptors": 672,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 840,
+    "image_latency": 8,
+    "image_licences": 4,
+    "image_map_pools": 56,
+    "image_map_scratch": 136,
+    "image_maps": 200,
+    "image_model": 12,
+    "image_names": 468,
+    "image_sources": 128,
+    "image_srp": 5032,
+    "image_state": 84,
+    "image_values": 4527
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "434075d542821b58e95d5fc62e9a404364e84bb5217a1531f4908fdd46fe76b1"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "02303f083ac7146e9ead1d39a35cd8a43e73c46271644f7a46c2b02b7f4c5e09"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 122808,
+      "sha256": "547eef164dcbc244d19a0751b7af26e86e5a4c26a15c1b55a9cb15b5edd54895"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 136984,
+      "sha256": "071e9ea0dce520618ccbf5c2d56aa63c3b9bf5cbab8e2655ebe8fabda3d24a29"
+    }
+  ],
+  "ram_sections": 153038,
+  "ram_span": 153056
+}
