@@ -360,7 +360,8 @@ static bool transmit(struct aecp *a)
 		}
 	}
 	while (a->notify && a->recipient < a->cfg.interfaces * AECP_REGISTRATIONS) {
-		unsigned i = a->recipient / AECP_REGISTRATIONS, n = a->recipient % AECP_REGISTRATIONS;
+		unsigned i = a->recipient / AECP_REGISTRATIONS;
+		unsigned n = a->recipient % AECP_REGISTRATIONS;
 		struct aecp_registration *r = &a->registry[i][n];
 		if (r->used && r->controller != a->requester) {
 			a->response_interface = i;
@@ -415,7 +416,9 @@ static bool asynchronous(struct aecp *a)
 			return true;
 		}
 	}
-	static const uint16_t commands[4] = {15u, 39u, 40u, 41u};
+	static const uint16_t commands[4] = {
+		15u, 39u, 40u, 41u
+	};
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_event *e = &a->cfg.events[n];
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];

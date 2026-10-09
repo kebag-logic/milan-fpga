@@ -17,7 +17,8 @@ struct ctrl_app_aecp {
 	uint8_t input_events[ACMP_MAX_SINKS];
 	uint32_t bindings;
 	uint16_t start_index;
-	bool start_pending, start_value;
+	bool start_pending;
+	bool start_value;
 };
 
 // After ctrl_app_compose, before restore/open. The caller initializes state

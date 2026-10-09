@@ -23,16 +23,25 @@ enum aecp_status {
 };
 
 struct aecp_stream_info {
-	uint64_t stream_id, dest_mac, failure_bridge_id;
-	uint32_t flags, latency, flags_ex;
+	uint64_t stream_id;
+	uint64_t dest_mac;
+	uint64_t failure_bridge_id;
+	uint32_t flags;
+	uint32_t latency;
+	uint32_t flags_ex;
 	uint16_t vlan;
-	uint8_t failure_code, probing_status, acmp_status;
-	bool bound, running;
+	uint8_t failure_code;
+	uint8_t probing_status;
+	uint8_t acmp_status;
+	bool bound;
+	bool running;
 };
 struct aecp_avb_info {
 	uint64_t gm_id;
 	uint32_t propagation_delay;
-	uint8_t domain, flags, class_priority;
+	uint8_t domain;
+	uint8_t flags;
+	uint8_t class_priority;
 	uint16_t class_vlan;
 };
 struct aecp_counters {
@@ -40,14 +49,21 @@ struct aecp_counters {
 	uint32_t value[32];
 };
 struct aecp_mapping {
-	uint16_t stream, channel, cluster, cluster_channel;
+	uint16_t stream;
+	uint16_t channel;
+	uint16_t cluster;
+	uint16_t cluster_channel;
 };
 // One pool per descriptor; storage is supplied by the shape, never allocated.
 // Defaults are the model's power-on routing, not a copy of mutable live state.
 struct aecp_map {
-	uint16_t type, index, configuration, page_channels;
+	uint16_t type;
+	uint16_t index;
+	uint16_t configuration;
+	uint16_t page_channels;
 	struct aecp_mapping *rows;
-	size_t count, capacity;
+	size_t count;
+	size_t capacity;
 	const struct aecp_mapping *defaults;
 	size_t default_count;
 };
@@ -80,9 +96,11 @@ struct aecp_ports {
 	bool (*format)(void *, uint16_t, uint16_t, uint64_t);
 };
 struct aecp_registration {
-	uint64_t controller, mac;
+	uint64_t controller;
+	uint64_t mac;
 	uint32_t deadline;
-	uint16_t sequence, probe_sequence;
+	uint16_t sequence;
+	uint16_t probe_sequence;
 	uint8_t probing; // 0 monitor, 1 first probe, 2 retry
 	bool used;
 };
@@ -92,11 +110,13 @@ struct aecp_event {
 	uint32_t counter_at;
 	uint32_t cookie;
 	uint8_t pending;
-	bool counter_sent, awaiting_output;
+	bool counter_sent;
+	bool awaiting_output;
 	uint8_t overrides; // bit 0 scalar, bit 1 latency: a default-valued SET counts
 };
 struct aecp_config {
-	uint64_t entity_id, mac[AECP_INTERFACES];
+	uint64_t entity_id;
+	uint64_t mac[AECP_INTERFACES];
 	unsigned interfaces;
 	struct aecp_model *model;
 	struct aecp_map *maps;
@@ -108,20 +128,32 @@ struct aecp {
 	struct aecp_config cfg;
 	const struct aecp_ports *ports;
 	struct aecp_registration registry[AECP_INTERFACES][AECP_REGISTRATIONS];
-	uint64_t lock_owner, system_id, requester;
-	uint32_t lock_deadline, now;
-	uint16_t configuration, probe_sequence;
+	uint64_t lock_owner;
+	uint64_t system_id;
+	uint64_t requester;
+	uint32_t lock_deadline;
+	uint32_t now;
+	uint16_t configuration;
+	uint16_t probe_sequence;
 	uint8_t identify;
-	bool locked, in_port, open, start_pending;
+	bool locked;
+	bool in_port;
+	bool open;
+	bool start_pending;
 	uint8_t response[AECP_FRAME_BYTES];
 	size_t response_bytes;
-	unsigned response_interface, recipient;
-	bool response_owed, notify;
+	unsigned response_interface;
+	unsigned recipient;
+	bool response_owed;
+	bool notify;
 	int probe_recipient;
 	size_t counter_event;
 	uint32_t start_deadline;
 	uint32_t tx_cookie;
-	uint32_t malformed, ignored, busy_drops, reentries;
+	uint32_t malformed;
+	uint32_t ignored;
+	uint32_t busy_drops;
+	uint32_t reentries;
 };
 
 bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);

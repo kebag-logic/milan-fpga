@@ -184,7 +184,8 @@ static unsigned names(struct aecp *a, bool set, const uint8_t *in, size_t len,
 // Value/list fields in IEEE 7.2 AUDIO_UNIT, STREAM and CLOCK_DOMAIN.
 unsigned aecp_scalar_validate(struct aecp *a, const struct aecp_descriptor *d, enum aecp_change kind, const uint8_t *value)
 {
-	bool format = kind == AECP_CHANGE_FORMAT, rate = kind == AECP_CHANGE_RATE;
+	bool format = kind == AECP_CHANGE_FORMAT;
+	bool rate = kind == AECP_CHANGE_RATE;
 	unsigned width = format ? 8u : (rate ? 4u : 2u);
 	unsigned field = format ? 82u : (rate ? 140u : 72u);
 	if (d->length < field + 4u) {
@@ -494,7 +495,8 @@ static unsigned dynamic(struct aecp *a, unsigned interface, const uint8_t *in, s
 		at += 8u + size;
 	}
 	for (size_t at = 0; at < len;) {
-		size_t size = (size_t)wire_be16(in + at), result_bytes = 0;
+		size_t size = (size_t)wire_be16(in + at);
+		size_t result_bytes = 0;
 		uint16_t cmd = (uint16_t)wire_be16(in + at + 6);
 		uint8_t result[AECP_FRAME_BYTES];
 		unsigned status = aecp_command(a, interface, cmd, in + at + 8, size, result, &result_bytes);

@@ -6,7 +6,9 @@
 
 struct aecp_value {
 	enum aecp_change kind;
-	uint16_t type, index, name;
+	uint16_t type;
+	uint16_t index;
+	uint16_t name;
 };
 
 // Restore is admitted only before open. Validation is shared with live SETs,

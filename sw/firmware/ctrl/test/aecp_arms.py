@@ -45,9 +45,13 @@ def application_sources(tree: Tree) -> tuple[list, list, list]:
     return inc, sources, []
 
 
-def core_arm(tree: Tree, config: Path, interfaces: int = 1, mailbox: bool = False, nvm: bool = False,
-             selected: str = "*", app: bool = False, debug: bool = False) -> Outcome:
+def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
+             selected: str = "*") -> Outcome:
     """The protocol owner against explicit environment ports at either interface count."""
+    app = mode == "app"
+    debug = mode == "debug"
+    mailbox = app or mode == "mailbox"
+    nvm = app or mode == "nvm"
     out = tree.out / f"aecp-{'mailbox' if mailbox else 'core'}-{config.stem}-if{interfaces}"
     out.mkdir(parents=True, exist_ok=True)
     result = run([sys.executable, "-B", str(CTRL / "aecp/aecp_entity.py"),
@@ -111,10 +115,10 @@ def image_arm(tree: Tree, config: Path) -> Outcome:
 def all_arms(tree: Tree) -> list[Outcome]:
     """Full application on both contracts, plus every builder image and the debug guard."""
     shipping = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
-    results = [core_arm(tree, shipping, i, mailbox=True, nvm=True, app=True) for i in (1, 2)]
+    results = [core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
     results += [image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
     if not tree.build.coverage:
-        results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build), shipping, debug=True))
+        results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build), shipping, mode="debug"))
     return results
 
 
@@ -133,8 +137,10 @@ if __name__ == "__main__":
     parser.add_argument("--app", action="store_true")
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()
-    tree = Tree(CTRL, args.output, args.output / "reuse", fw_gtest.Build(coverage=args.coverage, address_sanitizer=args.asan, jobs=4))
-    result = core_arm(tree, args.config, args.interfaces, args.mailbox or args.app, args.nvm or args.app,
-                      args.filter, args.app, args.debug) if args.core or args.mailbox or args.nvm or args.app or args.debug else image_arm(tree, args.config)
+    build = fw_gtest.Build(coverage=args.coverage, address_sanitizer=args.asan, jobs=4)
+    tree = Tree(CTRL, args.output, args.output / "reuse", build)
+    mode = next((n for n in ("app", "debug", "mailbox", "nvm", "core") if getattr(args, n)), "image")
+    result = (image_arm(tree, args.config) if mode == "image" else
+              core_arm(tree, args.config, args.interfaces, mode, args.filter))
     print(result.log)
     raise SystemExit(result.rc)

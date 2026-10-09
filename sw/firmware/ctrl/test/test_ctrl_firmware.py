@@ -66,6 +66,9 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            with its src/ unmodified, or the arm refuses.
   srp      per-interface MSRP/MVRP, static entity shapes, service latency,
            debug reentry guards and processor-derived wire stimuli.
+  aecp     the complete command, notification and saved-state owner, composed
+           with ACMP and SRP at one and two interfaces; every generated AEM
+           image, mailbox completion ordering, latency and debug guards.
 
 Every arm but rv32 and entity's header generation is a GoogleTest binary
 (sw/firmware/gtest/README.md), graded by the tally it prints.
@@ -107,6 +110,7 @@ import ctrl_mutants  # noqa: E402
 import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
+import aecp_mutants  # noqa: E402
 import fw_gtest  # noqa: E402
 from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
@@ -197,6 +201,8 @@ def main(argv: list[str] | None = None) -> int:
         failed = ctrl_arms.report(outcomes)
         if args.self_test and not failed:
             failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice, args.mutation_shard)
+            aecp_shard = args.mutation_shard or (args.slice[0] - 1, args.slice[1])
+            failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
             if args.lwsrp is not None:
                 failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
                 complete_srp_table = srp_mutants.DEFECTS

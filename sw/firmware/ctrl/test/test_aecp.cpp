@@ -41,7 +41,10 @@ using testing::_;
 using testing::Return;
 using testing::NiceMock;
 namespace {
-constexpr uint64_t ENTITY=0x020000fffe000001, MAC=0x020000000001, CTLR=0x1020304050607080, CMAC=0x020000000081;
+constexpr uint64_t ENTITY=0x020000fffe000001;
+constexpr uint64_t MAC=0x020000000001;
+constexpr uint64_t CTLR=0x1020304050607080;
+constexpr uint64_t CMAC=0x020000000081;
 uint64_t get(const uint8_t *b,unsigned n) { uint64_t v=0;while(n--) v=(v<<8)|*b++;return v; }
 uint64_t get(const Bytes& b,size_t at,unsigned n) { return get(b.data()+at,n); }
 void put(uint8_t *b,uint64_t v,unsigned n) { for(unsigned k=0;k<n;++k) b[k]=v>>(8*(n-k-1)); }
@@ -76,7 +79,10 @@ struct Core : testing::Test {
     aecp_model model{};
     NiceMock<Ports> mock;
     uint32_t ms=0;
-    bool room=true,bound=false,streaming=false,observations=true;
+    bool room=true;
+    bool bound=false;
+    bool streaming=false;
+    bool observations=true;
     std::vector<std::pair<unsigned,Bytes>> sent;
     std::vector<uint32_t> completions;
     std::array<aecp_mapping,64> input{},output{};
@@ -443,7 +449,8 @@ TEST_F(App, InputInfoReflectsAcmpSettlementAndFailures)
     ASSERT_TRUE(read());EXPECT_EQ(v.flags,0xf6000006u);EXPECT_EQ(v.flags_ex,1u);
     sink.tk_failed=true;ASSERT_TRUE(read());EXPECT_EQ(v.flags,0xfe000046u);
     EXPECT_FALSE(bridge.ports.stream(&bridge,0,5,ACMP_MAX_SINKS,&v));
-    unsigned source_calls=0,srp_calls=0;
+    unsigned source_calls=0;
+    unsigned srp_calls=0;
     acmp_env_ports.ctx=&source_calls;
     acmp_env_ports.source=[](void*p,unsigned i,acmp_source_state*v){++*static_cast<unsigned*>(p);v->stream.vlan_id=i;};
     acmp_source_state source{};bridge.acmp_ports.source(&bridge,7,&source);
@@ -1144,7 +1151,8 @@ TEST_F(Core, NotificationBackpressureAndLatestCompletion)
     auto s=command(34,target(5,0));aecp_rx(&a,0,s.data(),s.size());aecp_start_done(&a,true,false);drain();
     aecp_changed(&a,5,0,8);aecp_poll(&a);aecp_poll(&a);auto old=completions.front(),latest=completions.back();
     completions.clear();aecp_changed(&a,5,0,8);ms=5000;aecp_tx_complete(&a,old,0);
-    size_t count=sent.size();aecp_poll(&a);EXPECT_EQ(sent.size(),count)<<"an old completion cannot release a newer copy";
+    size_t count=sent.size();aecp_poll(&a);aecp_poll(&a);
+    EXPECT_EQ(sent.size(),count)<<"an old completion cannot release a newer copy";
     aecp_tx_complete(&a,latest,5000);ms=5999;drain();EXPECT_EQ(sent.size(),count);
     ms=6000;drain();EXPECT_EQ(sent.size(),count+2);
 }
@@ -1250,7 +1258,8 @@ TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
 
 namespace {
 struct Latency : Mailbox {
-    uint64_t ns=0,accesses=0;
+    uint64_t ns=0;
+    uint64_t accesses=0;
     std::vector<uint64_t> commits;
     static void trace(void *p,bool write,uint32_t offset,uint32_t) {
         auto &s=*static_cast<Latency*>(p);s.ns+=100;++s.accesses;
