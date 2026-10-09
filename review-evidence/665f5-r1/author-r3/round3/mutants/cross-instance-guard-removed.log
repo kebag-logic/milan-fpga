@@ -1,0 +1,169 @@
+Note: Google Test filter = Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 0
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 0
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 1
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 1
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:594: Failure
+Expected equality of these values:
+  std::memcmp(&before,&other,sizeof other)
+    Which is: -1
+  0
+cross-instance input leaves destination state intact: 1
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: cross-instance input leaves destination state intact: 1
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 2
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 2
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 3
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 3
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 4
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:594: Failure
+Expected equality of these values:
+  std::memcmp(&before,&other,sizeof other)
+    Which is: -1
+  0
+cross-instance input leaves destination state intact: 4
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: cross-instance input leaves destination state intact: 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 5
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 5
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 6
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 6
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 7
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 7
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 8
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 8
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 9
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 9
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 10
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 10
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 11
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 11
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 12
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 12
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 13
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 13
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:591: Failure
+Expected equality of these values:
+  a.reentries-source_count+other.reentries-before.reentries
+    Which is: 0
+  1u
+    Which is: 1
+every cross-instance public input counts its refusal: 14
+
+  [FAIL] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks: every cross-instance public input counts its refusal: 14
+[  FAILED  ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

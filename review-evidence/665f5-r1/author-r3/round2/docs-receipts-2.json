@@ -1,0 +1,236 @@
+[
+  {
+    "index": 2,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.5916581000019505
+  },
+  {
+    "index": 5,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_gptp_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.2143380640009127
+  },
+  {
+    "index": 8,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.5209611339996627
+  },
+  {
+    "index": 11,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.1642227760021342
+  },
+  {
+    "index": 14,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.5668008229986299
+  },
+  {
+    "index": 17,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.16516680300264852
+  },
+  {
+    "index": 20,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.36563422300241655
+  },
+  {
+    "index": 23,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.9695402610013844
+  },
+  {
+    "index": 26,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.16450804400301422
+  },
+  {
+    "index": 29,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.345408768997004
+  },
+  {
+    "index": 32,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "rc": 0,
+    "seconds": 2.372853622000548
+  },
+  {
+    "index": 35,
+    "command": [
+      "$DOC_PYTHON",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 80.51405670399981
+  },
+  {
+    "index": 38,
+    "command": [
+      "$DOC_PYTHON",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 2.3698696219980775
+  },
+  {
+    "index": 41,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.5153835999990406
+  },
+  {
+    "index": 44,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 3.121716533001745
+  },
+  {
+    "index": 47,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_todo_ownership.py"
+    ],
+    "rc": 0,
+    "seconds": 1.7687624749996758
+  },
+  {
+    "index": 50,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.88748404099897
+  },
+  {
+    "index": 53,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sv_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.4667150350032898
+  },
+  {
+    "index": 56,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.9234456300000602
+  },
+  {
+    "index": 59,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sh_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.26510706200133427
+  },
+  {
+    "index": 62,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 16.727026810000098
+  },
+  {
+    "index": 65,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.066202890000568
+  },
+  {
+    "index": 68,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.9301688029991055
+  },
+  {
+    "index": 71,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.5658960440014198
+  }
+]

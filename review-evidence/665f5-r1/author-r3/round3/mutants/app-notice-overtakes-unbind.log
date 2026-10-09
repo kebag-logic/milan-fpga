@@ -1,0 +1,22 @@
+Note: Google Test filter = App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from App
+[ RUN      ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:448: Failure
+Expected: (response) < (notice), actual: 17 vs 16
+
+  [FAIL] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse: Expected: (response) < (notice), actual: 17 vs 16
+[  FAILED  ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse (3 ms)
+[----------] 1 test from App (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

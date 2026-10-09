@@ -1,0 +1,300 @@
+Note: Google Test filter = Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Core
+[ RUN      ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:796: Failure
+Expected equality of these values:
+  latency[0]
+    Which is: 765432
+  123456u
+    Which is: 123456
+ignored flags and no subcommand preserve latency
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: ignored flags and no subcommand preserve latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:789: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  latency
+    Which is: 123456
+SET latency follows Milan success and current refusal rules
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET latency follows Milan success and current refusal rules
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:796: Failure
+Expected equality of these values:
+  latency[0]
+    Which is: 765432
+  123456u
+    Which is: 123456
+ignored flags and no subcommand preserve latency
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: ignored flags and no subcommand preserve latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:789: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  latency
+    Which is: 123456
+SET latency follows Milan success and current refusal rules
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET latency follows Milan success and current refusal rules
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:796: Failure
+Expected equality of these values:
+  latency[0]
+    Which is: 765432
+  123456u
+    Which is: 123456
+ignored flags and no subcommand preserve latency
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: ignored flags and no subcommand preserve latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:789: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  latency
+    Which is: 123456
+SET latency follows Milan success and current refusal rules
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET latency follows Milan success and current refusal rules
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:796: Failure
+Expected equality of these values:
+  latency[0]
+    Which is: 765432
+  123456u
+    Which is: 123456
+ignored flags and no subcommand preserve latency
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: ignored flags and no subcommand preserve latency
+[  FAILED  ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal (0 ms)
+[ RUN      ] Core.SetStreamInfoWithoutSubcommandPreservesState
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:831: Failure
+Expected equality of these values:
+  latency
+    Which is: { 765432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  stored
+    Which is: { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+no subcommand preserves stored latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 0
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:832: Failure
+Expected equality of these values:
+  aecp_overridden(&a,&desc(6),2u)
+    Which is: true
+  saved
+    Which is: false
+no subcommand preserves saved override
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 0
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:828: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  saved?123456u:12345u
+    Which is: 12345
+no subcommand reports current latency, not requested latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:831: Failure
+Expected equality of these values:
+  latency
+    Which is: { 765432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  stored
+    Which is: { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+no subcommand preserves stored latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:832: Failure
+Expected equality of these values:
+  aecp_overridden(&a,&desc(6),2u)
+    Which is: true
+  saved
+    Which is: false
+no subcommand preserves saved override
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:828: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  saved?123456u:12345u
+    Which is: 12345
+no subcommand reports current latency, not requested latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 8
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:831: Failure
+Expected equality of these values:
+  latency
+    Which is: { 765432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  stored
+    Which is: { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+no subcommand preserves stored latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 8
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:832: Failure
+Expected equality of these values:
+  aecp_overridden(&a,&desc(6),2u)
+    Which is: true
+  saved
+    Which is: false
+no subcommand preserves saved override
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 8
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:828: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  saved?123456u:12345u
+    Which is: 12345
+no subcommand reports current latency, not requested latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 12
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:831: Failure
+Expected equality of these values:
+  latency
+    Which is: { 765432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  stored
+    Which is: { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+no subcommand preserves stored latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 12
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:832: Failure
+Expected equality of these values:
+  aecp_overridden(&a,&desc(6),2u)
+    Which is: true
+  saved
+    Which is: false
+no subcommand preserves saved override
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 12
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: observed latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:831: Failure
+Expected equality of these values:
+  latency
+    Which is: { 765432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  stored
+    Which is: { 123456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+no subcommand preserves stored latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 0
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:828: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  saved?123456u:12345u
+    Which is: 123456
+no subcommand reports current latency, not requested latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:831: Failure
+Expected equality of these values:
+  latency
+    Which is: { 765432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  stored
+    Which is: { 123456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+no subcommand preserves stored latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:828: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  saved?123456u:12345u
+    Which is: 123456
+no subcommand reports current latency, not requested latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 8
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:831: Failure
+Expected equality of these values:
+  latency
+    Which is: { 765432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  stored
+    Which is: { 123456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+no subcommand preserves stored latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 8
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:828: Failure
+Expected equality of these values:
+  get(out,62,4)
+    Which is: 765432
+  saved?123456u:12345u
+    Which is: 123456
+no subcommand reports current latency, not requested latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 12
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:831: Failure
+Expected equality of these values:
+  latency
+    Which is: { 765432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  stored
+    Which is: { 123456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+no subcommand preserves stored latency
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:825: 12
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+
+  [FAIL] Core.SetStreamInfoWithoutSubcommandPreservesState: $TREE/sw/firmware/ctrl/test/test_aecp.cpp:815: saved latency
+[  FAILED  ] Core.SetStreamInfoWithoutSubcommandPreservesState (0 ms)
+[----------] 2 tests from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[  FAILED  ] Core.SetStreamInfoWithoutSubcommandPreservesState
+
+ 2 FAILED TESTS
+== AECP core: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

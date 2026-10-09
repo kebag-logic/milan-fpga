@@ -1,0 +1,123 @@
+test_rom_clock_contract:
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+test_sim_clock:
+[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+test_clock_crossing_constraints:
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+[constraints] $F5_SCRATCH/constraint-log-q6wforya/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit as $F5_SCRATCH/constraint-log-q6wforya/digilent_arty.bit.rejected
+[constraints] quarantined $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit as $F5_SCRATCH/constraint-log-q6wforya/alinx_ax7101.bit.rejected
+[constraints] $F5_SCRATCH/constraint-log-q6wforya/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+test_qspi_owner_transition_completed_write_prefixes:
+  [gate 1e] 4 injected before/after-write prefixes across the fabric-baremetal refresh retain one live owner and every prefix resumes; all writes verify; a live target bit gets an AEM-only repair; a source BIT replaced after live identification cannot replace the validated staged copy; every success/refusal (including both recovery primitives) cleans its staged transaction set; the ownerless owner, malformed/collision layouts, missing artifacts, missing cpu_xlen x2 and an unidentified live bit all refuse before programmer I/O
+test_current_shape_matches_gen_aem_store:
+  [gate 3] arty_current overlay == gen_aem_store model (15 descriptor types, formats, rates, port layout)
+test_both_policies_valid:
+  [gate 7] arty_4x4: all 3 cluster policies -> valid layouts
+  [gate 7] ax7101_8x8: all 3 cluster policies -> valid layouts
+  [gate 7] cap-at-interface caps 8ch streams to the 2ch i2s interface (32 clusters total)
+  [gate 7] cluster-per-stream-channel keeps the legacy-8 layout expressible
+test_resource_calibration:
+  [gate 11] SKIP: real report not on disk ($USER_ROOT/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+test_crf_output_overlay_structure:
+  [gate 15] arty_4x4: CRF STREAM_OUTPUT idx 4 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] ax7101_8x8: CRF STREAM_OUTPUT idx 8 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] arty_current: no CRF output (deployed shape untouched)
+test_shipping_channel_map_table:
+  [gate 16d] 8 published channel-map rows match the generated shape header, the AEM overlay, the 2-based TDM lane table and the platform pin (J11.5, ball A20); a wrong key and a dropped row both refused
+test_lwsrp_tspec_and_params:
+  [gate 18c] arty_current: TSpec derived, 7360000 bps = 7.36% of the port (ceiling 75%), ctx rows 2 needed / 2 available
+  [gate 18c] arty_4x4: TSpec derived, 47360000 bps = 47.36% of the port (ceiling 75%), ctx rows 9 needed / 9 available
+  [gate 18c] ax7101_8x8: TSpec derived, 138240000 bps = 13.82% of the port (ceiling 75%), ctx rows 17 needed / 17 available
+  [gate 18c] NxN ctx-row shortfall (L+T-1 rows in max(L,T) contexts) marked planned; 1x1 supported
+test_csr_defaults_rejects:
+  [gate 20b] 3/3 malformed LWSRP_CTRL sources rejected with ConfigError; en+talker+q4 emits 0x00000013
+test_optional_blocks_default_present:
+  [gate 23a] 3 shipped configs: prune posture == the declared table exactly (arty_current/arty_4x4 ALL PRESENT; ax7101_8x8 spends render_lpf + latency_taps + i2s_playback), argv flags == declared prunes, and every estimate row follows its block's declared posture
+test_optional_block_consumption_gate_bites:
+  [gate 23d mutation] 7/7 disconnected --no-* handoffs rejected by block name
+  [gate 23d mutation] 6/6 dedicated keywords MilanSoC.__init__ never declares rejected by block name (LiteX warns and ignores; the bitstream ships unpruned)
+  [gate 23d chain] 10/10 cut links between main() and `dp_params[f"p_{param}"] = 0` rejected, the three that would prune an UNFLAGGED build included
+test_clock_plan_instance_gate_bites:
+  [gate 23l mutation] 7/7 broken links of the declaration -> Instance chain rejected in 9 s: a dropped CLI handoff, a dropped constructor keyword, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, a bit clock that stopped following the declaration, and a parameter passed at the default
+test_build_sh_argv_follows_the_config:
+  [gate 23i] --no-datapath-probes planted in a throwaway config reached the build.sh arty launch line at position 6 of 34 with build.sh unedited; the other 26 design tokens and the 5-token flow tail are the unplanted line's, verbatim
+test_toolchain_patches_are_applied:
+  [gate 23h] the 5 patches in sw/litex/patches are the 5 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 4 installed files byte for byte, including 1 that two patches share and must therefore compose on ({'gmii.py': ['0002-liteeth-gmii-tx-clk-invert.patch', '0007-liteeth-gmii-rx-capture.patch']}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+test_front_end_routing_per_board:
+  [gate 24c] per-board front-end routing: tdm routed {'arty': True, 'ax7101': True}; 3 configs checked at BOTH tdm_bus_wired() states; the refusal runs before the platform is built; o_i2s_mclk_o binds only to i2s_pads[0] (pmoda:4 D13) or tdm_pads
+test_firmware_version_derived_from_rtl:
+  [gate 24] firmware_version DERIVED from milan_csr VERSION 0x0002_0060 -> '2.96.0': 3/3 configs derive it and declare none, it lands zero-padded at ENTITY+116 in all 3 ROMs (1722.1 7.2.1 Table 7-2), no entity_model_id moves with it (6.2.2.8 exclusion; arty_current still pinned 0x001BC50AC1000006), firmware_rev 7 -> 2.96.7 with the same id, 4/4 bad declarations refused
+test_d10_cluster_names:
+  [gate 24c] every cluster named for its ROLE; renaming leaves entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a pool width moves it; pre-D8 hashes stay explicitly pinned to their current model
+test_gptp_dataset_matches_engine_announce:
+  [gate 26b] AVB_INTERFACE == wire Announce for all 5 configs: priority2 248, clockQuality 0xF8FE436A, log intervals -3/0/0; omitted keys fill from the engine; the parser refuses a missing or twice-declared constant ([R-parallel] on #228)
+test_schema_12_keys_reach_the_image:
+  [gate 25a] 5 tracked configs serve the pre-1.2 literals; all 11 schema 1.2 keys reach the image gen_aemi_image.py packs (id 0x001BC5C1935893E1 -> 0x123456C1935893E1: OUI only); 11/11 single-key mutants named alone
+test_per_row_format_facts_are_per_row:
+test_gptp_latency_corrections_are_declared_and_carried:
+test_soc_shipping_image_contract:
+  [gate 36b] arty_current: SoC/builder images identical
+  [gate 36b] arty_4x4: SoC/builder images identical
+  [gate 36b] arty_8ch: SoC/builder images identical
+  [gate 36b] ax7101_8x8: SoC/builder images identical
+  [gate 36b] ax7101_1x1_tdm8: SoC/builder images identical
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10 rate-empty
+  [gate 36b] unlisted current rate: L10 current-rate
+  [gate 36b] current pull mismatch: L10 current-rate
+  [gate 36b] wrong offset: L10 rate-offset
+  [gate 36b] ninth rate: L10 rate-count
+  [gate 36b] count exceeds extent: L10 rate-length
+  [gate 36b] one byte short: L10 rate-length
+  [gate 36b] one word extra: L10 rate-length
+  [gate 36b] reversed sources: L6 domain-source-identity
+  [gate 36b] source gap: L6 domain-source-identity
+  [gate 36b] duplicate source: L6 domain-source-identity
+  [gate 36b] short audio header: L10 rate-count
+  [gate 36b] short domain header: L6 domain-source-count
+  [gate 36b] empty sources: L6 domain-source-count
+  [gate 36b] short source list: L6 domain-source-length
+  [gate 36b] source list in header: L6 domain-source-offset
+  [gate 36b] padded source offset: L6 domain-source-offset
+  [gate 36b] SoC image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] SoC image without 0x0024: L1 required-type
+test_name_count_fits_the_nvm_name_block:
+  [gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:247; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127
+  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated
+Explicit non-executed arms: [('gate 11', 'real report not on disk ($USER_ROOT/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree', 'row')]
+{"family": "builder", "part": 3, "parts": 4, "names": ["test_rom_clock_contract", "test_sim_clock", "test_clock_crossing_constraints", "test_qspi_owner_transition_completed_write_prefixes", "test_current_shape_matches_gen_aem_store", "test_both_policies_valid", "test_resource_calibration", "test_crf_output_overlay_structure", "test_shipping_channel_map_table", "test_lwsrp_tspec_and_params", "test_csr_defaults_rejects", "test_optional_blocks_default_present", "test_optional_block_consumption_gate_bites", "test_clock_plan_instance_gate_bites", "test_build_sh_argv_follows_the_config", "test_toolchain_patches_are_applied", "test_front_end_routing_per_board", "test_firmware_version_derived_from_rtl", "test_d10_cluster_names", "test_gptp_dataset_matches_engine_announce", "test_schema_12_keys_reach_the_image", "test_per_row_format_facts_are_per_row", "test_gptp_latency_corrections_are_declared_and_carried", "test_soc_shipping_image_contract", "test_name_count_fits_the_nvm_name_block"], "rc": 0, "seconds": 36.90069664899784}

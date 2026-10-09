@@ -1,0 +1,41 @@
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Image
+[ RUN      ] Image.EveryDescriptor
+[       OK ] Image.EveryDescriptor (0 ms)
+[ RUN      ] Image.RejectHeader
+[       OK ] Image.RejectHeader (0 ms)
+[ RUN      ] Image.RejectDirectory
+$TREE/sw/firmware/ctrl/test/test_aecp_image.cpp:105: Failure
+Value of: load()
+  Actual: true
+Expected: false
+invalid descriptor directory is refused at its boundary
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp_image.cpp:103: 272
+
+  [FAIL] Image.RejectDirectory: $TREE/sw/firmware/ctrl/test/test_aecp_image.cpp:103: 272
+$TREE/sw/firmware/ctrl/test/test_aecp_image.cpp:106: Failure
+Expected equality of these values:
+  model.count
+    Which is: 42
+  0u
+    Which is: 0
+partial descriptor loads remain closed
+Google Test trace:
+$TREE/sw/firmware/ctrl/test/test_aecp_image.cpp:103: 272
+
+  [FAIL] Image.RejectDirectory: $TREE/sw/firmware/ctrl/test/test_aecp_image.cpp:103: 272
+[  FAILED  ] Image.RejectDirectory (3 ms)
+[----------] 3 tests from Image (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (4 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Image.RejectDirectory
+
+ 1 FAILED TEST
+== AECP descriptor image: checks: 3   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 3 checks, exit 1)

@@ -1,0 +1,117 @@
+Note: Google Test filter = Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 11
+  status
+    Which is: 0
+status for command 14
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: status for command 14
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:784: Failure
+Expected equality of these values:
+  get(out,42,4)
+    Which is: 4143972352
+  flags
+    Which is: 3607101440
+SET response flags describe current state
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET response flags describe current state
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 11
+  status
+    Which is: 0
+status for command 14
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: status for command 14
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:784: Failure
+Expected equality of these values:
+  get(out,42,4)
+    Which is: 4143972352
+  flags
+    Which is: 3607101440
+SET response flags describe current state
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET response flags describe current state
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 11
+  status
+    Which is: 0
+status for command 14
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: status for command 14
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:784: Failure
+Expected equality of these values:
+  get(out,42,4)
+    Which is: 4143972352
+  flags
+    Which is: 3607101440
+SET response flags describe current state
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET response flags describe current state
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 11
+  status
+    Which is: 0
+status for command 14
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: status for command 14
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:784: Failure
+Expected equality of these values:
+  get(out,42,4)
+    Which is: 4143972352
+  flags
+    Which is: 3607101440
+SET response flags describe current state
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET response flags describe current state
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 11
+  status
+    Which is: 0
+status for command 14
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: status for command 14
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 11
+  status
+    Which is: 0
+status for command 14
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: status for command 14
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 11
+  status
+    Which is: 0
+status for command 14
+
+  [FAIL] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: status for command 14
+[  FAILED  ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,26 @@
+Note: Google Test filter = App.InputInfoReflectsAcmpSettlementAndFailures
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from App
+[ RUN      ] App.InputInfoReflectsAcmpSettlementAndFailures
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:481: Failure
+Expected equality of these values:
+  v.flags
+    Which is: 4127195142
+  0xfe000046u
+    Which is: 4261412934
+
+  [FAIL] App.InputInfoReflectsAcmpSettlementAndFailures:     Which is: 4261412934
+[  FAILED  ] App.InputInfoReflectsAcmpSettlementAndFailures (11 ms)
+[----------] 1 test from App (11 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (11 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] App.InputInfoReflectsAcmpSettlementAndFailures
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

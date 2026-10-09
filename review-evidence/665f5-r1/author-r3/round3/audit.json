@@ -1,0 +1,87 @@
+{
+  "head": "fb9c57d2ae3484804ff90f67feb57bf420c93dfa",
+  "prior_published_head": "0ded1f269a44d107498f177c8276665656e07d30",
+  "changed": [
+    "sw/firmware/ctrl/aecp/README.md",
+    "sw/firmware/ctrl/test/aecp_mutants.py",
+    "sw/firmware/ctrl/test/aecp_wire.cpp",
+    "sw/firmware/ctrl/test/aecp_wire.py",
+    "sw/firmware/ctrl/test/aecp_wire_oracle.py",
+    "sw/firmware/ctrl/test/test_aecp.cpp"
+  ],
+  "worktree_clean": true,
+  "production_changed": false,
+  "firmware": {
+    "arms": 59,
+    "tallies": 65,
+    "checks": 1408,
+    "failures": 0
+  },
+  "source_plants": 72,
+  "named_tests": 74,
+  "reviewer_plants": [
+    {
+      "plant": "nosub-applies-request-latency",
+      "rc": 1,
+      "failing_tests": [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "Core.SetStreamInfoWithoutSubcommandPreservesState"
+      ]
+    },
+    {
+      "plant": "nosub-reports-request-latency",
+      "rc": 1,
+      "failing_tests": [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "Core.SetStreamInfoWithoutSubcommandPreservesState"
+      ]
+    },
+    {
+      "plant": "saved-state-refused",
+      "rc": 1,
+      "failing_tests": [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "Core.SetStreamInfoWithoutSubcommandPreservesState"
+      ]
+    },
+    {
+      "plant": "unavailable-event-dropped",
+      "rc": 1,
+      "failing_tests": [
+        "Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded",
+        "Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin"
+      ]
+    },
+    {
+      "plant": "init-guard-after-memset",
+      "rc": 1,
+      "failing_tests": [
+        "Core.CrossInstanceInputsAreRefusedInsideRealCallbacks"
+      ]
+    }
+  ],
+  "reviewer_plants_exact": true,
+  "wire_records": [
+    132,
+    137,
+    137
+  ],
+  "oracle_controls_per_ingress": 7,
+  "docs_commands": 73,
+  "builder_functions": 100,
+  "builder_nonexecuted": [
+    [
+      "gate 11",
+      "real report not on disk ($USER_ROOT/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+      "row"
+    ]
+  ],
+  "profile_tables": {
+    "accepted_cases.items()": 38,
+    "accepted_makefiles.items()": 4,
+    "mutations": 359,
+    "disconnected identity controls": 43
+  },
+  "maximum_ram_span": 221728,
+  "memory_peak_bytes": 5893865472
+}

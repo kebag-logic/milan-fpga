@@ -1,0 +1,241 @@
+[
+  {
+    "index": 1,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "$F5_SCRATCH/docs/milan-hdl-reference"
+    ],
+    "rc": 0,
+    "seconds": 2.0224120560014853
+  },
+  {
+    "index": 4,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06407294199743774
+  },
+  {
+    "index": 7,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.46543580399884377
+  },
+  {
+    "index": 10,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.5155038299999433
+  },
+  {
+    "index": 13,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.4650506760008284
+  },
+  {
+    "index": 16,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.11418103899995913
+  },
+  {
+    "index": 19,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.41514013599953614
+  },
+  {
+    "index": 22,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.834982710999611
+  },
+  {
+    "index": 25,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "rc": 0,
+    "seconds": 0.2651594009985274
+  },
+  {
+    "index": 28,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 21.569509009001194
+  },
+  {
+    "index": 31,
+    "command": [
+      "$DOC_PYTHON",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.0690036339983635
+  },
+  {
+    "index": 34,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "seconds": 1.0669927959970664
+  },
+  {
+    "index": 37,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.2653213240009791
+  },
+  {
+    "index": 40,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 3.423401639000076
+  },
+  {
+    "index": 43,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_port_contracts.py"
+    ],
+    "rc": 0,
+    "seconds": 2.97322233900195
+  },
+  {
+    "index": 46,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.8732013480002934
+  },
+  {
+    "index": 49,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 7.5368094370023755
+  },
+  {
+    "index": 52,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.4654915580031229
+  },
+  {
+    "index": 55,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.8686961349994817
+  },
+  {
+    "index": 58,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.730784499999572
+  },
+  {
+    "index": 61,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.26444131399694015
+  },
+  {
+    "index": 64,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.41480421199958073
+  },
+  {
+    "index": 67,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.220578763000958
+  },
+  {
+    "index": 70,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 20.61081433000072
+  }
+]

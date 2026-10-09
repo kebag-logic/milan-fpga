@@ -1,0 +1,28 @@
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Image
+[ RUN      ] Image.EveryDescriptor
+[       OK ] Image.EveryDescriptor (0 ms)
+[ RUN      ] Image.RejectHeader
+$TREE/sw/firmware/ctrl/test/test_aecp_image.cpp:81: Failure
+Value of: aecp_image_load(&model,blob.data(),blob.size(),crc(blob)^1, descriptors.data(),descriptors.size(),values.data(),values.size())
+  Actual: true
+Expected: false
+image CRC rejects corrupted descriptor bytes
+
+  [FAIL] Image.RejectHeader: image CRC rejects corrupted descriptor bytes
+[  FAILED  ] Image.RejectHeader (0 ms)
+[ RUN      ] Image.RejectDirectory
+[       OK ] Image.RejectDirectory (1 ms)
+[----------] 3 tests from Image (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Image.RejectHeader
+
+ 1 FAILED TEST
+== AECP descriptor image: checks: 3   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 3 checks, exit 1)

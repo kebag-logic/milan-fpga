@@ -1,0 +1,26 @@
+Note: Google Test filter = Mailbox.EveryInterfaceAndObservationPort
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Mailbox
+[ RUN      ] Mailbox.EveryInterfaceAndObservationPort
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1425: Failure
+Expected equality of these values:
+  fabric.tx_sent
+    Which is: 6
+  before+1
+    Which is: 7
+
+  [FAIL] Mailbox.EveryInterfaceAndObservationPort:     Which is: 7
+[  FAILED  ] Mailbox.EveryInterfaceAndObservationPort (0 ms)
+[----------] 1 test from Mailbox (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Mailbox.EveryInterfaceAndObservationPort
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

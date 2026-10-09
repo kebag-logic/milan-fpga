@@ -1,0 +1,719 @@
+[
+  {
+    "index": 0,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.2142591750016436
+  },
+  {
+    "index": 1,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "$F5_SCRATCH/docs/milan-hdl-reference"
+    ],
+    "rc": 0,
+    "seconds": 1.7173403259948827
+  },
+  {
+    "index": 2,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.781072896999831
+  },
+  {
+    "index": 3,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06384924700250849
+  },
+  {
+    "index": 4,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06389325199415907
+  },
+  {
+    "index": 5,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_gptp_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.2142617089994019
+  },
+  {
+    "index": 6,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.214144582998415
+  },
+  {
+    "index": 7,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.4148649429989746
+  },
+  {
+    "index": 8,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.5154334960025153
+  },
+  {
+    "index": 9,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.36472772200067993
+  },
+  {
+    "index": 10,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.46905993499967735
+  },
+  {
+    "index": 11,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.16456970699800877
+  },
+  {
+    "index": 12,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.6724160219964688
+  },
+  {
+    "index": 13,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.5159712820022833
+  },
+  {
+    "index": 14,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.5656910670004436
+  },
+  {
+    "index": 15,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.5155756890017074
+  },
+  {
+    "index": 16,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06405553600052372
+  },
+  {
+    "index": 17,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.16598016399802873
+  },
+  {
+    "index": 18,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.3161904840017087
+  },
+  {
+    "index": 19,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.3663131919965963
+  },
+  {
+    "index": 20,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.41470122699684
+  },
+  {
+    "index": 21,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.41628204000153346
+  },
+  {
+    "index": 22,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.381964750995394
+  },
+  {
+    "index": 23,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.966927890003717
+  },
+  {
+    "index": 24,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.26629959300044
+  },
+  {
+    "index": 25,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "rc": 0,
+    "seconds": 0.21422588599671144
+  },
+  {
+    "index": 26,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.16479642799822614
+  },
+  {
+    "index": 27,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06390696299786214
+  },
+  {
+    "index": 28,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 18.772526947999722
+  },
+  {
+    "index": 29,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.940088344999822
+  },
+  {
+    "index": 30,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.3183771269978024
+  },
+  {
+    "index": 31,
+    "command": [
+      "$DOC_PYTHON",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.7200493729978916
+  },
+  {
+    "index": 32,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "rc": 0,
+    "seconds": 2.3689447739961906
+  },
+  {
+    "index": 33,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 49.99229565600399
+  },
+  {
+    "index": 34,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "seconds": 0.8676903150044382
+  },
+  {
+    "index": 35,
+    "command": [
+      "$DOC_PYTHON",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 78.12206710300234
+  },
+  {
+    "index": 36,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_soc_sources.py"
+    ],
+    "rc": 0,
+    "seconds": 0.16426992700144183
+  },
+  {
+    "index": 37,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.2648746930062771
+  },
+  {
+    "index": 38,
+    "command": [
+      "$DOC_PYTHON",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 2.17030012000032
+  },
+  {
+    "index": 39,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "seconds": 1.7706800539963297
+  },
+  {
+    "index": 40,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.176416482994682
+  },
+  {
+    "index": 41,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.5174706730031176
+  },
+  {
+    "index": 42,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.5667135710027651
+  },
+  {
+    "index": 43,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_port_contracts.py"
+    ],
+    "rc": 0,
+    "seconds": 2.6708826999965822
+  },
+  {
+    "index": 44,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 3.0707617739972193
+  },
+  {
+    "index": 45,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.7681856990020606
+  },
+  {
+    "index": 46,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.9707405829976778
+  },
+  {
+    "index": 47,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_todo_ownership.py"
+    ],
+    "rc": 0,
+    "seconds": 1.8194683000037912
+  },
+  {
+    "index": 48,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.068682984005136
+  },
+  {
+    "index": 49,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 7.862088415000471
+  },
+  {
+    "index": 50,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.833929139997053
+  },
+  {
+    "index": 51,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.4647771849995479
+  },
+  {
+    "index": 52,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.46646446800150443
+  },
+  {
+    "index": 53,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sv_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.467281514997012
+  },
+  {
+    "index": 54,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.5656331190039054
+  },
+  {
+    "index": 55,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.9724495190021116
+  },
+  {
+    "index": 56,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.8195678600022802
+  },
+  {
+    "index": 57,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.9390132520056795
+  },
+  {
+    "index": 58,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.8764041070026
+  },
+  {
+    "index": 59,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sh_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.2642730900042807
+  },
+  {
+    "index": 60,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.3154777239979012
+  },
+  {
+    "index": 61,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.2149650749997818
+  },
+  {
+    "index": 62,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 16.657136392997927
+  },
+  {
+    "index": 63,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11413383800390875
+  },
+  {
+    "index": 64,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.46474985500390176
+  },
+  {
+    "index": 65,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06405151099897921
+  },
+  {
+    "index": 66,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.0187074760033283
+  },
+  {
+    "index": 67,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.6731083510021563
+  },
+  {
+    "index": 68,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.681022251999821
+  },
+  {
+    "index": 69,
+    "command": [
+      "$DOC_PYTHON",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.11407180500100367
+  },
+  {
+    "index": 70,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 17.022311346001516
+  },
+  {
+    "index": 71,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.4673478039985639
+  },
+  {
+    "index": 72,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 57.16999811000278
+  }
+]

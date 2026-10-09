@@ -1,0 +1,531 @@
+[
+  {
+    "label": "native-if1",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "--app",
+      "--interfaces",
+      "1",
+      "--output",
+      "$F5_SCRATCH/native-if1"
+    ],
+    "rc": 0,
+    "seconds": 23.79,
+    "bytes": 15871
+  },
+  {
+    "label": "native-if2",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "--app",
+      "--interfaces",
+      "2",
+      "--output",
+      "$F5_SCRATCH/native-if2"
+    ],
+    "rc": 0,
+    "seconds": 24.43,
+    "bytes": 22058
+  },
+  {
+    "label": "review-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "$F5_SCRATCH/review-packet/scripts/run_review_mutants.py",
+      ".",
+      "$F5_SCRATCH/review-packet"
+    ],
+    "rc": 0,
+    "seconds": 37.08,
+    "bytes": 3264
+  },
+  {
+    "label": "review-probes",
+    "command": [
+      "python3",
+      "-B",
+      "$F5_SCRATCH/review-packet/scripts/run_probes.py",
+      ".",
+      "$F5_SCRATCH/review-packet",
+      "r564-2"
+    ],
+    "rc": 0,
+    "seconds": 38.01,
+    "bytes": 2948
+  },
+  {
+    "label": "mutants-0",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_mutants.py",
+      "--shard",
+      "0",
+      "2",
+      "--output",
+      "$F5_SCRATCH/mutants-0"
+    ],
+    "rc": 0,
+    "seconds": 142.84,
+    "bytes": 17517
+  },
+  {
+    "label": "mutants-1",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_mutants.py",
+      "--shard",
+      "1",
+      "2",
+      "--output",
+      "$F5_SCRATCH/mutants-1"
+    ],
+    "rc": 0,
+    "seconds": 158.05,
+    "bytes": 17468
+  },
+  {
+    "label": "firmware-bank",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$F5_SCRATCH/firmware-bank"
+    ],
+    "rc": 0,
+    "seconds": 312.77,
+    "bytes": 71999
+  },
+  {
+    "label": "coverage",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "$F5_SCRATCH/coverage",
+      "--lwsrp",
+      "third_party/lwSRP"
+    ],
+    "rc": 0,
+    "seconds": 269.7,
+    "bytes": 4282
+  },
+  {
+    "label": "coverage-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.42,
+    "bytes": 3710
+  },
+  {
+    "label": "asan-1",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "--app",
+      "--interfaces",
+      "1",
+      "--asan",
+      "--output",
+      "$F5_SCRATCH/asan-1"
+    ],
+    "rc": 0,
+    "seconds": 35.26,
+    "bytes": 15875
+  },
+  {
+    "label": "asan-2",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "--app",
+      "--interfaces",
+      "2",
+      "--asan",
+      "--output",
+      "$F5_SCRATCH/asan-2"
+    ],
+    "rc": 0,
+    "seconds": 34.99,
+    "bytes": 22051
+  },
+  {
+    "label": "rv32-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 12.9,
+    "bytes": 793
+  },
+  {
+    "label": "tally-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/suite_tally.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.17,
+    "bytes": 6164
+  },
+  {
+    "label": "wire-final-1",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_wire.py",
+      "--reference",
+      "protocol-processor",
+      "--interfaces",
+      "1",
+      "--output",
+      "$F5_SCRATCH/wire-1",
+      "--verilator",
+      "$PINNED_VERILATOR"
+    ],
+    "rc": 0,
+    "seconds": 36.36,
+    "bytes": 88
+  },
+  {
+    "label": "wire-final-2",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_wire.py",
+      "--reference",
+      "$PROCESSOR_69_REFERENCE",
+      "--interfaces",
+      "2",
+      "--output",
+      "$F5_SCRATCH/wire-2",
+      "--verilator",
+      "$PINNED_VERILATOR"
+    ],
+    "rc": 0,
+    "seconds": 87.46,
+    "bytes": 91
+  },
+  {
+    "label": "mailbox-generation",
+    "command": [
+      "python3",
+      "-B",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.16,
+    "bytes": 26
+  },
+  {
+    "label": "mailbox",
+    "command": [
+      "make",
+      "-C",
+      "$F5_SCRATCH/mailbox-tree/tb/verilator/mbx",
+      "VBUILD_JOBS=8",
+      "VERILATOR=$PINNED_VERILATOR"
+    ],
+    "rc": 0,
+    "seconds": 52.09,
+    "bytes": 84751
+  },
+  {
+    "label": "docs-final-0",
+    "command": [
+      "$DOC_PYTHON",
+      "-B",
+      "$PACKET/run_docs_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/docs",
+      "--part",
+      "0",
+      "--parts",
+      "3"
+    ],
+    "rc": 0,
+    "seconds": 128.56,
+    "bytes": 121
+  },
+  {
+    "label": "docs-final-1",
+    "command": [
+      "$DOC_PYTHON",
+      "-B",
+      "$PACKET/run_docs_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/docs",
+      "--part",
+      "1",
+      "--parts",
+      "3"
+    ],
+    "rc": 0,
+    "seconds": 78.3,
+    "bytes": 117
+  },
+  {
+    "label": "docs-2",
+    "command": [
+      "$DOC_PYTHON",
+      "-B",
+      "$PACKET/run_docs_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/docs",
+      "--part",
+      "2",
+      "--parts",
+      "3"
+    ],
+    "rc": 0,
+    "seconds": 135.28,
+    "bytes": 117
+  },
+  {
+    "label": "docs-check",
+    "command": [
+      "$DOC_PYTHON",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.63,
+    "bytes": 128
+  },
+  {
+    "label": "python-style",
+    "command": [
+      "$DOC_PYTHON",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.23,
+    "bytes": 461
+  },
+  {
+    "label": "em-dash",
+    "command": [
+      "$DOC_PYTHON",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "5603c353"
+    ],
+    "rc": 0,
+    "seconds": 3.93,
+    "bytes": 140
+  },
+  {
+    "label": "sizes-final",
+    "command": [
+      "python3",
+      "-B",
+      "$F5_SCRATCH/run_sizes.py"
+    ],
+    "rc": 0,
+    "seconds": 17.43,
+    "bytes": 166
+  },
+  {
+    "label": "builder-0",
+    "command": [
+      "python3",
+      "-u",
+      "-B",
+      "$PACKET/run_gate_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/builder",
+      "--family",
+      "builder",
+      "--part",
+      "0",
+      "--parts",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 59.64,
+    "bytes": 11674
+  },
+  {
+    "label": "builder-1",
+    "command": [
+      "python3",
+      "-u",
+      "-B",
+      "$PACKET/run_gate_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/builder",
+      "--family",
+      "builder",
+      "--part",
+      "1",
+      "--parts",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 36.11,
+    "bytes": 12179
+  },
+  {
+    "label": "builder-2",
+    "command": [
+      "python3",
+      "-u",
+      "-B",
+      "$PACKET/run_gate_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/builder",
+      "--family",
+      "builder",
+      "--part",
+      "2",
+      "--parts",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 93.51,
+    "bytes": 17708
+  },
+  {
+    "label": "builder-3",
+    "command": [
+      "python3",
+      "-u",
+      "-B",
+      "$PACKET/run_gate_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/builder",
+      "--family",
+      "builder",
+      "--part",
+      "3",
+      "--parts",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 37.08,
+    "bytes": 15537
+  },
+  {
+    "label": "profile-0",
+    "command": [
+      "python3",
+      "-u",
+      "-B",
+      "$PACKET/run_profile_partition.py",
+      "--root",
+      ".",
+      "--output",
+      "$F5_SCRATCH/profile-0",
+      "--part",
+      "0",
+      "--parts",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 370.21,
+    "bytes": 58692
+  },
+  {
+    "label": "profile-1",
+    "command": [
+      "python3",
+      "-u",
+      "-B",
+      "$PACKET/run_profile_partition.py",
+      "--root",
+      ".",
+      "--output",
+      "$F5_SCRATCH/profile-1",
+      "--part",
+      "1",
+      "--parts",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 373.61,
+    "bytes": 58758
+  },
+  {
+    "label": "profile-2",
+    "command": [
+      "python3",
+      "-u",
+      "-B",
+      "$PACKET/run_profile_partition.py",
+      "--root",
+      ".",
+      "--output",
+      "$F5_SCRATCH/profile-2",
+      "--part",
+      "2",
+      "--parts",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 383.05,
+    "bytes": 58435
+  },
+  {
+    "label": "profile-3",
+    "command": [
+      "python3",
+      "-u",
+      "-B",
+      "$PACKET/run_profile_partition.py",
+      "--root",
+      ".",
+      "--output",
+      "$F5_SCRATCH/profile-3",
+      "--part",
+      "3",
+      "--parts",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 372.13,
+    "bytes": 58575
+  }
+]

@@ -1,0 +1,29 @@
+Note: Google Test filter = Core.LockQueriesAndExpiry
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.LockQueriesAndExpiry
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:626: Failure
+Value of: a.locked
+  Actual: true
+Expected: false
+lock expires at exactly sixty seconds
+
+  [FAIL] Core.LockQueriesAndExpiry: lock expires at exactly sixty seconds
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:628: Failure
+Expected: (it) != (sent.end()), actual: 8-byte object <E0-58 DC-0B C7-55 00-00> vs 8-byte object <E0-58 DC-0B C7-55 00-00>
+
+  [FAIL] Core.LockQueriesAndExpiry: Expected: (it) != (sent.end()), actual: 8-byte object <E0-58 DC-0B C7-55 00-00> vs 8-byte object <E0-58 DC-0B C7-55 00-00>
+[  FAILED  ] Core.LockQueriesAndExpiry (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.LockQueriesAndExpiry
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

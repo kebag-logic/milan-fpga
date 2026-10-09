@@ -1,0 +1,114 @@
+Note: Google Test filter = Core.ConfigurationAndLockedSetRefusals
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ConfigurationAndLockedSetRefusals
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 3
+status for command 6
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: status for command 6
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 3
+status for command 8
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: status for command 8
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 3
+status for command 20
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: status for command 20
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 3
+status for command 22
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: status for command 22
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 3
+status for command 14
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: status for command 14
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 3
+status for command 24
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: status for command 24
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:149: Failure
+Failed
+command produces a response: 34
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: command produces a response: 34
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:149: Failure
+Failed
+command produces a response: 16
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: command produces a response: 16
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:149: Failure
+Failed
+command produces a response: 6
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: command produces a response: 6
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:149: Failure
+Failed
+command produces a response: 7
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: command produces a response: 7
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:899: Failure
+Expected equality of these values:
+  get(out,40,2)
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals:     Which is: 1
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:900: Failure
+Expected equality of these values:
+  get(desc(0).value+310,2)
+    Which is: 0
+  1u
+    Which is: 1
+configuration agrees with ENTITY descriptor
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: configuration agrees with ENTITY descriptor
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:149: Failure
+Failed
+command produces a response: 6
+
+  [FAIL] Core.ConfigurationAndLockedSetRefusals: command produces a response: 6
+[  FAILED  ] Core.ConfigurationAndLockedSetRefusals (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.ConfigurationAndLockedSetRefusals
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

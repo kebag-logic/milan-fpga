@@ -1,0 +1,198 @@
+Note: Google Test filter = Core.RootDescriptorConfigurationIsIgnored
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.RootDescriptorConfigurationIsIgnored
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 4
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: status for command 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:570: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 1
+  0u
+    Which is: 0
+root response configuration is zero
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: root response configuration is zero
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:571: Failure
+Expected equality of these values:
+  Bytes(out.begin()+42,out.end())
+    Which is: { '\0', '\0', '\0', '\0' }
+  Bytes(d.value,d.value+d.length)
+    Which is: { '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\xFF' (255), '\xFE' (254), '\0', '\0', '\x1' (1), '\0', '\x1B' (27), '\xC5' (197), '\xC1' (193), '\x93' (147), 'X' (88, 0x58), '\x93' (147), '\xE1' (225), '\0', '\0', '\xC5' (197), '\x88' (136), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), ... }
+root descriptor ignores received configuration
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: root descriptor ignores received configuration
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 2
+status for command 4
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: status for command 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:574: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 1
+  0u
+    Which is: 0
+invalid root index still normalizes configuration
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: invalid root index still normalizes configuration
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 4
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: status for command 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:570: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 65535
+  0u
+    Which is: 0
+root response configuration is zero
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: root response configuration is zero
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:571: Failure
+Expected equality of these values:
+  Bytes(out.begin()+42,out.end())
+    Which is: { '\0', '\0', '\0', '\0' }
+  Bytes(d.value,d.value+d.length)
+    Which is: { '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\xFF' (255), '\xFE' (254), '\0', '\0', '\x1' (1), '\0', '\x1B' (27), '\xC5' (197), '\xC1' (193), '\x93' (147), 'X' (88, 0x58), '\x93' (147), '\xE1' (225), '\0', '\0', '\xC5' (197), '\x88' (136), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), '\0', '\x2' (2), 'H' (72, 0x48), '\x1' (1), ... }
+root descriptor ignores received configuration
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: root descriptor ignores received configuration
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 2
+status for command 4
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: status for command 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:574: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 65535
+  0u
+    Which is: 0
+invalid root index still normalizes configuration
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: invalid root index still normalizes configuration
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 4
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: status for command 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:570: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 1
+  0u
+    Which is: 0
+root response configuration is zero
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: root response configuration is zero
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:571: Failure
+Expected equality of these values:
+  Bytes(out.begin()+42,out.end())
+    Which is: { '\0', '\x1' (1), '\0', '\0' }
+  Bytes(d.value,d.value+d.length)
+    Which is: { '\0', '\x1' (1), '\0', '\0', 'D' (68, 0x44), 'e' (101, 0x65), 'f' (102, 0x66), 'a' (97, 0x61), 'u' (117, 0x75), 'l' (108, 0x6C), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+root descriptor ignores received configuration
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: root descriptor ignores received configuration
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 2
+status for command 4
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: status for command 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:574: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 1
+  0u
+    Which is: 0
+invalid root index still normalizes configuration
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: invalid root index still normalizes configuration
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 4
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: status for command 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:570: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 65535
+  0u
+    Which is: 0
+root response configuration is zero
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: root response configuration is zero
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:571: Failure
+Expected equality of these values:
+  Bytes(out.begin()+42,out.end())
+    Which is: { '\0', '\x1' (1), '\0', '\0' }
+  Bytes(d.value,d.value+d.length)
+    Which is: { '\0', '\x1' (1), '\0', '\0', 'D' (68, 0x44), 'e' (101, 0x65), 'f' (102, 0x66), 'a' (97, 0x61), 'u' (117, 0x75), 'l' (108, 0x6C), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+root descriptor ignores received configuration
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: root descriptor ignores received configuration
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 2
+status for command 4
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: status for command 4
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:574: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 65535
+  0u
+    Which is: 0
+invalid root index still normalizes configuration
+
+  [FAIL] Core.RootDescriptorConfigurationIsIgnored: invalid root index still normalizes configuration
+[  FAILED  ] Core.RootDescriptorConfigurationIsIgnored (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.RootDescriptorConfigurationIsIgnored
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

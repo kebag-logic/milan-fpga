@@ -1,0 +1,78 @@
+Note: Google Test filter = Core.ScalarGetSetAndCurrentValueRefusals
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ScalarGetSetAndCurrentValueRefusals
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:653: Failure
+Expected equality of these values:
+  get(out,42,width)
+    Which is: 0
+  get(b,4,width)
+    Which is: 145524899455197184
+
+  [FAIL] Core.ScalarGetSetAndCurrentValueRefusals:     Which is: 145524899455197184
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:655: Failure
+Expected equality of these values:
+  get(out,42,width)
+    Which is: 18446744073709551615
+  get(b,4,width)
+    Which is: 145524899455197184
+refused SET reports current value
+
+  [FAIL] Core.ScalarGetSetAndCurrentValueRefusals: refused SET reports current value
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:653: Failure
+Expected equality of these values:
+  get(out,42,width)
+    Which is: 0
+  get(b,4,width)
+    Which is: 145524899455197184
+
+  [FAIL] Core.ScalarGetSetAndCurrentValueRefusals:     Which is: 145524899455197184
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:655: Failure
+Expected equality of these values:
+  get(out,42,width)
+    Which is: 18446744073709551615
+  get(b,4,width)
+    Which is: 145524899455197184
+refused SET reports current value
+
+  [FAIL] Core.ScalarGetSetAndCurrentValueRefusals: refused SET reports current value
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:653: Failure
+Expected equality of these values:
+  get(out,42,width)
+    Which is: 0
+  get(b,4,width)
+    Which is: 48000
+
+  [FAIL] Core.ScalarGetSetAndCurrentValueRefusals:     Which is: 48000
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:655: Failure
+Expected equality of these values:
+  get(out,42,width)
+    Which is: 4294967295
+  get(b,4,width)
+    Which is: 48000
+refused SET reports current value
+
+  [FAIL] Core.ScalarGetSetAndCurrentValueRefusals: refused SET reports current value
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:655: Failure
+Expected equality of these values:
+  get(out,42,width)
+    Which is: 65535
+  get(b,4,width)
+    Which is: 0
+refused SET reports current value
+
+  [FAIL] Core.ScalarGetSetAndCurrentValueRefusals: refused SET reports current value
+[  FAILED  ] Core.ScalarGetSetAndCurrentValueRefusals (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.ScalarGetSetAndCurrentValueRefusals
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

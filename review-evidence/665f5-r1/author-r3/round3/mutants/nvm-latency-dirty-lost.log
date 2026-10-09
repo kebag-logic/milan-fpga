@@ -1,0 +1,49 @@
+Note: Google Test filter = Nvm.AcceptedStateSurvivesTheRealStorePowerCycle:Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Nvm
+[ RUN      ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:180: Failure
+Value of: owner.port.latch(&owner,g,i,b.data(),size)
+  Actual: false
+Expected: true
+
+  [FAIL] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle: Expected: true
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:243: Failure
+Expected equality of these values:
+  get(latency,0,4)
+    Which is: 0
+  1500000u
+    Which is: 1500000
+
+  [FAIL] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle:     Which is: 1500000
+[  FAILED  ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle (16 ms)
+[ RUN      ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:321: Failure
+Expected equality of these values:
+  owner.pending[n]
+    Which is: 0
+  n==r.id/32?(1u<<(r.id%32)):0u
+    Which is: 65536
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 65536
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:322: Failure
+Value of: aecp_nvm_poll(&owner)
+  Actual: false
+Expected: true
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords: Expected: true
+[  FAILED  ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords (1 ms)
+[----------] 2 tests from Nvm (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (18 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle
+[  FAILED  ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+
+ 2 FAILED TESTS
+== AECP core: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

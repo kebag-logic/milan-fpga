@@ -1,0 +1,92 @@
+test_soc_option_refusals:
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+RESULT: PASS
+test_rom_clock_skip_reaches_the_ledger:
+  [clock contract] SKIP: tmppqxdt8x7: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 1 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+test_extra_sweep_invocation:
+[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration
+test_all_configs_build:
+  [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+  [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+  [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+  [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+  [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+test_gptp_plane_reaches_the_instance:
+  [gate 1e] 8 real elaborations: the product fabric default is identical across product shapes and to explicit ON; bare-metal option-OFF elaborates as announced verification-only hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric ownership
+test_capability_marks:
+  [gate 4] arty_4x4: 4 planned mark(s) (item 5, tdm mark = supported), declared interface tdm8, no failure
+  [gate 4] ax7101_8x8: 5 planned mark(s) (item 5, tdm mark = supported), declared interface tdm32, no failure
+  [gate 4] aes3 variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] spdif variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] arty_current: zero planned FABRIC marks; the 3 clock-plan declaration(s) the fabric does not elaborate each carry their own item-6 mark (#399)
+test_model_id_hashing:
+  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000006
+test_resource_determinism:
+  [gate 12] resource estimate + plan deterministic across builds
+test_gen_aem_store_crf_output_overlay:
+  [gate 16] all 10 STREAM_INPUT/OUTPUT descriptors are 1722.1-2021 Table 7-8: formats_offset 138, redundant_offset 138+8N, R = 0, timing 0 with TIMING_FIELD_VALID clear
+  [gate 16] gen_aem_store --overlay (4x4 + CRF output): ROM 6601 B structurally valid; STREAM_OUTPUT[4] = CRF (domain 0, flags 0x0003, 0x041060010000BB80), CONFIGURATION count 5, 4 output ports
+  [gate 16b] per-stream format tables: `AEM_PER_STREAM_FMT + 5-in/5-out reference + WB-addr arrays match the directory (CRF flags/formats in the right rows)
+test_dynamic_audio_map_overlay:
+  [gate 17] dynamic audio map: listeners[0] map_mode dynamic -> port n_maps=0, input AUDIO_MAP dropped (output renumbered to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=[2]
+  [gate 17] tracked entity definition is owned by endstation_ax7101_1x1_tdm8 (read from its own `Source : marker); it declares a dynamic port, so its svh must be `AEM_DYNMAP-bearing - and is
+  [gate 17] a Milan input owner requires `AEM_DYNMAP PRESENT and the candidate pair carries it
+  [gate 17] MUTATION rejected: owner declares a dynamic port, tracked ROM has no engine
+            ($F5_SCRATCH/tmpl40nk2wg/broken.svh: `AEM_DYNMAP absent but its owner tmp9kok_z)
+  [gate 17] MUTATION rejected: shape include names a config that does not exist
+            ($F5_SCRATCH/tmpl40nk2wg/current/adp_shape_defaults.svh: `Source : configs/ends)
+  [gate 17b] arty_4x4 ALL listeners dynamic (Milan 5.3.3.9): 4 ports n_maps=0, no input AUDIO_MAP, svh keys=16 bases 0/4/8/12, CRF sink flagged unmappable
+  [gate 17c] AEM_DMAP_PHYS_C 10 == milan_datapath CHMAP_PHYS_C 10 = lanes {'i2s': (0, 2), 'tdm': (2, 8)}, mirrored by endstation_builder and aem_assemble; RPHYS validity and full-width physical-depth gates protect both render-map write arms
+  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28
+  [gate 17e] lane OFF: power-on identity = PILOT (13'h1400), reserved source 3 absent (#259), loopback templates emitted fabric-disabled (13'h05xx) and protocol-mappable
+  [gate 17e] lane ON: loopback valid (13'h1500), primary_role/INIT move onto it (6'h21..6'h28) - declaring the lane hands the pool back
+  [gate 17f] dynamic legacy-policy output: explicit physical/virtual source pool accepted; missing/empty topology refused by descriptor, model, and ADP consumers
+  [gate 17] reject paths: static input, disagreeing input pages, mixed output map modes, and missing dynamic-output source topology raise ConfigError
+test_lwsrp_rejects:
+  [gate 18d] 7/7 contradictory reservations rejected with ConfigError (incl. a 213 Mb/s class-A request on a 100 Mb/s port)
+test_aes3_interface_switch:
+  [gate 21a] 6 aes3/spdif shapes: one core, CONSUMER_P picks the dialect, WORD_BITS_P 16/20/24, serial clock 128x4x rate = an exact PLL divide; RTL defaults (OVERSAMPLE_P=4, LOCK_BLOCKS_P=2, 192 frames/block) parsed from the modules themselves
+test_optional_block_gates_bite:
+  [gate 23b] 10/10 contradictory prune configs REFUSED with ConfigError; 3/3 honest prunes accepted and their --no-* flags reach the soc argv
+test_optional_blocks_reach_the_instance:
+  [gate 23f] 8 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8, the shipping AX shape, in 7 s: each of the 7 --no-* flags lands as p_<PARAM>=0 in the Instance("milan_datapath") parameters and moves NOTHING else, a build that prunes nothing passes none of them (16 parameters, byte-identical top .v). Fabric gPTP's product default is graded separately by gate 1e. This grades what elaboration HANDS the module, not what the module DOES with it (gate 23d) and not that the bitstream places or boots
+test_every_recipe_elaborates:
+  [gate 23g] 5/5 shipped recipes reach Instance("milan_datapath") in 5 s, each with the flow tail its own launcher appends (--build included, the flag every shape gate excludes). This proves a recipe RUNS, not that it builds the SoC its config describes - that comparison is gate 1e's and #155 carries where the two disagree
+test_build_sh_grades_its_own_bindings:
+  [gate 23i-b] 3 build.sh recipes keep their own bindings with BUILD_CFG=endstation_ax7101_8x8.yaml exported
+test_toolchain_patch_gate_bites:
+  [gate 23h mutation] 5/5 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 5 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+test_front_end_routing_gate_bites:
+  [gate 24d] 9/9 routing mutations REJECTED (arty tdm8/16/32 re-declared, i2s_mclk off the Pmod, refusal deleted / mis-keyed / late / undefended, a routed header losing its pins, a kind added on one side only, and the argv itself selecting TDM for the Arty in BOTH tree states)
+test_d8_role_pools:
+  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered
+  [gate 24a] declaring routed channels re-introduces the physical pool AND moves the static map onto it (primary-role fallthrough): 8 routed channels, 123 writable names; 2/2 planted controls turned it red: 16 routed channels; no routed channel
+  [gate 24a] the over-wide (72) D8 loopback pool (747 writable names) is REFUSED at generation by the saved-state NAME capacity, naming both figures, before any write; its own overlay's ROM exceeds the 16-bit AEM store address space (D6 is the owner), and behind a planted capacity it is marked rather than emitted and --write-rtl REFUSES it; 2/2 planted controls turned their check red: capacity 747; the shipped 8x8 overlay
+  [gate 24a] #447 render lane: the declared width is bounded by the LANE and not the family, a shape with no render endpoint refuses a nonzero count, a TDM lane narrower than its own bus is refused with the full-bus-width rule, and every tracked config sits inside its own lane {'arty_current': ('i2s', 2, 0, 0), 'arty_4x4': ('i2s', 2, 0, 0), 'arty_8ch': ('i2s', 2, 0, 0), 'ax7101_8x8': ('tdm', 0, 2, 0), 'ax7101_1x1_tdm8': ('tdm', 8, 2, 8)}
+test_d10_cluster_namer_paths:
+  [gate 24d] empty-rx loopback names by offset (and by source when a receive space exists), an unknown role is refused by name, every primary role in PRIMARY_ROLE_ORDER has a namer, and 97 cluster names across 2 configs match the tracked golden name for name
+test_pp_window_contract:
+  [gate 27] 5 processor-memory windows are single-sourced
+test_schema_12_refusals:
+  [gate 25b] 20 schema 1.2 misdeclarations refused by reason, the divergent entity_capabilities naming protocol-processor/hdl/adp/pp_adp_pkg.sv:53; an OUI the pin agrees with is accepted; with the refusal severed the image contradicts the declaration
+test_builder_doc_key_map:
+  [gate 32] 114 loader keys == 114 keys across 65 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 18 untaken loader arms, where a key read is not recorded: endstation_builder.py:1538 endstation_builder.py:1618 endstation_builder.py:1622 endstation_builder.py:1985 endstation_builder.py:1989 endstation_builder.py:3317 endstation_builder.py:3406 endstation_builder.py:3508 endstation_builder.py:3740 endstation_builder.py:3749 endstation_builder.py:3786 endstation_builder.py:3805 endstation_builder.py:3842 endstation_builder.py:4198 endstation_builder.py:4294 endstation_builder.py:4321 endstation_builder.py:4493 endstation_builder.py:4499
+test_audio_unit_rates_loader_contract:
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+test_shipping_image_contract_presence:
+  [gate 36b] builder image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] builder image without 0x0024: L1 required-type
+Explicit non-executed arms: []
+{"family": "builder", "part": 0, "parts": 4, "names": ["test_soc_option_refusals", "test_rom_clock_skip_reaches_the_ledger", "test_extra_sweep_invocation", "test_all_configs_build", "test_gptp_plane_reaches_the_instance", "test_capability_marks", "test_model_id_hashing", "test_resource_determinism", "test_gen_aem_store_crf_output_overlay", "test_dynamic_audio_map_overlay", "test_lwsrp_rejects", "test_aes3_interface_switch", "test_optional_block_gates_bite", "test_optional_blocks_reach_the_instance", "test_every_recipe_elaborates", "test_build_sh_grades_its_own_bindings", "test_toolchain_patch_gate_bites", "test_front_end_routing_gate_bites", "test_d8_role_pools", "test_d10_cluster_namer_paths", "test_pp_window_contract", "test_schema_12_refusals", "test_builder_doc_key_map", "test_audio_unit_rates_loader_contract", "test_shipping_image_contract_presence"], "rc": 0, "seconds": 59.34737252099876}

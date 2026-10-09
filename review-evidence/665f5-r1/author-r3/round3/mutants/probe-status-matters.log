@@ -1,0 +1,50 @@
+Note: Google Test filter = Core.ProbeRepliesResetOnlyTheirOwnInterface
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ProbeRepliesResetOnlyTheirOwnInterface
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1174: Failure
+Expected equality of these values:
+  a.registry[0][0].probing
+    Which is: '\x1' (1)
+  0u
+    Which is: 0
+
+  [FAIL] Core.ProbeRepliesResetOnlyTheirOwnInterface:     Which is: 0
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1175: Failure
+Expected equality of these values:
+  a.registry[0][0].deadline
+    Which is: 42595
+  84690u
+    Which is: 84690
+
+  [FAIL] Core.ProbeRepliesResetOnlyTheirOwnInterface:     Which is: 84690
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1176: Failure
+Expected equality of these values:
+  a.ignored
+    Which is: 2
+  1u
+    Which is: 1
+
+  [FAIL] Core.ProbeRepliesResetOnlyTheirOwnInterface:     Which is: 1
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1177: Failure
+Expected equality of these values:
+  a.ignored
+    Which is: 3
+  2u
+    Which is: 2
+
+  [FAIL] Core.ProbeRepliesResetOnlyTheirOwnInterface:     Which is: 2
+[  FAILED  ] Core.ProbeRepliesResetOnlyTheirOwnInterface (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.ProbeRepliesResetOnlyTheirOwnInterface
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

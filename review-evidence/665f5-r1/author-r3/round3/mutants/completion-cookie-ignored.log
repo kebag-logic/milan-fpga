@@ -1,0 +1,35 @@
+Note: Google Test filter = Core.NotificationBackpressureAndLatestCompletion
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.NotificationBackpressureAndLatestCompletion
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1380: Failure
+Expected equality of these values:
+  sent.size()
+    Which is: 7
+  count
+    Which is: 5
+an old completion cannot release a newer copy
+
+  [FAIL] Core.NotificationBackpressureAndLatestCompletion: an old completion cannot release a newer copy
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1381: Failure
+Expected equality of these values:
+  sent.size()
+    Which is: 7
+  count
+    Which is: 5
+
+  [FAIL] Core.NotificationBackpressureAndLatestCompletion:     Which is: 5
+[  FAILED  ] Core.NotificationBackpressureAndLatestCompletion (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.NotificationBackpressureAndLatestCompletion
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

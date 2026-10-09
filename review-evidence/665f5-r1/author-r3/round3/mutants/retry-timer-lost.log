@@ -1,0 +1,132 @@
+Note: Google Test filter = Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Timer(true, 0)
+Google Mock tried the following 1 expectation, but it didn't match:
+
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1217: EXPECT_CALL(mock, Timer(true,1000))...
+  Expected arg #1: is equal to 1000
+           Actual: 0
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1217: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Timer(true,1000))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Timer(true, 0)
+Google Mock tried the following 1 expectation, but it didn't match:
+
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1220: EXPECT_CALL(mock, Timer(true,500))...
+  Expected arg #1: is equal to 500
+           Actual: 0
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1220: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Timer(true,500))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Timer(true, 0)
+Google Mock tried the following 1 expectation, but it didn't match:
+
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1223: EXPECT_CALL(mock, Timer(false,_))...
+  Expected arg #0: is equal to false
+           Actual: true
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1223: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Timer(false,_))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Timer(true, 0)
+Google Mock tried the following 1 expectation, but it didn't match:
+
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1226: EXPECT_CALL(mock, Timer(true,750))...
+  Expected arg #1: is equal to 750
+           Actual: 0
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1226: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Timer(true,750))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Timer(true, 0)
+Google Mock tried the following 1 expectation, but it didn't match:
+
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1229: EXPECT_CALL(mock, Timer(true,500))...
+  Expected arg #1: is equal to 500
+           Actual: 0
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1229: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Timer(true,500))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Timer(true, 0)
+Google Mock tried the following 1 expectation, but it didn't match:
+
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1232: EXPECT_CALL(mock, Timer(true,250))...
+  Expected arg #1: is equal to 250
+           Actual: 0
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1232: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Timer(true,250))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots:            Actual: never called - unsatisfied and active
+[  FAILED  ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

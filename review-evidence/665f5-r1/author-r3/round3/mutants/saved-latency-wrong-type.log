@@ -1,0 +1,26 @@
+Note: Google Test filter = Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:1091: Failure
+Expected equality of these values:
+  aecp_value_restore(&a,v,bytes.data(),bytes.size())
+    Which is: 7
+  AECP_ENTITY_MISBEHAVING
+    Which is: 10
+
+  [FAIL] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors:     Which is: 10
+[  FAILED  ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors (1 ms)
+[----------] 1 test from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

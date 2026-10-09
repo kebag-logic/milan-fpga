@@ -1,0 +1,99 @@
+Note: Google Test filter = Core.UnsupportedAndAcquire
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.UnsupportedAndAcquire
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+$TREE/sw/firmware/ctrl/test/test_aecp.cpp:605: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5) }
+unsupported command echoes its exact body
+
+  [FAIL] Core.UnsupportedAndAcquire: unsupported command echoes its exact body
+[  FAILED  ] Core.UnsupportedAndAcquire (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.UnsupportedAndAcquire
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

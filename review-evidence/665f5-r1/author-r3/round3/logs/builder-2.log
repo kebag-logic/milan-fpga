@@ -1,0 +1,184 @@
+test_baremetal_clock_contract:
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_tap_clock_docs:
+[clock contract] 5 tap conversions and presence declarations match configurations
+test_declaration_contracts:
+[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals
+[F1] shadowed literals and derived endpoints refused
+[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals
+[595 MAC] twelve quoted values preserved; non-strings receive exact quote refusals
+[495 MAC] 9 named shape rules, 30 spellings refused
+[595 uint] OUI and capabilities strings preserve values; all non-strings refuse
+[495 hex] 10 hex fields: 8 named shape rules and the width refused
+[595 formats] all stream indices: list type, exact quoted values, defaults and element refusals
+[u32] zero/maximum pack unchanged; negative and overflowing fields refuse
+[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused
+[F3] each AAF input/output: 46 final entries accepted; count/family refusals
+[F3] both CRF directions: Milan word accepted; altered word/wrong family refused
+[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+test_gptp_launch_observer_seam:
+  [gate 1d] the launch observer reads the MAC's own transmit stream in the MAC's own domain; one gPTP emitter, one store-and-forward writer, one fabric clock, and both record faces tied off where there is no observer
+test_current_shape_matches_sweep_flags:
+  [gate 2] arty_4x4 argv == sweep.sh arty design flags (18 flags)
+  [gate 2] ax7101_1x1_tdm8 argv == sweep.sh ax7101 design flags (26 flags, --eth-port e1 == the config)
+test_port_layout_invariants:
+  [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+  [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+  [gate 6] ax7101_8x8: 8+8 stream ports, 72 clusters, 0 maps - invariants hold
+test_gen_aem_store_consumes_overlay:
+  [gate 10] ax7101_1x1_tdm8 overlay -> gen_aem_store --overlay: svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh (41787 B); no RTL destination touched; 4 stream descriptors in 1722.1-2021 Table 7-8 layout
+  [gate 10] gen_aem_store default path == arty_current overlay (refactor guard)
+test_milan_723_crf_output_rule:
+  [gate 14] Milan 7.2.3 enforced: 4x4/8x8/2-listener shapes rejected without crf_output (error cites 7.2.3); optional at 1 listener, format defaults to 0x041060010000BB80
+test_dynamic_map_topology_reaches_shape_header:
+  [gate 16c] dynamic-map input keys, physical projections and output CSRC tables match both AX7101 entity models
+test_lwsrp_class_constants_match_rtl:
+  [gate 18d] Milan 4.3.3.2 bandwidth recipe: the clamped CRF row and an unclamped 4ch AAF row both compose to the clause's kb/s, and the step-2 clamp bites (lwsrp_pkg.sv comparand DELETED)
+  [gate 18b] PriorityAndRank == the generated symbol milan_csr drives (emitter -> lwsrp_csr_defaults.svh -> RTL); the reference lwsrp_table.svh still carries the words the CSR subset was cut from, and no hdl/ieee8021q/srp tree was recreated
+test_csr_defaults_header_consumed:
+  [gate 20a] milan_csr.sv `include-s gen/lwsrp_csr_defaults.svh; 6 reset words + PriorityAndRank == the FROZEN literals (LWSRP_CTRL moved TWICE for the queue map: 0x0C -> 0x14 at 6 queues, 0x14 -> 0x10 at 5), 0 literals left in the RTL, 7 constants agree with the emitted lwSRP table, 4 consumers carry the include dir
+test_cbs_reset_table_single_source:
+  [gate 22] CBS reset table single-sourced: 5 queues, sum(IDLE_SLOPE_1G) = 725 Mb/s (72.5 % <= 75 %), SR A+B = 600 Mb/s; milan_csr CBS_*_RST == the package (credits re-derived, not copied), CBS_EN_RST = 5'b00000, and both REGISTER_MAP 0x400 and EGRESS_QUEUE_MAP agree row for row
+test_optional_block_names_reach_the_rtl:
+  [gate 23d] 7 optional blocks: builder key == milan_soc.py map == a real off-by-default --no-* store_true main() READS == consumed by main() (6 through optional_blocks, dedicated ['render_lpf'], each a NAMED MilanSoC.__init__ parameter, none swallowed by **kwargs) == forwarded through MilanNIC and add_milan_datapath == emitted as `p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath `parameter int X = 1` guarding a generate WITH an else arm == the AREA_BUDGET tier-1 table row (the silent optional-parameter class, closed for the SPELLING of these statements. A statement that rebinds or overrides a carrier without touching them - reassigning optional_blocks, overriding a fold, deleting a dp_params key - is invisible here by construction, because each hop is checked in isolation and _reads() is a name-appearance test. That family and what elaboration hands Instance() are both gate 23f, task #144)
+  [gate 23e] task #65 loopback lane: --loopback-lane store_true == p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate == the connected lb_tvalid_i == the config declaration that primary_segment reads (same silent-no-op class, opposite polarity)
+test_clock_plan_reaches_the_instance:
+  [gate 23l] 4 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8 in 3 s: --audio-fs-hz and --audio-word-bits land as p_AUDIO_IF_FS_HZ_P / p_AUDIO_IF_WORD_BITS_P and move p_AUDIO_IF_CLK_HZ_P (2 x SLOTS x slot bits x fs) with them, singly and together, moving NOTHING else; at the declared shipping values both are ABSENT, so the tracked configs' top .v is byte-identical to the build before #399. This grades what elaboration HANDS the module, not that the bitstream places or boots
+test_recipe_skip_classifier_bites:
+  [gate 23g classifier] 8/8 shaped results and 4/4 --require-elaboration verdicts graded as [R0] on PR #188 requires: a synthetic recorded Arty error and scopt's own refusal of an --l2-* argument are the only skip shapes, a stale #184 row and every other failure fail, and the toolchain skip fails --require-elaboration
+test_build_sh_refuses_a_preservation_it_cannot_complete:
+  [gate 23k] over lwsrp_csr_defaults.svh: a refused temporary directory, a copy that failed, one short and loud, one short and silent, the first as a real launch, a failed put-back, one short and reporting success, and an absent file each refused with no launch line, no provenance line, the bytes on disk untouched or named with the copy kept for them, and no include directory left behind; and over adp_shape_defaults.svh the bound config's own absent include refused the same way, with its artefact not rewritten
+test_tdm_master_binding_gate_bites:
+  [gate 24b] 7/7 binding mutations REJECTED (name mismatch, wrong clock, slave-instead-of-master, unbound pad, unrouted pin, default-on, strict request)
+test_i2s_pair_blend_gate_bites:
+  [gate 24e-b] 6/6 blend-binding mutations REJECTED
+test_prune_guard_hop_gate_bites:
+  [gate 23d one-hop] 2 positive site(s) resolved, 4 mutations refused, inert else arm present at the followed site
+test_gptp_domain_is_one_source:
+  [gate 26] gptp.domain 3 REFUSED with the 802.1AS-2011 8.1 clause; legal domain 0 reaches fabric configuration; CSR readback and protocol output are structural 0 in both shapes; the chain reaches the advertising plane's gptp_domain_i
+test_image_name_table_matches_descriptors:
+  [gate 28b] arty_current: all 29 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] arty_4x4: all 55 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] arty_8ch: all 87 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] ax7101_8x8: all 107 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] ax7101_1x1_tdm8: all 39 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] schema_12_declared: all 39 writable names map byte-exactly to their READ_DESCRIPTOR fields
+test_milan_base_formats_are_rate_complete:
+  [gate 29] the builder's aaf_pcm32 derivation reproduces all 15 Milan Table 6.2 Base format strings (3 rates x 5 channel counts) and the AVTP I.2.4 ut bit of each
+  [gate 29] arty_current: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 1 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000, 96000, 192000]
+  [gate 29] arty_4x4: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] arty_8ch: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_8x8: 8 Base Stream Input(s) complete at [48000] Hz (8 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_1x1_tdm8: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] longest STREAM descriptor 154 octets (ax7101_8x8 STREAM_INPUT[7] ('Stream In 7')), 422 clear of the 576-octet line buffer
+test_nvm_firmware_shapes:
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=13 up=1 down=0
+PHY_PUBLISH value=13 up=1 down=0
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=13 up=2 down=1
+PHY_PUBLISH value=13 up=2 down=1
+PHY_PUBLISH value=11 up=2 down=1
+PHY_PUBLISH value=3 up=2 down=1
+PHY_PUBLISH value=9 up=2 down=1
+PHY_PUBLISH value=1 up=2 down=1
+PHY_PUBLISH value=0 up=2 down=2
+PHY_PUBLISH value=11 up=3 down=2
+PHY_PUBLISH value=0 up=3 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=0 up=4 down=4
+PHY_PUBLISH value=0 up=4 down=4
+PHY_PUBLISH value=11 up=5 down=4
+PHY_OK transfers=78 delay_cycles=319488
+PHY_MUTANT no-publish: caught
+PHY_MUTANT defer-recovery: caught
+PHY_MUTANT late-sample: caught
+PHY_MUTANT ack-ignored: caught
+disabled-writer endstation_arty_4x4 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_arty_4x4 identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_arty_4x4: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_arty_4x4          records= 88 image= 4808 B OK
+disabled-writer endstation_arty_8ch shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_arty_8ch identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_arty_8ch: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_arty_8ch          records=120 image= 7368 B OK
+disabled-writer endstation_arty_current shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_arty_current identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_arty_current: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_arty_current      records= 42 image= 2516 B OK
+disabled-writer endstation_ax7101_1x1_tdm8 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_ax7101_1x1_tdm8 identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_ax7101_1x1_tdm8: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_ax7101_1x1_tdm8   records= 54 image= 3336 B OK
+disabled-writer endstation_ax7101_8x8 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_ax7101_8x8 identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_ax7101_8x8: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_ax7101_8x8        records=164 image=13256 B OK
+  self-test OK: edge_cross             caught by 2 finding(s); first: endstation_arty_4x4: partial ownership: open record changed across unaligned predecessor edge
+  self-test OK: no_ascending_check     caught by 1 finding(s); first: endstation_arty_4x4: parity: duplicate record id: firmware VD_OK, klj2_decode VD_REC
+  self-test OK: no_heartbeat_in_wait   caught by 1 finding(s); first: endstation_arty_4x4: the heartbeat was not serviced through a 3 s erase: {'hb': 2, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 19, 'max_hb_gap_ms': 3016, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4764, 'losses': 1, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'walks': 1, 'enable_first': 0, 'closed': 0, 'now_ms': 3037}
+  self-test OK: verify_skipped         caught by 3 finding(s); first: endstation_arty_4x4: a failed verify was not published as VD_VERIFY unacknowledged: {'hb': 37, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 19, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4764, 'losses': 0, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'walks': 1, 'enable_first': 0, 'closed': 0, 'now_ms': 9057}
+  self-test OK: erased_header_only     caught by 1 finding(s); first: endstation_arty_4x4: parity: erased header, live payload: firmware VD_OK, klj2_decode VD_REC
+disabled-writer endstation_arty_4x4 shape: 18 console cases; FAIL
+disabled-writer endstation_arty_4x4 identity: 18 console cases; FAIL
+disabled-writer mutant: caught in both states
+boot-walk endstation_arty_4x4: 5 boot paths; 8 finding(s)
+  boot-walk self-test OK: shape_path_skips_walk  caught by 8 finding(s); first: boot walk, persistence disabled: walks=0, expected 1
+boot-walk endstation_arty_4x4: 5 boot paths; 2 finding(s)
+  boot-walk self-test OK: wait_on_done_only      caught by 2 finding(s); first: boot walk, cold boot, CLOSED restore: the restore wait ran out its timeout
+saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+test_shipping_image_contract:
+  [gate 36b] arty_current: rates 144/3/156, sources 76/3/82 accepted
+  [gate 36b] arty_4x4: rates 144/1/148, sources 76/6/88 accepted
+  [gate 36b] arty_8ch: rates 144/1/148, sources 76/6/88 accepted
+  [gate 36b] ax7101_8x8: rates 144/1/148, sources 76/10/96 accepted
+  [gate 36b] ax7101_1x1_tdm8: rates 144/1/148, sources 76/3/82 accepted
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10 rate-empty
+  [gate 36b] unlisted current rate: L10 current-rate
+  [gate 36b] current pull mismatch: L10 current-rate
+  [gate 36b] wrong offset: L10 rate-offset
+  [gate 36b] ninth rate: L10 rate-count
+  [gate 36b] count exceeds extent: L10 rate-length
+  [gate 36b] one byte short: L10 rate-length
+  [gate 36b] one word extra: L10 rate-length
+  [gate 36b] reversed sources: L6 domain-source-identity
+  [gate 36b] source gap: L6 domain-source-identity
+  [gate 36b] duplicate source: L6 domain-source-identity
+  [gate 36b] short audio header: L10 rate-count
+  [gate 36b] short domain header: L6 domain-source-count
+  [gate 36b] empty sources: L6 domain-source-count
+  [gate 36b] short source list: L6 domain-source-length
+  [gate 36b] source list in header: L6 domain-source-offset
+  [gate 36b] padded source offset: L6 domain-source-offset
+test_descriptor_fields_name_this_device:
+  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+Explicit non-executed arms: []
+{"family": "builder", "part": 2, "parts": 4, "names": ["test_baremetal_clock_contract", "test_tap_clock_docs", "test_declaration_contracts", "test_gptp_launch_observer_seam", "test_current_shape_matches_sweep_flags", "test_port_layout_invariants", "test_gen_aem_store_consumes_overlay", "test_milan_723_crf_output_rule", "test_dynamic_map_topology_reaches_shape_header", "test_lwsrp_class_constants_match_rtl", "test_csr_defaults_header_consumed", "test_cbs_reset_table_single_source", "test_optional_block_names_reach_the_rtl", "test_clock_plan_reaches_the_instance", "test_recipe_skip_classifier_bites", "test_build_sh_refuses_a_preservation_it_cannot_complete", "test_tdm_master_binding_gate_bites", "test_i2s_pair_blend_gate_bites", "test_prune_guard_hop_gate_bites", "test_gptp_domain_is_one_source", "test_image_name_table_matches_descriptors", "test_milan_base_formats_are_rate_complete", "test_nvm_firmware_shapes", "test_shipping_image_contract", "test_descriptor_fields_name_this_device"], "rc": 0, "seconds": 93.32300920699345}

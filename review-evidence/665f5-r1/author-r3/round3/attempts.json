@@ -1,0 +1,51 @@
+[
+  {
+    "label": "docs-0",
+    "command": [
+      "$DOC_PYTHON",
+      "-B",
+      "$PACKET/run_docs_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/docs",
+      "--part",
+      "0",
+      "--parts",
+      "3"
+    ],
+    "rc": 1,
+    "seconds": 0.22,
+    "bytes": 340
+  },
+  {
+    "label": "docs-1",
+    "command": [
+      "$DOC_PYTHON",
+      "-B",
+      "$PACKET/run_docs_partition.py",
+      "--root",
+      ".",
+      "--scratch",
+      "$F5_SCRATCH/docs",
+      "--part",
+      "1",
+      "--parts",
+      "3"
+    ],
+    "rc": 1,
+    "seconds": 0.57,
+    "bytes": 400
+  },
+  {
+    "label": "sizes",
+    "command": [
+      "python3",
+      "-B",
+      "$F5_SCRATCH/run_sizes.py"
+    ],
+    "rc": 1,
+    "seconds": 7.09,
+    "bytes": 286
+  }
+]
