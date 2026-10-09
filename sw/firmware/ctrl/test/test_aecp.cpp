@@ -484,6 +484,11 @@ TEST_F(App, ExpiredAndMissingStartRequestsCannotApplyLate)
         deliver.fn(deliver.ctx);EXPECT_FALSE(adapter.core.start_pending);
         EXPECT_FALSE(application.acmp.acmp.sinks[0].started);
     }
+    application.acmp.acmp.sinks[0].bound=true;application.acmp.acmp.in_port=true;
+    bridge.ports.start(&bridge,0,true);adapter.core.start_pending=true;deliver.fn(deliver.ctx);
+    application.acmp.acmp.in_port=false;
+    EXPECT_EQ(get(adapter.core.response+16,2)>>11,10u);
+    EXPECT_FALSE(application.acmp.acmp.sinks[0].started);
 }
 
 TEST_F(App, UnboundStartAndStopAreSuccessfulNoOps)
@@ -1069,6 +1074,11 @@ TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
     a.open=false;maps[1].defaults=rows;maps[1].default_count=2;
     ASSERT_TRUE(aecp_restore_defaults(&a));aecp_map_refused(&a,&maps[1]);
     EXPECT_EQ(aecp_restore_settle(&a),0u);EXPECT_EQ(maps[1].count,2u);
+    aecp_mapping duplicate[]={{0,0,0,0},{0,0,0,0}};
+    EXPECT_EQ(aecp_map_restore(&a,&maps[1],duplicate,2),0u);EXPECT_EQ(maps[1].count,1u);
+    put(desc(6,1).value+74,get(desc(6).value+74,8),8);
+    aecp_mapping outputs[]={{0,0,0,0},{1,0,1,0}};
+    EXPECT_EQ(aecp_map_restore(&a,&maps[1],outputs,2),0u);EXPECT_EQ(maps[1].count,2u);
 }
 
 TEST_F(Core, InitRefusalsAndClosedService)
