@@ -32,6 +32,11 @@ def defect(name: str, file: str, old: str, new: str,
 
 
 DEFECTS = (
+    defect('root-configuration-refused', 'aecp_commands.c',
+           'if (type == 0u || type == 1u) {',
+           'if (type == 0xffffu) {',
+           ('Core.RootDescriptorConfigurationIsIgnored',
+            'root descriptor ignores received configuration')),
     defect('identify-refusal-body-lost', 'aecp_commands.c',
            'memcpy(out, in, len < 4u ? len : 4u);',
            'memset(out, 0, 4u);',

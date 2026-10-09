@@ -111,6 +111,7 @@ lengths, status, sequences and extra frames.
 
 | Observed difference | Clause and disposition |
 |---|---|
+| Root descriptor reads ignore the received configuration index; the reference refuses nonzero indices. | IEEE 7.4.5.1/2 requires ignoring it and responding with zero. |
 | The reference refuses SET/GET_SYSTEM_UNIQUE_ID; the core implements both. | Milan 5.4.4.2/3 require these commands. |
 | The first default-valued format/rate SET creates a saved override and notifies in the core; the reference emits no notification. | Milan 5.4.5.2 associates notification with a state change. Persistent override intent is state; repeat identical SETs do not notify again. |
 | Both emit START/STOP responses and their command notifications, but only the core emits the additional GET_STREAM_INFO notice for changed started state. | Milan 5.4.5.2 Table 5.22 requires this notice; IEEE 7.5.2 covers the command notification. |

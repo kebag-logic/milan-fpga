@@ -81,10 +81,16 @@ static unsigned descriptor(struct aecp *a, const uint8_t *in, size_t len, uint8_
 	memcpy(out, in, 8u);
 	out[2] = out[3] = 0;
 	uint16_t cfg = (uint16_t)wire_be16(in);
+	uint16_t type = (uint16_t)wire_be16(in + 4);
+	// IEEE 7.4.5.1/2: root descriptors ignore this field on receipt.
+	if (type == 0u || type == 1u) {
+		cfg = 0u;
+		out[0] = out[1] = 0;
+	}
 	if (cfg >= a->cfg.model->configurations) {
 		return AECP_BAD_ARGUMENTS;
 	}
-	struct aecp_descriptor *d = aecp_find(a, cfg, (uint16_t)wire_be16(in + 4), (uint16_t)wire_be16(in + 6));
+	struct aecp_descriptor *d = aecp_find(a, cfg, type, (uint16_t)wire_be16(in + 6));
 	if (d == NULL) {
 		return AECP_NO_SUCH_DESCRIPTOR;
 	}

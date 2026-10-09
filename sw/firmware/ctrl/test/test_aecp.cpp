@@ -527,8 +527,23 @@ TEST_F(Core, EveryDescriptorAndReadFailures)
         auto out=ask(4,b);ASSERT_EQ(out.size(),42u+d.length);
         EXPECT_EQ(Bytes(out.begin()+42,out.end()),Bytes(d.value,d.value+d.length))<<"every READ_DESCRIPTOR is byte exact";
     }
-    ask(4,Bytes(7),7);auto b=Bytes(8);put(b,0,1,2);ask(4,b,7);
+    ask(4,Bytes(7),7);auto b=Bytes(8);put(b,0,1,2);put(b,4,2,2);ask(4,b,7);
     put(b,0,0,2);put(b,4,0xffff,2);ask(4,b,2);
+}
+
+TEST_F(Core, RootDescriptorConfigurationIsIgnored)
+{
+    for(unsigned type:{0u,1u})for(unsigned cfg_index:{1u,65535u}){
+        auto b=target(cfg_index,0,8);put(b,4,type,2);
+        auto out=ask(4,b);auto &d=desc(type);
+        EXPECT_EQ(get(out,38,2),0u)<<"root response configuration is zero";
+        EXPECT_EQ(Bytes(out.begin()+42,out.end()),Bytes(d.value,d.value+d.length))
+            <<"root descriptor ignores received configuration";
+        put(b,6,65535,2);out=ask(4,b,2);
+        EXPECT_EQ(get(out,38,2),0u)<<"invalid root index still normalizes configuration";
+    }
+    auto b=target(1,0,8);put(b,4,5,2);ask(4,b,7);
+    put(b,0,0,2);ask(4,b);
 }
 
 TEST_F(Core, UnsupportedAndAcquire)

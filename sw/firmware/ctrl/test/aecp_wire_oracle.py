@@ -100,6 +100,11 @@ def difference(row: dict, fabric: list[bytes], core: list[bytes], counts: Counte
     """Permit only documented differences, retaining every other response byte."""
     request = bytes.fromhex(row["request"])
     cmd = number(request, 36) if row["kind"] == "command" else -1
+    if cmd == 4 and number(request, 38) != 0 and number(request, 42) in (0, 1):
+        assert len(fabric) == len(core) == 1, "root response count"
+        assert number(fabric[0], 16) >> 11 == 7 and fabric[0][38:] == request[38:46], "fabric root refusal"
+        counts["IEEE 7.4.5.1/2: ignored root configuration"] += 1
+        return
     if row["kind"] == "command" and request[15] == 6 and number(request, 42) in (1, 2):
         assert len(fabric) == len(core) == 1 and number(fabric[0], 16) >> 11 == 1, "fabric UID refusal"
         assert fabric[0][18:] == request[18:26 + (number(request, 16) & 2047)], "fabric UID echo"
@@ -149,7 +154,7 @@ def grade(rows: list[dict], descriptors: dict) -> dict:
     assert commands == COMMANDS and read == descriptors.keys(), "command/descriptor census"
     assert notices == NOTICES, "notification census"
     assert all(kinds[k] == 1 for k in ("probe", "retry", "departure", "unlock")), "timer census"
-    assert sorted(counts.values()) == [2, 2, 3, 3], "difference census"
+    assert sorted(counts.values()) == [2, 2, 3, 3, 4], "difference census"
     return {"observations": len(rows), "commands": sorted(commands), "notifications": sorted(notices),
             "descriptors": len(read), "differences": dict(counts)}
 

@@ -46,6 +46,9 @@ int main(int argc,char **argv) {
     record("command",request,fabric,f.sent,interface);
   };
   for(const auto&d:f.descriptors){auto b=B(8);putbe(b.data()+4,d.type,2);putbe(b.data()+6,d.index,2);ask(4,b);}
+  for(unsigned type:{0u,1u})for(unsigned config:{1u,65535u}){
+    auto b=B(8);putbe(b.data(),config,2);putbe(b.data()+4,type,2);ask(4,b);
+  }
   ask(36,B(4),0,CTLR2_EID);ask(0,B(16));ask(1,B(16));auto lock=B(16);lock[3]=1;ask(1,lock);ask(2);ask(7);ask(6,B(4));
   for(auto [cmd,type,offset,width]:std::vector<std::array<unsigned,4>>{{8,5,74,8},{8,6,74,8},{20,2,136,4},{22,36,70,2}}){
     ask(cmd+1,target(type));auto b=target(type,0,std::max(8u,4+width));std::copy(image_row(type,0)+offset,image_row(type,0)+offset+width,b.begin()+4);ask(cmd,b);
