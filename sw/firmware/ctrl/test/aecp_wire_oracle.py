@@ -100,7 +100,11 @@ def response(row: dict, core: list[bytes], descriptors: dict) -> int:
         assert number(reply, 66, 6) == 0x91e0f0000101, "SET current destination"
         assert number(reply, 82) == 2, "SET current VLAN"
         assert reply[72:82] == bytes(10) and reply[84:] == bytes(38), "SET reserved and output failure fields"
-        assert number(reply, 62, 4) == (67890 if status else number(request, 62, 4)), "SET requested or current latency"
+        requested_latency = number(request, 62, 4)
+        if not flags & 0x20000000:
+            assert requested_latency != 67890, "no-subcommand stimulus distinguishes current latency"
+        expected_latency = requested_latency if not status and flags & 0x20000000 else 67890
+        assert number(reply, 62, 4) == expected_latency, "SET requested or current latency"
     assert number(reply, 16) >> 11 == status, "command status"
     if cmd == 4:
         key = (number(request, 42), number(request, 44))
@@ -183,11 +187,18 @@ def grade(rows: list[dict], descriptors: dict) -> dict:
 
 def controls(rows: list[dict], descriptors: dict) -> int:
     """Plant missing records, byte/status/sequence corruption and forbidden extra notices."""
-    changes = ("missing", "payload", "length", "status", "sequence", "extra")
+    changes = ("missing", "payload", "length", "status", "sequence", "extra", "nosub-latency")
     for change in changes:
         mutant = copy.deepcopy(rows)
         if change == "missing":
             mutant.pop(0)
+        elif change == "nosub-latency":
+            row = next(r for r in mutant if r["kind"] == "command" and
+                       number(bytes.fromhex(r["request"]), 36) == 14 and
+                       not number(bytes.fromhex(r["request"]), 42, 4) & 0x20000000)
+            frame = bytearray.fromhex(row["core"][0])
+            frame[62:66] = bytes.fromhex(row["request"])[62:66]
+            row["core"][0] = frame.hex()
         else:
             index = next(i for i, r in enumerate(mutant) if len(r["core"]) > 1) if change == "sequence" else 0
             frame = bytearray.fromhex(mutant[index]["core"][-1])
@@ -199,7 +210,9 @@ def controls(rows: list[dict], descriptors: dict) -> int:
                 mutant[index]["core"][-1] = frame.hex()
         try:
             grade(mutant, descriptors)
-        except AssertionError:
+        except AssertionError as error:
+            if change == "nosub-latency":
+                assert str(error) == "SET requested or current latency", "wrong no-subcommand diagnosis"
             continue
         raise AssertionError(f"wire control escaped: {change}")
     return len(changes)

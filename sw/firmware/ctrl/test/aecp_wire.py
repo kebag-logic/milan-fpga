@@ -162,7 +162,8 @@ def main() -> int:
         reports.append(check(log, args.output / "aecp_entity_gen.h"))
     (args.output / "verdict.json").write_text(json.dumps(reports, indent=2) + "\n")
     print(f"wire comparison PASS: {args.interfaces} ingress paths, "
-          f"{sum(r['observations'] for r in reports)} observations; six oracle controls per ingress")
+          f"{sum(r['observations'] for r in reports)} observations; "
+          f"{[r['planted_controls'] for r in reports]} oracle controls by ingress")
     return 0
 
 

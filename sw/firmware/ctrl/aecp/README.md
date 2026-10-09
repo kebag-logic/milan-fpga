@@ -143,14 +143,15 @@ and START/STOP. The two-interface case also registers the same controller on bot
 interfaces, removes one registration, and checks the remaining notification and
 firmware egress index. The processor wrapper exposes ingress but no egress index;
 its wire count proves registration isolation, not a physical dual-port output.
-Sequences are checked independently before comparing payloads. Six planted
+Sequences are checked independently before comparing payloads. Seven planted
 observation defects prove the oracle rejects missing records, altered payloads,
-lengths, status, sequences and extra frames.
+lengths, status, sequences, extra frames and requested-latency echo without a
+latency sub-command. That request uses a different value from the stored latency.
 
 | Observed difference | Clause and disposition |
 |---|---|
 | Root descriptor reads ignore the received configuration index; the reference refuses nonzero indices. | IEEE 7.4.5.1/2 requires ignoring it and responding with zero. |
-| SET_STREAM_INFO returns current fields; the reference echoes the command. The core also accepts no sub-command and ignores SAVED_STATE/STREAMING_WAIT. | IEEE 7.4.15.1 defines current fields and ignored flags. Milan 5.4.2.9 retains requested latency on success. Unsupported sub-commands still fail atomically. |
+| SET_STREAM_INFO returns current fields; the reference echoes the command. The core also accepts no sub-command and ignores SAVED_STATE/STREAMING_WAIT. | IEEE 7.4.15.1 defines current fields and ignored flags. Milan 5.4.2.9 echoes requested latency on success only when MSRP_ACC_LAT_VALID is set. Without it, the response reports current latency; stored latency, saved override and change notifications remain unchanged. Unsupported sub-commands still fail atomically. |
 | The reference refuses SET/GET_SYSTEM_UNIQUE_ID; the core implements both. | Milan 5.4.4.2/3 require these commands. |
 | The first default-valued format/rate SET creates a saved override and notifies in the core; the reference emits no notification. | Milan 5.4.5.2 associates notification with a state change. Persistent override intent is state; repeat identical SETs do not notify again. |
 | Both emit START/STOP responses and their command notifications, but only the core emits the additional GET_STREAM_INFO notice for changed started state. | Milan 5.4.5.2 Table 5.22 requires this notice; IEEE 7.5.2 covers the command notification. |
