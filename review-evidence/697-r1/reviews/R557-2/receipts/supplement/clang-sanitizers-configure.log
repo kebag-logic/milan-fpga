@@ -1,0 +1,17 @@
+COMMAND: cmake -S <PACKET>/scratch/supplement/before -B <PACKET>/scratch/supplement/clang-sanitizers -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DTSN_SANITIZERS=ON
+-- The C compiler identification is Clang 23.1.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The CXX compiler identification is Clang 23.1.1
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found GTest: /usr/lib/cmake/GTest/GTestConfig.cmake (found version "1.18.0")
+-- Configuring done (0.8s)
+-- Generating done (0.0s)
+-- Build files have been written to: <PACKET>/scratch/supplement/clang-sanitizers

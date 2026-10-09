@@ -1,0 +1,60 @@
+Prior header: 086e5d37c19fbb6f4a628c376ce8f9f20e51df14:include/acmp.h
+317: 	// Start listening with `stream` (5.5.3.5.18 step 4: initiate the SRP
+318: 	// reservation and listen for the stream's packets), or with NULL stop
+319: 	// and clear it (5.5.3.5.36 step 1).
+320: 	void (*srp)(void *ctx, unsigned sink, const struct acmp_stream *stream);
+
+src/acmp.c
+651: static void srp_stop(struct acmp *a, unsigned k)
+652: {
+653: 	struct acmp_sink *s = &a->sinks[k];
+654: 	memset(&s->stream, 0, sizeof s->stream);
+655: 	s->tk_failed = false;
+656: 	p_srp(a, k, NULL);
+657: }
+
+src/acmp.c
+903: 	s->stream.stream_id = rsp->stream_id;                   // Milan v1.2 5.3.8.9
+904: 	s->stream.dest_mac = rsp->dest_mac;
+905: 	s->stream.vlan_id = rsp->vlan;
+906: 	p_srp(a, k, &s->stream);
+907: 	sm_timer(a, s, ACMP_TIMER_NO_TK, ACMP_TMR_NO_TK_MS);
+908: 	s->probing = ACMP_PROBING_COMPLETED;
+909: 	s->acmp_status = ACMP_STATUS_SUCCESS;
+910: 	s->state = ACMP_SETTLED_NO_RSV;
+
+tests/acmp_fake.hpp
+196: inline void f_srp(void*, unsigned sink, const acmp_stream* stream) {
+197:     fk.calls.push_back({Call::SRP, sink, stream != nullptr, 0u, stream != nullptr ? *stream : acmp_stream{}});
+198:     fk.reenter(Call::SRP);
+
+tests/test_acmp.cpp
+664: TEST_F(AcmpCore, A13NoTalkerAttributeReprobes) {
+665:     to_state(0, ACMP_SETTLED_NO_RSV);
+666:     fk.clear();
+667:     fire(0);
+668:     EXPECT_TRUE(fk.count(Call::SRP) == 1u && !fk.calls[unsigned(fk.position(Call::SRP))].flag &&
+669:                 view(0).stream.stream_id == 0u)
+670:         << "A13 TMR_NO_TK clears the SRP parameters and stops SRP (5.5.3.5.36 step 1)";
+
+docs/PORTING.md
+84: ## Callback checklist
+85: 
+86: | Core | Integrator supplies |
+87: |---|---|
+88: | [ADP](../include/adp.h) | Frame send; relative timer start/stop; link level; grandmaster/domain; entropy seed. Supply link and grandmaster change events. |
+89: | [ACMP](../include/acmp.h) | Frame send; monotonic milliseconds; per-interface absolute timer; grandmaster/domain; entropy; bound-talker admission. Environment ports supply lock owner and live source state, SRP requests, persist requests and changed notifications. |
+90: | [MAAP](../include/maap.h) | Frame send; relative timer start/stop; tentative or valid range publication; clock entropy. Supply operational link edges once per change. |
+91: 
+92: Cancel or replace the previous timer when asked. Ignore obsolete expiries.
+93: Keep clock differences below half the 32-bit range.
+94: Schedule MAAP service at least every 10 ms while it has work.
+95: Hardware latency and network scheduling are integration obligations.
+96: A probe timeout starts after the send callback accepts its probe.
+97: Sample time after that callback returns, including any time spent sending.
+98: 
+99: ACMP stores no media state. Translate SRP feedback into its registered,
+100: unregistered and kind-changed entry points. Deliver remote ADP frames on their
+101: actual interface. Supply source allocation state when answering talker commands.
+
+Neither docs/PORTING.md nor docs/ARCHITECTURE.md contains NULL or the null-stream stop contract.

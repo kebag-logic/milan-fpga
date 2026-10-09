@@ -1,0 +1,63 @@
+[
+  {
+    "control": "baseline",
+    "plant": "",
+    "gate_rc": 0,
+    "compile_rc": 0,
+    "compile_flags": [
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror"
+    ],
+    "object_sha256": "19fa3371b60100677f6c7efc3ec74e913da270ca2c594c2e0ac41a149cb61a4c",
+    "output": "comments: 23 code files and all mutation fragments pass\n",
+    "compiler_output": ""
+  },
+  {
+    "control": "plain-prose",
+    "plant": "\n// This is forbidden integrator narrative.\n",
+    "gate_rc": 1,
+    "compile_rc": 0,
+    "compile_flags": [
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror"
+    ],
+    "object_sha256": "19fa3371b60100677f6c7efc3ec74e913da270ca2c594c2e0ac41a149cb61a4c",
+    "output": "src/adp.c: line 345: unsupported comment\n",
+    "compiler_output": ""
+  },
+  {
+    "control": "spdx-block-prose",
+    "plant": "\n/* SPDX-License-Identifier: MIT\nThis is forbidden integrator narrative.\n*/\n",
+    "gate_rc": 0,
+    "compile_rc": 0,
+    "compile_flags": [
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror"
+    ],
+    "object_sha256": "19fa3371b60100677f6c7efc3ec74e913da270ca2c594c2e0ac41a149cb61a4c",
+    "output": "comments: 23 code files and all mutation fragments pass\n",
+    "compiler_output": ""
+  },
+  {
+    "control": "spliced-spdx-prose",
+    "plant": "\n// SPDX-License-Identifier: MIT \\\nThis is forbidden integrator narrative.\n",
+    "gate_rc": 0,
+    "compile_rc": 0,
+    "compile_flags": [
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-comment"
+    ],
+    "object_sha256": "19fa3371b60100677f6c7efc3ec74e913da270ca2c594c2e0ac41a149cb61a4c",
+    "output": "comments: 23 code files and all mutation fragments pass\n",
+    "compiler_output": ""
+  }
+]
