@@ -837,6 +837,45 @@ TEST_F(Core, SetStreamInfoWithoutSubcommandPreservesState)
     }
 }
 
+// Milan 5.4.2.9 and IEEE 7.4.15.2 apply before subcommand selection.
+TEST_F(Core, S1_NoSubcommandSetOnRunningOutputIsRefused)
+{
+    auto b=target(6,0,84);put(b,4,0x20000000,4);put(b,24,123456,4);ask(14,b);
+    const auto stored=latency;
+    ASSERT_TRUE(aecp_overridden(&a,&desc(6),2u));
+    streaming=true;
+    EXPECT_CALL(mock,Changed(_,_,_)).Times(0);
+    for(unsigned interface=0;interface<AECP_TEST_INTERFACES;++interface){
+        SCOPED_TRACE(interface);
+        for(uint32_t flags:{0u,4u,8u,12u}){
+            SCOPED_TRACE(flags);
+            put(b,4,flags,4);put(b,24,765432,4);
+            auto out=ask(14,b,12,CTLR,interface);
+            ASSERT_EQ(out.size(),122u);
+            EXPECT_EQ(get(out,16,2)>>11,12u)<<"STREAM_IS_RUNNING for a no-sub-command SET";
+            EXPECT_EQ(get(out,62,4),123456u)<<"refusal reports current latency";
+            EXPECT_EQ(latency,stored)<<"refusal preserves stored latency";
+            EXPECT_TRUE(aecp_overridden(&a,&desc(6),2u))<<"refusal preserves saved override";
+        }
+    }
+}
+
+TEST_F(Core, S2_NoSubcommandSetOnInputIsNotSupported)
+{
+    auto b=target(5,0,84);
+    for(unsigned interface=0;interface<AECP_TEST_INTERFACES;++interface){
+        SCOPED_TRACE(interface);
+        for(uint32_t flags:{0u,4u,8u,12u}){
+            SCOPED_TRACE(flags);
+            put(b,4,flags,4);put(b,24,765432,4);
+            auto out=ask(14,b,11,CTLR,interface);
+            ASSERT_EQ(out.size(),122u);
+            EXPECT_EQ(get(out,16,2)>>11,11u)
+                <<"NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT";
+        }
+    }
+}
+
 TEST_F(Core, BackpressureOrdersResponseBeforeNotice)
 {
     register_controller(CTLR+1,AECP_TEST_INTERFACES-1);

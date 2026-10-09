@@ -32,6 +32,21 @@ def defect(name: str, file: str, old: str, new: str,
 
 
 DEFECTS = (
+    defect('nosub-bypasses-running-only', 'aecp_commands.c',
+           '\t\tif (info.running) {\n',
+           '\t\tif ((wire_be32(in + 4) & 0xfaf80000u) == 0u && !aecp_foreign_lock(a)) {\n'
+           '\t\t\twire_put_be(out + 4, flags & ~0x20000000u, 4);\n'
+           '\t\t\treturn AECP_SUCCESS;\n'
+           '\t\t}\n'
+           '\t\tif (info.running) {\n',
+           ('Core.S1_NoSubcommandSetOnRunningOutputIsRefused',
+            'STREAM_IS_RUNNING for a no-sub-command SET')),
+    defect('nosub-bypasses-input-refusal', 'aecp_commands.c',
+           '\t\tif (type == 5u) {\n\t\t\treturn AECP_NOT_SUPPORTED;\n\t\t}\n',
+           '\t\tif (type == 5u && (wire_be32(in + 4) & 0xfaf80000u) != 0u) {\n'
+           '\t\t\treturn AECP_NOT_SUPPORTED;\n\t\t}\n',
+           ('Core.S2_NoSubcommandSetOnInputIsNotSupported',
+            'NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT')),
     defect('nosub-applies-request-latency', 'aecp_commands.c',
            '\t\tif ((requested & 0x20000000u) == 0u) {\n',
            '\t\tif ((requested & 0x20000000u) == 0u) {\n'
