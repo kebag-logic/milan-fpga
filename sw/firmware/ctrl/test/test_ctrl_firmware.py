@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Gate: the control-plane firmware of #665 lanes F0 to F4, built and run on the host.
+"""Gate: the control-plane firmware of #665 lanes F0 to F5, built and run on the host.
 
 WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
 compiled for the host exactly as the target compiles it, against the mailbox
@@ -106,6 +106,7 @@ import ctrl_arms  # noqa: E402
 import ctrl_mutants  # noqa: E402
 import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
+import aecp_arms  # noqa: E402
 import fw_gtest  # noqa: E402
 from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
@@ -127,6 +128,7 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
             for suite in ("srp_mbx.cpp", "srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
                           "srp_latency.cpp", "srp_walk.cpp"):
                 outcomes.append(srp_arms.arm_srp(tree, lwsrp.resolve(), i, test=suite))
+        outcomes.extend(aecp_arms.all_arms(tree))
     except Refusal as exc:
         print(f"REFUSED: {exc}")
         return 2
@@ -188,6 +190,7 @@ def main(argv: list[str] | None = None) -> int:
                           "srp_latency.cpp", "srp_walk.cpp"):
                         outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
                 outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+            outcomes.extend(aecp_arms.all_arms(tree))
         except Refusal as exc:
             print(f"REFUSED: {exc}")
             return 2

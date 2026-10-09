@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <algorithm>
+#include <aecp_latency_policy.hpp>
 extern "C" {
 #include "aecp.h"
 #include "aecp_image.h"
@@ -476,9 +477,11 @@ TEST_F(App, ExpiredAndMissingStartRequestsCannotApplyLate)
     auto deliver=entry;
     for(unsigned n=0;n<application.loop.n_polls;++n)
         if(application.loop.polls[n].ctx==&bridge)deliver=application.loop.polls[n];
+    application.acmp.acmp.sinks[0].bound=true;
     bridge.ports.start(&bridge,0,true);adapter.core.start_pending=false;
     deliver.fn(deliver.ctx);EXPECT_FALSE(bridge.start_pending);
     EXPECT_FALSE(application.acmp.acmp.sinks[0].started);
+    application.acmp.acmp.sinks[0].bound=false;
     for(unsigned index:{0u,ACMP_MAX_SINKS}){
         bridge.ports.start(&bridge,index,true);adapter.core.start_pending=true;
         deliver.fn(deliver.ctx);EXPECT_FALSE(adapter.core.start_pending);
@@ -712,7 +715,8 @@ TEST_F(Core, StartIsDeferredAndHasFailureDeadline)
     EXPECT_CALL(mock,Start(0,false)).Times(1);
     aecp_rx(&a,0,b.data(),b.size());EXPECT_TRUE(aecp_poll(&a));EXPECT_TRUE(sent.empty());
     aecp_start_done(&a,true,true);drain();ASSERT_EQ(sent.size(),1u);EXPECT_EQ(get(sent[0].second,16,2)>>11,0u);
-    b=command(35,target(5,0));sent.clear();aecp_rx(&a,0,b.data(),b.size());ms=10;drain();
+    b=command(35,target(5,0));sent.clear();aecp_rx(&a,0,b.data(),b.size());ms=7;drain();
+    EXPECT_TRUE(sent.empty());ms=8;drain();
     ASSERT_EQ(sent.size(),1u);EXPECT_EQ(get(sent[0].second,16,2)>>11,10u);
     aecp_start_done(&a,true,true);EXPECT_FALSE(a.start_pending);
     ask(34,target(6,0),11);ask(35,Bytes(3),7);ask(34,target(5,0xffff),2);
@@ -1242,5 +1246,101 @@ TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
     EXPECT_EQ(adapter.completion_count,0u);
     mbx_event e{};e.type=MBX_EV_TYPE_TIMER;e.timer_slot=6;e.timer_tag=adapter.tag;
     adapter.armed=false;loop.sinks[0].fn(loop.sinks[0].ctx,&e);EXPECT_EQ(adapter.stale_expiries,1u);
+}
+
+namespace {
+struct Latency : Mailbox {
+    uint64_t ns=0,accesses=0;
+    std::vector<uint64_t> commits;
+    static void trace(void *p,bool write,uint32_t offset,uint32_t) {
+        auto &s=*static_cast<Latency*>(p);s.ns+=100;++s.accesses;
+        if(write&&offset==MBX_CH_BASE+MBX_CH_AECP*MBX_CH_STRIDE+MBX_CH_REG_TX_HEAD)s.commits.push_back(s.ns);
+    }
+    void SetUp() override {Mailbox::SetUp();mbx_host_trace(trace,this);}
+    void TearDown() override {mbx_host_trace(nullptr,nullptr);}
+    void check(unsigned path,uint64_t origin,uint64_t end) {
+        uint64_t elapsed=end-origin+1000100; // same F0-F4 desk CPU/observation allowance
+        std::printf("H-AECP if=%u path=%u elapsed_ns=%llu accesses=%llu\n",MBX_N_IF,path,
+                    (unsigned long long)elapsed,(unsigned long long)accesses);
+        EXPECT_LE(elapsed,aecp_service_limit_ns)<<"original event service budget";
+        EXPECT_LE(elapsed,aecp_response_limit_ns)<<"IEEE 1722.1 9.3.2.6 / Milan 5.4.3.4 response deadline";
+    }
+};
+}
+
+TEST_F(Latency, EveryCommandAndRefusalUsesOneArrivalBudget)
+{
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        for(const auto &d:descriptors){
+            auto b=Bytes(8);put(b,4,d.type,2);put(b,6,d.index,2);
+            auto origin=ns;auto count=commits.size();receive(4,b,CTLR,i);
+            ASSERT_GT(commits.size(),count);check(4,origin,commits.back());mbx_model_advance_ms(&fabric,5);
+        }
+        std::vector<std::pair<unsigned,Bytes>> cases={{0,Bytes(16)},{1,Bytes(16)},{2,{}},{6,Bytes(4)},
+            {7,{}},{8,target(5,0,12)},{9,target(5,0)},{14,target(6,0,84)},{15,target(6,0)},
+            {16,target(0,0,72)},{17,target(0,0,8)},{20,target(2,0,8)},{21,target(2,0)},
+            {22,target(36,0,8)},{23,target(36,0)},{24,target(26,0,5)},{25,target(26,0)},
+            {34,target(5,0)},{35,target(5,0)},{36,{}},{37,{}},{39,target(9,0)},
+            {40,Bytes(4)},{41,target(5,0)},{43,target(14,0,8)},{44,target(14,0,8)},
+            {45,target(14,0,8)},{75,Bytes(12)},{0x3fff,Bytes(512)}};
+        for(auto &[cmd,b]:cases){
+            if(cmd==8)put(b,4,get(desc(5).defaults+74,8),8);
+            if(cmd==14)put(b,4,0x20000000,4);
+            if(cmd==20)put(b,4,48000,4);
+            if(cmd==75){put(b,0,4,2);put(b,6,9,2);put(b,8,5,2);}
+            for(bool malformed:{false,true}){
+                auto origin=ns,count=commits.size();
+                auto body=malformed?Bytes(3):b;
+                receive(cmd,body,CTLR,i);
+                if(adapter.core.start_pending){aecp_start_done(&adapter.core,true,false);service();}
+                ASSERT_GT(commits.size(),count)<<cmd;check(cmd,origin,commits.back());
+                mbx_model_advance_ms(&fabric,5);
+            }
+        }
+        for(unsigned cmd:{0u,1u,2u}){
+            Bytes b={0xc5,0x0a,0xc1,0,0,0,0,0};put(b,4,cmd,2);b.resize(16);b.back()=1;
+            auto p=command(0x001b,b,CTLR,i,6);auto origin=ns,count=commits.size();
+            ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),i));service();
+            ASSERT_GT(commits.size(),count);check(256+cmd,origin,commits.back());mbx_model_advance_ms(&fabric,5);
+        }
+    }
+}
+
+TEST_F(Latency, NotificationFanoutAndStallsRetainTheirOriginalOrigin)
+{
+    for(unsigned i=0;i<MBX_N_IF;++i)for(unsigned n=0;n<16;++n){
+        receive(36,{},CTLR+n,i);mbx_model_advance_ms(&fabric,5);
+    }
+    for(auto [type,bits]:std::vector<std::array<unsigned,2>>{{5,1},{6,1},{9,2},{9,4},{5,8},{6,8},{9,8},{36,8}}){
+        auto origin=ns,count=commits.size();aecp_changed(&adapter.core,type,0,bits);service(100);
+        ASSERT_EQ(commits.size()-count,16u*MBX_N_IF);check(0x8000+type,origin,commits.back());
+    }
+    for(unsigned stall:{1u,11u}){
+        mbx_model_tx_pause(&fabric,true);Bytes filler(60);filler[14]=0xfb;
+        while(mbx_tx_send(MBX_CH_AECP,0,filler.data(),filler.size())==MBX_STATUS_OK){}
+        commits.clear();const uint64_t origin=ns;receive(2);
+        EXPECT_TRUE(commits.empty());mbx_model_advance_ms(&fabric,stall);ns+=uint64_t(stall)*1000000;
+        mbx_model_tx_pause(&fabric,false);service(100);ASSERT_FALSE(commits.empty());
+        if(stall==1)check(2,origin,commits.front());
+        else EXPECT_GT(commits.front()-origin+1000100,aecp_service_limit_ns)<<"late output cannot restart the service clock";
+    }
+}
+
+TEST_F(Latency, DeferredFailureAndTimerPathsUseTheirDueTime)
+{
+    auto origin=ns,count=commits.size();receive(34,target(5,0));
+    ASSERT_TRUE(commits.empty());
+    mbx_model_advance_ms(&fabric,8);ns+=8000000;service();
+    ASSERT_GT(commits.size(),count);check(34,origin,commits.back());
+    EXPECT_EQ(get(mbx_model_tx_frame(&fabric,0)->bytes+16,2)>>11,10u);
+    for(unsigned i=0;i<MBX_N_IF;++i)receive(36,{},CTLR+i,i);
+    for(unsigned delay:{42345u,250u,250u}){
+        mbx_model_advance_ms(&fabric,delay);origin=ns;count=commits.size();service(100);
+        ASSERT_EQ(commits.size()-count,MBX_N_IF);check(3,origin,commits.back());
+    }
+    receive(36);receive(1,Bytes(16));
+    mbx_model_advance_ms(&fabric,60000);origin=ns;count=commits.size();service(100);
+    ASSERT_GT(commits.size(),count);check(1,origin,commits.back());
+    EXPECT_FALSE(adapter.core.locked);
 }
 #endif

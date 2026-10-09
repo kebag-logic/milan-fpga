@@ -286,7 +286,8 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 		}
 		finish(a, status, result);
 		if (a->start_pending) {
-			a->start_deadline = a->now + 10u;
+			/* Reserve service time and millisecond quantization within T_svc. */
+			a->start_deadline = a->now + 8u;
 		}
 	}
 	arm(a);
