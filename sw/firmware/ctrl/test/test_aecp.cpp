@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 #include <aecp_latency_policy.hpp>
 #include "aecp_callback_inputs.hpp"
 extern "C" {

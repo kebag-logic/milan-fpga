@@ -114,7 +114,8 @@ def difference(row: dict, fabric: list[bytes], core: list[bytes], counts: Counte
     cmd = number(request, 36) if row["kind"] == "command" else -1
     if cmd == 14:
         assert len(fabric) == len(core), "SET frame count"
-        expected_status = 11 if number(request, 42, 4) != 0x20000000 else 7 if number(request, 62, 4) == 0x80000000 else 0
+        expected_status = (11 if number(request, 42, 4) != 0x20000000
+                           else 7 if number(request, 62, 4) == 0x80000000 else 0)
         for left, right in zip(fabric, core):
             assert left[:16] == right[:16] and left[18:38] == right[18:38], "SET correlation"
             assert number(left, 16) >> 11 == expected_status and left[38:] == request[38:122], "fabric SET request echo"
