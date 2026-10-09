@@ -1,0 +1,203 @@
+[
+ {
+  "cmd": "<markdown-venv> python3 scripts/docs_check.py",
+  "rc": 0,
+  "tail": [
+   "docs_check: 0 finding(s) across 200 md files + 1211 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]"
+  ]
+ },
+ {
+  "cmd": "<markdown-venv> python3 scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee",
+  "rc": 0,
+  "tail": [
+   "check_em_dash: 0 finding(s) over 72 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5603c353..HEAD]"
+  ]
+ },
+ {
+  "cmd": "<markdown-venv> python3 scripts/check_em_dash.py --selftest",
+  "rc": 0,
+  "tail": [
+   "check_em_dash selftest: PASS (339 arm(s))"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_doc_style.py",
+  "rc": 0,
+  "tail": [
+   "documentation style: OK (22 current documents)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_doc_style.py --selftest",
+  "rc": 0,
+  "tail": [
+   "documentation style selftest: OK"
+  ]
+ },
+ {
+  "cmd": "python3 docs/DOC_MAP.gen.py --check",
+  "rc": 0,
+  "tail": [
+   "documentation map: OK (4 roles, 24 valid paths, decoded PNG)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_solution_docs.py",
+  "rc": 0,
+  "tail": [
+   "solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_submodule_docs.py",
+  "rc": 0,
+  "tail": [
+   "submodule documentation: OK (5 exact gitlinks)"
+  ]
+ },
+ {
+  "cmd": "<markdown-venv> python3 scripts/gen_toc.py --verify-anchors",
+  "rc": 0,
+  "tail": [
+   "anchor check: 417 existing cross-page fragment links reproduced"
+  ]
+ },
+ {
+  "cmd": "<markdown-venv> python3 scripts/gen_toc.py --check",
+  "rc": 0,
+  "tail": [
+   "TOC gate: OK (140 page(s) carry an annotated contents list, 17 below the 3-section threshold)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_feature_status.py",
+  "rc": 0,
+  "tail": [
+   "feature_status: 0 finding(s)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_archive.py",
+  "rc": 0,
+  "tail": [
+   "archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_hygiene.py --check",
+  "rc": 0,
+  "tail": [
+   "  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0",
+   "  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0",
+   "  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0",
+   "HYGIENE RATCHET: PASS (3 population(s), 1083 file(s))"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_sv_idiom.py",
+  "rc": 0,
+  "tail": [
+   "SystemVerilog idiom gate: OK (137 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_py_idiom.py",
+  "rc": 0,
+  "tail": [
+   "  unmanaged open: 0 <= 0",
+   "  too many parameters: 7 <= 7",
+   "  global statement: 0 <= 0",
+   "  over-long line: 0 <= 0"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_sh_idiom.py",
+  "rc": 0,
+  "tail": [
+   "  shebang without the executable bit: 0",
+   "  no strict mode: 5 <= 5",
+   "  unquoted expansion: 3 <= 3",
+   "  top-heavy long script: 0 <= 0"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/measure_naming.py --check",
+  "rc": 0,
+  "tail": [
+   "",
+   "95 candidate(s): 91 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3973 ports and 634 parameters scanned, 384 with no //! and so not judged here, 499 match(es) excluded with a reason)",
+   "",
+   "NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/measure_fail_fast.py --check",
+  "rc": 0,
+  "tail": [
+   "   .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict",
+   "",
+   "FAIL-FAST RATCHET: PASS (80 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)",
+   "  the ratchets can be lowered to 80, 4 and 0"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/measure_test_evidence.py --check",
+  "rc": 0,
+  "tail": [
+   "runner evidence contract: OK",
+   "",
+   "TEST-EVIDENCE RATCHET: PASS (70 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))",
+   "  the mutation ratchet can be lowered to 70"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_todo_ownership.py",
+  "rc": 0,
+  "tail": [
+   "TODO ownership gate: OK (0 owned marker(s), 0 unowned; 40 near-miss occurrence(s) on 33 line(s) correctly not treated as markers; 1143 first-party file(s) read)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_rtl_source_lists.py",
+  "rc": 0,
+  "tail": [
+   "RTL source-list gate: OK (108 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/check_port_contracts.py",
+  "rc": 0,
+  "tail": [
+   "port contract gate: OK (3973 first-party port(s): hdl 2089, gptp-processor 125, protocol-processor 1759; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)",
+   "  review inventory: 93 open and 49 literal-bound named connection(s), 59 without a local rationale (all recorded; none may be added); 317 test-only hierarchical observation(s)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/ci_scope.py --selftest",
+  "rc": 0,
+  "tail": [
+   "  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it",
+   "  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected",
+   "  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it",
+   "selftest: PASS"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/ci_events.py --check",
+  "rc": 0,
+  "tail": [
+   "note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+   "ci_events: OK (1749 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ]
+ },
+ {
+  "cmd": "python3 scripts/ci_events.py --selftest",
+  "rc": 0,
+  "tail": [
+   "  ok   default-branch: pull_request on main warns and continues",
+   "  ok   default-branch: push on main warns and continues",
+   "  ok   default-branch: a missing event cannot run",
+   "selftest: PASS (1749 contract items, 2374 arms)"
+  ]
+ }
+]

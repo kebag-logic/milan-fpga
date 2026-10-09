@@ -1,0 +1,25 @@
+# job ooc_width_probe  dir=treeG  head=614b4aa5f408d75673b546ce6efb6ef126437be2  start=2026-10-09T17:17:37Z
+# cmd: $PACKET/scripts/ooc_width_probe.sh $PACKET/scratch/sv2v12/bin $SV2V13_DIR $PACKET/scratch/ooc_probe
+=== converter 0.0.12: resolved as sv2v v0.0.12
+sv2v rc=0
+-- guard lowering (lines naming error/display/fatal):
+64:			$error("rx_mac_filter: TDATA_WIDTH=%0d cannot carry the 48-bit destination address in one beat, and the first-beat compare this module
+67:			$error("rx_mac_filter: TDATA_WIDTH=%0d is not a whole number of bytes, so s_tkeep (TDATA_WIDTH/8) cannot describe the beat it qualifie
+70:			$error("rx_mac_filter: NUM_ENTRIES=%0d leaves the TCAM with no entry to program, so every frame takes the default_pass_i path and the 
+73:			$error("rx_mac_filter: ACTION_WIDTH=%0d cannot carry a match action, so frame_action_o would be empty and every hit would be indisting
+-- ooc.sh rx_mac_filter TDATA_WIDTH=52 rc=1
+rx_mac_filter                yosys FAIL: ERROR: rx_mac_filter: TDATA_WIDTH=%0d is not a whole number of bytes, so s_tkeep (TDATA_WIDTH/8) cannot describe the beat it qualifies and the final beat's byt
+-- ooc.sh rx_mac_filter TDATA_WIDTH=64 rc=0
+rx_mac_filter                    1378        0     1378     1691        0        0        0        0
+=== converter 0.0.13: resolved as sv2v v0.0.13
+sv2v rc=0
+-- guard lowering (lines naming error/display/fatal):
+64:			initial $display("Error [elaboration] hdl/ieee8021q/filtering/rx_mac_filter.sv:154:5 - rx_mac_filter.gen_guard_dmac_in_beat0\n msg: ",
+67:			initial $display("Error [elaboration] hdl/ieee8021q/filtering/rx_mac_filter.sv:158:5 - rx_mac_filter.gen_guard_byte_lanes\n msg: ", "r
+70:			initial $display("Error [elaboration] hdl/ieee8021q/filtering/rx_mac_filter.sv:162:5 - rx_mac_filter.gen_guard_tcam_entries\n msg: ", 
+73:			initial $display("Error [elaboration] hdl/ieee8021q/filtering/rx_mac_filter.sv:166:5 - rx_mac_filter.gen_guard_action_width\n msg: ", 
+-- ooc.sh rx_mac_filter TDATA_WIDTH=52 rc=1
+rx_mac_filter                yosys FAIL: ERROR: Can't resolve task name `$error'.
+-- ooc.sh rx_mac_filter TDATA_WIDTH=64 rc=0
+rx_mac_filter                    1378        0     1378     1691        0        0        0        0
+# end=2026-10-09T17:17:48Z rc=0

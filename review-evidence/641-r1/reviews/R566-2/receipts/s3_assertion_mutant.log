@@ -1,0 +1,22 @@
+# job s3_assertion_mutant  dir=tree43  head=614b4aa5f408d75673b546ce6efb6ef126437be2  start=2026-10-09T17:15:14Z
+# cmd: $PACKET/scripts/s3_assertion_mutant.sh $PACKET/scratch/make43/bin
+== GNU Make 4.4.1
+-- real Makefile, clean derivation
+rc=0
+-- real Makefile, MAKE=false
+Makefile:109: *** ../milan_dp print-srcs failed; the datapath source list could not be derived.  Stop.
+rc=2
+== GNU Make 4.3
+-- real Makefile, clean derivation
+rc=0
+-- real Makefile, MAKE=false
+Makefile:109: *** ../milan_dp print-srcs failed; the datapath source list could not be derived.  Stop.
+rc=2
+== MUTANT (assertion deleted) GNU Make 4.4.1
+-- MAKE=false
+rc=0
+== MUTANT (assertion deleted) GNU Make 4.3
+-- MAKE=false
+rc=0
+restored: tb/verilator/pp_shadow/Makefile matches HEAD
+# end=2026-10-09T17:15:14Z rc=0

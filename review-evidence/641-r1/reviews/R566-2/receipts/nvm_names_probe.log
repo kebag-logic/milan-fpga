@@ -1,0 +1,10 @@
+# job nvm_names_probe  dir=treeG  head=614b4aa5f408d75673b546ce6efb6ef126437be2  start=2026-10-09T17:24:20Z
+# cmd: $PACKET/scripts/nvm_names_probe.sh $PACKET/scratch/sv2v12/bin $PACKET/scratch/nvm_probe
+converter: sv2v v0.0.12
+-- ooc.sh KL_nvm_backend N_NAME_P=235 rc=1
+KL_nvm_backend               yosys FAIL: ERROR: KL_nvm_backend: N_NAME_P=%0d outside 1..%0d: the NAME block is 0x80..0xFF..
+-- ooc.sh KL_nvm_backend N_NAME_P=129 rc=1
+KL_nvm_backend               yosys FAIL: ERROR: KL_nvm_backend: N_NAME_P=%0d outside 1..%0d: the NAME block is 0x80..0xFF..
+-- ooc.sh KL_nvm_backend N_NAME_P=128 rc=0
+KL_nvm_backend                   1467      128     1595      544        0        0        6      113
+# end=2026-10-09T17:24:30Z rc=0

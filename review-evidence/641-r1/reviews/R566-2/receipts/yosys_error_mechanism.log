@@ -1,0 +1,11 @@
+# job yosys_error_mechanism  dir=treeG  head=614b4aa5f408d75673b546ce6efb6ef126437be2  start=2026-10-09T17:17:05Z
+# cmd: $PACKET/scripts/yosys_error_mechanism.sh $PACKET/scratch/yosys_mech
+native_active read_verilog: rc=1 native_active.v:3: ERROR: native guard message P too large.
+native_active read_verilog -sv: rc=1 native_active.v:3: ERROR: native guard message P too large.
+native_inactive read_verilog: rc=0 
+native_inactive read_verilog -sv: rc=0 
+restored_active read_verilog: rc=1 restored_active.v:3: ERROR: Can't resolve task name `$error'.
+restored_active read_verilog -sv: rc=1 restored_active.v:3: ERROR: Can't resolve task name `$error'.
+restored_inactive read_verilog: rc=0 
+restored_inactive read_verilog -sv: rc=0 
+# end=2026-10-09T17:17:05Z rc=0

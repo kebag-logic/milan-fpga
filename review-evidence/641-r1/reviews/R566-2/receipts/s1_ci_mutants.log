@@ -1,0 +1,7 @@
+# job s1_ci_mutants  dir=treeD  head=614b4aa5f408d75673b546ce6efb6ef126437be2  start=2026-10-09T17:20:58Z
+# cmd: python3 $PACKET/scripts/s1_ci_mutants.py
+REFUSED rc=1 step removed:   FAIL .github/workflows/rtl-fast.yml: job `yosys-elaboration` must carry exactly 11 steps, in the recorded order (found 10): an inserted step of ANY content runs before every late
+REFUSED rc=1 step neutralised with || true:   FAIL .github/workflows/rtl-fast.yml: job `yosys-elaboration` step 10 (`Prove both synthesis flows refuse active elaboration guards`) script is not the canonical form: line 1 must
+REFUSED rc=1 step continue-on-error:   FAIL .github/workflows/rtl-fast.yml: job `yosys-elaboration` step 10 (`Prove both synthesis flows refuse active elaboration guards`) must carry no `continue-on-error` (found True
+restored
+# end=2026-10-09T17:20:58Z rc=0

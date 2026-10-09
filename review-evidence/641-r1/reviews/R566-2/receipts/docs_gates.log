@@ -1,0 +1,80 @@
+# job docs_gates  dir=treeD  head=614b4aa5f408d75673b546ce6efb6ef126437be2  start=2026-10-09T17:27:03Z
+# cmd: python3 $PACKET/scripts/docs_gates.py 5603c353137e90c1fa95429f6d00ef7a2298d9ee $PACKET/receipts/docs_gates.json
+rc=0   <markdown-venv> python3 scripts/docs_check.py
+      docs_check: 0 finding(s) across 200 md files + 1211 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0   <markdown-venv> python3 scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+      check_em_dash: 0 finding(s) over 72 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5603c353..HEAD]
+rc=0   <markdown-venv> python3 scripts/check_em_dash.py --selftest
+      check_em_dash selftest: PASS (339 arm(s))
+rc=0   python3 scripts/check_doc_style.py
+      documentation style: OK (22 current documents)
+rc=0   python3 scripts/check_doc_style.py --selftest
+      documentation style selftest: OK
+rc=0   python3 docs/DOC_MAP.gen.py --check
+      documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0   python3 scripts/check_solution_docs.py
+      solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0   python3 scripts/check_submodule_docs.py
+      submodule documentation: OK (5 exact gitlinks)
+rc=0   <markdown-venv> python3 scripts/gen_toc.py --verify-anchors
+      anchor check: 417 existing cross-page fragment links reproduced
+rc=0   <markdown-venv> python3 scripts/gen_toc.py --check
+      TOC gate: OK (140 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0   python3 scripts/check_feature_status.py
+      feature_status: 0 finding(s)
+rc=0   python3 scripts/check_archive.py
+      archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+rc=0   python3 scripts/check_hygiene.py --check
+        superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+        protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+        gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+      HYGIENE RATCHET: PASS (3 population(s), 1083 file(s))
+rc=0   python3 scripts/check_sv_idiom.py
+      SystemVerilog idiom gate: OK (137 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped
+rc=0   python3 scripts/check_py_idiom.py
+        unmanaged open: 0 <= 0
+        too many parameters: 7 <= 7
+        global statement: 0 <= 0
+        over-long line: 0 <= 0
+rc=0   python3 scripts/check_sh_idiom.py
+        shebang without the executable bit: 0
+        no strict mode: 5 <= 5
+        unquoted expansion: 3 <= 3
+        top-heavy long script: 0 <= 0
+rc=0   python3 scripts/measure_naming.py --check
+      
+      95 candidate(s): 91 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3973 ports and 634 parameters scanned, 384 with no //! and so not judged here, 499 mat
+      
+      NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+rc=0   python3 scripts/measure_fail_fast.py --check
+         .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+      
+      FAIL-FAST RATCHET: PASS (80 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+        the ratchets can be lowered to 80, 4 and 0
+rc=0   python3 scripts/measure_test_evidence.py --check
+      runner evidence contract: OK
+      
+      TEST-EVIDENCE RATCHET: PASS (70 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+        the mutation ratchet can be lowered to 70
+rc=0   python3 scripts/check_todo_ownership.py
+      TODO ownership gate: OK (0 owned marker(s), 0 unowned; 40 near-miss occurrence(s) on 33 line(s) correctly not treated as markers; 1143 first-party file(s) read)
+rc=0   python3 scripts/check_rtl_source_lists.py
+      RTL source-list gate: OK (108 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)
+rc=0   python3 scripts/check_port_contracts.py
+      port contract gate: OK (3973 first-party port(s): hdl 2089, gptp-processor 125, protocol-processor 1759; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wil
+        review inventory: 93 open and 49 literal-bound named connection(s), 59 without a local rationale (all recorded; none may be added); 317 test-only hierarchical observation(s)
+rc=0   python3 scripts/ci_scope.py --selftest
+        ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+        ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+        ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+      selftest: PASS
+rc=0   python3 scripts/ci_events.py --check
+      note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+      ci_events: OK (1749 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0   python3 scripts/ci_events.py --selftest
+        ok   default-branch: pull_request on main warns and continues
+        ok   default-branch: push on main warns and continues
+        ok   default-branch: a missing event cannot run
+      selftest: PASS (1749 contract items, 2374 arms)
+25/25 rc 0; failed: []
+# end=2026-10-09T17:28:10Z rc=0
