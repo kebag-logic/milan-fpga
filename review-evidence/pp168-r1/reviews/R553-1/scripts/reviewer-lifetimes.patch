@@ -1,0 +1,70 @@
+--- a/tb/acmp_listener/field_cases.hpp
++++ b/tb/acmp_listener/field_cases.hpp
+@@ -155,4 +155,56 @@
+     }
+     return fails;
+   }
++
++  int reviewer_lifetimes() {
++    // Exercise each sink, diverse controller octets, both response-wait states,
++    // independent VLAN upper bits, and reuse after the private-word unbind clear.
++    for (int sink = 0; sink < N_SINKS; ++sink) {
++      const uint64_t old_ctl = 0x0123456789ABCDEFull ^ (uint64_t(sink) << 40);
++      const uint64_t new_ctl = 0xFEDCBA9876543210ull ^ (uint64_t(sink) << 32);
++      auto send = [&](Stim s) {
++        s.uid = uint16_t(sink); h.col.clear();
++        CHECK(h.drive(sink, s), "reviewer sink %d stimulus completes", sink);
++      };
++      Stim b; b.msg=M_BIND; b.ctlr=old_ctl; b.tk_eid=TK_A;
++      b.tk_uid=TKUID_A; b.seq=uint16_t(0xB000+sink); send(b);
++      Pdu original{}; bool found=false;
++      for (const auto& frame:h.col.frames) if(frame.b[1]==M_PROBE_CMD) {
++        original=frame;found=true;
++      }
++      CHECK(found, "reviewer sink %d original probe present", sink);
++      CHECK(h.shadow[sink].sid==0, "reviewer pending controller never published as SID");
++      Stim exp; exp.k=Stim::EXP; send(exp);
++      CHECK(h.col.frames.size()==1 && memcmp(h.col.frames[0].b,original.b,PDU_BYTES)==0,
++            "reviewer sink %d retry byte exact before PW2 rebind",sink);
++      b.ctlr=new_ctl;send(b);
++      CHECK(h.shadow[sink].sm==S_PW2 && h.shadow[sink].bind_ctlr==new_ctl
++            && h.shadow[sink].sid==0, "reviewer PW2 rebind keeps unpublished probe identity");
++      auto rsp=response(original);rsp.ctlr=new_ctl;send(rsp);
++      CHECK(!h.col.settle && h.shadow[sink].sm==S_PW2,
++            "reviewer PW2 rejects replacement controller");
++      rsp=response(original);rsp.vlan=uint16_t((1u << (12+(sink%4))) | (0x123u+sink));
++      send(rsp);
++      CHECK(h.col.settle && h.col.settle_vlan==rsp.vlan && h.shadow[sink].sid==rsp.sid,
++            "reviewer PW2 accepts original controller and complete VLAN");
++      Stim get;get.msg=M_GETRX;get.ctlr=new_ctl;send(get);
++      CHECK(h.col.frames.size()==1 && ((unsigned(h.col.frames[0].b[52])<<8)
++            |h.col.frames[0].b[53])==rsp.vlan, "reviewer sink %d full VLAN readback",sink);
++      Stim unbind;unbind.msg=M_UNBIND;unbind.ctlr=new_ctl;send(unbind);
++      CHECK(h.shadow[sink].sid==0 && h.shadow[sink].vlan==0 && h.shadow[sink].sm==S_UNB,
++            "reviewer unbind publishes zero settled fields");
++      b.ctlr=new_ctl;send(b);
++      Pdu fresh{};found=false;
++      for(const auto& frame:h.col.frames) if(frame.b[1]==M_PROBE_CMD){fresh=frame;found=true;}
++      CHECK(found, "reviewer fresh probe after unbind present");
++      send(response(original));
++      CHECK(!h.col.settle && h.shadow[sink].sm==S_PWR,
++            "reviewer stale response after rebind is inert");
++      rsp=response(fresh);rsp.vlan=uint16_t(sink ? 0xFFFF : 0);send(rsp);
++      CHECK(h.col.settle && h.shadow[sink].vlan==rsp.vlan,
++            "reviewer fresh probe overwrites reused private word");
++      send(unbind);
++    }
++    return fails;
++  }
+ };
+--- a/tb/acmp_listener/sim_main.cpp
++++ b/tb/acmp_listener/sim_main.cpp
+@@ -1790,7 +1790,7 @@
+   for (auto test : {&FieldCases::vlan, &FieldCases::old_controller,
+                     &FieldCases::new_controller, &FieldCases::duplicate,
+                     &FieldCases::unbind_fields, &FieldCases::retry_status,
+-                    &FieldCases::lock_status}) {
++                    &FieldCases::lock_status, &FieldCases::reviewer_lifetimes}) {
+     FieldCases fields;
+     (fields.*test)();
+     checks += fields.checks;
