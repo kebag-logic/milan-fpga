@@ -15,7 +15,7 @@ from ctrl_build import CTRL, ROOT, Outcome, Tree, compile_c, execute, sources
 import fw_gtest
 
 
-def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
+def differential(out: Path, ctrl: Path = CTRL, rtl: Path | None = None) -> Outcome:
     """Build the real parent RTL and C core; grade by the shared test tally."""
     out.mkdir(parents=True, exist_ok=True)
     tree = Tree(ctrl, out, out / "reuse", fw_gtest.Build(jobs=4))
@@ -28,7 +28,7 @@ def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
             "--top-module", "KL_maap", "-GCLK_FREQ_HZ_P=10000", "-Wno-fatal",
             "--Mdir", str(out / "fabric"), "-CFLAGS", " ".join(flags),
             "-LDFLAGS", " ".join(fw_gtest.TEST_LIBS), "-o", str(exe),
-            str(ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp"),
+            str(rtl or ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp"),
             *map(str, objs)]
     result = fw_gtest.run(argv, timeout=570)
     (out / "build.log").write_text(result.stdout + result.stderr, encoding="utf-8")
@@ -42,7 +42,7 @@ def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
 
 
 def sensitivity(out: Path) -> int:
-    """Require every differential case to reject its own planted core defect."""
+    """Require every differential case to reject its named planted defect."""
     from ctrl_mutants import MUTANTS, caught
 
     cells = [(m.name, "maap/maap.c", m.old, m.new, f"AllStates/DifferentialCell.SharedConflict/{k}")
@@ -62,17 +62,22 @@ def sensitivity(out: Path) -> int:
     cases.append(("parent-probe-count", "test/test_maap_differential.cpp",
                   'ASSERT_EQ(f.frames.size(), 5u) << "Table B.7 parent four',
                   'ASSERT_EQ(f.frames.size(), 4u) << "Table B.7 parent four', timing))
+    cases.append(("parent-ignores-mac", "hdl/ieee1722/maap/KL_maap.sv",
+                  "16'hACE1 ^ station_mac_i[15:0] ^ station_mac_i[31:16]",
+                  "16'hAC61", timing))
     escaped = 0
     for name, path, old, new, test in cases:
         copy = out / name / "ctrl"
         shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"), dirs_exist_ok=True)
-        source = copy / path
-        original = source.read_text(encoding="utf-8")
+        is_rtl = path.startswith("hdl/")
+        source = out / name / "KL_maap.sv" if is_rtl else copy / path
+        original = (ROOT / path if is_rtl else source).read_text(encoding="utf-8")
         if original.count(old) != 1:
             raise ValueError(f"{name}: differential fixture is not unique")
         source.write_text(original.replace(old, new), encoding="utf-8")
-        outcome = differential(out / name / "build", copy)
-        ok = caught(test, "", outcome)
+        outcome = differential(out / name / "build", copy, source if is_rtl else None)
+        needle = "MAC/phase sampling reaches the parent's highest draws" if is_rtl else ""
+        ok = caught(test, needle, outcome)
         print(f"[{'ok' if ok else 'ESCAPED'}] differential mutant {name}: {test}", flush=True)
         escaped += not ok
     print(f"differential mutants: {len(cases) - escaped}/{len(cases)} caught")
