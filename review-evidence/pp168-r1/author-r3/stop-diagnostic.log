@@ -1,0 +1,11 @@
+OBS VLAN received=0xa123 action=0x0123 record=0x0123
+FAIL: VLAN full field at settle action
+OBS VLAN GET_RX_STATE=0x0123 expected=0xa123
+FAIL: VLAN full field in GET_RX_STATE
+OBS saved-controller response settle=0 state=PWR
+FAIL: guard accepts controller from sent probe after same-talker rebind
+OBS current-controller response settle=1 state=SNR
+FAIL: guard rejects controller absent from sent probe after same-talker rebind
+OBS retry byte-identical=0
+FAIL: retry preserves original probe after same-talker rebind
+STOP diagnostic: 5 clause failures

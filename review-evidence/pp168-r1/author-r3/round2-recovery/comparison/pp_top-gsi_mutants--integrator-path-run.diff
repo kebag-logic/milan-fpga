@@ -1,0 +1,19 @@
+--- base
++++ head
+@@ -28,9 +28,7 @@
+ FAIL: GI OTHER-PASSIVE solicited: complete Milan response
+ FAIL: GI MISSING unsolicited: byte-exact sink 2 response
+ FAIL: GI MISSING-UNBIND unsolicited: byte-exact sink 2 response
+-FAIL: GI RETRY-CLEAR unsolicited: complete Milan response
+-FAIL: GI RETRY-CLEAR solicited: complete Milan response
+-FAIL: GI RETRY-CLEAR: solicited and unsolicited bodies agree for sink 0
++FAIL: GI RETRY-RETAIN solicited: complete Milan response
+ FAIL: GI COMPLETED unsolicited: complete Milan response
+ FAIL: GI COMPLETED solicited: complete Milan response
+ FAIL: GI COMPLETED: solicited and unsolicited bodies agree for sink 0
+@@ -1340,3 +1338,5 @@
+ FAIL: GI DISABLED solicited: complete Milan response
+ FAIL: GI DISABLED: solicited and unsolicited bodies agree for sink 1
+ FAIL: GI internal seam: selectors 5/7 never requested from integrator
++FAIL: VLAN168 GET_STREAM_INFO retains all received bits
++FAIL: VLAN168 unbind clears the full stored VLAN

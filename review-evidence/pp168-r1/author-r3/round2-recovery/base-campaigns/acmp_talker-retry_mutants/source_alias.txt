@@ -1,0 +1,174 @@
+return code: 2
+1256 checks: 1084 PASS, 172 FAIL
+FAIL: B1 declare: gate strobe missing
+FAIL: B1 declaring_o[3] OBSERVED 0 -> 1
+FAIL: B1 gate level, got 0x00
+FAIL: B1 status got 3 want 0
+FAIL: B1 stream_id got 0000000000000000
+FAIL: B1 dest_mac got 000000000000
+FAIL: B1 vlan got 0
+FAIL: B2 dest_mac got 000000000000
+FAIL: B3 dest_mac got 000000000000
+FAIL: B4 status got 3 want 0
+FAIL: B4 stream_id got 0000000000000000
+FAIL: B4 dest_mac got 000000000000
+FAIL: B4 vlan got 0
+FAIL: B5 content sane
+FAIL: B6 dest_mac got 000000000000
+FAIL: B7 dest_mac got 000000000000
+FAIL: B: leftovers resp=0 gate=0 arm=0 mreq=7
+FAIL: C6 declare open da got 91e0f000010f want 91e0f0000100
+FAIL: C6 truncated dest_mac got 91e0f000010f
+FAIL: C: leftovers resp=0 gate=0 arm=0 mreq=10
+FAIL: D2 freshness lapse: gate strobe missing
+FAIL: D2 declaring_o[3] OBSERVED 1 -> 0
+FAIL: D3 dest_mac got 000000000000
+FAIL: D4 re-declare: gate strobe missing
+FAIL: D4 status got 3 want 0
+FAIL: D4 stream_id got 0000000000000000
+FAIL: D4 dest_mac got 000000000000
+FAIL: D4 vlan got 0
+FAIL: D: leftovers resp=0 gate=0 arm=0 mreq=14
+FAIL: E1 conflict withdraw: gate strobe missing
+FAIL: E1 draw kind 3
+FAIL: E1 leaveall2: timer arm missing
+FAIL: E2 no DAFRESH arm while BACKOFF holds the slot
+FAIL: E3 re-alloc maap src got 1
+FAIL: E3 re-declare new DA: gate strobe missing
+FAIL: E4 new DA answered dest_mac got 000000000000
+FAIL: E: leftovers resp=0 gate=0 arm=1 mreq=20
+FAIL: E7 re-alloc maap src got 2
+FAIL: E7b dest_mac got 000000000000
+FAIL: E7: leftovers resp=0 gate=0 arm=1 mreq=22
+FAIL: F1 listener-driven declare: gate strobe missing
+FAIL: F2 leaveall2 src0 arm slot got 20
+FAIL: F2 leaveall2 src0 arm owner got 53
+FAIL: F2 leaveall2 src0 arm deadline got 65000 want 114000
+FAIL: F2 pcp withdraw src1: gate strobe missing
+FAIL: F2 leaveall2 src1 arm slot got 17
+FAIL: F2 leaveall2 src1 arm owner got 50
+FAIL: F2 pcp withdraw src3: gate strobe missing
+FAIL: F2 leaveall2 src3: timer arm missing
+FAIL: F2 three draws
+FAIL: F3 pcp backoff keeps the DA status got 3 want 0
+FAIL: F3 pcp backoff keeps the DA stream_id got 0000000000000000
+FAIL: F3 pcp backoff keeps the DA dest_mac got 000000000000
+FAIL: F3 pcp backoff keeps the DA vlan got 0
+FAIL: F3 no DAFRESH arm while BACKOFF holds the slot
+FAIL: F4 re-declare same DA: gate strobe missing
+FAIL: F5 re-declare src3 same DA: gate strobe missing
+FAIL: F: leftovers resp=0 gate=0 arm=0 mreq=32
+FAIL: G1 src2 untouched by src1/src3 churn dest_mac got 000000000000
+FAIL: G2a declare: gate strobe missing
+FAIL: G3 declare src5: gate strobe missing
+FAIL: G2 content sane
+FAIL: G: leftovers resp=0 gate=0 arm=0 mreq=36
+FAIL: H1 release DA maap src got 3
+FAIL: H1 release DA maap rel got 0
+FAIL: H: leftovers resp=0 gate=0 arm=0 mreq=38
+FAIL: I0 gates carried in from A-H, got 0x00
+FAIL: I1 alloc on re-enable maap src got 4
+FAIL: I3 listener retries the alloc maap src got 5
+FAIL: I4 grant declares: gate strobe missing
+FAIL: I4 declaring_o[6] OBSERVED 0 -> 1 on the grant
+FAIL: I4 only src6 moved, got 0x00
+FAIL: I: leftovers resp=0 gate=0 arm=0 mreq=46
+FAIL: J1 withdraw on removal: gate strobe missing
+FAIL: J1 declaring_o[4] OBSERVED 1 -> 0
+FAIL: J2 RELEASE_DA offered and unaccepted
+FAIL: J3 answer unaffected by the hung request dest_mac got 000000000000
+FAIL: J6 the owed RELEASE is re-offered after the abandon, got 0 offers
+FAIL: J6 and it is still src 4's release that is owed
+FAIL: J6 nothing was ever accepted while maap was gone
+FAIL: J7 the owed RELEASE is taken FIRST maap src got 7
+FAIL: J7 the owed RELEASE is taken FIRST maap rel got 0
+FAIL: J7 ...and only then does the rejoin allocate maap src got 1
+FAIL: J7 grant re-declares: gate strobe missing
+FAIL: J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered
+FAIL: J7 final gates, got 0x00
+FAIL: J7b the recovered source answers with its NEW DA status got 3 want 0
+FAIL: J7b the recovered source answers with its NEW DA stream_id got 0000000000000000
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 000000000000
+FAIL: J7b the recovered source answers with its NEW DA vlan got 0
+FAIL: J: leftovers resp=0 gate=0 arm=0 mreq=57
+FAIL: K0 src2 release maap rel got 0
+FAIL: K0 withdraw on removal: gate strobe missing
+FAIL: K0 src6 release settled behind the busy face maap src got 3
+FAIL: K0 src6 release settled behind the busy face maap rel got 0
+FAIL: K0 gates after removal, got 0x00
+FAIL: K0: leftovers resp=0 gate=0 arm=0 mreq=60
+FAIL: K1 src6 alloc ACCEPTED maap src got 4
+FAIL: K2 THE DEFECT: src2's allocation is stranded by src6's unanswered request (60 accepted)
+FAIL: K2 no gate can open, got 0x00
+FAIL: K4 the bound has NOT elapsed: nothing may be re-offered yet
+FAIL: K5 THE REGRESSION: another source allocates again maap src got 5
+FAIL: K6 stale response changed the gate level to 0x00
+FAIL: K7 src2 declares with ITS OWN DA: gate strobe missing
+FAIL: K7 declaring_o[2] OBSERVED 0 -> 1
+FAIL: K7 gates, got 0x00
+FAIL: K8 abandoned source recovers with a FRESH DA: gate strobe missing
+FAIL: K8 final gates, got 0x00
+FAIL: K: leftovers resp=0 gate=0 arm=0 mreq=61
+FAIL: L0 src7 release maap rel got 0
+FAIL: L0 src7 ALLOC now PARKS the face maap src got 1
+FAIL: L0: leftovers resp=0 gate=0 arm=0 mreq=60
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face: gate strobe missing
+FAIL: L1 and nothing can be accepted while the claim walk holds the face
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap src got 2
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap rel got 0
+FAIL: L2 offered exactly once, got 0
+FAIL: L3 a TAKEN release is never re-offered, got 0
+FAIL: L3 no second request for src 1
+FAIL: L4 src0 release takes the free face maap src got 3
+FAIL: L4 src0 release takes the free face maap rel got 0
+FAIL: L4 src3 withdraws at once: gate strobe missing
+FAIL: L4 src5 withdraws at once: gate strobe missing
+FAIL: L4 both are owed, neither is accepted yet
+FAIL: L4 src3's owed release, lowest index first maap src got 4
+FAIL: L4 src3's owed release, lowest index first maap rel got 0
+FAIL: L4 src5's owed release follows maap rel got 0
+FAIL: L4 three teardowns, three releases, no fourth (61 extra)
+FAIL: L4 final gates, got 0x00
+FAIL: L: leftovers resp=0 gate=0 arm=0 mreq=61
+FAIL: R1 first probe after bound src0 status/tuple
+FAIL: R1 first probe after bound src1 status/tuple
+FAIL: R1 first probe after bound src2 status/tuple
+FAIL: R1 first probe after bound src3 status/tuple
+FAIL: R1 first probe after bound src4 status/tuple
+FAIL: R1 first probe after bound src5 status/tuple
+FAIL: R1 first probe after bound src6 status/tuple
+FAIL: R1 first probe after bound src7 status/tuple
+FAIL: R1 every probed source declares
+FAIL: R1 owned addresses are never reallocated
+FAIL: R2 re-enable recovers src0 status/tuple
+FAIL: R2 re-enable recovers src1 status/tuple
+FAIL: R2 re-enable recovers src2 status/tuple
+FAIL: R2 re-enable recovers src3 status/tuple
+FAIL: R2 re-enable recovers src4 status/tuple
+FAIL: R2 re-enable recovers src5 status/tuple
+FAIL: R2 re-enable recovers src6 status/tuple
+FAIL: R2 re-enable recovers src7 status/tuple
+FAIL: R7 block mapping src0
+FAIL: R7 block mapping src1
+FAIL: R7 block mapping src0
+FAIL: R7 block mapping src1
+FAIL: R7 block mapping src2
+FAIL: R7 block mapping src3
+FAIL: R7 block mapping src4
+FAIL: R7 block mapping src5
+FAIL: R7 block mapping src6
+FAIL: R7 block mapping src7
+FAIL: R7 shrink and block move src0 status/tuple
+FAIL: R7 shrink and block move src1 status/tuple
+FAIL: R7 only in-block sources declare
+FAIL: R10 conflict immediately restarts acquisition
+FAIL: R11 demand before disable src1 status/tuple
+FAIL: R11 immediate release serviced under continuous commands
+FAIL: R11 demand before disable src1 status/tuple
+FAIL: R11 owed release serviced under continuous commands
+FAIL: R16 conflict src1 declaring before stimulus (0x00)
+FAIL: R16 pcp src1 declaring before stimulus (0x00)
+FAIL: R16 freshness src1 declaring before stimulus (0x00)
+FAIL: R16 freshness gate still open before expiry
+FAIL: R16 listener src1 declaring before stimulus (0x00)
+FAIL: R16 listener event served under continuous commands (gates 0x00 want 0x06)

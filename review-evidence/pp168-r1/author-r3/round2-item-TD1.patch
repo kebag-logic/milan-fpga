@@ -1,0 +1,23 @@
+--- a/hdl/acmp/KL_acmp_talker.sv
++++ b/hdl/acmp/KL_acmp_talker.sv
+@@ -24,7 +24,7 @@
+ //                  - GET_TX_STATE zeroes the listener fields and reads
+ //                    REGISTERING_FAILED LIVE (= 1 iff the registered
+ //                    Listener attribute is ASKING_FAILED).
+-//                DISCONNECT_TX is always SUCCESS and changes nothing;
++//                DISCONNECT_TX validates the source and otherwise changes nothing;
+ //                GET_TX_CONNECTION is NOT_SUPPORTED (Table 5.48). A PROBE_TX
+ //                whose ingress interface is not the output's AVB interface
+ //                is SILENTLY ignored (the doc's impl choice, taken here as
+@@ -1299,8 +1299,9 @@
+         end
+ 
+         MT_DISC_TX_C: begin
+-          resp_valid_o        = 1'b1;   // always SUCCESS, changes nothing
+-          resp_status_o       = ST_SUCCESS_C;
++          // Milan 5.5.4.2 step 1 and Tables 5.44/5.45.
++          resp_valid_o        = 1'b1;
++          resp_status_o       = uid_valid_w ? ST_SUCCESS_C : ST_TALKER_UNKNOWN_C;
+           resp_listener_eid_o = pdu_leid_r;
+           resp_listener_uid_o = pdu_luid_r;
+         end

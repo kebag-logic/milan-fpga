@@ -1,0 +1,404 @@
+[
+  {
+    "mutant": "msg_ok_forced@acmp_listener",
+    "checks": [
+      "B13 msg 7 status 0 in PWR",
+      "B13 msg 14 status 0 in PWR",
+      "B13 msg 3 status 5 in PW2",
+      "B13 msg 15 status 5 in PW2"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "msg_ok_forced@pp_top",
+    "checks": [
+      "AI3: the sink never left PRB_W_RESP"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "guard_ctlr_dropped@acmp_listener",
+    "checks": [
+      "B14 wrong controller_entity_id in PWR",
+      "B14 wrong controller_entity_id in PW2"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "guard_talker_eid_dropped@acmp_listener",
+    "checks": [
+      "B14 wrong talker_entity_id in PWR",
+      "B14 wrong talker_entity_id in PW2"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "guard_talker_uid_dropped@acmp_listener",
+    "checks": [
+      "B14 wrong talker_unique_id in PWR",
+      "B14 wrong talker_unique_id in PW2"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "cdl_not_44_rejected@rx_validator",
+    "checks": [
+      "F30 BIND_RX cdl 84",
+      "F30 PROBE_TX cdl 84"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "cdl_not_44_rejected@pp_top",
+    "checks": [
+      "AL1: a 96-B UNBIND_RX",
+      "AL2: a 96-B BIND_RX",
+      "AL3: the 96-B PROBE_TX",
+      "AL4: no 96-B frame was dropped"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "st_ls_settle_as_withdraw@pp_top",
+    "checks": [
+      "AS4: the matching Talker Advertise yields Listener Ready New",
+      "AS4: class-D: Listener READY declared",
+      "AS5: 11.5 s after the settle"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "st_ls_teardown_as_declare@pp_top",
+    "checks": [
+      "AS6: the Listener attribute is withdrawn on the wire"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "st_ls_sid_da_swapped@pp_top",
+    "checks": [
+      "AS4: the matching Talker Advertise yields Listener Ready New",
+      "AS4: class-D: Listener READY declared",
+      "AS5: 11.5 s after the settle"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "st_ls_state_none@pp_top",
+    "checks": [
+      "AS4: the matching Talker Advertise yields Listener Ready New",
+      "AS4: class-D: Listener READY declared",
+      "AS5: 11.5 s after the settle"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "st_ls_vid_dropped@pp_top",
+    "checks": [
+      "AS4: the matching Talker Advertise yields Listener Ready New",
+      "AS4: class-D: Listener READY declared",
+      "AS5: 11.5 s after the settle"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "st_ls_index_zero@pp_top",
+    "checks": [
+      "AS4: class-D: Listener READY declared",
+      "AS4: exactly one TK_ATTR_REGISTERED{1}",
+      "AS5: 11.5 s after the settle"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "st_ls_teardown_lost@pp_top",
+    "checks": [
+      "AS6: the Listener attribute is withdrawn on the wire",
+      "AS6: no Listener declared and no match held"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "bound_view_not_latched@pp_top",
+    "checks": [
+      "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream",
+      "AS5: the bound view still carries the settled stream"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "bound_dmac_from_sid@pp_top",
+    "checks": [
+      "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "bound_view_not_cleared@pp_top",
+    "checks": [
+      "AS6: the bound view is cleared with the binding"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "matcher_da_ignored@pp_top",
+    "checks": [
+      "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration",
+      "AS3: near misses register nothing",
+      "AS3: no TK_ATTR_REGISTERED{1}"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "matcher_vid_ignored@pp_top",
+    "checks": [
+      "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration",
+      "AS3: near misses register nothing",
+      "AS3: no TK_ATTR_REGISTERED{1}"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "rec_read_sink_zero@acmp_listener",
+    "checks": [
+      "B12: parked sink 7 record untouched",
+      "F05.3 BIND_SAME x PWA: sm_state"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "rec_read_in_idle@acmp_listener",
+    "checks": [
+      "RV8(setup): state sync"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "rec_started_unstored@acmp_listener",
+    "checks": [
+      "S1d: STOP through the request face cleared the bit",
+      "F05.3 GETRX x PWA: flags"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "rec_settled_vlan_unstored@acmp_listener",
+    "checks": [
+      "F05.3 GETRX x SOK: settled",
+      "B12: parked sink 7 record untouched"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "rec_sweep_misaddressed@acmp_listener",
+    "checks": [
+      "RS GET_RX_STATE after the reset: binding"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_read_tail@pp_top",
+    "checks": [
+      "AQ2: the arm port and the drop counter equal the eight-queue model",
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_head_stuck@pp_top",
+    "checks": [
+      "AQ2: the arm port and the drop counter equal the eight-queue model",
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_ring_of_three@pp_top",
+    "checks": [
+      "AQ2: the arm port and the drop counter equal the eight-queue model",
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_write_at_head@pp_top",
+    "checks": [
+      "AQ2: the arm port and the drop counter equal the eight-queue model",
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_write_at_mid@pp_top",
+    "checks": [
+      "AQ2: the arm port and the drop counter equal the eight-queue model",
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_write_refused@pp_top",
+    "checks": [
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_write_wrap_hi@pp_top",
+    "checks": [
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_full_pop_refuses@pp_top",
+    "checks": [
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "armq_drop_skip_sat@pp_top",
+    "checks": [
+      "AQ3: driven from the bench, the arm port and the drop counter equal"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "field_reset_blocked@acmp_listener",
+    "checks": [
+      "field check reset completes",
+      "field check stimulus completes",
+      "field bind responds",
+      "VLAN response settles",
+      "VLAN GET_RX_STATE response exists",
+      "duplicate probe exists",
+      "LD1 response exists",
+      "same-talker rebind changes binding controller while probe remains pending"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "disconnect_not_accepted@acmp_talker",
+    "checks": [
+      "TD1 consumed"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "settled_vlan_truncated@pp_top",
+    "checks": [
+      "VLAN168 GET_RX_STATE retains all received bits"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "unbind_talker_echo@acmp_listener",
+    "checks": [
+      "LD1 successful unbind has zero talker fields"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "retry_status_cleared@acmp_listener",
+    "checks": [
+      "LD2 discovered retry preserves received status"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "lock_status_13@acmp_listener",
+    "checks": [
+      "LD3 lock refusal status 16 for message 6",
+      "LD3 lock refusal status 16 for message 8"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "disconnect_invalid_success@acmp_talker",
+    "checks": [
+      "TD1 invalid disconnect"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "disconnect_changes_gate@acmp_talker",
+    "checks": [
+      "TD1 invalid disconnect leaves source state unchanged"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "settled_vlan_truncated@acmp_listener",
+    "checks": [
+      "VLAN full field in GET_RX_STATE"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "settlement_vlan_truncated@acmp_listener",
+    "checks": [
+      "VLAN full field at settle action"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "gsi_vlan_external@pp_top",
+    "checks": [
+      "VLAN168 GET_STREAM_INFO retains all received bits",
+      "VLAN168 unbind clears the full stored VLAN"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "parent_vlan_shifted@pp_top",
+    "checks": [
+      "VLAN168 parent VID remains the low 12 bits"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "retry_probe_status_cleared@acmp_listener",
+    "checks": [
+      "LD2 retry probe preserves received status"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "retry_probe_status_cleared@pp_top",
+    "checks": [
+      "GI RETRY-RETAIN solicited: acmpsta sink 0 = 7"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "lock_gate_bypassed@acmp_listener",
+    "checks": [
+      "LD3 lock refusal preserves binding for message 6",
+      "LD3 lock refusal preserves binding for message 8"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "stored_vlan_truncated@pp_top",
+    "checks": [
+      "VLAN168 GET_STREAM_INFO retains all received bits"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "probe_guard_current_controller@acmp_listener",
+    "checks": [
+      "guard accepts controller from sent probe after same-talker rebind",
+      "guard rejects controller absent from sent probe after same-talker rebind"
+    ],
+    "anchors_unique": true
+  },
+  {
+    "mutant": "probe_retry_current_controller@acmp_listener",
+    "checks": [
+      "retry preserves original probe after same-talker rebind"
+    ],
+    "anchors_unique": true
+  }
+]

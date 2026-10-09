@@ -1,0 +1,14 @@
+[A567] REVIEW READY — `66d1b501f4879402fe76485095aef7c6e07c32af`
+
+Round 3 documentation corrections are committed on `96d3b783`, with no rebase, amend or push. The clean processor tree changes only eight Markdown pages and two figures; RTL, tests, ports, parameters and register maps are unchanged.
+
+- R552-F1 / R553-F1: DISCONNECT_TX source validation and both response outcomes are consistent across F05.11, the scope/delta/compliance claims, the operator guide and its state diagram.
+- R552-F2 / R553-F1: A5 retains status on delay expiry; A12 retains it on discovered retry. Other applicable clears remain explicit, including the reason for retaining A12's clear on its other callers.
+- R552-F3 / R553-F2: F07.6 now shows all 16 VLAN bits, with its regenerated figure. The private sent-controller overlay and zero published stream ID in every unsettled state are documented.
+- R552-F4 / R553-F2: all input GSI contracts assign selector 6 [63:48] to the full settled VLAN or zero; the lower 48 bits and request/wait handshake remain external. Output ownership and the 12-bit public/SRP VID projection are unchanged.
+
+Fresh baseline/final validation: `make -j16 check` and `python3 scripts/gen_matrix.py --check` both return 0. Every executable reader of the changed processor documents is covered by those gates. The scratch-parent documentation command also returns 0 at both pins with identical records. The stale F07.6 render was rejected before regeneration; final freshness passes. Both changed figures were inspected, with two distinct fonts for F07.6. An initial link-anchor failure was fixed and its failed receipt retained.
+
+No new test expectation or check was added. The unchanged implementation retains the accepted Round 2 area result (+29 LUT / +14 FF), suite, campaign and parent evidence; those are not claimed as rerun in this docs round. Optional coverage suggestions and OOC timing limits are recorded in the handoff. The parent remains uncommitted at `6aa25dec` with the final processor gitlink.
+
+HANDOFF.md and PR-BODY.md contain the Round 3 clause/location ledger, review-item dispositions, validation and artifact receipts. All lane jobs have completed.

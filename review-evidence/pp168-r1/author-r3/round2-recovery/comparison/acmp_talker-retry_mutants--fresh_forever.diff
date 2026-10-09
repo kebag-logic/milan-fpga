@@ -1,0 +1,8 @@
+--- base
++++ head
+@@ -92,3 +92,5 @@
+ FAIL: L: leftovers resp=0 gate=2 arm=2 mreq=0
+ FAIL: R1 freshness expiry still withdraws every source
+ FAIL: R16 freshness event served under continuous commands (gates 0x02 want 0x00)
++FAIL: TD1 invalid disconnect leaves source state unchanged
++FAIL: TD1 invalid disconnect leaves source state unchanged
