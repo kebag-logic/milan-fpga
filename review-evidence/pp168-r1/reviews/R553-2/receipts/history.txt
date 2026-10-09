@@ -1,0 +1,16 @@
+* 66d1b50 96d3b78 docs: align ACMP field behavior and data ownership
+* 96d3b78 fee74ef Reduce ACMP probe comparison and response selection cost
+*   fee74ef ba3f3f3 09e357f Merge main for ACMP field area attribution
+|\  
+| * 09e357f ed340b9 bcbf382 Merge PR #169: aecp_notify: send both cancels when a command's probe cancel coincides with a TIME_LIMITED drain
+| * bcbf382 1411117 Register the SC cancellation-coincidence section in the verification document
+| * 1411117 f3fef22 Ignore failures while command cancellation is pending
+| * f3fef22 b5c1cce Document the delayed cancellation control boundary
+| * b5c1cce 9e907de Preserve the delayed cancellation control at the output
+| * 9e907de 521373f Separate notification harness input initialization
+| * 521373f 81d42ba Run the collision check separately to preserve mutation records
+| * 81d42ba ed340b9 Retain coincident availability cancellations at one interface
+* ba3f3f3 9da1f94 Wrap ACMP mutation tally expression within style limit
+* 9da1f94 ed5e748 Keep TD1 checks after existing talker mutation witnesses
+* ed5e748 82dc291 Align GSI retry checks with retained ACMP status
+* 82dc291 ed340b9 Correct ACMP response fields and preserve probe identity
