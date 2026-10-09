@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:17:51.329" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:17:51.329">
+    <testcase name="A4TheLockingControllerPassesAndGetRxStateIsNotLocked" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="418" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:51.329" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:422&#x0A;Expected equality of these values:&#x0A;  a.sinks[0].state&#x0A;    Which is: 0&#x0A;  ACMP_PRB_W_RESP&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A4 the locking controller binds&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:422
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 0
+  ACMP_PRB_W_RESP
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A4 the locking controller binds
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

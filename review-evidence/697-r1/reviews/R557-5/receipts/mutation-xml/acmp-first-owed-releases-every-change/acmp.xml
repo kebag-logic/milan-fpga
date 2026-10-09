@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:17:54.297" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:17:54.297">
+    <testcase name="A19TwoOwedResponsesForOneSinkReleaseTogether" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="1092" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:54.297" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:1100&#x0A;Value of: fk.count(Call::CHANGED) == 0u &amp;&amp; acmp_change_pending(&amp;a, 0)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A19 the bind&apos;s response left but the unbind&apos;s is still owed: the sink&apos;s change still waits&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:1100
+Value of: fk.count(Call::CHANGED) == 0u && acmp_change_pending(&a, 0)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A19 the bind's response left but the unbind's is still owed: the sink's change still waits
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

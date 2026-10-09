@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.021" timestamp="2026-10-09T11:18:00.288" name="AllTests">
+  <testsuite name="MaapCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0.021" timestamp="2026-10-09T11:18:00.288">
+    <testcase name="ConstantsStrictTimersAndSeed" file="<scratch>/linux/mutations/baseline/tests/test_maap.cpp" line="117" status="run" result="completed" time="0.021" timestamp="2026-10-09T11:18:00.288" classname="MaapCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_maap.cpp:118&#x0A;Expected equality of these values:&#x0A;  501u&#x0A;    Which is: 501&#x0A;  500u&#x0A;    Which is: 500&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;probe base interval&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_maap.cpp:118
+Expected equality of these values:
+  501u
+    Which is: 501
+  500u
+    Which is: 500
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+probe base interval
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_maap.cpp:130&#x0A;Expected equality of these values:&#x0A;  min_probe&#x0A;    Which is: 512&#x0A;  511u&#x0A;    Which is: 511&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;clock seed spans the probe interval&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_maap.cpp:130
+Expected equality of these values:
+  min_probe
+    Which is: 512
+  511u
+    Which is: 511
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+clock seed spans the probe interval
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_maap.cpp:130&#x0A;Expected equality of these values:&#x0A;  max_probe&#x0A;    Which is: 590&#x0A;  589u&#x0A;    Which is: 589&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_maap.cpp:130
+Expected equality of these values:
+  max_probe
+    Which is: 590
+  589u
+    Which is: 589
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

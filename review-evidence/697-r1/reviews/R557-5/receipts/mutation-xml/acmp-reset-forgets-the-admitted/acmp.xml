@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:17:58.071" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:17:58.071">
+    <testcase name="A29RestoredBindingsAreAdmittedWhenTheTransportOpens" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="1796" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:58.071" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:1821&#x0A;Expected equality of these values:&#x0A;  v.size()&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A29 opening after reset emits one withdrawal&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:1821
+Expected equality of these values:
+  v.size()
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A29 opening after reset emits one withdrawal
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:17:51.705" name="AllTests">
+  <testsuite name="AcmpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:17:51.705">
+    <testcase name="A12DelaySendsANewProbe" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="649" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:51.705" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:655&#x0A;Value of: last().msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; last().seq == seq &amp;&amp; a.sequence_id == seq + 1u &amp;&amp; a.sinks[0].probe_seq == seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:655
+Value of: last().msg == spec::MSG_PROBE_TX_COMMAND && last().seq == seq && a.sequence_id == seq + 1u && a.sinks[0].probe_seq == seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+    <testcase name="A16OneCounterForEveryNewProbe" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="775" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:51.705" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:778&#x0A;Value of: a.sinks[0].probe_seq == 0u &amp;&amp; a.sinks[1].probe_seq == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A16 each new PROBE_TX_COMMAND takes the next sequence_id, across sinks&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:778
+Value of: a.sinks[0].probe_seq == 0u && a.sinks[1].probe_seq == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A16 each new PROBE_TX_COMMAND takes the next sequence_id, across sinks
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:781&#x0A;Expected equality of these values:&#x0A;  a.sequence_id&#x0A;    Which is: 0&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A16 a duplicate takes none&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:781
+Expected equality of these values:
+  a.sequence_id
+    Which is: 0
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A16 a duplicate takes none
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:785&#x0A;Value of: a.sinks[2].probe_seq == 0xFFFFu &amp;&amp; a.sinks[0].probe_seq == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A16 the counter wraps at 2^16&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:785
+Value of: a.sinks[2].probe_seq == 0xFFFFu && a.sinks[0].probe_seq == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A16 the counter wraps at 2^16
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

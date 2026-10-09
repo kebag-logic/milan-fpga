@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:17:54.494" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:17:54.494">
+    <testcase name="A20DisconnectGetTxStateAndGetTxConnection" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="912" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:54.494" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:935&#x0A;Value of: same(last(), want)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Table 5.44)&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:935
+Value of: same(last(), want)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Table 5.44)
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

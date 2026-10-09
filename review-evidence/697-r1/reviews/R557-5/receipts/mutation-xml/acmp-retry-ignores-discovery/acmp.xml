@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:17:52.906" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:17:52.906">
+    <testcase name="A11RetryWaitsForTheTalkerOrDelays" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="629" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:52.906" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:641&#x0A;Value of: s.state == ACMP_PRB_W_DELAY &amp;&amp; s.timer == ACMP_TIMER_DELAY &amp;&amp; s.timer_deadline - fk.now &lt;= spec::TMR_DELAY_MAX_MS &amp;&amp; s.timer_deadline - fk.now == a.last_draw_ms&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A11 TMR_RETRY, talker discovered: TMR_DELAY 0 to 1 s, PRB_W_DELAY (5.5.3.5.30 step 2)&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:641
+Value of: s.state == ACMP_PRB_W_DELAY && s.timer == ACMP_TIMER_DELAY && s.timer_deadline - fk.now <= spec::TMR_DELAY_MAX_MS && s.timer_deadline - fk.now == a.last_draw_ms
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A11 TMR_RETRY, talker discovered: TMR_DELAY 0 to 1 s, PRB_W_DELAY (5.5.3.5.30 step 2)
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:644&#x0A;Value of: s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL &amp;&amp; s.probing == ACMP_PROBING_ACTIVE&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A11 and the ACMP status stays: step 2 sets none&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:644
+Value of: s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL && s.probing == ACMP_PROBING_ACTIVE
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A11 and the ACMP status stays: step 2 sets none
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

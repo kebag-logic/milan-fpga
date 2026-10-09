@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:17:52.728" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:17:52.728">
+    <testcase name="A10NoResponseSendsTheDuplicateThenGivesUp" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="608" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:52.728" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:615&#x0A;Value of: fk.sent[0].bytes == first.bytes &amp;&amp; fk.sent[0].interface == first.interface &amp;&amp; a.sequence_id == seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A10 an exact duplicate of the first probe, same sequence_id (5.5.3.5.16)&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:615
+Value of: fk.sent[0].bytes == first.bytes && fk.sent[0].interface == first.interface && a.sequence_id == seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A10 an exact duplicate of the first probe, same sequence_id (5.5.3.5.16)
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

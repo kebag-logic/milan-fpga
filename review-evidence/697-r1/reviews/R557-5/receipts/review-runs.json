@@ -1,0 +1,26 @@
+[
+  {
+    "name": "linux",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/validate.py",
+      "--work",
+      "<scratch>/linux",
+      "--jobs",
+      "3"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "rv32",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/baremetal.py",
+      "--work",
+      "<scratch>/rv32",
+      "--jobs",
+      "2"
+    ],
+    "rc": 0
+  }
+]

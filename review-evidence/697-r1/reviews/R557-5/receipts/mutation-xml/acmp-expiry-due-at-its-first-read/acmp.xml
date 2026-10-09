@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:17:57.527" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:17:57.527">
+    <testcase name="A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry" file="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp" line="1899" status="run" result="completed" time="0." timestamp="2026-10-09T11:17:57.527" classname="AcmpCore">
+      <failure message="<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:1915&#x0A;Value of: fk.sent.size() == 2u &amp;&amp; a.sinks[0].state == ACMP_PRB_W_RESP2 &amp;&amp; a.sinks[1].state == ACMP_PRB_W_RESP &amp;&amp; a.sinks[1].timer_deadline == fk.sent[1].at + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4&#x0A;A30 sink 1&apos;s 0 ms TMR_DELAY, drawn after sink 0&apos;s duplicate moved the clock, probes in the same expiry&#x0A;TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f&#x0A;&#x0A;" type=""><![CDATA[<scratch>/linux/mutations/baseline/tests/test_acmp.cpp:1915
+Value of: fk.sent.size() == 2u && a.sinks[0].state == ACMP_PRB_W_RESP2 && a.sinks[1].state == ACMP_PRB_W_RESP && a.sinks[1].timer_deadline == fk.sent[1].at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_50c19d65295bd80c231c9263a66767b4
+A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry
+TSN_MESSAGE_END_1166a96a5fad1ac67fe2df9208a7f49f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
