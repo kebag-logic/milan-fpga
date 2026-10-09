@@ -239,19 +239,24 @@ def all_fabric_selftest(root: Path, baseline: Path) -> None:
                     if line.split("|")[2].strip() not in removed_modules)
     plants.append(("wrapper-retaining f0-f4 without marker", split, removed))
     census = folder / placement.REPORT
+    # The documented order, the directory before every option: an option between the two optional positionals
+    # leaves the directory unrecognized under an older argparse, the hosted runner's included.
+    judged = (("check",), ("record", "--write"))
     try:
         for label, changed, roles in plants:
             report.write_text(changed)
-            for command in (("check",), ("record", "--write")):
-                result = cli(*command, *arguments)
+            for command, *options in judged:
+                result = cli(command, *arguments, *options)
                 for role in roles:
-                    expect_case(label + " " + command[0], result, 2, f"{role} ({MODULES[ROLES.index(role)]})")
+                    expect_case(label + " " + command, result, 2, f"{role} ({MODULES[ROLES.index(role)]})")
                 if baseline.read_bytes() != baseline_bytes:
                     raise AssertionError("wrong all-fabric population changed acceptance baseline")
+            if label != "wrapper absent":  # a record needs the wrapper root; any other population prints unjudged
+                expect_case(label + " printed record", cli("record", *arguments), 0, '"kind": "route"')
         report.write_text(original)
         census.write_text(census_text("f0-f4", COUNTS["f0-f4"]))
-        for command in (("check",), ("record", "--write")):
-            expect_case("all-fabric with a split census " + command[0], cli(*command, *arguments), 2,
+        for command, *options in judged:
+            expect_case("all-fabric with a split census " + command, cli(command, *arguments, *options), 2,
                         f"{placement.REPORT} present")
         census.unlink()
         if baseline.read_bytes() != baseline_bytes:

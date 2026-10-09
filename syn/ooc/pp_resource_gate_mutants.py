@@ -285,6 +285,8 @@ POPULATION_MUTANTS = {
     "all-fabric population not read": (
         '        wrong = [] if printing else misplaced(directory, candidate["kind"], args.placement)\n',
         '        wrong = []\n'),
+    "all-fabric population judged in a printed record": (
+        "wrong = [] if printing else misplaced(", "wrong = misplaced("),
     "all-fabric population ignored by check": ('    if wrong:\n        return 2', '    if False:\n        return 2'),
     "all-fabric population ignored by record --write": (
         '            if wrong:\n                raise Refusal', '            if False:\n                raise Refusal'),
