@@ -538,7 +538,12 @@ TEST_F(Core, UnsupportedAndAcquire)
         EXPECT_EQ(Bytes(out.begin()+38,out.end()),body)<<"unsupported command echoes its exact body";
     }
     auto out=ask(0,Bytes(16,0xff),11);EXPECT_EQ(get(out,42,8),0u)<<"ACQUIRE never grants ownership";
-    ask(0,Bytes(15),7);ask(38,Bytes(4),7);
+    ask(0,Bytes(15),7);
+    for(unsigned length:{3u,4u,5u}){
+        Bytes identify={0,26,0,7,0xff};identify.resize(length);
+        auto refusal=ask(38,identify,7);identify.resize(4);
+        EXPECT_EQ(Bytes(refusal.begin()+38,refusal.end()),identify)<<"identify refusal preserves descriptor fields";
+    }
 }
 
 TEST_F(Core, LockQueriesAndExpiry)

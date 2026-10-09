@@ -566,6 +566,7 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		return AECP_SUCCESS;
 	case 38:
 		*bytes = 4u;
+		memcpy(out, in, len < 4u ? len : 4u);
 		return AECP_BAD_ARGUMENTS; // IEEE 7.4.39.2: unsolicited-only opcode
 	case 39: case 40: return avb(a, cmd == 40u, in, len, out, bytes);
 	case 41: return counters(a, in, len, out, bytes);

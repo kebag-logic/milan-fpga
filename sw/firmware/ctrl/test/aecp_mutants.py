@@ -32,6 +32,11 @@ def defect(name: str, file: str, old: str, new: str,
 
 
 DEFECTS = (
+    defect('identify-refusal-body-lost', 'aecp_commands.c',
+           'memcpy(out, in, len < 4u ? len : 4u);',
+           'memset(out, 0, 4u);',
+           ('Core.UnsupportedAndAcquire',
+            'identify refusal preserves descriptor fields')),
     defect('descriptor-last-byte', 'aecp_commands.c',
            'memcpy(out + 4, d->value, d->length);',
            'memcpy(out + 4, d->value, d->length); out[4] ^= 1u;',
