@@ -1,0 +1,160 @@
+return code: 2
+1338 checks: 1180 PASS, 158 FAIL
+FAIL: A no declarations without probe/listener
+FAIL: A: leftovers resp=0 gate=8 arm=0 mreq=0
+FAIL: B1 declare open src got 0
+FAIL: B1 declare open sid got ab00000000000000
+FAIL: B1 declare open da got 91e0f0000100 want 91e0f0000103
+FAIL: B1 gate level, got 0xff
+FAIL: B: leftovers resp=0 gate=7 arm=0 mreq=0
+FAIL: C4 changes nothing
+FAIL: C6 declare open src got 1
+FAIL: C6 declare open sid got ab00000000000001
+FAIL: C6 declare open da got 91e0f0000101 want 91e0f0000100
+FAIL: C7 foreign talker_entity_id ignored
+FAIL: C: leftovers resp=0 gate=6 arm=0 mreq=0
+FAIL: D1 still fresh: no withdraw on listener loss
+FAIL: D2 freshness lapse expected close, got open
+FAIL: D2 freshness lapse close src got 2
+FAIL: D2 only src3's gate closed, got 0xf7
+FAIL: D: leftovers resp=0 gate=6 arm=0 mreq=0
+FAIL: E1 conflict withdraw expected close, got open
+FAIL: E1 conflict withdraw close src got 4
+FAIL: E3 re-declare new DA open src got 5
+FAIL: E3 re-declare new DA open sid got ab00000000000005
+FAIL: E3 re-declare new DA open da got 91e0f0000105 want 91e0f0000108
+FAIL: E: leftovers resp=0 gate=6 arm=0 mreq=0
+FAIL: E7 no backoff draw when nothing was declared
+FAIL: E7 no withdraw when nothing was declared
+FAIL: E7 re-alloc: maap request missing
+FAIL: E7b dest_mac got 000000000000
+FAIL: E7: leftovers resp=0 gate=7 arm=1 mreq=0
+FAIL: F1 listener-driven declare open src got 6
+FAIL: F1 listener-driven declare open sid got ab00000000000006
+FAIL: F1 listener-driven declare open da got 91e0f0000106 want 91e0f0000101
+FAIL: F2 pcp withdraw src0 expected close, got open
+FAIL: F2 pcp withdraw src0 close src got 7
+FAIL: F2 leaveall2 src0 arm slot got 24
+FAIL: F2 leaveall2 src0 arm owner got 57
+FAIL: F2 leaveall2 src0 arm deadline got 90001 want 114000
+FAIL: F2 pcp withdraw src1 close src got 3
+FAIL: F2 leaveall2 src1 arm slot got 17
+FAIL: F2 leaveall2 src1 arm owner got 50
+FAIL: F2 pcp withdraw src3 expected close, got open
+FAIL: F2 leaveall2 src3 arm slot got 18
+FAIL: F2 leaveall2 src3 arm owner got 51
+FAIL: F2 three draws
+FAIL: F3 no DAFRESH arm while BACKOFF holds the slot
+FAIL: F4 re-declare same DA expected open, got close
+FAIL: F4 re-declare same DA open src got 3
+FAIL: F4 re-declare same DA open sid got ab00000000000003
+FAIL: F4 re-declare same DA open da got 91e0f0000103 want 91e0f0000101
+FAIL: F4 remaining freshness arm slot got 19
+FAIL: F4 remaining freshness arm owner got 52
+FAIL: F4 remaining freshness arm deadline got 114000 want 105000
+FAIL: F6 src0 exits backoff without declaring
+FAIL: F: leftovers resp=0 gate=10 arm=5 mreq=0
+FAIL: G2a declare expected open, got close
+FAIL: G2a declare open src got 7
+FAIL: G2a declare open sid got ab00000000000007
+FAIL: G2a declare open da got 91e0f0000107 want 91e0f0000104
+FAIL: G2a ping arm slot got 20
+FAIL: G2a ping arm owner got 53
+FAIL: G2a ping arm deadline got 114000 want 215000
+FAIL: G3 declare src5 expected open, got close
+FAIL: G3 declare src5 open src got 0
+FAIL: G3 declare src5 open sid got ab00000000000000
+FAIL: G3 declare src5 open da got 91e0f0000100 want 91e0f0000105
+FAIL: G2b re-ping arm deadline got 114000 want 215000
+FAIL: G: leftovers resp=0 gate=8 arm=3 mreq=0
+FAIL: H1 cancel shared slot arm slot got 22
+FAIL: H1 cancel shared slot arm owner got 55
+FAIL: H1 cancel shared slot arm cancel got 0
+FAIL: H1 src6 was not declaring: no withdraw
+FAIL: H: leftovers resp=0 gate=8 arm=3 mreq=0
+FAIL: I0 gates carried in from A-H, got 0x0a
+FAIL: I1 no DECLARE_TALKER on a refusal
+FAIL: I3 no DECLARE_TALKER without a DA
+FAIL: I4 ping arm deadline got 114000 want 225000
+FAIL: I4 grant declares expected open, got close
+FAIL: I4 grant declares open src got 1
+FAIL: I4 grant declares open sid got ab00000000000001
+FAIL: I4 grant declares open da got 91e0f0000101 want 91e0f000010a
+FAIL: I4 only src6 moved, got 0x4a
+FAIL: I: leftovers resp=0 gate=8 arm=3 mreq=0
+FAIL: J1 withdraw on removal close src got 2
+FAIL: J1 cancel shared slot arm slot got 18
+FAIL: J1 cancel shared slot arm owner got 51
+FAIL: J1 cancel shared slot arm cancel got 0
+FAIL: J1 declaring_o[4] OBSERVED 1 -> 0
+FAIL: J5 ping still arms freshness arm slot got 23
+FAIL: J5 ping still arms freshness arm owner got 56
+FAIL: J5 ping still arms freshness arm cancel got 1
+FAIL: J5 ping still arms freshness arm deadline got 0 want 315000
+FAIL: J7 grant re-declares expected open, got close
+FAIL: J7 grant re-declares open src got 3
+FAIL: J7 grant re-declares open sid got ab00000000000003
+FAIL: J7 grant re-declares open da got 91e0f0000108 want 91e0f000010b
+FAIL: J7 final gates, got 0x5a
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 91e0f000010a
+FAIL: J7b ping arm slot got 23
+FAIL: J7b ping arm owner got 56
+FAIL: J7b ping arm deadline got 225000 want 335000
+FAIL: J: leftovers resp=0 gate=7 arm=3 mreq=0
+FAIL: K0 cancel src2 slot arm slot got 21
+FAIL: K0 cancel src2 slot arm owner got 54
+FAIL: K0 withdraw on removal close src got 4
+FAIL: K0 cancel src6 slot arm slot got 21
+FAIL: K0 cancel src6 slot arm owner got 54
+FAIL: K0 cancel src6 slot arm cancel got 0
+FAIL: K0 gates after removal, got 0x1a
+FAIL: K0: leftovers resp=0 gate=7 arm=3 mreq=0
+FAIL: K2 no gate can open, got 0x1a
+FAIL: K3 ping still arms freshness arm slot got 21
+FAIL: K3 ping still arms freshness arm owner got 54
+FAIL: K3 ping still arms freshness arm deadline got 335000 want 415000
+FAIL: K6 a STALE response must not open any gate (7 strobes)
+FAIL: K6 stale response changed the gate level to 0x1a
+FAIL: K7 src2 declares with ITS OWN DA expected open, got close
+FAIL: K7 src2 declares with ITS OWN DA open src got 5
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000005
+FAIL: K7 src2 declares with ITS OWN DA open da got 91e0f0000105 want 91e0f00001aa
+FAIL: K7 gates, got 0x1e
+FAIL: K8 abandoned source recovers with a FRESH DA expected open, got close
+FAIL: K8 abandoned source recovers with a FRESH DA open da got 91e0f0000106 want 91e0f00001bb
+FAIL: K8 final gates, got 0x5e
+FAIL: K: leftovers resp=0 gate=7 arm=3 mreq=0
+FAIL: L0 cancel src7 slot arm slot got 19
+FAIL: L0 cancel src7 slot arm owner got 52
+FAIL: L0 src7 release: maap request missing
+FAIL: L0: leftovers resp=0 gate=7 arm=3 mreq=0
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face expected close, got open
+FAIL: L1 cancel src1 slot arm slot got 23
+FAIL: L1 cancel src1 slot arm owner got 56
+FAIL: L4 cancel src0 slot arm slot got 23
+FAIL: L4 cancel src0 slot arm owner got 56
+FAIL: L4 cancel src0 slot arm cancel got 0
+FAIL: L4 src3 withdraws at once expected close, got open
+FAIL: L4 cancel src3 slot arm slot got 24
+FAIL: L4 cancel src3 slot arm owner got 57
+FAIL: L4 src5 withdraws at once expected close, got open
+FAIL: L4 src5 withdraws at once close src got 6
+FAIL: L4 cancel src5 slot arm slot got 18
+FAIL: L4 cancel src5 slot arm owner got 51
+FAIL: L: leftovers resp=0 gate=6 arm=3 mreq=0
+FAIL: R1 acquired addresses neither declare nor borrow timer slots
+FAIL: R7 block mapping src0
+FAIL: R7 block mapping src1
+FAIL: R7 count growth does not create demand
+FAIL: R7 shrink and block move src0 status/tuple
+FAIL: R7 shrink and block move src1 status/tuple
+FAIL: R7 only in-block sources declare
+FAIL: R10 conflict immediately restarts acquisition
+FAIL: R16 conflict src1 declaring before stimulus (0xff)
+FAIL: R16 conflict event served under continuous commands (gates 0xfd want 0x00)
+FAIL: R16 pcp src1 declaring before stimulus (0xff)
+FAIL: R16 freshness src1 declaring before stimulus (0xff)
+FAIL: R16 freshness gate still open before expiry
+FAIL: R16 freshness event served under continuous commands (gates 0xfd want 0x00)
+FAIL: R16 listener src1 declaring before stimulus (0xff)
+FAIL: R16 listener event served under continuous commands (gates 0xff want 0x06)

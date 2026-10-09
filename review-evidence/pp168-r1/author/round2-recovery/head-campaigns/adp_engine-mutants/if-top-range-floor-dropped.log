@@ -1,0 +1,14 @@
+make: Entering directory '$VALIDATION_STORAGE/pp168-a567/recovery/temp/adp-mutants-rlpq60zs/tb/pp_top'
+if guard 1: lints clean
+if guard 2: lints clean
+FAIL: if guard 0: must be refused: N_AVB_IF_P=0 is outside 1 to 2 (verilator rc 1)
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:376:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:452:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:457:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:463:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:464:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:663:9: Ascending bit range vector: left < right of bit range: [-1:0]
+if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+if guards: 4 checks, 1 failing
+make: *** [Makefile:231: if-guards] Error 1
+make: Leaving directory '$VALIDATION_STORAGE/pp168-a567/recovery/temp/adp-mutants-rlpq60zs/tb/pp_top'

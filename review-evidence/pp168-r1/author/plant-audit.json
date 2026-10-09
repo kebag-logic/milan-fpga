@@ -1,0 +1,968 @@
+{
+  "head": "ba3f3f31e8fda01c3ef5271ff8005f3cf92ab4de",
+  "arms": [
+    {
+      "mutant": "msg_ok_forced",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "B13 msg 7 status 0 in PWR",
+        "B13 msg 14 status 0 in PWR",
+        "B13 msg 3 status 5 in PW2",
+        "B13 msg 15 status 5 in PW2"
+      ]
+    },
+    {
+      "mutant": "msg_ok_forced",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "AI3: the sink never left PRB_W_RESP"
+      ]
+    },
+    {
+      "mutant": "guard_ctlr_dropped",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "B14 wrong controller_entity_id in PWR",
+        "B14 wrong controller_entity_id in PW2"
+      ]
+    },
+    {
+      "mutant": "guard_talker_eid_dropped",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "B14 wrong talker_entity_id in PWR",
+        "B14 wrong talker_entity_id in PW2"
+      ]
+    },
+    {
+      "mutant": "guard_talker_uid_dropped",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "B14 wrong talker_unique_id in PWR",
+        "B14 wrong talker_unique_id in PW2"
+      ]
+    },
+    {
+      "mutant": "cdl_not_44_rejected",
+      "suite": "tb/rx_validator",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/packet_engine/KL_pp_rx_validator.sv",
+          "anchor_count": 1,
+          "source_sha256": "5785ee26cc75f25547b5632ec175a34410eb2fb6f67387ae5835d5af48181ea4"
+        }
+      ],
+      "required_failures": [
+        "F30 BIND_RX cdl 84",
+        "F30 PROBE_TX cdl 84"
+      ]
+    },
+    {
+      "mutant": "cdl_not_44_rejected",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/packet_engine/KL_pp_rx_validator.sv",
+          "anchor_count": 1,
+          "source_sha256": "5785ee26cc75f25547b5632ec175a34410eb2fb6f67387ae5835d5af48181ea4"
+        }
+      ],
+      "required_failures": [
+        "AL1: a 96-B UNBIND_RX",
+        "AL2: a 96-B BIND_RX",
+        "AL3: the 96-B PROBE_TX",
+        "AL4: no 96-B frame was dropped"
+      ]
+    },
+    {
+      "mutant": "st_ls_settle_as_withdraw",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS4: the matching Talker Advertise yields Listener Ready New",
+        "AS4: class-D: Listener READY declared",
+        "AS5: 11.5 s after the settle"
+      ]
+    },
+    {
+      "mutant": "st_ls_teardown_as_declare",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS6: the Listener attribute is withdrawn on the wire"
+      ]
+    },
+    {
+      "mutant": "st_ls_sid_da_swapped",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS4: the matching Talker Advertise yields Listener Ready New",
+        "AS4: class-D: Listener READY declared",
+        "AS5: 11.5 s after the settle"
+      ]
+    },
+    {
+      "mutant": "st_ls_state_none",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS4: the matching Talker Advertise yields Listener Ready New",
+        "AS4: class-D: Listener READY declared",
+        "AS5: 11.5 s after the settle"
+      ]
+    },
+    {
+      "mutant": "st_ls_vid_dropped",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS4: the matching Talker Advertise yields Listener Ready New",
+        "AS4: class-D: Listener READY declared",
+        "AS5: 11.5 s after the settle"
+      ]
+    },
+    {
+      "mutant": "st_ls_index_zero",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS4: class-D: Listener READY declared",
+        "AS4: exactly one TK_ATTR_REGISTERED{1}",
+        "AS5: 11.5 s after the settle"
+      ]
+    },
+    {
+      "mutant": "st_ls_teardown_lost",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS6: the Listener attribute is withdrawn on the wire",
+        "AS6: no Listener declared and no match held"
+      ]
+    },
+    {
+      "mutant": "bound_view_not_latched",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream",
+        "AS5: the bound view still carries the settled stream"
+      ]
+    },
+    {
+      "mutant": "bound_dmac_from_sid",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream"
+      ]
+    },
+    {
+      "mutant": "bound_view_not_cleared",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AS6: the bound view is cleared with the binding"
+      ]
+    },
+    {
+      "mutant": "matcher_da_ignored",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/srp/KL_srp_listener_fsm.sv",
+          "anchor_count": 1,
+          "source_sha256": "a10dc3efd9aacdc59dd99e330829a0e0051c63bd24022bcb65a73cd67f1f304c"
+        }
+      ],
+      "required_failures": [
+        "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration",
+        "AS3: near misses register nothing",
+        "AS3: no TK_ATTR_REGISTERED{1}"
+      ]
+    },
+    {
+      "mutant": "matcher_vid_ignored",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--acmp-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/srp/KL_srp_listener_fsm.sv",
+          "anchor_count": 1,
+          "source_sha256": "a10dc3efd9aacdc59dd99e330829a0e0051c63bd24022bcb65a73cd67f1f304c"
+        }
+      ],
+      "required_failures": [
+        "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration",
+        "AS3: near misses register nothing",
+        "AS3: no TK_ATTR_REGISTERED{1}"
+      ]
+    },
+    {
+      "mutant": "rec_read_sink_zero",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "B12: parked sink 7 record untouched",
+        "F05.3 BIND_SAME x PWA: sm_state"
+      ]
+    },
+    {
+      "mutant": "rec_read_in_idle",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "RV8(setup): state sync"
+      ]
+    },
+    {
+      "mutant": "rec_started_unstored",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "S1d: STOP through the request face cleared the bit",
+        "F05.3 GETRX x PWA: flags"
+      ]
+    },
+    {
+      "mutant": "rec_settled_vlan_unstored",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "F05.3 GETRX x SOK: settled",
+        "B12: parked sink 7 record untouched"
+      ]
+    },
+    {
+      "mutant": "rec_sweep_misaddressed",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "RS GET_RX_STATE after the reset: binding"
+      ]
+    },
+    {
+      "mutant": "armq_read_tail",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ2: the arm port and the drop counter equal the eight-queue model",
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "armq_head_stuck",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ2: the arm port and the drop counter equal the eight-queue model",
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "armq_ring_of_three",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ2: the arm port and the drop counter equal the eight-queue model",
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "armq_write_at_head",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ2: the arm port and the drop counter equal the eight-queue model",
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "armq_write_at_mid",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ2: the arm port and the drop counter equal the eight-queue model",
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "armq_write_refused",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "armq_write_wrap_hi",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "armq_full_pop_refuses",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "armq_drop_skip_sat",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--arm-queue-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "AQ3: driven from the bench, the arm port and the drop counter equal"
+      ]
+    },
+    {
+      "mutant": "field_reset_blocked",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "field check reset completes",
+        "field check stimulus completes",
+        "field bind responds",
+        "VLAN response settles",
+        "VLAN GET_RX_STATE response exists",
+        "duplicate probe exists",
+        "LD1 response exists",
+        "same-talker rebind changes binding controller while probe remains pending"
+      ]
+    },
+    {
+      "mutant": "disconnect_not_accepted",
+      "suite": "tb/acmp_talker",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_acmp_talker.sv",
+          "anchor_count": 1,
+          "source_sha256": "452ca36df8900d53045a6120f14d5b1045db056b10d105cf7d7797c128605753"
+        }
+      ],
+      "required_failures": [
+        "TD1 consumed"
+      ]
+    },
+    {
+      "mutant": "settled_vlan_truncated",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--gsi-internal-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "VLAN168 GET_RX_STATE retains all received bits"
+      ]
+    },
+    {
+      "mutant": "unbind_talker_echo",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "LD1 successful unbind has zero talker fields"
+      ]
+    },
+    {
+      "mutant": "retry_status_cleared",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "LD2 discovered retry preserves received status"
+      ]
+    },
+    {
+      "mutant": "lock_status_13",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/pp_acmp_pkg.sv",
+          "anchor_count": 1,
+          "source_sha256": "5f72042acefec18ad4f2bf5d362aea225f3da659b0bf5de88f804b74c3be130a"
+        }
+      ],
+      "required_failures": [
+        "LD3 lock refusal status 16 for message 6",
+        "LD3 lock refusal status 16 for message 8"
+      ]
+    },
+    {
+      "mutant": "disconnect_invalid_success",
+      "suite": "tb/acmp_talker",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_acmp_talker.sv",
+          "anchor_count": 1,
+          "source_sha256": "452ca36df8900d53045a6120f14d5b1045db056b10d105cf7d7797c128605753"
+        }
+      ],
+      "required_failures": [
+        "TD1 invalid disconnect"
+      ]
+    },
+    {
+      "mutant": "disconnect_changes_gate",
+      "suite": "tb/acmp_talker",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_acmp_talker.sv",
+          "anchor_count": 1,
+          "source_sha256": "452ca36df8900d53045a6120f14d5b1045db056b10d105cf7d7797c128605753"
+        }
+      ],
+      "required_failures": [
+        "TD1 invalid disconnect leaves source state unchanged"
+      ]
+    },
+    {
+      "mutant": "settled_vlan_truncated",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "VLAN full field in GET_RX_STATE"
+      ]
+    },
+    {
+      "mutant": "settlement_vlan_truncated",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "VLAN full field at settle action"
+      ]
+    },
+    {
+      "mutant": "gsi_vlan_external",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--gsi-internal-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "VLAN168 GET_STREAM_INFO retains all received bits",
+        "VLAN168 unbind clears the full stored VLAN"
+      ]
+    },
+    {
+      "mutant": "parent_vlan_shifted",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--gsi-internal-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "VLAN168 parent VID remains the low 12 bits"
+      ]
+    },
+    {
+      "mutant": "retry_probe_status_cleared",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "LD2 retry probe preserves received status"
+      ]
+    },
+    {
+      "mutant": "retry_probe_status_cleared",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--gsi-internal-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "GI RETRY-RETAIN solicited: acmpsta sink 0 = 7"
+      ]
+    },
+    {
+      "mutant": "lock_gate_bypassed",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "LD3 lock refusal preserves binding for message 6",
+        "LD3 lock refusal preserves binding for message 8"
+      ]
+    },
+    {
+      "mutant": "stored_vlan_truncated",
+      "suite": "tb/pp_top",
+      "run": [
+        "./obj_dir/Vpp_top_sim",
+        "--gsi-internal-only"
+      ],
+      "edits": [
+        {
+          "file": "hdl/top/protocol_processor_top.sv",
+          "anchor_count": 1,
+          "source_sha256": "1704a5552b98cd30e78fc3cb3ebb8de87af1062c3e8b81f314a1a39983ec2389"
+        }
+      ],
+      "required_failures": [
+        "VLAN168 GET_STREAM_INFO retains all received bits"
+      ]
+    },
+    {
+      "mutant": "probe_guard_current_controller",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "guard accepts controller from sent probe after same-talker rebind",
+        "guard rejects controller absent from sent probe after same-talker rebind"
+      ]
+    },
+    {
+      "mutant": "probe_retry_current_controller",
+      "suite": "tb/acmp_listener",
+      "run": [
+        "make",
+        "run"
+      ],
+      "edits": [
+        {
+          "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "anchor_count": 1,
+          "source_sha256": "83cfc4edf3eee95cd13bf016951c54c1bb6bf3627e93a472a5b42bc5a6d978f8"
+        }
+      ],
+      "required_failures": [
+        "retry preserves original probe after same-talker rebind"
+      ]
+    }
+  ]
+}

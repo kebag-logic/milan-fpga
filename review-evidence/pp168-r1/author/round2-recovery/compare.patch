@@ -1,0 +1,51 @@
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -528,11 +528,12 @@
+   // while the outstanding probe retains its original controller. The
+   // private RAM shares the stream-id word between these disjoint lifetimes;
+   // its published record still reports zero stream-id until settlement.
+-  logic [63:0] probe_ctlr_w;
+-  assign probe_ctlr_w = ((rec_r.sm_state == 3'(LSM_PWR))
+-                         || (rec_r.sm_state == 3'(LSM_PW2)))
+-                       ? rec_r.settled_stream_id : rec_r.bind_ctlr_eid;
+-  assign probe_match_w = (ctlr_x_r == probe_ctlr_w)
++  logic probe_ctlr_match_w;
++  assign probe_ctlr_match_w = ((rec_r.sm_state == 3'(LSM_PWR))
++                               || (rec_r.sm_state == 3'(LSM_PW2)))
++                             ? (ctlr_x_r == rec_r.settled_stream_id)
++                             : (ctlr_x_r == rec_r.bind_ctlr_eid);
++  assign probe_match_w = probe_ctlr_match_w
+                       && (tk_eid_f_r == rec_r.talker_eid)
+                       && (tk_uid_f_r == rec_r.talker_uid)
+                       && (seq_x_r == rec_r.probe_seq);
+--- a/tb/pp_top/acmp_mutants.py
++++ b/tb/pp_top/acmp_mutants.py
+@@ -56,7 +56,7 @@
+ VALIDATOR = "hdl/packet_engine/KL_pp_rx_validator.sv"
+ 
+ MSG_OK = "  assign txn_msg_ok_w   = (txn_i.msg_type == AMSG_PROBE_TX_RESP_C)\n"
+-GUARD = ("  assign probe_match_w = (ctlr_x_r == probe_ctlr_w)\n"
++GUARD = ("  assign probe_match_w = probe_ctlr_match_w\n"
+          "                      && (tk_eid_f_r == rec_r.talker_eid)\n"
+          "                      && (tk_uid_f_r == rec_r.talker_uid)\n"
+          "                      && (seq_x_r == rec_r.probe_seq);\n")
+@@ -79,7 +79,7 @@
+          "  assign txn_msg_ok_w   = 1'b1 || (txn_i.msg_type == AMSG_PROBE_TX_RESP_C)\n"),),
+         ("AI3: the sink never left PRB_W_RESP",)),
+     Mutant("guard_ctlr_dropped", ACMP_LISTENER, (
+-        (LISTENER, GUARD, guard_without("(ctlr_x_r == probe_ctlr_w)")),),
++        (LISTENER, GUARD, guard_without("probe_ctlr_match_w")),),
+         ("B14 wrong controller_entity_id in PWR", "B14 wrong controller_entity_id in PW2")),
+     Mutant("guard_talker_eid_dropped", ACMP_LISTENER, (
+         (LISTENER, GUARD, guard_without("(tk_eid_f_r == rec_r.talker_eid)")),),
+@@ -312,8 +312,8 @@
+          "bound_vlan_r[lstn_act_sink_w] <= {4'd0, lstn_act_settle_vlan_w[11:0]};"),),
+         ("VLAN168 GET_STREAM_INFO retains all received bits",)),
+     Mutant("probe_guard_current_controller", ACMP_LISTENER, (
+-        (LISTENER, "(ctlr_x_r == probe_ctlr_w)",
+-         "(ctlr_x_r == rec_r.bind_ctlr_eid)"),),
++        (LISTENER, "assign probe_match_w = probe_ctlr_match_w",
++         "assign probe_match_w = (ctlr_x_r == rec_r.bind_ctlr_eid)"),),
+         ("guard accepts controller from sent probe after same-talker rebind",
+          "guard rejects controller absent from sent probe after same-talker rebind")),
+     Mutant("probe_retry_current_controller", ACMP_LISTENER, (

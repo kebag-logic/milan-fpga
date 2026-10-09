@@ -1,0 +1,29 @@
+{
+  "head": "96d3b78384f34a630d6056ebd8fa5e30f6836650",
+  "base": "09e357fb4bf3d35c8a9deba9a787e13f74d08c83",
+  "branch": "pp168-acmp-fields",
+  "clean": true,
+  "changed_files": [
+    "hdl/acmp/KL_acmp_talker.sv",
+    "hdl/acmp/KL_pp_acmp_listener.sv",
+    "hdl/acmp/pp_acmp_pkg.sv",
+    "hdl/top/protocol_processor_top.sv",
+    "tb/acmp_listener/README.md",
+    "tb/acmp_listener/field_cases.hpp",
+    "tb/acmp_listener/sim_main.cpp",
+    "tb/acmp_talker/README.md",
+    "tb/acmp_talker/sim_main.cpp",
+    "tb/pp_top/README.md",
+    "tb/pp_top/acmp_mutants.py",
+    "tb/pp_top/gsi_internal.hpp",
+    "tb/pp_top/sim_main.cpp"
+  ],
+  "top_public_declaration_prefix_identical": true,
+  "top_diff_confined_to_vlan": true,
+  "register_map_change": false,
+  "patch_size": 50383,
+  "patch_sha256": "5309817e945958c6e3ca0b539b99d497967ef2e8017ac33791fe16fdc2a34d49",
+  "patch_applies_to_baseline": true,
+  "commit_subject": "Reduce ACMP probe comparison and response selection cost",
+  "commit_body_empty": true
+}
