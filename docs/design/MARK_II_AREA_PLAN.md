@@ -751,6 +751,12 @@ The allocation must also contain stack, pools and shape-sized saved-state stagin
 Any descriptor image or alignment space outside it adds a debit.
 No separate smaller-core RAM saving is credited.
 
+Arithmetic in tiles: `87.5 - 6.5 + 6 - 18.5 + 50 + 2 = 120.5`.
+The conditional release subtracts eleven once, giving 109.5.
+These memory entries grant no additional LUT saving.
+The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+They depend on fitting the credited RAM conversions within the ledger.
+
 Before the conditional release, the estimate leaves one tile below 121.5.
 After it, 109.5 tiles leaves twelve below that ceiling.
 Both leave the separate 13.5-tile reserve untouched.

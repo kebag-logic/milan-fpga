@@ -249,6 +249,12 @@ Neither fits the ceiling.
 The nominal 50 tiles use approximately 4.5 KB raw capacity each.
 A 4 KiB usable mapping would require 56 tiles for 224 KiB.
 Actual primitive counts decide fit; the byte-to-tile estimate cannot prove it.
+Arithmetic in tiles: `87.5 - 6.5 + 6 - 18.5 + 50 + 2 = 120.5`.
+The conditional release subtracts eleven once, giving 109.5.
+These memory entries grant no additional LUT saving.
+The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+They depend on fitting the credited RAM conversions within the ledger.
+
 At 50 tiles, the ledger leaves one tile before conditional reclamation.
 After it, twelve tiles remain below 121.5.
 At 56 firmware tiles, the conditional total is 115.5, leaving six.
