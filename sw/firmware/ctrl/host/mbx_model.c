@@ -127,7 +127,7 @@ static void post(struct mbx_model *m)
 	for (;;) {
 		uint16_t used = (uint16_t)(m->evt_head - m->evt_tail);
 		uint16_t free_words = used > MBX_EVT_WORDS ? 0u : (uint16_t)(MBX_EVT_WORDS - used);
-		if (free_words < MBX_EV_WORDS || !next_source(m, w)) {
+		if (m->evt_paused || free_words < MBX_EV_WORDS || !next_source(m, w)) {
 			return;
 		}
 		w[0] |= mbx_place(m->seq, MBX_EVREC_W0_SEQ_LSB, MBX_EVREC_W0_SEQ_WIDTH);
@@ -281,6 +281,12 @@ void mbx_model_tx_pause(struct mbx_model *m, bool paused)
 {
 	m->tx_paused = paused;
 	tx_drain(m);
+}
+
+void mbx_model_evt_pause(struct mbx_model *m, bool paused)
+{
+	m->evt_paused = paused;
+	post(m);
 }
 
 // ---- the ingress filter ----------------------------------------------------------

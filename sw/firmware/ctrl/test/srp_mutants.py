@@ -502,6 +502,12 @@ DEFECTS = (
            'm->ifs[n].link = mbx_link_up(n);', 'm->ifs[n].link = false;', 'adapter.ifs[i].link'),
     Defect('cancelled-link-never-recovers','CancelledLinkRecordRecoversFromLevelAndFencesOldReceive',
            'if (i->link != link)', 'if (i->link && !link)', 'adapter.ifs[i].link'),
+    # The test's held record: a poster that ignores the hold posts the DOWN
+    # record at the reset's publication writes, and the UP record that follows
+    # would restore the link for the plant above.
+    Defect('cancelled-link-record-posted','CancelledLinkRecordRecoversFromLevelAndFencesOldReceive',
+           'if (m->evt_paused || free_words < MBX_EV_WORDS', 'if (free_words < MBX_EV_WORDS',
+           'the DOWN record stayed held', path='host/mbx_model.c'),
     Defect('rebind-loses-shared-applicant','SharedRebindKeepsOnlyTheRemainingEligibleRequest',
            'replacement.declared |= r->declared;', '(void)r;', 'left'),
     Defect('consecutive-rebind-loses-applicant','ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation',

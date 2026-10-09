@@ -845,14 +845,19 @@ TEST_F(Srp, CancelledLinkRecordRecoversFromLevelAndFencesOldReceive) {
     }
     for(unsigned i=0;i<MBX_N_IF;++i) {
         EXPECT_CALL(licence,Change(i,0,false));
-        // The DOWN level is observed while its record is held. The level
-        // returns to the last posted UP, so no new LINK record is owed.
+        // The DOWN level is observed while its record is held, as a full event
+        // ring holds it: the writes the level's reset makes, the publication
+        // block's included, must not post it. The level returns to the last
+        // posted UP, so no new LINK record is owed.
+        mbx_model_evt_pause(&model,true);
         model.link_up[i]=false; ctrl_loop_service(&loop);
         ASSERT_FALSE(adapter.ifs[i].link);
         auto ready=frame(3,identity(i),1,2);
         for(unsigned n=0;n<CTRL_LOOP_RX_PER_PASS+1;++n)
             ASSERT_TRUE(mbx_model_rx(&model,ready.data(),ready.size(),i));
         model.link_up[i]=true;
+        ASSERT_TRUE(model.posted_up[i])<<"the DOWN record stayed held";
+        mbx_model_evt_pause(&model,false);
         const unsigned start=model.now_ms;
         advance(1500); capture();
         EXPECT_TRUE(adapter.ifs[i].link);

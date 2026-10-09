@@ -20,7 +20,8 @@
 //
 // WHAT IT ADDS FOR THE HARNESS. Every bus access is counted, every TMR_CMD is
 // logged with the time it was made, the TX merge can be paused to fill a TX
-// ring, the frames it sends are captured in order, and what the publication
+// ring, the event poster can be held as a full event ring holds it, the
+// frames it sends are captured in order, and what the publication
 // block would drive into each interface's datapath can be read
 // (mbx_model_pub_view).
 
@@ -113,6 +114,7 @@ struct mbx_model {
 	uint16_t tick_count;
 	uint8_t tx_last_ch;
 	bool tx_paused;
+	bool evt_paused;
 	// harness view
 	uint64_t reads;
 	uint64_t writes;
@@ -142,6 +144,11 @@ bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigne
 
 // Hold the TX merge (records stay in their rings) or let it drain.
 void mbx_model_tx_pause(struct mbx_model *m, bool paused);
+
+// Hold the event poster, as a full event ring holds the RTL's, or let it post.
+// Each source keeps its state while held, so a LINK level that returns to the
+// last posted one before the release owes no record.
+void mbx_model_evt_pause(struct mbx_model *m, bool paused);
 
 // The interrupt line: IRQ_STATUS AND IRQ_ENABLE, OR-reduced.
 bool mbx_model_irq(const struct mbx_model *m);
