@@ -1,0 +1,60 @@
+--- reviewer-original
++++ round1c-assumptions
+@@ -122,7 +122,7 @@
+ 
+ # 6. Cumulative default-image table.
+ lanes = [("F0-F5", 14000, 11500, 16000), ("M2", 200, 100, 400), ("M5", 600, 400, 1000),
+-         ("M6", 600, 400, 900), ("M7", 500, 300, 700), ("M8a", 1600, 1200, 2000),
++         ("M6", 600, 400, 900), ("M7", 500, 300, 700), ("M8a", 1000, 400, 1500),
+          ("M8b", 1700, 1300, 2200), ("M3 and M10", 0, 0, 0)]
+ c = k = p = r["LUT"]
+ cum = table_after(plan, "| Order | Lane | Saving | Central image |")
+@@ -131,12 +131,12 @@
+     check(f"cumulative {name} central", num(row[3]), c)
+     check(f"cumulative {name} conservative", num(row[4]), k)
+     check(f"cumulative {name} optimistic", num(row[5]), p)
+-check("central headroom", 6973, 38040 - c)
+-check("central headroom percent", 18.33, round(100 * (38040 - c) / 38040, 2))
+-check("conservative headroom", 2973, 38040 - k)
+-check("conservative headroom percent", 7.82, round(100 * (38040 - k) / 38040, 2))
+-check("conservative without M8b", 36367, k + 1300)
+-check("M8 lane row central/low/high", (3300, 2500, 4200), (1600 + 1700, 1200 + 1300, 2000 + 2200))
++check("central headroom", 6373, 38040 - c)
++check("central headroom percent", 16.75, round(100 * (38040 - c) / 38040, 2))
++check("conservative headroom", 2173, 38040 - k)
++check("conservative headroom percent", 5.71, round(100 * (38040 - k) / 38040, 2))
++check("conservative without M8b", 37167, k + 1300)
++check("M8 lane row central/low/high", (2700, 1700, 3700), (1000 + 1700, 400 + 1300, 1500 + 2200))
+ 
+ # 7. M3 basis.
+ aecp_own = o("u_pp/u_aecp") - sum(o(f"u_pp/u_aecp/{x}") for x in ("u_d3", "u_dyn", "u_store", "u_ucpu", "u_resp"))
+@@ -151,9 +151,9 @@
+     if row[2][0].isdigit():
+         found = [x for x in cum if x[1].split(",")[0].split(" ")[0] in row[0]]
+     want = {"F0-F5 split": 36267, "M2 retained SoC tables": 36067, "M5 CSR read path": 35467,
+-            "M6 media contexts": 34867, "M7 gPTP tables": 34367, "M8a on-chip main memory": 32767,
+-            "M8b smaller cacheless RV32I": 31067, "M3 residual fabric AECP": 31067,
+-            "M10 shared gPTP/AECP engine": 31067}
++            "M6 media contexts": 34867, "M7 gPTP tables": 34367, "M8a on-chip main memory": 33367,
++            "M8b smaller cacheless RV32I": 31667, "M3 residual fabric AECP": 31667,
++            "M10 shared gPTP/AECP engine": 31667}
+     if row[0] in want:
+         check(f"AREA_BUDGET {row[0]}", num(row[2]), want[row[0]])
+ for row in table_after(budget, "| Recorded endpoint | LUT | FF |"):
+@@ -165,13 +165,13 @@
+     check(f"AREA_BUDGET {ep} DSP", num(row[4]), F[ep]["DSP"])
+ 
+ # 9. Reviewer scenarios (informational).
+-no_split_table = r["LUT"] - (200 + 600 + 600 + 500 + 1600 + 1700)
+-print(f"NOTE no-split central, M2..M8b only (the plan's 45,067): {no_split_table}")
++no_split_table = r["LUT"] - (200 + 600 + 600 + 500 + 1000 + 1700)
++print(f"NOTE no-split central, M2..M8b only (the plan's 45,667): {no_split_table}")
+ print(f"NOTE no-split central, adding the plan's own retained-fabric M3 2,600 and M10 1,200: {no_split_table - 3800}")
+ f5_rows = basis["AECP, including microcode, descriptor and D3 stores"] + basis["Notification"] + basis["Originator"] \
+     + basis["NVM port and arbiter"] + basis["Wrapper NVM backend"]
+ f5_gross = gross - f5_rows
+-for label, alloc, lanes_sum, m3m10 in (("central", 1000, 5200, 3800), ("conservative", 3500, 3700, 2400)):
++for label, alloc, lanes_sum, m3m10 in (("central", 1000, 4600, 3800), ("conservative", 3500, 2900, 2400)):
+     credit = f5_gross - 3102 - alloc
+     print(f"NOTE illustrative F5-unqualified flip ({label}; AECP, notification, originator and fabric NVM path kept;"
+           f" M3+M10 active): split credit {credit}, image {r['LUT'] - credit - lanes_sum - m3m10}")

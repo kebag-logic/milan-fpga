@@ -1,0 +1,232 @@
+# Round 1c presentation residue for #495
+
+Head: `39258a1486897127288f82fbb1b86333febf6f00`.
+Manager action at merge: carry the remaining observations below to #495.
+This file records no deferred functional finding.
+
+- R492-1-R1 and R493-1-R1: existing long prose remains. Changed calculation passages were shortened; the M3 basis is now a table.
+- R492-1-R2 and R493-1-R2: bare issue references are linked throughout both pages, preserving processor-versus-parent identity. The named source references are linked. Remaining artifact filenames refer to retained measurements or externally supplied core netlists; use their receipt/digest sections. Broader suite/module references may still benefit from direct navigation links.
+- R492-1-R3: historical record/placement/mapping statements now identify the old checkpoint or use past tense.
+- R492-1-R4: duplicate blank line removed.
+
+The analyzer's fixed gate population excludes these two pages.
+This direct screening uses its own sentence tokenizer.
+Code labels inside links can produce noisy observations; inspect rendered text.
+No measurement, acceptance condition or finding severity is changed here.
+Counts: {'MARK_II_AREA_PLAN.md': 91, 'AREA_BUDGET.md': 122}.
+
+## Remaining sentence observations
+
+- `docs/design/MARK_II_AREA_PLAN.md:13`: sentence has 11 words; maximum is 10. Summary -- The recorded baseline, split estimate, remaining savings and qualification risk.
+- `docs/design/MARK_II_AREA_PLAN.md:14`: sentence has 11 words; maximum is 10. Target -- The LUT bar, accepted margin, timing requirements and delivery date.
+- `docs/design/MARK_II_AREA_PLAN.md:15`: sentence has 14 words; maximum is 10. Baseline recorded on dev 5603c353 -- The committed endpoint records and their measured source revision.
+- `docs/design/MARK_II_AREA_PLAN.md:16`: sentence has 12 words; maximum is 10. Baseline at dev e6172750 -- Historical measurements and hierarchy from the original plan.
+- `docs/design/MARK_II_AREA_PLAN.md:18`: sentence has 15 words; maximum is 10. Levers -- Twelve levers, each with its saving and basis, risk, verification cost and protocol-visible effect.
+- `docs/design/MARK_II_AREA_PLAN.md:19`: sentence has 11 words; maximum is 10. Ledger -- Disjoint split removal references, measured replacement cost and cumulative estimates.
+- `docs/design/MARK_II_AREA_PLAN.md:20`: sentence has 17 words; maximum is 10. Lane sequence -- The ordered lanes to 2026-12-15, each with its LUT target, repository, verification, risks and dependencies.
+- `docs/design/MARK_II_AREA_PLAN.md:21`: sentence has 22 words; maximum is 10. What holds throughout -- The suites and counts, ATDECC as the only source of state, the second port, the gate's re-record and timing.
+- `docs/design/MARK_II_AREA_PLAN.md:22`: sentence has 15 words; maximum is 10. Recorded decisions -- The accepted rulings and the later default-split decisions that supersede the initial plan.
+- `docs/design/MARK_II_AREA_PLAN.md:23`: sentence has 26 words; maximum is 10. Method and receipts -- The recipe, how a head the gate does not describe is mapped, the core pricing, and every run's exit status and log digest.
+- `docs/design/MARK_II_AREA_PLAN.md:27`: sentence has 11 words; maximum is 10. Recorded start: 50,267 routed LUTs, 12,227 above 38,040.
+- `docs/design/MARK_II_AREA_PLAN.md:28`: sentence has 13 words; maximum is 10. Its +0.299/+0.031 ns setup/hold slacks meet the build gate.
+- `docs/design/MARK_II_AREA_PLAN.md:30`: sentence has 11 words; maximum is 10. Default split: ADP, ACMP, MAAP, SRP and AECP move to firmware.
+- `docs/design/MARK_II_AREA_PLAN.md:33`: sentence has 11 words; maximum is 10. Estimated saving: L2 credits 14,000 LUTs, range 11,500-16,000.
+- `docs/design/MARK_II_AREA_PLAN.md:77`: sentence has 11 words; maximum is 10. Standalone timing has unconstrained I/O and proves no integrated fit.
+- `docs/design/MARK_II_AREA_PLAN.md:77`: sentence has 11 words; maximum is 10. The route leaves 71 slices and 47.5 physical BRAM tiles.
+- `docs/design/MARK_II_AREA_PLAN.md:77`: sentence has 11 words; maximum is 10. The 121.5-tile policy ceiling leaves 34 tiles of usable allowance.
+- `docs/design/MARK_II_AREA_PLAN.md:84`: sentence has 12 words; maximum is 10. The source receipt records the completed route and all four signoff corners.
+- `docs/design/MARK_II_AREA_PLAN.md:98`: sentence has 11 words; maximum is 10. It uses the default seed, one synthesis worker, 32 general threads.
+- `docs/design/MARK_II_AREA_PLAN.md:138`: sentence has 20 words; maximum is 10. The #232 registry, #230 SRP storage and #639 rings/listener changes are already included; their savings cannot be subtracted again.
+- `docs/design/MARK_II_AREA_PLAN.md:144`: sentence has 11 words; maximum is 10. The tables in this section are not the Round 1b baseline.
+- `docs/design/MARK_II_AREA_PLAN.md:150`: sentence has 24 words; maximum is 10. Since then dev changed one shipping-image input functionally: [](../../hdl/ieee1722/crf/KLcrfrx.sv) now scores a locked CRF input's unbind as one MEDIAUNLOCKED (#653).
+- `docs/design/MARK_II_AREA_PLAN.md:150`: sentence has 30 words; maximum is 10. [](../../hdl/milan/KLnvmbackend.sv) gained a named constant with no logic, [](../../hdl/milan/milandatapath.sv) a comment, the builder a generation-time refusal (#652), and [](../../syn/ooc/ppbaseline.py) the  option.
+- `docs/design/MARK_II_AREA_PLAN.md:150`: sentence has 23 words; maximum is 10. No routed checkpoint of this tree existed on the host: the checkpoints there were processor-lane scratch parents and the in-flight second pin adoption.
+- `docs/design/MARK_II_AREA_PLAN.md:150`: sentence has 20 words; maximum is 10. So the shipping image was routed again here with the #234 recipe, and  was synthesized out of context at 1x1.
+- `docs/design/MARK_II_AREA_PLAN.md:166`: sentence has 37 words; maximum is 10. Against the gate's record the route exits 0 (): 65 fewer LUTs, 43 more FFs and 4 fewer slices, block RAM and DSP unchanged, every routable net routed (106,639 of 106,639, none with a routing error).
+- `docs/design/MARK_II_AREA_PLAN.md:166`: sentence has 32 words; maximum is 10. All four signoff corners meet the build gate: the worst setup slack is +0.244 ns at the slow corners and the worst hold slack +0.036 ns at the fast corners.
+- `docs/design/MARK_II_AREA_PLAN.md:166`: sentence has 24 words; maximum is 10. The wrapper moved by +147 LUTs although no wrapper source changed: optimization moving with an unrelated change, which the gate prints without gating (budget).
+- `docs/design/MARK_II_AREA_PLAN.md:166`: sentence has 23 words; maximum is 10. The critical path starts at  and ends at : 39 logic levels and 19.443 ns, 73 percent of it routing, inside the processor.
+- `docs/design/MARK_II_AREA_PLAN.md:175`: sentence has 18 words; maximum is 10. The rebuilt hierarchy after cross-boundary optimization: its names describe placement, not source ownership, as the #649 map explains.
+- `docs/design/MARK_II_AREA_PLAN.md:175`: sentence has 26 words; maximum is 10. LUT counts a LUT site that holds cells of two children once in each, so a parent can be smaller than the sum of its children.
+- `docs/design/MARK_II_AREA_PLAN.md:175`: sentence has 18 words; maximum is 10. Every row below is read from the map, which ties the image's totals to the route's own reports.
+- `docs/design/MARK_II_AREA_PLAN.md:175`: sentence has 12 words; maximum is 10. BRAM is in tiles, a RAMB36 counting one and a RAMB18 half.
+- `docs/design/MARK_II_AREA_PLAN.md:241`: sentence has 16 words; maximum is 10. The standalone synthesis attributes the wrapper in source terms, at the build's 20 ns clock (recipe).
+- `docs/design/MARK_II_AREA_PLAN.md:278`: sentence has 30 words; maximum is 10. The run equals the gate's  record in every gated figure ( exits 0 with no movement): no wrapper input changed since dev , and its sub-blocks match the #234 page's combination C.
+- `docs/design/MARK_II_AREA_PLAN.md:278`: sentence has 12 words; maximum is 10. The historical routed wrapper was 0.988 of it (24,051 LUTs).
+- `docs/design/MARK_II_AREA_PLAN.md:278`: sentence has 28 words; maximum is 10. The two hierarchies attribute differently: the AECP dynamic-state store is 152 LUTs here and 1,265 in the routed hierarchy, which places other AECP logic under its name.
+- `docs/design/MARK_II_AREA_PLAN.md:285`: sentence has 15 words; maximum is 10. The second pin adoption (#661) moves the processor to , which carries #232, #230 and #639.
+- `docs/design/MARK_II_AREA_PLAN.md:285`: sentence has 17 words; maximum is 10. Its lane published its measured image on 2026-10-05 (REVIEW READY, head , on dev , which already carries #653).
+- `docs/design/MARK_II_AREA_PLAN.md:285`: sentence has 11 words; maximum is 10. That evidence was under review when the original plan was written.
+- `docs/design/MARK_II_AREA_PLAN.md:297`: sentence has 17 words; maximum is 10. So the adoption moves the route by -384 LUTs against this head and leaves 61 slices free.
+- `docs/design/MARK_II_AREA_PLAN.md:297`: sentence has 24 words; maximum is 10. The three area lanes' own routes, each measured against one base route with the C8, P2-P1 and C10 parent patches, explain most of it:
+- `docs/design/MARK_II_AREA_PLAN.md:308`: sentence has 36 words; maximum is 10. The measured adoption is 358 LUTs and 76 FFs above that projection: the lanes' deltas do not add exactly, and processor PRs #152 (tests) and #157 (one GETDYNAMICINFO classifier hunk) were in none of those routes.
+- `docs/design/MARK_II_AREA_PLAN.md:314`: sentence has 11 words; maximum is 10. The split changes ownership as recorded in L2; standards stay binding.
+- `docs/design/MARK_II_AREA_PLAN.md:319`: sentence has 33 words; maximum is 10. Every hierarchy of the routed image above 500 LUTs, in the rebuilt hierarchy's names; the image itself is left out, and a parent whose only large child is that child shares its row.
+- `docs/design/MARK_II_AREA_PLAN.md:319`: sentence has 26 words; maximum is 10. "Set by the standard" is the part of the cost a Milan or IEEE clause fixes: a state machine's existence, a field's width, a count's minimum.
+- `docs/design/MARK_II_AREA_PLAN.md:319`: sentence has 25 words; maximum is 10. "Implementation choice" is the part this design chose: how state is stored, how many copies of the logic exist, how wide an internal path is.
+- `docs/design/MARK_II_AREA_PLAN.md:319`: sentence has 17 words; maximum is 10. Clauses are IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q-2018, IEEE 802.1AS-2011 and Milan v1.2.
+- `docs/design/MARK_II_AREA_PLAN.md:382`: sentence has 11 words; maximum is 10. D1/D3 permit bounded internal latency changes with reviewed equivalence evidence.
+- `docs/design/MARK_II_AREA_PLAN.md:390`: sentence has 11 words; maximum is 10. M3 retains only the AECP/notification/record-manager residual for fabric AECP.
+- `docs/design/MARK_II_AREA_PLAN.md:390`: sentence has 14 words; maximum is 10. Its estimate is 2,600 LUTs (1,500-3,600), zero in the default image.
+- `docs/design/MARK_II_AREA_PLAN.md:390`: sentence has 11 words; maximum is 10. The ledger derives it from current standalone scopes, less engine overhead.
+- `docs/design/MARK_II_AREA_PLAN.md:395`: sentence has 20 words; maximum is 10. Verification: processor suites and campaigns at their recorded counts; PDU/port-transaction differential checks; parent consumers, , , , capture bounds and bench compliance.
+- `docs/design/MARK_II_AREA_PLAN.md:411`: sentence has 12 words; maximum is 10. The measured mailbox skeleton costs 3,102 LUTs and six BRAM tiles.
+- `docs/design/MARK_II_AREA_PLAN.md:420`: sentence has 19 words; maximum is 10. What leaves after qualification: the selected protocol engines, their private tables, notification and descriptor serving, and fabric NVM serialization.
+- `docs/design/MARK_II_AREA_PLAN.md:420`: sentence has 19 words; maximum is 10. Framing, timestamps, ingress filtering, hard-deadline event timers, gPTP, AVTP/AAF/CRF, media admission and physical audio stay in fabric.
+- `docs/design/MARK_II_AREA_PLAN.md:420`: sentence has 11 words; maximum is 10. A software protocol owner must not become a software media path.
+- `docs/design/MARK_II_AREA_PLAN.md:428`: sentence has 15 words; maximum is 10. Target service time, ring backlog, flash interference, firmware capacity and F5 qualification remain implementation obligations.
+- `docs/design/MARK_II_AREA_PLAN.md:428`: sentence has 20 words; maximum is 10. The owner's early 25-40 KiB code and 8-32 KiB RAM estimate covered fewer protocols; it is no full-F5 memory budget.
+- `docs/design/MARK_II_AREA_PLAN.md:435`: sentence has 25 words; maximum is 10. Verification: F0 mailbox tests on both adapters, filter mutation campaigns, F1 store tests, F2-F5 unit and differential protocol suites, RV32 execution and the service hooks.
+- `docs/design/MARK_II_AREA_PLAN.md:435`: sentence has 19 words; maximum is 10. Prove 10 ms project service under bounded ingress, SRP churn, full rings, all recipients, flash activity and delayed events.
+- `docs/design/MARK_II_AREA_PLAN.md:447`: sentence has 11 words; maximum is 10. Budget up to two extra tiles, subject to measured primitive counts.
+- `docs/design/MARK_II_AREA_PLAN.md:478`: sentence has 15 words; maximum is 10. Verification: per-array lockstep and negative controls, owning suites, both shapes, primitive mapping and integrated route.
+- `docs/design/MARK_II_AREA_PLAN.md:491`: sentence has 13 words; maximum is 10. Verification: boundary indices, all supported shapes, refusals and owning suites; unchanged wire bytes.
+- `docs/design/MARK_II_AREA_PLAN.md:503`: sentence has 11 words; maximum is 10. Verification: owning SRP, notification, dispatch and AECP suites, including worst-case backlog.
+- `docs/design/MARK_II_AREA_PLAN.md:523`: sentence has 17 words; maximum is 10. Verification: SRP suites/campaigns at both shapes, event stalls, MRP timers and bench protocol checks under D3.
+- `docs/design/MARK_II_AREA_PLAN.md:529`: sentence has 20 words; maximum is 10. Saving: 600 LUTs (400-1,000), from the historical 2,907-LUT block and #649's 2,893 fixed plus 211-per-stream OOC model.
+- `docs/design/MARK_II_AREA_PLAN.md:529`: sentence has 11 words; maximum is 10. New split-interface logic is charged to L2, not saved again here.
+- `docs/design/MARK_II_AREA_PLAN.md:534`: sentence has 13 words; maximum is 10. Verification: CSR, , , firmware host tests, register-map checks and boot readback in both placements.
+- `docs/design/MARK_II_AREA_PLAN.md:541`: sentence has 19 words; maximum is 10. Saving: 600 LUTs (400-900), from the historical routed inventory and #649's per-stream OOC marginals of 208, 317 and 205.
+- `docs/design/MARK_II_AREA_PLAN.md:553`: sentence has 11 words; maximum is 10. M7 moves eligible gPTP tables into block RAM or narrows indices.
+- `docs/design/MARK_II_AREA_PLAN.md:553`: sentence has 11 words; maximum is 10. M10 shares gPTP and AECP execution only in retained-fabric AECP builds.
+- `docs/design/MARK_II_AREA_PLAN.md:553`: sentence has 11 words; maximum is 10. Its estimated 1,200 LUTs (900-1,500) has zero default-image credit.
+- `docs/design/MARK_II_AREA_PLAN.md:560`: sentence has 11 words; maximum is 10. Verification: gPTP processor suites, , , , , timestamp/CDC checks and #117 bench evidence.
+- `docs/design/MARK_II_AREA_PLAN.md:959`: sentence has 12 words; maximum is 10. Packet mailboxes superseded that CSR proposal, with ingress filtering and firmware restore.
+- `docs/design/MARK_II_AREA_PLAN.md:960`: sentence has 27 words; maximum is 10. Portable interface added ADP and GM-change events: memory-mapped block RAM rings, doorbell, interrupt, 32-bit accesses, no DMA, host bus adapters, portable C/HAL and one YAML contract.
+- `docs/design/MARK_II_AREA_PLAN.md:961`: sentence has 11 words; maximum is 10. Default split retained easy per-function build selection and the all-fabric option.
+- `docs/design/MARK_II_AREA_PLAN.md:962`: sentence has 16 words; maximum is 10. Before-release integration brought ADP, ACMP, MAAP, SRP via lwSRP, AECP and saved-state handling into milestone 12.
+- `docs/design/MARK_II_AREA_PLAN.md:964`: sentence has 12 words; maximum is 10. The last decision replaces M3's ACMP/ADP portion and M4 with F0-F5.
+- `docs/design/MARK_II_AREA_PLAN.md:964`: sentence has 11 words; maximum is 10. The #396 release campaigns then run on the qualified split image.
+- `docs/design/MARK_II_AREA_PLAN.md:970`: sentence has 11 words; maximum is 10. The project service budget is 10 ms, separately from normative deadlines.
+- `docs/design/MARK_II_AREA_PLAN.md:970`: sentence has 12 words; maximum is 10. VERSION stays major 2 until that implementation; split images identify major 3.
+- `docs/design/MARK_II_AREA_PLAN.md:984`: sentence has 40 words; maximum is 10. Vivado 2026.1 build 6511674 for , the #234 recipe unchanged: the shipping  export without , [](../../syn/ooc/ppbaseline.py) for the integrated script,  synthesis,  optimization,  placement,  physical optimization and routing, 32 threads, the default seed; the standalone wrapper with  (20 ns).
+- `docs/design/MARK_II_AREA_PLAN.md:988`: sentence has 26 words; maximum is 10. The map was therefore tied to a scratch copy of [](../../syn/ooc/ppresourcebaseline.json) into which this route was recorded with ; the tracked baseline is unchanged.
+- `docs/design/MARK_II_AREA_PLAN.md:988`: sentence has 11 words; maximum is 10. A Mark II lane maps its own route the same way:
+- `docs/design/MARK_II_AREA_PLAN.md:1004`: sentence has 28 words; maximum is 10. Three cacheless RV32I cores synthesized out of context with  for the same part: the shipping VexiiRiscv netlist the export reads, LiteX's VexRiscv  netlist, and PicoRV32 with LiteX's  parameters.
+- `docs/design/MARK_II_AREA_PLAN.md:1004`: sentence has 17 words; maximum is 10. Each is the core alone, with whatever bus bridges its netlist contains; the figures are in L11.
+- `docs/design/MARK_II_AREA_PLAN.md:1115`: sentence has 22 words; maximum is 10. The route waited 75 minutes for the lock and ran its synthesis with the lane's memory limit reached; no process was killed.
+- `docs/design/MARK_II_AREA_PLAN.md:1115`: sentence has 32 words; maximum is 10. No log contains a  diagnostic: the one match in the route's and the standalone run's logs is the echoed command that promotes it to an error, and the other logs have none.
+- `docs/design/MARK_II_AREA_PLAN.md:1115`: sentence has 14 words; maximum is 10. The routed checkpoint  hashes to  (110,137,721 bytes) and the image manifest  to .
+- `docs/design/MARK_II_AREA_PLAN.md:1119`: sentence has 18 words; maximum is 10. Reports, checkpoints and full digests stay outside the repository with the measurement directories; the lane's handoff lists them.
+- `docs/design/AREA_BUDGET.md:3`: sentence has 20 words; maximum is 10. The AX7101 release fit is decided by the placed Vivado utilization report and post-route timing, never by an elaboration estimate.
+- `docs/design/AREA_BUDGET.md:3`: sentence has 20 words; maximum is 10. Yosys out-of-context figures are useful for comparing isolated fabric blocks; the builder's model is useful for refusing obviously oversized configurations.
+- `docs/design/AREA_BUDGET.md:9`: sentence has 17 words; maximum is 10. The issue #234 baseline records the shipping image after merging dev  for #645 and #647, retaining processor .
+- `docs/design/AREA_BUDGET.md:9`: sentence has 11 words; maximum is 10. Its figures back the protocol processor budget and resource gate below.
+- `docs/design/AREA_BUDGET.md:16`: sentence has 14 words; maximum is 10. The current command and media-clock claims are checked against the Milan feature status ledger:
+- `docs/design/AREA_BUDGET.md:28`: sentence has 15 words; maximum is 10. Rules for optional blocks -- The default-present, elaboration-time, safe-tie, and evidence rules every prune must follow.
+- `docs/design/AREA_BUDGET.md:29`: sentence has 21 words; maximum is 10. Tier 1 - implemented optional fabric blocks -- The RTL parameter, SoC flag, configuration key, and permitted absence condition for each implemented prune.
+- `docs/design/AREA_BUDGET.md:30`: sentence has 16 words; maximum is 10. Isolated synthesis estimates -- Comparable Yosys resource estimates for the optional fabric blocks at the measured shape.
+- `docs/design/AREA_BUDGET.md:31`: sentence has 15 words; maximum is 10. Release accounting -- The placed utilization, timing, identity, and repeated evidence required for a release candidate.
+- `docs/design/AREA_BUDGET.md:32`: sentence has 18 words; maximum is 10. Protocol processor budget and resource gate -- The recorded baseline, Mark II estimates, unchanged policy and D7 re-record rule.
+- `docs/design/AREA_BUDGET.md:38`: sentence has 11 words; maximum is 10. The absent arm ties every exposed result to an inert value.
+- `docs/design/AREA_BUDGET.md:39`: sentence has 11 words; maximum is 10. A prune names the physical/compliance evidence that must be repeated.
+- `docs/design/AREA_BUDGET.md:40`: sentence has 11 words; maximum is 10. The builder refuses a configuration whose declared function needs a pruned
+- `docs/design/AREA_BUDGET.md:55`: sentence has 19 words; maximum is 10. The builder tests require this table to agree with its option map and with the real RTL generate arms.
+- `docs/design/AREA_BUDGET.md:60`: sentence has 12 words; maximum is 10. Measured with [](../../syn/yosys/ooc.sh) at the 8-stream, 16-slot fabric shape.
+- `docs/design/AREA_BUDGET.md:81`: sentence has 16 words; maximum is 10. The datapath-probe row was added after this measurement and is intentionally not folded into the total.
+- `docs/design/AREA_BUDGET.md:94`: sentence has 18 words; maximum is 10. A block removed for area changes the candidate's capabilities and may invalidate media, timing, observability, or compliance evidence.
+- `docs/design/AREA_BUDGET.md:94`: sentence has 11 words; maximum is 10. Repeat the named campaign before quoting the resulting image as release-ready.
+- `docs/design/AREA_BUDGET.md:100`: sentence has 12 words; maximum is 10. Issue #234 first measured the shipping 1x1 image at dev , processor pin .
+- `docs/design/AREA_BUDGET.md:100`: sentence has 12 words; maximum is 10. Combination F was measured for #682 at parent  after merging dev , processor .
+- `docs/design/AREA_BUDGET.md:100`: sentence has 14 words; maximum is 10. It explicitly limits synthesis to one worker; the flow identity records this memory setting.
+- `docs/design/AREA_BUDGET.md:100`: sentence has 18 words; maximum is 10. Issue #686 re-recorded all three endpoints on 2026-10-08 at , its merge of dev , after 's Annex B change.
+- `docs/design/AREA_BUDGET.md:100`: sentence has 21 words; maximum is 10. Issue #645 then re-recorded all three endpoints on merge result , including dev , the GMII capture change and the listener settle recentre.
+- `docs/design/AREA_BUDGET.md:100`: sentence has 16 words; maximum is 10. That merge-result measurement is the gate's record; its receipts and differences retain the preceding #686 record.
+- `docs/design/AREA_BUDGET.md:100`: sentence has 11 words; maximum is 10. The #686 flow identity matches F, the one synthesis worker included.
+- `docs/design/AREA_BUDGET.md:100`: sentence has 27 words; maximum is 10. The #686 repository inputs differ from F's only in [](../../hdl/ieee1722/maap/KLmaap.sv) and comment lines of [](../../hdl/milan/milandatapath.sv); the processor pins are F's.
+- `docs/design/AREA_BUDGET.md:114`: sentence has 14 words; maximum is 10. The baseline product must fit  with at most 60 percent of its LUTs used.
+- `docs/design/AREA_BUDGET.md:127`: sentence has 12 words; maximum is 10. The slice row is the binding limit: placement has 71 slices left.
+- `docs/design/AREA_BUDGET.md:127`: sentence has 11 words; maximum is 10. The routed critical setup path has 14 logic levels, from  to .
+- `docs/design/AREA_BUDGET.md:127`: sentence has 14 words; maximum is 10. Its data delay is 9.294 ns, of which 7.331 ns is routing.
+- `docs/design/AREA_BUDGET.md:127`: sentence has 20 words; maximum is 10. The preceding #686 image used 50,391 LUTs and 15,788 slices, 62 free, at +0.241 / +0.029 ns.
+- `docs/design/AREA_BUDGET.md:127`: sentence has 37 words; maximum is 10. The earlier F image used 49,957 LUTs and 15,734 slices, 116 free, at +0.124 / +0.031 ns; its critical path had 18 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
+- `docs/design/AREA_BUDGET.md:127`: sentence has 21 words; maximum is 10. The E image before F used 49,888 LUTs and 15,805 slices, 45 free, at +0.101 / +0.031 ns.
+- `docs/design/AREA_BUDGET.md:138`: sentence has 16 words; maximum is 10. The standalone wrapper uses 23,179 LUTs, 36.6 % of the device, at the shipping clock.
+- `docs/design/AREA_BUDGET.md:138`: sentence has 13 words; maximum is 10. The superseded #229 milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
+- `docs/design/AREA_BUDGET.md:138`: sentence has 17 words; maximum is 10. Read as , that stack names 41,689 LUTs in the routed image, 65.8 % of the device.
+- `docs/design/AREA_BUDGET.md:138`: sentence has 11 words; maximum is 10. The wrapper names 23,345 of them in that rebuilt hierarchy.
+- `docs/design/AREA_BUDGET.md:145`: sentence has 17 words; maximum is 10. Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 11,118 LUTs.
+- `docs/design/AREA_BUDGET.md:145`: sentence has 14 words; maximum is 10. The 2026-10-05 schedule correction places milestone 12 before P3, with delivery planned by 2026-12-15.
+- `docs/design/AREA_BUDGET.md:145`: sentence has 11 words; maximum is 10. Until M9, comparisons retain the last recorded baseline and unchanged policy.
+- `docs/design/AREA_BUDGET.md:145`: sentence has 18 words; maximum is 10. The #232, #230 and #639 storage changes are now adopted and measured; the remaining redesign stays under #640.
+- `docs/design/AREA_BUDGET.md:294`: sentence has 17 words; maximum is 10. [](../../syn/ooc/ppresourcebaseline.json) records three endpoints: the shipping route and the 1x1 and 8x8 standalone syntheses.
+- `docs/design/AREA_BUDGET.md:305`: sentence has 15 words; maximum is 10. A resource column is the growth a figure may take; a dash is not gated.
+- `docs/design/AREA_BUDGET.md:305`: sentence has 20 words; maximum is 10. WNS and WHS must stay at or above their floors and may each fall by at most the timing fall.
+- `docs/design/AREA_BUDGET.md:305`: sentence has 12 words; maximum is 10. Standalone timing is not gated: those syntheses have no I/O constraints.
+- `docs/design/AREA_BUDGET.md:305`: sentence has 12 words; maximum is 10. The tolerances, floors and ceiling are accepted as working policy (manager ruling).
+- `docs/design/AREA_BUDGET.md:305`: sentence has 15 words; maximum is 10. reads this table and refuses a baseline whose policy differs from it in any cell.
+- `docs/design/AREA_BUDGET.md:312`: sentence has 14 words; maximum is 10. Growth beyond a tolerance, a ceiling crossed or a timing floor crossed exits 1.
+- `docs/design/AREA_BUDGET.md:312`: sentence has 21 words; maximum is 10. A route whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
+- `docs/design/AREA_BUDGET.md:312`: sentence has 26 words; maximum is 10. At the current +0.299 ns WNS record, the 0.25 ns fall limit binds first: a comparable candidate needs at least +0.049 ns WNS.
+- `docs/design/AREA_BUDGET.md:312`: sentence has 13 words; maximum is 10. The absolute +0.030 ns WNS floor and zero WHS floor remain unchanged.
+- `docs/design/AREA_BUDGET.md:312`: sentence has 12 words; maximum is 10. A primitive count moves only when storage or arithmetic changes its mapping.
+- `docs/design/AREA_BUDGET.md:319`: sentence has 11 words; maximum is 10. The LUT and FF tolerances are about 1 % of each record.
+- `docs/design/AREA_BUDGET.md:319`: sentence has 13 words; maximum is 10. The next adoption, measured beside it as combination B, shows why that size.
+- `docs/design/AREA_BUDGET.md:319`: sentence has 14 words; maximum is 10. It changes one processor block's logic, , which grows by 83 LUTs and 33 FFs.
+- `docs/design/AREA_BUDGET.md:319`: sentence has 19 words; maximum is 10. In the 1x1 standalone synthesis, the rest of the wrapper moved by a net +79 LUTs and +93 FFs.
+- `docs/design/AREA_BUDGET.md:319`: sentence has 15 words; maximum is 10. That partition is the own logic of every instance the record lists outside , 51 terms.
+- `docs/design/AREA_BUDGET.md:319`: sentence has 22 words; maximum is 10. The processor top's own logic is one of those terms: -23 LUTs and +107 FFs; the 107 FFs are its timer-arm queues.
+- `docs/design/AREA_BUDGET.md:319`: sentence has 12 words; maximum is 10. A standalone tolerance below that movement would judge noise, not the change.
+- `docs/design/AREA_BUDGET.md:331`: sentence has 16 words; maximum is 10. B's route grew by 625 LUTs, 366 of them outside the wrapper, where no RTL changed.
+- `docs/design/AREA_BUDGET.md:331`: sentence has 14 words; maximum is 10. That exceeds the route's 500-LUT tolerance, so the gate rejected B with exit 1.
+- `docs/design/AREA_BUDGET.md:331`: sentence has 15 words; maximum is 10. Optimization moving in response to a change is still that change's cost to the image.
+- `docs/design/AREA_BUDGET.md:331`: sentence has 13 words; maximum is 10. Accepting B means recording its route as the new baseline, a reviewed decision.
+- `docs/design/AREA_BUDGET.md:331`: sentence has 14 words; maximum is 10. A change under the tolerance passes, and the gate still prints the sub-block movements.
+- `docs/design/AREA_BUDGET.md:331`: sentence has 14 words; maximum is 10. A figure that improves by more than its tolerance passes and prints "re-baseline recommended".
+- `docs/design/AREA_BUDGET.md:331`: sentence has 13 words; maximum is 10. The policy stays growth-only: recording the improved measurement is what lowers the bar.
+- `docs/design/AREA_BUDGET.md:340`: sentence has 18 words; maximum is 10. Outside the Mark II exception below, a merge moving the shipping image records its own re-baseline (manager ruling).
+- `docs/design/AREA_BUDGET.md:340`: sentence has 18 words; maximum is 10. Its PR measures the three endpoints again on its merge result and writes them with , the policy unchanged.
+- `docs/design/AREA_BUDGET.md:340`: sentence has 11 words; maximum is 10. So growth under a tolerance cannot pile up unrecorded across merges.
+- `docs/design/AREA_BUDGET.md:340`: sentence has 18 words; maximum is 10. Growth over one is accepted or refused as the change that made it, never as a later PR's.
+- `docs/design/AREA_BUDGET.md:346`: sentence has 11 words; maximum is 10. The manager ruling keeps intermediate lane measurements in the plan ledger.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 16 words; maximum is 10. The first re-baseline recorded PR #634's growth on 2026-10-03, in PR #638, which added the gate.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 11 words; maximum is 10. The issue #234 baseline gives its delta per endpoint and sub-block.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 11 words; maximum is 10. The second re-baseline records the adopted  image on dev  for #661.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 14 words; maximum is 10. The third re-baseline records processor  on dev  for #682, including its changed measurement flow.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 16 words; maximum is 10. The fourth re-baseline records the same processor after #682 merges dev , under the same measurement flow.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 14 words; maximum is 10. The fifth records #686's  change on its merge of dev , under the same flow.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 40 words; maximum is 10. Against F, its route moved by +434 LUTs, -11 FFs and +54 slices, and its WNS rose from +0.124 to +0.241 ns while WHS fell from +0.031 to +0.029 ns; both standalone records kept every figure.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 43 words; maximum is 10. In #686's routed hierarchy  uses 429 LUTs and 279 FFs, against 479 and 267 for the previous  in the resource map, and the wrapper 47 LUTs fewer than F; the rest of the LUT growth lies in blocks the change does not touch.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 12 words; maximum is 10. The sixth re-baseline records #645 and #647 on their merge of dev .
+- `docs/design/AREA_BUDGET.md:357`: sentence has 23 words; maximum is 10. Against #686, its route moved by -124 LUTs, +150 FFs and -9 slices, with WNS +0.058 ns and WHS +0.002 ns.
+- `docs/design/AREA_BUDGET.md:357`: sentence has 16 words; maximum is 10. All three endpoints passed against the preceding records before being written; every policy value stays unchanged.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 14 words; maximum is 10. The gate refuses, with exit 2, to compare across a tool or recipe change.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 19 words; maximum is 10. That covers the Vivado build, the device, the design and its state, every flow command and the standalone clock.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 12 words; maximum is 10. So a tool's mapping change is never reported as an architectural regression.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 14 words; maximum is 10. Such a change needs a new baseline, recorded with  and reviewed as a diff.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 18 words; maximum is 10. exits 0 within tolerance, 1 for a material regression only, and 2 for every input it cannot judge.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 11 words; maximum is 10. Exit 1 comes from one place, the comparison with the baseline.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 22 words; maximum is 10. Any exception there, expected or not, prints  with its reason and exits 2, so no input reaches a traceback or exit 1.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 18 words; maximum is 10. Every printed line is printable ASCII: any other character of a name or value is written escaped, as .
+- `docs/design/AREA_BUDGET.md:369`: sentence has 11 words; maximum is 10. Every number the gate reads goes through one of two converters.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 23 words; maximum is 10. A whole number must be 1 to 15 ASCII digits, so its float is exact and finite; a decimal's float must be finite.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 21 words; maximum is 10. That covers every report count, the slack, the half BRAM tile, the budget cells and every number in the baseline file.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 23 words; maximum is 10. That covers a count or slack in any other form, and a timing summary with no timed endpoint or without its endpoint columns.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 19 words; maximum is 10. It also covers a route status report that is missing or lacks exactly one routable-nets, fully-routed-nets and routing-errors row.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 12 words; maximum is 10. and  read the baseline file through one validator before using any field.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 12 words; maximum is 10. A baseline file that is missing or not strict JSON exits 2.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 20 words; maximum is 10. Strict JSON here has no NaN, no Infinity and no repeated key, and every key is 1 to 128 of .
+- `docs/design/AREA_BUDGET.md:369`: sentence has 26 words; maximum is 10. That holds for every key of the baseline, the keys inside its notes included, and of the measurement's image manifest, the keys of its entries included.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 19 words; maximum is 10. The one exception is a sub-block scope name, which may also hold a generate index's brackets, as Vivado names .
+- `docs/design/AREA_BUDGET.md:369`: sentence has 36 words; maximum is 10. A field not of the recorded shape exits 2 too: the kind, the record's and identity's fields and types, the input digest, the figures, the sub-block scopes, or a policy value that is not a number.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 35 words; maximum is 10. A seeded generative test changes baselines and reports at random: every case must exit 0, 1 or 2 without a traceback, give its reason with 2, and exit 2 when it breaks a documented shape.
+- `docs/design/AREA_BUDGET.md:369`: sentence has 16 words; maximum is 10. The self-test runs 500 cases on its fixtures;  runs any number on a real measurement directory.
+- `docs/design/AREA_BUDGET.md:398`: sentence has 13 words; maximum is 10. The fast workflow runs the gate's self-test, its mutant campaign and  (manager ruling).
+- `docs/design/AREA_BUDGET.md:398`: sentence has 11 words; maximum is 10. Those need only Python, so no runner or tool is added.
+- `docs/design/AREA_BUDGET.md:398`: sentence has 16 words; maximum is 10. refuses a baseline edit that breaks its own policy or departs from the policy table above.
+- `docs/design/AREA_BUDGET.md:398`: sentence has 20 words; maximum is 10. The classifier files this page as read by a gate, so a change to it alone still runs that step.
+- `docs/design/AREA_BUDGET.md:404`: sentence has 13 words; maximum is 10. The measurement and  need Vivado, so they run in the manager's local bank.
+- `docs/design/AREA_BUDGET.md:404`: sentence has 21 words; maximum is 10. The manager's merge bank runs it for every PR that changes RTL, the processor pin or the build recipe (manager ruling).
+- `docs/design/AREA_BUDGET.md:408`: sentence has 16 words; maximum is 10. The bank also catches a predecessor that moved the image without recording its re-baseline (manager ruling).
+- `docs/design/AREA_BUDGET.md:408`: sentence has 16 words; maximum is 10. The trigger is the merge result's delta from the recorded baseline, not the PR's own diff.
+- `docs/design/AREA_BUDGET.md:408`: sentence has 24 words; maximum is 10. So the bank runs the comparison for any merge whose dev delta since that revision touches RTL, the processor pin or the build recipe.
+- `docs/design/AREA_BUDGET.md:408`: sentence has 11 words; maximum is 10. That holds even when the PR itself changes none of them.
+- `docs/design/AREA_BUDGET.md:408`: sentence has 11 words; maximum is 10. Growth the PR did not make is not charged to it.
+- `docs/design/AREA_BUDGET.md:408`: sentence has 22 words; maximum is 10. Outside Mark II, the predecessor's growth is first recorded with attribution, as issue #234 recorded PR #634's; the PR uses that record.
+- `docs/design/AREA_BUDGET.md:408`: sentence has 12 words; maximum is 10. For Mark II, D7 instead retains the last gate record until M9.
+- `docs/design/AREA_BUDGET.md:408`: sentence has 11 words; maximum is 10. This is the bank's rule, stated here; it adds no tooling.
+- `docs/design/AREA_BUDGET.md:408`: sentence has 19 words; maximum is 10. Here a route took 39 to 56 minutes and a 1x1 standalone synthesis 15 to 24, sharing the host.
+- `docs/design/AREA_BUDGET.md:408`: sentence has 17 words; maximum is 10. That bank run is the local half of #234's fourth criterion (manager ruling); CONTRIBUTING is unchanged here.
+- `docs/design/AREA_BUDGET.md:423`: sentence has 13 words; maximum is 10. The Yosys gate's documentation records a deliberate decision against a checked-in cell baseline.
+- `docs/design/AREA_BUDGET.md:423`: sentence has 12 words; maximum is 10. Yosys LUT counts do not predict Vivado's, and Yosys reports no timing.
+- `docs/design/AREA_BUDGET.md:423`: sentence has 16 words; maximum is 10. The hosted Yosys gate also synthesizes the wrapper at its module defaults, eight streams each way.
