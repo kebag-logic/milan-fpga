@@ -1043,6 +1043,33 @@ memories, hence the shift registers. Routing the read-back through the
 answer multiplexer the rings use, from a register, saved 15 LUTs for 34
 flip-flops in an earlier version and was not kept.
 
+The publication block (lane F-INT, contract 2.2,
+[above](#the-publication-block)) was measured with the same recipe on
+2026-10-09, beside its base `7c1b52be`, whose figures repeated round 3's
+column above exactly:
+
+| Block | LUT before | LUT after | FF before | FF after |
+|---|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,481 | 1,520 | 1,155 | 1,155 |
+| `KL_mbx` registers, decode, read mux | 294 | 647 | 532 | 1,668 |
+| `KL_mbx_evt` | 702 | 669 | 978 | 978 |
+| `KL_mbx_tx` | 488 | 493 | 280 | 280 |
+| `KL_mbx_wb` | 122 | 203 | 1 | 1 |
+| **Total** | **3,102** | **3,548** | **2,946** | **4,082** |
+
+It costs 446 LUT and 1,136 FF. The flip-flops are the block's storage at one
+interface, exactly: `DA_GATE` and `LICENCE` (16 each), `IDLE_SLOPE` (32),
+`SR_DOMAIN`'s VID, PRIORITY and ADOPTED (16), and sixteen sink entries of
+`SID_LO`, `SID_HI`, `BOUND` and `SID_VALID` (66 each, 1,056). The LUTs are the
+decode and the read-back of seven registers over sixteen entries; Vivado
+combines them across the hierarchy, so the `KL_mbx_wb` row grows and the rows
+of unchanged blocks move. The block RAM is unchanged, with no DSP. WNS is
++0.329 ns at 10 ns (+0.402 ns before), with all 7,449 nets routed. The bench
+top exports every `pub_*_o` port; the switch-on SoC leaves them unread, but
+the registers stay for their read-back. This is the block's own recipe: the
+whole-image M0s measurement of #640 needs the split image, which the
+placement switch builds.
+
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
   hdl/milan/mailbox/KL_mbx_rx.sv hdl/milan/mailbox/KL_mbx_tx.sv hdl/milan/mailbox/KL_mbx_evt.sv \
