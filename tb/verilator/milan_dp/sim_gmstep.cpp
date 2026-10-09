@@ -941,46 +941,61 @@ void GmStepHarness::change_grandmaster() {
 //! Issue #621: observe several complete Pdelay intervals after both signs.
 //! The public GET_COUNTERS responses grade effects at their consumer boundary.
 void GmStepHarness::check_small_grandmaster_steps() {
-    run_cycles(3 * kClkHz);
-    for (const int64_t delta : {10000000LL, -10000000LL}) {
-        const auto avb0 = counters(0x7400, 0x0009);
-        const auto domain0 = counters(0x7401, 0x0024);
-        const auto sout0 = counters(0x7402, 0x0006);
-        sin0_accepts_.first = accepts_.size();
-        const auto sin0 = counters(0x7403, 0x0005);
-        sin0_accepts_.second = accepts_.size();
-        const size_t talker0 = talker_.size();
-        trace_ = Trace{};
-        trace_.tu_prev = dut_->rootp->milan_datapath__DOT__clkv_tu_w;
-        check_.dec("621: tu clear before the step", trace_.tu_prev, 0);
-        gm_id_ += 1; --gm_priority_; gm_epoch_ += delta;
-        media_follows_sync_ = true;
-        next_announce_ = cyc_; next_sync_ = cyc_ + kGmSyncDelayCyc;
-        run_cycles(4 * kClkHz);
-        const auto avb1 = counters(0x7404, 0x0009);
-        const auto domain1 = counters(0x7405, 0x0024);
-        const auto sout1 = counters(0x7406, 0x0006);
-        sin1_accepts_.first = accepts_.size();
-        const auto sin1 = counters(0x7407, 0x0005);
-        sin1_accepts_.second = accepts_.size();
-        printf("621: signed step %lld, tu episodes %llu\n", static_cast<long long>(delta),
-               static_cast<unsigned long long>(trace_.tu_rises));
-        check_.dec("621: exactly one step", trace_.step_pulses, 1);
-        check_.that("621: signed 10 ms PHC step", trace_.step_ns > delta - 1000 && trace_.step_ns < delta + 1000);
-        check_.dec("621: asCapable held every cycle", trace_.incapable_cycles, 0);
-        check_.dec("621: valid link delay every cycle", trace_.bad_delay_cycles, 0);
-        check_.dec("621: one tu episode", trace_.tu_rises, 1);
-        check_.dec("621: tu clears again", dut_->rootp->milan_datapath__DOT__clkv_tu_w, 0);
-        check_.dec("621: one GPTP_GM_CHANGED", counter_word(avb1, 5) - counter_word(avb0, 5), 1);
-        // The existing compressed-clock model leaves the CRF servo unlocked.
-        // Under #629 C1 this keeps CLOCK_DOMAIN unlocked even while tu clears.
-        check_.dec("621: CRF servo remains unlocked throughout", trace_.servo_locked_cycles, 0);
-        check_.dec("621: CLOCK_DOMAIN UNLOCKED unchanged", counter_word(domain1, 1) - counter_word(domain0, 1), 0);
-        check_.dec("621: CLOCK_DOMAIN LOCKED unchanged", counter_word(domain1, 0) - counter_word(domain0, 0), 0);
-        check_.dec("621: no outgoing mr change", mr_toggles_since(talker0), 0);
-        check_.dec("621: no MEDIA_RESET", counter_word(sout1, 2) - counter_word(sout0, 2), 0);
-        grade_the_licence(talker0, sin0, sin1);
+    for (const bool internal : {false, true}) {
+        const uint8_t source = internal ? 0 : kCrfClockSource;
+        const auto selected = aecp_transaction(0x0016, 0x7410, {0x00, 0x24, 0x00, 0x00,
+                                                              0x00, source, 0x00, 0x00});
+        check_.dec("621: clock selection succeeds", selected.size() > 16 ? selected[16] >> 3 : 255, 0);
+        run_cycles(3 * kClkHz);
+        check_.dec("621: root resolves selected clock source",
+                   dut_->rootp->milan_datapath__DOT__crf_clk_selected_r, !internal);
+        for (const int64_t delta : {10000000LL, -10000000LL}) {
+            const auto avb0 = counters(0x7400, 0x0009);
+            const auto domain0 = counters(0x7401, 0x0024);
+            const auto sout0 = counters(0x7402, 0x0006);
+            sin0_accepts_.first = accepts_.size();
+            const auto sin0 = counters(0x7403, 0x0005);
+            sin0_accepts_.second = accepts_.size();
+            const size_t talker0 = talker_.size();
+            trace_ = Trace{};
+            trace_.tu_prev = dut_->rootp->milan_datapath__DOT__clkv_tu_w;
+            check_.dec("621: tu clear before the step", trace_.tu_prev, 0);
+            gm_id_ += 1; --gm_priority_; gm_epoch_ += delta;
+            media_follows_sync_ = true;
+            next_announce_ = cyc_; next_sync_ = cyc_ + kGmSyncDelayCyc;
+            run_cycles(4 * kClkHz);
+            const auto avb1 = counters(0x7404, 0x0009);
+            const auto domain1 = counters(0x7405, 0x0024);
+            const auto sout1 = counters(0x7406, 0x0006);
+            sin1_accepts_.first = accepts_.size();
+            const auto sin1 = counters(0x7407, 0x0005);
+            sin1_accepts_.second = accepts_.size();
+            printf("621: %s signed step %lld, tu episodes %llu\n", internal ? "INTERNAL" : "CRF",
+                   static_cast<long long>(delta),
+                   static_cast<unsigned long long>(trace_.tu_rises));
+            check_.dec("621: exactly one step", trace_.step_pulses, 1);
+            check_.that("621: signed 10 ms PHC step", trace_.step_ns > delta - 1000 && trace_.step_ns < delta + 1000);
+            check_.dec("621: asCapable held every cycle", trace_.incapable_cycles, 0);
+            check_.dec("621: valid link delay every cycle", trace_.bad_delay_cycles, 0);
+            check_.dec("621: one tu episode", trace_.tu_rises, 1);
+            check_.dec("621: tu clears again", dut_->rootp->milan_datapath__DOT__clkv_tu_w, 0);
+            check_.dec("621: one GPTP_GM_CHANGED", counter_word(avb1, 5) - counter_word(avb0, 5), 1);
+            // The existing compressed-clock model leaves the CRF servo unlocked.
+            // Under #629 C1 this keeps CLOCK_DOMAIN unlocked while following.
+            // At INTERNAL, the same tu episode must produce one public edge pair.
+            check_.dec("621: CRF servo remains unlocked throughout", trace_.servo_locked_cycles, 0);
+            check_.dec("621: CLOCK_DOMAIN UNLOCKED delta", counter_word(domain1, 1) - counter_word(domain0, 1), internal ? 1 : 0);
+            check_.dec("621: CLOCK_DOMAIN LOCKED delta", counter_word(domain1, 0) - counter_word(domain0, 0), internal ? 1 : 0);
+            check_.dec("621: no outgoing mr change", mr_toggles_since(talker0), 0);
+            check_.dec("621: no MEDIA_RESET", counter_word(sout1, 2) - counter_word(sout0, 2), 0);
+            grade_the_licence(talker0, sin0, sin1);
+        }
     }
+    const auto restored = aecp_transaction(0x0016, 0x7411, {0x00, 0x24, 0x00, 0x00,
+                                                          0x00, kCrfClockSource, 0x00, 0x00});
+    check_.dec("621: restore CRF selection succeeds", restored.size() > 16 ? restored[16] >> 3 : 255, 0);
+    run_cycles(kClkHz / 10);
+    check_.dec("621: CRF source restored", dut_->rootp->milan_datapath__DOT__crf_clk_selected_r, 1);
 }
 
 void GmStepHarness::grade_the_event(const std::vector<uint8_t>& sout0,

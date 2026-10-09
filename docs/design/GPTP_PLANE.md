@@ -136,7 +136,9 @@ The second checks uncertainty, public counters, and media continuity.
 
 Its compressed clock leaves the selected CRF servo unlocked.
 
-Under the current clock-domain contract, both domain counters remain unchanged.
+While following that unlocked servo, both domain counters remain unchanged.
+
+The INTERNAL arm requires one unlock/lock pair per step.
 
 Each identity change produces one uncertainty episode.
 
