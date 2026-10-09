@@ -1,0 +1,19 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    5 descriptor burst(s) served from the 7512-byte generated image
+
+[SERIAL] the pins, decoded, against the injection record
+  [i]    T6 PREFILL: silence for 13 frame(s), then ordinal 4 with 0 counted skip(s); derived first eligible ordinal 4 (18 events pushed at the snap, 14 kept)
+  [i]    first decoded ordinal 352; 360 events had been injected when collection opened
+  [i]    839 frames graded, 0 repeat(s), 0 skipped event(s), 0 counted skip(s) still pending adoption
+  [i]    worst observed frames_o lead over decoded frame boundaries: 0
+  [i]    lane counters: frames 1302 underruns 4 skips 1 overruns 0 epochs 1 (skips before the window 1, underruns before 4)
+  [i]    T7 bank walk and commit: 9..9 axis cycles (90.0..90.0 ns at this leg's 100 MHz model axis clock; 180.0..180.0 ns at the shipping 50 MHz milan clock) over 840 pairs
+  [i]    T7 frame commit to slot 0 MSB sampling edge: 64..145 axis cycles (0.640..1.450 us) over 839 frames, 0 past the window's end; one frame = 20.834 us, one bit period = 0.0814 us, CDC floor = 24.4 cycles
+  [i]    T7 published terms, measured: bank walk and commit 9..9 axis cycles = 90.0..90.0 ns at the model axis clock, 180.0..180.0 ns at the shipping milan clock; adopt wait phi 0.559..1.369 us (the measured interval less slot 0's one bit period of serial position) = 1 axis cycle + 0.549..1.359 us of serial-domain wait, so 0.569..1.379 us on the shipping image; slot k adds 2.6042 us
+  [i]    T14: skips 1 -> 3, overruns 0 -> 0 across a two-and-a-half-frame serial-clock hold
+  [i]    T14: commit-to-pin after the hold = 1157 axis cycles (11.570 us)
+  [FAIL] T6 UNDERRUN: the faster serial clock forced repeated frames
+  [i]    T6 UNDERRUN: 11 frames, 0 forced repeats, 0 uncounted repeats, 0 skipped events
+== tdm8_render: checks: 66   failures: 1 ==
+RESULT: FAIL

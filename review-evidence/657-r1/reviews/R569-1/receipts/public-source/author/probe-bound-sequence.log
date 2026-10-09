@@ -1,0 +1,18 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    5 descriptor burst(s) served from the 7512-byte generated image
+
+[RESET] the four-phase render epoch over reset and a stopped serial clock
+  [i]    epochs 1 -> 2 across the stopped-clock reset
+  [i]    T21: 13 crossbar offer(s) and 0 commit(s) between the reset release and the counted reopening
+  [i]    T22: the reset landed 215 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T20: the reset landed 0 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T19: 12 crossbar offer(s) and 0 commit(s) while the round trip was outstanding; epochs 1 -> 2
+  [i]    T6 UNDERRUN: 23 frames, 11 forced repeats, 0 uncounted repeats, 0 skipped events
+
+[BIND] the render epoch over a bind loss and a rebind
+  [i]    T27: boundary at decoded frame 24 of 42; the last non-silent frame is ordinal 495 with 8 routed slot(s), 0 of them zeroed
+  [i]    events injected before the loss: 480; epochs 2 -> 3
+  [i]    T25: epochs 3 -> 5 across two bind falls inside one round trip
+== tdm8_render: checks: 89   failures: 0 ==
+RESULT: PASS

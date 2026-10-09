@@ -1,0 +1,42 @@
+[
+  {
+    "command": "python3 -B scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 5.582490107000922
+  },
+  {
+    "command": "python3 -B scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.05120843799522845
+  },
+  {
+    "command": "python3 -B scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.08144261900451966
+  },
+  {
+    "command": "python3 -B scripts/check_cpp_idiom.py",
+    "rc": 0,
+    "seconds": 1.8527570449950872
+  },
+  {
+    "command": "python3 -B scripts/check_py_idiom.py",
+    "rc": 0,
+    "seconds": 4.675230275999638
+  },
+  {
+    "command": "python3 -B scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 5.3612319539970485
+  },
+  {
+    "command": "python3 -B scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "seconds": 3.123146779005765
+  },
+  {
+    "command": "python3 -B scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee",
+    "rc": 0,
+    "seconds": 3.775540861999616
+  }
+]

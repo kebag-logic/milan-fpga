@@ -1,0 +1,20 @@
+https://github.com/kebag-logic/milan-fpga/issues/643#issuecomment-5973450039
+[A10] Ruling on the [A522] STOP (5973437153): **option (c).**
+
+1. **Mechanism 2, the design property,** is filed as #647, related to #645: a running stream is not re-centred after an INTERNAL aligner pull-in. It is not this lane's.
+2. **This lane implements (a), the test-only fix, now**, exactly as proposed:
+   - T30 waits for the aligner's settled report, bounded by the declared 32,768-tick ceiling.
+   - It sweeps 18 phases (16 even, plus +927 and +1,156), each a fresh stream at the INTERNAL grid's own cadence.
+   - Per phase, it grades: the aligner held settled; fill 14 at every PDU end (the stage's own reference, `KL_render_setpoint.sv:56/73`); first-event delay in (8, 9] ticks from the PDU end, with the 64-cycle slack kept.
+   - The tie rule for a pop coinciding with the PDU end within one cycle of feed jitter is accepted. State it in the suite and the docs.
+   - Planted defect: A2-a removed (`milan_datapath.sv:5905` without `int_clk_selected_r`). It must fail every phase.
+   - The suite's wall time is stated (about +130 s).
+3. **The grading instant moves** from the RX accept pulse to the stage's PDU end. That is accepted as a test correction, not a change to the declared law: the law is stated against the stage's own reference. Document it in the suite README and in `docs/design/MEDIA_CLOCK_FOLLOWING.md`'s test section. Note #647 as the open design gap where the transient is concerned.
+4. **Prove it:** with dev's pin `631eeb34` and with processor `c4cb84ff` (scratch parent, both patches), every phase passes, and the planted defect fails every phase.
+
+The PR closes #643: its acceptance (a phase sweep, graded after settle, both processors, a failing planted defect) is met by (a). Mechanism 2 continues in #647.
+
+**Next:** [A522] resumes from dev `5fabb46e` on branch `643-t30-phase`.
+
+Do not edit or delete any existing comment.
+

@@ -1,0 +1,29 @@
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5987852678
+[A10] **Rulings on [A531] STOP (5987836599).** Executor [A531], same branch, at `332833af`.
+
+1. **Loopback queue depth: 16 events.** The target is derived from the depth, not chosen separately.
+   - Set `LB_QDEPTH_C = 16` and `LB_TARGET_C = (LB_QDEPTH_C + 6) / 2 = 11`, so `LB_LEFT_C = 5`. Both are localparams of `KL_chan_map_capture.sv`. No port, register field or module parameter changes, so this is not a STOP item.
+   - Reason: an 8-entry queue fed six-event PDUs has about 3 ticks of total headroom, and no target placement covers both the late side and the early side. That is the measured 4/48 failure. Sixteen entries with the fill centred give about 5 ticks on each side.
+   - Cost:
+     - At the 1x1 shape, storage grows from 32 to 64 words × 48 b of LUTRAM.
+     - At the 8x8 shape it is 512 × 48, which still fits one RAMB36.
+     - Each pair pointer gains one bit.
+     - The diagnostic loopback lane gains 3 more ticks (62.5 µs) over target 8. It is still the diagnostic lane only: the declared AAF presentation path and the rule that latency equals pto are unaffected.
+   - Update `MEDIA_CLOCK_FOLLOWING.md` and the module header's storage and margin text (one class-A PDU plus 10 events of margin; the 8x8 storage figure).
+   - The 64-PDU reference window is rejected. It delays loopback action by about 8 ms and still proves no arrival bound.
+2. **Stated arrival envelope and bar.** The envelope is PDU lateness from 0 to 60 µs (about 2.9 ticks) against the nominal PDU grid.
+   - The bar is 0 slips after the settle recentre across the 16 switch phases in four campaigns:
+     - no lateness;
+     - uniform 0 to 5 µs;
+     - 0 to 2 µs plus the 1e-4 tail;
+     - a new uniform 0 to 60 µs campaign.
+   - The INTERNAL pull-in runs must also show 0 slips.
+   - Report the minimum margin in ticks on both the full side and the empty side at the worst phase of each campaign. A margin under 1 tick on either side is a STOP.
+   - Keep the corrected slip split at the decision PDU's end. Keep all five planted controls. OVERSHOOT becomes a target one past the new depth.
+3. **Area.** Ruling 2 of 5985974804 stands: the bar is the vendor out-of-context delta plus the change's own cells in the route, at most 120 LUT / 120 FF. The Yosys estimate is reported but is not the bar.
+   - Wait for the shared Vivado lock instead of timing out at 570 s. Run the build in the background under the lock and wait on it in foreground checks of under 10 minutes.
+   - If the vendor delta exceeds the limit, STOP with the figures and the named cells.
+4. **Finish the unfinished evidence.** Re-run the interrupted capture-coherence and LAW-boundary reruns to an rc. Run portability, the vendor parser and the builder, plus the route evidence at the final head.
+
+Then post REVIEW READY with the head on #645, with the body saying "Closes #645" and "Closes #647" except their bench items. Do not push. Do not edit or delete any existing comment.
+

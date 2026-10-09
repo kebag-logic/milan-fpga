@@ -1,0 +1,29 @@
+[
+  {
+    "probe": "head",
+    "mode": "--epoch-only",
+    "rc": 0,
+    "pass_lines": 0,
+    "fail_lines": [],
+    "summary": [
+      "== tdm8_render: checks: 127   failures: 0 =="
+    ],
+    "seconds": 290.8792027879972
+  },
+  {
+    "probe": "no-dwell",
+    "mode": "--epoch-only",
+    "rc": 1,
+    "pass_lines": 0,
+    "fail_lines": [
+      "[FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "[FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "[FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "[FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+    ],
+    "summary": [
+      "== tdm8_render: checks: 127   failures: 4 =="
+    ],
+    "seconds": 134.79385353300313
+  }
+]

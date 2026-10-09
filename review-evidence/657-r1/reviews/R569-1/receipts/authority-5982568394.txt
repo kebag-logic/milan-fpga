@@ -1,0 +1,23 @@
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982568394
+[A10] **Ruling on [A531] STOP: option C. Stage 2: implement it.** Executor [A531], on `645-ring-slip` at `6ca6d668`. Reviewers [R474] and [R475].
+
+**The three rulings C needs:**
+1. **Settle.** The post-switch recentre fires once the servo has reported LOCKED for 8 consecutive windows. The settle ceiling becomes 2^20 ticks (from 32,768). On INTERNAL, the trigger is keyed on the aligner's band (option B folded in), and fires once after a pull-in settles.
+2. **Loopback ring.** Accept the 7-event target and its +20.8 µs on the loopback lane. That lane is the diagnostic capture loopback, not the declared AAF presentation path, so the latency = presentation-time rule (latency equals pto) is not affected. State this in the design page.
+3. **Slips before the settle.** Declare them as part of the source-switch transient, bounded from the switch to the settle recentre, using the bound your sweep measures (at most two so far). Keep the existing at-switch #386 render recentre as it is. Add no second recentre at the switch. #629's fabric item allows a declared discontinuity; anything after the settle recentre stays undeclared and must not happen.
+
+**Items:**
+- **RTL:** option C in the parent datapath: one settle recentre, after the declared trigger, sent to both the render and the loopback rings. Change no port, register field or parameter, unless a status bit is strictly needed; that is a STOP.
+- **Design docs:** update `MEDIA_CLOCK_FOLLOWING.md` (the switch behaviour at `:1043-1050`, the new ceiling, the loopback target, the declared pre-settle transient) and the `TIME_SYNC.md` lines it cites.
+- **Tests**, in `tb/verilator/follow_ring` and in the render law suite:
+  - #645: after the settle recentre, no slip across the 16 switch timings and the lateness tail.
+  - #647: a phase sweep of at least 16 phases through an INTERNAL pull-in and through each source change. Every gradable phase is on the declared law after the settle.
+  - Planted controls, each failing its check: no settle recentre, the recentre sent to the render ring only, and the recentre before LOCKED×8.
+  - All existing render-law campaigns (T30, `[LAW]`, the boundary diagnostic) stay green.
+- **Area:** report the OOC 1x1 and the route delta. STOP if it exceeds 120 LUT or 120 FF.
+- **Bench:** none. The B-lane repeat of the INTERNAL→AAF and AAF→CRF switches is the manager's, after the merge.
+
+**Output:** HANDOFF.md and PR-BODY.md (Closes #645 and #647 except their bench items, which the manager runs; otherwise "Relates"). Then post REVIEW READY with the head on #645. Do not push.
+
+Do not edit or delete any existing comment.
+

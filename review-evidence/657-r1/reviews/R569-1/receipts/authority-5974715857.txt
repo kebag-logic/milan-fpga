@@ -1,0 +1,34 @@
+https://github.com/kebag-logic/milan-fpga/issues/643#issuecomment-5974715857
+[A10] **Round 2 for PR #648 (#643), with a ruling.** Executor: [A522], on `643-t30-phase` at `98729742`. This round answers R456-1 (5974712082; F1 MAJOR, F2 MINOR) and R457-1 (5974627143; F1 MINOR, F2 MINOR). Both found the same flaw. The tie rule's one-cycle premise is false after settle: the PDU-end-to-pop offset walks by at least 3 cycles within one phase. At the boundary phase (+2,025) a sound design fails and a setpoint −1 defect passes. The 18 standing phases are at least 58 cycles from the boundary and discriminate correctly.
+
+**Ruling:** the tie rule is withdrawn, and replaced by a stated ambiguity window (R457-1's second form). A pop that coincides with the PDU end is physically ambiguous at the grading instant, so such a phase is not graded rather than graded by a rule.
+
+**Items:**
+1. **Measure the spread.**
+   - Run a one-cycle scan across the boundary band, at least ±40 cycles around it, with fresh histories. The reviewers showed a scan's result depends on its phase list, so also run each boundary phase alone.
+   - Record, per phase, the PDU-end-to-pop offsets over the graded window.
+   - State the measured spread S, and set the window W = S plus a guard, stated in cycles.
+2. **Grade by the window.**
+   - A graded phase whose any PDU end has a pop within W cycles is reported loudly as NOT GRADABLE, naming the phase and the offset. It counts neither as pass nor as fail.
+   - Every standing phase must be gradable: the suite asserts each one's margin from W, and fails if a standing phase is ever not gradable, so a future model change cannot silently drop one.
+   - No phase that is graded may pass the setpoint ±1 defects or fail the sound design.
+3. **Standing proof:**
+   - Add the setpoint −1 and +1 mutants to `tdm8_render_mutants.py --law-only`, each failing every graded standing phase.
+   - Add a boundary-band diagnostic (`--law-boundary`): every phase must come out either graded-pass or not gradable, never graded-fail for the sound design, and never graded-pass for setpoint ±1.
+4. **Docs** (R456-1 F2 = R457-1 F2, and both F1s):
+   - `TIME_SYNC.md:451` is restated for the new instant.
+   - `MEDIA_CLOCK_FOLLOWING.md`, the suite comment, `tb/verilator/README.md` and `TESTING.md` state the measured spread, the window and the not-gradable rule, not "one cycle".
+   - The tie-scan evidence is corrected, and the PR body's "No standing phase is a tie" paragraph is restated against the asserted margin.
+5. **Merge dev `241f9184`** (PR #638, which changed CI definitions) with a merge commit (`--no-ff`), and run the touched gates at the merge.
+
+**Gates:**
+- the suite at both processors (dev's pin, and `c4cb84ff` in the scratch parent with both patches);
+- the mutant campaign, including the A2-a removal and setpoint ±1;
+- the boundary diagnostic;
+- both reviewers' `reproduce.sh` steps, unchanged;
+- the docs gates.
+
+**Output:** add a "Round 2" section to HANDOFF.md and PR-BODY.md, then post REVIEW READY with the head. Do not push.
+
+Do not edit or delete any existing comment.
+

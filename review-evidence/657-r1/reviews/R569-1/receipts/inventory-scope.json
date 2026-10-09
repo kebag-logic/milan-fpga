@@ -1,0 +1,50 @@
+{
+  "MUTATIONS": {
+    "base": 22,
+    "head": 22,
+    "same_names": true
+  },
+  "CLEAN_CONTROLS": {
+    "base": 3,
+    "head": 3,
+    "same_names": true
+  },
+  "LEG_DEFECTS": {
+    "base": 3,
+    "head": 3,
+    "same_names": true
+  },
+  "positive_control_modes": [
+    [
+      "multi",
+      null
+    ],
+    [
+      "ship",
+      "--crf-only"
+    ],
+    [
+      "ship",
+      "--epoch-only"
+    ],
+    [
+      "ship",
+      "--law-only"
+    ],
+    [
+      "ship",
+      "--pullin"
+    ],
+    [
+      "ship",
+      "--serial-only"
+    ]
+  ],
+  "total": 34,
+  "delta_files": [
+    "M\tdocs/design/MEDIA_CLOCK_FOLLOWING.md",
+    "M\tdocs/testing/TESTING.md",
+    "M\ttb/verilator/milan_dp_render/sim_tdm8_render.cpp",
+    "M\ttb/verilator/milan_dp_render/tdm8_render_mutants.py"
+  ]
+}

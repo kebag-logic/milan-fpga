@@ -1,0 +1,27 @@
+[
+  {
+    "probe": "clean",
+    "mode": "--serial-only",
+    "rc": 0,
+    "failures": [],
+    "seconds": 43.227433285996085
+  },
+  {
+    "probe": "no-burst",
+    "mode": "--serial-only",
+    "rc": 1,
+    "failures": [
+      "[FAIL] T6 UNDERRUN: the faster serial clock forced repeated frames"
+    ],
+    "seconds": 17.072913445001177
+  },
+  {
+    "probe": "double-count",
+    "mode": "--serial-only",
+    "rc": 1,
+    "failures": [
+      "[FAIL] T6 UNDERRUN: every forced repeat is a counted underrun got=11 exp=0"
+    ],
+    "seconds": 41.33888726099394
+  }
+]
