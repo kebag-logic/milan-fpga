@@ -1,0 +1,14 @@
+COMMAND ["$REVIEWS/645-r475-6-packet/scratch/follow/Vfollow_ring", "--case", "pullin", "--latency-us", "210.42", "--after-s", "1.5"]
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +0.783..+0.791 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.686..8.694 (out of band 0), end-to-pop clearance 0.306 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +0.783..+1.321 ticks; render n 1600 fill 14..15 (off-law 1075), delay 8.694..9.224 (out of band 1052), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: after the settle           [   5.454,    6.100) s: ring slips 0+0, margin +5.284..+5.299 ticks; render n 5165 fill 14..14 (off-law 0), delay 8.187..8.210 (out of band 0), end-to-pop clearance 0.187 ticks
+  info: [PULLIN]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.284..+5.299 ticks, render fill 14..14 delay 8.187..8.210, on the law
+MARGINS: [PULLIN] empty 5.283840 full 5.775360 ticks
+  info: [PULLIN]: settle recentre 0.8541 s after the start
+ERROR-DISTRIBUTION: INTERNAL before hold window 4.100000000 4.600000000 samples 24000 axis_hz 6250000 histogram -1:24 0:23951 1:25
+ERROR-DISTRIBUTION: INTERNAL after hold window 4.600000000 6.100052000 samples 72001 axis_hz 6250000 histogram -9:2760 -8:5909 -7:3774 -6:3390 -5:3435 -4:3760 -3:4509 -2:6260 -1:13953 0:16343 1:316 2:292 3:274 4:258 5:242 6:229 7:218 8:207 9:204 10:188 11:181 12:176 13:169 14:164 15:158 16:152 17:148 18:143 19:138 20:137 21:131 22:127 23:126 24:119 25:119 26:117 27:113 28:112 29:108 30:104 31:106 32:100 33:100 34:97 35:96 36:94 37:92 38:90 39:91 40:86 41:86 42:84 43:84 44:83 45:77 46:83 47:76 48:76 49:75 50:76 51:75 52:73 53:71 54:71 55:70 56:68 57:67 58:68 59:66 60:65 61:65 62:64 63:63 64:61 65:39
+ERROR-DISTRIBUTION: INTERNAL after settle window 5.454237680 6.100052000 samples 30999 axis_hz 6250000 histogram -2:1745 -1:13255 0:15999
+RESULT-647: latency 210.42 us hold 52.0 us: delay 8.686..8.694 -> 8.187..8.210 ticks (shift -0.492), fill 14..14 -> 14..14, clearance 0.306 -> 0.187 ticks, settle +0.854 s after the hold, recentres 1, loopback slips 0 before the settle and 0 after: ON THE LAW
+RECOVERY: action 5.454116560 rearmed 5.496783440 duration 0.042666880 s quiet_ticks 2048
+== follow_ring: checks: 18   failures: 0 ==
+RESULT: PASS

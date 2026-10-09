@@ -1,0 +1,16 @@
+[R475] NEGATIVE - exact head 1e79ebdc06528edff74c0a7f530f20f99e3326a2
+
+Independent pass completed before reading prior review findings or reports.
+
+R475-6-F1 | MINOR | Tests, Docs | tb/verilator/follow_ring/trace_table.py:69
+The generated slips column treats any positive adjacent margin jump above 0.5 tick as one slipped frame. A normal declared settle action is therefore reported as a slip. In the exact-head unmodified pull-in probe, trace-probe.log reports zero slips before and after the action and 18 passing checks, whereas trace-table.csv reports slips=1 in the +0.90 s row containing the action at +0.854116560 s. A diagnostic table with this counter contradicts the declared separation between the recentre and a slip (MEDIA_CLOCK_FOLLOWING.md:1096, 1224; REGISTER_MAP.md:1870). This is a generated measurement defect, not wording residue. Required outcome: report actual slip events, separate declared actions, and guard the table against this passing-trace regression. Verification: rerun run-trace-probe.py; the table must report zero slips for this run while retaining detection of actual duplicates and skips.
+
+lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head
+---|---|---|---|---
+Conformance | CLEAN | issue #645 public rulings; REQUIREMENTS.md:305; MEDIA_CLOCK_FOLLOWING.md:1064-1255; source action and resource contracts | R475-6 | 1e79ebdc06528edff74c0a7f530f20f99e3326a2
+RTL | CLEAN | hdl/milan/milan_datapath.sv:6563; hdl/ieee1722/aaf/KL_chan_map_capture.sv:879-1104; chmap.log; settle-control.log | R475-6 | 1e79ebdc06528edff74c0a7f530f20f99e3326a2
+Robustness | CLEAN | recovery/ceiling/reset checks at four rates; chmap_capture LRC and SPAN cases; public fine-pull and arrival receipts | R475-6 | 1e79ebdc06528edff74c0a7f530f20f99e3326a2
+Tests | UNCLEAN | trace_table.py:69; trace-probe.log; trace-table.csv; default target split; published twelve controls and nineteen pull-in legs | none: R475-6-F1 | 1e79ebdc06528edff74c0a7f530f20f99e3326a2
+Docs | UNCLEAN | trace_table.py:10-15 generated table contract; design/register docs; TESTING.md; resource records | none: R475-6-F1 | 1e79ebdc06528edff74c0a7f530f20f99e3326a2
+
+This records independent conclusions before prior-finding reconciliation. Longer reviewer dynamics runs are still completing. Exact-head hosted acceptance and current-dev candidate banks remain manager duties. No manager source-head bank is claimed. Physical calibration NOT RUN and field skips are not hardware proof.
