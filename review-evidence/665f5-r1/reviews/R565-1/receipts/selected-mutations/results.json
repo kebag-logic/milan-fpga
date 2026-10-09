@@ -1,0 +1,71 @@
+[
+  {
+    "name": "descriptor-last-byte",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out + 4, d->value, d->length);",
+    "new": "memcpy(out + 4, d->value, d->length); out[4] ^= 1u;",
+    "checks": [
+      [
+        "Core.EveryDescriptorAndReadFailures",
+        "every READ_DESCRIPTOR is byte exact"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "scalar-refusal-reports-request",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out + 4, d->value + offset, width);\n\t}",
+    "new": "memcpy(out + 4, in + 4, len >= 4u + width ? width : 0u);\n\t}",
+    "checks": [
+      [
+        "Core.ScalarGetSetAndCurrentValueRefusals",
+        "refused SET reports current value"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "counter-spacing-short",
+    "path": "aecp/aecp.c",
+    "old": "departure_ms + 1000u",
+    "new": "departure_ms + 999u",
+    "checks": [
+      [
+        "Core.CounterNoticesCoalesceAndWaitForEligibility",
+        "sent.empty()"
+      ],
+      [
+        "Mailbox.OutputTailStartsCounterSpacingAfterAStall",
+        "fabric.tx_sent"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-hole-accepted",
+    "path": "aecp/aecp_nvm.c",
+    "old": "if (unused) return refused(n, m);",
+    "new": "if (unused && false) return refused(n, m);",
+    "checks": [
+      [
+        "Nvm.WholeMapFramingAndEmptySetAreDistinct",
+        "owner.port.apply"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-notice-overtakes-unbind",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "if (acmp_change_pending(a, n)) pending = true;",
+    "new": "if (false) pending = true;",
+    "checks": [
+      [
+        "App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse",
+        "response) < (notice"
+      ]
+    ],
+    "caught": true
+  }
+]

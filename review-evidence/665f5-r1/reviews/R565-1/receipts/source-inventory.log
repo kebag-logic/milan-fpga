@@ -1,0 +1,59 @@
+command: git diff --stat 5603c353137e90c1fa95429f6d00ef7a2298d9ee..1e68d1b62ef2facdf0e8dbad28a202297d433c61
+ docs/README.md                                |    1 +
+ sw/firmware/ctrl/README.md                    |    4 +-
+ sw/firmware/ctrl/aecp/README.md               |  134 +++
+ sw/firmware/ctrl/aecp/aecp.c                  |  472 +++++++++
+ sw/firmware/ctrl/aecp/aecp.h                  |  179 ++++
+ sw/firmware/ctrl/aecp/aecp_commands.c         |  579 +++++++++++
+ sw/firmware/ctrl/aecp/aecp_entity.py          |   58 ++
+ sw/firmware/ctrl/aecp/aecp_image.c            |  114 ++
+ sw/firmware/ctrl/aecp/aecp_image.h            |   21 +
+ sw/firmware/ctrl/aecp/aecp_internal.h         |   25 +
+ sw/firmware/ctrl/aecp/aecp_maps.c             |  340 ++++++
+ sw/firmware/ctrl/aecp/aecp_mbx.c              |  169 +++
+ sw/firmware/ctrl/aecp/aecp_mbx.h              |   43 +
+ sw/firmware/ctrl/aecp/aecp_model.h            |   24 +
+ sw/firmware/ctrl/aecp/aecp_nvm.c              |  162 +++
+ sw/firmware/ctrl/aecp/aecp_nvm.h              |   24 +
+ sw/firmware/ctrl/aecp/aecp_shape.py           |   64 ++
+ sw/firmware/ctrl/aecp/aecp_state.c            |   87 ++
+ sw/firmware/ctrl/aecp/aecp_state.h            |   22 +
+ sw/firmware/ctrl/app/ctrl_app_aecp.c          |  172 ++++
+ sw/firmware/ctrl/app/ctrl_app_aecp.h          |   33 +
+ sw/firmware/ctrl/test/aecp_arms.py            |  146 +++
+ sw/firmware/ctrl/test/aecp_latency_policy.hpp |    5 +
+ sw/firmware/ctrl/test/aecp_mutants.py         |  424 ++++++++
+ sw/firmware/ctrl/test/aecp_wire.cpp           |   95 ++
+ sw/firmware/ctrl/test/aecp_wire.py            |  170 +++
+ sw/firmware/ctrl/test/aecp_wire_model.hpp     |  111 ++
+ sw/firmware/ctrl/test/aecp_wire_oracle.py     |  187 ++++
+ sw/firmware/ctrl/test/aecp_wire_timers.hpp    |   60 ++
+ sw/firmware/ctrl/test/ctrl_aecp_image.c       |  145 +++
+ sw/firmware/ctrl/test/ctrl_srp_image.py       |   67 +-
+ sw/firmware/ctrl/test/test_aecp.cpp           | 1373 +++++++++++++++++++++++++
+ sw/firmware/ctrl/test/test_aecp_debug.cpp     |   32 +
+ sw/firmware/ctrl/test/test_aecp_image.cpp     |  111 ++
+ sw/firmware/ctrl/test/test_ctrl_firmware.py   |   11 +-
+ sw/firmware/gtest/coverage.ratchet            |    8 +
+ 36 files changed, 5657 insertions(+), 15 deletions(-)
+
+command: git log --format=%H%x20%s 5603c353137e90c1fa95429f6d00ef7a2298d9ee..1e68d1b62ef2facdf0e8dbad28a202297d433c61
+1e68d1b62ef2facdf0e8dbad28a202297d433c61 Exercise maximum AECP bodies in service budget checks
+0ba7c38a2828cb574fdb734002d7c824734a4077 Record complete coverage of identification refusal bodies
+b5fd3d59f1afdd62be0e769c91e90be97f350aaa Document AECP ownership integration and clause-based wire evidence
+38bdc231d5c7021f5309df6d9808669cf1ff7c52 Compare AECP wire commands and notifications at both interface counts
+565d2c7d76af492e0fceb852b08969ae4847a5c8 Preserve descriptor fields in identification command refusals
+6d3c71059b1b6207a864f79bb1f094e827ebc1b8 Regenerate firmware coverage after declaration cleanup
+4340f2ca6a011ea53b4645f214998cb09461c492 Plant AECP defects for every named check and preserve diagnostic ownership
+00800490bf8779d84081a88e6257b888b89edc8a Integrate AECP coverage and bound deferred failure service
+ef8e5a7fddd9f85f1375b4926b6c353a1f49c5d8 Close AECP map and deferred failure branch coverage
+60c56ef124aa3fe6fdd398f483487f777584c45f Make unbound streaming commands no-ops and exercise AECP boundary state
+fde59c3b14635efe9d81e19798408460459b06bb Require the complete clock-source command and cover AECP integration refusals
+75ba60c58ba3cdb4a31508dd50e4c3fdf8a0c0ec Exercise AECP saved-state record ownership and refusal paths
+27a692386877b40a4f387f395686014df29793cb Guard AECP mapping ownership and retry unavailable notifications
+82ab12af75566dd5feb4efa617151d1866bfd78e Compose AECP with deferred ACMP delivery and saved-state boot
+28e5be932d017fc26b38df7b959729632e03482c Connect AECP values and shape map pools to saved state
+1d351f2a3bf8c83cba8caec0a3e3e48ec1b4354e Add validated AECP boot state and persisted override tracking
+8a33bdcce6c86a37d5f1513128ffe8ae96b07fdd Track AECP output completion through the mailbox adapter
+a008ea929c85681fcbd5676ebb8c2965d437d275 Add portable AECP command and notification owner
+ee0197f37a0944ebf4a07ed8905eb2549287717c Add validated shape image adapter for firmware AECP

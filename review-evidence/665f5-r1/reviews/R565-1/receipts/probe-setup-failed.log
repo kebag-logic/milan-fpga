@@ -1,0 +1,295 @@
+command: /usr/bin/python3 -B $REVIEWS/665f5-r565-1-packet/scratch/probes/worker.py $REVIEWS/r565-1-665f5 $REVIEWS/665f5-r565-1-packet/scratch/probe-build $REVIEWS/665f5-r565-1-packet/scratch/probes
+Traceback (most recent call last):
+  File "$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/aecp_arms.py", line 82, in core_arm
+    tests = fw_gtest.compile_tests(tree.build, inc, [HERE / test_source], out / "tests")
+  File "$REVIEWS/r565-1-665f5/sw/firmware/gtest/fw_gtest.py", line 154, in compile_tests
+    compile_many(build, todo)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/r565-1-665f5/sw/firmware/gtest/fw_gtest.py", line 118, in compile_many
+    future.result()
+    ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$REVIEWS/r565-1-665f5/sw/firmware/gtest/fw_gtest.py", line 110, in _compile
+    raise BuildError(f"{src.name} does not compile:\n{res.stderr}")
+fw_gtest.BuildError: test_aecp.cpp does not compile:
+In file included from /usr/include/gtest/gtest-printers.h:126,
+                 from /usr/include/gtest/gtest-matchers.h:51,
+                 from /usr/include/gtest/internal/gtest-death-test-internal.h:48,
+                 from /usr/include/gtest/gtest-death-test.h:43,
+                 from /usr/include/gtest/gtest.h:65,
+                 from $REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:3,
+                 from $REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1:
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:523:8: error: ‘Core_EveryDescriptorAndReadFailures_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  523 | TEST_F(Core, EveryDescriptorAndReadFailures)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:534:8: error: ‘Core_UnsupportedAndAcquire_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  534 | TEST_F(Core, UnsupportedAndAcquire)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:549:8: error: ‘Core_LockQueriesAndExpiry_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  549 | TEST_F(Core, LockQueriesAndExpiry)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:564:8: error: ‘Core_NamesAndDescriptorOverlay_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  564 | TEST_F(Core, NamesAndDescriptorOverlay)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:580:8: error: ‘Core_ScalarGetSetAndCurrentValueRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  580 | TEST_F(Core, ScalarGetSetAndCurrentValueRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:595:8: error: ‘Core_AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  595 | TEST_F(Core, AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:611:8: error: ‘Core_RestoreValuesValidateAndRollbackWithoutLiveEvents_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  611 | TEST_F(Core, RestoreValuesValidateAndRollbackWithoutLiveEvents)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:645:8: error: ‘Core_RestoreMapWholeSetClipAndDefaults_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  645 | TEST_F(Core, RestoreMapWholeSetClipAndDefaults)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:673:8: error: ‘Core_ObservationsHaveFullWireForms_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  673 | TEST_F(Core, ObservationsHaveFullWireForms)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:691:8: error: ‘Core_ObservationRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  691 | TEST_F(Core, ObservationRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:701:8: error: ‘Core_StreamInfoDirectionFlagsAndLatency_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  701 | TEST_F(Core, StreamInfoDirectionFlagsAndLatency)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:711:8: error: ‘Core_BackpressureOrdersResponseBeforeNotice_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  711 | TEST_F(Core, BackpressureOrdersResponseBeforeNotice)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:723:8: error: ‘Core_StartIsDeferredAndHasFailureDeadline_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  723 | TEST_F(Core, StartIsDeferredAndHasFailureDeadline)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:737:8: error: ‘Core_DynamicInfoWhitelistAndIndependentResults_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  737 | TEST_F(Core, DynamicInfoWhitelistAndIndependentResults)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:748:8: error: ‘Core_RegistryCapacityInterfaceKeysAndLiveness_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  748 | TEST_F(Core, RegistryCapacityInterfaceKeysAndLiveness)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:761:8: error: ‘Core_ConfigurationAndLockedSetRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  761 | TEST_F(Core, ConfigurationAndLockedSetRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:775:8: error: ‘Core_NameRefusalsAndNoOp_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  775 | TEST_F(Core, NameRefusalsAndNoOp)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:785:8: error: ‘Core_IdentifyCurrentValueAndRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  785 | TEST_F(Core, IdentifyCurrentValueAndRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:796:8: error: ‘Core_ChangedScalarValuesAndDamagedLists_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  796 | TEST_F(Core, ChangedScalarValuesAndDamagedLists)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:816:8: error: ‘Core_DynamicInfoSkipsOverflowAndKeepsLaterRecords_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  816 | TEST_F(Core, DynamicInfoSkipsOverflowAndKeepsLaterRecords)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:829:8: error: ‘Core_MapsAreAtomicAndPaginated_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  829 | TEST_F(Core, MapsAreAtomicAndPaginated)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:860:8: error: ‘Core_CounterNoticesCoalesceAndWaitForEligibility_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  860 | TEST_F(Core, CounterNoticesCoalesceAndWaitForEligibility)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:873:8: error: ‘Core_FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  873 | TEST_F(Core, FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:887:8: error: ‘Core_StaticMapsPreventOrphaningFormats_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  887 | TEST_F(Core, StaticMapsPreventOrphaningFormats)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:908:8: error: ‘Core_OutputMappingsHaveOneGlobalOwner_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  908 | TEST_F(Core, OutputMappingsHaveOneGlobalOwner)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:920:8: error: ‘Core_SavedValuesRejectWrongFieldsAndDamagedDescriptors_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  920 | TEST_F(Core, SavedValuesRejectWrongFieldsAndDamagedDescriptors)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:937:8: error: ‘Core_MapTopologyFailuresAndEmptyPartitions_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  937 | TEST_F(Core, MapTopologyFailuresAndEmptyPartitions)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:960:8: error: ‘Core_OutputPartitionGeometryUsesAllAdvertisedWidths_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  960 | TEST_F(Core, OutputPartitionGeometryUsesAllAdvertisedWidths)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:978:8: error: ‘Core_BootMapFaultsCannotPartlyReplaceTheSet_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  978 | TEST_F(Core, BootMapFaultsCannotPartlyReplaceTheSet)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1003:8: error: ‘Core_ProbeRepliesResetOnlyTheirOwnInterface_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1003 | TEST_F(Core, ProbeRepliesResetOnlyTheirOwnInterface)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1015:8: error: ‘Core_FramingRejectsInvalidIdentityAndTruncation_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1015 | TEST_F(Core, FramingRejectsInvalidIdentityAndTruncation)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1027:8: error: ‘Core_ReentrantPortsCannotMutateState_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1027 | TEST_F(Core, ReentrantPortsCannotMutateState)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1037:8: error: ‘Core_ProbeIdentityAndSequenceMustBothMatch_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1037 | TEST_F(Core, ProbeIdentityAndSequenceMustBothMatch)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1048:8: error: ‘Core_CounterTimerArmsOnlyEligibleCompletedSnapshots_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1048 | TEST_F(Core, CounterTimerArmsOnlyEligibleCompletedSnapshots)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1061:8: error: ‘Core_MetadataConfigurationKeysAndRepeatedOverrides_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1061 | TEST_F(Core, MetadataConfigurationKeysAndRepeatedOverrides)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1078:8: error: ‘Core_MapsCompareEveryCoordinateAndBothDirectionsOnRestore_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1078 | TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1100:8: error: ‘Core_InitRefusalsAndClosedService_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1100 | TEST_F(Core, InitRefusalsAndClosedService)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1114:8: error: ‘Core_MilanVendorCommandsAndRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1114 | TEST_F(Core, MilanVendorCommandsAndRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1136:8: error: ‘Core_GroupNameDoesNotOverwriteFirmwareVersion_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1136 | TEST_F(Core, GroupNameDoesNotOverwriteFirmwareVersion)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1145:8: error: ‘Core_NotificationBackpressureAndLatestCompletion_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1145 | TEST_F(Core, NotificationBackpressureAndLatestCompletion)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1165:8: error: ‘Core_DescriptorAndObservationBoundaryFailures_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1165 | TEST_F(Core, DescriptorAndObservationBoundaryFailures)
+      |        ^~~~
+cc1plus: all warnings being treated as errors
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$REVIEWS/665f5-r565-1-packet/scratch/probes/worker.py", line 10, in <module>
+    result=aecp_arms.core_arm(tree,root/'configs/endstation_ax7101_1x1_tdm8.yaml',2,'core','Core.R565*')
+  File "$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/aecp_arms.py", line 87, in core_arm
+    raise Refusal(str(error)) from error
+ctrl_build.Refusal: test_aecp.cpp does not compile:
+In file included from /usr/include/gtest/gtest-printers.h:126,
+                 from /usr/include/gtest/gtest-matchers.h:51,
+                 from /usr/include/gtest/internal/gtest-death-test-internal.h:48,
+                 from /usr/include/gtest/gtest-death-test.h:43,
+                 from /usr/include/gtest/gtest.h:65,
+                 from $REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:3,
+                 from $REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1:
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:523:8: error: ‘Core_EveryDescriptorAndReadFailures_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  523 | TEST_F(Core, EveryDescriptorAndReadFailures)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:534:8: error: ‘Core_UnsupportedAndAcquire_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  534 | TEST_F(Core, UnsupportedAndAcquire)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:549:8: error: ‘Core_LockQueriesAndExpiry_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  549 | TEST_F(Core, LockQueriesAndExpiry)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:564:8: error: ‘Core_NamesAndDescriptorOverlay_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  564 | TEST_F(Core, NamesAndDescriptorOverlay)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:580:8: error: ‘Core_ScalarGetSetAndCurrentValueRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  580 | TEST_F(Core, ScalarGetSetAndCurrentValueRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:595:8: error: ‘Core_AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  595 | TEST_F(Core, AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:611:8: error: ‘Core_RestoreValuesValidateAndRollbackWithoutLiveEvents_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  611 | TEST_F(Core, RestoreValuesValidateAndRollbackWithoutLiveEvents)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:645:8: error: ‘Core_RestoreMapWholeSetClipAndDefaults_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  645 | TEST_F(Core, RestoreMapWholeSetClipAndDefaults)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:673:8: error: ‘Core_ObservationsHaveFullWireForms_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  673 | TEST_F(Core, ObservationsHaveFullWireForms)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:691:8: error: ‘Core_ObservationRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  691 | TEST_F(Core, ObservationRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:701:8: error: ‘Core_StreamInfoDirectionFlagsAndLatency_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  701 | TEST_F(Core, StreamInfoDirectionFlagsAndLatency)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:711:8: error: ‘Core_BackpressureOrdersResponseBeforeNotice_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  711 | TEST_F(Core, BackpressureOrdersResponseBeforeNotice)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:723:8: error: ‘Core_StartIsDeferredAndHasFailureDeadline_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  723 | TEST_F(Core, StartIsDeferredAndHasFailureDeadline)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:737:8: error: ‘Core_DynamicInfoWhitelistAndIndependentResults_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  737 | TEST_F(Core, DynamicInfoWhitelistAndIndependentResults)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:748:8: error: ‘Core_RegistryCapacityInterfaceKeysAndLiveness_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  748 | TEST_F(Core, RegistryCapacityInterfaceKeysAndLiveness)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:761:8: error: ‘Core_ConfigurationAndLockedSetRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  761 | TEST_F(Core, ConfigurationAndLockedSetRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:775:8: error: ‘Core_NameRefusalsAndNoOp_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  775 | TEST_F(Core, NameRefusalsAndNoOp)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:785:8: error: ‘Core_IdentifyCurrentValueAndRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  785 | TEST_F(Core, IdentifyCurrentValueAndRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:796:8: error: ‘Core_ChangedScalarValuesAndDamagedLists_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  796 | TEST_F(Core, ChangedScalarValuesAndDamagedLists)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:816:8: error: ‘Core_DynamicInfoSkipsOverflowAndKeepsLaterRecords_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  816 | TEST_F(Core, DynamicInfoSkipsOverflowAndKeepsLaterRecords)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:829:8: error: ‘Core_MapsAreAtomicAndPaginated_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  829 | TEST_F(Core, MapsAreAtomicAndPaginated)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:860:8: error: ‘Core_CounterNoticesCoalesceAndWaitForEligibility_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  860 | TEST_F(Core, CounterNoticesCoalesceAndWaitForEligibility)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:873:8: error: ‘Core_FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  873 | TEST_F(Core, FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:887:8: error: ‘Core_StaticMapsPreventOrphaningFormats_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  887 | TEST_F(Core, StaticMapsPreventOrphaningFormats)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:908:8: error: ‘Core_OutputMappingsHaveOneGlobalOwner_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  908 | TEST_F(Core, OutputMappingsHaveOneGlobalOwner)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:920:8: error: ‘Core_SavedValuesRejectWrongFieldsAndDamagedDescriptors_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  920 | TEST_F(Core, SavedValuesRejectWrongFieldsAndDamagedDescriptors)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:937:8: error: ‘Core_MapTopologyFailuresAndEmptyPartitions_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  937 | TEST_F(Core, MapTopologyFailuresAndEmptyPartitions)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:960:8: error: ‘Core_OutputPartitionGeometryUsesAllAdvertisedWidths_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  960 | TEST_F(Core, OutputPartitionGeometryUsesAllAdvertisedWidths)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:978:8: error: ‘Core_BootMapFaultsCannotPartlyReplaceTheSet_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+  978 | TEST_F(Core, BootMapFaultsCannotPartlyReplaceTheSet)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1003:8: error: ‘Core_ProbeRepliesResetOnlyTheirOwnInterface_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1003 | TEST_F(Core, ProbeRepliesResetOnlyTheirOwnInterface)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1015:8: error: ‘Core_FramingRejectsInvalidIdentityAndTruncation_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1015 | TEST_F(Core, FramingRejectsInvalidIdentityAndTruncation)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1027:8: error: ‘Core_ReentrantPortsCannotMutateState_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1027 | TEST_F(Core, ReentrantPortsCannotMutateState)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1037:8: error: ‘Core_ProbeIdentityAndSequenceMustBothMatch_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1037 | TEST_F(Core, ProbeIdentityAndSequenceMustBothMatch)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1048:8: error: ‘Core_CounterTimerArmsOnlyEligibleCompletedSnapshots_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1048 | TEST_F(Core, CounterTimerArmsOnlyEligibleCompletedSnapshots)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1061:8: error: ‘Core_MetadataConfigurationKeysAndRepeatedOverrides_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1061 | TEST_F(Core, MetadataConfigurationKeysAndRepeatedOverrides)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1078:8: error: ‘Core_MapsCompareEveryCoordinateAndBothDirectionsOnRestore_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1078 | TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1100:8: error: ‘Core_InitRefusalsAndClosedService_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1100 | TEST_F(Core, InitRefusalsAndClosedService)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1114:8: error: ‘Core_MilanVendorCommandsAndRefusals_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1114 | TEST_F(Core, MilanVendorCommandsAndRefusals)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1136:8: error: ‘Core_GroupNameDoesNotOverwriteFirmwareVersion_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1136 | TEST_F(Core, GroupNameDoesNotOverwriteFirmwareVersion)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1145:8: error: ‘Core_NotificationBackpressureAndLatestCompletion_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1145 | TEST_F(Core, NotificationBackpressureAndLatestCompletion)
+      |        ^~~~
+$REVIEWS/r565-1-665f5/sw/firmware/ctrl/test/test_aecp.cpp:1165:8: error: ‘Core_DescriptorAndObservationBoundaryFailures_Test’ has a base ‘{anonymous}::Core’ which uses the anonymous namespace [-Werror=subobject-linkage]
+ 1165 | TEST_F(Core, DescriptorAndObservationBoundaryFailures)
+      |        ^~~~
+cc1plus: all warnings being treated as errors
+

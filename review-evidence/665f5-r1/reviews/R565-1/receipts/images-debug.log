@@ -1,0 +1,104 @@
+aecp-image-endstation_arty_4x4
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Image
+[ RUN      ] Image.EveryDescriptor
+[       OK ] Image.EveryDescriptor (0 ms)
+[ RUN      ] Image.RejectHeader
+[       OK ] Image.RejectHeader (0 ms)
+[ RUN      ] Image.RejectDirectory
+[       OK ] Image.RejectDirectory (4 ms)
+[----------] 3 tests from Image (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (5 ms total)
+[  PASSED  ] 3 tests.
+== AECP descriptor image: checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+aecp-image-endstation_arty_8ch
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Image
+[ RUN      ] Image.EveryDescriptor
+[       OK ] Image.EveryDescriptor (0 ms)
+[ RUN      ] Image.RejectHeader
+[       OK ] Image.RejectHeader (1 ms)
+[ RUN      ] Image.RejectDirectory
+[       OK ] Image.RejectDirectory (6 ms)
+[----------] 3 tests from Image (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (8 ms total)
+[  PASSED  ] 3 tests.
+== AECP descriptor image: checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+aecp-image-endstation_arty_current
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Image
+[ RUN      ] Image.EveryDescriptor
+[       OK ] Image.EveryDescriptor (0 ms)
+[ RUN      ] Image.RejectHeader
+[       OK ] Image.RejectHeader (0 ms)
+[ RUN      ] Image.RejectDirectory
+[       OK ] Image.RejectDirectory (2 ms)
+[----------] 3 tests from Image (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 3 tests.
+== AECP descriptor image: checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+aecp-image-endstation_ax7101_1x1_tdm8
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Image
+[ RUN      ] Image.EveryDescriptor
+[       OK ] Image.EveryDescriptor (0 ms)
+[ RUN      ] Image.RejectHeader
+[       OK ] Image.RejectHeader (0 ms)
+[ RUN      ] Image.RejectDirectory
+[       OK ] Image.RejectDirectory (2 ms)
+[----------] 3 tests from Image (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 3 tests.
+== AECP descriptor image: checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+aecp-image-endstation_ax7101_8x8
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Image
+[ RUN      ] Image.EveryDescriptor
+[       OK ] Image.EveryDescriptor (0 ms)
+[ RUN      ] Image.RejectHeader
+[       OK ] Image.RejectHeader (1 ms)
+[ RUN      ] Image.RejectDirectory
+[       OK ] Image.RejectDirectory (8 ms)
+[----------] 3 tests from Image (10 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (10 ms total)
+[  PASSED  ] 3 tests.
+== AECP descriptor image: checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+aecp-core-endstation_ax7101_1x1_tdm8-if1
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AecpDebug
+[ RUN      ] AecpDebug.EveryInputRejectsSynchronousPortDelivery
+[       OK ] AecpDebug.EveryInputRejectsSynchronousPortDelivery (4 ms)
+[----------] 1 test from AecpDebug (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 1 test.
+== AECP debug callback contract: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)

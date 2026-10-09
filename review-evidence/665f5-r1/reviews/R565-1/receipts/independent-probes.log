@@ -1,0 +1,187 @@
+command: /usr/bin/python3 -B $REVIEWS/665f5-r565-1-packet/scratch/probes/worker.py $REVIEWS/r565-1-665f5 $REVIEWS/665f5-r565-1-packet/scratch/probe-build $REVIEWS/665f5-r565-1-packet/scratch/probes
+Note: Google Test filter = Core.R565*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Core
+[ RUN      ] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:147: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 4
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors: status for command 4
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1383: Failure
+Expected equality of these values:
+  get(response, 38, 2)
+    Which is: 1
+  0u
+    Which is: 0
+IEEE 7.4.5.1/.2 root descriptor configuration is ignored and returned as zero
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors: IEEE 7.4.5.1/.2 root descriptor configuration is ignored and returned as zero
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1384: Failure
+Expected equality of these values:
+  response.size()
+    Which is: 46
+  42u + desc(type).length
+    Which is: 354
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors:     Which is: 354
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:147: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 4
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors: status for command 4
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1383: Failure
+Expected equality of these values:
+  get(response, 38, 2)
+    Which is: 65535
+  0u
+    Which is: 0
+IEEE 7.4.5.1/.2 root descriptor configuration is ignored and returned as zero
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors: IEEE 7.4.5.1/.2 root descriptor configuration is ignored and returned as zero
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1384: Failure
+Expected equality of these values:
+  response.size()
+    Which is: 46
+  42u + desc(type).length
+    Which is: 354
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors:     Which is: 354
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:147: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 4
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors: status for command 4
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1383: Failure
+Expected equality of these values:
+  get(response, 38, 2)
+    Which is: 1
+  0u
+    Which is: 0
+IEEE 7.4.5.1/.2 root descriptor configuration is ignored and returned as zero
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors: IEEE 7.4.5.1/.2 root descriptor configuration is ignored and returned as zero
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1384: Failure
+Expected equality of these values:
+  response.size()
+    Which is: 46
+  42u + desc(type).length
+    Which is: 148
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors:     Which is: 148
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:147: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 4
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors: status for command 4
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1383: Failure
+Expected equality of these values:
+  get(response, 38, 2)
+    Which is: 65535
+  0u
+    Which is: 0
+IEEE 7.4.5.1/.2 root descriptor configuration is ignored and returned as zero
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors: IEEE 7.4.5.1/.2 root descriptor configuration is ignored and returned as zero
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1384: Failure
+Expected equality of these values:
+  response.size()
+    Which is: 46
+  42u + desc(type).length
+    Which is: 148
+
+  [FAIL] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors:     Which is: 148
+[  FAILED  ] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors (0 ms)
+[ RUN      ] Core.R565SetStreamInfoReturnsCurrentObservationFields
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1394: Failure
+Expected equality of these values:
+  get(response, 46, 8)
+    Which is: 0
+  get(desc(6).value + 74, 8)
+    Which is: 145524899455197184
+IEEE 7.4.15.1 current stream_format
+
+  [FAIL] Core.R565SetStreamInfoReturnsCurrentObservationFields: IEEE 7.4.15.1 current stream_format
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1395: Failure
+Expected equality of these values:
+  get(response, 54, 8)
+    Which is: 0
+  0x0102030405060708ull
+    Which is: 72623859790382856
+IEEE 7.4.15.1 current stream_id
+
+  [FAIL] Core.R565SetStreamInfoReturnsCurrentObservationFields: IEEE 7.4.15.1 current stream_id
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1396: Failure
+Expected equality of these values:
+  get(response, 66, 6)
+    Which is: 0
+  0x91e0f0000101ull
+    Which is: 160395285233921
+IEEE 7.4.15.1 current destination MAC
+
+  [FAIL] Core.R565SetStreamInfoReturnsCurrentObservationFields: IEEE 7.4.15.1 current destination MAC
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1397: Failure
+Expected equality of these values:
+  get(response, 82, 2)
+    Which is: 0
+  2u
+    Which is: 2
+IEEE 7.4.15.1 current VLAN
+
+  [FAIL] Core.R565SetStreamInfoReturnsCurrentObservationFields: IEEE 7.4.15.1 current VLAN
+[  FAILED  ] Core.R565SetStreamInfoReturnsCurrentObservationFields (0 ms)
+[ RUN      ] Core.R565UnavailableStreamDoesNotStarveOtherNotices
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1410: Failure
+Value of: avb_notice
+  Actual: false
+Expected: true
+Milan Table 5.22 independent AVB change must not starve
+
+  [FAIL] Core.R565UnavailableStreamDoesNotStarveOtherNotices: Milan Table 5.22 independent AVB change must not starve
+[  FAILED  ] Core.R565UnavailableStreamDoesNotStarveOtherNotices (0 ms)
+[ RUN      ] Core.R565CrossInstanceCallbackIsRefused
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1421: Failure
+Value of: other.open
+  Actual: true
+Expected: false
+port must not synchronously enter another instance
+
+  [FAIL] Core.R565CrossInstanceCallbackIsRefused: port must not synchronously enter another instance
+$REVIEWS/665f5-r565-1-packet/scratch/probes/test_aecp.cpp:1422: Failure
+Expected: (other.reentries) > (0u), actual: 0 vs 0
+cross-instance refusal is counted
+
+  [FAIL] Core.R565CrossInstanceCallbackIsRefused: cross-instance refusal is counted
+[  FAILED  ] Core.R565CrossInstanceCallbackIsRefused (0 ms)
+[----------] 4 tests from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors
+[  FAILED  ] Core.R565SetStreamInfoReturnsCurrentObservationFields
+[  FAILED  ] Core.R565UnavailableStreamDoesNotStarveOtherNotices
+[  FAILED  ] Core.R565CrossInstanceCallbackIsRefused
+
+ 4 FAILED TESTS
+== AECP core: checks: 4   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 4 checks, exit 1)

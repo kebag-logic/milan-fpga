@@ -1,0 +1,21 @@
+command: ['/usr/bin/python3', '-B', '-c', "import sys\nfrom pathlib import Path\nroot,out=map(Path,sys.argv[1:]);sys.path.insert(0,str(root/'sw/firmware/ctrl/test'))\nimport aecp_mutants\naecp_mutants.controls()\nnames={'descriptor-last-byte','scalar-refusal-reports-request','counter-spacing-short','app-notice-overtakes-unbind','nvm-hole-accepted'}\naecp_mutants.DEFECTS=tuple(d for d in aecp_mutants.DEFECTS if d.name in names)\nassert len(aecp_mutants.DEFECTS)==5\naecp_mutants.controls=lambda:None\nraise SystemExit(aecp_mutants.campaign(out,jobs=4))\n", '$REVIEWS/r565-1-665f5', '$REVIEWS/665f5-r565-1-packet/scratch/selected-mutations']
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] descriptor-last-byte: Core.EveryDescriptorAndReadFailures
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] scalar-refusal-reports-request: Core.ScalarGetSetAndCurrentValueRefusals
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] counter-spacing-short: Core.CounterNoticesCoalesceAndWaitForEligibility:Mailbox.OutputTailStartsCounterSpacingAfterAStall
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nvm-hole-accepted: Nvm.WholeMapFramingAndEmptySetAreDistinct
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f5-r565-1-packet/scratch/selected-mutations/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-notice-overtakes-unbind: App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
