@@ -1,0 +1,11 @@
+case	wanted	observed	baseline	verdict	reason
+marked: check --placement f0-f4	wanted 0	got 0	baseline_changed=False	as-expected	RESULT: PASS
+marked: check as all-fabric	wanted 2	got 2	baseline_changed=False	as-expected	NOT COMPARABLE: unreadable measurement $REVIEWS/640-m0s-r580-1-packet/scratch/marker/f0f4/gateware: ValueError: wrong placement: requested 
+marked: record --write as all-fabric	wanted 2	got 2	baseline_changed=False	as-expected	NOT COMPARABLE: unreadable measurement $REVIEWS/640-m0s-r580-1-packet/scratch/marker/f0f4/gateware: ValueError: wrong placement: requested 
+marked: record --write --placement f0-f4	wanted 2	got 2	baseline_changed=False	as-expected	NOT COMPARABLE: selected placement supports intermediate measurement only; acceptance re-record belongs to M9
+unmarked: check --placement f0-f4	wanted 2	got 2	baseline_changed=False	as-expected	NOT COMPARABLE: unreadable measurement $REVIEWS/640-m0s-r580-1-packet/scratch/marker/f0f4/gateware: ValueError: wrong placement: requested 
+unmarked: check as all-fabric	wanted 0	got 0	baseline_changed=False	as-expected	RESULT: PASS
+unmarked: record --write as all-fabric	wanted 0	got 0	baseline_changed=True	as-expected	}
+unmarked, SRP absent from hierarchy: check as all-fabric	wanted 0	got 0	baseline_changed=False	as-expected	RESULT: PASS
+  default-selection report lines: u_pp/u_srp: LUT -896, FF -50 (instance added or removed) | RESULT: PASS
+probe_marker: 0 unexpected
