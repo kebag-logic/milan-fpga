@@ -293,7 +293,7 @@ The previous exact-head hosted windows at `1e79ebdc` came from
 on a dev-class runner.
 The [review receipts](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6075042057)
 also give cold four-CPU replicas of that head: 800.2 s and 826.7 s.
-These replace the earlier `make -j16` figures as the hosted basis.
+These supply the historical ratios used by the projections below.
 
 | Previous hosted suite | Seconds | Margin to 1440 s | Margin to 1800 s |
 |---|---:|---:|---:|
@@ -314,7 +314,7 @@ env -u MAKEFLAGS taskset -c 32-35 make -C tb/verilator/follow_ring
 env -u MAKEFLAGS taskset -c 36-39 make -C tb/verilator/milan_dp_render
 ```
 
-| New replica suite | Measured seconds | Hosted/replica ratio | Projection | Margin to 1440 s | Margin to 1800 s |
+| Round 2h replica suite | Measured seconds | Hosted/replica ratio | Projection | Margin to 1440 s | Margin to 1800 s |
 |---|---:|---:|---:|---:|---:|
 | `follow_ring`: four standing legs | 437.204 | 1.78 | 778.2 s | 661.8 s | 1021.8 s |
 | `milan_dp_render`: both legs and five leg-side controls | 793.308 | 1.324 | 1050.3 s | 389.7 s | 749.7 s |
@@ -322,8 +322,26 @@ env -u MAKEFLAGS taskset -c 36-39 make -C tb/verilator/milan_dp_render
 The ratios round upward from 1422.5 / 800.2 and 1093.9 / 826.7.
 The prior 1.58x survey factor under-projects `follow_ring`.
 Its replica is below the 708 s bar; its projection leaves 481.8 s to 1260 s.
-Exact-head hosted acceptance still requires `follow_ring` at or below 1260 s
-and a successful `verilator-suites` aggregate.
+The [published Round 2h receipts](https://github.com/kebag-logic/milan-fpga/tree/5c575da7157c814088ea4df12aab6c5877841f4b/review-evidence/645-r1/author-r2h)
+contain both commands, environments, elapsed times, return codes and source bindings.
+
+Measured hosted windows at `8e4b1e53` now supersede those projections.
+[Run 37892515345, shard 0/5 job 113696564335](https://github.com/kebag-logic/milan-fpga/actions/runs/37892515345/job/113696564335)
+used a hosted `ubuntu-latest` runner and sequential `make -C` invocations.
+The windows use successive suite-verdict timestamps, including build time.
+Both suites passed:
+
+| Measured hosted suite | Seconds | Margin to 1440 s | Margin to 1800 s |
+|---|---:|---:|---:|
+| `follow_ring` | 1114.2 | 325.8 s | 685.8 s |
+| `milan_dp_render` | 1218.7 | 221.3 s | 581.3 s |
+
+Both measurements are below 1260 s and 1440 s.
+Render's 1050.3 s ratio projection underestimated its 1218.7 s hosted window.
+Unchanged render code took 1093.9 s at `1e79ebdc`.
+The later window is about 11% longer.
+These measurements cover `8e4b1e53`; later heads still require hosted acceptance.
+That requires `follow_ring` within 1260 s and successful `verilator-suites`.
 The guard stays at 1800 s; its 80% line stays at 1440 s.
 Independent validation jobs ran alongside these replicas on disjoint CPUs.
 The render default retains all eighteen `[LAW]` phases with no behavior change.
@@ -336,6 +354,10 @@ A margin rise is not a measured slip.
 Run `python3 -B tb/verilator/follow_ring/test_trace_table.py` for the diagnostic
 controls: a declared action, genuine duplicate and skip frames, simultaneous
 action and slip, half-open time bins, and the older margin-only probe.
+Decimal origins, bounds and steps use exact rational arithmetic.
+Event and PDU timestamps obey the same inclusive-start, exclusive-end bins.
+Regressions distinguish both sides of decimal boundaries without grace intervals.
+Servo snapshot comparisons also retain exact timestamps.
 
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
 LiteX integration boundary - CSR ID read, scratch-word readback, byte-exact

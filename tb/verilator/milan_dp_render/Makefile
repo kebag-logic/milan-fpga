@@ -43,16 +43,20 @@
 # shortened, and the sweep discovers and shards this directory on its own with
 # the default 1800 s budget.
 #
-# DEFAULT WALL CLOCK (#645, 2026-10-09): the previous 1e79ebdc hosted
-# window was 1093.9 s (run 37882435947, job 113665137864, dev-class runner),
-# leaving 346.1 s to 1440 s and 706.1 s to the unchanged 1800 s guard.
-# New cold replica: env -u MAKEFLAGS taskset -c 36-39 make -C
-# tb/verilator/milan_dp_render; serial outer make, 793.308 s. At this suite's
-# measured ratio, 1093.9 / 826.7 rounded up to 1.324, the projection is
-# 1050.3 s: margins 389.7 s to 1440 s and 749.7 s to 1800 s.
-# See docs/testing/TESTING.md for source receipts. This is a projection;
-# exact-head hosted acceptance remains required. Both legs, all eighteen
-# [LAW] phases and the five leg-side controls remain in the default.
+# DEFAULT WALL CLOCK (#645, 2026-10-09): measured at 8e4b1e53 on the
+# hosted ubuntu-latest runner, run 37892515345, shard 0/5 job 113696564335.
+# Sequential make -C, successive verdict timestamps including build time:
+# 1218.7 s PASS, leaving 221.3 s to 1440 s and 581.3 s to the 1800 s guard.
+# Cold replica: env -u MAKEFLAGS taskset -c 36-39 make -C
+# tb/verilator/milan_dp_render; serial outer make, 793.308 s. Historical
+# ratio: 1093.9 / 826.7 rounded up to 1.324, from 1e79ebdc (run 37882435947,
+# job 113665137864). The 1050.3 s projection underestimated the measured
+# hosted 1218.7 s; projected margins were 389.7 s to 1440 s and 749.7 s
+# to 1800 s. Unchanged render code took 1093.9 s in that previous hosted run,
+# making the later window about 11% longer. TESTING.md links all receipts.
+# Later heads still require
+# hosted acceptance. Both legs, all eighteen [LAW] phases and the five
+# leg-side controls remain in the default.
 # The long [PULLIN] history and eighteen boot phases run in the explicit
 # tdm8render-pullin campaign owned by the manager merge bank (TESTING.md).
 

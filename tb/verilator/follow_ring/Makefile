@@ -19,16 +19,18 @@
 #                  graded on the settle law; exit 0 only when every run passed
 #   make clean   - remove build artifacts
 #
-# DEFAULT WALL CLOCK (#645, 2026-10-09): the previous 1e79ebdc hosted
-# window was 1422.5 s (run 37882435947, job 113665137864, dev-class runner),
-# leaving 17.5 s to 1440 s and 377.5 s to the unchanged 1800 s guard.
-# New cold replica: env -u MAKEFLAGS taskset -c 32-35 make -C
+# DEFAULT WALL CLOCK (#645, 2026-10-09): measured at 8e4b1e53 on the
+# hosted ubuntu-latest runner, run 37892515345, shard 0/5 job 113696564335.
+# Sequential make -C, successive verdict timestamps including build time:
+# 1114.2 s PASS, leaving 325.8 s to 1440 s and 685.8 s to the 1800 s guard.
+# Cold replica: env -u MAKEFLAGS taskset -c 32-35 make -C
 # tb/verilator/follow_ring; serial outer make, 437.204 s. The four standing
 # legs run in a bounded four-job sub-make with one shared b8/pullin build.
-# At this suite's measured ratio, 1422.5 / 800.2 rounded up to 1.78,
-# the projection is 778.2 s: margins 661.8 s to 1440 s and 1021.8 s to
-# 1800 s. It meets the 708 s replica bar; exact-head hosted acceptance
-# still requires <=1260 s. See docs/testing/TESTING.md for source receipts.
+# Historical ratio: 1422.5 / 800.2 rounded up to 1.78, from 1e79ebdc
+# (run 37882435947, job 113665137864). Its replica projection was 778.2 s,
+# not a hosted measurement: margins 661.8 s to 1440 s and 1021.8 s to 1800 s.
+# The replica meets 708 s; the measured hosted window meets 1260 s.
+# Later heads still require hosted acceptance. TESTING.md links all receipts.
 # The twelve rebuilt controls remain in make mutants, owned by the manager
 # merge bank in TESTING.md; the four default legs retain all their checks.
 #

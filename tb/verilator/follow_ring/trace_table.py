@@ -22,12 +22,16 @@ One row per step of S seconds, times relative to the first CLOCK_SOURCE set
 RING-EVENT lines carry absolute times from the harness's counter and pulse
 observations. Bins are [start, end). Counts never derive from margin jumps,
 and a recentre never masks a simultaneous slip. Run with --trace to emit
-these records. On older logs, zero recorded events does not prove zero slips;
+these records. Decimal seconds are exact rational values for every time
+comparison and bin index; only the printed row label is rounded.
+On older logs, zero recorded events does not prove zero slips;
 event_trace explicitly marks the missing evidence.
 """
 
 import argparse
 import csv
+from decimal import Decimal, InvalidOperation
+from fractions import Fraction
 import math
 import re
 import sys
@@ -36,15 +40,26 @@ from pathlib import Path
 STATES = {0: "IDLE", 1: "VERIFY", 2: "REPAIR", 3: "ACQUIRE", 4: "LOCKED", 5: "HOLDOVER", 6: "FAULT"}
 
 
-def instants(log: str) -> dict[str, list[float]]:
+def seconds(value: str) -> Fraction:
+    """Keep decimal seconds exact, without float or decimal-context rounding."""
+    try:
+        decimal = Decimal(value)
+    except InvalidOperation as exc:
+        raise argparse.ArgumentTypeError("time must be finite decimal seconds") from exc
+    if not decimal.is_finite():
+        raise argparse.ArgumentTypeError("time must be finite decimal seconds")
+    return Fraction(decimal)
+
+
+def instants(log: str) -> dict[str, list[Fraction]]:
     """Read absolute event times, independently of PDU margin changes."""
-    out: dict[str, list[float]] = {"set": [], "dup": [], "skip": [], "recentre": [], "end": []}
+    out: dict[str, list[Fraction]] = {"set": [], "dup": [], "skip": [], "recentre": [], "end": []}
     for m in re.finditer(r"t=([0-9.]+) s  CLOCK_SOURCE <- (\d+)", log):
-        out["set"].append(float(m.group(1)))
+        out["set"].append(seconds(m.group(1)))
     for m in re.finditer(r"^RING-EVENT: (dup|skip|recentre) ([0-9.]+)$", log, re.MULTILINE):
-        out[m.group(1)].append(float(m.group(2)))
+        out[m.group(1)].append(seconds(m.group(2)))
     for m in re.finditer(r"^RING-EVENTS: complete through ([0-9.]+) s$", log, re.MULTILINE):
-        out["end"].append(float(m.group(1)))
+        out["end"].append(seconds(m.group(1)))
     return out
 
 
@@ -54,19 +69,19 @@ def main() -> int:
     ap.add_argument("log", type=Path)
     ap.add_argument("pdus", type=Path)
     ap.add_argument("servo", type=Path)
-    ap.add_argument("--step-s", type=float, default=0.5)
-    ap.add_argument("--from-s", type=float, default=None)
-    ap.add_argument("--to-s", type=float, default=None)
-    ap.add_argument("--origin-s", type=float, default=None, help="time zero (default: the first set)")
+    ap.add_argument("--step-s", type=seconds, default=Fraction(1, 2))
+    ap.add_argument("--from-s", type=seconds, default=None)
+    ap.add_argument("--to-s", type=seconds, default=None)
+    ap.add_argument("--origin-s", type=seconds, default=None, help="time zero (default: the first set)")
     ap.add_argument("--csv", type=Path, default=None)
     a = ap.parse_args()
-    if not math.isfinite(a.step_s) or a.step_s <= 0:
+    if a.step_s <= 0:
         ap.error("--step-s must be finite and positive")
     marks = instants(a.log.read_text())
-    origin = a.origin_s if a.origin_s is not None else (marks["set"][0] if marks["set"] else 0.0)
-    t0 = origin + (a.from_s if a.from_s is not None else -2.0)
-    t1 = origin + (a.to_s if a.to_s is not None else 60.0)
-    if not all(math.isfinite(t) for t in (origin, t0, t1)) or t1 <= t0:
+    origin = a.origin_s if a.origin_s is not None else (marks["set"][0] if marks["set"] else Fraction(0))
+    t0 = origin + (a.from_s if a.from_s is not None else -2)
+    t1 = origin + (a.to_s if a.to_s is not None else 60)
+    if t1 <= t0:
         ap.error("the time range must be finite and increasing")
     nbin = max(1, int(math.ceil((t1 - t0) / a.step_s)))
     bins = [{"mlo": math.inf, "mhi": -math.inf, "slips": 0, "skips": 0, "recentres": 0,
@@ -83,7 +98,7 @@ def main() -> int:
                     b["skips"] += int(kind == "skip")
     with a.pdus.open() as fh:
         for r in csv.DictReader(fh):
-            t = float(r["arrive_s"])
+            t = seconds(r["arrive_s"])
             m = float(r["ring_margin_ticks"])
             if not (t0 <= t < t1):
                 continue
@@ -102,7 +117,7 @@ def main() -> int:
     windows = []
     with a.servo.open() as fh:
         for r in csv.DictReader(fh):
-            windows.append((float(r["t_s"]), int(r["state"]), int(r["pi_run"]), int(r["ew_ns"]),
+            windows.append((seconds(r["t_s"]), int(r["state"]), int(r["pi_run"]), int(r["ew_ns"]),
                             float(r["trim_ppm"]), int(r["meter_valid"])))
     rows = []
     hdr = ("t_s", "ring_margin_ticks", "slips", "skips", "recentres", "event_trace",
@@ -115,7 +130,7 @@ def main() -> int:
             coverage = "complete" if t0 + i * a.step_s >= 0 and te <= marks["end"][-1] else "partial"
         last = [w for w in windows if w[0] <= te]
         w = last[-1] if last else (0.0, 0, 0, 0, 0.0, 0)
-        rows.append((f"{te - origin:+.2f}",
+        rows.append((f"{float(te - origin):+.2f}",
                      f"{b['mlo']:+.3f}..{b['mhi']:+.3f}" if b["mhi"] > -math.inf else "-",
                      str(b["slips"]), str(b["skips"]), str(b["recentres"]), coverage,
                      f"{b['flo']}..{b['fhi']}" if b["fhi"] >= 0 else "-",
