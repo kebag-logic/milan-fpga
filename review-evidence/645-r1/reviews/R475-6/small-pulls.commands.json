@@ -1,0 +1,22 @@
+[
+  [
+    "make",
+    "-j16",
+    "VERILATOR=$REVIEWS/645-r475-6-packet/sim-cap.py",
+    "VERILATOR_JOBS=4",
+    "build",
+    "CLK_HZ=25000000",
+    "FRAME_DIV=64",
+    "MDIR=$REVIEWS/645-r475-6-packet/scratch/fine"
+  ],
+  [
+    "python3",
+    "small_pulls.py",
+    "--exe",
+    "$REVIEWS/645-r475-6-packet/scratch/fine/Vfollow_ring",
+    "--out",
+    "$REVIEWS/645-r475-6-packet/small-pull-receipts",
+    "--jobs",
+    "4"
+  ]
+]

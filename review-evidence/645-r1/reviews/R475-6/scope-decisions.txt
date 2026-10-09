@@ -1,0 +1,320 @@
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5971549057
+[A10] Repeated at the bench by lane B8 (PR #646, section "B8: the INTERNAL-to-AAF set and #645"): after the INTERNAL→AAF set, `SLIP_LB` +2, 2.0 to 3.0 s after LOCKED. The AAF→CRF and CRF→AAF stream-to-stream switches showed no slip (`SLIP_LB` static at 422), so this issue is specific to leaving INTERNAL. Evidence: branch `629-b8-review-evidence` at `5bad6a43`.
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5981976917
+[A10] **Diagnosis lane for #645 and #647 (simulation first).** Executor [A531], branch `645-ring-slip` from dev `fea346e7`. Reviewers [R474] (internal) and [R475] (external).
+
+Both issues are the same family: after a source change or an INTERNAL aligner pull-in, a running stream ends up off the declared render law. #645 is a one-frame ring slip 15–45 s after AAF lock. #647 is a latency shift that is never recentred. The servo is frequency-only (`KL_mmcm_drp_servo.sv:22-34`).
+
+**Stage 1 (this lane): establish the cause in simulation, then STOP with options.**
+1. **Reproduce.** In `tb/verilator/milan_dp` (or a reduced harness around the media-clock plane, the ring and the aligner), drive INTERNAL→AAF and AAF→CRF switches, and an INTERNAL pull-in.
+   - Use the frequency offsets the bench measured: about 16.5 ppm between the boards, and the B7/B8 servo traces in `docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md`.
+   - Run long enough after lock to cover the 15–45 s window. Time compression is allowed if it is stated and justified: a scaled servo or a scaled ppm with the same phase dynamics.
+   - Show the slip (#645) and the unrecentred shift (#647) with the mechanism visible: residual phase versus the ring's margin, and the recentre window.
+2. **Classify the cause:**
+   - (a) residual phase after a frequency-only lock walks the ring past its margin;
+   - (b) the single #386 recentre runs before the servo has settled;
+   - (c) something else, with evidence.
+3. **Options for the fix,** each with its area estimate (OOC 1x1, #638's recipe, Vivado under the lock), its protocol-visible effect and its test plan:
+   - a phase term in the servo;
+   - a recentre keyed on the aligner's band rather than a fixed dwell;
+   - a later or repeated recentre;
+   - declaring a bounded behaviour.
+
+   Recommend one. No change to the declared render law without a ruling.
+
+**Constraints:**
+- No RTL change in this stage; commit only the reproduction harness and tests, if they are useful as standing checks.
+- No bench access: the bench repeat comes after the ruling.
+
+**Output:** HANDOFF.md, with the reproduction, traces, classification, options with figures, and a recommendation. Post STOP with the summary on #645. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982568394
+[A10] **Ruling on [A531] STOP: option C. Stage 2: implement it.** Executor [A531], on `645-ring-slip` at `6ca6d668`. Reviewers [R474] and [R475].
+
+**The three rulings C needs:**
+1. **Settle.** The post-switch recentre fires once the servo has reported LOCKED for 8 consecutive windows. The settle ceiling becomes 2^20 ticks (from 32,768). On INTERNAL, the trigger is keyed on the aligner's band (option B folded in), and fires once after a pull-in settles.
+2. **Loopback ring.** Accept the 7-event target and its +20.8 µs on the loopback lane. That lane is the diagnostic capture loopback, not the declared AAF presentation path, so the latency = presentation-time rule (latency equals pto) is not affected. State this in the design page.
+3. **Slips before the settle.** Declare them as part of the source-switch transient, bounded from the switch to the settle recentre, using the bound your sweep measures (at most two so far). Keep the existing at-switch #386 render recentre as it is. Add no second recentre at the switch. #629's fabric item allows a declared discontinuity; anything after the settle recentre stays undeclared and must not happen.
+
+**Items:**
+- **RTL:** option C in the parent datapath: one settle recentre, after the declared trigger, sent to both the render and the loopback rings. Change no port, register field or parameter, unless a status bit is strictly needed; that is a STOP.
+- **Design docs:** update `MEDIA_CLOCK_FOLLOWING.md` (the switch behaviour at `:1043-1050`, the new ceiling, the loopback target, the declared pre-settle transient) and the `TIME_SYNC.md` lines it cites.
+- **Tests**, in `tb/verilator/follow_ring` and in the render law suite:
+  - #645: after the settle recentre, no slip across the 16 switch timings and the lateness tail.
+  - #647: a phase sweep of at least 16 phases through an INTERNAL pull-in and through each source change. Every gradable phase is on the declared law after the settle.
+  - Planted controls, each failing its check: no settle recentre, the recentre sent to the render ring only, and the recentre before LOCKED×8.
+  - All existing render-law campaigns (T30, `[LAW]`, the boundary diagnostic) stay green.
+- **Area:** report the OOC 1x1 and the route delta. STOP if it exceeds 120 LUT or 120 FF.
+- **Bench:** none. The B-lane repeat of the INTERNAL→AAF and AAF→CRF switches is the manager's, after the merge.
+
+**Output:** HANDOFF.md and PR-BODY.md (Closes #645 and #647 except their bench items, which the manager runs; otherwise "Relates"). Then post REVIEW READY with the head on #645. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5985974804
+[A10] **Rulings on [A531] STOP (5985966478).** Executor [A531], same branch, at `ff6b28b0`.
+
+1. **Loopback ring target: a fixed 8 events,** not option B's adaptive 7-or-8.
+   - It tolerates 2 ticks (41.6 µs) of lateness at the worst phase, which clears the measured 26 µs tail with margin.
+   - It is deterministic and simpler than the adaptive prototype, whose worst settle still left about 1.0 tick.
+   - The cost is 20.8 µs more on the diagnostic loopback lane only. The declared AAF presentation path, and the rule that latency equals pto, are unaffected. State this in `MEDIA_CLOCK_FOLLOWING.md`.
+   - Bar: 0 slips after the settle recentre across the 16 switch phases with the lateness tail, the switch runs and the pull-in runs. State the minimum margin in ticks at the worst phase.
+2. **Area.** The 120 LUT / 120 FF limit applies to the change's own logic: the out-of-context delta and the change's own cells in the route. Route variance in untouched modules (Vivado keeping their flops differently) is recorded but not counted, as ruled for #157. Report both, with the change's own flops named.
+3. **The 4 mutation-campaign failures that are identical at base** belong to #657 (the tdm8render epoch-only leg). Cite #657 and do not fix them here.
+
+Then finish stage 2 as assigned: tests, docs, and the planted controls including no-settle, render-only and before-LOCKED×8. The body says "Closes #645" and "Closes #647" except their bench items (the manager runs those). Post REVIEW READY with the head on #645. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5987852678
+[A10] **Rulings on [A531] STOP (5987836599).** Executor [A531], same branch, at `332833af`.
+
+1. **Loopback queue depth: 16 events.** The target is derived from the depth, not chosen separately.
+   - Set `LB_QDEPTH_C = 16` and `LB_TARGET_C = (LB_QDEPTH_C + 6) / 2 = 11`, so `LB_LEFT_C = 5`. Both are localparams of `KL_chan_map_capture.sv`. No port, register field or module parameter changes, so this is not a STOP item.
+   - Reason: an 8-entry queue fed six-event PDUs has about 3 ticks of total headroom, and no target placement covers both the late side and the early side. That is the measured 4/48 failure. Sixteen entries with the fill centred give about 5 ticks on each side.
+   - Cost:
+     - At the 1x1 shape, storage grows from 32 to 64 words × 48 b of LUTRAM.
+     - At the 8x8 shape it is 512 × 48, which still fits one RAMB36.
+     - Each pair pointer gains one bit.
+     - The diagnostic loopback lane gains 3 more ticks (62.5 µs) over target 8. It is still the diagnostic lane only: the declared AAF presentation path and the rule that latency equals pto are unaffected.
+   - Update `MEDIA_CLOCK_FOLLOWING.md` and the module header's storage and margin text (one class-A PDU plus 10 events of margin; the 8x8 storage figure).
+   - The 64-PDU reference window is rejected. It delays loopback action by about 8 ms and still proves no arrival bound.
+2. **Stated arrival envelope and bar.** The envelope is PDU lateness from 0 to 60 µs (about 2.9 ticks) against the nominal PDU grid.
+   - The bar is 0 slips after the settle recentre across the 16 switch phases in four campaigns:
+     - no lateness;
+     - uniform 0 to 5 µs;
+     - 0 to 2 µs plus the 1e-4 tail;
+     - a new uniform 0 to 60 µs campaign.
+   - The INTERNAL pull-in runs must also show 0 slips.
+   - Report the minimum margin in ticks on both the full side and the empty side at the worst phase of each campaign. A margin under 1 tick on either side is a STOP.
+   - Keep the corrected slip split at the decision PDU's end. Keep all five planted controls. OVERSHOOT becomes a target one past the new depth.
+3. **Area.** Ruling 2 of 5985974804 stands: the bar is the vendor out-of-context delta plus the change's own cells in the route, at most 120 LUT / 120 FF. The Yosys estimate is reported but is not the bar.
+   - Wait for the shared Vivado lock instead of timing out at 570 s. Run the build in the background under the lock and wait on it in foreground checks of under 10 minutes.
+   - If the vendor delta exceeds the limit, STOP with the figures and the named cells.
+4. **Finish the unfinished evidence.** Re-run the interrupted capture-coherence and LAW-boundary reruns to an rc. Run portability, the vendor parser and the builder, plus the route evidence at the final head.
+
+Then post REVIEW READY with the head on #645, with the body saying "Closes #645" and "Closes #647" except their bench items. Do not push. Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990646410
+[A10] **Rulings on [A531] STOP (5990629559). Stage 2d.** Same branch, on top of `535a710d`.
+
+1. **Merge dev first.** `git merge --no-ff` dev `fa450d30`. This brings #656's peer pacing on the modelled audio clock in `sim_ax1x1gptp.cpp`, plus #652. Then re-run the physical gPTP leg at the merged head. Its 139 / 3 base defect is fixed on dev, so only this lane's effect should remain.
+2. **The ordering check grades the declared settle recentre.** The recentre at startup lock, at reset reacquisition and after a source change is a declared, bounded discontinuity (stage-2 ruling 3). The `milan_dp_gptp` audio-order check must:
+   - accept, at each recentre's decision PDU only, exactly the repeat or gap that the recentre's step produces, stating the step in events and recording both slip counters;
+   - require zero ordering errors everywhere else.
+
+   Planted controls:
+   - an extra unannounced repeat or gap outside that PDU, which must fail;
+   - a recentre with a larger step than the one declared, which must fail.
+
+   Keep every existing check. The count grows only by the new checks; state the new totals. No DUT change.
+3. **Acceptance.** At the merged head:
+   - the physical leg passes, physical and accounting legs both at 0 failures;
+   - all four arrival campaigns, the INTERNAL cases and the five controls are unchanged;
+   - the full datapath, render and media-clock suites, builder, portability and source gates pass.
+
+   After the push, the manager dispatches the hosted Physical gPTP job.
+4. **Timing.** WNS +0.004 ns comes from one routed recipe. Run the timing signoff the build's gate defines at the merged head. If any required directive misses timing, STOP with the figures. Do not trade area or logic to recover it without a ruling.
+5. **Docs.** `MEDIA_CLOCK_FOLLOWING.md` states the startup and reset recentre as a declared discontinuity, with its bound. It also states that #396's zero-glitch run grades steady state outside these declared events.
+
+Then post REVIEW READY with the head on #645. The body says "Closes #645" and "Closes #647" except their bench items. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5994641859
+[A10] **Ruling on [A531] STOP (5994628555): measure the base before deciding. Stage 2e.** Same branch, on top of `b2c81239`.
+
+The failing ExtraTimingOpt path (receive-validator `hdr_src_mac_r_reg[0]` to the transmit-arbiter FSM, 39 levels, processor domain) is not in this lane's logic. On a device this full, a +0.001 ns result can be a placement effect of any added logic, or present already at base.
+
+1. **Base signoff.** Run the identical three-directive signoff (ExtraPostPlacementOpt, AltSpreadLogic_high, ExtraTimingOpt; same seeds and recipe, under the Vivado lock) on dev `fa450d30` without this lane, and report the same table.
+   - **If dev also misses the +0.030 ns bar on any directive:** the miss is not this lane's. Record both tables in the PR and post REVIEW READY. The processor path goes to a new owner ticket, which the manager files.
+   - **If dev passes all three and only the head misses:** STOP with both tables and the head's worst five paths, so the manager can choose between a processor pipeline stage and trimming this lane's logic. Do not change logic in this round.
+2. **The stale summary comment** at `hdl/ieee1722/aaf/KL_chan_map_capture.sv:360` ("depth eight") says sixteen. Before the edit, `git grep -F` the old line across every `tb/**/*.patch` and the exact-text mutant tables. If a patch carries it as context, refresh that context in the same commit, and show every arm still plants.
+3. **Merge dev** again with `--no-ff` if it moved.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009543884
+[A10] **Round 2 for PR #672 (#645, #647).** R474-1 (6009527655) and R475-1 (6009109435) are NEGATIVE. Rulings, item by item:
+
+1. **One action, either side, one output PDU (R474-1 F1, R475-1 F1).** The settle recentre reaches the LB_TARGET_C target from either side.
+   - From the empty side, it holds up to five pops. From the full side, it drops up to (left - target) events, with the same lockstep, counter and accounting guarantees as the hold.
+   - The whole action lands in one output PDU at every packet phase. Start it at an output PDU boundary, or otherwise prove it.
+   - The single-output-PDU declaration stays. Do not widen it.
+   - The physical checker's step derivation (`sim_ax1x1gptp.cpp`, now `fill > 5 ? 1`) and the [LRC] cases follow the new action.
+   - Add an [LRC] case with more than six events left, plus a planted single-drop control that fails it.
+   - Add a six-phase wire-visible span check, R475-1's probe made standing, plus a planted control that starts mid-PDU.
+   - The arrival campaigns gain the reversed offset sign (peer faster than the DUT's INTERNAL clock, ring at its full edge at the switch), graded on the same bar.
+2. **Sub-arm INTERNAL pulls (R474-1 F2).** #647's acceptance is "after any INTERNAL aligner pull-in", so the residual is not declared away.
+   - Lower the excursion arm so that any pull able to move a gradable stream across its law boundary arms the settle. Use the settle band or a measured value.
+   - Measure the steady aligner error distribution over the arrival campaigns and both signs. Show zero false fires, because every fire is a declared discontinuity.
+   - The harness gains sub-sample holds (a 1/64-sample quantum or finer). R474-1's probe B becomes a standing case, with a planted control that removes the arm.
+   - If no arm value meets both "catch every boundary-crossing pull" and "zero false fires", STOP with the two distributions. I will rule on a declared, graded residual.
+3. **Traceability (R474-1 F3, R475-1 F3).** `docs/traceability/gen_module_matrix.py --check` must pass. `follow_ring` must not be credited with `milan_datapath` or its descendants, which it copies glue text from but never compiles.
+   - Make the generator count only compiled sources, or mark the text-copy input. Do not hand-edit the generated files.
+   - Add the command to your recorded source gate set.
+4. **Disengaged INTERNAL timing (R474-1 F4, R475-1 F2).** `MEDIA_CLOCK_FOLLOWING.md:1092` states the 2,048-tick run in both cases.
+5. **Merge dev at the end** with `--no-ff`. dev now has F0 and F1. If #658 has merged first:
+   - resolve `tb/verilator/milan_dp/Makefile`;
+   - move your `DUT_READER_DISPOSITIONS` entry into the new readers module (#658 round 3 moves that table out of `scripts/measure_test_evidence.py` for the long-module ratchet).
+6. **Area and timing.**
+   - Own logic stays within 120 LUT / 120 FF (OOC, own-logic rule). STOP above.
+   - Re-run the three-directive signoff at the new head under `flock $VIVADO_LOCK`. The lock is held by the manager's dev image build, so wait for it; never run Vivado beside it.
+   - The manager's build gives the dev `28f9666f` base table, which I will post here.
+
+All gates rc 0. These include the full milan_dp, render, mclk, pp_shadow and physical legs, both span probes, the campaigns, the builder set and the docs gates. Then post REVIEW READY (or STOP) with the head. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009767440
+[A10] **Ruling on [A531] STOP (6009758002): widen the span declaration, no port change.**
+
+The settle action is a contract of this project, not of a standard. It grades where a declared discontinuity may appear. The audible effect of five repeated events is the same whether they fall in one PDU or two.
+
+Your diagnostic shows that outputs fanned out from one queue have independent packet epochs. A shared action of up to five consecutive events cannot sit inside one PDU of every output at every offset. Adding an output-epoch port or per-destination read state would cost area and ports for a grading boundary. I am not taking that route.
+
+**The declaration becomes:**
+- **Consecutive events.** In every output fed by the queue, the action's repeats (empty side) or drops (full side) are consecutive events.
+- **Exact count.** Their count and step are exact.
+- **Span.** They lie within at most **two consecutive output PDUs** of that output: the PDU where the action starts and the next one.
+- **Outside the span.** Everything outside the span stays strictly ordered. There is no extra repeat or gap and no grace interval, and the slip counters stay unchanged.
+
+**What changes:**
+- Update `MEDIA_CLOCK_FOLLOWING.md`, the milan_dp README and the physical checker's span rule (`recentre_span_bad`) to this rule.
+- Make R475-1's six-phase probe a standing check under the new rule, graded at all six phases and on a two-talker fanout, with your 0..5-tick enable offsets.
+- Add planted controls:
+  - a non-consecutive action, for example one repeat moved two events later;
+  - an action that leaks into a third PDU;
+  - an extra repeat outside the span.
+
+Each must fail.
+
+**Unchanged:**
+- The symmetric action (item 1): hold up to five from the empty side, drop up to (left - target) from the full side. The same consecutive, exact, two-PDU rule applies to drops.
+- Items 2 to 6 of 6009543884. For item 2, measure the steady error distributions over the arrival campaigns, both signs, before you pick the arm. Your samples (pre-hold 0..1, small pull 24, control 40, arm 32) are a start, not the distribution.
+
+No port or register-map change. Finish on top of f06c7426, then post REVIEW READY (or STOP) with the head. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009790232
+[A10] **Timing base at dev `28f9666f`, and the bar clarified.**
+
+This is the manager's dev image build: the same shipping 1x1 TDM8 recipe, AX7101, 32 threads, and the three-directive sweep (`build.sh --sweep`):
+
+| Tree | ExtraPostPlacementOpt | AltSpreadLogic_high | ExtraTimingOpt |
+|---|---:|---:|---:|
+| dev `28f9666f` | +0.032 | +0.345 | +0.164 |
+| head `4e1ddee9` (A531f) | +0.151 | +0.101 | -0.209 |
+
+Each cell is the setup WNS in ns. All three dev builds produced bitstreams; the best seed is asl.
+
+**The bar is the build gate in `docs/integration/BUILDING.md` section 5.** The best build of the three-directive sweep must have WNS of at least +0.03 ns and WHS of at least 0 at every corner. Placement in a sweep is noise-dominated (BUILDING.md:80), and the stage-2d ruling meant this gate.
+- Each directive's numbers are recorded and not graded one by one.
+- At `4e1ddee9` the head met the gate: eppo and asl pass at both corners.
+- The round-2 head must meet it again, with the same table. The merge hold for timing is lifted on that condition.
+
+**The processor path goes to its own ticket.** Dev's eppo at +0.032 shows the processor's 39-42-level cone into the transmit arbiter is near the edge with or without this lane. I am filing it in the processor repository.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6010634115
+[A10] **Ruling on [A531] STOP (6010621644): qualify recovery, declare only the narrow remainder.**
+
+Your data shows quiet error within ±1 axis cycle in every completed phase, a one-quantum pull peaking at +9, and the action's own recovery swinging to -9. A single fixed arm cannot both catch the pull and ignore its own recovery. So the arm gets hysteresis:
+
+1. **Arm.** Fire on any excursion beyond the quiet band.
+   - Set the band from the full distributions: complete all 128 phases, both signs and all four envelopes. Use at least twice the largest quiet excursion, and state the value in the axis-clock units of every shape.
+   - The pull at +9 must arm. Quiet noise must never arm.
+2. **Recovery qualification.** After a settle action fires, the arm stays disabled until the error has been back inside the quiet band for one full dwell (2,048 ticks). Then it re-arms normally.
+   - The action's own recovery cannot fire a second action.
+   - Grade it: one hold gives exactly one action, at every tested hold value.
+3. **Declared residual, graded.** A second pull that starts inside the recovery window of an earlier action is not guaranteed a recentre.
+   - Declare it in `MEDIA_CLOCK_FOLLOWING.md`: the window's worst-case length, and that it applies only to a pull starting within that window after a prior action.
+   - Grade it with a two-pull case that shows the declared behaviour.
+   - Every pull outside that window must return the stream to its law.
+4. **Controls.** Each of these must fail when planted:
+   - the hysteresis removed (two actions from one hold);
+   - the arm raised above the pull's peak (the boundary is missed);
+   - a quiet-band breach that arms in quiet.
+
+Everything else you preserved stands, as do the remaining items of 6009543884 and 6009767440 and the build gate in 6009790232. No port or register-map change. Finish on top of 583f93a3, then post REVIEW READY (or STOP) with the head. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6032466525
+[A10] Round 2d, PR #672 at `886e1620`. R475-2 is POSITIVE (6031787384). R474-2 is NEGATIVE (6032462363) with one MINOR, which is accepted. The candidate banks passed: 48/48 and 5/5 at `24140242`.
+
+1. **R474-2-F1.** A settle hold must never move either `SLIP_LB` counter. `pop_dup_w` (`KL_chan_map_capture.sv:894-895`) must exclude `pop_hold_w`, so a held walk on a still-empty pair is not counted as a dup. This is the contract in rulings 6009543884 and 6009767440.
+   - Add a standing [LRC] case that drives a walk between the decision beat and a pair's first commit at zero left, and that requires a dup delta of 0.
+   - Plant a control that counts held pops as dups. It must fail the new case and the existing counter checks.
+   - Re-run every campaign the change touches. The quiet distribution and the arrival grid are not expected to change; show that they don't.
+   - Re-measure the area against the 120/120 limit.
+2. **R474-2-R1 and R2.** Apply the reviewer's exact wording fixes to `TIME_SYNC.md:489-492` and `REGISTER_MAP.md:1870`.
+3. Use one-line commits; no rebase and no amend. Merge dev with `--no-ff` only if dev moved and the merge is clean. Then post REVIEW READY (or STOP) with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6041375798
+[A10] Ruling on the round-2d STOP (6041331463): **T1.** R474-2-F1 is fixed, and every functional gate passes at `2525eae9` (pushed). The timing failure (IOB pack on `eth0_rx_dv`) is a latent fragility of the shipping image, not of this lane, and is now #691 (lane A564). When #691 merges, this lane merges dev and re-runs the timing sweep. The delta reviews of the functional change start now. T3 (declaring the finding instead of fixing it) is not taken.
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6050481968
+[A10] **Round 2e (merge round)** for [A531] on PR #672. [R474-3](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041843633) and [R475-3](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041707628) are POSITIVE at `2525eae9`. #691 (ruling T1) is merged. Dev is now `99e4eb6c`; it contains F2, F3, processor pin `2ad2f845` (#682) and the GMII capture fix (#691).
+
+1. Merge dev `99e4eb6c` with `--no-ff`. Rebase and amend stay forbidden. Resolve any conflict keeping both sides, and list each resolution in HANDOFF.md with file:line.
+2. Re-run every campaign the merge affects. Map the changed files to campaigns; shared infrastructure means everything. This includes the render, follow_ring and loopback suites, the datapath pool and the `tdm8render-mutants` campaign. #657's four pre-existing render legs stay graded as on dev; compare them against dev, not against 32/32.
+3. Run the full-image timing sweep on the merge result: the shipping recipe, all three placement directives. Graded per ruling [6045752839](https://github.com/kebag-logic/milan-fpga/issues/691#issuecomment-6045752839): the kept build meets +0.030 ns setup and 0 ns hold, and the full IOB check passes. Report every row.
+4. Area: run the resource gate `check` on route-1x1, ooc-1x1 and ooc-8x8 against the recorded baseline. The ruling-1 STOP threshold of 120 LUT / 120 FF over dev stays.
+5. Apply R474-3-R1 (the follow_ring mutation-driver docstring count) and R474-3-R2 (TESTING.md lists all twelve follow_ring controls).
+
+The shared LiteX environment now carries patch 0007. The builder's gate 23h passes only after the dev merge.
+
+Run long jobs in the background with their own log and rc files. Vivado runs one at a time under the lock. Then post REVIEW READY.
+
+**STOP conditions.** STOP with the numbers if any of these happens:
+- the kept build fails timing or the IOB check;
+- the resource gate refuses;
+- a merged suite regresses against dev.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6061613334
+[A10] **Round 2f (re-baseline on the merge result)** for [A531] on PR #672.
+- [R475-4](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6060183780) is POSITIVE at `85db3534`. The composition review [R475-5](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6061607463) is POSITIVE on candidate `17c39e57`.
+- R475-5 records the duty in [AREA_BUDGET.md](https://github.com/kebag-logic/milan-fpga/blob/dev/docs/design/AREA_BUDGET.md) (lines 194-195 and 244-248): a merge that moves the shipping image records its own re-baseline on its merge result.
+- Dev's records describe RTL at `e519e31f`. They include neither #691's GMII capture nor this PR.
+
+1. Merge dev `6aa25dec` with `--no-ff`, then run `git submodule update` (dev now carries `third_party/lwSRP`). Rebase and amend stay forbidden.
+2. Re-measure route-1x1, ooc-1x1 and ooc-8x8 on that merge result through the recipe, with `--single-thread-synthesis`. Run `pp_resource_gate.py check` against dev's records, then `record --write` with the policy unchanged.
+   - Report the deltas, including the route WNS/WHS against the floors.
+   - Publish the raw receipts under `resource-receipts/` in your output directory: executed Tcl, reports, input manifests, gate output, route status and timing.
+   - STOP with the numbers if the gate refuses or the route misses a floor.
+3. Re-run the gates the merge and records touch: builder (gate 23h), docs gates, `check-baseline`, `--selftest`, and the affected suites.
+
+Vivado runs one job at a time under the lock. Run long jobs in the background. Then post REVIEW READY.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6073617515
+[A10] **Round 2g (default-suite wall clock)** for [A531] on PR #672. Round 2f (`4640d995`, re-baseline on merge result `a5ca6e51`) is pushed. [R474-4](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6073609394) is NEGATIVE on one MAJOR: `follow_ring` and `milan_dp_render` hit the 1,800 s per-suite guard on a dev-class hosted runner, and `verilator-suites` is red.
+
+**Decision on the route: split, do not raise the budget.** The #545 rule keeps clean default checks under 1,800 s. Long campaigns move to explicit targets under #367.
+
+1. `tb/verilator/follow_ring`: the default target runs the four legs only. The twelve rebuilt controls move to an explicit target (`make mutants`), declared in [TESTING.md](https://github.com/kebag-logic/milan-fpga/blob/dev/docs/testing/TESTING.md)'s campaign table with its command and owner (manager merge bank).
+2. `tb/verilator/milan_dp_render`: move the `[PULLIN]` standing phase out of the default shipping leg into the existing explicit `tdm8render-pullin` target, declared the same way. If a reduced `[PULLIN]` smoke that keeps one #647 pull-in case fits, keep it in the default leg.
+3. Measure both default suites locally. Scale them with TESTING.md's stated hosted factor (1.58x). Both must come out at or under 80 % of 1,800 s (1,440 s). Record the measured figures in TESTING.md (lines 288-290), in the render Makefile header, and as a new stated wall time for `follow_ring`.
+4. Update `scripts/run_all_suites.sh`, `measure_test_evidence.py` pins and `CI_WORKFLOWS.md` only if a target or suite list changes. Both `--check` and the self-test must pass.
+5. Apply R474-4-R1 (the TESTING.md "test plan" link must land on the section with the controls column).
+
+No RTL change, so the 2f resource records stay valid. Commit on `4640d995`, with no merge, rebase or amend. Run the moved campaigns once to show they still catch their controls, plus the docs gates and builder. After the manager pushes, an exact-head hosted `verilator-suites` must pass. Then post REVIEW READY.
+

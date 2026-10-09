@@ -1,0 +1,5 @@
+COMMAND ["python3", "tb/verilator/follow_ring/settle_control.py", "--sim", "$REVIEWS/645-r475-6-packet/sim-cap.py", "--out", "$REVIEWS/645-r475-6-packet/scratch/control", "--jobs", "2"]
+settle control 25000000 Hz: PASS
+settle control 6250000 Hz: PASS
+settle control 50000000 Hz: PASS
+settle control 100000000 Hz: PASS

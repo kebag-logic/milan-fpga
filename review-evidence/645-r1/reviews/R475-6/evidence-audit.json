@@ -1,0 +1,127 @@
+{
+  "head": "1e79ebdc06528edff74c0a7f530f20f99e3326a2",
+  "resource_measurement_head": "a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb",
+  "records": [
+    {
+      "endpoint": "route-1x1",
+      "record_equal": true,
+      "policy_unchanged": true,
+      "figures": {
+        "LUT": 50267,
+        "FF": 54413,
+        "SLICE": 15779,
+        "BRAM_TILE": 87.5,
+        "RAMB36": 74,
+        "RAMB18": 27,
+        "DSP": 14,
+        "WNS_ns": 0.299,
+        "WHS_ns": 0.031,
+        "CARRY4": 3402
+      }
+    },
+    {
+      "endpoint": "ooc-1x1",
+      "record_equal": true,
+      "policy_unchanged": true,
+      "figures": {
+        "LUT": 23179,
+        "FF": 19779,
+        "BRAM_TILE": 17.5,
+        "RAMB36": 16,
+        "RAMB18": 3,
+        "DSP": 8,
+        "WNS_ns": -3.562,
+        "WHS_ns": 0.159,
+        "CARRY4": 1494
+      }
+    },
+    {
+      "endpoint": "ooc-8x8",
+      "record_equal": true,
+      "policy_unchanged": true,
+      "figures": {
+        "LUT": 30135,
+        "FF": 27380,
+        "BRAM_TILE": 23.5,
+        "RAMB36": 21,
+        "RAMB18": 5,
+        "DSP": 8,
+        "WNS_ns": -2.278,
+        "WHS_ns": 0.159,
+        "CARRY4": 1889
+      }
+    }
+  ],
+  "paths_changed_since_resource_measurement": [
+    "docs/design/AREA_BUDGET.md",
+    "docs/design/MEDIA_CLOCK_FOLLOWING.md",
+    "docs/findings/234_PP_SHADOW_AREA_BASELINE.md",
+    "docs/testing/TESTING.md",
+    "syn/ooc/pp_resource_baseline.json",
+    "tb/verilator/follow_ring/Makefile",
+    "tb/verilator/milan_dp_render/Makefile",
+    "tb/verilator/milan_dp_render/sim_tdm8_render.cpp"
+  ],
+  "binding": [
+    {
+      "path": "tb/verilator/follow_ring/Makefile",
+      "measured_sha256": "faf2d7fadbdf9981e384c68e952f676d005c287dce70355d4e9d5c59b51323e7",
+      "final_sha256": "36a9f5aabe9c73d7163c815b4a2abf7d6dd506b05ef750f25e4b73d972f9f00c",
+      "non_comment_text_sha256": "57f7fcbb9e3b88d5f7c8df58f7d82e2f2ca20e4332fd5f443c0db50d1de80ce8",
+      "difference": "full-line comments only",
+      "reviewed_sha256": "36a9f5aabe9c73d7163c815b4a2abf7d6dd506b05ef750f25e4b73d972f9f00c"
+    },
+    {
+      "path": "tb/verilator/milan_dp_render/Makefile",
+      "measured_sha256": "d8a1e32f4573c2e23d67334e9b53146cb8e72b69218d768f6ae3c843091caef6",
+      "final_sha256": "0f74bf8f515f20a4d1e2b6e74784897086fb996373e2b93ea988aa9db8ba3add",
+      "non_comment_text_sha256": "259f8f923d333ee75bc48eb6f73fe794ffb6b13820f07b056dd711986c57d6da",
+      "difference": "full-line comments only",
+      "reviewed_sha256": "0f74bf8f515f20a4d1e2b6e74784897086fb996373e2b93ea988aa9db8ba3add"
+    },
+    {
+      "path": "tb/verilator/milan_dp_render/sim_tdm8_render.cpp",
+      "measured_sha256": "6b00f4171ad9bfa560fd98d367057e951f883dfde7088870342dd5106e10341a",
+      "final_sha256": "6b11d11efb9588ffe45b3c443ead6cd2187381cf28a9352b53a2355b24dc7d3d",
+      "non_comment_text_sha256": "4cf8e56f3660a865fe0e577008efc11d6784262b08408dff99186db6fd09d2e5",
+      "difference": "full-line comments only",
+      "reviewed_sha256": "6b11d11efb9588ffe45b3c443ead6cd2187381cf28a9352b53a2355b24dc7d3d"
+    }
+  ],
+  "author_default_timings": [
+    {
+      "leg": "follow-default",
+      "seconds": 354.107,
+      "scaled_1_58": 559.489,
+      "under_1440": true,
+      "rc": 0
+    },
+    {
+      "leg": "render-default",
+      "seconds": 733.249,
+      "scaled_1_58": 1158.533,
+      "under_1440": true,
+      "rc": 0
+    }
+  ],
+  "trace_diagnostic_counterexample": {
+    "simulation_slips_before": 0,
+    "simulation_slips_after": 0,
+    "table_slips": 1,
+    "rows_reporting_slips": [
+      {
+        "t_s": "+0.90",
+        "ring_margin_ticks": "+1.298..+5.299",
+        "slips": "1",
+        "render_fill": "14..15",
+        "render_delay_ticks": "8.202..9.216",
+        "servo": "IDLE",
+        "pi": "0",
+        "e_ns": "0",
+        "trim_ppm": "+0.000",
+        "rate_valid": "0"
+      }
+    ],
+    "simulation_checks_pass": true
+  }
+}

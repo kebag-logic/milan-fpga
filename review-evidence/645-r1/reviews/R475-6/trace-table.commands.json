@@ -1,0 +1,19 @@
+[
+  [
+    "python3",
+    "tb/verilator/follow_ring/trace_table.py",
+    "$REVIEWS/645-r475-6-packet/trace-probe.log",
+    "$REVIEWS/645-r475-6-packet/trace-pdus.csv",
+    "$REVIEWS/645-r475-6-packet/trace-servo.csv",
+    "--origin-s",
+    "4.6",
+    "--from-s",
+    "0",
+    "--to-s",
+    "1.5",
+    "--step-s",
+    "0.1",
+    "--csv",
+    "$REVIEWS/645-r475-6-packet/trace-table.csv"
+  ]
+]

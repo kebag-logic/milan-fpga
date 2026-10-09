@@ -1,0 +1,13 @@
+[
+  [
+    "make",
+    "-j16",
+    "VERILATOR=$REVIEWS/645-r475-6-packet/sim-cap.py",
+    "VERILATOR_JOBS=4",
+    "build",
+    "MDIR=$REVIEWS/645-r475-6-packet/scratch/chmap"
+  ],
+  [
+    "$REVIEWS/645-r475-6-packet/scratch/chmap/Vchmap_wrap"
+  ]
+]
