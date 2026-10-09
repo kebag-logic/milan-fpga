@@ -1,0 +1,150 @@
+# Reviewer gate receipts, exact head 1e68d1b62ef2facdf0e8dbad28a202297d433c61 (scratch clone of the review clone; lwSRP 9197193e, processor 2ad2f845, #69 reference c9f74b68)
+bank rc=0
+coverage rc=0
+wire1 rc=0
+wire2 rc=0
+mut0 rc=0
+mut1 rc=0
+mbx rc=0
+genmbx rc=0
+docs rc=0
+asan1 rc=0
+asan2 rc=0
+lat1 rc=0
+lat2 rc=0
+probe1 rc=1
+probe2 rc=1
+
+## commands
+bank:     python3 -B sw/firmware/ctrl/test/test_ctrl_firmware.py --jobs 4 --build-dir $SCRATCH/bank
+coverage: python3 -B sw/firmware/gtest/fw_coverage.py --check --jobs 4 --keep $SCRATCH/coverage --lwsrp third_party/lwSRP
+wire1:    python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference protocol-processor --interfaces 1 --output $SCRATCH/wire-one --verilator $TOOLS/pinned-verilator-5.050/verilator
+wire2:    python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference $SCRATCH/pp69 --interfaces 2 --output $SCRATCH/wire-two --verilator $TOOLS/pinned-verilator-5.050/verilator
+mut0/1:   python3 -B sw/firmware/ctrl/test/aecp_mutants.py --shard {0,1} 2 --output $SCRATCH/mutants-{0,1}
+mbx:      make -C tb/verilator/mbx -j8 VERILATOR=$TOOLS/pinned-verilator-5.050/verilator
+genmbx:   python3 -B sw/mailbox/gen_mailbox.py --check
+docs:     scripts/run_docs_subset.sh (21 commands; code-quality nine rerun after submodule registration, see docs-summary.txt)
+asan1/2:  python3 -B sw/firmware/ctrl/test/aecp_arms.py --app --interfaces {1,2} --asan --output $SCRATCH/asan-if{1,2}
+lat1/2:   python3 -B sw/firmware/ctrl/test/aecp_arms.py --mailbox --interfaces {1,2} --filter 'Latency.*' --output $SCRATCH/lat-if{1,2}
+probe1/2: scripts/run_probes.sh (rc=1 is the expected outcome: the failing EXPECTs are the findings)
+
+## tallies
+[ok] arm model
+    == mbx (host model): checks: 23   failures: 0 ==
+[ok] arm port
+    == ctrl port, driver and loop (host model): checks: 31   failures: 0 ==
+    E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+    == ctrl ADP slice (fake ports and host model): checks: 26   failures: 0 ==
+[ok] arm unit
+    == ctrl units on the HAL and port-layer mocks: checks: 24   failures: 0 ==
+    verdict: PASS (24 tests, 0 failures, exit 0)
+    == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+    walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+    == ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+    F6 the worst pass of the three-way backlog                                231 accesses (bound 1580)
+    == ctrl ACMP core and adapter (fake ports and host model): checks: 85   failures: 0 ==
+[ok] arm acmpwalk
+    == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 ==
+[ok] arm acmpnvm
+    == ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 ==
+    F6 the worst pass of the three-way backlog                                233 accesses (bound 1659)
+    == ctrl ACMP adapter on the two-interface contract (host model): checks: 22   failures: 0 ==
+[ok] arm entity
+    == ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+    undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+    == ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+[ok] arm maap
+    == ctrl MAAP Annex B: checks: 37   failures: 0 ==
+    H-MAAP wake interface 0: 4700 ns from RX_HEAD (model)
+    == ctrl H-MAAP mailbox: checks: 12   failures: 0 ==
+[ok] arm maap_debug
+    == ctrl MAAP debug port contract: checks: 1   failures: 0 ==
+    H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)
+    == ctrl H-MAAP mailbox: checks: 13   failures: 0 ==
+[ok] arm reentry_debug
+    == ADP debug re-entry: checks: 122   failures: 0 ==
+[ok] arm reentry_release
+    == ADP release re-entry: checks: 122   failures: 0 ==
+    pool class 2: 1024-byte stride, high-water 0 of 4 blocks
+    == ctrl lwSRP port (lwSRP core on the static pool and the mailbox): checks: 1   failures: 0 ==
+[ok] arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP mailbox: checks: 53   failures: 0 ==
+[ok] arm srp-debug-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP debug guard: checks: 3   failures: 0 ==
+[ok] arm srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+    SRP pass terms: event 56, receive 770, poll 770, envelope 1596/1596
+    == ctrl ADP MAAP SRP composition: checks: 5   failures: 0 ==
+    F6 the worst pass of the four-way backlog                                 265 accesses (bound 3224)
+    == ctrl ADP ACMP MAAP SRP composition: checks: 52   failures: 0 ==
+[ok] arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP service latency: checks: 5   failures: 0 ==
+[ok] arm srp-srp_walk-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+[ok] arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP mailbox: checks: 53   failures: 0 ==
+[ok] arm srp-debug-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP debug guard: checks: 3   failures: 0 ==
+[ok] arm srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+    SRP pass terms: event 56, receive 770, poll 1540, envelope 2366/2366
+    == ctrl ADP MAAP SRP composition: checks: 5   failures: 0 ==
+    F6 the worst pass of the four-way backlog                                 260 accesses (bound 4073)
+    == ctrl ADP ACMP MAAP SRP composition: checks: 52   failures: 0 ==
+[ok] arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP service latency: checks: 5   failures: 0 ==
+[ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+[ok] arm srp-srp_shape-if1-endstation_arty_4x4
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if2-endstation_arty_4x4
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if1-endstation_arty_8ch
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if2-endstation_arty_8ch
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if1-endstation_arty_current
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if2-endstation_arty_current
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if1-endstation_ax7101_8x8
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm srp-srp_shape-if2-endstation_ax7101_8x8
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if1
+    == AECP core: checks: 62   failures: 0 ==
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if2
+    == AECP core: checks: 62   failures: 0 ==
+[ok] arm aecp-image-endstation_arty_4x4
+    == AECP descriptor image: checks: 3   failures: 0 ==
+[ok] arm aecp-image-endstation_arty_8ch
+    == AECP descriptor image: checks: 3   failures: 0 ==
+[ok] arm aecp-image-endstation_arty_current
+    == AECP descriptor image: checks: 3   failures: 0 ==
+[ok] arm aecp-image-endstation_ax7101_1x1_tdm8
+    == AECP descriptor image: checks: 3   failures: 0 ==
+[ok] arm aecp-image-endstation_ax7101_8x8
+    == AECP descriptor image: checks: 3   failures: 0 ==
+[ok] arm aecp-core-endstation_ax7101_1x1_tdm8-if1
+    == AECP debug callback contract: checks: 1   failures: 0 ==
+
+test_ctrl_firmware: PASS
+firmware coverage: PASS (30 files)
+wire comparison PASS: 1 ingress paths, 123 observations; six oracle controls per ingress
+wire comparison PASS: 2 ingress paths, 256 observations; six oracle controls per ingress
+mbx mutants: 5 of 5 caught
+gen_mailbox: 0 finding(s)
+mutant plants caught: shard0 30, shard1 29, escapes 0
+asan: == AECP core: checks: 62   failures: 0 == == AECP core: checks: 62   failures: 0 == 

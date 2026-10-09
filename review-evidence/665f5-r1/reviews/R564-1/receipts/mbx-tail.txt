@@ -1,0 +1,25 @@
+make[1]: Leaving directory '$SCRATCH/tree/tb/verilator/mbx/obj_if2/obj_axil'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.894 MB sources in 10 modules, into 0.993 MB in 8 C++ files needing 0.002 MB
+- Verilator: Walltime 8.151 s (elab=0.023, cvt=0.119, bld=7.969); cpu 0.195 s on 16 threads; allocated 700.020 MB
+cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I$SCRATCH/tree/tb/verilator/mbx/obj_if2/gen -I$SCRATCH/tree/sw/firmware/ctrl/mbx -I$SCRATCH/tree/sw/firmware/ctrl/wire -I$SCRATCH/tree/sw/firmware/ctrl/host -I$SCRATCH/tree/sw/firmware/ctrl/port -I$SCRATCH/tree/sw/firmware/ctrl/loop -I$SCRATCH/tree/sw/firmware/ctrl/adp -I$SCRATCH/tree/sw/firmware/ctrl/maap -I$SCRATCH/tree/sw/firmware/ctrl/acmp -I$SCRATCH/tree/sw/firmware/ctrl/app -I$SCRATCH/tree/sw/firmware/ctrl_nvm \
+  -c $SCRATCH/tree/sw/firmware/ctrl/host/mbx_model.c -o obj_if2/mbx_model.o
+g++ -std=c++17 -O2 -Wall -Wextra -Werror -I$SCRATCH/tree/tb/verilator/mbx/obj_if2/gen -I. -I$SCRATCH/tree/sw/firmware/ctrl/test -I$SCRATCH/tree/sw/firmware/ctrl/mbx -I$SCRATCH/tree/sw/firmware/ctrl/wire -I$SCRATCH/tree/sw/firmware/ctrl/host -I$SCRATCH/tree/sw/firmware/ctrl/port -I$SCRATCH/tree/sw/firmware/ctrl/loop -I$SCRATCH/tree/sw/firmware/ctrl/adp -I$SCRATCH/tree/sw/firmware/ctrl/maap -I$SCRATCH/tree/sw/firmware/ctrl/acmp -I$SCRATCH/tree/sw/firmware/ctrl/app -I$SCRATCH/tree/sw/firmware/ctrl_nvm \
+  model_main.cpp obj_if2/mbx_model.o -o obj_if2/Vmbx_model
+======================================================================
+./obj_if2/obj_wb/Vmbx_wb 0
+== mbx (Wishbone host, 2 interfaces): checks: 384   failures: 0 ==
+RESULT: PASS
+./obj_if2/obj_axil/Vmbx_axil 1
+== mbx (AXI4-Lite host, 2 interfaces): checks: 429   failures: 0 ==
+RESULT: PASS
+./obj_if2/Vmbx_model
+== mbx (host model, 2 interfaces): checks: 369   failures: 0 ==
+RESULT: PASS
+[ok] rx-lanes-big-endian: 16 check(s) failed; first: [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[ok] tx-refusal-no-flush: 13 check(s) failed; first: [FAIL] X1 a malformed TX record counts once in TX_ERR got=3 exp=1
+[ok] evt-tick-count-lost: 1 check(s) failed; first: [FAIL] K1 carrying every tick                   got=1 exp=5
+[ok] top-partial-strobe-accepted: 1 check(s) failed; first: [FAIL] R2 a write with a partial strobe leaves the register got=0xa5a5a5a5 exp=0x0
+[ok] rx-dst-ignored: 58 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (adp): no RX record, no delivery got=0 exp=5
+mbx mutants: 5 of 5 caught
+make: Leaving directory '$SCRATCH/tree/tb/verilator/mbx'

@@ -1,0 +1,175 @@
+Note: Google Test filter = Core.P*
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from Core
+[ RUN      ] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration
+PROBE P1 type=0 cfg_in=0x0000 status=0 bytes=354 cfg_out=0x0000
+PROBE P1 type=0 cfg_in=0x0001 status=7 bytes=46 cfg_out=0x0001
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:171: Failure
+Expected equality of these values:
+  st(out)
+    Which is: 7
+  0u
+    Which is: 0
+IEEE 7.4.5.1: configuration_index ignored on receipt for ENTITY/CONFIGURATION
+
+  [FAIL] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration: IEEE 7.4.5.1: configuration_index ignored on receipt for ENTITY/CONFIGURATION
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:172: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 1
+  0u
+    Which is: 0
+IEEE 7.4.5.2: configuration_index set to zero on transmit
+
+  [FAIL] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration: IEEE 7.4.5.2: configuration_index set to zero on transmit
+PROBE P1 type=0 cfg_in=0xffff status=7 bytes=46 cfg_out=0xffff
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:171: Failure
+Expected equality of these values:
+  st(out)
+    Which is: 7
+  0u
+    Which is: 0
+IEEE 7.4.5.1: configuration_index ignored on receipt for ENTITY/CONFIGURATION
+
+  [FAIL] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration: IEEE 7.4.5.1: configuration_index ignored on receipt for ENTITY/CONFIGURATION
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:172: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 65535
+  0u
+    Which is: 0
+IEEE 7.4.5.2: configuration_index set to zero on transmit
+
+  [FAIL] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration: IEEE 7.4.5.2: configuration_index set to zero on transmit
+PROBE P1 type=1 cfg_in=0x0000 status=0 bytes=148 cfg_out=0x0000
+PROBE P1 type=1 cfg_in=0x0001 status=7 bytes=46 cfg_out=0x0001
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:171: Failure
+Expected equality of these values:
+  st(out)
+    Which is: 7
+  0u
+    Which is: 0
+IEEE 7.4.5.1: configuration_index ignored on receipt for ENTITY/CONFIGURATION
+
+  [FAIL] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration: IEEE 7.4.5.1: configuration_index ignored on receipt for ENTITY/CONFIGURATION
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:172: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 1
+  0u
+    Which is: 0
+IEEE 7.4.5.2: configuration_index set to zero on transmit
+
+  [FAIL] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration: IEEE 7.4.5.2: configuration_index set to zero on transmit
+PROBE P1 type=1 cfg_in=0xffff status=7 bytes=46 cfg_out=0xffff
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:171: Failure
+Expected equality of these values:
+  st(out)
+    Which is: 7
+  0u
+    Which is: 0
+IEEE 7.4.5.1: configuration_index ignored on receipt for ENTITY/CONFIGURATION
+
+  [FAIL] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration: IEEE 7.4.5.1: configuration_index ignored on receipt for ENTITY/CONFIGURATION
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:172: Failure
+Expected equality of these values:
+  get(out,38,2)
+    Which is: 65535
+  0u
+    Which is: 0
+IEEE 7.4.5.2: configuration_index set to zero on transmit
+
+  [FAIL] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration: IEEE 7.4.5.2: configuration_index set to zero on transmit
+[  FAILED  ] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration (0 ms)
+[ RUN      ] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand
+PROBE P2 flags=0x20000000 status=0
+PROBE P2 flags=0x00000000 status=11
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:181: Failure
+Expected equality of these values:
+  st(out)
+    Which is: 11
+  0u
+    Which is: 0
+IEEE 7.4.15.1: SAVED_STATE/STREAMING_WAIT ignored in a command; Milan 5.4.2.9 refuses only unsupported sub-commands
+
+  [FAIL] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand: IEEE 7.4.15.1: SAVED_STATE/STREAMING_WAIT ignored in a command; Milan 5.4.2.9 refuses only unsupported sub-commands
+PROBE P2 flags=0x20000004 status=11
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:181: Failure
+Expected equality of these values:
+  st(out)
+    Which is: 11
+  0u
+    Which is: 0
+IEEE 7.4.15.1: SAVED_STATE/STREAMING_WAIT ignored in a command; Milan 5.4.2.9 refuses only unsupported sub-commands
+
+  [FAIL] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand: IEEE 7.4.15.1: SAVED_STATE/STREAMING_WAIT ignored in a command; Milan 5.4.2.9 refuses only unsupported sub-commands
+PROBE P2 flags=0x20000008 status=11
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:181: Failure
+Expected equality of these values:
+  st(out)
+    Which is: 11
+  0u
+    Which is: 0
+IEEE 7.4.15.1: SAVED_STATE/STREAMING_WAIT ignored in a command; Milan 5.4.2.9 refuses only unsupported sub-commands
+
+  [FAIL] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand: IEEE 7.4.15.1: SAVED_STATE/STREAMING_WAIT ignored in a command; Milan 5.4.2.9 refuses only unsupported sub-commands
+[  FAILED  ] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand (0 ms)
+[ RUN      ] Core.P3_HdcpApmCommandIsAcknowledgedNotImplemented
+PROBE P3 message_type=2 responses=0 ignored_delta=1
+PROBE P3 message_type=4 responses=0 ignored_delta=1
+PROBE P3 message_type=8 responses=0 ignored_delta=1
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:192: Failure
+Value of: out.empty()
+  Actual: true
+Expected: false
+IEEE 9.7.4: each HDCP_APM_COMMAND shall be acknowledged (NOT_IMPLEMENTED)
+
+  [FAIL] Core.P3_HdcpApmCommandIsAcknowledgedNotImplemented: IEEE 9.7.4: each HDCP_APM_COMMAND shall be acknowledged (NOT_IMPLEMENTED)
+PROBE P3 message_type=14 responses=0 ignored_delta=1
+[  FAILED  ] Core.P3_HdcpApmCommandIsAcknowledgedNotImplemented (0 ms)
+[ RUN      ] Core.P4_NotImplementedResponseSizes
+PROBE P4 command=0x0013 status=1 control_data_length=12
+PROBE P4 command=0x000b status=1 control_data_length=12
+PROBE P4 command=0x002e status=1 control_data_length=12
+PROBE P4 command=0x3fff status=1 control_data_length=12
+[       OK ] Core.P4_NotImplementedResponseSizes (0 ms)
+[ RUN      ] Core.P5_EntityAvailableIndexIsStatic
+PROBE P5 entity available_index=0 (image constant; no ADP port exists)
+[       OK ] Core.P5_EntityAvailableIndexIsStatic (0 ms)
+[ RUN      ] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices
+PROBE P6 sent=0 avb_counter_notices=0 clock_domain_counter_notices=0 busy_polls=100/100
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:221: Failure
+Expected equality of these values:
+  avb
+    Which is: 0
+  1u
+    Which is: 1
+Milan 5.4.5.2 Table 5.22: an unrelated descriptor's notice is still sent
+
+  [FAIL] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices: Milan 5.4.5.2 Table 5.22: an unrelated descriptor's notice is still sent
+$SCRATCH/probe/sw/firmware/ctrl/test/test_aecp.cpp:222: Failure
+Expected equality of these values:
+  domain
+    Which is: 0
+  1u
+    Which is: 1
+Milan 5.4.5.2 Table 5.22: an unrelated descriptor's notice is still sent
+
+  [FAIL] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices: Milan 5.4.5.2 Table 5.22: an unrelated descriptor's notice is still sent
+[  FAILED  ] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices (0 ms)
+[----------] 6 tests from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration
+[  FAILED  ] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand
+[  FAILED  ] Core.P3_HdcpApmCommandIsAcknowledgedNotImplemented
+[  FAILED  ] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices
+
+ 4 FAILED TESTS
+== AECP core: checks: 6   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 6 checks, exit 1)
