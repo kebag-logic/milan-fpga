@@ -52,7 +52,7 @@ BOUND_CODE = {"BOUND_EID_LO": 0, "BOUND_EID_HI": 1, "BOUND_EN": 2}
 PUB_OUTPUTS = {
     ("DA_GATE", "OPEN"): ("pub_da_gate_o", "MBX_N_PUB_SOURCES_C"),
     ("LICENCE", "ACTIVE"): ("pub_licence_o", "MBX_N_PUB_SOURCES_C"),
-    ("IDLE_SLOPE", "BPS"): ("pub_idle_slope_o", "MBX_IDLE_SLOPE_BPS_WIDTH_C"),
+    ("IDLE_SLOPE", "BPS"): ("pub_idle_slope_bps_o", "MBX_IDLE_SLOPE_BPS_WIDTH_C"),
     ("SR_DOMAIN", "VID"): ("pub_dom_vid_o", "MBX_SR_DOMAIN_VID_WIDTH_C"),
     ("SR_DOMAIN", "PRIORITY"): ("pub_dom_prio_o", "MBX_SR_DOMAIN_PRIORITY_WIDTH_C"),
     ("SR_DOMAIN", "ADOPTED"): ("pub_dom_adopted_o", "MBX_SR_DOMAIN_ADOPTED_WIDTH_C"),

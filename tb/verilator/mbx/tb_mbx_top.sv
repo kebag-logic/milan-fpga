@@ -82,7 +82,7 @@ module tb_mbx_top
   // the publication block's outputs, KL_mbx's own (lane F-INT)
   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0]          pub_da_gate_o,     //! DA_GATE.OPEN
   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0]          pub_licence_o,     //! LICENCE.ACTIVE
-  output logic [MBX_N_IF_C*MBX_IDLE_SLOPE_BPS_WIDTH_C-1:0]   pub_idle_slope_o,  //! IDLE_SLOPE.BPS
+  output logic [MBX_N_IF_C*MBX_IDLE_SLOPE_BPS_WIDTH_C-1:0]   pub_idle_slope_bps_o, //! IDLE_SLOPE.BPS
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_VID_WIDTH_C-1:0]    pub_dom_vid_o,     //! SR_DOMAIN.VID
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_PRIORITY_WIDTH_C-1:0] pub_dom_prio_o,  //! SR_DOMAIN.PRIORITY
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_ADOPTED_WIDTH_C-1:0]  pub_dom_adopted_o, //! SR_DOMAIN.ADOPTED
@@ -197,7 +197,7 @@ module tb_mbx_top
     .tx_ch_o       (tx_ch_o),
     .pub_da_gate_o     (pub_da_gate_o),
     .pub_licence_o     (pub_licence_o),
-    .pub_idle_slope_o  (pub_idle_slope_o),
+    .pub_idle_slope_bps_o (pub_idle_slope_bps_o),
     .pub_dom_vid_o     (pub_dom_vid_o),
     .pub_dom_prio_o    (pub_dom_prio_o),
     .pub_dom_adopted_o (pub_dom_adopted_o),

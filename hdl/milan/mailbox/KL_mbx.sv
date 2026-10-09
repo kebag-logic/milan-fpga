@@ -61,7 +61,7 @@ module KL_mbx
   // the publication block, what the firmware owner publishes for the datapath
   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0] pub_da_gate_o,   //! DA_GATE.OPEN per interface
   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0] pub_licence_o,   //! LICENCE.ACTIVE per interface
-  output logic [MBX_N_IF_C*MBX_IDLE_SLOPE_BPS_WIDTH_C-1:0] pub_idle_slope_o,   //! IDLE_SLOPE.BPS per interface
+  output logic [MBX_N_IF_C*MBX_IDLE_SLOPE_BPS_WIDTH_C-1:0] pub_idle_slope_bps_o,   //! IDLE_SLOPE.BPS per interface
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_VID_WIDTH_C-1:0] pub_dom_vid_o,   //! SR_DOMAIN.VID per interface
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_PRIORITY_WIDTH_C-1:0] pub_dom_prio_o,   //! SR_DOMAIN.PRIORITY per interface
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_ADOPTED_WIDTH_C-1:0] pub_dom_adopted_o,   //! SR_DOMAIN.ADOPTED per interface
@@ -300,7 +300,7 @@ module KL_mbx
     for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
       pub_da_gate_o[MBX_N_PUB_SOURCES_C*i +: MBX_N_PUB_SOURCES_C] = MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_da_gate_r[i]), MBX_DA_GATE_OPEN_LSB_C, MBX_DA_GATE_OPEN_WIDTH_C));
       pub_licence_o[MBX_N_PUB_SOURCES_C*i +: MBX_N_PUB_SOURCES_C] = MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_licence_r[i]), MBX_LICENCE_ACTIVE_LSB_C, MBX_LICENCE_ACTIVE_WIDTH_C));
-      pub_idle_slope_o[MBX_IDLE_SLOPE_BPS_WIDTH_C*i +: MBX_IDLE_SLOPE_BPS_WIDTH_C] = MBX_IDLE_SLOPE_BPS_WIDTH_C'(mbx_field_f(32'(pub_idle_slope_r[i]), MBX_IDLE_SLOPE_BPS_LSB_C, MBX_IDLE_SLOPE_BPS_WIDTH_C));
+      pub_idle_slope_bps_o[MBX_IDLE_SLOPE_BPS_WIDTH_C*i +: MBX_IDLE_SLOPE_BPS_WIDTH_C] = MBX_IDLE_SLOPE_BPS_WIDTH_C'(mbx_field_f(32'(pub_idle_slope_r[i]), MBX_IDLE_SLOPE_BPS_LSB_C, MBX_IDLE_SLOPE_BPS_WIDTH_C));
       pub_dom_vid_o[MBX_SR_DOMAIN_VID_WIDTH_C*i +: MBX_SR_DOMAIN_VID_WIDTH_C] = MBX_SR_DOMAIN_VID_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_VID_LSB_C, MBX_SR_DOMAIN_VID_WIDTH_C));
       pub_dom_prio_o[MBX_SR_DOMAIN_PRIORITY_WIDTH_C*i +: MBX_SR_DOMAIN_PRIORITY_WIDTH_C] = MBX_SR_DOMAIN_PRIORITY_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_PRIORITY_LSB_C, MBX_SR_DOMAIN_PRIORITY_WIDTH_C));
       pub_dom_adopted_o[MBX_SR_DOMAIN_ADOPTED_WIDTH_C*i +: MBX_SR_DOMAIN_ADOPTED_WIDTH_C] = MBX_SR_DOMAIN_ADOPTED_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_ADOPTED_LSB_C, MBX_SR_DOMAIN_ADOPTED_WIDTH_C));

@@ -2560,7 +2560,7 @@ class CtrlMailbox(LiteXModule):
             # unread here, see the class docstring
             o_pub_da_gate_o=Signal(n_if * contract.pub_sources),
             o_pub_licence_o=Signal(n_if * contract.pub_sources),
-            o_pub_idle_slope_o=Signal(n_if * pub_w[("IDLE_SLOPE", "BPS")]),
+            o_pub_idle_slope_bps_o=Signal(n_if * pub_w[("IDLE_SLOPE", "BPS")]),
             o_pub_dom_vid_o=Signal(n_if * pub_w[("SR_DOMAIN", "VID")]),
             o_pub_dom_prio_o=Signal(n_if * pub_w[("SR_DOMAIN", "PRIORITY")]),
             o_pub_dom_adopted_o=Signal(n_if * pub_w[("SR_DOMAIN", "ADOPTED")]),
