@@ -1,0 +1,16 @@
+regenerate traceability rc=0
+regenerate test inventory rc=1
+ docs/TRACEABILITY.md | 2 +-
+ tests/test_port.cpp  | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+comments rc=0 (comments: 23 code files and all mutation fragments pass)
+needles rc=1 (ValueError: tests/test_port.cpp: unsupported assertion form: EXPECT_NONFATAL_FAILURE)
+test-inventory rc=1 (ValueError: tests/test_port.cpp: unsupported assertion form: EXPECT_NONFATAL_FAILURE)
+traceability rc=0 (traceability: 17 requirements; 108 test declarations)
+conditionals rc=0 (conditionals: 22 files; 38 region sides compiled)
+boundary rc=0 (boundary: compiler dependencies and object symbols pass)
+license rc=0 (license: pass)
+port-contracts rc=0 (port contracts: callbacks, fields, preconditions and counters present)
+configure rc=0 (-- Build files have been written to: $PACKET/scratch/r556-7-replay/spi-tree/buil)
+build rc=0 ([100%] Built target port_tests)
+port_tests rc=0 ([  PASSED  ] 1 test.)

@@ -1,0 +1,27 @@
+asm-include: built=True head=refuse ['c: line 4: assembler conditional, macro, include or end is forbidden'] previous=['c: line 4: assembler conditional, macro, include or end is forbidden'] expected=refuse
+asm-include-upper: built=True head=refuse ['c: line 4: assembler conditional, macro, include or end is forbidden'] previous=['c: line 4: assembler conditional, macro, include or end is forbidden'] expected=refuse
+asm-include-after-label: built=True head=refuse ['c: line 2: assembler conditional, macro, include or end is forbidden'] previous=['c: line 2: assembler conditional, macro, include or end is forbidden'] expected=refuse
+asm-include-after-separator: built=True head=refuse ['c: line 4: assembler conditional, macro, include or end is forbidden'] previous=['c: line 4: assembler conditional, macro, include or end is forbidden'] expected=refuse
+asm-incbin: built=True head=refuse ['c: line 4: assembler conditional, macro, include or end is forbidden'] previous=['c: line 4: assembler conditional, macro, include or end is forbidden'] expected=refuse
+asm-incbin-range: built=True head=refuse ['c: line 4: assembler conditional, macro, include or end is forbidden'] previous=['c: line 4: assembler conditional, macro, include or end is forbidden'] expected=refuse
+asm-end: built=True head=refuse ['c: line 4: assembler conditional, macro, include or end is forbidden'] previous=['c: line 4: assembler conditional, macro, include or end is forbidden'] expected=refuse
+asm-end-separator: built=True head=refuse ['c: line 4: assembler conditional, macro, include or end is forbidden'] previous=['c: line 4: assembler conditional, macro, include or end is forbidden'] expected=refuse
+asm-tracing: built=True head=accept [] previous=[] expected=accept
+asm-endfunc-control: built=True head=accept [] previous=[] expected=accept
+ld-backslash (link=True, fatal-link=True): built=True head=refuse ['single quotes, backslashes and hashes are forbidden in linker scripts'] previous=['single quotes, backslashes and hashes are forbidden in linker scripts'] expected=refuse
+ld-hash-version (link=True, fatal-link=True): built=True head=refuse ['single quotes, backslashes and hashes are forbidden in linker scripts'] previous=['single quotes, backslashes and hashes are forbidden in linker scripts'] expected=refuse
+ld-version (link=True, fatal-link=True): built=True head=refuse ['c: VERSION is forbidden in linker scripts'] previous=['c: VERSION is forbidden in linker scripts'] expected=refuse
+ld-quote (link=True, fatal-link=False): built=True head=refuse ['single quotes, backslashes and hashes are forbidden in linker scripts'] previous=['single quotes, backslashes and hashes are forbidden in linker scripts'] expected=refuse
+ld-version-in-comment (link=True, fatal-link=True): built=True head=refuse ['c: line 1: unsupported comment'] previous=['c: line 1: unsupported comment'] expected=refuse-or-accept
+ld-include-other (link=True, fatal-link=True): built=True head=accept [] previous=[] expected=out-of-listed-rules
+ld-tracing (link=True, fatal-link=True): built=True head=accept [] previous=[] expected=accept
+cpp-include-quoted-c: built=True head=refuse ['c++: line 1: including C or C++ source files is forbidden'] previous=['c++: line 1: including C or C++ source files is forbidden'] expected=refuse
+cpp-include-angled-cpp: built=True head=refuse ['c++: line 1: including C or C++ source files is forbidden'] previous=['c++: line 1: including C or C++ source files is forbidden'] expected=refuse
+cpp-include-spaced: built=True head=refuse ['c++: line 1: including C or C++ source files is forbidden'] previous=['c++: line 1: including C or C++ source files is forbidden'] expected=refuse
+cpp-include-subdir: built=True head=refuse ['c++: line 1: including C or C++ source files is forbidden'] previous=['c++: line 1: including C or C++ source files is forbidden'] expected=refuse
+cpp-include-comment-in-directive: built=True head=refuse ['c++: line 1: including C or C++ source files is forbidden'] previous=['c++: line 1: including C or C++ source files is forbidden'] expected=refuse
+cpp-include-spliced: built=True head=refuse ['c++: line 1: including C or C++ source files is forbidden'] previous=['c++: line 1: including C or C++ source files is forbidden'] expected=refuse
+c-include-quoted-c: built=True head=refuse ['c: line 1: including C or C++ source files is forbidden'] previous=['c: line 1: including C or C++ source files is forbidden'] expected=refuse
+h-include-quoted-c: built=True head=refuse ['c: line 1: including C or C++ source files is forbidden', 'c++: line 1: including C or C++ source files is forbidden'] previous=['c: line 1: including C or C++ source files is forbidden', 'c++: line 1: including C or C++ source files is forbidden'] expected=refuse
+cpp-include-next: built=False head=refuse ['c++: line 1: unknown directive #include_next'] previous=['c++: line 1: unknown directive #include_next'] expected=suggestion
+cpp-include-header-control: built=False head=accept [] previous=[] expected=accept

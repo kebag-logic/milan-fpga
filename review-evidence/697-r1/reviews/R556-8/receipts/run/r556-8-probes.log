@@ -1,0 +1,21 @@
+{"probe": "A1 regenerate refused names with g++", "expected": "equal to shipped list", "observed": "85 names, equal=True", "verdict": "PASS", "detail": ""}
+{"probe": "A1 regenerate refused names with clang++", "expected": "equal to shipped list", "observed": "85 names, equal=True", "verdict": "PASS", "detail": ""}
+{"probe": "A2 failure-capturing names in shipped list", "expected": "all four present", "observed": "[True, True, True, True]", "verdict": "PASS", "detail": ""}
+{"probe": "A3 every installed-header EXPECT_/ASSERT_/GTEST_/FAIL*/ADD_FAILURE*/SUCCEED macro refused", "expected": "205 refused", "observed": "205 refused; missing=[]", "verdict": "PASS", "detail": "21 public headers, 38 headers in total"}
+{"probe": "A4 the 14 allowed forms stay accepted", "expected": "none refused", "observed": "[]", "verdict": "PASS", "detail": ""}
+{"probe": "A5 other installed macro names mentioning FAIL/SUCCEED/EXPECT/ASSERT (informational)", "expected": "listed", "observed": "23 names, see A-other-names.json", "verdict": "PASS", "detail": "EXIT_FAILURE GMOCK_INTERNAL_ASSERT_PARENTHESIS GMOCK_INTERNAL_ASSERT_VALID_SIGNATURE GMOCK_INTERNAL_ASSERT_VALID_SPEC GMOCK_INTERNAL_ASSERT_VALID_SPEC_ELEMENT GOOGLETEST_INCLUDE_GTEST_GTEST_ASSERTION_RESULT_H_ TEMP_FAILURE_RETRY _ASSERT_H _GLIBCXX_ASSERTIONS _GLIBCXX_ASSERT_FAIL _GLIBCXX_DEBUG_ASSERT _GLIBCXX_DEBUG_ASSERTIONS_H _GLIBCXX_DEBUG_PEDASSERT _GLIBCXX_TSAN_MUTEX_TRY_LOCK_FAILED _GLIBCXX_VERBOSE_ASSERT _PSTL_ASSERT _PSTL_ASSERT_MSG __ASSERT_FILE __ASSERT_FUNCTION __ASSERT_LINE __ASSERT_VARIADIC __ASSERT_VOID_CAST __STDC_VERSION_ASSERT_H__"}
+{"probe": "A6 public header count", "expected": "21", "observed": "21", "verdict": "PASS", "detail": ""}
+{"probe": "A7 prefix rule: trailing-underscore and object-like names", "expected": "three refused, ok_EXPECT_Z accepted", "observed": "['unsupported assertion form: ASSERT_Y_', 'unsupported assertion form: EXPECT_UNLISTED_', 'unsupported assertion form: GTEST_X']", "verdict": "PASS", "detail": ""}
+{"probe": "D1 shipped tests/ have no refused identifier", "expected": "none", "observed": "[]", "verdict": "PASS", "detail": ""}
+{"probe": "B1 generator reverted to gtest.h+gmock.h only: --check", "expected": "rc!=0, templates differ", "observed": "rc=1", "verdict": "PASS", "detail": ""}
+{"probe": "B2 prefix rule removed: --check --selftest", "expected": "rc!=0 at the internal control", "observed": "rc=1", "verdict": "PASS", "detail": ""}
+{"probe": "B3 shipped list without the four failure-capturing names: --check", "expected": "rc!=0", "observed": "rc=1", "verdict": "PASS", "detail": ""}
+{"probe": "B4a -isystem rewrite removed: dependency gate", "expected": "rc!=0 (header warnings under -Werror)", "observed": "rc=1", "verdict": "PASS", "detail": "$PACKET/scratch/r556-8-probes/B4-dep/pinned headers/include/gtest/gtest.h:1379:11: error: comparison of integer expressions of different signedness: \u2018const unsigned int\u2019 "}
+{"probe": "B4b -isystem rewrite removed: mutation build from scratch prefix", "expected": "rc!=0", "observed": "rc=1", "verdict": "PASS", "detail": "$PACKET/scratch/sdk/gtest/include/gtest/gtest.h:1379:11: error: comparison of integer expressions of different signedness: \u2018const unsigned int\u2019 and \u2018const int\u2019 [-Werror=s"}
+{"probe": "B5 dependency control without its scratch header copy (sensitivity, informational)", "expected": "informational", "observed": "rc=0", "verdict": "PASS", "detail": "rc=0 means the scratch copy is not itself observed by the control"}
+{"probe": "C0 unmodified head, g++: mutation build and catch from scratch prefix", "expected": "rc=0", "observed": "rc=0", "verdict": "PASS", "detail": ""}
+{"probe": "C1 project signed comparison in a test, g++: mutation build", "expected": "rc!=0 with sign-compare", "observed": "rc=1", "verdict": "PASS", "detail": ""}
+{"probe": "C0 unmodified head, clang++: mutation build and catch from scratch prefix", "expected": "rc=0", "observed": "rc=0", "verdict": "PASS", "detail": ""}
+{"probe": "C1 project signed comparison in a test, clang++: mutation build", "expected": "rc!=0 with sign-compare", "observed": "rc=1", "verdict": "PASS", "detail": ""}
+probes: 19 failed: []
+elapsed_s 60

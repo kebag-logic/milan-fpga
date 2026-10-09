@@ -1,0 +1,22 @@
+-I$PACKET/scratch/space\ prefix/gtest/include -DGTEST_HAS_PTHREAD=1 -L$PACKET/scratch/space\ prefix/gtest/lib -lgmock -lgtest_main -lgtest
+/usr/bin/ld: cannot find prefix/gtest/include: No such file or directory
+/usr/bin/ld: cannot find prefix/gtest/lib: No such file or directory
+collect2: error: ld returned 1 exit status
+Traceback (most recent call last):
+  File "$PACKET/scratch/trees/head/scripts/assertion_templates.py", line 159, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/trees/head/scripts/assertion_templates.py", line 148, in main
+    result = generate(work)
+  File "$PACKET/scratch/trees/head/scripts/assertion_templates.py", line 44, in generate
+    subprocess.run([os.environ.get('CXX', 'g++'), '-std=c++20', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(path), *flags, '-o', str(binary)], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['g++', '-std=c++20', '-Wall', '-Wextra', '-Werror', '$PACKET/scratch/space-templates/forms.cpp', '-I$PACKET/scratch/space\\', 'prefix/gtest/include', '-DGTEST_HAS_PTHREAD=1', '-L$PACKET/scratch/space\\', 'prefix/gtest/lib', '-lgmock', '-lgtest_main', '-lgtest', '-o', '$PACKET/scratch/space-templates/forms']' returned non-zero exit status 1.
+assertion_templates --check rc=1
+mutation --select rc=0
+elapsed_s 10

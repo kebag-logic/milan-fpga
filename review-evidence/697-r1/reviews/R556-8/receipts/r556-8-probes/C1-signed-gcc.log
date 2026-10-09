@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/r556-8-probes/C1-signed-gcc/scripts/mutation.py", line 210, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$PACKET/scratch/r556-8-probes/C1-signed-gcc/scripts/mutation.py", line 147, in main
+    list(pool.map(prepare, SOURCES))
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 447, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$PACKET/scratch/r556-8-probes/C1-signed-gcc/scripts/mutation.py", line 141, in prepare
+    raise RuntimeError("baseline build failed: " + "".join(local))
+RuntimeError: baseline build failed: $PACKET/scratch/r556-8-probes/C1-mut-gcc/baseline/tests/test_acmp.cpp: In function ‘bool tsn_probe_compare(unsigned int, int)’:
+$PACKET/scratch/r556-8-probes/C1-mut-gcc/baseline/tests/test_acmp.cpp:1994:88: error: comparison of integer expressions of different signedness: ‘unsigned int’ and ‘int’ [-Werror=sign-compare]
+ 1994 | [[maybe_unused]] static bool tsn_probe_compare(unsigned left, int right) { return left == right; }
+      |                                                                                   ~~~~~^~~~~~~~
+cc1plus: all warnings being treated as errors
+

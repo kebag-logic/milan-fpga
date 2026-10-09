@@ -1,0 +1,18 @@
+spi-nonfatal: compiled=True run_rc=0 head=['unsupported assertion form: EXPECT_NONFATAL_FAILURE'] previous=[] -> AS-EXPECTED
+spi-fatal: compiled=True run_rc=0 head=['unsupported assertion form: EXPECT_FATAL_FAILURE'] previous=[] -> AS-EXPECTED
+spi-nonfatal-all-threads: compiled=True run_rc=0 head=['unsupported assertion form: EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS'] previous=[] -> AS-EXPECTED
+spi-fatal-all-threads: compiled=True run_rc=0 head=['unsupported assertion form: EXPECT_FATAL_FAILURE_ON_ALL_THREADS'] previous=[] -> AS-EXPECTED
+gtest-assert-lt: compiled=True run_rc=1 head=['unsupported assertion form: GTEST_ASSERT_LT'] previous=['unsupported assertion form: GTEST_ASSERT_LT'] -> AS-EXPECTED
+gtest-fail: compiled=True run_rc=1 head=['unsupported assertion form: GTEST_FAIL'] previous=['unsupported assertion form: GTEST_FAIL'] -> AS-EXPECTED
+expect-near: compiled=True run_rc=1 head=['unsupported assertion form: EXPECT_NEAR'] previous=['unsupported assertion form: EXPECT_NEAR'] -> AS-EXPECTED
+expect-that: compiled=True run_rc=1 head=['unsupported assertion form: EXPECT_THAT'] previous=['unsupported assertion form: EXPECT_THAT'] -> AS-EXPECTED
+expect-gt: compiled=True run_rc=1 head=['unsupported assertion form: EXPECT_GT'] previous=['unsupported assertion form: EXPECT_GT'] -> AS-EXPECTED
+expect-pred2: compiled=True run_rc=1 head=['unsupported assertion form: EXPECT_PRED2'] previous=['unsupported assertion form: EXPECT_PRED2'] -> AS-EXPECTED
+add-failure: compiled=True run_rc=1 head=['unsupported assertion form: ADD_FAILURE'] previous=['unsupported assertion form: ADD_FAILURE'] -> AS-EXPECTED
+fail: compiled=True run_rc=1 head=['unsupported assertion form: FAIL'] previous=['unsupported assertion form: FAIL'] -> AS-EXPECTED
+succeed-skip: compiled=True run_rc=0 head=['unsupported assertion form: GTEST_SKIP', 'unsupported assertion form: SUCCEED'] previous=['unsupported assertion form: GTEST_SKIP', 'unsupported assertion form: SUCCEED'] -> AS-EXPECTED
+no-fatal-failure: compiled=True run_rc=1 head=['unsupported assertion form: EXPECT_NO_FATAL_FAILURE'] previous=['unsupported assertion form: EXPECT_NO_FATAL_FAILURE'] -> AS-EXPECTED
+paste: compiled=True run_rc=1 head=['token pasting is forbidden in tests', 'unsupported assertion form: EXPECT_'] previous=['token pasting is forbidden in tests'] -> AS-EXPECTED
+paste-digraph: compiled=True run_rc=1 head=['token pasting is forbidden in tests', 'unsupported assertion form: EXPECT_'] previous=['token pasting is forbidden in tests'] -> AS-EXPECTED
+allowed-forms: compiled=True run_rc=0 head=[] previous=[] -> AS-EXPECTED
+literal-text: compiled=True run_rc=0 head=[] previous=[] -> AS-EXPECTED

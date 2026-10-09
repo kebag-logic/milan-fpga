@@ -1,0 +1,37 @@
+[
+  {
+    "name": "assembly-probe-comment-gate",
+    "rc": 1
+  },
+  {
+    "name": "assembly-probe-rv32",
+    "rc": 0
+  },
+  {
+    "name": "assembly-probe-conditional-matrix",
+    "result": {
+      "file": "examples/rv32/start.S",
+      "expected": [],
+      "observed": [],
+      "builds": [
+        {
+          "language": "c",
+          "defined": {},
+          "rc": 0,
+          "regions": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "macro-produced-assembler-conditional",
+    "source": "#define REVIEW_SKIP .i##f 0\nREVIEW_SKIP\nreview probe prose\n.endif\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "preprocessed": ".if 0\nreview probe prose\n.endif\n",
+    "comment_errors": [
+      "c: line 1: assembly preprocessor directives are forbidden",
+      "c: line 1: unsupported comment"
+    ]
+  }
+]

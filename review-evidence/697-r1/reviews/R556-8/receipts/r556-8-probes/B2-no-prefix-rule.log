@@ -1,0 +1,12 @@
+assertion control alias: compiled, executed with 1 failures and refused by source gate
+assertion control failure: compiled, executed with 1 failures and refused by source gate
+Traceback (most recent call last):
+  File "$PACKET/scratch/r556-8-probes/B2-no-prefix-rule/scripts/assertion_templates.py", line 159, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/r556-8-probes/B2-no-prefix-rule/scripts/assertion_templates.py", line 154, in main
+    selftest(work, result)
+    ~~~~~~~~^^^^^^^^^^^^^^
+  File "$PACKET/scratch/r556-8-probes/B2-no-prefix-rule/scripts/assertion_templates.py", line 127, in selftest
+    raise RuntimeError(name + ': unsupported assertion accepted')
+RuntimeError: internal: unsupported assertion accepted
