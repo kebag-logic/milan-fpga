@@ -1,0 +1,8 @@
+These are the exact small helper recipes used for the measurement.
+Copy them into an empty external WORK directory; adapt the lane and installed dependency locations if needed.
+Create WORK/jobs, WORK/tmp and WORK/shims.
+Make run-simulator-limited executable and link WORK/shims/verilator to it.
+Run prepare_bench_inputs.py to stage tracked bench files and source references.
+The command JSON receipts define argv and cwd; expand the recorded root variables before passing them to run_job.py.
+launch.py NAME starts that job with setsid nohup and independent log, rc and elapsed-time receipts.
+Wait for every job before closing the session; a timeout on a foreground wait does not terminate the detached job.

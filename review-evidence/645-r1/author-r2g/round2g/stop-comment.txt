@@ -1,0 +1,18 @@
+[A531] STOP — Round 2g checks finished; manager publication and exact-head hosted evidence remain.
+
+Head: `1e79ebdc06528edff74c0a7f530f20f99e3326a2` (one commit on `4640d995`; clean tree).
+
+Changed: `follow_ring` defaults to its four standing legs, with twelve rebuilt controls in `make mutants`. The render default moves its long standing `[PULLIN]` to `tdm8render-pullin`; `--with-pullin` preserves the original serial/CRF/LAW history alongside the eighteen fresh-boot phases. TESTING.md records commands, manager merge-bank ownership, timings and the corrected test-plan anchor. No RTL, suite list, timeout or resource-record change.
+
+Cold default results, both rc 0:
+
+| Suite | Measured | At 1.58x | Limit |
+|---|---:|---:|---:|
+| follow_ring | 354.107 s | 559.489 s | 1440 s |
+| milan_dp_render | 733.249 s | 1158.533 s | 1440 s |
+
+The fully graded one-case render smoke passed 33 checks but took 591.216 s; adding it projects 2092.655 s at 1.58x, so it remains explicit. No settling wait or grading check was shortened.
+
+Validation: twelve ring defects caught; explicit render campaign 19/19 legs, 830 checks and zero failures; preserved history 272/0; missing-recentre control caught by its required first-event law check (raw negative rc 1, control runner rc 0). All 32 source/documentation commands plus three final repeats passed. Evidence check and 105/105 self-checks passed. Builder with `--require-rv32 --require-elaboration` exited 0; historical gate 11 still lacks its placed report and remains uncovered, as in Round 2f. All 44 recorded top-level verification commands exited 0, and every job has finished.
+
+HANDOFF.md and PR-BODY.md retain earlier rounds and now contain Round 2g commands, traces, source hashes, results and limitations. The Round 2f area records remain applicable. The manager must publish this head, run the required replication and obtain a passing exact-head hosted `verilator-suites` result; independent re-review and REVIEW READY follow. No push or merge was performed.

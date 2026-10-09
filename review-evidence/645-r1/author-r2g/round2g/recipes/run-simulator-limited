@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+import fcntl,os,sys,time,subprocess
+from pathlib import Path
+args=sys.argv[1:]
+for i in range(len(args)-1):
+    if args[i] in ('-j','--build-jobs'):args[i+1]='4'
+for i,arg in enumerate(args):
+    if arg.startswith('-j') and arg[2:].isdigit():args[i]='-j4'
+slots=[(Path(__file__).resolve().parent/f'compile-slot-{n}.lock').open('a') for n in range(2)]
+held=None
+while held is None:
+    for slot in slots:
+        try:fcntl.flock(slot,fcntl.LOCK_EX|fcntl.LOCK_NB);held=slot;break
+        except BlockingIOError:pass
+    if held is None:time.sleep(0.2)
+mem=Path('/sys/fs/cgroup')/Path(open('/proc/self/cgroup').read().strip().split('::',1)[1].lstrip('/'))/'memory.current'
+anon=lambda:int(next(l.split()[1] for l in (mem.parent/'memory.stat').read_text().splitlines() if l.startswith('anon ')))
+while anon()>=7500000000:time.sleep(1)
+exe='$VALIDATION_TOOLS/pinned-verilator-5.050/verilator'
+raise SystemExit(subprocess.run([exe,*args]).returncode)
