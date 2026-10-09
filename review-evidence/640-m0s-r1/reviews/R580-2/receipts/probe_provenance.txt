@@ -1,0 +1,22 @@
+## probe files in head tree
+sw/firmware/ctrl/test/srp_cost_probe.hpp
+tb/verilator/milan_dp/ax1x1gptp_probes.vlt
+tb/verilator/milan_dp/crflic_probes.vlt
+tb/verilator/milan_dp/dynmap_probes.vlt
+tb/verilator/nvm_capture_cpu/probe.py
+tb/verilator/pp_shadow/pending_probes.vlt
+tb/verilator/pp_shadow/recovery_probes.vlt
+## probe files in evidence branch 16b72cd1
+review-evidence/640-m0s-r1/reviews/R580-1/receipts/probe_marker.tsv
+review-evidence/640-m0s-r1/reviews/R580-1/receipts/probe_mutants.tsv
+review-evidence/640-m0s-r1/reviews/R580-1/receipts/probe_parity.tsv
+review-evidence/640-m0s-r1/reviews/R580-1/scripts/probe_marker.py
+review-evidence/640-m0s-r1/reviews/R580-1/scripts/probe_mutants.py
+review-evidence/640-m0s-r1/reviews/R580-1/scripts/probe_parity.py
+## sha256 of evidence probe scripts vs R580-1 manifest
+probe_parity blob-sha256=d34043addcbe0f4dd7561174c18c9a2bd61b0409ddf06df7d1eba801092d21ac manifest=d34043addcbe0f4dd7561174c18c9a2bd61b0409ddf06df7d1eba801092d21ac
+probe_marker blob-sha256=3b555173791fb74286ef1e71ed4885f2379cdd06fde799e19ea34d3cedbcef90 manifest=3b555173791fb74286ef1e71ed4885f2379cdd06fde799e19ea34d3cedbcef90
+probe_mutants blob-sha256=41bcca2580587d500f48729a1a8efb65d8ff0c67c90d4410653a905da3ee1ed6 manifest=41bcca2580587d500f48729a1a8efb65d8ff0c67c90d4410653a905da3ee1ed6
+## other copies of probe_parity on any fetched ref
+100644 blob 1273051e944922db8e9d6b698bec600a69dfcac5	review-evidence/640-m0s-r1/reviews/R580-1/receipts/probe_parity.tsv
+100644 blob 89b4637be773665cd221a9eb8b783b50dcecc73b	review-evidence/640-m0s-r1/reviews/R580-1/scripts/probe_parity.py

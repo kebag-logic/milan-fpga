@@ -1,0 +1,11 @@
+case	wanted	observed	baseline	verdict	reason
+marked: check --placement f0-f4	wanted 0	got 0	baseline_changed=False	as-expected	RESULT: PASS
+marked: check as all-fabric	wanted 2	got 2	baseline_changed=False	as-expected	NOT COMPARABLE: unreadable measurement $PACKET/scratch/p3/f0f4/gateware: ValueError: wrong placement: requested all-
+marked: record --write as all-fabric	wanted 2	got 2	baseline_changed=False	as-expected	NOT COMPARABLE: unreadable measurement $PACKET/scratch/p3/f0f4/gateware: ValueError: wrong placement: requested all-
+marked: record --write --placement f0-f4	wanted 2	got 2	baseline_changed=False	as-expected	NOT COMPARABLE: selected placement supports intermediate measurement only; acceptance re-record belongs to M9
+unmarked: check --placement f0-f4	wanted 2	got 2	baseline_changed=False	as-expected	NOT COMPARABLE: unreadable measurement $PACKET/scratch/p3/f0f4/gateware: ValueError: wrong placement: requested f0-f
+unmarked: check as all-fabric	wanted 0	got 2	baseline_changed=False	UNEXPECTED	NOT COMPARABLE: baseline_placement.tsv present: a selected recipe measured this directory; measure a split image with its --placement
+unmarked: record --write as all-fabric	wanted 0	got 2	baseline_changed=False	UNEXPECTED	NOT COMPARABLE: baseline_placement.tsv present: a selected recipe measured this directory; acceptance records only the all-fabric image
+unmarked, SRP absent from hierarchy: check as all-fabric	wanted 0	got 2	baseline_changed=False	UNEXPECTED	NOT COMPARABLE: baseline_placement.tsv present: a selected recipe measured this directory; wrong placement all-fabric: srp (KL_srp_top) count 0, expec
+  default-selection report lines: 
+probe_marker: 3 unexpected

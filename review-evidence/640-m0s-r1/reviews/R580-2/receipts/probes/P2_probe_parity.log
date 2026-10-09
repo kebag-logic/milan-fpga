@@ -1,0 +1,21 @@
+area	comparison	rc base/head	size	result
+recipe	integrated route	rc 0/0	14 files	IDENTICAL
+recipe	integrated route --placement all-fabric	rc 0/0	14 files	IDENTICAL
+recipe	synthesis-only	rc 0/0	14 files	IDENTICAL
+recipe	synthesis-only --placement all-fabric	rc 0/0	14 files	IDENTICAL
+recipe	attribution-only	rc 0/0	15 files	IDENTICAL
+recipe	attribution-only --placement all-fabric	rc 0/0	15 files	IDENTICAL
+recipe	single-thread	rc 0/0	14 files	IDENTICAL
+recipe	single-thread --placement all-fabric	rc 0/0	14 files	IDENTICAL
+recipe	standalone	rc 0/0	17 files	IDENTICAL
+recipe	standalone --placement all-fabric	rc 0/0	17 files	IDENTICAL
+recipe	standalone single-thread	rc 0/0	17 files	IDENTICAL
+recipe	standalone single-thread --placement all-fabric	rc 0/0	17 files	IDENTICAL
+recipe	standalone integrated clock	rc 0/0	17 files	IDENTICAL
+recipe	standalone integrated clock --placement all-fabric	rc 0/0	17 files	IDENTICAL
+gate	check-baseline real record	rc 0/0	27 bytes	IDENTICAL
+gate	record legacy route fixture	rc 0/0	1293 bytes	IDENTICAL
+gate	record legacy ooc fixture	rc 0/0	1038 bytes	IDENTICAL
+gate	check legacy route fixture vs real record	rc 2/2	224 bytes	IDENTICAL
+gate	fuzz 3000 seed 234	rc 0/0	9140 bytes	DIFFERENT
+gate	legacy self-test lines	rc 0/0	310 base lines, 116 head-only lines	DIFFERENT

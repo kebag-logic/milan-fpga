@@ -1,0 +1,13 @@
+base non-fuzz lines 212 head legacy-section non-fuzz lines 213 identical False
+base fuzz tally lines 98 head 97
+head tail (116 head-only) all placement lines: True 116
+prefix-equal lines 212
+  last legacy: resource gate planted-exception arm: check_baseline through check-baseline: exit 2 PASS
+  last legacy: resource gate command-line arm: a directory named in another script: exit 0 PASS
+  last legacy: resource gate command-line arm: record --write of an endpoint name the baseline refuses: exit 2 PASS
+  last legacy: resource gate selftest: 260 arms and 500 generated cases PASS
+FAIL lines []
+CORRECTED: base non-fuzz legacy lines 212 head legacy-section (first 309 lines) non-fuzz 212 IDENTICAL True
+lines containing "arm" 211
+non-arm legacy lines: ['resource gate CARRY4 attribution and record --write PASS']
+head placement-only lines 117 True

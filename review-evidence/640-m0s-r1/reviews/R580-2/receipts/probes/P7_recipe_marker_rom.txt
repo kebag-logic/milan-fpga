@@ -1,0 +1,15 @@
+all-fabric pristine rc=0 markers=0 marker_lines=[] images=5
+all-fabric PP_TROM_HEX_P bad=12345678, rc=1 :: ValueError: wrong image depth: $SCRATCH/gateware/PP_TROM_HEX_P.hex: 1 != 2
+all-fabric PP_TROM_HEX_P bad=1234,5678, rc=1 :: ValueError: wrong image width: $SCRATCH/gateware/PP_TROM_HEX_P.hex
+all-fabric PP_UCODE_HEX_P bad=12345678, rc=1 :: ValueError: wrong image depth: $SCRATCH/gateware/PP_UCODE_HEX_P.hex: 1 != 2
+all-fabric PP_UCODE_HEX_P bad=1234,5678, rc=1 :: ValueError: wrong image width: $SCRATCH/gateware/PP_UCODE_HEX_P.hex
+f0-f4 pristine rc=0 markers=1 marker_lines=[# baseline placement: f0-f4] images=5
+f0-f4 PP_TROM_HEX_P bad=12345678, rc=1 :: ValueError: wrong image depth: $SCRATCH/gateware/PP_TROM_HEX_P.hex: 1 != 2
+f0-f4 PP_TROM_HEX_P bad=1234,5678, rc=1 :: ValueError: wrong image width: $SCRATCH/gateware/PP_TROM_HEX_P.hex
+f0-f4 PP_UCODE_HEX_P bad=12345678, rc=1 :: ValueError: wrong image depth: $SCRATCH/gateware/PP_UCODE_HEX_P.hex: 1 != 2
+f0-f4 PP_UCODE_HEX_P bad=1234,5678, rc=1 :: ValueError: wrong image width: $SCRATCH/gateware/PP_UCODE_HEX_P.hex
+full-split pristine rc=0 markers=1 marker_lines=[# baseline placement: full-split] images=5
+full-split PP_TROM_HEX_P bad=12345678, rc=1 :: ValueError: wrong image depth: $SCRATCH/gateware/PP_TROM_HEX_P.hex: 1 != 2
+full-split PP_TROM_HEX_P bad=1234,5678, rc=1 :: ValueError: wrong image width: $SCRATCH/gateware/PP_TROM_HEX_P.hex
+full-split PP_UCODE_HEX_P bad=12345678, rc=1 :: ValueError: wrong image depth: $SCRATCH/gateware/PP_UCODE_HEX_P.hex: 1 != 2
+full-split PP_UCODE_HEX_P bad=1234,5678, rc=1 :: ValueError: wrong image width: $SCRATCH/gateware/PP_UCODE_HEX_P.hex

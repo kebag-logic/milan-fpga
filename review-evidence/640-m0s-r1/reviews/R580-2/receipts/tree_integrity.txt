@@ -1,0 +1,35 @@
+date_utc 2026-10-09T21:23:45Z
+HEAD d10aee62100c7407a86e13e7d54b20ab9050a448
+HEAD^{tree} ad7b2cab62ade20b75bfcf6362de5df286e979a2
+write-tree ad7b2cab62ade20b75bfcf6362de5df286e979a2
+status_porcelain_lines 0
+ignored_untracked:
+!! syn/ooc/__pycache__/
+cached_diff_lines 0
+worktree_diff_lines 0
+index_stage0_digest 9a63e15a83ec5b2060dd97acd37ee6c11330bc6fe1a6d8fa2cd10bbbc4ad80ac
+headtree_digest     9a63e15a83ec5b2060dd97acd37ee6c11330bc6fe1a6d8fa2cd10bbbc4ad80ac
+index_stage0 == HEAD tree (mode, oid, path): True 1240 1240
+## blob byte check of the 10 PR files
+OK docs/design/AREA_BUDGET.md 644
+OK docs/design/MARK_II_AREA_PLAN.md 644
+OK docs/testing/PP_SHADOW_BASELINE_RECIPE.md 644
+OK syn/ooc/pp_baseline.py 644
+OK syn/ooc/pp_baseline_mutants.py 644
+OK syn/ooc/pp_placement.py 644
+OK syn/ooc/pp_placement_selftest.py 644
+OK syn/ooc/pp_resource_gate.py 644
+OK syn/ooc/pp_resource_gate_mutants.py 644
+OK syn/ooc/pp_resource_gate_selftest.py 644
+## submodules
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)
+-9197193e47a6bb1c45a56d90a18c1784123aba44 third_party/lwSRP
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+protocol-processor top=./protocol-processor dirty=0
+gptp-processor top=./gptp-processor dirty=0
+third_party/verilog-axis top=./third_party/verilog-axis dirty=0
+## after removing the reviewer-created ignored syn/ooc/__pycache__ (pp_placement.cpython-314.pyc, written 23:15:06 local by the census probe run without -B)
+ignored_or_untracked_lines 0
+write-tree ad7b2cab62ade20b75bfcf6362de5df286e979a2
