@@ -50,8 +50,9 @@ ANNOUNCE = DEFEND.
 
 - The pool is `91:E0:F0:00:00:00` plus a 16-bit offset, `0xFE00` addresses
   (Table B.9). A randomly generated block is clipped to fit inside it. A
-  supplied seed (`seed_offset_i` with `seed_valid_i`) is used as given,
-  without range validation, so provisioning must supply a block that fits.
+  supplied seed must fit entirely inside the dynamic pool.
+  Invalid seeds fall back to a bounded random draw (#696 M7).
+  A block ending exactly at offset `0xFE00` is valid.
 - EtherType `0x22F0`, subtype MAAP (`0xFE`), `sv` 0, `version` 0,
   `maap_version` 1 (B.2.3.1), `stream_id` 0 (B.2.4).
 - `control_data_length` is 16 in every MAAP frame (B.2.1).
@@ -61,13 +62,18 @@ ANNOUNCE = DEFEND.
 - PROBE and ANNOUNCE carry this station's range in requested_* and zero
   conflict_* (B.3.6.5, B.3.6.7). A DEFEND carries the overlap of the PROBE's
   range with this station's in conflict_* (B.2.7, B.2.8).
+  Its requested_* fields echo the triggering PROBE (B.3.6.6).
+  The echo preserves all sixteen requested_count bits.
 - Every per-frame field a protocol event can change (message type,
-  destination, requested offset, conflict range) is latched at the send
+  destination, requested range, conflict range) is latched at the send
   request. A Restart! or a received PDU taken while a frame waits on the wire
-  therefore cannot rewrite that frame. requested_count and the source MAC
-  follow `count_i` and `station_mac_i` and are not protected against
-  reconfiguration during a frame.
-- Frames are 60 bytes, zero-padded. RX parsing accepts every
+  therefore cannot rewrite that frame.
+  The source MAC follows `station_mac_i` during transmission.
+  Reconfiguration during a frame is not protected.
+- Frames are 60 bytes, zero-padded.
+  RX requires every byte through conflict_count, including keep strobes.
+  Truncation has no state, timer or transmission effect (#696 M8).
+  RX parsing accepts every
   `maap_version` (B.2.3.2 to B.2.3.4) and ignores reserved message types
   (B.2.2).
 
@@ -126,8 +132,6 @@ not changed by #686; each needs its own decision.
 
 - Table B.7 applies compare_MAC (note d) in the rProbe!/PROBE and
   rDefend!/DEFEND cells too. `KL_maap` re-addresses in both cells without it.
-- B.3.6.6 echoes the PROBE's requested_start_address and requested_count in
-  the DEFEND. `KL_maap` sends this station's own range there.
 - B.3.6.1 wants a uniform draw from a generator with a period of at least
   2^32 - 1, seeded from the sum of the MAC and the local real-time clock.
   `KL_maap` uses a 16-bit LFSR folded into the pool.
@@ -144,9 +148,6 @@ not changed by #686; each needs its own decision.
 - Truncated-PDU discard accounting remains absent (B.2, #696 M8).
   A later register-map change must provide an observable count.
   The manager ruling on #696 withdraws counting from this lane.
-- A supplied seed (`seed_offset_i`) is not range-checked. Table B.9's pool
-  holds only when provisioning supplies a block that fits. Validating the
-  seed against the pool is a follow-up decision.
 
 **History.** Before #686 the engine followed the byte layout of a
 reference AVB implementation instead. It set `control_data_length` 28, sent

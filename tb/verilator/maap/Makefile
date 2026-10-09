@@ -13,6 +13,7 @@ RTL_DIR    = ../../../hdl
 TOP        = KL_maap
 MAAP_RTL  ?= $(RTL_DIR)/ieee1722/maap/KL_maap.sv
 MDIR      ?= obj_dir
+COV_MDIR  ?= obj_cov
 VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) \
          -GCLK_FREQ_HZ_P=10000 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
@@ -31,19 +32,18 @@ build:
 	$(VERILATOR) $(VFLAGS) -Mdir $(MDIR) $(SRCS) sim_main.cpp -o VKL_maap_sim
 
 run: build
-	./$(MDIR)/VKL_maap_sim
+	$(abspath $(MDIR))/VKL_maap_sim
 
 mutants:
 	python3 mutants.py
 
 # Line coverage, gated at 95 % (defensive arms carry coverage_off pragmas)
 coverage:
-	rm -rf obj_cov coverage.dat cov_annotated
-	$(VERILATOR) $(VFLAGS) --coverage --Mdir obj_cov $(SRCS) sim_main.cpp \
+	mkdir -p $(COV_MDIR)
+	$(VERILATOR) $(VFLAGS) --coverage --Mdir $(COV_MDIR) $(SRCS) sim_main.cpp \
 	    -o VKL_maap_cov
-	./obj_cov/VKL_maap_cov
-	verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat \
-	    | tail -2
-	@python3 ../avtp_rxmon/cov_gate.py cov_annotated 95 KL_maap.sv
+	cd $(COV_MDIR) && ./VKL_maap_cov
+	verilator_coverage --annotate $(COV_MDIR)/annotated --annotate-min 1 $(COV_MDIR)/coverage.dat
+	python3 ../avtp_rxmon/cov_gate.py $(COV_MDIR)/annotated 95 KL_maap.sv
 clean:
 	rm -rf obj_dir obj_cov obj_mut_* coverage.dat cov_annotated

@@ -9,8 +9,7 @@
 // for a station MAC that folds the LFSR seed to zero as well), item 3
 // B.3.2 Table B.7 notes b and d (ANNOUNCE conflict detection), item 4 Table
 // B.7 ReserveAddress!/probetimer!/probeCount! (four PROBEs, the first at
-// once). A DEFEND's requested_* fields are not graded: their B.3.6.6 echo is
-// a recorded deviation outside #686 (docs/design/MAAP_FABRIC.md).
+// once). #696 also grades the DEFEND requested-range echo (B.3.6.6).
 // Scaled clock: CLK_FREQ_HZ_P=10000 -> 1 ms = 10 cycles.
 #include "VKL_maap.h"
 #include "verilated.h"
@@ -126,7 +125,8 @@ class MaapHarness {
     // defaults to 1 (byte 16 = version<<3 | cdl[10:8], cdl 16 per B.2.1)
     void inject(uint8_t msg, uint64_t src, uint16_t req_off, uint16_t req_cnt,
                 uint16_t conf_off, uint16_t conf_cnt, bool conf_pool=true,
-                uint8_t maap_ver=1, bool req_pool=true){
+                uint8_t maap_ver=1, bool req_pool=true, unsigned length=60,
+                int missing_byte=-1, bool deliver=true){
         uint8_t f[64]; memset(f,0,sizeof f);
         for(int k=0;k<6;k++){ f[k]=kMaapDst>>(40-8*k); f[6+k]=src>>(40-8*k); }
         f[12]=0x22; f[13]=0xF0; f[14]=0xFE; f[15]=msg;
@@ -137,11 +137,16 @@ class MaapHarness {
         if(conf_pool){ f[34]=0x91; f[35]=0xE0; f[36]=0xF0; f[37]=0x00; }
         f[38]=conf_off>>8; f[39]=conf_off;
         f[40]=conf_cnt>>8; f[41]=conf_cnt;
-        for(int b=0;b<8;b++){
+        const int beats=static_cast<int>((length+7)/8);
+        for(int b=0;b<beats;b++){
             uint64_t v=0;
             for(int j=0;j<8;j++) v|=static_cast<uint64_t>(f[b*8+j])<<(8*j);
-            dut->rx_tdata_i=v; dut->rx_tkeep_i=(b==7)?0x0F:0xFF;
-            dut->rx_tvalid_i=1; dut->rx_tready_i=1; dut->rx_tlast_i=(b==7);
+            const unsigned bytes=std::min(8u, length-static_cast<unsigned>(b)*8);
+            unsigned keep=(1u<<bytes)-1;
+            if (missing_byte>=b*8 && missing_byte<(b+1)*8)
+                keep &= ~(1u<<(missing_byte-b*8));
+            dut->rx_tdata_i=v; dut->rx_tkeep_i=keep;
+            dut->rx_tvalid_i=deliver; dut->rx_tready_i=1; dut->rx_tlast_i=(b==beats-1);
             cyc();
         }
         rx_end=now;
@@ -182,6 +187,8 @@ class MaapHarness {
     void disable_then_claim_the_seed();
     std::vector<long> frame_starts(size_t n);
     void zero_seed_mac_draws_random_timers();
+    void supplied_seed_bounds();
+    void truncated_pdus_have_no_effect();
 
     const milan::tb::Model<VKL_maap> model;
     VKL_maap* dut = model.get();
@@ -334,6 +341,8 @@ void MaapHarness::defend_to_the_prober(uint16_t off0){
     inject(1, kPeerAbove, off0+4, 8, 0, 0);       // overlaps [off0+4, off0+8)
     next(f, kDefendBudgetCyc);
     check_defend(f, "above", kPeerAbove, off0+4, 4);
+    ck("M2 B.3.6.6 requested start echoes PROBE", f.at(26,6),
+       static_cast<long>(0x91E0F0000000ULL | (off0+4)));
     ck("still ANNOUNCE", dut->state_o, 2);
     ck("defends counted", dut->defends_o, 1);
 
@@ -345,13 +354,15 @@ void MaapHarness::defend_to_the_prober(uint16_t off0){
     printf("\n[4c] DEFEND held by backpressure; a later PDU must not redirect it\n");
     constexpr uint64_t kProber = 0x0A0B0C0D0E0FULL;
     dut->m_axis_tready=0;
-    inject(1, kProber, off0, 1, 0, 0);            // one-address overlap
+    inject(1, kProber, off0+7, 0x1234, 0, 0);     // one-address overlap
     inject(1, 0x111111111111ULL, off0+1000, 8, 0, 0);   // disjoint: no action
     cyc(kSettleCyc);
     dut->m_axis_tready=1;
     next(f, kDefendBudgetCyc);
     ck("B.2.1 DEFEND DA latched at send", frame_is(f,2) && f.at(0,6)==kProber, 1);
-    ck("B.2.7 one-address overlap start", f.at(38,2), off0);
+    ck("B.2.7 one-address overlap start", f.at(38,2), off0+7);
+    ck("M2 B.3.6.6 requested count echoes all 16 bits", f.at(32,2), 0x1234);
+    ck("M2 requested start held under backpressure", f.at(30,2), off0+7);
     ck("B.2.8 one-address overlap count", f.at(40,2), 1);
     ck("defends = 3", dut->defends_o, 3);
 
@@ -621,6 +632,74 @@ void MaapHarness::zero_seed_mac_draws_random_timers(){
     ck("B.3.4.1 announce T randomized (zero-seed MAC)", ad.size()>1, 1);
 }
 
+void MaapHarness::supplied_seed_bounds(){
+    bool valid_kept=true, invalid_refused=true;
+    for (unsigned count : {1u, 8u, 255u}) {
+        dut->count_i=count;
+        const unsigned limit=0xfe00-count;
+        for (unsigned seed : {0u, limit, limit+1, 0xfe00u, 0xff00u, 0xffffu}) {
+            dut->enable_i=0; cyc(20);
+            seen=frames.size();
+            dut->seed_valid_i=1; dut->seed_offset_i=seed;
+            dut->enable_i=1; cyc(20);
+            const unsigned got=dut->offset_o;
+            if (seed<=limit) valid_kept &= got==seed;
+            else invalid_refused &= got<=limit && got!=seed;
+        }
+    }
+    ck("M7 Table B.9 valid supplied boundary retained", valid_kept, 1);
+    ck("M7 Table B.9 invalid supplied range refused", invalid_refused, 1);
+    dut->count_i=kCount; dut->seed_valid_i=0;
+}
+
+void MaapHarness::truncated_pdus_have_no_effect(){
+    // Compare an idle RX tap with identical cycles carrying malformed PDUs.
+    // Equal complete output frames and deadlines prove timer/TX noninterference.
+    for (unsigned state : {1u, 2u}) {
+        std::vector<Frame> reference;
+        long origin=0;
+        bool no_effect=true;
+        for (bool deliver : {false, true}) {
+            dut->enable_i=0; dut->rst_n=0; cyc(6);
+            dut->station_mac_i=kStationMac;
+            dut->count_i=kCount; dut->seed_valid_i=1; dut->seed_offset_i=0x100;
+            dut->rst_n=1; cyc(3); dut->enable_i=1;
+            frames.clear(); cur=Frame{}; seen=0;
+            Frame f;
+            const unsigned initial_frames=state==1 ? 1 : 5;
+            for (unsigned n=0;n<initial_frames;++n)
+                no_effect &= next(f,kProbeBudgetCyc);
+            origin=now;
+            frames.clear(); seen=0;
+            for (unsigned type : {1u, 2u, 3u}) {
+                for (unsigned length=1;length<42;++length)
+                    inject(type,kPeerBelow,0x100,8,0x100,8,true,1,true,
+                           length,-1,deliver);
+                // Full frame length cannot hide a missing required byte.
+                for (int missing=0;missing<42;++missing)
+                    inject(type,kPeerBelow,0x100,8,0x100,8,true,1,true,
+                           60,missing,deliver);
+            }
+            no_effect &= dut->state_o==state && dut->offset_o==0x100;
+            no_effect &= dut->conflicts_o==0 && dut->defends_o==0;
+            // Observe the next timer event, without injecting a receive event.
+            seen=frames.size();
+            no_effect &= next(f,state==1 ? kProbeBudgetCyc : kAnnounceBudgetCyc);
+            for (auto& frame : frames) { frame.start-=origin; frame.end-=origin; }
+            if (!deliver) reference=frames;
+            else {
+                no_effect &= frames.size()==reference.size();
+                for (size_t n=0;n<std::min(frames.size(),reference.size());++n)
+                    no_effect &= frames[n].b==reference[n].b
+                        && frames[n].start==reference[n].start
+                        && frames[n].end==reference[n].end;
+            }
+        }
+        ck(state==1 ? "M8 B.2 truncated PROBE-state input has no effect"
+                    : "M8 B.2 truncated DEFEND-state input has no effect", no_effect,1);
+    }
+}
+
 int MaapHarness::run(){
     bring_up_idle();
     check_reset_idle();
@@ -636,6 +715,8 @@ int MaapHarness::run(){
     probe_interval_campaign();
     disable_then_claim_the_seed();
     zero_seed_mac_draws_random_timers();
+    supplied_seed_bounds();
+    truncated_pdus_have_no_effect();
 
     printf("\n======================================================================\n");
     printf("KL_maap: %ld checks, %ld failures\n", checks, fails);

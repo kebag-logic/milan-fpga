@@ -36,6 +36,20 @@ SUPPORTING = 0
 
 #: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
 MUTANTS = (
+    ("m8_early_last_accepted", "M8", "(rbeat_r >= 3'd5)", "1'b1",
+     "M8 B.2 truncated PROBE-state input has no effect"),
+    ("m8_missing_bytes_accepted", "M8", "&& rx_bytes_valid_r && rx_beat_complete_w", "",
+     "M8 B.2 truncated DEFEND-state input has no effect"),
+    ("m7_accept_invalid_seed", "M7", " && seed_in_pool_w", "",
+     "M7 Table B.9 invalid supplied range refused"),
+    ("m7_reject_valid_boundary", "M7", "seed_end_w <= {1'b0, POOL_SIZE_C}",
+     "seed_end_w < {1'b0, POOL_SIZE_C}",
+     "M7 Table B.9 valid supplied boundary retained"),
+    ("m2_own_requested_start", "M2", "tx_off_r        <= rx_start_r;",
+     "tx_off_r        <= offset_r;", "M2 B.3.6.6 requested start echoes PROBE"),
+    ("m2_own_requested_count", "M2", "tx_cnt_r        <= rx_cnt_r;",
+     "tx_cnt_r        <= {8'd0, count_i};",
+     "M2 B.3.6.6 requested count echoes all 16 bits"),
     ("cdl_28", 1, "CDL_C          = 8'd16;", "CDL_C          = 8'd28;",
      "B.2.1 cdl 16 (Begin! PROBE 1)"),
     ("defend_to_multicast", 1, "(tx_msg_r == MSG_DEFEND_C) ? tx_dst_r",
@@ -139,7 +153,7 @@ def main() -> int:
 
     signal.signal(signal.SIGTERM, interrupted)
     source = RTL.read_text()
-    items = {item for _, item, _, _, _ in MUTANTS} - {SUPPORTING}
+    items = {item for _, item, _, _, _ in MUTANTS if isinstance(item, int)} - {SUPPORTING}
     if items != {1, 2, 3, 4}:
         print(f"[ESCAPED] campaign: #686 items without a mutant: {sorted({1, 2, 3, 4} - items)}")
         return 1
