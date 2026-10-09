@@ -1,0 +1,154 @@
+[
+  {
+    "case": "base-final-1x1_tdm8-if1",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "--config",
+      "configs/endstation_ax7101_1x1_tdm8.yaml",
+      "--interfaces",
+      "1",
+      "--output",
+      "$F5_SCRATCH/base-final-1x1_tdm8-if1",
+      "--libc",
+      "$F5_SCRATCH/runtime-freestanding/libc.a",
+      "--compiler-runtime",
+      "$F5_SCRATCH/runtime-freestanding/libcompiler_rt.a"
+    ],
+    "rc": 0,
+    "seconds": 2.27
+  },
+  {
+    "case": "base-final-1x1_tdm8-if2",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "--config",
+      "configs/endstation_ax7101_1x1_tdm8.yaml",
+      "--interfaces",
+      "2",
+      "--output",
+      "$F5_SCRATCH/base-final-1x1_tdm8-if2",
+      "--libc",
+      "$F5_SCRATCH/runtime-freestanding/libc.a",
+      "--compiler-runtime",
+      "$F5_SCRATCH/runtime-freestanding/libcompiler_rt.a"
+    ],
+    "rc": 0,
+    "seconds": 2.37
+  },
+  {
+    "case": "base-final-8x8-if1",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "--config",
+      "configs/endstation_ax7101_8x8.yaml",
+      "--interfaces",
+      "1",
+      "--output",
+      "$F5_SCRATCH/base-final-8x8-if1",
+      "--libc",
+      "$F5_SCRATCH/runtime-freestanding/libc.a",
+      "--compiler-runtime",
+      "$F5_SCRATCH/runtime-freestanding/libcompiler_rt.a"
+    ],
+    "rc": 0,
+    "seconds": 2.22
+  },
+  {
+    "case": "base-final-8x8-if2",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "--config",
+      "configs/endstation_ax7101_8x8.yaml",
+      "--interfaces",
+      "2",
+      "--output",
+      "$F5_SCRATCH/base-final-8x8-if2",
+      "--libc",
+      "$F5_SCRATCH/runtime-freestanding/libc.a",
+      "--compiler-runtime",
+      "$F5_SCRATCH/runtime-freestanding/libcompiler_rt.a"
+    ],
+    "rc": 0,
+    "seconds": 2.37
+  },
+  {
+    "case": "store-1x1_tdm8-if1",
+    "argv": [
+      "python3",
+      "$F5_SCRATCH/measure_store.py",
+      "--root",
+      ".",
+      "--output",
+      "$F5_SCRATCH/store-1x1_tdm8-if1",
+      "--runtime",
+      "$F5_SCRATCH/runtime-freestanding",
+      "--shape",
+      "endstation_ax7101_1x1_tdm8",
+      "--interfaces",
+      "1"
+    ],
+    "rc": 0,
+    "seconds": 2.98
+  },
+  {
+    "case": "store-1x1_tdm8-if2",
+    "argv": [
+      "python3",
+      "$F5_SCRATCH/measure_store.py",
+      "--root",
+      ".",
+      "--output",
+      "$F5_SCRATCH/store-1x1_tdm8-if2",
+      "--runtime",
+      "$F5_SCRATCH/runtime-freestanding",
+      "--shape",
+      "endstation_ax7101_1x1_tdm8",
+      "--interfaces",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 3.13
+  },
+  {
+    "case": "store-8x8-if1",
+    "argv": [
+      "python3",
+      "$F5_SCRATCH/measure_store.py",
+      "--root",
+      ".",
+      "--output",
+      "$F5_SCRATCH/store-8x8-if1",
+      "--runtime",
+      "$F5_SCRATCH/runtime-freestanding",
+      "--shape",
+      "endstation_ax7101_8x8",
+      "--interfaces",
+      "1"
+    ],
+    "rc": 0,
+    "seconds": 3.02
+  },
+  {
+    "case": "store-8x8-if2",
+    "argv": [
+      "python3",
+      "$F5_SCRATCH/measure_store.py",
+      "--root",
+      ".",
+      "--output",
+      "$F5_SCRATCH/store-8x8-if2",
+      "--runtime",
+      "$F5_SCRATCH/runtime-freestanding",
+      "--shape",
+      "endstation_ax7101_8x8",
+      "--interfaces",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 3.12
+  }
+]
