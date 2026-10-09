@@ -7,6 +7,10 @@
 
 struct aecp_descriptor *aecp_find(struct aecp *, uint16_t, uint16_t, uint16_t);
 bool aecp_foreign_lock(const struct aecp *);
+unsigned aecp_name_offset(uint16_t, uint16_t);
+unsigned aecp_scalar_validate(const struct aecp_descriptor *, enum aecp_change, const uint8_t *);
+bool aecp_overridden(const struct aecp *, const struct aecp_descriptor *, unsigned);
+void aecp_override(struct aecp *, const struct aecp_descriptor *, unsigned);
 void aecp_note(struct aecp *, enum aecp_change, uint16_t, uint16_t);
 bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info *);
 // Command-specific data only. The caller provides AECP_FRAME_BYTES of output

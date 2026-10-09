@@ -18,6 +18,16 @@ bool aecp_foreign_lock(const struct aecp *a)
 	return a->locked && a->lock_owner != a->requester;
 }
 
+bool aecp_overridden(const struct aecp *a, const struct aecp_descriptor *d, unsigned bit)
+{
+	return (a->cfg.events[(size_t)(d - a->cfg.model->descriptors)].overrides & bit) != 0u;
+}
+
+void aecp_override(struct aecp *a, const struct aecp_descriptor *d, unsigned bit)
+{
+	a->cfg.events[(size_t)(d - a->cfg.model->descriptors)].overrides |= (uint8_t)bit;
+}
+
 void aecp_note(struct aecp *a, enum aecp_change kind, uint16_t type, uint16_t index)
 {
 	a->in_port = true;
@@ -43,22 +53,23 @@ bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp
 	return ok;
 }
 
-static bool running(struct aecp *a, uint16_t type, uint16_t index)
+static unsigned running(struct aecp *a, uint16_t type, uint16_t index)
 {
 	struct aecp_stream_info info;
-	return aecp_stream_read(a, type, index, &info) && (type == 5u ? info.bound : info.running);
+	if (!aecp_stream_read(a, type, index, &info)) return AECP_ENTITY_MISBEHAVING;
+	return (type == 5u ? info.bound : info.running) ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;
 }
 
-static bool any_running(struct aecp *a)
+static unsigned any_running(struct aecp *a)
 {
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
-		if (d->configuration == a->configuration && (d->type == 5u || d->type == 6u) &&
-		    running(a, d->type, d->index)) {
-			return true;
+		if (d->configuration == a->configuration && (d->type == 5u || d->type == 6u)) {
+			unsigned status = running(a, d->type, d->index);
+			if (status != AECP_SUCCESS) return status;
 		}
 	}
-	return false;
+	return AECP_SUCCESS;
 }
 
 static unsigned descriptor(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
@@ -93,13 +104,15 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 	if (set) {
 		if (len < 4u) {
 			status = AECP_BAD_ARGUMENTS;
-		} else if (any_running(a)) {
-			status = AECP_STREAM_IS_RUNNING;
+		} else if ((status = any_running(a)) != AECP_SUCCESS) {
+			// Refuse both a running stream and an unprovable observation.
 		} else if (aecp_foreign_lock(a)) {
 			status = AECP_ENTITY_LOCKED;
 		} else if (wire_be16(in + 2) >= a->cfg.model->configurations) {
 			status = AECP_BAD_ARGUMENTS;
-		} else if (a->configuration != wire_be16(in + 2)) {
+		} else {
+			struct aecp_descriptor *entity = aecp_find(a, 0, 0, 0);
+			bool changed = a->configuration != wire_be16(in + 2) || !aecp_overridden(a, entity, 1u);
 			a->configuration = (uint16_t)wire_be16(in + 2);
 			// ENTITY may be represented in every configuration's descriptor list.
 			for (size_t n = 0; n < a->cfg.model->count; ++n) {
@@ -108,14 +121,17 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 					wire_put_be(d->value + 310, a->configuration, 2);
 				}
 			}
-			aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, 0);
+			aecp_override(a, entity, 1u);
+			if (changed) {
+				aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, 0);
+			}
 		}
 	}
 	wire_put_be(out + 2, a->configuration, 2);
 	return status;
 }
 
-static unsigned name_offset(uint16_t type, uint16_t name)
+unsigned aecp_name_offset(uint16_t type, uint16_t name)
 {
 	if (type == 0u) {
 		return name < 2u ? 48u + 132u * name : 0u;
@@ -148,7 +164,7 @@ static unsigned names(struct aecp *a, bool set, const uint8_t *in, size_t len,
 	if (d == NULL) {
 		return AECP_NO_SUCH_DESCRIPTOR;
 	}
-	unsigned offset = name_offset(type, (uint16_t)wire_be16(in + 4));
+	unsigned offset = aecp_name_offset(type, (uint16_t)wire_be16(in + 4));
 	if (offset == 0u || offset + 64u > d->length) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -166,6 +182,27 @@ static unsigned names(struct aecp *a, bool set, const uint8_t *in, size_t len,
 }
 
 // Value/list fields in IEEE 7.2 AUDIO_UNIT, STREAM and CLOCK_DOMAIN.
+unsigned aecp_scalar_validate(const struct aecp_descriptor *d, enum aecp_change kind, const uint8_t *value)
+{
+	bool format = kind == AECP_CHANGE_FORMAT, rate = kind == AECP_CHANGE_RATE;
+	unsigned width = format ? 8u : (rate ? 4u : 2u);
+	unsigned field = format ? 82u : (rate ? 140u : 72u);
+	if (d->length < field + 4u) {
+		return AECP_ENTITY_MISBEHAVING;
+	}
+	size_t start = (size_t)wire_be16(d->value + field);
+	size_t count = (size_t)wire_be16(d->value + field + 2u);
+	if (start > d->length || count * width > d->length - start) {
+		return AECP_ENTITY_MISBEHAVING;
+	}
+	for (size_t n = 0; n < count; ++n) {
+		if (memcmp(d->value + start + n * width, value, width) == 0) {
+			return AECP_SUCCESS;
+		}
+	}
+	return AECP_BAD_ARGUMENTS;
+}
+
 static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t len,
 		       uint8_t *out, size_t *bytes)
 {
@@ -188,14 +225,15 @@ static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t l
 	if (d != NULL && d->length >= offset + width) {
 		memcpy(out + 4, d->value + offset, width);
 	}
-	if (set && format && running(a, type, index)) {
-		return AECP_STREAM_IS_RUNNING;
+	if (d == NULL) {
+		return AECP_NO_SUCH_DESCRIPTOR;
+	}
+	if (set && format) {
+		unsigned state = running(a, type, index);
+		if (state != AECP_SUCCESS) return state;
 	}
 	if (set && aecp_foreign_lock(a)) {
 		return AECP_ENTITY_LOCKED;
-	}
-	if (d == NULL) {
-		return AECP_NO_SUCH_DESCRIPTOR;
 	}
 	if (d->length < list_offset + 4u) {
 		return AECP_ENTITY_MISBEHAVING;
@@ -203,23 +241,18 @@ static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t l
 	if (!set) {
 		return AECP_SUCCESS;
 	}
-	size_t start = (size_t)wire_be16(d->value + list_offset);
-	size_t count = (size_t)wire_be16(d->value + list_offset + 2u);
-	if (start > d->length || count * width > d->length - start) {
-		return AECP_ENTITY_MISBEHAVING;
+	enum aecp_change kind = format ? AECP_CHANGE_FORMAT : (rate ? AECP_CHANGE_RATE : AECP_CHANGE_CLOCK);
+	unsigned status = aecp_scalar_validate(d, kind, in + 4);
+	if (status != AECP_SUCCESS) {
+		return status;
 	}
-	bool supported = false;
-	for (size_t n = 0; n < count; ++n) {
-		if (memcmp(d->value + start + n * width, in + 4, width) == 0) {
-			supported = true;
-		}
-	}
-	if (!supported || (format && !aecp_maps_allow_format(a, type, index, wire_be64(in + 4)))) {
+	if (format && !aecp_maps_allow_format(a, type, index, wire_be64(in + 4))) {
 		return AECP_BAD_ARGUMENTS;
 	}
-	if (memcmp(d->value + offset, in + 4, width) != 0) {
+	if (!aecp_overridden(a, d, 1u) || memcmp(d->value + offset, in + 4, width) != 0) {
 		memcpy(d->value + offset, in + 4, width);
-		aecp_note(a, format ? AECP_CHANGE_FORMAT : (rate ? AECP_CHANGE_RATE : AECP_CHANGE_CLOCK), type, index);
+		aecp_override(a, d, 1u);
+		aecp_note(a, kind, type, index);
 	}
 	memcpy(out + 4, d->value + offset, width);
 	return AECP_SUCCESS;
@@ -259,8 +292,9 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 		if ((latency & 0x80000000u) != 0u) {
 			return AECP_BAD_ARGUMENTS;
 		}
-		if (a->cfg.latency[index] != latency) {
+		if (!aecp_overridden(a, d, 2u) || a->cfg.latency[index] != latency) {
 			a->cfg.latency[index] = latency;
+			aecp_override(a, d, 2u);
 			aecp_note(a, AECP_CHANGE_LATENCY, type, index);
 		}
 		return AECP_SUCCESS;
@@ -268,7 +302,7 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 	wire_put_be(out + 4, info.flags, 4);
 	memcpy(out + 8, d->value + 74, 8u);
 	wire_put_be(out + 16, info.stream_id, 8);
-	wire_put_be(out + 24, type == 6u ? a->cfg.latency[index] : info.latency, 4);
+	wire_put_be(out + 24, type == 6u && aecp_overridden(a, d, 2u) ? a->cfg.latency[index] : info.latency, 4);
 	wire_put_be(out + 28, info.dest_mac, 6);
 	out[34] = info.failure_code;
 	wire_put_be(out + 36, info.failure_bridge_id, 8);

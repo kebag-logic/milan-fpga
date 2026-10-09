@@ -91,6 +91,7 @@ struct aecp_event {
 	uint32_t cookie;
 	uint8_t pending;
 	bool counter_sent, awaiting_output;
+	uint8_t overrides; // bit 0 scalar, bit 1 latency: a default-valued SET counts
 };
 struct aecp_config {
 	uint64_t entity_id, mac[AECP_INTERFACES];

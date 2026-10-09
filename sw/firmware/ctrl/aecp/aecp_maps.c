@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // Atomic dynamic map edits and fixed partitions, Milan v1.2 5.4.2.26-.28.
 #include "aecp_internal.h"
+#include "aecp_state.h"
 
 static unsigned channels(uint64_t format)
 {
@@ -60,7 +61,7 @@ static size_t position(const struct aecp_map *m, const struct aecp_mapping *r)
 	return m->count;
 }
 
-static bool valid(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r)
+static bool valid(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r, bool live)
 {
 	uint16_t type = port->type == 14u ? 5u : 6u;
 	struct aecp_descriptor *stream = aecp_find(a, a->configuration, type, r->stream);
@@ -76,7 +77,7 @@ static bool valid(struct aecp *a, const struct aecp_descriptor *port, const stru
 	if (cluster == NULL || cluster->length < 86u || r->cluster_channel >= wire_be16(cluster->value + 84)) {
 		return false;
 	}
-	if (type == 6u) {
+	if (type == 6u && live) {
 		struct aecp_stream_info info;
 		if (!aecp_stream_read(a, type, r->stream, &info) || info.running) {
 			return false;
@@ -196,7 +197,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	size_t additions = 0;
 	for (size_t n = 0; n < count; ++n) {
 		struct aecp_mapping r = decode(in + 8u + n * 8u);
-		if (!valid(a, port, &r)) {
+		if (!valid(a, port, &r, true)) {
 			return AECP_BAD_ARGUMENTS;
 		}
 		bool duplicate = false;
@@ -238,6 +239,48 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	}
 	if (changed) {
 		aecp_note(a, AECP_CHANGE_MAP, type, index);
+	}
+	return AECP_SUCCESS;
+}
+
+unsigned aecp_map_restore(struct aecp *a, struct aecp_map *m, const struct aecp_mapping *rows, size_t count)
+{
+	if (a->open || a->in_port) return AECP_ENTITY_MISBEHAVING;
+	struct aecp_descriptor *port = aecp_find(a, m->configuration, m->type, m->index);
+	if (port == NULL || port->length < 20u || m->configuration != a->configuration)
+		return AECP_ENTITY_MISBEHAVING;
+	if (wire_be16(port->value + 16) != 0u || count > m->capacity) return AECP_BAD_ARGUMENTS;
+	for (size_t n = 0; n < count; ++n) {
+		if (!valid(a, port, &rows[n], false)) return AECP_BAD_ARGUMENTS;
+		for (size_t k = 0; k < n; ++k) {
+			if (conflict(m->type == 14u, &rows[n], &rows[k])) return AECP_BAD_ARGUMENTS;
+		}
+	}
+	// No mutation before every row passes. Repeated identical mappings are a set.
+	m->count = 0;
+	for (size_t n = 0; n < count; ++n) {
+		if (position(m, &rows[n]) == m->count) m->rows[m->count++] = rows[n];
+	}
+	return AECP_SUCCESS;
+}
+
+unsigned aecp_restore_settle(struct aecp *a)
+{
+	if (a->open || a->in_port) return AECP_ENTITY_MISBEHAVING;
+	// Boot-only clipping (#658): accepted map records were already checked
+	// against restored formats. Any remaining orphan belongs to a reset set.
+	for (size_t n = 0; n < a->cfg.map_count; ++n) {
+		struct aecp_map *m = &a->cfg.maps[n];
+		if (m->configuration != a->configuration) continue;
+		for (size_t k = 0; k < m->count;) {
+			struct aecp_descriptor *d = aecp_find(a, a->configuration,
+				m->type == 14u ? 5u : 6u, m->rows[k].stream);
+			if (d == NULL || d->length < 82u) return AECP_ENTITY_MISBEHAVING;
+			if (m->rows[k].channel >= channels(wire_be64(d->value + 74))) {
+				memmove(m->rows + k, m->rows + k + 1u, (m->count - k - 1u) * sizeof *m->rows);
+				--m->count;
+			} else ++k;
+		}
 	}
 	return AECP_SUCCESS;
 }

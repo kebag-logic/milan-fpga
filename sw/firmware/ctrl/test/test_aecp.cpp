@@ -8,6 +8,7 @@
 extern "C" {
 #include "aecp.h"
 #include "aecp_image.h"
+#include "aecp_state.h"
 #include "aecp_entity_gen.h"
 #ifdef AECP_TEST_MAILBOX
 #include "aecp_mbx.h"
@@ -184,6 +185,84 @@ TEST_F(Core, ScalarGetSetAndCurrentValueRefusals)
         ask(set,target(type,0xffff,4+width),2);ask(set+1,target(type,0xffff),2);
     }
     bound=true;ask(8,target(5,0,12),12);bound=false;streaming=true;ask(8,target(6,0,12),12);
+}
+
+TEST_F(Core, AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet)
+{
+    auto &d=desc(6);Bytes p(d.value+74,d.value+82),lat(4),copy(8);
+    aecp_value v{AECP_CHANGE_FORMAT,6,0,0};
+    EXPECT_FALSE(aecp_value_latch(&a,v,copy.data(),8));
+    EXPECT_CALL(mock,Changed(AECP_CHANGE_FORMAT,6,0)).Times(1);
+    EXPECT_CALL(mock,Changed(AECP_CHANGE_LATENCY,6,0)).Times(1);
+    auto b=target(6,0,12);std::copy(p.begin(),p.end(),b.begin()+4);
+    ask(8,b);ask(8,b);
+    EXPECT_TRUE(aecp_value_latch(&a,v,copy.data(),8));EXPECT_EQ(copy,p);
+    auto out=ask(15,target(6,0));EXPECT_EQ(get(out,62,4),12345u)<<"unoverridden latency comes from its owner";
+    b=target(6,0,84);put(b,4,0x20000000,4);ask(14,b);
+    out=ask(15,target(6,0));EXPECT_EQ(get(out,62,4),0u)<<"zero is a real accepted override";
+    observations=false;ask(8,target(6,0,12),10);ask(6,Bytes(4),10);
+}
+
+TEST_F(Core, RestoreValuesValidateAndRollbackWithoutLiveEvents)
+{
+    EXPECT_CALL(mock,Changed(_,_,_)).Times(0);
+    a.open=false;
+    std::vector<std::pair<aecp_value,Bytes>> cases;
+    cases.push_back({{AECP_CHANGE_CONFIGURATION,0,0,0},Bytes(2)});
+    for(auto [kind,type,off,width]:std::vector<std::array<unsigned,4>>{
+        {AECP_CHANGE_FORMAT,5,74,8},{AECP_CHANGE_FORMAT,6,74,8},
+        {AECP_CHANGE_RATE,2,136,4},{AECP_CHANGE_CLOCK,36,70,2}}){
+        auto &d=desc(type);cases.push_back({{aecp_change(kind),uint16_t(type),0,0},Bytes(d.value+off,d.value+off+width)});
+    }
+    cases.push_back({{AECP_CHANGE_LATENCY,6,0,0},Bytes{0,0,1,2}});
+    cases.push_back({{AECP_CHANGE_NAME,0,0,1},Bytes(64,0)});
+    for(auto &[ref,value]:cases){
+        EXPECT_EQ(aecp_value_restore(&a,ref,value.data(),value.size()),0u);
+        Bytes got(value.size());EXPECT_TRUE(aecp_value_latch(&a,ref,got.data(),got.size()));EXPECT_EQ(got,value);
+        EXPECT_EQ(aecp_value_restore(&a,ref,value.data(),value.size()-1),7u);
+        EXPECT_FALSE(aecp_value_latch(&a,ref,got.data(),got.size()-1));
+    }
+    Bytes bad(8,0xff);
+    for(auto ref:std::vector<aecp_value>{{AECP_CHANGE_FORMAT,5,0,0},{AECP_CHANGE_RATE,2,0,0},
+          {AECP_CHANGE_CLOCK,36,0,0},{AECP_CHANGE_CONFIGURATION,0,0,0},{AECP_CHANGE_LATENCY,6,0,0}}){
+        unsigned width=ref.kind==AECP_CHANGE_FORMAT?8:ref.kind==AECP_CHANGE_RATE||ref.kind==AECP_CHANGE_LATENCY?4:2;
+        EXPECT_EQ(aecp_value_restore(&a,ref,bad.data(),width),7u);
+    }
+    EXPECT_TRUE(aecp_restore_defaults(&a));
+    for(auto &d:descriptors)EXPECT_EQ(Bytes(d.value,d.value+d.length),Bytes(d.defaults,d.defaults+d.length));
+    EXPECT_FALSE(aecp_value_latch(&a,{AECP_CHANGE_FORMAT,5,0,0},bad.data(),8));
+    a.in_port=true;EXPECT_FALSE(aecp_restore_defaults(&a));
+    EXPECT_EQ(aecp_value_restore(&a,cases[0].first,bad.data(),2),10u);
+    a.in_port=false;aecp_open(&a);EXPECT_FALSE(aecp_restore_defaults(&a));
+    EXPECT_EQ(aecp_value_restore(&a,cases[0].first,bad.data(),2),10u);
+}
+
+TEST_F(Core, RestoreMapWholeSetClipAndDefaults)
+{
+    EXPECT_CALL(mock,Changed(_,_,_)).Times(0);a.open=false;
+    std::array<aecp_mapping,8> defaults;
+    for(unsigned i=0;i<8;++i)defaults[i]={0,uint16_t(i),uint16_t(i),0};
+    auto &m=maps[0];m.defaults=defaults.data();m.default_count=8;
+    ASSERT_TRUE(aecp_restore_defaults(&a));ASSERT_EQ(m.count,8u);
+    auto bad=defaults;bad[7].stream=0xff00;
+    EXPECT_EQ(aecp_map_restore(&a,&m,bad.data(),8),7u);EXPECT_EQ(m.count,8u);
+    bad=defaults;bad[7]={0,6,6,1};EXPECT_EQ(aecp_map_restore(&a,&m,bad.data(),8),7u);
+    bad=defaults;bad[7]={0,6,0,0};EXPECT_EQ(aecp_map_restore(&a,&m,bad.data(),8),7u);
+    ASSERT_EQ(aecp_map_restore(&a,&m,defaults.data(),4),0u);EXPECT_EQ(m.count,4u);
+    EXPECT_EQ(aecp_map_restore(&a,&m,nullptr,0),0u);EXPECT_EQ(m.count,0u);
+    ASSERT_TRUE(aecp_restore_defaults(&a));
+    // A supported synthetic narrow format isolates restore/map ordering.
+    auto &d=desc(5);auto raw=Bytes(d.value,d.value+d.length);
+    uint64_t narrow=(get(d.value+74,8)&~(uint64_t(1023)<<22))|(uint64_t(4)<<22);
+    put(d.value+get(d.value+82,2),narrow,8);Bytes value(8);put(value,0,narrow,8);
+    ASSERT_EQ(aecp_value_restore(&a,{AECP_CHANGE_FORMAT,5,0,0},value.data(),8),0u);
+    ASSERT_EQ(m.count,8u)<<"restoring a format does not prematurely judge maps";
+    ASSERT_EQ(aecp_restore_settle(&a),0u);ASSERT_EQ(m.count,4u);
+    for(unsigned i=0;i<4;++i)EXPECT_EQ(m.rows[i].channel,i);
+    EXPECT_EQ(get(d.value+74,8),narrow);
+    EXPECT_TRUE(aecp_restore_defaults(&a));EXPECT_EQ(m.count,8u);
+    EXPECT_EQ(Bytes(d.value,d.value+d.length),raw);
+    aecp_open(&a);EXPECT_EQ(aecp_map_restore(&a,&m,nullptr,0),10u);EXPECT_EQ(aecp_restore_settle(&a),10u);
 }
 
 TEST_F(Core, ObservationsHaveFullWireForms)

@@ -6,7 +6,7 @@ from pathlib import Path
 from ctrl_build import CTRL, HERE, ROOT, HARNESS, C_FLAGS, Tree, Outcome, Refusal, run
 import fw_gtest
 
-AEC_P_SOURCES = ("aecp.c", "aecp_commands.c", "aecp_maps.c", "aecp_image.c")
+AEC_P_SOURCES = ("aecp.c", "aecp_commands.c", "aecp_maps.c", "aecp_image.c", "aecp_state.c")
 
 
 def core_arm(tree: Tree, config: Path, interfaces: int = 1, mailbox: bool = False) -> Outcome:
