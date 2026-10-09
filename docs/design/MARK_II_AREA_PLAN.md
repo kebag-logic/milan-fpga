@@ -1,17 +1,18 @@
 # Mark II area plan
 
-Stage 1 of issue #640: the measured baseline, the inventory, the redesign levers and the lane sequence that would bring the routed shipping image under NFR-RES-01's 60 percent LUT target.
-The first measurements date from 2026-10-05 at dev `e617275074e370cec342af99b929e2588fc8d43f`.
-Round 1b records the later decisions after merging dev `5603c353`.
-The original estimates below precede those decisions; the following ledger revision replaces them.
-This page changes no RTL, configuration, register map or parameter.
-The manager rules on the lane sequence before any RTL work starts.
-Milestone 12 is due 2026-12-15, before the release gate of milestone 6, so the #396 soak and audio runs will run on the redesigned image.
+Stage 1 of #640 plans the NFR-RES-01 redesign.
+Round 1b uses records committed on dev `5603c353`.
+It incorporates the [recorded decisions](#recorded-decisions).
+The original 2026-10-05 inventory remains labelled measurement history.
+This stage changes documentation only.
+Milestone 12 precedes P3, with delivery planned by 2026-12-15.
+The #396 release campaigns run on the qualified redesigned image.
 
 ## Contents
 
 - **[Summary](#summary)** -- The baseline, the gap, what the levers add up to, and the decisions the plan waits on.
-- **[Target](#target)** -- NFR-RES-01's 38,040-LUT limit, the plan's 5 percent margin, the timing gate and the due date.
+- **[Target](#target)** -- The LUT bar, accepted margin, timing requirements and delivery date.
+- **[Baseline recorded on dev 5603c353](#baseline-recorded-on-dev-5603c353)** -- The committed endpoint records and their measured source revision.
 - **[Baseline at dev e6172750](#baseline-at-dev-e6172750)** -- The routed shipping image and `KL_pp_shadow` at 1x1 measured at this head, per hierarchy down to each protocol engine, and the second pin adoption's measured image.
 - **[Inventory](#inventory)** -- Every hierarchy above 500 LUTs: its protocol function and clause, how it is built, and which of its cost a standard sets.
 - **[Levers](#levers)** -- Twelve levers, each with its saving and basis, risk, verification cost and protocol-visible effect.
@@ -23,29 +24,126 @@ Milestone 12 is due 2026-12-15, before the release gate of milestone 6, so the #
 
 ## Summary
 
-- **The baseline.** At dev `e6172750` the routed shipping image uses 50,702 LUTs, 79.97 percent of the device: 12,662 over NFR-RES-01's 38,040 and 14,562 over this plan's 36,140. The protocol processor holds 24,051 of them, the gPTP plane 4,999, the CSR plane 2,907 and the SoC side 8,564.
-- **The start.** The second pin adoption (#661), which carries the #232, #230 and #639 area work, measured its route at 50,318 LUTs (author evidence under review): 384 below this head, 358 above what the three lanes' own deltas added up to.
-- **The gap.** From that start, 12,278 LUTs must go to meet the limit and 14,178 to meet the plan target: about 28 percent of the image. Most of the area is in the processor, as #649 found.
-- **What the levers give.** Inside today's requirements, the ten hardware levers in the [ledger](#ledger) sum to about 12,750 LUTs at central estimates and reach 37,568: under the limit by 472, short of the plan target by 1,428. One more engine-sharing lever reaches 36,368, still 228 above the plan target. Across the levers' ranges the result lies between about 33,000 and 41,900. **No priced sequence reaches the 5 percent margin at central estimates** (D8).
-- **What that rests on.** About 6,000 of the saving is one redesign that no prototype has measured yet: the protocol engines time-multiplexed onto one micro-coded sequencer (L1). Another 3,300 is the SoC side (on-chip main memory and a smaller control core), which needs owner decisions and a change to #70's staging buffers. Without the SoC levers the image stays near 40,900, over the limit.
-- **The RISC-V direction** (L2) is the one lever large enough to reach the target on its own, and it needs REQUIREMENTS section 1, NFR-SCOUT-02, NFR-SCOUT-03 and the ownership rule changed. It is priced, not planned.
-- **The schedule.** Ten weeks hold only if the [decisions](#recorded-decisions) are taken before week 1 and the sequencer's three sub-lanes run in parallel from week 1. The plan should be re-measured when the sequencer's first sub-lane routes, in week 4.
-- **No RTL, configuration or parameter changed here.** The resource gate's record is unchanged; it is re-recorded only by the lane that reaches the target (D7).
+- **Recorded start:** 50,267 routed LUTs, 12,227 above 38,040.
+  The #645/#647 record already includes the third processor adoption.
+  Its +0.299/+0.031 ns setup/hold slacks meet the build gate.
+- **Default split:** ADP, ACMP, MAAP, SRP and AECP move to firmware.
+  F1 supplies saved-state read, apply and write-back.
+  Shipping defaults wait for F2-F5 suites and bench acceptance.
+- **Estimated saving:** L2 credits 14,000 LUTs, range 11,500-16,000.
+  This includes the measured 3,102-LUT mailbox cost.
+  The complete split has no integrated area measurement yet.
+- **Estimated finish:** the [ledger](#ledger) reaches 31,067 LUTs centrally.
+  Its conservative combined estimate is 35,067, below 38,040.
+  These arithmetic scenarios are not fit or timing evidence.
+- **No double counting:** M3/M10 receive zero default-image credit.
+  Their AECP hardware leaves with F5.
+  M4 is replaced by the split; diagnostics remain enabled.
+- **Qualification risk:** F5, target service timing and bench acceptance remain.
+  M8's smaller core must pass capture, boot and split-load bounds.
+  Every function lacking qualification retains its fabric placement.
 
 ## Target
 
 | Item | Value |
 |---|---|
-| NFR-RES-01 ([requirements](../reference/FR_NFR.md)) | at most 60 percent of `xc7a100t`'s 63,400 LUTs: 38,040 |
-| Plan target, about 5 percent below the limit (D8) | at most 36,140 LUTs, 57.0 percent |
-| Timing | the [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) at the shipping 50 MHz datapath clock: WNS at least +0.03 ns and WHS at least 0 at every corner |
-| Function | unchanged: every suite, campaign and compliance check at its counts |
-| Due | 2026-12-15 (milestone 12) |
+| NFR-RES-01 ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
+| Planning margin, D8 | At least 1 percent below the limit: <= 37,659 LUTs |
+| Timing | Shipping 50 MHz datapath; every build-gate corner WNS >= +0.030 ns and WHS >= 0 |
+| Gate comparison | With the current record, WNS >= +0.049 ns also preserves the 0.25 ns fall limit |
+| Function | Equivalent PDUs and state transactions; suites and campaigns retain their counts |
+| Delivery | Milestone 12 by 2026-12-15, before P3 |
 
-The owner kept NFR-RES-01 at 60 percent on 2026-10-03 and assigned the gap to this redesign ([decision](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270)).
-The [area budget](AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) holds the gate's record until then.
+The [owner retained the 60 percent target](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270).
+D8 replaces the initial 5 percent planning margin.
+The [resource policy](AREA_BUDGET.md#the-resource-gate) remains unchanged.
+
+## Baseline recorded on dev `5603c353`
+
+Source: [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json), all three `record` objects.
+Each `measured` note identifies `a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb`.
+That is #645/#647's measured merge of dev `6aa25dec`.
+It uses processor `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
+Dev `5603c353137e90c1fa95429f6d00ef7a2298d9ee` carries those records unchanged.
+This names the stored baseline, not a measurement of `5603c353`.
+No new Vivado measurement was made for Round 1b.
+
+| Endpoint | LUT | FF | Slice | RAMB36 | RAMB18 | BRAM tiles | DSP | WNS / WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 50,267 | 54,413 | 15,779 | 74 | 27 | 87.5 | 14 | +0.299 / +0.031 |
+| `ooc-1x1` | 23,179 | 19,779 | -- | 16 | 3 | 17.5 | 8 | -3.562 / +0.159 |
+| `ooc-8x8` | 30,135 | 27,380 | -- | 21 | 5 | 23.5 | 8 | -2.278 / +0.159 |
+
+The resource records omit LUTRAM; it is not zero.
+The historical inventory below retains its separately measured LUTRAM column.
+Standalone timing has unconstrained I/O and proves no integrated fit.
+The 8x8 row is a scaling reference, not shipping acceptance.
+The route leaves 71 slices and 47.5 physical BRAM tiles.
+The 121.5-tile policy ceiling leaves 34 tiles of usable allowance.
+
+[The source receipt](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-08-issues-645-and-647)
+records the completed route and all four signoff corners.
+Its source checkpoint is `alinx_ax7101_route.dcp` from that measurement.
+The route log SHA-256 is
+`94c0471debaa23a0fd20d9050298173facb997735ffa8bbf451f68cbd82de0ac`
+(829,160 bytes).
+The record's input SHA-256 values bind the measurement inputs:
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `95a6cc95786fa743da28e2aa603d3a6af08200c86bf4bb7c452aeba7ec072c4c` |
+| `ooc-1x1` | `2dd522bd12b3480a8817cf2bb3dd969ac7be6f3d80be70d13fe32ce5576011a5` |
+| `ooc-8x8` | `5604984543f875b19f344900a8b183adf81281c02ba42517ff894502f7a07f0c` |
+
+The recipe uses Vivado 2026.1 build 6511674, `xc7a100t-fgg484-2`.
+Directives: `AreaOptimized_high`, `ExploreArea`, `ExtraPostPlacementOpt`, `AggressiveExplore`.
+It uses the default seed, one synthesis worker, 32 general threads.
+The standalone wrapper clock is 20 ns.
+The historical route below predates this synthesis-worker recipe identity.
+Its deltas therefore inform planning, not a comparable gate verdict.
+
+### Current processor inventory
+
+These are the current record's source-scope references.
+The routed hierarchy is rebuilt and can absorb neighbouring logic.
+Use standalone scopes to estimate removable source functionality.
+Parent rows include descendants; never add both to a saving.
+The [historical inventory](#inventory) supplies functions, clauses and construction.
+
+| Scope relative to wrapper | Route LUT | OOC 1x1 LUT | OOC 8x8 LUT | Split disposition |
+|---|---:|---:|---:|---|
+| `wrapper` | 23,345 | 23,179 | 30,135 | Replaced after every control function qualifies |
+| `u_pp` | 22,794 | 22,517 | 28,938 | Control functions move; retained fabric interfaces are reconnected |
+| `u_pp/u_aecp` | 8,084 | 6,150 | 7,298 | F5; includes the following five children |
+| `u_pp/u_aecp/u_d3` | 1,781 | 1,703 | 2,297 | F1/F5 saved-state ownership |
+| `u_pp/u_aecp/u_dyn` | 1,440 | 134 | 497 | F5; fabric media state stays authoritative |
+| `u_pp/u_aecp/u_store` | 979 | 1,026 | 1,119 | F5 validated image and names |
+| `u_pp/u_aecp/u_ucpu` | 1,727 | 1,553 | 1,651 | F5; no second M10 credit |
+| `u_pp/u_aecp/u_resp` | 345 | 432 | 416 | F5 response serving |
+| `u_pp/u_notify` | 2,259 | 2,125 | 2,114 | F5 registry, notification and counter serving |
+| `u_pp/u_srp` | 3,682 | 3,868 | 7,312 | F4; media admission enforcement remains in fabric |
+| `u_pp/u_srp/u_encoder` | 1,358 | 1,479 | 1,466 | Included in SRP |
+| `u_pp/u_srp/u_decoder` | 579 | 588 | 922 | Included in SRP |
+| `u_pp/u_listener` | 1,451 | 1,560 | 1,681 | F3 ACMP listener |
+| `u_pp/u_talker` | 641 | 823 | 1,472 | F3 ACMP talker |
+| `u_pp/u_adp` | 385 | 523 | 696 | F0/F3 advertisement and discovery |
+| `u_pp/u_originator` | 687 | 697 | 682 | F3/F5 originated transactions |
+| `u_pp/u_nvm_shadow` | 792 | 808 | 780 | F1/F3 binding persistence |
+| `u_pp/u_nvm_port` | 513 | 526 | 524 | F1 store and flash service |
+| `u_nvm` | 486 | 581 | 1,116 | F1 replaces container backend |
+| `u_pp/u_timer` | 882 | 906 | 1,631 | Hard deadlines remain fabric events; no saving credited |
+| `u_pp/u_dispatch` | 665 | 887 | 908 | Replaced routing; no separate credit |
+| `u_pp/u_trace` | 31 | 37 | 28 | Equivalent diagnostics retained; no credit |
+
+The #232 registry, #230 SRP storage and #639 rings/listener changes
+are already included; their savings cannot be subtracted again.
+#686 also changed MAAP, before #645/#647 refreshed the record.
 
 ## Baseline at dev `e6172750`
+
+**Historical measurement, 2026-10-05.**
+The tables in this section are not the Round 1b baseline.
+
 
 ### What changed since the gate's record
 
@@ -207,6 +305,11 @@ The measured adoption is 358 LUTs and 76 FFs above that projection: the lanes' d
 The [ledger](#ledger) starts from the measured 50,318.
 
 ## Inventory
+
+**Historical source inventory at `e6172750`.**
+The clauses and implementation choices remain reference material.
+Current measured processor costs appear in the current baseline above.
+The split changes ownership as recorded in L2; standards stay binding.
 
 Every hierarchy of the routed image above 500 LUTs, in the rebuilt hierarchy's names; the image itself is left out, and a parent whose only large child is that child shares its row.
 "Set by the standard" is the part of the cost a Milan or IEEE clause fixes: a state machine's existence, a field's width, a count's minimum.
@@ -475,51 +578,119 @@ L8 restructures that read path (registered per-group pre-selection, the per-stre
 
 ## Ledger
 
-**L1a, what the sequencer displaces.**
-Each block's share is the part of it that is sequencing, state storage or a per-protocol PDU builder, which the shared engine and its block RAM tables take over; the rest (parsing, framing beats, counters on the wire path) stays.
-The shares follow the processor record's 65 to 85 percent for the AECP emit mass, lowered where a block is already shared or table-driven.
-The figures are the standalone synthesis's, which attribute in source terms; the routed wrapper is 0.988 of the standalone one.
-The notification, saved-state writer and listener rows take the second pin's measured changes into account.
+### Default split saving basis
 
-| Block | Standalone LUT | After the second pin | Share displaced | Displaced LUT |
-|---|---:|---:|---:|---:|
-| `u_pp/u_notify` | 3,175 | 2,248 (#232: -927) | 0.60 | 1,349 |
-| `u_pp/u_aecp/u_d3` | 1,066 | 1,685 (P1's saved-state writer: +619) | 0.70 | 1,180 |
-| `u_pp/u_aecp`, its own logic | 1,416 | same | 0.50 | 708 |
-| `u_pp/u_aecp/u_dyn` | 152 | same | 0.70 | 106 |
-| `u_pp/u_listener` and `u_pp/u_lsn_admit` | 1,441 | about 1,561 (#639: +38 to +195) | 0.50 | 780 |
-| `u_pp/u_nvm_shadow` | 815 | same | 0.70 | 570 |
-| `u_pp/u_originator` | 782 | same | 0.60 | 469 |
-| `u_pp/u_talker` | 894 | same | 0.60 | 536 |
-| `u_pp/u_adp` | 628 | same | 0.60 | 377 |
-| `u_pp/u_dispatch` | 896 | same | 0.40 | 358 |
-| **Displaced** | 11,265 | 11,077 | | **6,434**; 5,326 to 7,542 with every share 0.1 lower or higher |
-| The engine: a second AECP-class engine (1,068 LUTs out of context, 1,608 in this standalone run) or the shared one with its arbitration and state regions (the gPTP engine's state regions route at 852) | | | | -1,000 to -2,500, central -1,700 |
-| **L1a, standalone** | | | | **4,734**; 2,827 to 6,542 |
-| **L1a, routed** at the wrapper's routed-to-standalone ratio of 0.988 | | | | **about 4,700**; 2,800 to 6,400 |
+All savings below are estimates of the integrated 1x1 image.
+The baseline's standalone rows avoid cross-boundary routed attribution.
+The following rows are disjoint; AECP already includes its children.
+Only the full qualified split receives the complete credit.
 
-L1b is figured the same way from the standalone SRP rows: the talker and listener FSMs (662 and 420 LUTs, share 0.7), admission (337, 0.5), the encoder's tables (1,461, 0.4) and the glue #230 left (354 LUTs standalone after #230, 0.3): 1,616 displaced, less about 300 (200 to 600) for its tables and state regions on the shared engine, about 1,300 (700 to 1,700).
+| Removed function | OOC 1x1 LUT basis | Ownership after flip |
+|---|---:|---|
+| ADP | 523 | F0/F3 |
+| ACMP listener and listener admission | 1,561 | F3 |
+| ACMP talker | 823 | F3 |
+| Originator | 697 | F3/F5 |
+| ACMP binding store | 808 | F1/F3 |
+| SRP | 3,868 | F4; fabric admission cost reserved below |
+| AECP, including microcode, descriptor and D3 stores | 6,150 | F5/F1 |
+| Notification | 2,125 | F5; hardware counter producers stay |
+| NVM port and arbiter | 542 | F1 |
+| Wrapper NVM backend | 581 | F1 |
+| **Disjoint wrapper subtotal** | **17,678** | Does not credit remaining wrapper logic |
+| Parent MAAP | **429** | F2; measured #686 route reference |
+| **Gross reference** | **18,107** | Mixed measurement contexts, not a routed delta |
 
-**The ledger, central estimates and ranges.**
-The start is the second pin's measured image (#661, under review); each row subtracts one lever.
+MAAP's 429-LUT reference is recorded in [AREA_BUDGET](AREA_BUDGET.md#the-resource-gate).
+It predates #645/#647; its uncertainty is included below.
+The standalone processor's own MAAP is excluded: shipping uses parent MAAP.
+Removing source instances does not guarantee their attributed routed saving.
+For example, AECP is 8,084 routed but 6,150 standalone.
+Its dynamic child is 1,440 routed but only 134 standalone.
+The larger routed figures are deliberately not removal credits.
 
-| Lane | Lever | Central | Range | Image after, central | Low end | High end |
-|---|---|---:|---:|---:|---:|---:|
-| M0 | the second pin adoption, measured by #661 | - | - | 50,318 | 50,318 | 50,318 |
-| M1 | L6 diagnostics off | -700 | 650 to 750 | 49,618 | 49,668 | 49,568 |
-| M2 | L3 block RAM tables outside L1 | -800 | 500 to 1,200 | 48,818 | 49,168 | 48,368 |
-| M3 | L1a the shared sequencer | -4,700 | 2,800 to 6,400 | 44,118 | 46,368 | 41,968 |
-| M3 | L4 and L5, widths and the #233 items | -250 | 130 to 500 | 43,868 | 46,238 | 41,468 |
-| M4 | L1b SRP onto the sequencer | -1,300 | 700 to 1,700 | 42,568 | 45,538 | 39,768 |
-| M5 | L8 CSR read path | -600 | 400 to 1,000 | 41,968 | 45,138 | 38,768 |
-| M6 | L9 datapath contexts in RAM | -600 | 400 to 900 | 41,368 | 44,738 | 37,868 |
-| M7 | L10a gPTP tables | -500 | 300 to 700 | 40,868 | 44,438 | 37,168 |
-| M8 | L11a on-chip main memory | -1,600 | 1,200 to 2,000 | 39,268 | 43,238 | 35,168 |
-| M8 | L11b smaller control core | -1,700 | 1,300 to 2,200 | 37,568 | 41,938 | 32,968 |
-| M10 | L10b one engine for gPTP and AECP | -1,200 | 900 to 1,500 | 36,368 | 41,038 | 31,468 |
+| Added or retained cost | Central LUT debit | Basis |
+|---|---:|---|
+| Packet mailboxes and Wishbone adapter | 3,102 | [Measured F3 round-3 skeleton](MAILBOX_SPLIT.md#measured-area): 2,946 FF, 1 RAMB36 + 10 RAMB18, no DSP, +0.402 ns WNS at 100 MHz |
+| Remaining integration and retained interfaces | 1,000 | Estimate, 500-2,000: ingress/egress CDC, media settings/licences, admission enforcement, coherent counter/status faces and retained diagnostics |
+| Mapping allowance | 0 | Estimate +/- 1,500 for source attribution, changed CPU region decode and integrated optimization |
 
-The limit is 38,040 and the plan target 36,140.
-At central estimates every hardware lever but L10b reaches 37,568, under the limit by 472 (1.2 percent); with L10b, 36,368, still 228 above the plan target.
+The 1,000-LUT allowance includes the 345-LUT standalone SRP admission reference.
+It also includes the owner's 200-400-LUT control-register estimate.
+Those are not independently subtracted elsewhere.
+Mailbox timers, filter, rings and TX arbitration already cost 3,102.
+No second cost is added for those same blocks.
+No LUT saving is credited for shared timers, trace, pools or dispatch.
+Their remaining 5,501 standalone wrapper LUTs provide unclaimed upside.
+
+Central arithmetic: `18,107 - 3,102 - 1,000 = 14,005`.
+Round down to **14,000 LUTs saved**.
+Conservative arithmetic: `18,107 - 3,102 - 2,000 - 1,500 = 11,505`.
+Optimistic arithmetic: `18,107 - 3,102 - 500 + 1,500 = 16,005`.
+Use the rounded planning range **11,500-16,000**, not measured savings.
+The old 6,800-7,300 estimate covered fewer functions and cheaper mailboxes.
+It is superseded, not added to this estimate.
+
+The credited source rows release 6.5 BRAM tiles before replacement.
+The mailbox skeleton needs six, leaving only 0.5 net tiles credited.
+Do not spend the wrapper's full 17.5 tiles before proving removal.
+F5's image, state and firmware memory need their own capacity census.
+M8 must fit that census within the unchanged 121.5-tile ceiling.
+The full route, primitive counts and service timing remain unmeasured.
+
+### Remaining levers without overlap
+
+| Lane | Default saving, central (range) | Basis and overlap exclusion |
+|---|---:|---|
+| M2 / L3 | 200 (100-400) | SoC FIFO/table storage only; old 800 included removed processor arrays and M6/M7 tables |
+| M3 / L1a, L4, L5 | 0 | AECP/notification residual applies only where fabric AECP remains; ACMP/ADP work is replaced by F0-F5 |
+| M5 / L8 | 600 (400-1,000) | Historical 2,907-LUT CSR read path; optimize existing status mux only, not split-interface growth |
+| M6 / L9 | 600 (400-900) | Historical monitor, counter, channel-map and set-point contexts; retained media functions |
+| M7 / L10a | 500 (300-700) | Historical gPTP plane tables; no overlap with M2 or M10 |
+| M8a / L11a | 1,600 (1,200-2,000) | Historical DDR3-controller/PHY census; on-chip memory sizing and retained firmware storage charged to M8 |
+| M8b / L11b | 1,700 (1,300-2,200) | Core OOC comparison in L11; conditional on capture, boot and split service under load |
+| M10 / L10b | 0 | F5 removes fabric AECP's engine; sharing it cannot save twice |
+
+M3 remains a priced fabric-AECP lane, approximately 2,600 LUTs (1,500-3,600).
+Its basis is 60 percent of notification's 2,125 LUTs,
+70 percent of D3's 1,703 and dynamic state's 134,
+50 percent of AECP own logic's 1,302,
+and 40 percent of the AECP dispatch queue's 421.
+That displaces about 3,380 LUTs before about 1,000 engine/arbitration LUTs.
+Approximately 200 LUTs of residual width work bring it near 2,600.
+This is a prototype target for retained fabric AECP only.
+M10 remains planned there at 1,200 LUTs (900-1,500).
+Its 1,727-LUT routed AECP engine bounds the historical sharing estimate.
+M3 must preserve that engine before M10 claims its separate removal.
+If M3 consumes it instead, M10 must be repriced to zero.
+Neither lane receives credit in the default-split total.
+
+### Cumulative default-image estimates
+
+Each row assumes every preceding row has landed and qualified.
+Ranges describe all-low or all-high savings, not statistical confidence.
+
+| Order | Lane | Saving | Central image | Conservative image | Optimistic image |
+|---:|---|---:|---:|---:|---:|
+| 0 | Recorded baseline | -- | 50,267 | 50,267 | 50,267 |
+| 1 | F0-F5, complete qualified flip / L2 | 14,000 | 36,267 | 38,767 | 34,267 |
+| 2 | M2 | 200 | 36,067 | 38,667 | 33,867 |
+| 3 | M5 | 600 | 35,467 | 38,267 | 32,867 |
+| 4 | M6 | 600 | 34,867 | 37,867 | 31,967 |
+| 5 | M7 | 500 | 34,367 | 37,567 | 31,267 |
+| 6 | M8a | 1,600 | 32,767 | 36,367 | 29,267 |
+| 7 | M8b, conditional | 1,700 | 31,067 | 35,067 | 27,067 |
+| 8 | M3 and M10 | 0 | 31,067 | 35,067 | 27,067 |
+| 9 | M9 | No assumed saving | Measure | Measure | Measure |
+
+Central headroom is 6,973 LUTs below 38,040, or 18.33 percent.
+The conservative estimate leaves 2,973, or 7.82 percent.
+Both exceed D8's 1 percent planning margin.
+Without M8b, the conservative image is 36,367 and still clears it.
+Without the split, these retained-fabric levers reach only 45,067 centrally.
+A partial flip must subtract only its measured disjoint contribution.
+F5 qualification is therefore essential to this default ledger.
+Timing cannot be inferred from these LUT calculations.
 
 ## Lane sequence
 
