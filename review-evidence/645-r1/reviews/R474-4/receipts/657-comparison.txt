@@ -1,0 +1,16 @@
+dev: 28/32 pass; head: 30/34 pass
+dev FAIL lines:
+  [FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless
+  [FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+  [FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+  [FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove "T6 ORDER: every repeat is a counted underrun".
+head FAIL lines:
+  [FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless
+  [FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+  [FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+  [FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove "T6 ORDER: every repeat is a counted underrun".
+only in dev:
+only in head:
+  [PASS] the unmutated gateware still passes the render lane leg (ship --pullin)
+  [PASS] mutant caught (ship --pullin): the settle recentre never pulses - breaks "T647 PULLIN +1562 after the settle: every PDU's first event is inside the law band from its PDU end"
+COMPARISON: MATCH (no regression against dev)
