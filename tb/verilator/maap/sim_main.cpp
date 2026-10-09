@@ -73,6 +73,9 @@ struct Frame {
     long start = 0;
     long end = 0;
     uint64_t at(int pos, int n) const {
+        // A missing or short frame is a failed comparison, never an invalid read.
+        if (pos < 0 || n < 0 || static_cast<size_t>(pos + n) > b.size())
+            return UINT64_MAX;
         uint64_t v = 0;
         for (int k = 0; k < n; k++) v = (v << 8) | b[pos + k];
         return v;
@@ -116,7 +119,7 @@ class MaapHarness {
     // The next frame not yet consumed, waiting up to budget cycles for it.
     bool next(Frame& f, long budget){
         for(long i=0;i<budget && frames.size()<=seen;i++) cyc();
-        if(frames.size()<=seen) return false;
+        if(frames.size()<=seen){ f=Frame{}; return false; }
         f=frames[seen++];
         return true;
     }
@@ -563,6 +566,8 @@ void MaapHarness::probe_interval_campaign(){
     }
     ck("campaign: every walk four PROBEs + ANNOUNCE", short_walks, 0);
     ck("campaign: T.B7 Begin!: first PROBE at once", worst_first<=kAtOnceCyc, 1);
+    ck("campaign: observed PROBE intervals", !probe_iv.empty(), 1);
+    if(probe_iv.empty()) return;
     const auto mm=std::minmax_element(probe_iv.begin(), probe_iv.end());
     printf("  [i]    %zu PROBE intervals: %ld..%ld cycles\n", probe_iv.size(), *mm.first, *mm.second);
     ck("B.3.4.2 probe T > 500 ms (campaign)", *mm.first>kProbeMinCyc, 1);
