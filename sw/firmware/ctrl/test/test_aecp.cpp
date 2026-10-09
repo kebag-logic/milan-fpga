@@ -253,6 +253,72 @@ TEST_F(Nvm, AbsentMapClipsButRefusedMapRevertsItsFormat)
     EXPECT_EQ(latch(NVM_G_MAPI,0,original.size()),original);
     Bytes out(8);EXPECT_FALSE(owner.port.latch(&owner,NVM_G_FMTI,0,out.data(),8));
 }
+
+TEST_F(Nvm, ScalarRecordsUseSharedValidationAndReserveUnknownGroups)
+{
+    for(auto [group,type,offset,width]:std::vector<std::array<unsigned,4>>{
+        {NVM_G_CFG,0,310,2},{NVM_G_RATE,2,136,4},{NVM_G_CLKS,36,70,2},
+        {NVM_G_FMTI,5,74,8},{NVM_G_FMTO,6,74,8}}){
+        auto &d=desc(type);Bytes b(d.defaults+offset,d.defaults+offset+width);
+        EXPECT_EQ(owner.port.apply(&owner,group,0,b.data(),width),NVM_APPLIED);
+        EXPECT_EQ(latch(group,0,width),b);
+        auto bad=Bytes(width,0xff);EXPECT_EQ(owner.port.apply(&owner,group,0,bad.data(),width),NVM_REFUSED);
+        EXPECT_EQ(latch(group,0,width),b)<<"refused value preserves the accepted value";
+    }
+    Bytes b(64,0);
+    for(auto [group,index]:std::vector<std::array<unsigned,2>>{
+        {NVM_G_CFG,1},{NVM_G_NAME,AECP_ENTITY_NAMES},{NVM_G_SUID,0},{NVM_G_MCR,0},{255,0}}){
+        EXPECT_EQ(owner.port.apply(&owner,group,index,b.data(),b.size()),NVM_REFUSED);
+        EXPECT_FALSE(owner.port.latch(&owner,group,index,b.data(),b.size()));
+    }
+    a.open=true;EXPECT_EQ(owner.port.apply(&owner,NVM_G_CFG,0,b.data(),2),NVM_FAULT);
+    EXPECT_EQ(owner.port.rollback(&owner,NVM_W_D3),-1);
+    EXPECT_EQ(owner.port.rollback(&owner,NVM_W_BIND),0)<<"binding walk does not reset AECP values";
+    EXPECT_EQ(owner.port.settle(&owner),NVM_FAULT);
+    model.count=0;EXPECT_FALSE(owner.port.model_ready(&owner));
+}
+
+TEST_F(Nvm, MapRecordsRefuseMissingStorageAndNeverPartiallyLatch)
+{
+    auto &m=pools[1];auto original=latch(NVM_G_MAPO,0,m.capacity*8);
+    EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPO,0,original.data(),original.size()),NVM_APPLIED);
+    EXPECT_EQ(latch(NVM_G_MAPO,0,original.size()),original);
+    auto b=original;EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPO,0,b.data(),b.size()-1),NVM_REFUSED);
+    EXPECT_FALSE(owner.port.latch(&owner,NVM_G_MAPO,0,b.data(),b.size()-1));EXPECT_EQ(b,original);
+    owner.scratch_count=0;EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPO,0,b.data(),b.size()),NVM_FAULT);
+    owner.scratch_count=AECP_ENTITY_MAP_MAX;
+    for(unsigned group:{NVM_G_MAPI,NVM_G_MAPO}){
+        EXPECT_EQ(owner.port.apply(&owner,group,65535,b.data(),b.size()),NVM_FAULT);
+        EXPECT_FALSE(owner.port.latch(&owner,group,65535,b.data(),b.size()));
+    }
+    m.configuration=1;EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPO,0,b.data(),b.size()),NVM_FAULT);
+    m.configuration=0;a.open=true;
+    EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPO,0,b.data(),b.size()),NVM_FAULT);
+}
+
+TEST_F(Nvm, EveryChangeQueuesOnlyItsOwnedRecords)
+{
+    boot();
+    for(auto [kind,type,group]:std::vector<std::array<unsigned,3>>{
+        {AECP_CHANGE_CONFIGURATION,0,NVM_G_CFG},{AECP_CHANGE_RATE,2,NVM_G_RATE},
+        {AECP_CHANGE_CLOCK,36,NVM_G_CLKS},{AECP_CHANGE_FORMAT,5,NVM_G_FMTI},
+        {AECP_CHANGE_FORMAT,6,NVM_G_FMTO},{AECP_CHANGE_LATENCY,6,NVM_G_PTOF},
+        {AECP_CHANGE_MAP,14,NVM_G_MAPI},{AECP_CHANGE_MAP,15,NVM_G_MAPO}}){
+        aecp_nvm_changed(&owner,aecp_change(kind),type,0);
+        auto r=nvm_rec_of(group,0);ASSERT_TRUE(r.ok);
+        for(unsigned n=0;n<8;++n)EXPECT_EQ(owner.pending[n],n==r.id/32?(1u<<(r.id%32)):0u);
+        EXPECT_TRUE(aecp_nvm_poll(&owner));EXPECT_FALSE(aecp_nvm_poll(&owner));
+    }
+    aecp_nvm_changed(&owner,AECP_CHANGE_NAME,5,1);
+    unsigned expected=0;for(unsigned n=0;n<AECP_ENTITY_NAMES;++n){
+        if(names[n].type==5&&names[n].index==1)++expected;
+    }
+    unsigned actual=0;while(aecp_nvm_poll(&owner))++actual;EXPECT_EQ(actual,expected);EXPECT_GT(actual,0u);
+    aecp_nvm_changed(&owner,AECP_CHANGE_IDENTIFY,26,0);
+    aecp_nvm_changed(&owner,AECP_CHANGE_SYSTEM_ID,0,0);
+    aecp_nvm_changed(&owner,AECP_CHANGE_FORMAT,6,65535);
+    EXPECT_FALSE(aecp_nvm_poll(&owner))<<"reserved and absent records never enter the queue";
+}
 #endif
 
 #ifdef AECP_TEST_APP
