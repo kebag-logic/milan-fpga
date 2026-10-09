@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:06.151" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:06.151">
+    <testcase name="A17EachInterfaceTimerHoldsItsEarliestDeadline" file="$REPO/tests/test_acmp.cpp" line="789" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:06.151" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:810&#x0A;Value of: fk.sent.empty() &amp;&amp; a.sinks[1].state == ACMP_PRB_W_RESP &amp;&amp; fk.armed[0] &amp;&amp; fk.count(Call::TIMER) == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A17 an expiry with nothing due changes nothing and re-arms the timer it consumed&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:810
+Value of: fk.sent.empty() && a.sinks[1].state == ACMP_PRB_W_RESP && fk.armed[0] && fk.count(Call::TIMER) == 1u
+  Actual: false
+Expected: true
+A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:04.589" name="AllTests">
+  <testsuite name="AdpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:04.589">
+    <testcase name="A0toA2Schedule" file="$REPO/tests/test_adp.cpp" line="535" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:04.589" classname="AdpCore">
+      <failure message="$REPO/tests/test_adp.cpp:122&#x0A;Value of: fk.sends == 1u &amp;&amp; fk.last[15] == 0u &amp;&amp; a.state == ADP_STATE_WAITING &amp;&amp; fk.last_delay == 5000u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A1 TMR_DELAY: ENTITY_AVAILABLE, WAITING, TMR_ADVERTISE 5 s (5.6.3.5.9)&#x0A;" type=""><![CDATA[$REPO/tests/test_adp.cpp:122
+Value of: fk.sends == 1u && fk.last[15] == 0u && a.state == ADP_STATE_WAITING && fk.last_delay == 5000u
+  Actual: false
+Expected: true
+A1 TMR_DELAY: ENTITY_AVAILABLE, WAITING, TMR_ADVERTISE 5 s (5.6.3.5.9)
+]]></failure>
+    </testcase>
+    <testcase name="MockedPortOrder" file="$REPO/tests/test_adp.cpp" line="638" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:04.589" classname="AdpCore">
+      <failure message="$REPO/tests/test_adp.cpp:660&#x0A;Expected equality of these values:&#x0A;  ms&#x0A;    Which is: 6000&#x0A;  5000u&#x0A;    Which is: 5000&#x0A;A1 TMR_DELAY starts the advertisement period&#x0A;" type=""><![CDATA[$REPO/tests/test_adp.cpp:660
+Expected equality of these values:
+  ms
+    Which is: 6000
+  5000u
+    Which is: 5000
+A1 TMR_DELAY starts the advertisement period
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

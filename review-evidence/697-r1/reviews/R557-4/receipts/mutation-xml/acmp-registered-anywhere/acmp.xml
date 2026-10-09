@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:05.900" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:05.900">
+    <testcase name="A14RegisteredSettlesTheReservation" file="$REPO/tests/test_acmp.cpp" line="686" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:05.900" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:702&#x0A;Value of: a.sinks[0].state == before.state &amp;&amp; a.sinks[0].tk_failed == before.tk_failed &amp;&amp; a.impossible == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A14 EVT_TK_REGISTERED anywhere else is Table 5.30&apos;s x: counted, nothing changes, state 0&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:702
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 0
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:702&#x0A;Value of: a.sinks[0].state == before.state &amp;&amp; a.sinks[0].tk_failed == before.tk_failed &amp;&amp; a.impossible == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A14 EVT_TK_REGISTERED anywhere else is Table 5.30&apos;s x: counted, nothing changes, state 1&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:702
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 1
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:702&#x0A;Value of: a.sinks[0].state == before.state &amp;&amp; a.sinks[0].tk_failed == before.tk_failed &amp;&amp; a.impossible == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A14 EVT_TK_REGISTERED anywhere else is Table 5.30&apos;s x: counted, nothing changes, state 2&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:702
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 2
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:702&#x0A;Value of: a.sinks[0].state == before.state &amp;&amp; a.sinks[0].tk_failed == before.tk_failed &amp;&amp; a.impossible == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A14 EVT_TK_REGISTERED anywhere else is Table 5.30&apos;s x: counted, nothing changes, state 3&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:702
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 3
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:702&#x0A;Value of: a.sinks[0].state == before.state &amp;&amp; a.sinks[0].tk_failed == before.tk_failed &amp;&amp; a.impossible == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A14 EVT_TK_REGISTERED anywhere else is Table 5.30&apos;s x: counted, nothing changes, state 4&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:702
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 4
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:702&#x0A;Value of: a.sinks[0].state == before.state &amp;&amp; a.sinks[0].tk_failed == before.tk_failed &amp;&amp; a.impossible == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A14 EVT_TK_REGISTERED anywhere else is Table 5.30&apos;s x: counted, nothing changes, state 5&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:702
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 5
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:702&#x0A;Value of: a.sinks[0].state == before.state &amp;&amp; a.sinks[0].tk_failed == before.tk_failed &amp;&amp; a.impossible == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A14 EVT_TK_REGISTERED anywhere else is Table 5.30&apos;s x: counted, nothing changes, state 7&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:702
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 7
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:707&#x0A;Expected equality of these values:&#x0A;  a.impossible&#x0A;    Which is: 1&#x0A;  2u&#x0A;    Which is: 2&#x0A;A14 as is one for a sink the entity lacks&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:707
+Expected equality of these values:
+  a.impossible
+    Which is: 1
+  2u
+    Which is: 2
+A14 as is one for a sink the entity lacks
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

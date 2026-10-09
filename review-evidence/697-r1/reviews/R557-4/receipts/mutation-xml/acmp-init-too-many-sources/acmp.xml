@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:04.763" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:04.763">
+    <testcase name="A0InitRefusesWhatTheStaticSizesCannotHold" file="$REPO/tests/test_acmp.cpp" line="167" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:04.763" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:195&#x0A;Value of: acmp_init(&amp;b, &amp;sources.config, &amp;kPorts, &amp;kEnv)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;A0 more sources than ACMP_MAX_SOURCES are refused&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:195
+Value of: acmp_init(&b, &sources.config, &kPorts, &kEnv)
+  Actual: true
+Expected: false
+A0 more sources than ACMP_MAX_SOURCES are refused
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

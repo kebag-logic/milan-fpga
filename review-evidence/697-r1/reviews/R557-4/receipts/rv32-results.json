@@ -1,0 +1,42 @@
+[
+  {
+    "configuration": "Debug",
+    "rc": 0,
+    "elf_sha256": "0c7981e76956139765018b5da61ef5ad15ecba2b2df54cfdfa7f27d21d313416",
+    "elf_bytes": 103292,
+    "core_objects": {
+      "adp.c": "9c1cfb324b12834529c7547ec90b7f74d2cee82c979bfb2a21630484b0d778cd",
+      "acmp.c": "00df3827bdc16d20a54d08220cdcb56a51e232c70562c134dda309303564fcb7",
+      "maap.c": "23e7792334ace3e4aa3ae08e627bb7a43b40ea6bf83ca52525a6ddc6b97d1f7d"
+    },
+    "core_imports": [
+      "__mulsi3",
+      "__umodsi3",
+      "ctrl_reentry_assert",
+      "memcpy",
+      "memset",
+      "port_assert_failed"
+    ],
+    "unresolved_final": [],
+    "smoke": "ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds"
+  },
+  {
+    "configuration": "Release",
+    "rc": 0,
+    "elf_sha256": "1505b5a1c1da924abe7855fc7c4e71e19b72cbc1937cc5c301e58bdf1a0db1f0",
+    "elf_bytes": 36264,
+    "core_objects": {
+      "adp.c": "31e8d3486aa9fc1bb52bd8e54828f039ae96b2fd04f61f7800daa8377d922425",
+      "acmp.c": "56b0c8d698c884ebc9b0732a24edd1f269473e5e0610a0170c647726f218413f",
+      "maap.c": "f04b053968b267848c4752d65f1675fca061d9f8aed7e9165885f2b097be0ce8"
+    },
+    "core_imports": [
+      "__umodsi3",
+      "ctrl_reentry_assert",
+      "memcpy",
+      "memset"
+    ],
+    "unresolved_final": [],
+    "smoke": "ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds"
+  }
+]

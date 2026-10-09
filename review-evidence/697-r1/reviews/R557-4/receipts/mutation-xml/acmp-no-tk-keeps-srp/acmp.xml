@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:05.858" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:05.858">
+    <testcase name="A13NoTalkerAttributeReprobes" file="$REPO/tests/test_acmp.cpp" line="664" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:05.858" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:668&#x0A;Value of: fk.count(Call::SRP) == 1u &amp;&amp; !fk.calls[unsigned(fk.position(Call::SRP))].flag &amp;&amp; view(0).stream.stream_id == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A13 TMR_NO_TK clears the SRP parameters and stops SRP (5.5.3.5.36 step 1)&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:668
+Value of: fk.count(Call::SRP) == 1u && !fk.calls[unsigned(fk.position(Call::SRP))].flag && view(0).stream.stream_id == 0u
+  Actual: false
+Expected: true
+A13 TMR_NO_TK clears the SRP parameters and stops SRP (5.5.3.5.36 step 1)
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

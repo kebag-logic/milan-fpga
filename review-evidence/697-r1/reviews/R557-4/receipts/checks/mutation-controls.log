@@ -1,0 +1,15 @@
+COMMAND ["python3", "scripts/mutation_selftest.py", "--work", "$PACKET/scratch/checks/mutation-controls", "--jobs", "2"]
+report control: old complete XML removed before an early exit
+report control truncated: refused
+report control wrong-count: refused
+report control wrong-name: refused
+report control duplicate: refused
+report control skipped: refused
+report control errors: refused
+report control missing-attributes: refused
+report control wrong-failures: refused
+report control partial-registration: refused
+reused campaign: genuine catch followed by early exit(1) ESCAPED; both old reports removed
+unknown test control: ERROR replaces the old campaign summary
+unknown test control: ERROR, including a mixed known/unknown selection
+baseline failure control: old campaign summary removed before building

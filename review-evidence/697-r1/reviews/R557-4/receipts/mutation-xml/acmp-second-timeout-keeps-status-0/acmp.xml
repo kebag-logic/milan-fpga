@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:05.783" name="AllTests">
+  <testsuite name="AcmpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:05.783">
+    <testcase name="A10NoResponseSendsTheDuplicateThenGivesUp" file="$REPO/tests/test_acmp.cpp" line="608" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:05.783" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:622&#x0A;Value of: fk.sent.empty() &amp;&amp; a.sinks[0].state == ACMP_PRB_W_RETRY &amp;&amp; a.sinks[0].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT &amp;&amp; a.sinks[0].timer == ACMP_TIMER_RETRY &amp;&amp; a.sinks[0].timer_deadline == fk.now + spec::TMR_RETRY_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A10 the second: no frame, LISTENER_TALKER_TIMEOUT, TMR_RETRY 4 s (5.5.3.5.23)&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:622
+Value of: fk.sent.empty() && a.sinks[0].state == ACMP_PRB_W_RETRY && a.sinks[0].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT && a.sinks[0].timer == ACMP_TIMER_RETRY && a.sinks[0].timer_deadline == fk.now + spec::TMR_RETRY_MS
+  Actual: false
+Expected: true
+A10 the second: no frame, LISTENER_TALKER_TIMEOUT, TMR_RETRY 4 s (5.5.3.5.23)
+]]></failure>
+    </testcase>
+    <testcase name="A25OnlyTable522ItemsAreReported" file="$REPO/tests/test_acmp.cpp" line="1458" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:05.783" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:1469&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::CHANGED)&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;A25 the ACMP status LISTENER_TALKER_TIMEOUT does&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1469
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+A25 the ACMP status LISTENER_TALKER_TIMEOUT does
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

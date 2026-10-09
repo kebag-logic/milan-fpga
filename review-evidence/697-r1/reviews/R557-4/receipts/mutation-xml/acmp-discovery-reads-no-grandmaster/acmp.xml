@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:06.738" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:06.738">
+    <testcase name="A22AvailableDiscoversWhenTheGrandmasterMatches" file="$REPO/tests/test_acmp.cpp" line="1110" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:06.738" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:1115&#x0A;Value of: !a.sinks[0].discovered &amp;&amp; !a.sinks[0].adp_armed&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster is ignored (5.6.4.5.1 step 1)&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1115
+Value of: !a.sinks[0].discovered && !a.sinks[0].adp_armed
+  Actual: false
+Expected: true
+A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster is ignored (5.6.4.5.1 step 1)
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:1120&#x0A;Value of: a.sinks[0].discovered&#x0A;  Actual: true&#x0A;Expected: false&#x0A;A22 and from another domain&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1120
+Value of: a.sinks[0].discovered
+  Actual: true
+Expected: false
+A22 and from another domain
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

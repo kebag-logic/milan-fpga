@@ -1,0 +1,17 @@
+COMMAND ["python3", "scripts/test_inventory.py", "--build", "$PACKET/scratch/checks/gcc", "--jobs", "4"]
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $PACKET/scratch/checks/gcc
+[ 11%] Built target tsn
+[ 23%] Built target tsn_test
+[ 32%] Built target tsn_debug
+[ 41%] Built target acmp_tests
+[ 50%] Built target adp_tests
+[ 58%] Built target maap_tests
+[ 64%] Built target example_port
+[ 73%] Built target adp_debug
+[ 82%] Built target adp_release
+[ 91%] Built target maap_debug
+[100%] Built target port_tests
+registration: 7 binaries; 369 instances
+test sensitivity: 108 declarations, 311 plants

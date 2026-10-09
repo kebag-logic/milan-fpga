@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:08.063" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:08.063">
+    <testcase name="A26AnotherAvtpVersionIsDiscardedBeforeItIsRead" file="$REPO/tests/test_acmp.cpp" line="1485" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:08.063" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:1490&#x0A;Value of: fk.calls.empty() &amp;&amp; a.sinks[0].state == ACMP_UNBOUND &amp;&amp; a.rx_malformed == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1490
+Value of: fk.calls.empty() && a.sinks[0].state == ACMP_UNBOUND && a.rx_malformed == 1u
+  Actual: false
+Expected: true
+A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:1497&#x0A;Value of: fk.calls.empty() &amp;&amp; a.rx_malformed == 2u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A26 a talker command of version 1 is not answered&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1497
+Value of: fk.calls.empty() && a.rx_malformed == 2u
+  Actual: false
+Expected: true
+A26 a talker command of version 1 is not answered
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:1504&#x0A;Value of: a.sinks[0].state == ACMP_PRB_W_RESP &amp;&amp; fk.calls.empty() &amp;&amp; a.rx_malformed == 3u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A26 the probe&apos;s own PROBE_TX_RESPONSE at version 1 is not taken&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1504
+Value of: a.sinks[0].state == ACMP_PRB_W_RESP && fk.calls.empty() && a.rx_malformed == 3u
+  Actual: false
+Expected: true
+A26 the probe's own PROBE_TX_RESPONSE at version 1 is not taken
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:1508&#x0A;Value of: !a.sinks[0].discovered &amp;&amp; fk.calls.empty() &amp;&amp; a.adp_ignored == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A26 an ENTITY_AVAILABLE of version 1 discovers nothing&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1508
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+A26 an ENTITY_AVAILABLE of version 1 discovers nothing
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:1517&#x0A;Value of: a.sinks[0].discovered &amp;&amp; fk.calls.empty() &amp;&amp; a.adp_ignored == 2u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A26 an ENTITY_DEPARTING of version 1 departs nothing&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1517
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+A26 an ENTITY_DEPARTING of version 1 departs nothing
+]]></failure>
+      <failure message="$REPO/tests/test_acmp.cpp:1528&#x0A;Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL &amp;&amp; !a.sinks[1].discovered&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 1&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1528
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 1
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

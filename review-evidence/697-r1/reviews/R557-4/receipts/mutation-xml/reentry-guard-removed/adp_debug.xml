@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0.001" timestamp="2026-10-09T09:54:04.339" name="AllTests">
+  <testsuite name="AdpReentry" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2026-10-09T09:54:04.339">
+    <testcase name="AdvertiseInlineExpiry" file="$REPO/tests/test_adp_reentry.cpp" line="132" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:04.339" classname="AdpReentry">
+      <failure message="$REPO/tests/test_adp_reentry.cpp:143&#x0A;Death test: { std::signal(6, assertion_exit); r.expire(); }&#x0A;    Result: failed to die.&#x0A; Error msg:&#x0A;[  DEATH   ] &#x0A;inline ADVERTISE expiry asserts&#x0A;" type=""><![CDATA[$REPO/tests/test_adp_reentry.cpp:143
+Death test: { std::signal(6, assertion_exit); r.expire(); }
+    Result: failed to die.
+ Error msg:
+[  DEATH   ] 
+inline ADVERTISE expiry asserts
+]]></failure>
+    </testcase>
+    <testcase name="DelayInlineExpiryOnGmChange" file="$REPO/tests/test_adp_reentry.cpp" line="160" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:04.340" classname="AdpReentry">
+      <failure message="$REPO/tests/test_adp_reentry.cpp:170&#x0A;Death test: { std::signal(6, assertion_exit); adp_gm_change(&amp;r.a); }&#x0A;    Result: failed to die.&#x0A; Error msg:&#x0A;[  DEATH   ] &#x0A;inline DELAY expiry asserts&#x0A;" type=""><![CDATA[$REPO/tests/test_adp_reentry.cpp:170
+Death test: { std::signal(6, assertion_exit); adp_gm_change(&r.a); }
+    Result: failed to die.
+ Error msg:
+[  DEATH   ] 
+inline DELAY expiry asserts
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

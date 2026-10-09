@@ -1,0 +1,119 @@
+{
+  "controls": [
+    {
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "is: 5",
+      "expected_refusal": true,
+      "errors": [
+        "maap-stall-unqueued: needle is not an assertion message literal in MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "correct": true
+    },
+    {
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "5u",
+      "expected_refusal": true,
+      "errors": [
+        "maap-stall-unqueued: needle is not an assertion message literal in MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "correct": true
+    },
+    {
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "r.frames.size()",
+      "expected_refusal": true,
+      "errors": [
+        "maap-stall-unqueued: needle is not an assertion message literal in MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "correct": true
+    },
+    {
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "Which is: 5",
+      "expected_refusal": true,
+      "errors": [
+        "maap-stall-unqueued: empty or generic assertion needle",
+        "maap-stall-unqueued: needle is not an assertion message literal in MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "correct": true
+    },
+    {
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "Expected equality",
+      "expected_refusal": true,
+      "errors": [
+        "maap-stall-unqueued: needle is not an assertion message literal in MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "correct": true
+    },
+    {
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "equality of these values",
+      "expected_refusal": true,
+      "errors": [
+        "maap-stall-unqueued: needle is not an assertion message literal in MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "correct": true
+    },
+    {
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "both owed frames and ANNOUNCE leave once room returns",
+      "expected_refusal": false,
+      "errors": [],
+      "correct": true
+    },
+    {
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "timer clock budget for state",
+      "expected_refusal": true,
+      "errors": [
+        "maap-stall-unqueued: needle is not an assertion message literal in MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "correct": true
+    },
+    {
+      "test": "Probe.Own",
+      "needle": "own identifier",
+      "expected_refusal": false,
+      "errors": [],
+      "correct": true
+    },
+    {
+      "test": "Probe.Own",
+      "needle": "helper identifier",
+      "expected_refusal": false,
+      "errors": [],
+      "correct": true
+    },
+    {
+      "test": "Probe.Own",
+      "needle": "unused identifier",
+      "expected_refusal": true,
+      "errors": [
+        "probe: needle is not an assertion message literal in Probe.Own"
+      ],
+      "correct": true
+    },
+    {
+      "test": "Probe.Own",
+      "needle": "argument identifier",
+      "expected_refusal": true,
+      "errors": [
+        "probe: needle is not an assertion message literal in Probe.Own"
+      ],
+      "correct": true
+    },
+    {
+      "test": "Probe.Own",
+      "needle": "other identifier",
+      "expected_refusal": true,
+      "errors": [
+        "probe: needle is not an assertion message literal in Probe.Own"
+      ],
+      "correct": true
+    }
+  ],
+  "real_errors": [],
+  "kill_entries": 329,
+  "test_inventories": 108
+}

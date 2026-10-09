@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:05.087" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:05.087">
+    <testcase name="A2UnknownSinkIsAnsweredListenerUnknownId" file="$REPO/tests/test_acmp.cpp" line="327" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:05.087" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:331&#x0A;Expected equality of these values:&#x0A;  fk.sent.size()&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;A2 a command for a sink the entity lacks is answered, msg 6&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:331
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 0
+  1u
+    Which is: 1
+A2 a command for a sink the entity lacks is answered, msg 6
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

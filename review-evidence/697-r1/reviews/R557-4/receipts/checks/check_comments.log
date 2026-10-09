@@ -1,0 +1,62 @@
+COMMAND ["python3", "scripts/check_comments.py", "--selftest"]
+comment control line prose: refused
+comment control clause prose: refused
+comment control block prose: refused
+comment control SPDX block prose: refused
+comment control decorated SPDX block prose: refused
+comment control spliced SPDX prose: refused
+comment control spliced delimiter: refused
+comment control trigraph splice: refused
+comment control digit separator: refused
+comment control hex digit separator: refused
+comment control multiline character: refused
+comment control carriage-return character: refused
+comment control carriage-return string: refused
+comment control assembly character: refused
+comment control assembly define prose: refused
+comment control assembly quoted prose: refused
+comment control assembly define quoted prose: refused
+comment control assembly pragma prose: refused
+comment control assembly prose: refused
+comment control assembly trailing prose: refused
+comment control assembly spliced prose: refused
+comment control disabled region: refused
+comment control spliced disabled region: refused
+comment control digraph disabled region: refused
+comment control comment-separated disabled region: refused
+comment control if 0: refused
+comment control if 00: refused
+comment control if 0x0: refused
+comment control if 0u: refused
+comment control if false: refused
+comment control if 0X00UL: refused
+comment control if 0b00: refused
+comment control if 0'000: refused
+comment control if (0LL): refused
+comment control elif 0: refused
+comment control elif 00: refused
+comment control elif 0x0: refused
+comment control elif 0u: refused
+comment control elif false: refused
+comment control elif 0X00UL: refused
+comment control elif 0b00: refused
+comment control elif 0'000: refused
+comment control elif (0LL): refused
+comment control SPDX line: pass
+comment control SPDX block: pass
+comment control requirements: pass
+comment control standards: pass
+comment control block tracing: pass
+comment control digit separated numbers: pass
+comment control single-line characters: pass
+comment control nonzero regions: pass
+comment control assembly define tracing: pass
+comment control assembly define string: pass
+comment control assembly character tracing: pass
+comment control string: pass
+comment control raw string: pass
+comment control assembly SPDX: pass
+comment control assembly tracing: pass
+comment control assembly directives: pass
+comment control spliced tracing: pass
+comments: 23 code files and all mutation fragments pass

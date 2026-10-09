@@ -1,0 +1,813 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f1c0437..b7721e7 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -2,6 +2,8 @@
+ 
+ ## Unreleased
+ 
++- Close comment scanner gaps for digit separators, zero conditions and assembly directive bodies.
++- Require mutation needles to come from named assertion messages. Preserve critical port contract phrases.
+ - Require fresh complete mutation reports, specific assertion messages, compiler boundary checks and executable test registration.
+ - Link each standard separately. Record the inherited ADP input limits and caller validation obligations.
+ - Require Linux and freestanding RV32 validation in [CI](.github/workflows/quality.yml).
+diff --git a/docs/CODING_STANDARD.md b/docs/CODING_STANDARD.md
+index df62c12..c5205f3 100644
+--- a/docs/CODING_STANDARD.md
++++ b/docs/CODING_STANDARD.md
+@@ -29,5 +29,6 @@ See [verification](VERIFICATION.md) for coverage and mutation obligations.
+ Document static-analysis suppressions in the [suppression register](STATIC_ANALYSIS.md).
+ 
+ The [comment gate](../scripts/check_comments.py) checks every logical comment line, including assembly `#` comments.
+-Line splicing cannot hide prose behind an SPDX line. Disabled `#if 0` regions are refused.
+-The [port contract gate](../scripts/check_port_contracts.py) keeps relocated interface names in the integrator guide.
++Line splicing and digit separators cannot hide prose. Zero or false `#if` and `#elif` conditions are refused.
++Assembly character constants and directive bodies cannot hide `#` prose.
++The [port contract gate](../scripts/check_port_contracts.py) keeps relocated interface names and critical contract phrases in the integrator guide.
+diff --git a/docs/DEVIATIONS.md b/docs/DEVIATIONS.md
+index a748e94..681e901 100644
+--- a/docs/DEVIATIONS.md
++++ b/docs/DEVIATIONS.md
+@@ -10,7 +10,7 @@ covered clauses. The [traceability matrix](TRACEABILITY.md) names their tests.
+ | DEV-02 | [IEEE 1722.1-2021 6.2.2.15 and 6.2.5.2.2](https://standards.ieee.org/ieee/1722.1/6670/) | A departing frame carries the current index. Reset affects the next advertisement. This preserves the source interpretation of departure construction. |
+ | DEV-03 | [Milan v1.2 5.6.3.5.8 and 5.6.3.5.11](https://avnu.org/resource/milan-specification/) | Two departures may be owed. Further identical zero-index departures coalesce and increment a diagnostic. This bounds storage during repeated shutdowns. |
+ | DEV-04 | [Milan v1.2 Table 5.50 and Table 5.29](https://avnu.org/resource/milan-specification/) | ADP and ACMP use finite-resolution pseudorandom delays. Entropy comes from the integrator. This is not a security random source. |
+-| DEV-05 | [IEEE 1722-2016 Annex B, Table B.7](https://sagroups.ieee.org/1722/) | MAAP uses a fixed output queue. Overload is counted and requires prompt port service. Timing on a real transport is outside host unit tests. |
++| DEV-05 | [IEEE 1722-2016 Annex B, Table B.7](https://standards.ieee.org/ieee/1722/5979/) | MAAP uses a fixed output queue. Overload is counted and requires prompt port service. Timing on a real transport is outside host unit tests. |
+ | DEV-06 | [IEEE 1722.1-2021 8.2.1](https://standards.ieee.org/ieee/1722.1/6670/) | Receivers expect untagged frame layout. The integrator removes VLAN tags. This keeps parsing independent of the network driver. |
+ | DEV-07 | [Milan v1.2 5.5.3.5.2](https://avnu.org/resource/milan-specification/) | Binding serialization is a local 20-byte format. This library supplies no persistent store. The integrator provides durable transaction semantics. |
+ | DEV-08 | [IEEE 1722.1-2021 6.2.2](https://standards.ieee.org/ieee/1722.1/6670/); [Milan v1.2 5.6.3.1](https://avnu.org/resource/milan-specification/) | The ADP receiver validates only the prefix it reads, EtherType, subtype, message nibble and target. Matching discovery with version 1, length 26 bytes, or zero control_data_length still enters DELAY from WAITING. Each restarts the timer without increasing discarded. The [owner decision](https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074721212) preserves this inherited behavior. The adapter must validate complete input as described in [PORTING](PORTING.md#adp-input-validation). The correction is tracked in [issue 3](https://github.com/kebag-logic/tsn-c-stack/issues/3). |
+diff --git a/docs/PORTING.md b/docs/PORTING.md
+index ebc74bd..3b5ca2e 100644
+--- a/docs/PORTING.md
++++ b/docs/PORTING.md
+@@ -37,10 +37,10 @@ Serialize every input and all instance access. No interrupt or callback may re-e
+ Zero-delay timers must enqueue an expiry for a later dispatch.
+ 
+ ADP's port-call guard covers every instance, including `adp_build` and initialization.
+-Debug builds assert on re-entry. Release builds ignore it and increment the lifetime `adp_reentry_count` modulo 2^32.
++Builds without `NDEBUG` assert on re-entry. Builds with `NDEBUG` ignore it and increment the lifetime `adp_reentry_count` modulo 2^32.
+ A refused `adp_poll` returns false. A refused `adp_build` leaves its output unchanged.
+ Initialization does not reset this counter. Read it only from the dispatch context.
+-MAAP guards its instance and counts refused re-entry. Debug builds also assert.
++MAAP guards its instance and counts refused re-entry. Builds without `NDEBUG` also assert.
+ ACMP guards port callbacks and counts refused re-entry on its instance.
+ Defining `CTRL_REENTRY_ASSERT` requires the port to implement `ctrl_reentry_assert`.
+ The [architecture](ARCHITECTURE.md) describes these guards; they provide no concurrency protection.
+diff --git a/docs/REQUIREMENTS.md b/docs/REQUIREMENTS.md
+index 7d1247f..7eed949 100644
+--- a/docs/REQUIREMENTS.md
++++ b/docs/REQUIREMENTS.md
+@@ -1,7 +1,7 @@
+ # Requirements
+ 
+ These requirements describe this import, not complete device certification.
+-The cited editions are [IEEE 1722.1-2021](https://standards.ieee.org/ieee/1722.1/6670/), [Milan v1.2](https://avnu.org/resource/milan-specification/) and [IEEE 1722-2016](https://sagroups.ieee.org/1722/).
++The cited editions are [IEEE 1722.1-2021](https://standards.ieee.org/ieee/1722.1/6670/), [Milan v1.2](https://avnu.org/resource/milan-specification/) and [IEEE 1722-2016](https://standards.ieee.org/ieee/1722/5979/).
+ Clause labels refer to those editions. No standards text is reproduced.
+ Local port rules are identified as local requirements.
+ See [deviations](DEVIATIONS.md) and the generated [traceability matrix](TRACEABILITY.md).
+@@ -11,7 +11,7 @@ See [deviations](DEVIATIONS.md) and the generated [traceability matrix](TRACEABI
+ | ADP-01 | Encode entity fields. Reject wrong EtherType, subtype, message nibble, target and input shorter than 26 bytes. Preserve the [DEV-08 input limits](DEVIATIONS.md). | [IEEE 1722.1-2021 6.2.2](https://standards.ieee.org/ieee/1722.1/6670/); [Milan v1.2 5.6.3.1](https://avnu.org/resource/milan-specification/) |
+ | ADP-02 | Follow advertise, discover, link, grandmaster and shutdown transitions. | [Milan v1.2 5.6.3.5, Table 5.51](https://avnu.org/resource/milan-specification/); [IEEE 1722.1-2021 6.2.2.15](https://standards.ieee.org/ieee/1722.1/6670/) |
+ | ADP-03 | Keep refused departures ordered before an advertisement. Bound storage and count coalescing. | [IEEE 1722.1-2021 6.2.5.2.2](https://standards.ieee.org/ieee/1722.1/6670/); [Milan v1.2 5.6.3.5.8 and 5.6.3.5.11](https://avnu.org/resource/milan-specification/); [Local transport contract](PORTING.md) |
+-| PORT-01 | Serialize input. Refuse synchronous callback re-entry. Preserve state on refusal. | [Local port contract supporting Milan v1.2 5.5.3.5 and 5.6.3.5](https://avnu.org/resource/milan-specification/); [IEEE 1722-2016 B.3](https://sagroups.ieee.org/1722/) |
++| PORT-01 | Serialize input. Refuse synchronous callback re-entry. Preserve state on refusal. | [Local port contract supporting Milan v1.2 5.5.3.5 and 5.6.3.5](https://avnu.org/resource/milan-specification/); [IEEE 1722-2016 B.3](https://standards.ieee.org/ieee/1722/5979/) |
+ | ACMP-01 | Refuse configurations outside static capacities and initialize without port access. | [Local capacity contract supporting Milan v1.2 5.5.3.5.1](https://avnu.org/resource/milan-specification/) |
+ | ACMP-02 | Parse and build the Milan ACMP format, status codes and flags. Ignore foreign input. | [IEEE 1722.1-2021 8.2.1](https://standards.ieee.org/ieee/1722.1/6670/); [Milan v1.2 5.5.2.2 and 5.5.3.1](https://avnu.org/resource/milan-specification/) |
+ | ACMP-03 | Bind, unbind and report each sink with lock checks and response-before-change ordering. | [Milan v1.2 5.5.2.4, 5.5.2.5 and 5.5.3.5, Tables 5.30 and 5.32](https://avnu.org/resource/milan-specification/) |
+@@ -21,10 +21,10 @@ See [deviations](DEVIATIONS.md) and the generated [traceability matrix](TRACEABI
+ | ACMP-07 | Restore and latch bindings for fast connect without a storage-device dependency. | [Milan v1.2 5.5.3.5.2 and 5.5.2.4](https://avnu.org/resource/milan-specification/); [Local binding-record format](PORTING.md) |
+ | ACMP-08 | Answer talker commands from live source state with the prescribed flags. | [Milan v1.2 5.5.4](https://avnu.org/resource/milan-specification/); [IEEE 1722.1-2021 8.2.1](https://standards.ieee.org/ieee/1722.1/6670/) |
+ | ACMP-09 | Queue bounded responses and delay notifications until their responses are accepted. | [Milan v1.2 5.5.3.5](https://avnu.org/resource/milan-specification/); [Local transport and port work budgets](PORTING.md) |
+-| MAAP-01 | Validate frame fields, destination, source, lengths and supported version behavior. | [IEEE 1722-2016 B.2, especially B.2.3](https://sagroups.ieee.org/1722/) |
+-| MAAP-02 | Reserve valid ranges using three probe retransmissions and randomized timer intervals. | [IEEE 1722-2016 B.3.3, B.3.6.1 and B.4, Tables B.8 and B.9](https://sagroups.ieee.org/1722/) |
+-| MAAP-03 | Resolve full-width range conflicts and priority. Defend the exact intersection. | [IEEE 1722-2016 B.3, Table B.7](https://sagroups.ieee.org/1722/); [Milan v1.2 4.3.5.1](https://avnu.org/resource/milan-specification/) |
+-| MAAP-04 | Withdraw on loss and publish allocation only after accepted ANNOUNCE. Bound pending work. | [IEEE 1722-2016 B.3, Table B.7](https://sagroups.ieee.org/1722/); [Local transport contract](PORTING.md) |
++| MAAP-01 | Validate frame fields, destination, source, lengths and supported version behavior. | [IEEE 1722-2016 B.2, especially B.2.3](https://standards.ieee.org/ieee/1722/5979/) |
++| MAAP-02 | Reserve valid ranges using three probe retransmissions and randomized timer intervals. | [IEEE 1722-2016 B.3.3, B.3.6.1 and B.4, Tables B.8 and B.9](https://standards.ieee.org/ieee/1722/5979/) |
++| MAAP-03 | Resolve full-width range conflicts and priority. Defend the exact intersection. | [IEEE 1722-2016 B.3, Table B.7](https://standards.ieee.org/ieee/1722/5979/); [Milan v1.2 4.3.5.1](https://avnu.org/resource/milan-specification/) |
++| MAAP-04 | Withdraw on loss and publish allocation only after accepted ANNOUNCE. Bound pending work. | [IEEE 1722-2016 B.3, Table B.7](https://standards.ieee.org/ieee/1722/5979/); [Local transport contract](PORTING.md) |
+ 
+ ## ADP input limit
+ 
+@@ -41,5 +41,5 @@ The protocol correction is tracked in [issue 3](https://github.com/kebag-logic/t
+ [Milan v1.2 5.5.2.3 and Table 5.26](https://avnu.org/resource/milan-specification/) support ACMP-05's command timeout value.
+ Accepted-send timing and wrap handling also follow the linked local port contract.
+ [Milan v1.2 4.3.5.1](https://avnu.org/resource/milan-specification/) requires MAAP and explicitly discusses full-width conflict comparisons.
+-It supports MAAP-03 alongside [IEEE 1722-2016 Table B.7](https://sagroups.ieee.org/1722/).
++It supports MAAP-03 alongside [IEEE 1722-2016 Table B.7](https://standards.ieee.org/ieee/1722/5979/).
+ Both Milan references were checked against the v1.2 text.
+diff --git a/docs/TRACEABILITY.md b/docs/TRACEABILITY.md
+index 0580af3..7d845a6 100644
+--- a/docs/TRACEABILITY.md
++++ b/docs/TRACEABILITY.md
+@@ -9,7 +9,7 @@ See [requirements](REQUIREMENTS.md) for scope and [test defects](TESTS.md) for s
+ | ADP-01 | [IEEE 1722.1-2021 6.2.2](https://standards.ieee.org/ieee/1722.1/6670/); [Milan v1.2 5.6.3.1](https://avnu.org/resource/milan-specification/) | [AdpCore.A3toA5DiscoverAndDiscard](../tests/test_adp.cpp#L539); [AdpCore.A24OtherEtherTypeOrSubtypeDiscarded](../tests/test_adp.cpp#L587); [AdpCore.EntityFieldsUseIndependentCounts](../tests/test_adp.cpp#L612); [AdpInputControl.InheritedDiscoveryAcceptance](../tests/test_adp.cpp#L669) |
+ | ADP-02 | [Milan v1.2 5.6.3.5, Table 5.51](https://avnu.org/resource/milan-specification/); [IEEE 1722.1-2021 6.2.2.15](https://standards.ieee.org/ieee/1722.1/6670/) | [AdpCore.A0toA2Schedule](../tests/test_adp.cpp#L535); [AdpCore.A3toA5DiscoverAndDiscard](../tests/test_adp.cpp#L539); [AdpCore.A6toA8DeferredSends](../tests/test_adp.cpp#L543); [AdpCore.A9DrawKinds](../tests/test_adp.cpp#L547); [AdpCore.A10toA14DepartingIndex](../tests/test_adp.cpp#L551); [AdpCore.A15OwedDepartingAcrossARestart](../tests/test_adp.cpp#L555); [AdpCore.A16SecondShutdownQueuesItsOwn](../tests/test_adp.cpp#L559); [AdpCore.A17RoomBackBeforeAPoll](../tests/test_adp.cpp#L563); [AdpCore.A18LinkLossKeepsTheOwedDeparting](../tests/test_adp.cpp#L567); [AdpCore.A19IgnoredInputsKeepTheOwedAvailable](../tests/test_adp.cpp#L571); [AdpCore.A20LinkLossDropsTheOwedAvailable](../tests/test_adp.cpp#L575); [AdpCore.A21DepartingCapacity](../tests/test_adp.cpp#L579); [AdpCore.A22GeneratorNeverStuckAtZero](../tests/test_adp.cpp#L583); [AdpCore.A23RepeatedEnableOrDisableChangesNothing](../tests/test_adp.cpp#L585); [AdpCore.A24OtherEtherTypeOrSubtypeDiscarded](../tests/test_adp.cpp#L587); [AdpCore.LinkLevelsAndDisabledInputs](../tests/test_adp.cpp#L590); [AdpCore.EntityFieldsUseIndependentCounts](../tests/test_adp.cpp#L612); [AdpCore.MockedPortOrder](../tests/test_adp.cpp#L638); [AdpInputControl.InheritedDiscoveryAcceptance](../tests/test_adp.cpp#L669) |
+ | ADP-03 | [IEEE 1722.1-2021 6.2.5.2.2](https://standards.ieee.org/ieee/1722.1/6670/); [Milan v1.2 5.6.3.5.8 and 5.6.3.5.11](https://avnu.org/resource/milan-specification/); [Local transport contract](PORTING.md) | [AdpCore.A6toA8DeferredSends](../tests/test_adp.cpp#L543); [AdpCore.A10toA14DepartingIndex](../tests/test_adp.cpp#L551); [AdpCore.A15OwedDepartingAcrossARestart](../tests/test_adp.cpp#L555); [AdpCore.A16SecondShutdownQueuesItsOwn](../tests/test_adp.cpp#L559); [AdpCore.A17RoomBackBeforeAPoll](../tests/test_adp.cpp#L563); [AdpCore.A18LinkLossKeepsTheOwedDeparting](../tests/test_adp.cpp#L567); [AdpCore.A19IgnoredInputsKeepTheOwedAvailable](../tests/test_adp.cpp#L571); [AdpCore.A20LinkLossDropsTheOwedAvailable](../tests/test_adp.cpp#L575); [AdpCore.A21DepartingCapacity](../tests/test_adp.cpp#L579) |
+-| PORT-01 | [Local port contract supporting Milan v1.2 5.5.3.5 and 5.6.3.5](https://avnu.org/resource/milan-specification/); [IEEE 1722-2016 B.3](https://sagroups.ieee.org/1722/) | [AcmpCore.A23EveryEntryRefusesACallFromInsideAPort](../tests/test_acmp.cpp#L1283); [AcmpCore.A23EveryPortIsGuarded](../tests/test_acmp.cpp#L1319); [AcmpCore.CommandPortBudgets](../tests/test_acmp.cpp#L1939); [AcmpCore.TimerPortBudgets](../tests/test_acmp.cpp#L1958); [AcmpCore.DiscoveryPortBudgets](../tests/test_acmp.cpp#L1977); [AdpCore.A0toA2Schedule](../tests/test_adp.cpp#L535); [AdpCore.A9DrawKinds](../tests/test_adp.cpp#L547); [AdpCore.A22GeneratorNeverStuckAtZero](../tests/test_adp.cpp#L583); [AdpCore.A23RepeatedEnableOrDisableChangesNothing](../tests/test_adp.cpp#L585); [AdpCore.LinkLevelsAndDisabledInputs](../tests/test_adp.cpp#L590); [AdpCore.MockedPortOrder](../tests/test_adp.cpp#L638); [AdpReentry.AdvertiseInlineExpiry](../tests/test_adp_reentry.cpp#L132); [AdpReentry.DelayInlineExpiryOnGmChange](../tests/test_adp_reentry.cpp#L160); [AdpPortEntry.RefusesBeforeTouchingState](../tests/test_adp_reentry.cpp#L188); [MaapCore.ReentrantPortsAreCountedAndIgnored](../tests/test_maap.cpp#L394); [MaapDebug.SynchronousExpiryAsserts](../tests/test_maap_debug.cpp#L9); [ExamplePort.DefersExpiryAndRetainsBlockedOutput](../tests/test_port.cpp#L8) |
++| PORT-01 | [Local port contract supporting Milan v1.2 5.5.3.5 and 5.6.3.5](https://avnu.org/resource/milan-specification/); [IEEE 1722-2016 B.3](https://standards.ieee.org/ieee/1722/5979/) | [AcmpCore.A23EveryEntryRefusesACallFromInsideAPort](../tests/test_acmp.cpp#L1283); [AcmpCore.A23EveryPortIsGuarded](../tests/test_acmp.cpp#L1319); [AcmpCore.CommandPortBudgets](../tests/test_acmp.cpp#L1939); [AcmpCore.TimerPortBudgets](../tests/test_acmp.cpp#L1958); [AcmpCore.DiscoveryPortBudgets](../tests/test_acmp.cpp#L1977); [AdpCore.A0toA2Schedule](../tests/test_adp.cpp#L535); [AdpCore.A9DrawKinds](../tests/test_adp.cpp#L547); [AdpCore.A22GeneratorNeverStuckAtZero](../tests/test_adp.cpp#L583); [AdpCore.A23RepeatedEnableOrDisableChangesNothing](../tests/test_adp.cpp#L585); [AdpCore.LinkLevelsAndDisabledInputs](../tests/test_adp.cpp#L590); [AdpCore.MockedPortOrder](../tests/test_adp.cpp#L638); [AdpReentry.AdvertiseInlineExpiry](../tests/test_adp_reentry.cpp#L132); [AdpReentry.DelayInlineExpiryOnGmChange](../tests/test_adp_reentry.cpp#L160); [AdpPortEntry.RefusesBeforeTouchingState](../tests/test_adp_reentry.cpp#L188); [MaapCore.ReentrantPortsAreCountedAndIgnored](../tests/test_maap.cpp#L394); [MaapDebug.SynchronousExpiryAsserts](../tests/test_maap_debug.cpp#L9); [ExamplePort.DefersExpiryAndRetainsBlockedOutput](../tests/test_port.cpp#L8) |
+ | ACMP-01 | [Local capacity contract supporting Milan v1.2 5.5.3.5.1](https://avnu.org/resource/milan-specification/) | [AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold](../tests/test_acmp.cpp#L167); [AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled](../tests/test_acmp.cpp#L206) |
+ | ACMP-02 | [IEEE 1722.1-2021 8.2.1](https://standards.ieee.org/ieee/1722.1/6670/); [Milan v1.2 5.5.2.2 and 5.5.3.1](https://avnu.org/resource/milan-specification/) | [AcmpCore.A1BindFromUnboundRespondsThenProbes](../tests/test_acmp.cpp#L223); [AcmpCore.A1BindWithoutStreamingWaitBindsStarted](../tests/test_acmp.cpp#L273); [AcmpCore.A2GetRxStateInEveryState](../tests/test_acmp.cpp#L282); [AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed](../tests/test_acmp.cpp#L315); [AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId](../tests/test_acmp.cpp#L327); [AcmpCore.A3UnbindInEveryState](../tests/test_acmp.cpp#L350); [AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind](../tests/test_acmp.cpp#L386); [AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked](../tests/test_acmp.cpp#L418); [AcmpCore.A5RebindTheSameSourceUpdatesAndExits](../tests/test_acmp.cpp#L431); [AcmpCore.A6BindAnotherSourceRestartsTheSink](../tests/test_acmp.cpp#L458); [AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding](../tests/test_acmp.cpp#L488); [AcmpCore.A21MessagesNotForThisEntityAreIgnored](../tests/test_acmp.cpp#L976); [AcmpCore.A21MalformedFramesAreCounted](../tests/test_acmp.cpp#L997); [AcmpCore.A25OnlyTable522ItemsAreReported](../tests/test_acmp.cpp#L1458); [AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead](../tests/test_acmp.cpp#L1485) |
+ | ACMP-03 | [Milan v1.2 5.5.2.4, 5.5.2.5 and 5.5.3.5, Tables 5.30 and 5.32](https://avnu.org/resource/milan-specification/) | [AcmpCore.A1BindFromUnboundRespondsThenProbes](../tests/test_acmp.cpp#L223); [AcmpCore.A1BindWithoutStreamingWaitBindsStarted](../tests/test_acmp.cpp#L273); [AcmpCore.A2GetRxStateInEveryState](../tests/test_acmp.cpp#L282); [AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed](../tests/test_acmp.cpp#L315); [AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId](../tests/test_acmp.cpp#L327); [AcmpCore.A3UnbindInEveryState](../tests/test_acmp.cpp#L350); [AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind](../tests/test_acmp.cpp#L386); [AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked](../tests/test_acmp.cpp#L418); [AcmpCore.A5RebindTheSameSourceUpdatesAndExits](../tests/test_acmp.cpp#L431); [AcmpCore.A6BindAnotherSourceRestartsTheSink](../tests/test_acmp.cpp#L458); [AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding](../tests/test_acmp.cpp#L488) |
+@@ -19,7 +19,7 @@ See [requirements](REQUIREMENTS.md) for scope and [test defects](TESTS.md) for s
+ | ACMP-07 | [Milan v1.2 5.5.3.5.2 and 5.5.2.4](https://avnu.org/resource/milan-specification/); [Local binding-record format](PORTING.md) | [AcmpCore.A24ARestoredBindingFastConnects](../tests/test_acmp.cpp#L1344); [AcmpCore.A24UnboundRecordsRefusalsAndRollback](../tests/test_acmp.cpp#L1364); [AcmpCore.A24StartedIsSavedAndReported](../tests/test_acmp.cpp#L1393); [AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime](../tests/test_acmp.cpp#L1424); [AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens](../tests/test_acmp.cpp#L1796) |
+ | ACMP-08 | [Milan v1.2 5.5.4](https://avnu.org/resource/milan-specification/); [IEEE 1722.1-2021 8.2.1](https://standards.ieee.org/ieee/1722.1/6670/) | [AcmpCore.A20ProbeTxIsAnsweredFromTheSource](../tests/test_acmp.cpp#L859); [AcmpCore.A20DisconnectGetTxStateAndGetTxConnection](../tests/test_acmp.cpp#L912) |
+ | ACMP-09 | [Milan v1.2 5.5.3.5](https://avnu.org/resource/milan-specification/); [Local transport and port work budgets](PORTING.md) | [AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits](../tests/test_acmp.cpp#L1017); [AcmpCore.A19NothingPassesAnOwedFrame](../tests/test_acmp.cpp#L1041); [AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs](../tests/test_acmp.cpp#L1055); [AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered](../tests/test_acmp.cpp#L1072); [AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether](../tests/test_acmp.cpp#L1092) |
+-| MAAP-01 | [IEEE 1722-2016 B.2, especially B.2.3](https://sagroups.ieee.org/1722/) | [MaapCore.MalformedAndVersionCompatibility](../tests/test_maap.cpp#L244) |
+-| MAAP-02 | [IEEE 1722-2016 B.3.3, B.3.6.1 and B.4, Tables B.8 and B.9](https://sagroups.ieee.org/1722/) | [MaapCore.InitialAndThreeRetransmissions](../tests/test_maap.cpp#L94); [MaapCore.ConstantsStrictTimersAndSeed](../tests/test_maap.cpp#L117); [MaapCore.RestartDrawsNewRange](../tests/test_maap.cpp#L196); [MaapCore.UniformDrawRejectsIncompleteBucket](../tests/test_maap.cpp#L209); [MaapCore.InitAndPreferredRangeBounds](../tests/test_maap.cpp#L271); [MaapCore.BeginBeforePortOperationalRetainsRange](../tests/test_maap.cpp#L318); [MaapCore.LinkBounceDrawsAfterSuppliedRange](../tests/test_maap.cpp#L338) |
+-| MAAP-03 | [IEEE 1722-2016 B.3, Table B.7](https://sagroups.ieee.org/1722/); [Milan v1.2 4.3.5.1](https://avnu.org/resource/milan-specification/) | [MaapCell.TableB7](../tests/test_maap.cpp#L139); [MaapCore.ReverseOctetPriority](../tests/test_maap.cpp#L170); [MaapCore.PriorityAfterTiedOctets](../tests/test_maap.cpp#L179); [MaapCore.DefendEchoAndIntersection](../tests/test_maap.cpp#L219); [MaapCore.DisjointAdjacentZeroAndDefendRange](../tests/test_maap.cpp#L232) |
+-| MAAP-04 | [IEEE 1722-2016 B.3, Table B.7](https://sagroups.ieee.org/1722/); [Local transport contract](PORTING.md) | [MaapCore.ReleaseLossAndRetry](../tests/test_maap.cpp#L294); [MaapCore.StalledOutputRetainsOrderAndOriginalExpiry](../tests/test_maap.cpp#L361); [MaapCore.QueueBoundAndWithdrawal](../tests/test_maap.cpp#L380) |
++| MAAP-01 | [IEEE 1722-2016 B.2, especially B.2.3](https://standards.ieee.org/ieee/1722/5979/) | [MaapCore.MalformedAndVersionCompatibility](../tests/test_maap.cpp#L244) |
++| MAAP-02 | [IEEE 1722-2016 B.3.3, B.3.6.1 and B.4, Tables B.8 and B.9](https://standards.ieee.org/ieee/1722/5979/) | [MaapCore.InitialAndThreeRetransmissions](../tests/test_maap.cpp#L94); [MaapCore.ConstantsStrictTimersAndSeed](../tests/test_maap.cpp#L117); [MaapCore.RestartDrawsNewRange](../tests/test_maap.cpp#L196); [MaapCore.UniformDrawRejectsIncompleteBucket](../tests/test_maap.cpp#L209); [MaapCore.InitAndPreferredRangeBounds](../tests/test_maap.cpp#L271); [MaapCore.BeginBeforePortOperationalRetainsRange](../tests/test_maap.cpp#L318); [MaapCore.LinkBounceDrawsAfterSuppliedRange](../tests/test_maap.cpp#L338) |
++| MAAP-03 | [IEEE 1722-2016 B.3, Table B.7](https://standards.ieee.org/ieee/1722/5979/); [Milan v1.2 4.3.5.1](https://avnu.org/resource/milan-specification/) | [MaapCell.TableB7](../tests/test_maap.cpp#L139); [MaapCore.ReverseOctetPriority](../tests/test_maap.cpp#L170); [MaapCore.PriorityAfterTiedOctets](../tests/test_maap.cpp#L179); [MaapCore.DefendEchoAndIntersection](../tests/test_maap.cpp#L219); [MaapCore.DisjointAdjacentZeroAndDefendRange](../tests/test_maap.cpp#L232) |
++| MAAP-04 | [IEEE 1722-2016 B.3, Table B.7](https://standards.ieee.org/ieee/1722/5979/); [Local transport contract](PORTING.md) | [MaapCore.ReleaseLossAndRetry](../tests/test_maap.cpp#L294); [MaapCore.StalledOutputRetainsOrderAndOriginalExpiry](../tests/test_maap.cpp#L361); [MaapCore.QueueBoundAndWithdrawal](../tests/test_maap.cpp#L380) |
+diff --git a/docs/VERIFICATION.md b/docs/VERIFICATION.md
+index 6bd4cbe..edb1022 100644
+--- a/docs/VERIFICATION.md
++++ b/docs/VERIFICATION.md
+@@ -24,9 +24,9 @@ No failing build, skipped test or empty test binary can establish a pass.
+ | Sanitizers and Clang | `cmake -S . -B build-sanitize -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DTSN_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug`, then build and test as above | Address and undefined-behavior sanitizers pass. The full runner enables leak detection and stops on findings. |
+ | Static analysis | `python3 scripts/static_analysis.py` | No project findings after [listed suppressions](STATIC_ANALYSIS.md). |
+ | Boundary | `python3 scripts/check_boundary.py --selftest` | Compiler dependencies permit only C library and owned headers. Object symbols refuse heap and OS use. Ten forbidden controls compile and are refused with both compilers; two pass controls compile and pass. |
+-| Assertion needles | `python3 scripts/needle_audit.py --selftest` | No empty or generic needles, including default GoogleTest value lines. Ten table controls refused. |
+-| Code comments | `python3 scripts/check_comments.py --selftest` | Only SPDX, requirement IDs and short standard references. Every comment line is checked after line splicing, including assembly comments. SPDX-block prose and `#if 0` controls are refused. |
+-| Port contracts | `python3 scripts/check_port_contracts.py --selftest` | Each relocated callback, field, precondition and counter name stays in its guide section. Name-removal controls fail. |
++| Assertion needles | `python3 scripts/needle_audit.py --selftest` | Each needle occurs in an assertion message literal of the named test or its referenced helper. Fifteen generic table controls are refused. |
++| Code comments | `python3 scripts/check_comments.py --selftest` | Only SPDX, requirement IDs and short standard references. Every comment line is checked after line splicing, including assembly comments. Digit separators cannot hide comments. Zero or false `#if` and `#elif` conditions and prose in assembly directive bodies are refused. |
++| Port contracts | `python3 scripts/check_port_contracts.py --selftest` | Each relocated callback, field, precondition and counter name stays in its guide section. Critical phrases stay beside their contract names. Name and meaning removal controls fail. |
+ | Report controls | `python3 scripts/mutation_selftest.py --work build-report-controls --jobs 16` | Reject stale, partial, skipped and mismatched reports. A real catch followed by early exit in the same work directory must escape. |
+ | Registration controls | `python3 scripts/registration_selftest.py --work build-registration-controls` | Compile and execute indented, multiline and wrapper declarations. Refuse unknown IDs, missing plants and declarations missing from the source inventory. |
+ | Licence | `python3 scripts/check_license.py --selftest` | MIT source identifiers. Missing, wrong and mixed identifiers rejected. |
+@@ -99,7 +99,10 @@ It removes the previous campaign summary at startup. Unknown named tests record
+ Gate decisions raise explicit errors and remain active under optimized Python.
+ It requires complete, unique results for exactly the selected executable registration.
+ Missing reports, partial results, skips, errors and inconsistent counts fail grading.
+-All killers have specific needles. There are no inherited exceptions.
++All killers have literal message needles. Streamed values remain in diagnostics but are excluded from needles.
++The [assertion inventory](../scripts/assertion_messages.py) follows referenced helpers and callbacks in the same test file.
++It excludes assertion arguments, unrelated streams, comments and other tests. Unsupported forms fail the positive check.
++There are no inherited exceptions.
+ Header plants rebuild the affected test translation unit too.
+ 
+ The [traceability matrix](TRACEABILITY.md) is generated from requirement records
+diff --git a/docs/requirements.json b/docs/requirements.json
+index f921117..644c9ac 100644
+--- a/docs/requirements.json
++++ b/docs/requirements.json
+@@ -55,7 +55,7 @@
+       },
+       {
+         "text": "IEEE 1722-2016 B.3",
+-        "url": "https://sagroups.ieee.org/1722/"
++        "url": "https://standards.ieee.org/ieee/1722/5979/"
+       }
+     ]
+   },
+@@ -179,7 +179,7 @@
+     "clauses": [
+       {
+         "text": "IEEE 1722-2016 B.2, especially B.2.3",
+-        "url": "https://sagroups.ieee.org/1722/"
++        "url": "https://standards.ieee.org/ieee/1722/5979/"
+       }
+     ]
+   },
+@@ -189,7 +189,7 @@
+     "clauses": [
+       {
+         "text": "IEEE 1722-2016 B.3.3, B.3.6.1 and B.4, Tables B.8 and B.9",
+-        "url": "https://sagroups.ieee.org/1722/"
++        "url": "https://standards.ieee.org/ieee/1722/5979/"
+       }
+     ]
+   },
+@@ -199,7 +199,7 @@
+     "clauses": [
+       {
+         "text": "IEEE 1722-2016 B.3, Table B.7",
+-        "url": "https://sagroups.ieee.org/1722/"
++        "url": "https://standards.ieee.org/ieee/1722/5979/"
+       },
+       {
+         "text": "Milan v1.2 4.3.5.1",
+@@ -213,7 +213,7 @@
+     "clauses": [
+       {
+         "text": "IEEE 1722-2016 B.3, Table B.7",
+-        "url": "https://sagroups.ieee.org/1722/"
++        "url": "https://standards.ieee.org/ieee/1722/5979/"
+       },
+       {
+         "text": "Local transport contract",
+diff --git a/scripts/assertion_messages.py b/scripts/assertion_messages.py
+new file mode 100644
+index 0000000..11e5473
+--- /dev/null
++++ b/scripts/assertion_messages.py
+@@ -0,0 +1,83 @@
++# SPDX-License-Identifier: MIT
++"""Collect assertion message literals by test, including called test helpers."""
++import ast
++import re
++from check_comments import TOKENS
++
++LEXER = re.compile(TOKENS.pattern + r'|[A-Za-z_]\w*|<<|::|->|[^\s]', re.S)
++
++
++def tokens(text):
++    text = re.sub(r'\\\r?\n', '', text)
++    return [m[0] for m in LEXER.finditer(text) if not m[0].startswith(('//', '/*'))]
++
++
++def pairs(words):
++    stack = []
++    ends = {}
++    for i, word in enumerate(words):
++        if word in ('(', '{', '['):
++            stack.append((word, i))
++        elif word in (')', '}', ']'):
++            if not stack or stack[-1][0] != {')': '(', '}': '{', ']': '['}[word]:
++                raise ValueError('unbalanced test source')
++            _, start = stack.pop()
++            ends[start] = i
++    if stack:
++        raise ValueError('unbalanced test source')
++    return ends
++
++
++def literal(word):
++    if word.startswith('R"'):
++        return word[word.index('(') + 1:word.rindex(')')]
++    if word.startswith('"'):
++        return ast.literal_eval(word)
++    return None
++
++
++def inventory(text):
++    words = tokens(text)
++    ends = pairs(words)
++    tests, helpers = {}, {}
++    for i, word in enumerate(words[:-1]):
++        if words[i + 1] != '(' or not re.fullmatch(r'\w+', word):
++            continue
++        close = ends[i + 1]
++        if close + 1 >= len(words) or words[close + 1] != '{':
++            continue
++        body = words[close + 2:ends[close + 1]]
++        if word in ('TEST', 'TEST_F', 'TEST_P'):
++            if words[i + 3] != ',':
++                raise ValueError('unsupported test declaration')
++            tests[words[i + 2] + '.' + words[i + 4]] = body
++        elif word not in ('if', 'for', 'while', 'switch', 'catch'):
++            helpers.setdefault(word, []).append(body)
++
++    def collect(body, visited):
++        messages = []
++        closing = pairs(body)
++        for i, word in enumerate(body[:-1]):
++            # A helper may be passed as a callback or constructed as a fixture.
++            if word in helpers and word not in visited:
++                if len(helpers[word]) != 1:
++                    raise ValueError('ambiguous assertion helper: ' + word)
++                messages += collect(helpers[word][0], visited | {word})
++            if body[i + 1] != '(':
++                continue
++            if re.fullmatch(r'(?:ASSERT|EXPECT)_\w+|FAIL|ADD_FAILURE', word):
++                at = closing[i + 1] + 1
++                while at < len(body) and body[at] == '<<':
++                    at += 1
++                    value = ''
++                    while at < len(body) and literal(body[at]) is not None:
++                        value += literal(body[at])
++                        at += 1
++                    if value and at < len(body) and body[at] in ('<<', ';'):
++                        messages.append(value)
++                    # Skip one streamed expression, never claim its value as a literal.
++                    while at < len(body) and body[at] not in ('<<', ';'):
++                        at = closing[at] + 1 if at in closing else at + 1
++        return messages
++
++    return {name: collect(body, set()) for name, body in tests.items()}
+diff --git a/scripts/check_comments.py b/scripts/check_comments.py
+index 6c3cc6a..e2b26be 100644
+--- a/scripts/check_comments.py
++++ b/scripts/check_comments.py
+@@ -7,7 +7,14 @@ from pathlib import Path
+ import re
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-TOKENS = re.compile(r'R"([^ ()\\\t\r\n]*)\(.*?\)\1"|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|//[^\n]*|/\*.*?\*/', re.S)
++RAW_STRING = r'R"([^ ()\\\t\r\n]*)\(.*?\)\1"'
++STRING = r'"(?:\\[^\r\n]|[^"\\\r\n])*"'
++CHARACTER = r"'(?:\\[^\r\n]|[^'\\\r\n])*'"
++# Preprocessing numbers consume digit separators before character recognition.
++PP_NUMBER = r"(?:\d|\.\d)(?:[\w.]|[eEpP][+-]|'[\w])*"
++COMMENT = r'//[^\n]*|/\*.*?\*/'
++TOKENS = re.compile('|'.join((RAW_STRING, STRING, PP_NUMBER, CHARACTER, COMMENT)), re.S)
++ASM_TOKENS = re.compile('|'.join((STRING, COMMENT)), re.S)
+ NUMBER = r'(?:B(?:\.\d+)*|\d+(?:[.-]\d+)*)'
+ REFERENCE = (r'(?:IEEE 1722\.1-2021|IEEE 1722-2016|Milan v1\.2) '
+              r'(?:(?:Table|Figure|Annex) )?' + NUMBER +
+@@ -32,9 +39,10 @@ def check(text, assembly=False):
+     text = re.sub(r'\\\r?\n', '', text)
+     errors = []
+     masked = list(text)
+-    for match in TOKENS.finditer(text):
++    for match in (ASM_TOKENS if assembly else TOKENS).finditer(text):
+         token = match[0]
+-        masked[match.start():match.end()] = ['\n' if c == '\n' else ' ' for c in token]
++        if not re.match(r'(?:\d|\.\d)', token):
++            masked[match.start():match.end()] = ['\n' if c == '\n' else ' ' for c in token]
+         if not token.startswith(('//', '/*')):
+             continue
+         body = token[2:-2] if token.startswith('/*') else token[2:]
+@@ -46,16 +54,22 @@ def check(text, assembly=False):
+                 number = text.count('\n', 0, match.start()) + offset + 1
+                 errors.append(f'logical line {number}: unsupported comment')
+     code = ''.join(masked)
++    original_lines = text.splitlines()
+     for number, line in enumerate(code.splitlines(), 1):
+         directive = re.match(r'^\s*(?:#|%:)\s*(\w+)(.*)', line)
+-        if directive and directive[1] == 'if':
++        if directive and directive[1] in ('if', 'elif'):
+             expression = re.sub(r'[\s()]', '', directive[2])
+-            if re.match(r'0(?:[uUlL]*\b|[xX]0+[uUlL]*\b)', expression):
+-                errors.append(f'logical line {number}: #if 0 is forbidden')
++            zero = r"(?:false|(?:0[xX]0(?:'?0)*|0[bB]0(?:'?0)*|0(?:'?0)*)[uUlL]*)"
++            if re.fullmatch(zero, expression):
++                errors.append(f'logical line {number}: zero #{directive[1]} is forbidden')
+         if assembly and '#' in line:
+-            if directive and directive[1] in DIRECTIVES:
++            # Directive operands may contain an assembler comment after expansion.
++            operands = directive[2] if directive and directive[1] in DIRECTIVES else line
++            if '#' not in operands:
+                 continue
+-            body = line.split('#', 1)[1].strip()
++            start = directive.start(2) if directive and directive[1] in DIRECTIVES else 0
++            at = line.index('#', start)
++            body = original_lines[number - 1][at + 1:].strip()
+             if body and not allowed(body):
+                 errors.append(f'logical line {number}: unsupported assembly comment')
+     return errors
+@@ -71,6 +85,16 @@ def selftest():
+         'spliced SPDX prose': ('// SPDX-License-Identifier: MIT \\\nnarrative\n', False),
+         'spliced delimiter': ('/\\\n/ narrative', False),
+         'trigraph splice': ('// SPDX-License-Identifier: MIT ??/\nnarrative', False),
++        'digit separator': ("int a = 1'000; // narrative\nint b = 2'000;", False),
++        'hex digit separator': ("int a = 0xA'B; // narrative\nint b = 0xC'D;", False),
++        'multiline character': ("char a = 'a\n// narrative\n';", False),
++        'carriage-return character': ("char a = 'a\r/* narrative */\r';", False),
++        'carriage-return string': ('char *a = "a\r/* narrative */\r";', False),
++        'assembly character': ("li a0, 'A\n# narrative\nli a1, 'B", True),
++        'assembly define prose': ('#define WORDS 4 # narrative\n.word WORDS', True),
++        'assembly quoted prose': ('# "narrative"', True),
++        'assembly define quoted prose': ('#define WORDS 4 # "narrative"', True),
++        'assembly pragma prose': ('#pragma once # narrative', True),
+         'assembly prose': ('# Clear BSS\n_start:', True),
+         'assembly trailing prose': ('nop # narrative', True),
+         'assembly spliced prose': ('# SPDX-License-Identifier: MIT \\\nnarrative', True),
+@@ -79,12 +103,21 @@ def selftest():
+         'digraph disabled region': ('%:if (0)\nnarrative\n%:endif', False),
+         'comment-separated disabled region': ('#if /* REQ: ADP-01 */ 0\n#endif', False),
+     }
++    for directive in ('if', 'elif'):
++        for value in ('0', '00', '0x0', '0u', 'false', '0X00UL', '0b00', "0'000", '(0LL)'):
++            refused[f'{directive} {value}'] = (f'#{directive} {value}\nnarrative\n#endif', False)
+     accepted = {
+         'SPDX line': ('// SPDX-License-Identifier: MIT', False),
+         'SPDX block': ('/* SPDX-FileCopyrightText: 2026 Kebag Logic\n * SPDX-License-Identifier: MIT\n */', False),
+         'requirements': ('// REQ: ADP-01, PORT-01', False),
+         'standards': ('// IEEE 1722-2016 Table B.7; Milan v1.2 4.3.5.1', False),
+         'block tracing': ('/* REQ: ADP-01\n * IEEE 1722.1-2021 6.2\n */', False),
++        'digit separated numbers': ("auto n = 1'000 + 0xA'B + 0b1'0; // REQ: PORT-01", False),
++        'single-line characters': ("char a = '/'; char b = '\\''; // REQ: PORT-01", False),
++        'nonzero regions': ('#if 01\n#elif 0x10\n#elif true\n#endif', False),
++        'assembly define tracing': ('#define WORDS 4 # REQ: PORT-01', True),
++        'assembly define string': ('#define TEXT "# narrative"', True),
++        'assembly character tracing': ("li a0, 'A # REQ: PORT-01", True),
+         'string': ('const char *s = "// narrative";', False),
+         'raw string': ('const char *s = R"(\n#if 0\n// narrative\n)";', False),
+         'assembly SPDX': ('# SPDX-License-Identifier: MIT\n_start:', True),
+diff --git a/scripts/check_port_contracts.py b/scripts/check_port_contracts.py
+index 46a8e25..51f4796 100644
+--- a/scripts/check_port_contracts.py
++++ b/scripts/check_port_contracts.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python3
+ # SPDX-License-Identifier: MIT
+-"""Keep the relocated public contract names in the integrator guide."""
++"""Keep public contract names and critical meanings in the integrator guide."""
+ import argparse
+ from pathlib import Path
+ import re
+@@ -251,14 +251,35 @@ REQUIRED = {
+     ),
+ }
+ 
++CRITICAL = {
++    'ACMP callbacks and public fields': {
++        'env->srp': ('starts SRP reservation and listening', 'NULL stops listening', 'clears the stream parameters'),
++        'ports->admit': ('ENTITY_AVAILABLE and ENTITY_DEPARTING', 'on bind, unbind and rebind', 'for each restored binding'),
++        'bound=false': ("withdraw that sink's admission entry",),
++        'acmp_source_state.dest_mac_valid': ('MAAP holds a destination MAC',),
++        'acmp_source_state.asking_failed': ('Listener Asking Failed attribute is registered',),
++        'acmp_tk_registered': ("sink's settled stream", 'true when the registered Talker attribute is Talker Failed'),
++    },
++    'Ownership and dispatch': {
++        'adp_reentry_count': ('Builds without `NDEBUG` assert on re-entry', 'Builds with `NDEBUG` ignore it', 'modulo 2^32'),
++    },
++}
++
+ 
+ def check(text):
+     headings = list(re.finditer(r'^#{2,3} (.+)$', text, re.M))
+     sections = {m[1]: text[m.end():headings[i + 1].start() if i + 1 < len(headings) else len(text)]
+                 for i, m in enumerate(headings)}
+-    return [heading + ': missing contract name ' + name
+-            for heading, names in REQUIRED.items() for name in names
+-            if '`' + name + '`' not in sections.get(heading, '')]
++    errors = [heading + ': missing contract name ' + name
++              for heading, names in REQUIRED.items() for name in names
++              if '`' + name + '`' not in sections.get(heading, '')]
++    for heading, contracts in CRITICAL.items():
++        paragraphs = sections.get(heading, '').split('\n\n')
++        for name, phrases in contracts.items():
++            for phrase in phrases:
++                if not any('`' + name + '`' in p and phrase in ' '.join(p.split()) for p in paragraphs):
++                    errors.append(heading + ': missing contract meaning for ' + name + ': ' + phrase)
++    return errors
+ 
+ 
+ def main():
+@@ -274,6 +295,15 @@ def main():
+             if not check(text.replace('`' + name + '`', '`removed`')):
+                 raise RuntimeError('missing contract accepted: ' + name)
+         print('port contracts: all name-removal controls refused')
++        count = 0
++        for contracts in CRITICAL.values():
++            for name, phrases in contracts.items():
++                for phrase in phrases:
++                    planted = text.replace(phrase, 'removed meaning')
++                    if not check(planted):
++                        raise RuntimeError('missing meaning accepted: ' + name + ': ' + phrase)
++                    count += 1
++        print(f'port contracts: {count} meaning-removal controls refused')
+     print('\n'.join(errors) if errors else 'port contracts: callbacks, fields, preconditions and counters present')
+     return bool(errors)
+ 
+diff --git a/scripts/mutation.py b/scripts/mutation.py
+index f1c4599..724ec2f 100644
+--- a/scripts/mutation.py
++++ b/scripts/mutation.py
+@@ -13,7 +13,7 @@ import subprocess
+ import threading
+ import xml.etree.ElementTree as ET
+ from test_registry import environment, registered
+-from needle_audit import validate_needles
++from needle_audit import assertion_literals, validate_needles
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ SOURCES = {"port": "test_port.cpp", "adp": "test_adp.cpp", "acmp": "test_acmp.cpp", "maap": "test_maap.cpp",
+@@ -93,9 +93,7 @@ def main():
+     work.mkdir(parents=True, exist_ok=True)
+     (work / 'results.json').unlink(missing_ok=True)
+     mutants = json.loads((ROOT / "tests/mutations.json").read_text())
+-    errors = validate_needles(mutants)
+-    if errors:
+-        raise SystemExit('\n'.join(errors))
++    messages = assertion_literals()
+     baseline = work / "baseline"
+     baseline.mkdir(exist_ok=True)
+     cc = os.environ.get("CC", "gcc")
+@@ -135,6 +133,9 @@ def main():
+         local = []
+         result = {"name": m["name"], "status": "ERROR"}
+         try:
++            errors = validate_needles([m], messages)
++            if errors:
++                raise RuntimeError('\n'.join(errors))
+             for name in ("src", "include"):
+                 shutil.copytree(ROOT / name, directory / name, dirs_exist_ok=True)
+             target = directory / m["path"]
+diff --git a/scripts/needle_audit.py b/scripts/needle_audit.py
+index be8bb4a..bbe87ff 100644
+--- a/scripts/needle_audit.py
++++ b/scripts/needle_audit.py
+@@ -6,11 +6,25 @@ import copy
+ import json
+ from pathlib import Path
+ import re
++from assertion_messages import inventory
++from test_registry import canonical
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ 
+ 
+-def validate_needles(mutations):
++def assertion_literals(root=ROOT):
++    messages = {}
++    for path in sorted((root / 'tests').glob('test_*.cpp')):
++        found = inventory(path.read_text())
++        if messages.keys() & found.keys():
++            raise ValueError('duplicate test declaration in assertion inventory')
++        messages.update(found)
++    return messages
++
++
++def validate_needles(mutations, messages=None):
++    if messages is None:
++        messages = assertion_literals()
+     errors = []
+     for plant in mutations:
+         if not plant.get('kills'):
+@@ -21,6 +35,12 @@ def validate_needles(mutations):
+                     r'(Expected|Actual|Value of|Which is|Expected equality of these values)(:.*)?|true|false|[01]',
+                     needle, re.I):
+                 errors.append(plant['name'] + ': empty or generic assertion needle')
++            try:
++                name = canonical(kill.get('test', ''))
++            except ValueError:
++                name = ''
++            if not any(needle in value for value in messages.get(name, ())):
++                errors.append(plant['name'] + ': needle is not an assertion message literal in ' + name)
+     return errors
+ 
+ 
+@@ -31,13 +51,40 @@ def main():
+     mutations = json.loads((ROOT / 'tests/mutations.json').read_text())
+     if args.selftest:
+         controls = ('', ' ', 'Expected: true', 'Actual: false', 'Value of: x', 'true',
+-                    '    Which is: 5', 'Which is: 1', 'Expected equality of these values:', 'Actual:')
++                    '    Which is: 5', 'Which is: 1', 'Expected equality of these values:', 'Actual:',
++                    'is: 5', '5u', 'r.frames.size()', 'Expected equality', 'equality of these values')
++        messages = assertion_literals()
+         for value in controls:
+             planted = copy.deepcopy(mutations)
+             planted[0]['kills'][0]['needle'] = value
+-            if not validate_needles(planted):
++            if not validate_needles(planted, messages):
+                 raise RuntimeError('generic needle accepted: ' + repr(value))
+         print(f'needles: {len(controls)} empty or generic table controls refused')
++        source = '''
++void helper() { EXPECT_EQ(1, 2) << "helper message"; }
++void callback() { EXPECT_TRUE(false) << "callback message"; }
++TEST(Control, First) {
++    const char *unused = "unused message";
++    EXPECT_STREQ("argument message", unused);
++    log_stream << "unrelated stream";
++    // EXPECT_TRUE(false) << "comment message";
++    EXPECT_TRUE(false) << "own " "message" << 7;
++    EXPECT_TRUE(false) << R"tag(raw message)tag";
++    EXPECT_TRUE(false) << "suffix message" + 3;
++    helper(); install(callback);
++}
++TEST(Control, Other) { EXPECT_TRUE(false) << "other test message"; }
++'''
++        messages = inventory(source)
++        for value, refused in (
++                ('own message', False), ('raw message', False), ('helper message', False),
++                ('callback message', False), ('unused message', True), ('argument message', True),
++                ('unrelated stream', True), ('comment message', True), ('other test message', True),
++                ('suffix message', True), ('own message7', True)):
++            table = [{'name': 'control', 'kills': [{'test': 'Control.First', 'needle': value}]}]
++            if bool(validate_needles(table, messages)) != refused:
++                raise RuntimeError('assertion ownership control failed: ' + value)
++        print('needles: named-test, helper, callback and streamed-literal controls pass')
+     errors = validate_needles(mutations)
+     print('\n'.join(errors) if errors else 'needles: zero unspecific killers; no inherited exceptions')
+     return bool(errors)
+diff --git a/tests/mutations.json b/tests/mutations.json
+index 8e2e87e..ef75f4e 100644
+--- a/tests/mutations.json
++++ b/tests/mutations.json
+@@ -871,7 +871,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A3UnbindInEveryState",
+-        "needle": "A3 the cleared binding is saved, unless there was none, in state 7"
++        "needle": "A3 the cleared binding is saved, unless there was none, in state"
+       }
+     ],
+     "original_tests": [
+@@ -2210,7 +2210,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A22DiscoveredStateCells",
+-        "needle": "A22 available_index 700 <= last"
++        "needle": "A22 available_index"
+       }
+     ],
+     "original_tests": [
+@@ -2400,7 +2400,7 @@
+       },
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 1 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2446,7 +2446,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 1 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2461,7 +2461,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 2 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2476,7 +2476,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 3 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2491,7 +2491,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 4 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2506,7 +2506,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 5 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2521,7 +2521,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 6 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2536,7 +2536,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 7 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2551,7 +2551,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 8 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2566,7 +2566,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 9 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2766,7 +2766,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 3 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -2841,7 +2841,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.TimerPortBudgets",
+-        "needle": "timer clock budget for state PRB_W_RESP2"
++        "needle": "timer clock budget for state"
+       }
+     ],
+     "original_tests": [
+@@ -2916,7 +2916,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.TimerPortBudgets",
+-        "needle": "timer expiry never samples the grandmaster in PRB_W_RESP2"
++        "needle": "timer expiry never samples the grandmaster in"
+       }
+     ],
+     "original_tests": [
+@@ -2931,7 +2931,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.TimerPortBudgets",
+-        "needle": "timer expiry never samples the grandmaster in PRB_W_RETRY"
++        "needle": "timer expiry never samples the grandmaster in"
+       }
+     ],
+     "original_tests": [
+@@ -2946,7 +2946,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.TimerPortBudgets",
+-        "needle": "timer clock budget for state PRB_W_DELAY"
++        "needle": "timer clock budget for state"
+       }
+     ],
+     "original_tests": [
+@@ -2961,7 +2961,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.TimerPortBudgets",
+-        "needle": "timer expiry never samples the grandmaster in SETTLED_NO_RSV"
++        "needle": "timer expiry never samples the grandmaster in"
+       }
+     ],
+     "original_tests": [
+@@ -3128,7 +3128,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+-        "needle": "A26 a BIND_RX of AVTP version 1"
++        "needle": "A26 a BIND_RX of AVTP version"
+       }
+     ],
+     "original_tests": [
+@@ -3144,7 +3144,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+-        "needle": "A26 an ENTITY_AVAILABLE of version 1"
++        "needle": "A26 an ENTITY_AVAILABLE of version"
+       }
+     ],
+     "original_tests": [
+@@ -3160,7 +3160,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+-        "needle": "A26 a BIND_RX of AVTP version 1"
++        "needle": "A26 a BIND_RX of AVTP version"
+       }
+     ],
+     "original_tests": [
+@@ -3435,7 +3435,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+-        "needle": "A24 a payload of 21 bytes is refused"
++        "needle": "A24 a payload of"
+       }
+     ],
+     "original_tests": [
+@@ -3640,7 +3640,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryPortIsGuarded",
+-        "needle": "A23 the port kind 10 is guarded"
++        "needle": "A23 the port kind"
+       }
+     ],
+     "original_tests": [
+@@ -3686,7 +3686,7 @@
+     "kills": [
+       {
+         "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+-        "needle": "A23 a call made from inside the send port is refused, counted and trapped, entry 10"
++        "needle": "A23 a call made from inside the send port is refused, counted and trapped, entry"
+       }
+     ],
+     "original_tests": [
+diff --git a/tests/test_maap.cpp b/tests/test_maap.cpp
+index 77f55c2..e0088b7 100644
+--- a/tests/test_maap.cpp
++++ b/tests/test_maap.cpp
+@@ -372,7 +372,7 @@ TEST(MaapCore, StalledOutputRetainsOrderAndOriginalExpiry) {
+     EXPECT_FALSE(r.valid) << "allocation waits for committed ANNOUNCE";
+     EXPECT_EQ(r.core.queued, 2u);
+     r.room = true; EXPECT_FALSE(maap_poll(&r.core)); EXPECT_TRUE(r.valid);
+-	ASSERT_EQ(r.frames.size(), 5u) << "both owed frames and ANNOUNCE leave once room returns";
++    ASSERT_EQ(r.frames.size(), 5u) << "both owed frames and ANNOUNCE leave once room returns";
+     EXPECT_EQ(r.frames[3][15], 1u) << "last PROBE precedes ANNOUNCE"; EXPECT_EQ(r.frames[4][15], 3u) << "last PROBE precedes ANNOUNCE";
+ }
+ 

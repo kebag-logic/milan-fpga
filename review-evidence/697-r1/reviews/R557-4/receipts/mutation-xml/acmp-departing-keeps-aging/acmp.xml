@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T09:54:06.988" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T09:54:06.988">
+    <testcase name="A22DepartingAndAging" file="$REPO/tests/test_acmp.cpp" line="1213" status="run" result="completed" time="0." timestamp="2026-10-09T09:54:06.988" classname="AcmpCore">
+      <failure message="$REPO/tests/test_acmp.cpp:1227&#x0A;Value of: !a.sinks[0].discovered &amp;&amp; !a.sinks[0].adp_armed &amp;&amp; a.sinks[0].state == ACMP_PRB_W_AVAIL&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A22 a DEPARTING: TMR_NO_ADP stopped, TK_NOT_DISCOVERED, EVT_TK_DEPARTED (5.6.4.5.3)&#x0A;" type=""><![CDATA[$REPO/tests/test_acmp.cpp:1227
+Value of: !a.sinks[0].discovered && !a.sinks[0].adp_armed && a.sinks[0].state == ACMP_PRB_W_AVAIL
+  Actual: false
+Expected: true
+A22 a DEPARTING: TMR_NO_ADP stopped, TK_NOT_DISCOVERED, EVT_TK_DEPARTED (5.6.4.5.3)
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
