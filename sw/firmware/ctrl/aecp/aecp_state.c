@@ -35,7 +35,7 @@ static bool field(struct aecp *a, struct aecp_value v, struct aecp_descriptor **
 
 unsigned aecp_value_restore(struct aecp *a, struct aecp_value v, const uint8_t *p, size_t bytes)
 {
-	if (a->open || a->in_port) return AECP_ENTITY_MISBEHAVING;
+	if (!aecp_enter(a) || a->open) return AECP_ENTITY_MISBEHAVING;
 	struct aecp_descriptor *d;
 	unsigned offset, width, bit;
 	if (!field(a, v, &d, &offset, &width, &bit)) return AECP_ENTITY_MISBEHAVING;
@@ -58,6 +58,7 @@ unsigned aecp_value_restore(struct aecp *a, struct aecp_value v, const uint8_t *
 
 bool aecp_value_latch(struct aecp *a, struct aecp_value v, uint8_t *p, size_t bytes)
 {
+	if (!aecp_enter(a)) return false;
 	struct aecp_descriptor *d;
 	unsigned offset, width, bit;
 	if (!field(a, v, &d, &offset, &width, &bit) || bytes != width ||
@@ -69,7 +70,7 @@ bool aecp_value_latch(struct aecp *a, struct aecp_value v, uint8_t *p, size_t by
 
 bool aecp_restore_defaults(struct aecp *a)
 {
-	if (a->open || a->in_port) return false;
+	if (!aecp_enter(a) || a->open) return false;
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 		memcpy(d->value, d->defaults, d->length);

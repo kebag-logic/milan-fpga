@@ -273,7 +273,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 
 unsigned aecp_map_restore(struct aecp *a, struct aecp_map *m, const struct aecp_mapping *rows, size_t count)
 {
-	if (a->open || a->in_port) return AECP_ENTITY_MISBEHAVING;
+	if (!aecp_enter(a) || a->open) return AECP_ENTITY_MISBEHAVING;
 	struct aecp_descriptor *port = aecp_find(a, m->configuration, m->type, m->index);
 	if (port == NULL || port->length < 20u || m->configuration != a->configuration)
 		return AECP_ENTITY_MISBEHAVING;
@@ -295,7 +295,7 @@ unsigned aecp_map_restore(struct aecp *a, struct aecp_map *m, const struct aecp_
 
 unsigned aecp_restore_settle(struct aecp *a)
 {
-	if (a->open || a->in_port) return AECP_ENTITY_MISBEHAVING;
+	if (!aecp_enter(a) || a->open) return AECP_ENTITY_MISBEHAVING;
 	// Boot-only clipping (#658): accepted map records were already checked
 	// against restored formats. Any remaining orphan belongs to a reset set.
 	for (size_t n = 0; n < a->cfg.map_count; ++n) {
@@ -335,6 +335,7 @@ unsigned aecp_restore_settle(struct aecp *a)
 
 void aecp_map_refused(struct aecp *a, const struct aecp_map *m)
 {
+	if (!aecp_enter(a)) return;
 	struct aecp_descriptor *d = aecp_find(a, m->configuration, m->type, m->index);
-	if (!a->open && !a->in_port && d != NULL) aecp_override(a, d, 4u);
+	if (!a->open && d != NULL) aecp_override(a, d, 4u);
 }

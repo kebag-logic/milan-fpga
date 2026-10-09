@@ -160,7 +160,7 @@ struct aecp {
 
 bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);
 void aecp_open(struct aecp *);
-bool aecp_ready(const struct aecp *);
+bool aecp_ready(struct aecp *);
 void aecp_rx(struct aecp *, unsigned interface, const uint8_t *, size_t);
 bool aecp_poll(struct aecp *);
 void aecp_start_done(struct aecp *, bool success, bool changed);
@@ -170,7 +170,7 @@ void aecp_tx_complete(struct aecp *, uint32_t cookie, uint32_t departure_ms);
 // Table 5.22 events: bit 0 STREAM_INFO, bit 1 AVB_INFO, bit 2 AS_PATH,
 // bit 3 COUNTERS. Call after causal ACMP responses have committed (#653).
 void aecp_changed(struct aecp *, uint16_t type, uint16_t index, unsigned events);
-bool aecp_locked(const struct aecp *, uint64_t *owner);
+bool aecp_locked(struct aecp *, uint64_t *owner);
 
 #ifdef CTRL_REENTRY_ASSERT
 void ctrl_reentry_assert(const char *module);

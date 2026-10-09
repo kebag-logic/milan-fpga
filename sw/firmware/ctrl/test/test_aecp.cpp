@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <aecp_latency_policy.hpp>
+#include "aecp_callback_inputs.hpp"
 extern "C" {
 #include "aecp.h"
 #include "aecp_image.h"
@@ -544,6 +545,27 @@ TEST_F(Core, RootDescriptorConfigurationIsIgnored)
     }
     auto b=target(1,0,8);put(b,4,5,2);ask(4,b,7);
     put(b,0,0,2);ask(4,b);
+}
+
+TEST_F(Core, CrossInstanceInputsAreRefusedInsideRealCallbacks)
+{
+    aecp other{};auto other_events=events;auto other_cfg=cfg;
+    other_cfg.events=other_events.data();
+    for(unsigned entry=0;entry<15;++entry){
+        ASSERT_TRUE(aecp_init(&other,&other_cfg,&ports));
+        auto before=other;auto source_count=a.reentries;
+        ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){
+            callback_input(entry,other,other_cfg,ports);
+        });
+        auto body=target(26,0,5);body[4]=(entry%2==0)?255:0;ask(24,body);
+        EXPECT_EQ(a.reentries-source_count+other.reentries-before.reentries,1u)
+            <<"every cross-instance public input counts its refusal: "<<entry;
+        before.reentries=other.reentries;
+        EXPECT_EQ(std::memcmp(&before,&other,sizeof other),0)
+            <<"cross-instance input leaves destination state intact: "<<entry;
+    }
+    ON_CALL(mock,Changed).WillByDefault([](aecp_change,uint16_t,uint16_t){});
+    aecp_open(&other);EXPECT_TRUE(other.open)<<"port guard clears after return";
 }
 
 TEST_F(Core, UnsupportedAndAcquire)

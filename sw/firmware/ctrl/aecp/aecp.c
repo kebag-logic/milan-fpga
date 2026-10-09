@@ -2,9 +2,12 @@
 // Transport-independent AECP owner. No allocation, image or register access.
 #include "aecp_internal.h"
 
-static bool enter(struct aecp *a)
+static struct aecp *port_owner;
+
+bool aecp_enter(struct aecp *a)
 {
-	if (a->in_port) {
+	if (port_owner != NULL || (a != NULL && a->in_port)) {
+		if (a == NULL) a = port_owner;
 		++a->reentries;
 #ifdef CTRL_REENTRY_ASSERT
 		ctrl_reentry_assert("aecp");
@@ -14,11 +17,23 @@ static bool enter(struct aecp *a)
 	return true;
 }
 
-static uint32_t now(struct aecp *a)
+void aecp_port_begin(struct aecp *a)
 {
 	a->in_port = true;
-	uint32_t value = a->ports->now_ms(a->ports->ctx);
+	port_owner = a;
+}
+
+void aecp_port_end(struct aecp *a)
+{
+	port_owner = NULL;
 	a->in_port = false;
+}
+
+static uint32_t now(struct aecp *a)
+{
+	aecp_port_begin(a);
+	uint32_t value = a->ports->now_ms(a->ports->ctx);
+	aecp_port_end(a);
 	a->now = value;
 	return value;
 }
@@ -30,9 +45,9 @@ static bool due(uint32_t time, uint32_t deadline)
 
 static void monitor(struct aecp *a, struct aecp_registration *r)
 {
-	a->in_port = true;
+	aecp_port_begin(a);
 	uint32_t draw = a->ports->random(a->ports->ctx);
-	a->in_port = false;
+	aecp_port_end(a);
 	r->probing = 0;
 	r->deadline = a->now + 30000u + draw % 30001u;
 }
@@ -89,13 +104,15 @@ static void arm(struct aecp *a)
 			armed = true;
 		}
 	}
-	a->in_port = true;
+	aecp_port_begin(a);
 	a->ports->timer(a->ports->ctx, armed, deadline);
-	a->in_port = false;
+	aecp_port_end(a);
 }
 
 bool aecp_init(struct aecp *a, const struct aecp_config *cfg, const struct aecp_ports *ports)
 {
+	// Init storage may be uninitialized: charge its refusal to the caller.
+	if (!aecp_enter(NULL)) return false;
 	memset(a, 0, sizeof *a);
 	if (cfg->interfaces == 0u || cfg->interfaces > AECP_INTERFACES ||
 	    cfg->model->count == 0u || cfg->model->configurations == 0u) {
@@ -133,7 +150,7 @@ bool aecp_init(struct aecp *a, const struct aecp_config *cfg, const struct aecp_
 
 void aecp_open(struct aecp *a)
 {
-	if (!enter(a)) {
+	if (!aecp_enter(a)) {
 		return;
 	}
 	a->open = true;
@@ -141,13 +158,14 @@ void aecp_open(struct aecp *a)
 	arm(a);
 }
 
-bool aecp_ready(const struct aecp *a)
+bool aecp_ready(struct aecp *a)
 {
-	return a->open && !a->response_owed && !a->notify;
+	return aecp_enter(a) && a->open && !a->response_owed && !a->notify;
 }
 
-bool aecp_locked(const struct aecp *a, uint64_t *owner)
+bool aecp_locked(struct aecp *a, uint64_t *owner)
 {
+	if (!aecp_enter(a)) return false;
 	*owner = a->lock_owner;
 	return a->locked;
 }
@@ -236,7 +254,7 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 
 void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t len)
 {
-	if (!enter(a)) {
+	if (!aecp_enter(a)) {
 		return;
 	}
 	if (!a->open || interface >= a->cfg.interfaces || len < 38u || len > AECP_FRAME_BYTES) {
@@ -300,7 +318,7 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 
 void aecp_start_done(struct aecp *a, bool success, bool changed)
 {
-	if (!enter(a) || !a->start_pending) {
+	if (!aecp_enter(a) || !a->start_pending) {
 		return;
 	}
 	a->start_pending = false;
@@ -310,7 +328,7 @@ void aecp_start_done(struct aecp *a, bool success, bool changed)
 
 void aecp_changed(struct aecp *a, uint16_t type, uint16_t index, unsigned events)
 {
-	if (!enter(a)) {
+	if (!aecp_enter(a)) {
 		return;
 	}
 	struct aecp_descriptor *d = aecp_find(a, a->configuration, type, index);
@@ -322,9 +340,9 @@ void aecp_changed(struct aecp *a, uint16_t type, uint16_t index, unsigned events
 
 static bool send(struct aecp *a)
 {
-	a->in_port = true;
+	aecp_port_begin(a);
 	bool ok = a->ports->send(a->ports->ctx, a->response_interface, a->response, a->response_bytes, a->tx_cookie);
-	a->in_port = false;
+	aecp_port_end(a);
 	if (ok) {
 		if (a->counter_event < a->cfg.model->count) {
 			struct aecp_event *e = &a->cfg.events[a->counter_event];
@@ -338,7 +356,7 @@ static bool send(struct aecp *a)
 
 void aecp_tx_complete(struct aecp *a, uint32_t cookie, uint32_t departure_ms)
 {
-	if (!enter(a)) {
+	if (!aecp_enter(a)) {
 		return;
 	}
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
@@ -466,7 +484,7 @@ static bool asynchronous(struct aecp *a)
 
 bool aecp_poll(struct aecp *a)
 {
-	if (!enter(a) || !a->open) {
+	if (!aecp_enter(a) || !a->open) {
 		return false;
 	}
 	(void)now(a);

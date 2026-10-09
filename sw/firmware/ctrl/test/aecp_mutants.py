@@ -32,6 +32,11 @@ def defect(name: str, file: str, old: str, new: str,
 
 
 DEFECTS = (
+    defect('cross-instance-guard-removed', 'aecp.c',
+           'port_owner != NULL || (a != NULL && a->in_port)',
+           'a != NULL && a->in_port',
+           ('Core.CrossInstanceInputsAreRefusedInsideRealCallbacks',
+            'every cross-instance public input counts its refusal')),
     defect('unavailable-head-blocks-notices', 'aecp.c',
            'e->retry_at = a->now + 1u;',
            'e->retry_at = a->now + 1u; return true;',

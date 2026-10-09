@@ -44,6 +44,13 @@ Counter notifications are limited per descriptor from the latest recipient's
 completed transmission. Controller probes use a 30-60 s monitor interval,
 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
 
+The guard covers every public protocol and saved-state input.
+It is shared across AECP instances on the event loop.
+Queries refuse without writing output parameters.
+Initialization checks before touching potentially uninitialized destination storage.
+Its refusal increments the active caller's counter; others increment the destination's.
+The diagnostic build defines `CTRL_REENTRY_ASSERT`.
+
 Unavailable notification snapshots retain their event and retry after 1 ms.
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.

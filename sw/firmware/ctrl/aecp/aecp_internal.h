@@ -5,6 +5,10 @@
 #include "wire.h"
 #include <string.h>
 
+bool aecp_enter(struct aecp *);
+void aecp_port_begin(struct aecp *);
+void aecp_port_end(struct aecp *);
+
 struct aecp_descriptor *aecp_find(struct aecp *, uint16_t, uint16_t, uint16_t);
 bool aecp_foreign_lock(const struct aecp *);
 unsigned aecp_name_offset(uint16_t, uint16_t);

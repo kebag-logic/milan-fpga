@@ -30,9 +30,9 @@ void aecp_override(struct aecp *a, const struct aecp_descriptor *d, unsigned bit
 
 void aecp_note(struct aecp *a, enum aecp_change kind, uint16_t type, uint16_t index)
 {
-	a->in_port = true;
+	aecp_port_begin(a);
 	a->ports->changed(a->ports->ctx, kind, type, index);
-	a->in_port = false;
+	aecp_port_end(a);
 	a->notify = true;
 }
 
@@ -47,9 +47,9 @@ bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp
 	if (interface >= a->cfg.interfaces) {
 		return false;
 	}
-	a->in_port = true;
+	aecp_port_begin(a);
 	bool ok = a->ports->stream(a->ports->ctx, interface, type, index, out);
-	a->in_port = false;
+	aecp_port_end(a);
 	return ok;
 }
 
@@ -203,9 +203,9 @@ unsigned aecp_scalar_validate(struct aecp *a, const struct aecp_descriptor *d, e
 		return AECP_ENTITY_MISBEHAVING;
 	}
 	if (format) {
-		a->in_port = true;
+		aecp_port_begin(a);
 		bool supported = a->ports->format(a->ports->ctx, d->type, d->index, wire_be64(value));
-		a->in_port = false;
+		aecp_port_end(a);
 		return supported ? AECP_SUCCESS : AECP_BAD_ARGUMENTS;
 	}
 	for (size_t n = 0; n < count; ++n) {
@@ -366,9 +366,9 @@ static unsigned counters(struct aecp *a, const uint8_t *in, size_t len, uint8_t 
 		interface = (unsigned)wire_be16(d->value + 126u);
 	}
 	struct aecp_counters snapshot = {0};
-	a->in_port = true;
+	aecp_port_begin(a);
 	bool ok = a->ports->counters(a->ports->ctx, interface, type, index, &snapshot);
-	a->in_port = false;
+	aecp_port_end(a);
 	if (!ok) {
 		return AECP_ENTITY_MISBEHAVING;
 	}
@@ -399,9 +399,9 @@ static unsigned avb(struct aecp *a, bool path, const uint8_t *in, size_t len, ui
 	if (path) {
 		uint64_t sequence[AECP_PATH_ITEMS];
 		size_t count = 0;
-		a->in_port = true;
+		aecp_port_begin(a);
 		bool ok = a->ports->path(a->ports->ctx, index, index, sequence, AECP_PATH_ITEMS, &count);
-		a->in_port = false;
+		aecp_port_end(a);
 		if (!ok || count > AECP_PATH_ITEMS) {
 			return AECP_ENTITY_MISBEHAVING;
 		}
@@ -412,9 +412,9 @@ static unsigned avb(struct aecp *a, bool path, const uint8_t *in, size_t len, ui
 		*bytes += 8u * count;
 	} else {
 		struct aecp_avb_info info = {0};
-		a->in_port = true;
+		aecp_port_begin(a);
 		bool ok = a->ports->avb(a->ports->ctx, index, index, &info);
-		a->in_port = false;
+		aecp_port_end(a);
 		if (!ok) {
 			return AECP_ENTITY_MISBEHAVING;
 		}
@@ -586,9 +586,9 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 			return AECP_NO_SUCH_DESCRIPTOR;
 		}
 		a->start_pending = true;
-		a->in_port = true;
+		aecp_port_begin(a);
 		a->ports->start(a->ports->ctx, (uint16_t)wire_be16(in + 2), cmd == 34u);
-		a->in_port = false;
+		aecp_port_end(a);
 		return AECP_SUCCESS;
 	case 38:
 		*bytes = 4u;
