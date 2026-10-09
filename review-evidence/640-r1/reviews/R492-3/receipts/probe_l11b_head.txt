@@ -1,0 +1,11 @@
+rev=173362fc21c33078b7feed42a24a3636907010f5 block1_rc=0 block2_rc=0
+--- block1 stderr/stdout
+--- block2 stderr/stdout
+tcl_sha256=f75186e9986fb55cb69f3d202076704c02b840ae13c985c5de5f623477c3f779 lines=37
+vexii rc=0 log=stub PRICED vexii
+vexmin rc=0 log=stub PRICED vexmin
+pico rc=0 log=stub PRICED pico
+--- vivado argv
+-mode batch -source <packet>/scratch/probe_head/work/price_core.tcl -nojournal -log vexii.log -tclargs vexii
+-mode batch -source <packet>/scratch/probe_head/work/price_core.tcl -nojournal -log vexmin.log -tclargs vexmin
+-mode batch -source <packet>/scratch/probe_head/work/price_core.tcl -nojournal -log pico.log -tclargs pico
