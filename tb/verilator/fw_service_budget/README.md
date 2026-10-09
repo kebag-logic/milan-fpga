@@ -15,7 +15,8 @@ The service checks cover [#590](https://github.com/kebag-logic/milan-fpga/issues
 
 ## Run and reproduce
 
-The portable gate requires Python and a C++17 compiler:
+The portable gate requires Python, PyYAML and a C++17 compiler.
+Image generation also needs the initialized processor submodules:
 
 ```sh
 make -C tb/verilator/fw_service_budget
@@ -78,8 +79,9 @@ python3 -B tb/verilator/fw_service_budget/run.py \
 They accept 0..3,000,000 and 0..5,000 microseconds, respectively.
 These include the documented device maxima.
 Values outside those ranges fail before building or simulating.
-The largest plan has four erases and 100 pages.
-Its maximum WIP is 12.5 seconds, below the 30-second guard.
+The largest plan has four erases and programs two journal images.
+Page counts come from generated image bytes.
+Even two full 64 KiB slots bound WIP at 14.56 seconds, below the 30-second guard.
 Measured no-WIP work leaves additional room inside that guard.
 This is a supported-scenario limit, not an arbitrary-stall guarantee.
 
@@ -193,9 +195,25 @@ Polling consumes CPU during WIP; subtraction does not measure spare capacity.
 Future update writing, fault logging and temperature remain unmeasured.
 Physical timing, the architecture decision and bench torture remain open.
 
+The fixture's image sizes come from freshly built image bytes (#641).
+Its journal digest binds generated media to the recorded simulation.
+A changed image requires rebuilding and recording new traces.
+Regenerate the fixture through its generator:
+
+```sh
+python3 tb/verilator/fw_service_budget/gen_oracle.py \
+  --small-build "$SMALL_BUILD" --large-build "$LARGE_BUILD"
+```
+
+Both build directories must contain successful populated `all` runs.
+The small build also needs a populated `uart-paced` run.
+The generator validates builds, logs, images and grading before writing.
+No timing observation is inferred from image size.
+
 The self-test pins complete rows and findings from three fixed traces:
 both immediate `all` shapes and paced 1x1.
 It also pins clock conversion, markers, deadlines and tick-span reconstruction.
+A planted journal byte count must fail the flash operation census.
 An exact-budget duty passes; one extra system cycle fails.
 A delayed final response must fail that command's budget specifically.
 A combined control word must not become a standalone heartbeat marker.
