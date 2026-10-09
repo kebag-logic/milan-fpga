@@ -1,0 +1,23 @@
+archive              rc=0  <pinned-md-python> scripts/check_archive.py
+diff_check_base      rc=0  git diff --check 5603c353137e90c1fa95429f6d00ef7a2298d9ee HEAD
+doc_map              rc=0  <pinned-md-python> docs/DOC_MAP.gen.py --check
+doc_paths            rc=0  <pinned-md-python> scripts/check_doc_paths.py
+docs_check           rc=0  <pinned-md-python> scripts/docs_check.py
+docs_nogit           rc=0  env GIT_DIR=/dev/null <pinned-md-python> scripts/docs_check.py
+docs_self            rc=0  <pinned-md-python> scripts/docs_check.py --selftest
+doc_style            rc=0  <pinned-md-python> scripts/check_doc_style.py
+doc_style_self       rc=0  <pinned-md-python> scripts/check_doc_style.py --selftest
+em_dash              rc=0  <pinned-md-python> scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+em_dash_self         rc=0  <pinned-md-python> scripts/check_em_dash.py --selftest
+feature_self         rc=0  <pinned-md-python> scripts/check_feature_status.py --self-test
+feature_status       rc=0  <pinned-md-python> scripts/check_feature_status.py
+gptp_docs            rc=0  <pinned-md-python> scripts/check_gptp_docs.py
+hygiene              rc=0  <pinned-md-python> scripts/check_hygiene.py --check
+module_matrix        rc=0  <pinned-md-python> docs/traceability/gen_module_matrix.py --check
+resource_baseline    rc=0  <pinned-md-python> syn/ooc/pp_resource_gate.py check-baseline
+solution             rc=0  <pinned-md-python> scripts/check_solution_docs.py
+submodule_docs       rc=0  <pinned-md-python> scripts/check_submodule_docs.py
+toc_anchors          rc=0  <pinned-md-python> scripts/gen_toc.py --verify-anchors
+toc_check            rc=0  <pinned-md-python> scripts/gen_toc.py --check
+toc_self             rc=0  <pinned-md-python> scripts/gen_toc.py --selftest
+todo                 rc=0  <pinned-md-python> scripts/check_todo_ownership.py

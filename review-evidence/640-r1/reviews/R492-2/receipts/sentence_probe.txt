@@ -1,0 +1,163 @@
+== range c4b8b7d373c9233bc9e71c6ed32eae9ad2b3f970..7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783
+docs/design/MARK_II_AREA_PLAN.md: 310 added prose lines, 46 sentences over ten words
+  docs/design/MARK_II_AREA_PLAN.md:141: 11 words: The #232 registry, #230 SRP storage and #639 rings/listener changes
+  docs/design/MARK_II_AREA_PLAN.md:155: 24 words: Since then dev changed one shipping-image input functionally: [](../../hdl/ieee1722/crf/KLcrfrx.sv) now scores
+  docs/design/MARK_II_AREA_PLAN.md:156: 30 words: [](../../hdl/milan/KLnvmbackend.sv) gained a named constant with no logic, [](../../hdl/milan/milandatapath.sv
+  docs/design/MARK_II_AREA_PLAN.md:281: 30 words: The run equals the gate's  record in every gated figure ( exits 0 with no movement): no wrapper input changed 
+  docs/design/MARK_II_AREA_PLAN.md:288: 15 words: The second pin adoption (#661) moves the processor to , which carries #232, #230 and #639.
+  docs/design/MARK_II_AREA_PLAN.md:289: 17 words: Its lane published its measured image on 2026-10-05 (REVIEW READY, head , on dev , which already carries #653)
+  docs/design/MARK_II_AREA_PLAN.md:311: 36 words: The measured adoption is 358 LUTs and 76 FFs above that projection: the lanes' deltas do not add exactly, and 
+  docs/design/MARK_II_AREA_PLAN.md:433: 11 words: The owner's memory decision replaces the earlier approximately 128 KB budget.
+  docs/design/MARK_II_AREA_PLAN.md:598: 11 words: M8a replaces the existing CPU memory allocation within the 50-tile budget.
+  docs/design/MARK_II_AREA_PLAN.md:700: 12 words: The F5 ruling sets its linked-image limit at 224 KB, AECP included.
+  docs/design/MARK_II_AREA_PLAN.md:714: 12 words: The largest fixture has 56,948 text and 3,458 rodata bytes.
+  docs/design/MARK_II_AREA_PLAN.md:715: 11 words: Data is zero; BSS is 78,744 bytes, including static pools.
+  docs/design/MARK_II_AREA_PLAN.md:724: 12 words: For example, 224 KiB needs 56 tiles at 4 KiB usable each.
+  docs/design/MARK_II_AREA_PLAN.md:725: 11 words: That example is a packing check, not a new F5 threshold.
+  docs/design/MARK_II_AREA_PLAN.md:729: 11 words: It credits only the same removed scopes as L2's LUT basis.
+  docs/design/MARK_II_AREA_PLAN.md:731: 11 words: The firmware row replaces CPU memory, so replacement storage counts once.
+  docs/design/MARK_II_AREA_PLAN.md:746: 12 words: That census reports BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
+  docs/design/MARK_II_AREA_PLAN.md:749: 11 words: Any retained boot memory outside the firmware allocation adds a debit.
+  docs/design/MARK_II_AREA_PLAN.md:750: 11 words: The allocation must also contain stack, pools and shape-sized saved-state staging.
+  docs/design/MARK_II_AREA_PLAN.md:751: 11 words: Any descriptor image or alignment space outside it adds a debit.
+  docs/design/MARK_II_AREA_PLAN.md:757: 14 words: The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+  docs/design/MARK_II_AREA_PLAN.md:758: 11 words: They depend on fitting the credited RAM conversions within the ledger.
+  docs/design/MARK_II_AREA_PLAN.md:760: 12 words: Before the conditional release, the estimate leaves one tile below 121.5.
+  docs/design/MARK_II_AREA_PLAN.md:764: 11 words: Unpriced M6/M7 RAM conversions and integration buffers consume that allowance.
+  docs/design/MARK_II_AREA_PLAN.md:766: 11 words: Without the estimated CPU-memory reuse, those totals become 139 and 128.
+  docs/design/MARK_II_AREA_PLAN.md:767: 11 words: Both exceed the ceiling; reuse is a prerequisite, not free headroom.
+  docs/design/MARK_II_AREA_PLAN.md:769: 11 words: What gives way above 50 firmware tiles: the remaining wrapper storage.
+  docs/design/MARK_II_AREA_PLAN.md:770: 12 words: These disjoint scopes are outside the six AECP tiles and SRP half-tile:
+  docs/design/MARK_II_AREA_PLAN.md:788: 11 words: At 56 firmware tiles, the conditional total becomes 115.5 tiles.
+  docs/design/MARK_II_AREA_PLAN.md:790: 11 words: Beyond that allowance, defer M2's two-tile MAC/CSR FIFO conversion first.
+  docs/design/MARK_II_AREA_PLAN.md:792: 11 words: Defer new M6/M7 block-RAM conversions next, with the same repricing.
+  docs/design/MARK_II_AREA_PLAN.md:794: 13 words: If these trades still exceed 121.5, the manager must commission further redesign.
+  docs/design/MARK_II_AREA_PLAN.md:796: 11 words: Partial placement retains AECP's six tiles and any still-used wrapper stores.
+  docs/design/MARK_II_AREA_PLAN.md:797: 11 words: With the same 50-tile hold, the pre-release estimate becomes 126.5.
+  docs/design/MARK_II_AREA_PLAN.md:798: 11 words: That is five tiles over the ceiling, before extra fabric-AECP staging.
+  docs/design/MARK_II_AREA_PLAN.md:803: 13 words: Checkpoint evidence: both M0s routes, the default flip and M9 report this ledger.
+  docs/design/MARK_II_AREA_PLAN.md:806: 11 words: Cover shipping and largest supported shapes, at one and two interfaces.
+  docs/design/MARK_II_AREA_PLAN.md:808: 11 words: Name the five largest BSS consumers and a reduction option each.
+  docs/design/MARK_II_AREA_PLAN.md:810: 12 words: Publish whole-image LUT, FF, RAMB36/RAMB18 and timing at each routed checkpoint.
+  docs/design/MARK_II_AREA_PLAN.md:811: 11 words: Reconcile removals, replacement debits and actual firmware allocation against 121.5.
+  docs/design/MARK_II_AREA_PLAN.md:812: 13 words: The default flip requires firmware resident in block RAM and the reserve intact.
+  docs/design/MARK_II_AREA_PLAN.md:1002: 11 words: The flip reports its own routed LUT, FF and RAMB36 use.
+  docs/design/MARK_II_AREA_PLAN.md:1003: 12 words: Its firmware resides in block RAM, with the 10 percent reserve intact.
+  docs/design/MARK_II_AREA_PLAN.md:1098: 11 words: The #396 release campaigns then run on the qualified split image.
+  docs/design/MARK_II_AREA_PLAN.md:1114: 40 words: Vivado 2026.1 build 6511674 for , the #234 recipe unchanged: the shipping  export without , [](../../syn/ooc/p
+  docs/design/MARK_II_AREA_PLAN.md:1120: 26 words: The map was therefore tied to a scratch copy of [](../../syn/ooc/ppresourcebaseline.json) into which this rout
+docs/design/AREA_BUDGET.md: 153 added prose lines, 48 sentences over ten words
+  docs/design/AREA_BUDGET.md:13: 17 words: The issue #234 baseline records the shipping image after merging dev  for #645 and #647, retaining processor .
+  docs/design/AREA_BUDGET.md:60: 12 words: Measured with [](../../syn/yosys/ooc.sh) at the 8-stream, 16-slot fabric shape.
+  docs/design/AREA_BUDGET.md:100: 12 words: Issue #234 first measured the shipping 1x1 image at dev , processor pin .
+  docs/design/AREA_BUDGET.md:102: 12 words: Combination F was measured for #682 at parent  after merging dev , processor .
+  docs/design/AREA_BUDGET.md:105: 18 words: Issue #686 re-recorded all three endpoints on 2026-10-08 at , its merge of dev , after 's Annex B change.
+  docs/design/AREA_BUDGET.md:106: 21 words: Issue #645 then re-recorded all three endpoints on merge result , including dev , the GMII capture change and 
+  docs/design/AREA_BUDGET.md:107: 16 words: That merge-result measurement is the gate's record; its receipts and differences retain the preceding #686 rec
+  docs/design/AREA_BUDGET.md:109: 11 words: The #686 flow identity matches F, the one synthesis worker included.
+  docs/design/AREA_BUDGET.md:110: 27 words: The #686 repository inputs differ from F's only in [](../../hdl/ieee1722/maap/KLmaap.sv) and comment lines of 
+  docs/design/AREA_BUDGET.md:131: 20 words: The preceding #686 image used 50,391 LUTs and 15,788 slices, 62 free, at +0.241 / +0.029 ns.
+  docs/design/AREA_BUDGET.md:139: 13 words: The superseded #229 milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
+  docs/design/AREA_BUDGET.md:145: 17 words: Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 11,118 LUTs.
+  docs/design/AREA_BUDGET.md:154: 18 words: The #232, #230 and #639 storage changes are now adopted and measured; the remaining redesign stays under #640.
+  docs/design/AREA_BUDGET.md:222: 11 words: The owner's memory decision replaces the approximately 128 KB firmware budget.
+  docs/design/AREA_BUDGET.md:225: 13 words: The F5 preflight measured 94,688 bytes for shipping 1x1 with one interface.
+  docs/design/AREA_BUDGET.md:226: 11 words: The largest supported shape with two interfaces measured 147,360 bytes.
+  docs/design/AREA_BUDGET.md:227: 11 words: Both fixtures retain F1 but exclude AECP and its descriptor image.
+  docs/design/AREA_BUDGET.md:228: 11 words: These are linked spans, not mapped RAMB36 measurements or irreducible minima.
+  docs/design/AREA_BUDGET.md:249: 12 words: The nominal 50 tiles use approximately 4.5 KB raw capacity each.
+  docs/design/AREA_BUDGET.md:250: 12 words: A 4 KiB usable mapping would require 56 tiles for 224 KiB.
+  docs/design/AREA_BUDGET.md:251: 11 words: Actual primitive counts decide fit; the byte-to-tile estimate cannot prove it.
+  docs/design/AREA_BUDGET.md:255: 14 words: The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+  docs/design/AREA_BUDGET.md:256: 11 words: They depend on fitting the credited RAM conversions within the ledger.
+  docs/design/AREA_BUDGET.md:258: 11 words: At 50 tiles, the ledger leaves one tile before conditional reclamation.
+  docs/design/AREA_BUDGET.md:260: 12 words: At 56 firmware tiles, the conditional total is 115.5, leaving six.
+  docs/design/AREA_BUDGET.md:262: 11 words: Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
+  docs/design/AREA_BUDGET.md:264: 11 words: Above 50 firmware tiles, the remaining wrapper stores give way first.
+  docs/design/AREA_BUDGET.md:265: 14 words: They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and .
+  docs/design/AREA_BUDGET.md:266: 11 words: The plan names their exact scopes and counts: eleven tiles altogether.
+  docs/design/AREA_BUDGET.md:269: 12 words: If more capacity is needed, defer M2's two-tile MAC/CSR FIFO conversion.
+  docs/design/AREA_BUDGET.md:270: 12 words: Defer new M6/M7 RAM conversions next; reprice every lost LUT saving.
+  docs/design/AREA_BUDGET.md:273: 11 words: Partial placement cannot claim retained AECP or wrapper storage as released.
+  docs/design/AREA_BUDGET.md:274: 11 words: Its same 50-tile hold gives 126.5 before additional fabric-AECP staging.
+  docs/design/AREA_BUDGET.md:277: 11 words: Both M0s routes, the default flip and M9 publish memory-ledger reconciliation.
+  docs/design/AREA_BUDGET.md:281: 11 words: Cover shipping and largest supported shapes at one and two interfaces.
+  docs/design/AREA_BUDGET.md:282: 11 words: List the five largest BSS consumers and a reduction option each.
+  docs/design/AREA_BUDGET.md:284: 11 words: The flip needs routed LUT, FF, RAMB36/RAMB18 and timing evidence.
+  docs/design/AREA_BUDGET.md:285: 14 words: Firmware must reside in block RAM, with total use at most 121.5 tiles.
+  docs/design/AREA_BUDGET.md:423: 16 words: The first re-baseline recorded PR #634's growth on 2026-10-03, in PR #638, which added the gate.
+  docs/design/AREA_BUDGET.md:425: 11 words: The second re-baseline records the adopted  image on dev  for #661.
+  docs/design/AREA_BUDGET.md:426: 14 words: The third re-baseline records processor  on dev  for #682, including its changed measurement flow.
+  docs/design/AREA_BUDGET.md:427: 16 words: The fourth re-baseline records the same processor after #682 merges dev , under the same measurement flow.
+  docs/design/AREA_BUDGET.md:428: 14 words: The fifth records #686's  change on its merge of dev , under the same flow.
+  docs/design/AREA_BUDGET.md:430: 43 words: In #686's routed hierarchy  uses 429 LUTs and 279 FFs, against 479 and 267 for the previous  in the resource m
+  docs/design/AREA_BUDGET.md:431: 12 words: The sixth re-baseline records #645 and #647 on their merge of dev .
+  docs/design/AREA_BUDGET.md:432: 23 words: Against #686, its route moved by -124 LUTs, +150 FFs and -9 slices, with WNS +0.058 ns and WHS +0.002 ns.
+  docs/design/AREA_BUDGET.md:481: 11 words: as issue #234 recorded PR #634's; the PR uses that record.
+  docs/design/AREA_BUDGET.md:487: 17 words: That bank run is the local half of #234's fourth criterion (manager ruling); CONTRIBUTING is unchanged here.
+TOTAL 94
+== range 39258a1486897127288f82fbb1b86333febf6f00..7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783
+docs/design/MARK_II_AREA_PLAN.md: 97 added prose lines, 36 sentences over ten words
+  docs/design/MARK_II_AREA_PLAN.md:433: 11 words: The owner's memory decision replaces the earlier approximately 128 KB budget.
+  docs/design/MARK_II_AREA_PLAN.md:598: 11 words: M8a replaces the existing CPU memory allocation within the 50-tile budget.
+  docs/design/MARK_II_AREA_PLAN.md:700: 12 words: The F5 ruling sets its linked-image limit at 224 KB, AECP included.
+  docs/design/MARK_II_AREA_PLAN.md:714: 12 words: The largest fixture has 56,948 text and 3,458 rodata bytes.
+  docs/design/MARK_II_AREA_PLAN.md:715: 11 words: Data is zero; BSS is 78,744 bytes, including static pools.
+  docs/design/MARK_II_AREA_PLAN.md:724: 12 words: For example, 224 KiB needs 56 tiles at 4 KiB usable each.
+  docs/design/MARK_II_AREA_PLAN.md:725: 11 words: That example is a packing check, not a new F5 threshold.
+  docs/design/MARK_II_AREA_PLAN.md:729: 11 words: It credits only the same removed scopes as L2's LUT basis.
+  docs/design/MARK_II_AREA_PLAN.md:731: 11 words: The firmware row replaces CPU memory, so replacement storage counts once.
+  docs/design/MARK_II_AREA_PLAN.md:746: 12 words: That census reports BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
+  docs/design/MARK_II_AREA_PLAN.md:749: 11 words: Any retained boot memory outside the firmware allocation adds a debit.
+  docs/design/MARK_II_AREA_PLAN.md:750: 11 words: The allocation must also contain stack, pools and shape-sized saved-state staging.
+  docs/design/MARK_II_AREA_PLAN.md:751: 11 words: Any descriptor image or alignment space outside it adds a debit.
+  docs/design/MARK_II_AREA_PLAN.md:757: 14 words: The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+  docs/design/MARK_II_AREA_PLAN.md:758: 11 words: They depend on fitting the credited RAM conversions within the ledger.
+  docs/design/MARK_II_AREA_PLAN.md:760: 12 words: Before the conditional release, the estimate leaves one tile below 121.5.
+  docs/design/MARK_II_AREA_PLAN.md:764: 11 words: Unpriced M6/M7 RAM conversions and integration buffers consume that allowance.
+  docs/design/MARK_II_AREA_PLAN.md:766: 11 words: Without the estimated CPU-memory reuse, those totals become 139 and 128.
+  docs/design/MARK_II_AREA_PLAN.md:767: 11 words: Both exceed the ceiling; reuse is a prerequisite, not free headroom.
+  docs/design/MARK_II_AREA_PLAN.md:769: 11 words: What gives way above 50 firmware tiles: the remaining wrapper storage.
+  docs/design/MARK_II_AREA_PLAN.md:770: 12 words: These disjoint scopes are outside the six AECP tiles and SRP half-tile:
+  docs/design/MARK_II_AREA_PLAN.md:788: 11 words: At 56 firmware tiles, the conditional total becomes 115.5 tiles.
+  docs/design/MARK_II_AREA_PLAN.md:790: 11 words: Beyond that allowance, defer M2's two-tile MAC/CSR FIFO conversion first.
+  docs/design/MARK_II_AREA_PLAN.md:792: 11 words: Defer new M6/M7 block-RAM conversions next, with the same repricing.
+  docs/design/MARK_II_AREA_PLAN.md:794: 13 words: If these trades still exceed 121.5, the manager must commission further redesign.
+  docs/design/MARK_II_AREA_PLAN.md:796: 11 words: Partial placement retains AECP's six tiles and any still-used wrapper stores.
+  docs/design/MARK_II_AREA_PLAN.md:797: 11 words: With the same 50-tile hold, the pre-release estimate becomes 126.5.
+  docs/design/MARK_II_AREA_PLAN.md:798: 11 words: That is five tiles over the ceiling, before extra fabric-AECP staging.
+  docs/design/MARK_II_AREA_PLAN.md:803: 13 words: Checkpoint evidence: both M0s routes, the default flip and M9 report this ledger.
+  docs/design/MARK_II_AREA_PLAN.md:806: 11 words: Cover shipping and largest supported shapes, at one and two interfaces.
+  docs/design/MARK_II_AREA_PLAN.md:808: 11 words: Name the five largest BSS consumers and a reduction option each.
+  docs/design/MARK_II_AREA_PLAN.md:810: 12 words: Publish whole-image LUT, FF, RAMB36/RAMB18 and timing at each routed checkpoint.
+  docs/design/MARK_II_AREA_PLAN.md:811: 11 words: Reconcile removals, replacement debits and actual firmware allocation against 121.5.
+  docs/design/MARK_II_AREA_PLAN.md:812: 13 words: The default flip requires firmware resident in block RAM and the reserve intact.
+  docs/design/MARK_II_AREA_PLAN.md:1002: 11 words: The flip reports its own routed LUT, FF and RAMB36 use.
+  docs/design/MARK_II_AREA_PLAN.md:1003: 12 words: Its firmware resides in block RAM, with the 10 percent reserve intact.
+docs/design/AREA_BUDGET.md: 50 added prose lines, 25 sentences over ten words
+  docs/design/AREA_BUDGET.md:222: 11 words: The owner's memory decision replaces the approximately 128 KB firmware budget.
+  docs/design/AREA_BUDGET.md:225: 13 words: The F5 preflight measured 94,688 bytes for shipping 1x1 with one interface.
+  docs/design/AREA_BUDGET.md:226: 11 words: The largest supported shape with two interfaces measured 147,360 bytes.
+  docs/design/AREA_BUDGET.md:227: 11 words: Both fixtures retain F1 but exclude AECP and its descriptor image.
+  docs/design/AREA_BUDGET.md:228: 11 words: These are linked spans, not mapped RAMB36 measurements or irreducible minima.
+  docs/design/AREA_BUDGET.md:249: 12 words: The nominal 50 tiles use approximately 4.5 KB raw capacity each.
+  docs/design/AREA_BUDGET.md:250: 12 words: A 4 KiB usable mapping would require 56 tiles for 224 KiB.
+  docs/design/AREA_BUDGET.md:251: 11 words: Actual primitive counts decide fit; the byte-to-tile estimate cannot prove it.
+  docs/design/AREA_BUDGET.md:255: 14 words: The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+  docs/design/AREA_BUDGET.md:256: 11 words: They depend on fitting the credited RAM conversions within the ledger.
+  docs/design/AREA_BUDGET.md:258: 11 words: At 50 tiles, the ledger leaves one tile before conditional reclamation.
+  docs/design/AREA_BUDGET.md:260: 12 words: At 56 firmware tiles, the conditional total is 115.5, leaving six.
+  docs/design/AREA_BUDGET.md:262: 11 words: Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
+  docs/design/AREA_BUDGET.md:264: 11 words: Above 50 firmware tiles, the remaining wrapper stores give way first.
+  docs/design/AREA_BUDGET.md:265: 14 words: They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and .
+  docs/design/AREA_BUDGET.md:266: 11 words: The plan names their exact scopes and counts: eleven tiles altogether.
+  docs/design/AREA_BUDGET.md:269: 12 words: If more capacity is needed, defer M2's two-tile MAC/CSR FIFO conversion.
+  docs/design/AREA_BUDGET.md:270: 12 words: Defer new M6/M7 RAM conversions next; reprice every lost LUT saving.
+  docs/design/AREA_BUDGET.md:273: 11 words: Partial placement cannot claim retained AECP or wrapper storage as released.
+  docs/design/AREA_BUDGET.md:274: 11 words: Its same 50-tile hold gives 126.5 before additional fabric-AECP staging.
+  docs/design/AREA_BUDGET.md:277: 11 words: Both M0s routes, the default flip and M9 publish memory-ledger reconciliation.
+  docs/design/AREA_BUDGET.md:281: 11 words: Cover shipping and largest supported shapes at one and two interfaces.
+  docs/design/AREA_BUDGET.md:282: 11 words: List the five largest BSS consumers and a reduction option each.
+  docs/design/AREA_BUDGET.md:284: 11 words: The flip needs routed LUT, FF, RAMB36/RAMB18 and timing evidence.
+  docs/design/AREA_BUDGET.md:285: 14 words: Firmware must reside in block RAM, with total use at most 121.5 tiles.
+TOTAL 61

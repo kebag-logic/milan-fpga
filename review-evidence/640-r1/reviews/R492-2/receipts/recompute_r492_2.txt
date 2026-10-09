@@ -1,0 +1,66 @@
+ok   route LUT: 50,267 on plan,budget
+ok   route tiles: 87.5 on plan,budget
+ok   route RAMB36/RAMB18: | 74 | 27 | 87.5 | 87.5 | on plan,budget
+basis {'ADP': 523, 'listener': 1561, 'talker': 823, 'originator': 697, 'binding': 808, 'SRP': 3868, 'AECP': 6150, 'notify': 2125, 'nvmport': 542, 'nvm': 581}
+ok   disjoint wrapper subtotal: 17,678 on plan
+ok   unowned wrapper residual: 5,501 on plan
+ok   gross reference: 18,107 on plan
+ok   split central raw: 14,005 on plan
+ok   split cons raw: 11,505 on plan
+ok   split opt raw: 16,005 on plan
+ok   M8a named cells: 1,696 on plan
+ok   M8a rounded cases: | 1,000 | 33,367 | on plan,budget
+ok   M8a raw 0.5: 448 on plan
+ok   M8a raw 0.75: 1,022 on plan
+ok   M8a raw 1.0: 1,596 on plan
+cons cumulative [38767, 38667, 38267, 37867, 37567, 37167, 35867]
+central cumulative [36267, 36067, 35467, 34867, 34367, 33367, 31667]
+opt cumulative [34267, 33867, 32867, 31967, 31267, 29767, 27567]
+ok   cumulative row F0-F5, complete qualified flip / L2: | F0-F5, complete qualified flip / L2 | 14,000 | 36,267 | 38,767 | 34,267 | on plan
+ok   cumulative row M2: | M2 | 200 | 36,067 | 38,667 | 33,867 | on plan
+ok   cumulative row M5: | M5 | 600 | 35,467 | 38,267 | 32,867 | on plan
+ok   cumulative row M6: | M6 | 600 | 34,867 | 37,867 | 31,967 | on plan
+ok   cumulative row M7: | M7 | 500 | 34,367 | 37,567 | 31,267 | on plan
+ok   cumulative row M8a: | M8a | 1,000 | 33,367 | 37,167 | 29,767 | on plan
+ok   cumulative row M8b, conditional: | M8b, conditional | 1,700 | 31,667 | 35,867 | 27,567 | on plan
+ok   full split: 31,667 on plan,budget
+ok   full split head 38040 central %: 16.75 percent on plan
+ok   full split head 38040 cons %: 5.71 percent on plan
+ok   without M8b cons: 37,167 on plan,budget
+ok   M-lane totals: 4,600 on plan,budget
+ok   M3/M10 totals: 3,800 on plan,budget
+ok   no split incl: 41,867 on plan,budget
+ok   no split before M3/M10: 45,667 on plan,budget
+ok   partial retained: 10,095 on plan
+ok   partial removal basis: 8,012 on plan,budget
+ok   partial split saving: 3,910 on plan,budget
+ok   partial images: 37,957 on plan,budget
+ok   partial central without M8b: 39,657 on plan,budget
+ok   scenario Full split Conservative: | Full split | Conservative | 35,867 | +2,173 | +1,792 | on plan,budget
+ok   scenario Full split Central: | Full split | Central | 31,667 | +6,373 | +5,992 | on plan,budget
+ok   scenario Full split Optimistic: | Full split | Optimistic | 27,567 | +10,473 | +10,092 | on plan,budget
+ok   scenario No split, including M3/M10 Conservative: | No split, including M3/M10 | Conservative | 44,967 | -6,927 | -7,308 | on plan,budget
+ok   scenario No split, including M3/M10 Central: | No split, including M3/M10 | Central | 41,867 | -3,827 | -4,208 | on plan,budget
+ok   scenario No split, including M3/M10 Optimistic: | No split, including M3/M10 | Optimistic | 38,467 | -427 | -808 | on plan,budget
+ok   scenario Partial, F5 unqualified Conservative: | Partial, F5 unqualified | Conservative | 43,557 | -5,517 | -5,898 | on plan,budget
+ok   scenario Partial, F5 unqualified Central: | Partial, F5 unqualified | Central | 37,957 | +83 | -298 | on plan,budget
+ok   scenario Partial, F5 unqualified Optimistic: | Partial, F5 unqualified | Optimistic | 32,557 | +5,483 | +5,102 | on plan,budget
+M3 displaced 3380.3; own logic 1302; aecp_q 421
+ok   M3 displaced ~3,380: 3,380 on plan
+ok   M3 net near 2,600: 2,600 on plan
+ok   credited removals AECP+SRP: | -6 | -1 | -6.5 | 81 | on plan,budget
+ok   release scopes RAMB36/RAMB18: | Total | 10 | 2 | 11 | on plan
+ok   wrapper partition complete (residual RAMB36,RAMB18):  on plan,budget
+ok   ledger total: `87.5 - 6.5 + 6 - 18.5 + 50 + 2 = 120.5` on plan,budget
+ok   after conditional release: 109.5 on plan,budget
+ok   headroom before release:  on plan,budget
+ok   no-reuse totals: 139 and 128 on plan,budget
+ok   56-tile conditional: 115.5 on plan,budget
+ok   partial 50-tile hold: 126.5 on plan,budget
+ok   reserve and ceiling: 121.5 on plan,budget
+ok   preflight section sum: 147,342 on plan
+ok   preflight alignment: adds 18 on plan
+ok   224 KiB at 4 KiB: 56 tiles on plan,budget
+info: 50 tiles x 4,096 B = 204,800 B usable at 32-bit width; x 4,608 B raw = 230,400 B; 224 KB = 224,000 B / 224 KiB = 229,376 B
+info: largest preflight 147,360 B needs 36 tiles at 4 KiB; shipping 94,688 B needs 24
+RESULT ok=58 bad=0

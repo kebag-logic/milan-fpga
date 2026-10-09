@@ -1,0 +1,13 @@
+heading at line 1136:### Reproduce L11b core pricing
+block1 first-line prefix words: 2 (shown as <proxy> ...)
+block2 first line starts with the same prefix: 1
+block1 bytes=1400 sha256=5c697c022c66aa5f5ff3fd467d5ae233b927ab93bc343809ec1aa72142ac4178
+block2 bytes=359 sha256=79c77bb37716894f015a7b7f7516d4bdbfb3cd2e81f610f95af05960673ae712
+parse block1 rc=0
+parse block2 rc=0
+block1 as printed, clean PATH: rc=127
+WORK/block1.sh: line 1: <proxy>: command not found
+no tcl written (as printed)
+block1 without prefix, clean PATH: rc=0
+tcl written (without prefix): 1339 bytes sha256=f75186e9986fb55cb69f3d202076704c02b840ae13c985c5de5f623477c3f779
+tcl info complete: 1
