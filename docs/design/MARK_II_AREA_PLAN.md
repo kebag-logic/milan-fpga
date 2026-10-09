@@ -835,6 +835,7 @@ Its basis uses these shares:
 | D3 and dynamic state | 1,703 + 134 | 70 percent |
 | AECP own logic | 1,302 | 50 percent |
 | AECP dispatch queue | 421 | 40 percent |
+
 That displaces about 3,380 LUTs.
 Engine and arbitration overhead costs about 1,000 LUTs.
 Residual width work adds approximately 200 LUTs.
@@ -1163,7 +1164,7 @@ Export the variables above and put Vivado on `PATH`.
 Create this Tcl in the scratch directory:
 
 ```sh
-rtk proxy bash -c 'cat > "$WORK/price_core.tcl"' <<'TCL'
+bash -c 'cat > "$WORK/price_core.tcl"' <<'TCL'
 set_param general.maxThreads 8
 set name [lindex $argv 0]
 set options {}
@@ -1207,7 +1208,7 @@ TCL
 Run sequentially under one lock, without another heavy build:
 
 ```sh
-rtk proxy flock /tmp/milan-vivado.lock bash -c '
+flock /tmp/milan-vivado.lock bash -c '
   set -eu
   for core in vexii vexmin pico; do
     mkdir "$WORK/$core"
