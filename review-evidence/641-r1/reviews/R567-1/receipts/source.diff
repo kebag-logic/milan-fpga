@@ -1,0 +1,527 @@
+diff --git a/docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md b/docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+index 2b7601cd0..714d311ae 100644
+--- a/docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
++++ b/docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+@@ -101,6 +101,9 @@ sv2v turns an elaboration-time `$error` in a generate block into an `initial $di
+ So a point the RTL refuses still maps, with no error: neither `ooc.sh` nor `run.sh` looks for the converted message.
+ `yosys_sweep.py guards` lints every point with Verilator 5.050, which evaluates those guards and reports each as `USERERROR`.
+ A point whose guard fires, or whose shape the builder refuses, is listed in [the refusals](#guard-refusals) and left out of every fit.
++Issue #651 subsequently adds guard enforcement to both synthesis flows.
++Their converted error tasks now fail when their generate branch activates.
++The measurements below retain their original method and revision.
+ A point with no guard record, or whose lint hit a hard error, is not treated as clean: `resmap_models.py` stops and names it.
+ 
+ ### Vivado calibration anchors
+diff --git a/scripts/entity_shape_selftest.py b/scripts/entity_shape_selftest.py
+index 243fa620e..39a6afd7c 100644
+--- a/scripts/entity_shape_selftest.py
++++ b/scripts/entity_shape_selftest.py
+@@ -398,6 +398,30 @@ def _prove_classified_frozen_form(original: str, stale: Path) -> None:
+             handle.write(original)
+ 
+ 
++def _prove_stopped_parse(original: str, stale: Path) -> None:
++    """A partial database cannot verify a consumer, even after a rule."""
++    import shape_consumer_inventory as inventory
++
++    name = _repo_spelling(stale)
++    try:
++        for prefix in ("", "fixture: missing-generated-input\n"):
++            text = prefix + "$(error planted stopped parse)\n" + original
++            stale.write_text(text, encoding="utf-8")
++            expect_fail("a stopped make parse leaves a partial database",
++                        lambda: gate.ck("I complete database required",
++                                        inventory.dangling_consumers(
++                                            name, text, set(gate.tracked_files())), []),
++                        (name, "make database unreadable"))
++        stale.write_text("fixture: missing-generated-input\n" + original,
++                         encoding="utf-8")
++        ok, prereqs = inventory.shape_prereqs_from_database(stale.parent, stale.name)
++        gate.ck("I missing build products do not stop database parsing", ok, True)
++        gate.ck("I complete database retains frozen shape prerequisites",
++                "../../../hdl/common/gen/adp_shape_defaults.svh" in prereqs, True)
++    finally:
++        stale.write_text(original, encoding="utf-8")
++
++
+ def _prove_make_filenames(original: str, stale: Path) -> None:
+     """Make consumers are recognised by GNU Make's own filename rules.
+ 
+@@ -722,6 +746,7 @@ def self_test() -> None:
+     _prove_unresolvable_make(original, stale)
+     _prove_frozen_expansion(original, stale)
+     _prove_classified_frozen_form(original, stale)
++    _prove_stopped_parse(original, stale)
+     _prove_make_filenames(original, stale)
+     src_cfg = gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"
+     _prove_unit_counts(builder, src_cfg)
+diff --git a/scripts/shape_consumer_inventory.py b/scripts/shape_consumer_inventory.py
+index 0d511b3e2..86566236f 100644
+--- a/scripts/shape_consumer_inventory.py
++++ b/scripts/shape_consumer_inventory.py
+@@ -191,12 +191,17 @@ def shape_prereqs_from_database(directory: Path,
+     means the database could not be read and nothing is verified."""
+     env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
+     try:
+-        run = subprocess.run(["make", "-pqrR", "-f", makefile],
++        # Query an empty goal: missing build products must not turn a
++        # complete parse into rc 2. With this goal, rc 2 means a make
++        # error, even when make printed a partial "# Files" database.
++        run = subprocess.run(["make", "-pqrR", "-f", makefile,
++                              "--eval", f"{MAKE_PROBE_TARGET}: ;",
++                              MAKE_PROBE_TARGET],
+                              cwd=directory, env=env, capture_output=True,
+                              text=True, timeout=60)
+     except (OSError, subprocess.TimeoutExpired):
+         return False, []
+-    if "# Files" not in run.stdout:
++    if run.returncode not in (0, 1) or "# Files" not in run.stdout:
+         return False, []
+     tokens = set()
+     for line in run.stdout.splitlines():
+diff --git a/syn/yosys/README.md b/syn/yosys/README.md
+index 22d696641..e8740d139 100644
+--- a/syn/yosys/README.md
++++ b/syn/yosys/README.md
+@@ -40,6 +40,23 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
+    fully mapped to generic logic (`$_AND_`, `$_DFF_`, `$_MUX_`, …) — nothing
+    Xilinx-specific left.
+ 
++Both flows enforce elaboration errors, including converted diagnostics (#651).
++`enforce_elaboration.py` restores converted error/fatal displays to fatal tasks.
++Generate conditions remain intact; inactive branches still pass.
++Parameter overrides activate the same guards during hierarchy binding.
++The normalized input also feeds the result-cache digest.
++Old cached passes for converted errors therefore cannot clear this check.
++The hosted portability workers call this same `run.sh` path.
++
++```sh
++python3 syn/yosys/guard_selftest.py
++```
++
++The controls exercise both flows with real synthesis.
++They cover valid boundaries, refused values, overrides and both modes.
++Deleting enforcement reproduces the false pass, including its cached form.
++Native fatal tasks remain unchanged.
++
+ ## Tooling
+ - `yosys` — **CI takes this gate's verdict with Yosys `v0.66`** (#287), declared
+   once per workflow file as `YOSYS_VERSION` in
+diff --git a/syn/yosys/enforce_elaboration.py b/syn/yosys/enforce_elaboration.py
+new file mode 100644
+index 000000000..2bd1f4ff2
+--- /dev/null
++++ b/syn/yosys/enforce_elaboration.py
+@@ -0,0 +1,31 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Restore fatal elaboration tasks in lowered synthesis inputs (#651)."""
++from __future__ import annotations
++
++import argparse
++from pathlib import Path
++import re
++
++# Newer converters lower elaboration errors to printable messages. Restore
++# the task, leaving its generate condition intact: an inactive guard is legal.
++# Native $error/$fatal tasks already fail in the synthesis frontend.
++CONVERTED_GUARD = re.compile(r'\$display\s*(\(\s*"(?:Error|Fatal) \[elaboration\])')
++
++
++def enforce(source: str) -> str:
++    """Restore only converted error/fatal tasks; retain diagnostics and guards."""
++    return CONVERTED_GUARD.sub(r'$error\1', source)
++
++
++def main() -> None:
++    """Rewrite the disposable input before synthesis or result-cache lookup."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('source', type=Path)
++    args = parser.parse_args()
++    args.source.write_text(enforce(args.source.read_text(encoding='utf-8')), encoding='utf-8')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/syn/yosys/guard_selftest.py b/syn/yosys/guard_selftest.py
+new file mode 100644
+index 000000000..133891e2b
+--- /dev/null
++++ b/syn/yosys/guard_selftest.py
+@@ -0,0 +1,112 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Exercise both real flows on native and converted elaboration guards."""
++from __future__ import annotations
++
++import os
++from pathlib import Path
++import shlex
++import subprocess
++import tempfile
++
++ROOT = Path(__file__).resolve().parents[2]
++HERE = ROOT / 'syn/yosys'
++
++
++def require(ok: bool, message: str) -> None:
++    """Refuse an unrelated failure or a surviving planted guard."""
++    if not ok:
++        raise RuntimeError(message)
++
++
++def fixture(names: int, task: str = 'converted') -> str:
++    """A live register keeps positive controls measurable after mapping."""
++    error = ('$display("Error [elaboration] planted NAME guard");' if task == 'converted'
++             else '$display("Fatal [elaboration] planted NAME guard");' if task == 'fatal'
++             else '$error("planted NAME guard");')
++    return (f'module tcam #(parameter N_NAME_P = {names})(input clk, output reg q);\n'
++            'if (N_NAME_P < 1 || N_NAME_P > 128) begin : refuse_names\n'
++            f'initial {error}\nend\nalways @(posedge clk) q <= ~q;\nendmodule\n')
++
++
++def stage_flow(work: Path, flow: str, helper: Path) -> Path:
++    """Copy orchestration unchanged except root, allocator and fixture input."""
++    text = (HERE / flow).read_text()
++    replacements = {
++        'R="$(cd "$(dirname "$0")/../.." && pwd)"': 'R=' + shlex.quote(str(ROOT)),
++        '. "$(dirname "$0")/malloc.sh"': '. ' + shlex.quote(str(HERE / 'malloc.sh')),
++        'sv2v --top="$top" $inc $srcs': 'cat "$GUARD_FIXTURE"',
++        'sv2v --top="$top" $INC $srcs': 'cat "$GUARD_FIXTURE"',
++        '"$R/syn/yosys/enforce_elaboration.py"': shlex.quote(str(helper)),
++    }
++    for old, new in replacements.items():
++        text = text.replace(old, new)
++    target = work / flow
++    target.write_text(text)
++    return target
++
++
++def invoke(script: Path, work: Path, source: str, arguments: list[str],
++           parameter: str = '') -> subprocess.CompletedProcess[str]:
++    """Run the actual synthesis process with isolated input and artifacts."""
++    input_path = work / 'fixture.v'
++    input_path.write_text(source)
++    env = dict(os.environ, GUARD_FIXTURE=str(input_path), OOC_TMP=str(work / 'ooc'),
++               OOC_CHPARAM=parameter)
++    return subprocess.run(['bash', str(script), *arguments], cwd=ROOT, env=env,
++                          capture_output=True, text=True, check=False)
++
++
++def controls(work: Path) -> int:
++    """Check boundaries, both modes, parameter overrides and cache custody."""
++    count = 0
++    helper = HERE / 'enforce_elaboration.py'
++    for flow in ('run.sh', 'ooc.sh'):
++        script = stage_flow(work, flow, helper)
++        args = ['--top', 'tcam', '--no-structural'] if flow == 'run.sh' else ['tcam']
++        for task in ('converted', 'fatal', 'native'):
++            for names in (1, 128, 0, 129, 235):
++                run = invoke(script, work, fixture(names, task), args)
++                expected = names in (1, 128)
++                require((run.returncode == 0) == expected,
++                        f'{flow} {task} N_NAME_P={names}: {run.stdout} {run.stderr}')
++                if not expected:
++                    require('yosys FAIL' in run.stdout or 'yosys:' in run.stdout,
++                            'guard must fail inside synthesis, not fixture setup')
++                    require('$error' in run.stdout, 'refusal must name the fatal task')
++                count += 1
++        if flow == 'ooc.sh':
++            run = invoke(script, work, fixture(1), args, 'N_NAME_P=235')
++            require(run.returncode != 0 and '$error' in run.stdout,
++                    'parameter override escaped the active guard')
++            count += 1
++        else:
++            run = invoke(script, work, fixture(235), args + ['--mode', 'elaborate'])
++            require(run.returncode != 0 and '$error' in run.stdout, 'fast mode ignored guard')
++            count += 1
++
++        # Removing the enforcement must revive the original false green.
++        broken = work / 'unenforced.py'
++        broken.write_text('from pathlib import Path\nimport sys\nPath(sys.argv[1]).read_text()\n')
++        script = stage_flow(work, flow, broken)
++        cache = ['--cache', str(work / 'cache')] if flow == 'run.sh' else []
++        run = invoke(script, work, fixture(235), args + cache)
++        require(run.returncode == 0, 'unenforced converted guard must reproduce false green')
++        script = stage_flow(work, flow, helper)
++        run = invoke(script, work, fixture(235), args + cache)
++        require(run.returncode != 0 and '$error' in run.stdout,
++                'enforcement deletion survived, or an old false PASS was reused')
++        count += 2
++    return count
++
++
++def main() -> None:
++    """Temporary source fixtures never touch repository RTL or generated files."""
++    with tempfile.TemporaryDirectory(prefix='elaboration-guards-') as directory:
++        count = controls(Path(directory))
++    print(f'elaboration guard self-test: {count} controls passed')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/syn/yosys/ooc.sh b/syn/yosys/ooc.sh
+index 4078f8fd0..8244fcbc5 100755
+--- a/syn/yosys/ooc.sh
++++ b/syn/yosys/ooc.sh
+@@ -559,6 +559,11 @@ for spec in "${tops[@]}"; do
+     sv2v_reason="$(head -1 "$TMP/$top.ooc.sv2v.err")"
+     printf "%-28s sv2v FAIL: %s\n" "$top" "$sv2v_reason"; status=1; continue
+   fi
++  # Keep generate conditions and parameter overrides authoritative. Converted
++  # error messages become fatal tasks again before any parameter binding.
++  if ! python3 "$R/syn/yosys/enforce_elaboration.py" "$TMP/$top.ooc.v"; then
++    printf "%-28s elaboration guard conversion FAIL\n" "$top"; status=1; continue
++  fi
+   # OOC_CHPARAM="N_STREAMS=8 AUDIO_IF_SLOTS_P=16 ..." elaborates the SHIP
+   # shape instead of the SV defaults (milan_datapath defaults N_STREAMS=1,
+   # which constant-folds the NxN engines away and reads as a fake win).
+diff --git a/syn/yosys/run.sh b/syn/yosys/run.sh
+index 3346d39c8..14ec7caa9 100755
+--- a/syn/yosys/run.sh
++++ b/syn/yosys/run.sh
+@@ -546,6 +546,15 @@ run_tops() {
+       continue
+     fi
+ 
++    # Restore converted elaboration errors before the cache hashes the input.
++    # Inactive generate branches remain legal; active guards fail at binding.
++    if ! python3 "$R/syn/yosys/enforce_elaboration.py" "$TMP/$top.v"; then
++      printf "  [FAIL] %-22s elaboration guard conversion failed\n" "$top"
++      record_result top "$top" FAIL 1 "$MODE" ""
++      fail=$((fail + 1))
++      continue
++    fi
++
+     # Written with a placeholder for this run's scratch directory FIRST and
+     # substituted second: the placeholder form is the result cache's key
+     # (#350), and no two runs could share a key over a mktemp path.
+diff --git a/tb/verilator/fw_service_budget/README.md b/tb/verilator/fw_service_budget/README.md
+index ed6bdb8fc..31fae2506 100644
+--- a/tb/verilator/fw_service_budget/README.md
++++ b/tb/verilator/fw_service_budget/README.md
+@@ -15,7 +15,8 @@ The service checks cover [#590](https://github.com/kebag-logic/milan-fpga/issues
+ 
+ ## Run and reproduce
+ 
+-The portable gate requires Python and a C++17 compiler:
++The portable gate requires Python, PyYAML and a C++17 compiler.
++Image generation also needs the initialized processor submodules:
+ 
+ ```sh
+ make -C tb/verilator/fw_service_budget
+@@ -78,8 +79,9 @@ python3 -B tb/verilator/fw_service_budget/run.py \
+ They accept 0..3,000,000 and 0..5,000 microseconds, respectively.
+ These include the documented device maxima.
+ Values outside those ranges fail before building or simulating.
+-The largest plan has four erases and 100 pages.
+-Its maximum WIP is 12.5 seconds, below the 30-second guard.
++The largest plan has four erases and programs two journal images.
++Page counts come from generated image bytes.
++Even two full 64 KiB slots bound WIP at 14.56 seconds, below the 30-second guard.
+ Measured no-WIP work leaves additional room inside that guard.
+ This is a supported-scenario limit, not an arbitrary-stall guarantee.
+ 
+@@ -193,9 +195,25 @@ Polling consumes CPU during WIP; subtraction does not measure spare capacity.
+ Future update writing, fault logging and temperature remain unmeasured.
+ Physical timing, the architecture decision and bench torture remain open.
+ 
++The fixture's image sizes come from freshly built image bytes (#641).
++Its journal digest binds generated media to the recorded simulation.
++A changed image requires rebuilding and recording new traces.
++Regenerate the fixture through its generator:
++
++```sh
++python3 tb/verilator/fw_service_budget/gen_oracle.py \
++  --small-build "$SMALL_BUILD" --large-build "$LARGE_BUILD"
++```
++
++Both build directories must contain successful populated `all` runs.
++The small build also needs a populated `uart-paced` run.
++The generator validates builds, logs, images and grading before writing.
++No timing observation is inferred from image size.
++
+ The self-test pins complete rows and findings from three fixed traces:
+ both immediate `all` shapes and paced 1x1.
+ It also pins clock conversion, markers, deadlines and tick-span reconstruction.
++A planted journal byte count must fail the flash operation census.
+ An exact-budget duty passes; one extra system cycle fails.
+ A delayed final response must fail that command's budget specifically.
+ A combined control word must not become a standalone heartbeat marker.
+diff --git a/tb/verilator/fw_service_budget/build.py b/tb/verilator/fw_service_budget/build.py
+index f24d5bf3a..8ed34edd3 100644
+--- a/tb/verilator/fw_service_budget/build.py
++++ b/tb/verilator/fw_service_budget/build.py
+@@ -68,9 +68,9 @@ def build(args: argparse.Namespace) -> dict:
+     original_constants = capture_soc._firmware_constants
+ 
+     def constants(soc: object, options: argparse.Namespace, generated: Path,
+-                  blob: bytes, overlay_path: Path) -> None:
++                  blob: bytes, overlay_path: Path) -> tuple[int, int]:
+         """Retain build constants and observe completed product transactions."""
+-        original_constants(soc, options, generated, blob, overlay_path)
++        census = original_constants(soc, options, generated, blob, overlay_path)
+         soc.milan_mac = phy_boundary
+         soc.csr.add('milan_mac')
+         soc.bus.add_master(name='phy_status_reader', master=phy_boundary.reader)
+@@ -86,6 +86,7 @@ def build(args: argparse.Namespace) -> dict:
+         soc.platform.add_extension([('observe', 0, *[Subsignal(n, Pins(len(v))) for n, v in values.items()])])
+         pads = soc.platform.request('observe')
+         soc.comb += [getattr(pads, n).eq(v) for n, v in values.items()]
++        return census
+ 
+     def firmware_source(root: Path, destination: Path, mutation: str) -> Path:
+         """Adapt the shared capture callback to the explicit service control."""
+diff --git a/tb/verilator/fw_service_budget/gen_oracle.py b/tb/verilator/fw_service_budget/gen_oracle.py
+new file mode 100644
+index 000000000..36785df97
+--- /dev/null
++++ b/tb/verilator/fw_service_budget/gen_oracle.py
+@@ -0,0 +1,54 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Regenerate portable trace controls from completed, bound simulations."""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import tempfile
++
++import run
++
++
++def convert(build_dir: Path, plan: str) -> dict:
++    """Check the recorded log, build and media against their original bytes."""
++    stem = f'service-{plan}-1-0-0'
++    receipt = json.loads((build_dir / (stem + '.json')).read_text())
++    spec = json.loads((build_dir / 'service_spec.json').read_text())
++    run.require(receipt['build_hashes'] == spec['build_hashes']
++                == run.build_hashes(build_dir, spec), 'stale or unbound fixture build')
++    raw = (build_dir / (stem + '.log')).read_bytes().decode()
++    run.require(hashlib.sha256(raw.encode()).hexdigest() == receipt['log_sha256'],
++                'fixture log digest mismatch')
++    run.require(raw == receipt['raw_log'], 'fixture log differs from receipt')
++    with tempfile.TemporaryDirectory(prefix='service-oracle-') as directory:
++        media = run.oracle_media(Path(directory), receipt['shape'], receipt['media'])
++    run.require(media == receipt['media'], 'fixture media differs from current built image')
++    result = dict(shape=receipt['shape'], raw_log=raw, log_sha256=receipt['log_sha256'],
++                  media={key: media[key] for key in ('populated', 'plan', 'slots_sha256')})
++    graded = run.grade(raw, media)
++    for key in ('rows', 'budget_findings', 'heartbeat', 'liveness'):
++        run.require(graded[key] == receipt[key], 'fixture grading differs: ' + key)
++        result[key] = graded[key]
++    return result
++
++
++def main() -> None:
++    """Require both shapes and the paced case; never manufacture a trace."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--small-build', type=Path, required=True)
++    parser.add_argument('--large-build', type=Path, required=True)
++    parser.add_argument('--output', type=Path, default=run.HERE / 'oracle.json')
++    args = parser.parse_args()
++    rows = [convert(args.small_build, 'all'), convert(args.large_build, 'all'),
++            convert(args.small_build, 'uart-paced')]
++    run.require([row['shape'] for row in rows] == [run.SHAPES[0], run.SHAPES[1], run.SHAPES[0]],
++                'fixture shapes do not cover both supported builds')
++    args.output.write_text(json.dumps(rows, indent=2) + '\n')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tb/verilator/fw_service_budget/run.py b/tb/verilator/fw_service_budget/run.py
+index 3403f90b9..6dc66b396 100644
+--- a/tb/verilator/fw_service_budget/run.py
++++ b/tb/verilator/fw_service_budget/run.py
+@@ -55,8 +55,8 @@ def command_plan(plan: str, shape: str = SHAPES[0]) -> tuple[str, ...]:
+ 
+ def validate_waits(erase_us: int, program_us: int) -> None:
+     """Admit device maxima, bounded below the unchanged 30-second guard."""
+-    # At most four erases and 100 pages in either supported command plan:
+-    # 12 s + 0.5 s WIP plus the measured <6 s no-WIP plan fits 30 s.
++    # Four erases and at most two full 64 KiB journal slots: 12 s +
++    # 2.56 s WIP plus the measured <6 s no-WIP plan fits 30 s.
+     require(0 <= erase_us <= 3_000_000, 'erase wait must be 0..3000000 us')
+     require(0 <= program_us <= 5_000, 'program wait must be 0..5000 us')
+ 
+@@ -426,10 +426,27 @@ def service_findings(result: dict, raw: str) -> list[str]:
+     return findings
+ 
+ 
++def oracle_media(directory: Path, shape: str, recorded: dict) -> dict:
++    """Derive fixture sizes from freshly built descriptor and journal bytes."""
++    sys.path.insert(0, str(ROOT / 'scripts'))
++    from nvm_shape import build as build_shape
++
++    build_shape(ROOT / 'configs' / (shape + '.yaml'), directory / 'generated')
++    blob = directory / 'generated' / (shape + '.img.bin')
++    (directory / 'aem_desc.bin').write_bytes(blob.read_bytes())
++    return fixtures(directory, shape, recorded['populated'], recorded.get('plan', 'all'))
++
++
+ def trace_controls() -> int:
+     """Pin both clock ratios, marker choices and deadlines against fixed traces."""
+     controls = json.loads((HERE / 'oracle.json').read_text())
+     count = 0
++    with tempfile.TemporaryDirectory(prefix='service-oracle-images-') as directory:
++        for receipt in controls:
++            media = oracle_media(Path(directory), receipt['shape'], receipt['media'])
++            require(media['slots_sha256'] == receipt['media']['slots_sha256'],
++                    'oracle image changed; rebuild and regenerate the trace fixture')
++            receipt['media'] = media
+     for receipt in controls:
+         raw = receipt['raw_log']
+         require(hashlib.sha256(raw.encode()).hexdigest() == receipt['log_sha256'], 'control trace digest mismatch')
+@@ -437,6 +454,15 @@ def trace_controls() -> int:
+         for key in ('rows', 'budget_findings', 'heartbeat', 'liveness'):
+             require(got[key] == receipt[key], 'control trace changed: ' + receipt['shape'] + ' ' + key)
+             count += 1
++        wrong = dict(receipt['media'], image_bytes=receipt['media']['image_bytes'] + 1)
++        try:
++            grade(raw, wrong)
++        except RuntimeError as error:
++            require(str(error) == 'flash operation census',
++                    'wrong image size must fail its own census')
++        else:
++            raise RuntimeError('mirrored journal size escaped the trace census')
++        count += 1
+     raw = controls[0]['raw_log']
+ 
+     def delay(match: re.Match) -> str:
+diff --git a/tb/verilator/milan_dp_render/Makefile b/tb/verilator/milan_dp_render/Makefile
+index c40811e00..83391885f 100644
+--- a/tb/verilator/milan_dp_render/Makefile
++++ b/tb/verilator/milan_dp_render/Makefile
+@@ -83,12 +83,12 @@ DP         = ../milan_dp
+ # nothing.
+ TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
+ DP_SRC    ?= $(RTL_DIR)/milan/milan_datapath.sv
+-SRCS := $(shell $(MAKE) -s -C $(DP) print-srcs \
++SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs \
+                 TDMRM_SRC='$(TDMRM_SRC)' DP_SRC='$(DP_SRC)')
+ ifneq ($(.SHELLSTATUS),0)
+ $(error $(DP) print-srcs failed; the datapath source list could not be derived)
+ endif
+-DP_VFLAGS := $(shell $(MAKE) -s -C $(DP) print-dp-vflags)
++DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+ ifneq ($(.SHELLSTATUS),0)
+ $(error $(DP) print-dp-vflags failed; the elaboration flag set could not be derived)
+ endif
+diff --git a/tb/verilator/pp_shadow/Makefile b/tb/verilator/pp_shadow/Makefile
+index 848a4c6ff..569a6bc07 100644
+--- a/tb/verilator/pp_shadow/Makefile
++++ b/tb/verilator/pp_shadow/Makefile
+@@ -104,7 +104,7 @@ VFLAGS = --cc --exe --build -j 0 \
+ # PP_SRCS of its own: naming those files twice on one verilator command line is
+ # a duplicate module definition (MODDUP), and with warnings fatal here that is a
+ # build failure, not a nuisance.
+-DP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-srcs)
++DP_SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+ 
+ CPP = sim_main.cpp
+ BUILD_DIR ?= obj_dir

@@ -1,0 +1,7 @@
+GNU Make 4.3
+{"case": "stopped-before", "make_rc": 2, "partial_files_section": true, "readable": false, "prerequisites": [], "stderr": "Makefile:1: *** planted stopped parse.  Stop.\n"}
+{"case": "stopped-after", "make_rc": 2, "partial_files_section": true, "readable": false, "prerequisites": [], "stderr": "Makefile:2: *** planted stopped parse.  Stop.\n"}
+{"case": "missing-product", "make_rc": 0, "partial_files_section": true, "readable": true, "prerequisites": ["gen/adp_shape_defaults.svh"], "stderr": ""}
+{"case": "missing-include", "make_rc": 2, "partial_files_section": true, "readable": false, "prerequisites": [], "stderr": "Makefile:1: absent.mk: No such file or directory\nmake: *** No rule to make target 'absent.mk'.  Stop.\n"}
+{"consumer": "milan_dp_render", "readable": true, "prerequisites": ["../../../configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh"], "findings": []}
+{"consumer": "pp_shadow", "readable": true, "prerequisites": ["../../../hdl/common/gen/adp_shape_defaults.svh"], "findings": []}
