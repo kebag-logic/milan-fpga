@@ -256,53 +256,6 @@ module KL_mbx
     end
   end : host_write
 
-  logic [31:0] reg_rdata_w;   //! the register a read addresses, 0 when none
-  always_comb begin : reg_read
-    reg_rdata_w = '0;
-    if (off_w == AW2_C'(MBX_REG_ID_C)) reg_rdata_w = mbx_place_f(32'(MBX_VERSION_MINOR_C), MBX_ID_MINOR_LSB_C, MBX_ID_MINOR_WIDTH_C) | mbx_place_f(32'(MBX_VERSION_MAJOR_C), MBX_ID_MAJOR_LSB_C, MBX_ID_MAJOR_WIDTH_C) | mbx_place_f(32'(MBX_MAGIC_C), MBX_ID_MAGIC_LSB_C, MBX_ID_MAGIC_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_CAPS_C)) reg_rdata_w = mbx_place_f(32'(MBX_N_CH_C), MBX_CAPS_N_CH_LSB_C, MBX_CAPS_N_CH_WIDTH_C) | mbx_place_f(32'(MBX_N_IF_C), MBX_CAPS_N_IF_LSB_C, MBX_CAPS_N_IF_WIDTH_C) | mbx_place_f(32'(MBX_N_TIMERS_C), MBX_CAPS_N_TIMERS_LSB_C, MBX_CAPS_N_TIMERS_WIDTH_C) | mbx_place_f(32'($clog2(MBX_EVT_WORDS_C)), MBX_CAPS_EVT_WORDS_LOG2_LSB_C, MBX_CAPS_EVT_WORDS_LOG2_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_IRQ_STATUS_C)) reg_rdata_w = mbx_place_f(32'(rx_pending_w), MBX_IRQ_STATUS_RX_LSB_C, MBX_IRQ_STATUS_RX_WIDTH_C) | mbx_place_f(32'(evt_pending_w), MBX_IRQ_STATUS_EVT_LSB_C, MBX_IRQ_STATUS_EVT_WIDTH_C) | mbx_place_f(32'(err_r), MBX_IRQ_STATUS_ERR_LSB_C, MBX_IRQ_STATUS_ERR_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_IRQ_ENABLE_C)) reg_rdata_w = irq_enable_r;
-    if (off_w == AW2_C'(MBX_REG_NOW_MS_C)) reg_rdata_w = mbx_place_f(32'(now_ms_r), MBX_NOW_MS_MS_LSB_C, MBX_NOW_MS_MS_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_LINK_C)) reg_rdata_w = mbx_place_f(32'(link_up_i), MBX_LINK_UP_LSB_C, MBX_LINK_UP_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_TICK_CTL_C)) reg_rdata_w = tick_ctl_r;
-    if (off_w == AW2_C'(MBX_REG_OWN_EID_LO_C)) reg_rdata_w = own_eid_lo_r;
-    if (off_w == AW2_C'(MBX_REG_OWN_EID_HI_C)) reg_rdata_w = own_eid_hi_r;
-    if (off_w == AW2_C'(MBX_REG_FILTER_EN_C)) reg_rdata_w = filter_en_r;
-    if (off_w == AW2_C'(MBX_REG_MAAP_BASE_LO_C)) reg_rdata_w = maap_base_lo_r;
-    if (off_w == AW2_C'(MBX_REG_MAAP_BASE_HI_C)) reg_rdata_w = maap_base_hi_r;
-    if (off_w == AW2_C'(MBX_REG_MAAP_COUNT_C)) reg_rdata_w = maap_count_r;
-    if (off_w == AW2_C'(MBX_REG_TMR_DEADLINE_C)) reg_rdata_w = tmr_deadline_r;
-    if (off_w == AW2_C'(MBX_REG_EVT_HEAD_C)) reg_rdata_w = mbx_place_f(32'(evt_head_w), MBX_EVT_HEAD_WORDS_LSB_C, MBX_EVT_HEAD_WORDS_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_EVT_TAIL_C)) reg_rdata_w = evt_tail_r;
-    if (off_w == AW2_C'(MBX_REG_BUS_ERR_C)) reg_rdata_w = mbx_place_f(32'(bus_err_r), MBX_BUS_ERR_COUNT_LSB_C, MBX_BUS_ERR_COUNT_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_FILTER_MISMATCH_C)) reg_rdata_w = mbx_place_f(32'(filter_mismatch_w), MBX_FILTER_MISMATCH_COUNT_LSB_C, MBX_FILTER_MISMATCH_COUNT_WIDTH_C);
-    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) reg_rdata_w = mbx_place_f(32'(gm_id_i[64*0 +: 32]), MBX_GM_LO_ID_LSB_C, MBX_GM_LO_ID_WIDTH_C);
-    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_GM_HI_C)) reg_rdata_w = mbx_place_f(32'(gm_hi_snap_r[0]), MBX_GM_HI_ID_LSB_C, MBX_GM_HI_ID_WIDTH_C);
-    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_DOMAIN_C)) reg_rdata_w = mbx_place_f(32'(domain_snap_r[0]), MBX_DOMAIN_NUMBER_LSB_C, MBX_DOMAIN_NUMBER_WIDTH_C);
-    if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_LO_C)) reg_rdata_w = 32'(own_mac_lo_r[0]);
-    if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_HI_C)) reg_rdata_w = 32'(own_mac_hi_r[0]);
-    if (bnd_at_w && bnd_reg_w == 2'd2) reg_rdata_w = mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C);
-    if (bnd_at_w && bnd_reg_w != 2'd2 && bnd_eid_vld_w) reg_rdata_w = bnd_eid_w;
-    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C)) reg_rdata_w = 32'(pub_da_gate_r[pub_if_w]);
-    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C)) reg_rdata_w = 32'(pub_licence_r[pub_if_w]);
-    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C)) reg_rdata_w = 32'(pub_idle_slope_r[pub_if_w]);
-    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C)) reg_rdata_w = 32'(pub_sr_domain_r[pub_if_w]);
-    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C)) reg_rdata_w = 32'(pub_sid_lo_r[pub_if_w][pub_k_w]);
-    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C)) reg_rdata_w = 32'(pub_sid_hi_r[pub_if_w][pub_k_w]);
-    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)) reg_rdata_w = 32'(pub_binding_r[pub_if_w][pub_k_w]);
-    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(rx_head_w[16*c +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(rx_tail_r[c]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(tx_head_r[c]), MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(tx_tail_w[16*c +: 16]), MBX_TX_TAIL_WORDS_LSB_C, MBX_TX_TAIL_WORDS_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_DROP_C)) reg_rdata_w = mbx_place_f(32'(rx_drop_w[16*c +: 16]), MBX_RX_DROP_COUNT_LSB_C, MBX_RX_DROP_COUNT_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RATE_DROP_C)) reg_rdata_w = mbx_place_f(32'(rate_drop_w[16*c +: 16]), MBX_RATE_DROP_COUNT_LSB_C, MBX_RATE_DROP_COUNT_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_ERR_C)) reg_rdata_w = mbx_place_f(32'(tx_err_w[16*c +: 16]), MBX_TX_ERR_COUNT_LSB_C, MBX_TX_ERR_COUNT_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_PASS_C)) reg_rdata_w = mbx_place_f(32'(rx_pass_w[16*c +: 16]), MBX_RX_PASS_COUNT_LSB_C, MBX_RX_PASS_COUNT_WIDTH_C);
-    end
-  end : reg_read
-
   // ---- the publication registers: the firmware writes them, the datapath reads them ---
   logic [15:0] pub_da_gate_r [MBX_N_IF_C];   //! DA_GATE per interface
   logic [15:0] pub_licence_r [MBX_N_IF_C];   //! LICENCE per interface
@@ -358,6 +311,53 @@ module KL_mbx
       end
     end
   end : pub_out
+
+  logic [31:0] reg_rdata_w;   //! the register a read addresses, 0 when none
+  always_comb begin : reg_read
+    reg_rdata_w = '0;
+    if (off_w == AW2_C'(MBX_REG_ID_C)) reg_rdata_w = mbx_place_f(32'(MBX_VERSION_MINOR_C), MBX_ID_MINOR_LSB_C, MBX_ID_MINOR_WIDTH_C) | mbx_place_f(32'(MBX_VERSION_MAJOR_C), MBX_ID_MAJOR_LSB_C, MBX_ID_MAJOR_WIDTH_C) | mbx_place_f(32'(MBX_MAGIC_C), MBX_ID_MAGIC_LSB_C, MBX_ID_MAGIC_WIDTH_C);
+    if (off_w == AW2_C'(MBX_REG_CAPS_C)) reg_rdata_w = mbx_place_f(32'(MBX_N_CH_C), MBX_CAPS_N_CH_LSB_C, MBX_CAPS_N_CH_WIDTH_C) | mbx_place_f(32'(MBX_N_IF_C), MBX_CAPS_N_IF_LSB_C, MBX_CAPS_N_IF_WIDTH_C) | mbx_place_f(32'(MBX_N_TIMERS_C), MBX_CAPS_N_TIMERS_LSB_C, MBX_CAPS_N_TIMERS_WIDTH_C) | mbx_place_f(32'($clog2(MBX_EVT_WORDS_C)), MBX_CAPS_EVT_WORDS_LOG2_LSB_C, MBX_CAPS_EVT_WORDS_LOG2_WIDTH_C);
+    if (off_w == AW2_C'(MBX_REG_IRQ_STATUS_C)) reg_rdata_w = mbx_place_f(32'(rx_pending_w), MBX_IRQ_STATUS_RX_LSB_C, MBX_IRQ_STATUS_RX_WIDTH_C) | mbx_place_f(32'(evt_pending_w), MBX_IRQ_STATUS_EVT_LSB_C, MBX_IRQ_STATUS_EVT_WIDTH_C) | mbx_place_f(32'(err_r), MBX_IRQ_STATUS_ERR_LSB_C, MBX_IRQ_STATUS_ERR_WIDTH_C);
+    if (off_w == AW2_C'(MBX_REG_IRQ_ENABLE_C)) reg_rdata_w = irq_enable_r;
+    if (off_w == AW2_C'(MBX_REG_NOW_MS_C)) reg_rdata_w = mbx_place_f(32'(now_ms_r), MBX_NOW_MS_MS_LSB_C, MBX_NOW_MS_MS_WIDTH_C);
+    if (off_w == AW2_C'(MBX_REG_LINK_C)) reg_rdata_w = mbx_place_f(32'(link_up_i), MBX_LINK_UP_LSB_C, MBX_LINK_UP_WIDTH_C);
+    if (off_w == AW2_C'(MBX_REG_TICK_CTL_C)) reg_rdata_w = tick_ctl_r;
+    if (off_w == AW2_C'(MBX_REG_OWN_EID_LO_C)) reg_rdata_w = own_eid_lo_r;
+    if (off_w == AW2_C'(MBX_REG_OWN_EID_HI_C)) reg_rdata_w = own_eid_hi_r;
+    if (off_w == AW2_C'(MBX_REG_FILTER_EN_C)) reg_rdata_w = filter_en_r;
+    if (off_w == AW2_C'(MBX_REG_MAAP_BASE_LO_C)) reg_rdata_w = maap_base_lo_r;
+    if (off_w == AW2_C'(MBX_REG_MAAP_BASE_HI_C)) reg_rdata_w = maap_base_hi_r;
+    if (off_w == AW2_C'(MBX_REG_MAAP_COUNT_C)) reg_rdata_w = maap_count_r;
+    if (off_w == AW2_C'(MBX_REG_TMR_DEADLINE_C)) reg_rdata_w = tmr_deadline_r;
+    if (off_w == AW2_C'(MBX_REG_EVT_HEAD_C)) reg_rdata_w = mbx_place_f(32'(evt_head_w), MBX_EVT_HEAD_WORDS_LSB_C, MBX_EVT_HEAD_WORDS_WIDTH_C);
+    if (off_w == AW2_C'(MBX_REG_EVT_TAIL_C)) reg_rdata_w = evt_tail_r;
+    if (off_w == AW2_C'(MBX_REG_BUS_ERR_C)) reg_rdata_w = mbx_place_f(32'(bus_err_r), MBX_BUS_ERR_COUNT_LSB_C, MBX_BUS_ERR_COUNT_WIDTH_C);
+    if (off_w == AW2_C'(MBX_REG_FILTER_MISMATCH_C)) reg_rdata_w = mbx_place_f(32'(filter_mismatch_w), MBX_FILTER_MISMATCH_COUNT_LSB_C, MBX_FILTER_MISMATCH_COUNT_WIDTH_C);
+    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) reg_rdata_w = mbx_place_f(32'(gm_id_i[64*0 +: 32]), MBX_GM_LO_ID_LSB_C, MBX_GM_LO_ID_WIDTH_C);
+    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_GM_HI_C)) reg_rdata_w = mbx_place_f(32'(gm_hi_snap_r[0]), MBX_GM_HI_ID_LSB_C, MBX_GM_HI_ID_WIDTH_C);
+    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_DOMAIN_C)) reg_rdata_w = mbx_place_f(32'(domain_snap_r[0]), MBX_DOMAIN_NUMBER_LSB_C, MBX_DOMAIN_NUMBER_WIDTH_C);
+    if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_LO_C)) reg_rdata_w = 32'(own_mac_lo_r[0]);
+    if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_HI_C)) reg_rdata_w = 32'(own_mac_hi_r[0]);
+    if (bnd_at_w && bnd_reg_w == 2'd2) reg_rdata_w = mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C);
+    if (bnd_at_w && bnd_reg_w != 2'd2 && bnd_eid_vld_w) reg_rdata_w = bnd_eid_w;
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C)) reg_rdata_w = 32'(pub_da_gate_r[pub_if_w]);
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C)) reg_rdata_w = 32'(pub_licence_r[pub_if_w]);
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C)) reg_rdata_w = 32'(pub_idle_slope_r[pub_if_w]);
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C)) reg_rdata_w = 32'(pub_sr_domain_r[pub_if_w]);
+    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C)) reg_rdata_w = 32'(pub_sid_lo_r[pub_if_w][pub_k_w]);
+    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C)) reg_rdata_w = 32'(pub_sid_hi_r[pub_if_w][pub_k_w]);
+    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)) reg_rdata_w = 32'(pub_binding_r[pub_if_w][pub_k_w]);
+    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
+      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(rx_head_w[16*c +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C);
+      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(rx_tail_r[c]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C);
+      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(tx_head_r[c]), MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C);
+      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(tx_tail_w[16*c +: 16]), MBX_TX_TAIL_WORDS_LSB_C, MBX_TX_TAIL_WORDS_WIDTH_C);
+      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_DROP_C)) reg_rdata_w = mbx_place_f(32'(rx_drop_w[16*c +: 16]), MBX_RX_DROP_COUNT_LSB_C, MBX_RX_DROP_COUNT_WIDTH_C);
+      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RATE_DROP_C)) reg_rdata_w = mbx_place_f(32'(rate_drop_w[16*c +: 16]), MBX_RATE_DROP_COUNT_LSB_C, MBX_RATE_DROP_COUNT_WIDTH_C);
+      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_ERR_C)) reg_rdata_w = mbx_place_f(32'(tx_err_w[16*c +: 16]), MBX_TX_ERR_COUNT_LSB_C, MBX_TX_ERR_COUNT_WIDTH_C);
+      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_PASS_C)) reg_rdata_w = mbx_place_f(32'(rx_pass_w[16*c +: 16]), MBX_RX_PASS_COUNT_LSB_C, MBX_RX_PASS_COUNT_WIDTH_C);
+    end
+  end : reg_read
 
   // ---- the rings ------------------------------------------------------------------
   logic [31:0] evt_rdata_w;

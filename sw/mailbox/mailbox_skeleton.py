@@ -691,6 +691,6 @@ def _leaves(contract: Contract) -> list[str]:
 def emit_sv_top(contract: Contract) -> str:
     """KL_mbx.sv, the generated fabric skeleton."""
     lines = (_banner() + _ports() + _pub_ports() + _core() + _bound_decode(contract) + _pub_decode(contract)
-             + _storage(contract) + _write_block(contract) + _read_block(contract) + _pub_block(contract)
+             + _storage(contract) + _write_block(contract) + _pub_block(contract) + _read_block(contract)
              + _ring_block(contract) + _mux_block(contract) + _leaves(contract))
     return "\n".join(lines)
