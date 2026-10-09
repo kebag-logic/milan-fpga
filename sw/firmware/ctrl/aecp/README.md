@@ -7,6 +7,12 @@ and shipping image continue to use their existing owners. The normative
 references are IEEE 1722.1-2021 7.4, 7.5 and 9.3, Milan v1.2 5.4, and
 [NFR-SCOUT-02/03/08](../../../../docs/reference/FR_NFR.md).
 
+## Contents
+
+- **[Contract and integration](#contract-and-integration)** -- Portable ownership, observations, callback boundaries and application boot order.
+- **[Non-AEM message contract](#non-aem-message-contract)** -- Clause-based handling of address access, AV/C, vendor, HDCP and reserved types.
+- **[Verification and limits](#verification-and-limits)** -- Reproducible wire comparisons, timing evidence and linked-image limits.
+
 ## Contract and integration
 
 [`aecp.h`](aecp.h) is a portable C11 API over caller-owned storage and typed
