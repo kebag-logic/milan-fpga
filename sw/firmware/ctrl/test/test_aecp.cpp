@@ -791,6 +791,7 @@ TEST_F(Core, SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal)
     };
     check(ask(14,b),6,0xf7000000,123456);
     for(uint32_t flags:{0u,4u,8u,12u,0x20000004u,0x20000008u,0x2000000cu}){
+        put(b,24,(flags&0x20000000)?123456:765432,4);
         put(b,4,flags,4);check(ask(14,b),6,(flags&0x20000000)?0xf7000000:0xd7000000,123456);
         EXPECT_EQ(latency[0],123456u)<<"ignored flags and no subcommand preserve latency";
     }
@@ -804,6 +805,36 @@ TEST_F(Core, SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal)
     streaming=true;check(ask(14,b,12),6,0xf7000000,123456);streaming=false;
     ask(1,Bytes(16),0,CTLR+1);check(ask(14,b,3),6,0xf7000000,123456);
     put(b,0,5,2);check(ask(14,b,11),5,0xff000000,12345);
+}
+
+TEST_F(Core, SetStreamInfoWithoutSubcommandPreservesState)
+{
+    register_controller(CTLR+1,AECP_TEST_INTERFACES-1);
+    auto b=target(6,0,84);
+    for(bool saved:{false,true}){
+        SCOPED_TRACE(saved?"saved latency":"observed latency");
+        if(saved){
+            EXPECT_CALL(mock,Changed(AECP_CHANGE_LATENCY,6,0)).Times(1);
+            put(b,4,0x20000000,4);put(b,24,123456,4);ask(14,b);
+            ASSERT_TRUE(testing::Mock::VerifyAndClearExpectations(&mock));
+        }
+        const auto stored=latency;
+        ASSERT_EQ(aecp_overridden(&a,&desc(6),2u),saved);
+        EXPECT_CALL(mock,Changed(_,_,_)).Times(0);
+        for(uint32_t flags:{0u,4u,8u,12u}){
+            SCOPED_TRACE(flags);
+            put(b,4,flags,4);put(b,24,765432,4);
+            auto out=ask(14,b);
+            EXPECT_EQ(get(out,62,4),saved?123456u:12345u)
+                <<"no subcommand reports current latency, not requested latency";
+            EXPECT_EQ(get(out,42,4)&0x20000000u,0u)<<"latency valid follows the request";
+            EXPECT_EQ(latency,stored)<<"no subcommand preserves stored latency";
+            EXPECT_EQ(aecp_overridden(&a,&desc(6),2u),saved)
+                <<"no subcommand preserves saved override";
+            EXPECT_EQ(sent.size(),1u)<<"no subcommand emits no change notification";
+        }
+        ASSERT_TRUE(testing::Mock::VerifyAndClearExpectations(&mock));
+    }
 }
 
 TEST_F(Core, BackpressureOrdersResponseBeforeNotice)
