@@ -1,0 +1,31 @@
+== tests/mutations.json: first killer needle replaced by 'e'
+needles: zero unspecific killers; no inherited exceptions
+needle audit rc=0
+needle audit rc=0
+CAUGHT reentry-guard-removed
+{"CAUGHT": 1, "ESCAPED": 0, "ERROR": 0}
+status CAUGHT
+failure text of AdpReentry.AdvertiseInlineExpiry
+<packet>/scratch/needle-plant/tests/test_adp_reentry.cpp:75
+Expected equality of these values:
+  std::memcmp(before.data(), target, sizeof(adp))
+    Which is: 2
+  0
+callback leaves core state unchanged
+
+<packet>/scratch/needle-plant/tests/test_adp_reentry.cpp:141
+Expected equality of these values:
+  adp_reentry_count()
+    Which is: 0
+  before + 1u
+    Which is: 1
+inline ADVERTISE expiry is counted
+
+<packet>/scratch/needle-plant/tests/test_adp_reentry.cpp:149
+Expected equality of these values:
+  r.a.timer
+    Which is: 0
+  ADP_TIMER_ADVERTISE
+    Which is: 2
+
+<packet>/scratch/n

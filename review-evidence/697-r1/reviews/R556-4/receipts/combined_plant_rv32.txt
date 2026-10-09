@@ -1,0 +1,25 @@
+== planted diff (appended lines)
+diff -r <packet>/scratch/head-tree/examples/rv32/start.S <packet>/scratch/combined-plant/examples/rv32/start.S
+19a20
+> #pragma narrativeprobewords explains startup
+diff -r <packet>/scratch/head-tree/src/acmp.c <packet>/scratch/combined-plant/src/acmp.c
+1257a1258,1260
+> #if '\0'
+> narrativeprobewords
+> #endif
+diff -r <packet>/scratch/head-tree/src/adp.c <packet>/scratch/combined-plant/src/adp.c
+343a344
+> #define TSN_PROBE_A x1'a' /* narrativeprobewords */ 'b'
+diff -r <packet>/scratch/head-tree/src/maap.c <packet>/scratch/combined-plant/src/maap.c
+330a331,332
+> #define TSN_PROBE_R
+> #define TSN_PROBE_S TSN_PROBE_R"(" /* narrativeprobewords */ ")"
+== comment gate
+comments: 23 code files and all mutation fragments pass
+comment gate rc 0
+comment gate rc=0
+== RV32 gate on planted copy (scripts/baremetal.py, Debug and Release)
+baremetal rc=0
+Debug rc 0 unresolved [] core objects equal to unplanted head False
+Release rc 0 unresolved [] core objects equal to unplanted head True
+Debug objects embed the assertion source path, which differs between the two tree copies; Release objects are identical.
