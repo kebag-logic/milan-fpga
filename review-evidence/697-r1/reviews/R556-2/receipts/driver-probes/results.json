@@ -1,0 +1,35 @@
+[
+  {
+    "name": "p-genuine",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A6toA8DeferredSends": "<scratch>/driver-probes/tree/tests/test_adp.cpp:204\nValue of: a.departing_owed == 1u && a.available_index == 0u && a.state == ADP_STATE_DOWN\n  Actual: false\nExpected: true\nA8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset\n",
+      "ExamplePort.DefersExpiryAndRetainsBlockedOutput": "<scratch>/driver-probes/tree/tests/test_port.cpp:23\nExpected equality of these values:\n  p.core.available_index\n    Which is: 1\n  0u\n    Which is: 0\nshutdown resets the next advertisement index\n"
+    },
+    "tests": 1
+  },
+  {
+    "name": "p-unrelated-needle",
+    "status": "ESCAPED",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A6toA8DeferredSends": "<scratch>/driver-probes/tree/tests/test_adp.cpp:204\nValue of: a.departing_owed == 1u && a.available_index == 0u && a.state == ADP_STATE_DOWN\n  Actual: false\nExpected: true\nA8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset\n"
+    },
+    "tests": 1
+  },
+  {
+    "name": "p-crash",
+    "status": "ESCAPED",
+    "rc": -11,
+    "failures": {},
+    "tests": 0
+  },
+  {
+    "name": "p-exit0",
+    "status": "ESCAPED",
+    "rc": 0,
+    "failures": {},
+    "tests": 0
+  }
+]

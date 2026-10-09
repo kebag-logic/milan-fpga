@@ -1,0 +1,58 @@
+# docs/ and README.md files mentioning each term at ccb4ac3 (empty = none)
+srp                  
+NULL                 
+admit                
+dest_mac_valid       
+asking_failed        
+acmp_tk_registered   
+rx_malformed         
+rx_ignored           
+unknown_sink         
+probe_mismatch       
+refused_locked       
+adp_ignored          
+impossible           
+busy_drops           
+probes_lost          docs/PORTING.md 
+deferred_sends       
+reentries            
+stray_expiries       
+stale_expiries       
+departing_coalesced  docs/PORTING.md 
+
+# removed header text at 086e5d3 for these items
+// What a STREAM_OUTPUT's owners say about it now (5.5.4.1, 5.5.4.3).
+struct acmp_source_state {
+	bool dest_mac_valid;                    // 5.5.4.1 step 3: MAAP holds a destination MAC for it
+	struct acmp_stream stream;
+	bool asking_failed;                     // Table 5.47: a Listener Asking Failed attribute is registered
+};
+	// The ingress of `interface` passes the ENTITY_AVAILABLE and
+	// ENTITY_DEPARTING of `talker_entity_id` for `sink` (one entry per sink),
+	// or, with bound false, no longer for it. Called when a sink is bound,
+	// unbound or bound to another talker, and by acmp_open for every binding
+	// the store restored.
+	void (*admit)(void *ctx, unsigned interface, unsigned sink, bool bound, uint64_t talker_entity_id);
+	// The STREAM_OUTPUT's state now.
+	void (*source)(void *ctx, unsigned index, struct acmp_source_state *out);
+	// Start listening with `stream` (5.5.3.5.18 step 4: initiate the SRP
+	// reservation and listen for the stream's packets), or with NULL stop
+	// and clear it (5.5.3.5.36 step 1).
+	void (*srp)(void *ctx, unsigned sink, const struct acmp_stream *stream);
+	// diagnostics, each counted modulo 2^32
+	uint32_t rx_ignored;                    // not addressed to this entity's talker or listener
+	uint32_t rx_malformed;                  // not an ACMPDU this module can read (incl. another AVTP version)
+	uint32_t unknown_sink;                  // LISTENER_UNKNOWN_ID answers and probe responses ignored for it
+	uint32_t probe_mismatch;                // PROBE_TX_RESPONSEs that are not the sink's probe's
+	uint32_t refused_locked;                // CONTROLLER_NOT_AUTHORIZED answers
+	uint32_t adp_ignored;                   // ADPDUs no sink took, or none this module can read
+	uint32_t impossible;                    // events Table 5.30 or 5.54 marks "x"
+	uint32_t busy_drops;                    // commands dropped behind a full owed queue
+	uint32_t probes_lost;                   // probes dropped behind a full owed queue
+	uint32_t deferred_sends;                // sends the port had no room for
+	uint32_t reentries;                     // calls made from inside a port call (#678)
+	uint32_t draws;                         // TMR_DELAY draws
+// The SRP side: EVT_TK_REGISTERED (with the attribute's kind: a Talker Failed
+// is `failed`) and EVT_TK_UNREGISTERED for the sink's settled stream (Table
+// 5.29).
+void acmp_tk_registered(struct acmp *a, unsigned sink, bool failed);

@@ -1,0 +1,48 @@
+8 core objects
+8 core objects
+3 core objects
+3 core objects
+8 core objects
+8 core objects
+3 core objects
+3 core objects
+== compare -g0 objects
+gcc-coverage: 8 identical
+clang-sanitizers: 8 identical
+rv32-debug: 3 identical
+rv32-release: 3 identical
+== compare native (as-built, with debug info) objects
+gcc-coverage: native differ
+6,8c6,8
+< 9f3c90f4c8971e40f078bd7ca58a347cc22f0843d8f1bd06ec7aba72b5807494  build-gcc-coverage/CMakeFiles/tsn_test.dir/src/acmp.c.o
+< e66011f1ce529c0acdc2f39cddaefbcf04357707cad368d49f2ad85b311de736  build-gcc-coverage/CMakeFiles/tsn_test.dir/src/adp.c.o
+< 86ed88d83563aaebe0487fa19138563298748fbc5e22a7b65de3470cc9f5a9c4  build-gcc-coverage/CMakeFiles/tsn_test.dir/src/maap.c.o
+---
+> b2d1a4d54bc9ababee8a3801f311001aff6ac95d760cef3024bd8d4710505659  build-gcc-coverage/CMakeFiles/tsn_test.dir/src/acmp.c.o
+> 71fa4fdb70d9cf9ac4fadc0f450117078dc0faa3aad1894a9d6fbf601baf581b  build-gcc-coverage/CMakeFiles/tsn_test.dir/src/adp.c.o
+> 2b36d3cb552b8a809a79ee576d18048451aa9172edeba354debf209e49fc6973  build-gcc-coverage/CMakeFiles/tsn_test.dir/src/maap.c.o
+clang-sanitizers: native differ
+1,8c1,8
+< 4b54ca12d55b2148114d377c9f95cd560b323d6eb8662b599f60dc52c168c241  build-clang-sanitizers/CMakeFiles/tsn_debug.dir/src/adp.c.o
+< 79fad8ef8d7ecd8a950b93c696a4216c0c27c7dc2a84f7462031b2ccc2d827f9  build-clang-sanitizers/CMakeFiles/tsn_debug.dir/src/maap.c.o
+< f49b48484f0dfc1cb5db161ec37d9c371a5103773b51f38c13270a1e83d2ab22  build-clang-sanitizers/CMakeFiles/tsn.dir/src/acmp.c.o
+< 4b54ca12d55b2148114d377c9f95cd560b323d6eb8662b599f60dc52c168c241  build-clang-sanitizers/CMakeFiles/tsn.dir/src/adp.c.o
+< 79fad8ef8d7ecd8a950b93c696a4216c0c27c7dc2a84f7462031b2ccc2d827f9  build-clang-sanitizers/CMakeFiles/tsn.dir/src/maap.c.o
+< 6ece171976ad59935d0b488bf7e89131dc38d1a6e3805eb362c1fbe7e2094969  build-clang-sanitizers/CMakeFiles/tsn_test.dir/src/acmp.c.o
+< 8231af1270a761c81919fdc8e014f7c34c3f0004d251151a05719b7c097290b6  build-clang-sanitizers/CMakeFiles/tsn_test.dir/src/adp.c.o
+< 8356b91373e9d2cc67b5e5635110c760843844ae6cb416749d892dcf347036cf  build-clang-sanitizers/CMakeFiles/tsn_test.dir/src/maap.c.o
+---
+> bc1f38be782476ed6391519ffe9e66cf17bd7b46499cf0ed96d9c3205a9a928e  build-clang-sanitizers/CMakeFiles/tsn_debug.dir/src/adp.c.o
+> 8034fb7fd24826e76864c9d52b5222ed8b2295fbe5852a67c9aba53e97db392e  build-clang-sanitizers/CMakeFiles/tsn_debug.dir/src/maap.c.o
+> 9302937aa035b3d4a532967e04426d9ae606c06e6c0cfc3d7ce7267ec2d5b7d2  build-clang-sanitizers/CMakeFiles/tsn.dir/src/acmp.c.o
+> bc1f38be782476ed6391519ffe9e66cf17bd7b46499cf0ed96d9c3205a9a928e  build-clang-sanitizers/CMakeFiles/tsn.dir/src/adp.c.o
+> 8034fb7fd24826e76864c9d52b5222ed8b2295fbe5852a67c9aba53e97db392e  build-clang-sanitizers/CMakeFiles/tsn.dir/src/maap.c.o
+> 6cb2ff3c0ce990196986e17274881410e63c1049bfcdf64888802829173749f6  build-clang-sanitizers/CMakeFiles/tsn_test.dir/src/acmp.c.o
+> 81d79e4e3e23000bee90039531d3e5701f9a28f6aa07e3017af7358c3f9f778f  build-clang-sanitizers/CMakeFiles/tsn_test.dir/src/adp.c.o
+> d8e1cb3e6db7162437a2093a7f4e5f747daf1c5df8afa40f14f211bda46af4c8  build-clang-sanitizers/CMakeFiles/tsn_test.dir/src/maap.c.o
+rv32-debug: native identical (3)
+rv32-release: native identical (3)
+== compare test results
+test results identical (369 cases)
+adp_tests rc 0 acmp_tests rc 0 maap_tests rc 0 port_tests rc 0 adp_release rc 0 adp_debug rc 0 maap_debug rc 0 
+adp_tests rc 0 acmp_tests rc 0 maap_tests rc 0 port_tests rc 0 adp_release rc 0 adp_debug rc 0 maap_debug rc 0 
