@@ -1,0 +1,10 @@
+libdir=<PACKET>/scratch/sdk/gtest/lib
+includedir=<PACKET>/scratch/sdk/gtest/include
+
+Name: gmock
+Description: GoogleMock (without main() function)
+Version: 1.14.0
+URL: https://github.com/google/googletest
+Requires: gtest = 1.14.0
+Libs: -L${libdir} -lgmock 
+Cflags: -I${includedir} -DGTEST_HAS_PTHREAD=1

@@ -1,0 +1,13 @@
+ok  | identifier digit before character literal (C core) | F1 literal recognition | src/adp.c | compiles True | prose hidden from compiler True | objects identical True | gate rc 1 | src/adp.c: c: line 344: unsupported comment
+ok  | identifier digit before character literal (C++ test) | F1 literal recognition | tests/test_port.cpp | compiles True | prose hidden from compiler True | objects identical True | gate rc 1 | tests/test_port.cpp: c++: line 31: unsupported comment
+ok  | identifier ending in R before string (C core) | F1 literal recognition | src/maap.c | compiles True | prose hidden from compiler True | objects identical True | gate rc 1 | src/maap.c: c: line 332: unsupported comment
+ok  | identifier ending in R before string (C++ test) | F1 literal recognition | tests/test_port.cpp | compiles True | prose hidden from compiler True | objects identical False | gate rc 1 | tests/test_port.cpp: c++: line 32: unsupported comment
+ok  | character zero constant in #if (C core) | F1 zero constant | src/acmp.c | compiles True | prose hidden from compiler True | objects identical True | gate rc 1 | src/acmp.c: c: line 1260: unmatched #endif
+ok  | wide character zero constant in #elif (C++ test) | F1 zero constant | tests/test_port.cpp | compiles True | prose hidden from compiler True | objects identical True | gate rc 1 | tests/test_port.cpp: c++: line 34: unmatched #endif
+ok  | bit-precise zero constant in #if (C core) | F1 zero constant | src/adp.c | compiles False | prose hidden from compiler True | objects identical False | gate rc 1 | src/adp.c: c: line 346: unmatched #endif
+    clang stderr: <PACKET>/scratch/replays/r5564/tree-6/src/adp.c:344:5: error: '_BitInt' suffix for literals is a C23 extension [-Werror,-Wc23-extensions]   344 | #if 0wb       |     ^ 1 e
+ok  | pragma prose in assembly | outside enumerated forms | examples/rv32/start.S | compiles True | prose hidden from compiler True | objects identical True | gate rc 1 | examples/rv32/start.S: c: line 20: unsupported comment
+ok  | assembler disabled region | outside enumerated forms | examples/rv32/start.S | compiles True | prose hidden from compiler False | objects identical True | gate rc 1 | examples/rv32/start.S: c: line 20: assembler conditional, macro, include or end is forbidden
+ok  | undefined macro disabled region (C core) | outside enumerated forms | src/maap.c | compiles True | prose hidden from compiler True | objects identical True | gate rc 1 | src/maap.c: c: line 331: unlisted conditional macro TSN_PROBE_NEVER
+ok  | negated constant disabled region (C core) | outside enumerated forms | src/maap.c | compiles True | prose hidden from compiler True | objects identical True | gate rc 1 | src/maap.c: c: line 333: unmatched #endif
+gaps: 0 of 11

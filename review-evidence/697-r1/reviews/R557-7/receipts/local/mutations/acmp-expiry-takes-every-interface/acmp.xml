@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:56:03.187" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:56:03.187">
+    <testcase name="A17EachInterfaceTimerHoldsItsEarliestDeadline" file="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp" line="789" status="run" result="completed" time="0." timestamp="2026-10-09T12:56:03.187" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:799&#x0A;Value of: a.sinks[0].state == ACMP_PRB_W_RESP2 &amp;&amp; a.sinks[1].state == ACMP_PRB_W_RESP &amp;&amp; a.sinks[2].state == ACMP_PRB_W_RESP &amp;&amp; fk.sent.size() == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;A17 an expiry takes the due timers only, of its own interface&apos;s sinks&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:799
+Value of: a.sinks[0].state == ACMP_PRB_W_RESP2 && a.sinks[1].state == ACMP_PRB_W_RESP && a.sinks[2].state == ACMP_PRB_W_RESP && fk.sent.size() == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+A17 an expiry takes the due timers only, of its own interface's sinks
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:803&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::TIMER)&#x0A;    Which is: 2&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;A17 the port is called only when the earliest deadline moves&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:803
+Expected equality of these values:
+  fk.count(Call::TIMER)
+    Which is: 2
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+A17 the port is called only when the earliest deadline moves
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

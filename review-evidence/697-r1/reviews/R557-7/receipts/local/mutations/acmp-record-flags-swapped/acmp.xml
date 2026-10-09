@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:56:06.482" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:56:06.482">
+    <testcase name="A24TheRecordIsTheProcessorsPayloadOneFlagAtATime" file="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp" line="1424" status="run" result="completed" time="0." timestamp="2026-10-09T12:56:06.483" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:1428&#x0A;Expected equality of these values:&#x0A;  back&#x0A;    Which is: { &apos;\x5&apos; (5), &apos;\0&apos;, &apos;\x12&apos; (18), &apos;4&apos; (52, 0x34), &apos;\0&apos;, &apos;&quot;&apos; (34, 0x22), &apos;\x11&apos; (17), &apos;\0&apos;, &apos;\xAA&apos; (170), &apos;\xBB&apos; (187), &apos;\xCC&apos; (204), &apos;\xDD&apos; (221), &apos;\0&apos;, &apos;\x11&apos; (17), &apos;&quot;&apos; (34, 0x22), &apos;3&apos; (51, 0x33), &apos;D&apos; (68, 0x44), &apos;U&apos; (85, 0x55), &apos;f&apos; (102, 0x66), &apos;w&apos; (119, 0x77) }&#x0A;  payload(kRecValid | kRecStarted, 0x1234u, kTkA, kCtl1)&#x0A;    Which is: { &apos;\x3&apos; (3), &apos;\0&apos;, &apos;\x12&apos; (18), &apos;4&apos; (52, 0x34), &apos;\0&apos;, &apos;&quot;&apos; (34, 0x22), &apos;\x11&apos; (17), &apos;\0&apos;, &apos;\xAA&apos; (170), &apos;\xBB&apos; (187), &apos;\xCC&apos; (204), &apos;\xDD&apos; (221), &apos;\0&apos;, &apos;\x11&apos; (17), &apos;&quot;&apos; (34, 0x22), &apos;3&apos; (51, 0x33), &apos;D&apos; (68, 0x44), &apos;U&apos; (85, 0x55), &apos;f&apos; (102, 0x66), &apos;w&apos; (119, 0x77) }&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;A24 bound and started: flags 0x03, then the parameters, byte for byte&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:1428
+Expected equality of these values:
+  back
+    Which is: { '\x5' (5), '\0', '\x12' (18), '4' (52, 0x34), '\0', '"' (34, 0x22), '\x11' (17), '\0', '\xAA' (170), '\xBB' (187), '\xCC' (204), '\xDD' (221), '\0', '\x11' (17), '"' (34, 0x22), '3' (51, 0x33), 'D' (68, 0x44), 'U' (85, 0x55), 'f' (102, 0x66), 'w' (119, 0x77) }
+  payload(kRecValid | kRecStarted, 0x1234u, kTkA, kCtl1)
+    Which is: { '\x3' (3), '\0', '\x12' (18), '4' (52, 0x34), '\0', '"' (34, 0x22), '\x11' (17), '\0', '\xAA' (170), '\xBB' (187), '\xCC' (204), '\xDD' (221), '\0', '\x11' (17), '"' (34, 0x22), '3' (51, 0x33), 'D' (68, 0x44), 'U' (85, 0x55), 'f' (102, 0x66), 'w' (119, 0x77) }
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+A24 bound and started: flags 0x03, then the parameters, byte for byte
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:1435&#x0A;Expected equality of these values:&#x0A;  back&#x0A;    Which is: { &apos;\x3&apos; (3), &apos;\0&apos;, &apos;\x1&apos; (1), &apos;\x2&apos; (2), &apos;\0&apos;, &apos;&quot;&apos; (34, 0x22), &apos;\x11&apos; (17), &apos;\0&apos;, &apos;\xAA&apos; (170), &apos;\xBB&apos; (187), &apos;\xCC&apos; (204), &apos;U&apos; (85, 0x55), &apos;\0&apos;, &apos;\x99&apos; (153), &apos;\xAA&apos; (170), &apos;\xBB&apos; (187), &apos;\xCC&apos; (204), &apos;\xDD&apos; (221), &apos;\xEE&apos; (238), &apos;\xFF&apos; (255) }&#x0A;  payload(kRecValid | kRecStreamingWait, 0x0102u, kTkB, kCtl2)&#x0A;    Which is: { &apos;\x5&apos; (5), &apos;\0&apos;, &apos;\x1&apos; (1), &apos;\x2&apos; (2), &apos;\0&apos;, &apos;&quot;&apos; (34, 0x22), &apos;\x11&apos; (17), &apos;\0&apos;, &apos;\xAA&apos; (170), &apos;\xBB&apos; (187), &apos;\xCC&apos; (204), &apos;U&apos; (85, 0x55), &apos;\0&apos;, &apos;\x99&apos; (153), &apos;\xAA&apos; (170), &apos;\xBB&apos; (187), &apos;\xCC&apos; (204), &apos;\xDD&apos; (221), &apos;\xEE&apos; (238), &apos;\xFF&apos; (255) }&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;A24 bound with STREAMING_WAIT: flags 0x05&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:1435
+Expected equality of these values:
+  back
+    Which is: { '\x3' (3), '\0', '\x1' (1), '\x2' (2), '\0', '"' (34, 0x22), '\x11' (17), '\0', '\xAA' (170), '\xBB' (187), '\xCC' (204), 'U' (85, 0x55), '\0', '\x99' (153), '\xAA' (170), '\xBB' (187), '\xCC' (204), '\xDD' (221), '\xEE' (238), '\xFF' (255) }
+  payload(kRecValid | kRecStreamingWait, 0x0102u, kTkB, kCtl2)
+    Which is: { '\x5' (5), '\0', '\x1' (1), '\x2' (2), '\0', '"' (34, 0x22), '\x11' (17), '\0', '\xAA' (170), '\xBB' (187), '\xCC' (204), 'U' (85, 0x55), '\0', '\x99' (153), '\xAA' (170), '\xBB' (187), '\xCC' (204), '\xDD' (221), '\xEE' (238), '\xFF' (255) }
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+A24 bound with STREAMING_WAIT: flags 0x05
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

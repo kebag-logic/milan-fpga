@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:56:07.330" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:56:07.330">
+    <testcase name="A1BindWithoutStreamingWaitBindsStarted" file="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp" line="273" status="run" result="completed" time="0." timestamp="2026-10-09T12:56:07.330" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:275&#x0A;Value of: a.sinks[0].started &amp;&amp; !a.sinks[0].binding.streaming_wait &amp;&amp; read(fk.sent[0].bytes.data()).flags == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:275
+Value of: a.sinks[0].started && !a.sinks[0].binding.streaming_wait && read(fk.sent[0].bytes.data()).flags == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.004" timestamp="2026-10-09T10:56:59.282" name="AllTests">
+  <testsuite name="MaapDebug" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0.002" timestamp="2026-10-09T10:56:59.284">
+    <testcase name="SynchronousExpiryAsserts" file="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_maap_debug.cpp" line="9" status="run" result="completed" time="0.002" timestamp="2026-10-09T10:56:59.284" classname="MaapDebug">
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_maap_debug.cpp:19&#x0A;Death test: { std::signal(6, ((__sighandler_t) 0)); (void)maap_begin(&amp;core, 0x91e0f0000000UL); std::_Exit(0); }&#x0A;    Result: died but not with expected exit code:&#x0A;            Exited with exit status 0&#x0A;Actual msg:&#x0A;[  DEATH   ] &#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;debug reentry assertion&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_maap_debug.cpp:19
+Death test: { std::signal(6, ((__sighandler_t) 0)); (void)maap_begin(&core, 0x91e0f0000000UL); std::_Exit(0); }
+    Result: died but not with expected exit code:
+            Exited with exit status 0
+Actual msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+debug reentry assertion
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,47 @@
+[
+  {
+    "compiler": "g++",
+    "command": [
+      "g++",
+      "-std=c++20",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I<PACKET>/scratch/sdk/gtest/include",
+      "-DGTEST_HAS_PTHREAD=1",
+      "-Iinclude",
+      "-Iexamples",
+      "-c",
+      "tests/test_adp.cpp",
+      "-o",
+      "<PACKET>/scratch/explicit-package/g++.o"
+    ],
+    "rc": 1
+  },
+  {
+    "compiler": "clang++",
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I<PACKET>/scratch/sdk/gtest/include",
+      "-DGTEST_HAS_PTHREAD=1",
+      "-Iinclude",
+      "-Iexamples",
+      "-c",
+      "tests/test_adp.cpp",
+      "-o",
+      "<PACKET>/scratch/explicit-package/clang++.o"
+    ],
+    "rc": 1
+  },
+  {
+    "passing_cmake_compile_command": "/usr/bin/g++  -I<SOURCE>/include -g -std=c++20 -Wall -Wextra -Werror -o CMakeFiles/adp_tests.dir/tests/test_adp.cpp.o -c <SOURCE>/tests/test_adp.cpp"
+  }
+]

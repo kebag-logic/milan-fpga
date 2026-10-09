@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:56:14.085" name="AllTests">
+  <testsuite name="AllStates/MaapCell" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:56:14.085">
+    <testcase name="TableB7/1" value_param="1" file="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp" line="139" status="run" result="completed" time="0." timestamp="2026-10-09T12:56:14.085" classname="AllStates/MaapCell">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:156&#x0A;Expected equality of these values:&#x0A;  r.frames.size()&#x0A;    Which is: 2&#x0A;  before + ((defend || restart) ? 1u : 0u)&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;Table B.7 output count&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:156
+Expected equality of these values:
+  r.frames.size()
+    Which is: 2
+  before + ((defend || restart) ? 1u : 0u)
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+Table B.7 output count
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:162&#x0A;Expected equality of these values:&#x0A;  r.core.state&#x0A;    Which is: 1&#x0A;  static_cast&lt;maap_state&gt;(state)&#x0A;    Which is: 0&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:162
+Expected equality of these values:
+  r.core.state
+    Which is: 1
+  static_cast<maap_state>(state)
+    Which is: 0
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:163&#x0A;Expected equality of these values:&#x0A;  r.core.base&#x0A;    Which is: 160395285253710&#x0A;  base&#x0A;    Which is: 160395285233920&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:163
+Expected equality of these values:
+  r.core.base
+    Which is: 160395285253710
+  base
+    Which is: 160395285233920
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

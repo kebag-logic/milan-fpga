@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:56:14.515" name="AllTests">
+  <testsuite name="AllStates/MaapCell" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:56:14.515">
+    <testcase name="TableB7/14" value_param="14" file="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp" line="139" status="run" result="completed" time="0." timestamp="2026-10-09T12:56:14.515" classname="AllStates/MaapCell">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:155&#x0A;Expected equality of these values:&#x0A;  r.core.conflicts&#x0A;    Which is: 0&#x0A;  restart ? 1u : 0u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;Table B.7 conflict decision&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:155
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  restart ? 1u : 0u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+Table B.7 conflict decision
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:156&#x0A;Expected equality of these values:&#x0A;  r.frames.size()&#x0A;    Which is: 5&#x0A;  before + ((defend || restart) ? 1u : 0u)&#x0A;    Which is: 6&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;Table B.7 output count&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:156
+Expected equality of these values:
+  r.frames.size()
+    Which is: 5
+  before + ((defend || restart) ? 1u : 0u)
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+Table B.7 output count
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:158&#x0A;Expected equality of these values:&#x0A;  r.core.state&#x0A;    Which is: 2&#x0A;  MAAP_PROBE&#x0A;    Which is: 1&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:158
+Expected equality of these values:
+  r.core.state
+    Which is: 2
+  MAAP_PROBE
+    Which is: 1
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:158&#x0A;Value of: r.valid&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:158
+Value of: r.valid
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:159&#x0A;Expected equality of these values:&#x0A;  r.core.probe_count&#x0A;    Which is: &apos;\0&apos;&#x0A;  3u&#x0A;    Which is: 3&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:159
+Expected equality of these values:
+  r.core.probe_count
+    Which is: '\0'
+  3u
+    Which is: 3
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:160&#x0A;Expected equality of these values:&#x0A;  r.frames.back()[15]&#x0A;    Which is: &apos;\x3&apos; (3)&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;loss restarts with PROBE&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:160
+Expected equality of these values:
+  r.frames.back()[15]
+    Which is: '\x3' (3)
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+loss restarts with PROBE
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

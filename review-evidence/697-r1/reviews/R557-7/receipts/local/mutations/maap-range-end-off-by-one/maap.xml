@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:56:13.609" name="AllTests">
+  <testsuite name="MaapCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:56:13.609">
+    <testcase name="InitAndPreferredRangeBounds" file="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp" line="271" status="run" result="completed" time="0." timestamp="2026-10-09T12:56:13.609" classname="MaapCore">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:280&#x0A;Value of: maap_begin(&amp;r.core, 0x91e0f0000000UL + 0xfdf9)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;range past pool end is refused&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:280
+Value of: maap_begin(&r.core, 0x91e0f0000000UL + 0xfdf9)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+range past pool end is refused
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:282&#x0A;Expected equality of these values:&#x0A;  r.core.base&#x0A;    Which is: 160395285298681&#x0A;  0x91e0f0000000UL + 0xfdf8&#x0A;    Which is: 160395285298680&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;last legal range&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_maap.cpp:282
+Expected equality of these values:
+  r.core.base
+    Which is: 160395285298681
+  0x91e0f0000000UL + 0xfdf8
+    Which is: 160395285298680
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+last legal range
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

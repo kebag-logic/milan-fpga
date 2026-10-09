@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:55:53.620" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:55:53.620">
+    <testcase name="A24OtherEtherTypeOrSubtypeDiscarded" file="<PACKET>/scratch/local/mutations/baseline/tests/test_adp.cpp" line="587" status="run" result="completed" time="0." timestamp="2026-10-09T12:55:53.620" classname="AdpCore">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_adp.cpp:530&#x0A;Expected equality of these values:&#x0A;  a.discarded&#x0A;    Which is: 1&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;A24 a DISCOVER under another EtherType or subtype is discarded and counted&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_adp.cpp:530
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+A24 a DISCOVER under another EtherType or subtype is discarded and counted
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_adp.cpp:531&#x0A;Expected equality of these values:&#x0A;  a.state&#x0A;    Which is: 2&#x0A;  ADP_STATE_WAITING&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;A24 and leaves WAITING alone&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_adp.cpp:531
+Expected equality of these values:
+  a.state
+    Which is: 2
+  ADP_STATE_WAITING
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+A24 and leaves WAITING alone
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

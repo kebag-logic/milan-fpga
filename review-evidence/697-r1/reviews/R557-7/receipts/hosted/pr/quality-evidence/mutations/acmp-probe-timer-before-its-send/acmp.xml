@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0.002" timestamp="2026-10-09T10:56:39.707" name="AllTests">
+  <testsuite name="AcmpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T10:56:39.709">
+    <testcase name="A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend" file="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp" line="1830" status="run" result="completed" time="0." timestamp="2026-10-09T10:56:39.709" classname="AcmpCore">
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1837&#x0A;Value of: s.timer_deadline == taken + spec::TMR_NO_RESP_MS &amp;&amp; !s.timer_held &amp;&amp; fk.armed[0] &amp;&amp; fk.at[0] == s.timer_deadline&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1837
+Value of: s.timer_deadline == taken + spec::TMR_NO_RESP_MS && !s.timer_held && fk.armed[0] && fk.at[0] == s.timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1842&#x0A;Expected equality of these values:&#x0A;  s.state&#x0A;    Which is: 4&#x0A;  ACMP_PRB_W_RESP&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A30 no expiry 199 ms after the probe was taken&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1842
+Expected equality of these values:
+  s.state
+    Which is: 4
+  ACMP_PRB_W_RESP
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A30 no expiry 199 ms after the probe was taken
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+    </testcase>
+    <testcase name="A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend" file="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp" line="1866" status="run" result="completed" time="0." timestamp="2026-10-09T10:56:39.709" classname="AcmpCore">
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1878&#x0A;Value of: s.timer_deadline == taken + spec::TMR_NO_RESP_MS &amp;&amp; fk.at[0] == s.timer_deadline&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry&apos;s&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1878
+Value of: s.timer_deadline == taken + spec::TMR_NO_RESP_MS && fk.at[0] == s.timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1882&#x0A;Expected equality of these values:&#x0A;  s.state&#x0A;    Which is: 5&#x0A;  ACMP_PRB_W_RESP2&#x0A;    Which is: 4&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A30 no second expiry 199 ms after the duplicate was taken&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1882
+Expected equality of these values:
+  s.state
+    Which is: 5
+  ACMP_PRB_W_RESP2
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A30 no second expiry 199 ms after the duplicate was taken
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1884&#x0A;Expected equality of these values:&#x0A;  s.state&#x0A;    Which is: 5&#x0A;  ACMP_SETTLED_NO_RSV&#x0A;    Which is: 6&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A30 a success 199 ms after the duplicate was taken settles (5.5.3.5.25)&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:1884
+Expected equality of these values:
+  s.state
+    Which is: 5
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A30 a success 199 ms after the duplicate was taken settles (5.5.3.5.25)
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

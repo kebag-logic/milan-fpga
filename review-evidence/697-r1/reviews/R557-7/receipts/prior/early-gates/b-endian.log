@@ -1,0 +1,26 @@
+gcc: compiler boundary examination failed
+[ 50%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+[ 50%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+[ 75%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+<PACKET>/scratch/replays/early-gates/probes/b-endian/src/adp.c: In function ‘tsn_probe’:
+<PACKET>/scratch/replays/early-gates/probes/b-endian/src/adp.c:17:41: error: implicit declaration of function ‘be32toh’ [-Wimplicit-function-declaration]
+   17 | unsigned tsn_probe(unsigned v) { return be32toh(v); }
+      |                                         ^~~~~~~
+make[2]: *** [CMakeFiles/tsn.dir/build.make:79: CMakeFiles/tsn.dir/src/adp.c.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [CMakeFiles/Makefile2:87: CMakeFiles/tsn.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
+
+clang: compiler boundary examination failed
+[ 25%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+[ 50%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+[ 75%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+<PACKET>/scratch/replays/early-gates/probes/b-endian/src/adp.c:17:41: error: call to undeclared function 'be32toh'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   17 | unsigned tsn_probe(unsigned v) { return be32toh(v); }
+      |                                         ^
+1 error generated.
+make[2]: *** [CMakeFiles/tsn.dir/build.make:79: CMakeFiles/tsn.dir/src/adp.c.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [CMakeFiles/Makefile2:87: CMakeFiles/tsn.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
+

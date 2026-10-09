@@ -1,0 +1,142 @@
+[
+  {
+    "name": "asm-double-quote-character",
+    "source": ".text\n.globl example\nexample:\n    li a0, '\" # narrative \"\n    ret\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: single quotes are forbidden in assembly",
+      "c++: line 4: unsupported comment"
+    ],
+    "gap": false
+  },
+  {
+    "name": "asm-define-double-quote-character",
+    "source": "#define VALUE '\" # narrative \"\n.text\n.globl example\nexample:\n    li a0, VALUE\n    ret\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: single quotes are forbidden in assembly",
+      "c++: line 1: assembly preprocessor directives are forbidden",
+      "c++: line 1: unsupported comment"
+    ],
+    "gap": false
+  },
+  {
+    "name": "cpp-digit-prose",
+    "source": "int a=1'000; // narrative\nint b=2'000;\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: line 1: unsupported comment"
+    ],
+    "gap": false
+  },
+  {
+    "name": "cpp-hex-prose",
+    "source": "int a=0xA'B; // narrative\nint b=0xC'D;\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: line 1: unsupported comment"
+    ],
+    "gap": false
+  },
+  {
+    "name": "cpp-zero-hex",
+    "source": "#if (0x00ULL)\nnarrative\n#endif\nint a;\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: line 1: #if is forbidden",
+      "c++: line 3: unmatched #endif"
+    ],
+    "gap": false
+  },
+  {
+    "name": "cpp-zero-binary",
+    "source": "#if 0b0'0\nnarrative\n#endif\nint a;\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: line 1: #if is forbidden",
+      "c++: line 3: unmatched #endif"
+    ],
+    "gap": false
+  },
+  {
+    "name": "cpp-elif-false",
+    "source": "#if 1\nint a;\n#elif false\nnarrative\n#endif\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: line 1: #if is forbidden",
+      "c++: line 3: #elif is forbidden",
+      "c++: line 5: unmatched #endif"
+    ],
+    "gap": false
+  },
+  {
+    "name": "asm-define-prose",
+    "source": "#define VALUE 4 # narrative\n.text\n.word VALUE\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: line 1: assembly preprocessor directives are forbidden",
+      "c++: line 1: unsupported comment"
+    ],
+    "gap": false
+  },
+  {
+    "name": "cpp-tracing",
+    "source": "int a=1'000; // REQ: PORT-01\nchar b='\\''; // IEEE 1722-2016 Figure 5\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": false,
+    "scanner_errors": [],
+    "gap": false
+  },
+  {
+    "name": "asm-tracing",
+    "source": ".text\nli a0, 'A # REQ: PORT-01\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": false,
+    "scanner_errors": [
+      "c++: single quotes are forbidden in assembly"
+    ],
+    "gap": false
+  },
+  {
+    "name": "cpp-zero-plus",
+    "source": "#if +0\nnarrative\n#endif\nint a;\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: line 1: #if is forbidden",
+      "c++: line 3: unmatched #endif"
+    ],
+    "gap": false
+  },
+  {
+    "name": "cpp-zero-minus",
+    "source": "#if -0\nnarrative\n#endif\nint a;\n",
+    "compile_rc": 0,
+    "compiler_output": "",
+    "expected_refusal": true,
+    "scanner_errors": [
+      "c++: line 1: #if is forbidden",
+      "c++: line 3: unmatched #endif"
+    ],
+    "gap": false
+  }
+]

@@ -1,0 +1,4836 @@
+[
+  {
+    "name": "reentry-guard-removed",
+    "path": "src/adp.c",
+    "old": "\tassert(!port_active);\n\tif (port_active) {",
+    "new": "\tif (port_active && false) {",
+    "kills": [
+      {
+        "test": "AdpReentry.AdvertiseInlineExpiry",
+        "needle": "inline ADVERTISE expiry asserts",
+        "arm": "adp_debug"
+      },
+      {
+        "test": "AdpReentry.DelayInlineExpiryOnGmChange",
+        "needle": "inline DELAY expiry asserts",
+        "arm": "adp_debug"
+      },
+      {
+        "test": "AdpReentry.AdvertiseInlineExpiry",
+        "needle": "inline ADVERTISE expiry is counted",
+        "arm": "adp_release"
+      },
+      {
+        "test": "AdpReentry.DelayInlineExpiryOnGmChange",
+        "needle": "inline DELAY expiry is counted",
+        "arm": "adp_release"
+      }
+    ],
+    "original_tests": [
+      "AdpReentry.AdvertiseInlineExpiry",
+      "AdpReentry.DelayInlineExpiryOnGmChange",
+      "AdpReentry.AdvertiseInlineExpiry",
+      "AdpReentry.DelayInlineExpiryOnGmChange"
+    ]
+  },
+  {
+    "name": "reentry-uncounted",
+    "path": "src/adp.c",
+    "old": "\t\treentry_count++;\n",
+    "new": "",
+    "kills": [
+      {
+        "test": "AdpReentry.AdvertiseInlineExpiry",
+        "needle": "inline ADVERTISE expiry is counted",
+        "arm": "adp_release"
+      }
+    ],
+    "original_tests": [
+      "AdpReentry.AdvertiseInlineExpiry"
+    ]
+  },
+  {
+    "name": "reentry-not-ignored",
+    "path": "src/adp.c",
+    "old": "\t\treentry_count++;\n\t\treturn true;",
+    "new": "\t\treentry_count++;\n\t\treturn false;",
+    "kills": [
+      {
+        "test": "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/",
+        "needle": "callback leaves core state unchanged",
+        "arm": "adp_release"
+      }
+    ],
+    "original_tests": [
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/"
+    ]
+  },
+  {
+    "name": "departing-keeps-index",
+    "path": "src/adp.c",
+    "old": "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
+    "new": "\tuint32_t index = a->available_index;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A6toA8DeferredSends",
+        "needle": "A8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset"
+      },
+      {
+        "test": "ExamplePort.DefersExpiryAndRetainsBlockedOutput",
+        "needle": "shutdown resets",
+        "arm": "port"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/"
+    ]
+  },
+  {
+    "name": "departing-sends-zero",
+    "path": "src/adp.c",
+    "old": "if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {",
+    "new": "if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index & 0u)) {",
+    "kills": [
+      {
+        "test": "AdpCore.A10toA14DepartingIndex",
+        "needle": "A10 SHUTDOWN in WAITING"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A10toA14DepartingIndex"
+    ]
+  },
+  {
+    "name": "available-replaces-owed-departing",
+    "path": "src/adp.c",
+    "old": "\ta->available_owed = true;\n\tif (a->departing_owed != 0u ||",
+    "new": "\ta->available_owed = true;\n\ta->departing_owed = 0u;\n\tif (a->departing_owed != 0u ||",
+    "kills": [
+      {
+        "test": "AdpCore.A15OwedDepartingAcrossARestart",
+        "needle": "A15 with room, the next poll sends the owed ENTITY_DEPARTING first"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A15OwedDepartingAcrossARestart"
+    ]
+  },
+  {
+    "name": "available-passes-owed-departing",
+    "path": "src/adp.c",
+    "old": "if (a->departing_owed != 0u || !send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {",
+    "new": "if (!send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {",
+    "kills": [
+      {
+        "test": "AdpCore.A17RoomBackBeforeAPoll",
+        "needle": "A17 room back and TMR_DELAY expiring before a poll"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A17RoomBackBeforeAPoll"
+    ]
+  },
+  {
+    "name": "second-departing-dropped",
+    "path": "src/adp.c",
+    "old": "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t\ta->departing_owed++;\n\t} else {\n",
+    "new": "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t} else {\n",
+    "kills": [
+      {
+        "test": "AdpCore.A16SecondShutdownQueuesItsOwn",
+        "needle": "A16 a SHUTDOWN while one is owed queues its own"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A16SecondShutdownQueuesItsOwn"
+    ]
+  },
+  {
+    "name": "second-shutdown-overwrites-index",
+    "path": "src/adp.c",
+    "old": "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n",
+    "new": "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t\ta->departing_index = index;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A16SecondShutdownQueuesItsOwn",
+        "needle": "A16 a SHUTDOWN while one is owed queues its own"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A16SecondShutdownQueuesItsOwn"
+    ]
+  },
+  {
+    "name": "link-loss-drops-owed-departing",
+    "path": "src/adp.c",
+    "old": "\t\ta->available_owed = false;\n\t\ta->state = ADP_STATE_DOWN;\n",
+    "new": "\t\ta->available_owed = false;\n\t\ta->departing_owed = 0u;\n\t\ta->state = ADP_STATE_DOWN;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A18LinkLossKeepsTheOwedDeparting",
+        "needle": "A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A18LinkLossKeepsTheOwedDeparting"
+    ]
+  },
+  {
+    "name": "gm-change-drops-owed-available",
+    "path": "src/adp.c",
+    "old": "\ta->gm_changed++;\n",
+    "new": "\ta->gm_changed++;\n\ta->available_owed = false;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+        "needle": "A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+    ]
+  },
+  {
+    "name": "discover-drops-owed-available",
+    "path": "src/adp.c",
+    "old": "\t}\n\tif (!a->enabled || a->state != ADP_STATE_WAITING) {             // Milan v1.2 Table 5.51\n\t\treturn;\n",
+    "new": "\t}\n\tif (!a->enabled || a->state != ADP_STATE_WAITING) {\n\t\ta->available_owed = false;\n\t\treturn;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+        "needle": "A19 so does an ENTITY_DISCOVER"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+    ]
+  },
+  {
+    "name": "stray-expiry-drops-owed-available",
+    "path": "src/adp.c",
+    "old": "\t\ta->stray_expiries++;\n\t\treturn;\n",
+    "new": "\t\ta->stray_expiries++;\n\t\ta->available_owed = false;\n\t\treturn;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+        "needle": "A19 and a stray expiry, which is counted"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+    ]
+  },
+  {
+    "name": "link-loss-keeps-owed-available",
+    "path": "src/adp.c",
+    "old": "\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n\t\ta->available_owed = false;\n\t\ta->state = ADP_STATE_DOWN;\n",
+    "new": "\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n\t\ta->state = ADP_STATE_DOWN;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A20LinkLossDropsTheOwedAvailable",
+        "needle": "A20 a link loss drops the owed ENTITY_AVAILABLE at once"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A20LinkLossDropsTheOwedAvailable"
+    ]
+  },
+  {
+    "name": "departing-queue-unbounded",
+    "path": "src/adp.c",
+    "old": "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n",
+    "new": "\t} else if (a->departing_owed != UINT32_MAX) {\n",
+    "kills": [
+      {
+        "test": "AdpCore.A21DepartingCapacity",
+        "needle": "A21 then the running restart's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING"
+      }
+    ],
+    "original_tests": [
+      "Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/"
+    ]
+  },
+  {
+    "name": "coalesced-departing-uncounted",
+    "path": "src/adp.c",
+    "old": "\t\ta->departing_coalesced++;",
+    "new": "\t\t(void)0;",
+    "kills": [
+      {
+        "test": "AdpCore.A21DepartingCapacity",
+        "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A21DepartingCapacity"
+    ]
+  },
+  {
+    "name": "coalesce-drops-queued-departing",
+    "path": "src/adp.c",
+    "old": "\t\ta->departing_coalesced++;",
+    "new": "\t\ta->departing_coalesced++;\n\t\ta->departing_owed--;",
+    "kills": [
+      {
+        "test": "AdpCore.A21DepartingCapacity",
+        "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A21DepartingCapacity"
+    ]
+  },
+  {
+    "name": "coalesce-overwrites-oldest-index",
+    "path": "src/adp.c",
+    "old": "\t\ta->departing_coalesced++;",
+    "new": "\t\ta->departing_coalesced++;\n\t\ta->departing_index = index;",
+    "kills": [
+      {
+        "test": "AdpCore.A21DepartingCapacity",
+        "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A21DepartingCapacity"
+    ]
+  },
+  {
+    "name": "own-discover-discarded",
+    "path": "src/adp.c",
+    "old": "if (target != 0u && target != a->entity->entity_id) {",
+    "new": "if (target != 0u) {",
+    "kills": [
+      {
+        "test": "AdpCore.A3toA5DiscoverAndDiscard",
+        "needle": "A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)"
+      },
+      {
+        "test": "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/0",
+        "needle": "inherited discovery enters DELAY"
+      },
+      {
+        "test": "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/1",
+        "needle": "inherited discovery enters DELAY"
+      },
+      {
+        "test": "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/2",
+        "needle": "inherited discovery enters DELAY"
+      },
+      {
+        "test": "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/3",
+        "needle": "inherited discovery enters DELAY"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING"
+    ]
+  },
+  {
+    "name": "down-answers-discover",
+    "path": "src/adp.c",
+    "old": "if (!a->enabled || a->state != ADP_STATE_WAITING) {",
+    "new": "if (!a->enabled) {",
+    "kills": [
+      {
+        "test": "AdpCore.A3toA5DiscoverAndDiscard",
+        "needle": "A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN"
+    ]
+  },
+  {
+    "name": "link-down-departs",
+    "path": "src/adp.c",
+    "old": "\tif (a->state != ADP_STATE_DOWN) {\n\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n\t\ta->available_owed = false;\n",
+    "new": "\tif (a->state != ADP_STATE_DOWN) {\n\t\t(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->available_index);\n\t\ttimer_stop(a); // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n\t\ta->available_owed = false;\n",
+    "kills": [
+      {
+        "test": "AdpCore.LinkLevelsAndDisabledInputs",
+        "needle": "shutdown in DOWN sends nothing"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING"
+    ]
+  },
+  {
+    "name": "gm-change-ignored",
+    "path": "src/adp.c",
+    "old": "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.7\n\t}\n",
+    "new": "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\t(void)0;\n\t}\n",
+    "kills": [
+      {
+        "test": "AdpCore.A0toA2Schedule",
+        "needle": "A2 with the new current_configuration_index (6.2.2.18)"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING"
+    ]
+  },
+  {
+    "name": "delay-ignores-link-down",
+    "path": "src/adp.c",
+    "old": "\tif (a->state != ADP_STATE_DOWN) {\n\t\ttimer_stop(a);",
+    "new": "\tif (a->state == ADP_STATE_WAITING) {\n\t\ttimer_stop(a);",
+    "kills": [
+      {
+        "test": "AdpCore.A6toA8DeferredSends",
+        "needle": "A7 a link loss drops an owed ENTITY_AVAILABLE and departs nothing (5.6.3.5.10)"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed"
+    ]
+  },
+  {
+    "name": "shutdown-in-down-departs",
+    "path": "src/adp.c",
+    "old": "\tif (a->state == ADP_STATE_DOWN) {\n\t\treturn;\n\t}\n\ttimer_stop(a);",
+    "new": "\ttimer_stop(a);",
+    "kills": [
+      {
+        "test": "AdpCore.A6toA8DeferredSends",
+        "needle": "A8 SHUTDOWN in DOWN sends nothing (Table 5.51)"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN"
+    ]
+  },
+  {
+    "name": "advertise-expiry-skips-delay",
+    "path": "src/adp.c",
+    "old": "\t} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {\n\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.5\n\t} else {\n",
+    "new": "\t} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {\n\t\ttimer_start(a, ADP_TIMER_DELAY, 0u); // Milan v1.2 5.6.3.5.5\n\t} else {\n",
+    "kills": [
+      {
+        "test": "AdpCore.A0toA2Schedule",
+        "needle": "A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7)"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING"
+    ]
+  },
+  {
+    "name": "advertise-period-wrong",
+    "path": "src/adp.c",
+    "old": "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);",
+    "new": "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS + 1000u);",
+    "kills": [
+      {
+        "test": "AdpCore.A0toA2Schedule",
+        "needle": "A1 TMR_DELAY: ENTITY_AVAILABLE, WAITING, TMR_ADVERTISE 5 s (5.6.3.5.9)"
+      },
+      {
+        "test": "AdpCore.MockedPortOrder",
+        "needle": "A1 TMR_DELAY starts the advertisement period"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed"
+    ]
+  },
+  {
+    "name": "link-up-draws-startup-kind",
+    "path": "src/adp.c",
+    "old": "\t\tif (a->state == ADP_STATE_DOWN) {\n\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n",
+    "new": "\t\tif (a->state == ADP_STATE_DOWN) {\n\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n",
+    "kills": [
+      {
+        "test": "AdpCore.A0toA2Schedule",
+        "needle": "A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN"
+    ]
+  },
+  {
+    "name": "draw-kinds-merged",
+    "path": "src/adp.c",
+    "old": "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS",
+    "new": "ADP_DELAY_MAX_MS",
+    "kills": [
+      {
+        "test": "AdpCore.A9DrawKinds",
+        "needle": "A9 every startup draw"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A9DrawKinds"
+    ]
+  },
+  {
+    "name": "foreign-discover-answered",
+    "path": "src/adp.c",
+    "old": "if (target != 0u && target != a->entity->entity_id) {",
+    "new": "if (target == 1u) {",
+    "kills": [
+      {
+        "test": "AdpCore.A3toA5DiscoverAndDiscard",
+        "needle": "A4 a foreign DISCOVER"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A3toA5DiscoverAndDiscard"
+    ]
+  },
+  {
+    "name": "frame-misses-config-index",
+    "path": "src/adp.c",
+    "old": "wire_put_be(pdu + 50, a->current_configuration_index, 2);",
+    "new": "wire_put_be(pdu + 50, 0u, 2);",
+    "kills": [
+      {
+        "test": "AdpCore.A0toA2Schedule",
+        "needle": "A2 with the new current_configuration_index (6.2.2.18)"
+      }
+    ],
+    "original_tests": [
+      "AdpWalk.P11ConfigurationIndexBytes"
+    ]
+  },
+  {
+    "name": "frame-sources-from-sinks",
+    "path": "src/adp.c",
+    "old": "wire_put_be(pdu + 24, e->talker_stream_sources, 2);",
+    "new": "wire_put_be(pdu + 24, e->listener_stream_sinks, 2);",
+    "kills": [
+      {
+        "test": "AdpCore.EntityFieldsUseIndependentCounts",
+        "needle": "talker count is independent of listener count"
+      }
+    ],
+    "original_tests": [
+      "Fabric/EntityField.MatchesTheFabric/talker_stream_sources"
+    ]
+  },
+  {
+    "name": "seed-left-at-zero",
+    "path": "src/adp.c",
+    "old": "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
+    "new": "0x9E3779B9u;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A22GeneratorNeverStuckAtZero",
+        "needle": "A22 an entity id whose words cancel the seed constant"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A22GeneratorNeverStuckAtZero"
+    ]
+  },
+  {
+    "name": "enable-not-idempotent",
+    "path": "src/adp.c",
+    "old": "\tif (enable == a->enabled) {\n\t\treturn;\n\t}\n",
+    "new": "",
+    "kills": [
+      {
+        "test": "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
+        "needle": "A23 an enable while enabled draws and arms nothing"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A23RepeatedEnableOrDisableChangesNothing"
+    ]
+  },
+  {
+    "name": "other-subtype-accepted",
+    "path": "src/adp.c",
+    "old": "\t    frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||\n",
+    "new": "",
+    "kills": [
+      {
+        "test": "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded",
+        "needle": "A24 a DISCOVER under another EtherType or subtype is discarded"
+      }
+    ],
+    "original_tests": [
+      "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded"
+    ]
+  },
+  {
+    "name": "acmp-init-no-interface",
+    "path": "src/acmp.c",
+    "old": "if (cfg->n_interfaces == 0u || cfg->n_interfaces > ACMP_MAX_INTERFACES ||",
+    "new": "if (cfg->n_interfaces > ACMP_MAX_INTERFACES ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+        "needle": "A0 no interface is refused"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-too-many-sinks",
+    "path": "src/acmp.c",
+    "old": "cfg->n_sinks > ACMP_MAX_SINKS ||",
+    "new": "cfg->n_sinks > ACMP_MAX_SINKS + 1u ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+        "needle": "A0 more sinks than ACMP_MAX_SINKS"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-too-many-sources",
+    "path": "src/acmp.c",
+    "old": "cfg->n_sources > ACMP_MAX_SOURCES) {",
+    "new": "cfg->n_sources > ACMP_MAX_SOURCES + 1u) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+        "needle": "A0 more sources than ACMP_MAX_SOURCES"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-sink-interface",
+    "path": "src/acmp.c",
+    "old": "\t\tif (cfg->sink_interface[k] >= cfg->n_interfaces) {",
+    "new": "\t\tif (cfg->sink_interface[k] > cfg->n_interfaces) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+        "needle": "A0 a sink on an interface the entity lacks is refused"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-source-interface",
+    "path": "src/acmp.c",
+    "old": "\t\tif (cfg->source_interface[k] >= cfg->n_interfaces) {",
+    "new": "\t\tif (cfg->source_interface[k] > cfg->n_interfaces) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+        "needle": "A0 a source on an interface the entity lacks is refused"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-reads-the-seed",
+    "path": "src/acmp.c",
+    "old": "\ta->rng = (uint32_t)cfg->entity_id ^ (uint32_t)(cfg->entity_id >> 32) ^ 0x7F4A7C15u;",
+    "new": "\ta->rng = (uint32_t)cfg->entity_id ^ (uint32_t)(cfg->entity_id >> 32) ^ 0x7F4A7C15u ^ p_seed(a);",
+    "kills": [
+      {
+        "test": "AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled",
+        "needle": "A0 init calls no port"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled",
+      "AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract"
+    ]
+  },
+  {
+    "name": "acmp-header-no-resp-2s",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_TMR_NO_RESP_MS 200u",
+    "new": "#define ACMP_TMR_NO_RESP_MS 2000u",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 and TMR_NO_RESP armed 200 ms"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "Table530/ListenerWalk.Graded/BIND_NEW_UNB"
+    ]
+  },
+  {
+    "name": "acmp-header-retry-2s",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_TMR_RETRY_MS 4000u",
+    "new": "#define ACMP_TMR_RETRY_MS 2000u",
+    "kills": [
+      {
+        "test": "AcmpCore.A9FailureWaitsForTheRetry",
+        "needle": "A9 and TMR_RETRY 4 s"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A9FailureWaitsForTheRetry",
+      "Table530/ListenerWalk.Graded/PROBE_FAIL_PWR"
+    ]
+  },
+  {
+    "name": "acmp-header-no-tk-5s",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_TMR_NO_TK_MS 10000u",
+    "new": "#define ACMP_TMR_NO_TK_MS 5000u",
+    "kills": [
+      {
+        "test": "AcmpCore.A8SuccessSettles",
+        "needle": "A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A8SuccessSettles"
+    ]
+  },
+  {
+    "name": "acmp-header-valid-time-in-seconds",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_VALID_TIME_UNIT_MS 2000u",
+    "new": "#define ACMP_VALID_TIME_UNIT_MS 1000u",
+    "kills": [
+      {
+        "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "needle": "A22 TMR_NO_ADP is the received valid_time in two-second units"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+    ]
+  },
+  {
+    "name": "acmp-header-listener-unknown-is-2",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_STATUS_LISTENER_UNKNOWN_ID 1u",
+    "new": "#define ACMP_STATUS_LISTENER_UNKNOWN_ID 2u",
+    "kills": [
+      {
+        "test": "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId",
+        "needle": "A2 LISTENER_UNKNOWN_ID, the command's fields echoed"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId"
+    ]
+  },
+  {
+    "name": "acmp-header-registering-failed-bit",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_FLAG_REGISTERING_FAILED 0x0040u",
+    "new": "#define ACMP_FLAG_REGISTERING_FAILED 0x0200u",
+    "kills": [
+      {
+        "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+        "needle": "REGISTERING_FAILED 1 (Table 5.39)"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-header-cdl-84",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_CONTROL_DATA_LENGTH 44u",
+    "new": "#define ACMP_CONTROL_DATA_LENGTH 84u",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 every frame goes to the ACMP multicast address"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-bind-count-0",
+    "path": "src/acmp.c",
+    "old": "\tr.count = 1u;\n\tr.flags = cmd->flags & ACMP_FLAG_STREAMING_WAIT;",
+    "new": "\tr.count = 0u;\n\tr.flags = cmd->flags & ACMP_FLAG_STREAMING_WAIT;",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 BIND_RX_RESPONSE is Table 5.32"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "Table530/ListenerWalk.Graded/BIND_NEW_UNB"
+    ]
+  },
+  {
+    "name": "acmp-probe-without-fast-connect",
+    "path": "src/acmp.c",
+    "old": "\tp.flags = ACMP_FLAG_FAST_CONNECT;\n\tuint8_t frame[ACMP_FRAME_BYTES];",
+    "new": "\tp.flags = 0u;\n\tuint8_t frame[ACMP_FRAME_BYTES];",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 PROBE_TX_COMMAND is Table 5.33"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "Table530/ListenerWalk.Graded/BIND_NEW_UNB"
+    ]
+  },
+  {
+    "name": "acmp-probe-before-response",
+    "path": "src/acmp.c",
+    "old": "\ts->started = !sw;\n\tbind_response(a, interface, k, cmd);\n\tdisc_start(s);\n\tprobe(a, k);",
+    "new": "\ts->started = !sw;\n\tdisc_start(s);\n\tprobe(a, k);\n\tbind_response(a, interface, k, cmd);",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 BIND_RX_RESPONSE is Table 5.32"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-no-resp-2s",
+    "path": "src/acmp.c",
+    "old": "\ta->now_read = false;\n\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);",
+    "new": "\ta->now_read = false;\n\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS * 10u);",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 and TMR_NO_RESP armed 200 ms"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot"
+    ]
+  },
+  {
+    "name": "acmp-bind-starts-no-discovery",
+    "path": "src/acmp.c",
+    "old": "\tbind_response(a, interface, k, cmd);\n\tdisc_start(s);\n",
+    "new": "\tbind_response(a, interface, k, cmd);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 the discovery machine starts"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "Table530/ListenerWalk.Graded/BIND_NEW_UNB"
+    ]
+  },
+  {
+    "name": "acmp-bind-change-before-response",
+    "path": "src/acmp.c",
+    "old": "\tbind_response(a, interface, k, cmd);\n\tdisc_start(s);\n",
+    "new": "\tp_changed(a, k);\n\tbind_response(a, interface, k, cmd);\n\tdisc_start(s);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 the change is reported after the response"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-nothing-persisted",
+    "path": "src/acmp.c",
+    "old": "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);",
+    "new": "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\t(void)p_persist;",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 the binding is saved"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-unbind-not-persisted",
+    "path": "src/acmp.c",
+    "old": "\t\tif (!same_record(record, s->saved)) {",
+    "new": "\t\tif (!same_record(record, s->saved) && s->bound) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A3UnbindInEveryState",
+        "needle": "A3 the cleared binding is saved, unless there was none, in state"
+      }
+    ],
+    "original_tests": [
+      "AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord",
+      "Table530/ListenerWalk.Graded/UNBIND_PWR"
+    ]
+  },
+  {
+    "name": "acmp-rebind-not-persisted",
+    "path": "src/acmp.c",
+    "old": "\t\tif (!same_record(record, s->saved)) {",
+    "new": "\t\tif (!same_record(record, s->saved) && (s->saved[0] & 0x01u) == 0u) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "needle": "A6 the new binding is saved"
+      }
+    ],
+    "original_tests": [
+      "AcmpStore.N4AnUnreadSlotRefusesPersistence",
+      "AcmpCore.A6BindAnotherSourceRestartsTheSink"
+    ]
+  },
+  {
+    "name": "acmp-streaming-wait-ignored",
+    "path": "src/acmp.c",
+    "old": "\n\ts->started = !sw;\n\tbind_response(a, interface, k, cmd);\n",
+    "new": "\n\ts->started = true;\n\tbind_response(a, interface, k, cmd);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "STREAMING_WAIT binds it stopped"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-sw-read-from-fast-connect",
+    "path": "src/acmp.c",
+    "old": "\tbool sw = (cmd->flags & ACMP_FLAG_STREAMING_WAIT) != 0u;",
+    "new": "\tbool sw = (cmd->flags & ACMP_FLAG_FAST_CONNECT) != 0u;",
+    "kills": [
+      {
+        "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+        "needle": "STREAMING_WAIT saved"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-getrx-count-unbound",
+    "path": "src/acmp.c",
+    "old": "\tif (s->bound) {\n\t\tr.count = 1u;",
+    "new": "\tr.count = 1u;\n\tif (s->bound) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A2GetRxStateInEveryState",
+        "needle": "A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2GetRxStateInEveryState",
+      "Table530/ListenerWalk.Graded/GETRX_UNB"
+    ]
+  },
+  {
+    "name": "acmp-getrx-no-fast-connect",
+    "path": "src/acmp.c",
+    "old": "\t\tr.flags = (uint16_t)(ACMP_FLAG_FAST_CONNECT | (s->binding.streaming_wait ? ACMP_FLAG_STREAMING_WAIT : 0u));",
+    "new": "\t\tr.flags = (uint16_t)(s->binding.streaming_wait ? ACMP_FLAG_STREAMING_WAIT : 0u);",
+    "kills": [
+      {
+        "test": "AcmpCore.A2GetRxStateInEveryState",
+        "needle": "A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2GetRxStateInEveryState",
+      "Table530/ListenerWalk.Graded/GETRX_PWR"
+    ]
+  },
+  {
+    "name": "acmp-getrx-no-registering-failed",
+    "path": "src/acmp.c",
+    "old": "\t\tr.flags |= ACMP_FLAG_REGISTERING_FAILED;",
+    "new": "\t\tr.flags |= 0u;",
+    "kills": [
+      {
+        "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+        "needle": "REGISTERING_FAILED 1 (Table 5.39)"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-unknown-sink-silent",
+    "path": "src/acmp.c",
+    "old": "\t\tstruct pdu r = echo(cmd, ACMP_STATUS_LISTENER_UNKNOWN_ID);         // Milan v1.2 Table 5.27\n\t\trespond(a, interface, &r, 0u);\n\t\treturn;\n",
+    "new": "\t\tstruct pdu r = echo(cmd, ACMP_STATUS_LISTENER_UNKNOWN_ID);         // Milan v1.2 Table 5.27\n\t\t(void)r;\n\t\treturn;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId",
+        "needle": "A2 a command for a sink the entity lacks"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId"
+    ]
+  },
+  {
+    "name": "acmp-unbind-echoes-the-talker",
+    "path": "src/acmp.c",
+    "old": "\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);",
+    "new": "\trespond(a, interface, &r, 1u << k);",
+    "kills": [
+      {
+        "test": "AcmpCore.A3UnbindInEveryState",
+        "needle": "A3 UNBIND_RX_RESPONSE is Table 5.36"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A3UnbindInEveryState",
+      "Table530/ListenerWalk.Graded/UNBIND_PWR"
+    ]
+  },
+  {
+    "name": "acmp-unbind-keeps-srp",
+    "path": "src/acmp.c",
+    "old": "\tstruct acmp_sink *s = &a->sinks[k];\n\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);\n\t}\n\tdisc_stop(s);\n\ts->bound = false;",
+    "new": "\tstruct acmp_sink *s = &a->sinks[k];\n\tdisc_stop(s);\n\ts->bound = false;",
+    "kills": [
+      {
+        "test": "AcmpCore.A3UnbindInEveryState",
+        "needle": "A3 a settled sink stops SRP before the response"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A3UnbindInEveryState",
+      "Table530/ListenerWalk.Graded/UNBIND_SNR"
+    ]
+  },
+  {
+    "name": "acmp-unbind-srp-after-response",
+    "path": "src/acmp.c",
+    "old": "\tstruct acmp_sink *s = &a->sinks[k];\n\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);\n\t}\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);             // Milan v1.2 Table 5.36\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);\n\ts->state = ACMP_UNBOUND;\n",
+    "new": "\tstruct acmp_sink *s = &a->sinks[k];\n\tbool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);\n\tif (settled) {\n\t\tsrp_stop(a, k);\n\t}\n\ts->state = ACMP_UNBOUND;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A3UnbindInEveryState",
+        "needle": "A3 a settled sink stops SRP before the response"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A3UnbindInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-unbind-keeps-discovery",
+    "path": "src/acmp.c",
+    "old": "\tdisc_stop(s);\n\ts->bound = false;",
+    "new": "\ts->bound = false;",
+    "kills": [
+      {
+        "test": "AcmpCore.A3UnbindInEveryState",
+        "needle": "A3 then UNBOUND, binding cleared"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A3UnbindInEveryState",
+      "Table530/ListenerWalk.Graded/UNBIND_PWR"
+    ]
+  },
+  {
+    "name": "acmp-unbind-change-before-response",
+    "path": "src/acmp.c",
+    "old": "\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);",
+    "new": "\tr.talker_uid = 0u;\n\tp_changed(a, k);\n\trespond(a, interface, &r, 1u << k);",
+    "kills": [
+      {
+        "test": "AcmpCore.A3UnbindInEveryState",
+        "needle": "A3 the change is reported after the response (#653)"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A3UnbindInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-not-authorized-is-13",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_STATUS_CONTROLLER_NOT_AUTHORIZED 16u",
+    "new": "#define ACMP_STATUS_CONTROLLER_NOT_AUTHORIZED 13u",
+    "kills": [
+      {
+        "test": "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+        "needle": "A4 CONTROLLER_NOT_AUTHORIZED (16"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+      "ListenerScenario.LD3TheLockRefusalStatus"
+    ]
+  },
+  {
+    "name": "acmp-lock-ignored",
+    "path": "src/acmp.c",
+    "old": "\tif (p_locked(a, &holder) && holder != cmd->controller) {",
+    "new": "\tif (p_locked(a, &holder) && holder != cmd->controller && false) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+        "needle": "A4 one response"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind"
+    ]
+  },
+  {
+    "name": "acmp-lock-refuses-the-holder",
+    "path": "src/acmp.c",
+    "old": "\tif (p_locked(a, &holder) && holder != cmd->controller) {",
+    "new": "\tif (p_locked(a, &holder)) {\n\t\t(void)cmd;",
+    "kills": [
+      {
+        "test": "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked",
+        "needle": "A4 the locking controller binds"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked"
+    ]
+  },
+  {
+    "name": "acmp-get-rx-state-locked",
+    "path": "src/acmp.c",
+    "old": "\tif (cmd->msg == ACMP_MSG_GET_RX_STATE_COMMAND) {\n\t\tget_rx_state(a, interface, k, cmd);\n\t} else if (lock_refuses(a, cmd)) {",
+    "new": "\tif (lock_refuses(a, cmd)) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_CONTROLLER_NOT_AUTHORIZED);\n\t\trespond(a, interface, &r, 0u);\n\t} else if (cmd->msg == ACMP_MSG_GET_RX_STATE_COMMAND) {\n\t\tget_rx_state(a, interface, k, cmd);\n\t} else if (lock_refuses(a, cmd)) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked",
+        "needle": "A4 GET_RX_STATE asks no lock"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked"
+    ]
+  },
+  {
+    "name": "acmp-rebind-same-reprobes",
+    "path": "src/acmp.c",
+    "old": "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;\n\t}",
+    "new": "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t}",
+    "kills": [
+      {
+        "test": "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+        "needle": "A5 a re-bind of the same source sends the response alone"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+      "Table530/ListenerWalk.Graded/BIND_SAME_PWR"
+    ]
+  },
+  {
+    "name": "acmp-rebind-same-keeps-the-controller",
+    "path": "src/acmp.c",
+    "old": "\t\ts->binding.controller_entity_id = cmd->controller;\n\t\ts->binding.streaming_wait = sw;",
+    "new": "\t\ts->binding.streaming_wait = sw;",
+    "kills": [
+      {
+        "test": "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+        "needle": "A5 the controller and STREAMING_WAIT are updated"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A5RebindTheSameSourceUpdatesAndExits"
+    ]
+  },
+  {
+    "name": "acmp-bind-new-keeps-srp",
+    "path": "src/acmp.c",
+    "old": "\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);                                 // Milan v1.2 5.5.3.5.37\n\t}\n",
+    "new": "\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\t(void)k;\n\t}\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "needle": "A6 SRP is stopped and its parameters cleared"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+      "Table530/ListenerWalk.Graded/BIND_NEW_SNR"
+    ]
+  },
+  {
+    "name": "acmp-bind-same-talker-is-the-same-source",
+    "path": "src/acmp.c",
+    "old": "if (s->bound && cmd->talker == s->binding.talker_entity_id && cmd->talker_uid == s->binding.talker_unique_id) {",
+    "new": "if (s->bound && cmd->talker == s->binding.talker_entity_id) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding",
+        "needle": "A6 the same talker with another talker_unique_id is a new source"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding"
+    ]
+  },
+  {
+    "name": "acmp-sequence-id-never-advances",
+    "path": "src/acmp.c",
+    "old": "\ta->sequence_id = (uint16_t)(a->sequence_id + 1u);\n",
+    "new": "",
+    "kills": [
+      {
+        "test": "AcmpCore.A12DelaySendsANewProbe",
+        "needle": "A12 a new PROBE_TX_COMMAND with the next sequence_id"
+      },
+      {
+        "test": "AcmpCore.A16OneCounterForEveryNewProbe",
+        "needle": "A16 each new PROBE_TX_COMMAND takes the next"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A12DelaySendsANewProbe",
+      "AcmpCore.A16OneCounterForEveryNewProbe"
+    ]
+  },
+  {
+    "name": "acmp-sequence-id-per-sink",
+    "path": "src/acmp.c",
+    "old": "\ts->probe_seq = a->sequence_id;\n\ta->sequence_id = (uint16_t)(a->sequence_id + 1u);",
+    "new": "\ts->probe_seq = (uint16_t)(s->probe_seq + 1u);",
+    "kills": [
+      {
+        "test": "AcmpCore.A16OneCounterForEveryNewProbe",
+        "needle": "A16 each new PROBE_TX_COMMAND takes the next"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A16OneCounterForEveryNewProbe",
+      "Table530/ListenerWalk.Graded/BIND_NEW_UNB"
+    ]
+  },
+  {
+    "name": "acmp-response-keyed-on-the-source",
+    "path": "src/acmp.c",
+    "old": "{\n\tunsigned k = rsp->listener_uid;\n\tif (k >= a->cfg.n_sinks) {\n\t\ta->unknown_sink++;                              // Milan v1.2 5.5.3.1\n\t\treturn;\n",
+    "new": "{\n\tunsigned k = 0;\n\twhile (k < a->cfg.n_sinks && (a->sinks[k].probe_talker != rsp->talker ||\n\t\t\t\t\t a->sinks[k].probe_talker_uid != rsp->talker_uid)) {\n\t\tk++;\n\t}\n\tif (k >= a->cfg.n_sinks) {\n\t\ta->unknown_sink++;\n\t\treturn;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A7ResponsesKeyOnTheListenerUniqueId",
+        "needle": "A7 the response belongs to the sink"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A7ResponsesKeyOnTheListenerUniqueId"
+    ]
+  },
+  {
+    "name": "acmp-guard-controller-dropped",
+    "path": "src/acmp.c",
+    "old": "\tif (rsp->controller != s->probe_controller || rsp->talker != s->probe_talker ||",
+    "new": "\tif (rsp->talker != s->probe_talker ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A7EachGuardTermIsChecked",
+        "needle": "A7 a response with another controller"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A7EachGuardTermIsChecked",
+      "ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages"
+    ]
+  },
+  {
+    "name": "acmp-guard-talker-dropped",
+    "path": "src/acmp.c",
+    "old": "\tif (rsp->controller != s->probe_controller || rsp->talker != s->probe_talker ||",
+    "new": "\tif (rsp->controller != s->probe_controller ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A7EachGuardTermIsChecked",
+        "needle": "A7 a response with another controller"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A7EachGuardTermIsChecked",
+      "ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages"
+    ]
+  },
+  {
+    "name": "acmp-guard-unique-id-dropped",
+    "path": "src/acmp.c",
+    "old": "\t    rsp->talker_uid != s->probe_talker_uid || rsp->seq != s->probe_seq) {",
+    "new": "\t    rsp->seq != s->probe_seq) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A7EachGuardTermIsChecked",
+        "needle": "A7 a response with another controller"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A7EachGuardTermIsChecked",
+      "ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages"
+    ]
+  },
+  {
+    "name": "acmp-guard-sequence-id-dropped",
+    "path": "src/acmp.c",
+    "old": "\t    rsp->talker_uid != s->probe_talker_uid || rsp->seq != s->probe_seq) {",
+    "new": "\t    rsp->talker_uid != s->probe_talker_uid) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A7EachGuardTermIsChecked",
+        "needle": "A7 a response with another controller"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A7EachGuardTermIsChecked",
+      "ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages"
+    ]
+  },
+  {
+    "name": "acmp-guard-reads-the-binding",
+    "path": "src/acmp.c",
+    "old": "\tif (rsp->controller != s->probe_controller ||",
+    "new": "\tif (rsp->controller != s->binding.controller_entity_id ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding",
+        "needle": "A7 the answer to the probe sent before a re-bind still matches"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding"
+    ]
+  },
+  {
+    "name": "acmp-responses-taken-outside-probing",
+    "path": "src/acmp.c",
+    "old": "\tif (s->state != ACMP_PRB_W_RESP && s->state != ACMP_PRB_W_RESP2) {\n\t\ta->rx_ignored++;",
+    "new": "\tif (false) {\n\t\ta->rx_ignored++;",
+    "kills": [
+      {
+        "test": "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+        "needle": "A7 RCV_PROBE_TX_RESP is ignored outside"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+      "Table530/ListenerWalk.Graded/PROBE_OK_SNR"
+    ]
+  },
+  {
+    "name": "acmp-vlan-masked",
+    "path": "src/acmp.c",
+    "old": "\ts->stream.vlan_id = rsp->vlan;",
+    "new": "\ts->stream.vlan_id = (uint16_t)(rsp->vlan & 0x0FFFu);",
+    "kills": [
+      {
+        "test": "AcmpCore.A8SuccessSettles",
+        "needle": "A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A8SuccessSettles"
+    ]
+  },
+  {
+    "name": "acmp-no-tk-1s",
+    "path": "src/acmp.c",
+    "old": "\tsm_timer(a, s, ACMP_TIMER_NO_TK, ACMP_TMR_NO_TK_MS);",
+    "new": "\tsm_timer(a, s, ACMP_TIMER_NO_TK, ACMP_TMR_NO_TK_MS / 10u);",
+    "kills": [
+      {
+        "test": "AcmpCore.A8SuccessSettles",
+        "needle": "A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A8SuccessSettles",
+      "Table530/ListenerWalk.Graded/PROBE_OK_PWR"
+    ]
+  },
+  {
+    "name": "acmp-settle-starts-no-srp",
+    "path": "src/acmp.c",
+    "old": "\ts->stream.vlan_id = rsp->vlan;\n\tp_srp(a, k, &s->stream);",
+    "new": "\ts->stream.vlan_id = rsp->vlan;",
+    "kills": [
+      {
+        "test": "AcmpCore.A8SuccessSettles",
+        "needle": "A8 SRP is started"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A8SuccessSettles",
+      "Table530/ListenerWalk.Graded/PROBE_OK_PWR"
+    ]
+  },
+  {
+    "name": "acmp-settle-swaps-stream-fields",
+    "path": "src/acmp.c",
+    "old": "\t}\n\ts->stream.stream_id = rsp->stream_id;                   // Milan v1.2 5.3.8.9\n\ts->stream.dest_mac = rsp->dest_mac;\n\ts->stream.vlan_id = rsp->vlan;\n",
+    "new": "\t}\n\ts->stream.stream_id = rsp->dest_mac;\n\ts->stream.dest_mac = rsp->stream_id;\n\ts->stream.vlan_id = rsp->vlan;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A8SuccessSettles",
+        "needle": "stream_vlan_id exactly"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A8SuccessSettles",
+      "Table530/ListenerWalk.Graded/PROBE_OK_PWR"
+    ]
+  },
+  {
+    "name": "acmp-failure-status-dropped",
+    "path": "src/acmp.c",
+    "old": "\t\ts->acmp_status = rsp->status;",
+    "new": "\t\ts->acmp_status = ACMP_STATUS_SUCCESS;",
+    "kills": [
+      {
+        "test": "AcmpCore.A9FailureWaitsForTheRetry",
+        "needle": "A9 a failed response: PRB_W_RETRY, the ACMP status is its status"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A9FailureWaitsForTheRetry",
+      "Table530/ListenerWalk.Graded/PROBE_FAIL_PWR"
+    ]
+  },
+  {
+    "name": "acmp-failure-retries-at-200ms",
+    "path": "src/acmp.c",
+    "old": "\t\tsm_timer(a, s, ACMP_TIMER_RETRY, ACMP_TMR_RETRY_MS);\n\t\ts->acmp_status = rsp->status;",
+    "new": "\t\tsm_timer(a, s, ACMP_TIMER_RETRY, ACMP_TMR_NO_RESP_MS);\n\t\ts->acmp_status = rsp->status;",
+    "kills": [
+      {
+        "test": "AcmpCore.A9FailureWaitsForTheRetry",
+        "needle": "A9 and TMR_RETRY 4 s"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A9FailureWaitsForTheRetry",
+      "Table530/ListenerWalk.Graded/PROBE_FAIL_PWR"
+    ]
+  },
+  {
+    "name": "acmp-duplicate-takes-a-new-sequence-id",
+    "path": "src/acmp.c",
+    "old": "\t} else if (kind == ACMP_TIMER_NO_RESP && s->state == ACMP_PRB_W_RESP) {   // Milan v1.2 5.5.3.5.16\n\t\ts->probe_retried = true;\n\t\tsend_probe(a, k);\n\t\ts->state = ACMP_PRB_W_RESP2;\n",
+    "new": "\t} else if (kind == ACMP_TIMER_NO_RESP && s->state == ACMP_PRB_W_RESP) {   // Milan v1.2 5.5.3.5.16\n\t\tprobe(a, k);\n\t\ts->probe_retried = true;\n\t\ts->state = ACMP_PRB_W_RESP2;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+        "needle": "A10 an exact duplicate of the first probe"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+      "Table530/ListenerWalk.Graded/TMR_CMD_PWR"
+    ]
+  },
+  {
+    "name": "acmp-second-timeout-keeps-status-0",
+    "path": "src/acmp.c",
+    "old": "\t\ts->acmp_status = ACMP_STATUS_LISTENER_TALKER_TIMEOUT;",
+    "new": "\t\ts->acmp_status = ACMP_STATUS_SUCCESS;",
+    "kills": [
+      {
+        "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+        "needle": "A10 the second: no frame, LISTENER_TALKER_TIMEOUT"
+      },
+      {
+        "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+        "needle": "A25 the ACMP status LISTENER_TALKER_TIMEOUT does"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+      "AcmpCore.A25OnlyTable522ItemsAreReported",
+      "Table530/ListenerWalk.Graded/TMR_CMD_PW2"
+    ]
+  },
+  {
+    "name": "acmp-no-duplicate",
+    "path": "src/acmp.c",
+    "old": "\t\ts->state = ACMP_PRB_W_RESP;\n\t} else if (kind == ACMP_TIMER_NO_RESP && s->state == ACMP_PRB_W_RESP) {   // Milan v1.2 5.5.3.5.16\n\t\ts->probe_retried = true;\n",
+    "new": "\t\ts->state = ACMP_PRB_W_RESP;\n\t} else if (kind == ACMP_TIMER_NO_RESP && s->state == ACMP_PRB_W_RESP && false) {\n\t\ts->probe_retried = true;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+        "needle": "A10 the first TMR_NO_RESP sends one frame"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+      "Table530/ListenerWalk.Graded/TMR_CMD_PWR"
+    ]
+  },
+  {
+    "name": "acmp-retry-ignores-discovery",
+    "path": "src/acmp.c",
+    "old": "\t\ts->state = ACMP_PRB_W_RETRY;\n\t} else if (kind == ACMP_TIMER_RETRY && !s->discovered) {   // Milan v1.2 5.5.3.5.30\n\t\tpassive(s);\n",
+    "new": "\t\ts->state = ACMP_PRB_W_RETRY;\n\t} else if (kind == ACMP_TIMER_RETRY) {\n\t\tpassive(s);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+        "needle": "A11 TMR_RETRY, talker discovered: TMR_DELAY"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+      "Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc"
+    ]
+  },
+  {
+    "name": "acmp-retry-zeroes-the-status",
+    "path": "src/acmp.c",
+    "old": "\t} else if (kind == ACMP_TIMER_RETRY) {\n\t\tdelay(a, s);\n\t} else {                                                // Milan v1.2 5.5.3.5.36\n\t\tsrp_stop(a, k);\n",
+    "new": "\t} else if (kind == ACMP_TIMER_RETRY) {\n\t\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\t\tdelay(a, s);\n\t} else {\n\t\tsrp_stop(a, k);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+        "needle": "A11 and the ACMP status stays"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+      "Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc"
+    ]
+  },
+  {
+    "name": "acmp-delay-resends-the-old-probe",
+    "path": "src/acmp.c",
+    "old": "\tsm_stop(s);\n\tif (kind == ACMP_TIMER_DELAY) {                         // Milan v1.2 5.5.3.5.10\n\t\tprobe(a, k);\n\t\ts->state = ACMP_PRB_W_RESP;\n",
+    "new": "\tsm_stop(s);\n\tif (kind == ACMP_TIMER_DELAY) {\n\t\tsend_probe(a, k);\n\t\ts->state = ACMP_PRB_W_RESP;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A12DelaySendsANewProbe",
+        "needle": "A12 a new PROBE_TX_COMMAND with the next sequence_id"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A12DelaySendsANewProbe",
+      "Table530/ListenerWalk.Graded/TMR_DELAY_PWD"
+    ]
+  },
+  {
+    "name": "acmp-no-tk-keeps-srp",
+    "path": "src/acmp.c",
+    "old": "\t\tdelay(a, s);\n\t} else {                                                // Milan v1.2 5.5.3.5.36\n\t\tsrp_stop(a, k);\n\t\treprobe(a, s);\n",
+    "new": "\t\tdelay(a, s);\n\t} else {\n\t\t(void)k;\n\t\treprobe(a, s);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A13NoTalkerAttributeReprobes",
+        "needle": "A13 TMR_NO_TK clears the SRP parameters and stops SRP"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A13NoTalkerAttributeReprobes",
+      "Table530/ListenerWalk.Graded/TMR_NOTK_SNR"
+    ]
+  },
+  {
+    "name": "acmp-reprobe-ignores-discovery",
+    "path": "src/acmp.c",
+    "old": "\tif (!s->discovered) {\n\t\tpassive(s);\n\t\treturn;\n\t}\n\ts->probing = ACMP_PROBING_ACTIVE;",
+    "new": "\tif (true) {\n\t\tpassive(s);\n\t\treturn;\n\t}\n\ts->probing = ACMP_PROBING_ACTIVE;",
+    "kills": [
+      {
+        "test": "AcmpCore.A13NoTalkerAttributeReprobes",
+        "needle": "A13 talker discovered: TMR_DELAY, PRB_W_DELAY"
+      },
+      {
+        "test": "AcmpCore.A15UnregisteredReprobes",
+        "needle": "A15 talker discovered: TMR_DELAY, PRB_W_DELAY"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A13NoTalkerAttributeReprobes",
+      "AcmpCore.A15UnregisteredReprobes",
+      "Table530/ListenerWalk.Graded/TMR_NOTK_SNR_disc"
+    ]
+  },
+  {
+    "name": "acmp-registered-anywhere",
+    "path": "src/acmp.c",
+    "old": "\tif (sink >= a->cfg.n_sinks || a->sinks[sink].state != ACMP_SETTLED_NO_RSV) {",
+    "new": "\tif (sink >= a->cfg.n_sinks) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A14RegisteredSettlesTheReservation",
+        "needle": "A14 EVT_TK_REGISTERED anywhere else"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A14RegisteredSettlesTheReservation",
+      "Table530/ListenerWalk.Graded/TK_REG_PWR"
+    ]
+  },
+  {
+    "name": "acmp-registered-keeps-no-tk",
+    "path": "src/acmp.c",
+    "old": "\t}\n\tstruct acmp_sink *s = &a->sinks[sink];                  // Milan v1.2 5.5.3.5.42\n\tsm_stop(s);\n\ts->tk_failed = failed;\n",
+    "new": "\t}\n\tstruct acmp_sink *s = &a->sinks[sink];\n\ts->tk_failed = failed;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A14RegisteredSettlesTheReservation",
+        "needle": "A14 EVT_TK_REGISTERED: TMR_NO_TK cleared"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A14RegisteredSettlesTheReservation",
+      "Table530/ListenerWalk.Graded/TK_REG_SNR"
+    ]
+  },
+  {
+    "name": "acmp-registered-kind-dropped",
+    "path": "src/acmp.c",
+    "old": "\ts->tk_failed = failed;",
+    "new": "\ts->tk_failed = false;\n\t(void)failed;",
+    "kills": [
+      {
+        "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+        "needle": "REGISTERING_FAILED 1 (Table 5.39)"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+      "Table530/ListenerWalk.Graded/TK_REG_SNR"
+    ]
+  },
+  {
+    "name": "acmp-unregistered-anywhere",
+    "path": "src/acmp.c",
+    "old": "\t}\n\tif (sink >= a->cfg.n_sinks || a->sinks[sink].state != ACMP_SETTLED_RSV_OK) {\n\t\ta->impossible++;                                // Milan v1.2 Table 5.30\n",
+    "new": "\t}\n\tif (sink >= a->cfg.n_sinks) {\n\t\ta->impossible++;                                // Milan v1.2 Table 5.30\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A15UnregisteredReprobes",
+        "needle": "A15 EVT_TK_UNREGISTERED anywhere else"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A15UnregisteredReprobes",
+      "Table530/ListenerWalk.Graded/TK_UNREG_SNR"
+    ]
+  },
+  {
+    "name": "acmp-kind-lost",
+    "path": "src/acmp.c",
+    "old": "\ta->sinks[sink].tk_failed = failed;",
+    "new": "\t(void)failed;",
+    "kills": [
+      {
+        "test": "AcmpCore.KindChangesOnlyTheSettledView",
+        "needle": "kind updates the reported view"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+  },
+  {
+    "name": "acmp-kind-any-state",
+    "path": "src/acmp.c",
+    "old": "\tif (sink >= a->cfg.n_sinks || a->sinks[sink].state != ACMP_SETTLED_RSV_OK) {\n\t\ta->impossible++;\n",
+    "new": "\tif (sink >= a->cfg.n_sinks) {\n\t\ta->impossible++;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.KindChangesOnlyTheSettledView",
+        "needle": "kind refuses non-settled state"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+  },
+  {
+    "name": "acmp-unregistered-keeps-srp",
+    "path": "src/acmp.c",
+    "old": "\t}\n\tsrp_stop(a, sink);                                      // Milan v1.2 5.5.3.5.48\n\treprobe(a, &a->sinks[sink]);\n",
+    "new": "\t}\n\t(void)sink;\n\treprobe(a, &a->sinks[sink]);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A15UnregisteredReprobes",
+        "needle": "A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A15UnregisteredReprobes",
+      "Table530/ListenerWalk.Graded/TK_UNREG_SOK"
+    ]
+  },
+  {
+    "name": "acmp-timer-at-the-latest-deadline",
+    "path": "src/acmp.c",
+    "old": "\tif (armed && (!*any || (int32_t)(deadline - *at) < 0)) {",
+    "new": "\tif (armed && (!*any || (int32_t)(deadline - *at) > 0)) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+        "needle": "A17 each interface's timer is armed at the earliest"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-timer-port-called-every-time",
+    "path": "src/acmp.c",
+    "old": "\t\tif (any && (!a->timer_armed[i] || a->timer_at[i] != at)) {",
+    "new": "\t\tif (any) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+        "needle": "A17 the port is called only when the earliest deadline moves"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-timer-never-stopped",
+    "path": "src/acmp.c",
+    "old": "\t\t} else if (!any && a->timer_armed[i]) {",
+    "new": "\t\t} else if (!any && a->timer_armed[i] && false) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+        "needle": "A17 an interface whose sinks hold no deadline"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+      "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord"
+    ]
+  },
+  {
+    "name": "acmp-expiry-takes-every-interface",
+    "path": "src/acmp.c",
+    "old": "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (s->interface != interface) {\n\t\t\tcontinue;\n\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {",
+    "new": "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+        "needle": "A17 an expiry takes the due timers only"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-expiry-not-consumed",
+    "path": "src/acmp.c",
+    "old": "\t}\n\ta->timer_armed[interface] = false;\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n",
+    "new": "\t}\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+        "needle": "A17 an expiry with nothing due changes nothing and re-arms the timer it consumed"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-zero-delay-waits",
+    "path": "src/acmp.c",
+    "old": "\t\twhile (sm_running(s) && due(s->timer_deadline, now(a))) {",
+    "new": "\t\tif (sm_running(s) && due(s->timer_deadline, now(a))) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
+        "needle": "A18 TMR_RETRY drawing 0 ms sends its probe in the same expiry"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A18AZeroDelayProbesInTheSameExpiry"
+    ]
+  },
+  {
+    "name": "acmp-delay-up-to-4s",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_TMR_DELAY_MAX_MS 1000u",
+    "new": "#define ACMP_TMR_DELAY_MAX_MS 4000u",
+    "kills": [
+      {
+        "test": "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
+        "needle": "A18 the longest draw is 1000 ms"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A18AZeroDelayProbesInTheSameExpiry"
+    ]
+  },
+  {
+    "name": "acmp-seed-at-every-draw",
+    "path": "src/acmp.c",
+    "old": "\t\ta->rng ^= p_seed(a);\n\t\ta->seeded = true;",
+    "new": "\t\ta->rng ^= p_seed(a);",
+    "kills": [
+      {
+        "test": "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw",
+        "needle": "A18 and never again"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw"
+    ]
+  },
+  {
+    "name": "acmp-rng-left-at-0",
+    "path": "src/acmp.c",
+    "old": "\t\ta->seeded = true;\n\t\tif (a->rng == 0u) {\n\t\t\ta->rng = 1u;\n\t\t}\n\t}\n",
+    "new": "\t\ta->seeded = true;\n\t}\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw",
+        "needle": "A18 a seed that cancels the state to 0 leaves it 1"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw"
+    ]
+  },
+  {
+    "name": "acmp-response-passes-an-owed-frame",
+    "path": "src/acmp.c",
+    "old": "\tif (a->owed_count == 0u && p_send(a, interface, frame)) {",
+    "new": "\tif (p_send(a, interface, frame)) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A19NothingPassesAnOwedFrame",
+        "needle": "A19 a response does not pass one already owed"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A19NothingPassesAnOwedFrame"
+    ]
+  },
+  {
+    "name": "acmp-poll-drains-everything",
+    "path": "src/acmp.c",
+    "old": "\tif (a->owed_count != 0u) {\n\t\tconst struct acmp_owed *o = &a->owed[a->owed_head];\n\t\tif (p_send(a, o->interface, o->frame)) {",
+    "new": "\twhile (a->owed_count != 0u &&\n\t       p_send(a, a->owed[a->owed_head].interface, a->owed[a->owed_head].frame)) {\n\t\tconst struct acmp_owed *o = &a->owed[a->owed_head];\n\t\t{",
+    "kills": [
+      {
+        "test": "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+        "needle": "A19 one frame per poll"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+      "AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1"
+    ]
+  },
+  {
+    "name": "acmp-change-not-held-for-its-response",
+    "path": "src/acmp.c",
+    "old": "\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + ((release >> k) & 1u));",
+    "new": "\t\t(void)release;",
+    "kills": [
+      {
+        "test": "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+        "needle": "A19 but its change is not reported while its response waits (#653)"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+      "AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt"
+    ]
+  },
+  {
+    "name": "acmp-full-queue-acts",
+    "path": "src/acmp.c",
+    "old": "\tif (a->owed_count < ACMP_OWED_MAX) {\n\t\treturn true;\n\t}\n\ta->busy_drops++;",
+    "new": "\tif (true) {\n\t\treturn true;\n\t}\n\ta->busy_drops++;",
+    "kills": [
+      {
+        "test": "AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs",
+        "needle": "A19 a command whose response would find the queue full is dropped"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs"
+    ]
+  },
+  {
+    "name": "acmp-lost-probe-uncounted",
+    "path": "src/acmp.c",
+    "old": "\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\t\ta->probes_lost++;\n\t}",
+    "new": "\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\t}",
+    "kills": [
+      {
+        "test": "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+        "needle": "A19 a probe the full queue cannot take is lost and counted"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered"
+    ]
+  },
+  {
+    "name": "acmp-first-owed-releases-every-change",
+    "path": "src/acmp.c",
+    "old": "\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release >> k) & 1u));",
+    "new": "\t\t\t\ta->sinks[k].change_owed = 0u;",
+    "kills": [
+      {
+        "test": "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
+        "needle": "A19 the bind's response left but the unbind's is still owed"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether"
+    ]
+  },
+  {
+    "name": "acmp-poll-newest-first",
+    "path": "src/acmp.c",
+    "old": "\t\tconst struct acmp_owed *o = &a->owed[a->owed_head];\n\t\tif (p_send(a, o->interface, o->frame)) {",
+    "new": "\t\tconst struct acmp_owed *o = &a->owed[(a->owed_head + a->owed_count - 1u) % ACMP_OWED_MAX];\n\t\tif (p_send(a, o->interface, o->frame)) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A19NothingPassesAnOwedFrame",
+        "needle": "A19 they leave in the order they were made"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1",
+      "AcmpCore.A19NothingPassesAnOwedFrame"
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-reports-asking-failed",
+    "path": "src/acmp.c",
+    "old": "\t\t\tr.flags = cmd->flags & (ACMP_FLAG_FAST_CONNECT | ACMP_FLAG_STREAMING_WAIT);",
+    "new": "\t\t\tr.flags = (uint16_t)((cmd->flags & (ACMP_FLAG_FAST_CONNECT | ACMP_FLAG_STREAMING_WAIT)) |\n\t\t\t\t\t   (st.asking_failed ? ACMP_FLAG_REGISTERING_FAILED : 0u));",
+    "kills": [
+      {
+        "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+        "needle": "A20 PROBE_TX_RESPONSE is Table 5.43"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-echoes-every-flag",
+    "path": "src/acmp.c",
+    "old": "\t\t\tr.flags = cmd->flags & (ACMP_FLAG_FAST_CONNECT | ACMP_FLAG_STREAMING_WAIT);",
+    "new": "\t\t\tr.flags = cmd->flags;",
+    "kills": [
+      {
+        "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+        "needle": "A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0"
+      }
+    ],
+    "original_tests": [
+      "TalkerWalk.TW1ProbeTheFlagLawAndTheSource"
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-any-interface",
+    "path": "src/acmp.c",
+    "old": "\tif (cmd->msg == ACMP_MSG_PROBE_TX_COMMAND && interface != a->cfg.source_interface[src]) {",
+    "new": "\tif (cmd->msg == ACMP_MSG_PROBE_TX_COMMAND && false) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+        "needle": "A20 a probe from another interface than the source's"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "TalkerWalk.TW4TheInterfaceAndTheStatelessProperty"
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-no-destination-mac-check",
+    "path": "src/acmp.c",
+    "old": "\t\tstruct pdu r = echo(cmd, st.dest_mac_valid ? ACMP_STATUS_SUCCESS : ACMP_STATUS_TALKER_DEST_MAC_FAIL);",
+    "new": "\t\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);",
+    "kills": [
+      {
+        "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+        "needle": "A20 no destination MAC: TALKER_DEST_MAC_FAILED"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "TalkerWalk.TW1ProbeTheFlagLawAndTheSource"
+    ]
+  },
+  {
+    "name": "acmp-disconnect-always-succeeds",
+    "path": "src/acmp.c",
+    "old": "\tif (src >= a->cfg.n_sources) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_TALKER_UNKNOWN_ID);",
+    "new": "\tif (src >= a->cfg.n_sources && cmd->msg != ACMP_MSG_DISCONNECT_TX_COMMAND) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_TALKER_UNKNOWN_ID);",
+    "kills": [
+      {
+        "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+        "needle": "A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "TalkerWalk.TW3DisconnectAndGetTxConnection"
+    ]
+  },
+  {
+    "name": "acmp-unknown-source-answered",
+    "path": "src/acmp.c",
+    "old": "\tif (src >= a->cfg.n_sources) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_TALKER_UNKNOWN_ID);",
+    "new": "\tif (src >= a->cfg.n_sources && false) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_TALKER_UNKNOWN_ID);",
+    "kills": [
+      {
+        "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+        "needle": "A20 an unknown source: TALKER_UNKNOWN_ID"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive"
+    ]
+  },
+  {
+    "name": "acmp-get-tx-state-echoes-the-listener",
+    "path": "src/acmp.c",
+    "old": "\tr.listener = 0u;\n\tr.listener_uid = 0u;\n\tr.flags = st.asking_failed",
+    "new": "\tr.flags = st.asking_failed",
+    "kills": [
+      {
+        "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+        "needle": "A20 GET_TX_STATE: listener fields 0"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive"
+    ]
+  },
+  {
+    "name": "acmp-get-tx-state-registering-failed-0",
+    "path": "src/acmp.c",
+    "old": "\tr.flags = st.asking_failed ? ACMP_FLAG_REGISTERING_FAILED : 0u;",
+    "new": "\tr.flags = 0u;",
+    "kills": [
+      {
+        "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+        "needle": "REGISTERING_FAILED live"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive"
+    ]
+  },
+  {
+    "name": "acmp-get-tx-state-unheld-mac",
+    "path": "src/acmp.c",
+    "old": "\tr.dest_mac = st.dest_mac_valid ? st.stream.dest_mac : 0u;",
+    "new": "\tr.dest_mac = st.stream.dest_mac;",
+    "kills": [
+      {
+        "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+        "needle": "A20 with no destination MAC held, none is reported"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+    ]
+  },
+  {
+    "name": "acmp-get-tx-connection-supported",
+    "path": "src/acmp.c",
+    "old": "\tif (cmd->msg == ACMP_MSG_GET_TX_CONNECTION_COMMAND) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_NOT_SUPPORTED);              // Milan v1.2 5.5.4.4; Milan v1.2 Table 5.48\n\t\trespond(a, interface, &r, 0u);\n",
+    "new": "\tif (cmd->msg == ACMP_MSG_GET_TX_CONNECTION_COMMAND) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);\n\t\trespond(a, interface, &r, 0u);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+        "needle": "A20 GET_TX_CONNECTION: NOT_SUPPORTED"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "TalkerWalk.TW3DisconnectAndGetTxConnection"
+    ]
+  },
+  {
+    "name": "acmp-every-listener-is-this-one",
+    "path": "src/acmp.c",
+    "old": "\tbool listener = cmd.listener == a->cfg.entity_id;",
+    "new": "\tbool listener = true;",
+    "kills": [
+      {
+        "test": "AcmpCore.A21MessagesNotForThisEntityAreIgnored",
+        "needle": "A21 commands for another listener or talker"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A21MessagesNotForThisEntityAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-every-talker-is-this-one",
+    "path": "src/acmp.c",
+    "old": "\tbool talker = cmd.talker == a->cfg.entity_id;",
+    "new": "\tbool talker = true;",
+    "kills": [
+      {
+        "test": "AcmpCore.A21MessagesNotForThisEntityAreIgnored",
+        "needle": "A21 commands for another listener or talker"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A21MessagesNotForThisEntityAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-short-pdu-read",
+    "path": "src/acmp.c",
+    "old": "\tif (interface >= a->cfg.n_interfaces || len < ACMP_FRAME_BYTES || wire_be16(frame + 12) != ACMP_ETHERTYPE ||",
+    "new": "\tif (interface >= a->cfg.n_interfaces || len < ACMP_FRAME_BYTES - 1u || wire_be16(frame + 12) != ACMP_ETHERTYPE ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A21MalformedFramesAreCounted",
+        "needle": "A21 a frame shorter than the Milan ACMPDU"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A21MalformedFramesAreCounted"
+    ]
+  },
+  {
+    "name": "acmp-longer-pdu-refused",
+    "path": "src/acmp.c",
+    "old": "\tif (interface >= a->cfg.n_interfaces || len < ACMP_FRAME_BYTES || wire_be16(frame + 12) != ACMP_ETHERTYPE ||",
+    "new": "\tif (interface >= a->cfg.n_interfaces || len != ACMP_FRAME_BYTES || wire_be16(frame + 12) != ACMP_ETHERTYPE ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A21MalformedFramesAreCounted",
+        "needle": "A21 the longer IEEE 1722.1-2021 PDU is accepted"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A21MalformedFramesAreCounted"
+    ]
+  },
+  {
+    "name": "acmp-discovery-reads-no-grandmaster",
+    "path": "src/acmp.c",
+    "old": "\treturn d->gm == d->local_gm && d->domain == d->local_domain;",
+    "new": "\treturn true;",
+    "kills": [
+      {
+        "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "needle": "A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+      "Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_NOT_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-discovery-reads-no-domain",
+    "path": "src/acmp.c",
+    "old": "\treturn d->gm == d->local_gm && d->domain == d->local_domain;",
+    "new": "\treturn d->gm == d->local_gm;",
+    "kills": [
+      {
+        "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "needle": "A22 and from another domain"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+      "Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__TK_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-valid-time-in-seconds",
+    "path": "src/acmp.c",
+    "old": "\td.interface = interface;\n\td.valid_ms = (uint32_t)(frame[A_VALID_TIME] >> 3) * ACMP_VALID_TIME_UNIT_MS;   // IEEE 1722.1-2021 6.2.2.5\n\td.index = wire_be32(frame + A_AVAILABLE_INDEX);\n",
+    "new": "\td.interface = interface;\n\td.valid_ms = (uint32_t)(frame[A_VALID_TIME] >> 3) * 1000u;\n\td.index = wire_be32(frame + A_AVAILABLE_INDEX);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "needle": "A22 TMR_NO_ADP is the received valid_time in two-second units"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+      "Table554/DiscoveryWalk.Graded/"
+    ]
+  },
+  {
+    "name": "acmp-discovered-interface-unchecked",
+    "path": "src/acmp.c",
+    "old": "\t}\n\tif (ifx != s->disc_interface_index) {\n\t\treturn;                                         // Milan v1.2 5.6.4.5.2\n\t}\n",
+    "new": "\t}\n\tif (false) {\n\t\treturn;\n\t}\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DiscoveredStateCells",
+        "needle": "A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DiscoveredStateCells",
+      "Table554/DiscoveryWalk.Graded/AVAILABLE_interface_index_differs__TK_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-restart-on-a-smaller-index-only",
+    "path": "src/acmp.c",
+    "old": "\t}\n\tif (index <= s->disc_available_index) {\n\t\ttk_departed(s);\n",
+    "new": "\t}\n\tif (index < s->disc_available_index) {\n\t\ttk_departed(s);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DiscoveredStateCells",
+        "needle": "A22 available_index"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DiscoveredStateCells"
+    ]
+  },
+  {
+    "name": "acmp-restart-raises-no-discovered",
+    "path": "src/acmp.c",
+    "old": "\t\t}\n\t\ttk_discovered(a, s);\n\t}\n",
+    "new": "\t\t}\n\t}\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DiscoveredStateCells",
+        "needle": "EVT_TK_DEPARTED then EVT_TK_DISCOVERED"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DiscoveredStateCells",
+      "Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__TK_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-restart-mismatch-keeps-aging",
+    "path": "src/acmp.c",
+    "old": "\t\tif (!gm_matches(a, d)) {\n\t\t\ts->adp_armed = false;\n\t\t\treturn;\n",
+    "new": "\t\tif (!gm_matches(a, d)) {\n\t\t\t(void)s;\n\t\t\treturn;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DiscoveredStateCells",
+        "needle": "A22 index <= last from another grandmaster"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DiscoveredStateCells",
+      "Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-refresh-notes-no-index",
+    "path": "src/acmp.c",
+    "old": "\t}\n\ts->disc_available_index = index;\n\tadp_arm(a, s, valid_ms);\n",
+    "new": "\t}\n\tadp_arm(a, s, valid_ms);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DiscoveredStateCells",
+        "needle": "A22 a rising available_index is noted"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DiscoveredStateCells",
+      "Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__TK_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-departing-taken-undiscovered",
+    "path": "src/acmp.c",
+    "old": "\tif (!s->discovered || ifx != s->disc_interface_index) {",
+    "new": "\tif (ifx != s->disc_interface_index) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DepartingAndAging",
+        "needle": "A22 a DEPARTING in TK_NOT_DISCOVERED is ignored"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DepartingAndAging"
+    ]
+  },
+  {
+    "name": "acmp-departing-interface-unchecked",
+    "path": "src/acmp.c",
+    "old": "\tif (!s->discovered || ifx != s->disc_interface_index) {",
+    "new": "\tif (!s->discovered) {\n\t\t(void)ifx;",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DepartingAndAging",
+        "needle": "A22 a DEPARTING with another interface_index is ignored"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DepartingAndAging",
+      "Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__TK_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-departing-keeps-aging",
+    "path": "src/acmp.c",
+    "old": "\ts->adp_armed = false;\n\ttk_departed(s);\n}",
+    "new": "\ttk_departed(s);\n}",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DepartingAndAging",
+        "needle": "A22 a DEPARTING: TMR_NO_ADP stopped"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DepartingAndAging",
+      "Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_matches__TK_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-no-aging",
+    "path": "src/acmp.c",
+    "old": "\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {      // Milan v1.2 5.6.4.5.4\n\t\t\ts->adp_armed = false;\n",
+    "new": "\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a)) && false) {\n\t\t\ts->adp_armed = false;\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DepartingAndAging",
+        "needle": "A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DepartingAndAging",
+      "Table554/DiscoveryWalk.Graded/TMR_NO_ADP_TK_DISCOVERED"
+    ]
+  },
+  {
+    "name": "acmp-discovery-on-every-interface",
+    "path": "src/acmp.c",
+    "old": "\t\tif (!s->disc_running || s->interface != interface || s->binding.talker_entity_id != entity) {",
+    "new": "\t\tif (!s->disc_running || s->binding.talker_entity_id != entity) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+        "needle": "A22 every bound sink of the talker processes it"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+    ]
+  },
+  {
+    "name": "acmp-discovery-on-unbound-sinks",
+    "path": "src/acmp.c",
+    "old": "\t\tif (!s->disc_running || s->interface != interface || s->binding.talker_entity_id != entity) {",
+    "new": "\t\tif (s->interface != interface || s->binding.talker_entity_id != entity) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+        "needle": "A22 an unbound sink runs no discovery"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+    ]
+  },
+  {
+    "name": "acmp-grandmaster-sampled-for-the-refresh",
+    "path": "src/acmp.c",
+    "old": "\tuint16_t ifx = d->ifx;\n\tuint32_t index = d->index;",
+    "new": "\t(void)gm_matches(a, d);\n\tuint16_t ifx = d->ifx;\n\tuint32_t index = d->index;",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DiscoveredStateCells",
+        "needle": "A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DiscoveredStateCells"
+    ]
+  },
+  {
+    "name": "acmp-grandmaster-sampled-per-sink",
+    "path": "src/acmp.c",
+    "old": "\t\td->sampled = true;\n",
+    "new": "",
+    "kills": [
+      {
+        "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+        "needle": "A22 and the grandmaster is sampled once for the frame"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+    ]
+  },
+  {
+    "name": "acmp-reentry-unguarded",
+    "path": "src/acmp.c",
+    "old": "\tif (a->in_port) {\n\t\ta->reentries++;",
+    "new": "\tif (false) {\n\t\ta->reentries++;",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "needle": "A23 a call made from inside the send port is refused"
+      },
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-reentry-untrapped",
+    "path": "src/acmp.c",
+    "old": "\t\tREENTRY_TRAP();\n",
+    "new": "",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "needle": "refused, counted and trapped"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+    ]
+  },
+  {
+    "name": "acmp-send-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\tbool ok = a->ports->send(",
+    "new": "\tbool ok = a->ports->send(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "needle": "A23 a call made from inside the send port is refused"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+    ]
+  },
+  {
+    "name": "acmp-timer-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\ta->ports->timer(",
+    "new": "\ta->ports->timer(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-gptp-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\ta->ports->gptp(",
+    "new": "\ta->ports->gptp(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-clock-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\t\ta->in_port = true;\n\t\ta->now = a->ports->now_ms(",
+    "new": "\t\ta->now = a->ports->now_ms(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-seed-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\tuint32_t seed = a->ports->seed(",
+    "new": "\tuint32_t seed = a->ports->seed(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-lock-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\tbool locked = a->env->locked(",
+    "new": "\tbool locked = a->env->locked(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-source-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\ta->env->source(",
+    "new": "\ta->env->source(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-srp-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\ta->env->srp(",
+    "new": "\ta->env->srp(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-persist-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\ta->env->persist(",
+    "new": "\ta->env->persist(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-changed-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\ta->env->changed(",
+    "new": "\ta->env->changed(",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-restore-lands-in-prb-w-resp",
+    "path": "src/acmp.c",
+    "old": "\t\ts->probing = ACMP_PROBING_PASSIVE;\n\t\ts->state = ACMP_PRB_W_AVAIL;\n\t}\n\tsink_settle(s);",
+    "new": "\t\ts->probing = ACMP_PROBING_PASSIVE;\n\t\ts->state = ACMP_PRB_W_RESP;\n\t}\n\tsink_settle(s);",
+    "kills": [
+      {
+        "test": "AcmpCore.A24ARestoredBindingFastConnects",
+        "needle": "A24 startup with a saved binding"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24ARestoredBindingFastConnects",
+      "AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-restore-starts-no-discovery",
+    "path": "src/acmp.c",
+    "old": "\t\tdisc_start(s);\n\t\ts->probing = ACMP_PROBING_PASSIVE;",
+    "new": "\t\ts->probing = ACMP_PROBING_PASSIVE;",
+    "kills": [
+      {
+        "test": "AcmpCore.A24ARestoredBindingFastConnects",
+        "needle": "A24 startup with a saved binding"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24ARestoredBindingFastConnects",
+      "AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-restore-announced",
+    "path": "src/acmp.c",
+    "old": "\t}\n\tsink_settle(s);\n\treturn ACMP_RESTORE_APPLIED;",
+    "new": "\t}\n\treturn ACMP_RESTORE_APPLIED;",
+    "kills": [
+      {
+        "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+        "needle": "A29 sink 1's talker on its interface, and nothing else: no timer, nothing to save or report"
+      }
+    ],
+    "original_tests": [
+      "AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-record-flags-swapped",
+    "path": "src/acmp.c",
+    "old": "\t\tpayload[0] = (uint8_t)(BIND_VALID | (s->started ? BIND_STARTED : 0u) |\n\t\t\t\t       (s->binding.streaming_wait ? BIND_STREAMING_WAIT : 0u));",
+    "new": "\t\tpayload[0] = (uint8_t)(BIND_VALID | (s->started ? BIND_STREAMING_WAIT : 0u) |\n\t\t\t\t       (s->binding.streaming_wait ? BIND_STARTED : 0u));",
+    "kills": [
+      {
+        "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+        "needle": "A24 bound with STREAMING_WAIT: flags 0x05"
+      }
+    ],
+    "original_tests": [
+      "AcmpStore.N3EachSinksStartedStateIsSaved"
+    ]
+  },
+  {
+    "name": "acmp-record-unique-id-little-endian",
+    "path": "src/acmp.c",
+    "old": "\t\twire_put_be(payload + 2, s->binding.talker_unique_id, 2);",
+    "new": "\t\tpayload[2] = (uint8_t)s->binding.talker_unique_id;\n\t\tpayload[3] = (uint8_t)(s->binding.talker_unique_id >> 8);",
+    "kills": [
+      {
+        "test": "AcmpCore.A24ARestoredBindingFastConnects",
+        "needle": "A24 the latch gives the same record back"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24ARestoredBindingFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-restore-unique-id-little-endian",
+    "path": "src/acmp.c",
+    "old": "\t\ts->binding.talker_unique_id = wire_be16(payload + 2);",
+    "new": "\t\ts->binding.talker_unique_id = (uint16_t)(payload[2] | (payload[3] << 8));",
+    "kills": [
+      {
+        "test": "AcmpCore.A24ARestoredBindingFastConnects",
+        "needle": "A24 the record's flags and parameters, big-endian"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24ARestoredBindingFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-roll-back-keeps-the-bindings",
+    "path": "src/acmp.c",
+    "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tsink_reset(a, k);\n\t\tsink_settle(&a->sinks[k]);\n\t}\n}",
+    "new": "\t(void)a;\n}",
+    "kills": [
+      {
+        "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+        "needle": "A24 the roll-back drops every restored binding"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+      "AcmpStore.N6TheRollBackAndEveryOtherGroup"
+    ]
+  },
+  {
+    "name": "acmp-unbound-record-not-zero",
+    "path": "src/acmp.c",
+    "old": "\tmemset(payload, 0, ACMP_BINDING_BYTES);\n\tif (s->bound) {",
+    "new": "\tpayload[1] = 0u;\n\tif (s->bound) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+        "needle": "A24 an unbound sink's record is all zeros"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24UnboundRecordsRefusalsAndRollback"
+    ]
+  },
+  {
+    "name": "acmp-started-not-saved",
+    "path": "src/acmp.c",
+    "old": "\ta->sinks[sink].started = started;\n\tfinish(a);",
+    "new": "\ta->sinks[sink].started = started;",
+    "kills": [
+      {
+        "test": "AcmpCore.A24StartedIsSavedAndReported",
+        "needle": "A24 the started state is saved (5.3.8.7)"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24StartedIsSavedAndReported",
+      "AcmpStore.N3EachSinksStartedStateIsSaved"
+    ]
+  },
+  {
+    "name": "acmp-discovery-notifies",
+    "path": "src/acmp.c",
+    "old": "\t\t\t(uint64_t)(x->registering_failed != y->registering_failed);",
+    "new": "\t\t\t(uint64_t)(x->registering_failed != y->registering_failed) |\n\t\t\t(uint64_t)(x->talker_discovered != y->talker_discovered);",
+    "kills": [
+      {
+        "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+        "needle": "A25 discovery noted while settled moves no Table 5.22 item"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A25OnlyTable522ItemsAreReported",
+      "Table530/ListenerWalk.Graded/TK_DISC_PWR"
+    ]
+  },
+  {
+    "name": "acmp-status-not-notified",
+    "path": "src/acmp.c",
+    "old": "\t\t\t(uint64_t)(x->acmp_status ^ y->acmp_status) | (uint64_t)(x->bound != y->bound) |",
+    "new": "\t\t\t(uint64_t)(x->bound != y->bound) |",
+    "kills": [
+      {
+        "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+        "needle": "A25 the ACMP status LISTENER_TALKER_TIMEOUT does"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A25OnlyTable522ItemsAreReported"
+    ]
+  },
+  {
+    "name": "acmp-probing-status-not-notified",
+    "path": "src/acmp.c",
+    "old": "\t\t\t(uint64_t)((unsigned)x->probing_status ^ (unsigned)y->probing_status) |\n",
+    "new": "",
+    "kills": [
+      {
+        "test": "AcmpCore.DepartingStopsEveryProbingTimer",
+        "needle": "departing publishes the passive probing status"
+      }
+    ],
+    "original_tests": [
+      "Table530/ListenerWalk.Graded/TK_DEP_PWD"
+    ]
+  },
+  {
+    "name": "acmp-bind-reads-the-clock-twice",
+    "path": "src/acmp.c",
+    "old": "\tdisc_start(s);\n\tprobe(a, k);",
+    "new": "\tdisc_start(s);\n\t(void)a->ports->now_ms(a->ports->ctx);\n\tprobe(a, k);",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem"
+    ]
+  },
+  {
+    "name": "acmp-get-rx-state-reads-the-clock",
+    "path": "src/acmp.c",
+    "old": "\tconst struct acmp_sink *s = &a->sinks[k];\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);",
+    "new": "\tconst struct acmp_sink *s = &a->sinks[k];\n\t(void)now(a);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);",
+    "kills": [
+      {
+        "test": "AcmpCore.CommandPortBudgets",
+        "needle": "GET_RX_STATE needs no clock"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem"
+    ]
+  },
+  {
+    "name": "acmp-probe-response-reads-the-clock-twice",
+    "path": "src/acmp.c",
+    "old": "\tsm_stop(s);\n\tif (rsp->status != ACMP_STATUS_SUCCESS) {\n",
+    "new": "\tsm_stop(s);\n\t(void)a->ports->now_ms(a->ports->ctx);\n\tif (rsp->status != ACMP_STATUS_SUCCESS) {\n",
+    "kills": [
+      {
+        "test": "AcmpCore.CommandPortBudgets",
+        "needle": "successful probe response starts one reservation timer"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem"
+    ]
+  },
+  {
+    "name": "acmp-unbind-reads-the-clock",
+    "path": "src/acmp.c",
+    "old": "\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r",
+    "new": "\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\t(void)now(a);\n\tstruct pdu r",
+    "kills": [
+      {
+        "test": "AcmpCore.CommandPortBudgets",
+        "needle": "UNBIND needs no clock"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem"
+    ]
+  },
+  {
+    "name": "acmp-talker-reads-the-clock",
+    "path": "src/acmp.c",
+    "old": "\tunsigned src = cmd->talker_uid;\n\tif (cmd->msg == ACMP_MSG_GET_TX_CONNECTION_COMMAND) {",
+    "new": "\tunsigned src = cmd->talker_uid + 0u * now(a);\n\tif (cmd->msg == ACMP_MSG_GET_TX_CONNECTION_COMMAND) {",
+    "kills": [
+      {
+        "test": "AcmpCore.CommandPortBudgets",
+        "needle": "talker response needs no clock"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem"
+    ]
+  },
+  {
+    "name": "acmp-expiry-reads-the-clock-twice",
+    "path": "src/acmp.c",
+    "old": "\ta->timer_armed[interface] = false;\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n",
+    "new": "\ta->timer_armed[interface] = false;\n\t(void)a->ports->now_ms(a->ports->ctx);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n",
+    "kills": [
+      {
+        "test": "AcmpCore.TimerPortBudgets",
+        "needle": "timer clock budget for state"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry"
+    ]
+  },
+  {
+    "name": "acmp-available-reads-the-clock-twice",
+    "path": "src/acmp.c",
+    "old": "\ts->adp_deadline = now(a) + valid_ms;",
+    "new": "\ts->adp_deadline = now(a) + valid_ms + 0u * a->ports->now_ms(a->ports->ctx);",
+    "kills": [
+      {
+        "test": "AcmpCore.DiscoveryPortBudgets",
+        "needle": "AVAILABLE starts one discovery deadline"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord"
+    ]
+  },
+  {
+    "name": "acmp-departing-samples-the-grandmaster",
+    "path": "src/acmp.c",
+    "old": "\t\t\tdisc_departing(s, d.ifx);",
+    "new": "\t\t\t(void)gm_matches(a, &d);\n\t\t\tdisc_departing(s, d.ifx);",
+    "kills": [
+      {
+        "test": "AcmpCore.DiscoveryPortBudgets",
+        "needle": "DEPARTING needs no grandmaster"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord"
+    ]
+  },
+  {
+    "name": "acmp-aging-samples-the-grandmaster",
+    "path": "src/acmp.c",
+    "old": "\t\t\ts->adp_armed = false;\n\t\t\ttk_departed(s);",
+    "new": "\t\t\ts->adp_armed = false;\n\t\t\t{\n\t\t\t\tuint64_t g;\n\t\t\t\tuint8_t dm;\n\t\t\t\tp_gptp(a, interface, &g, &dm);\n\t\t\t}\n\t\t\ttk_departed(s);",
+    "kills": [
+      {
+        "test": "AcmpCore.DiscoveryPortBudgets",
+        "needle": "aging needs no grandmaster"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry"
+    ]
+  },
+  {
+    "name": "acmp-discovery-takes-the-first-sink",
+    "path": "src/acmp.c",
+    "old": "\tunsigned taken = 0;\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {        // Milan v1.2 5.6.4.1\n\t\tstruct acmp_sink *s = &a->sinks[k];\n",
+    "new": "\tunsigned taken = 0;\n\tfor (unsigned k = 0; k < a->cfg.n_sinks && taken == 0u; ++k) {\n\t\tstruct acmp_sink *s = &a->sinks[k];\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+        "needle": "A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound"
+    ]
+  },
+  {
+    "name": "acmp-second-no-resp-samples-the-grandmaster",
+    "path": "src/acmp.c",
+    "old": "\t} else if (kind == ACMP_TIMER_NO_RESP) {                // Milan v1.2 5.5.3.5.23\n\t\tsm_timer(a, s, ACMP_TIMER_RETRY, ACMP_TMR_RETRY_MS);\n",
+    "new": "\t} else if (kind == ACMP_TIMER_NO_RESP) {                // Milan v1.2 5.5.3.5.23\n\t\t{\n\t\t\tuint64_t g;\n\t\t\tuint8_t dm;\n\t\t\tp_gptp(a, s->interface, &g, &dm);\n\t\t}\n\t\tsm_timer(a, s, ACMP_TIMER_RETRY, ACMP_TMR_RETRY_MS);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.TimerPortBudgets",
+        "needle": "timer expiry never samples the grandmaster in"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry"
+    ]
+  },
+  {
+    "name": "acmp-retry-samples-the-grandmaster",
+    "path": "src/acmp.c",
+    "old": "\t} else if (kind == ACMP_TIMER_RETRY) {\n\t\tdelay(a, s);\n",
+    "new": "\t} else if (kind == ACMP_TIMER_RETRY) {\n\t\t{\n\t\t\tuint64_t g;\n\t\t\tuint8_t dm;\n\t\t\tp_gptp(a, s->interface, &g, &dm);\n\t\t}\n\t\tdelay(a, s);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.TimerPortBudgets",
+        "needle": "timer expiry never samples the grandmaster in"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry"
+    ]
+  },
+  {
+    "name": "acmp-delay-reads-the-clock-again",
+    "path": "src/acmp.c",
+    "old": "\tif (kind == ACMP_TIMER_DELAY) {                         // Milan v1.2 5.5.3.5.10\n\t\tprobe(a, k);\n",
+    "new": "\tif (kind == ACMP_TIMER_DELAY) {                         // Milan v1.2 5.5.3.5.10\n\t\t(void)a->ports->now_ms(a->ports->ctx);\n\t\tprobe(a, k);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.TimerPortBudgets",
+        "needle": "timer clock budget for state"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry"
+    ]
+  },
+  {
+    "name": "acmp-no-tk-samples-the-grandmaster",
+    "path": "src/acmp.c",
+    "old": "\t\tsrp_stop(a, k);\n\t\treprobe(a, s);",
+    "new": "\t\t{\n\t\t\tuint64_t g;\n\t\t\tuint8_t dm;\n\t\t\tp_gptp(a, s->interface, &g, &dm);\n\t\t}\n\t\tsrp_stop(a, k);\n\t\treprobe(a, s);",
+    "kills": [
+      {
+        "test": "AcmpCore.TimerPortBudgets",
+        "needle": "timer expiry never samples the grandmaster in"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry"
+    ]
+  },
+  {
+    "name": "acmp-new-bind-never-started",
+    "path": "src/acmp.c",
+    "old": "\n\ts->started = !sw;\n\tbind_response(a, interface, k, cmd);\n",
+    "new": "\n\ts->started = false;\n\tbind_response(a, interface, k, cmd);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindWithoutStreamingWaitBindsStarted",
+        "needle": "A1 a bind without STREAMING_WAIT lands started"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindWithoutStreamingWaitBindsStarted"
+    ]
+  },
+  {
+    "name": "acmp-bind-response-always-streaming-wait",
+    "path": "src/acmp.c",
+    "old": "\tr.flags = cmd->flags & ACMP_FLAG_STREAMING_WAIT;\n\trespond(",
+    "new": "\tr.flags = ACMP_FLAG_STREAMING_WAIT;\n\trespond(",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindWithoutStreamingWaitBindsStarted",
+        "needle": "A1 a bind without STREAMING_WAIT lands started"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindWithoutStreamingWaitBindsStarted"
+    ]
+  },
+  {
+    "name": "acmp-view-without-registering-failed",
+    "path": "src/acmp.c",
+    "old": "\tv->registering_failed = v->talker_registered && s->tk_failed;",
+    "new": "\tv->registering_failed = false;",
+    "kills": [
+      {
+        "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+        "needle": "A2 and the view says so"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-discovered-probing-stays-passive",
+    "path": "src/acmp.c",
+    "old": "\t\ts->probing = ACMP_PROBING_ACTIVE;\n\t\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\t\tdelay(a, s);",
+    "new": "\t\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\t\tdelay(a, s);",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail",
+        "needle": "A22 EVT_TK_DISCOVERED in PRB_W_AVAIL"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail"
+    ]
+  },
+  {
+    "name": "acmp-grandmaster-read-twice",
+    "path": "src/acmp.c",
+    "old": "\t\tp_gptp(a, d->interface, &d->local_gm, &d->local_domain);\n\t\td->sampled = true;",
+    "new": "\t\tp_gptp(a, d->interface, &d->local_gm, &d->local_domain);\n\t\tp_gptp(a, d->interface, &d->local_gm, &d->local_domain);\n\t\td->sampled = true;",
+    "kills": [
+      {
+        "test": "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail",
+        "needle": "A22 the grandmaster is sampled once for the frame"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail",
+      "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord"
+    ]
+  },
+  {
+    "name": "acmp-adp-short-frame-taken",
+    "path": "src/acmp.c",
+    "old": "if (interface >= a->cfg.n_interfaces || len < ACMP_ADP_FRAME_BYTES || ",
+    "new": "if (interface >= a->cfg.n_interfaces || len < ACMP_ADP_FRAME_BYTES - 1u || ",
+    "kills": [
+      {
+        "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+        "needle": "A22 a short ADPDU, a DISCOVER"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22OtherAdpFramesAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-adp-ethertype-unchecked",
+    "path": "src/acmp.c",
+    "old": "len < ACMP_ADP_FRAME_BYTES || wire_be16(frame + 12) != ACMP_ETHERTYPE ||",
+    "new": "len < ACMP_ADP_FRAME_BYTES ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+        "needle": "A22 a short ADPDU, a DISCOVER"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22OtherAdpFramesAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-adp-subtype-unchecked",
+    "path": "src/acmp.c",
+    "old": "\t    frame[PDU] != ACMP_ADP_SUBTYPE || AVTP_VERSION(frame) != ACMP_AVTP_VERSION ||",
+    "new": "\t    AVTP_VERSION(frame) != ACMP_AVTP_VERSION ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+        "needle": "A22 a short ADPDU, a DISCOVER"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22OtherAdpFramesAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-adp-discover-taken",
+    "path": "src/acmp.c",
+    "old": "(frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {",
+    "new": "(frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING + 1u) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+        "needle": "A22 a short ADPDU, a DISCOVER"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A22OtherAdpFramesAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-frames-to-the-own-mac",
+    "path": "src/acmp.c",
+    "old": "\twire_put_be(frame, ACMP_MULTICAST_MAC, 6);",
+    "new": "\twire_put_be(frame, a->cfg.mac[interface], 6);",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)"
+      }
+    ],
+    "original_tests": [
+      "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused",
+      "AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder"
+    ]
+  },
+  {
+    "name": "acmp-version-unchecked",
+    "path": "src/acmp.c",
+    "old": "\t    frame[PDU] != ACMP_SUBTYPE || AVTP_VERSION(frame) != ACMP_AVTP_VERSION) {",
+    "new": "\t    frame[PDU] != ACMP_SUBTYPE) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "needle": "A26 a BIND_RX of AVTP version"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+      "AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing"
+    ]
+  },
+  {
+    "name": "acmp-adp-version-unchecked",
+    "path": "src/acmp.c",
+    "old": "\t    frame[PDU] != ACMP_ADP_SUBTYPE || AVTP_VERSION(frame) != ACMP_AVTP_VERSION ||",
+    "new": "\t    frame[PDU] != ACMP_ADP_SUBTYPE ||",
+    "kills": [
+      {
+        "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "needle": "A26 an ENTITY_AVAILABLE of version"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+      "AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing"
+    ]
+  },
+  {
+    "name": "acmp-version-bits-misread",
+    "path": "src/acmp.c",
+    "old": "#define AVTP_VERSION(frame) (((frame)[O_MSG] >> 4) & 0x07u)",
+    "new": "#define AVTP_VERSION(frame) (((frame)[O_MSG] >> 5) & 0x07u)",
+    "kills": [
+      {
+        "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "needle": "A26 a BIND_RX of AVTP version"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead"
+    ]
+  },
+  {
+    "name": "acmp-header-version-1",
+    "path": "include/acmp.h",
+    "old": "#define ACMP_AVTP_VERSION 0u",
+    "new": "#define ACMP_AVTP_VERSION 1u",
+    "kills": [
+      {
+        "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+        "needle": "A1 BIND_RX sends two frames: the response and the probe"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-timer-runs",
+    "path": "src/acmp.c",
+    "old": "\t} else if (sent == OWED) {\n\t\ts->timer = ACMP_TIMER_NO_RESP;\n\t\ts->timer_held = true;\n",
+    "new": "\t} else if (sent == OWED) {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+        "needle": "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held"
+      },
+      {
+        "test": "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+        "needle": "A27 the first TMR_NO_RESP finds no room"
+      },
+      {
+        "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "needle": "A23 and the outer call completes as if it had not been made"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-never-starts",
+    "path": "src/acmp.c",
+    "old": "\tif (s->timer_held && wire_be16(o->frame + O_SEQ) == s->probe_seq) {\n\t\tno_resp_from_send(a, s);\n\t}",
+    "new": "\t(void)s;",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+        "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send"
+      },
+      {
+        "test": "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+        "needle": "A27 the duplicate, the first probe's"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-no-resp-2s",
+    "path": "src/acmp.c",
+    "old": "== s->probe_seq) {\n\t\tno_resp_from_send(a, s);",
+    "new": "== s->probe_seq) {\n\t\tno_resp_from_send(a, s);\n\t\ts->timer_deadline += 9u * ACMP_TMR_NO_RESP_MS;",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+        "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-sequence-unchecked",
+    "path": "src/acmp.c",
+    "old": "\tif (s->timer_held && wire_be16(o->frame + O_SEQ) == s->probe_seq) {",
+    "new": "\tif (s->timer_held) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+        "needle": "A27 the old probe leaving starts no timer for the new one"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-unnamed",
+    "path": "src/acmp.c",
+    "old": "\to->probe_of = (uint8_t)probe_of;",
+    "new": "\to->probe_of = (uint8_t)(probe_of > ACMP_MAX_SINKS + 1u);",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+        "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-names-the-next-sink",
+    "path": "src/acmp.c",
+    "old": "transmit(a, s->interface, frame, 0u, k + 1u);",
+    "new": "transmit(a, s->interface, frame, 0u, k + 2u);",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+        "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-probe-timer-before-its-send",
+    "path": "src/acmp.c",
+    "old": "\tenum sent sent = transmit(a, s->interface, frame, 0u, k + 1u);\n\tif (sent == SENT) {\n\t\tno_resp_from_send(a, s);",
+    "new": "\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\tenum sent sent = transmit(a, s->interface, frame, 0u, k + 1u);\n\tif (sent == SENT) {\n\t\ts->timer_held = false;",
+    "kills": [
+      {
+        "test": "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend",
+        "needle": "A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send"
+      },
+      {
+        "test": "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+        "needle": "A30 the duplicate taken at once"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend",
+      "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend"
+    ]
+  },
+  {
+    "name": "acmp-taken-probe-timer-from-the-entry-clock",
+    "path": "src/acmp.c",
+    "old": "\tif (sent == SENT) {\n\t\tno_resp_from_send(a, s);",
+    "new": "\tif (sent == SENT) {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);",
+    "kills": [
+      {
+        "test": "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+        "needle": "A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend"
+    ]
+  },
+  {
+    "name": "acmp-expiry-due-at-its-first-read",
+    "path": "src/acmp.c",
+    "old": "\ta->timer_armed[interface] = false;\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (s->interface != interface) {\n\t\t\tcontinue;\n\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {      // Milan v1.2 5.6.4.5.4\n\t\t\ts->adp_armed = false;\n\t\t\ttk_departed(s);\n\t\t}\n\t\twhile (sm_running(s) && due(s->timer_deadline, now(a))) {\n\t\t\tsm_expired(a, k);\n",
+    "new": "\ta->timer_armed[interface] = false;\n\tconst uint32_t t = now(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (s->interface != interface) {\n\t\t\tcontinue;\n\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, t)) {\n\t\t\ts->adp_armed = false;\n\t\t\ttk_departed(s);\n\t\t}\n\t\twhile (sm_running(s) && due(s->timer_deadline, t)) {\n\t\t\tsm_expired(a, k);\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry",
+        "needle": "A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry"
+    ]
+  },
+  {
+    "name": "acmp-held-timer-expires",
+    "path": "src/acmp.c",
+    "old": "\t\twhile (sm_running(s) && due(s->timer_deadline, now(a))) {",
+    "new": "\t\twhile (s->timer != ACMP_TIMER_NONE && due(s->timer_deadline, now(a))) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+        "needle": "A27 an expiry of the interface while the probe is owed takes nothing"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-held-timer-armed",
+    "path": "src/acmp.c",
+    "old": "\t\t\t\tearliest(&any, &at, sm_running(s), s->timer_deadline);",
+    "new": "\t\t\t\tearliest(&any, &at, s->timer != ACMP_TIMER_NONE, s->timer_deadline);",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+        "needle": "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held, no timer armed"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-lost-probe-held",
+    "path": "src/acmp.c",
+    "old": "\t} else {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\t\ta->probes_lost++;",
+    "new": "\t} else {\n\t\ts->timer = ACMP_TIMER_NO_RESP;\n\t\ts->timer_held = true;\n\t\ta->probes_lost++;",
+    "kills": [
+      {
+        "test": "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+        "needle": "A19 and it does"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered"
+    ]
+  },
+  {
+    "name": "acmp-stop-keeps-the-hold",
+    "path": "src/acmp.c",
+    "old": "\ts->timer = ACMP_TIMER_NONE;\n\ts->timer_held = false;\n}",
+    "new": "\ts->timer = ACMP_TIMER_NONE;\n}",
+    "kills": [
+      {
+        "test": "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+        "needle": "A27 an UNBIND_RX while the probe is owed stops its timer"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+    ]
+  },
+  {
+    "name": "acmp-record-flag-defines-swapped",
+    "path": "src/acmp.c",
+    "old": "#define BIND_STARTED 0x02u\n#define BIND_STREAMING_WAIT 0x04u",
+    "new": "#define BIND_STARTED 0x04u\n#define BIND_STREAMING_WAIT 0x02u",
+    "kills": [
+      {
+        "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+        "needle": "A24 bound and started: flags 0x03"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime"
+    ]
+  },
+  {
+    "name": "acmp-record-valid-bit-moved",
+    "path": "src/acmp.c",
+    "old": "#define BIND_VALID 0x01u",
+    "new": "#define BIND_VALID 0x08u",
+    "kills": [
+      {
+        "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+        "needle": "A24 bound and stopped: the valid flag alone, 0x01"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime"
+    ]
+  },
+  {
+    "name": "acmp-longer-record-applied",
+    "path": "src/acmp.c",
+    "old": "if (sink >= a->cfg.n_sinks || len != ACMP_BINDING_BYTES) {",
+    "new": "if (sink >= a->cfg.n_sinks || len < ACMP_BINDING_BYTES) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+        "needle": "bytes is refused, the longer ones too, before a byte is read"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A24UnboundRecordsRefusalsAndRollback"
+    ]
+  },
+  {
+    "name": "acmp-due-unsigned",
+    "path": "src/acmp.c",
+    "old": "\treturn (int32_t)(deadline - at) <= 0;",
+    "new": "\treturn deadline <= at;",
+    "kills": [
+      {
+        "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+        "needle": "A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline"
+      },
+      {
+        "test": "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+        "needle": "A28 the first expiry takes sink 0 only"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-earliest-unsigned",
+    "path": "src/acmp.c",
+    "old": "(!*any || (int32_t)(deadline - *at) < 0)",
+    "new": "(!*any || deadline < *at)",
+    "kills": [
+      {
+        "test": "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+        "needle": "A28 the interface timer holds the earlier deadline"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-no-adp-due-unsigned",
+    "path": "src/acmp.c",
+    "old": "\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {",
+    "new": "\t\tif (s->adp_armed && s->adp_deadline <= now(a)) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+        "needle": "A28 TMR_NO_ADP: nothing before"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-no-resp-deadline-saturates",
+    "path": "src/acmp.c",
+    "old": "\ts->timer_deadline = now(a) + delay_ms;",
+    "new": "\ts->timer_deadline = kind == ACMP_TIMER_NO_RESP && now(a) > 0xFFFFFFFFu - delay_ms ? 0xFFFFFFFFu : now(a) + delay_ms;",
+    "kills": [
+      {
+        "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+        "needle": "A28 TMR_NO_RESP: nothing"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-retry-deadline-saturates",
+    "path": "src/acmp.c",
+    "old": "\ts->timer_deadline = now(a) + delay_ms;",
+    "new": "\ts->timer_deadline = kind == ACMP_TIMER_RETRY && now(a) > 0xFFFFFFFFu - delay_ms ? 0xFFFFFFFFu : now(a) + delay_ms;",
+    "kills": [
+      {
+        "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+        "needle": "A28 TMR_RETRY: nothing"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-no-tk-deadline-saturates",
+    "path": "src/acmp.c",
+    "old": "\ts->timer_deadline = now(a) + delay_ms;",
+    "new": "\ts->timer_deadline = kind == ACMP_TIMER_NO_TK && now(a) > 0xFFFFFFFFu - delay_ms ? 0xFFFFFFFFu : now(a) + delay_ms;",
+    "kills": [
+      {
+        "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+        "needle": "A28 TMR_NO_TK: nothing"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-delay-deadline-saturates",
+    "path": "src/acmp.c",
+    "old": "\ts->timer_deadline = now(a) + delay_ms;",
+    "new": "\ts->timer_deadline = kind == ACMP_TIMER_DELAY && now(a) > 0xFFFFFFFFu - delay_ms ? 0xFFFFFFFFu : now(a) + delay_ms;",
+    "kills": [
+      {
+        "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+        "needle": "A28 TMR_DELAY: nothing"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-no-adp-deadline-saturates",
+    "path": "src/acmp.c",
+    "old": "\ts->adp_deadline = now(a) + valid_ms;",
+    "new": "\ts->adp_deadline = now(a) > 0xFFFFFFFFu - valid_ms ? 0xFFFFFFFFu : now(a) + valid_ms;",
+    "kills": [
+      {
+        "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+        "needle": "A28 TMR_NO_ADP: nothing before"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-admit-never-called",
+    "path": "src/acmp.c",
+    "old": "\t\t\tp_admit(a, s->interface, k, s->bound, talker);",
+    "new": "\t\t\t(void)p_admit;",
+    "kills": [
+      {
+        "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+        "needle": "A29 a BIND_RX admits its talker once"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+      "AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding",
+      "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem"
+    ]
+  },
+  {
+    "name": "acmp-admit-on-every-entry",
+    "path": "src/acmp.c",
+    "old": "if (s->bound != s->admitted || (s->bound && talker != s->admitted_talker)) {",
+    "new": "if (s->bound != s->admitted || s->bound) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+        "needle": "A29 a re-bind to the same talker, from any controller or source, admits nothing"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+      "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem"
+    ]
+  },
+  {
+    "name": "acmp-admit-ignores-another-talker",
+    "path": "src/acmp.c",
+    "old": "if (s->bound != s->admitted || (s->bound && talker != s->admitted_talker)) {",
+    "new": "if (s->bound != s->admitted) {",
+    "kills": [
+      {
+        "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+        "needle": "A29 re-binding emits one admission"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+      "AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding"
+    ]
+  },
+  {
+    "name": "acmp-admit-on-interface-0",
+    "path": "src/acmp.c",
+    "old": "\t\t\tp_admit(a, s->interface, k, s->bound, talker);",
+    "new": "\t\t\tp_admit(a, 0u, k, s->bound, talker);",
+    "kills": [
+      {
+        "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+        "needle": "A29 sink 2's talker on interface 1"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+      "AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding"
+    ]
+  },
+  {
+    "name": "acmp-admit-port-unflagged",
+    "path": "src/acmp.c",
+    "old": "\ta->in_port = true;\n\ta->ports->admit(a->ports->ctx, interface, sink, bound, talker);",
+    "new": "\ta->ports->admit(a->ports->ctx, interface, sink, bound, talker);",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryPortIsGuarded",
+        "needle": "A23 the port kind"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-reset-forgets-the-admitted",
+    "path": "src/acmp.c",
+    "old": "\tmemset(s, 0, sizeof *s);\n\ts->admitted = admitted;\n\ts->admitted_talker = admitted_talker;",
+    "new": "\tmemset(s, 0, sizeof *s);\n\t(void)admitted;\n\t(void)admitted_talker;",
+    "kills": [
+      {
+        "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+        "needle": "A29 opening after reset emits one withdrawal"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+    ]
+  },
+  {
+    "name": "acmp-open-does-nothing",
+    "path": "src/acmp.c",
+    "old": "void acmp_open(struct acmp *a)\n{\n\tif (!enter(a)) {\n\t\treturn;\n\t}\n\tfinish(a);\n}",
+    "new": "void acmp_open(struct acmp *a)\n{\n\t(void)a;\n}",
+    "kills": [
+      {
+        "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+        "needle": "A29 acmp_open admits each restored binding's talker"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+      "AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract"
+    ]
+  },
+  {
+    "name": "acmp-open-unguarded",
+    "path": "src/acmp.c",
+    "old": "void acmp_open(struct acmp *a)\n{\n\tif (!enter(a)) {\n\t\treturn;\n\t}\n",
+    "new": "void acmp_open(struct acmp *a)\n{\n",
+    "kills": [
+      {
+        "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "needle": "A23 a call made from inside the send port is refused, counted and trapped, entry"
+      }
+    ],
+    "original_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+    ]
+  },
+  {
+    "name": "maap-down-start-keeps-owner",
+    "path": "src/maap.c",
+    "old": "\t\t} else {\n\t\t\tpublish(m, 0, false);\n\t\t}\n",
+    "new": "\t\t} else {\n\t\t\t ;\n\t\t}\n",
+    "kills": [
+      {
+        "test": "MaapCore.ReleaseLossAndRetry",
+        "needle": "starting down withdraws the prior owner"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ReleaseLossAndRetry"
+    ]
+  },
+  {
+    "name": "maap-initial-send-absent",
+    "path": "src/maap.c",
+    "old": "\tstart_timer(m, false);\n\trequest(m, MAAP_MSG_PROBE); // IEEE 1722-2016 Table B.7\n\tm->state = MAAP_PROBE;\n",
+    "new": "\tstart_timer(m, false);\n\t ; // IEEE 1722-2016 Table B.7\n\tm->state = MAAP_PROBE;\n",
+    "kills": [
+      {
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "initial PROBE is immediate"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-retransmit-count",
+    "path": "include/maap.h",
+    "old": "#define MAAP_PROBE_RETRANSMITS 3u",
+    "new": "#define MAAP_PROBE_RETRANSMITS 2u",
+    "kills": [
+      {
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "three retransmissions remain"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-probe-count-not-decremented",
+    "path": "src/maap.c",
+    "old": "m->probe_count--;",
+    "new": "m->probe_count -= 0u;",
+    "kills": [
+      {
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "retransmission decrements once"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-wire-version",
+    "path": "src/maap.c",
+    "old": "f[16] = 0x08u;",
+    "new": "f[16] = 0u;",
+    "kills": [
+      {
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "B.2 complete PROBE bytes"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-wire-length",
+    "path": "src/maap.c",
+    "old": "f[17] = 16u;",
+    "new": "f[17] = 28u;",
+    "kills": [
+      {
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "B.2 complete PROBE bytes"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-wire-source",
+    "path": "src/maap.c",
+    "old": "wire_put_be(f + 6, m->mac, 6);",
+    "new": "wire_put_be(f + 6, m->mac + 1u, 6);",
+    "kills": [
+      {
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "B.2 complete PROBE bytes"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-wire-padding",
+    "path": "src/maap.c",
+    "old": "memset(f, 0, MAAP_FRAME_BYTES);",
+    "new": "memset(f, 1, MAAP_FRAME_BYTES);",
+    "kills": [
+      {
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "B.2 complete PROBE bytes"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-constant-probe_base",
+    "path": "include/maap.h",
+    "old": "#define MAAP_PROBE_BASE_MS 500u",
+    "new": "#define MAAP_PROBE_BASE_MS 501u",
+    "kills": [
+      {
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "probe base interval"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-constant-probe_variation",
+    "path": "include/maap.h",
+    "old": "#define MAAP_PROBE_VARIATION_MS 100u",
+    "new": "#define MAAP_PROBE_VARIATION_MS 101u",
+    "kills": [
+      {
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "probe interval variation"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-constant-announce_base",
+    "path": "include/maap.h",
+    "old": "#define MAAP_ANNOUNCE_BASE_MS 30000u",
+    "new": "#define MAAP_ANNOUNCE_BASE_MS 30001u",
+    "kills": [
+      {
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "announce base interval"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-constant-announce_variation",
+    "path": "include/maap.h",
+    "old": "#define MAAP_ANNOUNCE_VARIATION_MS 2000u",
+    "new": "#define MAAP_ANNOUNCE_VARIATION_MS 2001u",
+    "kills": [
+      {
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "announce interval variation"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-seed-clock-ignored",
+    "path": "src/maap.c",
+    "old": "(uint32_t)m->mac + m->ports->clock(m->ports->ctx)",
+    "new": "(uint32_t)m->mac + (m->ports->clock(m->ports->ctx) & 0u)",
+    "kills": [
+      {
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "clock seed spans the probe interval"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-zero-seed-sticks",
+    "path": "src/maap.c",
+    "old": "m->rng = 1u;",
+    "new": "m->rng = 0u;",
+    "kills": [
+      {
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "zero sum cannot lock generator"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-biased-random-bucket",
+    "path": "src/maap.c",
+    "old": "} while (word > limit);",
+    "new": "} while (word > limit && false);",
+    "kills": [
+      {
+        "test": "MaapCore.UniformDrawRejectsIncompleteBucket",
+        "needle": "incomplete random bucket rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.UniformDrawRejectsIncompleteBucket"
+    ]
+  },
+  {
+    "name": "maap-numeric-mac-priority",
+    "path": "src/maap.c",
+    "old": "reverse_mac(m->mac) >= reverse_mac(peer)",
+    "new": "(reverse_mac(m->mac) & 0u) + m->mac >= (reverse_mac(peer) & 0u) + peer",
+    "kills": [
+      {
+        "test": "MaapCore.ReverseOctetPriority",
+        "needle": "least significant octet decides first"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ReverseOctetPriority"
+    ]
+  },
+  {
+    "name": "maap-defend-multicast",
+    "path": "src/maap.c",
+    "old": "enqueue(m, MAAP_MSG_DEFEND, peer, start, count, overlap,",
+    "new": "enqueue(m, MAAP_MSG_DEFEND, MAAP_MULTICAST, start, count, overlap,",
+    "kills": [
+      {
+        "test": "MaapCore.DefendEchoAndIntersection",
+        "needle": "echo request and exact intersection"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.DefendEchoAndIntersection"
+    ]
+  },
+  {
+    "name": "maap-defend-echo-own-range",
+    "path": "src/maap.c",
+    "old": "peer, start, count, overlap,",
+    "new": "peer, m->base, m->count, overlap,",
+    "kills": [
+      {
+        "test": "MaapCore.DefendEchoAndIntersection",
+        "needle": "echo request and exact intersection"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.DefendEchoAndIntersection"
+    ]
+  },
+  {
+    "name": "maap-intersection-too-long",
+    "path": "src/maap.c",
+    "old": "(uint16_t)(last - overlap)",
+    "new": "(uint16_t)(last - overlap + 1u)",
+    "kills": [
+      {
+        "test": "MaapCore.DefendEchoAndIntersection",
+        "needle": "echo request and exact intersection"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.DefendEchoAndIntersection"
+    ]
+  },
+  {
+    "name": "maap-adjacent-overlaps",
+    "path": "src/maap.c",
+    "old": "start < ours_end && m->base < end",
+    "new": "start <= ours_end && m->base <= end",
+    "kills": [
+      {
+        "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+        "needle": "half open intervals"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.DisjointAdjacentZeroAndDefendRange"
+    ]
+  },
+  {
+    "name": "maap-zero-count-conflicts",
+    "path": "src/maap.c",
+    "old": "if (count != 0u && start < ours_end",
+    "new": "if ((count != 0u || true) && start < ours_end",
+    "kills": [
+      {
+        "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+        "needle": "half open intervals"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.DisjointAdjacentZeroAndDefendRange"
+    ]
+  },
+  {
+    "name": "maap-defend-checks-request",
+    "path": "src/maap.c",
+    "old": "type == MAAP_MSG_DEFEND ? 34 : 26",
+    "new": "type == MAAP_MSG_DEFEND ? 26 : 26",
+    "kills": [
+      {
+        "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+        "needle": "DEFEND tests conflict fields"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.DisjointAdjacentZeroAndDefendRange"
+    ]
+  },
+  {
+    "name": "maap-malformed-ethertype",
+    "path": "src/maap.c",
+    "old": "wire_be16(f + 12) != 0x22f0u",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-subtype",
+    "path": "src/maap.c",
+    "old": "f[14] != 0xfeu",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-version",
+    "path": "src/maap.c",
+    "old": "(f[15] & 0xf0u) != 0u",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-reserved-zero",
+    "path": "src/maap.c",
+    "old": "(f[15] & 0x0fu) < MAAP_MSG_PROBE",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-reserved-high",
+    "path": "src/maap.c",
+    "old": "(f[15] & 0x0fu) > MAAP_MSG_ANNOUNCE",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-cdl-short",
+    "path": "src/maap.c",
+    "old": "(wire_be16(f + 16) & 0x7ffu) < 16u",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-cdl-truncated",
+    "path": "src/maap.c",
+    "old": "(wire_be16(f + 16) & 0x7ffu) > len - 26u",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-cdl-current",
+    "path": "src/maap.c",
+    "old": "((f[16] >> 3) <= 1u && (wire_be16(f + 16) & 0x7ffu) != 16u)",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-source-zero",
+    "path": "src/maap.c",
+    "old": "mac_at(f + 6) == 0u",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-source-group",
+    "path": "src/maap.c",
+    "old": "(f[6] & 1u) != 0u",
+    "new": "false",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-destination",
+    "path": "src/maap.c",
+    "old": "dst == MAAP_MULTICAST ||",
+    "new": "dst != 0u ||",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-own-probe",
+    "path": "src/maap.c",
+    "old": "(f[15] == MAAP_MSG_DEFEND && dst == m->mac)",
+    "new": "dst == m->mac",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-valid-minimum-refused",
+    "path": "src/maap.c",
+    "old": "len < 42u",
+    "new": "len < 43u",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "B.2.3 recognized future"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-future-version-refused",
+    "path": "src/maap.c",
+    "old": "if (len < 42u ||",
+    "new": "if ((len >= 42u && (f[16] >> 3) > 1u) || len < 42u ||",
+    "kills": [
+      {
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "B.2.3 recognized future"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-range-end-off-by-one",
+    "path": "src/maap.c",
+    "old": "base <= MAAP_POOL_BASE + MAAP_POOL_SIZE - count",
+    "new": "base <= MAAP_POOL_BASE + MAAP_POOL_SIZE - count + 1u",
+    "kills": [
+      {
+        "test": "MaapCore.InitAndPreferredRangeBounds",
+        "needle": "range past pool end is refused"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.InitAndPreferredRangeBounds"
+    ]
+  },
+  {
+    "name": "maap-port-up-keeps-claim",
+    "path": "src/maap.c",
+    "old": "\t\t\t} else {\n\t\t\t\trestart(m); // IEEE 1722-2016 Table B.7\n\t\t\t}\n",
+    "new": "\t\t\t} else {\n\t\t\t\t ; // IEEE 1722-2016 Table B.7\n\t\t\t}\n",
+    "kills": [
+      {
+        "test": "MaapCore.ReleaseLossAndRetry",
+        "needle": "loss of PortOperational invalidates the acquired address"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ReleaseLossAndRetry"
+    ]
+  },
+  {
+    "name": "maap-release-keeps-enable",
+    "path": "src/maap.c",
+    "old": "m->enabled = false;",
+    "new": "m->enabled = true;",
+    "kills": [
+      {
+        "test": "MaapCore.ReleaseLossAndRetry",
+        "needle": "released instance stays idle"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ReleaseLossAndRetry"
+    ]
+  },
+  {
+    "name": "maap-expiry-forgotten-on-stall",
+    "path": "src/maap.c",
+    "old": "m->expiry_owed = true;",
+    "new": "m->expiry_owed = false;",
+    "kills": [
+      {
+        "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+        "needle": "original expiry remains owed"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+    ]
+  },
+  {
+    "name": "maap-allocation-before-commit",
+    "path": "src/maap.c",
+    "old": "m->state = MAAP_DEFEND;",
+    "new": "m->state = MAAP_DEFEND; publish(m, m->count, true);",
+    "kills": [
+      {
+        "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+        "needle": "allocation waits for committed ANNOUNCE"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+    ]
+  },
+  {
+    "name": "maap-probe-announce-reordered",
+    "path": "src/maap.c",
+    "old": "request(m, MAAP_MSG_ANNOUNCE);\n\t\t\tm->state = MAAP_DEFEND;",
+    "new": "request(m, MAAP_MSG_ANNOUNCE);\n\t\t\tm->queue[0][15] = MAAP_MSG_ANNOUNCE;\n\t\t\tm->state = MAAP_DEFEND;",
+    "kills": [
+      {
+        "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+        "needle": "last PROBE precedes ANNOUNCE"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+    ]
+  },
+  {
+    "name": "maap-overflow-uncounted",
+    "path": "src/maap.c",
+    "old": "m->overflow++;",
+    "new": "m->overflow += 0u;",
+    "kills": [
+      {
+        "test": "MaapCore.QueueBoundAndWithdrawal",
+        "needle": "overload is counted as failure"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.QueueBoundAndWithdrawal"
+    ]
+  },
+  {
+    "name": "maap-poll-unbounded",
+    "path": "src/maap.c",
+    "old": "n < 2u &&",
+    "new": "n < MAAP_QUEUE_FRAMES &&",
+    "kills": [
+      {
+        "test": "MaapCore.QueueBoundAndWithdrawal",
+        "needle": "poll has bounded work"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.QueueBoundAndWithdrawal"
+    ]
+  },
+  {
+    "name": "maap-release-leaves-output",
+    "path": "src/maap.c",
+    "old": "m->state = MAAP_INITIAL;\n\tm->queued = 0;",
+    "new": "m->state = MAAP_INITIAL;\n\tm->queued += 0;",
+    "kills": [
+      {
+        "test": "MaapCore.QueueBoundAndWithdrawal",
+        "needle": "release clears pending output"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.QueueBoundAndWithdrawal"
+    ]
+  },
+  {
+    "name": "maap-reentry-not-counted",
+    "path": "src/maap.c",
+    "old": "m->reentries++;",
+    "new": "m->reentries += 0u;",
+    "kills": [
+      {
+        "test": "MaapCore.ReentrantPortsAreCountedAndIgnored",
+        "needle": "all input guards fire"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ReentrantPortsAreCountedAndIgnored"
+    ]
+  },
+  {
+    "name": "maap-debug-no-assert",
+    "path": "src/maap.c",
+    "old": "assert(!m->in_call);",
+    "new": "assert(true);",
+    "kills": [
+      {
+        "test": "MaapDebug.SynchronousExpiryAsserts",
+        "needle": "debug reentry assertion"
+      }
+    ],
+    "original_tests": [
+      "MaapDebug.SynchronousExpiryAsserts"
+    ]
+  },
+  {
+    "name": "maap-stall-unqueued",
+    "path": "src/maap.c",
+    "old": "m->deferred++;",
+    "new": "m->deferred++; m->queued = 0u;",
+    "kills": [
+      {
+        "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+        "needle": "both owed frames and ANNOUNCE leave once room returns"
+      }
+    ],
+    "original_tests": [
+      "MaapHost.HMaapBacklogAndStallNeverRestartClock"
+    ]
+  },
+  {
+    "name": "maap-table-b7-0",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 0 && f[15] == 1u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/0",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/0"
+    ]
+  },
+  {
+    "name": "maap-table-b7-1",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 0 && f[15] == 2u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/1",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/1"
+    ]
+  },
+  {
+    "name": "maap-table-b7-2",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 0 && f[15] == 3u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/2",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/2"
+    ]
+  },
+  {
+    "name": "maap-table-b7-3",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 0 && f[15] == 1u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/3",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/3"
+    ]
+  },
+  {
+    "name": "maap-table-b7-4",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 0 && f[15] == 2u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/4",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/4"
+    ]
+  },
+  {
+    "name": "maap-table-b7-5",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 0 && f[15] == 3u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/5",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/5"
+    ]
+  },
+  {
+    "name": "maap-table-b7-6",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 1 && f[15] == 1u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/6",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/6"
+    ]
+  },
+  {
+    "name": "maap-table-b7-7",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 1 && f[15] == 2u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/7",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/7"
+    ]
+  },
+  {
+    "name": "maap-table-b7-8",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 1 && f[15] == 3u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/8",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/8"
+    ]
+  },
+  {
+    "name": "maap-table-b7-9",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 1 && f[15] == 1u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/9",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/9"
+    ]
+  },
+  {
+    "name": "maap-table-b7-10",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 1 && f[15] == 2u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/10",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/10"
+    ]
+  },
+  {
+    "name": "maap-table-b7-11",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 1 && f[15] == 3u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/11",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/11"
+    ]
+  },
+  {
+    "name": "maap-table-b7-12",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 2 && f[15] == 1u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/12",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/12"
+    ]
+  },
+  {
+    "name": "maap-table-b7-13",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 2 && f[15] == 2u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/13",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/13"
+    ]
+  },
+  {
+    "name": "maap-table-b7-14",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 2 && f[15] == 3u && mac_at(f + 6) == UINT64_C(0x060000000040)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/14",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/14"
+    ]
+  },
+  {
+    "name": "maap-table-b7-15",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 2 && f[15] == 1u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/15",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/15"
+    ]
+  },
+  {
+    "name": "maap-table-b7-16",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 2 && f[15] == 2u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/16",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/16"
+    ]
+  },
+  {
+    "name": "maap-table-b7-17",
+    "path": "src/maap.c",
+    "old": "\tif (!decode(m, f, len)) {",
+    "new": "\tif (len >= 42u && m->state == 2 && f[15] == 3u && mac_at(f + 6) == UINT64_C(0x0200000000c0)) {\n\t\trestart(m); (void)pump(m);\n\t\tm->in_call = false; return;\n\t}\n\tif (!decode(m, f, len)) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/17",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/17"
+    ]
+  },
+  {
+    "name": "maap-allocation-seam-disconnected",
+    "path": "src/maap.c",
+    "old": "publish(m, m->count, true);",
+    "new": "publish(m, m->count, false);",
+    "kills": [
+      {
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "accepted ANNOUNCE publishes allocation"
+      }
+    ],
+    "original_tests": [
+      "MaapHost.AcquiredRangeFeedsExistingCsrPath"
+    ]
+  },
+  {
+    "name": "maap-begin-down-forgets-range",
+    "path": "src/maap.c",
+    "old": "m->preferred = preferred;",
+    "new": "m->preferred = 0;",
+    "kills": [
+      {
+        "test": "MaapCore.BeginBeforePortOperationalRetainsRange",
+        "needle": "Begin supplied range survives port down"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.BeginBeforePortOperationalRetainsRange"
+    ]
+  },
+  {
+    "name": "maap-restart-reuses-range",
+    "path": "src/maap.c",
+    "old": "m->state = MAAP_INITIAL;\n\treserve(m, 0);",
+    "new": "m->state = MAAP_INITIAL;\n\treserve(m, m->base);",
+    "kills": [
+      {
+        "test": "MaapCore.RestartDrawsNewRange",
+        "needle": "fixed seed Restart draws a new range"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.RestartDrawsNewRange"
+    ]
+  },
+  {
+    "name": "maap-reverse-five-octets",
+    "path": "src/maap.c",
+    "old": "for (unsigned i = 0; i < 6u; ++i) {",
+    "new": "for (unsigned i = 0; i < 5u; ++i) {",
+    "kills": [
+      {
+        "test": "MaapCore.PriorityAfterTiedOctets",
+        "needle": "every reversed octet decides"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.PriorityAfterTiedOctets"
+    ]
+  },
+  {
+    "name": "maap-compare-mac-lsb-only",
+    "path": "src/maap.c",
+    "old": "reverse_mac(m->mac) >= reverse_mac(peer)",
+    "new": "(reverse_mac(m->mac) >> 40) >= (reverse_mac(peer) >> 40)",
+    "kills": [
+      {
+        "test": "MaapCore.PriorityAfterTiedOctets",
+        "needle": "every reversed octet decides"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.PriorityAfterTiedOctets"
+    ]
+  },
+  {
+    "name": "maap-generic-initial-handles-conflict",
+    "path": "src/maap.c",
+    "old": "else if (m->state != MAAP_INITIAL) {",
+    "new": "else if (true) {",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/0",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/0"
+    ]
+  },
+  {
+    "name": "maap-generic-probe-state-defends",
+    "path": "src/maap.c",
+    "old": "type == MAAP_MSG_PROBE && m->state == MAAP_DEFEND",
+    "new": "type == MAAP_MSG_PROBE && m->state == MAAP_PROBE",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/12",
+        "needle": "Table B.7 conflict decision"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/12"
+    ]
+  },
+  {
+    "name": "maap-generic-probe-defend-uses-priority",
+    "path": "src/maap.c",
+    "old": "(m->state == MAAP_PROBE && type != MAAP_MSG_PROBE) ||",
+    "new": "false ||",
+    "kills": [
+      {
+        "test": "AllStates/MaapCell.TableB7/10",
+        "needle": "Table B.7 output count"
+      }
+    ],
+    "original_tests": [
+      "AllStates/MaapCell.TableB7/10"
+    ]
+  },
+  {
+    "name": "maap-generic-equal-mac-wins",
+    "path": "src/maap.c",
+    "old": "reverse_mac(m->mac) >= reverse_mac(peer)",
+    "new": "reverse_mac(m->mac) > reverse_mac(peer)",
+    "kills": [
+      {
+        "test": "MaapCore.ReverseOctetPriority",
+        "needle": "equal MAC is not lower"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.ReverseOctetPriority"
+    ]
+  },
+  {
+    "name": "r2-saved-range-never-consumed",
+    "path": "src/maap.c",
+    "old": "\tm->base = preferred != 0u ? preferred : MAAP_POOL_BASE + draw(m, MAAP_POOL_SIZE - m->count + 1u);\n\tm->preferred = 0; // IEEE 1722-2016 Table B.7\n\tm->probe_count = MAAP_PROBE_RETRANSMITS;\n",
+    "new": "\tm->base = preferred != 0u ? preferred : MAAP_POOL_BASE + draw(m, MAAP_POOL_SIZE - m->count + 1u);\n\t ; // IEEE 1722-2016 Table B.7\n\tm->probe_count = MAAP_PROBE_RETRANSMITS;\n",
+    "kills": [
+      {
+        "test": "MaapCore.LinkBounceDrawsAfterSuppliedRange",
+        "needle": "link bounce draws after consuming supplied range"
+      }
+    ],
+    "original_tests": [
+      "MaapCore.LinkBounceDrawsAfterSuppliedRange"
+    ]
+  }
+]

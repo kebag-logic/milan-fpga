@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "<SOURCE>/scripts/mutation.py", line 210, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<SOURCE>/scripts/mutation.py", line 147, in main
+    list(pool.map(prepare, SOURCES))
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "<SOURCE>/scripts/mutation.py", line 141, in prepare
+    raise RuntimeError("baseline build failed: " + "".join(local))
+RuntimeError: baseline build failed: In file included from <PACKET>/scratch/explicit-package/mutations/baseline/tests/test_adp.cpp:4:
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest.h: In instantiation of ‘testing::AssertionResult testing::internal::CmpHelperEQ(const char*, const char*, const T1&, const T2&) [with T1 = unsigned int; T2 = int]’:
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest.h:1398:23:   required from ‘static testing::AssertionResult testing::internal::EqHelper::Compare(const char*, const char*, const T1&, const T2&) [with T1 = unsigned int; T2 = int; typename std::enable_if<((! std::is_integral<_Tp>::value) || (! std::is_pointer<_Dp>::value))>::type* <anonymous> = 0]’
+ 1398 |     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
+      |            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<PACKET>/scratch/explicit-package/mutations/baseline/tests/test_adp.cpp:116:5:   required from here
+  134 |   GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest.h:1379:11: error: comparison of integer expressions of different signedness: ‘const unsigned int’ and ‘const int’ [-Werror=sign-compare]
+ 1379 |   if (lhs == rhs) {
+      |       ~~~~^~~~~~
+cc1plus: all warnings being treated as errors
+

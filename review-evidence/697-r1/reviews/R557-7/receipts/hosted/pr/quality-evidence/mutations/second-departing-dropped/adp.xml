@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T10:55:48.846" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T10:55:48.846">
+    <testcase name="A16SecondShutdownQueuesItsOwn" file="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp" line="559" status="run" result="completed" time="0." timestamp="2026-10-09T10:55:48.846" classname="AdpCore">
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:327&#x0A;Value of: a.departing_owed == 2u &amp;&amp; a.departing_index == 1u &amp;&amp; !a.available_owed &amp;&amp; a.state == ADP_STATE_DOWN&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:327
+Value of: a.departing_owed == 2u && a.departing_index == 1u && !a.available_owed && a.state == ADP_STATE_DOWN
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:333&#x0A;Value of: fk.sends == 3u &amp;&amp; took(1, 1u, 1) &amp;&amp; took(2, 1u, 0) &amp;&amp; !owed&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A16 each leaves in order with its SHUTDOWN&apos;s index: 1, then 0 (that run sent nothing)&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:333
+Value of: fk.sends == 3u && took(1, 1u, 1) && took(2, 1u, 0) && !owed
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:338&#x0A;Value of: fk.sends == 4u &amp;&amp; took(3, 0u, 0) &amp;&amp; a.state == ADP_STATE_WAITING&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:338
+Value of: fk.sends == 4u && took(3, 0u, 0) && a.state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

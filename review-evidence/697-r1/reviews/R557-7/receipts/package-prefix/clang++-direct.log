@@ -1,0 +1,31 @@
+In file included from tests/test_adp.cpp:4:
+In file included from <PACKET>/scratch/sdk/gtest/include/gtest/gtest.h:65:
+In file included from <PACKET>/scratch/sdk/gtest/include/gtest/gtest-death-test.h:43:
+In file included from <PACKET>/scratch/sdk/gtest/include/gtest/internal/gtest-death-test-internal.h:47:
+In file included from <PACKET>/scratch/sdk/gtest/include/gtest/gtest-matchers.h:49:
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest-printers.h:502:35: error: implicit conversion from 'char8_t' to 'char32_t' may change the meaning of the represented code unit [-Werror,-Wcharacter-conversion]
+  502 |   PrintTo(ImplicitCast_<char32_t>(c), os);
+      |           ~~~~~~~~~~~~~           ^
+In file included from tests/test_adp.cpp:4:
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest.h:1379:11: error: comparison of integers of different signs: 'const unsigned int' and 'const int' [-Werror,-Wsign-compare]
+ 1379 |   if (lhs == rhs) {
+      |       ~~~ ^  ~~~
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest.h:1398:12: note: in instantiation of function template specialization 'testing::internal::CmpHelperEQ<unsigned int, int>' requested here
+ 1398 |     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
+      |            ^
+tests/test_adp.cpp:116:5: note: in instantiation of function template specialization 'testing::internal::EqHelper::Compare<unsigned int, int, nullptr>' requested here
+  116 |     EXPECT_EQ(fk.starts, 0) << "A0 and no timer";
+      |     ^
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest.h:1869:54: note: expanded from macro 'EXPECT_EQ'
+ 1869 |   EXPECT_PRED_FORMAT2(::testing::internal::EqHelper::Compare, val1, val2)
+      |                                                      ^
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest_pred_impl.h:144:23: note: expanded from macro 'EXPECT_PRED_FORMAT2'
+  144 |   GTEST_PRED_FORMAT2_(pred_format, v1, v2, GTEST_NONFATAL_FAILURE_)
+      |                       ^
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest_pred_impl.h:134:17: note: expanded from macro 'GTEST_PRED_FORMAT2_'
+  134 |   GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
+      |                 ^
+<PACKET>/scratch/sdk/gtest/include/gtest/gtest_pred_impl.h:79:52: note: expanded from macro 'GTEST_ASSERT_'
+   79 |   if (const ::testing::AssertionResult gtest_ar = (expression)) \
+      |                                                    ^
+2 errors generated.

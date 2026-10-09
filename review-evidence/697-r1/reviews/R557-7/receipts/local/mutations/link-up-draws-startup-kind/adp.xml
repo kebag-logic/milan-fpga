@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:55:53.369" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:55:53.369">
+    <testcase name="A0toA2Schedule" file="<PACKET>/scratch/local/mutations/baseline/tests/test_adp.cpp" line="535" status="run" result="completed" time="0." timestamp="2026-10-09T12:55:53.369" classname="AdpCore">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_adp.cpp:118&#x0A;Value of: a.state == ADP_STATE_DELAY &amp;&amp; a.last_draw == ADP_DRAW_DELAY &amp;&amp; fk.last_delay == a.last_draw_ms &amp;&amp; fk.last_delay &lt;= 4000u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_adp.cpp:118
+Value of: a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_DELAY && fk.last_delay == a.last_draw_ms && fk.last_delay <= 4000u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

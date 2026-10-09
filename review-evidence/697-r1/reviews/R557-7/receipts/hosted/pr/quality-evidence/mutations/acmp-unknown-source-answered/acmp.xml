@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T10:56:14.661" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T10:56:14.661">
+    <testcase name="A20ProbeTxIsAnsweredFromTheSource" file="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp" line="859" status="run" result="completed" time="0." timestamp="2026-10-09T10:56:14.661" classname="AcmpCore">
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:897&#x0A;Value of: same(last(), want)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A20 an unknown source: TALKER_UNKNOWN_ID (Table 5.40)&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_acmp.cpp:897
+Value of: same(last(), want)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A20 an unknown source: TALKER_UNKNOWN_ID (Table 5.40)
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

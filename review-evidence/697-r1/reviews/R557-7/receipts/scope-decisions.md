@@ -1,0 +1,293 @@
+Issue acceptance: https://github.com/kebag-logic/milan-fpga/issues/697
+
+The TSN stack's C code shares one directory with the FPGA platform glue. Separate the two, so the stack is easy to find, reuse and test on its own.
+
+## Today
+
+Everything lives under [`sw/firmware/ctrl/`](https://github.com/kebag-logic/milan-fpga/tree/dev/sw/firmware/ctrl) on dev `6aa25dec`. It mixes three kinds of code.
+
+| Kind | Where today | Depends on |
+|---|---|---|
+| Protocol cores (the TSN stack) | `adp/adp.c`, `acmp/acmp.c`, `acmp/acmp_nvm.c`, `maap/maap.c`, `wire/wire.h`; SRP is [lwSRP](https://github.com/kebag-logic/lwSRP) in `third_party/lwSRP` | its own header, `wire.h` and libc only |
+| Mailbox adapters | `adp/adp_mbx.c`, `acmp/acmp_mbx.c`, `maap/maap_mbx.c`, `maap/maap_csr.c`, `srp/srp_mbx.c` | the core and the FPGA mailbox contract |
+| Platform and composition | `mbx/` (contract, HAL, MMIO), `plat/`, `host/` (mailbox model), `port/` (pools, debug, lwSRP port), `app/`, `loop/`, `test/rv32_image/` | the FPGA register map and the RV32 image |
+
+Tests sit in `sw/firmware/ctrl/test/` and [`sw/firmware/gtest/`](https://github.com/kebag-logic/milan-fpga/tree/dev/sw/firmware/gtest). Twelve scripts, workflows and docs name the `sw/firmware/ctrl/` paths.
+
+```mermaid
+flowchart LR
+  subgraph stack["TSN stack (portable)"]
+    adp[ADP core] --- acmp[ACMP core] --- maap[MAAP core] --- srp[lwSRP]
+  end
+  subgraph glue["FPGA platform"]
+    ad[mailbox adapters] --> mbx[mailbox HAL / MMIO]
+    app[app + event loop] --> ad
+  end
+  ad --> stack
+```
+
+## Goal
+
+- The protocol cores and their unit tests live in their own location, with no dependency on the mailbox, the register map or the RV32 image.
+- The FPGA firmware (adapters, HAL, composition, image) consumes the stack through its public headers only.
+- A reader finds "the TSN stack" in one place.
+
+## Decision needed first
+
+Where the stack goes:
+- **(a)** a top-level directory in this repository, for example `sw/tsn/`. Recommended first step: one PR, history kept, no new repository to review.
+- **(b)** its own repository, used as a submodule, as lwSRP is. That is a later step once (a) has settled the boundary.
+
+## Acceptance
+
+1. The ADP, ACMP and MAAP cores, `wire.h` and their core-only unit tests move to the chosen location with `git mv`, so history is kept. The lwSRP pin is unchanged.
+2. A gate refuses any include from the stack into the mailbox, platform, register-map or image code. A planted control must be caught.
+3. The adapters, app, loop, HAL and image build unchanged against the stack's headers. The two linked RV32 images are byte-identical before and after the move.
+4. Every path that names the old locations is updated: the builder, CI workflows, coverage ratchet, mutation tables, evidence readers and docs. Coverage stays at 100 %, and all mutation campaigns catch the same plants.
+5. A short README in the stack's location says what it contains, what it must not depend on, and how to run its tests.
+
+No behaviour change. Relates to #665 (Mark II firmware).
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074086970
+
+[Manager] **Owner decision (2026-10-09): the separated TSN stack is licensed MIT.**
+
+Today every source under `sw/firmware/ctrl/` carries `SPDX-License-Identifier: CERN-OHL-W-2.0` (42 files). The repository licence is [CERN-OHL-W-2.0](https://github.com/kebag-logic/milan-fpga/blob/dev/LICENSE), with texts in `LICENSES/`. The copyright holder is Kebag Logic.
+
+**Acceptance added to this issue:**
+
+6. The stack's location carries its own `LICENSE` file with the MIT text and holder "Kebag Logic". `LICENSES/MIT.txt` is added beside the existing text.
+7. Every file that moves into the stack (the ADP, ACMP and MAAP cores, `wire.h` and their core-only tests) changes its header to `SPDX-License-Identifier: MIT`. The `SPDX-FileCopyrightText` lines are kept.
+8. The FPGA platform side stays `CERN-OHL-W-2.0`: mailbox adapters, HAL, MMIO, host model, app, loop and image. No file outside the stack changes licence.
+9. lwSRP stays a separate component under its own Apache-2.0 licence. The stack README names that dependency and its licence.
+10. The stack README states the licence. Any licence or SPDX gate in the repository accepts MIT for the stack path only. A planted file with the wrong identifier on either side of the boundary is refused.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074093506
+
+[Manager] **Owner decision (2026-10-09): the TSN stack C code moves into its own repository.** This is option (b) above, and it replaces the in-repo step (a). The licence stays MIT, per comment 6074086970.
+
+**Shape:**
+- A new public repository under kebag-logic holds the portable stack: the ADP, ACMP and MAAP cores, `wire.h`, their core-only unit tests and its own CI. The name is to be confirmed by the owner; the working name here is `tsn-stack`.
+- milan-fpga consumes it as a pinned submodule, for example at `third_party/tsn-stack`, the same way it consumes lwSRP. The mailbox adapters, HAL, app, loop and RV32 image stay in milan-fpga under CERN-OHL-W-2.0.
+
+**Acceptance (replaces items 1 and 6-10 for the repository case):**
+1. **New repository.** It carries the moved files with their history preserved (a subdirectory export with `git filter-repo`, rewritten to the holder identity). It has `LICENSE` (MIT, Kebag Logic), `SPDX-License-Identifier: MIT` in every source, and a README, CONTRIBUTING and docs that follow the owner's public-documentation rules (as for lwSRP: short sentences, every reference a link, usage per persona, readable graphs). It has a CI workflow that builds and runs the core unit tests and coverage on hosted runners, with no FPGA tool.
+2. **The stack builds stand-alone.** It must not depend on the mailbox, the register map, the RV32 image or milan-fpga paths. A gate in the new repository refuses such an include, with a planted control.
+3. **milan-fpga consumes it.** It is added as a submodule with an exact pin. `.gitmodules` and `scripts/act_ci.py` `TRUSTED_SUBMODULES` are updated in the same PR; F4 showed that a missing manifest entry blocks every later act run. The builder, ctrl suite, coverage ratchet, mutation tables, evidence readers and docs point at the submodule paths.
+4. **Byte-identical images.** Both linked RV32 images are byte-identical before and after the move. Coverage stays at 100 %, and every mutation campaign catches the same plants.
+5. **Licences.** The milan-fpga files that remain keep CERN-OHL-W-2.0. lwSRP remains its own Apache-2.0 component, named in the stack README.
+6. **Visibility.** The repository goes public only after its licence and documentation PRs merge with two reviews each, the same rule as lwSRP.
+
+Order: create the repository, then its two PRs (import, and docs and licence with two reviews each), then the milan-fpga consumer PR (two reviews, the full parent bar, and act through the audited-install bootstrap for the new submodule).
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074191062
+
+[Manager] **Owner decision (2026-10-09): the repository name is `tsn-c-stack`** (`kebag-logic/tsn-c-stack`). milan-fpga consumes it as the submodule `third_party/tsn-c-stack`. This replaces the working name `tsn-stack` in comment 6074093506; everything else there stands.
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074245112
+
+[Manager] **Assignment: import the cores into [tsn-c-stack](https://github.com/kebag-logic/tsn-c-stack), with the quality kit needed to validate the code.** Owner request 2026-10-09 06:25. Author [Author]. Reviewers [R556] internal, [R557] external.
+
+Scope: the `tsn-c-stack` repository only. The milan-fpga consumer PR (submodule, act manifest, byte-identical images) is a later step and is not part of this lane.
+
+**1. Import with history.**
+- Export from milan-fpga dev `6aa25dec` with `git filter-repo`. Take the portable cores and nothing that touches the mailbox, register map or image:
+  - `sw/firmware/ctrl/adp/adp.{c,h}`, `acmp/acmp.{c,h}`, `acmp/acmp_nvm.{c,h}` (only if it is core-only), `maap/maap.{c,h}` and `wire/wire.h`.
+  - The core-only test material those files need.
+- Rewrite every author and committer to `configured holder identity`, and remap paths to a clean layout: `include/`, `src/`, `tests/`.
+- Bring it onto `main` (`b2fb516`) as branch `import-cores` with `--allow-unrelated-histories`.
+- Where an existing test also exercises an adapter or the app (`test_adp.cpp` includes `adp_mbx.h` and `ctrl_app.h`), split out only the core-only cases. Adapter cases stay in milan-fpga.
+
+**2. Build and tests in the new repository.**
+- The library builds stand-alone as C11 with gcc and clang, `-Wall -Wextra -Werror`, no heap and no OS.
+- Core unit tests run on GoogleTest and GMock (owner rule for Mark II software), with gcov branch coverage at 100 %. Any exclusion is listed with its reason, in a ratchet file.
+- Every test can fail for the defect it claims: carry over the core plants from milan-fpga's mutation tables as a runnable mutation campaign, with every plant caught.
+- AddressSanitizer and UBSan runs, and static analysis (cppcheck and clang-tidy) with zero findings or listed suppressions.
+- A gate refuses any include outside the C library and the repository's own headers, with a planted control.
+
+**3. Quality documents**, following the owner's public-docs rules: short sentences, every reference a link, usage per persona (developer, integrator, manager, tester), readable Mermaid graphs.
+- `README.md`: what it is, how to build and test, per persona.
+- `docs/ARCHITECTURE.md`: modules, the port/callback contract, the event model and the graphs.
+- `docs/REQUIREMENTS.md`: requirement IDs for ADP, ACMP and MAAP, each traced to its clause (IEEE 1722.1-2021, Milan v1.2, IEEE 1722-2016 Annex B). Cite clauses; never copy standard text.
+- `docs/VERIFICATION.md`: the strategy (unit, boundary, mutation, coverage, sanitizers, static analysis), the targets and how to run each.
+- `docs/TRACEABILITY.md`: requirement to test to clause, generated by a script. CI checks that every requirement has a test and that no test cites an unknown requirement.
+- `docs/PORTING.md`: what an integrator must provide (callbacks, timing, buffers), with an example port.
+- `docs/DEVIATIONS.md`: known deviations from the standards, each with its clause and rationale.
+- `docs/CODING_STANDARD.md`: C11 subset, no heap, static pools, naming, and the warning set.
+- `CONTRIBUTING.md` (PR and two reviews, one-line commits, no AI attribution), `SECURITY.md`, `CHANGELOG.md`.
+- `.github/workflows/` running all of the above on hosted runners.
+
+**4. Hygiene.**
+- MIT `SPDX-License-Identifier` in every source.
+- No host paths, home paths, account names, private device or instrument names, or tool and model names anywhere, including history.
+- Run a privacy scan over the exported history before pushing.
+
+Open the PR against `main` in tsn-c-stack, titled "Import the ADP, ACMP and MAAP cores with the validation kit (relates kebag-logic/milan-fpga#697)". The repository stays private until this PR merges with two reviews. Run long jobs in the background. Then post REVIEW READY on #697 with the PR number and head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074811248
+
+[Manager] **Owner decisions (2026-10-09 07:17-07:18):**
+- PR #1 is **squash-merged** into `tsn-c-stack` `main` as one commit, `ae982af`. Its tree is identical to the reviewed head `b9b9c20a`.
+- **Comments:** remove as many code comments as possible. Keep only the tracing to the standards and the requirements: clause references and requirement IDs, plus the SPDX lines.
+
+The R556-1 and R557-1 findings were not yet fixed at merge. Round 2 was stopped, and its uncommitted work was saved. Both continue as one follow-up PR.
+
+**Follow-up assignment** for [Author] (round 3): branch `review-fixes` from `main` `ae982af`, then a new PR against `main`.
+
+**A. The review fixes.** Do every item of [round 2](https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074721212) exactly:
+- a fresh report per mutation run, with a stale-XML control;
+- the 14 needles;
+- the preprocessor and symbol based boundary and no-heap gate, with digraph, trigraph and macro-`malloc` controls;
+- the inventory against GoogleTest registration;
+- per-standard clause links;
+- the inherited ADP limits documented, without changing behaviour (the fix is tsn-c-stack #3);
+- R1-R4, and S1-S4 as recommended.
+
+Start from the saved work in progress (`round2-wip.patch` and four new scripts, in your scratch directory), but treat it as unreviewed.
+
+**B. The comment reduction.** In `src/`, `include/`, `tests/` and `examples/`:
+- Delete every comment except:
+  - `SPDX-*` lines;
+  - requirement tags (`// REQ: …`);
+  - standard tracing: a clause, table or figure of IEEE 1722.1-2021, Milan v1.2 or IEEE 1722-2016.
+- A comment that mixes prose and a clause reference keeps only the reference, in short form, for example `// IEEE 1722-2016 Figure 5`.
+- Contract material that integrators need, such as the no-synchronous-callback rule and the port obligations, must already be in `docs/ARCHITECTURE.md` or `docs/PORTING.md`; move it there before deleting it from the header.
+
+**Proof that B changes no code.**
+- Every object file of the three cores is byte-identical before and after, built with the CI flags and `-g0` (compare `.o` hashes).
+- The test binaries give the same results.
+- Mutation patches anchored on comment text are re-anchored, and the campaign still catches all 311 plants by name, and the new controls.
+- Coverage stays at 100 %.
+- Every line-number link in the generated docs (TRACEABILITY, TESTS and others) is regenerated, so no link points at a moved line.
+
+Commit A and B as separate commits. Run every gate, all rc 0. Then post REVIEW READY with the branch head. The repository stays private until this follow-up merges with two reviews.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074877336
+
+[Manager] **Owner decision (2026-10-09 07:24): the stack must always work for both Linux and bare-metal.** `tsn-c-stack` is shared with another agent, which develops the Linux implementation on branch `dev-linux`.
+
+**Standing rule for every change to tsn-c-stack:**
+- The cores build and pass their tests on both targets:
+  - **Linux:** a hosted build with gcc and clang, the full GoogleTest suite, sanitizers and coverage, as today.
+  - **Bare-metal:** a freestanding cross build for RV32 (`-march=rv32i -mabi=ilp32 -ffreestanding`, no OS headers, no heap). It must link against a minimal port with no unresolved symbols other than the documented port and libc subset.
+- CI runs both targets on every PR. A change that passes one and breaks the other is refused.
+- OS-specific code (sockets, POSIX timers, threads) never enters `src/` or `include/` of the cores. It lives in a port, as `examples/` does today. The boundary gate enforces this.
+- Changes to the shared cores go to `main` by PR. `dev-linux` merges `main` in; it is never force-pushed over or rewritten by our lanes. Our lanes never push to `dev-linux`.
+
+**Note for `dev-linux`:** it currently points at `b9b9c20`, the pre-squash import head. Its tree equals `main` (`ae982af`), but its history differs, so the first merge of `main` into `dev-linux` is trivial and should happen before it diverges further.
+
+**Round 3 (comment 6074811248) gains item C:** add the bare-metal RV32 freestanding build, and its link check against a minimal port, as a CI job beside the Linux jobs. Install a RISC-V cross compiler on the hosted runner. Document both targets in README, PORTING and VERIFICATION. Items A and B must keep both targets green.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6075324408
+
+[Manager] **Round 4** for [Author] on [tsn-c-stack PR #16](https://github.com/kebag-logic/tsn-c-stack/pull/16), head `ccb4ac3`. [R556-2](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6075317932) and [R557-2](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6075281257) are NEGATIVE. All seven carried findings are resolved; both hosted jobs are green. Commit on `ccb4ac3` with no rebase or amend. Both targets (Linux and bare-metal RV32) must pass.
+
+1. **Lost port contracts (R556-2-F1, R557-2-F1).** Move every contract that `ccb4ac3` deleted from `include/*.h` into PORTING.md: each comment describing a callback, a public field or a precondition. At least:
+   - `env->srp`: a stream starts reservation and listening; NULL stops and clears (Milan v1.2 5.5.3.5.36);
+   - `ports->admit` and `bound=false`, with when it is called;
+   - `acmp_source_state.dest_mac_valid` and `.asking_failed`;
+   - the `failed` argument of `acmp_tk_registered`;
+   - a counter table per core (field and meaning).
+   Add a check that keeps them there: each of these names appears in PORTING.md. Source behaviour stays unchanged; objects stay identical.
+2. **Comment gate (R557-2-F2, R556-2-F2, R556-2-S5).** Validate every comment line, including the rest of a block that starts with SPDX. Handle line splicing. In `.S` files, treat `#` lines that are not preprocessor directives as comments under the same allowlist. Refuse `#if 0` in the gated directories. Add planted controls for each to `--selftest`, alongside valid SPDX and tracing controls. The real tree still passes.
+3. **Generic needle (R556-2-F3).** Give `tests/test_maap.cpp:375` its own message and use it as the needle. The needle audit refuses gtest default lines (`Which is:`, `Expected equality of these values:`, `Actual:`), with planted controls. A fresh campaign gives 311/311 CAUGHT by name.
+4. **Suggestions adopted.**
+   - R556-2-S2: an unknown test in a kill records ERROR for that plant, and the campaign removes any old `results.json` at start.
+   - R556-2-S3: gate decisions raise explicit errors, not `assert`.
+   - R556-2-S4: both workflow jobs check out the same ref.
+   - S1 (header blank runs) is deferred to a later change.
+5. **Residue.** Apply R556-2-RS1 (CHANGELOG under `## Unreleased`) and RS2 (VERIFICATION.md:59). The manager applies RS3 to the PR body.
+
+Post REVIEW READY with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6076492549
+
+[Manager] **Round 5** for [Author] on [tsn-c-stack PR #16](https://github.com/kebag-logic/tsn-c-stack/pull/16), head `3c350014`. [R556-3](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6075697881) is NEGATIVE on two MINORs in the gate scripts; every round-2 finding is resolved. R557-3 was stopped without a verdict at the owner's reboot; R557 reviews the round 5 head. Commit on `3c350014` with no rebase or amend. Both targets (Linux and bare-metal RV32) must pass.
+
+1. **Comment gate (R556-3-F1).** In `scripts/check_comments.py`:
+   - character literals are single-line, and C++14 digit separators (`1'000`) do not open one; in `.S` files `'` is not a literal delimiter;
+   - refuse `#if` and `#elif` with any zero constant (`0`, `00`, `0x0`, `0u`) or `false`;
+   - in `.S` files, check `#` text after a directive's operands (at least `#define` bodies) under the same allowlist;
+   - one planted `--selftest` control per form; existing pass controls still pass; R556-3's `scripts/comment_probes.py <tree>` reports `gaps: 0`.
+2. **Needle audit (R556-3-F2).** Add a positive rule: each needle must occur in a string literal that an assertion in the named test streams. Keep the deny-list. Planted table controls for `is: 5`, `5u` and `r.frames.size()`. R556-3's `scripts/needle_probes.py` reports every default-line fragment refused. A fresh campaign gives 311/311 CAUGHT by name.
+3. **Residue and suggestions adopted.** RS1 (PORTING.md:40/43 name `NDEBUG`). S1 (spaces at `tests/test_maap.cpp:375`). S2 (`check_port_contracts.py` also requires a short phrase per critical contract, for example "NULL stops" for `env->srp`). S3 (one IEEE 1722-2016 link form throughout).
+
+Post REVIEW READY with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6076983832
+
+[Manager] **Round 6** for [Author] on [tsn-c-stack PR #16](https://github.com/kebag-logic/tsn-c-stack/pull/16), head `625b0011`. [R556-4](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6076927671) and [R557-4](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6076974636) are NEGATIVE. Each round so far closed the forms it was shown, and the reviewers found new ones. **Decision: close each class by construction.** Do not add more regex cases. Commit on `625b0011` with no rebase or amend. Both targets must pass.
+
+1. **C and C++ comments come from the compiler's lexer.** Take every comment from `clang -cc1 -dump-raw-tokens` in the file's language mode:
+   - `-x c -std=c11` for `.c` and `.h`;
+   - `-x c++ -std=c++20` for `.cpp` and `.hpp`.
+   Check each `comment` token against the allowlist. Retire the regex tokenizer for these files. The quality job already installs clang; pin the version it uses in VERIFICATION. This closes R556-4-F1 rows 1 to 4.
+2. **Conditional directives (R556-4-F1 row 5 and 6, R556-4-S1).**
+   - Only `#ifdef` and `#ifndef` of macros on an allowlist in CODING_STANDARD are allowed: include guards (the guard named after the file, with `#define` on the next line), `__cplusplus`, `NDEBUG`, and the test and configuration macros the tree uses today.
+   - Refuse `#if`, `#elif` and `#pragma`.
+   - Each allowlisted macro other than include guards must be compiled both defined and undefined by the CI builds, so both branches of every region reach the compiler. Add a gate that checks this.
+3. **Assembly (R557-4-F1).** In `.S` files:
+   - refuse any `'`;
+   - every `#` that does not start a preprocessor directive line, including inside `#define` bodies, begins a comment checked under the allowlist;
+   - refuse assembler conditionals and macros (`.if*`, `.macro`, `.rept`).
+4. **Needles (R556-4-F2).**
+   - `mutation.py` counts a kill only when the needle occurs in the assertion's streamed message, with the default GoogleTest text blanked out, as R556-4's `needle_specificity.py` does.
+   - `needle_audit.py` requires each needle to be at least 8 characters, to occur in exactly one assertion message literal of the named test, and to be no substring of a default GoogleTest template.
+   - Planted controls for `e`, `Failed`, `hich is` and ` equal`.
+5. **Controls.** One planted `--selftest` control per class above, each compiling. Re-run every earlier reviewer probe unchanged (R556-3 `comment_probes.py`, R556-4 `comment_bypass_probe.py` and `needle_default_fragments.py`, R557-4 `full_comment_bypass.py`). Each must report zero gaps. Fresh campaign: 311/311 CAUGHT by name.
+
+Post REVIEW READY with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6078263180
+
+[Manager] **Round 7** for [Author] on [tsn-c-stack PR #16](https://github.com/kebag-logic/tsn-c-stack/pull/16), head `60c911b9`. [R556-5](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6078253855) and [R557-5](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6078194538) are NEGATIVE on five MINORs. All are narrow forms around the round-6 design. The design stands. This round closes the remaining classes with plain rules, and makes the docs state the gate's exact contract.
+
+**Contract (decision).** The comment gate enforces the owner's comment rule for contributors. It is a closed list of rules, each with a planted control. VERIFICATION and CODING_STANDARD list exactly these rules, and claim nothing broader ("every comment" becomes "every comment under these rules"):
+
+1. **Character set (R556-5-F1).** Every tracked file under `src/`, `include/`, `tests/` and `examples/` holds only printable ASCII, tab and LF. Refuse CR, form feed, vertical tab, other controls and non-ASCII. The tree already conforms.
+2. **Closed suffix list (R556-5-F3).** Tracked files in those directories must have a scanned suffix (`.c .h .cpp .hpp .S .ld`) or be on a data allowlist (`tests/mutations.json`, `tests/coverage.ratchet`). Refuse anything else, including `.inc`.
+3. **Headers in both languages (R556-5-F2).** Lex every `.h` and `.hpp` that a C++ unit includes in both C11 and C++20, and check the comment tokens from each mode. Header plant fragments follow the same rule. VERIFICATION states the modes.
+4. **Linker script (R556-5-F2).** Refuse `'` in `.ld`, and link RV32 with `-Wl,--fatal-warnings`.
+5. **Assembly (R557-5-F1).** Refuse every preprocessor directive in `.S` files (`start.S` has none). Every `#` there is then an assembler comment, checked under the allowlist. Keep the round-6 `'` and conditional rules.
+6. **Assertion forms (R557-5-F2).**
+   - `tests/` may use only the assertion macros it uses today: EXPECT/ASSERT `_TRUE`, `_FALSE`, `_EQ`, `_NE`, `_LE`, `_GE`, `EXPECT_EXIT` and `EXPECT_CALL`. A gate refuses any other.
+   - Generate the default-template list from the pinned GoogleTest: compile one failing instance of each allowed form and record its default text with the streamed message blanked.
+   - `needle_audit.py` refuses any needle that is a substring of those texts. A `--check` regenerates the list and compares it.
+   - Include an `EXPECT_NEAR` control: the form is refused.
+
+Each rule gets a compiling planted control in `--selftest`. Re-run every earlier reviewer probe unchanged, including R556-5's `hidden_text_probe.py` and `plant_tree_probe.sh` and R557-5's probes, all with zero gaps. Fresh campaign: 311/311 CAUGHT by name.
+
+**Also:** R556-5-RS1 (CHANGELOG bullet). R556-5-S1: raise the bare-metal job timeout to 20 minutes and retry apt. R556-5-S2: upload the per-arm mutation XML as a CI artifact.
+
+Commit on `60c911b9` with no rebase or amend. Both targets. Post REVIEW READY with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6079166369
+
+[Manager] **Round 8** for [Author] on [tsn-c-stack PR #16](https://github.com/kebag-logic/tsn-c-stack/pull/16), head `6bb706e2`. [R556-6](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6079158227) (five MINORs) and [R557-6](https://github.com/kebag-logic/tsn-c-stack/pull/16#issuecomment-6078915470) (one MINOR, the same as R556-6-F4) are NEGATIVE.
+
+**Threat model (decision).** The comment gate keeps honest contributors to the owner's comment rule. It is not a filter against deliberately hidden text. Seven rounds have closed every plausible form. Most remaining findings depend on lexer disagreements or constructed macros that no one writes by accident. This round fixes the findings below. VERIFICATION and CODING_STANDARD then state the threat model next to the six rules. Later reviews treat a deliberately obfuscated construction outside the listed rules as a SUGGESTION, unless it appears in the shipped tree.
+
+1. **Assertion vocabulary (R556-6-F4, R557-6-F1).**
+   - Generate the refused names from the pinned headers. Take every public GoogleTest and GMock assertion or result macro from `-dM -E` of `gtest/gtest.h` and `gmock/gmock.h` (`EXPECT_*`, `ASSERT_*`, `GTEST_*`, `FAIL*`, `SUCCEED`, `ADD_FAILURE*`, and so on).
+   - Refuse any outside the 14 allowed forms. `--check` regenerates the list.
+   - Refuse `##` in `tests/`.
+   - Add compiling controls for `GTEST_ASSERT_LT`, `GTEST_FAIL` and a pasted form.
+2. **GoogleTest pin (R556-6-F5).** `find_package(GTest 1.14.0 EXACT CONFIG REQUIRED)`, or compare `GTest_VERSION` after the search. `mutation.py` compiles and links with the `pkg-config --cflags --libs` flags of the version it checked. A configure step with only another version installed fails.
+3. **Assembly (R556-6-F2, S1).** Refuse `.include`, `.incbin` and `.end` in `.S` files.
+4. **Linker script (R556-6-F1).** Refuse `\`, `#` and `VERSION` in `.ld` files. Today's script uses none of them.
+5. **Included sources (R556-6-F3).** Refuse `#include` of a `.c` or `.cpp` file in the gated directories.
+
+Each item gets a compiling planted control. Re-run every earlier reviewer probe unchanged. Probes for the items above report CAUGHT. Any other probe row stays as it is now, and the PR body lists it. Fresh campaign: 311/311. Also apply R557-6-RS1: the manager edits the PR body sentence.
+
+Commit on `6bb706e2` with no rebase or amend, committing after each item. Both targets. Post REVIEW READY with the head.
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T12:56:06.981" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T12:56:06.981">
+    <testcase name="CommandPortBudgets" file="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp" line="1939" status="run" result="completed" time="0." timestamp="2026-10-09T12:56:06.981" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:1954&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::NOW)&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e&#x0A;talker response needs no clock&#x0A;TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/local/mutations/baseline/tests/test_acmp.cpp:1954
+Expected equality of these values:
+  fk.count(Call::NOW)
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_58e30bc603f9b0be1452e10f8ef6798e
+talker response needs no clock
+TSN_MESSAGE_END_e7f676a3373995edc62f724164b86d67
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

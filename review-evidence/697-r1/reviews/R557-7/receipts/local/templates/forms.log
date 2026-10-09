@@ -1,0 +1,211 @@
+Running main() from <PACKET>/scratch/sdk/googletest-f8d7d77c06936315286eb55f8de22cd23c188571/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 14 tests from Forms
+[ RUN      ] Forms.ASSERT_EQ
+assertion-forms.cpp:1: Failure
+Expected equality of these values:
+  left
+    Which is: 1
+  right
+    Which is: 2
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.ASSERT_EQ (0 ms)
+[ RUN      ] Forms.ASSERT_FALSE
+assertion-forms.cpp:1: Failure
+Value of: true
+  Actual: true
+Expected: false
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.ASSERT_FALSE (0 ms)
+[ RUN      ] Forms.ASSERT_GE
+assertion-forms.cpp:1: Failure
+Expected: (1) >= (2), actual: 1 vs 2
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.ASSERT_GE (0 ms)
+[ RUN      ] Forms.ASSERT_LE
+assertion-forms.cpp:1: Failure
+Expected: (2) <= (1), actual: 2 vs 1
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.ASSERT_LE (0 ms)
+[ RUN      ] Forms.ASSERT_NE
+assertion-forms.cpp:1: Failure
+Expected: (1) != (1), actual: 1 vs 1
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.ASSERT_NE (0 ms)
+[ RUN      ] Forms.ASSERT_TRUE
+assertion-forms.cpp:1: Failure
+Value of: false
+  Actual: false
+Expected: true
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.ASSERT_TRUE (0 ms)
+[ RUN      ] Forms.EXPECT_CALL
+assertion-forms.cpp:1: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, call())...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.EXPECT_CALL (0 ms)
+[ RUN      ] Forms.EXPECT_EQ
+assertion-forms.cpp:1: Failure
+Expected equality of these values:
+  left
+    Which is: 1
+  right
+    Which is: 2
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.EXPECT_EQ (0 ms)
+[ RUN      ] Forms.EXPECT_EXIT
+assertion-forms.cpp:1: Failure
+Death test: std::_Exit(1)
+    Result: died but not with expected exit code:
+            Exited with exit status 1
+Actual msg:
+[  DEATH   ] 
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.EXPECT_EXIT (0 ms)
+[ RUN      ] Forms.EXPECT_FALSE
+assertion-forms.cpp:1: Failure
+Value of: true
+  Actual: true
+Expected: false
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.EXPECT_FALSE (0 ms)
+[ RUN      ] Forms.EXPECT_GE
+assertion-forms.cpp:1: Failure
+Expected: (1) >= (2), actual: 1 vs 2
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.EXPECT_GE (0 ms)
+[ RUN      ] Forms.EXPECT_LE
+assertion-forms.cpp:1: Failure
+Expected: (2) <= (1), actual: 2 vs 1
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.EXPECT_LE (0 ms)
+[ RUN      ] Forms.EXPECT_NE
+assertion-forms.cpp:1: Failure
+Expected: (1) != (1), actual: 1 vs 1
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.EXPECT_NE (0 ms)
+[ RUN      ] Forms.EXPECT_TRUE
+assertion-forms.cpp:1: Failure
+Value of: false
+  Actual: false
+Expected: true
+
+TSN_TEMPLATE_BEGIN
+discarded stream
+TSN_TEMPLATE_END
+
+Google Test trace:
+assertion-forms.cpp:1: template trace
+
+[  FAILED  ] Forms.EXPECT_TRUE (0 ms)
+[----------] 14 tests from Forms (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 14 tests, listed below:
+[  FAILED  ] Forms.ASSERT_EQ
+[  FAILED  ] Forms.ASSERT_FALSE
+[  FAILED  ] Forms.ASSERT_GE
+[  FAILED  ] Forms.ASSERT_LE
+[  FAILED  ] Forms.ASSERT_NE
+[  FAILED  ] Forms.ASSERT_TRUE
+[  FAILED  ] Forms.EXPECT_CALL
+[  FAILED  ] Forms.EXPECT_EQ
+[  FAILED  ] Forms.EXPECT_EXIT
+[  FAILED  ] Forms.EXPECT_FALSE
+[  FAILED  ] Forms.EXPECT_GE
+[  FAILED  ] Forms.EXPECT_LE
+[  FAILED  ] Forms.EXPECT_NE
+[  FAILED  ] Forms.EXPECT_TRUE
+
+14 FAILED TESTS

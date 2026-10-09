@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T10:55:52.190" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T10:55:52.190">
+    <testcase name="A3toA5DiscoverAndDiscard" file="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp" line="539" status="run" result="completed" time="0." timestamp="2026-10-09T10:55:52.190" classname="AdpCore">
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:161&#x0A;Expected equality of these values:&#x0A;  a.discarded&#x0A;    Which is: 2&#x0A;  3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:161
+Expected equality of these values:
+  a.discarded
+    Which is: 2
+  3
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:162&#x0A;Expected equality of these values:&#x0A;  a.state&#x0A;    Which is: 2&#x0A;  ADP_STATE_WAITING&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A4 and leave WAITING alone&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:162
+Expected equality of these values:
+  a.state
+    Which is: 2
+  ADP_STATE_WAITING
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A4 and leave WAITING alone
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+      <failure message="<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:166&#x0A;Value of: fk.stops == stops + 1u &amp;&amp; a.state == ADP_STATE_DELAY &amp;&amp; a.last_draw == ADP_DRAW_DELAY&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6&#x0A;A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)&#x0A;TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc&#x0A;&#x0A;" type=""><![CDATA[<HOSTED_SOURCE>/build-validation/mutations/baseline/tests/test_adp.cpp:166
+Value of: fk.stops == stops + 1u && a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_4ef2c0cbfa5b555a764cfd627728c8d6
+A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)
+TSN_MESSAGE_END_08534fc5dfcd994bf409434b224d05cc
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
