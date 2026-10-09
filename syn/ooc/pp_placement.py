@@ -85,8 +85,12 @@ def validate(directory: Path, script: str, requested: str) -> None:
                              f"expected {low}..{high}")
 
 
-def validate_all_fabric(directory: Path) -> None:
-    """Check the legacy route's module column without changing its recipe or record."""
+def all_fabric_problems(directory: Path) -> list[str]:
+    """Name each role a default integrated route holds in the wrong number, without changing its recipe or record.
+
+    The all-fabric recipe writes no census, so the hierarchy report's module column is the evidence.
+    """
+    problems = [f"{REPORT} present: a selected recipe measured this directory"] if (directory / REPORT).exists() else []
     counts = dict.fromkeys(MODULES, 0)
     for line in (directory / "baseline_hierarchy.rpt").read_text().splitlines():
         fields = [field.strip() for field in line.split("|")[1:-1]]
@@ -95,13 +99,12 @@ def validate_all_fabric(directory: Path) -> None:
         for role, module in MODULES.items():
             if re.fullmatch(re.escape(module) + r"(?:__parameterized[0-9]+)?", fields[1]):
                 counts[role] += 1
-    problems = []
     for role, count in counts.items():
         low, high = limits("all-fabric", role)
         if not low <= count <= high:
-            problems.append(f"{role} ({MODULES[role]}) count {count}, expected {low}..{high}")
-    if problems:
-        raise ValueError("wrong placement all-fabric: " + "; ".join(problems))
+            problems.append(f"wrong placement all-fabric: {role} ({MODULES[role]}) count {count}, "
+                            f"expected {low}..{high}")
+    return problems
 
 
 def census_tcl(placement: str, report: bool = False) -> str:

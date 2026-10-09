@@ -97,8 +97,8 @@ def recipe_selftest(gateware: Path, standalone: Path, log: Path, source: str, ve
     recipe.prepare(gateware, gateware, None, False)
     control = (gateware / "baseline_integrated.tcl").read_bytes()
     recipe.main([str(gateware), "--placement", "all-fabric"])
-    if (gateware / "baseline_integrated.tcl").read_bytes() != control:
-        raise AssertionError("explicit all-fabric changed the original recipe")
+    if (gateware / "baseline_integrated.tcl").read_bytes() != control or placement.MARKER.encode() in control:
+        raise AssertionError("explicit all-fabric changed the original recipe or names a selection")
     generated = gateware / "alinx_ax7101.v"
     try:
         for selected, absent in (("f0-f4", ("PP_TROM_HEX_P",)),
@@ -107,6 +107,12 @@ def recipe_selftest(gateware: Path, standalone: Path, log: Path, source: str, ve
             generated.write_text(text)
             recipe.main([str(gateware), "--placement", selected, "--single-thread-synthesis"])
             script = (gateware / "baseline_integrated.tcl").read_text()
+            # The gate's only split discriminator: one marker naming exactly this selection.
+            markers = [line for line in script.splitlines() if line.startswith(placement.MARKER)]
+            if markers != [placement.MARKER + selected] or not placement.selection(script, selected):
+                raise AssertionError(f"{selected} recipe does not name its selection exactly once: {markers}")
+            with recipe.expect_refusal(f"recipe names ['{selected}']"):
+                placement.selection(script, "all-fabric")
             before = script.index("synth_design ")
             after = script.index("# Add pre-optimize commands")
             if not script.startswith("set_param synth.maxThreads 1\n"):
@@ -134,13 +140,52 @@ def recipe_selftest(gateware: Path, standalone: Path, log: Path, source: str, ve
                     recipe.main([str(gateware), "--placement", selected, *options])
                 if "selected split placement requires" not in stderr.getvalue():
                     raise AssertionError("wrong split endpoint refusal")
+            split_endpoint_selftest(gateware, source, selected)
+            present_binding_selftest(gateware, verilog, selected, absent)
         generated.write_text(verilog.replace("PP_UCODE_HEX_P", "MISSING_P"))
         with recipe.expect_refusal("ambiguous image or geometry source: PP_UCODE_HEX_P"):
             recipe.inventory(gateware, source, "f0-f4")
         tcl_selftest(gateware)
     finally:
         generated.write_text(verilog)
-    print("placement recipe: legacy parity, split preparation, ROM and endpoint refusals PASS")
+    print("placement recipe: legacy parity, split preparation, selection marker, ROM and endpoint refusals PASS")
+
+
+def split_endpoint_selftest(gateware: Path, source: str, selected: str) -> None:
+    """Stop a synthesis-only split before implementation; require exactly one synthesis command."""
+    import pp_baseline as recipe
+    recipe.main([str(gateware), "--placement", selected, "--synthesis-only"])
+    script = (gateware / "baseline_integrated.tcl").read_text()
+    if "# Add pre-optimize commands" in script or script.count("wrong placement") != 22:
+        raise AssertionError(f"{selected} synthesis-only endpoint runs implementation or lacks a census")
+    tcl = gateware / "alinx_ax7101.tcl"
+    command = next(line for line in source.splitlines(keepends=True) if line.startswith("synth_design "))
+    try:
+        for changed in (source.replace(command, command * 2), source.replace(command, "")):
+            tcl.write_text(changed)
+            with recipe.expect_refusal("selected placement requires exactly one synthesis command"):
+                recipe.main([str(gateware), "--placement", selected])
+    finally:
+        tcl.write_text(source)
+
+
+def present_binding_selftest(gateware: Path, verilog: str, selected: str, absent: tuple[str, ...]) -> None:
+    """A removed protocol's ROM binding that is still present keeps its geometry checks, refused by image."""
+    import pp_baseline as recipe
+    (gateware / "alinx_ax7101.v").write_text(verilog)
+    recipe.main([str(gateware), "--placement", selected])
+    if len(json.loads((gateware / "baseline_images.json").read_text())) != 5:
+        raise AssertionError(f"{selected}: a present removed-protocol ROM left the image inventory")
+    for parameter in absent:
+        image = gateware / f"{parameter}.hex"
+        pristine = image.read_text()
+        try:
+            for contents, refusal in (("12345678\n", "wrong image depth"), ("1234\n5678\n", "wrong image width")):
+                image.write_text(contents)
+                with recipe.expect_refusal(f"{refusal}: {image}"):
+                    recipe.main([str(gateware), "--placement", selected])
+        finally:
+            image.write_text(pristine)
 
 
 def selected_fixture(root: Path, selected: str) -> Path:
@@ -170,7 +215,7 @@ def expect_case(label: str, result: tuple[int, list[str]], status: int, reason: 
 
 
 def all_fabric_selftest(root: Path, baseline: Path) -> None:
-    """Refuse unmarked wrong populations in both comparisons and acceptance writes."""
+    """Refuse unmarked wrong populations in both comparisons and acceptance writes, naming each role."""
     from pp_resource_gate_selftest import cli, fixture
     folder = fixture(root / "all-fabric", "route")
     arguments = (folder, "--endpoint", "route-1x1", "--baseline", baseline)
@@ -178,7 +223,8 @@ def all_fabric_selftest(root: Path, baseline: Path) -> None:
     original = report.read_text()
     baseline_bytes = baseline.read_bytes()
     expect_case("all-fabric unmarked control", cli("check", *arguments), 0, "RESULT: PASS")
-    plants = []
+    # Absent wrapper hierarchy fails at its root; a renamed wrapper reaches the population comparison.
+    plants = [("wrapper replaced", original.replace("| KL_pp_shadow |", "| KL_pp_aecp_only |"), ("wrapper",))]
     for role, module, count in zip(ROLES, MODULES, COUNTS["all-fabric"]):
         matching = next((line for line in original.splitlines(keepends=True) if f"| {module} |" in line), None)
         if count:
@@ -192,6 +238,7 @@ def all_fabric_selftest(root: Path, baseline: Path) -> None:
     split = "".join(line for line in original.splitlines(keepends=True)
                     if line.split("|")[2].strip() not in removed_modules)
     plants.append(("wrapper-retaining f0-f4 without marker", split, removed))
+    census = folder / placement.REPORT
     try:
         for label, changed, roles in plants:
             report.write_text(changed)
@@ -201,6 +248,21 @@ def all_fabric_selftest(root: Path, baseline: Path) -> None:
                     expect_case(label + " " + command[0], result, 2, f"{role} ({MODULES[ROLES.index(role)]})")
                 if baseline.read_bytes() != baseline_bytes:
                     raise AssertionError("wrong all-fabric population changed acceptance baseline")
+        report.write_text(original)
+        census.write_text(census_text("f0-f4", COUNTS["f0-f4"]))
+        for command in (("check",), ("record", "--write")):
+            expect_case("all-fabric with a split census " + command[0], cli(*command, *arguments), 2,
+                        f"{placement.REPORT} present")
+        census.unlink()
+        if baseline.read_bytes() != baseline_bytes:
+            raise AssertionError("split census under the default selection changed acceptance baseline")
+        # A measurement already not comparable by identity keeps that first reason.
+        utilization = folder / "baseline_utilization.rpt"
+        measured = utilization.read_text()
+        utilization.write_text(measured.replace("Build 6511674", "Build 6511675"))
+        report.write_text(split)
+        expect_case("all-fabric identity before population", cli("check", *arguments), 2, "tool or recipe change")
+        utilization.write_text(measured)
         # Own-logic rows repeat module names; specializations retain their identity.
         valid = original
         for module in MODULES:
@@ -277,6 +339,11 @@ def gate_selftest() -> None:
                 expect_case(selected + " " + reason, cli("check", *arguments),
                             2 if "recipe" in reason else 1, reason)
                 report.write_text(pristine)
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            status, _ = cli("--fuzz", "1", "--placement", "f0-f4")
+        if status != 2 or "split controls run under --selftest" not in stderr.getvalue():
+            raise AssertionError(f"split --fuzz accepted: exit {status}")
         if baseline.read_bytes() != baseline_bytes:
             raise AssertionError("selected measurements changed acceptance baseline")
         print("placement gate: unchanged acceptance schema, record and policy PASS")

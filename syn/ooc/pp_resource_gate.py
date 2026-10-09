@@ -18,6 +18,9 @@ with different figures are refused too, because nothing in the design moved.
 Only a measurement with the baseline's identity and different inputs is
 judged against the tolerances. A route is also judged on its route status
 report: an unrouted net or a routing error means the image does not fit.
+check and record --write also refuse a default integrated route whose
+hierarchy report names any control role in other than its all-fabric number
+(pp_placement.py), after the identity comparison; a printed record is not judged.
 
 Exit status of check, record and check-baseline: 0 within tolerance; 1 a
 material regression, an incomplete route included, and nothing else; 2 not
@@ -251,11 +254,9 @@ def scopes(directory: Path, kind: str, carry: dict[str, int],
            placement: str = "all-fabric") -> dict[str, dict[str, int]]:
     """Count three hierarchy levels below the legacy wrapper or selected image."""
     rows = hierarchy(directory / "baseline_hierarchy.rpt")
-    if placement == "all-fabric" and kind == "route":
-        pp_placement.validate_all_fabric(directory)
     root = ROOTS[kind] if placement == "all-fabric" else "alinx_ax7101"
     if root not in rows:
-        raise Refusal(f"hierarchy report has no {root}")
+        raise Refusal("; ".join([f"hierarchy report has no {root}", *misplaced(directory, kind, placement)]))
     result = {}
     for key, counts in rows.items():
         inside = key == root or key.startswith(root + "/")
@@ -267,6 +268,13 @@ def scopes(directory: Path, kind: str, carry: dict[str, int],
             result[relative] = {name: counts[name] for name in ("LUT", "FF", "RAMB36", "RAMB18", "DSP")}
             result[relative]["CARRY4"] = carry.get(cells, 0)
     return result
+
+
+def misplaced(directory: Path, kind: str, placement: str) -> list[str]:
+    """Name each control role a default integrated route holds in the wrong number; others hold no such census."""
+    if placement != "all-fabric" or kind != "route":
+        return []
+    return pp_placement.all_fabric_problems(directory)
 
 
 def kind_of(directory: Path) -> str:
@@ -322,11 +330,13 @@ def routing(directory: Path, kind: str) -> list[str]:
     return problems
 
 
-def judge(entry: dict, candidate: dict, unrouted: list[str] | None = None) -> tuple[int, list[str]]:
+def judge(entry: dict, candidate: dict, unrouted: list[str] | None = None,
+          wrong: list[str] | None = None) -> tuple[int, list[str]]:
     """Compare one record with its baseline entry; return the exit status and report.
 
     ``unrouted`` is what routing() found incomplete in the candidate's route,
-    or None for a bare record whose route status was never read.
+    or None for a bare record whose route status was never read. ``wrong`` is
+    what misplaced() found in a default route's population, read after identity.
     """
     base = entry["record"]
     if candidate["kind"] != base["kind"]:
@@ -336,6 +346,8 @@ def judge(entry: dict, candidate: dict, unrouted: list[str] | None = None) -> tu
     if changed:
         return 2, [f"NOT COMPARABLE: tool or recipe change in {', '.join(changed)}; measure the "
                    "baseline again under the new identity instead of comparing across it"]
+    if wrong:
+        return 2, [f"NOT COMPARABLE: {'; '.join(wrong)}; measure a split image with its --placement"]
     if candidate["inputs_sha256"] == base["inputs_sha256"] and candidate["figures"] != base["figures"]:
         return 2, ["NOT COMPARABLE: identical inputs measured differently (non-determinism or "
                    "an unrecorded tool setting), which is not an architectural change"]
@@ -748,7 +760,11 @@ def main(argv: list[str] | None = None) -> int:
         directory = args.directory.resolve()
         candidate = record(directory, kind_of(directory), args.placement)
         unrouted = routing(directory, candidate["kind"]) if args.command == "check" else []
+        # Printing a record judges and writes nothing; check and --write read the population.
+        wrong = [] if printing else misplaced(directory, candidate["kind"], args.placement)
         if args.command == "record":
+            if wrong:
+                raise Refusal(f"{'; '.join(wrong)}; acceptance records only the all-fabric image")
             emit([json.dumps(candidate, indent=1)])
             if args.write:
                 baseline["endpoints"].setdefault(args.endpoint, {})["record"] = candidate
@@ -756,7 +772,7 @@ def main(argv: list[str] | None = None) -> int:
                 load(args.baseline, text)  # never write a baseline the next read would refuse
                 args.baseline.write_text(text)
             return 0
-        status, lines = judge(baseline["endpoints"][args.endpoint], candidate, unrouted)
+        status, lines = judge(baseline["endpoints"][args.endpoint], candidate, unrouted, wrong)
         selected = [f"placement {args.placement}: intermediate comparison"] if args.placement != "all-fabric" else []
         emit([f"endpoint {args.endpoint}: {args.directory}", *selected, *lines])
         return status

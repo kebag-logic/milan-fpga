@@ -23,6 +23,15 @@ MUTANTS = {
     "split retained AECP ROM skipped": (
         'placement == "f0-f4" and parameter == "PP_TROM_HEX_P"',
         'placement == "f0-f4" and parameter.startswith("PP_")'),
+    "split selection marker omitted": ('script = pp_placement.MARKER + placement + "\\n" + prefix', 'script = prefix'),
+    "present removed-protocol ROM unchecked": ("        if removed and not matches:\n", "        if removed:\n"),
+    "split synthesis command count unchecked": (
+        '    if len(commands) != 1:\n        raise ValueError("selected placement requires',
+        '    if False:\n        raise ValueError("selected placement requires'),
+    "split synthesis-only endpoint runs implementation": (
+        '    marker = "# Add pre-optimize commands" if synthesis_only else "# Bitstream generation"\n'
+        "    endpoint, _ = split_once(rest, marker)\n    script = pp_placement",
+        '    marker = "# Bitstream generation"\n    endpoint, _ = split_once(rest, marker)\n    script = pp_placement'),
     "synthesis worker cap ignored": ("    if args.single_thread_synthesis:\n", "    if False:\n"),
     "synthesis worker cap enabled by default": ("    if args.single_thread_synthesis:\n", "    if True:\n"),
     "ROM error promotion": ("    prefix += ROM_ERROR\n", "    pass\n"),
@@ -124,6 +133,8 @@ def main() -> None:
             if (result.returncode == 0) != (change is None):
                 raise AssertionError(f"{name}: rc={result.returncode}\n"
                                      f"{result.stdout}\n{result.stderr}")
+            if change is None and "placement recipe: legacy parity" not in result.stdout:
+                raise AssertionError("the control passed without running the placement recipe controls")
             print(f"{name}: rc={result.returncode} PASS")
 
 

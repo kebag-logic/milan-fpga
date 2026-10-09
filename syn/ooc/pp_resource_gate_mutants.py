@@ -280,8 +280,30 @@ RANK_MUTANTS = {
 }
 
 
+#: The gate's reading of a default route's population; the census itself is in PLACEMENT_MUTANTS.
+POPULATION_MUTANTS = {
+    "all-fabric population not read": (
+        '        wrong = [] if printing else misplaced(directory, candidate["kind"], args.placement)\n',
+        '        wrong = []\n'),
+    "all-fabric population ignored by check": ('    if wrong:\n        return 2', '    if False:\n        return 2'),
+    "all-fabric population ignored by record --write": (
+        '            if wrong:\n                raise Refusal', '            if False:\n                raise Refusal'),
+    "all-fabric population read for split routes": (
+        '    if placement != "all-fabric" or kind != "route":\n', '    if kind != "route":\n'),
+    "all-fabric population read for standalone": (
+        '    if placement != "all-fabric" or kind != "route":\n', '    if placement != "all-fabric":\n'),
+    "missing wrapper root names no role": ('*misplaced(directory, kind, placement)]', ']'),
+    "split fuzz refusal removed": ('        if args.placement != "all-fabric":\n            parser.error("--fuzz',
+                                   '        if False:\n            parser.error("--fuzz'),
+}
+
+
 PLACEMENT_MUTANTS = {
-    "all-fabric census problems ignored": ('    if problems:\n', '    if False:\n'),
+    "all-fabric count limits ignored": ('        if not low <= count <= high:\n            problems.append',
+                                        '        if False:\n            problems.append'),
+    "all-fabric split census accepted": (' if (directory / REPORT).exists() else []', ' if False else []'),
+    "all-fabric own rows counted": (' or fields[0].startswith("(")', ''),
+    "all-fabric module prefix accepted": ('r"(?:__parameterized[0-9]+)?"', 'r".*"'),
     "placement selection ignored": ('    if markers != [requested]:\n', '    if False:\n'),
     "placement census ignored": ('    if not selection(script, requested):\n', '    if True:\n'),
     "placement count limits ignored": (
@@ -313,6 +335,8 @@ def run(tmp: Path, here: Path, name: str, target: str, change: tuple[str, str] |
                             capture_output=True, text=True, timeout=600)
     if (result.returncode == 0) != (change is None):
         raise AssertionError(f"{name}: rc={result.returncode}\n{result.stdout}\n{result.stderr}")
+    if change is None and "placement gate: unchanged acceptance schema" not in result.stdout:
+        raise AssertionError("the control passed without running the placement gate controls")
     return f"{name}: rc={result.returncode} PASS"
 
 
@@ -320,8 +344,7 @@ def main() -> None:
     """Run a positive control and require every single mutant to fail the self-test, one per processor."""
     here = Path(__file__).resolve().parent
     jobs = [("control", "pp_resource_gate.py", None),
-            ("all-fabric census not called", "pp_resource_gate.py",
-             ('        pp_placement.validate_all_fabric(directory)\n', '        pass\n')),
+            *((name, "pp_resource_gate.py", change) for name, change in POPULATION_MUTANTS.items()),
             *((name, "pp_resource_gate.py", change) for name, change in MUTANTS.items()),
             *((name, "pp_baseline_rank.py", change) for name, change in RANK_MUTANTS.items()),
             *((name, "pp_placement.py", change) for name, change in PLACEMENT_MUTANTS.items())]
