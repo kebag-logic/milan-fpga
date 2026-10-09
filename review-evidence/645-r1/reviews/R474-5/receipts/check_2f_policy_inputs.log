@@ -1,0 +1,41 @@
+OK   merge-result records == dev records (merge did not touch the JSON)
+OK   endpoint set unchanged
+OK   route-1x1: every non-record field (tolerance/floor/ceiling/notes) unchanged: keys ['ceiling', 'floor', 'tolerance']
+OK   route-1x1: record identity unchanged vs dev
+OK   route-1x1: judge(dev record, published record) replays check log exactly (status 0)
+OK   ooc-1x1: every non-record field (tolerance/floor/ceiling/notes) unchanged: keys ['tolerance']
+OK   ooc-1x1: record identity unchanged vs dev
+OK   ooc-1x1: judge(dev record, published record) replays check log exactly (status 0)
+OK   ooc-8x8: every non-record field (tolerance/floor/ceiling/notes) unchanged: keys ['tolerance']
+OK   ooc-8x8: record identity unchanged vs dev
+OK   ooc-8x8: judge(dev record, published record) replays check log exactly (status 0)
+OK   top-level JSON fields unchanged
+ax7101: 122/122 repository inputs equal merge and head blobs; not bound by git: 5
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+   unbound: $VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v
+   unbound: $VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.xdc
+OK   ax7101: every repository input matches
+ax8x8: 119/119 repository inputs equal merge and head blobs; not bound by git: 5
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+   unbound: $VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v
+   unbound: $VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.xdc
+OK   ax8x8: every repository input matches
+ooc-1x1: 119/119 repository inputs equal merge and head blobs; not bound by git: 5
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+   unbound: $VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v
+   unbound: $VALIDATION_STORAGE/645-a531/round2f/ooc-1x1/clock.xdc
+OK   ooc-1x1: every repository input matches
+ooc-8x8: 119/119 repository inputs equal merge and head blobs; not bound by git: 5
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+   unbound: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+   unbound: $VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v
+   unbound: $VALIDATION_STORAGE/645-a531/round2f/ooc-8x8/clock.xdc
+OK   ooc-8x8: every repository input matches
+RESULT: PASS

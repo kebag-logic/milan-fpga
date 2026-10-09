@@ -1,0 +1,11 @@
+--- $SCRATCH/tree-probe/hdl/milan/milan_datapath.sv	2026-10-09 05:50:07.000000000 +0200
++++ $SCRATCH/probe-src/milan_datapath.sv	2026-10-09 06:27:04.599000000 +0200
+@@ -6630,7 +6630,7 @@
+           settle_pend_r       <= 1'b0;
+           settle_run_ticks_r  <= '0;
+           settle_ceil_ticks_r <= '0;
+-          settle_recentre_p_r <= 1'b1;
++          settle_recentre_p_r <= 1'b0;
+           settle_recover_r    <= 1'b1;
+         end else begin
+           if (media_tick_p) begin

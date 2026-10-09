@@ -1,0 +1,143 @@
+{
+ "ooc-1x1": {
+  "checks": {
+   "figures == committed": true,
+   "figures == published": true,
+   "identity == committed": true,
+   "identity == published": true,
+   "inputs_sha256 published == committed": true,
+   "published record == committed record": true,
+   "scopes(LUT/FF/RAMB/DSP) == committed": true,
+   "scopes(LUT/FF/RAMB/DSP) == published": true,
+   "wrapper CARRY4 == total (ooc only)": true
+  },
+  "identity": {
+   "design": "KL_pp_shadow",
+   "device": "xc7a100tfgg484-2",
+   "flow": [
+    "set_param synth.maxThreads 1",
+    "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+    "set_param general.maxThreads 32",
+    "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+   ],
+   "standalone_clock_ns": [
+    "20.000"
+   ],
+   "state": "Synthesized",
+   "tool": "Vivado v.2026.1 (lin64) Build 6511674"
+  },
+  "kind": "ooc",
+  "not_regenerated": [
+   "per-scope CARRY4 (cell census retained as excerpt only)",
+   "inputs_sha256 (generated LiteX top retained as size and hash only)"
+  ],
+  "regenerated_figures": {
+   "BRAM_TILE": 17.5,
+   "CARRY4": 1494,
+   "DSP": 8,
+   "FF": 19779,
+   "LUT": 23179,
+   "RAMB18": 3,
+   "RAMB36": 16,
+   "WHS_ns": 0.159,
+   "WNS_ns": -3.562
+  },
+  "scope_count": 52
+ },
+ "ooc-8x8": {
+  "checks": {
+   "figures == committed": true,
+   "figures == published": true,
+   "identity == committed": true,
+   "identity == published": true,
+   "inputs_sha256 published == committed": true,
+   "published record == committed record": true,
+   "scopes(LUT/FF/RAMB/DSP) == committed": true,
+   "scopes(LUT/FF/RAMB/DSP) == published": true,
+   "wrapper CARRY4 == total (ooc only)": true
+  },
+  "identity": {
+   "design": "KL_pp_shadow",
+   "device": "xc7a100tfgg484-2",
+   "flow": [
+    "set_param synth.maxThreads 1",
+    "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+    "set_param general.maxThreads 32",
+    "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+   ],
+   "standalone_clock_ns": [
+    "20.000"
+   ],
+   "state": "Synthesized",
+   "tool": "Vivado v.2026.1 (lin64) Build 6511674"
+  },
+  "kind": "ooc",
+  "not_regenerated": [
+   "per-scope CARRY4 (cell census retained as excerpt only)",
+   "inputs_sha256 (generated LiteX top retained as size and hash only)"
+  ],
+  "regenerated_figures": {
+   "BRAM_TILE": 23.5,
+   "CARRY4": 1889,
+   "DSP": 8,
+   "FF": 27380,
+   "LUT": 30135,
+   "RAMB18": 5,
+   "RAMB36": 21,
+   "WHS_ns": 0.159,
+   "WNS_ns": -2.278
+  },
+  "scope_count": 52
+ },
+ "route-1x1": {
+  "checks": {
+   "figures == committed": true,
+   "figures == published": true,
+   "identity == committed": true,
+   "identity == published": true,
+   "inputs_sha256 published == committed": true,
+   "published record == committed record": true,
+   "route status complete": true,
+   "scopes(LUT/FF/RAMB/DSP) == committed": true,
+   "scopes(LUT/FF/RAMB/DSP) == published": true,
+   "wrapper CARRY4 == total (ooc only)": true
+  },
+  "identity": {
+   "design": "alinx_ax7101",
+   "device": "xc7a100tfgg484-2",
+   "flow": [
+    "set_param synth.maxThreads 1",
+    "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+    "set_param general.maxThreads 32",
+    "synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2",
+    "opt_design -directive ExploreArea",
+    "kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}",
+    "place_design -directive ExtraPostPlacementOpt",
+    "phys_opt_design -directive AggressiveExplore",
+    "route_design -directive AggressiveExplore",
+    "phys_opt_design -directive AggressiveExplore"
+   ],
+   "standalone_clock_ns": [],
+   "state": "Physopt postRoute",
+   "tool": "Vivado v.2026.1 (lin64) Build 6511674"
+  },
+  "kind": "route",
+  "not_regenerated": [
+   "per-scope CARRY4 (cell census retained as excerpt only)",
+   "inputs_sha256 (generated LiteX top retained as size and hash only)"
+  ],
+  "regenerated_figures": {
+   "BRAM_TILE": 87.5,
+   "CARRY4": 3402,
+   "DSP": 14,
+   "FF": 54413,
+   "LUT": 50267,
+   "RAMB18": 27,
+   "RAMB36": 74,
+   "SLICE": 15779,
+   "WHS_ns": 0.031,
+   "WNS_ns": 0.299
+  },
+  "scope_count": 51
+ }
+}
