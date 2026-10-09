@@ -1,0 +1,731 @@
+EXCERPT ONLY. Original size: 612837 bytes; SHA-256: 7de9180470d8c509455827d47efd91de099ca5632498e3f711dd116b10a34a3a
+
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Oct  8 17:02:44 2026
+# Process ID         : 4111181
+# Current directory  : $VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware
+# Command line       : vivado -mode batch -source baseline_integrated.tcl -nojournal -log baseline.log
+# Log file           : $VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/baseline.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 47549 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source baseline_integrated.tcl
+# set_param synth.maxThreads 1
+# create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2
+# set_msg_config -id {Common 17-55} -new_severity {Warning}
+# set_param general.maxThreads 32
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/pp_acmp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/pp_acmp_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/adp/pp_adp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/adp/pp_adp_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/ucpu_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/ucpu_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/common/pp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/common/pp_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/srp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/srp_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_acmp_talker.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_acmp_talker.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/adp/KL_adp_engine.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/adp/KL_adp_engine.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_engine.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_engine.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_notify.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_notify.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/common/KL_pp_prng.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/common/KL_pp_prng.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/common/KL_pp_timer_service.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/common/KL_pp_timer_service.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/maap/KL_pp_maap.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/maap/KL_pp_maap.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_originator.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_originator.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_admission.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_admission.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_decoder.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_decoder.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_domain.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_domain.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_encoder.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_encoder.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_top.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_top.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_vlan.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_vlan.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/top/KL_mrp_strip.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/top/KL_mrp_strip.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/top/protocol_processor_top.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/top/protocol_processor_top.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/milan/KL_pp_shadow.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/milan/KL_pp_shadow.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/milan/KL_pp_maap_shim.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/milan/KL_pp_maap_shim.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/milan/KL_nvm_backend.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/milan/KL_nvm_backend.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/common/KL_gptp_timer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/common/KL_gptp_timer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/top/KL_gptp_engine.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/top/KL_gptp_engine.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/axi_stream_if.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/axi_stream_if.sv}]
+# read_verilog {$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_fifo.v}
+# read_verilog {$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_arb_mux.v}
+# read_verilog {$LANES/645-ring-slip/third_party/verilog-axis/rtl/arbiter.v}
+# read_verilog {$LANES/645-ring-slip/third_party/verilog-axis/rtl/priority_encoder.v}
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/cdc_pulse.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/cdc_pulse.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/cdc_handshake.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/cdc_handshake.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021q/filtering/tcam.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021q/filtering/tcam.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021q/filtering/rx_mac_filter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021q/filtering/rx_mac_filter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/tx_ifg_gasket.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/tx_ifg_gasket.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pcm_lpf.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pcm_lpf.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/KL_link_guard.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/KL_link_guard.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee17221/adp/adp_tx_arbiter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee17221/adp/adp_tx_arbiter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/aaf_talker_i2s.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/aaf_talker_i2s.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_i2s_playback.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_i2s_playback.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tone_gen.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tone_gen.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_media_adv.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_media_adv.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/avtp_subtype_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/avtp_subtype_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/avtp_stream_parser.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/avtp_stream_parser.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_stream_table.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_stream_table.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_media_clock_restart.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_media_clock_restart.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pcm_route.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pcm_route.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pair_blend.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pair_blend.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pair_zero_fill.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pair_zero_fill.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_render.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_render.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_render_master.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_render_master.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_render_setpoint.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_render_setpoint.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_chan_map_render.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_chan_map_render.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_chan_map_capture.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_chan_map_capture.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_packetizer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_packetizer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_crf_rx.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_crf_rx.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_crf_tx.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_crf_tx.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/maap/KL_maap.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/maap/KL_maap.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_aaf_clock_meter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_aaf_clock_meter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_media_nco.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_media_nco.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_media_grid_align.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_media_grid_align.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/eth_event_counter/ethernet_events.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/eth_event_counter/ethernet_events.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/eth_event_counter/event_counter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/eth_event_counter/event_counter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/eth_event_counter/KL_mac_rmon_events.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/eth_event_counter/KL_mac_rmon_events.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/csr/milan_csr.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/csr/milan_csr.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/milan/milan_datapath.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/milan/milan_datapath.sv}]
+# read_verilog {$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v}
+# read_verilog {$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v}
+# read_verilog {$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v}
+# read_verilog {$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v}
+# set_msg_config -id {Synth 8-4445} -new_severity ERROR
+# read_xdc alinx_ax7101.xdc
+# set_property PROCESSING_ORDER EARLY [get_files alinx_ax7101.xdc]
+# synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {$LANES/645-ring-slip/configs/generated/endstation_ax7101_8x8 $LANES/645-ring-slip/configs/generated/endstation_ax7101_8x8/gen $LANES/645-ring-slip/hdl/common $LANES/645-ring-slip/hdl/ieee8021q/ts $LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp $LANES/645-ring-slip/hdl/ieee17221/adp $LANES/645-ring-slip/hdl/common/csr $LANES/645-ring-slip/hdl/common/eth_event_counter $LANES/645-ring-slip/hdl/ieee1722/avtp}
+Command: synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {$LANES/645-ring-slip/configs/generated/endstation_ax7101_8x8 $LANES/645-ring-slip/configs/generated/endstation_ax7101_8x8/gen $LANES/645-ring-slip/hdl/common $LANES/645-ring-slip/hdl/ieee8021q/ts $LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp $LANES/645-ring-slip/hdl/ieee17221/adp $LANES/645-ring-slip/hdl/common/csr $LANES/645-ring-slip/hdl/common/eth_event_counter $LANES/645-ring-slip/hdl/ieee1722/avtp}
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 1 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 4111240
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2380.008 ; gain = 371.328 ; free physical = 16689 ; free virtual = 44002
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-11067] parameter 'BYTE_TO_BIT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:36]
+WARNING: [Synth 8-11067] parameter 'TDATA_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:39]
+WARNING: [Synth 8-11067] parameter 'MAC_ADDR_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:42]
+WARNING: [Synth 8-11067] parameter 'MAC_ADDR_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:43]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:46]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:47]
+WARNING: [Synth 8-11067] parameter 'VLAN_TPID_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:50]
+WARNING: [Synth 8-11067] parameter 'VLAN_TPID_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:51]
+WARNING: [Synth 8-11067] parameter 'VLAN_TCI_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:52]
+WARNING: [Synth 8-11067] parameter 'VLAN_TCI_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:53]
+WARNING: [Synth 8-11067] parameter 'VLAN_TAG_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:56]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:59]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:60]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_CHUNKS' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:63]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_BUFFER_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:64]
+WARNING: [Synth 8-11067] parameter 'PCP_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:67]
+WARNING: [Synth 8-11067] parameter 'NUMBER_OF_QUEUES' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:93]
+WARNING: [Synth 8-11067] parameter 'PRIORITY_QUEUES_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:96]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_VLAN' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:121]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_PTP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:123]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_AVTP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:125]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_MSRP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:127]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_MVRP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:129]
+WARNING: [Synth 8-11067] parameter 'MAC_DST_NEAREST_BRIDGE' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:147]
+WARNING: [Synth 8-11067] parameter 'MAC_DST_MVRP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:149]
+WARNING: [Synth 8-11067] parameter 'MAC_DST_ATDECC' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:151]
+WARNING: [Synth 8-11067] parameter 'MAC_DST_MAAP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:153]
+WARNING: [Synth 8-11067] parameter 'MAC_IG_BIT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:158]
+WARNING: [Synth 8-11067] parameter 'IDLE_SLOPE_1G' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:276]
+WARNING: [Synth 8-11067] parameter 'IDLE_SLOPE_100M' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:289]
+WARNING: [Synth 8-11067] parameter 'MAX_FRAME_SIZE' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:298]
+WARNING: [Synth 8-11067] parameter 'HI_CREDIT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:323]
+WARNING: [Synth 8-11067] parameter 'LO_CREDIT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:334]
+WARNING: [Synth 8-11067] parameter 'CLK_FREQ_HZ' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:344]
+WARNING: [Synth 8-11067] parameter 'FP_DECIMAL_POINT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:348]
+WARNING: [Synth 8-11067] parameter 'TIMESTAMP_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:355]
+WARNING: [Synth 8-11067] parameter 'PTP_MSG_TYPE_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:358]
+WARNING: [Synth 8-11067] parameter 'PTP_VERSION_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:359]
+WARNING: [Synth 8-11067] parameter 'PTP_MSG_LENGTH_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:360]
+WARNING: [Synth 8-11067] parameter 'PTP_DOMAIN_NUM_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:361]
+WARNING: [Synth 8-11067] parameter 'PTP_RESERVED1_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:362]
+WARNING: [Synth 8-11067] parameter 'PTP_FLAGS_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:363]
+WARNING: [Synth 8-11067] parameter 'PTP_CORRECTION_FIELD_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:364]
+WARNING: [Synth 8-11067] parameter 'PTP_RESERVED2_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:365]
+WARNING: [Synth 8-11067] parameter 'PTP_CLK_IDENTITY_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:366]
+WARNING: [Synth 8-11067] parameter 'PTP_SOURCE_PORT_ID_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:367]
+WARNING: [Synth 8-11067] parameter 'PTP_SEQ_ID_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:368]
+WARNING: [Synth 8-11067] parameter 'PTP_CONTROL_FIELD_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:369]
+WARNING: [Synth 8-11067] parameter 'PTP_LOG_MSG_INTERVAL_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:370]
+WARNING: [Synth 8-11067] parameter 'PTP_SEQ_ID_OFFSET_IN_PTP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:373]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_NO_VLAN_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:386]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_NO_VLAN_OFFSET' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:387]
+WARNING: [Synth 8-11067] parameter 'PTP_SEQ_ID_OFFSET' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:390]
+WARNING: [Synth 8-11067] parameter 'PTP_SEQ_ID_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:393]
+WARNING: [Synth 8-10388] /* is inside a comment [$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv:37]
+WARNING: [Synth 8-6901] identifier 'crft_emit_en_w' is used before its declaration [$LANES/645-ring-slip/hdl/milan/milan_datapath.sv:3177]
+WARNING: [Synth 8-11065] parameter 'ADDR_WIDTH' becomes localparam in 'axis_fifo' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_fifo.v:137]
+WARNING: [Synth 8-11065] parameter 'CL_KEEP_WDITH' becomes localparam in 'axis_fifo' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_fifo.v:138]
+WARNING: [Synth 8-11065] parameter 'OUTPUT_FIFO_ADDR_WIDTH' becomes localparam in 'axis_fifo' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_fifo.v:140]
+WARNING: [Synth 8-11065] parameter 'CL_S_COUNT' becomes localparam in 'axis_arb_mux' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_arb_mux.v:96]
+WARNING: [Synth 8-11065] parameter 'S_ID_WIDTH_INT' becomes localparam in 'axis_arb_mux' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_arb_mux.v:98]
+WARNING: [Synth 8-11065] parameter 'LEVELS' becomes localparam in 'priority_encoder' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/priority_encoder.v:47]
+WARNING: [Synth 8-11065] parameter 'W' becomes localparam in 'priority_encoder' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/priority_encoder.v:48]
+Linter Recording Failure, recording already started!
+Linter Recording Failure, recording already started!
+INFO: [Synth 8-6157] synthesizing module 'alinx_ax7101' [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:23]
+INFO: [Synth 8-3876] $readmem data file 'alinx_ax7101_rom.init' is read successfully [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:25309]
+INFO: [Synth 8-3876] $readmem data file 'alinx_ax7101_sram.init' is read successfully [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:25324]
+INFO: [Synth 8-3876] $readmem data file 'alinx_ax7101_mem.init' is read successfully [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:25343]
+INFO: [Synth 8-226] default block is never used [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:15093]
+INFO: [Synth 8-226] default block is never used [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:15133]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:15351]
+WARNING: [Synth 8-151] case item 7'b0000010 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:16313]
+WARNING: [Synth 8-151] case item 7'b0000100 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:16316]
+WARNING: [Synth 8-151] case item 7'b0001000 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:16319]
+WARNING: [Synth 8-151] case item 7'b0010000 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:16322]
+WARNING: [Synth 8-151] case item 7'b0100000 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:16325]
+WARNING: [Synth 8-151] case item 7'b1000000 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:16328]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:18081]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:21617]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:21648]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:23915]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:24142]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.v:24165]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/
+
+[intervening bytes omitted]
+
+h 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_talker/rec_ram_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_nvm_shadow/shw_ram_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_nvm_shadow/shw_ram_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_nvm_shadow/shw_ram_r_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_tx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_mrp_strip/ram_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_trace/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_timer/slot_ram_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/g_rx_pool[5].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/g_rx_pool[4].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/g_rx_pool[2].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/g_rx_pool[1].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/g_rx_pool[0].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/avtp_rx_monitor/lctx_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/crf_rx/ts_hist_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/aaf_packetizer/tctx_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/aaf_packetizer/stg_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/pp_shadow/u_pp/u_aecp/amap_stage_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance sram_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Common 17-14] Message 'Synth 8-7052' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:137]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:61]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:61]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:61]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:328]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:294]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:263]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:339]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:332]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:69]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:69]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:69]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:69]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:67]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:67]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:67]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:222]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:222]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:68]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:68]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:68]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:68]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv:61]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv:340]
+INFO: [Common 17-14] Message 'Synth 8-5396' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:48:24 ; elapsed = 00:49:38 . Memory (MB): peak = 8844.352 ; gain = 6835.672 ; free physical = 9551 ; free virtual = 37014
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:48:24 ; elapsed = 00:49:39 . Memory (MB): peak = 8844.352 ; gain = 6835.672 ; free physical = 9552 ; free virtual = 37014
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:48:40 ; elapsed = 00:49:55 . Memory (MB): peak = 8844.352 ; gain = 6835.672 ; free physical = 9513 ; free virtual = 36976
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:48:41 ; elapsed = 00:49:56 . Memory (MB): peak = 8844.352 ; gain = 6835.672 ; free physical = 9516 ; free virtual = 36979
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:48:44 ; elapsed = 00:49:59 . Memory (MB): peak = 8844.352 ; gain = 6835.672 ; free physical = 9517 ; free virtual = 36980
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:48:44 ; elapsed = 00:49:59 . Memory (MB): peak = 8844.352 ; gain = 6835.672 ; free physical = 9517 ; free virtual = 36980
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Static Shift Register Report:
++-------------+-----------------------------------------------------------------------------------------------------------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+|Module Name  | RTL Name                                                                                                                                | Length | Width | Reset Signal | Pull out first Reg | Pull out last Reg | SRL16E | SRLC32E | 
++-------------+-----------------------------------------------------------------------------------------------------------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+|alinx_ax7101 | VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/execute_ctrl4_up_lane0_IntFormatPlugin_logic_WIDTH_ID_lane0_reg[1] | 3      | 2     | NO           | NO                 | YES               | 2      | 0       | 
+|alinx_ax7101 | VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/execute_ctrl4_up_lane0_IntFormatPlugin_logic_SIGNED_lane0_reg      | 3      | 1     | NO           | NO                 | YES               | 1      | 0       | 
+|alinx_ax7101 | milansoc_a7ddrphy_rddata_en_tappeddelayline7_reg                                                                                        | 8      | 1     | YES          | NO                 | YES               | 1      | 0       | 
+|alinx_ax7101 | subfragments_new_master_rdata_valid8_reg                                                                                                | 9      | 1     | YES          | NO                 | YES               | 1      | 0       | 
++-------------+-----------------------------------------------------------------------------------------------------------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-------------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name        | DSP Mapping       | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-------------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_crf_tx          | C+A*B             | 18     | 16     | 2      | -      | 34     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu       | A'*B'             | 17     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu       | (PCIN>>17+A'*B')' | 30     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_ucpu       | A'*B'             | 17     | 17     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu       | (PCIN>>17+A'*B')' | 17     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_media_nco       | A'*B              | 30     | 6      | -      | -      | 24     | 1    | 0    | -    | -    | -     | 0    | 0    | 
+|KL_nvm_backend     | C+D+A*B           | 30     | 7      | 6      | 8      | 18     | 0    | 0    | 0    | 0    | 0     | 0    | 0    | 
+|KL_nvm_backend     | C+D+A*B           | 30     | 5      | 7      | 8      | 18     | 0    | 0    | 0    | 0    | 0     | 0    | 0    | 
+|KL_nvm_backend     | D+A*B             | 30     | 7      | -      | 8      | 0      | 0    | 0    | -    | 0    | 0     | 0    | 0    | 
+|KL_nvm_backend     | PCIN+A:B'+C       | 0      | 16     | -      | -      | 18     | 0    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_adp_engine      | C'+A'*B           | 5      | 11     | 32     | -      | 32     | 1    | 0    | 1    | -    | -     | 0    | 0    | 
+|KL_aecp_desc_store | (C'+A'*B)'        | 16     | 16     | 32     | -      | 32     | 1    | 0    | 1    | -    | -     | 0    | 1    | 
+|KL_srp_admission   | (A'*B)'           | 11     | 1      | -      | -      | 33     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|KL_srp_admission   | A*B               | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-------------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-----------+------+
+|      |Cell       |Count |
++------+-----------+------+
+|1     |BUFG       |    11|
+|2     |CARRY4     |  4129|
+|3     |DSP48E1    |    14|
+|13    |IDDR       |     1|
+|14    |IDELAYCTRL |     1|
+|15    |IDELAYE2   |    32|
+|16    |ISERDESE2  |    32|
+|17    |LUT1       |  1843|
+|18    |LUT2       | 10665|
+|19    |LUT3       | 10330|
+|20    |LUT4       | 10979|
+|21    |LUT5       | 13780|
+|22    |LUT6       | 30020|
+|23    |MMCME2_ADV |     1|
+|24    |MUXF7      |  3137|
+|25    |MUXF8      |   564|
+|26    |ODDR       |     1|
+|27    |OSERDESE2  |    66|
+|28    |PLLE2_ADV  |     2|
+|30    |RAM16X1D   |    18|
+|31    |RAM16X1S   |    32|
+|32    |RAM32M     |   706|
+|33    |RAM32X1D   |    50|
+|34    |RAM64M     |    28|
+|35    |RAM64X1D   |   289|
+|36    |RAM64X1S   |    64|
+|37    |RAMB18E1   |    29|
+|46    |RAMB36E1   |    75|
+|74    |SRL16E     |     5|
+|75    |STARTUPE2  |     1|
+|76    |FDCE       |  7250|
+|77    |FDPE       |   325|
+|78    |FDRE       | 58018|
+|79    |FDSE       |   690|
+|80    |IBUF       |    14|
+|81    |IBUFDS     |     1|
+|82    |IOBUF      |    33|
+|83    |IOBUFDS    |     4|
+|84    |OBUF       |    50|
+|85    |OBUFDS     |     1|
++------+-----------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:48:44 ; elapsed = 00:50:00 . Memory (MB): peak = 8844.352 ; gain = 6835.672 ; free physical = 9517 ; free virtual = 36980
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 67373 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:48:02 ; elapsed = 00:49:40 . Memory (MB): peak = 8844.352 ; gain = 6234.910 ; free physical = 11963 ; free virtual = 39479
+Synthesis Optimization Complete : Time (s): cpu = 00:48:47 ; elapsed = 00:50:02 . Memory (MB): peak = 8844.352 ; gain = 6835.672 ; free physical = 11986 ; free virtual = 39479
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.91 ; elapsed = 00:00:00.91 . Memory (MB): peak = 8844.352 ; gain = 0.000 ; free physical = 12014 ; free virtual = 39507
+INFO: [Netlist 29-17] Analyzing 9244 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.xdc]
+INFO: [Timing 38-35] Done setting XDC timing constraints. [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.xdc:570]
+INFO: [Timing 38-2] Deriving generated clocks [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.xdc:570]
+get_clocks: Time (s): cpu = 00:00:22 ; elapsed = 00:00:08 . Memory (MB): peak = 9080.547 ; gain = 0.000 ; free physical = 11965 ; free virtual = 39461
+Finished Parsing XDC File [$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101.xdc]
+INFO: [Opt 31-138] Pushed 3 inverter(s) to 68 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 9080.547 ; gain = 0.000 ; free physical = 11976 ; free virtual = 39472
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1229 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 18 instances
+  RAM16X1S => RAM32X1S (RAMS32): 32 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 706 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 50 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 28 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 289 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+Synth Design complete | Checksum: 44ab1372
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+986 Infos, 797 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:49:41 ; elapsed = 00:50:41 . Memory (MB): peak = 9080.582 ; gain = 7071.902 ; free physical = 11932 ; free virtual = 39460
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 10309.503; main = 7878.640; forked = 2765.225
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 13400.027; main = 9080.551; forked = 4559.594
+# report_timing_summary -file alinx_ax7101_timing_synth.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:47 ; elapsed = 00:00:10 . Memory (MB): peak = 9080.582 ; gain = 0.000 ; free physical = 11936 ; free virtual = 39465
+# report_utilization -hierarchical -file alinx_ax7101_utilization_hierarchical_synth.rpt
+# report_utilization -file alinx_ax7101_utilization_synth.rpt
+# write_checkpoint -force alinx_ax7101_synth.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 9112.562 ; gain = 0.000 ; free physical = 11939 ; free virtual = 39469
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 9112.562 ; gain = 0.000 ; free physical = 11939 ; free virtual = 39469
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.02 . Memory (MB): peak = 9112.562 ; gain = 0.000 ; free physical = 11939 ; free virtual = 39469
+Wrote PlaceStorage: Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00 . Memory (MB): peak = 9112.562 ; gain = 0.000 ; free physical = 11939 ; free virtual = 39470
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 9112.562 ; gain = 0.000 ; free physical = 11939 ; free virtual = 39470
+Wrote Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 9112.562 ; gain = 0.000 ; free physical = 11939 ; free virtual = 39470
+Write Physdb Complete: Time (s): cpu = 00:00:00.14 ; elapsed = 00:00:00.03 . Memory (MB): peak = 9112.562 ; gain = 0.000 ; free physical = 11939 ; free virtual = 39470
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.62 ; elapsed = 00:00:00.16 . Memory (MB): peak = 9112.562 ; gain = 0.000 ; free physical = 11871 ; free virtual = 39419
+INFO: [Common 17-1381] The checkpoint '$VALIDATION_STORAGE/645-a531/round2f/ax8x8/gateware/alinx_ax7101_synth.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:16 ; elapsed = 00:00:14 . Memory (MB): peak = 9112.562 ; gain = 31.980 ; free physical = 11529 ; free virtual = 39424
+# report_utilization -hierarchical -hierarchical_depth 10 -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
+# report_utilization -file baseline_utilization.rpt
+# report_timing_summary -max_paths 10 -file baseline_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+# set pf [open baseline_cells.tsv w]
+# puts $pf "cell\tprimitive"
+# foreach c [get_cells -hier -filter {IS_PRIMITIVE == 1}] {
+#   puts $pf "$c\t[get_property REF_NAME $c]"
+# }
+# close $pf
+# set pp [get_cells -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] != 1} { error "Expected exactly one protocol wrapper" }
+# report_utilization -cells $pp -file baseline_pp_utilization.rpt
+# report_timing -through [get_pins -of_objects $pp] -max_paths 10 -file baseline_pp_boundary_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -through_pins  -max_paths 10 -nworst 1 -delay_type max -sort_by slack.
+# set scope_root ""
+# set pp [get_cells -quiet -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] == 1} {
+#   set scope_root "$pp/"
+# } elseif {[llength $pp] == 0} {
+#   set core [get_cells -quiet u_pp]
+#   if {[llength $core] != 1 || [get_property ORIG_REF_NAME $core] ne "protocol_processor_top"} {
+#     error "Expected the standalone wrapper's processor instance"
+#   }
+# } else {
+#   error "Expected exactly one protocol wrapper"
+# }
+# set tf [open baseline_scope_timing.tsv w]
+# puts $tf "instance\tsequential_cells\tinternal_WNS_ns"
+# foreach relative {wrapper u_pp u_pp/u_aecp u_pp/u_srp u_pp/u_notify u_pp/u_listener u_pp/u_talker u_nvm} {
+#   set path "$scope_root$relative"
+#   if {$relative eq "wrapper"} {
+#     set path [string trimright $scope_root /]
+#   }
+#   if {$path eq ""} {
+#     set path KL_pp_shadow
+#     set regs [get_cells -hier -filter {IS_SEQUENTIAL == 1}]
+#   } else {
+#     set regs [get_cells -hier -filter [format {NAME =~ "%s/*" && IS_SEQUENTIAL == 1} $path]]
+#   }
+#   set worst [get_timing_paths -from $regs -to $regs -max_paths 1]
+#   if {[llength $worst] != 1} { error "No internal timing path for $path" }
+#   puts $tf "$path\t[llength $regs]\t[get_property SLACK $worst]"
+#   flush $tf
+# }
+# close $tf
+# quit
+INFO: [Common 17-206] Exiting Vivado at Thu Oct  8 17:54:13 2026...

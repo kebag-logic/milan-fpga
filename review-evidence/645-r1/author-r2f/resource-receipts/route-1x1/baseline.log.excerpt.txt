@@ -1,0 +1,1132 @@
+EXCERPT ONLY. Original size: 829160 bytes; SHA-256: 94c0471debaa23a0fd20d9050298173facb997735ffa8bbf451f68cbd82de0ac
+
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Oct  8 16:07:55 2026
+# Process ID         : 3981110
+# Current directory  : $VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware
+# Command line       : vivado -mode batch -source baseline_integrated.tcl -nojournal -log baseline.log
+# Log file           : $VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/baseline.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 47322 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source baseline_integrated.tcl
+# set_param synth.maxThreads 1
+# create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2
+# set_msg_config -id {Common 17-55} -new_severity {Warning}
+# set_param general.maxThreads 32
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/pp_acmp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/pp_acmp_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/adp/pp_adp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/adp/pp_adp_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/ucpu_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/ucpu_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/common/pp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/common/pp_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/srp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/srp_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_acmp_talker.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_acmp_talker.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/adp/KL_adp_engine.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/adp/KL_adp_engine.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_engine.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_engine.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_notify.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_notify.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/common/KL_pp_prng.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/common/KL_pp_prng.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/common/KL_pp_timer_service.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/common/KL_pp_timer_service.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/maap/KL_pp_maap.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/maap/KL_pp_maap.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_originator.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_originator.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_admission.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_admission.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_decoder.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_decoder.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_domain.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_domain.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_encoder.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_encoder.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_top.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_top.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_vlan.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/srp/KL_srp_vlan.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/top/KL_mrp_strip.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/top/KL_mrp_strip.sv}]
+# read_verilog -v {$LANES/645-ring-slip/protocol-processor/hdl/top/protocol_processor_top.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/protocol-processor/hdl/top/protocol_processor_top.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/milan/KL_pp_shadow.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/milan/KL_pp_shadow.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/milan/KL_pp_maap_shim.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/milan/KL_pp_maap_shim.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/milan/KL_nvm_backend.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/milan/KL_nvm_backend.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/common/KL_gptp_timer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/common/KL_gptp_timer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/gptp-processor/hdl/top/KL_gptp_engine.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/gptp-processor/hdl/top/KL_gptp_engine.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/axi_stream_if.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/axi_stream_if.sv}]
+# read_verilog {$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_fifo.v}
+# read_verilog {$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_arb_mux.v}
+# read_verilog {$LANES/645-ring-slip/third_party/verilog-axis/rtl/arbiter.v}
+# read_verilog {$LANES/645-ring-slip/third_party/verilog-axis/rtl/priority_encoder.v}
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/cdc_pulse.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/cdc_pulse.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/cdc_handshake.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/cdc_handshake.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021q/filtering/tcam.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021q/filtering/tcam.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee8021q/filtering/rx_mac_filter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee8021q/filtering/rx_mac_filter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/tx_ifg_gasket.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/tx_ifg_gasket.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pcm_lpf.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pcm_lpf.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/KL_link_guard.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/KL_link_guard.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee17221/adp/adp_tx_arbiter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee17221/adp/adp_tx_arbiter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/aaf_talker_i2s.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/aaf_talker_i2s.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_i2s_playback.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_i2s_playback.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tone_gen.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tone_gen.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_media_adv.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_media_adv.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/cdc_pair_fifo.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/avtp_subtype_pkg.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/avtp_subtype_pkg.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/avtp_stream_parser.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/avtp_stream_parser.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_stream_table.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_stream_table.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_media_clock_restart.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/avtp/KL_media_clock_restart.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pcm_route.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pcm_route.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_capture_master.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pair_blend.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pair_blend.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pair_zero_fill.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_pair_zero_fill.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_render.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_render.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_render_master.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_tdm_render_master.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_render_setpoint.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_render_setpoint.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_chan_map_render.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_chan_map_render.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_chan_map_capture.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_chan_map_capture.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_packetizer.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/aaf/KL_aaf_packetizer.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_crf_rx.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_crf_rx.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_crf_tx.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_crf_tx.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/maap/KL_maap.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/maap/KL_maap.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_aaf_clock_meter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_aaf_clock_meter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_media_nco.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_media_nco.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_media_grid_align.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/ieee1722/crf/KL_media_grid_align.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/eth_event_counter/ethernet_events.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/eth_event_counter/ethernet_events.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/eth_event_counter/event_counter.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/eth_event_counter/event_counter.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/eth_event_counter/KL_mac_rmon_events.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/eth_event_counter/KL_mac_rmon_events.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/common/csr/milan_csr.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/common/csr/milan_csr.sv}]
+# read_verilog -v {$LANES/645-ring-slip/hdl/milan/milan_datapath.sv}
+# set_property file_type SystemVerilog [get_files {$LANES/645-ring-slip/hdl/milan/milan_datapath.sv}]
+# read_verilog {$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v}
+# read_verilog {$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v}
+# read_verilog {$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v}
+# read_verilog {$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v}
+# set_msg_config -id {Synth 8-4445} -new_severity ERROR
+# read_xdc alinx_ax7101.xdc
+# set_property PROCESSING_ORDER EARLY [get_files alinx_ax7101.xdc]
+# synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {$LANES/645-ring-slip/configs/generated/endstation_ax7101_1x1_tdm8 $LANES/645-ring-slip/configs/generated/endstation_ax7101_1x1_tdm8/gen $LANES/645-ring-slip/hdl/common $LANES/645-ring-slip/hdl/ieee8021q/ts $LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp $LANES/645-ring-slip/hdl/ieee17221/adp $LANES/645-ring-slip/hdl/common/csr $LANES/645-ring-slip/hdl/common/eth_event_counter $LANES/645-ring-slip/hdl/ieee1722/avtp}
+Command: synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {$LANES/645-ring-slip/configs/generated/endstation_ax7101_1x1_tdm8 $LANES/645-ring-slip/configs/generated/endstation_ax7101_1x1_tdm8/gen $LANES/645-ring-slip/hdl/common $LANES/645-ring-slip/hdl/ieee8021q/ts $LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp $LANES/645-ring-slip/hdl/ieee17221/adp $LANES/645-ring-slip/hdl/common/csr $LANES/645-ring-slip/hdl/common/eth_event_counter $LANES/645-ring-slip/hdl/ieee1722/avtp}
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 1 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 3981209
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2379.832 ; gain = 371.180 ; free physical = 13153 ; free virtual = 43823
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-11067] parameter 'BYTE_TO_BIT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:36]
+WARNING: [Synth 8-11067] parameter 'TDATA_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:39]
+WARNING: [Synth 8-11067] parameter 'MAC_ADDR_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:42]
+WARNING: [Synth 8-11067] parameter 'MAC_ADDR_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:43]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:46]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:47]
+WARNING: [Synth 8-11067] parameter 'VLAN_TPID_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:50]
+WARNING: [Synth 8-11067] parameter 'VLAN_TPID_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:51]
+WARNING: [Synth 8-11067] parameter 'VLAN_TCI_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:52]
+WARNING: [Synth 8-11067] parameter 'VLAN_TCI_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:53]
+WARNING: [Synth 8-11067] parameter 'VLAN_TAG_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:56]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:59]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:60]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_CHUNKS' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:63]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_BUFFER_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:64]
+WARNING: [Synth 8-11067] parameter 'PCP_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:67]
+WARNING: [Synth 8-11067] parameter 'NUMBER_OF_QUEUES' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:93]
+WARNING: [Synth 8-11067] parameter 'PRIORITY_QUEUES_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:96]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_VLAN' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:121]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_PTP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:123]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_AVTP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:125]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_MSRP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:127]
+WARNING: [Synth 8-11067] parameter 'ETH_TYPE_MVRP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:129]
+WARNING: [Synth 8-11067] parameter 'MAC_DST_NEAREST_BRIDGE' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:147]
+WARNING: [Synth 8-11067] parameter 'MAC_DST_MVRP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:149]
+WARNING: [Synth 8-11067] parameter 'MAC_DST_ATDECC' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:151]
+WARNING: [Synth 8-11067] parameter 'MAC_DST_MAAP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:153]
+WARNING: [Synth 8-11067] parameter 'MAC_IG_BIT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:158]
+WARNING: [Synth 8-11067] parameter 'IDLE_SLOPE_1G' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:276]
+WARNING: [Synth 8-11067] parameter 'IDLE_SLOPE_100M' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:289]
+WARNING: [Synth 8-11067] parameter 'MAX_FRAME_SIZE' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:298]
+WARNING: [Synth 8-11067] parameter 'HI_CREDIT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:323]
+WARNING: [Synth 8-11067] parameter 'LO_CREDIT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:334]
+WARNING: [Synth 8-11067] parameter 'CLK_FREQ_HZ' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:344]
+WARNING: [Synth 8-11067] parameter 'FP_DECIMAL_POINT' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:348]
+WARNING: [Synth 8-11067] parameter 'TIMESTAMP_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:355]
+WARNING: [Synth 8-11067] parameter 'PTP_MSG_TYPE_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:358]
+WARNING: [Synth 8-11067] parameter 'PTP_VERSION_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:359]
+WARNING: [Synth 8-11067] parameter 'PTP_MSG_LENGTH_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:360]
+WARNING: [Synth 8-11067] parameter 'PTP_DOMAIN_NUM_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:361]
+WARNING: [Synth 8-11067] parameter 'PTP_RESERVED1_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:362]
+WARNING: [Synth 8-11067] parameter 'PTP_FLAGS_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:363]
+WARNING: [Synth 8-11067] parameter 'PTP_CORRECTION_FIELD_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:364]
+WARNING: [Synth 8-11067] parameter 'PTP_RESERVED2_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:365]
+WARNING: [Synth 8-11067] parameter 'PTP_CLK_IDENTITY_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:366]
+WARNING: [Synth 8-11067] parameter 'PTP_SOURCE_PORT_ID_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:367]
+WARNING: [Synth 8-11067] parameter 'PTP_SEQ_ID_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:368]
+WARNING: [Synth 8-11067] parameter 'PTP_CONTROL_FIELD_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:369]
+WARNING: [Synth 8-11067] parameter 'PTP_LOG_MSG_INTERVAL_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:370]
+WARNING: [Synth 8-11067] parameter 'PTP_SEQ_ID_OFFSET_IN_PTP' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:373]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_NO_VLAN_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:386]
+WARNING: [Synth 8-11067] parameter 'ETH_HEADER_NO_VLAN_OFFSET' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:387]
+WARNING: [Synth 8-11067] parameter 'PTP_SEQ_ID_OFFSET' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:390]
+WARNING: [Synth 8-11067] parameter 'PTP_SEQ_ID_BIT_WIDTH' declared inside package 'ethernet_packet_pkg' shall be treated as localparam [$LANES/645-ring-slip/hdl/common/ethernet_packet_pkg.sv:393]
+WARNING: [Synth 8-10388] /* is inside a comment [$LANES/645-ring-slip/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv:37]
+WARNING: [Synth 8-6901] identifier 'crft_emit_en_w' is used before its declaration [$LANES/645-ring-slip/hdl/milan/milan_datapath.sv:3177]
+WARNING: [Synth 8-11065] parameter 'ADDR_WIDTH' becomes localparam in 'axis_fifo' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_fifo.v:137]
+WARNING: [Synth 8-11065] parameter 'CL_KEEP_WDITH' becomes localparam in 'axis_fifo' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_fifo.v:138]
+WARNING: [Synth 8-11065] parameter 'OUTPUT_FIFO_ADDR_WIDTH' becomes localparam in 'axis_fifo' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_fifo.v:140]
+WARNING: [Synth 8-11065] parameter 'CL_S_COUNT' becomes localparam in 'axis_arb_mux' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_arb_mux.v:96]
+WARNING: [Synth 8-11065] parameter 'S_ID_WIDTH_INT' becomes localparam in 'axis_arb_mux' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/axis_arb_mux.v:98]
+WARNING: [Synth 8-11065] parameter 'LEVELS' becomes localparam in 'priority_encoder' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/priority_encoder.v:47]
+WARNING: [Synth 8-11065] parameter 'W' becomes localparam in 'priority_encoder' with formal parameter declaration list [$LANES/645-ring-slip/third_party/verilog-axis/rtl/priority_encoder.v:48]
+Linter Recording Failure, recording already started!
+Linter Recording Failure, recording already started!
+INFO: [Synth 8-6157] synthesizing module 'alinx_ax7101' [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:23]
+INFO: [Synth 8-3876] $readmem data file 'alinx_ax7101_rom.init' is read successfully [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:25299]
+INFO: [Synth 8-3876] $readmem data file 'alinx_ax7101_sram.init' is read successfully [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:25314]
+INFO: [Synth 8-3876] $readmem data file 'alinx_ax7101_mem.init' is read successfully [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:25333]
+INFO: [Synth 8-226] default block is never used [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:15084]
+INFO: [Synth 8-226] default block is never used [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:15124]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:15342]
+WARNING: [Synth 8-151] case item 7'b0000010 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:16304]
+WARNING: [Synth 8-151] case item 7'b0000100 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:16307]
+WARNING: [Synth 8-151] case item 7'b0001000 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:16310]
+WARNING: [Synth 8-151] case item 7'b0010000 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:16313]
+WARNING: [Synth 8-151] case item 7'b0100000 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:16316]
+WARNING: [Synth 8-151] case item 7'b1000000 is unreachable [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:16319]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:18072]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:21607]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:21638]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:23905]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:24132]
+INFO: [Synth 8-155] case statement is not full and has no default [$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101.v:24155]
+INFO: [Synth 8-155] case statement is not
+
+[intervening bytes omitted]
+
+ber of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.036 | TNS=-0.125 | WHS=N/A    | THS=N/A    |
+
+Phase 5.3 Global Iteration 2 | Checksum: 2d14361f4
+
+Time (s): cpu = 00:13:37 ; elapsed = 00:05:51 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12270 ; free virtual = 39841
+
+Phase 5.4 Global Iteration 3
+ Number of Nodes with overlaps = 1187
+ Number of Nodes with overlaps = 264
+ Number of Nodes with overlaps = 158
+ Number of Nodes with overlaps = 108
+ Number of Nodes with overlaps = 44
+ Number of Nodes with overlaps = 25
+ Number of Nodes with overlaps = 13
+ Number of Nodes with overlaps = 9
+ Number of Nodes with overlaps = 7
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.200 | TNS=-1.572 | WHS=N/A    | THS=N/A    |
+
+Phase 5.4 Global Iteration 3 | Checksum: 227fcee8a
+
+Time (s): cpu = 00:14:52 ; elapsed = 00:06:24 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12326 ; free virtual = 39895
+Phase 5 Rip-up And Reroute | Checksum: 227fcee8a
+
+Time (s): cpu = 00:14:53 ; elapsed = 00:06:24 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12326 ; free virtual = 39895
+
+Phase 6 Delay and Skew Optimization
+
+Phase 6.1 Delay CleanUp
+
+Phase 6.1.1 Update Timing
+Phase 6.1.1 Update Timing | Checksum: 25c474460
+
+Time (s): cpu = 00:15:07 ; elapsed = 00:06:26 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12326 ; free virtual = 39894
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.018 | TNS=-0.018 | WHS=N/A    | THS=N/A    |
+
+ Number of Nodes with overlaps = 0
+Phase 6.1 Delay CleanUp | Checksum: 1ffaf1769
+
+Time (s): cpu = 00:15:10 ; elapsed = 00:06:26 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12326 ; free virtual = 39894
+
+Phase 6.2 Clock Skew Optimization
+Phase 6.2 Clock Skew Optimization | Checksum: 1ffaf1769
+
+Time (s): cpu = 00:15:10 ; elapsed = 00:06:26 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12326 ; free virtual = 39894
+Phase 6 Delay and Skew Optimization | Checksum: 1ffaf1769
+
+Time (s): cpu = 00:15:11 ; elapsed = 00:06:26 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12326 ; free virtual = 39894
+
+Phase 7 Post Hold Fix
+
+Phase 7.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.017 | TNS=-0.017 | WHS=0.031  | THS=0.000  |
+
+Phase 7.1 Hold Fix Iter | Checksum: 202c58396
+
+Time (s): cpu = 00:15:29 ; elapsed = 00:06:27 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12322 ; free virtual = 39891
+Phase 7 Post Hold Fix | Checksum: 202c58396
+
+Time (s): cpu = 00:15:30 ; elapsed = 00:06:27 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12322 ; free virtual = 39891
+
+Phase 8 Timing Verification
+
+Phase 8.1 Update Timing
+Phase 8.1 Update Timing | Checksum: 1df7778db
+
+Time (s): cpu = 00:15:52 ; elapsed = 00:06:29 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12317 ; free virtual = 39885
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.017 | TNS=-0.017 | WHS=0.031  | THS=0.000  |
+
+Phase 8 Timing Verification | Checksum: 1df7778db
+
+Time (s): cpu = 00:15:52 ; elapsed = 00:06:29 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12317 ; free virtual = 39885
+
+Phase 9 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 33.6719 %
+  Global Horizontal Routing Utilization  = 36.3422 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+
+--GLOBAL Congestion:
+Utilization threshold used for congestion level computation: 0.85
+Congestion Report
+North Dir 2x2 Area, Max Cong = 88.2883%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X40Y130 -> INT_R_X41Y131
+   INT_L_X36Y128 -> INT_R_X37Y129
+   INT_L_X28Y124 -> INT_R_X29Y125
+South Dir 2x2 Area, Max Cong = 90.7658%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X40Y118 -> INT_R_X41Y119
+   INT_L_X40Y112 -> INT_R_X41Y113
+East Dir 1x1 Area, Max Cong = 100%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X12Y185 -> INT_L_X12Y185
+   INT_R_X15Y184 -> INT_R_X15Y184
+   INT_L_X10Y159 -> INT_L_X10Y159
+   INT_L_X6Y155 -> INT_L_X6Y155
+   INT_L_X36Y149 -> INT_L_X36Y149
+West Dir 2x2 Area, Max Cong = 92.2794%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X42Y130 -> INT_R_X43Y131
+   INT_L_X42Y126 -> INT_R_X43Y127
+   INT_L_X44Y126 -> INT_R_X45Y127
+   INT_L_X42Y124 -> INT_R_X43Y125
+   INT_L_X42Y120 -> INT_R_X43Y121
+
+------------------------------
+Reporting congestion hotspots
+------------------------------
+Direction: North
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 1 Sparse Ratio: 1.25
+Direction: South
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 1 Sparse Ratio: 1.25
+Direction: East
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 0.666667 Sparse Ratio: 1
+Direction: West
+----------------
+Congested clusters found at Level 1
+Effective congestion level: 2 Aspect Ratio: 0.666667 Sparse Ratio: 1
+
+Phase 9 Route finalize | Checksum: 1df7778db
+
+Time (s): cpu = 00:15:53 ; elapsed = 00:06:29 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12306 ; free virtual = 39874
+
+Phase 10 Verifying routed nets
+
+ Verification completed successfully
+Phase 10 Verifying routed nets | Checksum: 1df7778db
+
+Time (s): cpu = 00:15:54 ; elapsed = 00:06:29 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12306 ; free virtual = 39874
+
+Phase 11 Depositing Routes
+Phase 11 Depositing Routes | Checksum: 1f234ff7e
+
+Time (s): cpu = 00:16:04 ; elapsed = 00:06:35 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12294 ; free virtual = 39863
+
+Phase 12 Incr Placement Change
+Netlist sorting complete. Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.05 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12295 ; free virtual = 39864
+WARNING: [Place 30-34] Design utilization is very high. Please run report_utilization command to see design utilization.
+INFO: [Place 30-746] Post Placement Timing Summary WNS=0.454. For the most accurate timing information please run report_timing.
+Ending IncrPlace Task | Checksum: 17d944410
+
+Time (s): cpu = 00:01:33 ; elapsed = 00:00:36 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12240 ; free virtual = 39809
+Phase 12 Incr Placement Change | Checksum: 17d944410
+
+Time (s): cpu = 00:17:39 ; elapsed = 00:07:12 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12240 ; free virtual = 39809
+
+Phase 13 Build RT Design
+Checksum: PlaceDB: edacf738 ConstDB: 0 ShapeSum: cf86ee3 RouteDB: 82eeddf5
+Post Restoration Checksum: NetGraph: 1de9c74d | NumContArr: 1ae3fefd | Constraints: c2a8fa9d | Timing: c2a8fa9d
+Phase 13 Build RT Design | Checksum: 1be1fbb84
+
+Time (s): cpu = 00:18:59 ; elapsed = 00:07:22 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12268 ; free virtual = 39837
+
+Phase 14 Router Initialization
+
+Phase 14.1 Fix Topology Constraints
+Phase 14.1 Fix Topology Constraints | Checksum: 1be1fbb84
+
+Time (s): cpu = 00:19:00 ; elapsed = 00:07:23 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12268 ; free virtual = 39837
+
+Phase 14.2 Pre Route Cleanup
+Phase 14.2 Pre Route Cleanup | Checksum: 355524601
+
+Time (s): cpu = 00:19:01 ; elapsed = 00:07:23 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12268 ; free virtual = 39837
+ Number of Nodes with overlaps = 0
+
+Phase 14.3 Update Timing
+Phase 14.3 Update Timing | Checksum: 1380e4bab
+
+Time (s): cpu = 00:20:27 ; elapsed = 00:07:34 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12340 ; free virtual = 39908
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.571  | TNS=0.000  | WHS=-0.381 | THS=-1967.005|
+
+
+Phase 14.4 Soft Constraint Pins - Fast Budgeting
+Phase 14.4 Soft Constraint Pins - Fast Budgeting | Checksum: 2052f6a05
+
+Time (s): cpu = 00:20:57 ; elapsed = 00:07:38 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12331 ; free virtual = 39899
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 33.3798 %
+  Global Horizontal Routing Utilization  = 36.1211 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 862
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 618
+  Number of Partially Routed Nets     = 244
+  Number of Node Overlaps             = 0
+
+Phase 14 Router Initialization | Checksum: 221330ea3
+
+Time (s): cpu = 00:20:59 ; elapsed = 00:07:39 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12329 ; free virtual = 39898
+
+Phase 15 Global Routing
+Phase 15 Global Routing | Checksum: 221330ea3
+
+Time (s): cpu = 00:20:59 ; elapsed = 00:07:39 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12329 ; free virtual = 39898
+
+Phase 16 Initial Routing
+
+Phase 16.1 Initial Net Routing Pass
+Phase 16.1 Initial Net Routing Pass | Checksum: 17b7c149c
+
+Time (s): cpu = 00:21:01 ; elapsed = 00:07:39 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12327 ; free virtual = 39896
+Phase 16 Initial Routing | Checksum: 17b7c149c
+
+Time (s): cpu = 00:21:02 ; elapsed = 00:07:39 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12327 ; free virtual = 39896
+INFO: [Route 35-580] Design has 1 pins with tight setup and hold constraints.
+
+The top 5 pins with tight setup and hold constraints:
+
++======================+======================+====================================================================================================================================+
+| Launch Setup Clock   | Launch Hold Clock    | Pin                                                                                                                                |
++======================+======================+====================================================================================================================================+
+| milansoc_crg_clkout0 | milansoc_crg_clkout0 | VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg/D |
++----------------------+----------------------+------------------------------------------------------------------------------------------------------------------------------------+
+
+File with complete list of pins: tight_setup_hold_pins.txt
+
+
+Phase 17 Rip-up And Reroute
+
+Phase 17.1 Global Iteration 0
+ Number of Nodes with overlaps = 1160
+ Number of Nodes with overlaps = 575
+ Number of Nodes with overlaps = 314
+ Number of Nodes with overlaps = 166
+ Number of Nodes with overlaps = 92
+ Number of Nodes with overlaps = 59
+ Number of Nodes with overlaps = 35
+ Number of Nodes with overlaps = 35
+ Number of Nodes with overlaps = 19
+ Number of Nodes with overlaps = 15
+ Number of Nodes with overlaps = 18
+ Number of Nodes with overlaps = 11
+ Number of Nodes with overlaps = 10
+ Number of Nodes with overlaps = 6
+ Number of Nodes with overlaps = 5
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 5
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.215  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 17.1 Global Iteration 0 | Checksum: 2311cd3b8
+
+Time (s): cpu = 00:25:46 ; elapsed = 00:10:40 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12257 ; free virtual = 39820
+Phase 17 Rip-up And Reroute | Checksum: 2311cd3b8
+
+Time (s): cpu = 00:25:46 ; elapsed = 00:10:40 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12257 ; free virtual = 39820
+
+Phase 18 Delay and Skew Optimization
+
+Phase 18.1 Delay CleanUp
+Phase 18.1 Delay CleanUp | Checksum: 2311cd3b8
+
+Time (s): cpu = 00:25:47 ; elapsed = 00:10:40 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12257 ; free virtual = 39820
+
+Phase 18.2 Clock Skew Optimization
+Phase 18.2 Clock Skew Optimization | Checksum: 2311cd3b8
+
+Time (s): cpu = 00:25:47 ; elapsed = 00:10:40 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12257 ; free virtual = 39820
+Phase 18 Delay and Skew Optimization | Checksum: 2311cd3b8
+
+Time (s): cpu = 00:25:47 ; elapsed = 00:10:40 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12257 ; free virtual = 39820
+
+Phase 19 Post Hold Fix
+
+Phase 19.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.289  | TNS=0.000  | WHS=0.031  | THS=0.000  |
+
+Phase 19.1 Hold Fix Iter | Checksum: 21758d217
+
+Time (s): cpu = 00:26:04 ; elapsed = 00:10:41 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12252 ; free virtual = 39815
+Phase 19 Post Hold Fix | Checksum: 21758d217
+
+Time (s): cpu = 00:26:04 ; elapsed = 00:10:41 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12252 ; free virtual = 39815
+
+Phase 20 Timing Verification
+
+Phase 20.1 Update Timing
+Phase 20.1 Update Timing | Checksum: 21758d217
+
+Time (s): cpu = 00:26:28 ; elapsed = 00:10:43 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12229 ; free virtual = 39792
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.289  | TNS=0.000  | WHS=0.031  | THS=0.000  |
+
+Phase 20 Timing Verification | Checksum: 21758d217
+
+Time (s): cpu = 00:26:28 ; elapsed = 00:10:43 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12225 ; free virtual = 39788
+
+Phase 21 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 33.7621 %
+  Global Horizontal Routing Utilization  = 36.3357 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+Phase 21 Route finalize | Checksum: 21758d217
+
+Time (s): cpu = 00:26:29 ; elapsed = 00:10:43 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12228 ; free virtual = 39791
+
+Phase 22 Verifying routed nets
+
+ Verification completed successfully
+Phase 22 Verifying routed nets | Checksum: 21758d217
+
+Time (s): cpu = 00:26:30 ; elapsed = 00:10:43 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12230 ; free virtual = 39793
+
+Phase 23 Depositing Routes
+Phase 23 Depositing Routes | Checksum: 1b8d1254c
+
+Time (s): cpu = 00:26:39 ; elapsed = 00:10:48 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12227 ; free virtual = 39791
+INFO: [Route 72-16] Aggressive Explore Summary
++======+========+=====+=======+=====+========+==============+===================+
+| Pass |  WNS   | TNS |  WHS  | THS | Status | Elapsed Time | Solution Selected |
++======+========+=====+=======+=====+========+==============+===================+
+|  1   | -0.017 |  -  | 0.031 |  -  |  Pass  |   00:06:08   |                   |
+|  2   | 0.289  |  -  | 0.031 |  -  |  Pass  |   00:03:25   |         x         |
++------+--------+-----+-------+-----+--------+--------------+-------------------+
+
+
+Phase 24 Post Process Routing
+Phase 24 Post Process Routing | Checksum: 1b8d1254c
+
+Time (s): cpu = 00:26:40 ; elapsed = 00:10:48 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12228 ; free virtual = 39791
+
+Phase 25 Post Router Timing
+INFO: [Route 35-20] Post Routing Timing Summary | WNS=0.299  | TNS=0.000  | WHS=0.031  | THS=0.000  |
+
+Phase 25 Post Router Timing | Checksum: 1fab71e29
+
+Time (s): cpu = 00:27:50 ; elapsed = 00:10:53 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12226 ; free virtual = 39790
+INFO: [Route 35-61] The design met the setup and hold requirement.
+Total Elapsed time in route_design: 653.36 secs
+
+Phase 26 Post-Route Event Processing
+Phase 26 Post-Route Event Processing | Checksum: 108749ae4
+
+Time (s): cpu = 00:27:51 ; elapsed = 00:10:54 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12227 ; free virtual = 39790
+INFO: [Route 35-16] Router Completed Successfully
+Ending Routing Task | Checksum: 108749ae4
+
+Time (s): cpu = 00:27:52 ; elapsed = 00:10:54 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12227 ; free virtual = 39790
+
+Routing Is Done.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+26 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+route_design completed successfully
+route_design: Time (s): cpu = 00:27:59 ; elapsed = 00:10:56 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12206 ; free virtual = 39770
+# phys_opt_design -directive AggressiveExplore
+Command: phys_opt_design -directive AggressiveExplore
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Vivado_Tcl 4-241] Physical synthesis in post route mode 
+INFO: [Vivado_Tcl 4-137] Directive used for phys_opt_design is: AggressiveExplore
+
+Starting Initial Update Timing Task
+
+Time (s): cpu = 00:00:49 ; elapsed = 00:00:06 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12276 ; free virtual = 39840
+INFO: [Vivado_Tcl 4-2280] Estimated Timing Summary | WNS= 0.299 | TNS= 0.000 | WHS= 0.031 |
+INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.000 ns. All physical synthesis setup optimizations will be skipped.
+INFO: [Vivado_Tcl 4-2291] Design worst hold slack (WHS) is greater than or equal to 0.000 ns. Hold fix optimization will be skipped.
+ 
+INFO: [Vivado_Tcl 4-232] No setup violation found. The netlist was not modified.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+8 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+phys_opt_design: Time (s): cpu = 00:01:06 ; elapsed = 00:00:11 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12275 ; free virtual = 39838
+# write_checkpoint -force alinx_ax7101_route.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12275 ; free virtual = 39839
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12275 ; free virtual = 39839
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Write ShapeDB Complete: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.2 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12259 ; free virtual = 39835
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:04 ; elapsed = 00:00:00.84 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12222 ; free virtual = 39826
+Wrote PlaceStorage: Time (s): cpu = 00:00:04 ; elapsed = 00:00:02 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12103 ; free virtual = 39772
+Wrote Netlist Cache: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.12 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12087 ; free virtual = 39766
+Wrote Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12087 ; free virtual = 39767
+Write Physdb Complete: Time (s): cpu = 00:00:08 ; elapsed = 00:00:03 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12087 ; free virtual = 39767
+INFO: [Common 17-1381] The checkpoint '$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101_route.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:18 ; elapsed = 00:00:13 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12186 ; free virtual = 39847
+# report_timing_summary -no_header -no_detailed_paths
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+------------------------------------------------------------------------------------------------
+| Timer Settings
+| --------------
+------------------------------------------------------------------------------------------------
+
+  Enable Multi Corner Analysis               :  Yes
+  Enable Pessimism Removal                   :  Yes
+  Pessimism Removal Resolution               :  Nearest Common Node
+  Enable Input Delay Default Clock           :  No
+  Enable Preset / Clear Arcs                 :  No
+  Disable Flight Delays                      :  No
+  Ignore I/O Paths                           :  No
+  Timing Early Launch at Borrowing Latches   :  No
+  Borrow Time for Max Delay Exceptions       :  Yes
+  Merge Timing Exceptions                    :  Yes
+  Inter-SLR Compensation                     :  Conservative
+
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
+
+
+------------------------------------------------------------------------------------------------
+| Report Methodology
+| ------------------
+------------------------------------------------------------------------------------------------
+
+No report available as report_methodology has not been run prior. Run report_methodology on the current design for the summary of methodology violations.
+
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (46)
+6. checking no_output_delay (87)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (46)
+-------------------------------
+ There are 0 input ports with no input delay specified.
+
+ There are 46 input ports with no input delay but user has a false path constraint. (MEDIUM)
+
+
+6. checking no_output_delay (87)
+--------------------------------
+ There are 87 ports with no output delay specified. (HIGH)
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.299        0.000                      0               181488        0.031        0.000                      0               181407        0.264        0.000                       0                 61270  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+------------------------------------------------------------------------------------------------
+
+Clock                              Waveform(ns)         Period(ns)      Frequency(MHz)
+-----                              ------------         ----------      --------------
+clk200_p                           {0.000 2.500}        5.000           200.000         
+  milansoc_crg_clkout0             {0.000 5.000}        10.000          100.000         
+    milansoc_crg_audio_ref_raw     {0.000 16.087}       32.174          31.081          
+      milansoc_crg_audio_mclk_raw  {0.000 20.345}       40.691          24.576          
+      milansoc_crg_mmcm_audio_fb   {0.000 16.087}       32.174          31.081          
+    milansoc_crg_pll_audio_fb      {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout1             {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout2             {0.000 1.250}        2.500           400.000         
+  milansoc_crg_clkout3             {0.625 1.875}        2.500           400.000         
+  milansoc_crg_clkout4             {0.000 2.500}        5.000           200.000         
+  subfragments_pll_fb              {0.000 2.500}        5.000           200.000         
+eth_clocks0_rx                     {0.000 4.000}        8.000           125.000         
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----                                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk200_p                                 3.721        0.000                      0                    7        0.237        0.000                      0                    7        1.100        0.000                       0                    10  
+  milansoc_crg_clkout0                   0.299        0.000                      0                19393        0.068        0.000                      0                19393        3.000        0.000                       0                  7295  
+    milansoc_crg_audio_ref_raw                                                                                                                                                      11.087        0.000                       0                     3  
+      milansoc_crg_audio_mclk_raw       27.376        0.000                      0                 2016        0.078        0.000                      0                 2016       19.215        0.000                       0                   666  
+      milansoc_crg_mmcm_audio_fb                                                                                                                                                    30.925        0.000                       0                     2  
+    milansoc_crg_pll_audio_fb                                                                                                                                                       18.751        0.000                       0                     2  
+  milansoc_crg_clkout1                   0.683        0.000                      0               154719        0.031        0.000                      0               154719        7.500        0.000                       0                 52490  
+  milansoc_crg_clkout2                                                                                                                                                               0.908        0.000                       0                   128  
+  milansoc_crg_clkout3                                                                                                                                                               0.908        0.000                       0                     6  
+  milansoc_crg_clkout4                   1.214        0.000                      0                  186        0.121        0.000                      0                  186        0.264        0.000                       0                    78  
+  subfragments_pll_fb                                                                                                                                                                3.751        0.000                       0                     2  
+eth_clocks0_rx                           0.628        0.000                      0                 1672        0.069        0.000                      0                 1672        2.870        0.000                       0                   588  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+eth_clocks0_rx        milansoc_crg_clkout0        6.255        0.000                      0                   13                                                                        
+milansoc_crg_clkout4  milansoc_crg_clkout1        2.765        0.000                      0                    3        0.222        0.000                      0                    3  
+eth_clocks0_rx        milansoc_crg_clkout1        6.156        0.000                      0                   50                                                                        
+milansoc_crg_clkout1  milansoc_crg_clkout4        1.485        0.000                      0                   17        0.150        0.000                      0                   17  
+milansoc_crg_clkout0  eth_clocks0_rx              6.902        0.000                      0                   12                                                                        
+milansoc_crg_clkout1  eth_clocks0_rx              6.488        0.000                      0                    6                                                                        
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group            From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            ----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+**async_default**     milansoc_crg_clkout0  milansoc_crg_clkout0        3.403        0.000                      0                  382        0.514        0.000                      0                  382  
+**async_default**     milansoc_crg_clkout1  milansoc_crg_clkout1       12.955        0.000                      0                 3012        0.408        0.000                      0                 3012  
+
+
+report_timing_summary: Time (s): cpu = 00:01:12 ; elapsed = 00:00:08 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12175 ; free virtual = 39836
+# report_route_status -file alinx_ax7101_route_status.rpt
+# report_drc -file alinx_ax7101_drc.rpt
+Command: report_drc -file alinx_ax7101_drc.rpt
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '$WORKSPACE_HOME/Xilinx/2026.1/data/ip'.
+INFO: [DRC 23-27] Running DRC with 32 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file $VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware/alinx_ax7101_drc.rpt.
+report_drc completed successfully
+report_drc: Time (s): cpu = 00:00:32 ; elapsed = 00:00:06 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12130 ; free virtual = 39791
+# report_timing_summary -datasheet -max_paths 10 -file alinx_ax7101_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:01 ; elapsed = 00:00:07 . Memory (MB): peak = 7639.812 ; gain = 0.000 ; free physical = 12127 ; free virtual = 39789
+# report_power -file alinx_ax7101_power.rpt
+Command: report_power -file alinx_ax7101_power.rpt
+INFO: [Power 33-23] Power model is not available for STARTUPE2
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+WARNING: [Power 33-332] Found switching activity that implies high-fanout reset nets being asserted for excessive periods of time which may result in inaccurate power analysis.
+Resolution: To review and fix problems, please run Power Constraints Advisor in the GUI from Tools > Power Constraints Advisor or run report_power with the -advisory option to generate a text report.
+1 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:33 ; elapsed = 00:00:13 . Memory (MB): peak = 7928.281 ; gain = 288.469 ; free physical = 12103 ; free virtual = 39766
+# kl_timing_grade_reports alinx_ax7101_signoff
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:10 ; elapsed = 00:00:08 . Memory (MB): peak = 7928.281 ; gain = 0.000 ; free physical = 12136 ; free virtual = 39800
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:14 ; elapsed = 00:00:08 . Memory (MB): peak = 7928.281 ; gain = 0.000 ; free physical = 12108 ; free virtual = 39773
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:15 ; elapsed = 00:00:08 . Memory (MB): peak = 7928.281 ; gain = 0.000 ; free physical = 12095 ; free virtual = 39761
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:14 ; elapsed = 00:00:08 . Memory (MB): peak = 7928.281 ; gain = 0.000 ; free physical = 12084 ; free virtual = 39752
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:20 ; elapsed = 00:00:09 . Memory (MB): peak = 7928.281 ; gain = 0.000 ; free physical = 12158 ; free virtual = 39827
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+# set_property CONFIG_MODE SPIx4 [current_design]
+# set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
+# set_property CFGBVS VCCO [current_design]
+# set_property CONFIG_VOLTAGE 3.3 [current_design]
+# report_clock_interaction -delay_type min_max -file alinx_ax7101_clock_interaction.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+# report_exceptions -file alinx_ax7101_exceptions.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_exceptions: Time (s): cpu = 00:00:51 ; elapsed = 00:00:07 . Memory (MB): peak = 7928.281 ; gain = 0.000 ; free physical = 11911 ; free virtual = 39583
+# report_utilization -hierarchical -hierarchical_depth 10 -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
+# report_utilization -file baseline_utilization.rpt
+# report_timing_summary -max_paths 10 -file baseline_timing.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:50 ; elapsed = 00:00:09 . Memory (MB): peak = 7928.281 ; gain = 0.000 ; free physical = 11856 ; free virtual = 39529
+# set pf [open baseline_cells.tsv w]
+# puts $pf "cell\tprimitive"
+# foreach c [get_cells -hier -filter {IS_PRIMITIVE == 1}] {
+#   puts $pf "$c\t[get_property REF_NAME $c]"
+# }
+# close $pf
+# set pp [get_cells -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] != 1} { error "Expected exactly one protocol wrapper" }
+# report_utilization -cells $pp -file baseline_pp_utilization.rpt
+# report_timing -through [get_pins -of_objects $pp] -max_paths 10 -file baseline_pp_boundary_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -through_pins  -max_paths 10 -nworst 1 -delay_type max -sort_by slack.
+# set scope_root ""
+# set pp [get_cells -quiet -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] == 1} {
+#   set scope_root "$pp/"
+# } elseif {[llength $pp] == 0} {
+#   set core [get_cells -quiet u_pp]
+#   if {[llength $core] != 1 || [get_property ORIG_REF_NAME $core] ne "protocol_processor_top"} {
+#     error "Expected the standalone wrapper's processor instance"
+#   }
+# } else {
+#   error "Expected exactly one protocol wrapper"
+# }
+# set tf [open baseline_scope_timing.tsv w]
+# puts $tf "instance\tsequential_cells\tinternal_WNS_ns"
+# foreach relative {wrapper u_pp u_pp/u_aecp u_pp/u_srp u_pp/u_notify u_pp/u_listener u_pp/u_talker u_nvm} {
+#   set path "$scope_root$relative"
+#   if {$relative eq "wrapper"} {
+#     set path [string trimright $scope_root /]
+#   }
+#   if {$path eq ""} {
+#     set path KL_pp_shadow
+#     set regs [get_cells -hier -filter {IS_SEQUENTIAL == 1}]
+#   } else {
+#     set regs [get_cells -hier -filter [format {NAME =~ "%s/*" && IS_SEQUENTIAL == 1} $path]]
+#   }
+#   set worst [get_timing_paths -from $regs -to $regs -max_paths 1]
+#   if {[llength $worst] != 1} { error "No internal timing path for $path" }
+#   puts $tf "$path\t[llength $regs]\t[get_property SLACK $worst]"
+#   flush $tf
+# }
+# close $tf
+# quit
+INFO: [Common 17-206] Exiting Vivado at Thu Oct  8 17:02:41 2026...

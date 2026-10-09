@@ -1,0 +1,1109 @@
+EXCERPT ONLY. Original size: 1311600 bytes; SHA-256: 359f2a0c1693b20e396d92e39a0accfcedd6887dde09907b09ddc41805c6c901
+
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Thu Oct  8 17:01:13 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing_summary -datasheet -max_paths 10 -file alinx_ax7101_timing.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Summary Report
+
+------------------------------------------------------------------------------------------------
+| Timer Settings
+| --------------
+------------------------------------------------------------------------------------------------
+
+  Enable Multi Corner Analysis               :  Yes
+  Enable Pessimism Removal                   :  Yes
+  Pessimism Removal Resolution               :  Nearest Common Node
+  Enable Input Delay Default Clock           :  No
+  Enable Preset / Clear Arcs                 :  No
+  Disable Flight Delays                      :  No
+  Ignore I/O Paths                           :  No
+  Timing Early Launch at Borrowing Latches   :  No
+  Borrow Time for Max Delay Exceptions       :  Yes
+  Merge Timing Exceptions                    :  Yes
+  Inter-SLR Compensation                     :  Conservative
+
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
+
+
+------------------------------------------------------------------------------------------------
+| Report Methodology
+| ------------------
+------------------------------------------------------------------------------------------------
+
+No report available as report_methodology has not been run prior. Run report_methodology on the current design for the summary of methodology violations.
+
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (46)
+6. checking no_output_delay (87)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (46)
+-------------------------------
+ There are 0 input ports with no input delay specified.
+
+ There are 46 input ports with no input delay but user has a false path constraint. (MEDIUM)
+
+
+6. checking no_output_delay (87)
+--------------------------------
+ There are 87 ports with no output delay specified. (HIGH)
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.299        0.000                      0               181488        0.031        0.000                      0               181407        0.264        0.000                       0                 61270  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+------------------------------------------------------------------------------------------------
+
+Clock                              Waveform(ns)         Period(ns)      Frequency(MHz)
+-----                              ------------         ----------      --------------
+clk200_p                           {0.000 2.500}        5.000           200.000         
+  milansoc_crg_clkout0             {0.000 5.000}        10.000          100.000         
+    milansoc_crg_audio_ref_raw     {0.000 16.087}       32.174          31.081          
+      milansoc_crg_audio_mclk_raw  {0.000 20.345}       40.691          24.576          
+      milansoc_crg_mmcm_audio_fb   {0.000 16.087}       32.174          31.081          
+    milansoc_crg_pll_audio_fb      {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout1             {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout2             {0.000 1.250}        2.500           400.000         
+  milansoc_crg_clkout3             {0.625 1.875}        2.500           400.000         
+  milansoc_crg_clkout4             {0.000 2.500}        5.000           200.000         
+  subfragments_pll_fb              {0.000 2.500}        5.000           200.000         
+eth_clocks0_rx                     {0.000 4.000}        8.000           125.000         
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----                                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk200_p                                 3.721        0.000                      0                    7        0.237        0.000                      0                    7        1.100        0.000                       0                    10  
+  milansoc_crg_clkout0                   0.299        0.000                      0                19393        0.068        0.000                      0                19393        3.000        0.000                       0                  7295  
+    milansoc_crg_audio_ref_raw                                                                                                                                                      11.087        0.000                       0                     3  
+      milansoc_crg_audio_mclk_raw       27.376        0.000                      0                 2016        0.078        0.000                      0                 2016       19.215        0.000                       0                   666  
+      milansoc_crg_mmcm_audio_fb                                                                                                                                                    30.925        0.000                       0                     2  
+    milansoc_crg_pll_audio_fb                                                                                                                                                       18.751        0.000                       0                     2  
+  milansoc_crg_clkout1                   0.683        0.000                      0               154719        0.031        0.000                      0               154719        7.500        0.000                       0                 52490  
+  milansoc_crg_clkout2                                                                                                                                                               0.908        0.000                       0                   128  
+  milansoc_crg_clkout3                                                                                                                                                               0.908        0.000                       0                     6  
+  milansoc_crg_clkout4                   1.214        0.000                      0                  186        0.121        0.000                      0                  186        0.264        0.000                       0                    78  
+  subfragments_pll_fb                                                                                                                                                                3.751        0.000                       0                     2  
+eth_clocks0_rx                           0.628        0.000                      0                 1672        0.069        0.000                      0                 1672        2.870        0.000                       0                   588  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+eth_clocks0_rx        milansoc_crg_clkout0        6.255        0.000                      0                   13                                                                        
+milansoc_crg_clkout4  milansoc_crg_clkout1        2.765        0.000                      0                    3        0.222        0.000                      0                    3  
+eth_clocks0_rx        milansoc_crg_clkout1        6.156        0.000                      0                   50                                                                        
+milansoc_crg_clkout1  milansoc_crg_clkout4        1.485        0.000                      0                   17        0.150        0.000                      0                   17  
+milansoc_crg_clkout0  eth_clocks0_rx              6.902        0.000                      0                   12                                                                        
+milansoc_crg_clkout1  eth_clocks0_rx              6.488        0.000                      0                    6                                                                        
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group            From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            ----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+**async_default**     milansoc_crg_clkout0  milansoc_crg_clkout0        3.403        0.000                      0                  382        0.514        0.000                      0                  382  
+**async_default**     milansoc_crg_clkout1  milansoc_crg_clkout1       12.955        0.000                      0                 3012        0.408        0.000                      0                 3012  
+
+
+------------------------------------------------------------------------------------------------
+| Timing Details
+| --------------
+------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------
+From Clock:  clk200_p
+  To Clock:  clk200_p
+
+Setup :            0  Failing Endpoints,  Worst Slack        3.721ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.237ns,  Total Violation        0.000ns
+PW    :            0  Failing Endpoints,  Worst Slack        1.100ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             3.721ns  (required time - arrival time)
+  Source:                 FDCE_3/C
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            FDCE_4/D
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             clk200_p
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (clk200_p rise@5.000ns - clk200_p rise@0.000ns)
+  Data Path Delay:        1.147ns  (logic 0.379ns (33.051%)  route 0.768ns (66.949%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.027ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.991ns = ( 8.991 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.239ns
+    Clock Pessimism Removal (CPR):    0.221ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.589     4.239    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_3/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X1Y20          FDCE (Prop_fdce_C_Q)         0.379     4.618 r  FDCE_3/Q
+                         net (fo=1, routed)           0.768     5.385    subfragments_reset3
+    SLICE_X3Y22          FDCE                                         r  FDCE_4/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk200_p rise edge)
+                                                      5.000     5.000 r  <hidden>
+    R4                                                0.000     5.000 r  clk200_p
+                         net (fo=0)                   0.000     5.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     5.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     7.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     7.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.472     8.991    milansoc_crg_clkin_signal
+    SLICE_X3Y22          FDCE                                         r  FDCE_4/C
+                         clock pessimism              0.221     9.212    <hidden>
+                         clock uncertainty           -0.035     9.176    <hidden>
+    SLICE_X3Y22          FDCE (Setup_fdce_C_D)       -0.070     9.106    FDCE_4
+  -------------------------------------------------------------------
+                         required time                          9.106    <hidden>
+                         arrival time                          -5.385    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  3.721    <hidden>
+
+Slack (MET) :             3.817ns  (required time - arrival time)
+  Source:                 FDCE_4/C
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            FDCE_5/D
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             clk200_p
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (clk200_p rise@5.000ns - clk200_p rise@0.000ns)
+  Data Path Delay:        1.070ns  (logic 0.379ns (35.418%)  route 0.691ns (64.582%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.991ns = ( 8.991 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.236ns
+    Clock Pessimism Removal (CPR):    0.245ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.586     4.236    milansoc_crg_clkin_signal
+    SLICE_X3Y22          FDCE                                         r  FDCE_4/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X3Y22          FDCE (Prop_fdce_C_Q)         0.379     4.615 r  FDCE_4/Q
+                         net (fo=1, routed)           0.691     5.306    subfragments_reset4
+    SLICE_X3Y22          FDCE                                         r  FDCE_5/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk200_p rise edge)
+                                                      5.000     5.000 r  <hidden>
+    R4                                                0.000     5.000 r  clk200_p
+                         net (fo=0)                   0.000     5.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     5.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     7.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     7.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.472     8.991    milansoc_crg_clkin_signal
+    SLICE_X3Y22          FDCE                                         r  FDCE_5/C
+                         clock pessimism              0.245     9.236    <hidden>
+                         clock uncertainty           -0.035     9.200    <hidden>
+    SLICE_X3Y22          FDCE (Setup_fdce_C_D)       -0.078     9.122    FDCE_5
+  -------------------------------------------------------------------
+                         required time                          9.122    <hidden>
+                         arrival time                          -5.306    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  3.817    <hidden>
+
+Slack (MET) :             3.848ns  (required time - arrival time)
+  Source:                 FDCE/C
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            FDCE_1/D
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             clk200_p
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (clk200_p rise@5.000ns - clk200_p rise@0.000ns)
+  Data Path Delay:        0.991ns  (logic 0.379ns (38.235%)  route 0.612ns (61.765%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.044ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.993ns = ( 8.993 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.241ns
+    Clock Pessimism Removal (CPR):    0.204ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.591     4.241    milansoc_crg_clkin_signal
+    SLICE_X5Y17          FDCE                                         r  FDCE/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y17          FDCE (Prop_fdce_C_Q)         0.379     4.620 r  FDCE/Q
+                         net (fo=1, routed)           0.612     5.232    subfragments_reset0
+    SLICE_X1Y20          FDCE                                         r  FDCE_1/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk200_p rise edge)
+                                                      5.000     5.000 r  <hidden>
+    R4                                                0.000     5.000 r  clk200_p
+                         net (fo=0)                   0.000     5.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     5.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     7.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     7.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.474     8.993    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_1/C
+                         clock pessimism              0.204     9.197    <hidden>
+                         clock uncertainty           -0.035     9.161    <hidden>
+    SLICE_X1Y20          FDCE (Setup_fdce_C_D)       -0.081     9.080    FDCE_1
+  -------------------------------------------------------------------
+                         required time                          9.080    <hidden>
+                         arrival time                          -5.232    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  3.848    <hidden>
+
+Slack (MET) :             3.860ns  (required time - arrival time)
+  Source:                 FDCE_6/C
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            FDCE_7/D
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             clk200_p
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (clk200_p rise@5.000ns - clk200_p rise@0.000ns)
+  Data Path Delay:        1.007ns  (logic 0.379ns (37.648%)  route 0.628ns (62.352%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.022ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.993ns = ( 8.993 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.236ns
+    Clock Pessimism Removal (CPR):    0.221ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.586     4.236    milansoc_crg_clkin_signal
+    SLICE_X3Y22          FDCE                                         r  FDCE_6/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X3Y22          FDCE (Prop_fdce_C_Q)         0.379     4.615 r  FDCE_6/Q
+                         net (fo=1, routed)           0.628     5.242    subfragments_reset6
+    SLICE_X1Y20          FDCE                                         r  FDCE_7/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk200_p rise edge)
+                                                      5.000     5.000 r  <hidden>
+    R4                                                0.000     5.000 r  clk200_p
+                         net (fo=0)                   0.000     5.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     5.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     7.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     7.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.474     8.993    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_7/C
+                         clock pessimism              0.221     9.214    <hidden>
+                         clock uncertainty           -0.035     9.178    <hidden>
+    SLICE_X1Y20          FDCE (Setup_fdce_C_D)       -0.076     9.102    FDCE_7
+  -------------------------------------------------------------------
+                         required time                          9.102    <hidden>
+                         arrival time                          -5.242    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  3.860    <hidden>
+
+Slack (MET) :             3.974ns  (required time - arrival time)
+  Source:                 FDCE_5/C
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            FDCE_6/D
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             clk200_p
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (clk200_p rise@5.000ns - clk200_p rise@0.000ns)
+  Data Path Delay:        0.923ns  (logic 0.379ns (41.042%)  route 0.544ns (58.958%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.991ns = ( 8.991 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.236ns
+    Clock Pessimism Removal (CPR):    0.245ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.586     4.236    milansoc_crg_clkin_signal
+    SLICE_X3Y22          FDCE                                         r  FDCE_5/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X3Y22          FDCE (Prop_fdce_C_Q)         0.379     4.615 r  FDCE_5/Q
+                         net (fo=1, routed)           0.544     5.159    subfragments_reset5
+    SLICE_X3Y22          FDCE                                         r  FDCE_6/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk200_p rise edge)
+                                                      5.000     5.000 r  <hidden>
+    R4                                                0.000     5.000 r  clk200_p
+                         net (fo=0)                   0.000     5.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     5.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     7.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     7.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.472     8.991    milansoc_crg_clkin_signal
+    SLICE_X3Y22          FDCE                                         r  FDCE_6/C
+                         clock pessimism              0.245     9.236    <hidden>
+                         clock uncertainty           -0.035     9.200    <hidden>
+    SLICE_X3Y22          FDCE (Setup_fdce_C_D)       -0.067     9.133    FDCE_6
+  -------------------------------------------------------------------
+                         required time                          9.133    <hidden>
+                         arrival time                          -5.159    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  3.974    <hidden>
+
+Slack (MET) :             3.994ns  (required time - arrival time)
+  Source:                 FDCE_2/C
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            FDCE_3/D
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             clk200_p
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (clk200_p rise@5.000ns - clk200_p rise@0.000ns)
+  Data Path Delay:        0.887ns  (logic 0.379ns (42.749%)  route 0.508ns (57.251%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.993ns = ( 8.993 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.239ns
+    Clock Pessimism Removal (CPR):    0.246ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.589     4.239    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_2/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X1Y20          FDCE (Prop_fdce_C_Q)         0.379     4.618 r  FDCE_2/Q
+                         net (fo=1, routed)           0.508     5.125    subfragments_reset2
+    SLICE_X1Y20          FDCE                                         r  FDCE_3/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk200_p rise edge)
+                                                      5.000     5.000 r  <hidden>
+    R4                                                0.000     5.000 r  clk200_p
+                         net (fo=0)                   0.000     5.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     5.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     7.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     7.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.474     8.993    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_3/C
+                         clock pessimism              0.246     9.239    <hidden>
+                         clock uncertainty           -0.035     9.203    <hidden>
+    SLICE_X1Y20          FDCE (Setup_fdce_C_D)       -0.084     9.119    FDCE_3
+  -------------------------------------------------------------------
+                         required time                          9.119    <hidden>
+                         arrival time                          -5.125    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  3.994    <hidden>
+
+Slack (MET) :             4.106ns  (required time - arrival time)
+  Source:                 FDCE_1/C
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            FDCE_2/D
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             clk200_p
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (clk200_p rise@5.000ns - clk200_p rise@0.000ns)
+  Data Path Delay:        0.778ns  (logic 0.379ns (48.687%)  route 0.399ns (51.313%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.993ns = ( 8.993 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.239ns
+    Clock Pessimism Removal (CPR):    0.246ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.589     4.239    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_1/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X1Y20          FDCE (Prop_fdce_C_Q)         0.379     4.618 r  FDCE_1/Q
+                         net (fo=1, routed)           0.399     5.017    subfragments_reset1
+    SLICE_X1Y20          FDCE                                         r  FDCE_2/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk200_p rise edge)
+                                                      5.000     5.000 r  <hidden>
+    R4                                                0.000     5.000 r  clk200_p
+                         net (fo=0)                   0.000     5.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     5.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     7.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     7.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.474     8.993    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_2/C
+                         clock pessimism              0.246     9.239    <hidden>
+                         clock uncertainty           -0.035     9.203    <hidden>
+    SLICE_X1Y20          FDCE (Setup_fdce_C_D)       -0.080     9.123    FDCE_2
+  -------------------------------------------------------------------
+                         required time                          9.123    <hidden>
+                         arrival time                          -5.017    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.106    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.237ns  (arrival time - required time)
+  Source:                 FDCE_1/C
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            FDCE_2/D
+                            (rising edge-triggered cell FDCE clocked by clk200_p  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             clk200_p
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk200_p rise@0.000ns - clk200_p rise@0.000ns)
+  Data Path Delay:        0.298ns  (logic 0.141ns (47.245%)  route 0.157ns (52.755%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    2.062ns
+    Source Clock Delay      (SCD):    1.699ns
+    Clock Pessimism Removal (CPR):    0.363ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.659     1.699    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_1/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X1Y20          FDCE (Prop_fdce_C_Q)         0.141     1.840 r  FDCE_1/Q
+                         net (fo=1, routed)           0.157     1.997    subfragments_reset1
+    SLICE_X1Y20          FDCE                                         r  FDCE_2/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk200_p rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.934     2.062    milansoc_crg_clkin_signal
+    SLICE_X1Y20          FDCE                                         r  FDCE_2/C
+                         clock pessimism             -0.363     1.699    <hidden>
+
+[intervening bytes omitted]
+
+|    -1.875 (f) | FAST    |     5.864 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[21]    | ISERDESE2 (IO) | VARIABLE |    -1.959 (r) | FAST    |     5.880 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[21]    | ISERDESE2 (IO) | VARIABLE |    -1.887 (f) | FAST    |     5.880 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[22]    | ISERDESE2 (IO) | VARIABLE |    -1.959 (r) | FAST    |     5.875 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[22]    | ISERDESE2 (IO) | VARIABLE |    -1.887 (f) | FAST    |     5.875 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[23]    | ISERDESE2 (IO) | VARIABLE |    -1.959 (r) | FAST    |     5.879 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[23]    | ISERDESE2 (IO) | VARIABLE |    -1.887 (f) | FAST    |     5.879 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[24]    | ISERDESE2 (IO) | VARIABLE |    -1.937 (r) | FAST    |     5.861 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[24]    | ISERDESE2 (IO) | VARIABLE |    -1.865 (f) | FAST    |     5.861 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[25]    | ISERDESE2 (IO) | VARIABLE |    -1.940 (r) | FAST    |     5.862 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[25]    | ISERDESE2 (IO) | VARIABLE |    -1.868 (f) | FAST    |     5.862 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[26]    | ISERDESE2 (IO) | VARIABLE |    -1.927 (r) | FAST    |     5.851 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[26]    | ISERDESE2 (IO) | VARIABLE |    -1.855 (f) | FAST    |     5.851 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[27]    | ISERDESE2 (IO) | VARIABLE |    -1.942 (r) | FAST    |     5.865 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[27]    | ISERDESE2 (IO) | VARIABLE |    -1.870 (f) | FAST    |     5.865 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[28]    | ISERDESE2 (IO) | VARIABLE |    -1.956 (r) | FAST    |     5.880 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[28]    | ISERDESE2 (IO) | VARIABLE |    -1.884 (f) | FAST    |     5.880 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[29]    | ISERDESE2 (IO) | VARIABLE |    -1.954 (r) | FAST    |     5.878 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[29]    | ISERDESE2 (IO) | VARIABLE |    -1.882 (f) | FAST    |     5.878 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[30]    | ISERDESE2 (IO) | VARIABLE |    -1.958 (r) | FAST    |     5.881 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[30]    | ISERDESE2 (IO) | VARIABLE |    -1.886 (f) | FAST    |     5.881 (f) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[31]    | ISERDESE2 (IO) | VARIABLE |    -1.939 (r) | FAST    |     5.863 (r) | SLOW    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[31]    | ISERDESE2 (IO) | VARIABLE |    -1.867 (f) | FAST    |     5.863 (f) | SLOW    | milansoc_crg_clkout2        |
+eth_clocks0_rx | eth0_rx_data[0] | FDRE (IO)      | ZHOLD    |     3.202 (r) | SLOW    |    -0.498 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_rx_data[1] | FDRE (IO)      | ZHOLD    |     3.158 (r) | SLOW    |    -0.456 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_rx_data[2] | FDRE (IO)      | ZHOLD    |     3.150 (r) | SLOW    |    -0.449 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_rx_data[3] | FDRE (IO)      | ZHOLD    |     3.189 (r) | SLOW    |    -0.486 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_rx_data[4] | FDRE (IO)      | ZHOLD    |     3.187 (r) | SLOW    |    -0.484 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_rx_data[5] | FDRE (IO)      | ZHOLD    |     3.194 (r) | SLOW    |    -0.492 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_rx_data[6] | FDRE (IO)      | ZHOLD    |     3.191 (r) | SLOW    |    -0.490 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_rx_data[7] | FDRE (IO)      | ZHOLD    |     3.195 (r) | SLOW    |    -0.493 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_rx_dv      | FDRE (IO)      | ZHOLD    |     3.198 (r) | SLOW    |     1.070 (r) | SLOW    |                             |
+---------------+-----------------+----------------+----------+---------------+---------+---------------+---------+-----------------------------+
+
+
+Output Ports Clock-to-out
+
+---------------+-----------------+----------------+-------+----------------+---------+----------------+---------+-----------------------------+
+Reference      | Output          | IO Reg         | Delay | Max Clk (Edge) | Process | Min Clk (Edge) | Process | Internal                    |
+Clock          | Port            | Type           | Type  |    to port(ns) | Corner  |    to port(ns) | Corner  | Clock                       |
+---------------+-----------------+----------------+-------+----------------+---------+----------------+---------+-----------------------------+
+clk200_p       | tdm_bclk        | FDRE (IO)      | -     |     18.566 (r) | SLOW    |      6.344 (r) | FAST    | milansoc_crg_audio_mclk_raw |
+clk200_p       | tdm_dout        | FDRE (IO)      | -     |     18.559 (r) | SLOW    |      6.337 (r) | FAST    | milansoc_crg_audio_mclk_raw |
+clk200_p       | tdm_fsync       | FDSE (IO)      | -     |     18.545 (r) | SLOW    |      6.321 (r) | FAST    | milansoc_crg_audio_mclk_raw |
+clk200_p       | tdm_mclk        | FDRE           | -     |     19.896 (r) | SLOW    |      6.660 (r) | FAST    | milansoc_crg_audio_mclk_raw |
+clk200_p       | ddram_dq[0]     | FDRE           | -     |     12.070 (r) | SLOW    |      4.140 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[1]     | FDRE           | -     |     12.778 (r) | SLOW    |      4.488 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[2]     | FDRE           | -     |     11.953 (r) | SLOW    |      4.087 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[3]     | FDRE           | -     |     12.785 (r) | SLOW    |      4.500 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[4]     | FDRE           | -     |     12.187 (r) | SLOW    |      4.201 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[5]     | FDRE           | -     |     12.668 (r) | SLOW    |      4.437 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[6]     | FDRE           | -     |     12.063 (r) | SLOW    |      4.141 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[7]     | FDRE           | -     |     12.423 (r) | SLOW    |      4.320 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[8]     | FDRE           | -     |     13.629 (r) | SLOW    |      4.922 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[9]     | FDRE           | -     |     13.648 (r) | SLOW    |      4.940 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[10]    | FDRE           | -     |     13.147 (r) | SLOW    |      4.674 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[11]    | FDRE           | -     |     13.521 (r) | SLOW    |      4.866 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[12]    | FDRE           | -     |     13.030 (r) | SLOW    |      4.633 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[13]    | FDRE           | -     |     13.631 (r) | SLOW    |      4.918 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[14]    | FDRE           | -     |     13.140 (r) | SLOW    |      4.687 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[15]    | FDRE           | -     |     13.765 (r) | SLOW    |      4.989 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[16]    | FDRE           | -     |     14.881 (r) | SLOW    |      5.580 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[17]    | FDRE           | -     |     14.402 (r) | SLOW    |      5.346 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[18]    | FDRE           | -     |     14.276 (r) | SLOW    |      5.278 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[19]    | FDRE           | -     |     14.647 (r) | SLOW    |      5.460 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[20]    | FDRE           | -     |     14.166 (r) | SLOW    |      5.223 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[21]    | FDRE           | -     |     14.757 (r) | SLOW    |      5.515 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[22]    | FDRE           | -     |     14.029 (r) | SLOW    |      5.134 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[23]    | FDRE           | -     |     14.764 (r) | SLOW    |      5.523 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[24]    | FDRE           | -     |     15.243 (r) | SLOW    |      5.796 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[25]    | FDRE           | -     |     14.997 (r) | SLOW    |      5.665 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[26]    | FDRE           | -     |     15.353 (r) | SLOW    |      5.860 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[27]    | FDRE           | -     |     15.498 (r) | SLOW    |      5.925 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[28]    | FDRE           | -     |     15.615 (r) | SLOW    |      5.973 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[29]    | FDRE           | -     |     15.851 (r) | SLOW    |      6.095 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[30]    | FDRE           | -     |     15.961 (r) | SLOW    |      6.145 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dq[31]    | FDRE           | -     |     15.608 (r) | SLOW    |      5.982 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dqs_n[0]  | FDRE           | -     |     12.103 (r) | SLOW    |      4.127 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dqs_n[1]  | FDRE           | -     |     12.560 (r) | SLOW    |      4.364 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dqs_n[2]  | FDRE           | -     |     13.301 (r) | SLOW    |      4.727 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dqs_n[3]  | FDRE           | -     |     14.001 (r) | SLOW    |      5.131 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dqs_p[0]  | FDRE           | -     |     12.104 (r) | SLOW    |      4.129 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dqs_p[1]  | FDRE           | -     |     12.561 (r) | SLOW    |      4.367 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dqs_p[2]  | FDRE           | -     |     13.302 (r) | SLOW    |      4.731 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | ddram_dqs_p[3]  | FDRE           | -     |     14.002 (r) | SLOW    |      5.135 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | eth0_mdc        | FDRE           | -     |     15.136 (r) | SLOW    |      5.845 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | eth0_mdio       | FDRE           | -     |     15.432 (r) | SLOW    |      5.647 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | eth0_rst_n      | FDRE           | -     |     15.516 (r) | SLOW    |      4.887 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | serial_tx       | FDSE           | -     |     17.169 (r) | SLOW    |      7.009 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | spiflash_cs_n   | FDCE           | -     |     14.537 (r) | SLOW    |      5.494 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | spiflash_mosi   | FDCE           | -     |     14.325 (r) | SLOW    |      5.434 (r) | FAST    | milansoc_crg_clkout0        |
+clk200_p       | tdm_lrclk       | FDRE           | -     |     12.405 (r) | SLOW    |      4.420 (r) | FAST    | milansoc_crg_clkout1        |
+clk200_p       | ddram_a[0]      | OSERDESE2 (IO) | -     |      8.996 (r) | SLOW    |      3.459 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[1]      | OSERDESE2 (IO) | -     |      9.032 (r) | SLOW    |      3.492 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[2]      | OSERDESE2 (IO) | -     |      9.017 (r) | SLOW    |      3.480 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[3]      | OSERDESE2 (IO) | -     |      9.019 (r) | SLOW    |      3.482 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[4]      | OSERDESE2 (IO) | -     |      9.035 (r) | SLOW    |      3.495 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[5]      | OSERDESE2 (IO) | -     |      8.993 (r) | SLOW    |      3.452 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[6]      | OSERDESE2 (IO) | -     |      9.006 (r) | SLOW    |      3.463 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[7]      | OSERDESE2 (IO) | -     |      8.998 (r) | SLOW    |      3.455 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[8]      | OSERDESE2 (IO) | -     |      8.998 (r) | SLOW    |      3.454 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[9]      | OSERDESE2 (IO) | -     |      9.010 (r) | SLOW    |      3.466 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[10]     | OSERDESE2 (IO) | -     |      9.017 (r) | SLOW    |      3.474 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[11]     | OSERDESE2 (IO) | -     |      9.010 (r) | SLOW    |      3.468 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[12]     | OSERDESE2 (IO) | -     |      9.006 (r) | SLOW    |      3.463 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[13]     | OSERDESE2 (IO) | -     |      8.997 (r) | SLOW    |      3.454 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_a[14]     | OSERDESE2 (IO) | -     |      8.988 (r) | SLOW    |      3.447 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_ba[0]     | OSERDESE2 (IO) | -     |      9.007 (r) | SLOW    |      3.469 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_ba[1]     | OSERDESE2 (IO) | -     |      9.007 (r) | SLOW    |      3.470 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_ba[2]     | OSERDESE2 (IO) | -     |      8.999 (r) | SLOW    |      3.462 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_cas_n     | OSERDESE2 (IO) | -     |      8.993 (r) | SLOW    |      3.458 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_cke       | OSERDESE2 (IO) | -     |      8.954 (r) | SLOW    |      3.418 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_clk_n     | OSERDESE2 (IO) | -     |      9.120 (r) | SLOW    |      3.422 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_clk_p     | OSERDESE2 (IO) | -     |      9.121 (r) | SLOW    |      3.423 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_cs_n      | OSERDESE2 (IO) | -     |      9.033 (r) | SLOW    |      3.493 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dm[0]     | OSERDESE2 (IO) | -     |      8.973 (r) | SLOW    |      3.442 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dm[1]     | OSERDESE2 (IO) | -     |      8.943 (r) | SLOW    |      3.415 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dm[2]     | OSERDESE2 (IO) | -     |      8.945 (r) | SLOW    |      3.419 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dm[3]     | OSERDESE2 (IO) | -     |      8.951 (r) | SLOW    |      3.419 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[0]     | OSERDESE2 (IO) | -     |      9.920 (r) | SLOW    |      3.127 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[1]     | OSERDESE2 (IO) | -     |      9.918 (r) | SLOW    |      3.112 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[2]     | OSERDESE2 (IO) | -     |      9.920 (r) | SLOW    |      3.136 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[3]     | OSERDESE2 (IO) | -     |      9.916 (r) | SLOW    |      3.117 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[4]     | OSERDESE2 (IO) | -     |      9.920 (r) | SLOW    |      3.127 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[5]     | OSERDESE2 (IO) | -     |      9.918 (r) | SLOW    |      3.115 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[6]     | OSERDESE2 (IO) | -     |      9.920 (r) | SLOW    |      3.136 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[7]     | OSERDESE2 (IO) | -     |      9.918 (r) | SLOW    |      3.126 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[8]     | OSERDESE2 (IO) | -     |      9.906 (r) | SLOW    |      3.097 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[9]     | OSERDESE2 (IO) | -     |      9.906 (r) | SLOW    |      3.100 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[10]    | OSERDESE2 (IO) | -     |      9.913 (r) | SLOW    |      3.100 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[11]    | OSERDESE2 (IO) | -     |      9.907 (r) | SLOW    |      3.093 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[12]    | OSERDESE2 (IO) | -     |      9.913 (r) | SLOW    |      3.120 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[13]    | OSERDESE2 (IO) | -     |      9.907 (r) | SLOW    |      3.092 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[14]    | OSERDESE2 (IO) | -     |      9.913 (r) | SLOW    |      3.120 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[15]    | OSERDESE2 (IO) | -     |      9.904 (r) | SLOW    |      3.088 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[16]    | OSERDESE2 (IO) | -     |      9.913 (r) | SLOW    |      3.092 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[17]    | OSERDESE2 (IO) | -     |      9.910 (r) | SLOW    |      3.106 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[18]    | OSERDESE2 (IO) | -     |      9.906 (r) | SLOW    |      3.101 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[19]    | OSERDESE2 (IO) | -     |      9.913 (r) | SLOW    |      3.093 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[20]    | OSERDESE2 (IO) | -     |      9.906 (r) | SLOW    |      3.099 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[21]    | OSERDESE2 (IO) | -     |      9.913 (r) | SLOW    |      3.095 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[22]    | OSERDESE2 (IO) | -     |      9.904 (r) | SLOW    |      3.085 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[23]    | OSERDESE2 (IO) | -     |      9.913 (r) | SLOW    |      3.095 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[24]    | OSERDESE2 (IO) | -     |      9.918 (r) | SLOW    |      3.121 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[25]    | OSERDESE2 (IO) | -     |      9.916 (r) | SLOW    |      3.118 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[26]    | OSERDESE2 (IO) | -     |      9.918 (r) | SLOW    |      3.131 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[27]    | OSERDESE2 (IO) | -     |      9.918 (r) | SLOW    |      3.116 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[28]    | OSERDESE2 (IO) | -     |      9.920 (r) | SLOW    |      3.104 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[29]    | OSERDESE2 (IO) | -     |      9.920 (r) | SLOW    |      3.108 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[30]    | OSERDESE2 (IO) | -     |      9.920 (r) | SLOW    |      3.104 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dq[31]    | OSERDESE2 (IO) | -     |      9.918 (r) | SLOW    |      3.119 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_odt       | OSERDESE2 (IO) | -     |      8.953 (r) | SLOW    |      3.417 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_ras_n     | OSERDESE2 (IO) | -     |      8.988 (r) | SLOW    |      3.452 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_reset_n   | OSERDESE2 (IO) | -     |      9.258 (r) | SLOW    |      3.572 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_we_n      | OSERDESE2 (IO) | -     |      9.033 (r) | SLOW    |      3.493 (r) | FAST    | milansoc_crg_clkout2        |
+clk200_p       | ddram_dqs_n[0]  | OSERDESE2 (IO) | -     |     10.542 (r) | SLOW    |      3.713 (r) | FAST    | milansoc_crg_clkout3        |
+clk200_p       | ddram_dqs_n[1]  | OSERDESE2 (IO) | -     |     10.534 (r) | SLOW    |      3.699 (r) | FAST    | milansoc_crg_clkout3        |
+clk200_p       | ddram_dqs_n[2]  | OSERDESE2 (IO) | -     |     10.531 (r) | SLOW    |      3.703 (r) | FAST    | milansoc_crg_clkout3        |
+clk200_p       | ddram_dqs_n[3]  | OSERDESE2 (IO) | -     |     10.542 (r) | SLOW    |      3.700 (r) | FAST    | milansoc_crg_clkout3        |
+clk200_p       | ddram_dqs_p[0]  | OSERDESE2 (IO) | -     |     10.543 (r) | SLOW    |      3.715 (r) | FAST    | milansoc_crg_clkout3        |
+clk200_p       | ddram_dqs_p[1]  | OSERDESE2 (IO) | -     |     10.535 (r) | SLOW    |      3.702 (r) | FAST    | milansoc_crg_clkout3        |
+clk200_p       | ddram_dqs_p[2]  | OSERDESE2 (IO) | -     |     10.532 (r) | SLOW    |      3.707 (r) | FAST    | milansoc_crg_clkout3        |
+clk200_p       | ddram_dqs_p[3]  | OSERDESE2 (IO) | -     |     10.543 (r) | SLOW    |      3.705 (r) | FAST    | milansoc_crg_clkout3        |
+eth_clocks0_rx | eth0_tx_data[0] | FDRE (IO)      | -     |      8.588 (r) | SLOW    |      3.016 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_tx_data[1] | FDRE (IO)      | -     |      8.398 (r) | SLOW    |      2.911 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_tx_data[2] | FDRE (IO)      | -     |      8.403 (r) | SLOW    |      2.916 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_tx_data[3] | FDRE (IO)      | -     |      8.405 (r) | SLOW    |      2.918 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_tx_data[4] | FDRE (IO)      | -     |      8.402 (r) | SLOW    |      2.917 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_tx_data[5] | FDRE (IO)      | -     |      8.393 (r) | SLOW    |      2.909 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_tx_data[6] | FDRE (IO)      | -     |      8.389 (r) | SLOW    |      2.906 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_tx_data[7] | FDRE (IO)      | -     |      8.391 (r) | SLOW    |      2.907 (r) | FAST    |                             |
+eth_clocks0_rx | eth0_tx_en      | FDRE (IO)      | -     |      8.577 (r) | SLOW    |      3.005 (r) | FAST    |                             |
+eth_clocks0_rx | eth_clocks0_gtx | ODDR (IO)      | -     |      8.574 (r) | SLOW    |      3.002 (r) | FAST    |                             |
+eth_clocks0_rx | eth_clocks0_gtx | ODDR (IO)      | -     |      8.574 (f) | SLOW    |      3.002 (f) | FAST    |                             |
+---------------+-----------------+----------------+-------+----------------+---------+----------------+---------+-----------------------------+
+
+
+Setup between Clocks
+
+---------------+----------------+---------------+---------+---------------+---------+---------------+---------+---------------+---------+
+Source         | Destination    |  Src:Rise     | Process |  Src:Rise     | Process |  Src:Fall     | Process |  Src:Fall     | Process |
+Clock          | Clock          | Dest:Rise(ns) | Corner  | Dest:Fall(ns) | Corner  | Dest:Rise(ns) | Corner  | Dest:Fall(ns) | Corner  |
+---------------+----------------+---------------+---------+---------------+---------+---------------+---------+---------------+---------+
+clk200_p       | clk200_p       |        19.317 | SLOW    |               |         |               |         |               |         |
+eth_clocks0_rx | clk200_p       |         1.844 | SLOW    |               |         |               |         |               |         |
+clk200_p       | eth_clocks0_rx |         9.967 | SLOW    |               |         |               |         |               |         |
+eth_clocks0_rx | eth_clocks0_rx |         7.372 | SLOW    |               |         |               |         |               |         |
+---------------+----------------+---------------+---------+---------------+---------+---------------+---------+---------------+---------+
+
+
+Setup / Hold times for input bus
+Clocked by: clk200_p
+Worst Case Data Window: 4.030 ns
+Ideal Clock Offset to Actual Clock: 3.868 ns
+-------------------+-------------+---------+-------------+---------+-----------+-----------+---------------+
+                   |             | Process |             | Process | Setup     |  Hold     | Source Offset |
+Source             |   Setup(ns) | Corner  |    Hold(ns) | Corner  | Slack(ns) | Slack(ns) | to Center(ns) |
+-------------------+-------------+---------+-------------+---------+-----------+-----------+---------------+
+ddram_dq[0]        |  -1.932 (r) | FAST    |   5.857 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[0]        |  -1.860 (f) | FAST    |   5.857 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[1]        |  -1.946 (r) | FAST    |   5.869 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[1]        |  -1.874 (f) | FAST    |   5.869 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[2]        |  -1.925 (r) | FAST    |   5.849 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[2]        |  -1.853 (f) | FAST    |   5.849 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[3]        |  -1.941 (r) | FAST    |   5.862 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[3]        |  -1.869 (f) | FAST    |   5.862 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[4]        |  -1.933 (r) | FAST    |   5.857 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[4]        |  -1.861 (f) | FAST    |   5.857 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[5]        |  -1.943 (r) | FAST    |   5.867 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[5]        |  -1.871 (f) | FAST    |   5.867 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[6]        |  -1.926 (r) | FAST    |   5.850 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[6]        |  -1.854 (f) | FAST    |   5.850 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[7]        |  -1.931 (r) | FAST    |   5.855 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[7]        |  -1.859 (f) | FAST    |   5.855 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[8]        |  -1.949 (r) | FAST    |   5.866 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[8]        |  -1.877 (f) | FAST    |   5.866 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[9]        |  -1.946 (r) | FAST    |   5.863 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[9]        |  -1.874 (f) | FAST    |   5.863 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[10]       |  -1.954 (r) | FAST    |   5.874 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[10]       |  -1.882 (f) | FAST    |   5.874 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[11]       |  -1.955 (r) | FAST    |   5.872 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[11]       |  -1.883 (f) | FAST    |   5.872 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[12]       |  -1.934 (r) | FAST    |   5.855 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[12]       |  -1.862 (f) | FAST    |   5.855 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[13]       |  -1.956 (r) | FAST    |   5.874 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[13]       |  -1.884 (f) | FAST    |   5.874 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[14]       |  -1.933 (r) | FAST    |   5.854 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[14]       |  -1.861 (f) | FAST    |   5.854 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[15]       |  -1.956 (r) | FAST    |   5.873 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[15]       |  -1.884 (f) | FAST    |   5.873 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[16]       |  -1.963 (r) | FAST    |   5.883 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[16]       |  -1.891 (f) | FAST    |   5.883 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[17]       |  -1.946 (r) | FAST    |   5.864 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[17]       |  -1.874 (f) | FAST    |   5.864 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[18]       |  -1.945 (r) | FAST    |   5.862 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[18]       |  -1.873 (f) | FAST    |   5.862 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[19]       |  -1.961 (r) | FAST    |   5.882 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[19]       |  -1.889 (f) | FAST    |   5.882 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[20]       |  -1.947 (r) | FAST    |   5.864 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[20]       |  -1.875 (f) | FAST    |   5.864 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[21]       |  -1.959 (r) | FAST    |   5.880 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[21]       |  -1.887 (f) | FAST    |   5.880 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[22]       |  -1.959 (r) | FAST    |   5.875 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[22]       |  -1.887 (f) | FAST    |   5.875 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[23]       |  -1.959 (r) | FAST    |   5.879 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[23]       |  -1.887 (f) | FAST    |   5.879 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[24]       |  -1.937 (r) | FAST    |   5.861 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[24]       |  -1.865 (f) | FAST    |   5.861 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[25]       |  -1.940 (r) | FAST    |   5.862 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[25]       |  -1.868 (f) | FAST    |   5.862 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[26]       |  -1.927 (r) | FAST    |   5.851 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[26]       |  -1.855 (f) | FAST    |   5.851 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[27]       |  -1.942 (r) | FAST    |   5.865 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[27]       |  -1.870 (f) | FAST    |   5.865 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[28]       |  -1.956 (r) | FAST    |   5.880 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[28]       |  -1.884 (f) | FAST    |   5.880 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[29]       |  -1.954 (r) | FAST    |   5.878 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[29]       |  -1.882 (f) | FAST    |   5.878 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[30]       |  -1.958 (r) | FAST    |   5.881 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[30]       |  -1.886 (f) | FAST    |   5.881 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[31]       |  -1.939 (r) | FAST    |   5.863 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[31]       |  -1.867 (f) | FAST    |   5.863 (f) | SLOW    |       inf |       inf |             - |
+-------------------+-------------+---------+-------------+---------+-----------+-----------+---------------+
+<hidden>           |  -1.853 (f) | FAST    |   5.883 (r) | SLOW    |       inf |       inf |             - |
+-------------------+-------------+---------+-------------+---------+-----------+-----------+---------------+
+
+
+
+Setup / Hold times for input bus
+Clocked by: eth_clocks0_rx
+Worst Case Data Window: 2.753 ns
+Ideal Clock Offset to Actual Clock: -1.825 ns
+-------------------+-------------+---------+------------+---------+-----------+-----------+---------------+
+                   |             | Process |            | Process | Setup     |  Hold     | Source Offset |
+Source             |   Setup(ns) | Corner  |   Hold(ns) | Corner  | Slack(ns) | Slack(ns) | to Center(ns) |
+-------------------+-------------+---------+------------+---------+-----------+-----------+---------------+
+eth0_rx_data[0]    |   3.202 (r) | SLOW    | -0.498 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[1]    |   3.158 (r) | SLOW    | -0.456 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[2]    |   3.150 (r) | SLOW    | -0.449 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[3]    |   3.189 (r) | SLOW    | -0.486 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[4]    |   3.187 (r) | SLOW    | -0.484 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[5]    |   3.194 (r) | SLOW    | -0.492 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[6]    |   3.191 (r) | SLOW    | -0.490 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[7]    |   3.195 (r) | SLOW    | -0.493 (r) | FAST    |       inf |       inf |             - |
+-------------------+-------------+---------+------------+---------+-----------+-----------+---------------+
+<hidden>           |   3.202 (r) | SLOW    | -0.449 (r) | FAST    |       inf |       inf |             - |
+-------------------+-------------+---------+------------+---------+-----------+-----------+---------------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 0.048 ns
+-------------------+-------------+---------+-------------+---------+----------+
+                   |     Max     | Process |     Min     | Process | Edge     |
+Pad                |   Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+-------------+---------+-------------+---------+----------+
+ddram_a[0]         |   8.996 (r) | SLOW    |   3.459 (r) | FAST    |    0.012 |
+ddram_a[1]         |   9.032 (r) | SLOW    |   3.492 (r) | FAST    |    0.045 |
+ddram_a[2]         |   9.017 (r) | SLOW    |   3.480 (r) | FAST    |    0.033 |
+ddram_a[3]         |   9.019 (r) | SLOW    |   3.482 (r) | FAST    |    0.035 |
+ddram_a[4]         |   9.035 (r) | SLOW    |   3.495 (r) | FAST    |    0.048 |
+ddram_a[5]         |   8.993 (r) | SLOW    |   3.452 (r) | FAST    |    0.005 |
+ddram_a[6]         |   9.006 (r) | SLOW    |   3.463 (r) | FAST    |    0.018 |
+ddram_a[7]         |   8.998 (r) | SLOW    |   3.455 (r) | FAST    |    0.010 |
+ddram_a[8]         |   8.998 (r) | SLOW    |   3.454 (r) | FAST    |    0.010 |
+ddram_a[9]         |   9.010 (r) | SLOW    |   3.466 (r) | FAST    |    0.022 |
+ddram_a[10]        |   9.017 (r) | SLOW    |   3.474 (r) | FAST    |    0.029 |
+ddram_a[11]        |   9.010 (r) | SLOW    |   3.468 (r) | FAST    |    0.023 |
+ddram_a[12]        |   9.006 (r) | SLOW    |   3.463 (r) | FAST    |    0.018 |
+ddram_a[13]        |   8.997 (r) | SLOW    |   3.454 (r) | FAST    |    0.009 |
+ddram_a[14]        |   8.988 (r) | SLOW    |   3.447 (r) | FAST    |    0.000 |
+-------------------+-------------+---------+-------------+---------+----------+
+<hidden>           |   9.035 (r) | SLOW    |   3.447 (r) | FAST    |    0.048 |
+-------------------+-------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 0.008 ns
+-------------------+-------------+---------+-------------+---------+----------+
+                   |     Max     | Process |     Min     | Process | Edge     |
+Pad                |   Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+-------------+---------+-------------+---------+----------+
+ddram_ba[0]        |   9.007 (r) | SLOW    |   3.469 (r) | FAST    |    0.008 |
+ddram_ba[1]        |   9.007 (r) | SLOW    |   3.470 (r) | FAST    |    0.008 |
+ddram_ba[2]        |   8.999 (r) | SLOW    |   3.462 (r) | FAST    |    0.000 |
+-------------------+-------------+---------+-------------+---------+----------+
+<hidden>           |   9.007 (r) | SLOW    |   3.462 (r) | FAST    |    0.008 |
+-------------------+-------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 0.030 ns
+-------------------+-------------+---------+-------------+---------+----------+
+                   |     Max     | Process |     Min     | Process | Edge     |
+Pad                |   Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+-------------+---------+-------------+---------+----------+
+ddram_dm[0]        |   8.973 (r) | SLOW    |   3.442 (r) | FAST    |    0.030 |
+ddram_dm[1]        |   8.943 (r) | SLOW    |   3.415 (r) | FAST    |    0.000 |
+ddram_dm[2]        |   8.945 (r) | SLOW    |   3.419 (r) | FAST    |    0.004 |
+ddram_dm[3]        |   8.951 (r) | SLOW    |   3.419 (r) | FAST    |    0.008 |
+-------------------+-------------+---------+-------------+---------+----------+
+<hidden>           |   8.973 (r) | SLOW    |   3.415 (r) | FAST    |    0.030 |
+-------------------+-------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 4.008 ns
+-------------------+--------------+---------+-------------+---------+----------+
+                   |      Max     | Process |     Min     | Process | Edge     |
+Pad                |    Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+--------------+---------+-------------+---------+----------+
+ddram_dq[0]        |   12.070 (r) | SLOW    |   3.127 (r) | FAST    |    0.117 |
+ddram_dq[1]        |   12.778 (r) | SLOW    |   3.112 (r) | FAST    |    0.825 |
+ddram_dq[2]        |   11.953 (r) | SLOW    |   3.136 (r) | FAST    |    0.051 |
+ddram_dq[3]        |   12.785 (r) | SLOW    |   3.117 (r) | FAST    |    0.832 |
+ddram_dq[4]        |   12.187 (r) | SLOW    |   3.127 (r) | FAST    |    0.234 |
+ddram_dq[5]        |   12.668 (r) | SLOW    |   3.115 (r) | FAST    |    0.715 |
+ddram_dq[6]        |   12.063 (r) | SLOW    |   3.136 (r) | FAST    |    0.110 |
+ddram_dq[7]        |   12.423 (r) | SLOW    |   3.126 (r) | FAST    |    0.470 |
+ddram_dq[8]        |   13.629 (r) | SLOW    |   3.097 (r) | FAST    |    1.676 |
+ddram_dq[9]        |   13.648 (r) | SLOW    |   3.100 (r) | FAST    |    1.695 |
+ddram_dq[10]       |   13.147 (r) | SLOW    |   3.100 (r) | FAST    |    1.194 |
+ddram_dq[11]       |   13.521 (r) | SLOW    |   3.093 (r) | FAST    |    1.568 |
+ddram_dq[12]       |   13.030 (r) | SLOW    |   3.120 (r) | FAST    |    1.077 |
+ddram_dq[13]       |   13.631 (r) | SLOW    |   3.092 (r) | FAST    |    1.678 |
+ddram_dq[14]       |   13.140 (r) | SLOW    |   3.120 (r) | FAST    |    1.187 |
+ddram_dq[15]       |   13.765 (r) | SLOW    |   3.088 (r) | FAST    |    1.812 |
+ddram_dq[16]       |   14.881 (r) | SLOW    |   3.092 (r) | FAST    |    2.927 |
+ddram_dq[17]       |   14.402 (r) | SLOW    |   3.106 (r) | FAST    |    2.448 |
+ddram_dq[18]       |   14.276 (r) | SLOW    |   3.101 (r) | FAST    |    2.323 |
+ddram_dq[19]       |   14.647 (r) | SLOW    |   3.093 (r) | FAST    |    2.694 |
+ddram_dq[20]       |   14.166 (r) | SLOW    |   3.099 (r) | FAST    |    2.213 |
+ddram_dq[21]       |   14.757 (r) | SLOW    |   3.095 (r) | FAST    |    2.804 |
+ddram_dq[22]       |   14.029 (r) | SLOW    |   3.085 (r) | FAST    |    2.076 |
+ddram_dq[23]       |   14.764 (r) | SLOW    |   3.095 (r) | FAST    |    2.811 |
+ddram_dq[24]       |   15.243 (r) | SLOW    |   3.121 (r) | FAST    |    3.290 |
+ddram_dq[25]       |   14.997 (r) | SLOW    |   3.118 (r) | FAST    |    3.044 |
+ddram_dq[26]       |   15.353 (r) | SLOW    |   3.131 (r) | FAST    |    3.400 |
+ddram_dq[27]       |   15.498 (r) | SLOW    |   3.116 (r) | FAST    |    3.545 |
+ddram_dq[28]       |   15.615 (r) | SLOW    |   3.104 (r) | FAST    |    3.662 |
+ddram_dq[29]       |   15.851 (r) | SLOW    |   3.108 (r) | FAST    |    3.898 |
+ddram_dq[30]       |   15.961 (r) | SLOW    |   3.104 (r) | FAST    |    4.008 |
+ddram_dq[31]       |   15.608 (r) | SLOW    |   3.119 (r) | FAST    |    3.655 |
+-------------------+--------------+---------+-------------+---------+----------+
+<hidden>           |   15.961 (r) | SLOW    |   3.085 (r) | FAST    |    4.008 |
+-------------------+--------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 1.899 ns
+-------------------+--------------+---------+-------------+---------+----------+
+                   |      Max     | Process |     Min     | Process | Edge     |
+Pad                |    Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+--------------+---------+-------------+---------+----------+
+ddram_dqs_n[0]     |   12.103 (r) | SLOW    |   3.713 (r) | FAST    |    0.014 |
+ddram_dqs_n[1]     |   12.560 (r) | SLOW    |   3.699 (r) | FAST    |    0.457 |
+ddram_dqs_n[2]     |   13.301 (r) | SLOW    |   3.703 (r) | FAST    |    1.199 |
+ddram_dqs_n[3]     |   14.001 (r) | SLOW    |   3.700 (r) | FAST    |    1.898 |
+ddram_dqs_p[0]     |   12.104 (r) | SLOW    |   3.715 (r) | FAST    |    0.016 |
+ddram_dqs_p[1]     |   12.561 (r) | SLOW    |   3.702 (r) | FAST    |    0.458 |
+ddram_dqs_p[2]     |   13.302 (r) | SLOW    |   3.707 (r) | FAST    |    1.200 |
+ddram_dqs_p[3]     |   14.002 (r) | SLOW    |   3.705 (r) | FAST    |    1.899 |
+-------------------+--------------+---------+-------------+---------+----------+
+<hidden>           |   14.002 (r) | SLOW    |   3.699 (r) | FAST    |    1.899 |
+-------------------+--------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: eth_clocks0_rx
+Bus Skew: 0.199 ns
+-------------------+-------------+---------+-------------+---------+----------+
+                   |     Max     | Process |     Min     | Process | Edge     |
+Pad                |   Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+-------------+---------+-------------+---------+----------+
+eth0_tx_data[0]    |   8.588 (r) | SLOW    |   3.016 (r) | FAST    |    0.199 |
+eth0_tx_data[1]    |   8.398 (r) | SLOW    |   2.911 (r) | FAST    |    0.009 |
+eth0_tx_data[2]    |   8.403 (r) | SLOW    |   2.916 (r) | FAST    |    0.014 |
+eth0_tx_data[3]    |   8.405 (r) | SLOW    |   2.918 (r) | FAST    |    0.016 |
+eth0_tx_data[4]    |   8.402 (r) | SLOW    |   2.917 (r) | FAST    |    0.013 |
+eth0_tx_data[5]    |   8.393 (r) | SLOW    |   2.909 (r) | FAST    |    0.004 |
+eth0_tx_data[6]    |   8.389 (r) | SLOW    |   2.906 (r) | FAST    |    0.000 |
+eth0_tx_data[7]    |   8.391 (r) | SLOW    |   2.907 (r) | FAST    |    0.002 |
+-------------------+-------------+---------+-------------+---------+----------+
+<hidden>           |   8.588 (r) | SLOW    |   2.906 (r) | FAST    |    0.199 |
+-------------------+-------------+---------+-------------+---------+----------+
+
+
+
+
