@@ -559,6 +559,11 @@ for spec in "${tops[@]}"; do
     sv2v_reason="$(head -1 "$TMP/$top.ooc.sv2v.err")"
     printf "%-28s sv2v FAIL: %s\n" "$top" "$sv2v_reason"; status=1; continue
   fi
+  # Keep generate conditions and parameter overrides authoritative. Converted
+  # error messages become $error tasks again before any parameter binding.
+  if ! python3 "$R/syn/yosys/enforce_elaboration.py" "$TMP/$top.ooc.v"; then
+    printf "%-28s elaboration guard conversion FAIL\n" "$top"; status=1; continue
+  fi
   # OOC_CHPARAM="N_STREAMS=8 AUDIO_IF_SLOTS_P=16 ..." elaborates the SHIP
   # shape instead of the SV defaults (milan_datapath defaults N_STREAMS=1,
   # which constant-folds the NxN engines away and reads as a fake win).

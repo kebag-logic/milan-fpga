@@ -8,6 +8,7 @@
 all:
 	$(MAKE) -C ../milan_dp ax1x1gptp
 	python3 verify_abort.py
+	python3 verify_recentres.py --jobs 2
 
 extended:
 	$(MAKE) -C ../milan_dp ax1x1gptp-extended

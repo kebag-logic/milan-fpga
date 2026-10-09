@@ -24,6 +24,12 @@
 #                   phases where a PDU end meets a pop, on the unmutated
 #                   gateware and two setpoint defects, LAW_BOUNDARY_JOBS legs
 #                   at a time. Run it from this directory (TESTING.md).
+#   make tdm8render-pullin
+#                 - #647's PULL-IN CAMPAIGN, explicit for the same reason: a
+#                   running stream through T14's serial-clock hold at every
+#                   [LAW] feed phase, plus the standing phase after the full
+#                   serial/CRF/LAW history (--with-pullin). Graded after the
+#                   settle recentre, PULLIN_JOBS legs at a time.
 #   make clean    - remove build artifacts
 #
 # WHY THIS IS ITS OWN SUITE DIRECTORY. These legs lived in tb/verilator/
@@ -37,11 +43,22 @@
 # shortened, and the sweep discovers and shards this directory on its own with
 # the default 1800 s budget.
 #
-# THE [LAW] PHASE (#643) grades T30's INTERNAL law once the aligner reports
-# settled, on fresh streams at eighteen feed phases. Measured side by side on
-# one host, it took the shipping leg from 113.0 s to 215.4 s, and the default
-# target measured 663.8 s cold under GNU make 4.3, against 560.0 s before it:
-# about 1049 s at the 1.58x hosted slowdown, inside the 1800 s budget.
+# DEFAULT WALL CLOCK (#645, 2026-10-09): measured at 8e4b1e53 on the
+# hosted ubuntu-latest runner, run 37892515345, shard 0/5 job 113696564335.
+# Sequential make -C, successive verdict timestamps including build time:
+# 1218.7 s PASS, leaving 221.3 s to 1440 s and 581.3 s to the 1800 s guard.
+# Cold replica: env -u MAKEFLAGS taskset -c 36-39 make -C
+# tb/verilator/milan_dp_render; serial outer make, 793.308 s. Historical
+# ratio: 1093.9 / 826.7 rounded up to 1.324, from 1e79ebdc (run 37882435947,
+# job 113665137864). The 1050.3 s projection underestimated the measured
+# hosted 1218.7 s; projected margins were 389.7 s to 1440 s and 749.7 s
+# to 1800 s. Unchanged render code took 1093.9 s in that previous hosted run,
+# making the later window about 11% longer. TESTING.md links all receipts.
+# Later heads still require
+# hosted acceptance. Both legs, all eighteen [LAW] phases and the five
+# leg-side controls remain in the default.
+# The long [PULLIN] history and eighteen boot phases run in the explicit
+# tdm8render-pullin campaign owned by the manager merge bank (TESTING.md).
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0
@@ -66,12 +83,12 @@ DP         = ../milan_dp
 # nothing.
 TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
 DP_SRC    ?= $(RTL_DIR)/milan/milan_datapath.sv
-SRCS := $(shell $(MAKE) -s -C $(DP) print-srcs \
+SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs \
                 TDMRM_SRC='$(TDMRM_SRC)' DP_SRC='$(DP_SRC)')
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-srcs failed; the datapath source list could not be derived)
 endif
-DP_VFLAGS := $(shell $(MAKE) -s -C $(DP) print-dp-vflags)
+DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-dp-vflags failed; the elaboration flag set could not be derived)
 endif
@@ -121,7 +138,8 @@ $(VERILATOR) $(TDM8RM_SHAPE) $(DP_VFLAGS) --Mdir $(TDM8RM_MDIR) \
 endef
 
 .PHONY: all run tdm8render tdm8render-build tdm8render-multi \
-        tdm8render-multi-build tdm8render-mutants tdm8render-law-boundary clean
+        tdm8render-multi-build tdm8render-mutants tdm8render-law-boundary \
+        tdm8render-pullin clean
 .DEFAULT_GOAL := all
 all: run
 
@@ -198,6 +216,23 @@ tdm8render-mutants: tdm8render-build tdm8render-multi-build
 # THE BOUNDARY-BAND DIAGNOSTIC (#643), explicit. The clean build is its
 # positive control, put on disk first where the runner looks for it; the two
 # setpoint defects are built by the runner through this same recipe.
+# #647's PULL-IN CAMPAIGN, explicit for the same reason: [PULLIN] at every
+# [LAW] feed phase, each phase its own leg (boot, the settled report, one
+# running stream through T14's serial-clock hold, graded after the settle
+# recentre), PULLIN_JOBS legs at a time. A window #643's ambiguity window
+# cannot grade is reported, not failed; every leg must pass. Each leg's log
+# is PULLIN_OUT/pullin_<phase>.log. The history leg preserves the former
+# default's standing phase after serial/CRF/LAW, in pullin_history.log.
+PULLIN_PHASES ?= 0 130 260 391 521 651 781 911 927 1042 1156 1172 1302 1432 1562 1693 1823 1953
+PULLIN_JOBS   ?= 6
+PULLIN_OUT    ?= obj_pullin
+tdm8render-pullin: tdm8render-build
+	mkdir -p $(PULLIN_OUT)
+	printf '%s\n' history $(PULLIN_PHASES) | xargs -P $(PULLIN_JOBS) -I{} \
+	  sh -c 'case "$$1" in history) mode=--with-pullin;; *) mode=--pullin=$$1;; esac; \
+	    ./$(TDM8R_MDIR)/Vmilan_dp_tdm8r "$$mode" > $(PULLIN_OUT)/pullin_$$1.log 2>&1' sh {}
+	grep -h -e "settle recentre came" -e "NOT GRADABLE" -e "FAIL" $(PULLIN_OUT)/pullin_*.log
+
 LAW_BOUNDARY_JOBS ?= 8
 tdm8render-law-boundary: tdm8render-build
 	@echo "======================================================================"

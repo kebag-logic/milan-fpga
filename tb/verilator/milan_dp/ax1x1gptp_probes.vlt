@@ -1,0 +1,12 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// Read-only declared-recentre and capture-to-wire ordering observations.
+`verilator_config
+public_flat_rd -module "KL_chan_map_capture" -var "walk_start_w"
+public_flat_rd -module "KL_chan_map_capture" -var "rc_pdu_start_w"
+public_flat_rd -module "KL_chan_map_capture" -var "q_cnt_r"
+public_flat_rd -module "KL_chan_map_capture" -var "q_primed_r"
+public_flat_rd -module "KL_chan_map_capture" -var "lb_flush_i"
+public_flat_rd -module "KL_aaf_packetizer" -var "pair_ok_w"
+public_flat_rd -module "KL_aaf_packetizer" -var "pown_o_w"
+public_flat_rd -module "KL_aaf_packetizer" -var "nsamp_r"

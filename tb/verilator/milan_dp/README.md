@@ -211,7 +211,26 @@ No duplicate or gap is the expectation only for a talker on the DUT's media cloc
 
 Incoming PCM32 encodes channel identity and a monotonic sample index.
 All eight returned channels must match that supplied ramp.
-Sample order and packet sequence must remain continuous.
+Packet sequence must remain continuous. Sample order advances by one
+outside a declared settle recentre's exact consecutive events. Each output
+may carry that action in at most two consecutive PDUs, starting with the
+PDU containing its first action event. Other events in those PDUs and all
+events outside them remain strictly ordered, with no grace interval and
+unchanged loopback slip counters. The full-side declaration drops every
+excess event above the pre-PDU target of five; the empty side repeats the
+missing events, at most five.
+Within that span the wire checker requires the exact declared repeat or gap,
+including startup lock and reset reacquisition
+([ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990646410)).
+The expected step uses the declared eleven-event target less six arriving
+events and the first pair's fill before the decision beat. Read-only capture
+observations carry that expectation to the emitted PDU; observed audio and
+the DUT's hold/drop controls do not define the allowance. Each decision
+prints its step in events and both loopback slip counters. The checker
+requires unchanged counters and rejects a nonconsecutive action or a step
+extending into a third PDU. The six-phase capture regression also exercises
+two outputs with enable offsets 0 through 5 ticks and plants a nonconsecutive
+repeat, a third-PDU leak and an extra repeat outside the action.
 Acquisition, healthy streaming, stalls, loss, recovery, and reset are graded.
 Stable phases also compare outgoing uncertainty with public state.
 CSR and AECP getters must expose consistent GM/parent/delay/PathTrace.
@@ -235,6 +254,24 @@ Each silent window retains activity/payload failures and uncounted comparison om
 Peer-delay and arrival comparisons require an accepted response in the current reset epoch.
 Cadence checks require two requests; stall comparisons require observed stalled beats.
 Their missing prerequisites produce explicit, uncounted omissions.
+
+The separate suite also runs two ordering controls through the real wire
+checker. The first incoming PDU generated after the decision output PDU
+repeats one sample's predecessor; its observed errors must be outside every
+decision PDU.
+The other leaves the real recentre unchanged but declares one fewer repeat,
+so the measured step is larger than its allowance. Both must fail the
+ordering assertion with valid channel payloads and packet sequence; unrelated
+assertions must stay clean. Their expected nonzero DUT verdicts remain in
+separate logs. The control driver returns zero only when both defects are
+caught at the required PDU location.
+
+For independent runs after one compilation:
+
+```sh
+make -j16 -C tb/verilator/milan_dp ax1x1gptp-build VERILATOR_JOBS=4
+python3 tb/verilator/milan_dp_gptp/verify_recentres.py --jobs 2
+```
 
 Physical omissions include MAC buffers, preamble, FCS, and PHY timing.
 Issue #360 remains outside this packet-interface simulation.

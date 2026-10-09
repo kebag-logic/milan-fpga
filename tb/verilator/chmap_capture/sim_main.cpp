@@ -98,7 +98,8 @@ class ChanMapCaptureHarness {
   void drv_tdm_frame();
   void drv_tdm_frame_tagged(int tag, int first_pair, int last_pair);
   void lb_set_chans(int s, int chans);
-  void drv_lb_pdu(int s, int chans, int events, int e0);
+  //! `rc_on_first`: lane A's settle recentre mask, raised on the PDU's first beat
+  void drv_lb_pdu(int s, int chans, int events, int e0, uint8_t rc_on_first = 0);
   void a_tick();
   void b_tick();
 
@@ -133,6 +134,20 @@ class ChanMapCaptureHarness {
   void pin_queued_tick_snapshots_at_its_walk();
   void pin_one_pair_frame_publishes_on_pair_0();
   void pin_starved_pair_pegs_and_holds();
+  void pin_settle_recentre_centres_the_loop_queues();
+  void lrc_align();
+  bool lrc_frame(const char* tag, int s, std::array<int, 6>& ev);
+  void lrc_wipe();
+  void lrc_pulse();
+  void lrc_expect_frame(const char* tag, const char* what, const std::array<int, 6>& want);
+  void lrc_unprimed_and_hold();
+  void lrc_hold_before_first_commit(bool pulse);
+  void lrc_hold_one();
+  void lrc_drop();
+  void lrc_drop_five();
+  void lrc_on_target();
+  void lrc_flush_and_first_beat();
+  void pin_recentre_output_spans();
 
   const milan::tb::Model<Vchmap_wrap> model_;
   Vchmap_wrap* dut = model_.get();
@@ -315,7 +330,7 @@ void ChanMapCaptureHarness::lb_set_chans(int s, int chans) {          // RX moni
 // one PDU: `events` sample events x `chans` channels, chronologically
 // interleaved (IEEE 1722-2016 7.3.5). events*chans must be even (2 samples
 // per beat, as the depacketizer emits full 8-byte beats).
-void ChanMapCaptureHarness::drv_lb_pdu(int s, int chans, int events, int e0) {
+void ChanMapCaptureHarness::drv_lb_pdu(int s, int chans, int events, int e0, uint8_t rc_on_first) {
   std::vector<uint32_t> smp;
   for (int e = 0; e < events; e++)
     for (int c = 0; c < chans; c++) smp.push_back(LBV(s, c, e0 + e));
@@ -326,7 +341,9 @@ void ChanMapCaptureHarness::drv_lb_pdu(int s, int chans, int events, int e0) {
     dut->lb_tdata_i  = lb_beat(smp[i], smp[i + 1]);
     dut->lb_tvalid_i = 1;
     dut->lb_tlast_i  = (i + 2 >= smp.size());
+    dut->a_lb_recentre_i = (i == 0) ? rc_on_first : 0;
     cyc(); }
+  dut->a_lb_recentre_i = 0;
   dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0; dut->lb_tdata_i = 0; cyc(2); }
 
 // ---- media ticks (one full slot walk per tick; drain-friendly spacing) ---
@@ -373,7 +390,7 @@ void ChanMapCaptureHarness::reset_and_idle_every_input() {
   dut->tone_smp_i = 0;
   dut->lb_tdata_i = 0; dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0;
   dut->lb_tuser_i = 0; dut->lb_wire_chans_i = 0;
-  dut->a_lb_flush_i = 0; dut->b_lb_flush_i = 0;
+  dut->a_lb_flush_i = 0; dut->b_lb_flush_i = 0; dut->a_lb_recentre_i = 0;
   dut->a_map_wr_en_i = 0; dut->a_map_rd_en_i = 0; dut->a_tick_i = 0; dut->a_en_i = 0;
   dut->a_tctx_wr_en_i = 0; dut->a_tctx_rd_en_i = 0;
   dut->b_map_wr_en_i = 0; dut->b_map_rd_en_i = 0; dut->b_tick_i = 0; dut->b_en_i = 0;
@@ -1110,7 +1127,7 @@ void ChanMapCaptureHarness::pin_lane_b_loopback_into_widened_slot() {
   ck("LBB: one frame emitted (t7)", static_cast<long>(bfr.size()), 1);
   if (bfr.size() == 1) {
     // lane B took every push since [LB] but never ticked, so its s3 p2
-    // queue holds {e1, e2, e5, e6, e11, e12} - six of the eight it can -
+    // queue holds {e1, e2, e5, e6, e11, e12} - six of the sixteen it can -
     // and the first pop is the OLDEST (e1): elastic across lanes too
     ck("LBB: slot31 loop L = s3 ch4 e1 (oldest queued)",
        be(bfr[0], 66, 3), LBV(3, 4, 1));
@@ -1165,39 +1182,25 @@ void ChanMapCaptureHarness::pin_overflow_drops_the_oldest() {
   {
     long d0 = dut->a_dup_cnt_o;
     long k0 = dut->a_skip_cnt_o;
-    drv_lb_pdu(4, 2, 10, 1);         // ONE 10-event PDU vs the 8-deep queue
-    cyc(8);                          // let the skid drain
+    drv_lb_pdu(4, 2, 18, 1);         // 18 events vs the 16-deep queue
+    cyc(8);
     ck("LQ2: two oldest events dropped AT PUSH (skip = +2)",
        static_cast<long>(dut->a_skip_cnt_o) - k0, 2);
-    afr.clear();
-    for (int i = 0; i < 6; i++) a_tick();
-    cyc(400);
-    int f1 = find_len(afr, 234);
-    ck("LQ2: t1 frame emitted", f1 >= 0, 1);
-    if (f1 >= 0) {
-      ck("LQ2: e3 leads = the oldest SURVIVOR", be(afr[f1], 42, 3),
-         LBV(4, 0, 3));
-      long ord = 1;
-      for (int e = 0; e < 6; e++)
-        if (be(afr[f1], 42 + 32 * e, 3) != LBV(4, 0, 3 + e)) ord = 0;
-      ck("LQ2: survivors replay in order (e3..e8)", ord, 1);
-    } else { for (int k = 0; k < 2; k++) ck("LQ2 (skipped)", 0, 1); }
-    // the remaining two drain into the next frame; its tail is the honest
-    // starved-repeat of e10
-    afr.clear();
-    for (int i = 0; i < 6; i++) a_tick();
-    cyc(400);
-    int f2 = find_len(afr, 234);
-    if (f2 >= 0) {
-      ck("LQ2: next frame leads e9, e10", (be(afr[f2], 42, 3) == LBV(4, 0, 9))
-         && (be(afr[f2], 42 + 32, 3) == LBV(4, 0, 10)), 1);
-      long rep = 1;
-      for (int e = 2; e < 6; e++)
-        if (be(afr[f2], 42 + 32 * e, 3) != LBV(4, 0, 10)) rep = 0;
-      ck("LQ2: then repeats e10 (bounded slip, no jump)", rep, 1);
-    } else { for (int k = 0; k < 2; k++) ck("LQ2 tail (skipped)", 0, 1); }
-    ck("LQ2: the 4 tail repeats are the ONLY dups",
-       static_cast<long>(dut->a_dup_cnt_o) - d0, 4);
+    for (int frame = 0; frame < 3; ++frame) {
+      afr.clear();
+      for (int i = 0; i < 6; ++i) a_tick();
+      cyc(400);
+      const int f = find_len(afr, 234);
+      ck("LQ2: t1 frame emitted", f >= 0, 1);
+      long ordered = f >= 0;
+      if (f >= 0) for (int e = 0; e < 6; ++e) {
+        const int wanted = std::min(18, 3 + frame * 6 + e);
+        if (be(afr[f], 42 + 32 * e, 3) != LBV(4, 0, wanted)) ordered = 0;
+      }
+      ck("LQ2: survivors e3..e18 drain in order, then repeat e18", ordered, 1);
+    }
+    ck("LQ2: the 2 tail repeats are the ONLY dups",
+       static_cast<long>(dut->a_dup_cnt_o) - d0, 2);
   }
 }
 
@@ -1437,7 +1440,9 @@ int ChanMapCaptureHarness::run() {
   pin_close_on_the_tick_cycle();
   pin_queued_tick_snapshots_at_its_walk();
   pin_one_pair_frame_publishes_on_pair_0();
+  pin_settle_recentre_centres_the_loop_queues();
   pin_starved_pair_pegs_and_holds();
+  pin_recentre_output_spans();
 
   printf("\n======================================================================\n");
   printf("KL_chan_map_capture: %ld checks, %ld failures\nRESULT: %s\n",
@@ -1653,6 +1658,375 @@ void ChanMapCaptureHarness::pin_one_pair_frame_publishes_on_pair_0() {
     std::snprintf(what, sizeof what, "F1: col %d carries its own pair-0 frame (R)", col);
     ck(what, be(bfr[f], 42 + col * 32 + 12, 3), ONE_R(col));
   }
+}
+
+//! [LRC] helpers. lrc_align(): tick lane A until a t1 PDU closes, so each
+//! case below starts on a six-tick PDU boundary whatever the phases before
+//! it left. lrc_frame(): the next t1 PDU, six ticks, and the sample event
+//! each tick carried on stream `s` channel 0, with channel 2 required to
+//! carry the same event (the stream's two pairs in lockstep) and every
+//! value required to be stream `s`'s; -1 marks digital silence.
+void ChanMapCaptureHarness::lrc_align() {
+  afr.clear();
+  for (int i = 0; i < 7 && find_len(afr, 234) < 0; i++) { a_tick(); cyc(400); }
+  afr.clear();
+}
+bool ChanMapCaptureHarness::lrc_frame(const char* tag, int s, std::array<int, 6>& ev) {
+  afr.clear();
+  for (int i = 0; i < 6; i++) a_tick();
+  cyc(400);
+  const int f = find_len(afr, 234);
+  char what[96];
+  std::snprintf(what, sizeof what, "LRC %s: t1 frame emitted", tag);
+  ck(what, f >= 0, 1);
+  if (f < 0) return false;
+  long lock = 1;
+  for (int e = 0; e < 6; e++) {
+    const unsigned long c0 = be(afr[f], 42 + 32 * e, 3);
+    const unsigned long c2 = be(afr[f], 42 + 32 * e + 8, 3);
+    ev[e] = (c0 == 0) ? -1 : static_cast<int>(c0 & 0xF);
+    if (c0 != 0 && c0 != LBV(s, 0, ev[e])) lock = 0;
+    if (c2 != ((c0 == 0) ? 0 : LBV(s, 2, ev[e]))) lock = 0;
+  }
+  std::snprintf(what, sizeof what, "LRC %s: both pairs carry one event per tick", tag);
+  ck(what, lock, 1);
+  return true;
+}
+
+//! [LRC]'s stream: four channels, so two LOOP pairs, on t1's pairs 0 and 1
+constexpr int kLrcStream = 5;
+constexpr uint8_t kLrcMask = 1u << kLrcStream;
+bool lrc_same(const std::array<int, 6>& got, const std::array<int, 6>& want) { return got == want; }
+void ChanMapCaptureHarness::lrc_wipe() { dut->a_lb_flush_i = kLrcMask; cyc(); dut->a_lb_flush_i = 0; cyc(2); }
+void ChanMapCaptureHarness::lrc_pulse() { dut->a_lb_recentre_i = kLrcMask; cyc(); dut->a_lb_recentre_i = 0; cyc(2); }
+
+void ChanMapCaptureHarness::pin_settle_recentre_centres_the_loop_queues() {
+  // ====================================================================== //
+  // [LRC] The settle recentre targets eleven events at PDU end. Five
+  // left before its first beat need no action; four left hold one pop;
+  // none left hold five pops; six left drop the oldest before the pop.
+  // Both pairs act together, once, without counting the declared action
+  // as a slip, including a held walk that lands before a pair's first
+  // commit of the PDU. Unprimed, flush and coincident-first-beat cases
+  // remain pinned.
+  printf("\n[LRC] the settle recentre puts a stream's LOOP queues on 11 events\n");
+  lb_set_chans(kLrcStream, 4);
+  a_map_wr(1, ent_lb(1, kLrcStream, 0));      // t1 pair0 <- s5 ch0/ch1
+  a_map_wr(2, ent_lb(1, kLrcStream, 1));      // t1 pair1 <- s5 ch2/ch3
+  a_map_wr(3, ent(0, 0, 0));
+  a_map_wr(4, ent(0, 0, 0));
+  // clean slate: the earlier phases leave other streams primed, and their
+  // starved pairs would count dups on the lane's one counter
+  dut->a_lb_flush_i = 0xFF; cyc(); dut->a_lb_flush_i = 0; cyc(2);
+  lrc_align();
+  lrc_hold_before_first_commit(false);  // its genuine dup lands before d0
+  lrc_wipe();
+  lrc_align();
+  const long d0 = dut->a_dup_cnt_o;
+  const long k0 = dut->a_skip_cnt_o;
+  lrc_unprimed_and_hold();
+  lrc_hold_before_first_commit(true);
+  lrc_hold_one();
+  lrc_drop();
+  lrc_drop_five();
+  lrc_on_target();
+  lrc_flush_and_first_beat();
+  ck("LRC: no recentre moved the dup counter", static_cast<long>(dut->a_dup_cnt_o) - d0, 0);
+  ck("LRC: no recentre moved the skip counter", static_cast<long>(dut->a_skip_cnt_o) - k0, 0);
+}
+
+//! an unprimed stream ignores the pulse; then nothing left of the previous
+//! PDU (6 at the PDU end): the next five walks hold, and no sixth
+void ChanMapCaptureHarness::lrc_unprimed_and_hold() {
+  const int S = kLrcStream;
+  std::array<int, 6> ev{};
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 1);            // e1..e6: primes the stream, fill 6
+  if (lrc_frame("unprimed", S, ev))
+    ck("LRC: an unprimed stream ignores the pulse (e1..e6, no hold)", lrc_same(ev, {1, 2, 3, 4, 5, 6}), 1);
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 7);            // e7..e12 onto an empty queue
+  if (lrc_frame("hold five", S, ev))
+    ck("LRC: none left holds five pops (e6 repeats five times, then e7)", lrc_same(ev, {6, 6, 6, 6, 6, 7}), 1);
+  drv_lb_pdu(S, 4, 6, 13);           // five left: on target, fill 11
+  if (lrc_frame("after hold five", S, ev))
+    ck("LRC: ...and holds no sixth: e8..e13 follow in order", lrc_same(ev, {8, 9, 10, 11, 12, 13}), 1);
+}
+
+//! none left, and a walk between the PDU's first beat (the decision, pair
+//! 0's event) and pair 1's first commit: pair 1 is still empty at that
+//! walk. With the pulse the walk is the first of the five declared holds
+//! on both pairs and counts no dup (R474-2 F1). Without it, the identical
+//! stimulus is one genuine dup on pair 1, which shows the walk lands in
+//! that gap; the caller runs that variant outside the counter window.
+void ChanMapCaptureHarness::lrc_hold_before_first_commit(bool pulse) {
+  const int S = kLrcStream;
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);            // primes, fill 6
+  for (int i = 0; i < 6; i++) a_tick(); // e1..e6 out: nothing left
+  if (pulse) lrc_pulse();
+  std::vector<uint32_t> smp;
+  for (int e = 0; e < 6; e++)
+    for (int c = 0; c < 4; c++) smp.push_back(LBV(S, c, 7 + e));
+  afr.clear();
+  const long dA = dut->a_dup_cnt_o;
+  const long kA = dut->a_skip_cnt_o;
+  dut->lb_tuser_i = S;
+  for (size_t i = 0; i < smp.size(); i += 2) {
+    dut->lb_tdata_i = lb_beat(smp[i], smp[i + 1]);
+    dut->lb_tvalid_i = 1;
+    dut->lb_tlast_i = (i + 2 >= smp.size());
+    cyc();
+    if (i == 0) {                     // pair 0's e7 only: walk before pair 1's
+      dut->lb_tvalid_i = 0; dut->lb_tdata_i = 0; cyc(2);
+      a_tick();
+    }
+  }
+  dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0; dut->lb_tdata_i = 0; cyc(2);
+  const long walk_dups = static_cast<long>(dut->a_dup_cnt_o) - dA;
+  if (!pulse) {
+    ck("LRC CONTROL: without the pulse that walk finds pair 1 empty (one dup)", walk_dups, 1);
+    return;
+  }
+  for (int i = 0; i < 5; i++) a_tick();
+  lrc_expect_frame("hold before a commit", "LRC: a walk before pair 1's first commit is the first of five holds (e6 x5, then e7)",
+                   {6, 6, 6, 6, 6, 7});
+  ck("LRC: that held walk on a still-empty pair counts no dup", static_cast<long>(dut->a_dup_cnt_o) - dA, 0);
+  ck("LRC: ...and no skip", static_cast<long>(dut->a_skip_cnt_o) - kA, 0);
+  std::array<int, 6> ev{};
+  drv_lb_pdu(S, 4, 6, 13);           // five left: on target, fill 11
+  if (lrc_frame("after the early hold", S, ev))
+    ck("LRC: ...and holds no sixth: e8..e13 follow in order", lrc_same(ev, {8, 9, 10, 11, 12, 13}), 1);
+}
+
+//! four left (10 at the PDU end): the next walk holds, once
+void ChanMapCaptureHarness::lrc_hold_one() {
+  const int S = kLrcStream;
+  std::array<int, 6> ev{};
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);
+  afr.clear();
+  for (int i = 0; i < 2; i++) a_tick();   // e1..e2 out, e3..e6 queued
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 7);            // fill 10
+  for (int i = 0; i < 4; i++) a_tick(); // e2 held, then e3..e5
+  lrc_expect_frame("hold one", "LRC: four left holds one pop on both pairs (e2 repeats)", {1, 2, 2, 3, 4, 5});
+  if (lrc_frame("after hold one", S, ev))
+    ck("LRC: ...and acts once: e6..e11 follow in order", lrc_same(ev, {6, 7, 8, 9, 10, 11}), 1);
+}
+
+//! the PDU-sized frame lane A's t1 emitted over the last six ticks, its
+//! ch0 and ch2 required to carry the events `want` names
+void ChanMapCaptureHarness::lrc_expect_frame(const char* tag, const char* what,
+                                             const std::array<int, 6>& want) {
+  cyc(400);
+  const int f = find_len(afr, 234);
+  char line[96];
+  std::snprintf(line, sizeof line, "LRC %s: t1 frame emitted", tag);
+  ck(line, f >= 0, 1);
+  if (f < 0) return;
+  long ok = 1;
+  for (int e = 0; e < 6; e++) {
+    if (be(afr[f], 42 + 32 * e, 3) != LBV(kLrcStream, 0, want[e])) ok = 0;
+    if (be(afr[f], 42 + 32 * e + 8, 3) != LBV(kLrcStream, 2, want[e])) ok = 0;
+  }
+  ck(what, ok, 1);
+}
+
+//! six left: the next walk drops the oldest before its pop, once.
+void ChanMapCaptureHarness::lrc_drop() {
+  const int S = kLrcStream;
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 7);            // six left plus six new: fill 12
+  afr.clear();
+  for (int i = 0; i < 6; i++) a_tick();
+  lrc_expect_frame("drop", "LRC: six left drops the oldest on both pairs (e1 never plays)",
+                   {2, 3, 4, 5, 6, 7});
+  afr.clear();
+  drv_lb_pdu(S, 4, 6, 13);           // five left: fill 11
+  for (int i = 0; i < 6; i++) a_tick();
+  lrc_expect_frame("after the drop", "LRC: ...and acts once: e8..e13 follow in order",
+                   {8, 9, 10, 11, 12, 13});
+}
+
+//! Ten left: the full-side action removes all five excess events, once.
+void ChanMapCaptureHarness::lrc_drop_five() {
+  const int S = kLrcStream;
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);
+  drv_lb_pdu(S, 4, 6, 7);
+  afr.clear();
+  a_tick(); a_tick();              // e1,e2 emitted; e3..e12 left
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 13);          // ten left, then six more: full
+  for (int i = 0; i < 4; ++i) a_tick();
+  lrc_expect_frame("drop five", "LRC: ten left drops five excess events on both pairs",
+                   {1, 2, 8, 9, 10, 11});
+  afr.clear();
+  for (int i = 0; i < 6; ++i) a_tick();
+  lrc_expect_frame("after drop five", "LRC: after the full-side action every event follows once",
+                   {12, 13, 14, 15, 0, 1});
+}
+
+//! five left (11 at the PDU end): on target, nothing moves
+void ChanMapCaptureHarness::lrc_on_target() {
+  const int S = kLrcStream;
+  std::array<int, 6> ev{};
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);
+  afr.clear();
+  a_tick();                         // e1 out, e2..e6 queued
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 7);            // fill 11
+  for (int i = 0; i < 5; i++) a_tick();
+  lrc_expect_frame("no-op", "LRC: five left moves nothing (e2..e6 pop on time)", {1, 2, 3, 4, 5, 6});
+  if (lrc_frame("on target", S, ev))
+    ck("LRC: ...then e7..e12 in order", lrc_same(ev, {7, 8, 9, 10, 11, 12}), 1);
+}
+
+//! a flush cancels an armed recentre; a pulse on a PDU's first beat arms
+//! for the next PDU, not this one
+void ChanMapCaptureHarness::lrc_flush_and_first_beat() {
+  const int S = kLrcStream;
+  std::array<int, 6> ev{};
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);
+  lrc_frame("before the flush", S, ev);
+  lrc_pulse();
+  lrc_wipe();
+  drv_lb_pdu(S, 4, 6, 7);            // primes afresh, fill 6: no hold
+  if (lrc_frame("flushed", S, ev))
+    ck("LRC: a flush cancels the armed recentre (e7..e12, no hold)", lrc_same(ev, {7, 8, 9, 10, 11, 12}), 1);
+  drv_lb_pdu(S, 4, 6, 13, kLrcMask); // e13..e18 (13, 14, 15, 0, 1, 2), the pulse on its first beat
+  if (lrc_frame("pulse at the start", S, ev))
+    ck("LRC: a pulse on a PDU's first beat does not act on that PDU", lrc_same(ev, {13, 14, 15, 0, 1, 2}), 1);
+  drv_lb_pdu(S, 4, 6, 3);            // e3..e8 onto an empty queue: fill 6
+  if (lrc_frame("next end", S, ev))
+    ck("LRC: ...it acts at the next one (five holds: e18 repeats five times)", lrc_same(ev, {2, 2, 2, 2, 2, 3}), 1);
+}
+
+// The declaration is in source events, independently for each output. No
+// grace interval: every delta outside the consecutive action must be one.
+struct SpanSlot { unsigned pdu; int delta; };
+bool declared_span(const std::vector<SpanSlot>& wire, int step) {
+  int count = 0;
+  size_t first = wire.size();
+  size_t last = wire.size();
+  for (size_t i = 0; i < wire.size(); ++i) {
+    const int delta = wire[i].delta;
+    if (delta == 1) continue;
+    if (step < 0 ? delta != 0 : delta != step + 1) return false;
+    if (first == wire.size()) first = i;
+    if (last != wire.size() && i != last + 1) return false;
+    last = i;
+    count += step < 0 ? -1 : delta - 1;
+  }
+  return count == step && first != wire.size() &&
+         wire[last].pdu <= wire[first].pdu + 1;
+}
+
+void ChanMapCaptureHarness::pin_recentre_output_spans() {
+  printf("\n[SPAN] exact action across six phases and six fan-out enable offsets\n");
+  bool controls_done = false;
+  for (int step : {-5, 5}) for (int phase = 0; phase < 6; ++phase)
+    for (int delay = 0; delay < 6; ++delay) {
+      reset_and_idle_every_input();
+      afr.clear(); acur.clear(); bfr.clear(); bcur.clear(); lb_chans_word = 0;
+      // Both talkers emit two channels from the same received pair. Their
+      // packet sample phases differ because their enables have different histories.
+      a_tctx_wr(1, 1, 0xF000FE02u);
+      a_tctx_wr(1, 2, (1u << 16) | 0x91E0u);
+      a_tctx_wr(1, 0, (2u << 5) | (2u << 1) | 1u);
+      a_map_wr(0, ent_lb(1, kLrcStream, 0));
+      a_map_wr(1, ent_lb(1, kLrcStream, 0));
+      lb_set_chans(kLrcStream, 4);
+      const int warm = 6 + (step < 0 ? phase : (phase + 4) % 6);
+      for (int tick = 0; tick < warm; ++tick) {
+        dut->a_en_i = 1 | (tick >= delay ? 2 : 0);
+        a_tick();
+      }
+      drv_lb_pdu(kLrcStream, 4, 6, 1);
+      if (step > 0) drv_lb_pdu(kLrcStream, 4, 6, 7);
+      for (int tick = 0; tick < (step < 0 ? 6 : 2); ++tick) a_tick();
+      const long dup0 = dut->a_dup_cnt_o;
+      const long skip0 = dut->a_skip_cnt_o;
+      lrc_pulse();
+      const int next = step < 0 ? 7 : 13;
+      for (int block = 0; block < 4; ++block) {
+        drv_lb_pdu(kLrcStream, 4, 6, next + 6 * block);
+        for (int tick = 0; tick < 6; ++tick) a_tick();
+      }
+      cyc(400);
+      std::vector<SpanSlot> wire[2];
+      std::array<int, 2> last = {-1, -1};
+      std::array<unsigned, 2> pdus{};
+      bool pair_ok = true;
+      for (const auto& frame : afr) {
+        if (frame.size() != 90) continue;
+        const int talker = frame[5] == 2 ? 1 : 0;
+        const unsigned pdu = pdus[talker]++;
+        for (int k = 0; k < 6; ++k) {
+          const uint32_t left = be(frame, 42 + 8 * k, 3);
+          const uint32_t right = be(frame, 46 + 8 * k, 3);
+          if (left == 0 && last[talker] < 0) continue; // unfed prefix only
+          const int event = left & 15;
+          pair_ok &= left == LBV(kLrcStream, 0, event) &&
+                     right == LBV(kLrcStream, 1, event);
+          if (last[talker] < 0) pair_ok &= event == 1;
+          else wire[talker].push_back({pdu, (event - last[talker]) & 15});
+          last[talker] = event;
+        }
+      }
+      printf("SPAN step=%d phase=%d enable_offset=%d", step, phase, delay);
+      for (int talker = 0; talker < 2; ++talker) {
+        printf(" output%d=", talker);
+        for (const auto& slot : wire[talker]) printf("%u:%d,", slot.pdu, slot.delta);
+        ck("SPAN: exact consecutive action, at most two output PDUs, strict outside",
+           declared_span(wire[talker], step), 1);
+      }
+      printf("\n");
+      ck("SPAN: distinct left/right samples remain paired", pair_ok, 1);
+      ck("SPAN: no action counted as a duplicate", static_cast<long>(dut->a_dup_cnt_o) - dup0, 0);
+      ck("SPAN: no action counted as a skip", static_cast<long>(dut->a_skip_cnt_o) - skip0, 0);
+      if (!controls_done && step < 0 && phase == 0 && delay == 0) {
+        const auto& original = wire[0];
+        size_t first = 0;
+        while (first < original.size() && original[first].delta == 1) ++first;
+        // Plant against actual decoded output deltas, preserving the declared
+        // count in the first two controls. No DUT-private state drives the oracle.
+        if (first + 6 < original.size()) {
+          auto nonconsecutive = original;
+          nonconsecutive[first + 4].delta = 1;
+          nonconsecutive[first + 5].delta = 0;
+          ck("SPAN CONTROL: nonconsecutive repeat is rejected",
+             declared_span(nonconsecutive, -5), 0);
+          auto third_pdu = original;
+          size_t third = first;
+          while (third < original.size() && original[third].pdu < original[first].pdu + 2) ++third;
+          ck("SPAN CONTROL: third output PDU exists", third < original.size(), 1);
+          if (third < original.size()) {
+            third_pdu[first + 4].delta = 1;
+            third_pdu[third].delta = 0;
+            ck("SPAN CONTROL: action leaking into third PDU is rejected",
+               declared_span(third_pdu, -5), 0);
+          }
+          auto outside = original;
+          outside[first + 6].delta = 0;
+          ck("SPAN CONTROL: extra repeat outside declaration is rejected",
+             declared_span(outside, -5), 0);
+          controls_done = true;
+        }
+      }
+    }
+  ck("SPAN: every planted control was exercised", controls_done, 1);
 }
 
 void ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds() {

@@ -55,9 +55,10 @@ MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RSP_SRC", "resta
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
-#: the render stage's re-base trigger; its second line is also the anchor the
-#: #386 and #447 render runners plant their clock-source control on
-RENDER_TRIGGER = "       media_rebase_p_w\n       | src_recentre_p_r;"
+#: the render stage's re-base trigger, with #645's settle recentre between
+#: its two original terms; its last line is also the anchor the #386 and #447
+#: render runners plant their clock-source control on
+RENDER_TRIGGER = "       media_rebase_p_w\n       | settle_recentre_p_r\n       | src_recentre_p_r;"
 #: the restart request's last line: a control that appends " | <cause>" to it
 #: ORs the cause into the whole request (#629 added the AAF meter's two terms
 #: after the CRF ones, so the request ends here)
@@ -149,15 +150,15 @@ CONTROLS = [
             "CRF control: selected CRF mr propagates exactly once", True),
     Control("the grandmaster identity re-bases the render stage as well as the step",
             "datapath", RENDER_TRIGGER,
-            "       gm_recentre_p_r | media_rebase_p_w\n       | src_recentre_p_r;",
+            "       gm_recentre_p_r | media_rebase_p_w\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
             "render: the GM change is one counted re-base event", True),
     Control("the step does not re-centre the render stage", "datapath",
             RENDER_TRIGGER,
-            "       1'b0\n       | src_recentre_p_r;",
+            "       1'b0\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
             "render: the GM change is one counted re-base event", True),
     Control("the render re-base is keyed to the identity, not the step", "datapath",
             RENDER_TRIGGER,
-            "       gm_recentre_p_r\n       | src_recentre_p_r;",
+            "       gm_recentre_p_r\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
             "render: every counted re-base lands at a PDU end right after the step", False),
     Control("tu reaches the talkers four cycles late", "clkv",
             "  assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w;",

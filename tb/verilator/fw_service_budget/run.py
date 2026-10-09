@@ -55,8 +55,8 @@ def command_plan(plan: str, shape: str = SHAPES[0]) -> tuple[str, ...]:
 
 def validate_waits(erase_us: int, program_us: int) -> None:
     """Admit device maxima, bounded below the unchanged 30-second guard."""
-    # At most four erases and 100 pages in either supported command plan:
-    # 12 s + 0.5 s WIP plus the measured <6 s no-WIP plan fits 30 s.
+    # Four erases and at most two full 64 KiB journal slots: 12 s +
+    # 2.56 s WIP plus the measured <6 s no-WIP plan fits 30 s.
     require(0 <= erase_us <= 3_000_000, 'erase wait must be 0..3000000 us')
     require(0 <= program_us <= 5_000, 'program wait must be 0..5000 us')
 
@@ -426,10 +426,27 @@ def service_findings(result: dict, raw: str) -> list[str]:
     return findings
 
 
+def oracle_media(directory: Path, shape: str, recorded: dict) -> dict:
+    """Derive fixture sizes from freshly built descriptor and journal bytes."""
+    sys.path.insert(0, str(ROOT / 'scripts'))
+    from nvm_shape import build as build_shape
+
+    build_shape(ROOT / 'configs' / (shape + '.yaml'), directory / 'generated')
+    blob = directory / 'generated' / (shape + '.img.bin')
+    (directory / 'aem_desc.bin').write_bytes(blob.read_bytes())
+    return fixtures(directory, shape, recorded['populated'], recorded.get('plan', 'all'))
+
+
 def trace_controls() -> int:
     """Pin both clock ratios, marker choices and deadlines against fixed traces."""
     controls = json.loads((HERE / 'oracle.json').read_text())
     count = 0
+    with tempfile.TemporaryDirectory(prefix='service-oracle-images-') as directory:
+        for receipt in controls:
+            media = oracle_media(Path(directory), receipt['shape'], receipt['media'])
+            require(media['slots_sha256'] == receipt['media']['slots_sha256'],
+                    'oracle image changed; rebuild and regenerate the trace fixture')
+            receipt['media'] = media
     for receipt in controls:
         raw = receipt['raw_log']
         require(hashlib.sha256(raw.encode()).hexdigest() == receipt['log_sha256'], 'control trace digest mismatch')
@@ -437,6 +454,15 @@ def trace_controls() -> int:
         for key in ('rows', 'budget_findings', 'heartbeat', 'liveness'):
             require(got[key] == receipt[key], 'control trace changed: ' + receipt['shape'] + ' ' + key)
             count += 1
+        wrong = dict(receipt['media'], image_bytes=receipt['media']['image_bytes'] + 1)
+        try:
+            grade(raw, wrong)
+        except RuntimeError as error:
+            require(str(error) == 'flash operation census',
+                    'wrong image size must fail its own census')
+        else:
+            raise RuntimeError('mirrored journal size escaped the trace census')
+        count += 1
     raw = controls[0]['raw_log']
 
     def delay(match: re.Match) -> str:
