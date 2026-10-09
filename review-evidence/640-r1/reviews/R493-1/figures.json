@@ -1,0 +1,876 @@
+{
+  "head": "c4b8b7d373c9233bc9e71c6ed32eae9ad2b3f970",
+  "base": "5603c353137e90c1fa95429f6d00ef7a2298d9ee",
+  "checks_passed": 143,
+  "checks": [
+    {
+      "check": "route-1x1 LUT",
+      "actual": 50267.0,
+      "expected": 50267
+    },
+    {
+      "check": "route-1x1 FF",
+      "actual": 54413.0,
+      "expected": 54413
+    },
+    {
+      "check": "route-1x1 SLICE",
+      "actual": 15779.0,
+      "expected": 15779
+    },
+    {
+      "check": "route-1x1 RAMB36",
+      "actual": 74.0,
+      "expected": 74
+    },
+    {
+      "check": "route-1x1 RAMB18",
+      "actual": 27.0,
+      "expected": 27
+    },
+    {
+      "check": "route-1x1 BRAM_TILE",
+      "actual": 87.5,
+      "expected": 87.5
+    },
+    {
+      "check": "route-1x1 DSP",
+      "actual": 14.0,
+      "expected": 14
+    },
+    {
+      "check": "route-1x1 timing",
+      "actual": [
+        0.299,
+        0.031
+      ],
+      "expected": [
+        0.299,
+        0.031
+      ]
+    },
+    {
+      "check": "route-1x1 BRAM arithmetic",
+      "actual": 87.5,
+      "expected": 87.5
+    },
+    {
+      "check": "ooc-1x1 LUT",
+      "actual": 23179.0,
+      "expected": 23179
+    },
+    {
+      "check": "ooc-1x1 FF",
+      "actual": 19779.0,
+      "expected": 19779
+    },
+    {
+      "check": "ooc-1x1 RAMB36",
+      "actual": 16.0,
+      "expected": 16
+    },
+    {
+      "check": "ooc-1x1 RAMB18",
+      "actual": 3.0,
+      "expected": 3
+    },
+    {
+      "check": "ooc-1x1 BRAM_TILE",
+      "actual": 17.5,
+      "expected": 17.5
+    },
+    {
+      "check": "ooc-1x1 DSP",
+      "actual": 8.0,
+      "expected": 8
+    },
+    {
+      "check": "ooc-1x1 timing",
+      "actual": [
+        -3.562,
+        0.159
+      ],
+      "expected": [
+        -3.562,
+        0.159
+      ]
+    },
+    {
+      "check": "ooc-1x1 BRAM arithmetic",
+      "actual": 17.5,
+      "expected": 17.5
+    },
+    {
+      "check": "ooc-8x8 LUT",
+      "actual": 30135.0,
+      "expected": 30135
+    },
+    {
+      "check": "ooc-8x8 FF",
+      "actual": 27380.0,
+      "expected": 27380
+    },
+    {
+      "check": "ooc-8x8 RAMB36",
+      "actual": 21.0,
+      "expected": 21
+    },
+    {
+      "check": "ooc-8x8 RAMB18",
+      "actual": 5.0,
+      "expected": 5
+    },
+    {
+      "check": "ooc-8x8 BRAM_TILE",
+      "actual": 23.5,
+      "expected": 23.5
+    },
+    {
+      "check": "ooc-8x8 DSP",
+      "actual": 8.0,
+      "expected": 8
+    },
+    {
+      "check": "ooc-8x8 timing",
+      "actual": [
+        -2.278,
+        0.159
+      ],
+      "expected": [
+        -2.278,
+        0.159
+      ]
+    },
+    {
+      "check": "ooc-8x8 BRAM arithmetic",
+      "actual": 23.5,
+      "expected": 23.5
+    },
+    {
+      "check": "route-1x1 input digest",
+      "actual": "95a6cc95786fa743da28e2aa603d3a6af08200c86bf4bb7c452aeba7ec072c4c",
+      "expected": "95a6cc95786fa743da28e2aa603d3a6af08200c86bf4bb7c452aeba7ec072c4c"
+    },
+    {
+      "check": "ooc-1x1 input digest",
+      "actual": "2dd522bd12b3480a8817cf2bb3dd969ac7be6f3d80be70d13fe32ce5576011a5",
+      "expected": "2dd522bd12b3480a8817cf2bb3dd969ac7be6f3d80be70d13fe32ce5576011a5"
+    },
+    {
+      "check": "ooc-8x8 input digest",
+      "actual": "5604984543f875b19f344900a8b183adf81281c02ba42517ff894502f7a07f0c",
+      "expected": "5604984543f875b19f344900a8b183adf81281c02ba42517ff894502f7a07f0c"
+    },
+    {
+      "check": "route-1x1 wrapper",
+      "actual": 23345.0,
+      "expected": 23345
+    },
+    {
+      "check": "ooc-1x1 wrapper",
+      "actual": 23179.0,
+      "expected": 23179
+    },
+    {
+      "check": "ooc-8x8 wrapper",
+      "actual": 30135.0,
+      "expected": 30135
+    },
+    {
+      "check": "route-1x1 u_pp",
+      "actual": 22794.0,
+      "expected": 22794
+    },
+    {
+      "check": "ooc-1x1 u_pp",
+      "actual": 22517.0,
+      "expected": 22517
+    },
+    {
+      "check": "ooc-8x8 u_pp",
+      "actual": 28938.0,
+      "expected": 28938
+    },
+    {
+      "check": "route-1x1 u_pp/u_aecp",
+      "actual": 8084.0,
+      "expected": 8084
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_aecp",
+      "actual": 6150.0,
+      "expected": 6150
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_aecp",
+      "actual": 7298.0,
+      "expected": 7298
+    },
+    {
+      "check": "route-1x1 u_pp/u_aecp/u_d3",
+      "actual": 1781.0,
+      "expected": 1781
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_aecp/u_d3",
+      "actual": 1703.0,
+      "expected": 1703
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_aecp/u_d3",
+      "actual": 2297.0,
+      "expected": 2297
+    },
+    {
+      "check": "route-1x1 u_pp/u_aecp/u_dyn",
+      "actual": 1440.0,
+      "expected": 1440
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_aecp/u_dyn",
+      "actual": 134.0,
+      "expected": 134
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_aecp/u_dyn",
+      "actual": 497.0,
+      "expected": 497
+    },
+    {
+      "check": "route-1x1 u_pp/u_aecp/u_store",
+      "actual": 979.0,
+      "expected": 979
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_aecp/u_store",
+      "actual": 1026.0,
+      "expected": 1026
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_aecp/u_store",
+      "actual": 1119.0,
+      "expected": 1119
+    },
+    {
+      "check": "route-1x1 u_pp/u_aecp/u_ucpu",
+      "actual": 1727.0,
+      "expected": 1727
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_aecp/u_ucpu",
+      "actual": 1553.0,
+      "expected": 1553
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_aecp/u_ucpu",
+      "actual": 1651.0,
+      "expected": 1651
+    },
+    {
+      "check": "route-1x1 u_pp/u_aecp/u_resp",
+      "actual": 345.0,
+      "expected": 345
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_aecp/u_resp",
+      "actual": 432.0,
+      "expected": 432
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_aecp/u_resp",
+      "actual": 416.0,
+      "expected": 416
+    },
+    {
+      "check": "route-1x1 u_pp/u_notify",
+      "actual": 2259.0,
+      "expected": 2259
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_notify",
+      "actual": 2125.0,
+      "expected": 2125
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_notify",
+      "actual": 2114.0,
+      "expected": 2114
+    },
+    {
+      "check": "route-1x1 u_pp/u_srp",
+      "actual": 3682.0,
+      "expected": 3682
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_srp",
+      "actual": 3868.0,
+      "expected": 3868
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_srp",
+      "actual": 7312.0,
+      "expected": 7312
+    },
+    {
+      "check": "route-1x1 u_pp/u_srp/u_encoder",
+      "actual": 1358.0,
+      "expected": 1358
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_srp/u_encoder",
+      "actual": 1479.0,
+      "expected": 1479
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_srp/u_encoder",
+      "actual": 1466.0,
+      "expected": 1466
+    },
+    {
+      "check": "route-1x1 u_pp/u_srp/u_decoder",
+      "actual": 579.0,
+      "expected": 579
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_srp/u_decoder",
+      "actual": 588.0,
+      "expected": 588
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_srp/u_decoder",
+      "actual": 922.0,
+      "expected": 922
+    },
+    {
+      "check": "route-1x1 u_pp/u_listener",
+      "actual": 1451.0,
+      "expected": 1451
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_listener",
+      "actual": 1560.0,
+      "expected": 1560
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_listener",
+      "actual": 1681.0,
+      "expected": 1681
+    },
+    {
+      "check": "route-1x1 u_pp/u_talker",
+      "actual": 641.0,
+      "expected": 641
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_talker",
+      "actual": 823.0,
+      "expected": 823
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_talker",
+      "actual": 1472.0,
+      "expected": 1472
+    },
+    {
+      "check": "route-1x1 u_pp/u_adp",
+      "actual": 385.0,
+      "expected": 385
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_adp",
+      "actual": 523.0,
+      "expected": 523
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_adp",
+      "actual": 696.0,
+      "expected": 696
+    },
+    {
+      "check": "route-1x1 u_pp/u_originator",
+      "actual": 687.0,
+      "expected": 687
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_originator",
+      "actual": 697.0,
+      "expected": 697
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_originator",
+      "actual": 682.0,
+      "expected": 682
+    },
+    {
+      "check": "route-1x1 u_pp/u_nvm_shadow",
+      "actual": 792.0,
+      "expected": 792
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_nvm_shadow",
+      "actual": 808.0,
+      "expected": 808
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_nvm_shadow",
+      "actual": 780.0,
+      "expected": 780
+    },
+    {
+      "check": "route-1x1 u_pp/u_nvm_port",
+      "actual": 513.0,
+      "expected": 513
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_nvm_port",
+      "actual": 526.0,
+      "expected": 526
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_nvm_port",
+      "actual": 524.0,
+      "expected": 524
+    },
+    {
+      "check": "route-1x1 u_nvm",
+      "actual": 486.0,
+      "expected": 486
+    },
+    {
+      "check": "ooc-1x1 u_nvm",
+      "actual": 581.0,
+      "expected": 581
+    },
+    {
+      "check": "ooc-8x8 u_nvm",
+      "actual": 1116.0,
+      "expected": 1116
+    },
+    {
+      "check": "route-1x1 u_pp/u_timer",
+      "actual": 882.0,
+      "expected": 882
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_timer",
+      "actual": 906.0,
+      "expected": 906
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_timer",
+      "actual": 1631.0,
+      "expected": 1631
+    },
+    {
+      "check": "route-1x1 u_pp/u_dispatch",
+      "actual": 665.0,
+      "expected": 665
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_dispatch",
+      "actual": 887.0,
+      "expected": 887
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_dispatch",
+      "actual": 908.0,
+      "expected": 908
+    },
+    {
+      "check": "route-1x1 u_pp/u_trace",
+      "actual": 31.0,
+      "expected": 31
+    },
+    {
+      "check": "ooc-1x1 u_pp/u_trace",
+      "actual": 37.0,
+      "expected": 37
+    },
+    {
+      "check": "ooc-8x8 u_pp/u_trace",
+      "actual": 28.0,
+      "expected": 28
+    },
+    {
+      "check": "budget route-1x1",
+      "actual": [
+        50267.0,
+        54413.0,
+        74.0,
+        27.0,
+        14.0
+      ],
+      "expected": [
+        50267,
+        54413,
+        74,
+        27,
+        14
+      ]
+    },
+    {
+      "check": "budget ooc-1x1",
+      "actual": [
+        23179.0,
+        19779.0,
+        16.0,
+        3.0,
+        8.0
+      ],
+      "expected": [
+        23179,
+        19779,
+        16,
+        3,
+        8
+      ]
+    },
+    {
+      "check": "budget ooc-8x8",
+      "actual": [
+        30135.0,
+        27380.0,
+        21.0,
+        5.0,
+        8.0
+      ],
+      "expected": [
+        30135,
+        27380,
+        21,
+        5,
+        8
+      ]
+    },
+    {
+      "check": "split ADP",
+      "actual": 523.0,
+      "expected": 523
+    },
+    {
+      "check": "split ACMP listener and listener admission",
+      "actual": 1561.0,
+      "expected": 1561
+    },
+    {
+      "check": "split ACMP talker",
+      "actual": 823.0,
+      "expected": 823
+    },
+    {
+      "check": "split Originator",
+      "actual": 697.0,
+      "expected": 697
+    },
+    {
+      "check": "split ACMP binding store",
+      "actual": 808.0,
+      "expected": 808
+    },
+    {
+      "check": "split SRP",
+      "actual": 3868.0,
+      "expected": 3868
+    },
+    {
+      "check": "split AECP, including microcode, descriptor and D3 stores",
+      "actual": 6150.0,
+      "expected": 6150
+    },
+    {
+      "check": "split Notification",
+      "actual": 2125.0,
+      "expected": 2125
+    },
+    {
+      "check": "split NVM port and arbiter",
+      "actual": 542.0,
+      "expected": 542
+    },
+    {
+      "check": "split Wrapper NVM backend",
+      "actual": 581.0,
+      "expected": 581
+    },
+    {
+      "check": "wrapper subtotal",
+      "actual": 17678.0,
+      "expected": 17678
+    },
+    {
+      "check": "gross reference",
+      "actual": 18107.0,
+      "expected": 18107
+    },
+    {
+      "check": "credited BRAM release",
+      "actual": 6.5,
+      "expected": 6.5
+    },
+    {
+      "check": "uncredited wrapper residual",
+      "actual": 5501,
+      "expected": 5501
+    },
+    {
+      "check": "split central unrounded",
+      "actual": 14005,
+      "expected": 14005
+    },
+    {
+      "check": "split conservative unrounded",
+      "actual": 11505,
+      "expected": 11505
+    },
+    {
+      "check": "split optimistic unrounded",
+      "actual": 16005,
+      "expected": 16005
+    },
+    {
+      "check": "cumulative Recorded baseline",
+      "actual": [
+        50267.0,
+        50267.0,
+        50267.0
+      ],
+      "expected": [
+        50267,
+        50267,
+        50267
+      ]
+    },
+    {
+      "check": "cumulative F0-F5, complete qualified flip / L2",
+      "actual": [
+        36267.0,
+        38767.0,
+        34267.0
+      ],
+      "expected": [
+        36267,
+        38767,
+        34267
+      ]
+    },
+    {
+      "check": "cumulative M2",
+      "actual": [
+        36067.0,
+        38667.0,
+        33867.0
+      ],
+      "expected": [
+        36067,
+        38667,
+        33867
+      ]
+    },
+    {
+      "check": "cumulative M5",
+      "actual": [
+        35467.0,
+        38267.0,
+        32867.0
+      ],
+      "expected": [
+        35467,
+        38267,
+        32867
+      ]
+    },
+    {
+      "check": "cumulative M6",
+      "actual": [
+        34867.0,
+        37867.0,
+        31967.0
+      ],
+      "expected": [
+        34867,
+        37867,
+        31967
+      ]
+    },
+    {
+      "check": "cumulative M7",
+      "actual": [
+        34367.0,
+        37567.0,
+        31267.0
+      ],
+      "expected": [
+        34367,
+        37567,
+        31267
+      ]
+    },
+    {
+      "check": "cumulative M8a",
+      "actual": [
+        32767.0,
+        36367.0,
+        29267.0
+      ],
+      "expected": [
+        32767,
+        36367,
+        29267
+      ]
+    },
+    {
+      "check": "cumulative M8b, conditional",
+      "actual": [
+        31067.0,
+        35067.0,
+        27067.0
+      ],
+      "expected": [
+        31067,
+        35067,
+        27067
+      ]
+    },
+    {
+      "check": "cumulative M3 and M10",
+      "actual": [
+        31067.0,
+        35067.0,
+        27067.0
+      ],
+      "expected": [
+        31067,
+        35067,
+        27067
+      ]
+    },
+    {
+      "check": "budget cumulative sequence",
+      "actual": [
+        36267,
+        36067,
+        35467,
+        34867,
+        34367,
+        32767,
+        31067,
+        31067,
+        31067
+      ],
+      "expected": [
+        36267,
+        36067,
+        35467,
+        34867,
+        34367,
+        32767,
+        31067,
+        31067,
+        31067
+      ]
+    },
+    {
+      "check": "required target",
+      "actual": 38040.0,
+      "expected": 38040
+    },
+    {
+      "check": "one-percent integer ceiling",
+      "actual": 37659,
+      "expected": 37659
+    },
+    {
+      "check": "baseline gap",
+      "actual": 12227,
+      "expected": 12227
+    },
+    {
+      "check": "central headroom",
+      "actual": 6973,
+      "expected": 6973
+    },
+    {
+      "check": "conservative headroom",
+      "actual": 2973,
+      "expected": 2973
+    },
+    {
+      "check": "central headroom percent",
+      "actual": 18.33,
+      "expected": 18.33
+    },
+    {
+      "check": "conservative headroom percent",
+      "actual": 7.82,
+      "expected": 7.82
+    },
+    {
+      "check": "conservative without smaller core",
+      "actual": 36367,
+      "expected": 36367
+    },
+    {
+      "check": "central without split",
+      "actual": 45067,
+      "expected": 45067
+    },
+    {
+      "check": "route slices free",
+      "actual": 71,
+      "expected": 71
+    },
+    {
+      "check": "physical BRAM free",
+      "actual": 47.5,
+      "expected": 47.5
+    },
+    {
+      "check": "policy BRAM free",
+      "actual": 34.0,
+      "expected": 34
+    },
+    {
+      "check": "gate WNS floor from fall tolerance",
+      "actual": 0.049,
+      "expected": 0.049
+    },
+    {
+      "check": "AECP own logic basis",
+      "actual": 1302,
+      "expected": 1302
+    },
+    {
+      "check": "AECP queue basis count",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "check": "retained admission basis",
+      "actual": 345,
+      "expected": 345
+    },
+    {
+      "check": "mailbox replacement LUT and FF",
+      "actual": [
+        3102.0,
+        2946.0
+      ],
+      "expected": [
+        3102,
+        2946
+      ]
+    },
+    {
+      "check": "mailbox BRAM tiles",
+      "actual": 6.0,
+      "expected": 6
+    },
+    {
+      "check": "M3 gross weighted estimate",
+      "actual": 3380.3,
+      "expected": 3380.3
+    }
+  ],
+  "M3_net_estimate": 2580.2999999999997,
+  "limits": "Compares committed records and arithmetic; no new implementation measurement."
+}

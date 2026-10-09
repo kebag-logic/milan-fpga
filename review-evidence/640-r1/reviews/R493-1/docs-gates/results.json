@@ -1,0 +1,411 @@
+[
+  {
+    "name": "docs",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.534
+  },
+  {
+    "name": "docs-self",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.216
+  },
+  {
+    "name": "feature",
+    "argv": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.968
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "5603c353137e90c1fa95429f6d00ef7a2298d9ee"
+    ],
+    "rc": 0,
+    "seconds": 3.376
+  },
+  {
+    "name": "style",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.066
+  },
+  {
+    "name": "style-self",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.066
+  },
+  {
+    "name": "gptp-docs",
+    "argv": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "rc": 0,
+    "seconds": 0.217
+  },
+  {
+    "name": "gptp-docs-self",
+    "argv": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.216
+  },
+  {
+    "name": "doc-map",
+    "argv": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.368
+  },
+  {
+    "name": "doc-map-self",
+    "argv": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.465
+  },
+  {
+    "name": "timesync",
+    "argv": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.415
+  },
+  {
+    "name": "timesync-self",
+    "argv": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.467
+  },
+  {
+    "name": "solution",
+    "argv": [
+      "python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.164
+  },
+  {
+    "name": "solution-self",
+    "argv": [
+      "python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.724
+  },
+  {
+    "name": "submodule-diagram",
+    "argv": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.467
+  },
+  {
+    "name": "submodule-diagram-self",
+    "argv": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.567
+  },
+  {
+    "name": "submodule-docs",
+    "argv": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.516
+  },
+  {
+    "name": "submodule-docs-self",
+    "argv": [
+      "python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "diagram-pngs",
+    "argv": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.367
+  },
+  {
+    "name": "diagram-pngs-self",
+    "argv": [
+      "python3",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.187
+  },
+  {
+    "name": "matrix",
+    "argv": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.218
+  },
+  {
+    "name": "baremetal",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 19.763
+  },
+  {
+    "name": "baremetal-self",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.034
+  },
+  {
+    "name": "doc-paths",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "archive",
+    "argv": [
+      "python3",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.416
+  },
+  {
+    "name": "archive-self",
+    "argv": [
+      "python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  {
+    "name": "toc-self",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.867
+  },
+  {
+    "name": "toc-anchors",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.575
+  },
+  {
+    "name": "toc-check",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.076
+  },
+  {
+    "name": "todo",
+    "argv": [
+      "python3",
+      "scripts/check_todo_ownership.py"
+    ],
+    "rc": 0,
+    "seconds": 1.769
+  },
+  {
+    "name": "hygiene",
+    "argv": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.415
+  },
+  {
+    "name": "wire",
+    "argv": [
+      "python3",
+      "scripts/check_wire_accountability.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.264
+  },
+  {
+    "name": "resource-baseline",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "ci-scope",
+    "argv": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.674
+  },
+  {
+    "name": "ci-events",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.215
+  },
+  {
+    "name": "wavedrom-self",
+    "argv": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.165
+  },
+  {
+    "name": "wavedrom-axis",
+    "argv": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.316
+  },
+  {
+    "name": "wavedrom-cdc",
+    "argv": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.366
+  },
+  {
+    "name": "wavedrom-gptp",
+    "argv": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.365
+  },
+  {
+    "name": "pp-sources",
+    "argv": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.266
+  },
+  {
+    "name": "docs-nogit",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.13
+  }
+]
