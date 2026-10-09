@@ -372,6 +372,24 @@ void MaapHarness::defend_to_the_prober(uint16_t off0){
     ck("B.2.8 one-address overlap count", f.at(40,2), 1);
     ck("defends = 3", dut->defends_o, 3);
 
+    // The response buffer is occupied throughout a stalled DEFEND.
+    // A further conflicting PROBE must not rewrite that frame.
+    for (int accepted : {0,2,4,7}) {
+        dut->m_axis_tready=0;
+        inject(1, kProber, off0+1, 0x1234, 0, 0);
+        cyc(kSettleCyc);
+        dut->m_axis_tready=1; cyc(accepted); dut->m_axis_tready=0;
+        inject(1, kPeerAbove, off0+3, 0x2345, 0, 0);
+        cyc(kSettleCyc);
+        dut->m_axis_tready=1;
+        next(f, kDefendBudgetCyc);
+        ck("M6 occupied response buffer preserves active DEFEND",
+           frame_is(f,2) && f.at(0,6)==kProber && f.at(30,2)==off0+1
+           && f.at(32,2)==0x1234 && f.at(38,2)==off0+1 && f.at(40,2)==7,1);
+    }
+    const long after_busy=dut->defends_o;
+
+
     printf("\n[4d] note b applies to PROBE: adjacent and empty ranges get no DEFEND\n");
     const size_t before=frames.size();
     inject(1, kPeerBelow, off0+kCount, 8, 0, 0);  // adjacent above
@@ -379,7 +397,7 @@ void MaapHarness::defend_to_the_prober(uint16_t off0){
     inject(1, kPeerBelow, off0+2, 0, 0, 0);       // empty, inside ours
     cyc(kSettleCyc);
     ck("note b: no DEFEND for non-conflicting PROBEs", static_cast<long>(frames.size()-before), 0);
-    ck("defends still 3", dut->defends_o, 3);
+    ck("non-conflicting PROBEs leave defends unchanged", dut->defends_o, after_busy);
 
     printf("\n[4e] unknown message type ignored (B.2.2)\n");
     inject(5, kPeerBelow, off0, 8, off0, 8);
@@ -446,7 +464,7 @@ void MaapHarness::probe_mid_frame_is_defended(){
     dut->m_axis_tready=1; cyc(accepted); dut->m_axis_tready=0;   // two beats out, then stall
     const size_t before=frames.size();
     inject(1, kPeerAbove, off+2, 0x1234, 0, 0);   // conflicting PROBE, mid-frame
-    inject(1, kPeerBelow, off+100, 8, 0, 0);     // later parse cannot replace it
+    inject(1, kPeerBelow, off+3, 8, 0, 0);       // occupied response keeps first PROBE
     cyc(kSettleCyc);
     dut->m_axis_tready=1;
     Frame f;

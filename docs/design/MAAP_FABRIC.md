@@ -123,7 +123,7 @@ ANNOUNCE = DEFEND.
 
 | Received, conflicting | in PROBE | in ANNOUNCE (Table B.7 DEFEND) |
 |---|---|---|
-| PROBE (rProbe!) | compare_MAC; Restart! when not lower | sDefend; retain one response while the wire is busy |
+| PROBE (rProbe!) | compare_MAC; Restart! when not lower | sDefend; retain one response while PROBE/ANNOUNCE drains |
 | DEFEND (rDefend!) | Restart! | compare_MAC; Restart! when not lower |
 | ANNOUNCE (rAnnounce!) | Restart! | compare_MAC (B.3.6.4); Restart! only when this station is not the lower |
 
@@ -140,11 +140,16 @@ not changed by #686; each needs its own decision.
   2^32 - 1, seeded from the sum of the MAC and the local real-time clock.
   `KL_maap` uses a 16-bit LFSR folded into the pool.
   First enable samples the programmed MAC; clock seeding remains absent.
-- One pending response slot covers a PROBE during transmission (#696 M6).
-  Its destination and requested range are retained until dispatch.
+- One shared response buffer covers a PROBE during PROBE/ANNOUNCE transmission (#696 M6).
+  Its destination, requested range and overlap remain until transmission completes.
+  Pending and transmitting DEFENDs occupy that same buffer.
   The current frame remains byte-identical under backpressure.
   Disable, conflict restart and link return discard stale pending responses.
-  Sustained PROBEs exceeding that slot during unbounded stalls remain unsupported.
+  Further PROBEs while that buffer is occupied remain unsupported.
+  This includes PROBEs arriving during another DEFEND.
+  The shared storage follows the area ruling on #696.
+  Table B.7 and B.3.6.6 define the response action.
+  B.3.6.3 defines probe-count decrement, not response storage.
   Table B.7 requires responses; this capacity limit is not full conformance.
 - RX parsing is untagged only; a tagged MAAP PDU is ignored.
 - Truncated-PDU discard accounting remains absent (B.2, #696 M8).
