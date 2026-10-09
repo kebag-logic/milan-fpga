@@ -7065,6 +7065,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_maap #(.CLK_FREQ_HZ_P(MAAP_CLK_HZ_P)) maap_engine (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_maap_enable),
+    .port_operational_i (eff_link_w),
     .count_i  (cfg_maap_count),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],

@@ -102,6 +102,12 @@ ANNOUNCE = DEFEND.
   This prevents the all-zero fixed point for every MAC.
   The longer generator and clock seed remain M3 work.
 - `enable_i` falling acts like Release!: back to IDLE at once.
+- `port_operational_i` rising implements PortOperational! (B.3.5.9, Table B.7).
+  An enabled active engine immediately revokes validity and re-probes.
+  It draws a fresh range and sends four PROBEs.
+  The event does not increment the conflict counter.
+  A steady operational level causes no repeated restart.
+  The datapath supplies its existing synchronous `eff_link_w` level.
 
 **Conflict detection (B.3.2, Table B.7 note b).**
 
@@ -117,8 +123,8 @@ ANNOUNCE = DEFEND.
 
 | Received, conflicting | in PROBE | in ANNOUNCE (Table B.7 DEFEND) |
 |---|---|---|
-| PROBE (rProbe!) | Restart! | sDefend, unless a frame is already on the wire |
-| DEFEND (rDefend!) | Restart! | Restart! |
+| PROBE (rProbe!) | compare_MAC; Restart! when not lower | sDefend, unless a frame is already on the wire |
+| DEFEND (rDefend!) | Restart! | compare_MAC; Restart! when not lower |
 | ANNOUNCE (rAnnounce!) | Restart! | compare_MAC (B.3.6.4); Restart! only when this station is not the lower |
 
 compare_MAC compares the two MACs octet-reversed, with the last octet most
@@ -130,14 +136,10 @@ happens on a later cycle.
 **Remaining deviations outside #686's items.** These are recorded here and
 not changed by #686; each needs its own decision.
 
-- Table B.7 applies compare_MAC (note d) in the rProbe!/PROBE and
-  rDefend!/DEFEND cells too. `KL_maap` re-addresses in both cells without it.
 - B.3.6.1 wants a uniform draw from a generator with a period of at least
   2^32 - 1, seeded from the sum of the MAC and the local real-time clock.
   `KL_maap` uses a 16-bit LFSR folded into the pool.
   First enable samples the programmed MAC; clock seeding remains absent.
-- Table B.7 restarts on PortOperational! (B.3.5.9). `KL_maap` has no link
-  input, so a link that returns does not re-probe.
 - A PROBE parsed while any frame is on the wire is not defended. Under Table
   B.7 the prober's probetimer! repeats PROBEs one to three within the probe
   interval, so this station can defend the next one. A missed fourth PROBE

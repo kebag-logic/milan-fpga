@@ -31,19 +31,18 @@
                   500..600 ms, announce strictly inside 30..32 s.
                   RX, only for a range that conflicts (note b: the ranges
                   share an address; an empty range never conflicts):
-                  PROBE while probing -> re-address; PROBE while announced
+                  PROBE while probing -> compare_MAC; PROBE while announced
                   -> DEFEND with the overlapping sub-range (B.2.7/B.2.8);
-                  DEFEND -> re-address; ANNOUNCE while probing ->
+                  DEFEND while probing -> re-address; while announced ->
+                  compare_MAC; ANNOUNCE while probing ->
                   re-address; ANNOUNCE while announced -> compare_MAC
                   (B.3.6.4), re-address only when this station is not the
                   lower. A DEFEND is judged on its conflict_* fields, a
                   PROBE or ANNOUNCE on its requested_* fields (B.2.5-B.2.8).
 
                 Deviations (documented in MAAP_FABRIC.md, outside #686's
-                items): no compare_MAC in the rProbe!/PROBE and
-                rDefend!/DEFEND cells; a 16-bit
-                station-MAC-seeded LFSR draws the offset (B.3.6.1); no
-                PortOperational! input; RX parse is untagged-only (a tagged
+                items): a 16-bit
+                station-MAC-seeded LFSR draws the offset (B.3.6.1); RX parse is untagged-only (a tagged
                 MAAP PDU is ignored); a PROBE parsed while a frame is on
                 the wire is not defended; supplied seeds are validated against Table B.9.
 
@@ -78,6 +77,7 @@ module KL_maap #(
   input  wire         rst_n,             //! Active-low synchronous reset
 
   input  wire         enable_i,          //! CSR MAAP_CTRL.en (0 = engine idle)
+  input  wire         port_operational_i, //! axis-clock link level; rising re-probes
   input  wire [7:0]   count_i,           //! block size to claim (reference: 8)
   input  wire [47:0]  station_mac_i,     //! source MAC ([47:40] = first wire byte)
   input  wire [15:0]  seed_offset_i,     //! provisioning: preferred offset
@@ -152,6 +152,8 @@ module KL_maap #(
   logic [2:0]   probe_left_r;            //! PROBEs still to send, 4..1
   logic [15:0]  timer_ms_r;              //! counts down to the next TX event
   logic         seed_used_r;
+  logic         port_operational_r;
+  wire port_operational_p = port_operational_i && !port_operational_r;
   assign offset_o = offset_r;
   assign addr_o   = {POOL_BASE_HI_C, offset_r};
   assign addr_valid_o = (state_r == ANNOUNCE_S);
@@ -271,8 +273,9 @@ module KL_maap #(
   wire rx_hit_w = rx_done_p && (state_r != IDLE_S) && conflict_w;
   //! INITIAL/Restart!: re-address and probe again
   wire restart_w = rx_hit_w &&
-                   (((rx_msg_r == {2'b00, MSG_PROBE_C}) && (state_r == PROBE_S)) ||
-                    (rx_msg_r == {2'b00, MSG_DEFEND_C}) ||
+                   (((rx_msg_r == {2'b00, MSG_PROBE_C}) && (state_r == PROBE_S) && !mac_lower_w) ||
+                    ((rx_msg_r == {2'b00, MSG_DEFEND_C}) &&
+                     ((state_r != ANNOUNCE_S) || !mac_lower_w)) ||
                     ((rx_msg_r == {2'b00, MSG_ANNOUNCE_C}) &&
                      ((state_r == PROBE_S) || !mac_lower_w)));
   //! sDefend; a PROBE parsed while a frame is in flight goes unanswered
@@ -300,6 +303,7 @@ module KL_maap #(
       lfsr_r       <= 16'hACE1;
       rng_seeded_r <= 1'b0;
       seed_used_r  <= 1'b0;
+      port_operational_r <= 1'b0;
       conflicts_o  <= '0;
       defends_o    <= '0;
       tx_busy_r    <= 1'b0;
@@ -322,6 +326,7 @@ module KL_maap #(
     end
     else begin
       rx_done_p <= 1'b0;
+      port_operational_r <= port_operational_i;
 
       //! free-running entropy + ms tick
       lfsr_r    <= lfsr_next_w;
@@ -392,12 +397,13 @@ module KL_maap #(
 
         PROBE_S, ANNOUNCE_S : begin
           if (!enable_i) state_r <= IDLE_S;
-          else if (restart_w) begin             //! Restart! -> ReserveAddress!
+          else if (restart_w || port_operational_p) begin //! Table B.7 restart
             offset_r     <= rand_offset(lfsr_r, count_i);
             probe_left_r <= 3'(PROBE_SENDS_C);
             timer_ms_r   <= '0;                 //! sProbe at once
             state_r      <= PROBE_S;
-            conflicts_o  <= (&conflicts_o) ? conflicts_o : conflicts_o + 8'd1;
+            if (restart_w)
+              conflicts_o  <= (&conflicts_o) ? conflicts_o : conflicts_o + 8'd1;
           end
           else if (defend_w) begin              //! sDefend the overlap
             tx_msg_r        <= MSG_DEFEND_C;

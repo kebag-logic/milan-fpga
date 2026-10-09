@@ -29,13 +29,21 @@ RTL = HERE / "../../../hdl/ieee1722/maap/KL_maap.sv"
 BEGIN_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
                "            state_r      <= PROBE_S;\n          end")
 RESTART_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
-                 "            state_r      <= PROBE_S;\n            conflicts_o")
+                 "            state_r      <= PROBE_S;\n            if (restart_w)")
 CELL = "((state_r == PROBE_S) || !mac_lower_w)"
 SEED = "(mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w"
 SUPPORTING = 0
 
 #: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
 MUTANTS = (
+    ("m5_ignore_link_return", "M5", "restart_w || port_operational_p", "restart_w",
+     "M5 B.3.5.9 link return revokes and reprobes"),
+    ("m5_level_restarts", "M5", "port_operational_i && !port_operational_r",
+     "port_operational_i", "M5 B.3.5.9 link return restarts PROBE"),
+    ("m1_probe_no_compare", "M1", "(state_r == PROBE_S) && !mac_lower_w",
+     "(state_r == PROBE_S)", "M1 rProbe/PROBE lower MAC keeps range"),
+    ("m1_defend_no_compare", "M1", "((state_r != ANNOUNCE_S) || !mac_lower_w)",
+     "1'b1", "M1 rDefend/DEFEND lower MAC keeps range"),
     ("m8_early_last_accepted", "M8", "(rbeat_r >= 3'd5)", "1'b1",
      "M8 B.2 truncated PROBE-state input has no effect"),
     ("m8_missing_bytes_accepted", "M8", "&& rx_bytes_valid_r && rx_beat_complete_w", "",
@@ -178,6 +186,14 @@ def main() -> int:
             results.append(run_case(
                 work, "m4_reset_time_sampling", source.replace(anchor, replacement),
                 "M4 datapath: programmed MAC changes probe intervals", True))
+        anchor = "restart_w || port_operational_p"
+        if source.count(anchor) != 1:
+            print("[ESCAPED] M5: expected exactly one link-return anchor")
+            results.append(False)
+        else:
+            results.append(run_case(
+                work, "m5_datapath_ignores_link", source.replace(anchor, "restart_w"),
+                "M5 datapath: link return starts four fresh PROBEs", True))
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
     return 1 if failures else 0

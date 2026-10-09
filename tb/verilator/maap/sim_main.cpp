@@ -187,6 +187,8 @@ class MaapHarness {
     void disable_then_claim_the_seed();
     std::vector<long> frame_starts(size_t n);
     void zero_seed_mac_draws_random_timers();
+    void compare_mac_remaining_cells();
+    void port_return_reprobes();
     void supplied_seed_bounds();
     void truncated_pdus_have_no_effect();
 
@@ -207,7 +209,7 @@ class MaapHarness {
 
 void MaapHarness::bring_up_idle(){
     dut->station_mac_i=kStationMac;
-    dut->enable_i=0; dut->count_i=kCount;
+    dut->enable_i=0; dut->count_i=kCount; dut->port_operational_i=1;
     dut->seed_offset_i=0; dut->seed_valid_i=0;
     dut->m_axis_tready=1; dut->rx_tvalid_i=0;
     dut->rst_n=0; cyc(6); dut->rst_n=1; cyc(3);
@@ -481,7 +483,7 @@ void MaapHarness::defend_and_probe_reception(){
     cyc(kSettleCyc);
     ck("DEFEND judged on conflict_* only", dut->offset_o, off);
     const long defends=dut->defends_o;
-    inject(1, kPeerAbove, off, 8, 0, 0);
+    inject(1, kPeerBelow, off, 8, 0, 0);
     cyc(kSettleCyc);
     ck("probing + PROBE: still PROBE", dut->state_o, 1);
     ck("probing + PROBE: offset changed", dut->offset_o!=off, 1);
@@ -632,8 +634,63 @@ void MaapHarness::zero_seed_mac_draws_random_timers(){
     ck("B.3.4.1 announce T randomized (zero-seed MAC)", ad.size()>1, 1);
 }
 
+void MaapHarness::compare_mac_remaining_cells(){
+    dut->station_mac_i=kStationMac;
+    for (unsigned state : {1u, 2u}) {
+        bool keeps=true;
+        bool yields=true;
+        for (auto peer : {kPeerAbove,kPeerBelow,kStationMac}) {
+            dut->enable_i=0; cyc(20); seen=frames.size();
+            dut->seed_valid_i=1; dut->seed_offset_i=0x100;
+            dut->enable_i=1;
+            Frame frame;
+            const unsigned nframes=state==1 ? 1 : 5;
+            for (unsigned n=0;n<nframes;++n)
+                keeps &= next(frame,kProbeBudgetCyc);
+            const unsigned conflicts=dut->conflicts_o;
+            inject(state==1 ? 1 : 2,peer,0x100,8,0x100,8);
+            cyc(kSettleCyc);
+            if (peer==kPeerAbove)
+                keeps &= dut->state_o==state && dut->offset_o==0x100
+                         && dut->conflicts_o==conflicts;
+            else
+                yields &= dut->state_o==1 && dut->conflicts_o==conflicts+1;
+        }
+        ck(state==1 ? "M1 rProbe/PROBE lower MAC keeps range"
+                    : "M1 rDefend/DEFEND lower MAC keeps range", keeps,1);
+        ck(state==1 ? "M1 rProbe/PROBE higher or equal MAC yields"
+                    : "M1 rDefend/DEFEND higher or equal MAC yields", yields,1);
+    }
+    dut->seed_valid_i=0;
+}
+
+void MaapHarness::port_return_reprobes(){
+    for (unsigned state : {1u,2u}) {
+        dut->enable_i=0; dut->port_operational_i=1; cyc(20);
+        seen=frames.size(); dut->enable_i=1;
+        Frame frame;
+        const unsigned nframes=state==1 ? 1 : 5;
+        bool valid=true;
+        for (unsigned n=0;n<nframes;++n) valid &= next(frame,kProbeBudgetCyc);
+        const unsigned conflicts=dut->conflicts_o;
+        dut->port_operational_i=0; cyc(8);
+        const long event=now;
+        dut->port_operational_i=1; cyc();
+        valid &= dut->state_o==1 && !dut->addr_valid_o;
+        seen=frames.size();
+        const Walk restarted=walk("PortOperational",event,dut->offset_o,false);
+        valid &= restarted.probes==4 && restarted.announced && restarted.first<=kAtOnceCyc;
+        valid &= dut->conflicts_o==conflicts;
+        ck(state==1 ? "M5 B.3.5.9 link return restarts PROBE"
+                    : "M5 B.3.5.9 link return revokes and reprobes",valid,1);
+        cyc(kSettleCyc);
+        ck("M5 stable operational level does not restart",dut->state_o,2);
+    }
+}
+
 void MaapHarness::supplied_seed_bounds(){
-    bool valid_kept=true, invalid_refused=true;
+    bool valid_kept=true;
+    bool invalid_refused=true;
     for (unsigned count : {1u, 8u, 255u}) {
         dut->count_i=count;
         const unsigned limit=0xfe00-count;
@@ -715,6 +772,8 @@ int MaapHarness::run(){
     probe_interval_campaign();
     disable_then_claim_the_seed();
     zero_seed_mac_draws_random_timers();
+    compare_mac_remaining_cells();
+    port_return_reprobes();
     supplied_seed_bounds();
     truncated_pdus_have_no_effect();
 
