@@ -1,0 +1,75 @@
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -227,9 +227,10 @@
+     //! changes both lands both in one cycle.
+     output logic                         act_strt_chg_o,
+     output logic                         act_strt_cmd_chg_o,
+-    //! THE RECORD RAM WRITE BUS, and FUNCTIONAL despite the `dbg_` prefix
+-    //! (kept for the suites that shadow it): it is the single writer's
+-    //! view that KL_acmp_nvm_shadow captures and that protocol_processor_top
++    //! THE PUBLISHED RECORD WRITE VIEW, functional despite the `dbg_` prefix.
++    //! The private probe-controller overlay reads as zero stream-ID here
++    //! until settlement (Milan 5.3.8.9). It is the single writer's view that
++    //! KL_acmp_nvm_shadow captures and that protocol_processor_top
+     //! mirrors into the GET_STREAM_INFO pbsta/acmpsta view and its change
+     //! compare. Every record write - reset sweep, boot preload, walk
+     //! write-back - appears here exactly once. Do not leave it unconnected.
+@@ -523,7 +524,15 @@
+   assign rxs_rd_slot_o = rxslot_r[RXS_SLOT_W_C-1:0];
+ 
+   // ------------------------------------------------------- classification
+-  assign probe_match_w = (ctlr_x_r == rec_r.bind_ctlr_eid)
++  // Milan 5.5.3.5.17/.18: a same-talker rebind updates the binding,
++  // while the outstanding probe retains its original controller. The
++  // private RAM shares the stream-id word between these disjoint lifetimes;
++  // its published record still reports zero stream-id until settlement.
++  logic [63:0] probe_ctlr_w;
++  assign probe_ctlr_w = ((rec_r.sm_state == 3'(LSM_PWR))
++                         || (rec_r.sm_state == 3'(LSM_PW2)))
++                       ? rec_r.settled_stream_id : rec_r.bind_ctlr_eid;
++  assign probe_match_w = (ctlr_x_r == probe_ctlr_w)
+                       && (tk_eid_f_r == rec_r.talker_eid)
+                       && (tk_uid_f_r == rec_r.talker_uid)
+                       && (seq_x_r == rec_r.probe_seq);
+@@ -694,7 +703,7 @@
+         // B_PROBE — A5/A13: {FAST_CONNECT=1, SW=0, cc=0, stream 0},
+         // regenerated from the record (Milan exact duplicate, 03 §5)
+         b_msg_w   = AMSG_PROBE_TX_CMD_C;
+-        b_ctlr_w  = rec_r.bind_ctlr_eid;
++        b_ctlr_w  = rec_r.settled_stream_id;
+         b_tkeid_w = rec_r.talker_eid;
+         b_tkuid_w = rec_r.talker_uid;
+         b_luid_w  = 16'(32'(sink_r));
+@@ -768,7 +777,15 @@
+   assign dbg_strq_drop_o  = dbg_strq_drop_r;
+   assign dbg_recwr_o      = recwr_en_w;
+   assign dbg_recwr_sink_o = recwr_addr_w;
+-  assign dbg_recwr_rec_o  = recwr_data_w;
++  acmp_rec_t published_rec_w;
++  always_comb begin : published_record
++    published_rec_w = recwr_rec_w;
++    if ((recwr_rec_w.sm_state != 3'(LSM_SNR))
++        && (recwr_rec_w.sm_state != 3'(LSM_SOK))) begin
++      published_rec_w.settled_stream_id = 64'd0;
++    end
++  end
++  assign dbg_recwr_rec_o  = ACMP_REC_W_C'(published_rec_w);
+ 
+   // ------------------------------------------------------------ static outs
+   assign draw_kind_o     = PRNG_KIND_ACMP_DELAY_C;
+@@ -1229,6 +1246,7 @@
+                 rec_r.talker_uid    <= 16'd0;
+                 rec_r.bind_ctlr_eid <= 64'd0;
+                 rec_r.probe_seq     <= 16'd0;
++                rec_r.settled_stream_id <= 64'd0;
+                 rec_r.f_bound       <= 1'b0;
+                 rec_r.f_sw          <= 1'b0;
+                 rec_r.f_started     <= 1'b0;
+@@ -1308,6 +1326,7 @@
+               end
+               default: begin             // ACT_A5_C: probe #1, fresh seq
+                 rec_r.probe_seq <= probe_ctr_r;
++                rec_r.settled_stream_id <= rec_r.bind_ctlr_eid;
+                 probe_ctr_r     <= probe_ctr_r + 16'd1;
+                 rec_r.f_retried <= 1'b0;
+                 rec_r.pbsta     <= PB_ACTIVE_C;

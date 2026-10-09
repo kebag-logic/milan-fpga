@@ -1,0 +1,193 @@
+[
+  {
+    "mutant": "field_reset_blocked@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "field check reset completes": "field check reset completes",
+      "field check stimulus completes": "field check stimulus completes",
+      "field bind responds": "field bind responds",
+      "VLAN response settles": "VLAN response settles",
+      "VLAN GET_RX_STATE response exists": "VLAN GET_RX_STATE response exists",
+      "duplicate probe exists": "duplicate probe exists",
+      "LD1 response exists": "LD1 response exists",
+      "same-talker rebind changes binding controller while probe remains pending": "same-talker rebind changes binding controller while probe remains pending"
+    }
+  },
+  {
+    "mutant": "disconnect_not_accepted@acmp_talker",
+    "suite": "tb/acmp_talker",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "TD1 consumed": "TD1 consumed"
+    }
+  },
+  {
+    "mutant": "retry_status_cleared@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "LD2 discovered retry preserves received status": "LD2 discovered retry preserves received status"
+    }
+  },
+  {
+    "mutant": "unbind_talker_echo@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "LD1 successful unbind has zero talker fields": "LD1 successful unbind has zero talker fields"
+    }
+  },
+  {
+    "mutant": "disconnect_invalid_success@acmp_talker",
+    "suite": "tb/acmp_talker",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "TD1 invalid disconnect": "TD1 invalid disconnect status got 0 want 2"
+    }
+  },
+  {
+    "mutant": "disconnect_changes_gate@acmp_talker",
+    "suite": "tb/acmp_talker",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "TD1 invalid disconnect leaves source state unchanged": "TD1 invalid disconnect leaves source state unchanged"
+    }
+  },
+  {
+    "mutant": "settled_vlan_truncated@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "VLAN full field in GET_RX_STATE": "VLAN full field in GET_RX_STATE"
+    }
+  },
+  {
+    "mutant": "settlement_vlan_truncated@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "VLAN full field at settle action": "VLAN full field at settle action"
+    }
+  },
+  {
+    "mutant": "lock_status_13@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "LD3 lock refusal status 16 for message 6": "LD3 lock refusal status 16 for message 6",
+      "LD3 lock refusal status 16 for message 8": "LD3 lock refusal status 16 for message 8"
+    }
+  },
+  {
+    "mutant": "settled_vlan_truncated@pp_top",
+    "suite": "tb/pp_top",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "VLAN168 GET_RX_STATE retains all received bits": "VLAN168 GET_RX_STATE retains all received bits"
+    }
+  },
+  {
+    "mutant": "retry_probe_status_cleared@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "LD2 retry probe preserves received status": "LD2 retry probe preserves received status"
+    }
+  },
+  {
+    "mutant": "parent_vlan_shifted@pp_top",
+    "suite": "tb/pp_top",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "VLAN168 parent VID remains the low 12 bits": "VLAN168 parent VID remains the low 12 bits"
+    }
+  },
+  {
+    "mutant": "gsi_vlan_external@pp_top",
+    "suite": "tb/pp_top",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "VLAN168 GET_STREAM_INFO retains all received bits": "VLAN168 GET_STREAM_INFO retains all received bits",
+      "VLAN168 unbind clears the full stored VLAN": "VLAN168 unbind clears the full stored VLAN"
+    }
+  },
+  {
+    "mutant": "lock_gate_bypassed@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "LD3 lock refusal preserves binding for message 6": "LD3 lock refusal preserves binding for message 6",
+      "LD3 lock refusal preserves binding for message 8": "LD3 lock refusal preserves binding for message 8"
+    }
+  },
+  {
+    "mutant": "retry_probe_status_cleared@pp_top",
+    "suite": "tb/pp_top",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "GI RETRY-RETAIN solicited: acmpsta sink 0 = 7": "GI RETRY-RETAIN solicited: acmpsta sink 0 = 7, got 0"
+    }
+  },
+  {
+    "mutant": "probe_retry_current_controller@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "retry preserves original probe after same-talker rebind": "retry preserves original probe after same-talker rebind"
+    }
+  },
+  {
+    "mutant": "stored_vlan_truncated@pp_top",
+    "suite": "tb/pp_top",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "VLAN168 GET_STREAM_INFO retains all received bits": "VLAN168 GET_STREAM_INFO retains all received bits"
+    }
+  },
+  {
+    "mutant": "probe_guard_current_controller@acmp_listener",
+    "suite": "tb/acmp_listener",
+    "build_rc": 0,
+    "run_rc": 2,
+    "verdict": "KILLED",
+    "required_witnesses": {
+      "guard accepts controller from sent probe after same-talker rebind": "guard accepts controller from sent probe after same-talker rebind",
+      "guard rejects controller absent from sent probe after same-talker rebind": "guard rejects controller absent from sent probe after same-talker rebind"
+    }
+  }
+]

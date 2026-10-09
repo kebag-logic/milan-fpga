@@ -1,0 +1,26 @@
+--- base
++++ head
+@@ -691,3 +691,23 @@
+ FAIL: R17 repeated absent probe src7 consumed
+ FAIL: R17 repeated absent probe src7 response budget
+ FAIL: R17 repeated absent probe src7 status/tuple
++FAIL: TD1 consumed
++FAIL: TD1 invalid disconnect msg_type got 1 want 3
++FAIL: TD1 invalid disconnect status got 0 want 2
++FAIL: TD1 invalid disconnect stream_id got ab00000000000003
++FAIL: TD1 invalid disconnect talker_uid got 3
++FAIL: TD1 invalid disconnect dest_mac got 91e0f0000103
++FAIL: TD1 invalid disconnect sequence_id got 256
++FAIL: TD1 invalid disconnect flags got 000a want 0000
++FAIL: TD1 invalid disconnect vlan got 2
++FAIL: TD1 invalid disconnect leaves source state unchanged
++FAIL: TD1 consumed
++FAIL: TD1 invalid disconnect msg_type got 1 want 3
++FAIL: TD1 invalid disconnect status got 0 want 2
++FAIL: TD1 invalid disconnect stream_id got ab00000000000003
++FAIL: TD1 invalid disconnect talker_uid got 3
++FAIL: TD1 invalid disconnect dest_mac got 91e0f0000103
++FAIL: TD1 invalid disconnect sequence_id got 256
++FAIL: TD1 invalid disconnect flags got 000a want 0000
++FAIL: TD1 invalid disconnect vlan got 2
++FAIL: TD1 invalid disconnect leaves source state unchanged

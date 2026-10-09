@@ -1,0 +1,182 @@
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -528,11 +528,12 @@
+   // while the outstanding probe retains its original controller. The
+   // private RAM shares the stream-id word between these disjoint lifetimes;
+   // its published record still reports zero stream-id until settlement.
+-  logic [63:0] probe_ctlr_w;
+-  assign probe_ctlr_w = ((rec_r.sm_state == 3'(LSM_PWR))
+-                         || (rec_r.sm_state == 3'(LSM_PW2)))
+-                       ? rec_r.settled_stream_id : rec_r.bind_ctlr_eid;
+-  assign probe_match_w = (ctlr_x_r == probe_ctlr_w)
++  logic probe_ctlr_match_w;
++  assign probe_ctlr_match_w = ((rec_r.sm_state == 3'(LSM_PWR))
++                               || (rec_r.sm_state == 3'(LSM_PW2)))
++                             ? (ctlr_x_r == rec_r.settled_stream_id)
++                             : (ctlr_x_r == rec_r.bind_ctlr_eid);
++  assign probe_match_w = probe_ctlr_match_w
+                       && (tk_eid_f_r == rec_r.talker_eid)
+                       && (tk_uid_f_r == rec_r.talker_uid)
+                       && (seq_x_r == rec_r.probe_seq);
+@@ -635,11 +636,11 @@
+   assign cur_act_w = act_order_f(ord_r);
+ 
+   // ------------------------------------------------------------ PDU builder
+-  // The 56-byte Milan ACMPDU (F05.13) as one 448-bit image; byte idx k is
+-  // the field octet at wire offset k (big-endian fields).
++  // The 56-byte Milan ACMPDU (F05.13), selected at wire byte bidx_r.
++  // The 64-bit identities are selected as octets before the field mux.
+   logic [3:0]   b_msg_w;
+   logic [4:0]   b_status_w;
+-  logic [63:0]  b_sid_w, b_ctlr_w, b_tkeid_w;
++  logic [7:0]   b_sid_w, b_ctlr_w, b_tkeid_w;
+   logic [15:0]  b_tkuid_w, b_luid_w, b_cc_w, b_seq_w, b_flags_w, b_vlan_w;
+   logic [47:0]  b_da_w;
+   logic [447:0] pdu_w;
+@@ -650,12 +651,18 @@
+                   || (rec_r.sm_state == 3'(LSM_SOK));
+   assign rf_w      = (rec_r.sm_state == 3'(LSM_SOK)) && rec_r.f_srp_decl[1];
+ 
++  // All 64-bit identities start at byte offset 4 modulo 8. Select their
++  // wire octet before selecting the response field's source, so the saved
++  // probe controller and settled stream-ID share one byte selector.
++  logic [5:0] eid_shift_w;
++  assign eid_shift_w = {~(bidx_r[2:0] ^ 3'd4), 3'b000};
++
+   always_comb begin : bld_fields
+     b_msg_w    = AMSG_GET_RX_STATE_RESP_C;
+     b_status_w = AST_SUCCESS_C;
+-    b_sid_w    = 64'd0;
+-    b_ctlr_w   = ctlr_x_r;
+-    b_tkeid_w  = 64'd0;
++    b_sid_w    = 8'd0;
++    b_ctlr_w   = ctlr_x_r[eid_shift_w +: 8];
++    b_tkeid_w  = 8'd0;
+     b_tkuid_w  = 16'd0;
+     b_luid_w   = uid16_r;
+     b_da_w     = 48'd0;
+@@ -667,13 +674,13 @@
+       B_ERR: begin
+         b_msg_w    = bmsg_r;
+         b_status_w = bstat_r;
+-        b_tkeid_w  = tk_eid_f_r;
++        b_tkeid_w  = tk_eid_f_r[eid_shift_w +: 8];
+         b_tkuid_w  = tk_uid_f_r;
+       end
+       B_BIND: begin
+         // A3: SUCCESS {cc=1, FAST_CONNECT=0, SW echoed, RF=0, stream 0}
+         b_msg_w   = AMSG_BIND_RX_RESP_C;
+-        b_tkeid_w = tk_eid_f_r;
++        b_tkeid_w = tk_eid_f_r[eid_shift_w +: 8];
+         b_tkuid_w = tk_uid_f_r;
+         b_cc_w    = 16'd1;
+         b_flags_w = flags_f_r & AFLG_STREAMING_WAIT_C;
+@@ -685,7 +692,7 @@
+       B_GETRX: begin
+         // A16: F05.14 — SUCCESS always, content by state
+         b_msg_w   = AMSG_GET_RX_STATE_RESP_C;
+-        b_tkeid_w = rec_r.f_bound ? rec_r.talker_eid : 64'd0;
++        b_tkeid_w = rec_r.f_bound ? rec_r.talker_eid[eid_shift_w +: 8] : 8'd0;
+         b_tkuid_w = rec_r.f_bound ? rec_r.talker_uid : 16'd0;
+         b_cc_w    = rec_r.f_bound ? 16'd1 : 16'd0;
+         b_flags_w = rec_r.f_bound
+@@ -693,7 +700,7 @@
+                        | (rec_r.f_sw ? AFLG_STREAMING_WAIT_C : 16'd0)
+                        | (rf_w ? AFLG_REG_FAILED_C : 16'd0))
+                     : 16'd0;
+-        b_sid_w   = settled_w ? rec_r.settled_stream_id : 64'd0;
++        b_sid_w   = settled_w ? rec_r.settled_stream_id[eid_shift_w +: 8] : 8'd0;
+         b_da_w    = settled_w ? rec_r.settled_da : 48'd0;
+         b_vlan_w  = settled_w ? rec_r.settled_vlan : 16'd0;
+       end
+@@ -701,8 +708,8 @@
+         // B_PROBE — A5/A13: {FAST_CONNECT=1, SW=0, cc=0, stream 0},
+         // regenerated from the record (Milan exact duplicate, 03 §5)
+         b_msg_w   = AMSG_PROBE_TX_CMD_C;
+-        b_ctlr_w  = rec_r.settled_stream_id;
+-        b_tkeid_w = rec_r.talker_eid;
++        b_ctlr_w  = rec_r.settled_stream_id[eid_shift_w +: 8];
++        b_tkeid_w = rec_r.talker_eid[eid_shift_w +: 8];
+         b_tkuid_w = rec_r.talker_uid;
+         b_luid_w  = 16'(32'(sink_r));
+         b_seq_w   = rec_r.probe_seq;
+@@ -714,9 +721,9 @@
+   assign pdu_w = {8'hFC,                       // subtype @0
+                   4'h0, b_msg_w,               // h=0, ver=0, message_type @1
+                   b_status_w, ACMP_CDL_MILAN_C,// status @2, cdl = 44
+-                  b_sid_w,                     // stream_id @4
+-                  b_ctlr_w,                    // controller_entity_id @12
+-                  b_tkeid_w,                   // talker_entity_id @20
++                  {8{b_sid_w}},                 // stream_id @4
++                  {8{b_ctlr_w}},                // controller_entity_id @12
++                  {8{b_tkeid_w}},               // talker_entity_id @20
+                   entity_id_i,                 // listener_entity_id @28
+                   b_tkuid_w,                   // talker_unique_id @36
+                   b_luid_w,                    // listener_unique_id @38
+@@ -1182,7 +1189,8 @@
+               end
+               5'(ACT_A8_C): begin        // teardown SRP, clear settled
+                 act_teardown_o        <= 1'b1;
+-                rec_r.settled_stream_id <= 64'd0;
++                // The private word is overwritten by the next probe or
++                // settlement; the published unsettled stream-ID is zero.
+                 rec_r.settled_da      <= 48'd0;
+                 rec_r.settled_vlan    <= 16'd0;
+                 rec_r.f_tk_reg        <= 1'b0;
+@@ -1244,7 +1252,8 @@
+                 rec_r.talker_uid    <= 16'd0;
+                 rec_r.bind_ctlr_eid <= 64'd0;
+                 rec_r.probe_seq     <= 16'd0;
+-                rec_r.settled_stream_id <= 64'd0;
++                // The next probe overwrites the private controller word.
++                // The published unsettled stream-ID remains zero.
+                 rec_r.f_bound       <= 1'b0;
+                 rec_r.f_sw          <= 1'b0;
+                 rec_r.f_started     <= 1'b0;
+--- a/tb/pp_top/acmp_mutants.py
++++ b/tb/pp_top/acmp_mutants.py
+@@ -56,7 +56,7 @@
+ VALIDATOR = "hdl/packet_engine/KL_pp_rx_validator.sv"
+ 
+ MSG_OK = "  assign txn_msg_ok_w   = (txn_i.msg_type == AMSG_PROBE_TX_RESP_C)\n"
+-GUARD = ("  assign probe_match_w = (ctlr_x_r == probe_ctlr_w)\n"
++GUARD = ("  assign probe_match_w = probe_ctlr_match_w\n"
+          "                      && (tk_eid_f_r == rec_r.talker_eid)\n"
+          "                      && (tk_uid_f_r == rec_r.talker_uid)\n"
+          "                      && (seq_x_r == rec_r.probe_seq);\n")
+@@ -79,7 +79,7 @@
+          "  assign txn_msg_ok_w   = 1'b1 || (txn_i.msg_type == AMSG_PROBE_TX_RESP_C)\n"),),
+         ("AI3: the sink never left PRB_W_RESP",)),
+     Mutant("guard_ctlr_dropped", ACMP_LISTENER, (
+-        (LISTENER, GUARD, guard_without("(ctlr_x_r == probe_ctlr_w)")),),
++        (LISTENER, GUARD, guard_without("probe_ctlr_match_w")),),
+         ("B14 wrong controller_entity_id in PWR", "B14 wrong controller_entity_id in PW2")),
+     Mutant("guard_talker_eid_dropped", ACMP_LISTENER, (
+         (LISTENER, GUARD, guard_without("(tk_eid_f_r == rec_r.talker_eid)")),),
+@@ -258,7 +258,7 @@
+     Mutant("unbind_talker_echo", ACMP_LISTENER, (
+         (LISTENER, "b_msg_w   = AMSG_UNBIND_RX_RESP_C;",
+          "b_msg_w   = AMSG_UNBIND_RX_RESP_C;\n"
+-         "        b_tkeid_w = tk_eid_f_r; b_tkuid_w = tk_uid_f_r;"),),
++         "        b_tkeid_w = tk_eid_f_r[eid_shift_w +: 8]; b_tkuid_w = tk_uid_f_r;"),),
+         ("LD1 successful unbind has zero talker fields",)),
+     Mutant("retry_status_cleared", ACMP_LISTENER, (
+         (LISTENER, "if (evt_r != LEV_TMR_RETRY) rec_r.acmpsta <= 5'd0;",
+@@ -312,13 +312,13 @@
+          "bound_vlan_r[lstn_act_sink_w] <= {4'd0, lstn_act_settle_vlan_w[11:0]};"),),
+         ("VLAN168 GET_STREAM_INFO retains all received bits",)),
+     Mutant("probe_guard_current_controller", ACMP_LISTENER, (
+-        (LISTENER, "(ctlr_x_r == probe_ctlr_w)",
+-         "(ctlr_x_r == rec_r.bind_ctlr_eid)"),),
++        (LISTENER, "assign probe_match_w = probe_ctlr_match_w",
++         "assign probe_match_w = (ctlr_x_r == rec_r.bind_ctlr_eid)"),),
+         ("guard accepts controller from sent probe after same-talker rebind",
+          "guard rejects controller absent from sent probe after same-talker rebind")),
+     Mutant("probe_retry_current_controller", ACMP_LISTENER, (
+-        (LISTENER, "b_ctlr_w  = rec_r.settled_stream_id;",
+-         "b_ctlr_w  = rec_r.bind_ctlr_eid;"),),
++        (LISTENER, "b_ctlr_w  = rec_r.settled_stream_id[eid_shift_w +: 8];",
++         "b_ctlr_w  = rec_r.bind_ctlr_eid[eid_shift_w +: 8];"),),
+         ("retry preserves original probe after same-talker rebind",)),
+ )
+ MUTANTS = INERT + LONG_FORM + SETTLE_PATH + STORAGE + FIELDS

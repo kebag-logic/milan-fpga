@@ -1,0 +1,71 @@
+--- base
++++ head
+@@ -1,38 +1,58 @@
+ {"mutant": "golden-acmp_listener", "verdict": "PASS"}
++{"mutant": "golden-acmp_talker", "verdict": "PASS"}
+ {"mutant": "golden-pp_top--acmp-only", "verdict": "PASS"}
+ {"mutant": "golden-pp_top--arm-queue-only", "verdict": "PASS"}
++{"mutant": "golden-pp_top--gsi-internal-only", "verdict": "PASS"}
+ {"mutant": "golden-rx_validator", "verdict": "PASS"}
++{"mutant": "msg_ok_forced@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "msg_ok_forced@acmp_listener", "verdict": "KILLED", "missing": []}
+-{"mutant": "msg_ok_forced@pp_top", "verdict": "KILLED", "missing": []}
+-{"mutant": "guard_ctlr_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+ {"mutant": "guard_talker_eid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+ {"mutant": "guard_talker_uid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+ {"mutant": "cdl_not_44_rejected@rx_validator", "verdict": "KILLED", "missing": []}
++{"mutant": "guard_ctlr_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+ {"mutant": "cdl_not_44_rejected@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "st_ls_settle_as_withdraw@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "st_ls_sid_da_swapped@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "st_ls_teardown_as_declare@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "st_ls_state_none@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "st_ls_vid_dropped@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "st_ls_teardown_lost@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "st_ls_index_zero@pp_top", "verdict": "KILLED", "missing": []}
+-{"mutant": "st_ls_teardown_lost@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "bound_view_not_latched@pp_top", "verdict": "KILLED", "missing": []}
+-{"mutant": "st_ls_state_none@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "bound_view_not_cleared@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "bound_dmac_from_sid@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "matcher_vid_ignored@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "matcher_da_ignored@pp_top", "verdict": "KILLED", "missing": []}
+-{"mutant": "bound_dmac_from_sid@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "rec_read_sink_zero@acmp_listener", "verdict": "KILLED", "missing": []}
+ {"mutant": "rec_read_in_idle@acmp_listener", "verdict": "KILLED", "missing": []}
+ {"mutant": "rec_started_unstored@acmp_listener", "verdict": "KILLED", "missing": []}
+ {"mutant": "rec_settled_vlan_unstored@acmp_listener", "verdict": "KILLED", "missing": []}
+-{"mutant": "matcher_vid_ignored@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "rec_sweep_misaddressed@acmp_listener", "verdict": "KILLED", "missing": []}
+ {"mutant": "armq_head_stuck@pp_top", "verdict": "KILLED", "missing": []}
+-{"mutant": "armq_ring_of_three@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "armq_read_tail@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "armq_write_at_head@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "armq_ring_of_three@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "armq_write_refused@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "armq_write_at_mid@pp_top", "verdict": "KILLED", "missing": []}
+-{"mutant": "armq_write_refused@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "armq_full_pop_refuses@pp_top", "verdict": "KILLED", "missing": []}
+ {"mutant": "armq_write_wrap_hi@pp_top", "verdict": "KILLED", "missing": []}
+-{"mutant": "armq_full_pop_refuses@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "field_reset_blocked@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "disconnect_not_accepted@acmp_talker", "verdict": "KILLED", "missing": []}
+ {"mutant": "armq_drop_skip_sat@pp_top", "verdict": "KILLED", "missing": []}
+-ACMP mutations: 33 of 33 KILLED by their named checks; goldens PASS
++{"mutant": "settled_vlan_truncated@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "unbind_talker_echo@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "retry_status_cleared@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "lock_status_13@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "disconnect_invalid_success@acmp_talker", "verdict": "KILLED", "missing": []}
++{"mutant": "disconnect_changes_gate@acmp_talker", "verdict": "KILLED", "missing": []}
++{"mutant": "settled_vlan_truncated@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "settlement_vlan_truncated@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "gsi_vlan_external@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "parent_vlan_shifted@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "retry_probe_status_cleared@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "retry_probe_status_cleared@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "stored_vlan_truncated@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "lock_gate_bypassed@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "probe_guard_current_controller@acmp_listener", "verdict": "KILLED", "missing": []}
++{"mutant": "probe_retry_current_controller@acmp_listener", "verdict": "KILLED", "missing": []}
++ACMP mutations: 51 of 51 KILLED by their named checks; goldens PASS

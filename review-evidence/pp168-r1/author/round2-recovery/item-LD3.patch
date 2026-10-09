@@ -1,0 +1,11 @@
+--- a/hdl/acmp/pp_acmp_pkg.sv
++++ b/hdl/acmp/pp_acmp_pkg.sv
+@@ -120,7 +120,7 @@
+   localparam logic [4:0] AST_SUCCESS_C                 = 5'd0;
+   localparam logic [4:0] AST_LISTENER_UNKNOWN_ID_C     = 5'd1;
+   localparam logic [4:0] AST_LISTENER_TALKER_TIMEOUT_C = 5'd7;
+-  localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd13;
++  localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd16;
+ 
+   // ---- ACMPDU flags masks (F05.13; MSB-first wire warning applies) -------
+   localparam logic [15:0] AFLG_FAST_CONNECT_C   = 16'h0002;
