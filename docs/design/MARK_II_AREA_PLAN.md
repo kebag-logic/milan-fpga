@@ -33,8 +33,8 @@ The #396 release campaigns run on the qualified redesigned image.
 - **Estimated saving:** L2 credits 14,000 LUTs, range 11,500-16,000.
   This includes the measured 3,102-LUT mailbox cost.
   The complete split has no integrated area measurement yet.
-- **Estimated finish:** the [ledger](#ledger) reaches 31,067 LUTs centrally.
-  Its conservative combined estimate is 35,067, below 38,040.
+- **Estimated finish:** the [ledger](#ledger) reaches 31,667 LUTs centrally.
+  Its conservative combined estimate is 35,867, below 38,040.
   These arithmetic scenarios are not fit or timing evidence.
 - **No double counting:** M3/M10 receive zero default-image credit.
   Their AECP hardware leaves with F5.
@@ -541,9 +541,29 @@ Audio and gPTP deadlines remain independent of firmware service.
 
 D4 approves on-chip main memory instead of DDR3.
 M8a sizes #70/F1 staging to the selected shape's container.
-**Saving:** 1,600 LUTs (1,200-2,000).
-The historical #649 controller/PHY census contains 823 + 873 LUTs.
-Replacement memory decode and storage can reduce that saving.
+**Saving:** 1,000 LUTs (400-1,500), repriced in Round 1c.
+The [historical census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) reports pre-packing LUT cells.
+Its controller has 823; its PHY has 873.
+Those 1,696 cells are not 1,696 packed LUT sites.
+Another 3,231 anonymous LUT cells have no assigned owner.
+Their DDR share is unknown and receives zero credit.
+
+The estimate uses explicit packing and replacement assumptions:
+
+| Case | Named cells retained as LUT sites | Replacement debit, LUT | Net calculation | Rounded saving |
+|---|---:|---:|---|---:|
+| Conservative | 50 percent | 400 | `1,696 * 0.50 - 400 = 448` | 400 |
+| Central | 75 percent | 250 | `1,696 * 0.75 - 250 = 1,022` | 1,000 |
+| Optimistic | 100 percent | 100 | `1,696 - 100 = 1,596` | 1,500 |
+
+Each result rounds down to the preceding hundred LUTs.
+The packing shares bracket paired and unpaired named cells.
+Replacement allowances cover on-chip decode, arbitration and storage control.
+These are planning assumptions, not measured conversion ratios or bounds.
+Shared sites or larger replacement logic can erase that saving.
+Anonymous DDR logic could instead increase the measured saving.
+M8a must replace these assumptions with a routed delta.
+M0s and M9 retain independent primitive and memory-capacity checks.
 The lane owns its memory-map migration and both placement contracts.
 
 D5 conditionally approves a smaller cacheless RV32I control hart.
@@ -647,7 +667,7 @@ The full route, primitive counts and service timing remain unmeasured.
 | M5 / L8 | 600 (400-1,000) | Historical 2,907-LUT CSR read path; optimize existing status mux only, not split-interface growth |
 | M6 / L9 | 600 (400-900) | Historical monitor, counter, channel-map and set-point contexts; retained media functions |
 | M7 / L10a | 500 (300-700) | Historical gPTP plane tables; no overlap with M2 or M10 |
-| M8a / L11a | 1,600 (1,200-2,000) | Historical DDR3-controller/PHY census; on-chip memory sizing and retained firmware storage charged to M8 |
+| M8a / L11a | 1,000 (400-1,500) | 1,696 named pre-packing cells, explicit packing/replacement assumptions in L11; 3,231 anonymous cells receive no credit |
 | M8b / L11b | 1,700 (1,300-2,200) | Core OOC comparison in L11; conditional on capture, boot and split service under load |
 | M10 / L10b | 0 | F5 removes fabric AECP's engine; sharing it cannot save twice |
 
@@ -678,16 +698,16 @@ Ranges describe all-low or all-high savings, not statistical confidence.
 | 3 | M5 | 600 | 35,467 | 38,267 | 32,867 |
 | 4 | M6 | 600 | 34,867 | 37,867 | 31,967 |
 | 5 | M7 | 500 | 34,367 | 37,567 | 31,267 |
-| 6 | M8a | 1,600 | 32,767 | 36,367 | 29,267 |
-| 7 | M8b, conditional | 1,700 | 31,067 | 35,067 | 27,067 |
-| 8 | M3 and M10 | 0 | 31,067 | 35,067 | 27,067 |
+| 6 | M8a | 1,000 | 33,367 | 37,167 | 29,767 |
+| 7 | M8b, conditional | 1,700 | 31,667 | 35,867 | 27,567 |
+| 8 | M3 and M10 | 0 | 31,667 | 35,867 | 27,567 |
 | 9 | M9 | No assumed saving | Measure | Measure | Measure |
 
-Central headroom is 6,973 LUTs below 38,040, or 18.33 percent.
-The conservative estimate leaves 2,973, or 7.82 percent.
+Central headroom is 6,373 LUTs below 38,040, or 16.75 percent.
+The conservative estimate leaves 2,173, or 5.71 percent.
 Both exceed D8's 1 percent planning margin.
-Without M8b, the conservative image is 36,367 and still clears it.
-Without the split, these retained-fabric levers reach only 45,067 centrally.
+Without M8b, the conservative image is 37,167 and still clears it.
+Without the split, these retained-fabric levers reach only 45,667 centrally.
 A partial flip must subtract only its measured disjoint contribution.
 F5 qualification is therefore essential to this default ledger.
 Timing cannot be inferred from these LUT calculations.
@@ -711,7 +731,7 @@ Measurements queue serially; no Vivado overlaps another heavy build.
 | 3, weeks 2-6 | M5 | Existing read mux and snapshots in `hdl/common/csr/milan_csr.sv` | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
 | 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under `hdl/ieee1722/` | Adopted pin; fabric media ownership fixed by #664 | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
 | 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
-| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and #70/F1 staging | D4 approved; D5 conditional; measure linked F5 storage and split service before accepting core | 3,300 (2,500-4,200) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
+| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and #70/F1 staging | D4 approved; D5 conditional; measure linked F5 storage and split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
 | 7, decision at week 4; weeks 4-8 | M3 | Retained fabric AECP dispatch, notification, D3 and entity widths in processor | D1/D3 approved; ACMP/ADP portion replaced; schedule residual only for a selected fabric-AECP image | **0**; fabric-only opportunity 2,600 (1,500-3,600) | PDU/port equivalence and complete processor/consumer bank; no F5 overlap |
 | 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200 (900-1,500) | Sharing turnaround proof; removed AECP cannot be saved twice |
 | 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane deltas known; required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |

@@ -186,10 +186,10 @@ These figures are estimates of the complete qualified default image:
 | M5 CSR read path | 600 | 35,467 | Stable existing ABI and both placement faces |
 | M6 media contexts | 600 | 34,867 | Fabric-owned counters, channel map and render state |
 | M7 gPTP tables | 500 | 34,367 | Fabric gPTP deadlines preserved |
-| M8a on-chip main memory | 1,600 | 32,767 | D4 approved; shape-sized #70/F1 staging and memory budget |
-| M8b smaller cacheless RV32I | 1,700 | 31,067 | D5 conditional: capture <= 24.5 ms at 8x8, boot and split load |
-| M3 residual fabric AECP | 0 | 31,067 | 2,600 estimated only where fabric AECP remains |
-| M10 shared gPTP/AECP engine | 0 | 31,067 | 1,200 estimated only with a separate retained AECP engine |
+| M8a on-chip main memory | 1,000 | 33,367 | D4 approved; shape-sized #70/F1 staging; packing/replacement estimate below |
+| M8b smaller cacheless RV32I | 1,700 | 31,667 | D5 conditional: capture <= 24.5 ms at 8x8, boot and split load |
+| M3 residual fabric AECP | 0 | 31,667 | 2,600 estimated only where fabric AECP remains |
+| M10 shared gPTP/AECP engine | 0 | 31,667 | 1,200 estimated only with a separate retained AECP engine |
 | M9 closure and re-record | No assumed saving | Measured at closure | <= 38,040 LUT and timing met |
 
 The split estimate includes the measured 3,102-LUT mailbox skeleton.
@@ -199,8 +199,18 @@ M3/M10 cannot save an engine already removed by F5.
 M1 is dropped; F4 replaces M4.
 The retained-fabric opportunities are not added to the default ledger.
 
-The combined estimate spans 27,067-35,067 LUTs; central is 31,067.
-Without the conditional smaller core, the conservative estimate is 36,367.
+M8a is repriced to 1,000 LUTs, range 400-1,500.
+The [census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) counts 823 controller and 873 PHY LUT cells.
+These are pre-packing cells, not packed LUT sites.
+Its 3,231 anonymous LUT cells have no assigned owner.
+No saving is credited to that unowned remainder.
+[L11](MARK_II_AREA_PLAN.md#l11-the-soc-side) applies 50/75/100 percent packing assumptions.
+It debits 400/250/100 LUTs respectively for replacement logic.
+Rounding down gives the 400/1,000/1,500-LUT planning cases.
+They remain estimates requiring M8a's routed and memory-capacity checks.
+
+The combined estimate spans 27,567-35,867 LUTs; central is 31,667.
+Without the conditional smaller core, the conservative estimate is 37,167.
 These estimates prove neither routing nor timing nor memory capacity.
 M8 must include F5's image, stack, contexts and saved-state staging.
 All-fabric must retain its response/staging capacity too.
