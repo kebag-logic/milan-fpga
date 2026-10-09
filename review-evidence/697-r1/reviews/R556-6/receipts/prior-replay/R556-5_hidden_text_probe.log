@@ -1,0 +1,7 @@
+asm-formfeed-before-hash: REFUSED compiled=True compiler_comment={'rv32': True} gate_errors=['c: only printable ASCII, tab and LF are permitted']
+asm-define-body-formfeed: REFUSED compiled=True compiler_comment={'rv32': True} gate_errors=['c: only printable ASCII, tab and LF are permitted']
+asm-verticaltab-before-hash: REFUSED compiled=True compiler_comment={'rv32': True} gate_errors=['c: only printable ASCII, tab and LF are permitted']
+header-cxx-digit-separator: REFUSED compiled=True compiler_comment={'gcc-c': False, 'clang-c': False, 'g++': True, 'clang++': True} gate_errors=['c++: line 2: unsupported comment']
+control-asm-hash: REFUSED compiled=True compiler_comment={'rv32': True} gate_errors=['c: line 1: unsupported comment']
+control-c-line-comment: REFUSED compiled=True compiler_comment={'gcc-c': True, 'g++': True} gate_errors=['c: line 1: unsupported comment', 'c++: line 1: unsupported comment']
+gaps: 0; controls refused: True

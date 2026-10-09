@@ -1,0 +1,169 @@
+probe asm-include-h (rule 5)
+diff --git a/examples/rv32/start.S b/examples/rv32/start.S
+index d354952..e83d482 100644
+--- a/examples/rv32/start.S
++++ b/examples/rv32/start.S
+@@ -17,3 +17,4 @@ _start:
+ 2:
+     call main
+     tail port_exit
++.include "probe.h"
+--- untracked examples/rv32/include/probe.h
+/* SPDX-License-Identifier: MIT */
+#define PROBE_VALUE 1 # prose words
+
+### rv32-build-link-smoke: rc 0
+$ /usr/bin/python3 scripts/baremetal.py --work <PACKET>/scratch/probes/asm-include-h/build-rv32 --jobs 16
+[
+  {
+    "configuration": "Debug",
+    "rc": 0,
+    "elf_sha256": "527e738dbd8b85e983ce1a23d6acfe7c29d916af2eb4b7196fcd40af48d051ad",
+    "elf_bytes": 103692,
+    "core_objects": {
+      "adp.c": "edc01fea576ca85f7e48ea624bba46cc8df55b8b51bc35f783cad92c82668017",
+      "acmp.c": "4e3a10b8db3439fe05393918445e3faf251b969dde721ed7a39f2c28ca865039",
+      "maap.c": "c2027b2cf87f4a77eb6652d4ad3406266ae5c0dc8e680224f5c4bc295aceafe3"
+    },
+    "core_imports": [
+      "__mulsi3",
+      "__umodsi3",
+      "ctrl_reentry_assert",
+      "memcpy",
+      "memset",
+      "port_assert_failed"
+    ],
+    "unresolved_final": [],
+    "smoke": "ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds"
+  },
+  {
+    "configuration": "Release",
+    "rc": 0,
+    "elf_sha256": "1505b5a1c1da924abe7855fc7c4e71e19b72cbc1937cc5c301e58bdf1a0db1f0",
+    "elf_bytes": 36264,
+    "core_objects": {
+      "adp.c": "31e8d3486aa9fc1bb52bd8e54828f039ae96b2fd04f61f7800daa8377d922425",
+      "acmp.c": "56b0c8d698c884ebc9b0732a24edd1f269473e5e0610a0170c647726f218413f",
+      "maap.c": "f04b053968b267848c4752d65f1675fca061d9f8aed7e9165885f2b097be0ce8"
+    },
+    "core_imports": [
+      "__umodsi3",
+      "ctrl_reentry_assert",
+      "memcpy",
+      "memset"
+    ],
+    "unresolved_final": [],
+    "smoke": "ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds"
+  }
+]
+
+### comments: rc 0
+$ /usr/bin/python3 scripts/check_comments.py
+comment lexer: <PACKET>/scratch/sdk/usr/bin/clang-18
+comments: 24 code files and all mutation fragments pass
+
+### needles: rc 0
+$ /usr/bin/python3 scripts/needle_audit.py
+needles: zero unspecific killers; no inherited exceptions
+
+### conditionals: rc 0
+$ /usr/bin/python3 scripts/check_conditionals.py --work <PACKET>/scratch/probes/asm-include-h/build-cond --jobs 16
+conditionals: 23 files; 38 region sides compiled
+
+### boundary: rc 0
+$ /usr/bin/python3 scripts/check_boundary.py --work <PACKET>/scratch/probes/asm-include-h/build-boundary --jobs 16
+boundary: compiler dependencies and object symbols pass
+
+### traceability: rc 0
+$ /usr/bin/python3 scripts/traceability.py --build <PACKET>/scratch/probes/asm-include-h/build-reg --jobs 16
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: <PACKET>/scratch/bin/g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found GTest: <PACKET>/scratch/sdk/usr/lib/x86_64-linux-gnu/cmake/GTest/GTestConfig.cmake (found suitable exact version "1.14.0")
+-- Configuring done (0.6s)
+-- Generating done (0.0s)
+-- Build files have been written to: <PACKET>/scratch/probes/asm-include-h/build-reg
+[  5%] Building C object CMakeFiles/tsn_debug.dir/src/adp.c.o
+[  5%] Building C object CMakeFiles/tsn_debug.dir/src/maap.c.o
+[  8%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+[ 11%] Building C object CMakeFiles/tsn_test.dir/src/acmp.c.o
+[ 14%] Building C object CMakeFiles/tsn_test.dir/src/adp.c.o
+[ 20%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+[ 20%] Building C object CMakeFiles/tsn_test.dir/src/maap.c.o
+[ 23%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+[ 26%] Linking C static library libtsn_debug.a
+[ 29%] Linking C static library libtsn_test.a
+[ 32%] Linking C static library libtsn.a
+[ 32%] Built target tsn_debug
+[ 35%] Building CXX object CMakeFiles/adp_debug.dir/tests/main.cpp.o
+[ 41%] Building CXX object CMakeFiles/adp_debug.dir/tests/test_adp_reentry.cpp.o
+[ 41%] Building CXX object CMakeFiles/maap_debug.dir/tests/test_maap_debug.cpp.o
+[ 44%] Building CXX object CMakeFiles/maap_debug.dir/tests/main.cpp.o
+[ 44%] Built target tsn
+[ 44%] Built target tsn_test
+[ 47%] Building CXX object CMakeFiles/acmp_tests.dir/tests/test_acmp.cpp.o
+[ 52%] Building CXX object CMakeFiles/acmp_tests.dir/tests/main.cpp.o
+[ 52%] Building CXX object CMakeFiles/adp_tests.dir/tests/main.cpp.o
+[ 55%] Building CXX object CMakeFiles/adp_release.dir/tests/main.cpp.o
+[ 58%] Building C object CMakeFiles/example_port.dir/examples/adp_port.c.o
+[ 61%] Building CXX object CMakeFiles/adp_tests.dir/tests/test_adp.cpp.o
+[ 64%] Building CXX object CMakeFiles/maap_tests.dir/tests/main.cpp.o
+[ 67%] Building CXX object CMakeFiles/adp_release.dir/tests/test_adp_reentry.cpp.o
+[ 70%] Building CXX object CMakeFiles/maap_tests.dir/tests/test_maap.cpp.o
+[ 73%] Linking C static library libexample_port.a
+[ 73%] Built target example_port
+[ 76%] Building CXX object CMakeFiles/port_tests.dir/tests/test_port.cpp.o
+[ 79%] Building CXX object CMakeFiles/port_tests.dir/tests/main.cpp.o
+[ 82%] Linking CXX executable maap_debug
+[ 82%] Built target maap_debug
+[ 85%] Linking CXX executable port_tests
+[ 85%] Built target port_tests
+[ 88%] Linking CXX executable maap_tests
+[ 91%] Linking CXX executable adp_debug
+[ 94%] Linking CXX executable adp_release
+[ 94%] Built target maap_tests
+[ 94%] Built target adp_debug
+[ 94%] Built target adp_release
+[ 97%] Linking CXX executable acmp_tests
+[ 97%] Built target acmp_tests
+[100%] Linking CXX executable adp_tests
+[100%] Built target adp_tests
+registration: 7 binaries; 369 instances
+traceability: 17 requirements; 108 test declarations
+
+### test-inventory: rc 0
+$ /usr/bin/python3 scripts/test_inventory.py --build <PACKET>/scratch/probes/asm-include-h/build-reg --jobs 16
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: <PACKET>/scratch/probes/asm-include-h/build-reg
+[ 23%] Built target tsn_test
+[ 23%] Built target tsn
+[ 32%] Built target tsn_debug
+[ 38%] Built target example_port
+[ 47%] Built target adp_tests
+[ 64%] Built target acmp_tests
+[ 64%] Built target maap_tests
+[ 73%] Built target adp_debug
+[ 82%] Built target adp_release
+[ 91%] Built target maap_debug
+[100%] Built target port_tests
+registration: 7 binaries; 369 instances
+test sensitivity: 108 declarations, 311 plants
+
+### license: rc 0
+$ /usr/bin/python3 scripts/check_license.py
+license: pass
+
+### port-contracts: rc 0
+$ /usr/bin/python3 scripts/check_port_contracts.py
+port contracts: callbacks, fields, preconditions and counters present
+

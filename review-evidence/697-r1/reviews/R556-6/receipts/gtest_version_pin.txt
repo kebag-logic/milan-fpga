@@ -1,0 +1,12 @@
+# CMake find_package(GTest 1.14.0 EXACT REQUIRED) on a host whose only GoogleTest is 1.18.0 (reviewer env not loaded)
+cmake version 4.4.4
+-- Found GTest: /usr/lib/libgtest.so (Required is exact version "1.14.0")
+-- Configuring done (0.6s)
+configure rc=0
+GTEST_INCLUDE_DIR:PATH=/usr/include
+GTEST_LIBRARY:FILEPATH=/usr/lib/libgtest.so
+GTest_DIR:PATH=GTest_DIR-NOTFOUND
+build rc=0
+100% tests passed out of 7
+host gtest.pc: Version: 1.18.0
+assertion_forms.require_version on this host: refused: gtest must be version 1.14.0, found 1.18.0
