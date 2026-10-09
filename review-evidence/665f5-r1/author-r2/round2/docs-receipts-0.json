@@ -1,0 +1,246 @@
+[
+  {
+    "index": 0,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.26475433299856377
+  },
+  {
+    "index": 3,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11445783499948448
+  },
+  {
+    "index": 6,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.2646720299999288
+  },
+  {
+    "index": 9,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.4650255489978008
+  },
+  {
+    "index": 12,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 3.177221740999812
+  },
+  {
+    "index": 15,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.5659594489989104
+  },
+  {
+    "index": 18,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.36479637500087847
+  },
+  {
+    "index": 21,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.4157174819993088
+  },
+  {
+    "index": 24,
+    "command": [
+      "$DOC_PYTHON",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.267941387999599
+  },
+  {
+    "index": 27,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06410291700012749
+  },
+  {
+    "index": 30,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.3689884989980783
+  },
+  {
+    "index": 33,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 49.32462567100083
+  },
+  {
+    "index": 36,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_soc_sources.py"
+    ],
+    "rc": 0,
+    "seconds": 0.16482131500015385
+  },
+  {
+    "index": 39,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "seconds": 1.7736508150010195
+  },
+  {
+    "index": 42,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.5659431050007697
+  },
+  {
+    "index": 45,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.8712234189988521
+  },
+  {
+    "index": 48,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.122411184001976
+  },
+  {
+    "index": 51,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.46615933000066434
+  },
+  {
+    "index": 54,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.51734984200084
+  },
+  {
+    "index": 57,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.631619103998673
+  },
+  {
+    "index": 60,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.26467908000267926
+  },
+  {
+    "index": 63,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11688553999920259
+  },
+  {
+    "index": 66,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.8696483239982626
+  },
+  {
+    "index": 69,
+    "command": [
+      "$DOC_PYTHON",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.11405410800216487
+  },
+  {
+    "index": 72,
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 60.741034760998446
+  }
+]
