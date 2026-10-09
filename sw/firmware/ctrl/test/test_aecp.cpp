@@ -9,6 +9,7 @@ extern "C" {
 #include "aecp.h"
 #include "aecp_image.h"
 #include "aecp_state.h"
+#include "aecp_internal.h"
 #include "aecp_entity_gen.h"
 #ifdef AECP_TEST_NVM
 #include "aecp_nvm.h"
@@ -378,6 +379,7 @@ TEST_F(App, DeferredStartAndLockUseTheRealAcmpOwner)
     acmp(6);acmp_sink_view v{};ASSERT_TRUE(acmp_view(&application.acmp.acmp,0,&v));
     ASSERT_TRUE(v.bound);ASSERT_FALSE(v.started);
     aem(34,target(5,0));ASSERT_TRUE(acmp_view(&application.acmp.acmp,0,&v));EXPECT_TRUE(v.started);
+    aem(34,target(5,0));ASSERT_TRUE(acmp_view(&application.acmp.acmp,0,&v));EXPECT_TRUE(v.started);
     aem(35,target(5,0));ASSERT_TRUE(acmp_view(&application.acmp.acmp,0,&v));EXPECT_FALSE(v.started);
     EXPECT_EQ(adapter.core.reentries,0u);EXPECT_EQ(application.acmp.acmp.reentries,0u);
     aem(1,Bytes(16),CTLR+1);unsigned before=fabric.tx_sent;acmp(8);
@@ -482,6 +484,24 @@ TEST_F(App, ExpiredAndMissingStartRequestsCannotApplyLate)
         deliver.fn(deliver.ctx);EXPECT_FALSE(adapter.core.start_pending);
         EXPECT_FALSE(application.acmp.acmp.sinks[0].started);
     }
+}
+
+TEST_F(App, UnboundStartAndStopAreSuccessfulNoOps)
+{
+    aem(36);
+    for(unsigned cmd:{34,35}){
+        unsigned first=fabric.tx_sent;aem(cmd,target(5,0));
+        unsigned responses=0,notices=0;
+        for(unsigned n=first;n<fabric.tx_sent;++n){auto p=mbx_model_tx_frame(&fabric,n);
+            if(p->bytes[14]!=0xfb)continue;
+            if(get(p->bytes+36,2)&0x8000)++notices;
+            else {++responses;EXPECT_EQ(get(p->bytes+16,2)>>11,0u);}
+        }
+        EXPECT_EQ(responses,1u);EXPECT_EQ(notices,0u);
+        EXPECT_FALSE(application.acmp.acmp.sinks[0].started);
+    }
+    auto rx=application.loop.rx[MBX_CH_SRP];application.loop.rx[MBX_CH_SRP].fn=nullptr;
+    EXPECT_TRUE(ctrl_app_open_aecp(&bridge));application.loop.rx[MBX_CH_SRP]=rx;
 }
 #endif
 
@@ -988,9 +1008,67 @@ TEST_F(Core, ReentrantPortsCannotMutateState)
     auto p=command(2);
     EXPECT_CALL(mock,Send).WillOnce([this,&p](unsigned,const uint8_t*,size_t,uint32_t){
         aecp_open(&a);aecp_rx(&a,0,p.data(),p.size());EXPECT_FALSE(aecp_poll(&a));
-        aecp_start_done(&a,true,true);aecp_changed(&a,5,0,8);return true;});
-    aecp_rx(&a,0,p.data(),p.size());drain();EXPECT_EQ(a.reentries,5u);
+        aecp_start_done(&a,true,true);aecp_changed(&a,5,0,8);aecp_tx_complete(&a,0,0);return true;});
+    aecp_rx(&a,0,p.data(),p.size());drain();EXPECT_EQ(a.reentries,6u);
     EXPECT_EQ(aecp_ready(&a),true);
+}
+
+TEST_F(Core, ProbeIdentityAndSequenceMustBothMatch)
+{
+    register_controller();sent.clear();ms=42345;drain();ASSERT_EQ(sent.size(),1u);
+    auto reply=sent[0].second;put(reply,0,MAC,6);put(reply,6,CMAC,6);reply[15]=1;
+    auto wrong=reply;put(wrong,18,CTLR+1,8);aecp_rx(&a,0,wrong.data(),wrong.size());
+    EXPECT_EQ(a.registry[0][0].probing,1u);
+    wrong=reply;put(wrong,34,get(wrong,34,2)+1,2);aecp_rx(&a,0,wrong.data(),wrong.size());
+    EXPECT_EQ(a.registry[0][0].probing,1u);EXPECT_EQ(a.ignored,2u);
+    aecp_rx(&a,0,reply.data(),reply.size());EXPECT_EQ(a.registry[0][0].probing,0u);
+}
+
+TEST_F(Core, CounterTimerArmsOnlyEligibleCompletedSnapshots)
+{
+    auto &e=events[&desc(5)-descriptors.data()];
+    e.pending=8;e.counter_sent=true;e.counter_at=1000;
+    EXPECT_CALL(mock,Timer(true,1000)).Times(1);aecp_open(&a);
+    testing::Mock::VerifyAndClearExpectations(&mock);
+    a.locked=true;a.lock_deadline=500;
+    EXPECT_CALL(mock,Timer(true,500)).Times(1);aecp_open(&a);
+    testing::Mock::VerifyAndClearExpectations(&mock);
+    a.locked=false;e.awaiting_output=true;
+    EXPECT_CALL(mock,Timer(false,_)).Times(1);aecp_open(&a);
+}
+
+TEST_F(Core, MetadataConfigurationKeysAndRepeatedOverrides)
+{
+    auto &stream=desc(5);stream.configuration=1;
+    auto map=target(14,0,16);put(map,4,1,2);ask(44,map,7);stream.configuration=0;
+    maps[0].configuration=1;auto body=target(5,0,12);put(body,4,get(stream.defaults+74,8),8);ask(8,body);
+    maps[0].configuration=0;maps[0].count=1;input[0]={1,0,0,0};ask(8,body);
+    desc(14).configuration=1;ask(8,body);desc(14).configuration=0;
+    auto &other=desc(10);auto saved=other;other.type=0;other.length=4;
+    ask(6,Bytes(4));ask(6,Bytes(4));other=saved;
+    auto si=target(6,0,84);put(si,4,0x20000000,4);put(si,24,100,4);ask(14,si);
+    put(si,24,200,4);ask(14,si);EXPECT_EQ(latency[0],200u);
+    auto fmt=target(5,0,12);put(fmt,4,(get(stream.defaults+74,8)&~(uint64_t(1023)<<22))|(uint64_t(4)<<22),8);
+    ask(8,fmt);EXPECT_EQ(get(stream.value+74,8),get(fmt,4,8));
+    // A row for a future configuration cannot increase the active output partition.
+    desc(6).configuration=1;auto page=ask(43,target(15,0,8));EXPECT_EQ(get(page,44,2),1u);
+}
+
+TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
+{
+    a.open=false;
+    aecp_mapping rows[]={{0,0,0,0},{0,1,1,0}};
+    auto &cluster=desc(20);put(cluster.value+84,2,2);
+    ASSERT_EQ(aecp_map_restore(&a,&maps[0],rows,2),0u);
+    auto b=target(14,0,16);put(b,4,1,2);put(b,14,1,2);aecp_open(&a);ask(44,b);
+    EXPECT_EQ(maps[0].count,3u)<<"a distinct cluster channel is a distinct input key";
+    put(b,8,1,2);ask(44,b,7); // CRF has no audio channels
+    put(desc(5,1).value+74,get(desc(5).value+74,8),8);
+    ask(44,b,7); // a second audio stream cannot claim the same input key
+    aecp_stream_info absent{};EXPECT_FALSE(aecp_stream_read(&a,5,65535,&absent));
+    a.open=false;maps[1].defaults=rows;maps[1].default_count=2;
+    ASSERT_TRUE(aecp_restore_defaults(&a));aecp_map_refused(&a,&maps[1]);
+    EXPECT_EQ(aecp_restore_settle(&a),0u);EXPECT_EQ(maps[1].count,2u);
 }
 
 TEST_F(Core, InitRefusalsAndClosedService)
@@ -1138,5 +1216,21 @@ TEST_F(Mailbox, TimerIdentityAndAttachRefusals)
     aecp_mbx other{};EXPECT_FALSE(aecp_mbx_init(&other,&cfg,&ports,MBX_N_TIMERS));
     auto bad=cfg;bad.interfaces=MBX_N_IF+1;EXPECT_FALSE(aecp_mbx_init(&other,&bad,&ports,0));
     bad=cfg;bad.interfaces=0;EXPECT_FALSE(aecp_mbx_init(&other,&bad,&ports,0));
+}
+
+TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
+{
+    mbx_model_tx_pause(&fabric,true);Bytes filler(60);filler[14]=0xfb;
+    while(mbx_tx_send(MBX_CH_AECP,0,filler.data(),filler.size())==MBX_STATUS_OK){}
+    receive(2);EXPECT_TRUE(adapter.core.response_owed);auto before=fabric.tx_sent;
+    mbx_model_tx_pause(&fabric,false);service(100);
+    EXPECT_FALSE(adapter.core.response_owed);EXPECT_GT(fabric.tx_sent,before);
+    for(unsigned n=0;n<AECP_MBX_COMPLETIONS;++n)
+        ASSERT_TRUE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),n));
+    EXPECT_FALSE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),100));
+    EXPECT_EQ(adapter.completion_count,AECP_MBX_COMPLETIONS);service(100);
+    EXPECT_EQ(adapter.completion_count,0u);
+    mbx_event e{};e.type=MBX_EV_TYPE_TIMER;e.timer_slot=6;e.timer_tag=adapter.tag;
+    adapter.armed=false;loop.sinks[0].fn(loop.sinks[0].ctx,&e);EXPECT_EQ(adapter.stale_expiries,1u);
 }
 #endif

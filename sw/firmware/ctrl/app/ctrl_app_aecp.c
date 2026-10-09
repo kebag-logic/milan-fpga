@@ -112,8 +112,9 @@ static bool deliver(void *ctx)
 		if (c->aecp->core.start_pending) {
 			struct acmp_sink_view old;
 			bool exists = acmp_view(a, c->start_index, &old);
-			bool ok = exists && acmp_set_started(a, c->start_index, c->start_value);
-			aecp_start_done(&c->aecp->core, ok, ok && old.started != c->start_value);
+			// Milan 5.4.2.19/.20: an unbound input is a successful no-op.
+			bool ok = exists && (!old.bound || acmp_set_started(a, c->start_index, c->start_value));
+			aecp_start_done(&c->aecp->core, ok, ok && old.bound && old.started != c->start_value);
 		}
 	}
 	bool pending = aecp_nvm_poll(c->state);
