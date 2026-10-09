@@ -413,7 +413,7 @@ The ledger shows disjoint removal references and all cost allowances.
 The measured mailbox skeleton costs 3,102 LUTs and six BRAM tiles.
 F0-F4 code is present at the assigned dev revision.
 Presence does not establish integrated, bench-qualified operation.
-[`milan_soc.py`](../../sw/litex/milan_soc.py) still holds the mailbox datapath side idle.
+The [SoC wiring](../../sw/litex/milan_soc.py) holds the mailbox datapath idle.
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) still instantiates `KL_pp_shadow` unconditionally.
 Consequently, enabling `--ctrl-mailbox` alone saves no processor logic.
 
@@ -471,7 +471,8 @@ Exclude LiteDRAM bank-machine, command, read and write queues.
 Exclude `memory_port_cdc*` and CPU-internal bridge FIFOs under M8.
 Exclude `descmem_*`, `respmem_*` and `nvmmem_*` crossings under L2/M8.
 Their retained-AECP variants remain those lanes' responsibility.
-Mailbox rings belong to L2; media/gPTP tables belong to M6/M7.
+Mailbox rings belong to L2.
+Media/gPTP tables belong to M6/M7.
 Reconcile the actual post-D4 export before assigning any M2 saving.
 
 **Risk: medium.** Same-cycle reads may prevent block RAM inference.
@@ -1006,7 +1007,8 @@ python3 syn/resmap/resmap_map.py map "$WORK/route-map" --baseline "$WORK/scratch
 
 This recipe reproduces the three historical area-only syntheses.
 It is documentation; Round 1c executes no Vivado run.
-Use Vivado 2026.1 build 6511674 and the named source bytes.
+Use Vivado 2026.1 build 6511674.
+Match the named source bytes.
 Set these environment variables to absolute paths:
 
 | Variable | Meaning |
