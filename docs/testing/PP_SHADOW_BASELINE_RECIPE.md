@@ -188,7 +188,7 @@ Its route and standalone recipes remain unchanged.
 
 | Selection | Required retained control engines | Required absence |
 |---|---|---|
-| `all-fabric` | Existing shipping wrapper and protocol engines | Existing default export remains authoritative |
+| `all-fabric` | Wrapper, ADP, both ACMP engines, SRP, AECP, notifications, parent MAAP and gPTP | Mailbox and processor MAAP |
 | `f0-f4` | Fabric AECP, notifications, mailbox and gPTP | ADP, both ACMP engines, SRP and both MAAP implementations |
 | `full-split` | Mailbox and gPTP | Wrapper and all five fabric protocol engines, including notifications |
 
@@ -228,7 +228,15 @@ A retained moved engine fails by its placement and role.
 It checks again after implementation and writes `baseline_placement.tsv`.
 The gate independently validates that census against the requested selection.
 A mismatched selection, missing census or missing role exits 2.
-The legacy missing-wrapper refusal remains in force for all-fabric.
+
+The default selection keeps its recipe and writes no census.
+For an integrated route, the gate counts the hierarchy report's module column instead.
+Both `check` and `record --write` exit 2, naming each role outside its all-fabric count.
+They also refuse a default directory holding `baseline_placement.tsv`.
+A tool or recipe identity change is reported first, as before.
+Printing a record without `--write` judges nothing.
+Standalone references lack the parent MAAP, gPTP and mailbox; this census excludes them.
+The legacy missing-wrapper refusal remains in force for every all-fabric recipe.
 
 The census uses original or current module reference names.
 It includes both parent and processor MAAP implementations.
@@ -272,7 +280,10 @@ python3 syn/ooc/pp_resource_gate.py check-baseline
 
 The census controls execute under `tclsh`, without implementation software.
 They reverse every required presence and absence by name.
+Recipe controls require exactly one marker naming the requested selection.
+They also corrupt each still-bound removed-protocol ROM and require its geometry refusal.
 Gate fixtures include wrapper-free partial and complete split images.
+Default-route fixtures plant each role absent, renamed or duplicated without a marker.
 They also plant resource, timing, routing and identity failures.
 These synthetic controls establish tooling behavior, never routed measurements.
 
