@@ -29,7 +29,7 @@ The current command and media-clock claims are checked against the
 - **[Tier 1 - implemented optional fabric blocks](#tier-1---implemented-optional-fabric-blocks)** -- The RTL parameter, SoC flag, configuration key, and permitted absence condition for each implemented prune.
 - **[Isolated synthesis estimates](#isolated-synthesis-estimates)** -- Comparable Yosys resource estimates for the optional fabric blocks at the measured shape.
 - **[Release accounting](#release-accounting)** -- The placed utilization, timing, identity, and repeated evidence required for a release candidate.
-- **[Protocol processor budget and resource gate](#protocol-processor-budget-and-resource-gate)** -- NFR-RES-01's 60 % LUT target against the measured shipping route, the owner's decision on meeting it, and the resource gate's policy table, refusals, re-baseline rule and where it runs.
+- **[Protocol processor budget and resource gate](#protocol-processor-budget-and-resource-gate)** -- The recorded baseline, Mark II estimates, unchanged policy and D7 re-record rule.
 
 ## Rules for optional blocks
 
@@ -136,17 +136,84 @@ The baseline records F's endpoint and sub-block differences from E.
 ### Allocation to the protocol processor
 
 The standalone wrapper uses 23,179 LUTs, 36.6 % of the device, at the shipping clock.
-Epic #229's milestone keeps the non-CPU stack under 30 %, 19,020 LUTs.
+The superseded #229 milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
 Read as `milan_datapath`, that stack names 41,689 LUTs in the routed image, 65.8 % of the device.
 The wrapper names 23,345 of them in that rebuilt hierarchy.
-On any reading, the wrapper alone exceeds the milestone.
+The wrapper alone exceeds that historical allocation.
+The active #640 acceptance bar is the whole-image NFR-RES-01 target.
 
 Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 11,118 LUTs.
 That requires removing 12,227 LUTs, 52 % of the wrapper.
 The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that NFR-RES-01 stays at 60 %.
-It is met by a redesign in milestone "Optimisations Mark II" (#640), after Instrument verification.
-Until then the gate holds every resource at its recorded value: no material growth.
+It is met by the [Mark II redesign plan](MARK_II_AREA_PLAN.md) (#640).
+The [2026-10-05 schedule correction](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5988555968)
+places milestone 12 before P3, with delivery planned by 2026-12-15.
+The former Instrument-verification prerequisite no longer applies.
+The #396 release campaigns run on the qualified redesigned image.
+Until M9, comparisons retain the last recorded baseline and unchanged policy.
 The #232, #230 and #639 storage changes are now adopted and measured; the remaining redesign stays under #640.
+
+### Mark II planning ledger
+
+Round 1b uses the three records committed on dev `5603c353`.
+Their measurement inputs are `a5ca6e51`, as the endpoint notes state.
+No new implementation run is claimed by this documentation update.
+
+| Recorded endpoint | LUT | FF | RAMB36 / RAMB18 | DSP | Timing interpretation |
+|---|---:|---:|---:|---:|---|
+| `route-1x1` | 50,267 | 54,413 | 74 / 27 | 14 | +0.299 / +0.031 ns, routed setup/hold |
+| `ooc-1x1` | 23,179 | 19,779 | 16 / 3 | 8 | Synthesis only, no integrated-fit claim |
+| `ooc-8x8` | 30,135 | 27,380 | 21 / 5 | 8 | Synthesis only, no integrated-fit claim |
+
+The [owner's final placement decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5993114362)
+puts the bare-metal split in milestone 12 before P3.
+ADP, ACMP, MAAP, SRP, AECP and saved-state handling move.
+All-fabric remains supported and remains the current shipping default.
+The flip waits for F2-F5 suites and bench acceptance under #664.
+Unqualified functions retain fabric placement.
+The hard-core port remains milestone 13.
+Diagnostics stay in the shipping image under D2.
+The optional-block table above grants no Mark II diagnostic-pruning credit.
+MAAP remains required in either placement; relocating it is not disabling it.
+
+The [plan ledger](MARK_II_AREA_PLAN.md#ledger) gives each saving's basis.
+These figures are estimates of the complete qualified default image:
+
+| Lane | Estimated saving, central | Image after, central | Dependency |
+|---|---:|---:|---|
+| F0-F5 split | 14,000 | 36,267 | Approved #664; complete function, service and bench qualification |
+| M2 retained SoC tables | 200 | 36,067 | Adopted pin; excludes removed processor and M6/M7 tables |
+| M5 CSR read path | 600 | 35,467 | Stable existing ABI and both placement faces |
+| M6 media contexts | 600 | 34,867 | Fabric-owned counters, channel map and render state |
+| M7 gPTP tables | 500 | 34,367 | Fabric gPTP deadlines preserved |
+| M8a on-chip main memory | 1,600 | 32,767 | D4 approved; shape-sized #70/F1 staging and memory budget |
+| M8b smaller cacheless RV32I | 1,700 | 31,067 | D5 conditional: capture <= 24.5 ms at 8x8, boot and split load |
+| M3 residual fabric AECP | 0 | 31,067 | 2,600 estimated only where fabric AECP remains |
+| M10 shared gPTP/AECP engine | 0 | 31,067 | 1,200 estimated only with a separate retained AECP engine |
+| M9 closure and re-record | No assumed saving | Measured at closure | <= 38,040 LUT and timing met |
+
+The split estimate includes the measured 3,102-LUT mailbox skeleton.
+It also reserves 1,000 LUTs for remaining fabric integration.
+Its 11,500-16,000 range includes mapping and integration uncertainty.
+M3/M10 cannot save an engine already removed by F5.
+M1 is dropped; F4 replaces M4.
+The retained-fabric opportunities are not added to the default ledger.
+
+The combined estimate spans 27,067-35,067 LUTs; central is 31,067.
+Without the conditional smaller core, the conservative estimate is 36,367.
+These estimates prove neither routing nor timing nor memory capacity.
+M8 must include F5's image, stack, contexts and saved-state staging.
+All-fabric must retain its response/staging capacity too.
+The 121.5-tile ceiling and 13.5-tile reserve remain unchanged.
+
+[D8](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
+sets the planning margin to at least 1 percent: <= 37,659 LUTs.
+The binding bar remains 38,040 with timing met.
+Re-measure the integrated plan at week 4 and before M9.
+The current recipe requires one wrapper; the complete split removes it.
+M9 needs reviewed split-aware measurement coverage and a named shipping endpoint.
+Retain the all-fabric 1x1/8x8 references independently.
+This page changes no record, gate implementation or policy value.
 
 ### The resource gate
 
@@ -196,11 +263,22 @@ A change under the tolerance passes, and the gate still prints the sub-block mov
 A figure that improves by more than its tolerance passes and prints "re-baseline recommended".
 The policy stays growth-only: recording the improved measurement is what lowers the bar.
 
-A merge that moves the shipping image records its own re-baseline ([manager ruling](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5972491855)).
+Outside the Mark II exception below, a merge moving the shipping image records its own re-baseline ([manager ruling](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5972491855)).
 Its PR measures the three endpoints again on its merge result and writes them with `record --write`, the policy unchanged.
 So growth under a tolerance cannot pile up unrecorded across merges.
 Growth over one is accepted or refused as the change that made it, never as a later PR's.
 Each endpoint's `measured` note names the dev revision its record describes.
+
+**Mark II exception, D7.** The [manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
+keeps intermediate lane measurements in the [plan ledger](MARK_II_AREA_PLAN.md#ledger).
+Each lane compares against the last gate record; growth remains visible.
+M9 re-records only after meeting NFR-RES-01 with timing met.
+An improvement recommendation does not authorize an intermediate re-record.
+No tolerance, floor or ceiling is weakened.
+A primitive increase remains a gate failure requiring explicit disposition.
+The RAM-conversion estimate never waives that zero-growth policy.
+
+
 The first re-baseline recorded PR #634's growth on 2026-10-03, in PR #638, which added the gate.
 The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-03-after-pr-634) gives its delta per endpoint and sub-block.
 The [second re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-05-processor-ead80360) records the adopted `ead80360` image on dev `506d91db` for #661.
@@ -258,8 +336,11 @@ That baseline is the dev revision each endpoint's `measured` note names.
 So the bank runs the comparison for any merge whose dev delta since that revision touches RTL, the processor pin or the build recipe.
 That holds even when the PR itself changes none of them.
 Growth the PR did not make is not charged to it.
-The predecessor's growth is first recorded as a re-baseline that names it, as issue #234 recorded PR #634's.
-The PR is then judged against that record.
+Outside Mark II, the predecessor's growth is first recorded with attribution,
+as issue #234 recorded PR #634's; the PR uses that record.
+For Mark II, D7 instead retains the last gate record until M9.
+Its ledger distinguishes predecessor movement from the current lane's delta.
+Both the comparison and any regression remain visible.
 This is the bank's rule, stated here; it adds no tooling.
 Here a route took 39 to 56 minutes and a 1x1 standalone synthesis 15 to 24, sharing the host.
 That bank run is the local half of #234's fourth criterion (manager ruling); CONTRIBUTING is unchanged here.
