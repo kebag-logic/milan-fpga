@@ -1,0 +1,109 @@
+{
+  "author-r2h": {
+    "archive": "5c575da7157c814088ea4df12aab6c5877841f4b",
+    "head": "8e4b1e53e9b5a8ef5f9854095347436ab84259b6",
+    "manifest_entries": 277,
+    "candidate_source_bindings": 45,
+    "jobs": {
+      "follow-default": {
+        "rc": 0,
+        "seconds": 437.204,
+        "peak_memory_bytes": 6171992064
+      },
+      "render-default": {
+        "rc": 0,
+        "seconds": 793.308,
+        "peak_memory_bytes": 6171992064
+      },
+      "follow-outer-j16": {
+        "rc": 0,
+        "seconds": 436.171,
+        "peak_memory_bytes": 6090293248
+      },
+      "follow-mutants": {
+        "rc": 0,
+        "seconds": 406.163,
+        "peak_memory_bytes": 6098944000
+      },
+      "builder": {
+        "rc": 0,
+        "seconds": 1203.484,
+        "peak_memory_bytes": 9826508800
+      }
+    },
+    "pass": true
+  },
+  "author-r2i": {
+    "archive": "49a9c79c43ae9b7d54011b148a1cbeea113cae4c",
+    "head": "7426045c94c317363e5589856e6f3f9fde1a2d21",
+    "manifest_entries": 407,
+    "candidate_source_bindings": 5,
+    "jobs": {
+      "builder": {
+        "rc": 0,
+        "seconds": 1231.392,
+        "peak_memory_bytes": 9570062336
+      },
+      "trace-duplicate": {
+        "rc": 0,
+        "seconds": 126.137,
+        "peak_memory_bytes": 9590632448
+      },
+      "trace-pullin": {
+        "rc": 0,
+        "seconds": 36.011,
+        "peak_memory_bytes": 8147365888
+      },
+      "trace-skip": {
+        "rc": 0,
+        "seconds": 377.12,
+        "peak_memory_bytes": 9590632448
+      }
+    },
+    "pass": true
+  },
+  "hosted_windows": {
+    "id": 113696564335,
+    "run_id": 37892515345,
+    "head_sha": "8e4b1e53e9b5a8ef5f9854095347436ab84259b6",
+    "status": "completed",
+    "conclusion": "success",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "started_at": "2026-10-09T06:15:17Z",
+    "completed_at": "2026-10-09T06:58:21Z",
+    "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37892515345/job/113696564335",
+    "windows": [
+      {
+        "suite": "follow_ring",
+        "previous_suite": "eth_tx_reset",
+        "start": "2026-10-09T06:17:15.1295239Z",
+        "end": "2026-10-09T06:35:49.3391593Z",
+        "seconds": 1114.2,
+        "unrounded_seconds": 1114.209636,
+        "margin_to_1440": 325.8,
+        "margin_to_1800": 685.8,
+        "verdict": "PASS",
+        "independent_decimal_seconds": "1114.2096354"
+      },
+      {
+        "suite": "milan_dp_render",
+        "previous_suite": "ifg",
+        "start": "2026-10-09T06:37:10.7406002Z",
+        "end": "2026-10-09T06:57:29.4305475Z",
+        "seconds": 1218.7,
+        "unrounded_seconds": 1218.689947,
+        "margin_to_1440": 221.3,
+        "margin_to_1800": 581.3,
+        "verdict": "PASS",
+        "independent_decimal_seconds": "1218.6899473"
+      }
+    ],
+    "method": "Successive suite verdict timestamps; sequential make -C including build time",
+    "raw_log_sha256": "d7ae7e49d237e8da6c96be21fa2f7bdac33d61b3060d1fcd088bc7d37a678142",
+    "raw_log_bytes": 26560,
+    "runner_image": "ubuntu-24.04"
+  },
+  "three_timing_records_match": true
+}

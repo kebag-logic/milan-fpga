@@ -1,0 +1,52 @@
+{
+  "name": "duplicate",
+  "argv": [
+    "$PACKET/scratch/serial/tb/verilator/follow_ring/obj_dir/Vfollow_ring",
+    "--case",
+    "b8",
+    "--dwell-s",
+    "1.0",
+    "--set-phase",
+    "0.0",
+    "--hold-s",
+    "16",
+    "--trace",
+    "$PACKET/scratch/fresh-traces/duplicate.full.csv",
+    "--servo-trace",
+    "$PACKET/receipts/fresh-traces/duplicate.servo.csv"
+  ],
+  "reader_argv": [
+    "/usr/bin/python3",
+    "-B",
+    "$SOURCE/tb/verilator/follow_ring/trace_table.py",
+    "$PACKET/receipts/fresh-traces/duplicate.log",
+    "$PACKET/receipts/fresh-traces/duplicate.pdu.csv",
+    "$PACKET/receipts/fresh-traces/duplicate.servo.csv",
+    "--origin-s",
+    "0",
+    "--from-s",
+    "1.25",
+    "--to-s",
+    "1.75",
+    "--step-s",
+    ".25",
+    "--csv",
+    "$PACKET/receipts/fresh-traces/duplicate.table.csv"
+  ],
+  "elapsed_s": 128.18546311,
+  "run_rc": 0,
+  "reader_rc": 0,
+  "expected": [
+    1,
+    0,
+    0
+  ],
+  "actual": [
+    1,
+    0,
+    0
+  ],
+  "pass": true,
+  "full_trace_sha256": "7ee7c16f95bd5a093884ab5db8a35b86816bd7de74fe1ab03d03b05307a66033",
+  "full_trace_bytes": 6822950
+}

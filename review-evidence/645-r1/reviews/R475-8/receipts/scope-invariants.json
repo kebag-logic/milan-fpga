@@ -1,0 +1,44 @@
+{
+  "rtl": {
+    "paths": [
+      "hdl",
+      "configs",
+      "syn",
+      "sw/litex",
+      ".gitmodules"
+    ],
+    "unchanged_since_round2f": true
+  },
+  "scheduling": {
+    "paths": [
+      "scripts/run_all_suites.sh",
+      "scripts/measure_test_evidence.py",
+      ".github/workflows/rtl-suites.yml",
+      "docs/testing/CI_WORKFLOWS.md"
+    ],
+    "unchanged_since_round2f": true
+  },
+  "resources": {
+    "paths": [
+      "syn/ooc/pp_resource_baseline.json",
+      "docs/design/AREA_BUDGET.md",
+      "docs/findings/234_PP_SHADOW_AREA_BASELINE.md"
+    ],
+    "unchanged_since_round2f": true
+  },
+  "tb/verilator/follow_ring/Makefile": {
+    "recipes_unchanged_since_round2h": true
+  },
+  "tb/verilator/milan_dp_render/Makefile": {
+    "recipes_unchanged_since_round2h": true
+  },
+  "delta_files": [
+    "docs/testing/TESTING.md",
+    "scripts/measure_test_evidence_readers.py",
+    "tb/verilator/follow_ring/Makefile",
+    "tb/verilator/follow_ring/sim_main.cpp",
+    "tb/verilator/follow_ring/test_trace_table.py",
+    "tb/verilator/follow_ring/trace_table.py",
+    "tb/verilator/milan_dp_render/Makefile"
+  ]
+}

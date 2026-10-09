@@ -1,0 +1,50 @@
+{
+  "name": "declared",
+  "argv": [
+    "$PACKET/scratch/serial/tb/verilator/follow_ring/obj_dir/Vfollow_ring",
+    "--case",
+    "pullin",
+    "--latency-us",
+    "210.42",
+    "--after-s",
+    "1.5",
+    "--trace",
+    "$PACKET/scratch/fresh-traces/declared.full.csv",
+    "--servo-trace",
+    "$PACKET/receipts/fresh-traces/declared.servo.csv"
+  ],
+  "reader_argv": [
+    "/usr/bin/python3",
+    "-B",
+    "$SOURCE/tb/verilator/follow_ring/trace_table.py",
+    "$PACKET/receipts/fresh-traces/declared.log",
+    "$PACKET/receipts/fresh-traces/declared.pdu.csv",
+    "$PACKET/receipts/fresh-traces/declared.servo.csv",
+    "--origin-s",
+    "4.6",
+    "--from-s",
+    "0",
+    "--to-s",
+    "1.5",
+    "--step-s",
+    ".1",
+    "--csv",
+    "$PACKET/receipts/fresh-traces/declared.table.csv"
+  ],
+  "elapsed_s": 37.22618154499969,
+  "run_rc": 0,
+  "reader_rc": 0,
+  "expected": [
+    0,
+    0,
+    1
+  ],
+  "actual": [
+    0,
+    0,
+    1
+  ],
+  "pass": true,
+  "full_trace_sha256": "2ef5204421f523ae9d9a9306b7bd75e237fcb27c9934543bcc6b7615b4f5accf",
+  "full_trace_bytes": 1781418
+}
