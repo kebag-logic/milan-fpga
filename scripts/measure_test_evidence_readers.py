@@ -94,7 +94,8 @@ DUT_READER_DISPOSITIONS = {
         "the band in place of 8 LOCKED windows, removed excursion arm, removed recovery "
         "qualification, missed fine pull and quiet-noise arm) into a copy of the "
         "datapath, overshoot and single-drop into a copy of the capture crossbar, and the "
-        "render-only and W1 bindings by define; each must fail its named wire or law check",
+        "render-only and W1 bindings by define; each must fail its named wire or law check. "
+        "It is the explicit mutants target, outside the default sweep",
     "tb/verilator/follow_ring/settle_control.py":
         "controller harness; it copies the shipping recentre control verbatim for "
         "compilation at four axis rates, then applies independent stimuli and "

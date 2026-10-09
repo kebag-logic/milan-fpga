@@ -288,17 +288,54 @@ The reason is wall clock and the numbers are in its Makefile header.
 `milan_dp` measured 1037.7 s and the two render legs added about 109 s.
 That took its 1800 s headroom to 1.57x, under the 1.58x hosted slowdown above.
 Both default suites keep the 1800 s budget.
-After #645's campaign split, their cold measurements on 2026-10-09 were:
+The previous exact-head hosted windows at `1e79ebdc` came from
+[run 37882435947, job 113665137864](https://github.com/kebag-logic/milan-fpga/actions/runs/37882435947/job/113665137864)
+on a dev-class runner.
+The [review receipts](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6075042057)
+also give cold four-CPU replicas of that head: 800.2 s and 826.7 s.
+These replace the earlier `make -j16` figures as the hosted basis.
 
-| Default suite (`make -j16`) | Measured seconds | At 1.58x | Required ceiling |
+| Previous hosted suite | Seconds | Margin to 1440 s | Margin to 1800 s |
 |---|---:|---:|---:|
-| `follow_ring`: four standing legs | 354.1 | 559.5 s | 1440 s |
-| `milan_dp_render`: both legs and five leg-side controls | 733.2 | 1158.5 s | 1440 s |
+| `follow_ring` | 1422.5 | 17.5 s | 377.5 s |
+| `milan_dp_render` | 1093.9 | 346.1 s | 706.1 s |
 
-The ceiling is 80% of 1800 s; both pass without changing any suite budget.
-Builds used two concurrent elaborations and four compiler workers per elaboration,
-with other validation jobs running beside them.
-The render default retains all eighteen `[LAW]` phases.
+The [round 2h ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6075072415)
+requires all four `follow_ring` legs to overlap within the default target.
+A four-job sub-make bounds the leg pool under serial and parallel outer make.
+The `b8` and `pullin` legs share one build; fine pulls retain their own clock.
+No leg or check leaves the default.
+
+Cold replicas on 2026-10-09 used the sweep's serial outer invocation,
+with `MAKEFLAGS` unset and disjoint four-CPU sets:
+
+```sh
+env -u MAKEFLAGS taskset -c 32-35 make -C tb/verilator/follow_ring
+env -u MAKEFLAGS taskset -c 36-39 make -C tb/verilator/milan_dp_render
+```
+
+| New replica suite | Measured seconds | Hosted/replica ratio | Projection | Margin to 1440 s | Margin to 1800 s |
+|---|---:|---:|---:|---:|---:|
+| `follow_ring`: four standing legs | 437.204 | 1.78 | 778.2 s | 661.8 s | 1021.8 s |
+| `milan_dp_render`: both legs and five leg-side controls | 793.308 | 1.324 | 1050.3 s | 389.7 s | 749.7 s |
+
+The ratios round upward from 1422.5 / 800.2 and 1093.9 / 826.7.
+The prior 1.58x survey factor under-projects `follow_ring`.
+Its replica is below the 708 s bar; its projection leaves 481.8 s to 1260 s.
+Exact-head hosted acceptance still requires `follow_ring` at or below 1260 s
+and a successful `verilator-suites` aggregate.
+The guard stays at 1800 s; its 80% line stays at 1440 s.
+Independent validation jobs ran alongside these replicas on disjoint CPUs.
+The render default retains all eighteen `[LAW]` phases with no behavior change.
+
+The diagnostic `tb/verilator/follow_ring/trace_table.py` counts duplicate and skip frames
+from the harness's counter events, with declared recentres in a separate column.
+Run the harness with `--trace` to emit those absolute event records.
+The table marks older margin-only logs as lacking event evidence.
+A margin rise is not a measured slip.
+Run `python3 -B tb/verilator/follow_ring/test_trace_table.py` for the diagnostic
+controls: a declared action, genuine duplicate and skip frames, simultaneous
+action and slip, half-open time bins, and the older margin-only probe.
 
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
 LiteX integration boundary - CSR ID read, scratch-word readback, byte-exact

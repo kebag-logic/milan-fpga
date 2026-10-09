@@ -617,6 +617,12 @@ class Bench {
 
 void write_trace(const Bench& b, const std::string& path) {
     if (path.empty()) return;
+    //! Absolute event times come from the slip counters and the settle pulse,
+    //! independently of PDU margin changes. A declared action is not a slip.
+    for (const double t : b.dup_times) std::printf("RING-EVENT: dup %.9f\n", t);
+    for (const double t : b.skip_times) std::printf("RING-EVENT: skip %.9f\n", t);
+    for (const double t : b.settle_times) std::printf("RING-EVENT: recentre %.9f\n", t);
+    std::printf("RING-EVENTS: complete through %.9f s\n", b.now_s());
     FILE* f = std::fopen(path.c_str(), "w");
     if (!f) return;
     std::fprintf(f, "pdu,arrive_s,ring_margin_ticks,full_margin_ticks,render_fill,render_delay_ticks\n");

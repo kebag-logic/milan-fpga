@@ -43,11 +43,16 @@
 # shortened, and the sweep discovers and shards this directory on its own with
 # the default 1800 s budget.
 #
-# DEFAULT WALL CLOCK (#645, 2026-10-09): 733.2 s cold with make -j16,
-# two concurrent elaborations and four compiler workers per elaboration.
-# At the documented 1.58x hosted factor this is 1158.5 s, below the 1440 s
-# headroom limit (80% of the unchanged 1800 s suite budget). Both legs, all
-# eighteen [LAW] phases and the five leg-side controls remain in the default.
+# DEFAULT WALL CLOCK (#645, 2026-10-09): the previous 1e79ebdc hosted
+# window was 1093.9 s (run 37882435947, job 113665137864, dev-class runner),
+# leaving 346.1 s to 1440 s and 706.1 s to the unchanged 1800 s guard.
+# New cold replica: env -u MAKEFLAGS taskset -c 36-39 make -C
+# tb/verilator/milan_dp_render; serial outer make, 793.308 s. At this suite's
+# measured ratio, 1093.9 / 826.7 rounded up to 1.324, the projection is
+# 1050.3 s: margins 389.7 s to 1440 s and 749.7 s to 1800 s.
+# See docs/testing/TESTING.md for source receipts. This is a projection;
+# exact-head hosted acceptance remains required. Both legs, all eighteen
+# [LAW] phases and the five leg-side controls remain in the default.
 # The long [PULLIN] history and eighteen boot phases run in the explicit
 # tdm8render-pullin campaign owned by the manager merge bank (TESTING.md).
 

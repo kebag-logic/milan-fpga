@@ -19,12 +19,18 @@
 #                  graded on the settle law; exit 0 only when every run passed
 #   make clean   - remove build artifacts
 #
-# DEFAULT WALL CLOCK (#645, 2026-10-09): 354.1 s cold with make -j16,
-# two concurrent elaborations and four compiler workers per elaboration.
-# At the documented 1.58x hosted factor this is 559.5 s, below the 1440 s
-# headroom limit (80% of the unchanged 1800 s suite budget). The twelve
-# rebuilt controls remain in make mutants, owned by the manager merge bank
-# in docs/testing/TESTING.md; the four default legs retain all their checks.
+# DEFAULT WALL CLOCK (#645, 2026-10-09): the previous 1e79ebdc hosted
+# window was 1422.5 s (run 37882435947, job 113665137864, dev-class runner),
+# leaving 17.5 s to 1440 s and 377.5 s to the unchanged 1800 s guard.
+# New cold replica: env -u MAKEFLAGS taskset -c 32-35 make -C
+# tb/verilator/follow_ring; serial outer make, 437.204 s. The four standing
+# legs run in a bounded four-job sub-make with one shared b8/pullin build.
+# At this suite's measured ratio, 1422.5 / 800.2 rounded up to 1.78,
+# the projection is 778.2 s: margins 661.8 s to 1440 s and 1021.8 s to
+# 1800 s. It meets the 708 s replica bar; exact-head hosted acceptance
+# still requires <=1260 s. See docs/testing/TESTING.md for source receipts.
+# The twelve rebuilt controls remain in make mutants, owned by the manager
+# merge bank in TESTING.md; the four default legs retain all their checks.
 #
 # CLK_HZ is the ONE value for the wrapper's axis clock and the harness's
 # wheel: derive, never mirror. The aligner's gains scale with it (the
@@ -69,7 +75,11 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module follow_ring_wrap \
 
 .PHONY: all run build b8 pullin small-pullin settle-control mutants sweep-b8 sweep-pullin clean
 all: run
-run: b8 pullin small-pullin settle-control
+# The sweep invokes serial outer make. Give these four independent legs a
+# bounded pool even there; b8 and pullin share one build in this sub-make.
+# An outer -jN cannot expand the pool past four leg jobs.
+run:
+	+$(MAKE) -j4 b8 pullin small-pullin settle-control
 
 build:
 	mkdir -p $(MDIR)
