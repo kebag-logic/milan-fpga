@@ -155,7 +155,7 @@ The #232, #230 and #639 storage changes are now adopted and measured; the remain
 
 ### Mark II planning ledger
 
-Round 1b uses the three records committed on dev `5603c353`.
+Round 1c uses the three records committed on dev `5603c353`.
 Their measurement inputs are `a5ca6e51`, as the endpoint notes state.
 No new implementation run is claimed by this documentation update.
 
@@ -181,7 +181,7 @@ These figures are estimates of the complete qualified default image:
 
 | Lane | Estimated saving, central | Image after, central | Dependency |
 |---|---:|---:|---|
-| F0-F5 split | 14,000 | 36,267 | Approved #664; complete function, service and bench qualification |
+| F0-F5 split | 14,000 | 36,267 | Approved #664; both M0s measurements before flip; function, service and bench qualification |
 | M2 retained SoC tables | 200 | 36,067 | Adopted pin; excludes removed processor and M6/M7 tables |
 | M5 CSR read path | 600 | 35,467 | Stable existing ABI and both placement faces |
 | M6 media contexts | 600 | 34,867 | Fabric-owned counters, channel map and render state |
@@ -209,10 +209,24 @@ The 121.5-tile ceiling and 13.5-tile reserve remain unchanged.
 [D8](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
 sets the planning margin to at least 1 percent: <= 37,659 LUTs.
 The binding bar remains 38,040 with timing met.
-Re-measure the integrated plan at week 4 and before M9.
+[M0s](MARK_II_AREA_PLAN.md#lane-sequence) is owned by the manager's resource bench.
+Its tooling and two measurements precede week 4 and default flip.
+First, now: route integrated F0-F4 with AECP in fabric.
+Second, after F5 merges: route the complete selected split.
+Both select build switches; all-fabric remains the shipping default.
+F5 integration must land by week 3 for this schedule.
+Later qualification does not delay the pre-flip measurement requirement.
+A missing route is a missed checkpoint, never a pass.
+
+M0s supplies reviewed split-aware recipe and gate coverage before routing.
 The current recipe requires one wrapper; the complete split removes it.
-M9 needs reviewed split-aware measurement coverage and a named shipping endpoint.
-Retain the all-fabric 1x1/8x8 references independently.
+Keep named placement endpoints with comparable whole-image metrics.
+Retain all-fabric shipping and standalone 1x1/8x8 references independently.
+D7 compares M0s figures against the last accepted gate record.
+Later lane deltas also name their matching M0s placement.
+Intermediate measurements enter the ledger; M9 alone re-records acceptance.
+The week-4 checkpoint and M9 consume this measurement coverage.
+The default flip additionally requires the selected functions' qualification.
 This page changes no record, gate implementation or policy value.
 
 ### The resource gate
@@ -271,7 +285,9 @@ Each endpoint's `measured` note names the dev revision its record describes.
 
 **Mark II exception, D7.** The [manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
 keeps intermediate lane measurements in the [plan ledger](MARK_II_AREA_PLAN.md#ledger).
-Each lane compares against the last gate record; growth remains visible.
+M0s supplies measured placement figures against the last gate record.
+Each later lane publishes its comparison and matching M0s delta.
+Growth remains visible across the default flip.
 M9 re-records only after meeting NFR-RES-01 with timing met.
 An improvement recommendation does not authorize an intermediate re-record.
 No tolerance, floor or ceiling is weakened.

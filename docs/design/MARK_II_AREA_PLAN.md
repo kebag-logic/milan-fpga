@@ -1,7 +1,7 @@
 # Mark II area plan
 
 Stage 1 of #640 plans the NFR-RES-01 redesign.
-Round 1b uses records committed on dev `5603c353`.
+Round 1c uses records committed on dev `5603c353`.
 It incorporates the [recorded decisions](#recorded-decisions).
 The original 2026-10-05 inventory remains labelled measurement history.
 This stage changes documentation only.
@@ -705,7 +705,8 @@ Measurements queue serially; no Vivado overlaps another heavy build.
 | Order / window | Lane | Scope and files | Dependency | Estimated default saving | Required evidence and risk |
 |---|---|---|---|---:|---|
 | 0, complete | M0 | Adopted processor pin and current three-endpoint record | #661, #682, #686, #645/#647 present at assigned dev | Already in 50,267 | Reuse committed record; do not subtract old lane deltas |
-| 1, weeks 1-6 | F0-F5 / L2 | `sw/firmware/ctrl/`, `sw/firmware/ctrl_nvm/`, mailbox contract and parent integration; complete F5 and connect the datapath | Approved #664 text; F0-F4 foundations present; F2-F5 suites and bench before default flip | 14,000 (11,500-16,000) | Highest risk: exact ownership, full service/wire bounds, all streams/counters and soak; no full credit for a partial flip |
+| 0s, now through week 3 | M0s | Manager resource bench: split-aware recipe and gate coverage, then two selected-placement routes | First: integrated F0-F4 with fabric AECP; second: F5 merged; both before week 4 and default flip | No assumed saving | Reviewed measurement support; whole-image metrics, timing and D7 comparison; preserve all-fabric references |
+| 1, weeks 1-6 | F0-F5 / L2 | `sw/firmware/ctrl/`, `sw/firmware/ctrl_nvm/`, mailbox contract and parent integration; complete F5 and connect the datapath | Approved #664 text; F0-F4 foundations present; both M0s measurements and F2-F5 suites/bench before default flip | 14,000 (11,500-16,000) | Highest risk: exact ownership, full service/wire bounds, all streams/counters and soak; no full credit for a partial flip |
 | 2, weeks 1-4 | M2 | SoC FIFO/table storage in `sw/litex/milan_soc.py`; exclude processor, media and gPTP arrays | Adopted pin; settled split interface allocation; measure final split for default credit | 200 (100-400) | RAM inference and per-array lockstep; primitive growth still judged by gate |
 | 3, weeks 2-6 | M5 | Existing read mux and snapshots in `hdl/common/csr/milan_csr.sv` | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
 | 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under `hdl/ieee1722/` | Adopted pin; fabric media ownership fixed by #664 | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
@@ -713,7 +714,7 @@ Measurements queue serially; no Vivado overlaps another heavy build.
 | 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and #70/F1 staging | D4 approved; D5 conditional; measure linked F5 storage and split service before accepting core | 3,300 (2,500-4,200) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
 | 7, decision at week 4; weeks 4-8 | M3 | Retained fabric AECP dispatch, notification, D3 and entity widths in processor | D1/D3 approved; ACMP/ADP portion replaced; schedule residual only for a selected fabric-AECP image | **0**; fabric-only opportunity 2,600 (1,500-3,600) | PDU/port equivalence and complete processor/consumer bank; no F5 overlap |
 | 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200 (900-1,500) | Sharing turnaround proof; removed AECP cannot be saved twice |
-| 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | Selected F2-F5 functions qualified, actual M-lane deltas known, required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |
+| 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane deltas known; required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |
 
 M1 is dropped by D2; M4 is replaced by F4.
 M3/M10's listed order is for any retained fabric-AECP work.
@@ -721,23 +722,48 @@ It does not make them blockers for a fully qualified split.
 Their zero default contribution follows from F5's ownership change.
 The manager assigns those implementation lanes against their chosen placement.
 
-At week 4, replace estimates with available routed lane deltas.
-The original checkpoint was M3's first sub-lane route.
-The split decision makes its equivalent the first integrated split route.
-If neither exists, report the measurement as missing, not a pass.
-Reprice M3/M10 against actual remaining fabric ownership at that checkpoint.
-A missed split deadline or service bound blocks the default ledger.
-Retain the qualified fabric function and publish the residual area gap.
-Never change acceptance or omit functions to force the LUT target.
+The [Round 1c decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081534590) schedules M0s before the flip.
+The manager's resource bench owns its tooling and measurements.
+[The split program](https://github.com/kebag-logic/milan-fpga/issues/665) lands behind build switches, defaulting to all-fabric.
+M0s selects split placement explicitly; shipping defaults remain unchanged.
 
-Each lane records its own route and both standalone references.
-Standalone 1x1/8x8 continue to guard the supported all-fabric option.
-A fully split route has no `KL_pp_shadow` scope.
-The current recipe expects exactly one wrapper and cannot measure that shape.
-M9 therefore needs reviewed split-aware measurement coverage before re-recording.
-Keep the existing all-fabric endpoints as independent references.
-Add a named split shipping endpoint with comparable whole-image metrics.
-This is a future tooling obligation; no gate/schema changes occur here.
+M0s runs two steps, both before the week-4 checkpoint:
+
+1. Now: prepare reviewed split-aware measurement support and its controls.
+   Route integrated F0-F4 with AECP still in fabric.
+   Firmware presence alone does not satisfy the integration prerequisite.
+2. After F5 merges: route the complete selected split.
+   Finish this measurement before week 4 and any default flip.
+
+The schedule therefore requires F5 integration by week 3.
+Qualification may continue through week 6; measurement precedes qualification.
+A delayed F5 merge makes M0s's second measurement late.
+Report that missed checkpoint explicitly; do not claim full-split evidence.
+The planned default flip waits for both measurements and qualification.
+
+At week 4, replace estimates with M0s's routed figures.
+Reprice M3/M10 against the measured remaining fabric ownership.
+A missed service bound retains the affected function in fabric.
+Publish that placement's residual area gap and revised schedule.
+Never omit functions or change acceptance to force the target.
+
+D7 uses M0s figures for each selected-placement comparison.
+Compare whole-image resources against the last accepted gate record.
+Later lanes also publish their delta from matching M0s placement.
+This separates integration cost from subsequent lane savings.
+Missing or incomparable measurements cannot produce a pass.
+Intermediate measurements enter this ledger; only M9 re-records acceptance.
+
+The current [recipe](../../syn/ooc/pp_baseline.py) expects exactly one wrapper.
+The complete split removes that wrapper.
+M0s must therefore deliver reviewed split-aware recipe and gate coverage.
+It precedes both split routes, the checkpoint and default flip.
+Name each measured placement and retain comparable whole-image metrics.
+Preserve tool/flow identities, route completion, primitive counts and timing.
+Retain the all-fabric shipping endpoint and standalone 1x1/8x8 references.
+Each later lane records its selected route and both standalone references.
+M9 consumes M0s coverage for final qualification and re-recording.
+No gate, schema or policy implementation changes occur here.
 
 ## What holds throughout
 
@@ -754,7 +780,8 @@ This is a future tooling obligation; no gate/schema changes occur here.
   The one-port release does not enable Milan Section 8 redundancy.
   Neither redesign nor filtering closes the later second-port seam.
 - **D7 resource policy.** Intermediate lanes publish measured deltas here.
-  Compare against the last resource record; growth stays visible.
+  Use M0s figures against the last accepted resource record.
+  Publish subsequent lane deltas separately; growth stays visible.
   M9 re-records at the LUT target with timing met.
   The BRAM reserve, tolerances and floors are unchanged.
   RAM conversions may exceed zero primitive-growth tolerances before M9.
