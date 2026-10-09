@@ -1,0 +1,36 @@
+# Disposable probes (each in a scratch clone at b9b9c20; clone restored after each)
+
+## Boundary gate
+control-hash-unistd          gate_rc=1 compile_rc=0
+control-mailbox              gate_rc=1 compile_rc=1
+digraph-unistd               gate_rc=0 compile_rc=0
+digraph-pthread              gate_rc=0 compile_rc=0
+stdio-allowed                gate_rc=0 compile_rc=0
+stdlib-allowed               gate_rc=0 compile_rc=0
+heap-via-macro               gate_rc=0 compile_rc=0
+heap-via-pointer             gate_rc=0 compile_rc=0
+
+## UBSan sensitivity: include/wire.h wire_be32 '((uint32_t)p[0] << 24)' -> '(p[0] << 24)'
+71% tests passed, 2 tests failed out of 7
+acmp_tests: include/wire.h:28:15: runtime error: left shift of 170 by 24 places cannot be represented in type 'int'
+
+## Coverage gate: dead branch planted in maap_poll
+src/maap.c:324: count=9, arcs=[0, 9]
+src/maap.c:325: count=0, arcs=[]
+src/maap.c: lines 210/211 fell below the recorded 209/209
+src/maap.c: branches 141/142 fell below the recorded 140/140
+coverage gate rc=1
+
+## Mutation driver: equivalent plant and wrong-killer plant
+ESCAPED zz-probe-equivalent
+ESCAPED zz-probe-wrong-killer
+{"CAUGHT": 0, "ESCAPED": 2, "ERROR": 0}
+mutation rc=1
+
+## Static analysis: planted uninitialized return in src/maap.c
+src/maap.c:328:9: warning: Uninitialized variable: v [uninitvar]
+$SCRATCH/probe-boundary/src/maap.c:328:2: error: Undefined or garbage value returned to caller [clang-analyzer-core.uninitialized.UndefReturn,-warnings-as-errors]
+static-analysis rc=1
+
+## Licence gate on real files: src/adp.c identifier changed -> rc=1 (src/adp.c listed); untracked src/probe.c without identifier -> rc=1
+## Traceability on real files: unknown ID NOPE-99 planted in tests/test_maap.cpp -> rc=1 'unknown requirement: NOPE-99'

@@ -1,0 +1,103 @@
+== sw/firmware/ctrl/adp/adp.c -> src/adp.c src=2d5e3cca0ed659e3 exp=48c5059d066fc6bb changed_lines=2
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+== sw/firmware/ctrl/adp/adp.h -> include/adp.h src=86ba5211b43cb650 exp=86f49358bed0cdbb changed_lines=2
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+== sw/firmware/ctrl/acmp/acmp.c -> src/acmp.c src=361ac852b68d4100 exp=040ff704cbf4315a changed_lines=2
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+== sw/firmware/ctrl/acmp/acmp.h -> include/acmp.h src=9444106ae0a1114c exp=2241b931d413fd0c changed_lines=2
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+== sw/firmware/ctrl/maap/maap.c -> src/maap.c src=ccc6d025cb0bc3cf exp=6b8d2d542904c08b changed_lines=2
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+== sw/firmware/ctrl/maap/maap.h -> include/maap.h src=23ee71f64824297d exp=37316d0f1453678f changed_lines=2
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+== sw/firmware/ctrl/wire/wire.h -> include/wire.h src=89ee8e024512fa3a exp=f88b3a74bd956dcd changed_lines=2
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+== sw/firmware/ctrl/test/test_adp.cpp -> tests/test_adp.cpp src=f422265b3ec2dd94 exp=1d2c968836267bf5 changed_lines=616
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+4,30c4
+< // test_adp.cpp - the ADP slice beyond the processor's walk (#665 lanes F0
+< // and FT; GoogleTest):
+< //
+< //   A   the core over fake ports, the paths the mailbox cannot provoke on
+< //       demand: a send the port refuses (deferred, retried, dropped by a
+< //       link loss), a stray expiry, the firmware's own 5.6.3.1 discard
+< //       (the fabric filter normally spares it the work), the two draw kinds,
+== sw/firmware/ctrl/test/test_adp_reentry.cpp -> tests/test_adp_reentry.cpp src=f5cd67ebeb83278f exp=f8b35c99f2f8441b changed_lines=16
+1c1
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+13d12
+< #include "fw_gtest.hpp"
+21,29c20
+< namespace fw_test {
+< const char* tally_label() {
+< #ifdef ADP_TEST_RELEASE
+<     return "ADP release re-entry";
+< #else
+== sw/firmware/ctrl/test/test_acmp.cpp -> tests/test_acmp.cpp src=01142b10e90e757a exp=c830d15b84e0e701 changed_lines=137
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+34d33
+< #include "fw_gtest.hpp"
+37d35
+< FW_TALLY_LABEL("ctrl ACMP core and adapter (fake ports and host model)");
+189a188
+> // REQ: ACMP-01
+228a228
+> // REQ: ACMP-01
+== sw/firmware/ctrl/test/acmp_fake.hpp -> tests/acmp_fake.hpp src=3a9d7a79bc1b9e97 exp=b0040f979cbe0b0e changed_lines=2
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+== sw/firmware/ctrl/test/test_maap.cpp -> tests/test_maap.cpp src=a4e08d793017c5f6 exp=d84061c8ecfc160a changed_lines=98
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+10d9
+< #include "fw_gtest.hpp"
+12d10
+< #include "maap_csr.h"
+14d11
+< FW_TALLY_LABEL("ctrl MAAP Annex B");
+96a94
+> // REQ: MAAP-02
+== sw/firmware/ctrl/test/test_maap_debug.cpp -> tests/test_maap_debug.cpp src=d7d69976474efd70 exp=c9920d3a70bc8f1d changed_lines=5
+2c2
+< // SPDX-License-Identifier: CERN-OHL-W-2.0
+---
+> // SPDX-License-Identifier: MIT
+6d5
+< #include "fw_gtest.hpp"
+9d7
+< FW_TALLY_LABEL("ctrl MAAP debug port contract");
+10a9
+> // REQ: PORT-01

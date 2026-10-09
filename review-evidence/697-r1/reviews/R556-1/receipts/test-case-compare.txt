@@ -1,0 +1,46 @@
+# Test case comparison: source 6aa25dec blobs vs exported (HEAD b9b9c20 and filtered head 21d132b)
+## test_adp.cpp HEAD
+source cases 21 exported cases 18
+DROPPED AdpAdapter.B1StaleTagDiscarded
+DROPPED AdpBacklog.F0toF7FullBacklogs
+DROPPED AdpLatency.C0toC6EveryResponsePath
+DROPPED AdpOwed.E0toE3PendingWake
+DROPPED AdpOwed.E4OwedDepartingWake
+DROPPED AdpOwedBound.E5CommittedInPassKPlusOne
+ADDED AdpCore.EntityFieldsUseIndependentCounts
+ADDED AdpCore.LinkLevelsAndDisabledInputs
+ADDED AdpCore.MockedPortOrder
+## test_adp.cpp 21d132b
+source cases 21 exported cases 15
+DROPPED AdpAdapter.B1StaleTagDiscarded
+DROPPED AdpBacklog.F0toF7FullBacklogs
+DROPPED AdpLatency.C0toC6EveryResponsePath
+DROPPED AdpOwed.E0toE3PendingWake
+DROPPED AdpOwed.E4OwedDepartingWake
+DROPPED AdpOwedBound.E5CommittedInPassKPlusOne
+## test_maap.cpp HEAD
+source cases 20 exported cases 17
+DROPPED MaapCsr.AdmissionAfterEveryDestinationWrite
+DROPPED MaapCsr.EveryStreamAddressAndLossGate
+DROPPED MaapCsr.ShapesAndCountRefusal
+## test_maap.cpp 21d132b
+source cases 20 exported cases 17
+DROPPED MaapCsr.AdmissionAfterEveryDestinationWrite
+DROPPED MaapCsr.EveryStreamAddressAndLossGate
+DROPPED MaapCsr.ShapesAndCountRefusal
+## test_acmp.cpp HEAD
+source cases 63 exported cases 67
+ADDED AcmpCore.CommandPortBudgets
+ADDED AcmpCore.DepartingStopsEveryProbingTimer
+ADDED AcmpCore.DiscoveryPortBudgets
+ADDED AcmpCore.TimerPortBudgets
+## test_acmp.cpp 21d132b
+source cases 63 exported cases 63
+## test_adp_reentry.cpp HEAD
+source cases 3 exported cases 3
+## test_adp_reentry.cpp 21d132b
+source cases 3 exported cases 3
+## test_maap_debug.cpp HEAD
+source cases 1 exported cases 1
+## test_maap_debug.cpp 21d132b
+source cases 1 exported cases 1

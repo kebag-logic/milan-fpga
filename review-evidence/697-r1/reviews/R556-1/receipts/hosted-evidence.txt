@@ -1,0 +1,73 @@
+# Hosted quality workflow at exact head b9b9c20a9a44650e176db0c72ad7c752bee20dc4 (read-only API queries)
+37885778700	b9b9c20a9a44650e176db0c72ad7c752bee20dc4	push	completed	success	2026-10-09T04:50:51Z	2026-10-09T04:55:08Z
+37885778682	b9b9c20a9a44650e176db0c72ad7c752bee20dc4	pull_request	completed	success	2026-10-09T04:50:51Z	2026-10-09T04:54:55Z
+## run 37885778682 jobs/steps
+quality	completed	success	ubuntu-24.04	2026-10-09T04:50:53Z	2026-10-09T04:54:54Z
+  	1	Set up job	success
+  	2	Run actions/checkout@v4	success
+  	3	Install host dependencies	success
+  	4	Validate the portable cores	success
+  	5	Keep gate evidence	success
+  	10	Post Run actions/checkout@v4	success
+  	11	Complete job	success
+## run 37885778682 artifact gates.json
+[{"gate":"boundary","rc":0},{"gate":"license","rc":0},{"gate":"traceability","rc":0},{"gate":"test-inventory","rc":0},{"gate":"coverage-controls","rc":0},{"gate":"privacy","rc":0},{"gate":"gcc-configure","rc":0},{"gate":"gcc-build","rc":0},{"gate":"gcc-test","rc":0},{"gate":"coverage","rc":0},{"gate":"clang-sanitizers-configure","rc":0},{"gate":"clang-sanitizers-build","rc":0},{"gate":"clang-sanitizers-test","rc":0},{"gate":"mutation","rc":0},{"gate":"static-analysis","rc":0},{"gate":"graphs","rc":0}]
+## run 37885778682 artifact sha256
+3e23eee7d992d903efbb89688098d78171d5505061bd3aaa162830160ec41800  gates.json
+33ea2a72a67b3bf950c3502835531d0c45f2ca930744c62145d9b49de6d4b6fd  mutations/results.json
+e5ac6c70f39b2472ba81e0576919e5c977037c7917052dbb6e8d613012149486  coverage.log
+d6ddadf0dbac17ff9271b7b3d1bc99e47941e85ac5cae4e055199209235bbcb6  mutation.log
+## run 37885778682 mutation tally: {"CAUGHT": 311, "ESCAPED": 0, "ERROR": 0}
+file                                                 lines    branches   after exclusions
+include/wire.h                                    10/10        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       742/742     348/348     lines 100.00 %  branches 100.00 %
+src/adp.c                                        203/205      93/100     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
+privacy: 29 commits, 87 historical blobs, 51 current files; pass
+test sensitivity: 107 declarations, 311 plants
+traceability: unknown ID, untraced test and untested requirement controls refused
+traceability: 17 requirements; 107 test declarations
+boundary: valid control passes; seven forbidden controls refused
+boundary: pass
+license: valid control passes; three bad controls refused
+license: pass
+coverage controls: branch drop, missing/extra file, moved arc and stale exclusion refused
+100% tests passed, 0 tests failed out of 7
+100% tests passed, 0 tests failed out of 7
+graphs: 3 rendered
+HEAD is now at b9b9c20 Add standalone validation and portable stack documentation
+## run 37885778700 jobs/steps
+quality	completed	success	ubuntu-24.04	2026-10-09T04:51:29Z	2026-10-09T04:55:07Z
+  	1	Set up job	success
+  	2	Run actions/checkout@v4	success
+  	3	Install host dependencies	success
+  	4	Validate the portable cores	success
+  	5	Keep gate evidence	success
+  	10	Post Run actions/checkout@v4	success
+  	11	Complete job	success
+## run 37885778700 artifact gates.json
+[{"gate":"boundary","rc":0},{"gate":"license","rc":0},{"gate":"traceability","rc":0},{"gate":"test-inventory","rc":0},{"gate":"coverage-controls","rc":0},{"gate":"privacy","rc":0},{"gate":"gcc-configure","rc":0},{"gate":"gcc-build","rc":0},{"gate":"gcc-test","rc":0},{"gate":"coverage","rc":0},{"gate":"clang-sanitizers-configure","rc":0},{"gate":"clang-sanitizers-build","rc":0},{"gate":"clang-sanitizers-test","rc":0},{"gate":"mutation","rc":0},{"gate":"static-analysis","rc":0},{"gate":"graphs","rc":0}]
+## run 37885778700 artifact sha256
+3e23eee7d992d903efbb89688098d78171d5505061bd3aaa162830160ec41800  gates.json
+33ea2a72a67b3bf950c3502835531d0c45f2ca930744c62145d9b49de6d4b6fd  mutations/results.json
+e5ac6c70f39b2472ba81e0576919e5c977037c7917052dbb6e8d613012149486  coverage.log
+8650aedf690ed1aa30201f41a4bd8bfc08aa771bba5aaff5cb4c7d3715684d16  mutation.log
+## run 37885778700 mutation tally: {"CAUGHT": 311, "ESCAPED": 0, "ERROR": 0}
+file                                                 lines    branches   after exclusions
+include/wire.h                                    10/10        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       742/742     348/348     lines 100.00 %  branches 100.00 %
+src/adp.c                                        203/205      93/100     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
+privacy: 29 commits, 87 historical blobs, 51 current files; pass
+test sensitivity: 107 declarations, 311 plants
+traceability: unknown ID, untraced test and untested requirement controls refused
+traceability: 17 requirements; 107 test declarations
+boundary: valid control passes; seven forbidden controls refused
+boundary: pass
+license: valid control passes; three bad controls refused
+license: pass
+coverage controls: branch drop, missing/extra file, moved arc and stale exclusion refused
+100% tests passed, 0 tests failed out of 7
+100% tests passed, 0 tests failed out of 7
+graphs: 3 rendered
+HEAD is now at b9b9c20 Add standalone validation and portable stack documentation

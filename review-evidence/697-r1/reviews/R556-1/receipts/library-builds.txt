@@ -1,0 +1,17 @@
+# Library-only builds (TSN_TESTS=OFF, Release) and undefined symbols of libtsn.a
+## gcc
+[ 25%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+[ 50%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+[ 75%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+undefined symbols:
+                 U memset
+                 U __stack_chk_fail
+## clang
+[ 25%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+[ 75%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+[ 75%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+undefined symbols:
+                 U memset
+                 U __stack_chk_fail
+## pedantic C11 and debug-variant compiles of each source with gcc and clang: all rc 0
+## each public header compiled as C++20 with -Wall -Wextra -Werror: all rc 0
