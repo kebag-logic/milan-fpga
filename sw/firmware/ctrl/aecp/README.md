@@ -116,8 +116,9 @@ lengths, status, sequences and extra frames.
 | Both emit START/STOP responses and their command notifications, but only the core emits the additional GET_STREAM_INFO notice for changed started state. | Milan 5.4.5.2 Table 5.22 requires this notice; IEEE 7.5.2 covers the command notification. |
 | An unlock notification uses flag 1 in the core and flag 0 in the reference. | IEEE 7.4.2.1 permits these flag alternatives; the owner is zero in both. |
 
-The service tests charge every mailbox access, snapshot and loop pass against
-one original arrival/due time, including fanout, stalls and deferred failure.
+The service tests count mailbox accesses from one original arrival/due time,
+including fanout, stalls and deferred failure, then add fixed CPU/observation
+allowances. The measured endpoint is response acceptance by the transmit ring.
 They compare against IEEE 9.3.2.6 and Milan 5.4.3.4's 240 ms response timeout
 and the 10 ms local service target. START/STOP failure is due at 8 ms to leave
 service and clock-quantization allowance. These are desk bounds using explicit

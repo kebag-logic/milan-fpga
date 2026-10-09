@@ -1284,6 +1284,9 @@ struct Latency : Mailbox {
 
 TEST_F(Latency, EveryCommandAndRefusalUsesOneArrivalBudget)
 {
+    ON_CALL(mock,Path).WillByDefault([](unsigned,uint16_t,uint64_t*v,size_t capacity,size_t*n){
+        *n=capacity;for(size_t k=0;k<capacity;++k)v[k]=k;return true;
+    });
     for(unsigned i=0;i<MBX_N_IF;++i){
         for(const auto &d:descriptors){
             auto b=Bytes(8);put(b,4,d.type,2);put(b,6,d.index,2);
@@ -1294,20 +1297,30 @@ TEST_F(Latency, EveryCommandAndRefusalUsesOneArrivalBudget)
             {7,{}},{8,target(5,0,12)},{9,target(5,0)},{14,target(6,0,84)},{15,target(6,0)},
             {16,target(0,0,72)},{17,target(0,0,8)},{20,target(2,0,8)},{21,target(2,0)},
             {22,target(36,0,8)},{23,target(36,0)},{24,target(26,0,5)},{25,target(26,0)},
-            {34,target(5,0)},{35,target(5,0)},{36,{}},{37,{}},{39,target(9,0)},
-            {40,Bytes(4)},{41,target(5,0)},{43,target(14,0,8)},{44,target(14,0,8)},
-            {45,target(14,0,8)},{75,Bytes(12)},{0x3fff,Bytes(512)}};
+            {34,target(5,0)},{35,target(5,0)},{36,{}},{37,{}},{38,target(26,0)},{39,target(9,0)},
+            {40,Bytes(4)},{41,target(5,0)},{43,target(14,0,8)},{44,target(14,0,1416)},
+            {45,target(14,0,1416)},{75,Bytes(52)},{0x3fff,Bytes(1476)}};
         for(auto &[cmd,b]:cases){
             if(cmd==8)put(b,4,get(desc(5).defaults+74,8),8);
             if(cmd==14)put(b,4,0x20000000,4);
             if(cmd==20)put(b,4,48000,4);
-            if(cmd==75){put(b,0,4,2);put(b,6,9,2);put(b,8,5,2);}
+            if(cmd==44||cmd==45)put(b,4,176,2); // Maximum row count, identical legal mappings.
+            if(cmd==75){
+                for(unsigned n=0;n<3;++n){put(b,12*n,4,2);put(b,12*n+6,41,2);put(b,12*n+8,5,2);}
+                put(b,36,8,2);put(b,42,17,2); // Three counter blocks plus a name fill 512 response bytes.
+            }
             for(bool malformed:{false,true}){
                 auto origin=ns,count=commits.size();
                 auto body=malformed?Bytes(3):b;
                 receive(cmd,body,CTLR,i);
                 if(adapter.core.start_pending){aecp_start_done(&adapter.core,true,false);service();}
                 ASSERT_GT(commits.size(),count)<<cmd;check(cmd,origin,commits.back());
+                if(!malformed&&(cmd==40||cmd==44||cmd==45||cmd==75)){
+                    auto emitted=mbx_model_tx_frame(&fabric,fabric.tx_sent-1);ASSERT_NE(emitted,nullptr);
+                    EXPECT_EQ(get(emitted->bytes+16,2)>>11,0u)<<"maximum path is a successful response";
+                    unsigned expected=cmd==40?554u:cmd==75?550u:1454u;
+                    EXPECT_EQ(emitted->len,expected)<<"maximum path retains its full response body";
+                }
                 mbx_model_advance_ms(&fabric,5);
             }
         }
