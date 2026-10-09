@@ -10,13 +10,13 @@ The #396 release campaigns run on the qualified redesigned image.
 
 ## Contents
 
-- **[Summary](#summary)** -- The baseline, the gap, what the levers add up to, and the decisions the plan waits on.
+- **[Summary](#summary)** -- The recorded baseline, split estimate, remaining savings and qualification risk.
 - **[Target](#target)** -- The LUT bar, accepted margin, timing requirements and delivery date.
 - **[Baseline recorded on dev 5603c353](#baseline-recorded-on-dev-5603c353)** -- The committed endpoint records and their measured source revision.
-- **[Baseline at dev e6172750](#baseline-at-dev-e6172750)** -- The routed shipping image and `KL_pp_shadow` at 1x1 measured at this head, per hierarchy down to each protocol engine, and the second pin adoption's measured image.
-- **[Inventory](#inventory)** -- Every hierarchy above 500 LUTs: its protocol function and clause, how it is built, and which of its cost a standard sets.
+- **[Baseline at dev e6172750](#baseline-at-dev-e6172750)** -- Historical measurements and hierarchy from the original plan.
+- **[Inventory](#inventory)** -- Historical hierarchy functions, clauses, construction and implementation choices.
 - **[Levers](#levers)** -- Twelve levers, each with its saving and basis, risk, verification cost and protocol-visible effect.
-- **[Ledger](#ledger)** -- What the shared sequencer displaces, block by block, and every lever subtracted from the projected start at central, low and high estimates.
+- **[Ledger](#ledger)** -- Disjoint split removal references, measured replacement cost and cumulative estimates.
 - **[Lane sequence](#lane-sequence)** -- The ordered lanes to 2026-12-15, each with its LUT target, repository, verification, risks and dependencies.
 - **[What holds throughout](#what-holds-throughout)** -- The suites and counts, ATDECC as the only source of state, the second port, the gate's re-record and timing.
 - **[Recorded decisions](#recorded-decisions)** -- The accepted rulings and the later default-split decisions that supersede the initial plan.
@@ -274,14 +274,16 @@ The standalone synthesis attributes the wrapper in source terms, at the build's 
 | Control-frame FIFO (wrapper) | `ctl_fifo` | 79 | 0 | 33 | 1 | 1 | 0 |
 
 The run equals the gate's `ooc-1x1` record in every gated figure (`check --endpoint ooc-1x1` exits 0 with no movement): no wrapper input changed since dev `54643724`, and its sub-blocks match the #234 page's combination C.
-The routed wrapper is 0.988 of it (24,051 LUTs), the ratio the [ledger](#ledger) uses to carry standalone savings to the route.
+The historical routed wrapper was 0.988 of it (24,051 LUTs).
+Round 1b does not reuse that ratio as a calibration.
 The two hierarchies attribute differently: the AECP dynamic-state store is 152 LUTs here and 1,265 in the routed hierarchy, which places other AECP logic under its name.
 
 ### After the second pin adoption
 
 The second pin adoption (#661) moves the processor to `ead80360`, which carries #232, #230 and #639.
 Its lane published its measured image on 2026-10-05 ([REVIEW READY](https://github.com/kebag-logic/milan-fpga/issues/661#issuecomment-5990292142), head `42f65447`, on dev `506d91db`, which already carries #653).
-That is author evidence under review, not a merged record; this plan starts from it because it is the only measurement of the adopted image.
+That evidence was under review when the original plan was written.
+The later adopted records are in the current baseline above.
 
 | Endpoint | LUT | FF | Slice | RAMB36 | WNS / WHS ns | Against the gate's record |
 |---|---:|---:|---:|---:|---:|---|
@@ -302,7 +304,8 @@ The three area lanes' own routes, each measured against one base route with the 
 | The three added, as a projection | | 49,960 / 54,138 | -807 against the record | | |
 
 The measured adoption is 358 LUTs and 76 FFs above that projection: the lanes' deltas do not add exactly, and processor PRs #152 (tests) and #157 (one GET_DYNAMIC_INFO classifier hunk) were in none of those routes.
-The [ledger](#ledger) starts from the measured 50,318.
+The original ledger started from 50,318.
+The [current ledger](#ledger) starts from the committed 50,267 record.
 
 ## Inventory
 
@@ -374,207 +377,202 @@ Clauses are IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q-2018, IEEE 802.1AS-201
 
 ## Levers
 
-Each lever below states its estimated saving in routed LUTs, the basis of the estimate, its risk, its verification cost and its protocol-visible effect.
-A saving is an estimate until a matched before-and-after route measures it.
-Where a measured prototype exists it is named; most levers here have only a measured analog or a measured upper bound, and each lever's basis says which.
-"Routed block" means the block's own row in the routed hierarchy above: removing the block cannot save more than that before re-placement, and replacing it saves that minus the replacement's cost.
-
-The levers are numbered L1 to L12.
-L1 to L6 are the six the assignment names; L7 to L11 are the others the inventory found; L12 lists the prunes that would cost function.
-
-### L1 Time-multiplexing the protocol engines onto one sequencer
-
-**What.** The processor already serves AECP from a micro-coded engine, `KL_aecp_ucpu` (four-stage pipeline, 2,048 x 48 microcode ROM in block RAM, 16 x 64 operand file in distributed RAM).
-The other control engines are hardwired, one per protocol: the ADP advertise and discovery machines, the ACMP talker responder and listener executor, the originator, the notification scheduler, and the two saved-state record managers.
-L1a moves their sequencing onto one time-multiplexed engine of the same family, keeps the byte datapaths (parser, TX slots, timer service) hardwired, and moves every per-entity table (registry, records, pending vectors, dynamic state) into block RAM read through the engine's state port.
-L1b extends the same move to the SRP stream FSMs, admission and encoder tables; L7 is the smaller SRP-only form.
-
-**Saving.** About 4,700 LUTs for L1a (range 2,800 to 6,400) and 1,300 more for L1b (range 700 to 1,700), figured block by block in the [ledger](#ledger).
-
-**Basis.** No prototype of the consolidated engine exists; this is the plan's largest uncertainty.
-The displaced blocks are measured: `u_adp`, `u_talker`, `u_listener`, `u_originator`, `u_notify`, `u_aecp/@own`, `u_aecp/u_dyn`, `u_aecp/u_d3`, `u_nvm_shadow` and the dispatch queues, read from the standalone synthesis, which attributes in source terms.
-The engine's cost is measured twice: the AECP engine skeleton at 1,068 LUTs out of context (the protocol processor's own resource and effort record, `10_RESOURCE_AND_EFFORT` in its documentation, section 6; called "the processor record" below) and 1,720 routed in this image.
-The fraction of each block a sequencer displaces follows the processor record's scenario C model (65 to 85 percent of a block's mass).
-The processor's substitution for the legacy control plane, whose AECP made the same move, measured 3,459 fewer LUTs after synthesis and 2,919 after placement on the shipping shape (same record, section 1b).
-Each block's displaceable share and the engine's added cost are tabled in the [ledger](#ledger).
-
-**Risk: high.**
-The engines being replaced implement Milan-normative state machines that were corrected against live controllers and bridges; ACMP is the processor's highest-rework engine.
-One engine serves several protocols, so contention must be bounded: the processor record (section 7) gives AECP a 615x to 8,000x margin on its 240 ms response line and ACMP a 200 ms limit, and the sequencer must hold both with the notification fan-out of 16 controllers.
-Response latency moves from under a microsecond to tens of microseconds: inside every normative timeout, but not cycle-exact.
-
-**Verification.** Every processor suite at its count (33 suites, about 1,021,600 checks at the second pin), lint, `make check`, the Yosys gate, and the `pp_top`, ACMP, ADP, notification, AECP, dispatch, D3, GSI and name-write campaigns at their recorded counts; the parent consumer set of 17; `pp_shadow`, `nvm_cosim` and the `milan_dp` suites; `check_nvm_capture.py` (8x8 capture at most 24.5 ms); the bench suite; the #396 soak.
-Cycle-exact lockstep against the old engines is not possible; equivalence is at the PDU and port-transaction level (see [decisions](#recorded-decisions)).
-
-**Protocol-visible effect.** None on the wire: every PDU's bytes, order and timeout behaviour are kept. The internal latency change needs the ruling in [decisions](#recorded-decisions).
-
-**Second port.** The sequencer's tables stay indexed by AVB interface (`N_IF_P`), as the ADP engine's are today, so a second interface adds table rows, not engines.
-
-### L2 Moving slow-path control to the RISC-V
-
-**What.** Descriptor serving, MAAP, the SRP declaration bookkeeping and ACMP state served by the bare-metal firmware on the cacheless RV32I control hart, with fabric keeping the parsers, framers, timers and a mailbox.
-
-**Saving.** About 5,500 to 6,500 LUTs if the four named functions move; up to about 15,000 if the whole ATDECC control plane moves; about 300 to 600 if only descriptor serving moves.
-
-**Basis.** The standalone rows below as the upper bound, less an estimated 800 to 1,500 LUTs of fabric mailbox and queue logic. The four named functions are about 7,100 LUTs: descriptor serving (about 600 of the AECP engine), MAAP (519 routed), the SRP declaration bookkeeping (the stream FSMs, admission, the encoder's tables and the glue #230 left, about 2,400) and ACMP state (the listener, the talker responder, the binding store and part of the originator, about 3,700). The whole plane adds the rest of the AECP engine, notification and ADP, about 16,500 in all.
-The processor record priced the legacy plane's move to software at 6,206 LUTs and 9 RAMB36 (section 6).
-Descriptor serving alone frees only part of `u_aecp/u_store`, because the AECP engine still serves every other command.
-
-**Risk: very high, and blocked by the requirements.**
-REQUIREMENTS section 1 gives the fabric MAAP and IEEE 1722.1 processing.
-NFR-SCOUT-02 keeps protocol control with its fabric owner, and NFR-SCOUT-03 forbids packet deadlines that depend on firmware service latency.
-The [ownership rule](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) puts ADP, AECP, ACMP and SRP in fabric.
-NFR-SCOUT-01 fixes the CPU at one cacheless RV32I hart, and the firmware runs from the 128 KiB integrated ROM.
-
-**Verification.** The processor suites that test the moved engines would be replaced by firmware tests, so their counts cannot be held; every compliance item touching the moved protocols re-runs on the bench.
-
-**Protocol-visible effect.** Response latency becomes firmware service latency (milliseconds), inside the normative timeouts but not deterministic.
-
-It is priced here and not planned: it needs the owner to change four normative statements, and its firmware stack cannot be written and qualified by 2026-12-15.
-
-### L3 Block RAM in place of LUT and flip-flop tables
-
-**What.** Arrays held in distributed RAM or flip-flops whose readers already register their output move to block RAM, cycle for cycle.
-L3 covers the arrays outside the engines L1 replaces, so nothing is moved twice: the SRP timer-arm FIFOs and walk copies (#230's distributed RAM), the processor timer-arm rings (#639), the descriptor index, the gPTP engine's state regions, the render set-point table and the SoC's generated FIFO storage.
-The notification registry, the listener records and the dispatch queues move with L1, into the sequencer's block RAM tables.
-
-**Saving.** About 800 LUTs (range 500 to 1,200) for 4 to 8 block RAM tiles, inside the 121.5-tile ceiling.
-
-**Basis.** The routed LUTRAM column per block (measured, in the [routed hierarchy](#the-routed-hierarchy)); #639's measured exchange (5 RAMB36 traded for 63 RAM32M and 38 to 195 LUTs); the processor record's measured precedent of 1,051 slice LUTs freed for 1.5 tiles.
-A LUT-RAM LUT moved to block RAM saves itself and part of its read multiplexer; the operand files of the two micro-coded engines stay, because they need two reads in one cycle.
-
-**Risk: medium.** An array whose reader needs a same-cycle read either keeps its distributed RAM or takes a pinned read-latency change. Wide records (376 bits) waste block RAM unless packed over several beats.
-
-**Verification.** A lockstep bench per array, as #232 and #639 did; the owning block's suites and campaigns at their counts; the route and the resource gate.
-
-**Protocol-visible effect.** None when cycle-exact; a moved read cycle is pinned by a suite check first.
-
-### L4 Width narrowing derived from the entity model
-
-**What.** Internal widths sized from the generated shape header instead of the protocol field width: descriptor indices, name and record indices, per-type counts. Wire fields keep their protocol width: entity IDs (64 bits), MAC addresses (48), sequence IDs (16) and Milan counters (32) are set by the standards.
-
-**Saving.** About 200 LUTs (range 100 to 400).
-
-**Basis.** #649's measured sensitivities: a descriptor index entry costs 3.5 Yosys LUTs, a name entry 1.7, the descriptor line nothing measurable, and Vivado reads about 0.45 of a Yosys figure at this shape. The stream-shaped parameters are already derived (#233 audit).
-
-**Risk: low.** **Verification:** the owning suites. **Protocol-visible effect:** none.
-
-### L5 The remaining #233 items
-
-**What.** The VLAN reference counter `REFCNT_W_P` (5 bits against the 3 a 2/2 shape needs), `DESC_LINE_BYTES_P` (576, coupled to the 524-byte GET_DYNAMIC_INFO buffer) and the FIFO depths (dispatch 4/4/4/2, notification command queue 16, SRP timer FIFOs 32).
-
-**Saving.** About 30 to 100 LUTs in total.
-
-**Basis.** Measured: `u_srp/u_vlan` is 138 routed LUTs; #649 measured the descriptor line at -0.08 Yosys LUTs per byte and the index at 3.45 per entry (`DESC_IDX_ENTRIES_P` 32 to 16: -53 Yosys LUTs); since #230 and #639 the FIFOs and queues sit in distributed RAM, where depth costs almost nothing.
-
-**Risk: low.** Each needs a processor parameter, which the #233 audit stopped on.
-
-**Verification:** the SRP, dispatch and notification suites. **Protocol-visible effect:** none.
-
-These are folded into L1's and L4's lanes rather than given a lane: alone they move nothing that matters.
-
-### L6 Diagnostic-only logic off in the shipping build
-
-**What.** The AAF latency taps (`LTAP_P`) and the datapath probe groups (`DPROBES_P`) are already build-selectable Tier 1 blocks ([area budget](AREA_BUDGET.md#tier-1---implemented-optional-fabric-blocks)); the shipping configuration keeps both on. The processor's trace ring is diagnostic too and is not yet selectable.
-L6 turns them off in the shipping configuration and keeps a diagnostic configuration that builds them.
-
-**Not diagnostic, and kept:** the talker counters (`talker_diag`, Milan v1.2 Table 5.4), the listener monitor (Table 5.6), the MAC counters (REQ-MAC-04), the loopback lane (its clusters are in the entity model), the RX address filter (REQ-MAC-02 is a MUST), the CSR diagnostic words (already structural zero).
-
-**Saving.** About 700 LUTs (range 650 to 750).
-
-**Basis.** Measured routed blocks: the latency taps, 672 LUTs and 620 FFs; the trace ring, 37 LUTs and one RAMB36; #649's Yosys marginal for the probes (26 LUTs, about 12 after calibration).
-
-**Risk: low technically; it is a product decision.** #649 records that the shipping image keeps the taps on purpose, and their silicon latency figures cannot be repeated on an image without them.
-
-**Verification.** The builder bank (Tier 1 table, `check_sweep_shape.py`, `check_deploy_shape.py`, `check_entity_shape.py`), `milan_dp` at both settings, the latency-tap suites in the diagnostic build, the CSR bench (the LTAP window reads zero), the route and the gate.
-
-**Protocol-visible effect.** None. The LTAP CSR window reads structural zero in the shipping build.
-
-### L7 SRP: one shared evaluator per FSM
-
-**What.** #230's option (a), recorded for this redesign ([ruling](https://github.com/kebag-logic/milan-fpga/issues/230#issuecomment-5977836860)): one evaluator per SRP stream FSM, with the per-stream contexts in distributed RAM evaluated one per cycle.
-
-**Saving.** About 450 LUTs at 1x1 (range 300 to 600); about 3,100 at 8x8.
-
-**Basis.** #638's estimate from the measured per-context marginals, 212 LUTs per talker context and 227 per listener context (the [#234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#processor-sub-blocks)); #230's measured marginals after its storage change (200 and 210).
-At 1x1 two contexts share one evaluator, so the saving is one context's marginal per FSM.
-
-**Risk: medium.** `KL_srp_decoder` gains a ready on its event port. The SRP plane is silicon-validated against live bridges.
-
-**Verification.** `srp_top` (128 arms), `srp_admission`, `srp_stream_fsms`, `srp_decoder` and `srp_encoder` suites and campaigns, `pp_top`, the bench suite's SRP items.
-
-**Protocol-visible effect.** Registration indications and LISTENER_REG_CHANGE move by up to M - 1 and N - 1 cycles: one 20 ns cycle at 1x1, far inside MRP's 200 ms join time, but a cycle-level change the pre-adoption track ruled out. L1b subsumes L7 if it is taken.
-
-### L8 The CSR plane's read path
-
-**What.** `milan_csr` already keeps its inert RW groups in a block RAM shadow; its LUTs are the live read multiplexer over the fabric's status faces and the snapshot registers.
-L8 restructures that read path (registered per-group pre-selection, the per-stream groups read through their index window), with no register address, width or reset value changed.
-
-**Saving.** About 600 LUTs (range 400 to 1,000).
-
-**Basis.** The routed block, 2,907 LUTs and 2,141 FFs (measured); #649's out-of-context fit, 2,893 LUTs fixed and 211 per stream. No prototype.
-
-**Risk: medium.** The register map is an ABI (NFR-SCOUT-06); REQ-CSR-02's snapshot coherence must hold; an AXI-Lite read may take one or two more cycles.
-
-**Verification.** The CSR bench, `tcam_csr`, the `milan_dp` suites, the firmware host tests, the register-map checks, a boot on the bench.
-
-**Protocol-visible effect.** None.
-
-### L9 Datapath per-stream contexts in RAM
-
-**What.** The Table 5.6 listener monitor, the Table 5.4 talker counters, the channel-map capture and the render set-point hold their per-stream state in flip-flops behind read multiplexers. Each counter moves at most once per frame or observation interval, so a read-modify-write RAM serves it.
-
-**Saving.** About 600 LUTs (range 400 to 900).
-
-**Basis.** The routed blocks (measured); #649's per-stream marginals out of context (channel map 317, monitor 208, set-point 205 LUTs per stream) bound the per-stream part.
-
-**Risk: medium.** GET_COUNTERS coherence and the Table 5.6 interval semantics.
-
-**Verification.** `avtp_rxmon`, `tkdiag`, `chmap_capture`, `render_setpoint`, the `milan_dp` suites, the GET_COUNTERS campaigns.
-
-**Protocol-visible effect.** None.
-
-### L10 The gPTP plane
-
-**What.** (a) Distributed RAM and flip-flop tables inside the plane move to block RAM or narrow, in the gPTP processor submodule. (b) One micro-coded engine serves both gPTP and AECP (#649's rank 3).
-
-**Saving.** (a) About 500 LUTs (range 300 to 700). (b) About 1,200 more (range 900 to 1,500).
-
-**Basis.** (a) The routed rows (measured), the engine's 464 LUT-RAM LUTs among them. (b) The smaller engine's routed 1,720 LUTs is the ceiling, less an estimated 300 for arbitration; the gPTP engine is a measured superset of the AECP skeleton.
-
-**Risk.** (a) Medium. (b) High: gPTP handlers are time-critical (Sync and peer-delay turnaround) and would share an engine with AECP; it crosses two submodules and needs its own timing proof. NFR-SCOUT-02 keeps time discipline in fabric, which (b) does.
-
-**Verification.** The gPTP processor's own suites; `gptp_plane`, `gptp_shadow`, `gptp_txts` and `milan_dp_gptp`; the gPTP bench evidence (#117).
-
-**Protocol-visible effect.** None intended; (b) must prove its turnaround bounds.
+The [ledger](#ledger) owns the current numerical estimates.
+Historical measurements support estimates; none proves a redesigned image fits.
+Every lane measures its actual delta before adopting a saving.
+All implemented paths must preserve wire semantics and normative ordering.
+D1/D3 permit bounded internal latency changes with reviewed equivalence evidence.
+
+### L1 Shared sequencing in retained fabric control
+
+ACMP/ADP sequencing and SRP L1b are superseded by F0-F5.
+M3 retains only the AECP/notification/record-manager residual for fabric AECP.
+Its estimate is 2,600 LUTs (1,500-3,600), zero in the default image.
+The ledger derives it from current standalone scopes, less engine overhead.
+
+**Risk: high.** Shared sequencing changes contention and internal latency.
+Each response path needs a deterministic bound under maximum fan-out.
+**Verification:** processor suites and campaigns at their recorded counts;
+PDU/port-transaction differential checks; parent consumers, `pp_shadow`,
+`nvm_cosim`, `milan_dp`, capture bounds and bench compliance.
+Cycle-pinned tests are retargeted under review, never removed.
+The interface index remains in all contexts.
+
+### L2 Default control split
+
+F0-F5 transfers ADP, ACMP, MAAP, SRP and AECP control ownership.
+F1 supplies flash validation, boot apply and transactional write-back.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) keeps one owner per function.
+The [mailbox contract](MAILBOX_SPLIT.md) provides filtered packet rings and events.
+The earlier CSR-only interface proposal is superseded.
+
+**Saving:** estimated 14,000 LUTs, range 11,500-16,000.
+The ledger shows disjoint removal references and all cost allowances.
+The measured mailbox skeleton costs 3,102 LUTs and six BRAM tiles.
+F0-F4 code is present at the assigned dev revision.
+Presence does not establish integrated, bench-qualified operation.
+`milan_soc.py` still holds the mailbox datapath side idle.
+`milan_datapath.sv` still instantiates `KL_pp_shadow` unconditionally.
+Consequently, enabling `--ctrl-mailbox` alone saves no processor logic.
+
+**What leaves after qualification:** the selected protocol engines, their
+private tables, notification and descriptor serving, and fabric NVM serialization.
+The complete flip removes `KL_pp_shadow` from the default build.
+Equivalent settings, counters, diagnostics and media controls must remain accessible.
+Framing, timestamps, ingress filtering, hard-deadline event timers, gPTP,
+AVTP/AAF/CRF, media admission and physical audio stay in fabric.
+A software protocol owner must not become a software media path.
+
+**Risk: high.** Target service time, ring backlog, flash interference,
+firmware capacity and F5 qualification remain implementation obligations.
+The owner's early 25-40 KiB code and 8-32 KiB RAM
+estimate covered fewer protocols; it is no full-F5 memory budget.
+Measure linked ROM use, stack, static contexts and saved-state staging.
+Do not assume the 128 KiB ROM can absorb everything.
+
+**Verification:** F0 mailbox tests on both adapters, filter mutation campaigns,
+F1 store tests, F2-F5 unit and differential protocol suites,
+RV32 execution and the [service hooks](../reference/FR_NFR.md#342-control-service-test-hooks).
+Prove 10 ms project service under bounded ingress, SRP churn,
+full rings, all recipients, flash activity and delayed events.
+Prove wire deadlines separately; mailbox commit is insufficient evidence.
+Retain all-fabric suites and compare reused stimuli at unchanged counts.
+Bench acceptance covers every stream, counters and audio soak.
+Unqualified functions remain all-fabric until their acceptance passes.
+
+### L3 RAM-friendly retained tables
+
+M2 now covers only SoC FIFO/table storage outside other lanes.
+**Saving:** 200 LUTs (100-400), reduced from the original 800.
+The old inventory included processor tables removed by L2.
+gPTP belongs to M7; media context tables belong to M6.
+The historical RAM census and #639 exchange bound this estimate.
+Budget up to two extra tiles, subject to measured primitive counts.
+
+**Risk: medium.** Same-cycle reads may prevent block RAM inference.
+**Verification:** per-array lockstep and negative controls, owning suites,
+both shapes, primitive mapping and integrated route.
+Read latency changes require D3's deterministic bounds.
+
+### L4 Entity-derived widths
+
+Wire IDs, addresses, sequence numbers and counters retain standard widths.
+Only implementation indices can narrow from the generated entity shape.
+The historical 200-LUT estimate is included in M3's residual.
+It receives zero default-split credit.
+#233 already found shipping stream geometry fully derived.
+
+**Risk: low. Verification:** boundary indices, all supported shapes,
+refusals and owning suites; unchanged wire bytes.
+
+### L5 Remaining specialization items
+
+VLAN reference widths, descriptor lines and queue depths need measurement.
+The original 30-100 LUT estimate remains reference material only.
+SRP's work leaves with F4; AECP residue belongs to M3.
+Neither adds another default-split credit.
+Depth reductions require burst/backpressure evidence and protocol capacity.
+GET_DYNAMIC_INFO still requires its 524-byte response capacity.
+
+**Risk: low to medium. Verification:** owning SRP, notification,
+dispatch and AECP suites, including worst-case backlog.
+
+### L6 Diagnostics retained
+
+D2 rejects diagnostic pruning from the shipping image.
+The earlier 700-LUT opportunity is dropped, with zero saving.
+Latency taps, probe information and equivalent control diagnostics remain.
+Milan counter producers were never optional diagnostic prunes.
+The split's integration allowance includes retained control observability.
+
+**Verification:** diagnostic readback, counter coherence and builder presence checks.
+No implementation lane is opened to disable them.
+
+### L7 SRP shared evaluator
+
+F4 replaces M4 and L1b/L7 in the default plan.
+The historical 450-LUT estimate is not an additional saving.
+A supported fabric SRP implementation may revisit it separately.
+
+**Risk: medium.** Serialized event handling changes internal latency.
+**Verification:** SRP suites/campaigns at both shapes, event stalls,
+MRP timers and bench protocol checks under D3.
+
+### L8 CSR read path
+
+M5 restructures the existing live-status read mux and snapshots.
+**Saving:** 600 LUTs (400-1,000), from the historical 2,907-LUT block
+and #649's 2,893 fixed plus 211-per-stream OOC model.
+New split-interface logic is charged to L2, not saved again here.
+
+**Risk: medium.** Snapshot coherence and AXI-Lite latency must hold.
+**Verification:** CSR, `tcam_csr`, `milan_dp`, firmware host tests,
+register-map checks and boot readback in both placements.
+Register addresses, widths and reset values remain unchanged by M5.
+
+### L9 Media context tables
+
+M6 owns listener/talker counters, channel-map capture and render set-point.
+**Saving:** 600 LUTs (400-900), from the historical routed inventory
+and #649's per-stream OOC marginals of 208, 317 and 205.
+These datapath functions remain fabric-owned in the split.
+
+**Risk: medium.** Read-modify-write hazards can break coherent counters.
+**Verification:** `avtp_rxmon`, `tkdiag`, `chmap_capture`, `render_setpoint`,
+`milan_dp`, GET_COUNTERS, wrap/reset and concurrent update cases.
+No M2 table credit overlaps these arrays.
+
+### L10 Fabric gPTP
+
+M7 moves eligible gPTP tables into block RAM or narrows indices.
+**Saving:** 500 LUTs (300-700), based on 464 historical LUTRAM LUTs.
+Dual-read operand files remain where required.
+M10 shares gPTP and AECP execution only in retained-fabric AECP builds.
+Its estimated 1,200 LUTs (900-1,500) has zero default-image credit.
+F5 already removes the AECP engine in the split.
+
+**Risk:** medium for tables; high for shared execution and turnaround.
+**Verification:** gPTP processor suites, `gptp_plane`, `gptp_shadow`,
+`gptp_txts`, `milan_dp_gptp`, timestamp/CDC checks and #117 bench evidence.
+M10 additionally proves arbitration and worst-case gPTP turnaround.
+Audio and gPTP deadlines remain independent of firmware service.
 
 ### L11 The SoC side
 
-**What.** (a) Replace the DDR3 main memory with on-chip RAM. (b) A smaller cacheless RV32I core. (c) The generated FIFO storage in block RAM (counted in L3).
+D4 approves on-chip main memory instead of DDR3.
+M8a sizes #70/F1 staging to the selected shape's container.
+**Saving:** 1,600 LUTs (1,200-2,000).
+The historical #649 controller/PHY census contains 823 + 873 LUTs.
+Replacement memory decode and storage can reduce that saving.
+The lane owns its memory-map migration and both placement contracts.
 
-**Saving.** (a) About 1,600 LUTs (range 1,200 to 2,000). (b) About 1,700 (range 1,300 to 2,200).
+D5 conditionally approves a smaller cacheless RV32I control hart.
+**Saving:** 1,700 LUTs (1,300-2,200), including 300-600 retained bridge LUTs.
+The original same-part `AreaOptimized_high` OOC pricing was:
 
-**Basis.** (a) #649's census by name: the DDR3 controller and PHY hold 823 and 873 LUT cells and 2,599 flip-flops (measured cells, not LUT sites). (b) Measured here, out of context at `AreaOptimized_high` ([method](#method-and-receipts)): the shipping VexiiRiscv netlist is 3,066 LUTs, 5,017 FFs and 4.5 tiles, about 600 LUTs of it the DMA bridges the processor's DRAM masters use; LiteX's VexRiscv `Min` is 843 LUTs, 791 FFs and one tile; PicoRV32 at LiteX's `minimal` parameters is 1,051 LUTs and 549 FFs. The routed core is 3,522 LUTs. The estimate keeps 300 to 600 LUTs for the interconnect, timer and interrupt logic LiteX adds around a core without them.
+| Core/netlist | LUT | FF | BRAM tiles |
+|---|---:|---:|---:|
+| Shipping VexiiRiscv netlist, including bus bridges | 3,066 | 5,017 | 4.5 |
+| VexRiscv Min | 843 | 791 | 1 |
+| PicoRV32 minimal | 1,051 | 549 | 0 |
 
-**Risk: high for both.**
-(a) Main memory holds the descriptor image (7.5 KiB at 1x1), the response buffer (592 bytes) and the saved-state live and stage buffers, one 64 KiB erase block each. 29 tiles (about 116 KiB) are free under the ceiling at this head, so it fits only if #70's staging buffers shrink to the shape's container size, and it changes the SoC memory map.
-(b) The firmware's timing obligations bound the core: the saved-state capture (8x8 at most 24.5 ms) and boot. NFR-SCOUT-01 allows any cacheless RV32I hart.
+These are isolated netlists, not integrated replacement measurements.
+**Risk: high.** CPU service and on-chip capacity can invalidate estimates.
+Prove 8x8 capture <= 24.5 ms with `check_nvm_capture.py`.
+Keep boot timing and recheck service under filtered SRP churn.
+A smaller core failing those conditions is reverted.
 
-**Verification.** (a) The firmware host tests, `nvm_cosim`, `nvm_capture_cpu`, the builder and deploy shape gates, a boot and saved-state cycle on the bench. (b) The same, plus `check_nvm_capture.py`.
+**Verification:** firmware host tests, `nvm_cosim`, `nvm_capture_cpu`,
+builder/deploy gates, target service hooks and bench boot/persistence.
+The all-fabric option still needs its response and staging memory.
+Neither the 8x8 shape nor F5's memory may be assumed fitting.
 
-**Protocol-visible effect.** None.
+### L12 Functional prunes excluded
 
-### L12 Prunes that cost function, recorded and excluded
-
-| Block | Routed LUT | Why it stays |
-|---|---:|---|
-| RX address filter | 513 | REQ-MAC-02 (MUST) requires station unicast and multicast filtering |
-| Loopback lane | about 22 | its eight clusters are in the entity model |
-| MAAP engine | 519 | dynamic stream addresses; the builder requires it for every talker |
-| Media-clock servo, AAF clock meter | 899, 488 | CRF and AAF media-clock following (Milan v1.2 Section 7) |
-| CRF sink and output | about 2,900 | the CRF stream ports |
-| TDM render lane | 499 | the TDM8 output |
-| Fewer than 16 controllers | 635 Yosys LUT each | FR-CTRL-03 and Milan v1.2 Section 5.3.4.2 require at least 16 |
+RX filtering, loopback, media-clock servo, CRF and rendering remain.
+Milan's 16-controller minimum remains in either placement.
+MAAP's protocol remains required; F2 relocates its implementation.
+No protocol surface is removed to achieve area savings.
 
 ## Ledger
 
@@ -694,57 +692,84 @@ Timing cannot be inferred from these LUT calculations.
 
 ## Lane sequence
 
-The sequence orders lanes by saving per unit of risk, keeps processor and parent lanes running in parallel, and puts every decision a lane needs in front of it.
-Weeks count from Monday 2026-10-12, after the second pin adoption; the milestone's due date, 2026-12-15, falls in week 10.
-"Image after" is the projected routed LUT count once that lane and every lane above it have landed, at central estimates, from #661's measured route.
+All parent lanes start from the third adoption, processor `2ad2f845`.
+The earlier #661 dependency is satisfied on dev `5603c353`.
+Weeks count from 2026-10-12; 2026-12-15 is week 10.
+This is a schedule estimate, conditional on split qualification.
+Each implementation needs its own settled public scope and review.
+Independent lanes may proceed concurrently in isolated worktrees.
+Measurements queue serially; no Vivado overlaps another heavy build.
 
-| Lane | Weeks | Levers | Repository | Image after (LUT) | Needs first |
+| Order / window | Lane | Scope and files | Dependency | Estimated default saving | Required evidence and risk |
 |---|---|---|---|---:|---|
-| M0 | before week 1 | the second pin adoption (#661), at review | parent | 50,318 (measured by #661, under review) | in flight |
-| M1 | 1-2 | L6 diagnostics off in the shipping build | parent; the trace ring's parameter in the processor | 49,618 | D2 |
-| M2 | 1-4 | L3 block RAM for the tables outside L1 | processor, gPTP processor, parent | 48,818 | none |
-| M3 | 1-8 | L1a the shared sequencer, in three sub-lanes: notification and originator; ACMP and ADP; the record managers and AECP dispatch. L4 and L5 ride with it | processor | 43,868 | D1, D3 |
-| M4 | 3-8 | L1b SRP onto the sequencer, or L7 alone if L1b is refused | processor | 42,568 | D1, D3 |
-| M5 | 2-6 | L8 CSR read path | parent | 41,968 | none |
-| M6 | 2-6 | L9 datapath contexts in RAM | parent | 41,368 | none |
-| M7 | 3-6 | L10a gPTP plane tables | gPTP processor, parent | 40,868 | none |
-| M8 | 2-8 | L11a on-chip main memory; L11b once the smaller core is shown to hold the capture bound | parent SoC, firmware | 37,568 | D4, D5, #70 |
-| M10 | 6-9, if needed | L10b one engine for gPTP and AECP | gPTP processor, processor | 36,368 | D6 |
-| M9 | 9-10 | the pin adoptions, the integrated route, timing closure, the resource gate re-recorded at the target, every suite and campaign, the bench suite | parent | at most 38,040; 36,140 needs D8 | every lane above |
+| 0, complete | M0 | Adopted processor pin and current three-endpoint record | #661, #682, #686, #645/#647 present at assigned dev | Already in 50,267 | Reuse committed record; do not subtract old lane deltas |
+| 1, weeks 1-6 | F0-F5 / L2 | `sw/firmware/ctrl/`, `sw/firmware/ctrl_nvm/`, mailbox contract and parent integration; complete F5 and connect the datapath | Approved #664 text; F0-F4 foundations present; F2-F5 suites and bench before default flip | 14,000 (11,500-16,000) | Highest risk: exact ownership, full service/wire bounds, all streams/counters and soak; no full credit for a partial flip |
+| 2, weeks 1-4 | M2 | SoC FIFO/table storage in `sw/litex/milan_soc.py`; exclude processor, media and gPTP arrays | Adopted pin; settled split interface allocation; measure final split for default credit | 200 (100-400) | RAM inference and per-array lockstep; primitive growth still judged by gate |
+| 3, weeks 2-6 | M5 | Existing read mux and snapshots in `hdl/common/csr/milan_csr.sv` | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
+| 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under `hdl/ieee1722/` | Adopted pin; fabric media ownership fixed by #664 | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
+| 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
+| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and #70/F1 staging | D4 approved; D5 conditional; measure linked F5 storage and split service before accepting core | 3,300 (2,500-4,200) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
+| 7, decision at week 4; weeks 4-8 | M3 | Retained fabric AECP dispatch, notification, D3 and entity widths in processor | D1/D3 approved; ACMP/ADP portion replaced; schedule residual only for a selected fabric-AECP image | **0**; fabric-only opportunity 2,600 (1,500-3,600) | PDU/port equivalence and complete processor/consumer bank; no F5 overlap |
+| 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200 (900-1,500) | Sharing turnaround proof; removed AECP cannot be saved twice |
+| 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | Selected F2-F5 functions qualified, actual M-lane deltas known, required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |
 
-At central estimates M0 to M8 reach 37,568 LUTs: under the 38,040 limit by 472, short of the 36,140 plan target by 1,428.
-M10 brings it to 36,368, still 228 above the plan target: no priced lever closes the margin at central estimates, and D8 asks how it is closed.
-At the low end of every range the same sequence stops near 41,900 (41,000 with M10), above the limit; at the high end near 33,000 (31,500).
-Without the SoC lane M8 it stops near 40,900 at central estimates: the limit is not reached inside today's requirements without the SoC decisions.
-The plan is re-measured when M3's first sub-lane routes (week 4); that measurement decides whether M10 and D8's options are needed.
+M1 is dropped by D2; M4 is replaced by F4.
+M3/M10's listed order is for any retained fabric-AECP work.
+It does not make them blockers for a fully qualified split.
+Their zero default contribution follows from F5's ownership change.
+The manager assigns those implementation lanes against their chosen placement.
 
-Per lane, its own LUT target, the files it changes, what it must show before its review, its risks and what it waits on:
+At week 4, replace estimates with available routed lane deltas.
+The original checkpoint was M3's first sub-lane route.
+The split decision makes its equivalent the first integrated split route.
+If neither exists, report the measurement as missing, not a pass.
+Reprice M3/M10 against actual remaining fabric ownership at that checkpoint.
+A missed split deadline or service bound blocks the default ledger.
+Retain the qualified fabric function and publish the residual area gap.
+Never change acceptance or omit functions to force the LUT target.
 
-| Lane | LUT target for its own change | Files | Verification it runs | Main risks | Depends on |
-|---|---:|---|---|---|---|
-| M1 | -700 | `configs/endstation_ax7101_1x1_tdm8.yaml` (`board.features`), its generated fragments; `protocol-processor/hdl/top/protocol_processor_top.sv` (a trace-ring parameter) | builder bank, shape gates, `milan_dp` both ways, latency-tap suites in the diagnostic build, CSR bench, route | the owner keeps the taps | D2 |
-| M2 | -800 | `protocol-processor/hdl/srp/KL_srp_top.sv`, `protocol-processor/hdl/top/protocol_processor_top.sv`, `protocol-processor/hdl/aecp/KL_aecp_desc_store.sv`, `gptp-processor/hdl/top/KL_gptp_engine.sv`, `hdl/ieee1722/aaf/KL_render_setpoint.sv`, `sw/litex/milan_soc.py` | per-array lockstep with planted controls, owning suites and campaigns at their counts, standalone and route | an array needing a same-cycle read | none |
-| M3 | -4,950 | `protocol-processor/hdl/adp/`, `protocol-processor/hdl/acmp/`, `protocol-processor/hdl/aecp/` and its microcode generator `protocol-processor/hdl/aecp/ucode/gen_ucode.py`, `protocol-processor/hdl/packet_engine/KL_pp_originator.sv`, `protocol-processor/hdl/top/protocol_processor_top.sv` | every processor suite and campaign at its count, a transaction-level equivalence bench, consumer set of 17, `pp_shadow`, `nvm_cosim`, `milan_dp`, NVM capture, bench suite | contention, latency, ACMP rework | D1, D3 |
-| M4 | -1,300 (-450 for L7 alone) | `protocol-processor/hdl/srp/` | SRP suites and campaigns, `pp_top`, the bench suite's SRP items against live bridges | MRP cadence on a shared engine | D1, D3, M3's engine |
-| M5 | -600 | `hdl/common/csr/milan_csr.sv` | CSR bench, `tcam_csr`, `milan_dp`, firmware host tests, register-map checks, bench boot | snapshot coherence, read latency | none |
-| M6 | -600 | `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv`, `hdl/ieee1722/avtp/KL_talker_diag_ctx.sv`, `hdl/ieee1722/aaf/KL_chan_map_capture.sv`, `hdl/ieee1722/aaf/KL_render_setpoint.sv` | `avtp_rxmon`, `tkdiag`, `chmap_capture`, `render_setpoint`, `milan_dp`, GET_COUNTERS campaigns | counter coherence | none |
-| M7 | -500 | `gptp-processor/hdl/top/KL_gptp_engine.sv` and its state regions, `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv` | gPTP processor suites, `gptp_plane`, `gptp_shadow`, `gptp_txts`, `milan_dp_gptp` | timestamp path timing | none |
-| M8 | -3,300 | `sw/litex/milan_soc.py`, `sw/firmware/milan_baremetal/milan_baremetal.c`, the saved-state staging layout | firmware host tests, `nvm_cosim`, `nvm_capture_cpu`, `check_nvm_capture.py`, builder and deploy gates, bench boot and saved-state cycle | #70's staging redesign, memory map, core performance | D4, D5, #70 |
-| M10 | -1,200 | `gptp-processor/hdl/ucpu/`, `protocol-processor/hdl/aecp/KL_aecp_ucpu.sv`, `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv` | gPTP and processor suites, a turnaround proof, gPTP bench evidence | time-critical handlers on a shared engine | D6 |
-| M9 | to at most 38,040, and 36,140 if D8 provides the rest | the `protocol-processor` and `gptp-processor` gitlinks, `syn/ooc/pp_resource_baseline.json`, the [area budget](AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) | everything in [what holds throughout](#what-holds-throughout) | timing closure at the new density | all |
-
-Each lane measures itself with the #234 recipe in a scratch parent, as #232, #230 and #639 did: the route and both standalone endpoints, before and after, one Vivado at a time under the host lock.
-
-**The schedule is the plan's second risk.** The processor record's effort model put scenario C, one engine displacing the AECP emit mass, at 131 to 321 lane-days, 4 to 15 calendar weeks at 3 to 5 concurrent lanes. M3 and M4 displace about twice that mass. Ten weeks holds only with M3's three sub-lanes running in parallel from week 1 and the decisions below taken before week 1.
+Each lane records its own route and both standalone references.
+Standalone 1x1/8x8 continue to guard the supported all-fabric option.
+A fully split route has no `KL_pp_shadow` scope.
+The current recipe expects exactly one wrapper and cannot measure that shape.
+M9 therefore needs reviewed split-aware measurement coverage before re-recording.
+Keep the existing all-fabric endpoints as independent references.
+Add a named split shipping endpoint with comparable whole-image metrics.
+This is a future tooling obligation; no gate/schema changes occur here.
 
 ## What holds throughout
 
-- **Every suite, campaign and compliance check at its counts.** The processor suites (33 suites, about 1,021,600 checks at the second pin), lint, `make check`, the Yosys gate, every recorded campaign, the parent consumer set of 17, the builder bank in both compiler modes, the parent Verilator suites, `check_entity_shape.py`, `check_nvm_capture.py`, the docs gates and the bench suite. A lane that cannot keep a count stops and asks; it does not rewrite the test (AGENTS section 8).
-- **ATDECC is the only source of state.** Every protocol value has one owner. Moving a table to block RAM or onto the sequencer moves its owner; it never creates a copy. The CSR plane keeps republishing the processor's class-D face and stores no protocol state of its own. Firmware keeps its section 1 role and gains no protocol state.
-- **The second-port redundancy path stays open.** No lever hard-wires one AVB interface: the sequencer's tables, the notification registry's port field and the ADP engine keep their interface index (`N_IF_P`). Milan v1.2 Section 8 redundancy stays out of scope for v1.2 (FR-MVU-03, NFR-SCOUT-05, #394); the measured per-port replication, about 7,100 routed LUTs plus a MAC, only fits once this plan lands.
-- **The resource gate is re-recorded only in the lane that reaches the target** (M9), as the assignment and #640's acceptance say. Until then each lane passes the gate as an improvement ("re-baseline recommended") and records its measured image in this plan's ledger, not in `pp_resource_baseline.json`. This differs from the budget's rule that a merge which moves the image records its own re-baseline: see D7.
-- **No port, register-map or wire change.** Register addresses, widths and reset values stay; every PDU keeps its bytes and its order.
-- **Timing at the shipping clock.** Each route meets the build gate (WNS at least +0.03 ns, WHS at least 0, every corner) at the 50 MHz datapath clock.
+- **Equivalent function and tests.** Retain all-fabric suites/campaign counts.
+  Reuse protocol stimuli through firmware differential tests.
+  Preserve boundary, malformed-input, ordering, reset and backpressure checks.
+  Use the pinned revision's inventories rather than historical count totals.
+  D1 permits reviewed retargeting of cycle checks, never their deletion.
+- **ATDECC state authority.** ATDECC remains the control-state authority.
+  Each selected placement has one authoritative protocol owner.
+  Firmware owns moved protocol state; fabric owns media and gPTP.
+  Snapshot publication and saved-state restore create no competing owner.
+- **Future interfaces.** Keep interface indices in contexts and mailboxes.
+  The one-port release does not enable Milan Section 8 redundancy.
+  Neither redesign nor filtering closes the later second-port seam.
+- **D7 resource policy.** Intermediate lanes publish measured deltas here.
+  Compare against the last resource record; growth stays visible.
+  M9 re-records at the LUT target with timing met.
+  The BRAM reserve, tolerances and floors are unchanged.
+  RAM conversions may exceed zero primitive-growth tolerances before M9.
+  Such a result is a reported regression requiring explicit disposition,
+  never a claimed pass or permission to raise the threshold.
+- **Bounded timing.** D3 requires deterministic internal service bounds.
+  Normative deadlines retain margin and ordering remains independent.
+  The 10 ms project budget cannot replace a wire deadline.
+  Fast connect, restart under one second and capture bounds remain.
+- **Interfaces.** This planning stage changes no port, register or parameter.
+  Future split integration and D4 own their approved interface migrations.
+  Each needs an explicit implementation contract and compatibility evidence.
+  M5/M6 do not silently alter the existing register ABI.
+- **Release proof.** Validate the exact integrated route at shipping clocks.
+  Run the required build gates, suites and campaigns after adoption.
+  Qualify placement on the bench before changing defaults.
+  P3/#396 then runs on the qualified redesigned image.
 
 ## Recorded decisions
 
@@ -789,8 +814,13 @@ See the [version landing contract](../ARCHITECTURE_HW_SW_SPLIT.md#7-version-and-
 
 ## Method and receipts
 
+The receipts below are the original 2026-10-05 measurements.
+Round 1b only reads committed records; it runs no Vivado.
+Current recipe provenance is in the current baseline above.
+
 **Tools and recipe.** Vivado 2026.1 build 6511674 for `xc7a100t-fgg484-2`, the [#234 recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) unchanged: the shipping `endstation_ax7101_1x1_tdm8` export without `--build`, `pp_baseline.py` for the integrated script, `AreaOptimized_high` synthesis, `ExploreArea` optimization, `ExtraPostPlacementOpt` placement, `AggressiveExplore` physical optimization and routing, 32 threads, the default seed; the standalone wrapper with `--integrated-clock` (20 ns).
-Each Vivado run held the host's Vivado lock and was this lane's only Vivado; other lanes' Verilator and Yosys jobs shared the host.
+Each historical Vivado run held the shared lock.
+Future runs must also exclude competing heavy builds.
 
 **Mapping a head the gate does not describe.** `syn/resmap/resmap_map.py map` ties the route map to a recorded `route-1x1` endpoint, and the gate's record describes dev `54643724`, not this head.
 The map was therefore tied to a scratch copy of `syn/ooc/pp_resource_baseline.json` into which this route was recorded with `pp_resource_gate.py record --write --baseline <copy>`; the tracked baseline is unchanged.
@@ -800,7 +830,7 @@ A Mark II lane maps its own route the same way:
 cp syn/ooc/pp_resource_baseline.json "$WORK/scratch_baseline.json"
 python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 \
   --baseline "$WORK/scratch_baseline.json" --write
-mkdir "$WORK/route-map" && (cd "$WORK/route-map" && vivado -mode batch \
+mkdir "$WORK/route-map" && (cd "$WORK/route-map" && flock /tmp/milan-vivado.lock vivado -mode batch \
   -source "$REPO/syn/resmap/route_map.tcl" -nojournal -log route_map.log \
   -tclargs "$WORK/ax7101/gateware/alinx_ax7101_route.dcp")
 python3 syn/resmap/resmap_map.py map "$WORK/route-map" --baseline "$WORK/scratch_baseline.json" \
