@@ -68,9 +68,9 @@ def build(args: argparse.Namespace) -> dict:
     original_constants = capture_soc._firmware_constants
 
     def constants(soc: object, options: argparse.Namespace, generated: Path,
-                  blob: bytes, overlay_path: Path) -> None:
+                  blob: bytes, overlay_path: Path) -> tuple[int, int]:
         """Retain build constants and observe completed product transactions."""
-        original_constants(soc, options, generated, blob, overlay_path)
+        census = original_constants(soc, options, generated, blob, overlay_path)
         soc.milan_mac = phy_boundary
         soc.csr.add('milan_mac')
         soc.bus.add_master(name='phy_status_reader', master=phy_boundary.reader)
@@ -86,6 +86,7 @@ def build(args: argparse.Namespace) -> dict:
         soc.platform.add_extension([('observe', 0, *[Subsignal(n, Pins(len(v))) for n, v in values.items()])])
         pads = soc.platform.request('observe')
         soc.comb += [getattr(pads, n).eq(v) for n, v in values.items()]
+        return census
 
     def firmware_source(root: Path, destination: Path, mutation: str) -> Path:
         """Adapt the shared capture callback to the explicit service control."""

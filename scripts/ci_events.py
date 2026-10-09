@@ -1249,6 +1249,7 @@ FAST_SCOPE_STEP_ID = "scope"
 #: step's normalized script is the neutralisation guard: `true # ...`,
 #: `|| true`, an echo, or a second command are all a different script.
 OOC_SH_SELFTEST = "python3 syn/yosys/ooc_selftest.py"
+GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
 OOC_SH_SELFTEST_JOB = "yosys-elaboration"
 #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
 FIRMWARE_UNIT_JOB = "firmware-unit"
@@ -2336,6 +2337,8 @@ RTL_STEP_LISTS = {
          )},
         {"name": "Prove ooc.sh generates the ROMs and fails on a failed top",
          "run": (OOC_SH_SELFTEST,)},
+        {"name": "Prove both synthesis flows refuse active elaboration guards",
+         "run": (GUARD_SELFTEST,)},
         {"name": "Prove the result cache refuses a planted entry",
          "run": (
              'python3 syn/yosys/cache_selftest.py',
@@ -6375,6 +6378,9 @@ def _shard_and_fast_arms() -> list[Arm]:
          _m_ooc_selftest_key("continue-on-error", True), "beyond name/run"),
         ("#245 ooc.sh self-test reinterpreted by shell: bash -n",
          _m_ooc_selftest_key("shell", "bash -n {0}"), "beyond name/run"),
+        ("#651 elaboration guard self-test step removed",
+         lambda w: _strip_steps(w, RTL_FAST, OOC_SH_SELFTEST_JOB, GUARD_SELFTEST),
+         "job `yosys-elaboration` must carry exactly"),
     ]
 
 
