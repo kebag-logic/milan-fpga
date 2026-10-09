@@ -1,0 +1,153 @@
+mkdir -p $PACKET/scratch/fr_obj
+python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv $PACKET/scratch/fr_obj/dp_glue.svh
+$PACKET/scratch/bin/verilator --cc --exe --build -j 4 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=6250000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+$PACKET/scratch/fr_obj  -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64" -Mdir $PACKET/scratch/fr_obj ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+make[1]: Entering directory '$PACKET/scratch/fr_obj'
+g++  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64   -Os  -c -o sim_main.o ../head/tb/verilator/follow_ring/sim_main.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64   -c -o verilated.o $VERILATOR_IMAGE/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64   -c -o verilated_dpi.o $VERILATOR_IMAGE/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64   -c -o verilated_threads.o $VERILATOR_IMAGE/usr/share/verilator/include/verilated_threads.cpp
+python3 $VERILATOR_IMAGE/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vfollow_ring_wrap.cpp Vfollow_ring_wrap___024root__0.cpp Vfollow_ring_wrap__Dpi.cpp Vfollow_ring_wrap___024root__Slow.cpp Vfollow_ring_wrap___024root__0__Slow.cpp Vfollow_ring_wrap__Syms__Slow.cpp > Vfollow_ring_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64   -c -o Vfollow_ring_wrap__ALL.o Vfollow_ring_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vfollow_ring_wrap__ALL.a    -pthread -lpthread -latomic   -o Vfollow_ring
+rm Vfollow_ring_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$PACKET/scratch/fr_obj'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.528 MB sources in 12 modules, into 1.126 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 6.531 s (elab=0.020, cvt=0.082, bld=6.386); cpu 0.158 s on 4 threads; allocated 356.754 MB
+$PACKET/scratch/fr_obj/Vfollow_ring --case b8 --dwell-s 1.0 --set-phase 0.0 --hold-s 16 --switch-hold-s 15
+  info: INTERNAL: 2 slips in 5.098 s (beat 3.519 s); margin at the set +0.008..+1.006 ticks
+  info: t=5.098000 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 6.657 s after the set; trim -6.000 ppm at the end
+  info: slip (dup) at 3.5204 s after the set, -3.1367 s from LOCKED
+  info: render recentre at 0.0428 s after the set, -6.6143 s from LOCKED
+  info: render recentre at 10.7532 s after the set, +4.0962 s from LOCKED
+  info: INTERNAL, last second      [   4.098,    5.098) s: ring slips 1+0, margin +0.008..+1.006 ticks; render n 8000 fill 12..13 (off-law 8000), delay 6.912..7.204 (out of band 8000), end-to-pop clearance 0.004 ticks NOT GRADABLE
+  info: set to LOCKED              [   5.098,   11.755) s: ring slips 1+0, margin +0.008..+1.014 ticks; render n 53254 fill 12..14 (off-law 27502), delay 6.897..8.909 (out of band 27789), end-to-pop clearance 0.003 ticks NOT GRADABLE
+  info: LOCKED to the settle       [  11.755,   15.851) s: ring slips 0+0, margin +0.545..+5.553 ticks; render n 32767 fill 13..13 (off-law 32767), delay 7.450..7.488 (out of band 32767), end-to-pop clearance 0.450 ticks
+  info: settle to the hold's end   [  15.851,   21.098) s: ring slips 0+0, margin +5.545..+5.560 ticks; render n 41972 fill 14..14 (off-law 0), delay 8.456..8.463 (out of band 0), end-to-pop clearance 0.456 ticks
+  info: [B8]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 1, after it 0; after it the loopback margin +5.545..+5.560 ticks, render fill 14..14 delay 8.456..8.463, on the law
+MARGINS: [B8] empty 5.544960 full 5.521920 ticks
+  info: [B8]: settle recentre 10.7531 s after the start, 4.0960 s after LOCKED
+ERROR-DISTRIBUTION: INTERNAL before switch window 4.598000000 5.098000000 samples 24000 axis_hz 6250000 histogram -1:28 0:23942 1:30
+ERROR-DISTRIBUTION: AAF after settle window 15.851245520 21.098000000 samples 251842 axis_hz 6250000 histogram -1:3940 0:243369 1:4533
+RESULT-645: phase 0.0000 jitter 0.0 us tail 0.0 us p 0e+00: slips set-to-settle 1 (declared bound 3), after the settle 0, margin at LOCKED +0.561..+0.576, after the settle +5.545..+5.560 ticks, LOCKED 6.66 s, settle +4.096 s after LOCKED, render after the settle fill 14..14 delay 8.456..8.463 (on the law)
+  info: t=21.098000 s  CLOCK_SOURCE <- 1
+  info: [SW] AAF to CRF:: LOCKED 2.945 s after; ring slips 0; margin +5.553 before the switch, +5.560 before its settle recentre
+  info: [SW] AAF to CRF:           [  21.098,   36.098) s: ring slips 0+0, margin +5.545..+5.560 ticks; render n 119997 fill 14..14 (off-law 0), delay 8.456..8.471 (out of band 0), end-to-pop clearance 0.456 ticks
+  info: [SW] AAF to CRF:: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.545..+5.560 ticks, render fill 14..14 delay 8.456..8.471, on the law
+MARGINS: [SW] AAF to CRF: empty 5.544960 full 5.514240 ticks
+  info: [SW] AAF to CRF:: settle recentre 7.0413 s after the start, 4.0960 s after LOCKED
+ERROR-DISTRIBUTION: [SW] AAF to CRF: window 28.139381040 36.098000000 samples 382010 axis_hz 6250000 histogram -1:4805 0:372056 1:5149
+RESULT-645-SW: [SW] AAF to CRF: phase 0.0000 jitter 0.0 us tail 0.0 us p 0e+00: LOCKED 2.95 s, slips 0, drift +0.008 ticks, settle +4.096 s after LOCKED, margin after +5.545..+5.560, render on the law
+  info: t=36.098000 s  CLOCK_SOURCE <- 2
+  info: [SW] CRF to AAF:: LOCKED 5.865 s after; ring slips 0; margin +5.560 before the switch, +5.576 before its settle recentre
+  info: [SW] CRF to AAF:           [  36.098,   51.098) s: ring slips 0+0, margin +5.553..+5.576 ticks; render n 119997 fill 14..14 (off-law 0), delay 8.456..8.486 (out of band 0), end-to-pop clearance 0.456 ticks
+  info: [SW] CRF to AAF:: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.560..+5.576 ticks, render fill 14..14 delay 8.471..8.479, on the law
+MARGINS: [SW] CRF to AAF: empty 5.560320 full 5.506560 ticks
+  info: [SW] CRF to AAF:: settle recentre 9.9615 s after the start, 4.0960 s after LOCKED
+ERROR-DISTRIBUTION: [SW] CRF to AAF: window 46.059578480 51.098000000 samples 241842 axis_hz 6250000 histogram -1:3365 0:235579 1:2898
+RESULT-645-SW: [SW] CRF to AAF: phase 0.0000 jitter 0.0 us tail 0.0 us p 0e+00: LOCKED 5.87 s, slips 0, drift +0.015 ticks, settle +4.096 s after LOCKED, margin after +5.560..+5.576, render on the law
+== follow_ring: checks: 48   failures: 0 ==
+RESULT: PASS
+$PACKET/scratch/fr_obj/Vfollow_ring --case pullin --latency-us 210.42 --after-s 1.5
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +0.783..+0.791 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.686..8.694 (out of band 0), end-to-pop clearance 0.306 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +0.783..+1.321 ticks; render n 1600 fill 14..15 (off-law 1075), delay 8.694..9.224 (out of band 1052), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: after the settle           [   5.454,    6.100) s: ring slips 0+0, margin +5.284..+5.299 ticks; render n 5165 fill 14..14 (off-law 0), delay 8.187..8.210 (out of band 0), end-to-pop clearance 0.187 ticks
+  info: [PULLIN]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.284..+5.299 ticks, render fill 14..14 delay 8.187..8.210, on the law
+MARGINS: [PULLIN] empty 5.283840 full 5.775360 ticks
+  info: [PULLIN]: settle recentre 0.8541 s after the start
+ERROR-DISTRIBUTION: INTERNAL before hold window 4.100000000 4.600000000 samples 24000 axis_hz 6250000 histogram -1:24 0:23951 1:25
+ERROR-DISTRIBUTION: INTERNAL after hold window 4.600000000 6.100052000 samples 72001 axis_hz 6250000 histogram -9:2760 -8:5909 -7:3774 -6:3390 -5:3435 -4:3760 -3:4509 -2:6260 -1:13953 0:16343 1:316 2:292 3:274 4:258 5:242 6:229 7:218 8:207 9:204 10:188 11:181 12:176 13:169 14:164 15:158 16:152 17:148 18:143 19:138 20:137 21:131 22:127 23:126 24:119 25:119 26:117 27:113 28:112 29:108 30:104 31:106 32:100 33:100 34:97 35:96 36:94 37:92 38:90 39:91 40:86 41:86 42:84 43:84 44:83 45:77 46:83 47:76 48:76 49:75 50:76 51:75 52:73 53:71 54:71 55:70 56:68 57:67 58:68 59:66 60:65 61:65 62:64 63:63 64:61 65:39
+ERROR-DISTRIBUTION: INTERNAL after settle window 5.454237680 6.100052000 samples 30999 axis_hz 6250000 histogram -2:1745 -1:13255 0:15999
+RESULT-647: latency 210.42 us hold 52.0 us: delay 8.686..8.694 -> 8.187..8.210 ticks (shift -0.492), fill 14..14 -> 14..14, clearance 0.306 -> 0.187 ticks, settle +0.854 s after the hold, recentres 1, loopback slips 0 before the settle and 0 after: ON THE LAW
+RECOVERY: action 5.454116560 rearmed 5.496783440 duration 0.042666880 s quiet_ticks 2048
+== follow_ring: checks: 18   failures: 0 ==
+RESULT: PASS
+make build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$PACKET/scratch/fr_obj_fine
+make[1]: Entering directory '$PACKET/scratch/head/tb/verilator/follow_ring'
+mkdir -p $PACKET/scratch/fr_obj_fine
+python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv $PACKET/scratch/fr_obj_fine/dp_glue.svh
+$PACKET/scratch/bin/verilator --cc --exe --build -j 4 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=25000000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+$PACKET/scratch/fr_obj_fine  -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64" -Mdir $PACKET/scratch/fr_obj_fine ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+make[2]: Entering directory '$PACKET/scratch/fr_obj_fine'
+g++  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64   -Os  -c -o sim_main.o ../head/tb/verilator/follow_ring/sim_main.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64   -c -o verilated.o $VERILATOR_IMAGE/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64   -c -o verilated_dpi.o $VERILATOR_IMAGE/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64   -c -o verilated_threads.o $VERILATOR_IMAGE/usr/share/verilator/include/verilated_threads.cpp
+python3 $VERILATOR_IMAGE/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vfollow_ring_wrap.cpp Vfollow_ring_wrap___024root__0.cpp Vfollow_ring_wrap__Dpi.cpp Vfollow_ring_wrap___024root__Slow.cpp Vfollow_ring_wrap___024root__0__Slow.cpp Vfollow_ring_wrap__Syms__Slow.cpp > Vfollow_ring_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_IMAGE/usr/share/verilator/include -I$VERILATOR_IMAGE/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64   -c -o Vfollow_ring_wrap__ALL.o Vfollow_ring_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vfollow_ring_wrap__ALL.a    -pthread -lpthread -latomic   -o Vfollow_ring
+rm Vfollow_ring_wrap__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '$PACKET/scratch/fr_obj_fine'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.528 MB sources in 12 modules, into 1.126 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.799 s (elab=0.019, cvt=0.094, bld=5.648); cpu 0.163 s on 4 threads; allocated 356.754 MB
+make[1]: Leaving directory '$PACKET/scratch/head/tb/verilator/follow_ring'
+python3 small_pulls.py --exe $PACKET/scratch/fr_obj_fine/Vfollow_ring \
+  --out $PACKET/scratch/fr_obj_fine/results --jobs 4
+SMALL PULL cross-2044: rc 0
+SMALL PULL above-old-arm: rc 0
+SMALL PULL cross-2046: rc 0
+SMALL PULL cross-2042: rc 0
+SMALL PULL one-quantum: rc 0
+SMALL PULL eight-quanta: rc 0
+SMALL PULL no-hold: rc 0
+SMALL PULL negative-sub-arm: rc 0
+SMALL PULL second-inside: rc 0
+SMALL PULL second-outside: rc 0
+small pulls: 10/10 passed
+python3 settle_control.py --sim $PACKET/scratch/bin/verilator \
+  --out $PACKET/scratch/fr_obj_control --jobs 4
+settle control 100000000 Hz: PASS
+settle control 25000000 Hz: PASS
+settle control 50000000 Hz: PASS
+settle control 6250000 Hz: PASS
+python3 mutants.py --jobs 4
+[MUTANT] QUIET-ARM: caught by "[STEADY] INTERNAL without a hold has no pending settle"
+[MUTANT] NO-RECOVERY: caught by "[PULLIN] exactly one settle recentre from the transient to the hold's end"
+[MUTANT] HIGH-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] NO-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] NO-SETTLE: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] SINGLE-DROP: caught by "LRC: ten left drops five excess events on both pairs"
+[MUTANT] STARVED-HELD-DUP: caught by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter"
+[MUTANT] HELD-DUP: caught by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter" and "SPAN: no action counted as a duplicate"
+[MUTANT] RENDER-ONLY: caught by "[B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)"
+[MUTANT] EARLY: caught by "[B8] the render stage is on its law after the settle recentre"
+[MUTANT] OVERSHOOT: caught by "[B8] no loopback slip after the settle recentre"
+[MUTANT] W1: caught by "[SW] AAF to CRF: the switch moved the loopback margin less than 0.1 tick before its settle"
+follow_ring mutants: 12/12 caught
