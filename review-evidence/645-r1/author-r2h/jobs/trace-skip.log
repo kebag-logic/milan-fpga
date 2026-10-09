@@ -1,0 +1,27 @@
+COMMAND: ["$BUILD_AREA/bench-inputs/tb/verilator/follow_ring/obj_dir/Vfollow_ring", "--case", "b8", "--dwell-s", "1.0", "--set-phase", "0.0", "--hold-s", "16", "--peer-ppm", "0.82", "--trace", "$BUILD_AREA/traces/trace-skip.pdu.csv", "--servo-trace", "$BUILD_AREA/traces/trace-skip.servo.csv"]
+CPU LIST: 62
+MAKEFLAGS: unset
+COLD BUILD: False
+  info: INTERNAL: 0 slips in 8.639 s (beat 3.519 s); margin at the set +2.496..+2.573 ticks
+  info: t=8.639000 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 6.657 s after the set; trim +6.000 ppm at the end
+  info: render recentre at 0.0427 s after the set, -6.6144 s from LOCKED
+  info: render recentre at 10.7532 s after the set, +4.0961 s from LOCKED
+  info: INTERNAL, last second      [   7.639,    8.639) s: ring slips 0+0, margin +2.281..+2.573 ticks; render n 8000 fill 16..16 (off-law 8000), delay 10.191..10.483 (out of band 8000), end-to-pop clearance 0.191 ticks
+  info: set to LOCKED              [   8.639,   15.296) s: ring slips 0+0, margin +2.565..+4.001 ticks; render n 53257 fill 14..16 (off-law 39200), delay 8.486..10.491 (out of band 38980), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: LOCKED to the settle       [  15.296,   19.392) s: ring slips 0+0, margin +3.994..+5.023 ticks; render n 32769 fill 14..15 (off-law 32768), delay 8.932..9.938 (out of band 32768), end-to-pop clearance 0.062 ticks
+  info: settle to the hold's end   [  19.392,   24.639) s: ring slips 0+0, margin +5.015..+5.030 ticks; render n 41973 fill 14..14 (off-law 0), delay 8.924..8.940 (out of band 0), end-to-pop clearance 0.060 ticks
+  info: [B8]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.015..+5.030 ticks, render fill 14..14 delay 8.924..8.940, on the law
+MARGINS: [B8] empty 5.015040 full 6.051840 ticks
+  info: [B8]: settle recentre 10.7531 s after the start, 4.0960 s after LOCKED
+ERROR-DISTRIBUTION: INTERNAL before switch window 8.139000000 8.639000000 samples 24000 axis_hz 6250000 histogram -1:29 0:23945 1:26
+ERROR-DISTRIBUTION: AAF after settle window 19.392187120 24.639000033 samples 251847 axis_hz 6250000 histogram -1:4259 0:243984 1:3604
+RESULT-645: phase 0.0000 jitter 0.0 us tail 0.0 us p 0e+00: slips set-to-settle 0 (declared bound 3), after the settle 0, margin at LOCKED +3.994..+4.009, after the settle +5.015..+5.030 ticks, LOCKED 6.66 s, settle +4.096 s after LOCKED, render after the settle fill 14..14 delay 8.924..8.940 (on the law)
+RING-EVENT: recentre 0.162953680
+RING-EVENT: recentre 19.392081200
+RING-EVENTS: complete through 24.639000033 s
+== follow_ring: checks: 18   failures: 0 ==
+RESULT: PASS
+
+WALL SECONDS: 147.057
+RETURN CODE: 0

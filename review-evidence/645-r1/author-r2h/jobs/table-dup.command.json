@@ -1,0 +1,22 @@
+{
+  "cwd": "$LANE",
+  "cpus": "60",
+  "argv": [
+    "python3",
+    "-B",
+    "$LANE/tb/verilator/follow_ring/trace_table.py",
+    "$BUILD_AREA/jobs/trace-dup.log",
+    "$BUILD_AREA/traces/trace-dup.pdu.csv",
+    "$BUILD_AREA/traces/trace-dup.servo.csv",
+    "--origin-s",
+    "0",
+    "--from-s",
+    "1.25",
+    "--to-s",
+    "1.75",
+    "--step-s",
+    ".25",
+    "--csv",
+    "$BUILD_AREA/traces/dup-table.csv"
+  ]
+}

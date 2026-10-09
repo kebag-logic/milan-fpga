@@ -1,0 +1,20 @@
+{
+  "cwd": "$LANE",
+  "cpus": "60",
+  "argv": [
+    "python3",
+    "-B",
+    "$LANE/tb/verilator/follow_ring/trace_table.py",
+    "$BUILD_AREA/review-inputs/trace-table-probe-inputs/run.log",
+    "$BUILD_AREA/review-inputs/trace-table-probe-inputs/pdu.csv",
+    "$BUILD_AREA/review-inputs/trace-table-probe-inputs/servo.csv",
+    "--from-s",
+    "0",
+    "--to-s",
+    "1",
+    "--step-s",
+    ".25",
+    "--csv",
+    "$BUILD_AREA/traces/reviewer-probe.csv"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/follow_ring",
+    "mutants",
+    "SWEEP_JOBS=4"
+  ],
+  "cwd": "$BUILD_AREA/bench-inputs",
+  "cpus": "48-55"
+}

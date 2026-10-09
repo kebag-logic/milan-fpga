@@ -1,0 +1,22 @@
+[A531] STOP - Round 2h
+
+Head: `8e4b1e53e9b5a8ef5f9854095347436ab84259b6`, parent `1e79ebdc06528edff74c0a7f530f20f99e3326a2`.
+
+The default now runs all four follow-ring legs through a bounded four-job sub-make, with one shared ordinary harness build. The trace table reads duplicate/skip counter events and declared recentre pulses separately; it no longer counts margin rises as slips. The ring-law description is depth 16, target 11. Both timing headers and TESTING.md now state the previous hosted basis, new replica commands, suite-specific ratios and margins. The explicit mutant disposition says it is outside the default sweep. No target/suite list or RTL changed.
+
+Cold, MAKEFLAGS unset, serial outer make:
+
+| Command and CPU affinity | Measured | Ratio | Projected hosted | Margin to 1440 / 1800 s |
+|---|---:|---:|---:|---:|
+| `taskset -c 32-35 make -C tb/verilator/follow_ring` | 437.204 s | 1.78 | 778.2 s | 661.8 / 1021.8 s |
+| `taskset -c 36-39 make -C tb/verilator/milan_dp_render` | 793.308 s | 1.324 | 1050.3 s | 389.7 / 749.7 s |
+
+The follow-ring replica is below 708 s; its projection is below 1260 s. The ratios use the prior dev-class hosted windows, 1422.5 / 1093.9 s (run 37882435947, job 113665137864), against the reviewer's replicas, 800.2 / 826.7 s. These projections do not establish hosted acceptance at the new head.
+
+Validation: cold follow-ring b8 48/0, pullin 18/0, fine pulls 10/10, controller PASS at four rates. The cold outer-`make -j16` check repeats those results in 436.171 s. Render retains shipping 258/0, second shape 71/0 and five leg-side controls. `make mutants SWEEP_JOBS=4` ran once: 12/12 caught, rc 0. All 36 final source/documentation commands pass, including the evidence check and 105/105 self-test; committed punctuation/diff checks pass. Builder returns 0 in 1203.484 s, with no elaboration arm skipped for a toolchain reason. Historical gate 11 remains uncovered because its placed report is absent.
+
+Trace controls: the unchanged reviewer probe reports zero recorded slips and explicitly marks its missing event evidence. The real passing pull-in reports `slips=0`, `recentres=1` for the +0.90 s bin containing the action at 5.454116560 s. A real duplicate at 1.580711280 s reports `slips=1`; a real skip at 38.557170800 s reports `slips=1`, `skips=1`. Five standing CLI tests include simultaneous action/slip and bin boundaries. The previous reader fails the unchanged margin-step regression with a false slip (expected raw rc 1; control wrapper rc 0).
+
+All 62 recorded validation commands returned 0, all jobs finished, and the worktree is clean. HANDOFF.md and PR-BODY.md preserve earlier rounds and add Round 2h commands, traces, source binding, bounded receipts, limits and recommendation. Round 2f resource records remain applicable.
+
+STOP pending manager publication, the required repository-owned replica, and exact-head hosted `verilator-suites` success with follow-ring <=1260 s. Then obtain independent re-review and post REVIEW READY, as the assignment requires. This is author evidence, not a review verdict. No push, merge, rebase, amendment or hardware action was performed.
