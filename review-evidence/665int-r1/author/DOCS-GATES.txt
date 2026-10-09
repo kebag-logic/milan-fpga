@@ -1,0 +1,78 @@
+# The docs workflow's checking commands, run from the checkout at the head, each rc 0.
+# Commands marked [md] run under the environment pinned by tools/markdown/requirements.txt.
+python3 scripts/docs_check.py
+python3 scripts/check_doc_style.py
+python3 scripts/check_doc_style.py --selftest
+python3 scripts/check_gptp_docs.py
+python3 scripts/check_gptp_docs.py --selftest
+python3 scripts/check_gptp_docs.py --with-submodule
+python3 docs/DOC_MAP.gen.py --check
+python3 docs/DOC_MAP.gen.py --selftest
+python3 docs/diagrams/timesync_chain.gen.py --check
+python3 docs/diagrams/timesync_chain.gen.py --selftest
+python3 scripts/check_solution_docs.py
+python3 scripts/check_solution_docs.py --selftest
+python3 docs/diagrams/submodule_boundaries.gen.py --check
+python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+python3 scripts/check_submodule_docs.py
+python3 scripts/check_submodule_docs.py --selftest
+python3 scripts/check_diagram_pngs.py
+python3 scripts/check_diagram_pngs.py --selftest
+python3 scripts/check_feature_status.py --self-test
+python3 scripts/check_feature_status.py
+python3 docs/traceability/gen_module_matrix.py --check
+python3 scripts/measure_control_flow.py --selftest
+python3 scripts/measure_cohesion.py --selftest
+python3 scripts/check_baremetal_only.py --check
+python3 scripts/check_baremetal_only.py --selftest
+python3 scripts/check_nvm_record_space.py
+python3 scripts/check_nvm_record_space.py --self-test
+python3 scripts/check_nvm_capture.py
+python3 scripts/check_soc_sources.py
+python3 scripts/check_soc_sources.py --selftest
+python3 sw/litex/iob_pack_selftest.py
+python3 scripts/check_rtl_source_lists.py
+python3 scripts/check_rtl_source_lists.py --selftest
+python3 scripts/measure_naming.py --check
+python3 scripts/measure_naming.py --selftest
+python3 scripts/check_port_contracts.py
+python3 scripts/check_port_contracts.py --selftest
+python3 scripts/measure_fail_fast.py --check
+python3 scripts/measure_fail_fast.py --selftest
+python3 scripts/check_todo_ownership.py
+python3 scripts/check_todo_ownership.py --selftest
+python3 scripts/measure_test_evidence.py --check
+python3 scripts/measure_test_evidence.py --selftest
+python3 scripts/check_hygiene.py --check
+python3 scripts/check_hygiene.py --selftest
+python3 scripts/check_sv_idiom.py
+python3 scripts/check_sv_idiom.py --selftest
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_cpp_idiom.py --selftest
+python3 scripts/check_py_idiom.py
+python3 scripts/check_py_idiom.py --selftest
+python3 scripts/check_sh_idiom.py
+python3 scripts/check_sh_idiom.py --selftest
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/check_doc_paths.py
+python3 scripts/check_archive.py
+python3 scripts/check_archive.py --selftest
+python3 avdecc/gen_aem_store.py --self-test
+python3 scripts/check_sweep_shape.py --self-test
+python3 scripts/check_wire_accountability.py --self-test
+git diff --check 7c1b52bee26b497080ee22b1c1986109f80a5ee7 HEAD
+python3 scripts/check_em_dash.py --base 7c1b52bee26b497080ee22b1c1986109f80a5ee7   [md]
+python3 scripts/gen_toc.py --selftest   [md]
+python3 scripts/gen_toc.py --verify-anchors   [md]
+python3 scripts/gen_toc.py --check   [md]
+python3 scripts/gen_wavedrom.py --selftest   [md]
+python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check   [md]
+python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check   [md]
+python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check   [md]
+python3 scripts/act_ci.py --selftest
+python3 scripts/check_deploy_shape.py --self-test
+python3 scripts/check_entity_shape.py --self-test
+python3 sw/mailbox/gen_mailbox.py --check
+python3 sw/mailbox/gen_mailbox.py --crosscheck
+python3 sw/mailbox/gen_mailbox.py --selftest

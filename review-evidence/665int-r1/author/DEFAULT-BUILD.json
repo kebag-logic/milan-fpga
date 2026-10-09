@@ -1,0 +1,475 @@
+{
+ "base": "7c1b52bee26b497080ee22b1c1986109f80a5ee7",
+ "head_exported": "9b73a8c66ea301819917dfacafe0da23b975245a",
+ "configs": {
+  "endstation_ax7101_1x1_tdm8": {
+   "compare": {
+    "files": 3876,
+    "identical": 3856,
+    "stamp": [
+     {
+      "file": "csr.csv",
+      "base_sha256": "89ac79e7fe5155a5c96a6cadf82afd75a6eb3ee768882ac373d6f67d1c58e968",
+      "head_sha256": "1931c3bfef4fe66593fc0a46fa7afc70dc0843f104aa24aece9f1e52fb888052"
+     },
+     {
+      "file": "software/include/generated/csr.h",
+      "base_sha256": "98a4d46fd6636e66080026f9e25847b2a2897e7c475f3ed0561cbf0d664aa2f6",
+      "head_sha256": "60e43aa6319226e5c63fedc8a48e83e0dc814a05ac7e33bb0529683b76ba1e3d"
+     },
+     {
+      "file": "software/include/generated/git.h",
+      "base_sha256": "f0b3d3c8cdedfa07e814b5b19e8d32590346efa49e2ef3bd546bcf7c6974bd0e",
+      "head_sha256": "65d0fc9b6c991ad2011bbabcb17a3485bd39acd808093830baa41ca557ce62ce"
+     },
+     {
+      "file": "software/include/generated/mem.h",
+      "base_sha256": "cb7ae1bfa6ac12c032b79618a4cb1778af168acb9fb54d24b710b5990cd92d43",
+      "head_sha256": "acbc99ff9d5e1898564a6b1258f95483e22a4bf49915cd6be38523a8e87134f6"
+     },
+     {
+      "file": "software/include/generated/soc.h",
+      "base_sha256": "a96e8c4f332ba9b3c524e0f90879834edbbb783742cd89bf43d98fd496a5cff9",
+      "head_sha256": "e79b8ca43baf331e9dce465f6850b5bb545ab9ef896932334142ca5a15624556"
+     }
+    ],
+    "ar": [
+     {
+      "file": "software/libbase/libbase.a",
+      "base_sha256": "80ca9af3a88bb2702adae5795bcf88a3d7cf9c6cc87e05a6b0fe73059072fea7",
+      "head_sha256": "a2b3f1eb24a79b190a91983fb86d17494cdadd7ecfd8e01fe4be092bf0530a00"
+     },
+     {
+      "file": "software/libc/__libc_minimal.a",
+      "base_sha256": "3c3e482daa8fc2f863266d6699640d6c9b570d0d49d7a23a414002c8dc7ed333",
+      "head_sha256": "f474d231c4f4f34aee950ea5d991e9fd7b90863c5f268e4f2f763928122e6b47"
+     },
+     {
+      "file": "software/libc/_libc_minimal.a",
+      "base_sha256": "894258685c294738a1fd2c9743dcdb779b0cee4a9b569d3dad1b7f9ecad5b0ae",
+      "head_sha256": "fb324831c9551ed0082911236f7fdca5b3fbcc65c6f907fb0f9850157e7b37df"
+     },
+     {
+      "file": "software/libc/libc-minimal.a",
+      "base_sha256": "894258685c294738a1fd2c9743dcdb779b0cee4a9b569d3dad1b7f9ecad5b0ae",
+      "head_sha256": "fb324831c9551ed0082911236f7fdca5b3fbcc65c6f907fb0f9850157e7b37df"
+     },
+     {
+      "file": "software/libc/libc.a",
+      "base_sha256": "894258685c294738a1fd2c9743dcdb779b0cee4a9b569d3dad1b7f9ecad5b0ae",
+      "head_sha256": "fb324831c9551ed0082911236f7fdca5b3fbcc65c6f907fb0f9850157e7b37df"
+     },
+     {
+      "file": "software/libcompiler_rt/libcompiler_rt.a",
+      "base_sha256": "9a79c3f8c473f9e8e9175674998d4769dfc3a0d8da734e4e2911f709cdc6b359",
+      "head_sha256": "4b5e3068318b466a593906a7a149c71a7487af7bec11b2bfe78a1b1ca97d7366"
+     },
+     {
+      "file": "software/libfatfs/libfatfs.a",
+      "base_sha256": "0eee5219b08c591061e0793f1df90921de7c0da82d6e737046ee25d7481ac4ab",
+      "head_sha256": "3a1d29eafae4ee6c537b44877f4f983a39bea85e6bfcb6e3a78b78b0b09258a6"
+     },
+     {
+      "file": "software/liblitedram/liblitedram.a",
+      "base_sha256": "53ab0400a730c8a93ee3593fc22fd2a717e1a0eb0bb64aa44d746f7fb20d92b8",
+      "head_sha256": "93559c77bf0daac4fbcb8030d36caeada5b71ec3c7ae3b1ac6a0f48037de3b9b"
+     },
+     {
+      "file": "software/libliteeth/libliteeth.a",
+      "base_sha256": "909a82630946d300dd2dd51310c75bdd11647ab2de73500edca22edd4bd03d66",
+      "head_sha256": "aaf501185387814ae45d1fefee8963fe32928ce695e934d0e3e020428ebb6cdd"
+     },
+     {
+      "file": "software/liblitesata/liblitesata.a",
+      "base_sha256": "14a1c561144f5089cc7f16321e9c1fe8652bc216bbab2d8b8bd8037de4d25305",
+      "head_sha256": "05f04ba69fbcc1765697b1895fefbef1b502697d90fdcc2d8d35f30cad4458d6"
+     },
+     {
+      "file": "software/liblitesdcard/liblitesdcard.a",
+      "base_sha256": "b8fa2f85b2a509df32a4928837e27fabf821eeb6e7fc6bfd7269d1536176c371",
+      "head_sha256": "317a1edd71ffeb8a40677b0c34a0080d8a6b3c1e119393ee310f21bcafdd7e9a"
+     },
+     {
+      "file": "software/liblitespi/liblitespi.a",
+      "base_sha256": "1185334467c085cb0170ea32edd975a03d917d2fa3acf7d87fba473552d3df7e",
+      "head_sha256": "64384274bc1f305eb4ecd0f854176b2a1af43cf5f8911ad09901c81440bb2227"
+     },
+     {
+      "file": "software/libmilan_baremetal/libmilan_baremetal.a",
+      "base_sha256": "3b5fb45df4e0ab709a65a8efbf5efd8ac84d2879b95bfe49f881baa6fc062dc6",
+      "head_sha256": "f2002f7b3004d003f1ab8d2ac0a66e9dc043d41d1c900ff00ff3180448799ebe"
+     }
+    ],
+    "tree": [],
+    "log": [],
+    "different": [
+     {
+      "file": "gateware/alinx_ax7101.v",
+      "base_sha256": "35ce16dba09dfd8ef33b440393e4c2b259dc98c82a7bc5e798f5b61da6cfffad",
+      "head_sha256": "42bc693eb43db34fd9704b83754e8aef503a99367276136bfb91333dceee24ae"
+     },
+     {
+      "file": "litex.log",
+      "base_sha256": "2cd2480b2a87f5185833f2cbfc32e64fdbc04955cb46fe41e87d02e787db04da",
+      "head_sha256": "e39cdf140db5288b212ec69bc745c91d4d61c9663b616c3d5fa459e68b1ad0c3"
+     }
+    ],
+    "missing": []
+   },
+   "reads_head": {
+    "tcl_paths": 123,
+    "tree_files": 63,
+    "submodule_files": 56,
+    "outside": [
+     "$WORK/export/out-endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+    ],
+    "changed": [],
+    "pins": {
+     "gptp-processor": [
+      "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+     ],
+     "protocol-processor": [
+      "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     ],
+     "third_party/verilog-axis": [
+      "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     ]
+    }
+   },
+   "reads_base": {
+    "tcl_paths": 123,
+    "tree_files": 63,
+    "submodule_files": 56,
+    "outside": [
+     "$WORK/export/out-endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+    ],
+    "changed": [],
+    "pins": {
+     "gptp-processor": [
+      "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+     ],
+     "protocol-processor": [
+      "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     ],
+     "third_party/verilog-axis": [
+      "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     ]
+    }
+   },
+   "generated_verilog": {
+    "base": {
+     "bytes": 1763103,
+     "sha256": "35ce16dba09dfd8ef33b440393e4c2b259dc98c82a7bc5e798f5b61da6cfffad"
+    },
+    "head": {
+     "bytes": 1763103,
+     "sha256": "42bc693eb43db34fd9704b83754e8aef503a99367276136bfb91333dceee24ae"
+    }
+   },
+   "base_vs_base_rerun": {
+    "files": 3876,
+    "identical": 3856,
+    "stamp": [
+     {
+      "file": "csr.csv",
+      "base_sha256": "89ac79e7fe5155a5c96a6cadf82afd75a6eb3ee768882ac373d6f67d1c58e968",
+      "head_sha256": "a37c49c9846a12473baf5607b6c543564c1efcbe5259794088b408ca46bd149f"
+     },
+     {
+      "file": "software/include/generated/csr.h",
+      "base_sha256": "98a4d46fd6636e66080026f9e25847b2a2897e7c475f3ed0561cbf0d664aa2f6",
+      "head_sha256": "212fca0706d0901d80c67cbd1a66d46d2595e230163799275736bfc66184ad60"
+     },
+     {
+      "file": "software/include/generated/git.h",
+      "base_sha256": "f0b3d3c8cdedfa07e814b5b19e8d32590346efa49e2ef3bd546bcf7c6974bd0e",
+      "head_sha256": "513909db1390568a1aba71f8e47677bcd3c8b8de91ca7d32f443183d75b52b16"
+     },
+     {
+      "file": "software/include/generated/mem.h",
+      "base_sha256": "cb7ae1bfa6ac12c032b79618a4cb1778af168acb9fb54d24b710b5990cd92d43",
+      "head_sha256": "3724119e2a2f74cd52ae36eddd8680f003583ac0663ba83b34441338cd06a645"
+     },
+     {
+      "file": "software/include/generated/soc.h",
+      "base_sha256": "a96e8c4f332ba9b3c524e0f90879834edbbb783742cd89bf43d98fd496a5cff9",
+      "head_sha256": "9f347f6059fc128a66f1b403e96d142dea2fc9c648db6a28f03aec2901474d09"
+     }
+    ],
+    "ar": [
+     {
+      "file": "software/libbase/libbase.a",
+      "base_sha256": "80ca9af3a88bb2702adae5795bcf88a3d7cf9c6cc87e05a6b0fe73059072fea7",
+      "head_sha256": "d52962a1bb4fb73babd9cda7217d6a9c7c6203643b0b072787bf36dc7c3db593"
+     },
+     {
+      "file": "software/libc/__libc_minimal.a",
+      "base_sha256": "3c3e482daa8fc2f863266d6699640d6c9b570d0d49d7a23a414002c8dc7ed333",
+      "head_sha256": "083c1077d26429248aa23ac2113de5006b4774ef42ec1bd55161c2be78ea7f7f"
+     },
+     {
+      "file": "software/libc/_libc_minimal.a",
+      "base_sha256": "894258685c294738a1fd2c9743dcdb779b0cee4a9b569d3dad1b7f9ecad5b0ae",
+      "head_sha256": "8c99351bcd94b6c73a3c8e6b7dee9066471cb94f2c1ac7c69fe234ad87cd610e"
+     },
+     {
+      "file": "software/libc/libc-minimal.a",
+      "base_sha256": "894258685c294738a1fd2c9743dcdb779b0cee4a9b569d3dad1b7f9ecad5b0ae",
+      "head_sha256": "8c99351bcd94b6c73a3c8e6b7dee9066471cb94f2c1ac7c69fe234ad87cd610e"
+     },
+     {
+      "file": "software/libc/libc.a",
+      "base_sha256": "894258685c294738a1fd2c9743dcdb779b0cee4a9b569d3dad1b7f9ecad5b0ae",
+      "head_sha256": "8c99351bcd94b6c73a3c8e6b7dee9066471cb94f2c1ac7c69fe234ad87cd610e"
+     },
+     {
+      "file": "software/libcompiler_rt/libcompiler_rt.a",
+      "base_sha256": "9a79c3f8c473f9e8e9175674998d4769dfc3a0d8da734e4e2911f709cdc6b359",
+      "head_sha256": "aae1411ea6131ed45db729b78212a468f3255015912ff8415e0d57498fc344ad"
+     },
+     {
+      "file": "software/libfatfs/libfatfs.a",
+      "base_sha256": "0eee5219b08c591061e0793f1df90921de7c0da82d6e737046ee25d7481ac4ab",
+      "head_sha256": "c1832ee1703918755b0e0c3c0f9e3b66b7e8fc863b563904e3959af84d5af47d"
+     },
+     {
+      "file": "software/liblitedram/liblitedram.a",
+      "base_sha256": "53ab0400a730c8a93ee3593fc22fd2a717e1a0eb0bb64aa44d746f7fb20d92b8",
+      "head_sha256": "b63b6617f3a7b858b475004b58fcca6a6de68fbc58ab5e47f8d893cda9f4c261"
+     },
+     {
+      "file": "software/libliteeth/libliteeth.a",
+      "base_sha256": "909a82630946d300dd2dd51310c75bdd11647ab2de73500edca22edd4bd03d66",
+      "head_sha256": "1239561fba3986365890d294e55e11a978b3df9fb6bfbb90fcc3c30c7a1c0392"
+     },
+     {
+      "file": "software/liblitesata/liblitesata.a",
+      "base_sha256": "14a1c561144f5089cc7f16321e9c1fe8652bc216bbab2d8b8bd8037de4d25305",
+      "head_sha256": "233316aa98325abaf7b47eb5b07d237a52a6ca3258649d6bc19f0db84fd04e59"
+     },
+     {
+      "file": "software/liblitesdcard/liblitesdcard.a",
+      "base_sha256": "b8fa2f85b2a509df32a4928837e27fabf821eeb6e7fc6bfd7269d1536176c371",
+      "head_sha256": "3cd63266135304ead345a363cae46c89580ec783af60d707a7620a39bb36c560"
+     },
+     {
+      "file": "software/liblitespi/liblitespi.a",
+      "base_sha256": "1185334467c085cb0170ea32edd975a03d917d2fa3acf7d87fba473552d3df7e",
+      "head_sha256": "090a200bbda16564c977b9281e93c2ad3a8abaa402945ef02e8faf844e50482d"
+     },
+     {
+      "file": "software/libmilan_baremetal/libmilan_baremetal.a",
+      "base_sha256": "3b5fb45df4e0ab709a65a8efbf5efd8ac84d2879b95bfe49f881baa6fc062dc6",
+      "head_sha256": "2ae6516176f8f9ccd967e0ca44139293ef385305ea7452045a17d6f1046cbaa7"
+     }
+    ],
+    "tree": [
+     {
+      "file": "gateware/alinx_ax7101.v",
+      "base_sha256": "35ce16dba09dfd8ef33b440393e4c2b259dc98c82a7bc5e798f5b61da6cfffad",
+      "head_sha256": "3accb1879a812dd78603112327f1ea09313e6c3b73a0f735c9b0633c988dda26"
+     }
+    ],
+    "log": [
+     {
+      "file": "litex.log",
+      "base_sha256": "2cd2480b2a87f5185833f2cbfc32e64fdbc04955cb46fe41e87d02e787db04da",
+      "head_sha256": "12798675e4102368a2dc093a9fb932e3a93144b853e4c62dbd5ff72a031ca51b"
+     }
+    ],
+    "different": [],
+    "missing": []
+   }
+  },
+  "endstation_ax7101_8x8": {
+   "compare": {
+    "files": 3876,
+    "identical": 3856,
+    "stamp": [
+     {
+      "file": "csr.csv",
+      "base_sha256": "fd3ae5c152cd9b819e625a75bb5278749c5151f2dff1ea149574912c93769d68",
+      "head_sha256": "2613fa8483ee22b7047c9a0324f13546e9a3f47a721dc6d4302983fe5bfaff7c"
+     },
+     {
+      "file": "software/include/generated/csr.h",
+      "base_sha256": "b8a544afd6d3d5140904ed90faceb35fbc53e2ffebd4990b8f078a8d5bd42b6b",
+      "head_sha256": "2b5f6e898a449941972214deab6b9fcb115b45ccbbaf1e52f4df45ae20d6757c"
+     },
+     {
+      "file": "software/include/generated/git.h",
+      "base_sha256": "b1bc93ff3bb9a43ddeb1ee85d7a3ff69bf20d6d00ea064ca53539d71926c7a69",
+      "head_sha256": "e2f2d385733a9a712da4d1df8440eb434c0cf77d569e59d1ebacd8d36370d0c5"
+     },
+     {
+      "file": "software/include/generated/mem.h",
+      "base_sha256": "951a2d258f7c61a35d5a8e8b733bbdb7b14a5c3bfc218db4d16f459ac4a85797",
+      "head_sha256": "5aa7404bbddb8a57069c567e7886ad950393fc66f26951c00554dd909f392d69"
+     },
+     {
+      "file": "software/include/generated/soc.h",
+      "base_sha256": "604acb77ad3a433659dc475bfc7d6970102a31a41d52f27f511b13d91befb9db",
+      "head_sha256": "a333b3de80909847998fc9c086b5f8a734f506c43df830d55b0b2bbcfd2dd526"
+     }
+    ],
+    "ar": [
+     {
+      "file": "software/libbase/libbase.a",
+      "base_sha256": "b2c66bdf2196d44388b905c4f8acdf2ce3d6559b89b73ec3b4ff740607c74950",
+      "head_sha256": "548fe12fd68ef945c7ac690f136b276e1c0a504494c2ddac1e8ba94e7a185ce6"
+     },
+     {
+      "file": "software/libc/__libc_minimal.a",
+      "base_sha256": "be902e4ffee435d0ab4dcaac1192019631dcb3617de6302af72b5a3dba018f56",
+      "head_sha256": "1082fe22f251a184f644766577a6769dd2a576b76bbc2f5fe2753d5e10416658"
+     },
+     {
+      "file": "software/libc/_libc_minimal.a",
+      "base_sha256": "27e0b7bd66f0e835826345b863f5f8d2be10333dc0fbbf5b690bdc4aa00a2468",
+      "head_sha256": "5ff574894f620432ea77314ac39076ade4a2f1d6ba7a152c87463aba9da83d41"
+     },
+     {
+      "file": "software/libc/libc-minimal.a",
+      "base_sha256": "27e0b7bd66f0e835826345b863f5f8d2be10333dc0fbbf5b690bdc4aa00a2468",
+      "head_sha256": "5ff574894f620432ea77314ac39076ade4a2f1d6ba7a152c87463aba9da83d41"
+     },
+     {
+      "file": "software/libc/libc.a",
+      "base_sha256": "27e0b7bd66f0e835826345b863f5f8d2be10333dc0fbbf5b690bdc4aa00a2468",
+      "head_sha256": "5ff574894f620432ea77314ac39076ade4a2f1d6ba7a152c87463aba9da83d41"
+     },
+     {
+      "file": "software/libcompiler_rt/libcompiler_rt.a",
+      "base_sha256": "b4661e71d6b421d1adeb4ed4a7281992a0e4ca980f9c8f40a1b939a501b506ee",
+      "head_sha256": "a51291d2a4c923fc8251c174a47023e2bedb9e6e35017f3550bfb7a2d10a9f1d"
+     },
+     {
+      "file": "software/libfatfs/libfatfs.a",
+      "base_sha256": "6abd4a07bb56661ad838dce99e28d324a92704620dd7e90080e1215210c4779e",
+      "head_sha256": "3f80df7ac19e0077634f763be22b5d398d604bd8a89c0b75872aca59f33a3cea"
+     },
+     {
+      "file": "software/liblitedram/liblitedram.a",
+      "base_sha256": "3924c54f38b3f42536f00bb18a4c239d880c47313c760850b1e02c7bf5d5e63c",
+      "head_sha256": "3ee343166592a707cdcf35c128937aace7b90e8660de916e6c79c4dfca35e972"
+     },
+     {
+      "file": "software/libliteeth/libliteeth.a",
+      "base_sha256": "4c84945ef13ca0eb88a7654f00a7095c8cfc9cb2e905d706abc4250a53b7fcb2",
+      "head_sha256": "48bf250530053340caa842d3a7e25cf18e91750c1cac27fbe92b20025f7b8573"
+     },
+     {
+      "file": "software/liblitesata/liblitesata.a",
+      "base_sha256": "e66b688a6002ec9954c21115dfa4f74a80d44111c17f62889a685bfd0d1d5d4b",
+      "head_sha256": "7af3716c585df3250d619b10f93ae2f70d9b23f6d52cc1d7fd840bb2a0227706"
+     },
+     {
+      "file": "software/liblitesdcard/liblitesdcard.a",
+      "base_sha256": "6ae366879474cd18b7e9cb12e24e7d48eb97bb2fa3d11a6ae4db90081f6a02cb",
+      "head_sha256": "5dd49c502a80b998260fbe898c588dd1313e9040a94ae726f3dd1123e5c65203"
+     },
+     {
+      "file": "software/liblitespi/liblitespi.a",
+      "base_sha256": "e4eca7ee5c4b8dce186f943a24a008860ccbeb5ebda016d1649227c42bf94366",
+      "head_sha256": "ca31e5466f5149d2596721c89cccb7f46c4f5401088fcd0ad92cbb690d961d52"
+     },
+     {
+      "file": "software/libmilan_baremetal/libmilan_baremetal.a",
+      "base_sha256": "3332faa480df043e8418b325d68554cd321cc264157a9133aea0f6fe35d75804",
+      "head_sha256": "c3bad2a94dbd7d3c631d1de25c932deddafe5c3506b465f86f112d960c7f152d"
+     }
+    ],
+    "tree": [
+     {
+      "file": "gateware/alinx_ax7101.v",
+      "base_sha256": "3a6fe5aadd1731a07fe80dc6c5afc4d78430d3dc4113de1e48f6dcce9a8c462c",
+      "head_sha256": "447993ea9fee07a6feb8140716b6059fddd6f81c2f83ca31a60b72fac739993c"
+     }
+    ],
+    "log": [
+     {
+      "file": "litex.log",
+      "base_sha256": "c5d7ea666814b2831e82281a8b7f40caaf4920b8660a06c0d2b3df98447f0521",
+      "head_sha256": "ce9350320c9fe8abd20f185d73c2407e7ba9a89ea21e026c70ecbdb67a2e639b"
+     }
+    ],
+    "different": [],
+    "missing": []
+   },
+   "reads_head": {
+    "tcl_paths": 123,
+    "tree_files": 63,
+    "submodule_files": 56,
+    "outside": [
+     "$WORK/export/out-endstation_ax7101_8x8/gateware/alinx_ax7101.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+    ],
+    "changed": [],
+    "pins": {
+     "gptp-processor": [
+      "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+     ],
+     "protocol-processor": [
+      "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     ],
+     "third_party/verilog-axis": [
+      "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     ]
+    }
+   },
+   "reads_base": {
+    "tcl_paths": 123,
+    "tree_files": 63,
+    "submodule_files": 56,
+    "outside": [
+     "$WORK/export/out-endstation_ax7101_8x8/gateware/alinx_ax7101.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+     "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+    ],
+    "changed": [],
+    "pins": {
+     "gptp-processor": [
+      "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+     ],
+     "protocol-processor": [
+      "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     ],
+     "third_party/verilog-axis": [
+      "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     ]
+    }
+   },
+   "generated_verilog": {
+    "base": {
+     "bytes": 1764854,
+     "sha256": "3a6fe5aadd1731a07fe80dc6c5afc4d78430d3dc4113de1e48f6dcce9a8c462c"
+    },
+    "head": {
+     "bytes": 1764854,
+     "sha256": "447993ea9fee07a6feb8140716b6059fddd6f81c2f83ca31a60b72fac739993c"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,121 @@
+{
+  "head": "7c1b52bee26b497080ee22b1c1986109f80a5ee7",
+  "pins": {
+    "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+    "third_party/lwSRP": "9197193e47a6bb1c45a56d90a18c1784123aba44"
+  },
+  "input_mrpdu": "000119001e0002112233445566000191e0f011223300020100000170000123452a00000000",
+  "well_formed": true,
+  "ordered_equal": false,
+  "fabric": {
+    "ethernet_header": "0180c200000e0a0b0c0d0e0f22ea",
+    "events": [
+      [
+        3,
+        "1122334455660001",
+        0,
+        2,
+        false
+      ],
+      [
+        3,
+        "1122334455660002",
+        0,
+        2,
+        false
+      ]
+    ],
+    "leave_all_types": []
+  },
+  "split": {
+    "ethernet_header": "0180c200000e0a0b0c0d0e0f22ea",
+    "events": [
+      [
+        3,
+        "1122334455660002",
+        0,
+        2,
+        false
+      ],
+      [
+        3,
+        "1122334455660001",
+        0,
+        2,
+        false
+      ]
+    ],
+    "leave_all_types": []
+  },
+  "controls": {
+    "packing_only": "PASS",
+    "zero_padding": "PASS",
+    "five_value_vector": "PASS",
+    "plants": [
+      {
+        "plant": "plus-k-off-by-one",
+        "caught_by": "ordered event comparison"
+      },
+      {
+        "plant": "wrong-AttributeEvent",
+        "caught_by": "ordered event comparison"
+      },
+      {
+        "plant": "wrong-FourPackedEvent",
+        "caught_by": "ordered event comparison"
+      },
+      {
+        "plant": "dropped-declaration",
+        "caught_by": "ordered event comparison"
+      },
+      {
+        "plant": "extra-declaration",
+        "caught_by": "ordered event comparison"
+      },
+      {
+        "plant": "reordered-declarations",
+        "caught_by": "ordered event comparison"
+      },
+      {
+        "plant": "LeaveAll-wrong-attribute-type",
+        "caught_by": "per-type LeaveAll comparison"
+      },
+      {
+        "plant": "malformed-PDU-EndMark",
+        "caught_by": "truncated Message header"
+      },
+      {
+        "plant": "malformed-list-EndMark",
+        "caught_by": "truncated vector or AttributeList EndMark"
+      },
+      {
+        "plant": "wrong-ProtocolVersion",
+        "caught_by": "ProtocolVersion or truncated PDU"
+      },
+      {
+        "plant": "wrong-AttributeLength",
+        "caught_by": "inconsistent AttributeLength"
+      },
+      {
+        "plant": "wrong-AttributeListLength",
+        "caught_by": "truncated vector or AttributeList EndMark"
+      },
+      {
+        "plant": "reserved-ThreePackedEvents",
+        "caught_by": "reserved ThreePackedEvents"
+      },
+      {
+        "plant": "reserved-LeaveAllEvent",
+        "caught_by": "reserved LeaveAllEvent"
+      },
+      {
+        "plant": "truncated-PDU-EndMark",
+        "caught_by": "inconsistent AttributeListLength"
+      },
+      {
+        "plant": "oversized-frame",
+        "caught_by": "frame length outside 17..1500"
+      }
+    ]
+  }
+}

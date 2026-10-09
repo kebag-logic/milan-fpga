@@ -1,0 +1,65 @@
+{
+  "head": "7c1b52bee26b497080ee22b1c1986109f80a5ee7",
+  "processor_pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+  "results": [
+    {
+      "case": "maintained_walk",
+      "rc": 0,
+      "expected_rc": 0,
+      "checks": 127,
+      "failures": 0,
+      "failed_tests": [],
+      "log_bytes": 17513,
+      "log_sha256": "b48f06324ef7611d2f55f8d64a766a9fbb07bdad0a42faf42ed0930e1471ffdb"
+    },
+    {
+      "case": "strict_unbind",
+      "rc": 1,
+      "expected_rc": 1,
+      "checks": 8,
+      "failures": 8,
+      "failed_tests": [
+        "Table530/ListenerWalk.Graded/UNBIND_PW2",
+        "Table530/ListenerWalk.Graded/UNBIND_PWA",
+        "Table530/ListenerWalk.Graded/UNBIND_PWD",
+        "Table530/ListenerWalk.Graded/UNBIND_PWR",
+        "Table530/ListenerWalk.Graded/UNBIND_PWT",
+        "Table530/ListenerWalk.Graded/UNBIND_SNR",
+        "Table530/ListenerWalk.Graded/UNBIND_SOK",
+        "Table530/ListenerWalk.Graded/UNBIND_UNB"
+      ],
+      "log_bytes": 5218,
+      "log_sha256": "add2f436dce07e4038ff69fa66dc84d3770b40b5b64143f48c18006f53fad4ef"
+    },
+    {
+      "case": "echo_strict_control",
+      "rc": 0,
+      "expected_rc": 0,
+      "checks": 8,
+      "failures": 0,
+      "failed_tests": [],
+      "log_bytes": 1389,
+      "log_sha256": "bd9fa91f98b35c7f6bdd45c2f36ae303820dfe836938816b9a437b7849056976"
+    },
+    {
+      "case": "echo_conformance_rejection",
+      "rc": 1,
+      "expected_rc": 1,
+      "checks": 8,
+      "failures": 8,
+      "failed_tests": [
+        "Table530/ListenerWalk.Graded/UNBIND_PW2",
+        "Table530/ListenerWalk.Graded/UNBIND_PWA",
+        "Table530/ListenerWalk.Graded/UNBIND_PWD",
+        "Table530/ListenerWalk.Graded/UNBIND_PWR",
+        "Table530/ListenerWalk.Graded/UNBIND_PWT",
+        "Table530/ListenerWalk.Graded/UNBIND_SNR",
+        "Table530/ListenerWalk.Graded/UNBIND_SOK",
+        "Table530/ListenerWalk.Graded/UNBIND_UNB"
+      ],
+      "log_bytes": 5226,
+      "log_sha256": "7cd5cc14d8aaebfae00e027aa06ece58e79510cae66e12ff86fc2da9dc452526"
+    }
+  ],
+  "conclusion": "LD1 prevents exact UNBIND wire equality at the assigned base"
+}

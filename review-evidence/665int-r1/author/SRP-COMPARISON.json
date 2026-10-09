@@ -1,0 +1,64 @@
+{
+  "head": "7c1b52bee26b497080ee22b1c1986109f80a5ee7",
+  "pins": {
+    "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+    "third_party/lwSRP": "9197193e47a6bb1c45a56d90a18c1784123aba44"
+  },
+  "input_mrpdu": "000119001e0002112233445566000191e0f011223300020100000170000123452a00000000",
+  "frames": {
+    "split": "0180c200000e0a0b0c0d0e0f22ea000308000e00011122334455660002008000000308000e00011122334455660001008000000000",
+    "fabric": "0180c200000e0a0b0c0d0e0f22ea000308000e0002112233445566000100a000000000"
+  },
+  "lengths": {
+    "split": 53,
+    "fabric": 35
+  },
+  "equal": false,
+  "differences": [
+    {
+      "offset": 20,
+      "fabric": 2,
+      "split": 1
+    },
+    {
+      "offset": 28,
+      "fabric": 1,
+      "split": 2
+    },
+    {
+      "offset": 30,
+      "fabric": 160,
+      "split": 128
+    },
+    {
+      "offset": 33,
+      "fabric": 0,
+      "split": 3
+    },
+    {
+      "offset": 34,
+      "fabric": 0,
+      "split": 8
+    }
+  ],
+  "commands": [
+    {
+      "label": "fabric-build",
+      "rc": 0,
+      "bytes": 2711,
+      "sha256": "a9ee22eee21550cc38ed3ef26a9a5297713d5cbd8eb16fca7965328e5573f18f"
+    },
+    {
+      "label": "fabric",
+      "rc": 0,
+      "bytes": 196,
+      "sha256": "2afdb01829ea5454aadcf39bdc87ffc08edece293ed574adc8e96336e8797bf7"
+    },
+    {
+      "label": "split",
+      "rc": 0,
+      "bytes": 721,
+      "sha256": "1ecc504531d3eb714a875fded86e2a318c6cc32e2389da8c5b4eb9306d501808"
+    }
+  ]
+}

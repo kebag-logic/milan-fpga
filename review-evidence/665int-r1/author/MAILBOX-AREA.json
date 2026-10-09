@@ -1,0 +1,89 @@
+{
+ "head": "9b73a8c66ea301819917dfacafe0da23b975245a",
+ "recipe": "docs/design/MAILBOX_SPLIT.md, Measured area",
+ "rows": {
+  "tb_mbx_top": {
+   "module": "(top)",
+   "lut": 3548,
+   "ff": 4082,
+   "ramb36": 1,
+   "ramb18": 10,
+   "dsp": 0
+  },
+  "(tb_mbx_top)": {
+   "module": "(top)",
+   "lut": 0,
+   "ff": 0,
+   "ramb36": 0,
+   "ramb18": 0,
+   "dsp": 0
+  },
+  "g_wb.u_wb": {
+   "module": "KL_mbx_wb",
+   "lut": 203,
+   "ff": 1,
+   "ramb36": 0,
+   "ramb18": 0,
+   "dsp": 0
+  },
+  "u_mbx": {
+   "module": "KL_mbx",
+   "lut": 3348,
+   "ff": 4081,
+   "ramb36": 1,
+   "ramb18": 10,
+   "dsp": 0
+  },
+  "(u_mbx)": {
+   "module": "KL_mbx",
+   "lut": 647,
+   "ff": 1668,
+   "ramb36": 0,
+   "ramb18": 0,
+   "dsp": 0
+  },
+  "u_evt": {
+   "module": "KL_mbx_evt",
+   "lut": 669,
+   "ff": 978,
+   "ramb36": 0,
+   "ramb18": 0,
+   "dsp": 0
+  },
+  "u_rx": {
+   "module": "KL_mbx_rx",
+   "lut": 1520,
+   "ff": 1155,
+   "ramb36": 0,
+   "ramb18": 0,
+   "dsp": 0
+  },
+  "u_tx": {
+   "module": "KL_mbx_tx",
+   "lut": 493,
+   "ff": 280,
+   "ramb36": 0,
+   "ramb18": 0,
+   "dsp": 0
+  }
+ },
+ "wns_ns": 0.329,
+ "reports": {
+  "util_hier.rpt": {
+   "bytes": 2433,
+   "sha256": "834db2bb0d2de1a304d9f91544bcbcae9399329644c11987b6b6eed3669bfc34"
+  },
+  "util.rpt": {
+   "bytes": 11248,
+   "sha256": "98acd65ab54d85d2cc3981cb5151a0c657145fc3f2fea0fdb44bd672f7db9027"
+  },
+  "timing.rpt": {
+   "bytes": 16202,
+   "sha256": "a2680f713242fccb9a5d231b2182b241d3870737eb4359fc344bb0a0f4109ede"
+  },
+  "route.rpt": {
+   "bytes": 714,
+   "sha256": "a37acca97d2459c13f0e8a7fe977dc8322241fdbbe6d130d138df25f3caa61a4"
+  }
+ }
+}
