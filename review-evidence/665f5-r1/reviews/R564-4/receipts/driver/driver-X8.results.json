@@ -1,0 +1,15 @@
+[
+  {
+    "name": "nosub-bypasses-running-only",
+    "path": "aecp/aecp_commands.c",
+    "old": "\t\tif (info.running) {\n",
+    "new": "\t\tif ((wire_be32(in + 4) & 0xfaf80000u) == 0u && !aecp_foreign_lock(a)) {\n\t\t\twire_put_be(out + 4, flags & ~0x20000000u, 4);\n\t\t\treturn AECP_SUCCESS;\n\t\t}\n\t\tif (info.running) {\n",
+    "checks": [
+      [
+        "Core.S1_NoSubcommandSetOnRunningOutputIsRefused",
+        "STREAM_IS_RUNNING for a no-sub-command SET"
+      ]
+    ],
+    "caught": true
+  }
+]

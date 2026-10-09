@@ -1,0 +1,22 @@
+{
+  "plant": "X9-nosub-bypasses-input-refusal",
+  "interfaces": 1,
+  "filter": "*",
+  "site": "aecp/aecp_commands.c",
+  "compiled": true,
+  "rc": 1,
+  "failed_tests": [
+    "Core.S2_NoSubcommandSetOnInputIsNotSupported"
+  ],
+  "passed_line": "[  PASSED  ] 71 tests.",
+  "verdict_line": "verdict: FAIL (its tallies report 1 failure(s) across 72 checks, exit 1)",
+  "checks": [
+    {
+      "test": "Core.S2_NoSubcommandSetOnInputIsNotSupported",
+      "words": "NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT",
+      "test_failed": true,
+      "diagnostic_present": true
+    }
+  ],
+  "killed": true
+}

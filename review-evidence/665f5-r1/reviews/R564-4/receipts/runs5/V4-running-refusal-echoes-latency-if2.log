@@ -1,0 +1,25 @@
+wrote $REVIEWS/665f5-r564-4-packet/scratch/V4-running-refusal-echoes-latency-if2/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f5-r564-4-packet/scratch/V4-running-refusal-echoes-latency-if2/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f5-r564-4-packet/scratch/V4-running-refusal-echoes-latency-if2/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+{
+  "plant": "V4-running-refusal-echoes-latency",
+  "interfaces": 2,
+  "filter": "*",
+  "site": "aecp/aecp_commands.c",
+  "compiled": true,
+  "rc": 1,
+  "failed_tests": [
+    "Core.S1_NoSubcommandSetOnRunningOutputIsRefused"
+  ],
+  "passed_line": "[  PASSED  ] 71 tests.",
+  "verdict_line": "verdict: FAIL (its tallies report 1 failure(s) across 72 checks, exit 1)",
+  "checks": [
+    {
+      "test": "Core.S1_NoSubcommandSetOnRunningOutputIsRefused",
+      "words": "refusal reports current latency",
+      "test_failed": true,
+      "diagnostic_present": true
+    }
+  ],
+  "killed": true
+}

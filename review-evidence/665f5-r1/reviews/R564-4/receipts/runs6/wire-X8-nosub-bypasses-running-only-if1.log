@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "$REVIEWS/665f5-r564-4-packet/scratch/wroot-X8-nosub-bypasses-running-only/sw/firmware/ctrl/test/aecp_wire.py", line 171, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/665f5-r564-4-packet/scratch/wroot-X8-nosub-bypasses-running-only/sw/firmware/ctrl/test/aecp_wire.py", line 162, in main
+    reports.append(check(log, args.output / "aecp_entity_gen.h"))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/665f5-r564-4-packet/scratch/wroot-X8-nosub-bypasses-running-only/sw/firmware/ctrl/test/aecp_wire_oracle.py", line 264, in check
+    report = grade(rows, descriptors)
+  File "$REVIEWS/665f5-r564-4-packet/scratch/wroot-X8-nosub-bypasses-running-only/sw/firmware/ctrl/test/aecp_wire_oracle.py", line 183, in grade
+    cmd = response(row, core, descriptors)
+  File "$REVIEWS/665f5-r564-4-packet/scratch/wroot-X8-nosub-bypasses-running-only/sw/firmware/ctrl/test/aecp_wire_oracle.py", line 101, in response
+    assert number(reply, 16) >> 11 == status, diagnostic
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: running STREAM_OUTPUT SET refusal

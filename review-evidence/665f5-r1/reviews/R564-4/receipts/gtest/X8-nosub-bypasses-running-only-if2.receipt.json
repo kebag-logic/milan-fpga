@@ -1,0 +1,22 @@
+{
+  "plant": "X8-nosub-bypasses-running-only",
+  "interfaces": 2,
+  "filter": "*",
+  "site": "aecp/aecp_commands.c",
+  "compiled": true,
+  "rc": 1,
+  "failed_tests": [
+    "Core.S1_NoSubcommandSetOnRunningOutputIsRefused"
+  ],
+  "passed_line": "[  PASSED  ] 71 tests.",
+  "verdict_line": "verdict: FAIL (its tallies report 1 failure(s) across 72 checks, exit 1)",
+  "checks": [
+    {
+      "test": "Core.S1_NoSubcommandSetOnRunningOutputIsRefused",
+      "words": "STREAM_IS_RUNNING for a no-sub-command SET",
+      "test_failed": true,
+      "diagnostic_present": true
+    }
+  ],
+  "killed": true
+}

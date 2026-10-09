@@ -1,0 +1,15 @@
+[
+  {
+    "name": "nosub-bypasses-input-refusal",
+    "path": "aecp/aecp_commands.c",
+    "old": "\t\tif (type == 5u) {\n\t\t\treturn AECP_NOT_SUPPORTED;\n\t\t}\n",
+    "new": "\t\tif (type == 5u && (wire_be32(in + 4) & 0xfaf80000u) != 0u) {\n\t\t\treturn AECP_NOT_SUPPORTED;\n\t\t}\n",
+    "checks": [
+      [
+        "Core.S2_NoSubcommandSetOnInputIsNotSupported",
+        "NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT"
+      ]
+    ],
+    "caught": true
+  }
+]
