@@ -408,6 +408,81 @@ TEST_F(App, MediaUnlockedNoticeCannotPassAnOwedUnbindResponse)
     ASSERT_NE(response,UINT32_MAX);ASSERT_NE(notice,UINT32_MAX);EXPECT_LT(response,notice);
     EXPECT_FALSE(acmp_change_pending(&application.acmp.acmp,0));
 }
+
+TEST_F(App, PhysicalObservationsAndAcceptedWritesRetainTheirOwner)
+{
+    for(auto [cmd,type]:std::vector<std::array<unsigned,2>>{{15,6},{39,9},{40,0},{41,36}}){
+        unsigned before=fabric.tx_sent;aem(cmd,target(type,0));
+        bool success=false;for(unsigned n=before;n<fabric.tx_sent;++n){auto p=mbx_model_tx_frame(&fabric,n);
+            if(p->bytes[14]==0xfb&&get(p->bytes+36,2)==cmd)success=get(p->bytes+16,2)>>11==0;}
+        EXPECT_TRUE(success)<<cmd;
+    }
+    auto format=target(5,0,12);put(format,4,get(desc(5).defaults+74,8),8);
+    EXPECT_CALL(mock,Format(5,0,_)).Times(1);
+    EXPECT_CALL(mock,Changed(AECP_CHANGE_FORMAT,5,0)).Times(1);
+    aem(8,format);EXPECT_TRUE(nvm_store_status()->dirty);
+    ctrl_app_aecp_changed(&bridge,6,0,8);service();
+    ctrl_app_aecp_changed(&bridge,5,65535,8);service();
+    observations=false;unsigned before=fabric.tx_sent;aem(15,target(5,0));
+    bool refused=false;for(unsigned n=before;n<fabric.tx_sent;++n){auto p=mbx_model_tx_frame(&fabric,n);
+        if(p->bytes[14]==0xfb)refused=(get(p->bytes+16,2)>>11)==10;}
+    EXPECT_TRUE(refused)<<"an unavailable physical snapshot cannot report success";
+}
+
+TEST_F(App, InputInfoReflectsAcmpSettlementAndFailures)
+{
+    auto &sink=application.acmp.acmp.sinks[0];aecp_stream_info v{};
+    auto read=[&]{return bridge.ports.stream(&bridge,0,5,0,&v);};
+    ASSERT_TRUE(read());EXPECT_EQ(v.flags,0x80000000u);
+    acmp(6);ASSERT_TRUE(read());EXPECT_TRUE(v.bound);EXPECT_FALSE(v.running);EXPECT_TRUE(v.flags&8u);
+    sink.started=true;ASSERT_TRUE(read());EXPECT_TRUE(v.running);EXPECT_FALSE(v.flags&8u);
+    sink.state=ACMP_SETTLED_RSV_OK;sink.tk_failed=false;
+    ASSERT_TRUE(read());EXPECT_EQ(v.flags,0xf6000006u);EXPECT_EQ(v.flags_ex,1u);
+    sink.tk_failed=true;ASSERT_TRUE(read());EXPECT_EQ(v.flags,0xfe000046u);
+    EXPECT_FALSE(bridge.ports.stream(&bridge,0,5,ACMP_MAX_SINKS,&v));
+    unsigned source_calls=0,srp_calls=0;
+    acmp_env_ports.ctx=&source_calls;
+    acmp_env_ports.source=[](void*p,unsigned i,acmp_source_state*v){++*static_cast<unsigned*>(p);v->stream.vlan_id=i;};
+    acmp_source_state source{};bridge.acmp_ports.source(&bridge,7,&source);
+    EXPECT_EQ(source_calls,1u);EXPECT_EQ(source.stream.vlan_id,7u);
+    acmp_env_ports.ctx=&srp_calls;
+    acmp_env_ports.srp=[](void*p,unsigned,const acmp_stream*){++*static_cast<unsigned*>(p);};
+    bridge.acmp_ports.srp(&bridge,0,nullptr);EXPECT_EQ(srp_calls,1u);
+}
+
+TEST_F(App, CompositionRefusalsLeaveExistingBindingsIntact)
+{
+    const auto *existing=application.acmp.acmp.env;
+    ctrl_app candidate{};ctrl_app_aecp next{};aecp_mbx next_mbx{};
+    EXPECT_FALSE(ctrl_app_compose_aecp(&candidate,&next,&next_mbx,&cfg,&ports,&owner));
+    candidate.loop.rx[MBX_CH_ACMP].fn=application.loop.rx[MBX_CH_ACMP].fn;
+    candidate.loop.rx[MBX_CH_AECP].fn=application.loop.rx[MBX_CH_AECP].fn;
+    EXPECT_FALSE(ctrl_app_compose_aecp(&candidate,&next,&next_mbx,&cfg,&ports,&owner));
+    candidate.loop.rx[MBX_CH_AECP].fn=nullptr;candidate.loop.n_polls=CTRL_LOOP_MAX_POLLS-1;
+    EXPECT_FALSE(ctrl_app_compose_aecp(&candidate,&next,&next_mbx,&cfg,&ports,&owner));
+    candidate.loop.n_polls=0;auto invalid=cfg;invalid.interfaces=0;
+    EXPECT_FALSE(ctrl_app_compose_aecp(&candidate,&next,&next_mbx,&invalid,&ports,&owner));
+    candidate.loop.n_sinks=CTRL_LOOP_MAX_SINKS;
+    EXPECT_FALSE(ctrl_app_compose_aecp(&candidate,&next,&next_mbx,&cfg,&ports,&owner));
+    EXPECT_EQ(application.acmp.acmp.env,existing);
+}
+
+TEST_F(App, ExpiredAndMissingStartRequestsCannotApplyLate)
+{
+    auto &entry=application.loop.polls[application.loop.n_polls-2];
+    // The SRP attachment follows composition; find the bridge's actual poll.
+    auto deliver=entry;
+    for(unsigned n=0;n<application.loop.n_polls;++n)
+        if(application.loop.polls[n].ctx==&bridge)deliver=application.loop.polls[n];
+    bridge.ports.start(&bridge,0,true);adapter.core.start_pending=false;
+    deliver.fn(deliver.ctx);EXPECT_FALSE(bridge.start_pending);
+    EXPECT_FALSE(application.acmp.acmp.sinks[0].started);
+    for(unsigned index:{0u,ACMP_MAX_SINKS}){
+        bridge.ports.start(&bridge,index,true);adapter.core.start_pending=true;
+        deliver.fn(deliver.ctx);EXPECT_FALSE(adapter.core.start_pending);
+        EXPECT_FALSE(application.acmp.acmp.sinks[0].started);
+    }
+}
 #endif
 
 TEST_F(Core, EveryDescriptorAndReadFailures)
@@ -465,14 +540,14 @@ TEST_F(Core, NamesAndDescriptorOverlay)
 TEST_F(Core, ScalarGetSetAndCurrentValueRefusals)
 {
     for(auto [set,type,offset,width,listoff]:std::vector<std::array<unsigned,5>>{{8,5,74,8,82},{8,6,74,8,82},{20,2,136,4,140},{22,36,70,2,72}}){
-        auto&d=desc(type);auto b=target(type,0,4+width);size_t list=get(d.value+listoff,2);
+        auto&d=desc(type);auto b=target(type,0,std::max(8u,4+width));size_t list=get(d.value+listoff,2);
         std::copy(d.value+list,d.value+list+width,b.begin()+4);
         auto out=ask(set,b);EXPECT_EQ(get(out,42,width),get(b,4,width));
         out=ask(set+1,target(type,0));EXPECT_EQ(get(out,42,width),get(b,4,width));
         auto bad=b;std::fill(bad.begin()+4,bad.end(),0xff);out=ask(set,bad,7);
         EXPECT_EQ(get(out,42,width),get(b,4,width))<<"refused SET reports current value";
-        ask(set,Bytes(3),7);ask(set+1,Bytes(3),7);ask(set,target(0,0,4+width),11);
-        ask(set,target(type,0xffff,4+width),2);ask(set+1,target(type,0xffff),2);
+        ask(set,Bytes(3),7);ask(set+1,Bytes(3),7);ask(set,target(0,0,std::max(8u,4+width)),11);
+        ask(set,target(type,0xffff,std::max(8u,4+width)),2);ask(set+1,target(type,0xffff),2);
     }
     bound=true;ask(8,target(5,0,12),12);bound=false;streaming=true;ask(8,target(6,0,12),12);
 }
@@ -648,7 +723,7 @@ TEST_F(Core, ConfigurationAndLockedSetRefusals)
     ask(6,Bytes(3),7);auto b=Bytes(4);put(b,2,1,2);ask(6,b,7);
     bound=true;ask(6,b,12);bound=false;streaming=true;ask(6,b,12);streaming=false;
     ask(1,Bytes(16));ask(6,b,3,CTLR+1);
-    for(auto [cmd,type,size]:std::vector<std::array<unsigned,3>>{{8,5,12},{20,2,8},{22,36,6},{14,6,84},{24,26,5},{34,5,4}})
+    for(auto [cmd,type,size]:std::vector<std::array<unsigned,3>>{{8,5,12},{20,2,8},{22,36,8},{14,6,84},{24,26,5},{34,5,4}})
         ask(cmd,target(type,0,size),3,CTLR+1);
     auto name=target(5,0,72);ask(16,name,3,CTLR+1);
     a.locked=false;model.configurations=2;ask(6,b);out=ask(7);EXPECT_EQ(get(out,40,2),1u);
@@ -685,11 +760,12 @@ TEST_F(Core, ChangedScalarValuesAndDamagedLists)
     std::copy(d.value+off+8,d.value+off+16,b.begin()+4);ask(8,b,7);
     uint64_t narrow=(get(d.value+74,8)&~(uint64_t(1023)<<22))|(uint64_t(4)<<22);
     put(b,4,narrow,8);ask(8,b);EXPECT_EQ(get(d.value+74,8),narrow);
-    auto clock=target(36,0,6);put(clock,4,1,2);ask(22,clock);EXPECT_EQ(get(desc(36).value+70,2),1u);
+    ask(22,target(36,0,6),7); // IEEE 7.4.23.1 reserved halfword is mandatory
+    auto clock=target(36,0,8);put(clock,4,1,2);ask(22,clock);EXPECT_EQ(get(desc(36).value+70,2),1u);
     auto rate=target(2,0,8);put(rate,4,48000,4);put(desc(2).value+136,44100,4);ask(20,rate);
     for(unsigned type:{5,2,36}){
         auto&row=desc(type);unsigned cmd=type==5?8:type==2?20:22, width=type==5?8:type==2?4:2;
-        auto input=target(type,0,4+width);size_t original=row.length;row.length=4;ask(cmd,input,10);row.length=original;
+        auto input=target(type,0,std::max(8u,4+width));size_t original=row.length;row.length=4;ask(cmd,input,10);row.length=original;
         unsigned at=type==5?82:type==2?140:72;uint64_t old=get(row.value+at,4);
         put(row.value+at,65535,2);ask(cmd,input,10);put(row.value+at,old,4);
         put(row.value+at+2,65535,2);ask(cmd,input,10);put(row.value+at,old,4);
@@ -815,6 +891,72 @@ TEST_F(Core, SavedValuesRejectWrongFieldsAndDamagedDescriptors)
     EXPECT_EQ(aecp_value_restore(&a,{AECP_CHANGE_FORMAT,5,0,0},bytes.data(),8),AECP_ENTITY_MISBEHAVING);
     a.open=true;
     EXPECT_EQ(aecp_value_restore(&a,{AECP_CHANGE_NAME,0,0,0},bytes.data(),64),AECP_ENTITY_MISBEHAVING);
+}
+
+TEST_F(Core, MapTopologyFailuresAndEmptyPartitions)
+{
+    auto b=target(14,0,16);put(b,4,1,2);auto &stream=desc(5),&cluster=desc(20),&port=desc(14);
+    auto add=[&]{ask(44,b,7);EXPECT_EQ(maps[0].count,0u);};
+    unsigned length=stream.length;stream.length=81;add();stream.length=length;
+    length=cluster.length;cluster.length=85;add();cluster.length=length;
+    cluster.type=21;add();cluster.type=20;
+    auto geometry=get(port.value+12,4);put(port.value+12,2,2);put(port.value+14,65535,2);
+    put(b,12,1,2);add();put(b,12,0,2);put(port.value+12,geometry,4);
+    a.locked=true;a.lock_owner=CTLR+1;ask(44,b,3);a.locked=false;
+    for(unsigned size:{0u,177u}){maps[0].page_channels=size;ask(43,target(14,0,8),10);}
+    maps[0].page_channels=8;maps[0].configuration=1;ask(43,target(14,0,8),10);maps[0].configuration=0;
+    maps[0].index=1;ask(43,target(14,0,8),10);maps[0].index=0;
+    put(port.value+12,0,2);auto page=ask(43,target(14,0,8));
+    EXPECT_EQ(get(page,44,2),1u);EXPECT_EQ(get(page,46,2),0u);put(port.value+12,geometry,4);
+    // A valid second input partition is selected by cluster geometry, not row order.
+    maps[0].page_channels=4;put(b,10,7,2);put(b,12,7,2);ask(44,b);
+    page=ask(43,target(14,0,8));EXPECT_EQ(get(page,46,2),0u);
+    auto query=target(14,0,8);put(query,4,1,2);page=ask(43,query);EXPECT_EQ(get(page,46,2),1u);
+    auto duplicate=b;duplicate.insert(duplicate.end(),b.begin()+8,b.end());put(duplicate,4,2,2);
+    ask(44,duplicate);EXPECT_EQ(maps[0].count,1u);
+}
+
+TEST_F(Core, OutputPartitionGeometryUsesAllAdvertisedWidths)
+{
+    auto &s=desc(6),&port=desc(15);auto original=s;
+    // Metadata is externally owned; malformed lists cannot create phantom pages.
+    Bytes defaults(s.defaults,s.defaults+s.length);s.defaults=defaults.data();
+    auto query=target(15,0,8);maps[1].page_channels=1;
+    auto page=ask(43,query);EXPECT_EQ(get(page,44,2),8u);
+    s.length=85;page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);s.length=original.length;
+    auto list=get(defaults.data()+82,4);
+    put(defaults.data()+82,65535,2);page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);
+    put(defaults.data()+82,list,4);put(defaults.data()+84,65535,2);
+    page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);put(defaults.data()+82,list,4);
+    auto &cluster=desc(20);cluster.type=21;query=target(14,0,8);
+    page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);cluster.type=20;
+    cluster.length=85;page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);
+    (void)port;s=original;
+}
+
+TEST_F(Core, BootMapFaultsCannotPartlyReplaceTheSet)
+{
+    a.open=false;auto &m=maps[0];auto &input_descriptor=desc(5);aecp_mapping row{0,0,0,0};
+    auto restore=[&](unsigned expected){EXPECT_EQ(aecp_map_restore(&a,&m,&row,1),expected);};
+    m.index=65535;restore(10);m.index=0;
+    desc(14).length=19;restore(10);desc(14).length=20;
+    desc(14).configuration=1;m.configuration=1;restore(10);m.configuration=0;desc(14).configuration=0;
+    put(desc(14).value+16,1,2);restore(7);put(desc(14).value+16,0,2);
+    m.capacity=0;restore(7);m.capacity=64;
+    a.in_port=true;restore(10);EXPECT_EQ(aecp_restore_settle(&a),10u);
+    aecp_map_refused(&a,&m);EXPECT_EQ(events[&desc(14)-descriptors.data()].overrides,0u);a.in_port=false;
+    a.open=true;restore(10);aecp_map_refused(&a,&m);a.open=false;
+    m.index=65535;aecp_map_refused(&a,&m);EXPECT_EQ(aecp_restore_settle(&a),10u);m.index=0;
+    m.configuration=1;EXPECT_EQ(aecp_restore_settle(&a),0u);m.configuration=0;
+    m.defaults=&row;m.default_count=1;ASSERT_TRUE(aecp_restore_defaults(&a));
+    aecp_map_refused(&a,&m);desc(5).length=81;EXPECT_EQ(aecp_restore_settle(&a),10u);desc(5).length=154;
+    input_descriptor.index=65535;EXPECT_EQ(aecp_restore_settle(&a),10u);input_descriptor.index=0;
+    EXPECT_EQ(aecp_restore_settle(&a),0u);EXPECT_EQ(m.count,1u);
+    events[&desc(14)-descriptors.data()].overrides=0;desc(5).length=81;
+    EXPECT_EQ(aecp_restore_settle(&a),10u);desc(5).length=154;input_descriptor.index=65535;
+    EXPECT_EQ(aecp_restore_settle(&a),10u);input_descriptor.index=0;
+    aecp_mapping rows[]={{0,0,0,0},{0,1,0,0}};
+    EXPECT_EQ(aecp_map_restore(&a,&m,rows,2),7u);EXPECT_EQ(m.count,1u);
 }
 
 TEST_F(Core, ProbeRepliesResetOnlyTheirOwnInterface)

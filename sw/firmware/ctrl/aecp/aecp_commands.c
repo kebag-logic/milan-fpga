@@ -219,7 +219,8 @@ static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t l
 	unsigned offset = format ? 74u : (rate ? 136u : 70u);
 	unsigned list_offset = format ? 82u : (rate ? 140u : 72u);
 	*bytes = format ? 12u : 8u;
-	if (len < (set ? 4u + width : 4u)) {
+	// SET_CLOCK_SOURCE includes its reserved halfword (IEEE 7.4.23.1).
+	if (len < (set ? *bytes : 4u)) {
 		return AECP_BAD_ARGUMENTS;
 	}
 	memcpy(out, in, 4u);
