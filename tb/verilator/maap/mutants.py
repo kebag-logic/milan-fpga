@@ -36,7 +36,14 @@ SUPPORTING = 0
 
 #: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
 MUTANTS = (
-    ("m5_ignore_link_return", "M5", "restart_w || port_operational_p", "restart_w",
+    ("m6_pending_survives_release", "M6",
+     "if (!enable_i || restart_w || port_operational_p)", "if (1'b0)",
+     "M6 pending response cancelled with allocation"),
+    ("m6_drop_busy_probe", "M6", "if (save_probe_w) begin", "if (1'b0) begin",
+     "M6 busy PROBE gets DEFEND after wire is free"),
+    ("m6_pending_source_not_saved", "M6", "defend_pending_r ? pending_src_r : rx_src_r",
+     "rx_src_r", "M6 pending response preserves prober and requested range"),
+    ("m5_ignore_link_return", "M5", "else if (restart_w || port_operational_p)", "else if (restart_w)",
      "M5 B.3.5.9 link return revokes and reprobes"),
     ("m5_level_restarts", "M5", "port_operational_i && !port_operational_r",
      "port_operational_i", "M5 B.3.5.9 link return restarts PROBE"),
@@ -53,9 +60,9 @@ MUTANTS = (
     ("m7_reject_valid_boundary", "M7", "seed_end_w <= {1'b0, POOL_SIZE_C}",
      "seed_end_w < {1'b0, POOL_SIZE_C}",
      "M7 Table B.9 valid supplied boundary retained"),
-    ("m2_own_requested_start", "M2", "tx_off_r        <= rx_start_r;",
+    ("m2_own_requested_start", "M2", "tx_off_r        <= defend_start_w;",
      "tx_off_r        <= offset_r;", "M2 B.3.6.6 requested start echoes PROBE"),
-    ("m2_own_requested_count", "M2", "tx_cnt_r        <= rx_cnt_r;",
+    ("m2_own_requested_count", "M2", "tx_cnt_r        <= defend_cnt_w;",
      "tx_cnt_r        <= {8'd0, count_i};",
      "M2 B.3.6.6 requested count echoes all 16 bits"),
     ("cdl_28", 1, "CDL_C          = 8'd16;", "CDL_C          = 8'd28;",
@@ -186,13 +193,13 @@ def main() -> int:
             results.append(run_case(
                 work, "m4_reset_time_sampling", source.replace(anchor, replacement),
                 "M4 datapath: programmed MAC changes probe intervals", True))
-        anchor = "restart_w || port_operational_p"
+        anchor = "else if (restart_w || port_operational_p)"
         if source.count(anchor) != 1:
             print("[ESCAPED] M5: expected exactly one link-return anchor")
             results.append(False)
         else:
             results.append(run_case(
-                work, "m5_datapath_ignores_link", source.replace(anchor, "restart_w"),
+                work, "m5_datapath_ignores_link", source.replace(anchor, "else if (restart_w)"),
                 "M5 datapath: link return starts four fresh PROBEs", True))
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")

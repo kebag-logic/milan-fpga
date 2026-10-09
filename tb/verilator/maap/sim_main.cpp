@@ -178,7 +178,7 @@ class MaapHarness {
     void announce_intervals_and_destination();
     void defend_to_the_prober(uint16_t off0);
     void announce_conflict_detection(uint16_t off0);
-    void probe_mid_frame_is_not_defended();
+    void probe_mid_frame_is_defended();
     void frame_on_the_wire_keeps_its_range();
     void defend_and_probe_reception();
     void ignore_disjoint_and_non_pool_pdus();
@@ -188,6 +188,7 @@ class MaapHarness {
     std::vector<long> frame_starts(size_t n);
     void zero_seed_mac_draws_random_timers();
     void compare_mac_remaining_cells();
+    void pending_response_cancelled();
     void port_return_reprobes();
     void supplied_seed_bounds();
     void truncated_pdus_have_no_effect();
@@ -429,28 +430,36 @@ void MaapHarness::announce_conflict_detection(uint16_t off0){
     check_walk("Restart!", walk("Restart!", restart2, off2, true));
 }
 
-void MaapHarness::probe_mid_frame_is_not_defended(){
+void MaapHarness::probe_mid_frame_is_defended(){
     printf("\n[6a] a conflicting PROBE parsed while an ANNOUNCE is part-way out on the\n"
-           "     wire leaves that frame byte-identical and gets no DEFEND\n");
+           "     wire leaves that frame byte-identical and gets a deferred DEFEND\n");
+    for (int accepted : {0,2,7}) {
     const uint16_t off=dut->offset_o;
     const long defends=dut->defends_o;
     const long c0=dut->conflicts_o;
     dut->m_axis_tready=0;
     for(long i=0;i<kAnnounceBudgetCyc && !dut->m_axis_tvalid;i++) cyc();
     ck("ANNOUNCE requested under backpressure", dut->m_axis_tvalid, 1);
-    dut->m_axis_tready=1; cyc(2); dut->m_axis_tready=0;   // two beats out, then stall
+    dut->m_axis_tready=1; cyc(accepted); dut->m_axis_tready=0;   // two beats out, then stall
     const size_t before=frames.size();
-    inject(1, kPeerAbove, off, 8, 0, 0);          // conflicting PROBE, mid-frame
+    inject(1, kPeerAbove, off+2, 0x1234, 0, 0);   // conflicting PROBE, mid-frame
+    inject(1, kPeerBelow, off+100, 8, 0, 0);     // later parse cannot replace it
     cyc(kSettleCyc);
     dut->m_axis_tready=1;
     Frame f;
     next(f, kDefendBudgetCyc);
     ck("PROBE mid-frame: frame on the wire byte-identical", frame_is(f,3) && f.b==golden(3,off), 1);
+    const bool defended=next(f,kDefendBudgetCyc) && frame_is(f,2);
+    ck("M6 busy PROBE gets DEFEND after wire is free",defended,1);
+    ck("M6 pending response preserves prober and requested range",
+       defended && f.at(0,6)==kPeerAbove && f.at(30,2)==off+2
+       && f.at(32,2)==0x1234 && f.at(38,2)==off+2 && f.at(40,2)==6,1);
     cyc(kSettleCyc);
-    ck("PROBE mid-frame: no DEFEND",
-       static_cast<long>(frames.size()-before)==1 && dut->defends_o==defends, 1);
+    ck("M6 pending response sent exactly once",static_cast<long>(frames.size()-before),2);
+    ck("PROBE mid-frame: deferred DEFEND counted",dut->defends_o,defends+1);
     ck("PROBE mid-frame: range kept",
        dut->state_o==2 && dut->offset_o==off && dut->conflicts_o==c0, 1);
+    }
 }
 
 void MaapHarness::frame_on_the_wire_keeps_its_range(){
@@ -664,6 +673,33 @@ void MaapHarness::compare_mac_remaining_cells(){
     dut->seed_valid_i=0;
 }
 
+void MaapHarness::pending_response_cancelled(){
+    bool cancelled=true;
+    for (unsigned action=0;action<4;++action) {
+        dut->enable_i=0; dut->rst_n=0; dut->m_axis_tready=1;
+        dut->port_operational_i=1; cyc(6);
+        dut->station_mac_i=kStationMac; dut->count_i=kCount;
+        dut->seed_valid_i=1; dut->seed_offset_i=0x100;
+        dut->rst_n=1; cyc(3); dut->enable_i=1;
+        frames.clear(); cur=Frame{}; seen=0;
+        Frame frame;
+        for (unsigned n=0;n<5;++n) cancelled &= next(frame,kProbeBudgetCyc);
+        dut->m_axis_tready=0;
+        for (long n=0;n<kAnnounceBudgetCyc && !dut->m_axis_tvalid;++n) cyc();
+        inject(1,kPeerAbove,0x102,8,0,0);
+        if (action==0) { dut->enable_i=0; cyc(2); dut->enable_i=1; }
+        if (action==1) { dut->port_operational_i=0; cyc(2); dut->port_operational_i=1; }
+        if (action==2) inject(3,kPeerBelow,0x100,8,0,0);
+        if (action==3) { dut->rst_n=0; cyc(2); dut->rst_n=1; }
+        frames.clear(); seen=0; dut->m_axis_tready=1;
+        cyc(20000); // Includes a full new four-PROBE walk and deferred sends.
+        cancelled &= dut->state_o==2 && dut->defends_o==0;
+        for (const auto& emitted : frames) cancelled &= !frame_is(emitted,2);
+    }
+    ck("M6 pending response cancelled with allocation",cancelled,1);
+    dut->seed_valid_i=0;
+}
+
 void MaapHarness::port_return_reprobes(){
     for (unsigned state : {1u,2u}) {
         dut->enable_i=0; dut->port_operational_i=1; cyc(20);
@@ -764,7 +800,7 @@ int MaapHarness::run(){
     announce_intervals_and_destination();
     defend_to_the_prober(off0);
     announce_conflict_detection(off0);
-    probe_mid_frame_is_not_defended();
+    probe_mid_frame_is_defended();
     frame_on_the_wire_keeps_its_range();
     defend_and_probe_reception();
     ignore_disjoint_and_non_pool_pdus();
@@ -773,6 +809,7 @@ int MaapHarness::run(){
     disable_then_claim_the_seed();
     zero_seed_mac_draws_random_timers();
     compare_mac_remaining_cells();
+    pending_response_cancelled();
     port_return_reprobes();
     supplied_seed_bounds();
     truncated_pdus_have_no_effect();
