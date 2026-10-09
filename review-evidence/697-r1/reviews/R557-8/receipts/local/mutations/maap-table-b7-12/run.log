@@ -1,0 +1,39 @@
+Note: Google Test filter = AllStates/MaapCell.TableB7/12
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AllStates/MaapCell
+[ RUN      ] AllStates/MaapCell.TableB7/12
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:156: Failure
+Expected equality of these values:
+  r.frames.size()
+    Which is: 5
+  before + ((defend || restart) ? 1u : 0u)
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+Table B.7 output count
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:165: Failure
+Expected equality of these values:
+  field(r.frames.back(), 0, 6)
+    Which is: 160395285298944
+  peer
+    Which is: 6597069766720
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+DEFEND uses PROBE source
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AllStates/MaapCell.TableB7/12, where GetParam() = 12 (0 ms)
+[----------] 1 test from AllStates/MaapCell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/MaapCell.TableB7/12, where GetParam() = 12
+
+ 1 FAILED TEST

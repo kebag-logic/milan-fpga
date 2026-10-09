@@ -1,0 +1,74 @@
+Note: Google Test filter = AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend:AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpCore
+[ RUN      ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1837: Failure
+Value of: s.timer_deadline == taken + spec::TMR_NO_RESP_MS && !s.timer_held && fk.armed[0] && fk.at[0] == s.timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1842: Failure
+Expected equality of these values:
+  s.state
+    Which is: 4
+  ACMP_PRB_W_RESP
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A30 no expiry 199 ms after the probe was taken
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1878: Failure
+Value of: s.timer_deadline == taken + spec::TMR_NO_RESP_MS && fk.at[0] == s.timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1882: Failure
+Expected equality of these values:
+  s.state
+    Which is: 5
+  ACMP_PRB_W_RESP2
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A30 no second expiry 199 ms after the duplicate was taken
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1884: Failure
+Expected equality of these values:
+  s.state
+    Which is: 5
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A30 a success 199 ms after the duplicate was taken settles (5.5.3.5.25)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[----------] 2 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend
+[  FAILED  ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+
+ 2 FAILED TESTS

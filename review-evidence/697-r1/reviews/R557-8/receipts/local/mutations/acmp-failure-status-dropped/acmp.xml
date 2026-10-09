@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T13:50:17.913" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T13:50:17.913">
+    <testcase name="A9FailureWaitsForTheRetry" file="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp" line="593" status="run" result="completed" time="0." timestamp="2026-10-09T13:50:17.913" classname="AcmpCore">
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:599&#x0A;Value of: s.state == ACMP_PRB_W_RETRY &amp;&amp; s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL &amp;&amp; s.probing == ACMP_PROBING_ACTIVE&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 3&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:599
+Value of: s.state == ACMP_PRB_W_RETRY && s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL && s.probing == ACMP_PROBING_ACTIVE
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 3
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:599&#x0A;Value of: s.state == ACMP_PRB_W_RETRY &amp;&amp; s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL &amp;&amp; s.probing == ACMP_PROBING_ACTIVE&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 4&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:599
+Value of: s.state == ACMP_PRB_W_RETRY && s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL && s.probing == ACMP_PROBING_ACTIVE
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 4
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

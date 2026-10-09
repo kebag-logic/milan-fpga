@@ -1,0 +1,97 @@
+Note: Google Test filter = AcmpCore.A14RegisteredSettlesTheReservation
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A14RegisteredSettlesTheReservation
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:702: Failure
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 0
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:702: Failure
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:702: Failure
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 2
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:702: Failure
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 3
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:702: Failure
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 4
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:702: Failure
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 5
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:702: Failure
+Value of: a.sinks[0].state == before.state && a.sinks[0].tk_failed == before.tk_failed && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 7
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:707: Failure
+Expected equality of these values:
+  a.impossible
+    Which is: 1
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 as is one for a sink the entity lacks
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A14RegisteredSettlesTheReservation (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A14RegisteredSettlesTheReservation
+
+ 1 FAILED TEST

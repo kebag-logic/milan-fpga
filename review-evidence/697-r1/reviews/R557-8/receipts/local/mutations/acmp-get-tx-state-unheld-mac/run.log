@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:957: Failure
+Value of: same(last(), want)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A20 with no destination MAC held, none is reported
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+
+ 1 FAILED TEST

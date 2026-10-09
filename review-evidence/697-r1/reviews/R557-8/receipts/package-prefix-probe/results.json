@@ -1,0 +1,31 @@
+{
+  "package_flags": "-I$PACKET/scratch/sdk/gtest/include -DGTEST_HAS_PTHREAD=1 -L$PACKET/scratch/sdk/gtest/lib -lgmock -lgtest\n",
+  "ambient_paths_removed": true,
+  "control": "Only pkg-config -I classification changes to -isystem; source and library unchanged.",
+  "results": [
+    {
+      "step": "configure",
+      "rc": 0
+    },
+    {
+      "step": "build",
+      "rc": 0
+    },
+    {
+      "step": "test",
+      "rc": 0
+    },
+    {
+      "step": "mutation",
+      "rc": 0
+    },
+    {
+      "step": "dependency-control",
+      "rc": 0
+    },
+    {
+      "step": "system-header-control",
+      "rc": 0
+    }
+  ]
+}

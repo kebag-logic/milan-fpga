@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:50:20.381" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:50:20.381">
+    <testcase name="A3UnbindInEveryState" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="350" status="run" result="completed" time="0." timestamp="2026-10-09T11:50:20.381" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366&#x0A;Value of: s.state == ACMP_UNBOUND &amp;&amp; !s.bound &amp;&amp; s.probing == ACMP_PROBING_DISABLED &amp;&amp; s.acmp_status == 0u &amp;&amp; s.timer == ACMP_TIMER_NONE &amp;&amp; !s.disc_running &amp;&amp; !s.adp_armed &amp;&amp; !s.started &amp;&amp; s.binding.talker_entity_id == 0u &amp;&amp; s.binding.controller_entity_id == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A3 then UNBOUND, binding cleared, nothing running, in state 1&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A3 then UNBOUND, binding cleared, nothing running, in state 1
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366&#x0A;Value of: s.state == ACMP_UNBOUND &amp;&amp; !s.bound &amp;&amp; s.probing == ACMP_PROBING_DISABLED &amp;&amp; s.acmp_status == 0u &amp;&amp; s.timer == ACMP_TIMER_NONE &amp;&amp; !s.disc_running &amp;&amp; !s.adp_armed &amp;&amp; !s.started &amp;&amp; s.binding.talker_entity_id == 0u &amp;&amp; s.binding.controller_entity_id == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A3 then UNBOUND, binding cleared, nothing running, in state 2&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A3 then UNBOUND, binding cleared, nothing running, in state 2
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:379&#x0A;Value of: !fk.armed[0]&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A3 and the interface&apos;s timer is stopped, in state 2&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:379
+Value of: !fk.armed[0]
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A3 and the interface's timer is stopped, in state 2
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366&#x0A;Value of: s.state == ACMP_UNBOUND &amp;&amp; !s.bound &amp;&amp; s.probing == ACMP_PROBING_DISABLED &amp;&amp; s.acmp_status == 0u &amp;&amp; s.timer == ACMP_TIMER_NONE &amp;&amp; !s.disc_running &amp;&amp; !s.adp_armed &amp;&amp; !s.started &amp;&amp; s.binding.talker_entity_id == 0u &amp;&amp; s.binding.controller_entity_id == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A3 then UNBOUND, binding cleared, nothing running, in state 3&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A3 then UNBOUND, binding cleared, nothing running, in state 3
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366&#x0A;Value of: s.state == ACMP_UNBOUND &amp;&amp; !s.bound &amp;&amp; s.probing == ACMP_PROBING_DISABLED &amp;&amp; s.acmp_status == 0u &amp;&amp; s.timer == ACMP_TIMER_NONE &amp;&amp; !s.disc_running &amp;&amp; !s.adp_armed &amp;&amp; !s.started &amp;&amp; s.binding.talker_entity_id == 0u &amp;&amp; s.binding.controller_entity_id == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A3 then UNBOUND, binding cleared, nothing running, in state 4&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A3 then UNBOUND, binding cleared, nothing running, in state 4
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366&#x0A;Value of: s.state == ACMP_UNBOUND &amp;&amp; !s.bound &amp;&amp; s.probing == ACMP_PROBING_DISABLED &amp;&amp; s.acmp_status == 0u &amp;&amp; s.timer == ACMP_TIMER_NONE &amp;&amp; !s.disc_running &amp;&amp; !s.adp_armed &amp;&amp; !s.started &amp;&amp; s.binding.talker_entity_id == 0u &amp;&amp; s.binding.controller_entity_id == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A3 then UNBOUND, binding cleared, nothing running, in state 5&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A3 then UNBOUND, binding cleared, nothing running, in state 5
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366&#x0A;Value of: s.state == ACMP_UNBOUND &amp;&amp; !s.bound &amp;&amp; s.probing == ACMP_PROBING_DISABLED &amp;&amp; s.acmp_status == 0u &amp;&amp; s.timer == ACMP_TIMER_NONE &amp;&amp; !s.disc_running &amp;&amp; !s.adp_armed &amp;&amp; !s.started &amp;&amp; s.binding.talker_entity_id == 0u &amp;&amp; s.binding.controller_entity_id == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A3 then UNBOUND, binding cleared, nothing running, in state 6&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A3 then UNBOUND, binding cleared, nothing running, in state 6
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366&#x0A;Value of: s.state == ACMP_UNBOUND &amp;&amp; !s.bound &amp;&amp; s.probing == ACMP_PROBING_DISABLED &amp;&amp; s.acmp_status == 0u &amp;&amp; s.timer == ACMP_TIMER_NONE &amp;&amp; !s.disc_running &amp;&amp; !s.adp_armed &amp;&amp; !s.started &amp;&amp; s.binding.talker_entity_id == 0u &amp;&amp; s.binding.controller_entity_id == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A3 then UNBOUND, binding cleared, nothing running, in state 7&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:366
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A3 then UNBOUND, binding cleared, nothing running, in state 7
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

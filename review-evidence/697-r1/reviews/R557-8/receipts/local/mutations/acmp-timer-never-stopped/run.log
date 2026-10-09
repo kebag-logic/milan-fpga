@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:806: Failure
+Value of: !fk.armed[1] && fk.count(Call::TIMER) == 1u && fk.calls[unsigned(fk.position(Call::TIMER))].index == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A17 an interface whose sinks hold no deadline has its timer stopped
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+
+ 1 FAILED TEST

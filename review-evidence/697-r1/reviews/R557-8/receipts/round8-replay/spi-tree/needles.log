@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/round8-replay/spi-tree/tree/scripts/needle_audit.py", line 106, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$PACKET/scratch/round8-replay/spi-tree/tree/scripts/needle_audit.py", line 100, in main
+    errors = validate_needles(mutations)
+  File "$PACKET/scratch/round8-replay/spi-tree/tree/scripts/needle_audit.py", line 34, in validate_needles
+    messages = assertion_literals()
+  File "$PACKET/scratch/round8-replay/spi-tree/tree/scripts/needle_audit.py", line 23, in assertion_literals
+    raise ValueError(path.relative_to(root).as_posix() + ': ' + '; '.join(errors))
+ValueError: tests/test_port.cpp: unsupported assertion form: EXPECT_NONFATAL_FAILURE

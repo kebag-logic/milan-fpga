@@ -1,0 +1,60 @@
+Note: Google Test filter = AcmpCore.A12DelaySendsANewProbe:AcmpCore.A16OneCounterForEveryNewProbe
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpCore
+[ RUN      ] AcmpCore.A12DelaySendsANewProbe
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:655: Failure
+Value of: last().msg == spec::MSG_PROBE_TX_COMMAND && last().seq == seq && a.sequence_id == seq + 1u && a.sinks[0].probe_seq == seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A12DelaySendsANewProbe (0 ms)
+[ RUN      ] AcmpCore.A16OneCounterForEveryNewProbe
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:778: Failure
+Value of: a.sinks[0].probe_seq == 0u && a.sinks[1].probe_seq == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A16 each new PROBE_TX_COMMAND takes the next sequence_id, across sinks
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:781: Failure
+Expected equality of these values:
+  a.sequence_id
+    Which is: 0
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A16 a duplicate takes none
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:785: Failure
+Value of: a.sinks[2].probe_seq == 0xFFFFu && a.sinks[0].probe_seq == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A16 the counter wraps at 2^16
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A16OneCounterForEveryNewProbe (0 ms)
+[----------] 2 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A12DelaySendsANewProbe
+[  FAILED  ] AcmpCore.A16OneCounterForEveryNewProbe
+
+ 2 FAILED TESTS

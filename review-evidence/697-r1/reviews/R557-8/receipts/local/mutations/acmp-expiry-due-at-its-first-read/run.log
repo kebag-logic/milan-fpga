@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1915: Failure
+Value of: fk.sent.size() == 2u && a.sinks[0].state == ACMP_PRB_W_RESP2 && a.sinks[1].state == ACMP_PRB_W_RESP && a.sinks[1].timer_deadline == fk.sent[1].at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+
+ 1 FAILED TEST

@@ -1,0 +1,224 @@
+[
+ {
+  "probe": "spi-nonfatal",
+  "compiled": true,
+  "run_rc": 0,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_NONFATAL_FAILURE"
+  ],
+  "previous_round_gate": [],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "spi-fatal",
+  "compiled": true,
+  "run_rc": 0,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_FATAL_FAILURE"
+  ],
+  "previous_round_gate": [],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "spi-nonfatal-all-threads",
+  "compiled": true,
+  "run_rc": 0,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS"
+  ],
+  "previous_round_gate": [],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "spi-fatal-all-threads",
+  "compiled": true,
+  "run_rc": 0,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_FATAL_FAILURE_ON_ALL_THREADS"
+  ],
+  "previous_round_gate": [],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "gtest-assert-lt",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: GTEST_ASSERT_LT"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: GTEST_ASSERT_LT"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "gtest-fail",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: GTEST_FAIL"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: GTEST_FAIL"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "expect-near",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_NEAR"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: EXPECT_NEAR"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "expect-that",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_THAT"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: EXPECT_THAT"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "expect-gt",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_GT"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: EXPECT_GT"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "expect-pred2",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_PRED2"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: EXPECT_PRED2"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "add-failure",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: ADD_FAILURE"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: ADD_FAILURE"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "fail",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: FAIL"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: FAIL"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "succeed-skip",
+  "compiled": true,
+  "run_rc": 0,
+  "head_gate": [
+   "unsupported assertion form: GTEST_SKIP",
+   "unsupported assertion form: SUCCEED"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: GTEST_SKIP",
+   "unsupported assertion form: SUCCEED"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "no-fatal-failure",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "unsupported assertion form: EXPECT_NO_FATAL_FAILURE"
+  ],
+  "previous_round_gate": [
+   "unsupported assertion form: EXPECT_NO_FATAL_FAILURE"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "paste",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "token pasting is forbidden in tests",
+   "unsupported assertion form: EXPECT_"
+  ],
+  "previous_round_gate": [
+   "token pasting is forbidden in tests"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "paste-digraph",
+  "compiled": true,
+  "run_rc": 1,
+  "head_gate": [
+   "token pasting is forbidden in tests",
+   "unsupported assertion form: EXPECT_"
+  ],
+  "previous_round_gate": [
+   "token pasting is forbidden in tests"
+  ],
+  "expected_head": "refuse",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "allowed-forms",
+  "compiled": true,
+  "run_rc": 0,
+  "head_gate": [],
+  "previous_round_gate": [],
+  "expected_head": "accept",
+  "outcome": "AS-EXPECTED"
+ },
+ {
+  "probe": "literal-text",
+  "compiled": true,
+  "run_rc": 0,
+  "head_gate": [],
+  "previous_round_gate": [],
+  "expected_head": "accept",
+  "outcome": "AS-EXPECTED"
+ }
+]

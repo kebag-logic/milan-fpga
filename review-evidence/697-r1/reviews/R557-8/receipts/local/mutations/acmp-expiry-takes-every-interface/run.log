@@ -1,0 +1,37 @@
+Note: Google Test filter = AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:799: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_RESP2 && a.sinks[1].state == ACMP_PRB_W_RESP && a.sinks[2].state == ACMP_PRB_W_RESP && fk.sent.size() == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A17 an expiry takes the due timers only, of its own interface's sinks
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:803: Failure
+Expected equality of these values:
+  fk.count(Call::TIMER)
+    Which is: 2
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A17 the port is called only when the earliest deadline moves
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+
+ 1 FAILED TEST

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:50:32.558" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:50:32.558">
+    <testcase name="A19AFullQueueDropsTheCommandBeforeItActs" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="1055" status="run" result="completed" time="0." timestamp="2026-10-09T11:50:32.558" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1067&#x0A;Value of: a.busy_drops == 2u &amp;&amp; a.sinks[1].state == ACMP_UNBOUND &amp;&amp; fk.calls.empty()&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A19 a command whose response would find the queue full is dropped before it changes anything&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1067
+Value of: a.busy_drops == 2u && a.sinks[1].state == ACMP_UNBOUND && fk.calls.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A19 a command whose response would find the queue full is dropped before it changes anything
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

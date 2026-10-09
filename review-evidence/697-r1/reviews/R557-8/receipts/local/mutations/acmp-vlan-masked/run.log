@@ -1,0 +1,55 @@
+Note: Google Test filter = AcmpCore.A8SuccessSettles
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A8SuccessSettles
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:585: Failure
+Value of: c.flag && c.stream.stream_id == kSid && c.stream.dest_mac == kDa && c.stream.vlan_id == 0x1002u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:587: Failure
+Value of: view(0).settled && view(0).stream.vlan_id == 0x1002u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A8 and the view holds them
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:585: Failure
+Value of: c.flag && c.stream.stream_id == kSid && c.stream.dest_mac == kDa && c.stream.vlan_id == 0x1002u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:587: Failure
+Value of: view(0).settled && view(0).stream.vlan_id == 0x1002u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A8 and the view holds them
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A8SuccessSettles (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A8SuccessSettles
+
+ 1 FAILED TEST

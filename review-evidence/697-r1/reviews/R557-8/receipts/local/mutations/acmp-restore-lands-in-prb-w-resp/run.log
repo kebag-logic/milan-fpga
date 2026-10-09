@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A24ARestoredBindingFastConnects
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A24ARestoredBindingFastConnects
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1353: Failure
+Value of: s.state == ACMP_PRB_W_AVAIL && s.probing == ACMP_PROBING_PASSIVE && s.acmp_status == 0u && s.disc_running && !s.discovered && s.timer == ACMP_TIMER_NONE
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A24 startup with a saved binding: discovery started, PROBING_PASSIVE, PRB_W_AVAIL (5.5.3.5.2)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A24ARestoredBindingFastConnects (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A24ARestoredBindingFastConnects
+
+ 1 FAILED TEST

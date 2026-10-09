@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0.03" timestamp="2026-10-09T11:50:12.270" name="AllTests">
+  <testsuite name="AdpReentry" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0.024" timestamp="2026-10-09T11:50:12.276">
+    <testcase name="AdvertiseInlineExpiry" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_adp_reentry.cpp" line="132" status="run" result="completed" time="0.012" timestamp="2026-10-09T11:50:12.276" classname="AdpReentry">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_adp_reentry.cpp:143&#x0A;Death test: { std::signal(6, assertion_exit); r.expire(); }&#x0A;    Result: failed to die.&#x0A; Error msg:&#x0A;[  DEATH   ] &#x0A;&#x0A;TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95&#x0A;inline ADVERTISE expiry asserts&#x0A;TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_adp_reentry.cpp:143
+Death test: { std::signal(6, assertion_exit); r.expire(); }
+    Result: failed to die.
+ Error msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95
+inline ADVERTISE expiry asserts
+TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a
+
+]]></failure>
+    </testcase>
+    <testcase name="DelayInlineExpiryOnGmChange" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_adp_reentry.cpp" line="160" status="run" result="completed" time="0.012" timestamp="2026-10-09T11:50:12.288" classname="AdpReentry">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_adp_reentry.cpp:170&#x0A;Death test: { std::signal(6, assertion_exit); adp_gm_change(&amp;r.a); }&#x0A;    Result: failed to die.&#x0A; Error msg:&#x0A;[  DEATH   ] &#x0A;&#x0A;TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95&#x0A;inline DELAY expiry asserts&#x0A;TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_adp_reentry.cpp:170
+Death test: { std::signal(6, assertion_exit); adp_gm_change(&r.a); }
+    Result: failed to die.
+ Error msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95
+inline DELAY expiry asserts
+TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

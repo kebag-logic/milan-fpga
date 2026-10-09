@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T13:50:19.889" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T13:50:19.889">
+    <testcase name="A20ProbeTxIsAnsweredFromTheSource" file="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp" line="859" status="run" result="completed" time="0." timestamp="2026-10-09T13:50:19.889" classname="AcmpCore">
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:883&#x0A;Value of: same(last(), want)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:883
+Value of: same(last(), want)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

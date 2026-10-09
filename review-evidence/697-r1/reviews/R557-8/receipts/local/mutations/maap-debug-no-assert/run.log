@@ -1,0 +1,27 @@
+Note: Google Test filter = MaapDebug.SynchronousExpiryAsserts
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapDebug
+[ RUN      ] MaapDebug.SynchronousExpiryAsserts
+$PACKET/scratch/local/mutations/baseline/tests/test_maap_debug.cpp:19: Failure
+Death test: { std::signal(6, ((__sighandler_t) 0)); (void)maap_begin(&core, 0x91e0f0000000UL); std::_Exit(0); }
+    Result: died but not with expected exit code:
+            Exited with exit status 0
+Actual msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+debug reentry assertion
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] MaapDebug.SynchronousExpiryAsserts (0 ms)
+[----------] 1 test from MaapDebug (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDebug.SynchronousExpiryAsserts
+
+ 1 FAILED TEST

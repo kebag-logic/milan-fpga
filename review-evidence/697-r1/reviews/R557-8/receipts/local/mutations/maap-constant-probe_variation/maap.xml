@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.019" timestamp="2026-10-09T13:50:27.795" name="AllTests">
+  <testsuite name="MaapCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0.019" timestamp="2026-10-09T13:50:27.795">
+    <testcase name="ConstantsStrictTimersAndSeed" file="$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp" line="117" status="run" result="completed" time="0.019" timestamp="2026-10-09T13:50:27.795" classname="MaapCore">
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:118&#x0A;Expected equality of these values:&#x0A;  101u&#x0A;    Which is: 101&#x0A;  100u&#x0A;    Which is: 100&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;probe interval variation&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:118
+Expected equality of these values:
+  101u
+    Which is: 101
+  100u
+    Which is: 100
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+probe interval variation
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:130&#x0A;Expected equality of these values:&#x0A;  max_probe&#x0A;    Which is: 590&#x0A;  589u&#x0A;    Which is: 589&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:130
+Expected equality of these values:
+  max_probe
+    Which is: 590
+  589u
+    Which is: 589
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

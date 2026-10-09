@@ -1,0 +1,3588 @@
+{
+  "plants": 311,
+  "named_streamed_killers": 329,
+  "baseline_instances": 369,
+  "baseline": [
+    {
+      "arm": "acmp",
+      "tests": 67
+    },
+    {
+      "arm": "adp",
+      "tests": 22
+    },
+    {
+      "arm": "adp_debug",
+      "tests": 122
+    },
+    {
+      "arm": "adp_release",
+      "tests": 122
+    },
+    {
+      "arm": "maap",
+      "tests": 34
+    },
+    {
+      "arm": "maap_debug",
+      "tests": 1
+    },
+    {
+      "arm": "port",
+      "tests": 1
+    }
+  ],
+  "killers": [
+    {
+      "plant": "reentry-guard-removed",
+      "arm": "adp_debug",
+      "test": "AdpReentry.AdvertiseInlineExpiry",
+      "needle": "inline ADVERTISE expiry asserts",
+      "matched": [
+        "AdpReentry.AdvertiseInlineExpiry"
+      ],
+      "report_sha256": "4954c302e1d1fea3cd2c4f6f6ce1ff5259031a0042ce0cd916fb5076fd6dea61"
+    },
+    {
+      "plant": "reentry-guard-removed",
+      "arm": "adp_debug",
+      "test": "AdpReentry.DelayInlineExpiryOnGmChange",
+      "needle": "inline DELAY expiry asserts",
+      "matched": [
+        "AdpReentry.DelayInlineExpiryOnGmChange"
+      ],
+      "report_sha256": "4954c302e1d1fea3cd2c4f6f6ce1ff5259031a0042ce0cd916fb5076fd6dea61"
+    },
+    {
+      "plant": "reentry-guard-removed",
+      "arm": "adp_release",
+      "test": "AdpReentry.AdvertiseInlineExpiry",
+      "needle": "inline ADVERTISE expiry is counted",
+      "matched": [
+        "AdpReentry.AdvertiseInlineExpiry"
+      ],
+      "report_sha256": "79891a4cd04ab0fadfdf9d63ffb423e191a12a6eea9d869279e61a9bcaf987b0"
+    },
+    {
+      "plant": "reentry-guard-removed",
+      "arm": "adp_release",
+      "test": "AdpReentry.DelayInlineExpiryOnGmChange",
+      "needle": "inline DELAY expiry is counted",
+      "matched": [
+        "AdpReentry.DelayInlineExpiryOnGmChange"
+      ],
+      "report_sha256": "79891a4cd04ab0fadfdf9d63ffb423e191a12a6eea9d869279e61a9bcaf987b0"
+    },
+    {
+      "plant": "reentry-uncounted",
+      "arm": "adp_release",
+      "test": "AdpReentry.AdvertiseInlineExpiry",
+      "needle": "inline ADVERTISE expiry is counted",
+      "matched": [
+        "AdpReentry.AdvertiseInlineExpiry"
+      ],
+      "report_sha256": "85717f3bc32454da519d00f46b9188f43e29aad40f9eead66c5aaba50eb2c8d2"
+    },
+    {
+      "plant": "reentry-not-ignored",
+      "arm": "adp_release",
+      "test": "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/",
+      "needle": "callback leaves core state unchanged",
+      "matched": [
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/4",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/5",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/6",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/7",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/8",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/9",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/10",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/11",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/12",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/13",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/14",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/20",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/21",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/22",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/23",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/24",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/25",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/26",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/27",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/28",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/29",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/30",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/31",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/32",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/33",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/40",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/41",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/42",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/43",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/44",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/45",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/46",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/47",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/48",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/49",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/50",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/51",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/52",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/53",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/60",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/61",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/62",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/63",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/64",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/65",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/66",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/67",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/68",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/69",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/70",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/71",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/72",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/73",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/80",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/81",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/82",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/83",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/84",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/85",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/86",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/87",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/88",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/89",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/90",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/91",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/92",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/93",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/100",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/101",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/102",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/103",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/104",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/105",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/106",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/107",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/108",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/109",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/110",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/111",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/112",
+        "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/113"
+      ],
+      "report_sha256": "75d98bdf662c35382f62f7bc8fdc1ff84f5c39db8381e1d2a5b22d2b26cf5186"
+    },
+    {
+      "plant": "departing-keeps-index",
+      "arm": "adp",
+      "test": "AdpCore.A6toA8DeferredSends",
+      "needle": "A8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset",
+      "matched": [
+        "AdpCore.A6toA8DeferredSends"
+      ],
+      "report_sha256": "32f2bebcff679c6adba4721633c9a0d7c3f3b6157a81de7590df038b5c7a73aa"
+    },
+    {
+      "plant": "departing-keeps-index",
+      "arm": "port",
+      "test": "ExamplePort.DefersExpiryAndRetainsBlockedOutput",
+      "needle": "shutdown resets",
+      "matched": [
+        "ExamplePort.DefersExpiryAndRetainsBlockedOutput"
+      ],
+      "report_sha256": "e76936e35df6840572bfc66f10ef2797816593d2acf1e7f2fc6e1c4f51633055"
+    },
+    {
+      "plant": "departing-sends-zero",
+      "arm": "adp",
+      "test": "AdpCore.A10toA14DepartingIndex",
+      "needle": "A10 SHUTDOWN in WAITING",
+      "matched": [
+        "AdpCore.A10toA14DepartingIndex"
+      ],
+      "report_sha256": "7336ace90b61b09c4c0e649db38949bc789cbd366d94f358e8d600762d4af091"
+    },
+    {
+      "plant": "available-replaces-owed-departing",
+      "arm": "adp",
+      "test": "AdpCore.A15OwedDepartingAcrossARestart",
+      "needle": "A15 with room, the next poll sends the owed ENTITY_DEPARTING first",
+      "matched": [
+        "AdpCore.A15OwedDepartingAcrossARestart"
+      ],
+      "report_sha256": "10c7bcb11480b5e0b1ff85789ea7ff7cf3bc3ef952d44a8a3509d2a00813ab8e"
+    },
+    {
+      "plant": "available-passes-owed-departing",
+      "arm": "adp",
+      "test": "AdpCore.A17RoomBackBeforeAPoll",
+      "needle": "A17 room back and TMR_DELAY expiring before a poll",
+      "matched": [
+        "AdpCore.A17RoomBackBeforeAPoll"
+      ],
+      "report_sha256": "26de99338f37fdaaee316d9102ae390cf33fabd01d0bfd4ca8079f6f36198a74"
+    },
+    {
+      "plant": "second-departing-dropped",
+      "arm": "adp",
+      "test": "AdpCore.A16SecondShutdownQueuesItsOwn",
+      "needle": "A16 a SHUTDOWN while one is owed queues its own",
+      "matched": [
+        "AdpCore.A16SecondShutdownQueuesItsOwn"
+      ],
+      "report_sha256": "3d402add26346ba062b625f671d517baa76675c6afeebeae7142d946fcc8fd5b"
+    },
+    {
+      "plant": "second-shutdown-overwrites-index",
+      "arm": "adp",
+      "test": "AdpCore.A16SecondShutdownQueuesItsOwn",
+      "needle": "A16 a SHUTDOWN while one is owed queues its own",
+      "matched": [
+        "AdpCore.A16SecondShutdownQueuesItsOwn"
+      ],
+      "report_sha256": "a150db1753304ac83c361aef2bb58bc2582ae230e6104fe4754b5128f741f1f2"
+    },
+    {
+      "plant": "link-loss-drops-owed-departing",
+      "arm": "adp",
+      "test": "AdpCore.A18LinkLossKeepsTheOwedDeparting",
+      "needle": "A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING",
+      "matched": [
+        "AdpCore.A18LinkLossKeepsTheOwedDeparting"
+      ],
+      "report_sha256": "6108e84aaeed24593e96986017de2dab7fd02f39e31febe696abe0233cd4d7bb"
+    },
+    {
+      "plant": "gm-change-drops-owed-available",
+      "arm": "adp",
+      "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+      "needle": "A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed",
+      "matched": [
+        "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+      ],
+      "report_sha256": "3c500c8465485d378c1a63bcd2d0f6d6d3b86b1eceecdf0e06698c17624ff30c"
+    },
+    {
+      "plant": "discover-drops-owed-available",
+      "arm": "adp",
+      "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+      "needle": "A19 so does an ENTITY_DISCOVER",
+      "matched": [
+        "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+      ],
+      "report_sha256": "85e5af67cd6549d01c93a232c470a18ba69ba26b3297444db3da6e586cf1130d"
+    },
+    {
+      "plant": "stray-expiry-drops-owed-available",
+      "arm": "adp",
+      "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+      "needle": "A19 and a stray expiry, which is counted",
+      "matched": [
+        "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+      ],
+      "report_sha256": "da9c787fa072fbcb6626d3951567519febb696c1af541a8ad95f4edb7abcbeb6"
+    },
+    {
+      "plant": "link-loss-keeps-owed-available",
+      "arm": "adp",
+      "test": "AdpCore.A20LinkLossDropsTheOwedAvailable",
+      "needle": "A20 a link loss drops the owed ENTITY_AVAILABLE at once",
+      "matched": [
+        "AdpCore.A20LinkLossDropsTheOwedAvailable"
+      ],
+      "report_sha256": "6391f7f392f34d6864adbf9d62d0b128a189ae6f0249d7367659d288e6d500a8"
+    },
+    {
+      "plant": "departing-queue-unbounded",
+      "arm": "adp",
+      "test": "AdpCore.A21DepartingCapacity",
+      "needle": "A21 then the running restart's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING",
+      "matched": [
+        "AdpCore.A21DepartingCapacity"
+      ],
+      "report_sha256": "fdec0bd8f5d53ea8f314f766f29381c536c2c34404cace408ac13a66f41667ee"
+    },
+    {
+      "plant": "coalesced-departing-uncounted",
+      "arm": "adp",
+      "test": "AdpCore.A21DepartingCapacity",
+      "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+      "matched": [
+        "AdpCore.A21DepartingCapacity"
+      ],
+      "report_sha256": "df5af59776ccde2e4905567da5cbc728fce14bf00ef19b6cdf13274392375bf0"
+    },
+    {
+      "plant": "coalesce-drops-queued-departing",
+      "arm": "adp",
+      "test": "AdpCore.A21DepartingCapacity",
+      "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+      "matched": [
+        "AdpCore.A21DepartingCapacity"
+      ],
+      "report_sha256": "163b2120b3cd1c1d9b2dd927baa9c16fdfeac8f0c483e456cf1049c84ad1ac83"
+    },
+    {
+      "plant": "coalesce-overwrites-oldest-index",
+      "arm": "adp",
+      "test": "AdpCore.A21DepartingCapacity",
+      "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+      "matched": [
+        "AdpCore.A21DepartingCapacity"
+      ],
+      "report_sha256": "3b31509ae1e927217ef6eac695525ac4d713d5718632a013b3833d269563d2ad"
+    },
+    {
+      "plant": "own-discover-discarded",
+      "arm": "adp",
+      "test": "AdpCore.A3toA5DiscoverAndDiscard",
+      "needle": "A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)",
+      "matched": [
+        "AdpCore.A3toA5DiscoverAndDiscard"
+      ],
+      "report_sha256": "7643bffc7a9f4384cd7b053c0fcfb94785a8607648cec0ae2cde29d827c8043c"
+    },
+    {
+      "plant": "own-discover-discarded",
+      "arm": "adp",
+      "test": "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/0",
+      "needle": "inherited discovery enters DELAY",
+      "matched": [
+        "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/0"
+      ],
+      "report_sha256": "7643bffc7a9f4384cd7b053c0fcfb94785a8607648cec0ae2cde29d827c8043c"
+    },
+    {
+      "plant": "own-discover-discarded",
+      "arm": "adp",
+      "test": "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/1",
+      "needle": "inherited discovery enters DELAY",
+      "matched": [
+        "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/1"
+      ],
+      "report_sha256": "7643bffc7a9f4384cd7b053c0fcfb94785a8607648cec0ae2cde29d827c8043c"
+    },
+    {
+      "plant": "own-discover-discarded",
+      "arm": "adp",
+      "test": "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/2",
+      "needle": "inherited discovery enters DELAY",
+      "matched": [
+        "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/2"
+      ],
+      "report_sha256": "7643bffc7a9f4384cd7b053c0fcfb94785a8607648cec0ae2cde29d827c8043c"
+    },
+    {
+      "plant": "own-discover-discarded",
+      "arm": "adp",
+      "test": "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/3",
+      "needle": "inherited discovery enters DELAY",
+      "matched": [
+        "AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/3"
+      ],
+      "report_sha256": "7643bffc7a9f4384cd7b053c0fcfb94785a8607648cec0ae2cde29d827c8043c"
+    },
+    {
+      "plant": "down-answers-discover",
+      "arm": "adp",
+      "test": "AdpCore.A3toA5DiscoverAndDiscard",
+      "needle": "A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)",
+      "matched": [
+        "AdpCore.A3toA5DiscoverAndDiscard"
+      ],
+      "report_sha256": "6357277fb1749395f153e6d93bb29416fbcd3e530d65424d20d42bc6d73292ee"
+    },
+    {
+      "plant": "link-down-departs",
+      "arm": "adp",
+      "test": "AdpCore.LinkLevelsAndDisabledInputs",
+      "needle": "shutdown in DOWN sends nothing",
+      "matched": [
+        "AdpCore.LinkLevelsAndDisabledInputs"
+      ],
+      "report_sha256": "2569fdd68cc574ae9a3a83b040f7e831cf97b652d6948f5c1121d602b0f855d2"
+    },
+    {
+      "plant": "gm-change-ignored",
+      "arm": "adp",
+      "test": "AdpCore.A0toA2Schedule",
+      "needle": "A2 with the new current_configuration_index (6.2.2.18)",
+      "matched": [
+        "AdpCore.A0toA2Schedule"
+      ],
+      "report_sha256": "82fcd02c850468d2857da92e34eb18103f8bdf2c04583fc244d77761201d55a1"
+    },
+    {
+      "plant": "delay-ignores-link-down",
+      "arm": "adp",
+      "test": "AdpCore.A6toA8DeferredSends",
+      "needle": "A7 a link loss drops an owed ENTITY_AVAILABLE and departs nothing (5.6.3.5.10)",
+      "matched": [
+        "AdpCore.A6toA8DeferredSends"
+      ],
+      "report_sha256": "32da29474ceb28c9ec85054207ad9ad69bc86e4061871de1335665178e9fcb8a"
+    },
+    {
+      "plant": "shutdown-in-down-departs",
+      "arm": "adp",
+      "test": "AdpCore.A6toA8DeferredSends",
+      "needle": "A8 SHUTDOWN in DOWN sends nothing (Table 5.51)",
+      "matched": [
+        "AdpCore.A6toA8DeferredSends"
+      ],
+      "report_sha256": "66746a1ca5cf4709dbb41d2f1a92b7dbdbe7a981b11f8ba2be16896a12952280"
+    },
+    {
+      "plant": "advertise-expiry-skips-delay",
+      "arm": "adp",
+      "test": "AdpCore.A0toA2Schedule",
+      "needle": "A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7)",
+      "matched": [
+        "AdpCore.A0toA2Schedule"
+      ],
+      "report_sha256": "16639de95fb7afa5aa9e24d2180fa359a1bb2c37ed9f4b05c8c10e517264588f"
+    },
+    {
+      "plant": "advertise-period-wrong",
+      "arm": "adp",
+      "test": "AdpCore.A0toA2Schedule",
+      "needle": "A1 TMR_DELAY: ENTITY_AVAILABLE, WAITING, TMR_ADVERTISE 5 s (5.6.3.5.9)",
+      "matched": [
+        "AdpCore.A0toA2Schedule"
+      ],
+      "report_sha256": "b904d7a0c998ef6eb8fe845eafb279678b1942a426b3d8155bdbc171bb71b345"
+    },
+    {
+      "plant": "advertise-period-wrong",
+      "arm": "adp",
+      "test": "AdpCore.MockedPortOrder",
+      "needle": "A1 TMR_DELAY starts the advertisement period",
+      "matched": [
+        "AdpCore.MockedPortOrder"
+      ],
+      "report_sha256": "b904d7a0c998ef6eb8fe845eafb279678b1942a426b3d8155bdbc171bb71b345"
+    },
+    {
+      "plant": "link-up-draws-startup-kind",
+      "arm": "adp",
+      "test": "AdpCore.A0toA2Schedule",
+      "needle": "A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)",
+      "matched": [
+        "AdpCore.A0toA2Schedule"
+      ],
+      "report_sha256": "78f446619a5ac9900af8cca3a19f14ed2b546eb2004b195a1ac6c3e5dafb80c9"
+    },
+    {
+      "plant": "draw-kinds-merged",
+      "arm": "adp",
+      "test": "AdpCore.A9DrawKinds",
+      "needle": "A9 every startup draw",
+      "matched": [
+        "AdpCore.A9DrawKinds"
+      ],
+      "report_sha256": "d534c466eb9f427aa8ec188a222c37797bbf9e05149a21b0edab666c21dd1af7"
+    },
+    {
+      "plant": "foreign-discover-answered",
+      "arm": "adp",
+      "test": "AdpCore.A3toA5DiscoverAndDiscard",
+      "needle": "A4 a foreign DISCOVER",
+      "matched": [
+        "AdpCore.A3toA5DiscoverAndDiscard"
+      ],
+      "report_sha256": "3a45209d9b2de33228b3b6aa38646764579bc4f125bae5d52fc01c5231558c9f"
+    },
+    {
+      "plant": "frame-misses-config-index",
+      "arm": "adp",
+      "test": "AdpCore.A0toA2Schedule",
+      "needle": "A2 with the new current_configuration_index (6.2.2.18)",
+      "matched": [
+        "AdpCore.A0toA2Schedule"
+      ],
+      "report_sha256": "43e5fe680023c5bf1b1220cdfda1c321e164b29404f149ea0cf584dbf297b6c5"
+    },
+    {
+      "plant": "frame-sources-from-sinks",
+      "arm": "adp",
+      "test": "AdpCore.EntityFieldsUseIndependentCounts",
+      "needle": "talker count is independent of listener count",
+      "matched": [
+        "AdpCore.EntityFieldsUseIndependentCounts"
+      ],
+      "report_sha256": "1728bcf86085533ca46d983c7501f6c0399d5efd8f8d95789b391a93748a96b9"
+    },
+    {
+      "plant": "seed-left-at-zero",
+      "arm": "adp",
+      "test": "AdpCore.A22GeneratorNeverStuckAtZero",
+      "needle": "A22 an entity id whose words cancel the seed constant",
+      "matched": [
+        "AdpCore.A22GeneratorNeverStuckAtZero"
+      ],
+      "report_sha256": "f88d46a2c51612e5cd90bfc17706a32c45db334f370087fb68767db4ac8cb0e6"
+    },
+    {
+      "plant": "enable-not-idempotent",
+      "arm": "adp",
+      "test": "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
+      "needle": "A23 an enable while enabled draws and arms nothing",
+      "matched": [
+        "AdpCore.A23RepeatedEnableOrDisableChangesNothing"
+      ],
+      "report_sha256": "2e086e7e3b666d5e8b7caba36dd31a9a195987901cd5c0a6b6c0e7ef96ea2620"
+    },
+    {
+      "plant": "other-subtype-accepted",
+      "arm": "adp",
+      "test": "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded",
+      "needle": "A24 a DISCOVER under another EtherType or subtype is discarded",
+      "matched": [
+        "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded"
+      ],
+      "report_sha256": "98a41f1959761a0452d148ca89d583122bc5f577f0c6be33eb95b6f4ed94ba00"
+    },
+    {
+      "plant": "acmp-init-no-interface",
+      "arm": "acmp",
+      "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+      "needle": "A0 no interface is refused",
+      "matched": [
+        "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+      ],
+      "report_sha256": "9e303a539c23d01f3d0d823b8485ef9070a4dc1cfe861dafec71c12d3cd3688b"
+    },
+    {
+      "plant": "acmp-init-too-many-sinks",
+      "arm": "acmp",
+      "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+      "needle": "A0 more sinks than ACMP_MAX_SINKS",
+      "matched": [
+        "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+      ],
+      "report_sha256": "621a42f185e827264364a299ae6e07e0c0b66a6d517e245947dc21e93809a59b"
+    },
+    {
+      "plant": "acmp-init-too-many-sources",
+      "arm": "acmp",
+      "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+      "needle": "A0 more sources than ACMP_MAX_SOURCES",
+      "matched": [
+        "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+      ],
+      "report_sha256": "4ee415477f26983ee130fd5225090a5ff8a4b3c7c92cec7f0e60ceded3b962d1"
+    },
+    {
+      "plant": "acmp-init-sink-interface",
+      "arm": "acmp",
+      "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+      "needle": "A0 a sink on an interface the entity lacks is refused",
+      "matched": [
+        "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+      ],
+      "report_sha256": "719ce87230f456fd8e71ddd34812eea142bce89da2843ad5361eb1c58e2d8a58"
+    },
+    {
+      "plant": "acmp-init-source-interface",
+      "arm": "acmp",
+      "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+      "needle": "A0 a source on an interface the entity lacks is refused",
+      "matched": [
+        "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+      ],
+      "report_sha256": "f4833694c3f62b15a2eede8ea0bb96dfd2f489b74f948ccbb9414caef106bd63"
+    },
+    {
+      "plant": "acmp-init-reads-the-seed",
+      "arm": "acmp",
+      "test": "AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled",
+      "needle": "A0 init calls no port",
+      "matched": [
+        "AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled"
+      ],
+      "report_sha256": "8b8cdec5ca72a93233d23506a3071f67cf7500c0993a6a879f607bbee98042ac"
+    },
+    {
+      "plant": "acmp-header-no-resp-2s",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 and TMR_NO_RESP armed 200 ms",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "7c23c4181c9511be3a46c0a6e1492212126b8c24a1bbf4c05dc159d1bc5ee2e2"
+    },
+    {
+      "plant": "acmp-header-retry-2s",
+      "arm": "acmp",
+      "test": "AcmpCore.A9FailureWaitsForTheRetry",
+      "needle": "A9 and TMR_RETRY 4 s",
+      "matched": [
+        "AcmpCore.A9FailureWaitsForTheRetry",
+        "AcmpCore.A9FailureWaitsForTheRetry"
+      ],
+      "report_sha256": "e83d4fa58d90a069f1ec78e7a480c03dd05765aa6b63f56224ba4f237dfbae85"
+    },
+    {
+      "plant": "acmp-header-no-tk-5s",
+      "arm": "acmp",
+      "test": "AcmpCore.A8SuccessSettles",
+      "needle": "A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started",
+      "matched": [
+        "AcmpCore.A8SuccessSettles",
+        "AcmpCore.A8SuccessSettles"
+      ],
+      "report_sha256": "9d8308965218f691556f99ac11434d7c195c44330a4577268d44908c918cb430"
+    },
+    {
+      "plant": "acmp-header-valid-time-in-seconds",
+      "arm": "acmp",
+      "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+      "needle": "A22 TMR_NO_ADP is the received valid_time in two-second units",
+      "matched": [
+        "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+      ],
+      "report_sha256": "8066e61040f8cbe10946ba3818877f93b4f148acc9be45e4afe2bcd33d6d8a76"
+    },
+    {
+      "plant": "acmp-header-listener-unknown-is-2",
+      "arm": "acmp",
+      "test": "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId",
+      "needle": "A2 LISTENER_UNKNOWN_ID, the command's fields echoed",
+      "matched": [
+        "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId",
+        "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId",
+        "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId"
+      ],
+      "report_sha256": "0facba5a15093f59c3ba53f1661923238dd1f639b6673d4b78738d0caa65badb"
+    },
+    {
+      "plant": "acmp-header-registering-failed-bit",
+      "arm": "acmp",
+      "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+      "needle": "REGISTERING_FAILED 1 (Table 5.39)",
+      "matched": [
+        "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+      ],
+      "report_sha256": "b0291860b0d9d7cabd2469d17478e42706a7c014e2e2d3551f1184e2ec7aaa01"
+    },
+    {
+      "plant": "acmp-header-cdl-84",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 every frame goes to the ACMP multicast address",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "0199ee517bc4a6f290a586daf3aa1592cccc2d25bfc1c9ae92d8eccd9246f631"
+    },
+    {
+      "plant": "acmp-bind-count-0",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 BIND_RX_RESPONSE is Table 5.32",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "1a3aaa7d9a3f50fa1d76a58abea2bf00b443735387f08880508339d79a2035a2"
+    },
+    {
+      "plant": "acmp-probe-without-fast-connect",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 PROBE_TX_COMMAND is Table 5.33",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "02b5934e173936790b74d1d68ebdb6bb35272f211b97b20424f9f09a7b94e3cc"
+    },
+    {
+      "plant": "acmp-probe-before-response",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 BIND_RX_RESPONSE is Table 5.32",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "f98015f466a486a88c42498abefd4a5ea8922e1c63f6fb9c6c6e1ff848867063"
+    },
+    {
+      "plant": "acmp-no-resp-2s",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 and TMR_NO_RESP armed 200 ms",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "51575bd5f0fecdd4013ca4a094084529114b24157c9e434c3de0480088c52c58"
+    },
+    {
+      "plant": "acmp-bind-starts-no-discovery",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 the discovery machine starts",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "9a05a1e2d1281b8c9afba2b4056dda1ce10fbc06f7f2689f398856c62c4690d3"
+    },
+    {
+      "plant": "acmp-bind-change-before-response",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 the change is reported after the response",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "9815ba97abb72213b9d5509aa3293180db9edf54b78083a4309d8544a7e4ebec"
+    },
+    {
+      "plant": "acmp-nothing-persisted",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 the binding is saved",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "3c7bf7648e46e8ceb354fd5e3074d1aea678e63f046d7aea2116cdb9966def5e"
+    },
+    {
+      "plant": "acmp-unbind-not-persisted",
+      "arm": "acmp",
+      "test": "AcmpCore.A3UnbindInEveryState",
+      "needle": "A3 the cleared binding is saved, unless there was none, in state",
+      "matched": [
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState"
+      ],
+      "report_sha256": "f2ce19cda0d7669df5237f947e3d890f03e6c58d9e602a13af96df4e213d88b9"
+    },
+    {
+      "plant": "acmp-rebind-not-persisted",
+      "arm": "acmp",
+      "test": "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+      "needle": "A6 the new binding is saved",
+      "matched": [
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink"
+      ],
+      "report_sha256": "41bdde803b6a4aa6c2fe8da9280a539a327e4d7a78cc575cacbd50d8b4515daa"
+    },
+    {
+      "plant": "acmp-streaming-wait-ignored",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "STREAMING_WAIT binds it stopped",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "c0416d4bc607bc84a15c3bb5029dcb3654efd73e820da0cd9339027742051ecc"
+    },
+    {
+      "plant": "acmp-sw-read-from-fast-connect",
+      "arm": "acmp",
+      "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+      "needle": "STREAMING_WAIT saved",
+      "matched": [
+        "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+      ],
+      "report_sha256": "a74e9bbe8d3676a7ca958e6de15ff37644d0ac87b7aae0b20cf1f919bf5b3271"
+    },
+    {
+      "plant": "acmp-getrx-count-unbound",
+      "arm": "acmp",
+      "test": "AcmpCore.A2GetRxStateInEveryState",
+      "needle": "A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39",
+      "matched": [
+        "AcmpCore.A2GetRxStateInEveryState"
+      ],
+      "report_sha256": "0823c5b99fe6a9b460086d841e0b0843f0ac06c73033f4ea4065a541d12b1378"
+    },
+    {
+      "plant": "acmp-getrx-no-fast-connect",
+      "arm": "acmp",
+      "test": "AcmpCore.A2GetRxStateInEveryState",
+      "needle": "A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39",
+      "matched": [
+        "AcmpCore.A2GetRxStateInEveryState",
+        "AcmpCore.A2GetRxStateInEveryState",
+        "AcmpCore.A2GetRxStateInEveryState",
+        "AcmpCore.A2GetRxStateInEveryState",
+        "AcmpCore.A2GetRxStateInEveryState",
+        "AcmpCore.A2GetRxStateInEveryState",
+        "AcmpCore.A2GetRxStateInEveryState"
+      ],
+      "report_sha256": "8bf82c0e67b5b85574baa980587222f3dfc2cac421cff3be2ad51610bf0ec88d"
+    },
+    {
+      "plant": "acmp-getrx-no-registering-failed",
+      "arm": "acmp",
+      "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+      "needle": "REGISTERING_FAILED 1 (Table 5.39)",
+      "matched": [
+        "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+      ],
+      "report_sha256": "00117a768da6d113fa6e5af5054cf4f1b5a6827372b50cc68978d4eb719328ef"
+    },
+    {
+      "plant": "acmp-unknown-sink-silent",
+      "arm": "acmp",
+      "test": "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId",
+      "needle": "A2 a command for a sink the entity lacks",
+      "matched": [
+        "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId"
+      ],
+      "report_sha256": "893be3da64b4e27ad927d692b0a4fdb93600d39ea36bcc9fdc6120977aac3bd4"
+    },
+    {
+      "plant": "acmp-unbind-echoes-the-talker",
+      "arm": "acmp",
+      "test": "AcmpCore.A3UnbindInEveryState",
+      "needle": "A3 UNBIND_RX_RESPONSE is Table 5.36",
+      "matched": [
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState"
+      ],
+      "report_sha256": "cb379990df0531e628eeaff5abeca448bdc348953e963f123a2b799c1efb191b"
+    },
+    {
+      "plant": "acmp-unbind-keeps-srp",
+      "arm": "acmp",
+      "test": "AcmpCore.A3UnbindInEveryState",
+      "needle": "A3 a settled sink stops SRP before the response",
+      "matched": [
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState"
+      ],
+      "report_sha256": "289023b2caeb3e2ce6bfa1821a8e87b5cd91acdf08de53d7e94d49bf551c1a65"
+    },
+    {
+      "plant": "acmp-unbind-srp-after-response",
+      "arm": "acmp",
+      "test": "AcmpCore.A3UnbindInEveryState",
+      "needle": "A3 a settled sink stops SRP before the response",
+      "matched": [
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState"
+      ],
+      "report_sha256": "e73c5b6799fc54b44ca210415c4ba3966c777f29f5586119e0bb6b36d600f57c"
+    },
+    {
+      "plant": "acmp-unbind-keeps-discovery",
+      "arm": "acmp",
+      "test": "AcmpCore.A3UnbindInEveryState",
+      "needle": "A3 then UNBOUND, binding cleared",
+      "matched": [
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState"
+      ],
+      "report_sha256": "7af5721a1257ce2981d75bbf65c5f15ac9325138067d6696c5b31d47df3fac0c"
+    },
+    {
+      "plant": "acmp-unbind-change-before-response",
+      "arm": "acmp",
+      "test": "AcmpCore.A3UnbindInEveryState",
+      "needle": "A3 the change is reported after the response (#653)",
+      "matched": [
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState",
+        "AcmpCore.A3UnbindInEveryState"
+      ],
+      "report_sha256": "89ff1c9882a5e513d5275a1336fb4e8062b7f0789bd74a417320b9265004019a"
+    },
+    {
+      "plant": "acmp-not-authorized-is-13",
+      "arm": "acmp",
+      "test": "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+      "needle": "A4 CONTROLLER_NOT_AUTHORIZED (16",
+      "matched": [
+        "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+        "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+        "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+        "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+        "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+        "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind"
+      ],
+      "report_sha256": "3c4568758858175370232e46641199be212f160f1b35bab27714fb7783bcd230"
+    },
+    {
+      "plant": "acmp-lock-ignored",
+      "arm": "acmp",
+      "test": "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+      "needle": "A4 one response",
+      "matched": [
+        "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind"
+      ],
+      "report_sha256": "b6aff50aa4e91bdbf96fef672c7e30285e17bc9d8f5d2253bd873087e53277f3"
+    },
+    {
+      "plant": "acmp-lock-refuses-the-holder",
+      "arm": "acmp",
+      "test": "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked",
+      "needle": "A4 the locking controller binds",
+      "matched": [
+        "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked"
+      ],
+      "report_sha256": "1d5af42c099981ff60b54ad0f1ff52b4ca02201ea3ea2d9778cdb022df0edac4"
+    },
+    {
+      "plant": "acmp-get-rx-state-locked",
+      "arm": "acmp",
+      "test": "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked",
+      "needle": "A4 GET_RX_STATE asks no lock",
+      "matched": [
+        "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked"
+      ],
+      "report_sha256": "4f3805785b246b2a62bb729b4b30f52e7f6f97c5eb67f4a900fd89a2567044a1"
+    },
+    {
+      "plant": "acmp-rebind-same-reprobes",
+      "arm": "acmp",
+      "test": "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+      "needle": "A5 a re-bind of the same source sends the response alone",
+      "matched": [
+        "AcmpCore.A5RebindTheSameSourceUpdatesAndExits"
+      ],
+      "report_sha256": "3ddf0e94b4e4905a7751bd27fb8f9e08e493ec2904fa361982ce5d81eb8e827e"
+    },
+    {
+      "plant": "acmp-rebind-same-keeps-the-controller",
+      "arm": "acmp",
+      "test": "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+      "needle": "A5 the controller and STREAMING_WAIT are updated",
+      "matched": [
+        "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+        "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+        "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+        "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+        "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+        "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+        "AcmpCore.A5RebindTheSameSourceUpdatesAndExits"
+      ],
+      "report_sha256": "ce70429a6d057b122cb805c22cba86c5b02f6d2556f8c20e332337429e9cb6de"
+    },
+    {
+      "plant": "acmp-bind-new-keeps-srp",
+      "arm": "acmp",
+      "test": "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+      "needle": "A6 SRP is stopped and its parameters cleared",
+      "matched": [
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+        "AcmpCore.A6BindAnotherSourceRestartsTheSink"
+      ],
+      "report_sha256": "54f7c9fe4e12f882426616fda5fa9f81157def377810df0a2a04560533bd7d4e"
+    },
+    {
+      "plant": "acmp-bind-same-talker-is-the-same-source",
+      "arm": "acmp",
+      "test": "AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding",
+      "needle": "A6 the same talker with another talker_unique_id is a new source",
+      "matched": [
+        "AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding"
+      ],
+      "report_sha256": "e4c2477290c60c99a1c05693bcc46254c33dd383af7eb0a0d2aea8ae1b29a0aa"
+    },
+    {
+      "plant": "acmp-sequence-id-never-advances",
+      "arm": "acmp",
+      "test": "AcmpCore.A12DelaySendsANewProbe",
+      "needle": "A12 a new PROBE_TX_COMMAND with the next sequence_id",
+      "matched": [
+        "AcmpCore.A12DelaySendsANewProbe"
+      ],
+      "report_sha256": "02bbf54050b6be82b6634911a4a9a9d3f9e8534d338ed74588701167b78ea23c"
+    },
+    {
+      "plant": "acmp-sequence-id-never-advances",
+      "arm": "acmp",
+      "test": "AcmpCore.A16OneCounterForEveryNewProbe",
+      "needle": "A16 each new PROBE_TX_COMMAND takes the next",
+      "matched": [
+        "AcmpCore.A16OneCounterForEveryNewProbe"
+      ],
+      "report_sha256": "02bbf54050b6be82b6634911a4a9a9d3f9e8534d338ed74588701167b78ea23c"
+    },
+    {
+      "plant": "acmp-sequence-id-per-sink",
+      "arm": "acmp",
+      "test": "AcmpCore.A16OneCounterForEveryNewProbe",
+      "needle": "A16 each new PROBE_TX_COMMAND takes the next",
+      "matched": [
+        "AcmpCore.A16OneCounterForEveryNewProbe"
+      ],
+      "report_sha256": "e3b09a13c9fa49844936448768810abb1f89b939ae40b81985e982160b480d72"
+    },
+    {
+      "plant": "acmp-response-keyed-on-the-source",
+      "arm": "acmp",
+      "test": "AcmpCore.A7ResponsesKeyOnTheListenerUniqueId",
+      "needle": "A7 the response belongs to the sink",
+      "matched": [
+        "AcmpCore.A7ResponsesKeyOnTheListenerUniqueId"
+      ],
+      "report_sha256": "b5fc9c38fbd89b491ad741e7a10d6fb30056fdfbe482d0c58d98579dbc0ed5f0"
+    },
+    {
+      "plant": "acmp-guard-controller-dropped",
+      "arm": "acmp",
+      "test": "AcmpCore.A7EachGuardTermIsChecked",
+      "needle": "A7 a response with another controller",
+      "matched": [
+        "AcmpCore.A7EachGuardTermIsChecked"
+      ],
+      "report_sha256": "a867255619467957a2d5fe088ca3204feb17dc153feae82cb1d41b3300437d3b"
+    },
+    {
+      "plant": "acmp-guard-talker-dropped",
+      "arm": "acmp",
+      "test": "AcmpCore.A7EachGuardTermIsChecked",
+      "needle": "A7 a response with another controller",
+      "matched": [
+        "AcmpCore.A7EachGuardTermIsChecked"
+      ],
+      "report_sha256": "97ec6a2e4ba5bf271fa91b2994b90a40f70a54682d1be602d63f38b3b6c4da6e"
+    },
+    {
+      "plant": "acmp-guard-unique-id-dropped",
+      "arm": "acmp",
+      "test": "AcmpCore.A7EachGuardTermIsChecked",
+      "needle": "A7 a response with another controller",
+      "matched": [
+        "AcmpCore.A7EachGuardTermIsChecked"
+      ],
+      "report_sha256": "210ab3b4780ffc227cb8faa65cf8fc21a0b67401f2c20bb9a7068fee914ac0eb"
+    },
+    {
+      "plant": "acmp-guard-sequence-id-dropped",
+      "arm": "acmp",
+      "test": "AcmpCore.A7EachGuardTermIsChecked",
+      "needle": "A7 a response with another controller",
+      "matched": [
+        "AcmpCore.A7EachGuardTermIsChecked"
+      ],
+      "report_sha256": "bb4ba9428aad1fa72ad031fcebb8233a7d696500e6cc7fad7ed188b2deeb2394"
+    },
+    {
+      "plant": "acmp-guard-reads-the-binding",
+      "arm": "acmp",
+      "test": "AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding",
+      "needle": "A7 the answer to the probe sent before a re-bind still matches",
+      "matched": [
+        "AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding"
+      ],
+      "report_sha256": "02b74041d0500c38a7cfc736faf8ae28a58f54e4c1012e7f25b214c5982022d7"
+    },
+    {
+      "plant": "acmp-responses-taken-outside-probing",
+      "arm": "acmp",
+      "test": "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+      "needle": "A7 RCV_PROBE_TX_RESP is ignored outside",
+      "matched": [
+        "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+        "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+        "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+        "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+        "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+        "AcmpCore.A7ResponsesOutsideProbingAreIgnored"
+      ],
+      "report_sha256": "0ede167e3c67503c5d851eb22b1f99910b8253ae64fab5a4839c0ec75be96ca8"
+    },
+    {
+      "plant": "acmp-vlan-masked",
+      "arm": "acmp",
+      "test": "AcmpCore.A8SuccessSettles",
+      "needle": "A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly",
+      "matched": [
+        "AcmpCore.A8SuccessSettles",
+        "AcmpCore.A8SuccessSettles"
+      ],
+      "report_sha256": "c8032ff82f02179a11fdd19490bfadb1ed17545fb282016e8983eafa94aae05e"
+    },
+    {
+      "plant": "acmp-no-tk-1s",
+      "arm": "acmp",
+      "test": "AcmpCore.A8SuccessSettles",
+      "needle": "A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started",
+      "matched": [
+        "AcmpCore.A8SuccessSettles",
+        "AcmpCore.A8SuccessSettles"
+      ],
+      "report_sha256": "01dec4d259af29895e0fdb4388f6dbbf548041b7e7589b0b69806e117c0a5012"
+    },
+    {
+      "plant": "acmp-settle-starts-no-srp",
+      "arm": "acmp",
+      "test": "AcmpCore.A8SuccessSettles",
+      "needle": "A8 SRP is started",
+      "matched": [
+        "AcmpCore.A8SuccessSettles"
+      ],
+      "report_sha256": "69d7644e781540abf7c55566529798884cdc9167467262c0eee94cdb6e4b2b7c"
+    },
+    {
+      "plant": "acmp-settle-swaps-stream-fields",
+      "arm": "acmp",
+      "test": "AcmpCore.A8SuccessSettles",
+      "needle": "stream_vlan_id exactly",
+      "matched": [
+        "AcmpCore.A8SuccessSettles",
+        "AcmpCore.A8SuccessSettles"
+      ],
+      "report_sha256": "e6b084523ebebef38013db21be3164294c97640e5fa3c2db7f592fd0675a0c96"
+    },
+    {
+      "plant": "acmp-failure-status-dropped",
+      "arm": "acmp",
+      "test": "AcmpCore.A9FailureWaitsForTheRetry",
+      "needle": "A9 a failed response: PRB_W_RETRY, the ACMP status is its status",
+      "matched": [
+        "AcmpCore.A9FailureWaitsForTheRetry",
+        "AcmpCore.A9FailureWaitsForTheRetry"
+      ],
+      "report_sha256": "d77da050d4a2c55d6f393d72a53a98a8eb8d111fa24ed3b10f0b2edb0d2c0c9d"
+    },
+    {
+      "plant": "acmp-failure-retries-at-200ms",
+      "arm": "acmp",
+      "test": "AcmpCore.A9FailureWaitsForTheRetry",
+      "needle": "A9 and TMR_RETRY 4 s",
+      "matched": [
+        "AcmpCore.A9FailureWaitsForTheRetry",
+        "AcmpCore.A9FailureWaitsForTheRetry"
+      ],
+      "report_sha256": "46ae25abc4d029b7393d52a38c03214b35bb794c7a83c9409f7acf46bff730b0"
+    },
+    {
+      "plant": "acmp-duplicate-takes-a-new-sequence-id",
+      "arm": "acmp",
+      "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+      "needle": "A10 an exact duplicate of the first probe",
+      "matched": [
+        "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp"
+      ],
+      "report_sha256": "12d991aabf292fbe22dbfe7c56ad98cef2bd0220c1ea675246356f0f7c06cb46"
+    },
+    {
+      "plant": "acmp-second-timeout-keeps-status-0",
+      "arm": "acmp",
+      "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+      "needle": "A10 the second: no frame, LISTENER_TALKER_TIMEOUT",
+      "matched": [
+        "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp"
+      ],
+      "report_sha256": "5e4c3f9b594024b5b1659699b6f3f525519bbb84a927546163b28d8ee1284972"
+    },
+    {
+      "plant": "acmp-second-timeout-keeps-status-0",
+      "arm": "acmp",
+      "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+      "needle": "A25 the ACMP status LISTENER_TALKER_TIMEOUT does",
+      "matched": [
+        "AcmpCore.A25OnlyTable522ItemsAreReported"
+      ],
+      "report_sha256": "5e4c3f9b594024b5b1659699b6f3f525519bbb84a927546163b28d8ee1284972"
+    },
+    {
+      "plant": "acmp-no-duplicate",
+      "arm": "acmp",
+      "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+      "needle": "A10 the first TMR_NO_RESP sends one frame",
+      "matched": [
+        "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp"
+      ],
+      "report_sha256": "ec0897c2b464bec7f3f3cd34e61f469798121ac94f9ba813dd6c0af54ea744be"
+    },
+    {
+      "plant": "acmp-retry-ignores-discovery",
+      "arm": "acmp",
+      "test": "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+      "needle": "A11 TMR_RETRY, talker discovered: TMR_DELAY",
+      "matched": [
+        "AcmpCore.A11RetryWaitsForTheTalkerOrDelays"
+      ],
+      "report_sha256": "413aecf9a1043460a134e6e85d86af922e81b2f4709b7d1844a8ef1effb7539f"
+    },
+    {
+      "plant": "acmp-retry-zeroes-the-status",
+      "arm": "acmp",
+      "test": "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+      "needle": "A11 and the ACMP status stays",
+      "matched": [
+        "AcmpCore.A11RetryWaitsForTheTalkerOrDelays"
+      ],
+      "report_sha256": "d8e326fdca899a61542741666941bcd17ca75b86fe6ce8fd286deded1cf03667"
+    },
+    {
+      "plant": "acmp-delay-resends-the-old-probe",
+      "arm": "acmp",
+      "test": "AcmpCore.A12DelaySendsANewProbe",
+      "needle": "A12 a new PROBE_TX_COMMAND with the next sequence_id",
+      "matched": [
+        "AcmpCore.A12DelaySendsANewProbe"
+      ],
+      "report_sha256": "0c8c15cdebf1e89f91016b6e04df042c59da49f23b73ff12e8c742accf6fa1aa"
+    },
+    {
+      "plant": "acmp-no-tk-keeps-srp",
+      "arm": "acmp",
+      "test": "AcmpCore.A13NoTalkerAttributeReprobes",
+      "needle": "A13 TMR_NO_TK clears the SRP parameters and stops SRP",
+      "matched": [
+        "AcmpCore.A13NoTalkerAttributeReprobes"
+      ],
+      "report_sha256": "482c4a68dda5480e7003564585620e2daefd3330cbf8df610f158979cfb244c0"
+    },
+    {
+      "plant": "acmp-reprobe-ignores-discovery",
+      "arm": "acmp",
+      "test": "AcmpCore.A13NoTalkerAttributeReprobes",
+      "needle": "A13 talker discovered: TMR_DELAY, PRB_W_DELAY",
+      "matched": [
+        "AcmpCore.A13NoTalkerAttributeReprobes"
+      ],
+      "report_sha256": "77b36fafa3425d1c3bc6333f64bb057671e4e40af797e0b257ece0478b7cbb29"
+    },
+    {
+      "plant": "acmp-reprobe-ignores-discovery",
+      "arm": "acmp",
+      "test": "AcmpCore.A15UnregisteredReprobes",
+      "needle": "A15 talker discovered: TMR_DELAY, PRB_W_DELAY",
+      "matched": [
+        "AcmpCore.A15UnregisteredReprobes"
+      ],
+      "report_sha256": "77b36fafa3425d1c3bc6333f64bb057671e4e40af797e0b257ece0478b7cbb29"
+    },
+    {
+      "plant": "acmp-registered-anywhere",
+      "arm": "acmp",
+      "test": "AcmpCore.A14RegisteredSettlesTheReservation",
+      "needle": "A14 EVT_TK_REGISTERED anywhere else",
+      "matched": [
+        "AcmpCore.A14RegisteredSettlesTheReservation",
+        "AcmpCore.A14RegisteredSettlesTheReservation",
+        "AcmpCore.A14RegisteredSettlesTheReservation",
+        "AcmpCore.A14RegisteredSettlesTheReservation",
+        "AcmpCore.A14RegisteredSettlesTheReservation",
+        "AcmpCore.A14RegisteredSettlesTheReservation",
+        "AcmpCore.A14RegisteredSettlesTheReservation"
+      ],
+      "report_sha256": "d20038ff3a8286c571455585139c9f4b0f995cf6722933a10fdfcf9fdfa6eac0"
+    },
+    {
+      "plant": "acmp-registered-keeps-no-tk",
+      "arm": "acmp",
+      "test": "AcmpCore.A14RegisteredSettlesTheReservation",
+      "needle": "A14 EVT_TK_REGISTERED: TMR_NO_TK cleared",
+      "matched": [
+        "AcmpCore.A14RegisteredSettlesTheReservation"
+      ],
+      "report_sha256": "8a5ac6ad855f3a177009e551cd4e13b97465d2f1fdb2e2f8be32f8acd1dc88f7"
+    },
+    {
+      "plant": "acmp-registered-kind-dropped",
+      "arm": "acmp",
+      "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+      "needle": "REGISTERING_FAILED 1 (Table 5.39)",
+      "matched": [
+        "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+      ],
+      "report_sha256": "93e14a34b3ce37e844081d93dd8da0e9b5bbffa975c98ada9f049644c1f74433"
+    },
+    {
+      "plant": "acmp-unregistered-anywhere",
+      "arm": "acmp",
+      "test": "AcmpCore.A15UnregisteredReprobes",
+      "needle": "A15 EVT_TK_UNREGISTERED anywhere else",
+      "matched": [
+        "AcmpCore.A15UnregisteredReprobes",
+        "AcmpCore.A15UnregisteredReprobes",
+        "AcmpCore.A15UnregisteredReprobes",
+        "AcmpCore.A15UnregisteredReprobes",
+        "AcmpCore.A15UnregisteredReprobes",
+        "AcmpCore.A15UnregisteredReprobes",
+        "AcmpCore.A15UnregisteredReprobes"
+      ],
+      "report_sha256": "59b7b0ba16e52fc943219410c997d65a25eaea41ee7d28fab799726d3ceb4ba0"
+    },
+    {
+      "plant": "acmp-kind-lost",
+      "arm": "acmp",
+      "test": "AcmpCore.KindChangesOnlyTheSettledView",
+      "needle": "kind updates the reported view",
+      "matched": [
+        "AcmpCore.KindChangesOnlyTheSettledView"
+      ],
+      "report_sha256": "a13652a88008039c123d2851bdb50161340a4a902b16871733e690ed59d2ed01"
+    },
+    {
+      "plant": "acmp-kind-any-state",
+      "arm": "acmp",
+      "test": "AcmpCore.KindChangesOnlyTheSettledView",
+      "needle": "kind refuses non-settled state",
+      "matched": [
+        "AcmpCore.KindChangesOnlyTheSettledView",
+        "AcmpCore.KindChangesOnlyTheSettledView",
+        "AcmpCore.KindChangesOnlyTheSettledView",
+        "AcmpCore.KindChangesOnlyTheSettledView",
+        "AcmpCore.KindChangesOnlyTheSettledView",
+        "AcmpCore.KindChangesOnlyTheSettledView",
+        "AcmpCore.KindChangesOnlyTheSettledView"
+      ],
+      "report_sha256": "8cbe9b8c058164c2313a43a224771c08ff6c49b104e5b2adc1c734dffd6cd8b5"
+    },
+    {
+      "plant": "acmp-unregistered-keeps-srp",
+      "arm": "acmp",
+      "test": "AcmpCore.A15UnregisteredReprobes",
+      "needle": "A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped",
+      "matched": [
+        "AcmpCore.A15UnregisteredReprobes"
+      ],
+      "report_sha256": "0ed81a5852ca8f34950bf5af5e143e50a92f7210b7ddefa9021b8e18a8c55efe"
+    },
+    {
+      "plant": "acmp-timer-at-the-latest-deadline",
+      "arm": "acmp",
+      "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+      "needle": "A17 each interface's timer is armed at the earliest",
+      "matched": [
+        "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+      ],
+      "report_sha256": "b0732f978518618a1fffd44ac1cc57e11153663d2698033115b1c9e7fa9afd11"
+    },
+    {
+      "plant": "acmp-timer-port-called-every-time",
+      "arm": "acmp",
+      "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+      "needle": "A17 the port is called only when the earliest deadline moves",
+      "matched": [
+        "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+      ],
+      "report_sha256": "58c561db44b2f32069f3c802b8c88302afe10959632cc42d22e54801d527160c"
+    },
+    {
+      "plant": "acmp-timer-never-stopped",
+      "arm": "acmp",
+      "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+      "needle": "A17 an interface whose sinks hold no deadline",
+      "matched": [
+        "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+      ],
+      "report_sha256": "395b09915dcbbd999986406e22013c9b5d1798d94a046cd935d41e613a270af5"
+    },
+    {
+      "plant": "acmp-expiry-takes-every-interface",
+      "arm": "acmp",
+      "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+      "needle": "A17 an expiry takes the due timers only",
+      "matched": [
+        "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+      ],
+      "report_sha256": "e71ada8b647b259bd372814594fa1333f0dade365e6ad70612f701b866b9712f"
+    },
+    {
+      "plant": "acmp-expiry-not-consumed",
+      "arm": "acmp",
+      "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+      "needle": "A17 an expiry with nothing due changes nothing and re-arms the timer it consumed",
+      "matched": [
+        "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+      ],
+      "report_sha256": "33b5f80754c3466e81ed8d7bc6ccbee4d9a26c7cc493c16b64195194e8811a3a"
+    },
+    {
+      "plant": "acmp-zero-delay-waits",
+      "arm": "acmp",
+      "test": "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
+      "needle": "A18 TMR_RETRY drawing 0 ms sends its probe in the same expiry",
+      "matched": [
+        "AcmpCore.A18AZeroDelayProbesInTheSameExpiry"
+      ],
+      "report_sha256": "d7f372c3283e4a9ac979dc589feaab68781b2748636d39abbfa1282a6ff3e081"
+    },
+    {
+      "plant": "acmp-delay-up-to-4s",
+      "arm": "acmp",
+      "test": "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
+      "needle": "A18 the longest draw is 1000 ms",
+      "matched": [
+        "AcmpCore.A18AZeroDelayProbesInTheSameExpiry"
+      ],
+      "report_sha256": "7dafb37df8570933a6673b25fcdd5922e6627868b742de3f38c3048079f4bccb"
+    },
+    {
+      "plant": "acmp-seed-at-every-draw",
+      "arm": "acmp",
+      "test": "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw",
+      "needle": "A18 and never again",
+      "matched": [
+        "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw"
+      ],
+      "report_sha256": "fe69158e45bcf1c430a79b3de4cdfaa1785fc8919048652869a9add06be3516b"
+    },
+    {
+      "plant": "acmp-rng-left-at-0",
+      "arm": "acmp",
+      "test": "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw",
+      "needle": "A18 a seed that cancels the state to 0 leaves it 1",
+      "matched": [
+        "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw"
+      ],
+      "report_sha256": "f1034e552b513bcb411c86d6a383151f592f669affbff09e955ad0215cdac83a"
+    },
+    {
+      "plant": "acmp-response-passes-an-owed-frame",
+      "arm": "acmp",
+      "test": "AcmpCore.A19NothingPassesAnOwedFrame",
+      "needle": "A19 a response does not pass one already owed",
+      "matched": [
+        "AcmpCore.A19NothingPassesAnOwedFrame"
+      ],
+      "report_sha256": "51c544b89e30388b4fa1e2f016197d36d45d557fc258fd0cbb1e659b76d9df14"
+    },
+    {
+      "plant": "acmp-poll-drains-everything",
+      "arm": "acmp",
+      "test": "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+      "needle": "A19 one frame per poll",
+      "matched": [
+        "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits"
+      ],
+      "report_sha256": "6170ac8fe2035fbc1f19831e6cc06df537465388dcf268b7f731e53bda126052"
+    },
+    {
+      "plant": "acmp-change-not-held-for-its-response",
+      "arm": "acmp",
+      "test": "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+      "needle": "A19 but its change is not reported while its response waits (#653)",
+      "matched": [
+        "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits"
+      ],
+      "report_sha256": "64adda9d68ffc1fd0dea0fed44f5a4986dfa9fb28513b69cdd144167a43d04fc"
+    },
+    {
+      "plant": "acmp-full-queue-acts",
+      "arm": "acmp",
+      "test": "AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs",
+      "needle": "A19 a command whose response would find the queue full is dropped",
+      "matched": [
+        "AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs"
+      ],
+      "report_sha256": "f874a908994c19223ab7f2ffd58eb2327a01b3d3a487067aa28f32eaf9257406"
+    },
+    {
+      "plant": "acmp-lost-probe-uncounted",
+      "arm": "acmp",
+      "test": "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+      "needle": "A19 a probe the full queue cannot take is lost and counted",
+      "matched": [
+        "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered"
+      ],
+      "report_sha256": "968f6eafc80d3abf9e6a1e494d9c849f1a3a069c1731692707ecf701aad717a8"
+    },
+    {
+      "plant": "acmp-first-owed-releases-every-change",
+      "arm": "acmp",
+      "test": "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
+      "needle": "A19 the bind's response left but the unbind's is still owed",
+      "matched": [
+        "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether"
+      ],
+      "report_sha256": "8ab5c2b299a224e311440c6e51f7e9c1732d4eefadc2dbb5c0fa3c36005700c1"
+    },
+    {
+      "plant": "acmp-poll-newest-first",
+      "arm": "acmp",
+      "test": "AcmpCore.A19NothingPassesAnOwedFrame",
+      "needle": "A19 they leave in the order they were made",
+      "matched": [
+        "AcmpCore.A19NothingPassesAnOwedFrame"
+      ],
+      "report_sha256": "c51f6e937a5d752062b0f0727622f5289ef5b04a07a0cc7ecfb73d69608afd2d"
+    },
+    {
+      "plant": "acmp-probe-tx-reports-asking-failed",
+      "arm": "acmp",
+      "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "needle": "A20 PROBE_TX_RESPONSE is Table 5.43",
+      "matched": [
+        "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+      ],
+      "report_sha256": "b4b0c2c9f3b8b2af8220863e0dc110ef1b9c82f130b65282e397dd2404e0f689"
+    },
+    {
+      "plant": "acmp-probe-tx-echoes-every-flag",
+      "arm": "acmp",
+      "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "needle": "A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0",
+      "matched": [
+        "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+      ],
+      "report_sha256": "7f1ba94b8f19633ff80a3104ad5dc547377b877d3199f446c6f6b8f04d923bbb"
+    },
+    {
+      "plant": "acmp-probe-tx-any-interface",
+      "arm": "acmp",
+      "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "needle": "A20 a probe from another interface than the source's",
+      "matched": [
+        "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+      ],
+      "report_sha256": "5150e576a891525707bc4056168e57a723a09c60b7a438d6019f3505c0d743c4"
+    },
+    {
+      "plant": "acmp-probe-tx-no-destination-mac-check",
+      "arm": "acmp",
+      "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "needle": "A20 no destination MAC: TALKER_DEST_MAC_FAILED",
+      "matched": [
+        "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+      ],
+      "report_sha256": "492ef30bed665271b0a541eebabf366d4c8655f1a66fb097011422ba46c30abb"
+    },
+    {
+      "plant": "acmp-disconnect-always-succeeds",
+      "arm": "acmp",
+      "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "needle": "A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID",
+      "matched": [
+        "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+      ],
+      "report_sha256": "7ab992e3553bef82c6a5aed4868f455e2e200f66991c889436e910af0349941c"
+    },
+    {
+      "plant": "acmp-unknown-source-answered",
+      "arm": "acmp",
+      "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "needle": "A20 an unknown source: TALKER_UNKNOWN_ID",
+      "matched": [
+        "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+      ],
+      "report_sha256": "f867076a5c791452283c52a3fdcf806c0e9a1ba8d94feca43d5194e3abec1f36"
+    },
+    {
+      "plant": "acmp-get-tx-state-echoes-the-listener",
+      "arm": "acmp",
+      "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "needle": "A20 GET_TX_STATE: listener fields 0",
+      "matched": [
+        "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+      ],
+      "report_sha256": "c4d9126ef931f88f905c837db8ee8fb73a702298fb8b914697d895493dc1a7aa"
+    },
+    {
+      "plant": "acmp-get-tx-state-registering-failed-0",
+      "arm": "acmp",
+      "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "needle": "REGISTERING_FAILED live",
+      "matched": [
+        "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+      ],
+      "report_sha256": "54bd2783f2c626c2dc86fe50250c753f07ce5512a1e8ba6514cce6beaf36e916"
+    },
+    {
+      "plant": "acmp-get-tx-state-unheld-mac",
+      "arm": "acmp",
+      "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "needle": "A20 with no destination MAC held, none is reported",
+      "matched": [
+        "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+      ],
+      "report_sha256": "c47a51eda09e86a13b94c0567c07ed4c1888fc1fbf5fdc1127851fb93fa85b8a"
+    },
+    {
+      "plant": "acmp-get-tx-connection-supported",
+      "arm": "acmp",
+      "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "needle": "A20 GET_TX_CONNECTION: NOT_SUPPORTED",
+      "matched": [
+        "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+      ],
+      "report_sha256": "8baca79443482ba77b940f72faebdcbc56258b39b4cf50bb02040bed8786d152"
+    },
+    {
+      "plant": "acmp-every-listener-is-this-one",
+      "arm": "acmp",
+      "test": "AcmpCore.A21MessagesNotForThisEntityAreIgnored",
+      "needle": "A21 commands for another listener or talker",
+      "matched": [
+        "AcmpCore.A21MessagesNotForThisEntityAreIgnored"
+      ],
+      "report_sha256": "db5273ad8d451c805aa1e177377e34d9b5cd217ea82b935909e28186511e8b82"
+    },
+    {
+      "plant": "acmp-every-talker-is-this-one",
+      "arm": "acmp",
+      "test": "AcmpCore.A21MessagesNotForThisEntityAreIgnored",
+      "needle": "A21 commands for another listener or talker",
+      "matched": [
+        "AcmpCore.A21MessagesNotForThisEntityAreIgnored"
+      ],
+      "report_sha256": "7b5d2c4d52e1c3c9429d0df3981755f57fc777200b5680ad28cc3635389758d2"
+    },
+    {
+      "plant": "acmp-short-pdu-read",
+      "arm": "acmp",
+      "test": "AcmpCore.A21MalformedFramesAreCounted",
+      "needle": "A21 a frame shorter than the Milan ACMPDU",
+      "matched": [
+        "AcmpCore.A21MalformedFramesAreCounted"
+      ],
+      "report_sha256": "208e3a7cff8ab2753b99047b37436a0cacc9b6a77e8b4ba739a00697dee9ffbf"
+    },
+    {
+      "plant": "acmp-longer-pdu-refused",
+      "arm": "acmp",
+      "test": "AcmpCore.A21MalformedFramesAreCounted",
+      "needle": "A21 the longer IEEE 1722.1-2021 PDU is accepted",
+      "matched": [
+        "AcmpCore.A21MalformedFramesAreCounted"
+      ],
+      "report_sha256": "a6f47a2a71c3dabea9b22d058130f2c43d152859e04292336f195dd74e5651c9"
+    },
+    {
+      "plant": "acmp-discovery-reads-no-grandmaster",
+      "arm": "acmp",
+      "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+      "needle": "A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster",
+      "matched": [
+        "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+      ],
+      "report_sha256": "7d242a58324724055f79b8f91e974556cf45fb104402d66f0a11d7fb1d7a5863"
+    },
+    {
+      "plant": "acmp-discovery-reads-no-domain",
+      "arm": "acmp",
+      "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+      "needle": "A22 and from another domain",
+      "matched": [
+        "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+      ],
+      "report_sha256": "3a3fcb2d7291c44cab5e8b6993fb27266c5de6610481cd4260de929c4eef59af"
+    },
+    {
+      "plant": "acmp-valid-time-in-seconds",
+      "arm": "acmp",
+      "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+      "needle": "A22 TMR_NO_ADP is the received valid_time in two-second units",
+      "matched": [
+        "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+      ],
+      "report_sha256": "3f62a6c221714dbe6af81953cd4a717194b4e403d717310fe1d1e8293fff453c"
+    },
+    {
+      "plant": "acmp-discovered-interface-unchecked",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DiscoveredStateCells",
+      "needle": "A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored",
+      "matched": [
+        "AcmpCore.A22DiscoveredStateCells"
+      ],
+      "report_sha256": "3c20c2679d9d6e691e09764a29424cadfb53902a05438ac587cb0e4f1fd8710e"
+    },
+    {
+      "plant": "acmp-restart-on-a-smaller-index-only",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DiscoveredStateCells",
+      "needle": "A22 available_index",
+      "matched": [
+        "AcmpCore.A22DiscoveredStateCells"
+      ],
+      "report_sha256": "40cee91dcad0fb3ba28c3f39ce1be2ed3674e299b5f267602b826c753a79439e"
+    },
+    {
+      "plant": "acmp-restart-raises-no-discovered",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DiscoveredStateCells",
+      "needle": "EVT_TK_DEPARTED then EVT_TK_DISCOVERED",
+      "matched": [
+        "AcmpCore.A22DiscoveredStateCells",
+        "AcmpCore.A22DiscoveredStateCells",
+        "AcmpCore.A22DiscoveredStateCells"
+      ],
+      "report_sha256": "2f03c29dd8215724db565d6d2219b6cd3e9f0747f75badf6158b24f7a03ad8cd"
+    },
+    {
+      "plant": "acmp-restart-mismatch-keeps-aging",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DiscoveredStateCells",
+      "needle": "A22 index <= last from another grandmaster",
+      "matched": [
+        "AcmpCore.A22DiscoveredStateCells"
+      ],
+      "report_sha256": "444ebd6e4069bf72bdb1be2dd333ea5d40df1904e096f5646ecc2923026c8fb6"
+    },
+    {
+      "plant": "acmp-refresh-notes-no-index",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DiscoveredStateCells",
+      "needle": "A22 a rising available_index is noted",
+      "matched": [
+        "AcmpCore.A22DiscoveredStateCells"
+      ],
+      "report_sha256": "5f0696806cc5b5cafb868f020aa89bdbfb7c50aee12a82b5ab2b7e82ab50d3e6"
+    },
+    {
+      "plant": "acmp-departing-taken-undiscovered",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DepartingAndAging",
+      "needle": "A22 a DEPARTING in TK_NOT_DISCOVERED is ignored",
+      "matched": [
+        "AcmpCore.A22DepartingAndAging"
+      ],
+      "report_sha256": "5589b1502aaa5a84fe9fd1120cc1385b4c8c4c4a2637f43c161cdc3b65efb33e"
+    },
+    {
+      "plant": "acmp-departing-interface-unchecked",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DepartingAndAging",
+      "needle": "A22 a DEPARTING with another interface_index is ignored",
+      "matched": [
+        "AcmpCore.A22DepartingAndAging"
+      ],
+      "report_sha256": "e2cb4ae286149251d4aa0e95be115cb38353c907e293cbbc28b43795e16d4f9a"
+    },
+    {
+      "plant": "acmp-departing-keeps-aging",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DepartingAndAging",
+      "needle": "A22 a DEPARTING: TMR_NO_ADP stopped",
+      "matched": [
+        "AcmpCore.A22DepartingAndAging"
+      ],
+      "report_sha256": "c3b15a0cfc527be930aafc2f6f2e46dc867b72a7a9070ba4c59b4914929ed125"
+    },
+    {
+      "plant": "acmp-no-aging",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DepartingAndAging",
+      "needle": "A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED",
+      "matched": [
+        "AcmpCore.A22DepartingAndAging"
+      ],
+      "report_sha256": "92e2c8ca597906cd03ad8903c49a8df858b1bf49ef401fbac14f301be31ba747"
+    },
+    {
+      "plant": "acmp-discovery-on-every-interface",
+      "arm": "acmp",
+      "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+      "needle": "A22 every bound sink of the talker processes it",
+      "matched": [
+        "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+      ],
+      "report_sha256": "9aba40e72591b62fbde398a18133bea900520358d95b968eea6b5f3637c2a6eb"
+    },
+    {
+      "plant": "acmp-discovery-on-unbound-sinks",
+      "arm": "acmp",
+      "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+      "needle": "A22 an unbound sink runs no discovery",
+      "matched": [
+        "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+      ],
+      "report_sha256": "d250ecef7035e5383d666044a60a00d4e8f43670d430f1245e940dc29f77004e"
+    },
+    {
+      "plant": "acmp-grandmaster-sampled-for-the-refresh",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DiscoveredStateCells",
+      "needle": "A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored",
+      "matched": [
+        "AcmpCore.A22DiscoveredStateCells"
+      ],
+      "report_sha256": "faca1612b04d780e470f37add9b5351a6f9ee444f470f06b81671ae56c574222"
+    },
+    {
+      "plant": "acmp-grandmaster-sampled-per-sink",
+      "arm": "acmp",
+      "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+      "needle": "A22 and the grandmaster is sampled once for the frame",
+      "matched": [
+        "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+      ],
+      "report_sha256": "4de14269f15c04af66805c8ae47752a95365a52ccd1c822034640631e2c78442"
+    },
+    {
+      "plant": "acmp-reentry-unguarded",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+      "needle": "A23 a call made from inside the send port is refused",
+      "matched": [
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+      ],
+      "report_sha256": "002e445b6fc61b2e8649a8bfb303ef730f7fa9e0cadd6e6d289c0a8b269d608e"
+    },
+    {
+      "plant": "acmp-reentry-unguarded",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded",
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "002e445b6fc61b2e8649a8bfb303ef730f7fa9e0cadd6e6d289c0a8b269d608e"
+    },
+    {
+      "plant": "acmp-reentry-untrapped",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+      "needle": "refused, counted and trapped",
+      "matched": [
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+      ],
+      "report_sha256": "8f7e98a97f0da8e9ce76dde51a4fe8c121db9942f2a4e4b0ec610f8bdcab62f4"
+    },
+    {
+      "plant": "acmp-send-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+      "needle": "A23 a call made from inside the send port is refused",
+      "matched": [
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+      ],
+      "report_sha256": "a8164b05b372dde20c8f7c5d3e2043db7e8c8347eb29b9e8e997d05aa54b49e6"
+    },
+    {
+      "plant": "acmp-timer-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "780a12a555bb2db039ad5163496ceb8c52ee4b999f8c7b9e9e72c803daddd891"
+    },
+    {
+      "plant": "acmp-gptp-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "d98c2c96b81ab58e581cf968a7c5dc88fca7fd385dc886c367add466c680eda0"
+    },
+    {
+      "plant": "acmp-clock-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "54780e393309ff0d1c1071509d3a6ba3ef89f486ce77ab9856f7ff93024d6e59"
+    },
+    {
+      "plant": "acmp-seed-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "c09e1743ec6dadf09c5290e92089efef32586b42bc01cb8f520904416ad1f54b"
+    },
+    {
+      "plant": "acmp-lock-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "07f328b77a44fd97b9043ea0fab64d930237afe5371a827362fd1f05e399d410"
+    },
+    {
+      "plant": "acmp-source-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "5a3e49f6ee9291355b84f43385f514abef6285a33a26f238fc16f30db13efab5"
+    },
+    {
+      "plant": "acmp-srp-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "198b09605e4bae24735ef2f75894c0a045b907f860a5bb31a6f22e69b8bcf5b9"
+    },
+    {
+      "plant": "acmp-persist-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "74a6e71ef91b012b630a93d753aeadc81802939e5f9e45de33abb17ef72a0ab1"
+    },
+    {
+      "plant": "acmp-changed-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "756fd9dce9c43d205e66c49541a13e3df2d154072578a3655a10ee5749c6ec1a"
+    },
+    {
+      "plant": "acmp-restore-lands-in-prb-w-resp",
+      "arm": "acmp",
+      "test": "AcmpCore.A24ARestoredBindingFastConnects",
+      "needle": "A24 startup with a saved binding",
+      "matched": [
+        "AcmpCore.A24ARestoredBindingFastConnects"
+      ],
+      "report_sha256": "0affa76349a522bd189b8b72208e9d8c595a33b67f2b2e805a40dfccff1bb010"
+    },
+    {
+      "plant": "acmp-restore-starts-no-discovery",
+      "arm": "acmp",
+      "test": "AcmpCore.A24ARestoredBindingFastConnects",
+      "needle": "A24 startup with a saved binding",
+      "matched": [
+        "AcmpCore.A24ARestoredBindingFastConnects"
+      ],
+      "report_sha256": "b09fb30961b5d43f1933a11ec3ac34e2a5b6aba629babf143558e98a43d0b048"
+    },
+    {
+      "plant": "acmp-restore-announced",
+      "arm": "acmp",
+      "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+      "needle": "A29 sink 1's talker on its interface, and nothing else: no timer, nothing to save or report",
+      "matched": [
+        "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+      ],
+      "report_sha256": "de465e39759670d8c34fb49d409b6f5d5eaeb23e01b5711a417de400a31d2eca"
+    },
+    {
+      "plant": "acmp-record-flags-swapped",
+      "arm": "acmp",
+      "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+      "needle": "A24 bound with STREAMING_WAIT: flags 0x05",
+      "matched": [
+        "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime"
+      ],
+      "report_sha256": "97424dd9751b4e9007ca0fb0a75f7030f39542719ac228296bbfc99878d617fb"
+    },
+    {
+      "plant": "acmp-record-unique-id-little-endian",
+      "arm": "acmp",
+      "test": "AcmpCore.A24ARestoredBindingFastConnects",
+      "needle": "A24 the latch gives the same record back",
+      "matched": [
+        "AcmpCore.A24ARestoredBindingFastConnects"
+      ],
+      "report_sha256": "77ee2701356baadf891c6d6b8de7b577a7386d8fd6edaf055a49d4152c5e2f0f"
+    },
+    {
+      "plant": "acmp-restore-unique-id-little-endian",
+      "arm": "acmp",
+      "test": "AcmpCore.A24ARestoredBindingFastConnects",
+      "needle": "A24 the record's flags and parameters, big-endian",
+      "matched": [
+        "AcmpCore.A24ARestoredBindingFastConnects"
+      ],
+      "report_sha256": "4dea9dfda4b3ba22d2a88652b4a40dd489f70971b609b5974add71ee371b7901"
+    },
+    {
+      "plant": "acmp-roll-back-keeps-the-bindings",
+      "arm": "acmp",
+      "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+      "needle": "A24 the roll-back drops every restored binding",
+      "matched": [
+        "AcmpCore.A24UnboundRecordsRefusalsAndRollback"
+      ],
+      "report_sha256": "3d3e088625ae14010f1b03e4e881cd5e497e8cf706b3aef6d1900310b5128748"
+    },
+    {
+      "plant": "acmp-unbound-record-not-zero",
+      "arm": "acmp",
+      "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+      "needle": "A24 an unbound sink's record is all zeros",
+      "matched": [
+        "AcmpCore.A24UnboundRecordsRefusalsAndRollback"
+      ],
+      "report_sha256": "0fbe54f821f53e9f49025a34bc9afcbedda84e0f9f9e4b78eb9636be8961e34d"
+    },
+    {
+      "plant": "acmp-started-not-saved",
+      "arm": "acmp",
+      "test": "AcmpCore.A24StartedIsSavedAndReported",
+      "needle": "A24 the started state is saved (5.3.8.7)",
+      "matched": [
+        "AcmpCore.A24StartedIsSavedAndReported"
+      ],
+      "report_sha256": "4ae43872a20ad038dc531e28b072522e8a52981558580099c0dba2eb023542a4"
+    },
+    {
+      "plant": "acmp-discovery-notifies",
+      "arm": "acmp",
+      "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+      "needle": "A25 discovery noted while settled moves no Table 5.22 item",
+      "matched": [
+        "AcmpCore.A25OnlyTable522ItemsAreReported"
+      ],
+      "report_sha256": "1cdb54d2766230463b342c30ddc81b282bed3d8cb45070e70f484040ed1a204d"
+    },
+    {
+      "plant": "acmp-status-not-notified",
+      "arm": "acmp",
+      "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+      "needle": "A25 the ACMP status LISTENER_TALKER_TIMEOUT does",
+      "matched": [
+        "AcmpCore.A25OnlyTable522ItemsAreReported"
+      ],
+      "report_sha256": "da8fa3cbd789e99d268b4ba350a565f156b15fe7b22e4f912867872ee5bb998d"
+    },
+    {
+      "plant": "acmp-probing-status-not-notified",
+      "arm": "acmp",
+      "test": "AcmpCore.DepartingStopsEveryProbingTimer",
+      "needle": "departing publishes the passive probing status",
+      "matched": [
+        "AcmpCore.DepartingStopsEveryProbingTimer",
+        "AcmpCore.DepartingStopsEveryProbingTimer",
+        "AcmpCore.DepartingStopsEveryProbingTimer"
+      ],
+      "report_sha256": "24daf60b896bdfcdbe5e1e29a53b1394fa529a78262ccee3c29e041b1ac8a9eb"
+    },
+    {
+      "plant": "acmp-bind-reads-the-clock-twice",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "69a5780454dab6d760688bb7fef26abbbd0f00d7431dc12264582d4f11038f9e"
+    },
+    {
+      "plant": "acmp-get-rx-state-reads-the-clock",
+      "arm": "acmp",
+      "test": "AcmpCore.CommandPortBudgets",
+      "needle": "GET_RX_STATE needs no clock",
+      "matched": [
+        "AcmpCore.CommandPortBudgets"
+      ],
+      "report_sha256": "3d59abb0e7e93d76d7d35f884b1fe5a03b3e71af48f311c03448590926d083df"
+    },
+    {
+      "plant": "acmp-probe-response-reads-the-clock-twice",
+      "arm": "acmp",
+      "test": "AcmpCore.CommandPortBudgets",
+      "needle": "successful probe response starts one reservation timer",
+      "matched": [
+        "AcmpCore.CommandPortBudgets"
+      ],
+      "report_sha256": "24454f46246727e470c7caa0e68aa9e3f6f0932e3d7154767d1db38840f6af98"
+    },
+    {
+      "plant": "acmp-unbind-reads-the-clock",
+      "arm": "acmp",
+      "test": "AcmpCore.CommandPortBudgets",
+      "needle": "UNBIND needs no clock",
+      "matched": [
+        "AcmpCore.CommandPortBudgets"
+      ],
+      "report_sha256": "d3c6b9831f7988359db6e4c256e4ac9cfc9cbc25fb56a6381f204e4b50c9e925"
+    },
+    {
+      "plant": "acmp-talker-reads-the-clock",
+      "arm": "acmp",
+      "test": "AcmpCore.CommandPortBudgets",
+      "needle": "talker response needs no clock",
+      "matched": [
+        "AcmpCore.CommandPortBudgets"
+      ],
+      "report_sha256": "948bf4aa8d0123d7798b10f98f282db0c5361a33155ad8696afb9df02e79779c"
+    },
+    {
+      "plant": "acmp-expiry-reads-the-clock-twice",
+      "arm": "acmp",
+      "test": "AcmpCore.TimerPortBudgets",
+      "needle": "timer clock budget for state",
+      "matched": [
+        "AcmpCore.TimerPortBudgets",
+        "AcmpCore.TimerPortBudgets",
+        "AcmpCore.TimerPortBudgets",
+        "AcmpCore.TimerPortBudgets",
+        "AcmpCore.TimerPortBudgets"
+      ],
+      "report_sha256": "c32518323fc51728ed727b566039510804c56d69b4e001de6a5f272d28060913"
+    },
+    {
+      "plant": "acmp-available-reads-the-clock-twice",
+      "arm": "acmp",
+      "test": "AcmpCore.DiscoveryPortBudgets",
+      "needle": "AVAILABLE starts one discovery deadline",
+      "matched": [
+        "AcmpCore.DiscoveryPortBudgets"
+      ],
+      "report_sha256": "2c2736d2bea2ff7021986901740689bfc46f17377f48ca666b46df3524f3611f"
+    },
+    {
+      "plant": "acmp-departing-samples-the-grandmaster",
+      "arm": "acmp",
+      "test": "AcmpCore.DiscoveryPortBudgets",
+      "needle": "DEPARTING needs no grandmaster",
+      "matched": [
+        "AcmpCore.DiscoveryPortBudgets"
+      ],
+      "report_sha256": "b49e32df07c7bef9ec55cac7755c0a3a8b0f1ff5da35198a9a3eef33c2b214a8"
+    },
+    {
+      "plant": "acmp-aging-samples-the-grandmaster",
+      "arm": "acmp",
+      "test": "AcmpCore.DiscoveryPortBudgets",
+      "needle": "aging needs no grandmaster",
+      "matched": [
+        "AcmpCore.DiscoveryPortBudgets"
+      ],
+      "report_sha256": "41899cc6a1865b4aff8b2e5513244da3db2728b914b4e02cd1909135dc049ed8"
+    },
+    {
+      "plant": "acmp-discovery-takes-the-first-sink",
+      "arm": "acmp",
+      "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+      "needle": "A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on",
+      "matched": [
+        "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+      ],
+      "report_sha256": "780b220da63567be787ec26e00716af93a772bfb6292ea18c345aba9c68949f4"
+    },
+    {
+      "plant": "acmp-second-no-resp-samples-the-grandmaster",
+      "arm": "acmp",
+      "test": "AcmpCore.TimerPortBudgets",
+      "needle": "timer expiry never samples the grandmaster in",
+      "matched": [
+        "AcmpCore.TimerPortBudgets"
+      ],
+      "report_sha256": "0d6351a5a1a14f98bc221935717e162df4deca136b55b4cfd27d01cb3db0b7b6"
+    },
+    {
+      "plant": "acmp-retry-samples-the-grandmaster",
+      "arm": "acmp",
+      "test": "AcmpCore.TimerPortBudgets",
+      "needle": "timer expiry never samples the grandmaster in",
+      "matched": [
+        "AcmpCore.TimerPortBudgets"
+      ],
+      "report_sha256": "614c9e13a5f61be124a55b10bf09eaf947b620d7eeaa1c6391e64b05f2f93e99"
+    },
+    {
+      "plant": "acmp-delay-reads-the-clock-again",
+      "arm": "acmp",
+      "test": "AcmpCore.TimerPortBudgets",
+      "needle": "timer clock budget for state",
+      "matched": [
+        "AcmpCore.TimerPortBudgets"
+      ],
+      "report_sha256": "2c10cd8837dd434c6eb0b1be99bc17ca3b4f72a84251b79ffa86800f92e997d7"
+    },
+    {
+      "plant": "acmp-no-tk-samples-the-grandmaster",
+      "arm": "acmp",
+      "test": "AcmpCore.TimerPortBudgets",
+      "needle": "timer expiry never samples the grandmaster in",
+      "matched": [
+        "AcmpCore.TimerPortBudgets"
+      ],
+      "report_sha256": "e5b9539d4e04c1a860db6e09db582bdef6ad361b0909ac63e0b26d7561bb57aa"
+    },
+    {
+      "plant": "acmp-new-bind-never-started",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindWithoutStreamingWaitBindsStarted",
+      "needle": "A1 a bind without STREAMING_WAIT lands started",
+      "matched": [
+        "AcmpCore.A1BindWithoutStreamingWaitBindsStarted"
+      ],
+      "report_sha256": "e0b523eb09214e8538fb1d34659c628b45889e2789bfcf2c03c4657ce073da6c"
+    },
+    {
+      "plant": "acmp-bind-response-always-streaming-wait",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindWithoutStreamingWaitBindsStarted",
+      "needle": "A1 a bind without STREAMING_WAIT lands started",
+      "matched": [
+        "AcmpCore.A1BindWithoutStreamingWaitBindsStarted"
+      ],
+      "report_sha256": "ec6b4436be6f5349d06fbcef634e60d2f03c58ae2d36a7c09170d36178e7c014"
+    },
+    {
+      "plant": "acmp-view-without-registering-failed",
+      "arm": "acmp",
+      "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+      "needle": "A2 and the view says so",
+      "matched": [
+        "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+      ],
+      "report_sha256": "1aa572b83b44e8d05d44fc4a15a68f2c3a906818c06c8def4aa9800c4dcb5b0d"
+    },
+    {
+      "plant": "acmp-discovered-probing-stays-passive",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail",
+      "needle": "A22 EVT_TK_DISCOVERED in PRB_W_AVAIL",
+      "matched": [
+        "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail"
+      ],
+      "report_sha256": "d7bfd076bd2b0b4c1021371643c5c5ec73b76b46fa428c9511d01e57d3ecf400"
+    },
+    {
+      "plant": "acmp-grandmaster-read-twice",
+      "arm": "acmp",
+      "test": "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail",
+      "needle": "A22 the grandmaster is sampled once for the frame",
+      "matched": [
+        "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail"
+      ],
+      "report_sha256": "e0e77ec32326cfce5e5e22af1a2d504c0813b0e81409161430462304a09e37e9"
+    },
+    {
+      "plant": "acmp-adp-short-frame-taken",
+      "arm": "acmp",
+      "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+      "needle": "A22 a short ADPDU, a DISCOVER",
+      "matched": [
+        "AcmpCore.A22OtherAdpFramesAreIgnored"
+      ],
+      "report_sha256": "89e52f2d55e7c3b8311d2050fa2b86a177657d740046080a04baf25dd38f1c25"
+    },
+    {
+      "plant": "acmp-adp-ethertype-unchecked",
+      "arm": "acmp",
+      "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+      "needle": "A22 a short ADPDU, a DISCOVER",
+      "matched": [
+        "AcmpCore.A22OtherAdpFramesAreIgnored"
+      ],
+      "report_sha256": "c910b074d5f234c1070e233a0b3e8d285a5f0e22205725a9be004a6d09cfe500"
+    },
+    {
+      "plant": "acmp-adp-subtype-unchecked",
+      "arm": "acmp",
+      "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+      "needle": "A22 a short ADPDU, a DISCOVER",
+      "matched": [
+        "AcmpCore.A22OtherAdpFramesAreIgnored"
+      ],
+      "report_sha256": "d7d94a90db1b6dd93f2ce11c5363b53a1c970d086dc6810bfdd0682109e2e399"
+    },
+    {
+      "plant": "acmp-adp-discover-taken",
+      "arm": "acmp",
+      "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+      "needle": "A22 a short ADPDU, a DISCOVER",
+      "matched": [
+        "AcmpCore.A22OtherAdpFramesAreIgnored"
+      ],
+      "report_sha256": "f5ece97cf010621bf801f89f6f43306f12d49c76bc029663041ba15fb315f28f"
+    },
+    {
+      "plant": "acmp-frames-to-the-own-mac",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "adbfe95f7ff467cdb4db89af01a6280fbef9298effa409c65176bcbfe8083ff1"
+    },
+    {
+      "plant": "acmp-version-unchecked",
+      "arm": "acmp",
+      "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+      "needle": "A26 a BIND_RX of AVTP version",
+      "matched": [
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead"
+      ],
+      "report_sha256": "7f375e493a770110cb89c975114a7c88fec2d6b50b6a0eaee621327eb94dd70b"
+    },
+    {
+      "plant": "acmp-adp-version-unchecked",
+      "arm": "acmp",
+      "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+      "needle": "A26 an ENTITY_AVAILABLE of version",
+      "matched": [
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead"
+      ],
+      "report_sha256": "a30147bd7c71b393daf60048778176d77763e9652593313c80ec42548c883209"
+    },
+    {
+      "plant": "acmp-version-bits-misread",
+      "arm": "acmp",
+      "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+      "needle": "A26 a BIND_RX of AVTP version",
+      "matched": [
+        "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead"
+      ],
+      "report_sha256": "418eb2b3a343cc91082660662b4616e3d62ee9e7a9eeebef98dd9edd9a57ff2e"
+    },
+    {
+      "plant": "acmp-header-version-1",
+      "arm": "acmp",
+      "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+      "needle": "A1 BIND_RX sends two frames: the response and the probe",
+      "matched": [
+        "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+      ],
+      "report_sha256": "958ddbd23b7521f84090da6f8f41a571fe1a1f798ad436c1e0bdf5b46ebf523e"
+    },
+    {
+      "plant": "acmp-owed-probe-timer-runs",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "needle": "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held",
+      "matched": [
+        "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+      ],
+      "report_sha256": "fc908d234251141afe9b79a5a705a52185feb892e92606a3b126192f66512dbf"
+    },
+    {
+      "plant": "acmp-owed-probe-timer-runs",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+      "needle": "A27 the first TMR_NO_RESP finds no room",
+      "matched": [
+        "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval"
+      ],
+      "report_sha256": "fc908d234251141afe9b79a5a705a52185feb892e92606a3b126192f66512dbf"
+    },
+    {
+      "plant": "acmp-owed-probe-timer-runs",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+      "needle": "A23 and the outer call completes as if it had not been made",
+      "matched": [
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+      ],
+      "report_sha256": "fc908d234251141afe9b79a5a705a52185feb892e92606a3b126192f66512dbf"
+    },
+    {
+      "plant": "acmp-owed-probe-never-starts",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
+      "matched": [
+        "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+      ],
+      "report_sha256": "358cf60faefa0a399120166dff6868e7052f6e7beaa282162d363aa42830535b"
+    },
+    {
+      "plant": "acmp-owed-probe-never-starts",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+      "needle": "A27 the duplicate, the first probe's",
+      "matched": [
+        "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval"
+      ],
+      "report_sha256": "358cf60faefa0a399120166dff6868e7052f6e7beaa282162d363aa42830535b"
+    },
+    {
+      "plant": "acmp-owed-probe-no-resp-2s",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
+      "matched": [
+        "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+      ],
+      "report_sha256": "4dbee844f5916d8f918fcb7c6429c577ba6caaf670b70ba4a0ac8c0752a8a373"
+    },
+    {
+      "plant": "acmp-owed-probe-sequence-unchecked",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+      "needle": "A27 the old probe leaving starts no timer for the new one",
+      "matched": [
+        "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+      ],
+      "report_sha256": "80f7444d10a6ead0932af4f212d30624bb2dfe2521ca9fe3918ad3fad1b23d8c"
+    },
+    {
+      "plant": "acmp-owed-probe-unnamed",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
+      "matched": [
+        "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+      ],
+      "report_sha256": "88aabf6eba640b60038f4089deb21ef1f66892195dad7b816de5443226a5a0ad"
+    },
+    {
+      "plant": "acmp-owed-probe-names-the-next-sink",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
+      "matched": [
+        "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+      ],
+      "report_sha256": "9d307efa3c242b78755daebd709328f93c70d1823271187c005b3f58e9a9b533"
+    },
+    {
+      "plant": "acmp-probe-timer-before-its-send",
+      "arm": "acmp",
+      "test": "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend",
+      "needle": "A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send",
+      "matched": [
+        "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend"
+      ],
+      "report_sha256": "f4cb6bdf603c87aa58f593fd7b67fafa46f5950c778c146ed625d2bb2d446b79"
+    },
+    {
+      "plant": "acmp-probe-timer-before-its-send",
+      "arm": "acmp",
+      "test": "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+      "needle": "A30 the duplicate taken at once",
+      "matched": [
+        "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend"
+      ],
+      "report_sha256": "f4cb6bdf603c87aa58f593fd7b67fafa46f5950c778c146ed625d2bb2d446b79"
+    },
+    {
+      "plant": "acmp-taken-probe-timer-from-the-entry-clock",
+      "arm": "acmp",
+      "test": "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+      "needle": "A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's",
+      "matched": [
+        "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend"
+      ],
+      "report_sha256": "b82ec42372bfa77ee2d7ed6904493f99817d337e4108ab3c41dd9bac7f9fabce"
+    },
+    {
+      "plant": "acmp-expiry-due-at-its-first-read",
+      "arm": "acmp",
+      "test": "AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry",
+      "needle": "A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock",
+      "matched": [
+        "AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry"
+      ],
+      "report_sha256": "f650686bc2cb6a15007a7005abc3281c056c131dd7d94cc0758de9f7cb6a227b"
+    },
+    {
+      "plant": "acmp-held-timer-expires",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "needle": "A27 an expiry of the interface while the probe is owed takes nothing",
+      "matched": [
+        "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+      ],
+      "report_sha256": "0071e987cec21d94fc5c453d8bf199562296b546ccbfe300a96a666b86457608"
+    },
+    {
+      "plant": "acmp-held-timer-armed",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+      "needle": "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held, no timer armed",
+      "matched": [
+        "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+      ],
+      "report_sha256": "819ced19ad1cba860b539d5d4d9c2a31a4cd3d09292e0fc4f4048e32dfe866c6"
+    },
+    {
+      "plant": "acmp-lost-probe-held",
+      "arm": "acmp",
+      "test": "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+      "needle": "A19 and it does",
+      "matched": [
+        "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered"
+      ],
+      "report_sha256": "118de561fd8ad33f2570bfcc748d1abece8f960bce95f3d3d92b7ccf378bf9e4"
+    },
+    {
+      "plant": "acmp-stop-keeps-the-hold",
+      "arm": "acmp",
+      "test": "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+      "needle": "A27 an UNBIND_RX while the probe is owed stops its timer",
+      "matched": [
+        "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+      ],
+      "report_sha256": "da4d2497c86461a14dd863a5af5e771cfce4410821d9734261a7a227cfc058f5"
+    },
+    {
+      "plant": "acmp-record-flag-defines-swapped",
+      "arm": "acmp",
+      "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+      "needle": "A24 bound and started: flags 0x03",
+      "matched": [
+        "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime"
+      ],
+      "report_sha256": "0e65a7382e3a161466f40d696ebc310a42a1a6c27fa7d714d5504563bccbc141"
+    },
+    {
+      "plant": "acmp-record-valid-bit-moved",
+      "arm": "acmp",
+      "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+      "needle": "A24 bound and stopped: the valid flag alone, 0x01",
+      "matched": [
+        "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime"
+      ],
+      "report_sha256": "5c67084e4e11b79c19c574e33a82e863a33555327565c7d2e43641d3dba941a7"
+    },
+    {
+      "plant": "acmp-longer-record-applied",
+      "arm": "acmp",
+      "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+      "needle": "bytes is refused, the longer ones too, before a byte is read",
+      "matched": [
+        "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+        "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+        "AcmpCore.A24UnboundRecordsRefusalsAndRollback"
+      ],
+      "report_sha256": "0e6a6c29ccc9cf4d01cce01635216768360598b121fbb6ad237e50f1826c8c68"
+    },
+    {
+      "plant": "acmp-due-unsigned",
+      "arm": "acmp",
+      "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "needle": "A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline",
+      "matched": [
+        "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+      ],
+      "report_sha256": "df4beba94c9d9299ff8d0b268be178603d4caf597a6749778882c9f0f9f3ce8e"
+    },
+    {
+      "plant": "acmp-due-unsigned",
+      "arm": "acmp",
+      "test": "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+      "needle": "A28 the first expiry takes sink 0 only",
+      "matched": [
+        "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap"
+      ],
+      "report_sha256": "df4beba94c9d9299ff8d0b268be178603d4caf597a6749778882c9f0f9f3ce8e"
+    },
+    {
+      "plant": "acmp-earliest-unsigned",
+      "arm": "acmp",
+      "test": "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+      "needle": "A28 the interface timer holds the earlier deadline",
+      "matched": [
+        "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap"
+      ],
+      "report_sha256": "3d9b979236f1260506bc4854b448945b3881e7cb0a72b2f3dd9559ff94660380"
+    },
+    {
+      "plant": "acmp-no-adp-due-unsigned",
+      "arm": "acmp",
+      "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "needle": "A28 TMR_NO_ADP: nothing before",
+      "matched": [
+        "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+      ],
+      "report_sha256": "7a97cc7e01571dd0a8aa516a94a454e93b70de600e677027990b6dcc02468d90"
+    },
+    {
+      "plant": "acmp-no-resp-deadline-saturates",
+      "arm": "acmp",
+      "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "needle": "A28 TMR_NO_RESP: nothing",
+      "matched": [
+        "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+      ],
+      "report_sha256": "b09fc7c8beeda90b676fbcae5a070e5a0e3899f517ad7ccd6090fd349491183a"
+    },
+    {
+      "plant": "acmp-retry-deadline-saturates",
+      "arm": "acmp",
+      "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "needle": "A28 TMR_RETRY: nothing",
+      "matched": [
+        "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+      ],
+      "report_sha256": "d3a8023401bb574b651f5cb397739f65b7ce9162fc0729e87e2e23d14d06c702"
+    },
+    {
+      "plant": "acmp-no-tk-deadline-saturates",
+      "arm": "acmp",
+      "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "needle": "A28 TMR_NO_TK: nothing",
+      "matched": [
+        "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+      ],
+      "report_sha256": "c14b7f40ce5f42384d53a6f3d0c071ce32a5ce7e1305102876f0ec38f9bfd5ad"
+    },
+    {
+      "plant": "acmp-delay-deadline-saturates",
+      "arm": "acmp",
+      "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "needle": "A28 TMR_DELAY: nothing",
+      "matched": [
+        "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+      ],
+      "report_sha256": "af9d0e3c44692c38758932d4d6d451763da320fa03689b08ece7f0a4f9759c5b"
+    },
+    {
+      "plant": "acmp-no-adp-deadline-saturates",
+      "arm": "acmp",
+      "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "needle": "A28 TMR_NO_ADP: nothing before",
+      "matched": [
+        "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+      ],
+      "report_sha256": "fe12c0790bcca8a259502a9067cd4dc83401e48967dbf56362a370d7c813336e"
+    },
+    {
+      "plant": "acmp-admit-never-called",
+      "arm": "acmp",
+      "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+      "needle": "A29 a BIND_RX admits its talker once",
+      "matched": [
+        "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+      ],
+      "report_sha256": "950f5975fd5cc602e11747fcaf3be5023ca6f253031565874e214afae446538d"
+    },
+    {
+      "plant": "acmp-admit-on-every-entry",
+      "arm": "acmp",
+      "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+      "needle": "A29 a re-bind to the same talker, from any controller or source, admits nothing",
+      "matched": [
+        "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+      ],
+      "report_sha256": "139a4ce34abf322d5585cd4968ec117dd3fa4a9cd445c106327b9741dec3d618"
+    },
+    {
+      "plant": "acmp-admit-ignores-another-talker",
+      "arm": "acmp",
+      "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+      "needle": "A29 re-binding emits one admission",
+      "matched": [
+        "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+      ],
+      "report_sha256": "14cd8465131ba0476e00a8d682eebe48259217b4d52a490723e06ded35545aa4"
+    },
+    {
+      "plant": "acmp-admit-on-interface-0",
+      "arm": "acmp",
+      "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+      "needle": "A29 sink 2's talker on interface 1",
+      "matched": [
+        "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+      ],
+      "report_sha256": "4a93410aad28dbac1afd7279585837f12391f98911612abaa5dd3b2a7b89d5b2"
+    },
+    {
+      "plant": "acmp-admit-port-unflagged",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryPortIsGuarded",
+      "needle": "A23 the port kind",
+      "matched": [
+        "AcmpCore.A23EveryPortIsGuarded"
+      ],
+      "report_sha256": "8efe073df15894961e33f2ad2b1c6c79031800ba73ba674291095b58e9343ec5"
+    },
+    {
+      "plant": "acmp-reset-forgets-the-admitted",
+      "arm": "acmp",
+      "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+      "needle": "A29 opening after reset emits one withdrawal",
+      "matched": [
+        "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+      ],
+      "report_sha256": "bf0546b198ca94321eeba6996bbaeca69390d32285adca83b346bb5f38e6c36f"
+    },
+    {
+      "plant": "acmp-open-does-nothing",
+      "arm": "acmp",
+      "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+      "needle": "A29 acmp_open admits each restored binding's talker",
+      "matched": [
+        "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+      ],
+      "report_sha256": "f9a922d0820adc5bad711db6aed5367adfdb406d942a3e83553f05fde8634c25"
+    },
+    {
+      "plant": "acmp-open-unguarded",
+      "arm": "acmp",
+      "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+      "needle": "A23 a call made from inside the send port is refused, counted and trapped, entry",
+      "matched": [
+        "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+      ],
+      "report_sha256": "36348ae6a772d5cafdec0e3cc6d392c725f6e5817e12792b418d75d7cf6ae04a"
+    },
+    {
+      "plant": "maap-down-start-keeps-owner",
+      "arm": "maap",
+      "test": "MaapCore.ReleaseLossAndRetry",
+      "needle": "starting down withdraws the prior owner",
+      "matched": [
+        "MaapCore.ReleaseLossAndRetry"
+      ],
+      "report_sha256": "b30a5ea37719ab3904450091570b743939acf85918e572788fea5ebd23a9dcd8"
+    },
+    {
+      "plant": "maap-initial-send-absent",
+      "arm": "maap",
+      "test": "MaapCore.InitialAndThreeRetransmissions",
+      "needle": "initial PROBE is immediate",
+      "matched": [
+        "MaapCore.InitialAndThreeRetransmissions"
+      ],
+      "report_sha256": "0884883fac0bfad8693b04682d8de20be261cb3192ba088dcbe1388da6a4abd1"
+    },
+    {
+      "plant": "maap-retransmit-count",
+      "arm": "maap",
+      "test": "MaapCore.InitialAndThreeRetransmissions",
+      "needle": "three retransmissions remain",
+      "matched": [
+        "MaapCore.InitialAndThreeRetransmissions"
+      ],
+      "report_sha256": "d98c03b783e77b784b561c76ee0c03e758376d3ceda3af51d1758813d3c4db68"
+    },
+    {
+      "plant": "maap-probe-count-not-decremented",
+      "arm": "maap",
+      "test": "MaapCore.InitialAndThreeRetransmissions",
+      "needle": "retransmission decrements once",
+      "matched": [
+        "MaapCore.InitialAndThreeRetransmissions",
+        "MaapCore.InitialAndThreeRetransmissions",
+        "MaapCore.InitialAndThreeRetransmissions"
+      ],
+      "report_sha256": "7ebbca81f4b8eb2ae1bbdc40b3bfb70ae7fdfd5a9fe3bd70583f1bf4a053eb68"
+    },
+    {
+      "plant": "maap-wire-version",
+      "arm": "maap",
+      "test": "MaapCore.InitialAndThreeRetransmissions",
+      "needle": "B.2 complete PROBE bytes",
+      "matched": [
+        "MaapCore.InitialAndThreeRetransmissions"
+      ],
+      "report_sha256": "d53e339a4550ac2552b11b1450c082bb90ba6d1da0f0e194623598c7b43c3327"
+    },
+    {
+      "plant": "maap-wire-length",
+      "arm": "maap",
+      "test": "MaapCore.InitialAndThreeRetransmissions",
+      "needle": "B.2 complete PROBE bytes",
+      "matched": [
+        "MaapCore.InitialAndThreeRetransmissions"
+      ],
+      "report_sha256": "58c78467e14ea9440808e0b06251fd2a6f3e44b992a102fb539bc6824c984830"
+    },
+    {
+      "plant": "maap-wire-source",
+      "arm": "maap",
+      "test": "MaapCore.InitialAndThreeRetransmissions",
+      "needle": "B.2 complete PROBE bytes",
+      "matched": [
+        "MaapCore.InitialAndThreeRetransmissions"
+      ],
+      "report_sha256": "45ff3c154efe6dafa11a42e0071816a0d74fe875ef777039011b9f37a57df4d0"
+    },
+    {
+      "plant": "maap-wire-padding",
+      "arm": "maap",
+      "test": "MaapCore.InitialAndThreeRetransmissions",
+      "needle": "B.2 complete PROBE bytes",
+      "matched": [
+        "MaapCore.InitialAndThreeRetransmissions"
+      ],
+      "report_sha256": "ce5418a1a155b6761b9d94727d2bdb27af45000bba9d9405c78d213132aebfd1"
+    },
+    {
+      "plant": "maap-constant-probe_base",
+      "arm": "maap",
+      "test": "MaapCore.ConstantsStrictTimersAndSeed",
+      "needle": "probe base interval",
+      "matched": [
+        "MaapCore.ConstantsStrictTimersAndSeed"
+      ],
+      "report_sha256": "66cfca468b8e297953dfadaa87934c679a88ca65b0d74a687921396df8b59bd6"
+    },
+    {
+      "plant": "maap-constant-probe_variation",
+      "arm": "maap",
+      "test": "MaapCore.ConstantsStrictTimersAndSeed",
+      "needle": "probe interval variation",
+      "matched": [
+        "MaapCore.ConstantsStrictTimersAndSeed"
+      ],
+      "report_sha256": "e43c20308daa63849096021df3b3654fc94c6aa21e26d964a1061af397b4b92f"
+    },
+    {
+      "plant": "maap-constant-announce_base",
+      "arm": "maap",
+      "test": "MaapCore.ConstantsStrictTimersAndSeed",
+      "needle": "announce base interval",
+      "matched": [
+        "MaapCore.ConstantsStrictTimersAndSeed"
+      ],
+      "report_sha256": "00973c7c71d0d6f6fc3fdeae27a7090f8df9ec7c775e0e395fe57a3c8ee4af74"
+    },
+    {
+      "plant": "maap-constant-announce_variation",
+      "arm": "maap",
+      "test": "MaapCore.ConstantsStrictTimersAndSeed",
+      "needle": "announce interval variation",
+      "matched": [
+        "MaapCore.ConstantsStrictTimersAndSeed"
+      ],
+      "report_sha256": "072828a4cb40894a098b2d974e0d04e9b3853107f2e65f71520262fb0a701e19"
+    },
+    {
+      "plant": "maap-seed-clock-ignored",
+      "arm": "maap",
+      "test": "MaapCore.ConstantsStrictTimersAndSeed",
+      "needle": "clock seed spans the probe interval",
+      "matched": [
+        "MaapCore.ConstantsStrictTimersAndSeed"
+      ],
+      "report_sha256": "09bbe2c99b9bb27b753f72f3020141dec8c99a63222e96cc422abe261e84c64e"
+    },
+    {
+      "plant": "maap-zero-seed-sticks",
+      "arm": "maap",
+      "test": "MaapCore.ConstantsStrictTimersAndSeed",
+      "needle": "zero sum cannot lock generator",
+      "matched": [
+        "MaapCore.ConstantsStrictTimersAndSeed"
+      ],
+      "report_sha256": "57665fb44f1f7728e0e50b93f046df569223ad99ce71b2c076e4e0367ef60c43"
+    },
+    {
+      "plant": "maap-biased-random-bucket",
+      "arm": "maap",
+      "test": "MaapCore.UniformDrawRejectsIncompleteBucket",
+      "needle": "incomplete random bucket rejected",
+      "matched": [
+        "MaapCore.UniformDrawRejectsIncompleteBucket"
+      ],
+      "report_sha256": "ffd185139de3d092240349ccdcf4542726dc2d952de51ebf702feb769af93f26"
+    },
+    {
+      "plant": "maap-numeric-mac-priority",
+      "arm": "maap",
+      "test": "MaapCore.ReverseOctetPriority",
+      "needle": "least significant octet decides first",
+      "matched": [
+        "MaapCore.ReverseOctetPriority"
+      ],
+      "report_sha256": "e1dbb1a860ce0754588328a2f89bd50021d261d54b1aea9d72b45a79f22aec22"
+    },
+    {
+      "plant": "maap-defend-multicast",
+      "arm": "maap",
+      "test": "MaapCore.DefendEchoAndIntersection",
+      "needle": "echo request and exact intersection",
+      "matched": [
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection"
+      ],
+      "report_sha256": "1a1e71ba48a1ef55c3eac7764c8c9d25f4bf0586d4ce29659fc119db874b2027"
+    },
+    {
+      "plant": "maap-defend-echo-own-range",
+      "arm": "maap",
+      "test": "MaapCore.DefendEchoAndIntersection",
+      "needle": "echo request and exact intersection",
+      "matched": [
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection"
+      ],
+      "report_sha256": "57e20136d9c41d321f7199b662bd66ff03209d1702230f3296fccd324f9e49a6"
+    },
+    {
+      "plant": "maap-intersection-too-long",
+      "arm": "maap",
+      "test": "MaapCore.DefendEchoAndIntersection",
+      "needle": "echo request and exact intersection",
+      "matched": [
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection",
+        "MaapCore.DefendEchoAndIntersection"
+      ],
+      "report_sha256": "b9e5f005a083845babd44508d1ce7003381ab2a9fc5a8996048b9398527a2b8c"
+    },
+    {
+      "plant": "maap-adjacent-overlaps",
+      "arm": "maap",
+      "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+      "needle": "half open intervals",
+      "matched": [
+        "MaapCore.DisjointAdjacentZeroAndDefendRange"
+      ],
+      "report_sha256": "cd4c946f621fe179b29638bbb255aa5872aa0608b0364ce6325b48a13d9f8bcf"
+    },
+    {
+      "plant": "maap-zero-count-conflicts",
+      "arm": "maap",
+      "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+      "needle": "half open intervals",
+      "matched": [
+        "MaapCore.DisjointAdjacentZeroAndDefendRange"
+      ],
+      "report_sha256": "f23c889f38ec5c1cb515029441effb430957e8e0880d62678e7b697bec81717c"
+    },
+    {
+      "plant": "maap-defend-checks-request",
+      "arm": "maap",
+      "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+      "needle": "DEFEND tests conflict fields",
+      "matched": [
+        "MaapCore.DisjointAdjacentZeroAndDefendRange"
+      ],
+      "report_sha256": "3b34ebaba9ad3d38945e2f7afe4a9cff53a43326e8c0ef962e0f7f32f24c59f3"
+    },
+    {
+      "plant": "maap-malformed-ethertype",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "f98160a15470816264cf1ccf0d594cbc654247abe6aeb5f83a52770989d4023b"
+    },
+    {
+      "plant": "maap-malformed-subtype",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "ce90ec86f7914d2614eab54aad599246e749466610c63d5c96d33e41f0286b12"
+    },
+    {
+      "plant": "maap-malformed-version",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "d59df7a70152e216e5a2bb8e7ac80cc2c29473f6f5125cb06c43f6260658ad4e"
+    },
+    {
+      "plant": "maap-malformed-reserved-zero",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "bc5c0f27b37a9bf6291d3ab4c2e4161e1d8fb7beb8393e4f688cf5e0d3271e07"
+    },
+    {
+      "plant": "maap-malformed-reserved-high",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "d4f2e79e29703695a14f208d784e095abd5af40d277fbec43cefc5f253c3aca2"
+    },
+    {
+      "plant": "maap-malformed-cdl-short",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "d9cd7dd25bb6e7fcd2def3eb105d289c428bdf3f52eac8231918bf245c0d3b67"
+    },
+    {
+      "plant": "maap-malformed-cdl-truncated",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "aa21ffd096cb0c839336487e024ff64ab299cc4e955556a71be439dd27786748"
+    },
+    {
+      "plant": "maap-malformed-cdl-current",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "362dae2c6f5cdec8d6686dea6e8fb3991a256d6c8edb459a27ff0d4a009120fa"
+    },
+    {
+      "plant": "maap-malformed-source-zero",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "8352be1d547532873d2b6f4189a54959db8918c948d38ee7bc36014b7037598a"
+    },
+    {
+      "plant": "maap-malformed-source-group",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "418832c745d18e3bac0867fcd2c378b7c4a2e0a05464c559a36fedf395e127ce"
+    },
+    {
+      "plant": "maap-malformed-destination",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "c5d769422c15dbc2d06ebf1cdc3ed84ded3013d708004835582a835581fae9ec"
+    },
+    {
+      "plant": "maap-malformed-own-probe",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "malformed input is rejected",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "34816b50a8e2470dbc5629bae31b306a68ac7d9b2356fcc942488d4803ac0401"
+    },
+    {
+      "plant": "maap-valid-minimum-refused",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "B.2.3 recognized future",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility",
+        "MaapCore.MalformedAndVersionCompatibility",
+        "MaapCore.MalformedAndVersionCompatibility",
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "f415f6fcde50c621eb7925450b8ae5e935d610c45b70d9492b559b8d06c7fead"
+    },
+    {
+      "plant": "maap-future-version-refused",
+      "arm": "maap",
+      "test": "MaapCore.MalformedAndVersionCompatibility",
+      "needle": "B.2.3 recognized future",
+      "matched": [
+        "MaapCore.MalformedAndVersionCompatibility",
+        "MaapCore.MalformedAndVersionCompatibility"
+      ],
+      "report_sha256": "d823cfcbb1125031587b4171be237a194d2e7a4475593686f7aa297a209adf53"
+    },
+    {
+      "plant": "maap-range-end-off-by-one",
+      "arm": "maap",
+      "test": "MaapCore.InitAndPreferredRangeBounds",
+      "needle": "range past pool end is refused",
+      "matched": [
+        "MaapCore.InitAndPreferredRangeBounds"
+      ],
+      "report_sha256": "a73b66b71933ff27bbb9f081374e6eacb435be997a6a734363bfb44d126e2eec"
+    },
+    {
+      "plant": "maap-port-up-keeps-claim",
+      "arm": "maap",
+      "test": "MaapCore.ReleaseLossAndRetry",
+      "needle": "loss of PortOperational invalidates the acquired address",
+      "matched": [
+        "MaapCore.ReleaseLossAndRetry"
+      ],
+      "report_sha256": "52004b2b64655b49599e3e499abda9e61cecb9978466707a0e806df64baef95a"
+    },
+    {
+      "plant": "maap-release-keeps-enable",
+      "arm": "maap",
+      "test": "MaapCore.ReleaseLossAndRetry",
+      "needle": "released instance stays idle",
+      "matched": [
+        "MaapCore.ReleaseLossAndRetry"
+      ],
+      "report_sha256": "66d56710f7fce0e0e09fc31fb2171acd1ed06c536f759a4576606d9662b2a82a"
+    },
+    {
+      "plant": "maap-expiry-forgotten-on-stall",
+      "arm": "maap",
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "original expiry remains owed",
+      "matched": [
+        "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "report_sha256": "212540cf9978e709fd8a7d974837c4a2c81ac249f32b9f8d9a5611c4d1853b90"
+    },
+    {
+      "plant": "maap-allocation-before-commit",
+      "arm": "maap",
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "allocation waits for committed ANNOUNCE",
+      "matched": [
+        "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "report_sha256": "87cbc06885a2e3f7bbf0aadfb46cf473c6930b147b2a1aeee80af16299e1148a"
+    },
+    {
+      "plant": "maap-probe-announce-reordered",
+      "arm": "maap",
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "last PROBE precedes ANNOUNCE",
+      "matched": [
+        "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "report_sha256": "fbe963a4a9ad5a2da66160234f8abdbea26e40bbfaba0475d3f32f40209f280e"
+    },
+    {
+      "plant": "maap-overflow-uncounted",
+      "arm": "maap",
+      "test": "MaapCore.QueueBoundAndWithdrawal",
+      "needle": "overload is counted as failure",
+      "matched": [
+        "MaapCore.QueueBoundAndWithdrawal"
+      ],
+      "report_sha256": "ae750e02eae9a0c8a4a0e61310324b38c88ae0042d2fb06fe1f88c783b6616b4"
+    },
+    {
+      "plant": "maap-poll-unbounded",
+      "arm": "maap",
+      "test": "MaapCore.QueueBoundAndWithdrawal",
+      "needle": "poll has bounded work",
+      "matched": [
+        "MaapCore.QueueBoundAndWithdrawal"
+      ],
+      "report_sha256": "e33c61695296ba137ade18fd3e658bca04447cd2815489d5f1cd2cee14ff15e1"
+    },
+    {
+      "plant": "maap-release-leaves-output",
+      "arm": "maap",
+      "test": "MaapCore.QueueBoundAndWithdrawal",
+      "needle": "release clears pending output",
+      "matched": [
+        "MaapCore.QueueBoundAndWithdrawal"
+      ],
+      "report_sha256": "55997fe1f6c69da8e32f7b6bf587679b947552f715adad64b58474e8f538b75b"
+    },
+    {
+      "plant": "maap-reentry-not-counted",
+      "arm": "maap",
+      "test": "MaapCore.ReentrantPortsAreCountedAndIgnored",
+      "needle": "all input guards fire",
+      "matched": [
+        "MaapCore.ReentrantPortsAreCountedAndIgnored"
+      ],
+      "report_sha256": "aa3f86f71fac6b8da7a5d891b71624345767281c44b9c19b03cb133467c99729"
+    },
+    {
+      "plant": "maap-debug-no-assert",
+      "arm": "maap_debug",
+      "test": "MaapDebug.SynchronousExpiryAsserts",
+      "needle": "debug reentry assertion",
+      "matched": [
+        "MaapDebug.SynchronousExpiryAsserts"
+      ],
+      "report_sha256": "43ee10bd82aad7f540f18f82bbe5f8006cefba184b9508417f998e194ef3b5d6"
+    },
+    {
+      "plant": "maap-stall-unqueued",
+      "arm": "maap",
+      "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+      "needle": "both owed frames and ANNOUNCE leave once room returns",
+      "matched": [
+        "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+      ],
+      "report_sha256": "7c6c7d1f2ea2e3e745fe644b397521c57b05c531c47bd1cebcbb2abd193ed285"
+    },
+    {
+      "plant": "maap-table-b7-0",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/0",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/0"
+      ],
+      "report_sha256": "b40e9c69521242435fc0700c3a72f3d7586ce0e1410f681ed16c1cd230ffb257"
+    },
+    {
+      "plant": "maap-table-b7-1",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/1",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/1"
+      ],
+      "report_sha256": "a28913f2f25c9dc0e400871e4d84738536af61a01a4c1cb96501ccd4953e3afa"
+    },
+    {
+      "plant": "maap-table-b7-2",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/2",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/2"
+      ],
+      "report_sha256": "4829de221639d13b55b26e4285287d2ca6715fce9934d00b4eefc8b67fabfbd2"
+    },
+    {
+      "plant": "maap-table-b7-3",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/3",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/3"
+      ],
+      "report_sha256": "27f21c864875180b9f37208fe2dfb4c519bf132c4400e4acac87ed5bc0f74f25"
+    },
+    {
+      "plant": "maap-table-b7-4",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/4",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/4"
+      ],
+      "report_sha256": "da58810ca20620faaa2a0152dd0f39a99d5aba19f0922bcf3a1115555c3b4316"
+    },
+    {
+      "plant": "maap-table-b7-5",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/5",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/5"
+      ],
+      "report_sha256": "0fa5272baa41c9f7a3dd7151ceaceb87584bd02235a34132b5a264d3328e7b90"
+    },
+    {
+      "plant": "maap-table-b7-6",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/6",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/6"
+      ],
+      "report_sha256": "8ef96c65fe1570101d6aaf34a38313ec769394c6741e2b319fdc1ca5e4c901b6"
+    },
+    {
+      "plant": "maap-table-b7-7",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/7",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/7"
+      ],
+      "report_sha256": "a15ed8c7cde1eec69039dc2a5de100f9c1c4d6746e0e3b4bfe16d801835db14b"
+    },
+    {
+      "plant": "maap-table-b7-8",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/8",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/8"
+      ],
+      "report_sha256": "52ab599bc5e5f4145230be72c9aa41f68e68ed6c368e3cf564f485fa6f948b84"
+    },
+    {
+      "plant": "maap-table-b7-9",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/9",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/9"
+      ],
+      "report_sha256": "8953d7b6fd2b8d820e376b5e5903125786aae70964a950f82bf413d2bbbf0b2d"
+    },
+    {
+      "plant": "maap-table-b7-10",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/10",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/10"
+      ],
+      "report_sha256": "bd5dd244004099e26128ca1648879ff24f72648de6e99e2befbb969958b7d2b9"
+    },
+    {
+      "plant": "maap-table-b7-11",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/11",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/11"
+      ],
+      "report_sha256": "e0b7e90b914dfd178b7ec191a58d47516e11b8b54df25fa5e5a907157171c83d"
+    },
+    {
+      "plant": "maap-table-b7-12",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/12",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/12"
+      ],
+      "report_sha256": "18a2ea035239a7b09f2b6e7451f592e63b191a5e8d1d5fe39b2ccb4d066573d2"
+    },
+    {
+      "plant": "maap-table-b7-13",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/13",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/13"
+      ],
+      "report_sha256": "4f6291af3c91c0ef55c8b18a17b45408f9967a97bbd34423dce7160ffe62de72"
+    },
+    {
+      "plant": "maap-table-b7-14",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/14",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/14"
+      ],
+      "report_sha256": "2477a37940ae660192b81aa6c2cd12925c2b686b23ae66c4a5c560b4d40f09e9"
+    },
+    {
+      "plant": "maap-table-b7-15",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/15",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/15"
+      ],
+      "report_sha256": "dc0d035f2123080c1dbd18e34d0939da437366e568d0206a891416585692dc0b"
+    },
+    {
+      "plant": "maap-table-b7-16",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/16",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/16"
+      ],
+      "report_sha256": "6a6055e5495c23e38132cdee0a393a9e7becfbe2c2adbb3383e085d38a7c7c07"
+    },
+    {
+      "plant": "maap-table-b7-17",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/17",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/17"
+      ],
+      "report_sha256": "12a2f38ccf1da9fcd77b284667da715663a575ec369c11d2c4e1c4ae34c59273"
+    },
+    {
+      "plant": "maap-allocation-seam-disconnected",
+      "arm": "maap",
+      "test": "MaapCore.InitialAndThreeRetransmissions",
+      "needle": "accepted ANNOUNCE publishes allocation",
+      "matched": [
+        "MaapCore.InitialAndThreeRetransmissions"
+      ],
+      "report_sha256": "55f8b143e54ff9af7ef4ccffb67c05717f49c14df1f27fbf794e972fd0ed7eaf"
+    },
+    {
+      "plant": "maap-begin-down-forgets-range",
+      "arm": "maap",
+      "test": "MaapCore.BeginBeforePortOperationalRetainsRange",
+      "needle": "Begin supplied range survives port down",
+      "matched": [
+        "MaapCore.BeginBeforePortOperationalRetainsRange"
+      ],
+      "report_sha256": "0931707e8a970526e320f026c98b89eea9aef4ff87c844f49c04aa502228dd10"
+    },
+    {
+      "plant": "maap-restart-reuses-range",
+      "arm": "maap",
+      "test": "MaapCore.RestartDrawsNewRange",
+      "needle": "fixed seed Restart draws a new range",
+      "matched": [
+        "MaapCore.RestartDrawsNewRange"
+      ],
+      "report_sha256": "9fe29ffc41275a6de8d1363e4b484c44b8afcbd0437c0cefcfb9a3c5e9de294e"
+    },
+    {
+      "plant": "maap-reverse-five-octets",
+      "arm": "maap",
+      "test": "MaapCore.PriorityAfterTiedOctets",
+      "needle": "every reversed octet decides",
+      "matched": [
+        "MaapCore.PriorityAfterTiedOctets"
+      ],
+      "report_sha256": "05b3cc827c2775c84ffb747423f75de936b3482cc2f3e1fc3eda337facbd62b9"
+    },
+    {
+      "plant": "maap-compare-mac-lsb-only",
+      "arm": "maap",
+      "test": "MaapCore.PriorityAfterTiedOctets",
+      "needle": "every reversed octet decides",
+      "matched": [
+        "MaapCore.PriorityAfterTiedOctets",
+        "MaapCore.PriorityAfterTiedOctets",
+        "MaapCore.PriorityAfterTiedOctets",
+        "MaapCore.PriorityAfterTiedOctets",
+        "MaapCore.PriorityAfterTiedOctets"
+      ],
+      "report_sha256": "0da79010fc44d414ab250b83f93eeacb1244479532aaca196cd20524afd2022b"
+    },
+    {
+      "plant": "maap-generic-initial-handles-conflict",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/0",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/0"
+      ],
+      "report_sha256": "f440905052ecf54d852589c83f0d33341871cdaa992795325d82573fc02834c8"
+    },
+    {
+      "plant": "maap-generic-probe-state-defends",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/12",
+      "needle": "Table B.7 conflict decision",
+      "matched": [
+        "AllStates/MaapCell.TableB7/12"
+      ],
+      "report_sha256": "6ae320f6771773e74c16ef3c621d0326aeb1274e16497de72ab5e70ddb7d6fd5"
+    },
+    {
+      "plant": "maap-generic-probe-defend-uses-priority",
+      "arm": "maap",
+      "test": "AllStates/MaapCell.TableB7/10",
+      "needle": "Table B.7 output count",
+      "matched": [
+        "AllStates/MaapCell.TableB7/10"
+      ],
+      "report_sha256": "e54f9d1200c767842514723bb6601fa0caeb551480576939eae57a603460aaec"
+    },
+    {
+      "plant": "maap-generic-equal-mac-wins",
+      "arm": "maap",
+      "test": "MaapCore.ReverseOctetPriority",
+      "needle": "equal MAC is not lower",
+      "matched": [
+        "MaapCore.ReverseOctetPriority"
+      ],
+      "report_sha256": "17d28c3bbb200810b9c25bc7472043651a96e45669f9515dcf388d19fb64c95a"
+    },
+    {
+      "plant": "r2-saved-range-never-consumed",
+      "arm": "maap",
+      "test": "MaapCore.LinkBounceDrawsAfterSuppliedRange",
+      "needle": "link bounce draws after consuming supplied range",
+      "matched": [
+        "MaapCore.LinkBounceDrawsAfterSuppliedRange"
+      ],
+      "report_sha256": "462cad245b03ef7f40d90491099d3646f988f06d79dba97bdb80305b943a8612"
+    }
+  ]
+}

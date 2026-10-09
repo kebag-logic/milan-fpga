@@ -1,0 +1,309 @@
+Note: Google Test filter = AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1508: Failure
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_AVAILABLE of version 1 discovers nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1517: Failure
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_DEPARTING of version 1 departs nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1520: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 the PROBE_TX_RESPONSE at version 0 settles
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1528: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1508: Failure
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_AVAILABLE of version 2 discovers nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1517: Failure
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_DEPARTING of version 2 departs nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1520: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 the PROBE_TX_RESPONSE at version 0 settles
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1528: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 2
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1508: Failure
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_AVAILABLE of version 3 discovers nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1517: Failure
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_DEPARTING of version 3 departs nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1520: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 the PROBE_TX_RESPONSE at version 0 settles
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1528: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 3
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1508: Failure
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_AVAILABLE of version 4 discovers nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1517: Failure
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_DEPARTING of version 4 departs nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1520: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 the PROBE_TX_RESPONSE at version 0 settles
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1528: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 4
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1508: Failure
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_AVAILABLE of version 5 discovers nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1517: Failure
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_DEPARTING of version 5 departs nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1520: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 the PROBE_TX_RESPONSE at version 0 settles
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1528: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 5
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1508: Failure
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_AVAILABLE of version 6 discovers nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1517: Failure
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_DEPARTING of version 6 departs nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1520: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 the PROBE_TX_RESPONSE at version 0 settles
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1528: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 6
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1508: Failure
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_AVAILABLE of version 7 discovers nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1517: Failure
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 an ENTITY_DEPARTING of version 7 departs nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1520: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 the PROBE_TX_RESPONSE at version 0 settles
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1528: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 7
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+
+ 1 FAILED TEST

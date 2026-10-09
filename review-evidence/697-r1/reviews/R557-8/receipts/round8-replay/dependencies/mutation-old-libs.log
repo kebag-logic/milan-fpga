@@ -1,0 +1,46 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/round8-replay/dependencies/mutation-old-libs/scripts/mutation.py", line 210, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$PACKET/scratch/round8-replay/dependencies/mutation-old-libs/scripts/mutation.py", line 147, in main
+    list(pool.map(prepare, SOURCES))
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$PACKET/scratch/round8-replay/dependencies/mutation-old-libs/scripts/mutation.py", line 141, in prepare
+    raise RuntimeError("baseline build failed: " + "".join(local))
+RuntimeError: baseline build failed: /usr/bin/ld: $PACKET/scratch/round8-replay/dependencies/mutation-old-libs-run/campaign/baseline/port.cpp.o: in function `tsn_check_dependency()':
+$PACKET/scratch/round8-replay/dependencies/mutation-old-libs-run/required flags.hpp:2:(.text+0x5): undefined reference to `tsn_dependency_control'
+/usr/bin/ld: $PACKET/scratch/round8-replay/dependencies/mutation-old-libs-run/campaign/baseline/port.cpp.o: in function `__static_initialization_and_destruction_0()':
+$PACKET/scratch/round8-replay/dependencies/mutation-old-libs-run/campaign/baseline/tests/test_port.cpp:8:(.text+0xff7): undefined reference to `testing::internal::MakeAndRegisterTestInfo(char const*, char const*, char const*, char const*, testing::internal::CodeLocation, void const*, void (*)(), void (*)(), testing::internal::TestFactoryBase*)'
+/usr/bin/ld: $PACKET/scratch/round8-replay/dependencies/mutation-old-libs-run/campaign/baseline/main.o: in function `tsn_check_dependency()':
+$PACKET/scratch/round8-replay/dependencies/mutation-old-libs-run/required flags.hpp:2:(.text+0x5): undefined reference to `tsn_dependency_control'
+collect2: error: ld returned 1 exit status
+
+dependency control: only another package version available; configure refused
+Traceback (most recent call last):
+  File "$PACKET/scratch/round8-replay/dependencies/mutation-old-libs/scripts/dependency_selftest.py", line 92, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/round8-replay/dependencies/mutation-old-libs/scripts/dependency_selftest.py", line 77, in main
+    subprocess.run([sys.executable, str(ROOT / 'scripts/mutation.py'), '--work', str(campaign),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    '--select', plant, '--jobs', str(args.jobs)], env=env, check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '$PACKET/scratch/round8-replay/dependencies/mutation-old-libs/scripts/mutation.py', '--work', '$PACKET/scratch/round8-replay/dependencies/mutation-old-libs-run/campaign', '--select', 'acmp-header-no-resp-2s', '--jobs', '16']' returned non-zero exit status 1.

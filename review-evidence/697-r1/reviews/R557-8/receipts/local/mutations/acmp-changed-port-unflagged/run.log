@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A23EveryPortIsGuarded
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A23EveryPortIsGuarded
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1339: Failure
+Value of: a.reentries == 1u && reentry_traps == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A23 the port kind 9 is guarded
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A23EveryPortIsGuarded (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A23EveryPortIsGuarded
+
+ 1 FAILED TEST

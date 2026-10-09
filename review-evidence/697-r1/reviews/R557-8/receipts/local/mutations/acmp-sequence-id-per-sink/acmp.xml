@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T13:50:17.054" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T13:50:17.054">
+    <testcase name="A16OneCounterForEveryNewProbe" file="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp" line="775" status="run" result="completed" time="0." timestamp="2026-10-09T13:50:17.054" classname="AcmpCore">
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:778&#x0A;Value of: a.sinks[0].probe_seq == 0u &amp;&amp; a.sinks[1].probe_seq == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;A16 each new PROBE_TX_COMMAND takes the next sequence_id, across sinks&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:778
+Value of: a.sinks[0].probe_seq == 0u && a.sinks[1].probe_seq == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A16 each new PROBE_TX_COMMAND takes the next sequence_id, across sinks
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:781&#x0A;Expected equality of these values:&#x0A;  a.sequence_id&#x0A;    Which is: 0&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;A16 a duplicate takes none&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:781
+Expected equality of these values:
+  a.sequence_id
+    Which is: 0
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A16 a duplicate takes none
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:785&#x0A;Value of: a.sinks[2].probe_seq == 0xFFFFu &amp;&amp; a.sinks[0].probe_seq == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;A16 the counter wraps at 2^16&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:785
+Value of: a.sinks[2].probe_seq == 0xFFFFu && a.sinks[0].probe_seq == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A16 the counter wraps at 2^16
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

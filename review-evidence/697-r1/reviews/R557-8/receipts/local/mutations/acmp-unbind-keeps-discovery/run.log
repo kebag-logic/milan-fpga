@@ -1,0 +1,95 @@
+Note: Google Test filter = AcmpCore.A3UnbindInEveryState
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A3UnbindInEveryState
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:366: Failure
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A3 then UNBOUND, binding cleared, nothing running, in state 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:366: Failure
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A3 then UNBOUND, binding cleared, nothing running, in state 2
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:379: Failure
+Value of: !fk.armed[0]
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A3 and the interface's timer is stopped, in state 2
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:366: Failure
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A3 then UNBOUND, binding cleared, nothing running, in state 3
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:366: Failure
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A3 then UNBOUND, binding cleared, nothing running, in state 4
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:366: Failure
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A3 then UNBOUND, binding cleared, nothing running, in state 5
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:366: Failure
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A3 then UNBOUND, binding cleared, nothing running, in state 6
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:366: Failure
+Value of: s.state == ACMP_UNBOUND && !s.bound && s.probing == ACMP_PROBING_DISABLED && s.acmp_status == 0u && s.timer == ACMP_TIMER_NONE && !s.disc_running && !s.adp_armed && !s.started && s.binding.talker_entity_id == 0u && s.binding.controller_entity_id == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A3 then UNBOUND, binding cleared, nothing running, in state 7
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A3UnbindInEveryState (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A3UnbindInEveryState
+
+ 1 FAILED TEST

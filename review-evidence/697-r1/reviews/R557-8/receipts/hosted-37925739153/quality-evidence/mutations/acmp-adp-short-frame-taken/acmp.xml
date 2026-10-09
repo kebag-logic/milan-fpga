@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.003" timestamp="2026-10-09T11:51:04.652" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:51:04.656">
+    <testcase name="A22OtherAdpFramesAreIgnored" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="1263" status="run" result="completed" time="0." timestamp="2026-10-09T11:51:04.656" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1278&#x0A;Value of: a.adp_ignored == n + 5u &amp;&amp; !a.sinks[0].discovered&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95&#x0A;A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery&apos;s&#x0A;TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1278
+Value of: a.adp_ignored == n + 5u && !a.sinks[0].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95
+A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

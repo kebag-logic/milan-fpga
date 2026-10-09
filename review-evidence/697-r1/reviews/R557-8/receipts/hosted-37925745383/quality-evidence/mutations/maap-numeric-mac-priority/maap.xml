@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T11:51:10.478" name="AllTests">
+  <testsuite name="MaapCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:51:10.478">
+    <testcase name="ReverseOctetPriority" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_maap.cpp" line="170" status="run" result="completed" time="0." timestamp="2026-10-09T11:51:10.478" classname="MaapCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_maap.cpp:173&#x0A;Expected equality of these values:&#x0A;  r.core.conflicts&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;least significant octet decides first&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_maap.cpp:173
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+least significant octet decides first
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

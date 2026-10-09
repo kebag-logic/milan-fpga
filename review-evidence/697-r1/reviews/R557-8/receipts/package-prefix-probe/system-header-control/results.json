@@ -1,0 +1,11 @@
+[
+  {
+    "name": "acmp-header-no-resp-2s",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes": "$PACKET/scratch/package-prefix-probe/system-header-control/baseline/tests/test_acmp.cpp:259\nValue of: s.timer == ACMP_TIMER_NO_RESP && s.timer_deadline == fk.now + spec::TMR_NO_RESP_MS && fk.armed[0] && fk.at[0] == fk.now + spec::TMR_NO_RESP_MS\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_adb2462d73e933dad83e8e1c862424ba\nA1 and TMR_NO_RESP armed 200 ms out on the interface's timer (Table 5.26)\nTSN_MESSAGE_END_d9ae49bb53cd9778529e98e44fb1cbfb\n\n"
+    },
+    "tests": 1
+  }
+]

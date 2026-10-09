@@ -1,0 +1,65 @@
+Note: Google Test filter = AdpCore.A18LinkLossKeepsTheOwedDeparting
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:360: Failure
+Value of: a.state == ADP_STATE_DOWN && a.timer == ADP_TIMER_NONE && a.departing_owed == 1u && a.departing_index == 1u && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:364: Failure
+Value of: a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY && a.last_draw == ADP_DRAW_DELAY && a.departing_owed == 1u && a.departing_index == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A18 the link's return starts a new run with the ENTITY_DEPARTING still owed (5.6.3.5.3)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:369: Failure
+Value of: a.state == ADP_STATE_DOWN && !a.available_owed && a.departing_owed == 1u && a.departing_index == 1u && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:375: Failure
+Value of: !owed && fk.sends == 2u && took(1, 1u, 1)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A18 with room the ENTITY_DEPARTING leaves, index 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:378: Failure
+Value of: fk.sends == 3u && took(2, 0u, 0) && a.state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A18 then the new run's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+
+ 1 FAILED TEST

@@ -1,0 +1,75 @@
+Note: Google Test filter = AdpCore.A15OwedDepartingAcrossARestart
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:301: Failure
+Value of: a.available_owed && a.departing_owed == 1u && a.departing_index == 1u && a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_NONE && fk.starts == starts && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:304: Failure
+Value of: adp_poll(&a) && a.available_owed && a.departing_owed == 1u && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 a poll without room keeps both owed
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:307: Failure
+Value of: adp_poll(&a) && fk.sends == 2u && took(1, 1u, 1)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:309: Failure
+Value of: !adp_poll(&a) && fk.sends == 3u && took(2, 0u, 0)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 and the one after it the restart's ENTITY_AVAILABLE, with index 0
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:314: Failure
+Value of: !a.available_owed && a.departing_owed == 0u && !adp_poll(&a) && fk.sends == 3u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 and nothing stranded: nothing owed, a further poll sends nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:318: Failure
+Value of: fk.sends == 4u && took(3, 0u, 1)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 the schedule runs on: the next ENTITY_AVAILABLE carries 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A15OwedDepartingAcrossARestart
+
+ 1 FAILED TEST

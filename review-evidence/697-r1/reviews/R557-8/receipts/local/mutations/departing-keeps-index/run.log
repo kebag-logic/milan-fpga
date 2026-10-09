@@ -1,0 +1,52 @@
+Note: Google Test filter = AdpCore.A6toA8DeferredSends
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A6toA8DeferredSends
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:204: Failure
+Value of: a.departing_owed == 1u && a.available_index == 0u && a.state == ADP_STATE_DOWN
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A6toA8DeferredSends (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A6toA8DeferredSends
+
+ 1 FAILED TEST
+Note: Google Test filter = ExamplePort.DefersExpiryAndRetainsBlockedOutput
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ExamplePort
+[ RUN      ] ExamplePort.DefersExpiryAndRetainsBlockedOutput
+$PACKET/scratch/local/mutations/baseline/tests/test_port.cpp:23: Failure
+Expected equality of these values:
+  p.core.available_index
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+shutdown resets the next advertisement index
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] ExamplePort.DefersExpiryAndRetainsBlockedOutput (0 ms)
+[----------] 1 test from ExamplePort (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ExamplePort.DefersExpiryAndRetainsBlockedOutput
+
+ 1 FAILED TEST

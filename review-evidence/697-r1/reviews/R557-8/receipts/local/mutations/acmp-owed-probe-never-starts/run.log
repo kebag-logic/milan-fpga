@@ -1,0 +1,58 @@
+Note: Google Test filter = AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves:AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpCore
+[ RUN      ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1552: Failure
+Value of: fk.sent.size() == 2u && read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND && !s.timer_held && s.timer_deadline == t0 + 5u + spec::TMR_NO_RESP_MS && fk.armed[0] && fk.at[0] == s.timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1562: Failure
+Value of: s.state == ACMP_PRB_W_RESP2 && fk.sent.size() == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 the duplicate 200 ms after the send
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves (0 ms)
+[ RUN      ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1590: Failure
+Value of: fk.sent.size() == 1u && fk.sent[0].bytes == first.bytes && s.probe_seq == seq && s.timer_deadline == t0 + 405u && fk.at[0] == t0 + 405u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 the duplicate, the first probe's exact copy and sequence_id, leaves at 205 ms: TMR_NO_RESP to 405 ms
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1611: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_RETRY && fk.sent.empty() && a.sinks[0].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 the second expiry at 200 ms: no third probe, LISTENER_TALKER_TIMEOUT (5.5.3.5.23)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval (0 ms)
+[----------] 2 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+[  FAILED  ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+
+ 2 FAILED TESTS

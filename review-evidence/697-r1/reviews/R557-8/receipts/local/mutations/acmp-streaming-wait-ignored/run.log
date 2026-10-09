@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A1BindFromUnboundRespondsThenProbes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:263: Failure
+Value of: s.bound && s.binding.talker_entity_id == kTkA && s.binding.talker_unique_id == 1u && s.binding.controller_entity_id == kCtl1 && s.binding.streaming_wait && !s.started
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A1 the binding parameters are the command's; STREAMING_WAIT binds it stopped
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+
+ 1 FAILED TEST

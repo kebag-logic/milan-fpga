@@ -1,0 +1,27 @@
+Note: Google Test filter = AdpReentry.AdvertiseInlineExpiry
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpReentry
+[ RUN      ] AdpReentry.AdvertiseInlineExpiry
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:141: Failure
+Expected equality of these values:
+  adp_reentry_count()
+    Which is: 0
+  before + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+inline ADVERTISE expiry is counted
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpReentry.AdvertiseInlineExpiry (0 ms)
+[----------] 1 test from AdpReentry (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpReentry.AdvertiseInlineExpiry
+
+ 1 FAILED TEST

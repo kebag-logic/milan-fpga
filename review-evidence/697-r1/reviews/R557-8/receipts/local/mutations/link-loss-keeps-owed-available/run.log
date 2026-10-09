@@ -1,0 +1,45 @@
+Note: Google Test filter = AdpCore.A20LinkLossDropsTheOwedAvailable
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:416: Failure
+Value of: !a.available_owed && a.state == ADP_STATE_DOWN && a.departing_owed == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A20 a link loss drops the owed ENTITY_AVAILABLE at once, before any poll (5.6.3.5.10)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:421: Failure
+Value of: !owed && fk.sends == 0u && a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY && a.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A20 after the link's return a poll sends nothing: the new run waits for its TMR_DELAY (5.6.3.5.3)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:425: Failure
+Value of: fk.sends == 1u && took(0, 0u, 0) && a.state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A20 whose expiry sends the ENTITY_AVAILABLE, index 0; WAITING
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A20LinkLossDropsTheOwedAvailable
+
+ 1 FAILED TEST

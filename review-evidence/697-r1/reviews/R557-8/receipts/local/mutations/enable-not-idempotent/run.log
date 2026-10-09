@@ -1,0 +1,25 @@
+Note: Google Test filter = AdpCore.A23RepeatedEnableOrDisableChangesNothing
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:512: Failure
+Value of: a.draws == draws && fk.starts == starts && a.state == ADP_STATE_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A23 an enable while enabled draws and arms nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+
+ 1 FAILED TEST

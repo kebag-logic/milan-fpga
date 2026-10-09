@@ -1,0 +1,38 @@
+Note: Google Test filter = AcmpCore.A13NoTalkerAttributeReprobes:AcmpCore.A15UnregisteredReprobes
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpCore
+[ RUN      ] AcmpCore.A13NoTalkerAttributeReprobes
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:680: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].probing == ACMP_PROBING_ACTIVE && a.sinks[0].acmp_status == 0u && a.sinks[0].timer == ACMP_TIMER_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A13NoTalkerAttributeReprobes (0 ms)
+[ RUN      ] AcmpCore.A15UnregisteredReprobes
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:724: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].probing == ACMP_PROBING_ACTIVE && a.sinks[0].timer == ACMP_TIMER_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 talker discovered: TMR_DELAY, PRB_W_DELAY (step 3)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A15UnregisteredReprobes (0 ms)
+[----------] 2 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A13NoTalkerAttributeReprobes
+[  FAILED  ] AcmpCore.A15UnregisteredReprobes
+
+ 2 FAILED TESTS

@@ -1,0 +1,51 @@
+Note: Google Test filter = MaapCore.MalformedAndVersionCompatibility
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapCore
+[ RUN      ] MaapCore.MalformedAndVersionCompatibility
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:264: Failure
+Expected equality of these values:
+  v.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+B.2.3 recognized future and older messages
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:264: Failure
+Expected equality of these values:
+  v.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+B.2.3 recognized future and older messages
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:267: Failure
+Expected equality of these values:
+  extended.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+unknown extension ignored
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] MaapCore.MalformedAndVersionCompatibility (0 ms)
+[----------] 1 test from MaapCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapCore.MalformedAndVersionCompatibility
+
+ 1 FAILED TEST

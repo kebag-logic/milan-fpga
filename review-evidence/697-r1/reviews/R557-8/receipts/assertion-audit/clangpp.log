@@ -1,0 +1,4 @@
+$PACKET/scratch/assertion-audit/clangpp.cpp:1:54: error: comparison of integers of different signs: 'unsigned int' and 'int' [-Werror,-Wsign-compare]
+    1 | bool compare(unsigned left, int right) { return left == right; }
+      |                                                 ~~~~ ^  ~~~~~
+1 error generated.

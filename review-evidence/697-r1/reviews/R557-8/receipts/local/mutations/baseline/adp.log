@@ -1,0 +1,55 @@
+[==========] Running 22 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 18 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+[       OK ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[ RUN      ] AdpCore.A6toA8DeferredSends
+[       OK ] AdpCore.A6toA8DeferredSends (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+[       OK ] AdpCore.A9DrawKinds (0 ms)
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+[       OK ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+[       OK ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+[       OK ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+[       OK ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+[       OK ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable
+[       OK ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A21DepartingCapacity
+[       OK ] AdpCore.A21DepartingCapacity (3 ms)
+[ RUN      ] AdpCore.A22GeneratorNeverStuckAtZero
+[       OK ] AdpCore.A22GeneratorNeverStuckAtZero (0 ms)
+[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+[       OK ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)
+[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+[       OK ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)
+[ RUN      ] AdpCore.LinkLevelsAndDisabledInputs
+[       OK ] AdpCore.LinkLevelsAndDisabledInputs (0 ms)
+[ RUN      ] AdpCore.EntityFieldsUseIndependentCounts
+[       OK ] AdpCore.EntityFieldsUseIndependentCounts (0 ms)
+[ RUN      ] AdpCore.MockedPortOrder
+[       OK ] AdpCore.MockedPortOrder (0 ms)
+[----------] 18 tests from AdpCore (3 ms total)
+
+[----------] 4 tests from AllInputs/AdpInputControl
+[ RUN      ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/0
+[       OK ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/0 (0 ms)
+[ RUN      ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/1
+[       OK ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/1 (0 ms)
+[ RUN      ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/2
+[       OK ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/2 (0 ms)
+[ RUN      ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/3
+[       OK ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/3 (0 ms)
+[----------] 4 tests from AllInputs/AdpInputControl (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 2 test suites ran. (3 ms total)
+[  PASSED  ] 22 tests.

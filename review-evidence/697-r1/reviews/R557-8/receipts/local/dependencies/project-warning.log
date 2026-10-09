@@ -1,0 +1,5 @@
+$PACKET/scratch/local/dependencies/project-warning.cpp: In function ‘bool compare(unsigned int, int)’:
+$PACKET/scratch/local/dependencies/project-warning.cpp:1:54: error: comparison of integer expressions of different signedness: ‘unsigned int’ and ‘int’ [-Werror=sign-compare]
+    1 | bool compare(unsigned left, int right) { return left == right; }
+      |                                                 ~~~~~^~~~~~~~
+cc1plus: all warnings being treated as errors

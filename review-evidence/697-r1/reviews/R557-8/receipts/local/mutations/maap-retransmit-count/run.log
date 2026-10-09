@@ -1,0 +1,63 @@
+Note: Google Test filter = MaapCore.InitialAndThreeRetransmissions
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapCore
+[ RUN      ] MaapCore.InitialAndThreeRetransmissions
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:99: Failure
+Expected equality of these values:
+  r.core.probe_count
+    Which is: '\x2' (2)
+  3u
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+three retransmissions remain
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:104: Failure
+Expected equality of these values:
+  r.core.probe_count
+    Which is: '\x1' (1)
+  2u - k
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+retransmission decrements once
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:104: Failure
+Expected equality of these values:
+  r.core.probe_count
+    Which is: '\0'
+  2u - k
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+retransmission decrements once
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:106: Failure
+Value of: r.valid
+  Actual: true
+Expected: false
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:105: Failure
+Expected equality of these values:
+  r.frames[k + 1]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x3' (3), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  pdu(1, kBase, 8, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+
+[  FAILED  ] MaapCore.InitialAndThreeRetransmissions (0 ms)
+[----------] 1 test from MaapCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapCore.InitialAndThreeRetransmissions
+
+ 1 FAILED TEST

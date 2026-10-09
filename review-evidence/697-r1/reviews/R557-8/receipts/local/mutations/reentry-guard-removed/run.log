@@ -1,0 +1,170 @@
+Note: Google Test filter = AdpReentry.AdvertiseInlineExpiry:AdpReentry.DelayInlineExpiryOnGmChange
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpReentry
+[ RUN      ] AdpReentry.AdvertiseInlineExpiry
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:143: Failure
+Death test: { std::signal(6, assertion_exit); r.expire(); }
+    Result: failed to die.
+ Error msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+inline ADVERTISE expiry asserts
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpReentry.AdvertiseInlineExpiry (0 ms)
+[ RUN      ] AdpReentry.DelayInlineExpiryOnGmChange
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:170: Failure
+Death test: { std::signal(6, assertion_exit); adp_gm_change(&r.a); }
+    Result: failed to die.
+ Error msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+inline DELAY expiry asserts
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpReentry.DelayInlineExpiryOnGmChange (0 ms)
+[----------] 2 tests from AdpReentry (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AdpReentry.AdvertiseInlineExpiry
+[  FAILED  ] AdpReentry.DelayInlineExpiryOnGmChange
+
+ 2 FAILED TESTS
+Note: Google Test filter = AdpReentry.AdvertiseInlineExpiry:AdpReentry.DelayInlineExpiryOnGmChange
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpReentry
+[ RUN      ] AdpReentry.AdvertiseInlineExpiry
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:75: Failure
+Expected equality of these values:
+  std::memcmp(before.data(), target, sizeof(adp))
+    Which is: 2
+  0
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+callback leaves core state unchanged
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:141: Failure
+Expected equality of these values:
+  adp_reentry_count()
+    Which is: 0
+  before + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+inline ADVERTISE expiry is counted
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:149: Failure
+Expected equality of these values:
+  r.a.timer
+    Which is: 0
+  ADP_TIMER_ADVERTISE
+    Which is: 2
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:152: Failure
+Expected equality of these values:
+  r.a.stray_expiries
+    Which is: 1
+  0u
+    Which is: 0
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:154: Failure
+Expected equality of these values:
+  r.a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:155: Failure
+Expected equality of these values:
+  r.a.timer
+    Which is: 0
+  ADP_TIMER_DELAY
+    Which is: 1
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:156: Failure
+Value of: r.running
+  Actual: false
+Expected: true
+
+[  FAILED  ] AdpReentry.AdvertiseInlineExpiry (0 ms)
+[ RUN      ] AdpReentry.DelayInlineExpiryOnGmChange
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:75: Failure
+Expected equality of these values:
+  std::memcmp(before.data(), target, sizeof(adp))
+    Which is: 1
+  0
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+callback leaves core state unchanged
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:168: Failure
+Expected equality of these values:
+  adp_reentry_count()
+    Which is: 0
+  before + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+inline DELAY expiry is counted
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:176: Failure
+Expected equality of these values:
+  r.a.timer
+    Which is: 0
+  ADP_TIMER_DELAY
+    Which is: 1
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:178: Failure
+Expected equality of these values:
+  r.a.stray_expiries
+    Which is: 1
+  0u
+    Which is: 0
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:180: Failure
+Expected equality of these values:
+  r.a.state
+    Which is: 2
+  ADP_STATE_WAITING
+    Which is: 3
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:181: Failure
+Expected equality of these values:
+  r.a.timer
+    Which is: 0
+  ADP_TIMER_ADVERTISE
+    Which is: 2
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp_reentry.cpp:182: Failure
+Value of: r.running
+  Actual: false
+Expected: true
+
+[  FAILED  ] AdpReentry.DelayInlineExpiryOnGmChange (0 ms)
+[----------] 2 tests from AdpReentry (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AdpReentry.AdvertiseInlineExpiry
+[  FAILED  ] AdpReentry.DelayInlineExpiryOnGmChange
+
+ 2 FAILED TESTS

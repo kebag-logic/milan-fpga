@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.002" timestamp="2026-10-09T11:50:25.380" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:50:25.382">
+    <testcase name="A8SuccessSettles" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="570" status="run" result="completed" time="0." timestamp="2026-10-09T11:50:25.382" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:585&#x0A;Value of: c.flag &amp;&amp; c.stream.stream_id == kSid &amp;&amp; c.stream.dest_mac == kDa &amp;&amp; c.stream.vlan_id == 0x1002u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A8 with the response&apos;s stream_id, stream_dest_mac and stream_vlan_id exactly&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:585
+Value of: c.flag && c.stream.stream_id == kSid && c.stream.dest_mac == kDa && c.stream.vlan_id == 0x1002u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:585&#x0A;Value of: c.flag &amp;&amp; c.stream.stream_id == kSid &amp;&amp; c.stream.dest_mac == kDa &amp;&amp; c.stream.vlan_id == 0x1002u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A8 with the response&apos;s stream_id, stream_dest_mac and stream_vlan_id exactly&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:585
+Value of: c.flag && c.stream.stream_id == kSid && c.stream.dest_mac == kDa && c.stream.vlan_id == 0x1002u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

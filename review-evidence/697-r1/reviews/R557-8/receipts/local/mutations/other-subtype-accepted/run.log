@@ -1,0 +1,39 @@
+Note: Google Test filter = AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:530: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A24 a DISCOVER under another EtherType or subtype is discarded and counted
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:531: Failure
+Expected equality of these values:
+  a.state
+    Which is: 2
+  ADP_STATE_WAITING
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A24 and leaves WAITING alone
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+
+ 1 FAILED TEST

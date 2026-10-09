@@ -1,0 +1,46 @@
+Note: Google Test filter = MaapCore.ConstantsStrictTimersAndSeed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapCore
+[ RUN      ] MaapCore.ConstantsStrictTimersAndSeed
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:118: Failure
+Expected equality of these values:
+  501u
+    Which is: 501
+  500u
+    Which is: 500
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+probe base interval
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:130: Failure
+Expected equality of these values:
+  min_probe
+    Which is: 512
+  511u
+    Which is: 511
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+clock seed spans the probe interval
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:130: Failure
+Expected equality of these values:
+  max_probe
+    Which is: 590
+  589u
+    Which is: 589
+
+[  FAILED  ] MaapCore.ConstantsStrictTimersAndSeed (17 ms)
+[----------] 1 test from MaapCore (17 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (18 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapCore.ConstantsStrictTimersAndSeed
+
+ 1 FAILED TEST

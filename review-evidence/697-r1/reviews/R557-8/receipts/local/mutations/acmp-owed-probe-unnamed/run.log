@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1552: Failure
+Value of: fk.sent.size() == 2u && read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND && !s.timer_held && s.timer_deadline == t0 + 5u + spec::TMR_NO_RESP_MS && fk.armed[0] && fk.at[0] == s.timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1562: Failure
+Value of: s.state == ACMP_PRB_W_RESP2 && fk.sent.size() == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 the duplicate 200 ms after the send
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+
+ 1 FAILED TEST

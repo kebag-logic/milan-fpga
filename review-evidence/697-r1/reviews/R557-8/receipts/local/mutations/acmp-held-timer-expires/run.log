@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1568: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_RESP && a.sinks[0].timer_held && a.owed_count == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 an expiry of the interface while the probe is owed takes nothing: a held timer is never due
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+
+ 1 FAILED TEST

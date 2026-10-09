@@ -1,0 +1,72 @@
+Note: Google Test filter = MaapCore.InitialAndThreeRetransmissions
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapCore
+[ RUN      ] MaapCore.InitialAndThreeRetransmissions
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:101: Failure
+Expected equality of these values:
+  r.frames[0]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  pdu(1, kBase, 8, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+B.2 complete PROBE bytes
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:105: Failure
+Expected equality of these values:
+  r.frames[k + 1]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  pdu(1, kBase, 8, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:105: Failure
+Expected equality of these values:
+  r.frames[k + 1]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  pdu(1, kBase, 8, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:105: Failure
+Expected equality of these values:
+  r.frames[k + 1]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  pdu(1, kBase, 8, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:109: Failure
+Expected equality of these values:
+  r.frames[4]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x3' (3), '\b' (8), '\x10' (16), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  pdu(3, kBase, 8, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x3' (3), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+B.2 complete ANNOUNCE bytes
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:112: Failure
+Expected equality of these values:
+  r.frames.back()
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x3' (3), '\b' (8), '\x10' (16), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x1' (1), '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  pdu(3, kBase, 8, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x3' (3), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+periodic ANNOUNCE
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] MaapCore.InitialAndThreeRetransmissions (0 ms)
+[----------] 1 test from MaapCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapCore.InitialAndThreeRetransmissions
+
+ 1 FAILED TEST

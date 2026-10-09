@@ -1,0 +1,37 @@
+Note: Google Test filter = AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1771: Failure
+Value of: admits().empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A29 a re-bind to the same talker, from any controller or source, admits nothing
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1774: Failure
+Expected equality of these values:
+  v.size()
+    Which is: 3
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A29 re-binding emits one admission
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+
+ 1 FAILED TEST

@@ -1,0 +1,55 @@
+Note: Google Test filter = AdpCore.A10toA14DepartingIndex
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:242: Failure
+Value of: wire_is(1u, 2)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A10 SHUTDOWN in WAITING, sent at once: ENTITY_DEPARTING carries the current index, 2
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:250: Failure
+Value of: wire_is(1u, 1)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A12 SHUTDOWN in DELAY, sent at once: ENTITY_DEPARTING carries the current index, 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:261: Failure
+Value of: wire_is(1u, 2)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A13 sent from a later poll, it carries the index current at SHUTDOWN, 2
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:274: Failure
+Value of: wire_is(1u, 1)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A14 SHUTDOWN after the wrap: ENTITY_DEPARTING carries the current index, 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A10toA14DepartingIndex (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A10toA14DepartingIndex
+
+ 1 FAILED TEST

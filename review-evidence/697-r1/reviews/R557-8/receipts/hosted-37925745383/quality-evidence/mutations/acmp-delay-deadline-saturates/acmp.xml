@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.004" timestamp="2026-10-09T11:51:05.015" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:51:05.019">
+    <testcase name="A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="1671" status="run" result="completed" time="0." timestamp="2026-10-09T11:51:05.019" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1714&#x0A;Value of: a.sinks[0].state == ACMP_PRB_W_DELAY &amp;&amp; a.sinks[0].timer_deadline == d &amp;&amp; a.last_draw_ms &gt; 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A28 TMR_DELAY drawn at the last millisecond before the wrap ends after it&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1714
+Value of: a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].timer_deadline == d && a.last_draw_ms > 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A28 TMR_DELAY drawn at the last millisecond before the wrap ends after it
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1717&#x0A;Expected equality of these values:&#x0A;  a.sinks[0].state&#x0A;    Which is: 3&#x0A;  ACMP_PRB_W_DELAY&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A28 TMR_DELAY: nothing before its deadline&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1717
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 3
+  ACMP_PRB_W_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A28 TMR_DELAY: nothing before its deadline
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

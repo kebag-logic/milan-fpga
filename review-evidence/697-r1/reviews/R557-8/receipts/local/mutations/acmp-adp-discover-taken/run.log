@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A22OtherAdpFramesAreIgnored
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A22OtherAdpFramesAreIgnored
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1278: Failure
+Value of: a.adp_ignored == n + 5u && !a.sinks[0].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A22OtherAdpFramesAreIgnored (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A22OtherAdpFramesAreIgnored
+
+ 1 FAILED TEST

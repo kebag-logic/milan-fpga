@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.002" timestamp="2026-10-09T11:50:34.345" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:50:34.347">
+    <testcase name="A20ProbeTxIsAnsweredFromTheSource" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="859" status="run" result="completed" time="0." timestamp="2026-10-09T11:50:34.347" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:892&#x0A;Value of: same(last(), want)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0&#x0A;A20 no destination MAC: TALKER_DEST_MAC_FAILED (Table 5.42)&#x0A;TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:892
+Value of: same(last(), want)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_b1df61615f786e2707df895cf3ab77f0
+A20 no destination MAC: TALKER_DEST_MAC_FAILED (Table 5.42)
+TSN_MESSAGE_END_6e13e139a7778895578831a87c32db00
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,41 @@
+Note: Google Test filter = MaapCore.ConstantsStrictTimersAndSeed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapCore
+[ RUN      ] MaapCore.ConstantsStrictTimersAndSeed
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:119: Failure
+Expected equality of these values:
+  30001u
+    Which is: 30001
+  30000u
+    Which is: 30000
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+announce base interval
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:131: Failure
+Expected equality of these values:
+  min_announce
+    Which is: 30012
+  30011u
+    Which is: 30011
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:131: Failure
+Expected equality of these values:
+  max_announce
+    Which is: 31990
+  31989u
+    Which is: 31989
+
+[  FAILED  ] MaapCore.ConstantsStrictTimersAndSeed (19 ms)
+[----------] 1 test from MaapCore (19 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (19 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapCore.ConstantsStrictTimersAndSeed
+
+ 1 FAILED TEST

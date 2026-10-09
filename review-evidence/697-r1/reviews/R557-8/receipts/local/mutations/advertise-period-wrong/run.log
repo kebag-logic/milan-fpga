@@ -1,0 +1,40 @@
+Note: Google Test filter = AdpCore.A0toA2Schedule:AdpCore.MockedPortOrder
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:122: Failure
+Value of: fk.sends == 1u && fk.last[15] == 0u && a.state == ADP_STATE_WAITING && fk.last_delay == 5000u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A1 TMR_DELAY: ENTITY_AVAILABLE, WAITING, TMR_ADVERTISE 5 s (5.6.3.5.9)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.MockedPortOrder
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:660: Failure
+Expected equality of these values:
+  ms
+    Which is: 6000
+  5000u
+    Which is: 5000
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A1 TMR_DELAY starts the advertisement period
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.MockedPortOrder (0 ms)
+[----------] 2 tests from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AdpCore.A0toA2Schedule
+[  FAILED  ] AdpCore.MockedPortOrder
+
+ 2 FAILED TESTS

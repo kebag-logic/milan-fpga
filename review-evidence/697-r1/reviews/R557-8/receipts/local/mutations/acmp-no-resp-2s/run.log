@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A1BindFromUnboundRespondsThenProbes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:259: Failure
+Value of: s.timer == ACMP_TIMER_NO_RESP && s.timer_deadline == fk.now + spec::TMR_NO_RESP_MS && fk.armed[0] && fk.at[0] == fk.now + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A1 and TMR_NO_RESP armed 200 ms out on the interface's timer (Table 5.26)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+
+ 1 FAILED TEST

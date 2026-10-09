@@ -1,0 +1,35 @@
+Note: Google Test filter = AdpCore.A17RoomBackBeforeAPoll
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:347: Failure
+Value of: fk.sends == 1u && a.available_owed && a.departing_owed == 1u && a.state == ADP_STATE_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:351: Failure
+Value of: fk.sends == 3u && took(1, 1u, 1) && took(2, 0u, 0) && !owed && a.state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A17RoomBackBeforeAPoll
+
+ 1 FAILED TEST

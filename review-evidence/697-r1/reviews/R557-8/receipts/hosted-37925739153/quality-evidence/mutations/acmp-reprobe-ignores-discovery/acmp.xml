@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0.002" timestamp="2026-10-09T11:50:32.789" name="AllTests">
+  <testsuite name="AcmpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:50:32.791">
+    <testcase name="A13NoTalkerAttributeReprobes" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="664" status="run" result="completed" time="0." timestamp="2026-10-09T11:50:32.791" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:680&#x0A;Value of: a.sinks[0].state == ACMP_PRB_W_DELAY &amp;&amp; a.sinks[0].probing == ACMP_PROBING_ACTIVE &amp;&amp; a.sinks[0].acmp_status == 0u &amp;&amp; a.sinks[0].timer == ACMP_TIMER_DELAY&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95&#x0A;A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)&#x0A;TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:680
+Value of: a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].probing == ACMP_PROBING_ACTIVE && a.sinks[0].acmp_status == 0u && a.sinks[0].timer == ACMP_TIMER_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95
+A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a
+
+]]></failure>
+    </testcase>
+    <testcase name="A15UnregisteredReprobes" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="711" status="run" result="completed" time="0." timestamp="2026-10-09T11:50:32.791" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:724&#x0A;Value of: a.sinks[0].state == ACMP_PRB_W_DELAY &amp;&amp; a.sinks[0].probing == ACMP_PROBING_ACTIVE &amp;&amp; a.sinks[0].timer == ACMP_TIMER_DELAY&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95&#x0A;A15 talker discovered: TMR_DELAY, PRB_W_DELAY (step 3)&#x0A;TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:724
+Value of: a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].probing == ACMP_PROBING_ACTIVE && a.sinks[0].timer == ACMP_TIMER_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95
+A15 talker discovered: TMR_DELAY, PRB_W_DELAY (step 3)
+TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

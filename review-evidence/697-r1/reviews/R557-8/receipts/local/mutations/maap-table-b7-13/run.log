@@ -1,0 +1,70 @@
+Note: Google Test filter = AllStates/MaapCell.TableB7/13
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AllStates/MaapCell
+[ RUN      ] AllStates/MaapCell.TableB7/13
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:155: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  restart ? 1u : 0u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+Table B.7 conflict decision
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:156: Failure
+Expected equality of these values:
+  r.frames.size()
+    Which is: 5
+  before + ((defend || restart) ? 1u : 0u)
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+Table B.7 output count
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:158: Failure
+Expected equality of these values:
+  r.core.state
+    Which is: 2
+  MAAP_PROBE
+    Which is: 1
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:158: Failure
+Value of: r.valid
+  Actual: true
+Expected: false
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:159: Failure
+Expected equality of these values:
+  r.core.probe_count
+    Which is: '\0'
+  3u
+    Which is: 3
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:160: Failure
+Expected equality of these values:
+  r.frames.back()[15]
+    Which is: '\x3' (3)
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+loss restarts with PROBE
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AllStates/MaapCell.TableB7/13, where GetParam() = 13 (0 ms)
+[----------] 1 test from AllStates/MaapCell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/MaapCell.TableB7/13, where GetParam() = 13
+
+ 1 FAILED TEST

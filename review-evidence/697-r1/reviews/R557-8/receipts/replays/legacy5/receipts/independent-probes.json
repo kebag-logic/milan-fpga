@@ -1,0 +1,133 @@
+[
+  {
+    "name": "assembly-direct",
+    "source": "nop # review probe prose\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "comment_errors": [
+      "c: line 1: unsupported comment"
+    ],
+    "preprocessed": "nop # review probe prose\n",
+    "conditional_matrix": {
+      "file": "examples/rv32/control.S",
+      "expected": [],
+      "observed": [],
+      "builds": [
+        {
+          "language": "c",
+          "defined": {},
+          "rc": 0,
+          "regions": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "assembly-macro-hash",
+    "source": "#define REVIEW_HASH #\nnop REVIEW_HASH review probe prose\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "comment_errors": [
+      "c: line 1: assembly preprocessor directives are forbidden",
+      "c: line 1: unsupported comment"
+    ],
+    "preprocessed": "nop # review probe prose\n",
+    "conditional_matrix": {
+      "file": "examples/rv32/control.S",
+      "expected": [],
+      "observed": [],
+      "builds": [
+        {
+          "language": "c",
+          "defined": {},
+          "rc": 0,
+          "regions": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "assembly-macro-hash-trace",
+    "source": "#define REVIEW_HASH #\nnop REVIEW_HASH REQ: PORT-01\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "comment_errors": [
+      "c: line 1: assembly preprocessor directives are forbidden",
+      "c: line 1: unsupported comment"
+    ],
+    "preprocessed": "nop # REQ: PORT-01\n",
+    "conditional_matrix": {
+      "file": "examples/rv32/control.S",
+      "expected": [],
+      "observed": [],
+      "builds": [
+        {
+          "language": "c",
+          "defined": {},
+          "rc": 0,
+          "regions": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "c-trigraph-comment",
+    "source": "/??/\n/ review probe prose\nint value;\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "comment_errors": [
+      "c: line 1: unsupported comment"
+    ]
+  },
+  {
+    "name": "cpp-digit-comment",
+    "source": "int value = 1'000; // review probe prose\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "comment_errors": [
+      "c++: line 1: unsupported comment"
+    ]
+  },
+  {
+    "name": "cpp-raw-plus-comment",
+    "source": "const char *value = R\"tag(// data)tag\"; /* review probe prose */\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "comment_errors": [
+      "c++: line 1: unsupported comment"
+    ]
+  },
+  {
+    "name": "unlisted-conditional",
+    "source": "#ifdef REVIEW_UNUSED\nreview probe prose\n#endif\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "comment_errors": [
+      "c: line 1: unlisted conditional macro REVIEW_UNUSED"
+    ]
+  },
+  {
+    "name": "allowed-conditional",
+    "source": "#ifdef NDEBUG\nint value;\n#else\nlong value;\n#endif\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "comment_errors": []
+  },
+  {
+    "name": "default-near-template",
+    "source": "#include <gtest/gtest.h>\nTEST(Review, Near) { EXPECT_NEAR(1.0, 2.0, 0.1) << \"The difference between\"; }\nTEST(Review, NearUnrelated) { EXPECT_NEAR(1.0, 2.0, 0.1) << \"specific different message\"; }\n",
+    "compile_rc": 0,
+    "compile_output": "",
+    "run_rc": 1,
+    "count": 2,
+    "failures": {
+      "Review.Near": "$PACKET/scratch/replays/legacy5/scratch/independent-probes/needles.cpp:2\nThe difference between 1.0 and 2.0 is 1, which exceeds 0.1, where\n1.0 evaluates to 1,\n2.0 evaluates to 2, and\n0.1 evaluates to 0.10000000000000001.\n\nTSN_MESSAGE_BEGIN_5e22500466007c09f12cc0554e5c0e9e\nThe difference between\nTSN_MESSAGE_END_9e201f98128926a94a4e1d9835339862\n\n",
+      "Review.NearUnrelated": "$PACKET/scratch/replays/legacy5/scratch/independent-probes/needles.cpp:3\nThe difference between 1.0 and 2.0 is 1, which exceeds 0.1, where\n1.0 evaluates to 1,\n2.0 evaluates to 2, and\n0.1 evaluates to 0.10000000000000001.\n\nTSN_MESSAGE_BEGIN_5e22500466007c09f12cc0554e5c0e9e\nspecific different message\nTSN_MESSAGE_END_9e201f98128926a94a4e1d9835339862\n\n"
+    },
+    "audit_errors": [
+      "control: needle must identify exactly one assertion message literal in Review.Near"
+    ],
+    "streamed_match": true,
+    "unrelated_default_match": false
+  }
+]

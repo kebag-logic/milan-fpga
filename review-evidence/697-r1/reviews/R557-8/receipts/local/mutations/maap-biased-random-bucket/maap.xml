@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T13:50:26.561" name="AllTests">
+  <testsuite name="MaapCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T13:50:26.561">
+    <testcase name="UniformDrawRejectsIncompleteBucket" file="$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp" line="209" status="run" result="completed" time="0." timestamp="2026-10-09T13:50:26.561" classname="MaapCore">
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:214&#x0A;Expected equality of these values:&#x0A;  r.core.rng&#x0A;    Which is: 4294967295&#x0A;  0x0003e01fu&#x0A;    Which is: 253983&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;incomplete random bucket rejected&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:214
+Expected equality of these values:
+  r.core.rng
+    Which is: 4294967295
+  0x0003e01fu
+    Which is: 253983
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+incomplete random bucket rejected
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:215&#x0A;Expected equality of these values:&#x0A;  r.core.last_delay_ms&#x0A;    Which is: 559&#x0A;  587u&#x0A;    Which is: 587&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;draw uses the next complete-bucket word&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:215
+Expected equality of these values:
+  r.core.last_delay_ms
+    Which is: 559
+  587u
+    Which is: 587
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+draw uses the next complete-bucket word
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

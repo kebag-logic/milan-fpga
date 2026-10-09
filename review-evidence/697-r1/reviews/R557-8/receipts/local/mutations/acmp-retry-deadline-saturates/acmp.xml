@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-09T13:50:24.555" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T13:50:24.555">
+    <testcase name="A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap" file="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp" line="1671" status="run" result="completed" time="0." timestamp="2026-10-09T13:50:24.555" classname="AcmpCore">
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1686&#x0A;Value of: a.sinks[0].state == ACMP_PRB_W_RETRY &amp;&amp; a.sinks[0].timer_deadline == 3000u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1686
+Value of: a.sinks[0].state == ACMP_PRB_W_RETRY && a.sinks[0].timer_deadline == 3000u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+      <failure message="$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1690&#x0A;Expected equality of these values:&#x0A;  a.sinks[0].state&#x0A;    Which is: 1&#x0A;  ACMP_PRB_W_RETRY&#x0A;    Which is: 5&#x0A;&#x0A;TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715&#x0A;A28 TMR_RETRY: nothing before its deadline&#x0A;TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1690
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_PRB_W_RETRY
+    Which is: 5
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_RETRY: nothing before its deadline
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

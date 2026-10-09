@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A15UnregisteredReprobes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A15UnregisteredReprobes
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:715: Failure
+Value of: fk.count(Call::SRP) == 1u && !fk.calls[unsigned(fk.position(Call::SRP))].flag && a.sinks[0].state == ACMP_PRB_W_AVAIL && a.sinks[0].probing == ACMP_PROBING_PASSIVE
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped, PRB_W_AVAIL (5.5.3.5.48 steps 1, 2)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A15UnregisteredReprobes (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A15UnregisteredReprobes
+
+ 1 FAILED TEST

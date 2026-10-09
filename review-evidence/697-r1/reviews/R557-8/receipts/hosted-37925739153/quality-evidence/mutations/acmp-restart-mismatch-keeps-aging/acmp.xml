@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.002" timestamp="2026-10-09T11:50:46.003" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-09T11:50:46.005">
+    <testcase name="A22DiscoveredStateCells" file="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp" line="1156" status="run" result="completed" time="0." timestamp="2026-10-09T11:50:46.005" classname="AcmpCore">
+      <failure message="$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1196&#x0A;Value of: a.sinks[0].state == ACMP_PRB_W_AVAIL &amp;&amp; !a.sinks[0].discovered &amp;&amp; !a.sinks[0].adp_armed &amp;&amp; a.sinks[0].disc_available_index == 700u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95&#x0A;A22 index &lt;= last from another grandmaster: EVT_TK_DEPARTED, TMR_NO_ADP stopped, TK_NOT_DISCOVERED (2b)&#x0A;TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a&#x0A;&#x0A;" type=""><![CDATA[$HOSTED_SOURCE/build-validation/mutations/baseline/tests/test_acmp.cpp:1196
+Value of: a.sinks[0].state == ACMP_PRB_W_AVAIL && !a.sinks[0].discovered && !a.sinks[0].adp_armed && a.sinks[0].disc_available_index == 700u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_8dbafe01c90b70b835c674b16b7aaf95
+A22 index <= last from another grandmaster: EVT_TK_DEPARTED, TMR_NO_ADP stopped, TK_NOT_DISCOVERED (2b)
+TSN_MESSAGE_END_20820e33bf5e774f3637ebc195c9f25a
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,233 @@
+diff --git a/docs/CODING_STANDARD.md b/docs/CODING_STANDARD.md
+index 6d39646..a0ebfa3 100644
+--- a/docs/CODING_STANDARD.md
++++ b/docs/CODING_STANDARD.md
+@@ -29,7 +29,9 @@ A deliberately obfuscated construction outside the listed rules is a review sugg
+    `EXPECT_EQ`, `ASSERT_EQ`, `EXPECT_NE`, `ASSERT_NE`, `EXPECT_LE`, `ASSERT_LE`,
+    `EXPECT_GE`, `ASSERT_GE`, `EXPECT_EXIT` and `EXPECT_CALL`.
+    The [assertion gate](../scripts/needle_audit.py) refuses other forms, including `EXPECT_NEAR`.
+-   Refused public macros are generated from the pinned headers with `-dM -E`.
++   Refused public macros are generated from every public header in the pinned install with `-dM -E`.
++   Every identifier beginning `EXPECT_`, `ASSERT_` or `GTEST_` outside the allowlist is also refused.
++   This includes internal names ending in an underscore.
+    Token pasting (`##`) is forbidden in tests.
+    Assertion lexing uses C++20. Literal comment text is not an assertion.
+    Needles have at least eight characters and occur in exactly one owned message literal.
+diff --git a/docs/VERIFICATION.md b/docs/VERIFICATION.md
+index 89ab806..914ac00 100644
+--- a/docs/VERIFICATION.md
++++ b/docs/VERIFICATION.md
+@@ -68,9 +68,7 @@ Linked controls refuse assembly source includes, binary includes and text after
+ Compiling controls include plain and spliced directives and macro-produced prose and tracing.
+ The Linux job needs no FPGA tools, simulator, platform checkout or submodule.
+ 
+-The six [contributor rules](CODING_STANDARD.md) are the gate's complete comment and assertion contract:
+-The gate keeps honest contributors to the comment rule. It does not detect deliberately hidden text.
+-A deliberately obfuscated construction outside the listed rules is a review suggestion unless it occurs in the shipped tree.
++The six [contributor rules](CODING_STANDARD.md) are the gate's complete comment and assertion contract.
+ 
+ | Rule | Accepted subset | Compiling control |
+ |---|---|---|
+@@ -81,14 +79,27 @@ A deliberately obfuscated construction outside the listed rules is a review sugg
+ | Assembly | No preprocessor directives, single quotes, `.if*`, `.macro`, `.rept`, `.irp`, `.irpc`, `.include`, `.incbin` or `.end`; every hash starts a checked comment. | Macro-produced comments and tracing are refused; direct tracing passes. |
+ | Assertions | `EXPECT` and `ASSERT` forms `_TRUE`, `_FALSE`, `_EQ`, `_NE`, `_LE`, `_GE`, plus `EXPECT_EXIT` and `EXPECT_CALL`. | Each allowed form produces a default diagnostic; `EXPECT_NEAR` is refused. |
+ 
++The gate keeps honest contributors to the comment rule. It does not detect deliberately hidden text.
++A deliberately obfuscated construction outside the listed rules is a review suggestion unless it occurs in the shipped tree.
++
+ The assertion gate refuses token pasting (`##`) and scans the named macros in all C and C++ files below `tests/`.
+ The template generator uses exactly GoogleTest and GMock 1.14.0, checked with `pkg-config`.
+ CMake requires the exact package-config version and does not fall back to an unversioned library search.
+ The mutation driver uses the compile and link flags from the same `pkg-config` packages whose versions it checks.
+-The same generator preprocesses `gtest/gtest.h` and `gmock/gmock.h` with `-dM -E`.
++Package `-I` paths become `-isystem` paths, matching CMake's dependency-header handling.
++Project warnings remain enabled, including signed comparisons under `-Werror`.
++The dependency control copies the real pinned headers into a scratch prefix and supplies its path through package flags.
++It catches a header plant without ambient include or library paths and confirms that project signedness errors still fail.
++For a separate install, set `CMAKE_PREFIX_PATH` to its prefix and `PKG_CONFIG_PATH` to its `lib/pkgconfig` directory.
++Run the same validation command without `CPATH`, `CPLUS_INCLUDE_PATH`, `C_INCLUDE_PATH` or `LIBRARY_PATH`.
++The same generator preprocesses every public header in the installed `gtest/` and `gmock/` directories with `-dM -E`.
++This includes `gtest/gtest-spi.h` and its failure-capturing assertions.
+ It records public assertion and result macros outside the fourteen allowed forms.
+ This includes `EXPECT_*`, `ASSERT_*`, `GTEST_*`, `FAIL*`, `SUCCEED` and `ADD_FAILURE*`.
+ CI regenerates both the refused names and the diagnostics.
++The gate also refuses every identifier beginning `EXPECT_`, `ASSERT_` or `GTEST_` outside the allowlist, including trailing-underscore internals.
++The four failure-capturing controls compile and pass at runtime, then fail the source gate.
++The `GTEST_NONFATAL_FAILURE_` control compiles, fails at runtime and fails the source gate.
+ Templates record one failing instance of each permitted form, including an unmet mock expectation.
+ Streamed messages are removed. Only source line numbers are normalized.
+ The template list does not claim to enumerate every value-dependent diagnostic variation.
+diff --git a/scripts/assertion-defaults.json b/scripts/assertion-defaults.json
+index 5f1353d..6b5104e 100644
+--- a/scripts/assertion-defaults.json
++++ b/scripts/assertion-defaults.json
+@@ -36,10 +36,14 @@
+     "EXPECT_DEATH_IF_SUPPORTED",
+     "EXPECT_DEBUG_DEATH",
+     "EXPECT_DOUBLE_EQ",
++    "EXPECT_FATAL_FAILURE",
++    "EXPECT_FATAL_FAILURE_ON_ALL_THREADS",
+     "EXPECT_FLOAT_EQ",
+     "EXPECT_GT",
+     "EXPECT_LT",
+     "EXPECT_NEAR",
++    "EXPECT_NONFATAL_FAILURE",
++    "EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS",
+     "EXPECT_NO_FATAL_FAILURE",
+     "EXPECT_NO_THROW",
+     "EXPECT_PRED1",
+diff --git a/scripts/assertion_forms.py b/scripts/assertion_forms.py
+index 82091f5..8963a67 100644
+--- a/scripts/assertion_forms.py
++++ b/scripts/assertion_forms.py
+@@ -19,21 +19,42 @@ def errors(text):
+     for kind, value, *_ in raw_tokens(text, 'c++'):
+         if kind == 'hashhash':
+             found.add('token pasting is forbidden in tests')
+-        if kind == 'raw_identifier' and value in refused:
++        if kind == 'raw_identifier' and value not in ALLOWED and (
++                value in refused or value.startswith(('EXPECT_', 'ASSERT_', 'GTEST_'))):
+             found.add(f'unsupported assertion form: {value}')
+     return sorted(found)
+ 
+ 
+ def package_flags(*options):
+-    return shlex.split(subprocess.check_output(
+-        ['pkg-config', *options, 'gmock', 'gtest'], text=True))
++    flags = iter(shlex.split(subprocess.check_output(
++        ['pkg-config', *options, 'gmock', 'gtest'], text=True)))
++    result = []
++    for flag in flags:
++        if flag == '-I':
++            path = next(flags, None)
++            if not path:
++                raise RuntimeError('package include option has no path')
++            result.extend(['-isystem', path])
++        elif flag.startswith('-I'):
++            result.extend(['-isystem', flag[2:]])
++        else:
++            result.append(flag)
++    return result
+ 
+ 
+ def refused_macros():
+     require_version()
++    headers = set()
++    for package in ('gtest', 'gmock'):
++        include = Path(subprocess.check_output(
++            ['pkg-config', '--variable=includedir', package], text=True).strip())
++        public = sorted((include / package).glob('*.h'))
++        if not public:
++            raise RuntimeError('pinned package has no public headers: ' + package)
++        headers.update(path.relative_to(include).as_posix() for path in public)
+     result = subprocess.run([os.environ.get('CXX', 'g++'), '-std=c++20',
+                              *package_flags('--cflags'), '-x', 'c++', '-dM', '-E', '-'],
+-                            input='#include <gtest/gtest.h>\n#include <gmock/gmock.h>\n',
++                            input=''.join('#include <' + name + '>\n' for name in sorted(headers)),
+                             text=True, capture_output=True, check=True)
+     names = set(re.findall(r'^#define ([A-Za-z_]\w*)\(', result.stdout, re.M))
+     public = {name for name in names if not name.endswith('_') and
+diff --git a/scripts/assertion_templates.py b/scripts/assertion_templates.py
+index 8c35f3f..7380f60 100644
+--- a/scripts/assertion_templates.py
++++ b/scripts/assertion_templates.py
+@@ -95,11 +95,21 @@ def selftest(work, generated):
+             raise RuntimeError('generated default text accepted: ' + name)
+     if errors('TEST(Control, Allowed) { EXPECT_TRUE(false) << "owned diagnostic"; }'):
+         raise RuntimeError('allowed assertion refused')
+-    for name, definition, statement, expected in (
+-            ('alias', '', 'GTEST_ASSERT_LT(2, 1);', 'unsupported assertion form: GTEST_ASSERT_LT'),
+-            ('failure', '', 'GTEST_FAIL();', 'unsupported assertion form: GTEST_FAIL'),
++    for name, definition, statement, expected, failures in (
++            ('alias', '', 'GTEST_ASSERT_LT(2, 1);', 'unsupported assertion form: GTEST_ASSERT_LT', 1),
++            ('failure', '', 'GTEST_FAIL();', 'unsupported assertion form: GTEST_FAIL', 1),
++            ('internal', '', 'GTEST_NONFATAL_FAILURE_("owned failure");',
++             'unsupported assertion form: GTEST_NONFATAL_FAILURE_', 1),
++            *((form.lower(), '#include <gtest/gtest-spi.h>\n',
++               form + '(' + assertion + '(false) << "owned failure", "owned failure");',
++               'unsupported assertion form: ' + form, 0)
++              for form, assertion in (
++                  ('EXPECT_NONFATAL_FAILURE', 'EXPECT_TRUE'),
++                  ('EXPECT_FATAL_FAILURE', 'ASSERT_TRUE'),
++                  ('EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS', 'EXPECT_TRUE'),
++                  ('EXPECT_FATAL_FAILURE_ON_ALL_THREADS', 'ASSERT_TRUE'))),
+             ('pasted', '#define JOIN(a, b) a##b\n', 'JOIN(EXPE, CT_NEAR)(1.0, 2.0, 0.1);',
+-             'token pasting is forbidden in tests')):
++             'token pasting is forbidden in tests', 1)):
+         source = '#include <gtest/gtest.h>\n' + definition + 'TEST(Control, Probe) { ' + statement + ' }\n'
+         path = work / (name + '.cpp')
+         path.write_text(source)
+@@ -110,11 +120,17 @@ def selftest(work, generated):
+         report.unlink(missing_ok=True)
+         result = subprocess.run([str(binary), '--gtest_output=xml:' + str(report)],
+                                 capture_output=True, env=environment(), timeout=30)
+-        if result.returncode != 1 or int(ET.parse(report).getroot().get('failures', '0')) != 1:
+-            raise RuntimeError(name + ': control did not execute its failing assertion')
++        doc = ET.parse(report).getroot()
++        if result.returncode != failures or int(doc.get('failures', '-1')) != failures or int(doc.get('tests', '0')) != 1:
++            raise RuntimeError(name + ': control did not execute with the expected assertion result')
+         if errors(source) != [expected]:
+             raise RuntimeError(name + ': unsupported assertion accepted')
+-        print('assertion control ' + name + ': compiled, failed at runtime and refused by source gate')
++        print('assertion control ' + name + ': compiled, executed with ' + str(failures) +
++              ' failures and refused by source gate')
++    for prefix in ('EXPECT_', 'ASSERT_', 'GTEST_'):
++        name = prefix + 'UNLISTED_'
++        if errors(name + '(false);') != ['unsupported assertion form: ' + name]:
++            raise RuntimeError('unknown prefixed assertion accepted: ' + name)
+     if errors('// GTEST_FAIL() ##\nconst char *text = "GTEST_FAIL ##";'):
+         raise RuntimeError('literal assertion text refused')
+     print('assertion controls: EXPECT_NEAR compiles and is refused; all 14 generated defaults are refused')
+diff --git a/scripts/dependency_selftest.py b/scripts/dependency_selftest.py
+index cb80e07..bd3ff58 100644
+--- a/scripts/dependency_selftest.py
++++ b/scripts/dependency_selftest.py
+@@ -20,6 +20,9 @@ def main():
+     args = parser.parse_args()
+     work = args.work.resolve()
+     work.mkdir(parents=True, exist_ok=True)
++    for key in ('CPLUS_INCLUDE_PATH', 'C_INCLUDE_PATH', 'CPATH', 'LIBRARY_PATH',
++                'PKG_CONFIG_ALLOW_SYSTEM_CFLAGS', 'PKG_CONFIG_ALLOW_SYSTEM_LIBS'):
++        os.environ.pop(key, None)
+     require_version()
+     other = work / 'other/lib/cmake/GTest'
+     other.mkdir(parents=True, exist_ok=True)
+@@ -35,6 +38,12 @@ def main():
+         raise RuntimeError('another package version was not refused')
+     print('dependency control: only another package version available; configure refused')
+     flags = {'--cflags': package_flags('--cflags'), '--libs': package_flags('--libs')}
++    include = work / 'pinned headers/include'
++    for package in ('gtest', 'gmock'):
++        installed = Path(subprocess.check_output(
++            ['pkg-config', '--variable=includedir', package], text=True).strip())
++        shutil.copytree(installed / package, include / package, dirs_exist_ok=True)
++    flags['--cflags'] = ['-I' + str(include), *flags['--cflags']]
+     header = work / 'required flags.hpp'
+     header.write_text('extern "C" void tsn_dependency_control();\n'
+                       '__attribute__((constructor)) static void tsn_check_dependency() { tsn_dependency_control(); }\n')
+@@ -52,8 +61,16 @@ def main():
+                      ' if option in sys.argv:\n  print(__import__("shlex").join(flags)); sys.exit(0)\n'
+                      'os.execv(' + repr(shutil.which('pkg-config')) + ', ["pkg-config", *sys.argv[1:]])\n')
+     proxy.chmod(0o755)
+-    env = {k: v for k, v in os.environ.items() if k not in ('CPLUS_INCLUDE_PATH', 'C_INCLUDE_PATH', 'LIBRARY_PATH')}
++    env = dict(os.environ)
+     env['PATH'] = str(bindir) + os.pathsep + env['PATH']
++    project = work / 'project-warning.cpp'
++    project.write_text('bool compare(unsigned left, int right) { return left == right; }\n')
++    warning = subprocess.run([os.environ.get('CXX', 'g++'), '-Wall', '-Wextra', '-Werror',
++                              *flags['--cflags'], '-c', str(project), '-o', str(work / 'warning.o')],
++                             capture_output=True, text=True, env=env)
++    (work / 'project-warning.log').write_text(warning.stdout + warning.stderr)
++    if warning.returncode == 0 or 'sign-compare' not in warning.stderr:
++        raise RuntimeError('project signedness warning was disabled')
+     table = json.loads((ROOT / 'tests/mutations.json').read_text())
+     plant = next(p['name'] for p in table if p['path'].endswith('.h'))
+     campaign = work / 'campaign'
+@@ -68,6 +85,7 @@ def main():
+         if 'tsn_dependency_control' not in symbols:
+             raise RuntimeError('checked compile flags missing from ' + path.name)
+     print('dependency control: baseline and header plant use checked compile/link flags without ambient paths')
++    print('dependency control: real pinned headers in a scratch prefix; project signedness warnings still fail')
+ 
+ 
+ if __name__ == '__main__':

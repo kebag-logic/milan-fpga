@@ -1,0 +1,51 @@
+Note: Google Test filter = AcmpCore.A24UnboundRecordsRefusalsAndRollback
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A24UnboundRecordsRefusalsAndRollback
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1375: Failure
+Expected equality of these values:
+  acmp_restore_binding(&a, 0, record, len)
+    Which is: 0
+  ACMP_RESTORE_REFUSED
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A24 a payload of 21 bytes is refused, the longer ones too, before a byte is read
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1375: Failure
+Expected equality of these values:
+  acmp_restore_binding(&a, 0, record, len)
+    Which is: 0
+  ACMP_RESTORE_REFUSED
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A24 a payload of 276 bytes is refused, the longer ones too, before a byte is read
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1375: Failure
+Expected equality of these values:
+  acmp_restore_binding(&a, 0, record, len)
+    Which is: 0
+  ACMP_RESTORE_REFUSED
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A24 a payload of 4294967295 bytes is refused, the longer ones too, before a byte is read
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A24UnboundRecordsRefusalsAndRollback (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A24UnboundRecordsRefusalsAndRollback
+
+ 1 FAILED TEST

@@ -1,0 +1,25 @@
+Note: Google Test filter = AdpCore.A9DrawKinds
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A9DrawKinds
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:477: Failure
+Value of: in_range
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A9 every startup draw is 0..2 s and every other draw 0..4 s
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A9DrawKinds (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A9DrawKinds
+
+ 1 FAILED TEST

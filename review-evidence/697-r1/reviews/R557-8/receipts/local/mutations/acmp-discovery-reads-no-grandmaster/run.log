@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1115: Failure
+Value of: !a.sinks[0].discovered && !a.sinks[0].adp_armed
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster is ignored (5.6.4.5.1 step 1)
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1120: Failure
+Value of: a.sinks[0].discovered
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A22 and from another domain
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+
+ 1 FAILED TEST

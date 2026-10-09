@@ -1,0 +1,25 @@
+Note: Google Test filter = MaapCore.InitialAndThreeRetransmissions
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapCore
+[ RUN      ] MaapCore.InitialAndThreeRetransmissions
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:110: Failure
+Value of: r.valid
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+accepted ANNOUNCE publishes allocation
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] MaapCore.InitialAndThreeRetransmissions (0 ms)
+[----------] 1 test from MaapCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapCore.InitialAndThreeRetransmissions
+
+ 1 FAILED TEST

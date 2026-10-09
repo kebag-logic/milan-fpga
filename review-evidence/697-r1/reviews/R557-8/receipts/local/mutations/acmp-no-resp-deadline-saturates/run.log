@@ -1,0 +1,51 @@
+Note: Google Test filter = AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1675: Failure
+Expected equality of these values:
+  s.timer_deadline
+    Which is: 4294967295
+  100u
+    Which is: 100
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_NO_RESP armed 100 ms before the wrap ends 100 ms after it
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1678: Failure
+Expected equality of these values:
+  s.state
+    Which is: 5
+  ACMP_PRB_W_RESP
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1680: Failure
+Expected equality of these values:
+  s.state
+    Which is: 5
+  ACMP_PRB_W_RESP2
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_NO_RESP expires at its deadline across the wrap
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+
+ 1 FAILED TEST

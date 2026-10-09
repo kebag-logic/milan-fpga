@@ -1,0 +1,97 @@
+Note: Google Test filter = AcmpCore.A15UnregisteredReprobes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A15UnregisteredReprobes
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:736: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty() && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 0
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:736: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty() && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 1
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:736: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty() && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 2
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:736: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty() && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 3
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:736: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty() && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 4
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:736: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty() && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 5
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:736: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty() && a.impossible == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 6
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:740: Failure
+Expected equality of these values:
+  a.impossible
+    Which is: 1
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A15 as is one for a sink the entity lacks
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A15UnregisteredReprobes (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A15UnregisteredReprobes
+
+ 1 FAILED TEST

@@ -1,0 +1,37 @@
+Note: Google Test filter = AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1714: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].timer_deadline == d && a.last_draw_ms > 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_DELAY drawn at the last millisecond before the wrap ends after it
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1717: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 3
+  ACMP_PRB_W_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_DELAY: nothing before its deadline
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+
+ 1 FAILED TEST

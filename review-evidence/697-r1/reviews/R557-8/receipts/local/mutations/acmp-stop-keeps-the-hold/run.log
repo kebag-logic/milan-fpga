@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1622: Failure
+Value of: s.state == ACMP_UNBOUND && s.timer == ACMP_TIMER_NONE && !s.timer_held && a.owed_count == 3u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 an UNBIND_RX while the probe is owed stops its timer
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1626: Failure
+Value of: fk.sent.size() == 3u && read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND && s.timer == ACMP_TIMER_NONE && !fk.armed[0]
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A27 the probe still leaves, in order, and starts no timer
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+
+ 1 FAILED TEST

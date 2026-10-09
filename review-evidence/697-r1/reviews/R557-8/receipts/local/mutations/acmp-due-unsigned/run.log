@@ -1,0 +1,116 @@
+Note: Google Test filter = AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap:AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpCore
+[ RUN      ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1678: Failure
+Expected equality of these values:
+  s.state
+    Which is: 1
+  ACMP_PRB_W_RESP
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1680: Failure
+Expected equality of these values:
+  s.state
+    Which is: 1
+  ACMP_PRB_W_RESP2
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_NO_RESP expires at its deadline across the wrap
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1686: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_RETRY && a.sinks[0].timer_deadline == 3000u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1690: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_PRB_W_RETRY
+    Which is: 5
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_RETRY: nothing before its deadline
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1701: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 1
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_NO_TK: nothing before its deadline
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1706: Failure
+Value of: a.last_draw_ms > 0u && delay - 5000u == a.last_draw_ms
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_DELAY is the draw after the expiry
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1730: Failure
+Value of: a.sinks[0].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 TMR_NO_ADP: nothing before its deadline
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1746: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_RESP2 && a.sinks[1].state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 the first expiry takes sink 0 only: sink 1's deadline is after the wrap
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:1748: Failure
+Value of: fk.armed[0] && fk.at[0] == 100u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A28 then the timer holds sink 1's deadline after the wrap
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap (0 ms)
+[----------] 2 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+[  FAILED  ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+
+ 2 FAILED TESTS

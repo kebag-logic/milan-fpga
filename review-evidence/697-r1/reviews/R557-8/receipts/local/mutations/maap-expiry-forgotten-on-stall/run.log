@@ -1,0 +1,68 @@
+Note: Google Test filter = MaapCore.StalledOutputRetainsOrderAndOriginalExpiry
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapCore
+[ RUN      ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:364: Failure
+Value of: r.core.expiry_owed
+  Actual: false
+Expected: true
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:368: Failure
+Value of: maap_poll(&r.core)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+original expiry remains owed
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:370: Failure
+Expected equality of these values:
+  r.frames.size()
+    Which is: 1
+  2u
+    Which is: 2
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:370: Failure
+Expected equality of these values:
+  r.core.probe_count
+    Which is: '\x3' (3)
+  2u
+    Which is: 2
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:373: Failure
+Expected equality of these values:
+  r.core.queued
+    Which is: 0
+  2u
+    Which is: 2
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:374: Failure
+Value of: r.valid
+  Actual: false
+Expected: true
+
+$PACKET/scratch/local/mutations/baseline/tests/test_maap.cpp:375: Failure
+Expected equality of these values:
+  r.frames.size()
+    Which is: 1
+  5u
+    Which is: 5
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+both owed frames and ANNOUNCE leave once room returns
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry (0 ms)
+[----------] 1 test from MaapCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry
+
+ 1 FAILED TEST

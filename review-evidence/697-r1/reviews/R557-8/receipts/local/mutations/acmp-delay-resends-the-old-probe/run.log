@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A12DelaySendsANewProbe
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A12DelaySendsANewProbe
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:655: Failure
+Value of: last().msg == spec::MSG_PROBE_TX_COMMAND && last().seq == seq && a.sequence_id == seq + 1u && a.sinks[0].probe_seq == seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A12DelaySendsANewProbe (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A12DelaySendsANewProbe
+
+ 1 FAILED TEST

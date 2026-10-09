@@ -1,0 +1,45 @@
+Note: Google Test filter = AdpCore.A21DepartingCapacity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A21DepartingCapacity
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:440: Failure
+Value of: a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 1u && !a.available_owed && a.state == ADP_STATE_DOWN && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:447: Failure
+Value of: a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 100001u && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A21 and so are 100000 more, each counted, the two owed unchanged
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:453: Failure
+Value of: fk.sends == 3u && took(1, 1u, 1) && took(2, 1u, 0) && !owed && !adp_poll(&a) && fk.sends == 3u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A21DepartingCapacity (3 ms)
+[----------] 1 test from AdpCore (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A21DepartingCapacity
+
+ 1 FAILED TEST

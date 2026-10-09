@@ -1,0 +1,45 @@
+Note: Google Test filter = AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:397: Failure
+Value of: a.available_owed && a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_NONE && fk.starts == starts
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A19 so does an ENTITY_DISCOVER
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:400: Failure
+Value of: a.available_owed && a.stray_expiries == 1u && a.state == ADP_STATE_DELAY && fk.sends == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A19 and a stray expiry, which is counted
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_adp.cpp:404: Failure
+Value of: !owed && fk.sends == 1u && took(0, 0u, 0) && a.state == ADP_STATE_WAITING && a.timer == ADP_TIMER_ADVERTISE && fk.last_delay == 5000u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A19 the next poll with room sends it, index 0, then WAITING with TMR_ADVERTISE 5 s
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+
+ 1 FAILED TEST

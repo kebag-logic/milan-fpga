@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A9FailureWaitsForTheRetry
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A9FailureWaitsForTheRetry
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:599: Failure
+Value of: s.state == ACMP_PRB_W_RETRY && s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL && s.probing == ACMP_PROBING_ACTIVE
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 3
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+$PACKET/scratch/local/mutations/baseline/tests/test_acmp.cpp:599: Failure
+Value of: s.state == ACMP_PRB_W_RETRY && s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL && s.probing == ACMP_PROBING_ACTIVE
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_9b8c7bc10e89b1f1670d0c9f5ec8e715
+A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 4
+TSN_MESSAGE_END_3adfbb7be9d38a6c1666148125644ed8
+
+
+[  FAILED  ] AcmpCore.A9FailureWaitsForTheRetry (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A9FailureWaitsForTheRetry
+
+ 1 FAILED TEST

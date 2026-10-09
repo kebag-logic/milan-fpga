@@ -1,0 +1,214 @@
+[
+  {
+    "probe": "ld-backslash-quote",
+    "rule": 4,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 1,
+      "needles": 0,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 0,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "comments"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "ld-version-hash",
+    "rule": 4,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 1,
+      "needles": 0,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 0,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "comments"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "asm-include-ld",
+    "rule": 5,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 1,
+      "needles": 0,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 0,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "comments"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "asm-include-h",
+    "rule": 5,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 1,
+      "needles": 0,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 0,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "comments"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "asm-end-trailer",
+    "rule": 5,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 1,
+      "needles": 0,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 0,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "comments"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "c-file-in-cpp-unit",
+    "rule": 3,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 1,
+      "needles": 0,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 0,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "comments"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "gtest-alias-forms",
+    "rule": 6,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 0,
+      "needles": 1,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 1,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "needles",
+      "test-inventory"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "token-pasted-near",
+    "rule": 6,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 0,
+      "needles": 1,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 1,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "needles",
+      "test-inventory"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "control-expect-near",
+    "rule": 6,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 0,
+      "needles": 1,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 1,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "needles",
+      "test-inventory"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "control-asm-hash",
+    "rule": 5,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 1,
+      "needles": 0,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 0,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "comments"
+    ],
+    "result": "CAUGHT"
+  },
+  {
+    "probe": "control-ld-comment",
+    "rule": 4,
+    "build_rc": 0,
+    "gate_rc": {
+      "comments": 1,
+      "needles": 0,
+      "conditionals": 0,
+      "boundary": 0,
+      "traceability": 0,
+      "test-inventory": 0,
+      "license": 0,
+      "port-contracts": 0
+    },
+    "refused_by": [
+      "comments"
+    ],
+    "result": "CAUGHT"
+  }
+]
