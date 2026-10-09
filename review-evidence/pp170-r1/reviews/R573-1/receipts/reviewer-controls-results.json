@@ -1,0 +1,287 @@
+[
+  {
+    "name": "R_golden",
+    "rc": 0,
+    "completed": true,
+    "tallies": [
+      [
+        "169",
+        "169",
+        "0"
+      ],
+      [
+        "441",
+        "441",
+        "0"
+      ],
+      [
+        "610",
+        "610",
+        "0"
+      ]
+    ],
+    "expected": [],
+    "matching": [],
+    "n_fail": 0,
+    "first_fails": [],
+    "verdict": "PASS"
+  },
+  {
+    "name": "R_trigger_odd_dropped",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "169",
+        "129",
+        "40"
+      ],
+      [
+        "441",
+        "333",
+        "108"
+      ],
+      [
+        "610",
+        "462",
+        "148"
+      ]
+    ],
+    "expected": [
+      "N3 saved ordinal 1",
+      "N5 restored ordinal 1"
+    ],
+    "matching": [
+      "N3 saved ordinal 1",
+      "N5 restored ordinal 1",
+      "N3 saved ordinal 1",
+      "N5 restored ordinal 1"
+    ],
+    "n_fail": 148,
+    "first_fails": [
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 7",
+      "N3 saved ordinal 9",
+      "N3 saved ordinal 11",
+      "N3 saved ordinal 13",
+      "N3 saved ordinal 15"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_record_id_neighbour",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "169",
+        "87",
+        "82"
+      ],
+      [
+        "441",
+        "223",
+        "218"
+      ],
+      [
+        "610",
+        "310",
+        "300"
+      ]
+    ],
+    "expected": [
+      "N3 saved ordinal"
+    ],
+    "matching": [
+      "N3 saved ordinal 0",
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 2",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 4",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 6",
+      "N3 saved ordinal 7"
+    ],
+    "n_fail": 300,
+    "first_fails": [
+      "N3 saved ordinal 0",
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 2",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 4",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 6",
+      "N3 saved ordinal 7"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_empty_replay_skipped",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "169",
+        "162",
+        "7"
+      ],
+      [
+        "441",
+        "426",
+        "15"
+      ],
+      [
+        "610",
+        "588",
+        "22"
+      ]
+    ],
+    "expected": [
+      "N5 restored ordinal 2",
+      "N5 restored ordinal 9",
+      "N5 restored ordinal 16"
+    ],
+    "matching": [
+      "N5 restored ordinal 2",
+      "N5 restored ordinal 9",
+      "N5 restored ordinal 16",
+      "N5 restored ordinal 2",
+      "N5 restored ordinal 9",
+      "N5 restored ordinal 16"
+    ],
+    "n_fail": 22,
+    "first_fails": [
+      "N5 restored ordinal 2",
+      "N5 restored ordinal 9",
+      "N5 restored ordinal 16",
+      "N5 restored ordinal 23",
+      "N5 restored ordinal 30",
+      "N5 restored ordinal 37",
+      "N8 CONTROL name restored while its IDENTIFY value resets to zero",
+      "N5 restored ordinal 2"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_pending_clears_higher",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "169",
+        "95",
+        "74"
+      ],
+      [
+        "441",
+        "241",
+        "200"
+      ],
+      [
+        "610",
+        "336",
+        "274"
+      ]
+    ],
+    "expected": [
+      "N6 pending:"
+    ],
+    "matching": [
+      "N6 pending: first and last saved name values survive separate completion",
+      "N6 pending: first and last saved name values survive separate completion"
+    ],
+    "n_fail": 274,
+    "first_fails": [
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 2",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 4",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 6",
+      "N3 saved ordinal 7",
+      "N3 saved ordinal 8"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_replay_skips_locate_wait",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "169",
+        "168",
+        "1"
+      ],
+      [
+        "441",
+        "440",
+        "1"
+      ],
+      [
+        "610",
+        "608",
+        "2"
+      ]
+    ],
+    "expected": [
+      "D3N7:"
+    ],
+    "matching": [],
+    "n_fail": 2,
+    "first_fails": [
+      "N4 every name reset to image default before replay",
+      "N4 every name reset to image default before replay"
+    ],
+    "verdict": "SURVIVED"
+  },
+  {
+    "name": "R_latch_lane_alias",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "169",
+        "100",
+        "69"
+      ],
+      [
+        "441",
+        "253",
+        "188"
+      ],
+      [
+        "610",
+        "353",
+        "257"
+      ]
+    ],
+    "expected": [
+      "N3 saved ordinal"
+    ],
+    "matching": [
+      "N3 saved ordinal 0",
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 4",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 6",
+      "N3 saved ordinal 7",
+      "N3 saved ordinal 8"
+    ],
+    "n_fail": 257,
+    "first_fails": [
+      "N3 saved ordinal 0",
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 4",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 6",
+      "N3 saved ordinal 7",
+      "N3 saved ordinal 8"
+    ],
+    "verdict": "KILLED"
+  }
+]
