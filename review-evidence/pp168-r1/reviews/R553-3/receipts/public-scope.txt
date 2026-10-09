@@ -1,0 +1,87 @@
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6050429859
+[A10] Assignment. Author [A567]. Reviewers [R552] internal, [R553] external.
+
+Branch `pp168-acmp-fields` at processor main `ed340b9b85258194247334b85e62cf9c23d4d051`. The authorities are Milan v1.2 and IEEE 1722.1-2021, cited by clause. This processor is the subject under test, not the oracle.
+
+1. Correct LD1, LD2, LD3 and TD1 to their clauses as the table states. TD1 follows the ruling: 5.5.4.2 governs over the overview in 5.5.2.7. Each gets a suite check in `tb/acmp_listener` or `tb/acmp_talker`, with a planted defect that fails it.
+2. Check the two unexercised items first: `stream_vlan_id` masked to 12 bits (5.3.8.9), and the probe guard reading the current binding's controller. Each is either corrected with a test, or argued conformant with the clause cited.
+3. Change existing expectations only where a clause requires it, and give the reason per change in HANDOFF.md.
+4. Gates, all rc 0:
+   - the processor suites, lint, `make check`, the matrix check and Yosys;
+   - every campaign that builds a changed file, at base and head;
+   - the parent consumer gates on the scratch parent (dev `28f9666f` plus the two adoption patches, as for #163).
+   OOC 1x1 must stay within +40 LUT / +40 FF.
+5. **STOP conditions.** STOP before any port, parameter or register-map change, or any change outside `hdl/acmp` and its tests.
+
+This affects the shipping all-fabric image. It is adopted in the next parent pin, and the firmware F3 core's matching #168 deltas become equalities then.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6050542913
+[A567] STOP at `ed340b9b85258194247334b85e62cf9c23d4d051`.
+
+The two preliminary checks reproduce defects. A successful PROBE_TX_RESPONSE with VLAN `0xA123` settles and returns GET_RX_STATE with `0x0123`, contrary to Milan v1.2 5.3.8.9 and Table 5.38. The settlement output is a 12-bit port (`hdl/acmp/KL_pp_acmp_listener.sv:187`), and its top-level consumer and storage are also 12 bits (`hdl/top/protocol_processor_top.sv:1898`, `:1918`, `:1021`). Correcting that full path crosses the assignment's port and source-scope STOP boundaries.
+
+After a same-talker rebind changes the controller, the guard rejects the originally sent probe's controller, accepts the replacement controller, and changes the retry. This conflicts with Milan v1.2 5.5.3.5.17 step 2, 5.5.3.5.18 step 1, and 5.5.3.5.16 step 1.
+
+The unchanged listener and talker suites pass 3111 and 1342 checks. A separate diagnostic builds successfully and exits 1 with five clause failures. Processor source and expectations remain unchanged; no commit was created. The scratch parent is at the requested base with both adoption patches and the processor gitlink staged at this head. Full acceptance gates, campaigns, parent consumer gates and OOC were not run after STOP. HANDOFF.md and PR-BODY.md are complete in the assigned output directory; acceptance remains unmet.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6050554601
+[A10] Ruling on the [A567] STOP (6050542913): continue as round 1b.
+
+1. **VLAN (Milan v1.2 5.3.8.9, Table 5.38).** Widen the processor-internal path to the full 16-bit `stream_vlan_id`: the listener's settlement output (`KL_pp_acmp_listener.sv:187`), `lstn_act_settle_vlan_w` and `bound_vlan_r` in `protocol_processor_top.sv`. GET_RX_STATE and GET_STREAM_INFO then report the received value. These internal module ports are authorised.
+   - The parent-visible top-level output `acmp_bound_vlan_o` keeps its 12-bit width and meaning: bits [11:0] of the stored value, which is unchanged behaviour for the parent.
+   - Do not change any top-level port. How the parent's SRP side should treat a stream_vlan_id that is not a valid VID is a separate parent-side item; record it in HANDOFF.md as out of scope.
+   - Add a check and a planted defect that truncates the stored value.
+2. **Probe guard (5.5.3.5.16 step 1, 5.5.3.5.17 step 2, 5.5.3.5.18 step 1).** Correct the guard so it judges a response against the controller of the probe actually sent, inside `hdl/acmp`. Add a check of the same-talker rebind case and a planted defect.
+3. LD1, LD2, LD3 and TD1, the gates and OOC (+40 LUT / +40 FF; the widened storage counts) stay as assigned. Use your STOP diagnostic as the starting test.
+
+STOP again before any change to a top-level port, a parameter or the register map.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6053709015
+[A10] On the [A567] round-1b STOP: the corrections and checks are complete, but OOC 1x1 grows by +178 LUT against the +40 LUT ceiling. The branch is pushed as `pp168-acmp-fields` at `ba3f3f31` to preserve the work. No PR yet.
+
+The shipping image's slice headroom is nearly exhausted, so the ceiling stands until the cost is understood. This lane is **parked** until after a planned host power-off. Round 2 will then:
+
+1. Attribute the area per item. Measure each of LD1, LD2, LD3, TD1, the 16-bit VLAN path and the probe guard on its own against `ed340b9b`, with the same OOC recipe, and report LUT/FF per item.
+2. Reduce the items that drive the cost without losing their clause behaviour, for example by sharing comparators and response muxes.
+3. Bring a per-item table for a manager decision on any item that still cannot fit the ceiling.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6076502893
+[A10] **Round 2 (per-item area attribution)** for [A567], resuming the lane parked in [6053709015](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6053709015). Branch `pp168-acmp-fields` at `ba3f3f31`. The OOC 1x1 grows by +178 LUT and +18 FF against the +40 LUT ceiling.
+
+0. **Merge `main` first.** Processor main is now `09e357fb` (#167 merged; the merge-tree is clean). Merge it into the branch with a merge commit, with no rebase. Re-run the suites the merge touches. All figures below are against `09e357fb`.
+1. **Attribute.** Measure each item on its own against `09e357fb`, with the same OOC 1x1 recipe: LD1, LD2, LD3, TD1, the 16-bit internal VLAN path, and the probe guard. Report LUT and FF per item, and the sum against the combined figure. Use scratch branches or patches; do not commit the single-item builds.
+2. **Reduce.** Cut the items that drive the cost without losing their clause behaviour, for example by sharing comparators and response muxes, or by narrowing the 16-bit path to the bits the clause needs. Every reduction keeps its tests and planted mutants.
+3. **Decide what stays.** If the combined change fits +40 LUT, post REVIEW READY. If not, post STOP with the per-item table (item, clause, LUT, FF, the reduction tried) for a manager decision. Do not drop an item yourself.
+
+No register-map, top-level port or parameter change. Commit on the branch; no push.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6086157264
+[A10] **Round 3 (docs)** for [A567] on PR #171, head `96d3b783`. [R552-1](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171#issuecomment-6086150428) and [R553-1](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171#issuecomment-6085456323) are NEGATIVE on documentation only. The RTL corrections, mutants, area (+29/+14) and port boundary passed. The donor bank passed 9/9 at this head.
+
+Bring the authoritative documents in line with the corrected behaviour:
+1. **R552-F1 / R553-F1:** the normative ACMP behaviour still specifies two corrected defects, including DISCONNECT_TX documented as "always SUCCESS". Correct the text and any claim built on it.
+2. **R552-F2:** in the listener action legend, A5 and A12 must not clear acmpsta unconditionally.
+3. **R552-F3:** the F07.6 sink-record layout, and the private controller overlay, which is undocumented.
+4. **R552-F4 / R553-F2:** the GET_STREAM_INFO selector 6 ownership, the VLAN layout and the GSI ownership contract all show the widened internal path. The 12-bit top-level port is unchanged.
+5. The residue and suggestions in both reviews, where they touch these pages.
+
+No RTL change. If a correction would need one, STOP. Run the docs gates, `gen_matrix.py --check` and every check that reads these documents. Commit on `96d3b783` with no rebase or amend. Post REVIEW READY with the head.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6086658233
+[A10] **Round 4 (one doc section)** for [A567] on PR #171, head `66d1b501`. [R553-2](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171#issuecomment-6086568453) is POSITIVE. [R552-2](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171#issuecomment-6086650299) is NEGATIVE on one MINOR.
+
+**R552-2-F1.** Rewrite `docs/architecture/06_aecp_engine.md` §7 (the STREAM_INPUT notification triggers, about lines 1056-1062) to the round's corrected behaviour:
+- The pbsta/acmpsta compare pushes only on a committed change.
+- A discovered retry (A12, then the A5 delay expiry) keeps the status and pushes nothing (Milan v1.2 5.5.3.5.30 step 2, 5.5.3.5.10, Table 5.22). A retry with the talker gone (A17) pushes. A repeated double timeout that leaves the status unchanged pushes nothing.
+- Qualify the re-bind sentence. From PRB_W_RESP with no retained status the byte stays ACTIVE/0, so `act_strt_chg_o` is then the only push. With a retained status, both terms fire on the same write and one frame is sent.
+
+The two RTL comments with the same premise (`hdl/top/protocol_processor_top.sv:3551-3553`, `hdl/acmp/KL_pp_acmp_listener.sv:336-337`) stay unchanged in this round. The manager records them on the residue checklist for the next change that touches those files.
+
+Docs only. Run `make -j16 check` and `gen_matrix.py --check`. Commit on `66d1b501` with no rebase or amend. Post REVIEW READY with the head.
+

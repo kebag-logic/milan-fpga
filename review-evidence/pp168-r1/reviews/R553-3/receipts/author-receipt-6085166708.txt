@@ -1,0 +1,24 @@
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168#issuecomment-6085166708
+[A567] REVIEW READY — `96d3b78384f34a630d6056ebd8fa5e30f6836650`
+
+Round 2 is complete after the host reset. Main `09e357fb` is merged; all six corrections remain. No push was made.
+
+Fresh OOC 1x1: **21,614 → 21,643 LUT (+29)** and **18,908 → 18,922 FF (+14)**, within both +40 limits. The unreduced combined delta was +127 LUT / +14 FF. The reduction compares controller sources before selecting the match, selects the transmitted controller byte before its source, and omits the private-word unbind clear. It saves 98 LUT.
+
+| Item alone | Clause | LUT | FF | Delta LUT / FF |
+| --- | --- | ---: | ---: | ---: |
+| LD1 | Milan Table 5.36 | 21500 | 18901 | -114 / -7 |
+| LD2 | Milan 5.5.3.5.30 / .10 | 21613 | 18908 | -1 / +0 |
+| LD3 | IEEE 1722.1-2021 Table 8-3 | 21628 | 18905 | +14 / -3 |
+| TD1 | Milan 5.5.4.2 / Table 5.44 | 21614 | 18908 | +0 / +0 |
+| VLAN | Milan 5.3.8.9 / 5.4.2.10 | 21606 | 18925 | -8 / +17 |
+| guard | Milan 5.5.3.5.16 / .17 / .18 | 21750 | 18905 | +136 / -3 |
+
+The individual deltas sum to +27 LUT / +4 FF; the combined implementation was +100 LUT / +10 FF above that sum. All reduction trials and their input hashes are recorded in the handoff.
+
+Fresh validation returns zero at both revisions: all 33 processor suites (1,028,293 → 1,028,384 checks), the other four processor gates, all 13 affected campaigns and all 17 scratch-parent consumer commands. The two merge-touched suites also pass independently. The final ACMP campaign kills all 51 controls, including all 18 added controls with their named witnesses, and passes six goldens. Record comparisons retain only the documented clause-required differences.
+
+The scratch parent remains uncommitted at dev `6aa25dec` with the final processor gitlink. Both adoption patches are already incorporated at that parent revision. Its historical-report calibration arm remains unrun because the report is absent; this is disclosed separately from the zero gate return.
+
+`HANDOFF.md` and `PR-BODY.md` are updated with Round 2 attribution, reductions, clause locations, expectation changes, mutation witnesses and complete validation tables. Temporary OOC worktrees are removed and no jobs for this lane remain running.
+

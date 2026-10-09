@@ -1,0 +1,113 @@
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171#issuecomment-6085456323
+
+
+**R553-F1 — MINOR — Conformance, Docs. Normative ACMP behavior still specifies two corrected defects.**
+
+Artifacts: [architecture 05:283](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/architecture/05_acmp_engine.md#L283) and line 290 (A5/A12), [architecture 05:13](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/architecture/05_acmp_engine.md#L13) and [F05.11 at line 387](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/architecture/05_acmp_engine.md#L387), and [REQ-ACMP-007 at compliance review:391](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/00_MILAN_COMPLIANCE_REVIEW.md#L391).
+
+Authority/evidence: Milan 5.5.3.5.30 step 2 and 5.5.3.5.10 preserve the previous ACMP status on the discovered retry/delay path. A12 and A5 still prescribe unconditional `acmpsta←0`. Milan 5.5.4.2 step 1/Table 5.44 requires TALKER_UNKNOWN_ID for an invalid disconnect source, but the role table, normative decision tree and requirement row still specify unconditional SUCCESS. The corrected implementation is at listener:1273/1345 and talker:1304; local LD2 and TD1 checks pass and their reverting mutants fail. The suite READMEs describe the correction, while architecture 05 still calls F05.3 its single authoritative artifact. The public author handoff acknowledges the old prose as an out-of-scope follow-up; no public manager ruling superseding those normative claims was found.
+
+Impact: a maintainer or verifier following the normative action legend or talker decision tree would restore the exact defects this PR corrects. This changes clause claims and a figure, so the wording-only exception does not apply.
+
+Required outcome: align the authoritative documents with the clauses and landed behavior. Qualify A12 to retain status on TMR_RETRY and A5 to retain status on TMR_DELAY; retain the reset behavior on the other applicable transitions. Make DISCONNECT_TX validate the source first, return TALKER_UNKNOWN_ID for an invalid source and SUCCESS without a state change for a valid source, including F05.11 and REQ-ACMP-007. Resolve the documentation scope with the manager rather than leaving competing normative descriptions.
+
+Verification: re-read the revised action/decision tables against those clauses and the unchanged clause tests; run `make -j16 check`. Mechanical freshness checks alone cannot establish the corrected semantics.
+
+**R553-F2 — MINOR — Conformance, Docs. The authoritative VLAN layout and GSI ownership contract omit the widened path.**
+
+Artifacts: [architecture 05:131](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/architecture/05_acmp_engine.md#L131); [architecture 07:495](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/architecture/07_memory_maps.md#L495) and its committed `docs/diagrams/wavedrom/fig-07-sinkrec.svg`; [architecture 06:331](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/architecture/06_aecp_engine.md#L331); [architecture 02:412](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/architecture/02_interfaces.md#L412); [integrator guide:570](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/96d3b78384f34a630d6056ebd8fa5e30f6836650/docs/guides/integrator.md#L570).
+
+Authority/evidence: Milan 5.3.8.9, Table 5.38, 5.4.2.10, and the round-1b ruling require preservation of the complete received value internally. `pp_acmp_pkg.sv:152` now uses bits 319:304 for the 16-bit settled VLAN, while F07.6 still gives it 12 bits plus four reserved bits and architecture 05 lists 12. `protocol_processor_top.sv:3536` now replaces input GSI selector 6's upper 16 bits with the settled VLAN (zero while unsettled); architecture 06 still assigns all other input words to the integrator. Architecture 02 and the integrator guide omit this new exception. The selector still requests external data and honors its wait because the lower 48 bits remain externally supplied. The local integrated golden observes `0xF123`, with parent VID `0x123`; truncation and external-owner mutants fail.
+
+Impact: the record's normative figure labels live bits as reserved, and the integration contract names the wrong owner for a wire-visible field. This affects a figure, data layout and conformance claim, not just phrasing.
+
+Required outcome: document a 16-bit internal settled VLAN and regenerate F07.6 from its source; distinguish the unchanged 12-bit top-level/SRP VID projection. Update GSI ownership consistently: selector 6 upper 16 bits come from the addressed input's settled state, lower 48 bits and handshake remain external, output behavior is unchanged, and unsettled input VLAN is zero. Document the private pending-probe controller overlay versus the published zero unsettled stream-ID view where the record layout is explained.
+
+Verification: inspect the regenerated figure and the revised ownership statements against package:152 and top:1042/2714/3536; run `make -j16 check` and retain the existing VLAN/parent-VID mutation witnesses. No RTL change is requested by this finding.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171#issuecomment-6086150428
+
+
+### R552-F1 - MINOR - Docs, Conformance - DISCONNECT_TX still documented and claimed as "always SUCCESS"
+- Where:
+  - `docs/architecture/05_acmp_engine.md:13` (scope table);
+  - `docs/architecture/05_acmp_engine.md:387` (figure F05.11, node r5 "SUCCESS no-op ... nothing changes");
+  - `docs/architecture/01_overview.md:139` (delta Δ4 in F01.4, "DISCONNECT_TX → SUCCESS no-op");
+  - `docs/00_MILAN_COMPLIANCE_REVIEW.md:96` and `:391` (REQ-ACMP-007 "DISCONNECT_TX → SUCCESS no-op");
+  - `docs/guides/operator.md:52` ("always `SUCCESS`, and it changes nothing").
+- Evidence: the head answers TALKER_UNKNOWN_ID for an invalid source (`hdl/acmp/KL_acmp_talker.sv:1302-1307`). This is the issue's TD1 ruling (Milan v1.2 5.5.4.2 step 1, Table 5.44 govern over the 5.5.2.7 overview). The suite checks it (`tb/acmp_talker/sim_main.cpp:1187-1194`), and three planted controls kill it (`receipts/acmp_mutants-head/results.json`). `docs/README.md` §2 says Milan/IEEE deltas live only in F01.4, and the compliance matrix is the repository's conformance claim. `docs/guides/hdl-engineer.md` §7 says expectations are built from the documents.
+- Impact: the compliance matrix and the delta table now claim a behaviour the RTL no longer has. A verifier or integrator who builds expectations from F05.11 or Δ4 expects SUCCESS for an invalid source. The author's published handoff calls this prose "an out-of-scope documentation follow-up", but the PR body and the issue record no follow-up.
+- Required outcome: correct these locations to "TALKER_UNKNOWN_ID for an invalid talker_unique_id, otherwise SUCCESS with no state change", citing Milan 5.5.4.2 step 1 and Table 5.44. If the manager keeps the edit out of this PR's scope, a tracked follow-up linked from the PR must name every location before merge.
+- Verification: `grep -n 'DISCONNECT_TX' docs/architecture/05_acmp_engine.md docs/architecture/01_overview.md docs/00_MILAN_COMPLIANCE_REVIEW.md docs/guides/operator.md` shows no unconditional-SUCCESS claim, and `make check` returns 0.
+
+### R552-F2 - MINOR - Docs - Listener action legend still clears acmpsta unconditionally in A5 and A12
+- Where: `docs/architecture/05_acmp_engine.md:283` (A5 "... pbsta←ACTIVE, acmpsta←0") and `:290` (A12 "arm `T-ACMP-DELAY`; pbsta←ACTIVE, acmpsta←0").
+- Evidence: the head keeps acmpsta on T-ACMP-RETRY in A12 (`hdl/acmp/KL_pp_acmp_listener.sv:1273`, Milan 5.5.3.5.30 step 2) and on T-ACMP-DELAY in A5 (`:1345`, Milan 5.5.3.5.10). The listener's independent C++ model was changed to match (`tb/acmp_listener/sim_main.cpp:457-482`). The action legend is the normative source that the ROM generator and that model are transcribed from (`hdl/acmp/rom/gen_ltn_rom.py` header).
+- Impact: the normative legend and the tested behaviour now disagree on LD2, the issue's own item. The next author who transcribes the legend reintroduces the defect.
+- Required outcome: state the conditions in the A5 and A12 legend rows (acmpsta←0 except on T-ACMP-DELAY for A5 and on T-ACMP-RETRY for A12), citing the two clauses. Otherwise, include these rows in the tracked follow-up of R552-F1.
+- Verification: read the two legend rows; `make check` returns 0.
+
+### R552-F3 - MINOR - Docs - F07.6 sink-record layout is stale, and the private controller overlay is undocumented
+- Where: `docs/architecture/07_memory_maps.md:495-496` (F07.6 WaveDrom source "settled vlan_id" 12 bits plus a 4-bit "rsv", and its rendered `docs/diagrams/wavedrom/fig-07-sinkrec.svg`), and `docs/architecture/05_acmp_engine.md:131` (05 §5 "`stream_vlan_id` (12)").
+- Evidence: `hdl/acmp/pp_acmp_pkg.sv:152` now declares `settled_vlan` as 16 bits [319:304] and removes `rsv1`. While a probe is outstanding, the listener also reuses the private `settled_stream_id` word to hold the sent probe's controller: it is written in A5 (`KL_pp_acmp_listener.sv:1340`), read by the guard in PRB_W_RESP/PRB_W_RESP2 (`:527-538`) and by the transmitted controller octets (`:729-741`). It is masked to zero only on the published write view (`:789-797`), and A10 deliberately no longer clears it (`:1258-1259`). `docs/README.md` §2: "Record/memory layouts only in 07".
+- Impact: the single home of the record layout no longer matches the RTL. The field's dual lifetime is a non-obvious invariant that exists only in code comments and `tb/acmp_listener/README.md`. My probe `published_mask_removed` shows that removing the mask leaks a previous binding's controller EID into the published record in UNBOUND, PRB_W_AVAIL and PRB_W_DELAY: for example, `F05.3 BIND_SAME x UNB: settled got 0099aabbccddeeff ... want 0` (`receipts/r552-probes/results.json`). The listener suite catches that, but a future editor who reads only 05/07 would not know the mask is load-bearing.
+- Required outcome: update F07.6 to 16-bit `settled vlan_id` with no reserved nibble, and re-render the figure with `make wavedrom`. Update 05 §5 to 16 bits. Add one sentence in 05 §5 or 07 §4 on the overlay: the private word holds the sent probe controller in PRB_W_RESP/RESP2, and the published view reads zero until settlement. Or include all of this in the tracked follow-up.
+- Verification: `make check` returns 0 (wavedrom-check freshness), and the F07.6 source matches `acmp_rec_t`.
+
+### R552-F4 - MINOR - Docs - GET_STREAM_INFO selector 6 ownership changed without updating the interface contract
+- Where:
+  - `docs/architecture/06_aecp_engine.md:331-337` ("For STREAM_INPUT, the top serves selectors 5 and 7 internally ... Other input words ... remain integrator-owned");
+  - `docs/architecture/06_aecp_engine.md:419-423` (F06.13 reads paragraph names selectors 4, 5 and 7 only);
+  - `docs/architecture/02_interfaces.md:412` ("an input's selectors 5 and 7 and selector 4's failure-code byte are served inside the processor");
+  - `docs/guides/integrator.md:569-574` ("Keep serving the other selectors").
+- Evidence: `hdl/top/protocol_processor_top.sv:3535-3539` now replaces the upper 16 bits (stream_vlan_id) of kind-0 selector 6 for every Stream Input. The value is `bound_vlan_r` when PROBING_COMPLETED, otherwise zero, and the integrator's `gsi_data_i[63:48]` is discarded. The manager's ruling 6050554601 authorises the behaviour ("GET_RX_STATE and GET_STREAM_INFO then report the received value"). The test expectations were changed to match (`tb/pp_top/sim_main.cpp:5314`, `tb/pp_top/gsi_internal.hpp:93`).
+- Impact: an integrator reading 02, 06 or the integrator guide still believes its selector-6 VLAN half is used. The F06.13 lineage and the integrator guide are the documents that tell the integrator which words are its own.
+- Required outcome: name selector 6's VLAN half as served internally for inputs (settled value, otherwise zero; flags_ex half still integrator-owned) in 06 §6.2, the F06.13 reads paragraph, 02 §4.4 and the integrator guide. Or include it in the tracked follow-up.
+- Verification: read the four locations; `make check` returns 0.
+
+### RESIDUE
+None.
+
+### Suggestions (do not affect the verdict)
+- R552-S1 (RTL, area): the A12 status clear (`KL_pp_acmp_listener.sv:1273`) is functionally dead for every event other than TMR_RETRY. A12 otherwise runs on TK_DISC from PRB_W_AVAIL and on the conditional cells from SETTLED_*, and acmpsta is already zero in all of them. My probe `a12_status_never_cleared` survives the listener suite as an equivalent mutant. Dropping the clear, or recording why it stays, may save area.
+- R552-S2 (Tests): the SRP service VID slice `lstn_act_settle_vlan_w[11:0]` (`protocol_processor_top.sv:2714`) is graded only with VLAN values below 0x100. My probe `srp_vid_from_upper_bits`, which feeds `{[15:12],[7:0]}`, survives the full pp_top run. A settle with VID bits 8-11 set, checked at the SRP matcher, would grade the slice. A natural shift mutant would likely still be caught by the existing VID-2 matching.
+- R552-S3 (Tests): TD1's checks use only out-of-range source IDs (8, 0xFFFF). An in-range but unconfigured source (`cfg_src_en_i` clear, "source exists in the current configuration") is also TALKER_UNKNOWN_ID through the same `uid_valid_w`, and it is not exercised for DISCONNECT_TX.
+- R552-S4 (RTL): post-synthesis OOC TNS moves from -2063 ns / 2821 endpoints to -3601 ns / 4008 endpoints. WNS is unchanged at -5.416 ns on the same pre-existing path. The author's single-item runs show the same swing for unrelated items: LD1 alone, a pure deletion, gives -5592 ns / 4129, and VLAN alone gives -3747 ns / 3943 (`receipts/author-ooc-timing-summary.txt`). This is synthesis variance, not an attributable regression. Routed timing in the parent image remains the authority.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171#issuecomment-6086650299
+
+
+### R552-2-F1 - MINOR - Docs - 06 §7 notification triggers still assume the removed A5/A12 status clear
+
+- **Where:**
+  - `docs/architecture/06_aecp_engine.md:1056-1062` (STREAM_INPUT triggers): "the committed pbsta/acmpsta compare ... (bind, unbind, settle, teardown, double probe timeout, retry)" and "a re-bind to another talker from a bound state, which from PRB_W_RESP leaves pbsta/acmpsta at ACTIVE/0 so this is its only push".
+  - The same premise appears in two in-code comments: `hdl/top/protocol_processor_top.sv:3551-3553` ("compare (bind, unbind, settle, teardown, double timeout, retry)") and `hdl/acmp/KL_pp_acmp_listener.sv:336-337` ("from PRB_W_RESP the re-bind leaves pbsta/acmpsta at ACTIVE/0, so this pulse is the ONLY notification").
+  - All three locations are byte-identical at 96d3b783; the 06 sentence is at lines 1047/1050 there (`receipts/finding-evidence.txt`).
+- **Authority and evidence:**
+  - Milan 5.5.3.5.30 step 2 and 5.5.3.5.10 (the LD2 correction) keep the status through a discovered retry and the following delay expiry. Milan Table 5.22 notifies GET_STREAM_INFO only on a field change.
+  - The RTL keeps acmpsta in A12 on T-ACMP-RETRY (`KL_pp_acmp_listener.sv:1273`) and in A5 on T-ACMP-DELAY (`:1345`). The compare term fires only when the committed `{pbsta, acmpsta}` byte changes (`protocol_processor_top.sv:3488-3491`).
+  - The suite's LD2 check asserts `sm == S_PWR && acmpsta == 5` after the retry probe (`tb/acmp_listener/field_cases.hpp:136-138`), so PRB_W_RESP is reachable with a retained non-zero status.
+  - This PR replaced `pair("RETRY-CLEAR", ..., true, 5000)`, which waited for the status-clear notification at retry, with `RETRY-RETAIN`. The new check has no notification wait, and the suite README gives the reason: "Table 5.22 does not notify a status value that did not change" (`tb/pp_top/gsi_internal.hpp:424-428`, `tb/pp_top/README.md:2839-2842`).
+  - The 05 legend now states the retention rule correctly (05:290, :297, :337-340). 06 §7 contradicts it.
+- **Impact:**
+  - 06 §7 is the place that enumerates which Milan Table 5.22 pushes the processor raises for a Stream Input. A verifier who builds expectations from it expects an unsolicited GET_STREAM_INFO at every discovered retry. That is the old RETRY-CLEAR behaviour, which LD2 removed and this PR's tests no longer expect.
+  - The "only push" rationale for `act_strt_chg_o` is also false once a status is retained. In that case both terms fire on the same X_WB write; the OR still sends one frame, so the hardware is correct and only the description is wrong.
+  - This is a claim built on a corrected defect, which the round's acceptance item (1) excludes. It changes a behavioural claim in an architecture document, so it is not RESIDUE.
+- **Required outcome:**
+  - In 06 §7, state that the pbsta/acmpsta compare pushes only on a committed change. A discovered retry (A12, then the A5 delay expiry) keeps the status and pushes nothing (Milan 5.5.3.5.30 step 2, .10, Table 5.22). A retry with the talker gone (A17) pushes. A repeated double timeout that leaves the status unchanged pushes nothing.
+  - Qualify the re-bind sentence: from PRB_W_RESP with no retained status the byte stays ACTIVE/0, so `act_strt_chg_o` is then the only push. With a retained status, both terms fire on the same write and one frame is sent.
+  - The two RTL comments carry the same premise. Correct them with the same change, or, because this round forbids `hdl/` edits, have the manager record them for the next change that touches those files.
+- **Verification:** read 06 §7 against `KL_pp_acmp_listener.sv:1273/1345`, `protocol_processor_top.sv:3488-3491` and `tb/pp_top/gsi_internal.hpp:424-428`; then `make -j16 check` and `python3 scripts/gen_matrix.py --check` return 0.
+
+### RESIDUE
+
+None.
+
+### Suggestions (do not affect the verdict)
+
+- **R552-2-S1 (Tests; retained from R552-1 S3).** The new 05 §6bis text says DISCONNECT_TX "source validation includes both the index range and whether the source is enabled in the current configuration". The RTL implements that through `uid_valid_w` (`KL_acmp_talker.sv:656-657`, `:1304`), but no check covers the enabled half for DISCONNECT_TX. Probe E5 (index-only validation for DISCONNECT_TX) survives the talker suite: 1376/1376 PASS (`receipts/probes/E5_disconnect_index_only.log`). The bench already toggles `cfg_src_en_i` (`tb/acmp_talker/sim_main.cpp:798`, `:873`, `:967`). Adding a DISCONNECT_TX to a disabled, in-range source in one of those windows would grade the claim.
+- **R552-2-S2 (Tests; carried from R552-1 S2, not re-probed).** The SRP service VID slice `lstn_act_settle_vlan_w[11:0]` is still graded only with VLAN values below 0x100. Sources are unchanged since R552-1.
+
+
