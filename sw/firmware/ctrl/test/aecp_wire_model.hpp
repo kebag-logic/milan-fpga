@@ -79,6 +79,7 @@ struct Firmware {
     if(!fw::aecp_image_load(&model,fw::aecp_entity_image,sizeof fw::aecp_entity_image,AECP_ENTITY_CRC,
         descriptors.data(),descriptors.size(),values.data(),values.size()))throw std::runtime_error("image");
     ports.ctx=this;
+    ports.available_index=[](void*,unsigned){return 0u;};
     ports.send=[](void*p,unsigned interface,const uint8_t*b,size_t n,uint32_t c){auto&s=*static_cast<Firmware*>(p);
       s.sent.emplace_back(b,b+n);s.sent_interfaces.push_back(interface);s.completions.push_back(c);return true;};
     ports.now_ms=[](void*p){return static_cast<Firmware*>(p)->time;};

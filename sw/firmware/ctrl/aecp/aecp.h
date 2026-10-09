@@ -94,6 +94,8 @@ struct aecp_ports {
 	void (*start)(void *, uint16_t, bool);
 	// Physical format support is an integrator decision, separate from maps.
 	bool (*format)(void *, uint16_t, uint16_t, uint64_t);
+	// Current ADP owner value for the ingress interface (IEEE 7.2.1/6.2.2.15).
+	uint32_t (*available_index)(void *, unsigned);
 };
 struct aecp_registration {
 	uint64_t controller;

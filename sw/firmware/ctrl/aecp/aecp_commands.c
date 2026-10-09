@@ -72,7 +72,7 @@ static unsigned any_running(struct aecp *a)
 	return AECP_SUCCESS;
 }
 
-static unsigned descriptor(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
+static unsigned descriptor(struct aecp *a, unsigned interface, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
 {
 	*bytes = 8u;
 	if (len < 8u) {
@@ -98,6 +98,12 @@ static unsigned descriptor(struct aecp *a, const uint8_t *in, size_t len, uint8_
 		return AECP_NO_RESOURCES;
 	}
 	memcpy(out + 4, d->value, d->length);
+	if (type == 0u) {
+		aecp_port_begin(a);
+		uint32_t available = a->ports->available_index(a->ports->ctx, interface);
+		aecp_port_end(a);
+		wire_put_be(out + 40, available, 4u);
+	}
 	*bytes = 4u + d->length;
 	return AECP_SUCCESS;
 }
@@ -563,7 +569,7 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		wire_put_be(out, a->locked ? 2u : 0u, 4);
 		wire_put_be(out + 12, a->lock_owner, 8);
 		return AECP_SUCCESS;
-	case 4: return descriptor(a, in, len, out, bytes);
+	case 4: return descriptor(a, interface, in, len, out, bytes);
 	case 6: case 7: return configuration(a, cmd == 6u, in, len, out, bytes);
 	case 8: case 9: case 20: case 21: case 22: case 23:
 		return scalar(a, cmd, in, len, out, bytes);

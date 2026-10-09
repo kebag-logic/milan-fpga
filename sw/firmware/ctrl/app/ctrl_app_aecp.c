@@ -102,6 +102,12 @@ static bool format(void *ctx, uint16_t type, uint16_t index, uint64_t value)
 	return c->environment->format(c->environment->ctx, type, index, value);
 }
 
+static uint32_t available_index(void *ctx, unsigned interface)
+{
+	struct ctrl_app_aecp *c = ctx;
+	return c->app->adp.ifs[interface].adp.available_index;
+}
+
 static bool deliver(void *ctx)
 {
 	struct ctrl_app_aecp *c = ctx;
@@ -142,7 +148,7 @@ bool ctrl_app_compose_aecp(struct ctrl_app *app, struct ctrl_app_aecp *c, struct
 	memset(c, 0, sizeof *c);
 	c->app = app; c->aecp = m; c->state = state; c->environment = env;
 	c->ports = (struct aecp_ports){.ctx = c, .random = random_value, .stream = stream,
-		.avb = avb, .path = path, .counters = counters, .changed = changed, .start = start, .format = format};
+		.avb = avb, .path = path, .counters = counters, .changed = changed, .start = start, .format = format, .available_index = available_index};
 	if (!aecp_mbx_init(m, cfg, &c->ports, CTRL_APP_AECP_SLOT) || !aecp_mbx_attach(m, &app->loop)) return false;
 	c->acmp_owner = app->acmp.acmp.env;
 	c->acmp_ports = (struct acmp_env){c, locked, source, srp, persist, acmp_changed};

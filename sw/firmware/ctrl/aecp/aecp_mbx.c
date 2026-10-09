@@ -91,6 +91,12 @@ static bool format(void *ctx, uint16_t type, uint16_t index, uint64_t proposed)
 	return m->environment->format(m->environment->ctx, type, index, proposed);
 }
 
+static uint32_t available_index(void *ctx, unsigned interface)
+{
+	struct aecp_mbx *m = ctx;
+	return m->environment->available_index(m->environment->ctx, interface);
+}
+
 bool aecp_mbx_init(struct aecp_mbx *m, const struct aecp_config *cfg,
 		   const struct aecp_ports *environment, unsigned timer_slot)
 {
@@ -101,7 +107,7 @@ bool aecp_mbx_init(struct aecp_mbx *m, const struct aecp_config *cfg,
 	m->slot = timer_slot;
 	m->environment = environment;
 	m->ports = (struct aecp_ports){m, send, now, random_value, timer,
-		stream, avb, path, counters, changed, start, format};
+		stream, avb, path, counters, changed, start, format, available_index};
 	return aecp_init(&m->core, cfg, &m->ports);
 }
 

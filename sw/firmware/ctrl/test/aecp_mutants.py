@@ -32,6 +32,13 @@ def defect(name: str, file: str, old: str, new: str,
 
 
 DEFECTS = (
+    defect('entity-available-index-static', 'aecp_commands.c',
+           'wire_put_be(out + 40, available, 4u);',
+           '(void)available;',
+           ('Core.EntityAvailableIndexUsesTheIngressObservation',
+            'ENTITY reads current ADP available index'),
+           ('App.EntityReadSeesTheRealAdpAdvertisementCount',
+            'ENTITY sees N advertisements from the ADP owner')),
     defect('hdcp-data-length-echo', 'aecp.c',
            'wire_put_be(a->response + 36, 0u, 2);',
            'wire_put_be(a->response + 36, wire_be16(p + 22), 2);',

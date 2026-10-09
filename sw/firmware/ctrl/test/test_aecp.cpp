@@ -70,6 +70,7 @@ struct Ports {
     MOCK_METHOD(void,Changed,(aecp_change,uint16_t,uint16_t));
     MOCK_METHOD(void,Start,(uint16_t,bool));
     MOCK_METHOD(bool,Format,(uint16_t,uint16_t,uint64_t));
+    MOCK_METHOD(uint32_t,AvailableIndex,(unsigned));
 };
 struct Core : testing::Test {
     aecp a{};
@@ -104,7 +105,8 @@ struct Core : testing::Test {
           [](void*p,unsigned i,uint16_t t,uint16_t d,aecp_counters*v){return static_cast<Ports*>(p)->Counters(i,t,d,v);},
           [](void*p,aecp_change k,uint16_t t,uint16_t d){static_cast<Ports*>(p)->Changed(k,t,d);},
           [](void*p,uint16_t d,bool b){static_cast<Ports*>(p)->Start(d,b);},
-          [](void*p,uint16_t t,uint16_t d,uint64_t f){return static_cast<Ports*>(p)->Format(t,d,f);}};
+          [](void*p,uint16_t t,uint16_t d,uint64_t f){return static_cast<Ports*>(p)->Format(t,d,f);},
+          [](void*p,unsigned i){return static_cast<Ports*>(p)->AvailableIndex(i);}};
         ON_CALL(mock,Format).WillByDefault([this](uint16_t type,uint16_t index,uint64_t proposed){
             auto &d=desc(type,index);uint64_t declared=get(d.defaults+74,8);
             if((declared>>56)!=2)return proposed==declared;
@@ -380,6 +382,33 @@ struct App : Nvm {
         auto bytes=acmp_test::acmpdu(p);ASSERT_TRUE(mbx_model_rx(&fabric,bytes.data(),bytes.size(),0));service();
     }
 };
+}
+
+TEST_F(App, EntityReadSeesTheRealAdpAdvertisementCount)
+{
+    for(unsigned interface=0;interface<MBX_N_IF;++interface){
+        unsigned cursor=fabric.tx_sent,count=0;
+        auto collect=[&]{
+            while(cursor<fabric.tx_sent){auto p=mbx_model_tx_frame(&fabric,cursor++);
+                ASSERT_NE(p,nullptr)<<"inspect advertisements before the capture ring retires them";
+                if(p->interface==interface&&p->bytes[14]==0xfa&&(p->bytes[15]&15)==0)++count;
+            }
+        };
+        mbx_model_set_link(&fabric,interface,true);service(1);collect();
+        for(unsigned tick=0;tick<40&&count<3+interface;++tick){
+            mbx_model_advance_ms(&fabric,1000);
+            for(unsigned pass=0;pass<20;++pass){service(1);collect();}
+        }
+        ASSERT_GE(count,3u+interface)<<"N real advertisements precede the read";
+        unsigned before=fabric.tx_sent;auto request=command(4,Bytes(8),CTLR,0);
+        ASSERT_TRUE(mbx_model_rx(&fabric,request.data(),request.size(),interface));service();
+        bool seen=false;
+        for(unsigned n=before;n<fabric.tx_sent;++n){auto p=mbx_model_tx_frame(&fabric,n);
+            if(p->bytes[14]==0xfb){seen=true;EXPECT_EQ(p->interface,interface);
+                EXPECT_EQ(get(p->bytes+78,4),count)<<"ENTITY sees N advertisements from the ADP owner";}
+        }
+        EXPECT_TRUE(seen);mbx_model_set_link(&fabric,interface,false);service();
+    }
 }
 
 TEST_F(App, DeferredStartAndLockUseTheRealAcmpOwner)
@@ -1215,6 +1244,16 @@ TEST_F(Core, InitRefusalsAndClosedService)
     auto p=command(2);aecp_rx(&a,0,p.data(),p.size());EXPECT_TRUE(sent.empty());
 }
 
+TEST_F(Core, EntityAvailableIndexUsesTheIngressObservation)
+{
+    for(unsigned interface=0;interface<AECP_TEST_INTERFACES;++interface){
+        EXPECT_CALL(mock,AvailableIndex(interface)).WillOnce(Return(0x12345678u+interface));
+        auto out=ask(4,Bytes(8),0,CTLR,interface);
+        EXPECT_EQ(get(out,78,4),0x12345678u+interface)<<"ENTITY reads current ADP available index";
+        EXPECT_EQ(get(desc(0).value+36,4),0u)<<"observation does not mutate image-backed storage";
+    }
+}
+
 TEST_F(Core, NonAemMessageTypesFollowTheirOwnContracts)
 {
     for(unsigned interface=0;interface<AECP_TEST_INTERFACES;++interface){
@@ -1463,6 +1502,14 @@ TEST_F(Latency, EveryCommandAndRefusalUsesOneArrivalBudget)
                 }
                 mbx_model_advance_ms(&fabric,5);
             }
+        }
+        for(unsigned msg:{2u,4u,8u}){
+            auto p=command(0,Bytes(8),CTLR,i,msg);auto origin=ns,count=commits.size();
+            ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),i));service();
+            ASSERT_GT(commits.size(),count);check(512+msg,origin,commits.back());
+            if(msg==8){EXPECT_LE(commits.back()-origin+1000100,15000000u)
+                <<"IEEE 9.7.2.7 HDCP response deadline";}
+            mbx_model_advance_ms(&fabric,5);
         }
         for(unsigned cmd:{0u,1u,2u}){
             Bytes b={0xc5,0x0a,0xc1,0,0,0,0,0};put(b,4,cmd,2);b.resize(16);b.back()=1;

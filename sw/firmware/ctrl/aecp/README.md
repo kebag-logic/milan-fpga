@@ -15,7 +15,12 @@ or operating-system dependency. [`aecp_image.c`](aecp_image.c) validates the
 generated AEM image and exposes descriptor spans; [`aecp_entity.py`](aecp_entity.py)
 uses the existing builder generators and derives capacities from their output.
 Every advertised descriptor is served by READ_DESCRIPTOR. Names and scalar
-changes are reflected in subsequent descriptor reads.
+changes are reflected in subsequent descriptor reads. ENTITY available_index is
+observed from the current ADP owner on the ingress interface (IEEE 7.2.1 and
+6.2.2.15). The application and mailbox adapters pass this observation without
+copying it into the image. The fabric reference serves the image constant; the
+wire fixture has no advertisements and uses zero on both sides. The composed
+application test emits N advertisements and requires a subsequent read to see N.
 
 The command owner implements entity availability, acquisition refusal and locks;
 configuration, names, stream formats and information; rates and clock sources;
@@ -149,7 +154,8 @@ The service tests count mailbox accesses from one original arrival/due time,
 including fanout, stalls and deferred failure, then add fixed CPU/observation
 allowances. The measured endpoint is response acceptance by the transmit ring.
 They compare against IEEE 9.3.2.6 and Milan 5.4.3.4's 240 ms response timeout
-and the 10 ms local service target. START/STOP failure is due at 8 ms to leave
+and the 10 ms local service target. The HDCP refusal path also checks the
+15 ms response deadline from IEEE 9.7.2.7. START/STOP failure is due at 8 ms to leave
 service and clock-quantization allowance. These are desk bounds using explicit
 100 ns access/observation and 1 ms CPU allowances. Target calibration, complete
 call-chain stack bounds and physical timing remain integration obligations.
