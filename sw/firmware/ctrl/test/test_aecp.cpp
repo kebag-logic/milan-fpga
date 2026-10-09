@@ -21,7 +21,15 @@ extern "C" {
 #include "aecp_mbx.h"
 #include "mbx_model.h"
 #endif
+#ifdef AECP_TEST_APP
+#include "ctrl_app_aecp.h"
+#include "acmp_nvm.h"
+#include "srp_mbx.h"
+#endif
 }
+#ifdef AECP_TEST_APP
+#include "acmp_fake.hpp"
+#endif
 
 
 
@@ -244,6 +252,95 @@ TEST_F(Nvm, AbsentMapClipsButRefusedMapRevertsItsFormat)
     EXPECT_EQ(get(d.value+74,8),format)<<"a refused saved map keeps the full reset set";
     EXPECT_EQ(latch(NVM_G_MAPI,0,original.size()),original);
     Bytes out(8);EXPECT_FALSE(owner.port.latch(&owner,NVM_G_FMTI,0,out.data(),8));
+}
+#endif
+
+#ifdef AECP_TEST_APP
+namespace {
+struct App : Nvm {
+    mbx_model fabric{};
+    ctrl_app application{};
+    ctrl_app_aecp bridge{};
+    aecp_mbx adapter{};
+    acmp_nvm binding_owner{};
+    adp_entity entity{ENTITY,1,MAC,0xc588,2,0x4801,2,0x4801,0};
+    acmp_config connection{};
+    ctrl_app_config setup{};
+    alignas(std::max_align_t) uint8_t arena[SRP_POOL_ARENA_BYTES]{};
+    srp_mbx reservation{};
+    srp_source sources[MBX_N_IF][CTRL_SRP_SOURCES]{};
+    acmp_env acmp_env_ports{};
+    void SetUp() override {
+        Nvm::SetUp();mbx_model_reset(&fabric);mbx_model_bind(&fabric,nullptr,nullptr);
+        connection.entity_id=ENTITY;connection.n_interfaces=MBX_N_IF;connection.n_sinks=2;connection.n_sources=2;
+        for(unsigned i=0;i<MBX_N_IF;++i){connection.mac[i]=MAC;cfg.mac[i]=MAC;}
+        acmp_env_ports={nullptr,[](void*,uint64_t*p){*p=0;return false;},
+            [](void*,unsigned,acmp_source_state*p){*p={};},[](void*,unsigned,const acmp_stream*){},
+            [](void*,unsigned){},[](void*,unsigned){}};
+        setup.entity=&entity;setup.arena=arena;setup.arena_bytes=sizeof arena;
+        setup.classes=srp_pool_classes;setup.n_classes=SRP_POOL_N_CLASSES;
+        setup.maap_allocation=[](void*,unsigned,uint64_t,uint16_t,bool){};
+        setup.acmp=&connection;setup.acmp_env=&acmp_env_ports;
+        ASSERT_TRUE(ctrl_app_compose(&application,&setup));
+        ASSERT_TRUE(ctrl_app_compose_aecp(&application,&bridge,&adapter,&cfg,&ports,&owner));
+        aecp_nvm_init(&owner,&adapter.core,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        acmp_nvm_init(&binding_owner,&application.acmp.acmp,NVM_G_BIND,&owner.port);
+        EXPECT_FALSE(ctrl_app_open_aecp(&bridge));
+        nvm_store_boot(&nvm_fmodel_port,&binding_owner.port);
+        ASSERT_TRUE(ctrl_app_open(&application,&setup));
+        srp_mbx_config srp{};srp.link_rate_bps=1000000000;srp.licence=[](void*,unsigned,unsigned,bool){};
+        for(unsigned i=0;i<MBX_N_IF;++i){srp.mac[i]=MAC;srp.sources[i]=sources[i];}
+        ASSERT_TRUE(srp_mbx_init(&reservation,&srp));ASSERT_TRUE(ctrl_app_attach_srp(&application,&reservation));
+        ASSERT_TRUE(ctrl_app_open_aecp(&bridge));
+    }
+    void TearDown() override { srp_mbx_destroy(&reservation); }
+    void service(unsigned count=20){for(unsigned i=0;i<count;++i)(void)ctrl_loop_service(&application.loop);}
+    void aem(unsigned cmd,Bytes body={},uint64_t ctl=CTLR) {
+        auto p=command(cmd,body,ctl);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();
+        mbx_model_advance_ms(&fabric,5);
+    }
+    void acmp(unsigned msg) {
+        acmp_test::Pdu p{};p.msg=msg;p.controller=CTLR;p.listener=ENTITY;p.talker=0xabcdef0102030405;
+        p.listener_uid=0;p.talker_uid=0;p.flags=8;p.seq=0x4567;
+        auto bytes=acmp_test::acmpdu(p);ASSERT_TRUE(mbx_model_rx(&fabric,bytes.data(),bytes.size(),0));service();
+    }
+};
+}
+
+TEST_F(App, DeferredStartAndLockUseTheRealAcmpOwner)
+{
+    acmp(6);acmp_sink_view v{};ASSERT_TRUE(acmp_view(&application.acmp.acmp,0,&v));
+    ASSERT_TRUE(v.bound);ASSERT_FALSE(v.started);
+    aem(34,target(5,0));ASSERT_TRUE(acmp_view(&application.acmp.acmp,0,&v));EXPECT_TRUE(v.started);
+    aem(35,target(5,0));ASSERT_TRUE(acmp_view(&application.acmp.acmp,0,&v));EXPECT_FALSE(v.started);
+    EXPECT_EQ(adapter.core.reentries,0u);EXPECT_EQ(application.acmp.acmp.reentries,0u);
+    aem(1,Bytes(16),CTLR+1);unsigned before=fabric.tx_sent;acmp(8);
+    ASSERT_TRUE(acmp_view(&application.acmp.acmp,0,&v));EXPECT_TRUE(v.bound)<<"AECP lock governs ACMP unbind";
+    bool refused=false;for(unsigned i=before;i<fabric.tx_sent;++i){auto p=mbx_model_tx_frame(&fabric,i);
+        if(p->bytes[14]==0xfc&&p->bytes[15]==9)refused=(get(p->bytes+16,2)>>11)==16;}
+    EXPECT_TRUE(refused);
+}
+
+TEST_F(App, MediaUnlockedNoticeCannotPassAnOwedUnbindResponse)
+{
+    aem(36);acmp(6);service();
+    mbx_model_tx_pause(&fabric,true);
+    // Fill ACMP's ring, so the UNBIND response stays in the real core queue.
+    Bytes filler(70);filler[14]=0xfc;
+    while(mbx_tx_send(MBX_CH_ACMP,0,filler.data(),filler.size())==MBX_STATUS_OK){}
+    unsigned before=fabric.tx_sent;acmp(8);
+    ASSERT_TRUE(acmp_change_pending(&application.acmp.acmp,0));
+    ctrl_app_aecp_changed(&bridge,5,0,8);service();
+    EXPECT_EQ(adapter.core.cfg.events[&desc(5)-descriptors.data()].pending,0u);
+    EXPECT_EQ(fabric.tx_sent,before);
+    mbx_model_tx_pause(&fabric,false);service(100);
+    unsigned response=UINT32_MAX,notice=UINT32_MAX;
+    for(unsigned i=before;i<fabric.tx_sent;++i){auto p=mbx_model_tx_frame(&fabric,i);
+        if(p->bytes[14]==0xfc&&p->bytes[15]==9)response=i;
+        if(p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x8029)notice=i;
+    }
+    ASSERT_NE(response,UINT32_MAX);ASSERT_NE(notice,UINT32_MAX);EXPECT_LT(response,notice);
+    EXPECT_FALSE(acmp_change_pending(&application.acmp.acmp,0));
 }
 #endif
 

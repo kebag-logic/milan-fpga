@@ -10,7 +10,7 @@ AEC_P_SOURCES = ("aecp.c", "aecp_commands.c", "aecp_maps.c", "aecp_image.c", "ae
 
 
 def core_arm(tree: Tree, config: Path, interfaces: int = 1, mailbox: bool = False, nvm: bool = False,
-             selected: str = "*") -> Outcome:
+             selected: str = "*", app: bool = False) -> Outcome:
     """The protocol owner against explicit environment ports at either interface count."""
     out = tree.out / f"aecp-{'mailbox' if mailbox else 'core'}-{config.stem}-if{interfaces}"
     out.mkdir(parents=True, exist_ok=True)
@@ -38,6 +38,16 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mailbox: bool = Fals
         inc += [*extra, "-DAECP_TEST_MAILBOX"]
         sources += [tree.src / "aecp/aecp_mbx.c", tree.src / "loop/ctrl_loop.c", variant / "mbx/mbx.c"]
         host_sources += [tree.src / "host" / n for n in ("mbx_model.c", "mbx_plat_host.c")]
+        if app:
+            from ctrl_build import PORTABLE
+            from ctrl_arms import lwsrp_pin
+            from srp_arms import LWSRP_SOURCES
+            lw = ROOT / "third_party/lwSRP"
+            lwsrp_pin(lw)
+            inc += ["-DAECP_TEST_APP", "-DLWSRP_MILAN=1", f"-I{lw/'src/include'}", f"-I{lw/'src'}"]
+            sources += [tree.src / n for n in PORTABLE if n not in ("loop/ctrl_loop.c", "mbx/mbx.c")]
+            sources += [tree.src / n for n in ("app/ctrl_app_aecp.c", "app/ctrl_app_srp.c", "srp/srp_mbx.c")]
+            sources += [lw / "src" / n for n in LWSRP_SOURCES]
     try:
         objects = fw_gtest.compile_c(tree.build, C_FLAGS, inc, sources, out / "firmware")
         objects += fw_gtest.compile_c(tree.build, C_FLAGS, inc, host_sources, out / "host", measured=False)
@@ -84,9 +94,11 @@ if __name__ == "__main__":
     parser.add_argument("--mailbox", action="store_true")
     parser.add_argument("--nvm", action="store_true")
     parser.add_argument("--filter", default="*")
+    parser.add_argument("--app", action="store_true")
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()
     tree = Tree(CTRL, args.output, args.output / "reuse", fw_gtest.Build(coverage=args.coverage, jobs=4))
-    result = core_arm(tree, args.config, args.interfaces, args.mailbox, args.nvm, args.filter) if args.core or args.mailbox or args.nvm else image_arm(tree, args.config)
+    result = core_arm(tree, args.config, args.interfaces, args.mailbox or args.app, args.nvm or args.app,
+                      args.filter, args.app) if args.core or args.mailbox or args.nvm or args.app else image_arm(tree, args.config)
     print(result.log)
     raise SystemExit(result.rc)
