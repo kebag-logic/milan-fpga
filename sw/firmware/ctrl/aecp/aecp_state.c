@@ -48,7 +48,7 @@ unsigned aecp_value_restore(struct aecp *a, struct aecp_value v, const uint8_t *
 		if ((p[0] & 0x80u) != 0u) return AECP_BAD_ARGUMENTS;
 		a->cfg.latency[v.index] = (uint32_t)wire_be32(p);
 	} else if (v.kind != AECP_CHANGE_NAME) {
-		status = aecp_scalar_validate(d, v.kind, p);
+		status = aecp_scalar_validate(a, d, v.kind, p);
 	}
 	if (status != AECP_SUCCESS) return status;
 	if (v.kind != AECP_CHANGE_LATENCY) memcpy(d->value + offset, p, width);

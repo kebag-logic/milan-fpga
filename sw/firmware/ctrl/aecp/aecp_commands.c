@@ -182,7 +182,7 @@ static unsigned names(struct aecp *a, bool set, const uint8_t *in, size_t len,
 }
 
 // Value/list fields in IEEE 7.2 AUDIO_UNIT, STREAM and CLOCK_DOMAIN.
-unsigned aecp_scalar_validate(const struct aecp_descriptor *d, enum aecp_change kind, const uint8_t *value)
+unsigned aecp_scalar_validate(struct aecp *a, const struct aecp_descriptor *d, enum aecp_change kind, const uint8_t *value)
 {
 	bool format = kind == AECP_CHANGE_FORMAT, rate = kind == AECP_CHANGE_RATE;
 	unsigned width = format ? 8u : (rate ? 4u : 2u);
@@ -194,6 +194,12 @@ unsigned aecp_scalar_validate(const struct aecp_descriptor *d, enum aecp_change 
 	size_t count = (size_t)wire_be16(d->value + field + 2u);
 	if (start > d->length || count * width > d->length - start) {
 		return AECP_ENTITY_MISBEHAVING;
+	}
+	if (format) {
+		a->in_port = true;
+		bool supported = a->ports->format(a->ports->ctx, d->type, d->index, wire_be64(value));
+		a->in_port = false;
+		return supported ? AECP_SUCCESS : AECP_BAD_ARGUMENTS;
 	}
 	for (size_t n = 0; n < count; ++n) {
 		if (memcmp(d->value + start + n * width, value, width) == 0) {
@@ -242,7 +248,7 @@ static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t l
 		return AECP_SUCCESS;
 	}
 	enum aecp_change kind = format ? AECP_CHANGE_FORMAT : (rate ? AECP_CHANGE_RATE : AECP_CHANGE_CLOCK);
-	unsigned status = aecp_scalar_validate(d, kind, in + 4);
+	unsigned status = aecp_scalar_validate(a, d, kind, in + 4);
 	if (status != AECP_SUCCESS) {
 		return status;
 	}

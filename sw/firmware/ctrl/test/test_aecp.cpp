@@ -10,11 +10,20 @@ extern "C" {
 #include "aecp_image.h"
 #include "aecp_state.h"
 #include "aecp_entity_gen.h"
+#ifdef AECP_TEST_NVM
+#include "aecp_nvm.h"
+#define _Static_assert static_assert
+#include "nvm_store.h"
+#undef _Static_assert
+#include "host/nvm_fmodel.h"
+#endif
 #ifdef AECP_TEST_MAILBOX
 #include "aecp_mbx.h"
 #include "mbx_model.h"
 #endif
 }
+
+
 
 FW_TALLY_LABEL("AECP core");
 using Bytes = std::vector<uint8_t>;
@@ -46,6 +55,7 @@ struct Ports {
     MOCK_METHOD(bool,Counters,(unsigned,uint16_t,uint16_t,aecp_counters *));
     MOCK_METHOD(void,Changed,(aecp_change,uint16_t,uint16_t));
     MOCK_METHOD(void,Start,(uint16_t,bool));
+    MOCK_METHOD(bool,Format,(uint16_t,uint16_t,uint64_t));
 };
 struct Core : testing::Test {
     aecp a{};
@@ -76,7 +86,17 @@ struct Core : testing::Test {
           [](void*p,unsigned i,uint16_t d,uint64_t*v,size_t n,size_t*c){return static_cast<Ports*>(p)->Path(i,d,v,n,c);},
           [](void*p,unsigned i,uint16_t t,uint16_t d,aecp_counters*v){return static_cast<Ports*>(p)->Counters(i,t,d,v);},
           [](void*p,aecp_change k,uint16_t t,uint16_t d){static_cast<Ports*>(p)->Changed(k,t,d);},
-          [](void*p,uint16_t d,bool b){static_cast<Ports*>(p)->Start(d,b);}};
+          [](void*p,uint16_t d,bool b){static_cast<Ports*>(p)->Start(d,b);},
+          [](void*p,uint16_t t,uint16_t d,uint64_t f){return static_cast<Ports*>(p)->Format(t,d,f);}};
+        ON_CALL(mock,Format).WillByDefault([this](uint16_t type,uint16_t index,uint64_t proposed){
+            auto &d=desc(type,index);uint64_t declared=get(d.defaults+74,8);
+            if((declared>>56)!=2)return proposed==declared;
+            constexpr uint64_t mask=(uint64_t(1023)<<22)|(uint64_t(1)<<52);
+            unsigned channels=(proposed>>22)&1023;
+            bool family=channels==1||channels==2||channels==4||channels==6||channels==8;
+            return !(proposed&(uint64_t(1)<<52))&&(proposed&~mask)==(declared&~mask)&&
+                (type==5?family:channels==((declared>>22)&1023));
+        });
         ON_CALL(mock,Send).WillByDefault([this](unsigned i,const uint8_t*p,size_t n,uint32_t c){
             if(room) { sent.emplace_back(i,Bytes(p,p+n)); completions.push_back(c); } return room;});
         ON_CALL(mock,Now).WillByDefault([this]{return ms;});
@@ -119,6 +139,113 @@ struct Core : testing::Test {
     void register_controller(uint64_t id=CTLR,unsigned interface=0){ask(36,{},0,id,interface);}
 };
 }
+
+#ifdef AECP_TEST_NVM
+namespace {
+struct Nvm : Core {
+    aecp_nvm owner{};
+    aecp_value names[AECP_ENTITY_NAMES]=AECP_ENTITY_NAMES_INIT;
+    aecp_mapping rows[AECP_ENTITY_MAP_ROWS]{}, scratch[AECP_ENTITY_MAP_MAX]{};
+    aecp_map pools[AECP_ENTITY_MAPS]=AECP_ENTITY_MAPS_INIT(rows);
+    void SetUp() override {
+        Core::SetUp();cfg.maps=pools;cfg.map_count=AECP_ENTITY_MAPS;
+        ASSERT_TRUE(aecp_init(&a,&cfg,&ports));
+        aecp_nvm_init(&owner,&a,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        nvm_fmodel_blank();nvm_fmodel_power_on();
+        nvm_fmodel_window(NVM_SLOT_A,NVM_SLOT_B+NVM_SLOT_BYTES);
+        nvm_fmodel_times(1000,100);
+    }
+    void boot() { nvm_store_boot(&nvm_fmodel_port,&owner.port); }
+    Bytes latch(unsigned g,unsigned i,size_t size) {
+        Bytes b(size);EXPECT_TRUE(owner.port.latch(&owner,g,i,b.data(),size));return b;
+    }
+    void save() {
+        while(aecp_nvm_poll(&owner)){}
+        ASSERT_TRUE(nvm_store_commit_now());
+        for(unsigned n=0;n<10000&&nvm_store_status()->phase!=NVM_P_IDLE;++n){
+            nvm_store_service();nvm_fmodel_advance_us(100);
+        }
+        ASSERT_EQ(nvm_store_status()->phase,NVM_P_IDLE);ASSERT_EQ(nvm_store_status()->commits_ok,1u);
+    }
+};
+}
+
+TEST_F(Nvm, ShapePoolsAndNameOrdinalsMatchSavedRecords)
+{
+    ASSERT_EQ(AECP_ENTITY_NAMES,MILAN_NVM_N_NAME);
+    for(auto &m:pools){
+        auto r=nvm_rec_of(m.type==14?NVM_G_MAPI:NVM_G_MAPO,m.index);
+        ASSERT_TRUE(r.ok);EXPECT_EQ(r.plen,m.capacity*8);EXPECT_LE(m.count,8u);
+        for(size_t k=0;k<m.count;++k){EXPECT_EQ(m.rows[k].stream,m.index);EXPECT_EQ(m.rows[k].channel,k);}
+    }
+    for(unsigned i=0;i<AECP_ENTITY_NAMES;++i){
+        auto b=latch(NVM_G_NAME,i,64);auto &d=desc(names[i].type,names[i].index);
+        unsigned offset=names[i].type==0?(names[i].name==0?48:180):4;
+        EXPECT_EQ(b,Bytes(d.defaults+offset,d.defaults+offset+64));
+    }
+}
+
+TEST_F(Nvm, WholeMapFramingAndEmptySetAreDistinct)
+{
+    auto &m=pools[0];auto initial=latch(NVM_G_MAPI,0,m.capacity*8);
+    Bytes erased(initial.size(),0xff);
+    for(unsigned bad: {0xff00,0xfeff,0xfffe,0xffff}){
+        auto b=erased;put(b,0,bad,2);put(b,2,0,6);
+        EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,b.data(),b.size()),NVM_REFUSED);
+        EXPECT_EQ(latch(NVM_G_MAPI,0,b.size()),initial);
+    }
+    auto b=erased;std::copy(initial.begin(),initial.begin()+8,b.end()-8);
+    EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,b.data(),b.size()),NVM_REFUSED);
+    EXPECT_EQ(latch(NVM_G_MAPI,0,b.size()),initial)<<"a hole cannot touch the current map";
+    b=erased;b.back()=0;
+    EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,b.data(),b.size()),NVM_REFUSED);
+    EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,erased.data(),erased.size()),NVM_APPLIED);
+    EXPECT_EQ(m.count,0u)<<"all UNUSED is an intentional empty set";
+    EXPECT_EQ(owner.port.rollback(&owner,NVM_W_D3),0);EXPECT_EQ(latch(NVM_G_MAPI,0,initial.size()),initial);
+}
+
+TEST_F(Nvm, AcceptedStateSurvivesTheRealStorePowerCycle)
+{
+    boot();ASSERT_EQ(nvm_store_status()->terminal,NVM_T_BLANK);
+    EXPECT_TRUE(owner.released);EXPECT_FALSE(a.open)<<"release queues permission; no protocol input inside a port";
+    ON_CALL(mock,Changed).WillByDefault([this](aecp_change k,uint16_t t,uint16_t i){aecp_nvm_changed(&owner,k,t,i);});
+    aecp_open(&a);
+    auto name=target(0,0,72);put(name,4,1,2);std::fill(name.begin()+8,name.end(),0x5a);ask(16,name);
+    auto p=target(6,0,84);put(p,4,0x20000000,4);put(p,24,1500000,4);ask(14,p);
+    auto remove=target(14,0,16);put(remove,4,1,2);put(remove,10,7,2);put(remove,12,7,2);ask(45,remove);
+    EXPECT_FALSE(nvm_store_status()->dirty)<<"port callbacks only queue persistence intent";
+    auto input=latch(NVM_G_MAPI,0,pools[0].capacity*8);
+    save();
+    a.open=false;ASSERT_TRUE(aecp_restore_defaults(&a));owner.released=false;nvm_fmodel_power_on();boot();
+    ASSERT_EQ(nvm_store_status()->terminal,NVM_T_COMPLETE);EXPECT_TRUE(owner.released);
+    EXPECT_EQ(latch(NVM_G_MAPI,0,input.size()),input);
+    EXPECT_EQ(latch(NVM_G_NAME,1,64),Bytes(64,0x5a));
+    auto latency=latch(NVM_G_PTOF,0,4);EXPECT_EQ(get(latency,0,4),1500000u);
+    for(unsigned group:{NVM_G_SUID,NVM_G_MCR}){
+        auto r=nvm_rec_of(group,0);ASSERT_TRUE(r.ok);
+        EXPECT_TRUE(nvm_all_erased(nvm_store_stage()+NVM_KLJ2_HDR+r.off,NVM_REC_HDR+r.plen))<<"DR5 reserved span";
+    }
+}
+
+TEST_F(Nvm, AbsentMapClipsButRefusedMapRevertsItsFormat)
+{
+    auto &m=pools[0];auto original=latch(NVM_G_MAPI,0,m.capacity*8);
+    auto &d=desc(5);uint64_t format=get(d.defaults+74,8);
+    Bytes narrow(8);put(narrow,0,(format&~(uint64_t(1023)<<22))|(uint64_t(4)<<22),8);
+    ASSERT_EQ(owner.port.apply(&owner,NVM_G_FMTI,0,narrow.data(),8),NVM_APPLIED);
+    ASSERT_EQ(owner.port.settle(&owner),NVM_APPLIED);
+    EXPECT_EQ(m.count,4u);EXPECT_EQ(get(d.value+74,8),get(narrow,0,8));
+    ASSERT_EQ(owner.port.rollback(&owner,NVM_W_D3),0);
+    ASSERT_EQ(owner.port.apply(&owner,NVM_G_FMTI,0,narrow.data(),8),NVM_APPLIED);
+    auto invalid=original;put(invalid,0,0xff00,2);
+    ASSERT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,invalid.data(),invalid.size()),NVM_REFUSED);
+    EXPECT_EQ(latch(NVM_G_MAPI,0,original.size()),original)<<"refusal does not partly replace the map";
+    ASSERT_EQ(owner.port.settle(&owner),NVM_APPLIED);
+    EXPECT_EQ(get(d.value+74,8),format)<<"a refused saved map keeps the full reset set";
+    EXPECT_EQ(latch(NVM_G_MAPI,0,original.size()),original);
+    Bytes out(8);EXPECT_FALSE(owner.port.latch(&owner,NVM_G_FMTI,0,out.data(),8));
+}
+#endif
 
 TEST_F(Core, EveryDescriptorAndReadFailures)
 {
@@ -390,7 +517,11 @@ TEST_F(Core, IdentifyCurrentValueAndRefusals)
 TEST_F(Core, ChangedScalarValuesAndDamagedLists)
 {
     auto b=target(5,0,12);auto&d=desc(5);size_t off=get(d.value+82,2);
-    std::copy(d.value+off+8,d.value+off+16,b.begin()+4);ask(8,b);EXPECT_EQ(get(d.value+74,8),get(b,4,8));
+    // The second advertised entry sets the AAF "up to" bit (IEEE 7.3.3),
+    // describing a range. It is not itself a concrete stream format.
+    std::copy(d.value+off+8,d.value+off+16,b.begin()+4);ask(8,b,7);
+    uint64_t narrow=(get(d.value+74,8)&~(uint64_t(1023)<<22))|(uint64_t(4)<<22);
+    put(b,4,narrow,8);ask(8,b);EXPECT_EQ(get(d.value+74,8),narrow);
     auto clock=target(36,0,6);put(clock,4,1,2);ask(22,clock);EXPECT_EQ(get(desc(36).value+70,2),1u);
     auto rate=target(2,0,8);put(rate,4,48000,4);put(desc(2).value+136,44100,4);ask(20,rate);
     for(unsigned type:{5,2,36}){

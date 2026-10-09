@@ -76,6 +76,8 @@ struct aecp_ports {
 	void (*changed)(void *, enum aecp_change, uint16_t, uint16_t);
 	// START/STOP is ACMP-owned. Queue a request; later call aecp_start_done.
 	void (*start)(void *, uint16_t, bool);
+	// Physical format support is an integrator decision, separate from maps.
+	bool (*format)(void *, uint16_t, uint16_t, uint64_t);
 };
 struct aecp_registration {
 	uint64_t controller, mac;

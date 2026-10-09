@@ -261,6 +261,7 @@ unsigned aecp_map_restore(struct aecp *a, struct aecp_map *m, const struct aecp_
 	for (size_t n = 0; n < count; ++n) {
 		if (position(m, &rows[n]) == m->count) m->rows[m->count++] = rows[n];
 	}
+	a->cfg.events[(size_t)(port - a->cfg.model->descriptors)].overrides &= (uint8_t)~4u;
 	return AECP_SUCCESS;
 }
 
@@ -272,6 +273,25 @@ unsigned aecp_restore_settle(struct aecp *a)
 	for (size_t n = 0; n < a->cfg.map_count; ++n) {
 		struct aecp_map *m = &a->cfg.maps[n];
 		if (m->configuration != a->configuration) continue;
+		struct aecp_descriptor *port = aecp_find(a, m->configuration, m->type, m->index);
+		if (port == NULL) return AECP_ENTITY_MISBEHAVING;
+		if (aecp_overridden(a, port, 4u)) {
+			// A refused saved set retains the reset set and reverts formats
+			// it would orphan (materialization 8.4). Absent map records use
+			// the distinct #658 default-clip rule below.
+			for (size_t k = 0; k < m->default_count; ++k) {
+				const struct aecp_mapping *r = &m->defaults[k];
+				struct aecp_descriptor *d = aecp_find(a, a->configuration,
+					m->type == 14u ? 5u : 6u, r->stream);
+				if (d == NULL || d->length < 82u) return AECP_ENTITY_MISBEHAVING;
+				if (r->channel >= channels(wire_be64(d->value + 74))) {
+					memcpy(d->value + 74, d->defaults + 74, 8);
+					a->cfg.events[(size_t)(d - a->cfg.model->descriptors)].overrides &= (uint8_t)~1u;
+				}
+			}
+			m->count = m->default_count;
+			for (size_t k = 0; k < m->count; ++k) m->rows[k] = m->defaults[k];
+		}
 		for (size_t k = 0; k < m->count;) {
 			struct aecp_descriptor *d = aecp_find(a, a->configuration,
 				m->type == 14u ? 5u : 6u, m->rows[k].stream);
@@ -283,4 +303,10 @@ unsigned aecp_restore_settle(struct aecp *a)
 		}
 	}
 	return AECP_SUCCESS;
+}
+
+void aecp_map_refused(struct aecp *a, const struct aecp_map *m)
+{
+	struct aecp_descriptor *d = aecp_find(a, m->configuration, m->type, m->index);
+	if (!a->open && !a->in_port && d != NULL) aecp_override(a, d, 4u);
 }

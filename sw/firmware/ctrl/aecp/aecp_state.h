@@ -14,6 +14,7 @@ struct aecp_value {
 unsigned aecp_value_restore(struct aecp *, struct aecp_value, const uint8_t *, size_t);
 bool aecp_value_latch(struct aecp *, struct aecp_value, uint8_t *, size_t);
 unsigned aecp_map_restore(struct aecp *, struct aecp_map *, const struct aecp_mapping *, size_t);
+void aecp_map_refused(struct aecp *, const struct aecp_map *);
 unsigned aecp_restore_settle(struct aecp *);
 bool aecp_restore_defaults(struct aecp *);
 #endif
