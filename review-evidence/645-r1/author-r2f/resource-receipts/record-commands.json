@@ -1,0 +1,50 @@
+[
+  {
+    "name": "record-route-1x1",
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_resource_gate.py",
+      "record",
+      "$VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware",
+      "--endpoint",
+      "route-1x1",
+      "--write"
+    ],
+    "cwd": "$LANES/645-ring-slip",
+    "rc": 0,
+    "seconds": 0.14
+  },
+  {
+    "name": "record-ooc-1x1",
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_resource_gate.py",
+      "record",
+      "$VALIDATION_STORAGE/645-a531/round2f/ooc-1x1",
+      "--endpoint",
+      "ooc-1x1",
+      "--write"
+    ],
+    "cwd": "$LANES/645-ring-slip",
+    "rc": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "record-ooc-8x8",
+    "argv": [
+      "python3",
+      "-B",
+      "syn/ooc/pp_resource_gate.py",
+      "record",
+      "$VALIDATION_STORAGE/645-a531/round2f/ooc-8x8",
+      "--endpoint",
+      "ooc-8x8",
+      "--write"
+    ],
+    "cwd": "$LANES/645-ring-slip",
+    "rc": 0,
+    "seconds": 0.1
+  }
+]

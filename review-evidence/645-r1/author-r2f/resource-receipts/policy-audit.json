@@ -1,0 +1,51 @@
+{
+  "unchanged": true,
+  "before_sha256": "f0e6babaeeff50eb098f3ea2e55ca8cd76ee746f83134f44c6c958f85a581158",
+  "after_sha256": "f0e6babaeeff50eb098f3ea2e55ca8cd76ee746f83134f44c6c958f85a581158",
+  "policy": {
+    "route-1x1": {
+      "tolerance": {
+        "LUT": 500,
+        "FF": 600,
+        "SLICE": 80,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0,
+        "WNS_ns": 0.25,
+        "WHS_ns": 0.25
+      },
+      "floor": {
+        "WNS_ns": 0.03,
+        "WHS_ns": 0.0
+      },
+      "ceiling": {
+        "BRAM_TILE": 121.5
+      }
+    },
+    "ooc-1x1": {
+      "tolerance": {
+        "LUT": 250,
+        "FF": 250,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      }
+    },
+    "ooc-8x8": {
+      "tolerance": {
+        "LUT": 316,
+        "FF": 339,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      }
+    }
+  },
+  "baseline_before_sha256": "3c122f3d069fc211954da4ba582a8d5c49b7c35522a0205208b81bd606925313",
+  "baseline_after_sha256": "cf2eec5ce8e41d50f5308264a8608d7341ba142d6d3a04058e5572e1a8a29e41",
+  "records_equal_measurements": {
+    "route-1x1": true,
+    "ooc-1x1": true,
+    "ooc-8x8": true
+  }
+}
