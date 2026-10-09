@@ -140,13 +140,15 @@ module KL_maap #(
 
   //! 16-bit Fibonacci LFSR (x^16+x^15+x^13+x^4+1), station-MAC seeded.
   //! All-zero is its only fixed point and no other state reaches it (the
-  //! step is an invertible linear map), so the reset seed is never zero:
+  //! step is an invertible linear map), so the enable seed is never zero:
   //! a MAC that folds to zero (mac[15:0] ^ mac[31:16] == 0xACE1) takes the
   //! constant instead, and the B.3.4 timer draws stay random for every MAC.
   logic [15:0]  lfsr_r;
+  logic         rng_seeded_r;           //! first enable follows MAC programming
   wire  [15:0]  lfsr_next_w = {lfsr_r[14:0],
                                lfsr_r[15] ^ lfsr_r[14] ^ lfsr_r[12] ^ lfsr_r[3]};
   wire  [15:0]  mac_seed_w  = 16'hACE1 ^ station_mac_i[15:0] ^ station_mac_i[31:16];
+  wire  [15:0]  enable_seed_w = (mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w;
 
   // ---- claim state ----------------------------------------------------------
   logic [15:0]  offset_r;
@@ -280,7 +282,8 @@ module KL_maap #(
   //! generate_address for Begin!: the provisioning seed once (note a), used
   //! as given (not range-checked); otherwise a random draw clipped to the pool
   wire [15:0] new_off_w = seed_valid_i && !seed_used_r
-                          ? seed_offset_i : rand_offset(lfsr_next_w, count_i);
+                          ? seed_offset_i : rand_offset(rng_seeded_r ? lfsr_next_w
+                                                                    : enable_seed_w, count_i);
 
   always_ff @(posedge clk_i) begin : maap_sm
     if (!rst_n) begin
@@ -289,7 +292,8 @@ module KL_maap #(
       probe_left_r <= '0;
       timer_ms_r   <= '0;
       tickdiv_r    <= '0;
-      lfsr_r       <= (mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w;
+      lfsr_r       <= 16'hACE1;
+      rng_seeded_r <= 1'b0;
       seed_used_r  <= 1'b0;
       conflicts_o  <= '0;
       defends_o    <= '0;
@@ -314,6 +318,12 @@ module KL_maap #(
 
       //! free-running entropy + ms tick
       lfsr_r    <= lfsr_next_w;
+      //! Firmware programs the MAC after reset. Sample it at first enable,
+      //! then keep the generator running across Release!/Begin! retries.
+      if (enable_i && !rng_seeded_r) begin
+        lfsr_r       <= enable_seed_w;
+        rng_seeded_r <= 1'b1;
+      end
       tickdiv_r <= (tickdiv_r == '0) ? ($bits(tickdiv_r))'(TICK_DIV_C - 1)
                                      : tickdiv_r - 1'b1;
       if (tick_ms_w && timer_ms_r != '0) timer_ms_r <= timer_ms_r - 16'd1;

@@ -96,13 +96,17 @@ MUTANTS = (
 )
 
 
-def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
+def run_case(work: Path, name: str, source: str, failure: str | None,
+             integration: bool = False) -> bool:
     """A compiler error or abnormal termination never counts as a kill."""
     rtl = work / f"{name}.sv"
     rtl.write_text(source)
     mdir = work / f"obj_{name}"
+    target = "integration-build" if integration else "build"
+    directory = "DP_MDIR" if integration else "MDIR"
     result = subprocess.run(
-        ["make", "-s", "-C", str(HERE), "build", f"MAAP_RTL={rtl}", f"MDIR={mdir}",
+        ["make", "-j8", "-s", "-C", str(HERE), target, f"MAAP_RTL={rtl}",
+         f"{directory}={mdir}",
          f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}",
          f"VERILATOR_JOBS={os.environ.get('VERILATOR_JOBS', '0')}"],
         capture_output=True, text=True, check=False)
@@ -110,7 +114,8 @@ def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
         print(result.stdout[-2000:] + result.stderr[-2000:])
         print(f"[ESCAPED] {name}: compilation failed")
         return False
-    result = subprocess.run([str(mdir / "VKL_maap_sim")],
+    executable = "maap_integration" if integration else "VKL_maap_sim"
+    result = subprocess.run([str(mdir / executable)], cwd=mdir,
                             capture_output=True, text=True, check=False)
     output = result.stdout + result.stderr
     if failure is None:
@@ -149,6 +154,16 @@ def main() -> int:
                 results.append(False)
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
+        results.append(run_case(work, "m4_datapath_clean", source, None, True))
+        anchor = "      lfsr_r       <= 16'hACE1;\n      rng_seeded_r <= 1'b0;"
+        replacement = "      lfsr_r       <= enable_seed_w;\n      rng_seeded_r <= 1'b1;"
+        if source.count(anchor) != 1:
+            print("[ESCAPED] M4: expected exactly one reset-seed anchor")
+            results.append(False)
+        else:
+            results.append(run_case(
+                work, "m4_reset_time_sampling", source.replace(anchor, replacement),
+                "M4 datapath: programmed MAC changes probe intervals", True))
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
     return 1 if failures else 0

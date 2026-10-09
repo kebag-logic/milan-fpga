@@ -19,8 +19,13 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
          -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 SRCS = $(MAAP_RTL)
-.PHONY: all run build mutants clean coverage
+.PHONY: all run build mutants clean coverage integration-build
 all: run mutants
+
+# #696: the real CSR-to-MAAP path, using the datapath suite's source authority.
+DP_MDIR ?= obj_integration
+integration-build:
+	$(MAKE) -f integration.mk build DP_MDIR=$(DP_MDIR) MAAP_RTL=$(abspath $(MAAP_RTL))
 
 build:
 	$(VERILATOR) $(VFLAGS) -Mdir $(MDIR) $(SRCS) sim_main.cpp -o VKL_maap_sim

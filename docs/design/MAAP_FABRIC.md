@@ -88,17 +88,13 @@ ANNOUNCE = DEFEND.
   send can also wait for a frame already on the wire. So the engine draws N
   from a centred sub-range: 518 + 0..63 ms for the probe timer (17 ms of
   margin at each end) and 30488 + 0..1023 ms for the announce timer (487 ms).
-  Both draws come from a free-running 16-bit LFSR. The module seeds it at
-  reset from `station_mac_i`. All-zero is the LFSR's only fixed point, and
-  no other state reaches it. A MAC that folds the seed to zero
-  (`mac[15:0] ^ mac[31:16]` = `0xACE1`, such as `02:00:00:00:AC:E1`) takes a
-  nonzero constant seed instead, so the module's draws stay random for
-  every `station_mac_i`. In the shipping `milan_datapath` integration the
-  seed is sampled during `axis_resetn`, when MAC_ADDR_LO/HI are still 0
-  (`milan_csr` clears them in the same reset; firmware writes the MAC after
-  boot). So every shipping station seeds `0xACE1`, and the station MAC does
-  not enter the draws. Stations differ only by when their enable and sends
-  fall. This seed timing is a follow-up item with B.3.6.1 below.
+  Both draws come from a free-running 16-bit LFSR.
+  The first enable samples the programmed station MAC (#696 M4).
+  Reset initializes a constant and clears the seed-sampled flag.
+  Later Release!/Begin! events preserve the running sequence.
+  A folded zero seed takes the nonzero constant instead.
+  This prevents the all-zero fixed point for every MAC.
+  The longer generator and clock seed remain M3 work.
 - `enable_i` falling acts like Release!: back to IDLE at once.
 
 **Conflict detection (B.3.2, Table B.7 note b).**
@@ -134,10 +130,8 @@ not changed by #686; each needs its own decision.
   the DEFEND. `KL_maap` sends this station's own range there.
 - B.3.6.1 wants a uniform draw from a generator with a period of at least
   2^32 - 1, seeded from the sum of the MAC and the local real-time clock.
-  `KL_maap` uses a 16-bit LFSR folded into the pool, seeded at reset from
-  `station_mac_i`. In the shipping integration that input is still 0 at
-  reset, so every station seeds `0xACE1` (seeding before the MAC is
-  programmed); the follow-up decision covers both.
+  `KL_maap` uses a 16-bit LFSR folded into the pool.
+  First enable samples the programmed MAC; clock seeding remains absent.
 - Table B.7 restarts on PortOperational! (B.3.5.9). `KL_maap` has no link
   input, so a link that returns does not re-probe.
 - A PROBE parsed while any frame is on the wire is not defended. Under Table
@@ -147,6 +141,9 @@ not changed by #686; each needs its own decision.
   The overlap is then settled by that ANNOUNCE and compare_MAC (B.3.6.4,
   note d), which can move this station off the range it already held.
 - RX parsing is untagged only; a tagged MAAP PDU is ignored.
+- Truncated-PDU discard accounting remains absent (B.2, #696 M8).
+  A later register-map change must provide an observable count.
+  The manager ruling on #696 withdraws counting from this lane.
 - A supplied seed (`seed_offset_i`) is not range-checked. Table B.9's pool
   holds only when provisioning supplies a block that fits. Validating the
   seed against the pool is a follow-up decision.
@@ -172,8 +169,11 @@ compared ranges with inclusive ends.
   selects the fabric `KL_maap` leg through `KL_pp_maap_shim`. Lane 0 of
   `A_TXARB_DIAG 0x784` supervises that merge — **anything decoding `0x784` by
   the old eight-lane numbering now reads the wrong mux.**
-- Randomness: LFSR seeded at `axis_resetn` from `cfg_mac_addr`, which is 0
-  then, so every station seeds `0xACE1`; interval jitter from the same LFSR.
+- Randomness: first enable samples `cfg_mac_addr` after firmware programming.
+  Interval jitter uses the same free-running LFSR.
+  The default MAAP target exercises the real CSR/datapath path.
+  Equally timed stations with different programmed MACs draw different intervals.
+  Restoring reset-time sampling fails that check.
 - Outputs: `maap_addr[47:0]`, `maap_valid` (ANNOUNCE state) → the datapath's
   `eff_aaf_dmac` mux into the AAF framer dmac when
   `MAAP_CTRL.en=1 && maap_valid`, **and** the block side of
