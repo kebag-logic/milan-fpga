@@ -1,0 +1,83 @@
+make: Entering directory '$PACKET/scratch/treeA/tb/verilator/follow_ring'
+make -j4 b8 pullin small-pullin settle-control
+make[1]: Entering directory '$PACKET/scratch/treeA/tb/verilator/follow_ring'
+mkdir -p obj_dir
+make build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine
+python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv obj_dir/dp_glue.svh
+python3 settle_control.py --sim verilator \
+  --out $PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_control --jobs 4
+make[2]: Entering directory '$PACKET/scratch/treeA/tb/verilator/follow_ring'
+mkdir -p $PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine
+python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv $PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine/dp_glue.svh
+verilator --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=25000000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+$PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine  -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64" -Mdir $PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+verilator --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=6250000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+obj_dir  -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64" -Mdir obj_dir ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+make[3]: Entering directory '$PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine'
+g++  -I.  -MMD -I$USER_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$USER_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64   -Os  -c -o sim_main.o ../sim_main.cpp
+../sim_main.cpp:56:10: fatal error: ../../common/verilator_harness.hpp: No such file or directory
+   56 | #include "../../common/verilator_harness.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[3]: *** [Vfollow_ring_wrap.mk:63: sim_main.o] Error 1
+make[3]: Leaving directory '$PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine'
+%Error: 'make -C $PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine -f Vfollow_ring_wrap.mk' exited with 2
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+%Error: Command Failed ulimit -s unlimited 2>/dev/null; exec $USER_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=25000000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+$PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS -std=c++17\ -O2\ -Wall\ -Wextra\ -DCLK_HZ_TB=25000000\ -DFRAME_DIV_TB=64 -Mdir $PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir_fine ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+make[2]: *** [Makefile:89: build] Error 2
+make[2]: Leaving directory '$PACKET/scratch/treeA/tb/verilator/follow_ring'
+make[1]: *** [Makefile:106: small-pullin] Error 2
+make[1]: *** Waiting for unfinished jobs....
+make[2]: Entering directory '$PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir'
+g++  -I.  -MMD -I$USER_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$USER_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=6250000 -DFRAME_DIV_TB=64   -Os  -c -o sim_main.o ../sim_main.cpp
+../sim_main.cpp:56:10: fatal error: ../../common/verilator_harness.hpp: No such file or directory
+   56 | #include "../../common/verilator_harness.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[2]: *** [Vfollow_ring_wrap.mk:63: sim_main.o] Error 1
+make[2]: Leaving directory '$PACKET/scratch/treeA/tb/verilator/follow_ring/obj_dir'
+%Error: 'make -C obj_dir -f Vfollow_ring_wrap.mk' exited with 2
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+%Error: Command Failed ulimit -s unlimited 2>/dev/null; exec $USER_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=6250000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+obj_dir -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS -std=c++17\ -O2\ -Wall\ -Wextra\ -DCLK_HZ_TB=6250000\ -DFRAME_DIV_TB=64 -Mdir obj_dir ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+make[1]: *** [Makefile:89: build] Error 2
+settle control 6250000 Hz: PASS
+settle control 25000000 Hz: PASS
+settle control 50000000 Hz: PASS
+settle control 100000000 Hz: PASS
+make[1]: Leaving directory '$PACKET/scratch/treeA/tb/verilator/follow_ring'
+make: *** [Makefile:84: run] Error 2
+make: Leaving directory '$PACKET/scratch/treeA/tb/verilator/follow_ring'

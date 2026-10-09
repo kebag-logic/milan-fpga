@@ -1,0 +1,16 @@
+dup_author_repro window [4.098, 5.098): harness 1+0 table slips/skips (1, 0) AGREE
+dup_author_repro window [5.098, 11.755): harness 1+0 table slips/skips (1, 0) AGREE
+dup_author_repro window [11.755, 15.851): harness 0+0 table slips/skips (0, 0) AGREE
+dup_author_repro window [15.851, 21.098): harness 0+0 table slips/skips (0, 0) AGREE
+dup_author_repro whole run [0, 21.098000000) by 0.25 s: totals (slips, skips, recentres) (3, 0, 2) records (3, 0, 2) AGREE; nonzero bins [('+0.25', '0', '0', '1'), ('+1.75', '1', '0', '0'), ('+5.25', '1', '0', '0'), ('+8.75', '1', '0', '0'), ('+16.00', '0', '0', '1')]
+dup_own window [8.674, 9.674): harness 0+0 table slips/skips (0, 0) AGREE
+dup_own window [9.675, 13.674): harness 1+0 table slips/skips (1, 0) AGREE
+dup_own whole run [0, 13.674157120) by 0.25 s: totals (slips, skips, recentres) (4, 0, 1) records (4, 0, 1) AGREE; nonzero bins [('+0.25', '0', '0', '1'), ('+1.75', '1', '0', '0'), ('+5.25', '1', '0', '0'), ('+8.75', '1', '0', '0'), ('+12.25', '1', '0', '0')]
+skip_own window [13.901, 14.901): harness 0+2 table slips/skips (2, 2) AGREE
+skip_own window [14.902, 16.901): harness 0+3 table slips/skips (3, 3) AGREE
+skip_own whole run [0, 16.901090960) by 0.25 s: totals (slips, skips, recentres) (17, 17, 1) records (17, 17, 1) AGREE; nonzero bins [('+0.25', '0', '0', '1'), ('+7.25', '1', '1', '0'), ('+7.75', '1', '1', '0'), ('+8.25', '1', '1', '0'), ('+9.00', '1', '1', '0'), ('+9.50', '1', '1', '0'), ('+10.00', '1', '1', '0'), ('+10.75', '1', '1', '0'), ('+11.25', '1', '1', '0'), ('+12.00', '1', '1', '0'), ('+12.50', '1', '1', '0'), ('+13.00', '1', '1', '0'), ('+13.75', '1', '1', '0'), ('+14.25', '1', '1', '0'), ('+14.75', '1', '1', '0'), ('+15.50', '1', '1', '0'), ('+16.00', '1', '1', '0'), ('+16.75', '1', '1', '0')]
+pullin_leg window [4.100, 4.600): harness 0+0 table slips/skips (0, 0) AGREE
+pullin_leg window [4.600, 4.800): harness 0+0 table slips/skips (0, 0) AGREE
+pullin_leg window [5.454, 6.100): harness 0+0 table slips/skips (0, 0) AGREE
+pullin_leg whole run [0, 6.100052000) by 0.25 s: totals (slips, skips, recentres) (0, 0, 2) records (0, 0, 2) AGREE; nonzero bins [('+0.25', '0', '0', '1'), ('+5.50', '0', '0', '1')]
+real control tables: PASS

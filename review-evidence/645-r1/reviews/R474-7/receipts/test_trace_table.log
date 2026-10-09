@@ -1,0 +1,21 @@
+test_bins_count_all_events_and_exclude_end (__main__.TraceTableTests.test_bins_count_all_events_and_exclude_end)
+Counter events use half-open bins, even without a PDU in that bin. ... ok
+test_decimal_boundaries_for_events_and_pdus (__main__.TraceTableTests.test_decimal_boundaries_for_events_and_pdus)
+Both inputs include the start, exclude the end, and own each edge. ... ok
+test_declared_action_is_not_a_slip (__main__.TraceTableTests.test_declared_action_is_not_a_slip)
+A four-tick recentre changes margins without moving slip counters. ... ok
+test_duplicate_during_recentre_is_counted (__main__.TraceTableTests.test_duplicate_during_recentre_is_counted)
+The declared pulse grants no exclusion window to a true duplicate. ... ok
+test_legacy_probe_does_not_infer_slips (__main__.TraceTableTests.test_legacy_probe_does_not_infer_slips)
+Old margin-only traces cannot establish a measured slip count. ... ok
+test_partial_last_bin_and_servo_timestamp (__main__.TraceTableTests.test_partial_last_bin_and_servo_timestamp)
+A short final bin clips at the exact end; servo snapshots stay exact. ... ok
+test_skip_with_flat_margin_is_counted (__main__.TraceTableTests.test_skip_with_flat_margin_is_counted)
+A genuine skip is observable without a positive margin jump. ... ok
+test_subnanosecond_sides_remain_distinct (__main__.TraceTableTests.test_subnanosecond_sides_remain_distinct)
+No grace interval or decimal precision rounding absorbs neighbours. ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.898s
+
+OK
