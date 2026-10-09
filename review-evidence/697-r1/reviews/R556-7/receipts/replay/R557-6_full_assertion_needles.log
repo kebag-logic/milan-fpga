@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<PACKET>/scratch/replay/s/R557-6/scratch/full-assertion-probe/tree/scripts/needle_audit.py", line 106, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<PACKET>/scratch/replay/s/R557-6/scratch/full-assertion-probe/tree/scripts/needle_audit.py", line 64, in main
+    messages = assertion_literals()
+  File "<PACKET>/scratch/replay/s/R557-6/scratch/full-assertion-probe/tree/scripts/needle_audit.py", line 23, in assertion_literals
+    raise ValueError(path.relative_to(root).as_posix() + ': ' + '; '.join(errors))
+ValueError: tests/test_port.cpp: unsupported assertion form: GTEST_ASSERT_LT

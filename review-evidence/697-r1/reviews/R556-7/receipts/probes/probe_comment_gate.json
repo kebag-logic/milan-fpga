@@ -1,0 +1,269 @@
+[
+ {
+  "probe": "asm-include",
+  "built": true,
+  "head_gate": [
+   "c: line 4: assembler conditional, macro, include or end is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "asm-include-upper",
+  "built": true,
+  "head_gate": [
+   "c: line 4: assembler conditional, macro, include or end is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "asm-include-after-label",
+  "built": true,
+  "head_gate": [
+   "c: line 2: assembler conditional, macro, include or end is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "asm-include-after-separator",
+  "built": true,
+  "head_gate": [
+   "c: line 4: assembler conditional, macro, include or end is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "asm-incbin",
+  "built": true,
+  "head_gate": [
+   "c: line 4: assembler conditional, macro, include or end is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "asm-incbin-range",
+  "built": true,
+  "head_gate": [
+   "c: line 4: assembler conditional, macro, include or end is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "asm-end",
+  "built": true,
+  "head_gate": [
+   "c: line 4: assembler conditional, macro, include or end is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "asm-end-separator",
+  "built": true,
+  "head_gate": [
+   "c: line 4: assembler conditional, macro, include or end is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "asm-tracing",
+  "built": true,
+  "head_gate": [],
+  "previous_round_gate": [],
+  "head_status": "accept",
+  "expected": "accept"
+ },
+ {
+  "probe": "asm-endfunc-control",
+  "built": true,
+  "head_gate": [],
+  "previous_round_gate": [],
+  "head_status": "accept",
+  "expected": "accept"
+ },
+ {
+  "probe": "ld-backslash (link=True, fatal-link=True)",
+  "built": true,
+  "head_gate": [
+   "single quotes, backslashes and hashes are forbidden in linker scripts"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "ld-hash-version (link=True, fatal-link=True)",
+  "built": true,
+  "head_gate": [
+   "single quotes, backslashes and hashes are forbidden in linker scripts"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "ld-version (link=True, fatal-link=True)",
+  "built": true,
+  "head_gate": [
+   "c: VERSION is forbidden in linker scripts"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "ld-quote (link=True, fatal-link=False)",
+  "built": true,
+  "head_gate": [
+   "single quotes, backslashes and hashes are forbidden in linker scripts"
+  ],
+  "previous_round_gate": [
+   "single quotes are forbidden in linker scripts"
+  ],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "ld-version-in-comment (link=True, fatal-link=True)",
+  "built": true,
+  "head_gate": [
+   "c: line 1: unsupported comment"
+  ],
+  "previous_round_gate": [
+   "c: line 1: unsupported comment"
+  ],
+  "head_status": "refuse",
+  "expected": "refuse-or-accept"
+ },
+ {
+  "probe": "ld-include-other (link=True, fatal-link=True)",
+  "built": true,
+  "head_gate": [],
+  "previous_round_gate": [],
+  "head_status": "accept",
+  "expected": "out-of-listed-rules"
+ },
+ {
+  "probe": "ld-tracing (link=True, fatal-link=True)",
+  "built": true,
+  "head_gate": [],
+  "previous_round_gate": [],
+  "head_status": "accept",
+  "expected": "accept"
+ },
+ {
+  "probe": "cpp-include-quoted-c",
+  "built": true,
+  "head_gate": [
+   "c++: line 1: including C or C++ source files is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "cpp-include-angled-cpp",
+  "built": true,
+  "head_gate": [
+   "c++: line 1: including C or C++ source files is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "cpp-include-spaced",
+  "built": true,
+  "head_gate": [
+   "c++: line 1: including C or C++ source files is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "cpp-include-subdir",
+  "built": true,
+  "head_gate": [
+   "c++: line 1: including C or C++ source files is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "cpp-include-comment-in-directive",
+  "built": true,
+  "head_gate": [
+   "c++: line 1: including C or C++ source files is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "cpp-include-spliced",
+  "built": true,
+  "head_gate": [
+   "c++: line 1: including C or C++ source files is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "c-include-quoted-c",
+  "built": true,
+  "head_gate": [
+   "c: line 1: including C or C++ source files is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "h-include-quoted-c",
+  "built": true,
+  "head_gate": [
+   "c: line 1: including C or C++ source files is forbidden",
+   "c++: line 1: including C or C++ source files is forbidden"
+  ],
+  "previous_round_gate": [],
+  "head_status": "refuse",
+  "expected": "refuse"
+ },
+ {
+  "probe": "cpp-include-next",
+  "built": false,
+  "head_gate": [
+   "c++: line 1: unknown directive #include_next"
+  ],
+  "previous_round_gate": [
+   "c++: line 1: unknown directive #include_next"
+  ],
+  "head_status": "refuse",
+  "expected": "suggestion"
+ },
+ {
+  "probe": "cpp-include-header-control",
+  "built": false,
+  "head_gate": [],
+  "previous_round_gate": [],
+  "head_status": "accept",
+  "expected": "accept"
+ }
+]

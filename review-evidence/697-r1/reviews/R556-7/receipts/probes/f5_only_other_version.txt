@@ -1,0 +1,9 @@
+configure with only host GoogleTest (pkg-config reports 1.18.0) visible: rc=1
+  Could not find a configuration file for package "GTest" that exactly
+  matches requested version "1.14.0".
+
+  The following configuration files were considered but not accepted:
+
+    /usr/lib/cmake/GTest/GTestConfig.cmake, version: 1.18.0
+      The version found is not compatible with the version requested.
+mutation.py with only host pkg-config metadata: rc=1 (RuntimeError: gtest must be version 1.14.0, found 1.18.0)

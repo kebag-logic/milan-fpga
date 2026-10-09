@@ -1,0 +1,4 @@
+PKG_CONFIG_PATH=upstream pc (-I, non-system prefix) CPLUS_INCLUDE_PATH=pinned include
+mutation.py --select acmp-header-no-resp-2s rc=0 ({"CAUGHT": 1, "ESCAPED": 0, "ERROR": 0})
+dependency_selftest rc=1 ()
+without CPLUS_INCLUDE_PATH: mutation.py rc=1 (error: comparison of integer expressions of different signedness: ‘const unsigned int’ and ‘const int’ )

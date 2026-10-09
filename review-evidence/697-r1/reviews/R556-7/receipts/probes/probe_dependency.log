@@ -1,0 +1,17 @@
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+cmake-module-mode: dependency_selftest rc=1; last error: RuntimeError: another package version was not refused
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+mutation-no-cflags: dependency_selftest rc=1; last error: subprocess.CalledProcessError: Command '['/usr/bin/python3', '<PACKET>/scratch/probe-dependency/mutation-no-cflags/scripts/mutation.py', '--work', '<PACKET>/scratch/probe-dependency/mutation-no-cflags-run/campaign', '--select', 'acmp-header-no-resp-2s', '--jobs', '16']' returned non-zero exit status 1.
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+mutation-old-libs: dependency_selftest rc=1; last error: subprocess.CalledProcessError: Command '['/usr/bin/python3', '<PACKET>/scratch/probe-dependency/mutation-old-libs/scripts/mutation.py', '--work', '<PACKET>/scratch/probe-dependency/mutation-old-libs-run/campaign', '--select', 'acmp-header-no-resp-2s', '--jobs', '16']' returned non-zero exit status 1.
+unmodified head, -isystem package flags: dependency_selftest rc=0
+unmodified head, upstream -I package flags (non-system prefix): dependency_selftest rc=1
+    raise RuntimeError("baseline build failed: " + "".join(local))
+RuntimeError: baseline build failed: In file included from <PACKET>/scratch/probe-dependency/head-plain-run/campaign/baseline/tests/test_adp.cpp:4:
+<PACKET>/scratch/gtest-install/include/gtest/gtest.h:1379:11: error: comparison of integer expressions of different signedness: ‘const unsigned int’ and ‘const int’ [-Werror=sign-compare]
+test_adp.cpp: -I instantiation errors=1; -isystem rc=0
+test_acmp.cpp: -I instantiation errors=0; -isystem rc=0
+test_maap.cpp: -I instantiation errors=0; -isystem rc=0
+test_adp_reentry.cpp: -I instantiation errors=0; -isystem rc=0
+test_port.cpp: -I instantiation errors=0; -isystem rc=0
+test_maap_debug.cpp: -I instantiation errors=0; -isystem rc=0

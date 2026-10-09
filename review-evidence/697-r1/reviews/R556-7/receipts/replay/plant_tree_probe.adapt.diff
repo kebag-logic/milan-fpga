@@ -1,0 +1,11 @@
+--- <PACKET>/scratch/replay/s/R556-5/plant_tree_probe.sh	2026-10-09 13:05:51.254410410 +0200
++++ <PACKET>/scratch/replay/plant_tree_probe.head.sh	2026-10-09 13:05:51.313000000 +0200
+@@ -6,7 +6,7 @@
+ set -u
+ SRC=$1; W=$2
+ rm -rf "$W"; mkdir -p "$W"
+-git clone -q "$SRC" "$W/tree" && cd "$W/tree" && git checkout -q --detach 60c911b92825a720044e78bed540752c7dd0368e || exit 2
++git clone -q "$SRC" "$W/tree" && cd "$W/tree" && git checkout -q --detach 68070cb5723682586c07a6de80a49886732b5dc2 || exit 2
+ run() { label=$1; shift; "$@" > "$W/$label.log" 2>&1; echo "$label rc=$?"; }
+ gates() {
+   run "$1-comments" python3 -B scripts/check_comments.py

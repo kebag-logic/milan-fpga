@@ -1,0 +1,17 @@
+regenerate traceability rc=0
+regenerate test inventory rc=0
+ docs/TESTS.md        | 2 +-
+ docs/TRACEABILITY.md | 2 +-
+ tests/test_port.cpp  | 2 ++
+ 3 files changed, 4 insertions(+), 2 deletions(-)
+comments rc=0 (comments: 23 code files and all mutation fragments pass)
+needles rc=0 (needles: zero unspecific killers; no inherited exceptions)
+test-inventory rc=0 (test sensitivity: 108 declarations, 311 plants)
+traceability rc=0 (traceability: 17 requirements; 108 test declarations)
+conditionals rc=0 (conditionals: 22 files; 38 region sides compiled)
+boundary rc=0 (boundary: compiler dependencies and object symbols pass)
+license rc=0 (license: pass)
+port-contracts rc=0 (port contracts: callbacks, fields, preconditions and counters present)
+configure rc=0 (-- Build files have been written to: <PACKET>/scratch/probe-spi/build)
+build rc=0 ([100%] Built target port_tests)
+port_tests rc=0 ([  PASSED  ] 1 test.)
