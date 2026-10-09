@@ -687,6 +687,70 @@ TEST_F(Core, CounterNoticesCoalesceAndWaitForEligibility)
     aecp_changed(&a,5,0,1);observations=false;drain(); // failed snapshots never claim SUCCESS
 }
 
+TEST_F(Core, FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded)
+{
+    register_controller();sent.clear();observations=false;
+    aecp_changed(&a,5,0,15);aecp_changed(&a,0,0,15);aecp_changed(&a,36,0,7);
+    drain();EXPECT_TRUE(sent.empty());
+    EXPECT_EQ(events[&desc(5)-descriptors.data()].pending,9u);
+    EXPECT_EQ(events[&desc(0)-descriptors.data()].pending,0u);
+    EXPECT_EQ(events[&desc(36)-descriptors.data()].pending,0u);
+    observations=true;drain();ASSERT_EQ(sent.size(),2u);
+    EXPECT_EQ(get(sent[0].second,36,2),0x800fu);
+    EXPECT_EQ(get(sent[1].second,36,2),0x8029u);
+    EXPECT_EQ(events[&desc(5)-descriptors.data()].pending,0u);
+}
+
+TEST_F(Core, StaticMapsPreventOrphaningFormats)
+{
+    auto &port=desc(14), &map=desc(10); // Replace an unrelated row with a synthetic AUDIO_MAP.
+    map.type=23;map.index=0;map.length=24;std::fill(map.value,map.value+24,0);
+    put(map.value+4,8,2);put(map.value+6,2,2);
+    put(map.value+8,1,2);put(map.value+10,7,2); // another stream does not constrain stream zero
+    put(map.value+16,0,2);put(map.value+18,7,2);
+    put(port.value+16,1,2);put(port.value+18,0,2);
+    auto body=target(5,0,12);uint64_t old=get(desc(5).value+74,8);
+    put(body,4,(old&~(uint64_t(1023)<<22))|(uint64_t(4)<<22),8);
+    ask(8,body,7);EXPECT_EQ(get(desc(5).value+74,8),old);
+    put(map.value+18,3,2);ask(8,body);
+    for(auto damaged:std::vector<std::pair<unsigned,unsigned>>{{4,25},{6,3}}){
+        auto oldfield=get(map.value+damaged.first,2);put(map.value+damaged.first,damaged.second,2);
+        ask(8,body,7);put(map.value+damaged.first,oldfield,2);
+    }
+    map.length=7;ask(8,body,7);map.length=24;map.index=1;ask(8,body,7);map.index=0;
+    port.length=19;ask(8,body,7);port.length=20;
+    map.index=65535;put(port.value+18,65535,2);put(port.value+16,2,2);ask(8,body,7);
+}
+
+TEST_F(Core, OutputMappingsHaveOneGlobalOwner)
+{
+    aecp_mapping other_rows[]={{0,1,0,0},{1,0,1,0}};
+    aecp_map other[]={maps[0],maps[1],{15,1,0,8,other_rows,2,2,nullptr,0}};
+    a.cfg.maps=other;a.cfg.map_count=3;
+    auto b=target(15,0,16);put(b,4,1,2);put(b,10,1,2);put(b,12,1,2);
+    ask(44,b,7);EXPECT_EQ(other[1].count,0u)<<"another port already owns this stream channel";
+    other[2].configuration=1;ask(44,b);EXPECT_EQ(other[1].count,1u);
+    other[2].configuration=0;put(b,10,2,2);put(b,12,2,2);ask(44,b);EXPECT_EQ(other[1].count,2u);
+    observations=false;put(b,10,3,2);put(b,12,3,2);ask(44,b,7);
+}
+
+TEST_F(Core, SavedValuesRejectWrongFieldsAndDamagedDescriptors)
+{
+    a.open=false;Bytes bytes(64);
+    for(auto v:std::vector<aecp_value>{{AECP_CHANGE_FORMAT,0,0,0},{AECP_CHANGE_FORMAT,9,0,0},
+        {AECP_CHANGE_RATE,5,0,0},{AECP_CHANGE_CLOCK,2,0,0},{AECP_CHANGE_LATENCY,5,0,0},
+        {AECP_CHANGE_NAME,0,0,2},{AECP_CHANGE_IDENTIFY,26,0,0},{AECP_CHANGE_NAME,5,65535,0}}){
+        EXPECT_EQ(aecp_value_restore(&a,v,bytes.data(),bytes.size()),AECP_ENTITY_MISBEHAVING);
+        EXPECT_FALSE(aecp_value_latch(&a,v,bytes.data(),bytes.size()));
+    }
+    desc(5).length=67;
+    EXPECT_EQ(aecp_value_restore(&a,{AECP_CHANGE_NAME,5,0,0},bytes.data(),64),AECP_ENTITY_MISBEHAVING);
+    desc(5).length=83;
+    EXPECT_EQ(aecp_value_restore(&a,{AECP_CHANGE_FORMAT,5,0,0},bytes.data(),8),AECP_ENTITY_MISBEHAVING);
+    a.open=true;
+    EXPECT_EQ(aecp_value_restore(&a,{AECP_CHANGE_NAME,0,0,0},bytes.data(),64),AECP_ENTITY_MISBEHAVING);
+}
+
 TEST_F(Core, ProbeRepliesResetOnlyTheirOwnInterface)
 {
     register_controller();sent.clear();ms=42345;drain();ASSERT_EQ(sent.size(),1u);

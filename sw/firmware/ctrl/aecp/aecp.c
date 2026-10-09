@@ -309,7 +309,8 @@ void aecp_changed(struct aecp *a, uint16_t type, uint16_t index, unsigned events
 	}
 	struct aecp_descriptor *d = aecp_find(a, a->configuration, type, index);
 	if (d != NULL) {
-		a->cfg.events[d - a->cfg.model->descriptors].pending |= (uint8_t)(events & 15u);
+		unsigned supported = type == 5u || type == 6u ? 9u : type == 9u ? 14u : type == 36u ? 8u : 0u;
+		a->cfg.events[d - a->cfg.model->descriptors].pending |= (uint8_t)(events & supported);
 	}
 }
 
@@ -422,7 +423,6 @@ static bool asynchronous(struct aecp *a)
 			    (bit == 3u && (e->awaiting_output || (e->counter_sent && !due(a->now, e->counter_at))))) {
 				continue;
 			}
-			e->pending &= (uint8_t)~(1u << bit);
 			uint8_t input[4] = {0};
 			wire_put_be(input, bit == 2u ? d->index : d->type, 2);
 			if (bit != 2u) {
@@ -433,6 +433,7 @@ static bool asynchronous(struct aecp *a)
 			size_t bytes = 0;
 			unsigned status = aecp_command(a, 0, commands[bit], input, 4u, a->response + 38, &bytes);
 			if (status == AECP_SUCCESS) {
+				e->pending &= (uint8_t)~(1u << bit);
 				finish(a, status, bytes);
 				a->response_owed = false;
 				a->notify = true;

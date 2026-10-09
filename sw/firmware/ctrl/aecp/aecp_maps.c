@@ -10,6 +10,7 @@ static unsigned channels(uint64_t format)
 
 bool aecp_maps_allow_format(struct aecp *a, uint16_t type, uint16_t index, uint64_t format)
 {
+	uint16_t port_type = type == 5u ? 14u : 15u;
 	for (size_t n = 0; n < a->cfg.map_count; ++n) {
 		const struct aecp_map *m = &a->cfg.maps[n];
 		if (m->configuration != a->configuration || m->type != (type == 5u ? 14u : 15u)) {
@@ -18,6 +19,24 @@ bool aecp_maps_allow_format(struct aecp *a, uint16_t type, uint16_t index, uint6
 		for (size_t k = 0; k < m->count; ++k) {
 			if (m->rows[k].stream == index && m->rows[k].channel >= channels(format)) {
 				return false;
+			}
+		}
+	}
+	// Static AUDIO_MAP descriptors constrain format changes too (Milan 5.4.2.7).
+	for (size_t n = 0; n < a->cfg.model->count; ++n) {
+		struct aecp_descriptor *port = &a->cfg.model->descriptors[n];
+		if (port->configuration != a->configuration || port->type != port_type) continue;
+		if (port->length < 20u) return false;
+		unsigned count = (unsigned)wire_be16(port->value + 16), base = (unsigned)wire_be16(port->value + 18);
+		for (unsigned k = 0; k < count; ++k) {
+			if (base + k > UINT16_MAX) return false;
+			struct aecp_descriptor *map = aecp_find(a, a->configuration, 23u, (uint16_t)(base + k));
+			if (map == NULL || map->length < 8u) return false;
+			size_t offset = (size_t)wire_be16(map->value + 4), rows = (size_t)wire_be16(map->value + 6);
+			if (offset > map->length || rows * 8u > map->length - offset) return false;
+			for (size_t r = 0; r < rows; ++r) {
+				const uint8_t *record = map->value + offset + 8u*r;
+				if (wire_be16(record) == index && wire_be16(record + 2) >= channels(format)) return false;
 			}
 		}
 	}
@@ -81,6 +100,15 @@ static bool valid(struct aecp *a, const struct aecp_descriptor *port, const stru
 		struct aecp_stream_info info;
 		if (!aecp_stream_read(a, type, r->stream, &info) || info.running) {
 			return false;
+		}
+	}
+	if (type == 6u) {
+		for (size_t n = 0; n < a->cfg.map_count; ++n) {
+			const struct aecp_map *other = &a->cfg.maps[n];
+			if (other->configuration != a->configuration || other->type != 15u || other->index == port->index) continue;
+			for (size_t k = 0; k < other->count; ++k) {
+				if (other->rows[k].stream == r->stream && other->rows[k].channel == r->channel) return false;
+			}
 		}
 	}
 	return true;
