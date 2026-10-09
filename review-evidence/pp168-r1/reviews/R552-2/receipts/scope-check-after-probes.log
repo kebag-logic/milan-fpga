@@ -1,0 +1,24 @@
+HEAD 66d1b501f4879402fe76485095aef7c6e07c32af tree 36e735c0d54ceb20f2ca09f4ed07069e575a9717
+PASS head is exact
+PASS tree is exact
+parents of head: 66d1b501f4879402fe76485095aef7c6e07c32af 96d3b78384f34a630d6056ebd8fa5e30f6836650
+--- files changed 96d3b78384f34a630d6056ebd8fa5e30f6836650..66d1b501f4879402fe76485095aef7c6e07c32af
+M	docs/00_MILAN_COMPLIANCE_REVIEW.md
+M	docs/architecture/01_overview.md
+M	docs/architecture/02_interfaces.md
+M	docs/architecture/05_acmp_engine.md
+M	docs/architecture/06_aecp_engine.md
+M	docs/architecture/07_memory_maps.md
+M	docs/diagrams/24-adp-acmp-states.svg
+M	docs/diagrams/wavedrom/fig-07-sinkrec.svg
+M	docs/guides/integrator.md
+M	docs/guides/operator.md
+PASS no hdl/ tb/ scripts/ syn/ Makefile .github change (0)
+PASS only docs/ changed
+--- worktree/index integrity
+PASS worktree clean
+PASS index equals HEAD
+index modes+blobs+paths sha256: 4183bf73bb0a3b9eddb4f6463a3fc0976309da60268eba8f17dc1790bbaae0b2  -
+head tree modes+blobs+paths sha256: 4183bf73bb0a3b9eddb4f6463a3fc0976309da60268eba8f17dc1790bbaae0b2  -
+PASS every tracked file's bytes and mode match its index blob
+gitlinks (submodules) in index: 0; .gitmodules present: no

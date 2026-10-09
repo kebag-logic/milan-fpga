@@ -1,0 +1,121 @@
+# Excerpts at exact head 66d1b501f4879402fe76485095aef7c6e07c32af
+
+== docs/architecture/06_aecp_engine.md:1056-1063
+ 1056  **STREAM_INPUT triggers** (`protocol_processor_top` `stri_events`): the
+ 1057  committed pbsta/acmpsta compare off the listener record write bus (bind,
+ 1058  unbind, settle, teardown, double probe timeout, retry); the committed
+ 1059  started/stopped change under a live binding (`act_strt_chg_o`: the §5.5.3.5.6
+ 1060  re-bind short-circuit, and a re-bind to another talker from a bound state,
+ 1061  which from PRB_W_RESP leaves pbsta/acmpsta at ACTIVE/0 so this is its only
+ 1062  push); the SRP registration and unregistration events; SRP's committed
+ 1063  per-sink accumulated-latency change (`evt_tk_latency_chg_o`, including a
+
+== hdl/top/protocol_processor_top.sv:3482-3493
+ 3482    always_ff @(posedge clk_i) begin : listener_gsi_status
+ 3483      if (!rst_n) begin
+ 3484        lstn_gsi_status_r  <= '0;
+ 3485        lstn_gsi_changed_r <= '0;
+ 3486      end else begin
+ 3487        lstn_gsi_changed_r <= '0;
+ 3488        if (lstn_recwr_w) begin
+ 3489          lstn_gsi_status_r[lstn_recwr_sink_w] <= lstn_gsi_status_w;
+ 3490          lstn_gsi_changed_r[lstn_recwr_sink_w] <=
+ 3491              (lstn_gsi_status_r[lstn_recwr_sink_w] != lstn_gsi_status_w);
+ 3492        end
+ 3493      end
+
+== hdl/top/protocol_processor_top.sv:3550-3556
+ 3550    //! Milan Table 5.22, STREAM_INPUT: one term per GET_STREAM_INFO-visible
+ 3551    //! owner. The listener's committed record gives two: the pbsta/acmpsta
+ 3552    //! compare (bind, unbind, settle, teardown, double timeout, retry) and
+ 3553    //! the started/stopped change, including a re-bind that flips
+ 3554    //! STREAMING_WAIT while pbsta/acmpsta stay put (PWR -> PWR). Both are
+ 3555    //! registered off the SAME X_WB record write, so a walk that moves both
+ 3556    //! lands them in one cycle and the OR pushes one frame. SRP gives the
+
+== hdl/acmp/KL_pp_acmp_listener.sv:333-338
+  333    //! (`A1 A11 A9 A2 A3 A4 A5` - no A10, so `f_bound` never drops while A2
+  334    //! rewrites `f_started`). The last one used to be excluded because A4's
+  335    //! discovery arm pushed for it upstream; that term is gone, and from
+  336    //! PRB_W_RESP the re-bind leaves pbsta/acmpsta at ACTIVE/0, so this pulse
+  337    //! is the ONLY notification of that started/stopped change.
+  338    //!
+
+== hdl/acmp/KL_pp_acmp_listener.sv:1270-1274
+ 1270                5'(ACT_A12_C): begin       // arm T-ACMP-DELAY via PRNG draw
+ 1271                  rec_r.pbsta   <= PB_ACTIVE_C;
+ 1272                  // Milan 5.5.3.5.30 step 2 preserves the retry status.
+ 1273                  if (evt_r != LEV_TMR_RETRY) rec_r.acmpsta <= 5'd0;
+ 1274                  cellmut_r     <= 1'b1;
+
+== hdl/acmp/KL_pp_acmp_listener.sv:1338-1346
+ 1338                default: begin             // ACT_A5_C: probe #1, fresh seq
+ 1339                  rec_r.probe_seq <= probe_ctr_r;
+ 1340                  rec_r.settled_stream_id <= rec_r.bind_ctlr_eid;
+ 1341                  probe_ctr_r     <= probe_ctr_r + 16'd1;
+ 1342                  rec_r.f_retried <= 1'b0;
+ 1343                  rec_r.pbsta     <= PB_ACTIVE_C;
+ 1344                  // Milan 5.5.3.5.10 leaves the prior probe status unchanged.
+ 1345                  if (evt_r != LEV_TMR_DELAY) rec_r.acmpsta <= 5'd0;
+ 1346                  cellmut_r       <= 1'b1;
+
+== tb/acmp_listener/field_cases.hpp:124-139
+  124    int retry_status() {
+  125      const Pdu probe = bind(CTL1);
+  126      auto s = response(probe); s.status = 5;
+  127      drive(s);
+  128      Stim discovered; discovered.k = Stim::TK; discovered.tk_kind = 0;
+  129      drive(discovered);
+  130      Stim expiry; expiry.k = Stim::EXP;
+  131      drive(expiry);
+  132      // Milan v1.2 5.5.3.5.30 step 2.
+  133      CHECK(h.shadow[0].sm == S_PWD && h.shadow[0].acmpsta == 5,
+  134            "LD2 discovered retry preserves received status");
+  135      drive(expiry);
+  136      // Milan 5.5.3.5.10: this transition also leaves status unchanged.
+  137      CHECK(h.shadow[0].sm == S_PWR && h.shadow[0].acmpsta == 5,
+  138            "LD2 retry probe preserves received status");
+  139      return fails;
+
+== tb/pp_top/gsi_internal.hpp:424-429
+  424      pair("MISSING-UNBIND", 2, 0, 0, 0, 0, false);
+  425      // Milan 5.5.3.5.30 step 2 and .10 preserve the timeout status.
+  426      // With no status change, Table 5.22 supplies no notification to wait for.
+  427      const auto next_probe = probe(0, 5000);
+  428      check_frame(query(0), "RETRY-RETAIN", 0, 2, 7, 0, 0, false);
+  429      settle(0, next_probe);
+
+== tb/pp_top/README.md:2839-2843
+ 2839  `RETRY-RETAIN` waits for the retry probe, then queries the retained timeout
+ 2840  status under Milan 5.5.3.5.30 step 2 and 5.5.3.5.10. It replaces the former
+ 2841  `RETRY-CLEAR` expectation of a status-clear notification: Table 5.22 does not
+ 2842  notify a status value that did not change. `retry_probe_status_cleared` must
+ 2843  fail the retained-status readback as well as the standalone listener check.
+
+== hdl/acmp/KL_acmp_talker.sv:656-657
+  656    assign uid_valid_w  = (uid16_w < 16'(N_STREAM_OUT_P))
+  657                          && cfg_src_en_i[tsrc_w];
+
+== hdl/acmp/KL_acmp_talker.sv:1301-1307
+ 1301          MT_DISC_TX_C: begin
+ 1302            // Milan 5.5.4.2 step 1 and Tables 5.44/5.45.
+ 1303            resp_valid_o        = 1'b1;
+ 1304            resp_status_o       = uid_valid_w ? ST_SUCCESS_C : ST_TALKER_UNKNOWN_C;
+ 1305            resp_listener_eid_o = pdu_leid_r;
+ 1306            resp_listener_uid_o = pdu_luid_r;
+ 1307          end
+
+== docs/architecture/05_acmp_engine.md:412-416
+  412  For DISCONNECT_TX, source validation includes both the index range and whether
+  413  the source is enabled in the current configuration. Milan §5.5.4.2 step 1 and
+  414  Table 5.44 require TALKER_UNKNOWN_ID for an invalid source; Table 5.45 supplies
+  415  the valid-source SUCCESS response. Neither path changes talker state. This
+  416  procedure governs the overview in §5.5.2.7, which defers to §5.5.4.
+
+== same 06 sentence at round base 96d3b783 (present before this round)
+1047:unbind, settle, teardown, double probe timeout, retry); the committed
+1050:which from PRB_W_RESP leaves pbsta/acmpsta at ACTIVE/0 so this is its only
+
+== RETRY-CLEAR expectation removed by this PR (ed340b9b..66d1b501)
+55:-    pair("RETRY-CLEAR", 0, 2, 0, 0, 0, true, 5000);
+60:+    check_frame(query(0), "RETRY-RETAIN", 0, 2, 7, 0, 0, false);
