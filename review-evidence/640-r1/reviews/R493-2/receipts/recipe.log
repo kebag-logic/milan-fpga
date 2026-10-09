@@ -1,0 +1,22 @@
+PASS shell syntax: 3 documented blocks
+set_param general.maxThreads 8
+read_verilog /sources/vexii/Ram_1w_1rs_Generic.v
+read_verilog /sources/vexii/Ram_1w_1ra_Generic.v
+read_verilog /sources/vexii/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+synth_design -mode out_of_context -directive AreaOptimized_high -part xc7a100t-fgg484-2 -top VexiiRiscvLitex_f5f08b170311db53220574624f819159
+report_utilization -file vexii_util.rpt
+report_utilization -hierarchical -hierarchical_depth 4 -hierarchical_min_primitive_count 0 -file vexii_hier.rpt
+PRICED vexii
+set_param general.maxThreads 8
+read_verilog /sources/vexmin/VexRiscv_Min.v
+synth_design -mode out_of_context -directive AreaOptimized_high -part xc7a100t-fgg484-2 -top VexRiscv
+report_utilization -file vexmin_util.rpt
+report_utilization -hierarchical -hierarchical_depth 4 -hierarchical_min_primitive_count 0 -file vexmin_hier.rpt
+PRICED vexmin
+set_param general.maxThreads 8
+read_verilog /sources/pico/picorv32.v
+synth_design -mode out_of_context -directive AreaOptimized_high -part xc7a100t-fgg484-2 -top picorv32 -generic ENABLE_COUNTERS=0 -generic ENABLE_COUNTERS64=0 -generic ENABLE_REGS_16_31=1 -generic ENABLE_REGS_DUALPORT=1 -generic LATCHED_MEM_RDATA=0 -generic TWO_STAGE_SHIFT=0 -generic TWO_CYCLE_COMPARE=0 -generic TWO_CYCLE_ALU=0 -generic CATCH_MISALIGN=0 -generic CATCH_ILLINSN=1 -generic ENABLE_PCPI=0 -generic ENABLE_MUL=0 -generic ENABLE_DIV=0 -generic ENABLE_FAST_MUL=0 -generic ENABLE_IRQ=1 -generic ENABLE_IRQ_QREGS=1 -generic ENABLE_IRQ_TIMER=0 -generic ENABLE_TRACE=0
+report_utilization -file pico_util.rpt
+report_utilization -hierarchical -hierarchical_depth 4 -hierarchical_min_primitive_count 0 -file pico_hier.rpt
+PRICED pico
+PASS three argument traces; no synthesis, source netlist lookup or hardware execution

@@ -1,0 +1,156 @@
+[
+  {
+    "name": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 8.459
+  },
+  {
+    "name": "docs-self",
+    "command": [
+      "python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.166
+  },
+  {
+    "name": "docs-no-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 8.104
+  },
+  {
+    "name": "style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.067
+  },
+  {
+    "name": "style-self",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.065
+  },
+  {
+    "name": "paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.116
+  },
+  {
+    "name": "feature",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py"
+    ],
+    "rc": 0,
+    "seconds": 0.967
+  },
+  {
+    "name": "archive",
+    "command": [
+      "python3",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.416
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 8.305
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 6.722
+  },
+  {
+    "name": "toc-self",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.917
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "5603c353137e90c1fa95429f6d00ef7a2298d9ee"
+    ],
+    "rc": 0,
+    "seconds": 6.755
+  },
+  {
+    "name": "em-dash-self",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.913
+  },
+  {
+    "name": "resource-baseline",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "resource-self",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.327
+  },
+  {
+    "name": "resource-mutants",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate_mutants.py"
+    ],
+    "rc": 0,
+    "seconds": 6.472
+  }
+]

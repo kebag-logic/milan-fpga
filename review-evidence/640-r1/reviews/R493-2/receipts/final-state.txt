@@ -1,0 +1,10 @@
+git rev-parse HEAD HEAD^{tree}
+rc=0
+7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783
+2f8dac43d7c0efd0350b328818d89dc1cbebca47
+
+git status --porcelain=v1
+rc=0
+
+git diff --check 5603c353137e90c1fa95429f6d00ef7a2298d9ee HEAD
+rc=0

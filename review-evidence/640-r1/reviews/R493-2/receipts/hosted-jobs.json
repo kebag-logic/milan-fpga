@@ -1,0 +1,1373 @@
+[
+  {
+    "run": 37939021285,
+    "workflow": "elaborate",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "elaborate",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021285/job/113848422065",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Decide whether this head needs an elaboration",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch the source dependencies the elaboration reads",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned sv2v release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/setup-python@v5",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned pip downloads",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install LiteX at the pinned revisions",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the Scala toolchain",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the generated CPU metadata",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install sbt",
+        "conclusion": "success"
+      },
+      {
+        "name": "Place the VexiiRiscv source at the revision LiteX pins",
+        "conclusion": "success"
+      },
+      {
+        "name": "Apply the toolchain patch series",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned RV32 SDK",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install and verify the pinned RV32 SDK",
+        "conclusion": "success"
+      },
+      {
+        "name": "Elaboration gates",
+        "conclusion": null
+      },
+      {
+        "name": "Cache the pinned Verilator build",
+        "conclusion": null
+      },
+      {
+        "name": "Build Verilator from source on cache miss",
+        "conclusion": null
+      },
+      {
+        "name": "Put Verilator on PATH and prove the version",
+        "conclusion": null
+      },
+      {
+        "name": "Standalone LiteX simulation aggregate",
+        "conclusion": null
+      },
+      {
+        "name": "Keep the generated CPU netlist arguments for the next run",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned RV32 SDK",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the generated CPU metadata",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the Scala toolchain",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned pip downloads",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/setup-python@v5",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021415,
+    "workflow": "docs",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "docs-check-no-git",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021415/job/113848314769",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Strip git metadata, then run the docs gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021415,
+    "workflow": "docs",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "docs-check",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021415/job/113848315088",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build the validated HDL reference",
+        "conclusion": "success"
+      },
+      {
+        "name": "Upload the HDL reference HTML",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the python gate dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Markdown renderer downloads",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned Markdown renderer",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install diagram gate dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Link health, wording, dead-reference and local-info gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Added-line em-dash gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Concise audience documentation gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Audience diagram no-drift gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Product solution source-fact gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verified submodule documentation gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "HDL timing diagram no-drift gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Published diagram PNG gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Milan feature-status consistency gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Traceability matrix no-drift gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch the builder source dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Imported gPTP documentation gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Code-quality measurement self-tests",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned sv2v release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Bare-metal scope gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned RV32 SDK",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install and verify the pinned RV32 SDK",
+        "conclusion": "success"
+      },
+      {
+        "name": "Compiler-absent firmware controls",
+        "conclusion": null
+      },
+      {
+        "name": "End-station builder gates",
+        "conclusion": null
+      },
+      {
+        "name": "NVM record-space gate",
+        "conclusion": null
+      },
+      {
+        "name": "Capture measurement census and clock gate",
+        "conclusion": null
+      },
+      {
+        "name": "Saved-state writer gate",
+        "conclusion": null
+      },
+      {
+        "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+        "conclusion": null
+      },
+      {
+        "name": "RTL source-list drift gate",
+        "conclusion": null
+      },
+      {
+        "name": "Boundary-unit naming ratchet",
+        "conclusion": null
+      },
+      {
+        "name": "Port contract gate",
+        "conclusion": null
+      },
+      {
+        "name": "Fail-fast ratchet",
+        "conclusion": null
+      },
+      {
+        "name": "TODO ownership gate",
+        "conclusion": null
+      },
+      {
+        "name": "Test-evidence ratchet",
+        "conclusion": null
+      },
+      {
+        "name": "Mechanical hygiene ratchet",
+        "conclusion": null
+      },
+      {
+        "name": "SystemVerilog idiom gate",
+        "conclusion": null
+      },
+      {
+        "name": "C and C++ idiom gate",
+        "conclusion": null
+      },
+      {
+        "name": "Python idiom gate",
+        "conclusion": null
+      },
+      {
+        "name": "Shell idiom gate",
+        "conclusion": null
+      },
+      {
+        "name": "CI event and SHA contract gate",
+        "conclusion": null
+      },
+      {
+        "name": "Local act runner contract gate",
+        "conclusion": null
+      },
+      {
+        "name": "Doc cited-path gate",
+        "conclusion": null
+      },
+      {
+        "name": "Archive integrity gate",
+        "conclusion": null
+      },
+      {
+        "name": "Per-page contents gate",
+        "conclusion": null
+      },
+      {
+        "name": "AEM store generator self-test",
+        "conclusion": null
+      },
+      {
+        "name": "Sweep/build shape gate",
+        "conclusion": null
+      },
+      {
+        "name": "Deploy shape gate",
+        "conclusion": null
+      },
+      {
+        "name": "Entity shape gate",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned RV32 SDK",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned Markdown renderer downloads",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021415,
+    "workflow": "docs",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "wire-accountability",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021415/job/113848315134",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch the engine authority the builder derives from",
+        "conclusion": "success"
+      },
+      {
+        "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021402,
+    "workflow": "rtl-fast",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "bdd-conformance",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021402/job/113848436707",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch the processor model inputs",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install behave",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run the specification-facing suite",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021402,
+    "workflow": "rtl-fast",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "changes",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021402/job/113848437059",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Classify the change conservatively",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021402,
+    "workflow": "rtl-fast",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "verilator-lint",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021402/job/113848666692",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Verilator build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Verilator from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run the ratcheted whole-tree lint gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prove protocol-processor source lists are derived",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Cache the pinned Verilator build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021402,
+    "workflow": "rtl-fast",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "firmware-unit",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021402/job/113848666844",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install GoogleTest and GoogleMock and print the versions",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prove the tally reads a failing and a crashing test as failures",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned RV32 SDK",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install and verify the pinned RV32 SDK",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run the control-plane firmware suites and RV32 builds",
+        "conclusion": null
+      },
+      {
+        "name": "Run the saved-state store suites and its RV32 build",
+        "conclusion": null
+      },
+      {
+        "name": "Hold the firmware coverage ratchet",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned RV32 SDK",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021402,
+    "workflow": "rtl-fast",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "yosys-elaboration",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021402/job/113848666907",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned sv2v release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Elaborate the integration-heavy tops",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+        "conclusion": null
+      },
+      {
+        "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+        "conclusion": null
+      },
+      {
+        "name": "Prove the result cache refuses a planted entry",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned Yosys build",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "full-ci-gate",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848640737",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Print the event and pin the one SHA this run validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Assert the repository default branch is dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Hold every workflow file to its contract",
+        "conclusion": "success"
+      },
+      {
+        "name": "Decide whether this exact head needs the exhaustive gates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Yosys shard 1/4",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848854819",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned sv2v release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Restore the portability result cache seeded from dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run this weighted portability shard",
+        "conclusion": "success"
+      },
+      {
+        "name": "Upload per-top and structural evidence",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Restore the portability result cache seeded from dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Yosys shard 2/4",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848854847",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned sv2v release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Restore the portability result cache seeded from dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run this weighted portability shard",
+        "conclusion": "success"
+      },
+      {
+        "name": "Upload per-top and structural evidence",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Restore the portability result cache seeded from dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Verilator shard 3/5",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848854864",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Verilator build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Verilator from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Put Verilator on PATH and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prove specialized suite ownership",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install sv2v for the netlist-level suite owner",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build the pinned tsn-gen field oracle on its suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run this exhaustive suite shard",
+        "conclusion": null
+      },
+      {
+        "name": "Upload this shard's suite logs",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned Yosys build for the netlist-level suite owner",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned Verilator build",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Verilator shard 0/5",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848854874",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Verilator build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Verilator from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Put Verilator on PATH and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prove specialized suite ownership",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install sv2v for the netlist-level suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build the pinned tsn-gen field oracle on its suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run this exhaustive suite shard",
+        "conclusion": null
+      },
+      {
+        "name": "Upload this shard's suite logs",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned Verilator build",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Verilator shard 1/5",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848854876",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Verilator build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Verilator from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Put Verilator on PATH and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prove specialized suite ownership",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install sv2v for the netlist-level suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build the pinned tsn-gen field oracle on its suite owner",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run this exhaustive suite shard",
+        "conclusion": null
+      },
+      {
+        "name": "Upload this shard's suite logs",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned Verilator build",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Yosys shard 3/4",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848854891",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned sv2v release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Restore the portability result cache seeded from dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run this weighted portability shard",
+        "conclusion": "success"
+      },
+      {
+        "name": "Upload per-top and structural evidence",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Restore the portability result cache seeded from dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Verilator shard 4/5",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848854985",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Verilator build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Verilator from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Put Verilator on PATH and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prove specialized suite ownership",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install sv2v for the netlist-level suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build the pinned tsn-gen field oracle on its suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run this exhaustive suite shard",
+        "conclusion": null
+      },
+      {
+        "name": "Upload this shard's suite logs",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned Verilator build",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Verilator shard 2/5",
+    "conclusion": null,
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848854987",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Verilator build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Verilator from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Put Verilator on PATH and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prove specialized suite ownership",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install sv2v for the netlist-level suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build the pinned tsn-gen field oracle on its suite owner",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run this exhaustive suite shard",
+        "conclusion": null
+      },
+      {
+        "name": "Upload this shard's suite logs",
+        "conclusion": null
+      },
+      {
+        "name": "Post Cache the pinned Verilator build",
+        "conclusion": null
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": null
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Yosys shard 0/4",
+    "conclusion": "success",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848855080",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Fetch RTL dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record the tree this worker validates",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Yosys from source on cache miss",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Install the pinned Yosys and prove the version",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned sv2v release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Restore the portability result cache seeded from dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run this weighted portability shard",
+        "conclusion": "success"
+      },
+      {
+        "name": "Upload per-top and structural evidence",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Restore the portability result cache seeded from dev",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Cache the pinned Yosys build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  {
+    "run": 37939021279,
+    "workflow": "rtl-full",
+    "head_sha": "7387bb6f6ae98f3e1d2e4a1f62c2c66f094fe783",
+    "job": "Physical gPTP (nightly and manual)",
+    "conclusion": "skipped",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37939021279/job/113848857729",
+    "steps": []
+  }
+]
