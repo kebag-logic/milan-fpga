@@ -143,10 +143,17 @@ and START/STOP. The two-interface case also registers the same controller on bot
 interfaces, removes one registration, and checks the remaining notification and
 firmware egress index. The processor wrapper exposes ingress but no egress index;
 its wire count proves registration isolation, not a physical dual-port output.
-Sequences are checked independently before comparing payloads. Seven planted
+Sequences are checked independently before comparing payloads. Eleven planted
 observation defects prove the oracle rejects missing records, altered payloads,
 lengths, status, sequences, extra frames and requested-latency echo without a
 latency sub-command. That request uses a different value from the stored latency.
+No-subcommand refusals cover flags 0, 4, 8 and 12.
+Stream Inputs return NOT_SUPPORTED (Milan 5.4.2.9).
+Streaming outputs return STREAM_IS_RUNNING (Milan 5.4.2.9; IEEE 7.4.15.2).
+The wire fixture establishes streaming through PROBE_TX and Listener Ready.
+It observes streaming before sending the refused commands.
+Controls replace each refusal with success and remove each case.
+Each control must produce its named refusal or census diagnostic.
 
 | Observed difference | Clause and disposition |
 |---|---|

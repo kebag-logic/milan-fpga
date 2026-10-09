@@ -87,7 +87,8 @@ struct Firmware {
     ports.stream=[](void*p,unsigned,uint16_t t,uint16_t,fw::aecp_stream_info*v){
       *v={};v->flags=t==5?0x80000000:0xf2000000;v->latency=12345;
       if(t==6){v->stream_id=0x0102030405060708ull;v->dest_mac=0x91e0f0000101ull;v->vlan=2;}
-      auto &s=*static_cast<Firmware*>(p);v->running=s.started;v->bound=s.bound;
+      auto &s=*static_cast<Firmware*>(p);
+      v->running=t==6?s.physical.d->dbg_streaming0_o!=0:s.started;v->bound=s.bound;
       if(s.bound){v->probing_status=2;v->acmp_status=7;}
       if(t==5&&s.bound&&!s.started)v->flags|=8u;return true;};
     ports.avb=[](void*,unsigned,uint16_t,fw::aecp_avb_info*v){*v={GM0,0x1234,0,7,3,2};return true;};

@@ -10,11 +10,59 @@ static void frames(const std::vector<B> &values) {
   for(const auto &value:values){if(!first)std::printf(",");first=false;hex(value);}
   std::printf("]");
 }
-static void record(const char *kind,const B &request,const std::vector<B> &fabric,const std::vector<B> &core,unsigned interface) {
+static void record(const char *kind,const B &request,const std::vector<B> &fabric,const std::vector<B> &core,unsigned interface,bool output_running=false) {
   std::printf("WIRE {\"kind\":\"%s\",\"interface\":%u,\"request\":",kind,interface);hex(request);
-  std::printf(",\"fabric\":");frames(fabric);std::printf(",\"core\":");frames(core);std::printf("}\n");
+  std::printf(",\"fabric\":");frames(fabric);std::printf(",\"core\":");frames(core);
+  std::printf(",\"output_running\":%s}\n",output_running?"true":"false");
 }
 #include "aecp_wire_timers.hpp"
+
+template <typename Ask>
+static void wire_stream_info_refusals(H &h,Firmware &f,Ask ask) {
+  for(unsigned flags:{0u,4u,8u,12u}){
+    auto b=target(5,0,84);putbe(b.data()+4,flags,4);putbe(b.data()+24,765432,4);ask(14,b);
+  }
+  // Keep the physical setup's asynchronous changes outside the command comparison.
+  ask(37,B{},0,CTLR2_EID);
+  // Milan 5.3.7.3: establish real output streaming via PROBE_TX and Listener Ready.
+#if AECP_WIRE_INTERFACES == 2
+  h.d->rx_if_index_i=0; // Output zero belongs to physical interface zero.
+#endif
+  h.maap_on=true;h.run_ms(300);
+  h.q_acmp.clear();
+  h.feed(acmp_frame(CTLR_MAC,0,0,0,CTLR_EID,EID,T1_EID,0,7,0,0,0x7b00,0x000a,0));
+  auto probe=h.wait_any(h.q_acmp,400);
+  if(probe.size()!=70 || (be(probe.data()+16,2)>>11)!=0)
+    throw std::runtime_error("output probe failed: bytes="+std::to_string(probe.size())+
+        " status="+std::to_string(probe.size()>=18?be(probe.data()+16,2)>>11:255));
+  h.run_ms(300);h.sync_join();
+  const uint64_t output_id=OWN_MAC<<16;
+  Msg ready{3,8,true,{Vec{false,1,fv_sid(output_id),{EV_JOININ},{DECL_READY}}}};
+  h.feed(mrpdu_frame(true,T1_MAC,{ready}));h.run_ms(30);
+  if(!h.d->dbg_streaming0_o)throw std::runtime_error("output is not streaming");
+  for(unsigned flags:{0u,4u,8u,12u}){
+    auto b=target(6,0,84);putbe(b.data()+4,flags,4);putbe(b.data()+24,765432,4);ask(14,b);
+    if(f.latency[0]!=67890 || h.d->aecp_pt_offset_o.at(0)!=67890)
+      throw std::runtime_error("running refusal changed stored latency");
+  }
+#if AECP_WIRE_INTERFACES == 2
+  h.d->rx_if_index_i=0;
+#endif
+  h.sync_join();
+  Msg leave{3,8,true,{Vec{false,1,fv_sid(output_id),{EV_LV},{DECL_READY}}}};
+  h.feed(mrpdu_frame(true,T1_MAC,{leave}));h.run_ms(30);
+  if(h.d->dbg_streaming0_o)throw std::runtime_error("output did not stop");
+  // Withdraw the fixture's allocations before the later liveness-timer cases.
+  h.maap_on=false;
+  for(unsigned source=0;source<TKSRC;++source){
+    h.d->maap_conflict_src_i=source;h.d->maap_conflict_valid_i=1;h.idle(1);
+    if(!h.d->maap_conflict_ack_o)throw std::runtime_error("allocation withdrawal was not accepted");
+    h.d->maap_conflict_valid_i=0;h.idle(1);
+  }
+  h.run_ms(300);
+  if(h.d->acmp_declaring_o!=0)throw std::runtime_error("output declarations remain after withdrawal");
+  ask(36,B(4),0,CTLR2_EID);
+}
 
 int main(int argc,char **argv) {
   Verilated::commandArgs(argc,argv);
@@ -32,6 +80,7 @@ int main(int argc,char **argv) {
     return frames;
   };
   auto ask=[&](unsigned cmd,B b=B{},unsigned msg=0,uint64_t controller=CTLR_EID){
+    const bool output_running=h.d->dbg_streaming0_o!=0;
     auto request=aecp_frame(OWN_MAC,CTLR_MAC,msg,0,EID,controller,seq++,cmd,b);
     h.flush_all();
 #if AECP_WIRE_INTERFACES == 2
@@ -43,7 +92,8 @@ int main(int argc,char **argv) {
     f.sent.clear();f.sent_interfaces.clear();fw::aecp_rx(&f.a,interface,request.data(),request.size());f.run();
     for(size_t k=0;k<f.sent.size();++k)if(!(f.sent[k][36]&0x80)&&f.sent_interfaces[k]!=interface)
       throw std::runtime_error("wrong response interface");
-    record("command",request,fabric,f.sent,interface);
+    if(output_running!=(h.d->dbg_streaming0_o!=0))throw std::runtime_error("streaming changed during command");
+    record("command",request,fabric,f.sent,interface,output_running);
   };
   for(const auto&d:f.descriptors){auto b=B(8);putbe(b.data()+4,d.type,2);putbe(b.data()+6,d.index,2);ask(4,b);}
   for(unsigned type:{0u,1u})for(unsigned config:{1u,65535u}){
@@ -60,6 +110,7 @@ int main(int argc,char **argv) {
     if(!(flags&0x20000000u))putbe(b.data()+24,765432,4);
     ask(14,b);
   }
+  wire_stream_info_refusals(h,f,ask);
   auto invalid_latency=si;putbe(invalid_latency.data()+24,0x80000000u,4);ask(14,invalid_latency);
   auto control=target(26,0,5);control[4]=255;ask(24,control);ask(25,target(26));
   ask(34,target(5));ask(35,target(5));ask(39,target(9));ask(40,B(4));

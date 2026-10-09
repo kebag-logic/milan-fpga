@@ -91,19 +91,29 @@ def response(row: dict, core: list[bytes], descriptors: dict) -> int:
     status = {0: 11, 38: 7, 0x3fff: 1}.get(cmd, 0)
     if cmd == 14:
         flags = number(request, 42, 4)
-        status = 11 if flags == 0x60000000 else 7 if number(request, 62, 4) == 0x80000000 else 0
+        kind = number(request, 38)
+        assert isinstance(row["output_running"], bool), "observed output streaming state"
+        running = kind == 6 and row["output_running"]
+        status = (11 if kind == 5 else 12 if running else 11 if flags == 0x60000000
+                  else 7 if number(request, 62, 4) == 0x80000000 else 0)
+        if kind == 5 or running:
+            diagnostic = "STREAM_INPUT SET refusal" if kind == 5 else "running STREAM_OUTPUT SET refusal"
+            assert number(reply, 16) >> 11 == status, diagnostic
+            assert len(core) == 1, "refused SET emits no notification"
         assert len(reply) == 122, "SET_STREAM_INFO length"
-        expected_flags = 0xf2000000 if flags & 0x20000000 else 0xd2000000
+        expected_flags = (0x80000000 if kind == 5 else
+                          0xf2000000 if status or flags & 0x20000000 else 0xd2000000)
         assert number(reply, 42, 4) == expected_flags, "SET response validity"
-        assert reply[46:54] == descriptors[6, 0][74:82], "SET current format"
-        assert number(reply, 54, 8) == 0x0102030405060708, "SET current ID"
-        assert number(reply, 66, 6) == 0x91e0f0000101, "SET current destination"
-        assert number(reply, 82) == 2, "SET current VLAN"
+        assert reply[46:54] == descriptors[kind, 0][74:82], "SET current format"
+        assert number(reply, 54, 8) == (0 if kind == 5 else 0x0102030405060708), "SET current ID"
+        assert number(reply, 66, 6) == (0 if kind == 5 else 0x91e0f0000101), "SET current destination"
+        assert number(reply, 82) == (0 if kind == 5 else 2), "SET current VLAN"
         assert reply[72:82] == bytes(10) and reply[84:] == bytes(38), "SET reserved and output failure fields"
         requested_latency = number(request, 62, 4)
+        current_latency = 12345 if kind == 5 else 67890
         if not flags & 0x20000000:
-            assert requested_latency != 67890, "no-subcommand stimulus distinguishes current latency"
-        expected_latency = requested_latency if not status and flags & 0x20000000 else 67890
+            assert requested_latency != current_latency, "no-subcommand stimulus distinguishes current latency"
+        expected_latency = requested_latency if not status and flags & 0x20000000 else current_latency
         assert number(reply, 62, 4) == expected_latency, "SET requested or current latency"
     assert number(reply, 16) >> 11 == status, "command status"
     if cmd == 4:
@@ -118,7 +128,8 @@ def difference(row: dict, fabric: list[bytes], core: list[bytes], counts: Counte
     cmd = number(request, 36) if row["kind"] == "command" else -1
     if cmd == 14:
         assert len(fabric) == len(core), "SET frame count"
-        expected_status = (11 if number(request, 42, 4) != 0x20000000
+        expected_status = (11 if number(request, 38) == 5 else 12 if row["output_running"]
+                           else 11 if number(request, 42, 4) != 0x20000000
                            else 7 if number(request, 62, 4) == 0x80000000 else 0)
         for left, right in zip(fabric, core):
             assert left[:16] == right[:16] and left[18:38] == right[18:38], "SET correlation"
@@ -164,6 +175,7 @@ def grade(rows: list[dict], descriptors: dict) -> dict:
     counts = Counter()
     read = set()
     kinds = Counter()
+    refusals = Counter()
     for row in rows:
         kinds[row["kind"]] += 1
         core = sequences(row, "core", registry["core"])
@@ -171,6 +183,11 @@ def grade(rows: list[dict], descriptors: dict) -> dict:
         cmd = response(row, core, descriptors)
         if cmd >= 0:
             commands.add(cmd)
+        if cmd == 14:
+            request = bytes.fromhex(row["request"])
+            kind, flags = number(request, 38), number(request, 42, 4)
+            if flags in (0, 4, 8, 12) and (kind == 5 or row["output_running"]):
+                refusals[kind, row["output_running"], flags] += 1
         if cmd == 4 and number(bytes.fromhex(row["request"]), 38) == 0:
             read.add((number(core[0], 42), number(core[0], 44)))
         notices.update(number(p, 36) & 0x7fff for p in core if p[15] == 1 and p[36] & 128)
@@ -180,14 +197,17 @@ def grade(rows: list[dict], descriptors: dict) -> dict:
     assert commands == COMMANDS and read == descriptors.keys(), "command/descriptor census"
     assert notices == NOTICES, "notification census"
     assert all(kinds[k] == 1 for k in ("probe", "retry", "departure", "unlock")), "timer census"
-    assert sorted(counts.values()) == [2, 2, 3, 3, 4, 7], "difference census"
+    assert refusals == Counter({(kind, running, flags): 1 for kind, running in ((5, False), (6, True))
+                                for flags in (0, 4, 8, 12)}), "no-subcommand refusal census"
+    assert sorted(counts.values()) == [2, 2, 3, 3, 4, 15], "difference census"
     return {"observations": len(rows), "commands": sorted(commands), "notifications": sorted(notices),
             "descriptors": len(read), "differences": dict(counts)}
 
 
 def controls(rows: list[dict], descriptors: dict) -> int:
     """Plant missing records, byte/status/sequence corruption and forbidden extra notices."""
-    changes = ("missing", "payload", "length", "status", "sequence", "extra", "nosub-latency")
+    changes = ("missing", "payload", "length", "status", "sequence", "extra", "nosub-latency",
+               "nosub-running", "nosub-input", "missing-nosub-running", "missing-nosub-input")
     for change in changes:
         mutant = copy.deepcopy(rows)
         if change == "missing":
@@ -199,6 +219,19 @@ def controls(rows: list[dict], descriptors: dict) -> int:
             frame = bytearray.fromhex(row["core"][0])
             frame[62:66] = bytes.fromhex(row["request"])[62:66]
             row["core"][0] = frame.hex()
+        elif change in ("nosub-running", "nosub-input", "missing-nosub-running", "missing-nosub-input"):
+            kind = 5 if change.endswith("input") else 6
+            row = next(r for r in mutant if r["kind"] == "command" and
+                       number(bytes.fromhex(r["request"]), 36) == 14 and
+                       number(bytes.fromhex(r["request"]), 38) == kind and
+                       number(bytes.fromhex(r["request"]), 42, 4) == 0 and
+                       (kind == 5 or r["output_running"]))
+            if change.startswith("missing"):
+                mutant.remove(row)
+            else:
+                frame = bytearray.fromhex(row["core"][0])
+                frame[16] &= 7
+                row["core"][0] = frame.hex()
         else:
             index = next(i for i, r in enumerate(mutant) if len(r["core"]) > 1) if change == "sequence" else 0
             frame = bytearray.fromhex(mutant[index]["core"][-1])
@@ -213,6 +246,12 @@ def controls(rows: list[dict], descriptors: dict) -> int:
         except AssertionError as error:
             if change == "nosub-latency":
                 assert str(error) == "SET requested or current latency", "wrong no-subcommand diagnosis"
+            elif change in ("nosub-running", "nosub-input"):
+                expected = ("STREAM_INPUT SET refusal" if change == "nosub-input" else
+                            "running STREAM_OUTPUT SET refusal")
+                assert str(error) == expected, "wrong no-subcommand refusal diagnosis"
+            elif change.startswith("missing-nosub"):
+                assert str(error) == "no-subcommand refusal census", "wrong no-subcommand census diagnosis"
             continue
         raise AssertionError(f"wire control escaped: {change}")
     return len(changes)
