@@ -1,0 +1,65 @@
+tests/test_maap.cpp:363
+Expected equality of these values:
+  r.core.queued
+    Which is: 0
+  1u
+    Which is: 1
+
+tests/test_maap.cpp:364
+Value of: r.core.expiry_owed
+  Actual: false
+Expected: true
+
+tests/test_maap.cpp:365
+Expected equality of these values:
+  r.core.stale_expiries
+    Which is: 0
+  1u
+    Which is: 1
+
+tests/test_maap.cpp:366
+Value of: maap_poll(&r.core)
+  Actual: false
+Expected: true
+
+tests/test_maap.cpp:368
+Value of: maap_poll(&r.core)
+  Actual: false
+Expected: true
+original expiry remains owed
+
+tests/test_maap.cpp:370
+Expected equality of these values:
+  r.frames.size()
+    Which is: 0
+  2u
+    Which is: 2
+
+tests/test_maap.cpp:370
+Expected equality of these values:
+  r.core.probe_count
+    Which is: '\x1' (1)
+  2u
+    Which is: 2
+
+tests/test_maap.cpp:372
+Value of: r.valid
+  Actual: true
+Expected: false
+allocation waits for committed ANNOUNCE
+
+tests/test_maap.cpp:373
+Expected equality of these values:
+  r.core.queued
+    Which is: 0
+  2u
+    Which is: 2
+
+tests/test_maap.cpp:375
+Expected equality of these values:
+  r.frames.size()
+    Which is: 2
+  5u
+    Which is: 5
+both owed frames and ANNOUNCE leave once room returns
+

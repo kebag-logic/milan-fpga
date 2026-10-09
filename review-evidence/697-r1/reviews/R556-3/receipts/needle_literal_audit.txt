@@ -1,0 +1,25 @@
+kills 329; needle inside one test string literal 305; composed across streamed values 24
+composed | acmp-unbind-not-persisted | AcmpCore.A3UnbindInEveryState | A3 the cleared binding is saved, unless there was none, in state 7
+composed | acmp-restart-on-a-smaller-index-only | AcmpCore.A22DiscoveredStateCells | A22 available_index 700 <= last
+composed | acmp-reentry-unguarded | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 1 is guarded
+composed | acmp-timer-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 1 is guarded
+composed | acmp-gptp-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 2 is guarded
+composed | acmp-clock-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 3 is guarded
+composed | acmp-seed-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 4 is guarded
+composed | acmp-lock-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 5 is guarded
+composed | acmp-source-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 6 is guarded
+composed | acmp-srp-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 7 is guarded
+composed | acmp-persist-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 8 is guarded
+composed | acmp-changed-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 9 is guarded
+composed | acmp-bind-reads-the-clock-twice | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 3 is guarded
+composed | acmp-expiry-reads-the-clock-twice | AcmpCore.TimerPortBudgets | timer clock budget for state PRB_W_RESP2
+composed | acmp-second-no-resp-samples-the-grandmaster | AcmpCore.TimerPortBudgets | timer expiry never samples the grandmaster in PRB_W_RESP2
+composed | acmp-retry-samples-the-grandmaster | AcmpCore.TimerPortBudgets | timer expiry never samples the grandmaster in PRB_W_RETRY
+composed | acmp-delay-reads-the-clock-again | AcmpCore.TimerPortBudgets | timer clock budget for state PRB_W_DELAY
+composed | acmp-no-tk-samples-the-grandmaster | AcmpCore.TimerPortBudgets | timer expiry never samples the grandmaster in SETTLED_NO_RSV
+composed | acmp-version-unchecked | AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead | A26 a BIND_RX of AVTP version 1
+composed | acmp-adp-version-unchecked | AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead | A26 an ENTITY_AVAILABLE of version 1
+composed | acmp-version-bits-misread | AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead | A26 a BIND_RX of AVTP version 1
+composed | acmp-longer-record-applied | AcmpCore.A24UnboundRecordsRefusalsAndRollback | A24 a payload of 21 bytes is refused
+composed | acmp-admit-port-unflagged | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 10 is guarded
+composed | acmp-open-unguarded | AcmpCore.A23EveryEntryRefusesACallFromInsideAPort | A23 a call made from inside the send port is refused, counted and trapped, entry 10

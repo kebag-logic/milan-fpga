@@ -1,0 +1,9 @@
+# prose after #define in an assembly source
+# SPDX-License-Identifier: MIT
+#define STACK_WORDS 4 # narrative prose about the stack size
+.globl probe
+probe:
+    li a0, STACK_WORDS
+    ret
+# riscv64 gcc -march=rv32i -mabi=ilp32 -Wall -Werror -c: rc 0; li a0,4
+# check_comments.check(text, assembly=True): [] (no error)

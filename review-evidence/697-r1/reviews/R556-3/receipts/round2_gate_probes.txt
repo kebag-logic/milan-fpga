@@ -1,0 +1,21 @@
+comment-src-line-prose             rc=1   expect=refuse
+comment-header-block-prose         rc=1   expect=refuse
+comment-test-req-plus-prose        rc=1   expect=refuse
+comment-clause-plus-prose          rc=1   expect=refuse
+comment-mutation-fragment          rc=1   expect=refuse
+comment-asm-hash-prose             rc=1   expect=refuse-or-gap
+  (planted start.S still assembles) rc=0   expect=info
+comment-if0-prose-block            rc=1   expect=info-not-a-comment
+b-unistd                           rc=1   expect=refuse
+b-pthread                          rc=1   expect=refuse
+b-sys-select                       rc=1   expect=refuse
+b-sys-types                        rc=1   expect=refuse
+b-alloca                           rc=1   expect=refuse
+b-endian                           rc=1   expect=refuse
+b-malloc                           rc=1   expect=refuse
+b-printf                           rc=1   expect=refuse
+r-unistd                           rc=1   expect=refuse
+r-heap-symbol                      rc=1   expect=refuse
+r-os-symbol                        rc=1   expect=refuse
+r-smoke-check-fails                rc=1   expect=refuse
+r-core-defect-period               rc=1   expect=refuse

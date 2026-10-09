@@ -1,0 +1,45 @@
+# probe tree at 3c350014 with three planted comment-gate bypasses
+diff --git a/examples/rv32/start.S b/examples/rv32/start.S
+index d354952..8dd981a 100644
+--- a/examples/rv32/start.S
++++ b/examples/rv32/start.S
+@@ -17,3 +17,7 @@ _start:
+ 2:
+     call main
+     tail port_exit
++
++    li a0, 'A
++# narrative assembly prose hidden by a character constant
++    li a1, 'B
+diff --git a/src/adp.c b/src/adp.c
+index d96be5b..d50320c 100644
+--- a/src/adp.c
++++ b/src/adp.c
+@@ -341,3 +341,8 @@ bool adp_poll(struct adp *a)
+ 	}
+ 	return a->departing_owed != 0u || a->available_owed;
+ }
++
++#if 1
++#elif 0
++This narrative is disabled prose.
++#endif
+diff --git a/tests/test_maap.cpp b/tests/test_maap.cpp
+index 77f55c2..3128006 100644
+--- a/tests/test_maap.cpp
++++ b/tests/test_maap.cpp
+@@ -399,3 +399,6 @@ TEST(MaapCore, ReentrantPortsAreCountedAndIgnored) {
+ }
+ 
+ }
++
++static const unsigned probe_digits = 1'000; // this prose is hidden from the gate
++static_assert(probe_digits == 1'000);
+# check_comments.py on planted tree:
+comments: 23 code files and all mutation fragments pass
+rc=0
+# hosted gcc Debug build of planted tree: rc 0 (tail)
+[100%] Linking CXX executable adp_tests
+[100%] Built target adp_tests
+# baremetal.py on planted tree rc 0; start.S assembled li a0,65 / li a1,66
+2

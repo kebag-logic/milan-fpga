@@ -1,0 +1,21 @@
+OK  plain prose: gate refused, expected refused
+OK  SPDX block rest: gate refused, expected refused
+OK  SPDX same-line prose: gate refused, expected refused
+OK  splice after SPDX line: gate refused, expected refused
+OK  CRLF splice: gate refused, expected refused
+OK  asm prose line: gate refused, expected refused
+OK  asm trailing prose: gate refused, expected refused
+OK  asm C comment: gate refused, expected refused
+OK  if 0: gate refused, expected refused
+OK  if 0 spaced: gate refused, expected refused
+OK  if (0): gate refused, expected refused
+OK  if 0x0: gate refused, expected refused
+GAP elif 0: gate pass, expected refused
+GAP if 00 (octal zero): gate pass, expected refused
+GAP if false (C++): gate pass, expected refused
+GAP C++14 digit separator masks comment: gate pass, expected refused
+GAP asm char constant masks comment: gate pass, expected refused
+OK  legit SPDX + copyright block: gate pass, expected pass
+OK  legit tracing: gate pass, expected pass
+OK  legit asm SPDX: gate pass, expected pass
+gaps: 5
