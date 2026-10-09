@@ -148,6 +148,9 @@ not changed by #686; each needs its own decision.
   Further PROBEs while that buffer is occupied remain unsupported.
   This includes PROBEs arriving during another DEFEND.
   The shared storage follows the area ruling on #696.
+  At the M6 step, the 1x1 recipe measures `g_maap.maap_engine` at 457 LUT / 324 FF.
+  The `6aa25dec` base is 439 LUT / 280 FF: cumulative growth is +18 LUT / +44 FF.
+  This fits the ruling's +60 LUT / +60 FF ceiling; the shared buffer is retained.
   Table B.7 and B.3.6.6 define the response action.
   B.3.6.3 defines probe-count decrement, not response storage.
   Table B.7 requires responses; this capacity limit is not full conformance.
