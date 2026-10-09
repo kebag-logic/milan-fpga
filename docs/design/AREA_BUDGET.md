@@ -216,6 +216,44 @@ M8 must include F5's image, stack, contexts and saved-state staging.
 All-fabric must retain its response/staging capacity too.
 The 121.5-tile ceiling and 13.5-tile reserve remain unchanged.
 
+The [fallback scenarios](MARK_II_AREA_PLAN.md#no-split-and-partial-flip-estimates) price retained fabric AECP separately.
+No-split central is 45,667 before M3/M10, or 41,867 including them.
+The partial case qualifies F0-F4 while F5 stays unqualified.
+AECP, notification, originator and their NVM path remain fabric-owned.
+F1/F3 owns moved binding persistence; integration must preserve single ownership.
+The partial removal basis is 8,012 LUTs.
+Mailbox, integration and mapping allowances leave 3,910 centrally, range 1,410-5,910.
+Remaining M-lane savings are 4,600 centrally, range 2,900-6,700.
+M3/M10 add 3,800 centrally, range 2,400-5,100, only for fabric AECP.
+M3 must preserve a separate removable engine for M10.
+
+| Placement | Case | Estimated image LUT | Headroom to 38,040 | Headroom to 37,659 |
+|---|---|---:|---:|---:|
+| Full split | Conservative | 35,867 | +2,173 | +1,792 |
+| Full split | Central | 31,667 | +6,373 | +5,992 |
+| Full split | Optimistic | 27,567 | +10,473 | +10,092 |
+| No split, including M3/M10 | Conservative | 44,967 | -6,927 | -7,308 |
+| No split, including M3/M10 | Central | 41,867 | -3,827 | -4,208 |
+| No split, including M3/M10 | Optimistic | 38,467 | -427 | -808 |
+| Partial, F5 unqualified | Conservative | 43,557 | -5,517 | -5,898 |
+| Partial, F5 unqualified | Central | 37,957 | +83 | -298 |
+| Partial, F5 unqualified | Optimistic | 32,557 | +5,483 | +5,102 |
+
+Positive headroom meets that LUT bar; negative headroom misses.
+Full split clears both bars in every estimated case.
+No-split misses both throughout; partial central misses only D8.
+Partial conservative misses both; partial optimistic clears both.
+All cases conditionally include M8b; timing acceptance remains separate.
+Without M8b, partial central is 39,657 and misses both.
+
+No-split centrally needs another 4,208 LUTs to clear both.
+Partial centrally needs 298; its conservative case needs 5,898.
+F5 qualification enables the priced full-split outcome without M3/M10 credit.
+Otherwise, week 4 needs a manager ruling commissioning further redesign.
+That ruling must name its measured target and revised schedule.
+No unpriced saving or margin exception is assumed.
+A D8 exception alone cannot cure an NFR-RES-01 miss.
+
 [D8](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
 sets the planning margin to at least 1 percent: <= 37,659 LUTs.
 The binding bar remains 38,040 with timing met.

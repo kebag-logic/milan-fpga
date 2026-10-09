@@ -707,10 +707,79 @@ Central headroom is 6,373 LUTs below 38,040, or 16.75 percent.
 The conservative estimate leaves 2,173, or 5.71 percent.
 Both exceed D8's 1 percent planning margin.
 Without M8b, the conservative image is 37,167 and still clears it.
-Without the split, these retained-fabric levers reach only 45,667 centrally.
-A partial flip must subtract only its measured disjoint contribution.
-F5 qualification is therefore essential to this default ledger.
 Timing cannot be inferred from these LUT calculations.
+
+### No-split and partial-flip estimates
+
+All scenarios retain required function, diagnostics and D7 policy.
+Each assumes its credited levers qualify independently, including conditional M8b.
+M3 must preserve a separate AECP engine for M10.
+Their combined credit is 3,800 LUTs centrally, range 2,400-5,100.
+They receive no credit in the complete split.
+
+**No split:** M2/M5/M6/M7/M8a/M8b alone leave 45,667 LUTs centrally.
+Adding M3 and M10 gives **41,867 LUTs**.
+No F-lane removal or mailbox replacement is counted here.
+
+**Partial flip:** F0-F4 qualify; F5 remains unqualified.
+AECP, notification, originator and their NVM path remain in fabric.
+That retains 10,095 LUTs of the complete split's source basis:
+`6,150 + 2,125 + 697 + 542 + 581 = 10,095`.
+F1/F3 owns moved binding persistence; fabric retains AECP persistence.
+Each field still has one owner; integration must prove arbitration.
+The ACMP binding store's 808-LUT removal is conditional on this.
+
+The disjoint removal basis is **8,012 LUTs**:
+`523 + 1,561 + 823 + 808 + 3,868 + 429 = 8,012`.
+Debit the complete 3,102-LUT mailbox; do not assume fewer rings.
+Use the complete split's integration and mapping allowances unchanged.
+Retained shared timers, pools and dispatch receive no removal credit.
+
+| Partial split case | Calculation | Estimated split saving |
+|---|---|---:|
+| Conservative | `8,012 - 3,102 - 2,000 - 1,500` | 1,410 |
+| Central | `8,012 - 3,102 - 1,000` | 3,910 |
+| Optimistic | `8,012 - 3,102 - 500 + 1,500` | 5,910 |
+
+The remaining M2/M5/M6/M7/M8a/M8b savings are 4,600 centrally.
+Their conservative and optimistic sums are 2,900 and 6,700.
+The partial scenario also credits M3/M10's retained-AECP work.
+Thus: `50,267 - 3,910 - 4,600 - 3,800 = 37,957`.
+Neither this arithmetic nor its range establishes measured savings.
+M0s must verify retained ownership, integration cost and timing.
+
+Positive headroom meets the stated LUT bar; negative headroom misses.
+The two bars remain distinct; timing qualification remains mandatory.
+
+| Placement | Case | Estimated image LUT | Headroom to 38,040 | Headroom to 37,659 |
+|---|---|---:|---:|---:|
+| Full split | Conservative | 35,867 | +2,173 | +1,792 |
+| Full split | Central | 31,667 | +6,373 | +5,992 |
+| Full split | Optimistic | 27,567 | +10,473 | +10,092 |
+| No split, including M3/M10 | Conservative | 44,967 | -6,927 | -7,308 |
+| No split, including M3/M10 | Central | 41,867 | -3,827 | -4,208 |
+| No split, including M3/M10 | Optimistic | 38,467 | -427 | -808 |
+| Partial, F5 unqualified | Conservative | 43,557 | -5,517 | -5,898 |
+| Partial, F5 unqualified | Central | 37,957 | +83 | -298 |
+| Partial, F5 unqualified | Optimistic | 32,557 | +5,483 | +5,102 |
+
+The full split clears both bars in all three estimates.
+The no-split cases all miss both bars, including M3/M10.
+The partial central case clears 38,040 but misses 37,659.
+Its conservative case misses both; its optimistic case clears both.
+Without M8b, partial central rises to 39,657 and misses both.
+
+No-split needs 3,827 further LUTs centrally for NFR-RES-01.
+It needs 4,208 for D8; conservative gaps are tabled above.
+The partial central case needs 298 further LUTs for D8.
+Its conservative case needs 5,898 to clear both bars.
+Qualifying F5 supplies the priced route to the full-split scenario.
+When switching scenarios, remove M3/M10 credit to avoid overlap.
+If F5 cannot qualify, the manager must commission additional redesign.
+The week-4 ruling names its measured target and revised schedule.
+No additional lever has earned credit in these fallback totals.
+A D8 margin exception alone cannot cure an NFR-RES-01 miss.
+It also needs an explicit ruling; no exception is assumed.
 
 ## Lane sequence
 
