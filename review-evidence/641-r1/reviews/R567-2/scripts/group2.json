@@ -1,0 +1,87 @@
+[
+  {
+    "name": "ci-check",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "ci-mutations",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-check",
+    "argv": [
+      "{MD_PYTHON}",
+      "scripts/docs_check.py"
+    ]
+  },
+  {
+    "name": "doc-style",
+    "argv": [
+      "{MD_PYTHON}",
+      "scripts/check_doc_style.py"
+    ]
+  },
+  {
+    "name": "doc-paths",
+    "argv": [
+      "{MD_PYTHON}",
+      "scripts/check_doc_paths.py"
+    ]
+  },
+  {
+    "name": "toc-check",
+    "argv": [
+      "{MD_PYTHON}",
+      "scripts/gen_toc.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "{MD_PYTHON}",
+      "scripts/check_em_dash.py",
+      "--base",
+      "5603c353137e90c1fa95429f6d00ef7a2298d9ee"
+    ]
+  },
+  {
+    "name": "py-idiom",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ]
+  },
+  {
+    "name": "fail-fast",
+    "argv": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "shell-idiom",
+    "argv": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ]
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "5603c353..614b4aa5"
+    ]
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "shape-selftests",
+    "command": [
+      "python3",
+      "{PACKET}/scripts/source_controls.py",
+      "--repo",
+      "{ROOT}",
+      "--packet",
+      "{PACKET}",
+      "--mode",
+      "shape"
+    ],
+    "rc": 0,
+    "seconds": 138.257
+  },
+  {
+    "name": "guard-examples",
+    "command": [
+      "python3",
+      "{PACKET}/scripts/source_controls.py",
+      "--repo",
+      "{ROOT}",
+      "--packet",
+      "{PACKET}",
+      "--mode",
+      "guards"
+    ],
+    "rc": 1,
+    "seconds": 1.669
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "artifact": "MEASUREMENT-1X1-ALL.json",
+    "artifact_sha256": "c7e952fa1647df69b8d5e2dbe94465f148b466458199e80a5f4c4a12aa79c5dd",
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "media": {
+      "image_bytes": 3336,
+      "records": 54,
+      "aem_bytes": 7512,
+      "populated": true,
+      "slots_sha256": "f4c978c5eba05cc3612df14ded6db510a08917b52e0d3b70aaf18b29a6f26aaf",
+      "plan": "all",
+      "shape": "endstation_ax7101_1x1_tdm8"
+    },
+    "log_sha256": "8dbb02dcba365f652f366a071e5970324a308ce98d8229bc04cdeba8961eb010",
+    "budget_findings": [],
+    "custody": "PASS"
+  },
+  {
+    "artifact": "MEASUREMENT-8X8-ALL.json",
+    "artifact_sha256": "e7280b3c944a23ff07b68c14187e3eaf68219f17aa26b50448ec10ed27f3766a",
+    "shape": "endstation_ax7101_8x8",
+    "media": {
+      "image_bytes": 13256,
+      "records": 164,
+      "aem_bytes": 19520,
+      "populated": true,
+      "slots_sha256": "c78743fef78c8a2f873fd119c9cf98f21897632881c477339ee5d27077d436be",
+      "plan": "all",
+      "shape": "endstation_ax7101_8x8"
+    },
+    "log_sha256": "b3d021593cb17ed0047858868308501555c52c4e06c5091e179f6c2c1daf22a2",
+    "budget_findings": [
+      "over-budget duty: milan_nvm",
+      "over-budget duty: milan_nvm"
+    ],
+    "custody": "PASS"
+  },
+  {
+    "artifact": "MEASUREMENT-1X1-PACED.json",
+    "artifact_sha256": "487e1bc9f6481d8690077131168af04ed1ac5cd30b0f7d4d784cf9702ed7533f",
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "media": {
+      "image_bytes": 3336,
+      "records": 54,
+      "aem_bytes": 7512,
+      "populated": true,
+      "slots_sha256": "f4c978c5eba05cc3612df14ded6db510a08917b52e0d3b70aaf18b29a6f26aaf",
+      "plan": "uart-paced",
+      "shape": "endstation_ax7101_1x1_tdm8"
+    },
+    "log_sha256": "6fe77cab31bcae653936386f4bb6f8b089cc281c0065ad8299331cf36f3f3874",
+    "budget_findings": [],
+    "custody": "PASS"
+  }
+]

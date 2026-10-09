@@ -1,0 +1,6 @@
+%Error-USERERROR: $REPO/hdl/ieee8021q/filtering/rx_mac_filter.sv:158:5: rx_mac_filter: TDATA_WIDTH=52 is not a whole number of bytes, so s_tkeep (TDATA_WIDTH/8) cannot describe the beat it qualifies and the final beat's byte count would be unrepresentable.
+                                                                                               : ... note: In instance 'rx_mac_filter'
+  158 |     $error("rx_mac_filter: TDATA_WIDTH=%0d is not a whole number of bytes, so s_tkeep (TDATA_WIDTH/8) cannot describe the beat it qualifies and the final beat's byte count would be unrepresentable.",
+      |     ^~~~~~
+                  ... For error description see https://verilator.org/warn/USERERROR?v=5.050
+%Error: Exiting due to 1 error(s)

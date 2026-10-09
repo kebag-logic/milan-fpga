@@ -1,0 +1,42 @@
+[
+  {
+    "name": "ci-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 2,
+    "seconds": 0.216
+  },
+  {
+    "name": "guard-selftest",
+    "command": [
+      "python3",
+      "syn/yosys/guard_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 41.04
+  },
+  {
+    "name": "fixture-selftest",
+    "command": [
+      "python3",
+      "tb/verilator/fw_service_budget/run.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 2.472
+  },
+  {
+    "name": "make43-build",
+    "command": [
+      "bash",
+      "{PACKET}/scripts/setup_make43.sh",
+      "{PACKET}/scratch/make43-build"
+    ],
+    "rc": 0,
+    "seconds": 15.418
+  }
+]

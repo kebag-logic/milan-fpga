@@ -1,0 +1,9 @@
+sv12 sv2v v0.0.12 sha256=b29952bc8f400ca90207507db0ff6763263e03d3eec711da80338430ed636b9b
+Traceback (most recent call last):
+  File "$PACKET/scripts/source_controls.py", line 28, in <module>
+    run("ooc-"+label+"-width"+str(width),cmd,e,expected,"$error" if expected else "rx_mac_filter")
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scripts/source_controls.py", line 12, in run
+    if marker:assert marker.encode() in r.stdout,(label,marker)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('ooc-sv12-width52', '$error')

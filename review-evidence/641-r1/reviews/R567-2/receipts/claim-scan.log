@@ -1,0 +1,60 @@
+.github/workflows/rtl-fast.yml:124:   yosys-elaboration:
+.github/workflows/rtl-fast.yml:226:         run: python3 syn/yosys/guard_selftest.py
+.github/workflows/rtl-fast.yml:300:     needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit]
+.github/workflows/rtl-fast.yml:309:           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
+.github/workflows/rtl-fast.yml:318:             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:566: | a mutating grant after the re-base refuses (the since-re-base guard) | the granted operation may write the window after the load | R02_reload_ignores_grant_since_rebase | R1 : last_verified_kept@end:0x20 | "record 0x20 at end: ERASED"; R1 also fails every_verified_slot_keeps, no_durable_reading_over_erased_live and converged |
+docs/development/CODE_QUALITY.md:33: - **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
+docs/development/CODE_QUALITY.md:1258: Both `syn/yosys/run.sh` and `syn/yosys/ooc.sh` refuse active guards (#651).
+docs/development/CODE_QUALITY.md:1259: The pinned sv2v 0.0.12 preserves native `$error` tasks.
+docs/development/CODE_QUALITY.md:1262: `syn/yosys/enforce_elaboration.py` restores those converted diagnostics as `$error` tasks.
+docs/development/CODE_QUALITY.md:1267: `syn/yosys/guard_selftest.py` tests both flows and converted error/fatal forms.
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:31: Pinned sv2v 0.0.12 preserves native `$error` tasks.
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:105: At the measured revision, sv2v converted guards into `initial $display`.
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:106: Yosys ignored those converted elaboration errors.
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:109: `yosys_sweep.py guards` lints every point with Verilator 5.050, which evaluates those guards and reports each as `USERERROR`.
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:158: python3 syn/resmap/yosys_sweep.py --work "$WORK/sweep" --jobs 2 --verilator "$VERILATOR" guards
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:610: When #649 ran, the builder accepted them: they mapped in Yosys, and Verilator's lint and, for `streams-8`, Vivado refused them on the NAME guard.
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:671: **Yosys model**, y = a + b*N + c*C + d*N*C over the six stream and channel points the guards pass:
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:782: - **The fabric gPTP plane** (`GPTP_PLANE_EN_P`) is 11,354 LUTs and 7,893 FFs in Yosys and 5,004 LUTs and 5,899 FFs routed. Its off state is a verification-only elaboration that no product configuration selects.
+docs/findings/README.md:26: | [649_RESOURCE_MAP_AND_SENSITIVITY.md](649_RESOURCE_MAP_AND_SENSITIVITY.md) | Side project of the #229 area epic and input to #640 (#649): the shipping 1x1 route at dev `241f9184` mapped to every one of its 175 blocks, each block's LUT, FF, RAMB and DSP figures read from both the utilization report and the placed-cell census, its CARRY4 and slices from the census, and the totals tied to the `route-1x1` record, and the resource cost of every design parameter: 59 Yosys sweep points (52 guard-clean, 7 refused), four Vivado anchors at 1, 2, 4 and 8 streams, the SoC options with the CPU, cache and L2 variants priced out of context from a scratch recipe copy, and the redundancy second port | Current, measurement only. Each stream per direction costs 3,828 LUT out of context, two thirds in the processor, with a falling cost per added stream; channels and the TDM capture width cost nothing; the low-function-cost prunes total up to about 1,200 routed LUT, a tenth of the NFR-RES-01 gap. At the measurement revision, Yosys ignored converted elaboration guards. Since #651, both synthesis flows refuse active guards. At the measurement revision the builder accepted an 8x8 TDM8 configuration the saved-state backend refused (235 names against 128); since #652 the builder refuses that shape before generation. |
+docs/history/v1/findings/PP_SHADOW_AREA_0812.md:434: `sv2v` -- block-commented, line-commented, `ifdef`-guarded, in a string, a
+docs/testing/CI_WORKFLOWS.md:30: - a Yosys/sv2v elaboration smoke for `milan_datapath`, `KL_pp_shadow`, and
+docs/testing/CI_WORKFLOWS.md:87: `yosys-elaboration` runs the resource gate's `check-baseline`, which holds
+docs/testing/CI_WORKFLOWS.md:480:    aggregates, `verilator-lint`, `bdd-conformance` and `yosys-elaboration`
+docs/testing/CI_WORKFLOWS.md:630:     `verilator-lint` and `yosys-elaboration`, and is held by the same check.
+docs/testing/CI_WORKFLOWS.md:853:     aggregates, `verilator-lint`, `yosys-elaboration` and
+docs/testing/CI_WORKFLOWS.md:1571: `rtl-fast` lost `yosys-elaboration` to an `lstat` of `jest.config.ts` under
+docs/testing/CI_WORKFLOWS.md:2142:   a user namespace, or on a file system that does not enforce the mode, and
+hdl/ieee8021q/filtering/rx_mac_filter.sv:145:   //  Both Yosys flows (syn/yosys/run.sh, ooc.sh) refuse active guards (#651).
+hdl/ieee8021q/filtering/rx_mac_filter.sv:146:   //  Pinned sv2v 0.0.12 preserves native $error tasks. For converted
+hdl/ieee8021q/filtering/rx_mac_filter.sv:147:   //  diagnostics from sv2v 0.0.13, enforce_elaboration.py restores $error
+scripts/ci_events.py:593:                              "YOSYS_ELABORATION_RESULT"),
+scripts/ci_events.py:1252: GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
+scripts/ci_events.py:1253: OOC_SH_SELFTEST_JOB = "yosys-elaboration"
+scripts/ci_events.py:2035: #: `verilator-lint`, `bdd-conformance` and `yosys-elaboration`, sharing
+scripts/ci_events.py:6104:          _set_job_if(RTL_FAST, "yosys-elaboration", False),
+scripts/ci_events.py:6385:          "job `yosys-elaboration` must carry exactly"),
+scripts/ci_scope.py:61: #: resource gate's check-baseline (yosys-elaboration) holds its baseline's
+sw/firmware/ctrl/test/acmp_walk.cpp:558:             << "LW2 a probe response wrong in guard term " << term << " is ignored on both sides";
+syn/ooc/dp_srcs.py:883:                          "prevent: syn/yosys/run.sh puts the elaboration-shape "
+syn/resmap/resmap_models.py:29: when its guard record (yosys_sweep.py guards, carried into summary.json) is clean.
+syn/resmap/resmap_models.py:152:     """The elaboration guards that fired on one point, as yosys_sweep.py guards recorded them, or the
+syn/resmap/resmap_models.py:160:         raise GuardError(f"{name}: no guard record; run yosys_sweep.py guards, then summary")
+syn/resmap/yosys_sweep.py:49:                   sv2v conversion leaves unenforced; a firing guard marks the
+syn/resmap/yosys_sweep.py:536:     conversion for Yosys does not: a guard that fires means the shape is one the product refuses."""
+syn/yosys/README.md:54: python3 syn/yosys/guard_selftest.py
+syn/yosys/bench/bench_selftest.py:4: """Fixture arms for yosys_bench.py: each plants the defect it guards and requires the refusal.
+syn/yosys/guard_selftest.py:39:         'sv2v --top="$top" $inc $srcs': 'cat "$GUARD_FIXTURE"',
+syn/yosys/guard_selftest.py:40:         'sv2v --top="$top" $INC $srcs': 'cat "$GUARD_FIXTURE"',
+syn/yosys/guard_selftest.py:41:         '"$R/syn/yosys/enforce_elaboration.py"': shlex.quote(str(helper)),
+syn/yosys/ooc.sh:127: # area is measured as KL_pp_shadow (syn/yosys/run.sh has the elaboration) and
+syn/yosys/ooc.sh:564:   if ! python3 "$R/syn/yosys/enforce_elaboration.py" "$TMP/$top.ooc.v"; then
+syn/yosys/ooc_arms.py:63:     arm(Arm("yosys-fail", "tcam", "planted yosys elaboration failure", False,
+syn/yosys/ooc_harness.py:190: YOSYS_FAIL = ("#!/bin/sh\necho 'ERROR: planted yosys elaboration failure'\n"
+syn/yosys/run.sh:25: #   * the two `if ! sv2v ...` / `if ! python3 ...` guards, which are already
+syn/yosys/run.sh:528:     echo "== Yosys fast elaboration check (via sv2v) =="
+syn/yosys/run.sh:551:     if ! python3 "$R/syn/yosys/enforce_elaboration.py" "$TMP/$top.v"; then
+tb/verilator/mmcm_servo/sim_main.cpp:656:     //! wrong: below the guard, large enough to kick PI if valid is ignored.
+first-party tracked text files scanned=1211; tb patches=0; mutant tables=25
+No tb patch/table retains the changed enforcement comment as an exact anchor.

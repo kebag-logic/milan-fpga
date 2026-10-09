@@ -1,0 +1,109 @@
+[
+  {
+    "name": "ci-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.216
+  },
+  {
+    "name": "ci-mutations",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 17.309
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "$TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.83
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "$TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.065
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "$TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "$TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.983
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "$TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "5603c353137e90c1fa95429f6d00ef7a2298d9ee"
+    ],
+    "rc": 0,
+    "seconds": 4.228
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.674
+  },
+  {
+    "name": "fail-fast",
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.67
+  },
+  {
+    "name": "shell-idiom",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.315
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "5603c353..614b4aa5"
+    ],
+    "rc": 0,
+    "seconds": 0.032
+  }
+]

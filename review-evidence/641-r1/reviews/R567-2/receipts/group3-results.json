@@ -1,0 +1,32 @@
+[
+  {
+    "name": "make441-probes",
+    "command": [
+      "python3",
+      "{PACKET}/scripts/focused_probes.py",
+      "--repo",
+      "{ROOT}",
+      "--work",
+      "{PACKET}/scratch/make441-probes",
+      "--make",
+      "/usr/bin/make"
+    ],
+    "rc": 0,
+    "seconds": 0.616
+  },
+  {
+    "name": "make43-probes",
+    "command": [
+      "python3",
+      "{PACKET}/scripts/focused_probes.py",
+      "--repo",
+      "{ROOT}",
+      "--work",
+      "{PACKET}/scratch/make43-probes",
+      "--make",
+      "{PACKET}/scratch/make43-build/make-4.3/make"
+    ],
+    "rc": 0,
+    "seconds": 0.616
+  }
+]

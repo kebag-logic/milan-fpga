@@ -1,0 +1,16 @@
+%Error-USERERROR: $REPO/hdl/ieee8021q/filtering/rx_mac_filter.sv:154:5: rx_mac_filter: TDATA_WIDTH=32 cannot carry the 48-bit destination address in one beat, and the first-beat compare this module is built on would read past the end of s_tdata and filter on undefined bits. The 802.3 destination address is 6 bytes (IEEE 802.3 3.2.3), so the RX datapath must be at least 48 bits wide.
+                                                                                               : ... note: In instance 'rx_mac_filter'
+  154 |     $error("rx_mac_filter: TDATA_WIDTH=%0d cannot carry the 48-bit destination address in one beat, and the first-beat compare this module is built on would read past the end of s_tdata and filter on undefined bits. The 802.3 destination address is 6 bytes (IEEE 802.3 3.2.3), so the RX datapath must be at least 48 bits wide.",
+      |     ^~~~~~
+                  ... For error description see https://verilator.org/warn/USERERROR?v=5.050
+%Warning-SELRANGE: $REPO/hdl/ieee8021q/filtering/rx_mac_filter.sv:175:47: Selection index out of range: 39:32 outside 31:0
+                                                                                                 : ... note: In instance 'rx_mac_filter'
+  175 |                        s_tdata[31:24], s_tdata[39:32], s_tdata[47:40] };
+      |                                               ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: $REPO/hdl/ieee8021q/filtering/rx_mac_filter.sv:175:63: Selection index out of range: 47:40 outside 31:0
+                                                                                                 : ... note: In instance 'rx_mac_filter'
+  175 |                        s_tdata[31:24], s_tdata[39:32], s_tdata[47:40] };
+      |                                                               ^
+%Error: Exiting due to 1 error(s), 2 warning(s)

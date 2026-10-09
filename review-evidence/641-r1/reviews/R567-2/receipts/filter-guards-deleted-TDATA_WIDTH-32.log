@@ -1,0 +1,11 @@
+%Warning-SELRANGE: $PACKET/scratch/filter-guards/rx_mac_filter.sv:158:47: Selection index out of range: 39:32 outside 31:0
+                                                                                                      : ... note: In instance 'rx_mac_filter'
+  158 |                        s_tdata[31:24], s_tdata[39:32], s_tdata[47:40] };
+      |                                               ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: $PACKET/scratch/filter-guards/rx_mac_filter.sv:158:63: Selection index out of range: 47:40 outside 31:0
+                                                                                                      : ... note: In instance 'rx_mac_filter'
+  158 |                        s_tdata[31:24], s_tdata[39:32], s_tdata[47:40] };
+      |                                                               ^
+%Error: Exiting due to 2 warning(s)

@@ -1,0 +1,25 @@
+[
+  {
+    "name": "guard-selftest",
+    "argv": [
+      "python3",
+      "syn/yosys/guard_selftest.py"
+    ]
+  },
+  {
+    "name": "fixture-selftest",
+    "argv": [
+      "python3",
+      "tb/verilator/fw_service_budget/run.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "make43-build",
+    "argv": [
+      "bash",
+      "{PACKET}/scripts/setup_make43.sh",
+      "{PACKET}/scratch/make43-build"
+    ]
+  }
+]

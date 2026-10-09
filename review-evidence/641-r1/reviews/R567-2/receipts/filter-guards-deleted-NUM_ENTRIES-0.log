@@ -1,0 +1,11 @@
+%Warning-ASCRANGE: $REPO/hdl/ieee8021q/filtering/tcam.sv:57:17: Ascending bit range vector: left < right of bit range: [-1:0]
+                                                                                       : ... note: In instance 'rx_mac_filter.mac_cam'
+   57 |     output wire [NUM_ENTRIES-1:0]  match_vec_o        
+      |                 ^
+                   ... For warning description see https://verilator.org/warn/ASCRANGE?v=5.050
+                   ... Use "/* verilator lint_off ASCRANGE */" and lint_on around source to disable this message.
+%Warning-ASCRANGE: $REPO/hdl/ieee8021q/filtering/tcam.sv:83:9: Ascending bit range vector: left < right of bit range: [-1:0]
+                                                                                      : ... note: In instance 'rx_mac_filter.mac_cam'
+   83 |   logic [NUM_ENTRIES-1:0] hit;
+      |         ^
+%Error: Exiting due to 2 warning(s)

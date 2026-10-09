@@ -1,0 +1,16 @@
+# GNU Make 4.3
+early raw_rc=2 partial_database=True inventory_unreadable=True
+after-rule raw_rc=2 partial_database=True inventory_unreadable=True
+missing generated input control: readable=True frozen_shape=True
+milan_dp_render readable=True frozen_prerequisites=['../../../configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh']
+pp_shadow readable=True frozen_prerequisites=['../../../hdl/common/gen/adp_shape_defaults.svh']
+real-positive rc=0 named_refusal=False
+real-refusal rc=2 named_refusal=True
+assertion-deleted rc=0 named_refusal=False
+all changed RTL non-comment bytes identical: PASS
+plant_check: missing lookup binding unique_anchor=1 replacement_changes_bytes=True
+plant_check: swapped key and mask bindings unique_anchor=1 replacement_changes_bytes=True
+plant_check: tied-off lookup key unique_anchor=1 replacement_changes_bytes=True
+plant_check: child lookup port declared output (direction-wrong binding) unique_anchor=1 replacement_changes_bytes=True
+plant_check: DUT m_tready declared output (direction-wrong boundary) unique_anchor=1 replacement_changes_bytes=True
+focused probes PASS
