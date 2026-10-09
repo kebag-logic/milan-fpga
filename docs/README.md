@@ -70,8 +70,11 @@ Publish conflicts before continuing.
 | Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
 | Handle grandmaster loss | [Grandmaster recovery](design/GM_LOSS_RECOVERY.md) |
 | Follow a stream's media clock | [Media-clock following, proposed](design/MEDIA_CLOCK_FOLLOWING.md) |
+| Review the firmware saved-state store | [Saved-state store, F1](../sw/firmware/ctrl_nvm/README.md) |
 | Review saved-state snapshot ownership | [Snapshot ownership, implemented](design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) |
 | Review saved-state materialization | [Materialization contract, accepted](design/SAVED_STATE_MATERIALIZATION.md) |
+| Review Mark II placement and timing | [Split architecture](ARCHITECTURE_HW_SW_SPLIT.md) |
+| Review the firmware mailbox | [Packet mailbox split, F0](design/MAILBOX_SPLIT.md) |
 
 ## Verification
 
@@ -83,6 +86,7 @@ Publish conflicts before continuing.
 | Run RTL harnesses | [Verilator suites](../tb/verilator/README.md) |
 | Add bound assertions | [Assertion guide](testing/ASSERTIONS.md) |
 | Run behavior tests | [Behavior tests](../tests/README.md) |
+| Run or extend the firmware's host unit tests | [Firmware GoogleTest harness](../sw/firmware/gtest/README.md) |
 | Understand simulation boundaries | [Simulation guide](testing/SIMULATION.md) |
 | Trace modules into tests | [Generated module matrix](traceability/MODULE_MATRIX.md) |
 | Check the per-clause compliance position | [Compliance matrix](reference/MILAN_COMPLIANCE_MATRIX.md) |

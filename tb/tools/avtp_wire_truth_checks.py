@@ -13,7 +13,8 @@ from __future__ import annotations
 import struct
 from typing import Iterable, Optional
 
-from avtp_wire_truth_wire import (AAF_FORMAT_NAMES, ADP_CDL, ADP_FRAME_LEN,
+from avtp_wire_truth_wire import (AAF_FORMAT_NAMES, ADP_CDL,
+                                  ADP_ENTITY_DEPARTING, ADP_FRAME_LEN,
                                   AVTP_TS_MOD, CONTROL_SUBTYPES, ETH_P_AVTP,
                                   ETH_P_MSRP, ETH_P_MVRP, Expectation,
                                   MILAN_CRF_FORMAT, MSRP_DOMAIN, MSRP_LISTENER,
@@ -553,14 +554,16 @@ class WireTruth:
         """The 82-byte ADPDU rule and the available_index monotonicity.
 
         1722.1-2021 6.2.1: the ADPDU is 68 octets, so 82 on the wire, and
-        control_data_length is 56.  6.2.2.10: available_index increments on
-        every transmitted ADPDU - a repeated value makes a controller treat the
-        entity as incoherent, which is exactly what bump-on-change-only did to
-        us in 2026-07-12.
+        control_data_length is 56.  6.2.2.15: available_index increments after
+        each transmitted ENTITY_AVAILABLE and resets to 0 after an
+        ENTITY_DEPARTING.  Any other repeated value makes a controller treat
+        the entity as incoherent, which is exactly what bump-on-change-only
+        did to us in 2026-07-12; the 0 that follows an ENTITY_DEPARTING is the
+        one repeat the clause allows.
         """
         out = []
         if not self.adp:
-            out += [_nothing_to_check(n, "IEEE 1722.1-2021 6.2.1 / 6.2.2.10",
+            out += [_nothing_to_check(n, "IEEE 1722.1-2021 6.2.1 / 6.2.2.15",
                                       "ADPDUs")
                     for n in ("wt.adp.frame-82",
                               "wt.adp.available-index-advances")]
@@ -579,17 +582,26 @@ class WireTruth:
                           expected_cdl=ADP_CDL,
                           wrong_length=wrong_len[:8],
                           wrong_cdl=wrong_cdl[:8], adpdus=len(recs)))
-            idx = [ai for _, _, _, ai in recs if ai is not None]
+            idx = [(c.message_type, ai) for _, _, c, ai in recs
+                   if ai is not None]
+            # The reset is exempt even when the ENTITY_DEPARTING itself
+            # carried 0: an entity disabled before its first advertisement.
+            resets = {i for i in range(1, len(idx))
+                      if idx[i - 1][0] == ADP_ENTITY_DEPARTING
+                      and idx[i][1] == 0}
             repeats = [i for i in range(1, len(idx))
-                       if _mod_delta(idx[i], idx[i - 1], 1 << 32) == 0]
+                       if _mod_delta(idx[i][1], idx[i - 1][1], 1 << 32) == 0
+                       and i not in resets]
             out.append(_v(f"wt.adp.available-index-advances.{eid:016x}",
                           not repeats and len(idx) > 1,
-                          "IEEE 1722.1-2021 6.2.2.10: available_index "
-                          "increments on every transmitted ADPDU; a repeated "
+                          "IEEE 1722.1-2021 6.2.2.15: available_index "
+                          "increments after each ENTITY_AVAILABLE and resets "
+                          "to 0 after an ENTITY_DEPARTING; any other repeated "
                           "index reads as an incoherent entity",
                           adpdus=len(idx), repeats=len(repeats),
-                          first=idx[0] if idx else None,
-                          last=idx[-1] if idx else None))
+                          departing_resets=len(resets),
+                          first=idx[0][1] if idx else None,
+                          last=idx[-1][1] if idx else None))
         for eid in self.expect.adp_entity_ids:
             e = int(eid)
             out.append(_v(f"wt.adp.alive.{e:016x}", e in self.adp,

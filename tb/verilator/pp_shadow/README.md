@@ -68,7 +68,8 @@ The default run includes a dynamic-output fixture.
 Both input and output maps use their real parent owners.
 GET_NAME and GET_AUDIO_MAP independently confirm the accepted values.
 All eight name lanes change in K10.
-K12 ADD starts with an empty map and durable status.
+Each boot clears the #658 power-on maps through the CSR window.
+So K12 ADD starts with an empty map and durable status.
 REMOVE and duplicate controls each preload a mapping through CSRs.
 Each then starts separately with durable status.
 The duplicate must succeed, preserve the map and leave pending clear.
@@ -85,7 +86,8 @@ Each test then observes live writes through command completion.
 Pending must rise on the first accepting edge.
 The later group mark must occur and identify its group.
 An accepted snapshot acknowledgement must preserve the sticky source.
-No name/map record writer exists yet.
+From processor pin `ead80360` the D3 writer also saves names (lane P1).
+No map record writer exists yet.
 These tests make no flash persistence or restoration claim.
 
 Controls exercise unchanged names and zero-record map commands.
@@ -358,7 +360,7 @@ values feed the gateware only, and the C++ side is told the ratio by `-D` so
 the two cannot drift into disagreeing about what a millisecond is.
 
 **ONE GRID.** `KL_maap` keeps its *own* millisecond (`CLK_FREQ_HZ_P/1000`
-cycles) and its Annex B claim walk is 3 probes × ~500 ms — 1.5·10⁸ cycles at a
+cycles) and its Annex B claim walk is four PROBEs ~550 ms apart, 1.6·10⁸ cycles at a
 real 100 MHz, which no harness can run, so `addr_valid_o` would never assert and
 group I would be unreachable. `-GMAAP_CLK_HZ_P=100000` makes one MAAP
 millisecond 100 clk, **the same** compressed millisecond the processor uses.

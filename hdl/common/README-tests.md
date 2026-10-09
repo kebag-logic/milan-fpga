@@ -12,9 +12,8 @@ hand-edit. Part of the Common / integration family; rolled up in
 |---|---|---|---|
 | ✅ `KL_link_guard` | `KL_link_guard.sv` | `gptp_shadow` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `axis_mux_rr_2in_1out` | `axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
-| ✅ `cdc_handshake` | `cdc_handshake.sv` | `aaf_clock_meter` · `cdc` · `crf_rx` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_handshake` | `cdc_handshake.sv` | `aaf_clock_meter` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `cdc_pair_fifo` | `cdc_pair_fifo.sv` | `aaf` · `aes3` · `capture_coherence` · `i2spb` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_mclk,milan_dp_render | -- |
-| ✅ `cdc_pulse` | `cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_pulse` | `cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `crf_tx` · `follow_ring` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | 📦 `ethernet_packet_pkg` | `ethernet_packet_pkg.sv` | -- | -- |
 | ✅ `tx_ifg_gasket` | `tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-

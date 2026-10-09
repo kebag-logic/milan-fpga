@@ -17,7 +17,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_aaf_rx_depacketizer` | `KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_rx` | `KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_tx` | `KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
-| ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `media_grid_align` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+| ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `follow_ring` · `media_grid_align` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_chan_map_render` | `KL_chan_map_render.sv` | `chmap_render` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_i2s_feed_mux` | `KL_i2s_feed_mux.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_i2s_playback` | `KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
@@ -27,11 +27,10 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_pair_zero_fill` | `KL_pair_zero_fill.sv` | `milan_dp` · `pair_fill` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_pcm_lpf` | `KL_pcm_lpf.sv` | `milan_dp` · `pcmlpf` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_pcm_route` | `KL_pcm_route.sv` | `avtp_rxmon` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
-| ✅ `KL_render_setpoint` | `KL_render_setpoint.sv` | `milan_dp` · `render_setpoint` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+| ✅ `KL_render_setpoint` | `KL_render_setpoint.sv` | `follow_ring` · `milan_dp` · `render_setpoint` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture` | `KL_tdm_capture.sv` | `milan_dp` · `tdm` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture_master` | `KL_tdm_capture_master.sv` | `capture_coherence` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render` | `KL_tdm_render.sv` | `milan_dp` · `tdm_render` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render_master` | `KL_tdm_render_master.sv` | `milan_dp` · `milan_dp_render` · ➰capture_coherence,milan_dp_mclk · 🔬`make aaf` | -- |
 | ✅ `KL_tone_gen` | `KL_tone_gen.sv` | `chmap_capture` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `aaf_talker_i2s` | `aaf_talker_i2s.sv` | `aaf` · `milan_dp` · 🔬`make aaf` | -- |
-

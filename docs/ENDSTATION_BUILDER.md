@@ -1,5 +1,10 @@
 # Software-defined End-Station builder — spec basis (roadmap item 4)
 
+This page describes the current all-fabric shipping build.
+The [split target](ARCHITECTURE_HW_SW_SPLIT.md) adds selectable control placement.
+Its static control contexts use the same generated entity shape.
+The default changes only after F2 to F5 acceptance.
+
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema
 `kebag-logic/milan-endstation-config`) drives gateware elaboration, the AEM
 entity model, lwSRP tables and the protocol-processor memory reservation
@@ -581,11 +586,11 @@ read-only fetch master: the whole entity model lives in main memory at a
 `main_ram`.
 `milan_soc.build_desc_image()` packs the builder overlay using both generators:
 `avdecc/gen_aemi_image.py` and the processor's `gen_desc_image.py`.
-It checks the final bytes with `validate_shipping_image()`.
+The packer's `build()` lints the model by default (processor 07 section 3.1).
 The SoC CRC-binds those bytes into firmware constants.
 It writes `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` beside gateware.
-`_entity_model_image()` independently packs and checks test and audit images.
-Gate 36b tests both emitters and their packed-byte refusals.
+`_entity_model_image()` independently packs test and audit images the same way.
+Gate 36b tests both emitters against the lint's named L6, L10 and L1 refusals.
 Bare-metal boot verifies the image before copying and enabling advertisement.
 
 The bare-metal boot checks the generated image length and CRC before copying
@@ -620,6 +625,27 @@ atomic transactions. The root commits the authoritative protocol stores and
 projects only backed clusters into the render and capture crossbars. The
 `0x900` window remains a local debug and override path, but its map writes are
 refused while `LOCK_ENTITY` is held.
+
+**The power-on map (#658).** Every dynamic Stream Port powers up mapped:
+stream channel `c` maps to the port's cluster `c`, for every `c` below the
+smaller of the stream's channel count and the port's cluster count.
+`milan_datapath` computes the map from the generated `ADP_DMAP_*` constants,
+the same bounds an `ADD` is validated against, and the boot writer projects it
+into both crossbars. On the shipping AX7101 1x1 TDM8 shape, Stream In 0's
+channels 0..7 render on TDM8 Out slots 0..7, and TDM8 In slots 0..7 feed
+Stream Out 0's channels 0..7. Until the restore releases AECP the map follows
+the restored formats, so a saved narrower format comes back with the higher
+mappings already gone. No controller is registered by then, so nothing is
+notified.
+
+**A format change never edits a map** (Milan v1.2 5.4.2.7). A
+`SET_STREAM_FORMAT` whose new format drops a channel that a mapping references
+is refused with `BAD_ARGUMENTS`, and the format and the maps stay as they
+were. So a controller adapting a listener to a narrower talker first
+`REMOVE`s the mappings of the channels the new format drops, then sets the
+format. Widening the format again adds no mapping back. The power-on map
+makes this the common case: narrowing Stream In 0 from 8 to 4 channels needs
+`REMOVE_AUDIO_MAPPINGS` of channels 4..7 first.
 
 **Protocol validity and physical projection are separate questions.** A legal
 `ADD` / `GET_AUDIO_MAP` / `REMOVE_AUDIO_MAPPINGS` on a cluster with no physical
@@ -706,8 +732,10 @@ board the loopback clusters are the only source that can hand a talker
 per-channel-distinct audio.
 
 **Power-on fall-through.** Only one segment can be the power-on source, so a
-static AUDIO_MAP or dynamic-map initial image uses the first backed segment:
-`physical`, then (talker) `loopback`, `pilot`, `virtual`. Talker *t*'s
+static AUDIO_MAP uses the first backed segment: `physical`, then (talker)
+`loopback`, `pilot`, `virtual`. The builder's dynamic-map initial image
+(`AEM_ODMAP_INIT_C`) follows the same rule, but no gateware has read it since
+2026-08-13: a dynamic port powers up with the identity map of D7 instead. Talker *t*'s
 loopback pool starts at received stream *t* channel 0, so the eight talkers
 offer eight *different* source sets, not eight copies of one.
 
@@ -736,9 +764,11 @@ the device is at 61 039 / 63 400 LUT and dies in *packing*.
 
 The important part is what the declaration also does: `primary_segment()`
 reads the **same fact**, so with the lane off an unbacked loopback cluster is
-not a candidate for the power-on image. The 8×8 build therefore arms its one
-backed Pilot cluster per output port and leaves the other seven initial keys
-unmapped. Before task #65 the preference was unconditional, and because the
+not a candidate for the builder's power-on image, which arms one backed Pilot
+cluster per output port and leaves the other seven keys unmapped. The gateware
+does not read that image. Its identity map (D7) maps each 8×8 output's
+stream channel 0 to the Pilot and channels 1..7 to the port's first loopback
+clusters, which carry silence while the lane is off. Before task #65 the preference was unconditional, and because the
 AX routes no audio pins the fall-through reached loopback — so every talker
 woke mapped to a cluster whose fabric source did not exist. Milan v1.2
 **5.3.9.1** makes the corrected image explicit and legal: a Stream Output
@@ -1052,8 +1082,9 @@ Line numbers are those of the cited file at the time of writing.
 | 43a | `srp.tspec.interval_frames` | Only `1`, matching the fixed wire TSpec. Other values refuse. | Milan v1.2 4.3.3.2 Table 4.4 | fixed-profile validator |
 | 43b | `srp.tspec.max_frame_bytes` | Validated 16-bit legacy `LWSRP_TSPEC` scratch field. Under derived policy it changes neither wire TSpec nor the build budget. | [Register map](reference/REGISTER_MAP.md) | explicit legacy scratch |
 | 44 | `srp.rtl_table` | Boolean builder-publication ownership: the selected config writes `hdl/common/csr/gen/lwsrp_csr_defaults.svh`. Gate 20a checks tracked header equality and consumption. | Builder artifact ownership | live builder switch |
+| 45 | `model_lint_waivers` | Passed through unread: the overlay's `model_lint_waivers`, then the kl-aem-image document's `lint_waivers`. The protocol processor's `gen_desc_image.build()` validates each one (one lint check on one descriptor scope, with a reason naming its tracking issue), lists it in the layout report (`aem_desc.map`) and refuses it once stale. Only `endstation_ax7101_8x8.yaml` declares one (#584). | protocol-processor docs/architecture/07 section 3.1 (model lint) | packer lint; `aem_desc.map` |
 
-71 rows. Three rows carry *planned* marks, and a config validates and builds
+72 rows. Three rows carry *planned* marks, and a config validates and builds
 under each rather than erroring: row 14's JACK/EXTERNAL_PORT descriptors
 (the AEM half, D5), row 25's stream count above one AAF stream per
 direction and row 27's provisioning half. The build plan's marks live in

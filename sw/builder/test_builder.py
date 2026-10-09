@@ -11384,12 +11384,24 @@ def test_baremetal_profile_contract() -> None:
             restart_reason)
         direct_port(restart_ports, "restart_p_i", "mcr_restart_p_w",
                     restart_reason)
+        #: #645 adds the settle recentre: once per source change or aligner
+        #: pull-in, after the plane has settled; still no GM identity term
         direct_initializer(
             datapath, r"wire[ \t]+render_recentre_p_w",
             "render_recentre_p_w",
-            "media_rebase_p_w | src_recentre_p_r",
+            "media_rebase_p_w | settle_recentre_p_r | src_recentre_p_r",
             "render recentre pulse must read only the media re-base "
             "and settled clock-source discontinuities")
+        #: ...and the same settle recentre reaches the capture crossbar's
+        #: LOOP queues, on every stream the bucket keeps
+        settle_lb_reason = (
+            "settle recentre must reach the LOOP queues beside the render "
+            "stage")
+        cmap_ports = instance_ports(
+            datapath, "KL_chan_map_capture", "chan_map_capture",
+            settle_lb_reason)
+        direct_port(cmap_ports, "lb_recentre_i",
+                    "{LB_STREAMS_C{settle_recentre_p_r}}", settle_lb_reason)
         #: 915cbcc3 (PR #294 lane) removed the dead 802.1Q shaper and the
         #: ptp_ts record chain from milan_datapath: the ptp_ts_top
         #: "ptp_timestamp" instance this gate pinned is gone, and the PHC is
@@ -13053,17 +13065,26 @@ def test_baremetal_profile_contract() -> None:
     render_recentre_adp_term = replace_once(
         datapath_source,
         "       media_rebase_p_w\n"
+        "       | settle_recentre_p_r\n"
         "       | src_recentre_p_r;",
         "       media_rebase_p_w\n"
+        "       | settle_recentre_p_r\n"
         "       | src_recentre_p_r | cfg_adp_enable;",
         "ADP-controlled render recentre term")
     render_recentre_gm_term = replace_once(
         datapath_source,
         "       media_rebase_p_w\n"
+        "       | settle_recentre_p_r\n"
         "       | src_recentre_p_r;",
         "       gm_recentre_p_r | media_rebase_p_w\n"
+        "       | settle_recentre_p_r\n"
         "       | src_recentre_p_r;",
         "GM identity restored as a render recentre term")
+    settle_recentre_lb_withheld = replace_once(
+        datapath_source,
+        ".lb_recentre_i ({LB_STREAMS_C{settle_recentre_p_r}}),",
+        ".lb_recentre_i ('0),",
+        "settle recentre withheld from the LOOP queues")
     media_rebase_adp_term = replace_once(
         datapath_source,
         "wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;",
@@ -15909,6 +15930,11 @@ def test_baremetal_profile_contract() -> None:
          "render recentre pulse must read only the media re-base "
          "and settled clock-source discontinuities",
          MutantFiles(datapath=render_recentre_gm_term)),
+        ("settle recentre withheld from the LOOP queues", firmware_source,
+         docs_source, csr_source,
+         "settle recentre must reach the LOOP queues beside the render "
+         "stage",
+         MutantFiles(datapath=settle_recentre_lb_withheld)),
         ("ADP term spliced into the media re-base pulse", firmware_source,
          docs_source, csr_source,
          "media re-base pulse must read only adjtime and settime",
@@ -17491,7 +17517,8 @@ def test_baremetal_profile_contract() -> None:
           "controls and readback; "
           "the exact PHC-net census admits media_rebase_p_w as the shared "
           "adjtime/settime read, feeding only render_recentre_p_w. "
-          "Render combines it with the settled source change, never GM "
+          "Render combines it with the settled source change and the "
+          "#645 settle recentre, never GM "
           "identity; restart takes only selected CRF disruption and "
           "received mr propagation, feeding its engine port directly; "
           "external MAC RX "
@@ -26235,9 +26262,10 @@ def _assert_image_spans_are_baked(name, ent, overlay, aem, aemi):
         if src in ident and any(ident[src]):
             assert len(ident[src]) == nbytes
     #! available_index is the one field here that genuinely cannot be
-    #! baked: it counts THIS entity's advertisements and increments per
-    #! ADPDU (6.2.1.14). Pinned so that baking a counter into a static
-    #! image is a visible diff.
+    #! baked: it counts THIS entity's advertisements, incrementing after
+    #! each ENTITY_AVAILABLE and resetting to 0 after an ENTITY_DEPARTING
+    #! (6.2.2.15). Pinned so that baking a counter into a static image is a
+    #! visible diff.
     assert "AVAIL_IDX" in aemi.UNBAKED_SPANS, \
         "available_index is a live counter; a flat image cannot state it"
     assert _be_uint(ent, 36, 4) == 0, f"{name}: available_index baked non-zero"
@@ -28196,7 +28224,11 @@ def test_audio_unit_shipping_rates() -> None:
 
 # ================================================================ gate 36b ===
 def _image_contract_cases(blob: bytes) -> list[tuple[str, int, bytes, str | None]]:
-    """Independent IEEE 7.2.3/7.2.32 fixtures; no constructor constants imported."""
+    """Independent IEEE 7.2.3/7.2.32 fixtures; no constructor constants imported.
+
+    A refusal is the check of the processor packer's model lint (07 section
+    3.1, rules L6 and L10) that must name the planted descriptor.
+    """
     au = bytearray(image_descriptor(blob, 0x0002)[:144])
     cd = bytearray(image_descriptor(blob, 0x0024)[:76])
 
@@ -28228,35 +28260,45 @@ def _image_contract_cases(blob: bytes) -> list[tuple[str, int, bytes, str | None
         ("one source", 0x0024, _sources([0]), None),
         ("current rate last", 0x0002, _rates([96000, 48000]), None),
         ("current rate with pull", 0x0002, _rates([0x2000BB80], 0x2000BB80), None),
-        ("empty rates", 0x0002, _rates([]), "L10_EMPTY"),
-        ("unlisted current rate", 0x0002, _rates([96000]), "L10_CURRENT"),
-        ("current pull mismatch", 0x0002, _rates([0x2000BB80]), "L10_CURRENT"),
-        ("wrong offset", 0x0002, _field(one, 140, 143), "L10_OFFSET"),
-        ("ninth rate", 0x0002, _rates(eight + [22050]), "L10_COUNT"),
-        ("count exceeds extent", 0x0002, _field(one, 142, 2), "L10_COUNT_EXTENT"),
-        ("one byte short", 0x0002, one[:-1], "L10_PARTIAL_WORD"),
-        ("one word extra", 0x0002, one + struct.pack(">I", 96000), "L10_EXTRA_WORDS"),
-        ("reversed sources", 0x0024, _sources([1, 0]), "L6_ORDER"),
-        ("source gap", 0x0024, _sources([0, 2]), "L6_GAP"),
-        ("duplicate source", 0x0024, _sources([0, 0]), "L6_DUPLICATE"),
-        ("short audio header", 0x0002, one[:143], "L10_HEADER"),
-        ("short domain header", 0x0024, identity[:75], "L6_HEADER"),
-        ("empty sources", 0x0024, _sources([]), "L6_EMPTY"),
-        ("short source list", 0x0024, identity[:-1], "L6_EXTENT"),
-        ("source list in header", 0x0024, _field(identity, 72, 70), "L6_OFFSET"),
+        ("empty rates", 0x0002, _rates([]), "L10 rate-empty"),
+        ("unlisted current rate", 0x0002, _rates([96000]), "L10 current-rate"),
+        ("current pull mismatch", 0x0002, _rates([0x2000BB80]), "L10 current-rate"),
+        ("wrong offset", 0x0002, _field(one, 140, 143), "L10 rate-offset"),
+        ("ninth rate", 0x0002, _rates(eight + [22050]), "L10 rate-count"),
+        ("count exceeds extent", 0x0002, _field(one, 142, 2), "L10 rate-length"),
+        ("one byte short", 0x0002, one[:-1], "L10 rate-length"),
+        ("one word extra", 0x0002, one + struct.pack(">I", 96000), "L10 rate-length"),
+        ("reversed sources", 0x0024, _sources([1, 0]), "L6 domain-source-identity"),
+        ("source gap", 0x0024, _sources([0, 2]), "L6 domain-source-identity"),
+        ("duplicate source", 0x0024, _sources([0, 0]), "L6 domain-source-identity"),
+        ("short audio header", 0x0002, one[:143], "L10 rate-count"),
+        ("short domain header", 0x0024, identity[:75], "L6 domain-source-count"),
+        ("empty sources", 0x0024, _sources([]), "L6 domain-source-count"),
+        ("short source list", 0x0024, identity[:-1], "L6 domain-source-length"),
+        ("source list in header", 0x0024, _field(identity, 72, 70), "L6 domain-source-offset"),
         ("padded source offset", 0x0024,
-         _field(identity[:76] + b"\0\0" + identity[76:], 72, 78), "L6_OFFSET"),
+         _field(identity[:76] + b"\0\0" + identity[76:], 72, 78), "L6 domain-source-offset"),
     ]
 
 
+#: Each checked type removed from its configuration, and the lint check that
+#: must name the configuration without it.
+_IMAGE_PRESENCE_CASES = ((0x0002, "L1 audio-unit-for-aaf: cfg 0 AUDIO_UNIT:"),
+                         (0x0024, "L1 required-type: cfg 0 CLOCK_DOMAIN:"))
+
+
 def _assert_image_contract_case(cfg, overlay, case, emit_image=None):
-    """Plant after successful loading; require the image emitter's named verdict."""
+    """Plant after successful loading; require the packer lint's named verdict.
+
+    The emitter's own build() arguments pass through untouched, so an emitter
+    that switches the lint off accepts every deliberate negative and fails.
+    """
     from unittest.mock import patch
     import gen_desc_image as packer
 
     label, dtype, body, reason = case
     original_build = packer.build
-    emitted = []
+    emitted, packed = [], []
     if emit_image is None:
         emit_image = lambda: eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
 
@@ -28265,28 +28307,57 @@ def _assert_image_contract_case(cfg, overlay, case, emit_image=None):
         rows = [d for d in changed["descriptors"] if d["type"] == dtype and d["index"] == 0]
         assert len(rows) == 1, f"{label}: target descriptor not found"
         rows[0]["bytes"] = body.hex()
+        packed.append(label)
         blob, report = original_build(changed, *args, **kwargs)
         assert image_descriptor(blob, dtype) == body, f"{label}: fault did not reach packed bytes"
         emitted.append(blob)
         return blob, report
 
+    where = f"cfg 0 {'AUDIO_UNIT' if dtype == 0x0002 else 'CLOCK_DOMAIN'} 0:"
     with patch.object(packer, "build", side_effect=_pack_changed):
         try:
             result = emit_image()
-        except (eb.ConfigError, RuntimeError) as exc:
-            assert reason is not None and str(exc).startswith(f"aem_desc.bin: {reason}:"), \
+        except packer.ImageError as exc:
+            assert reason is not None and str(exc).startswith(f"{reason}: {where}"), \
                 f"{label}: wrong refusal {exc}"
             verdict = reason
         else:
             assert reason is None, f"gate 36b: {label} accepted; missing {reason}"
             assert result == emitted[0], f"{label}: checked bytes were replaced"
             verdict = "accepted"
-    assert len(emitted) == 1, f"{label}: no packed-image evidence"
+    assert len(packed) == 1, f"{label}: the emitter did not pack through the processor"
     print(f"  [gate 36b] {label}: {verdict}")
 
 
+def _assert_image_presence(emit_image, name):
+    """Remove each checked type's one row; require the packer lint's named refusal."""
+    from unittest.mock import patch
+    import gen_desc_image as packer
+
+    original_build = packer.build
+    for dtype, refusal in _IMAGE_PRESENCE_CASES:
+        def _pack_without(document, *args, dtype=dtype, **kwargs):
+            changed = copy.deepcopy(document)
+            kept = [d for d in changed["descriptors"] if d["type"] != dtype]
+            assert len(kept) == len(changed["descriptors"]) - 1, \
+                f"{name}: expected one 0x{dtype:04X} row"
+            changed["descriptors"] = kept
+            return original_build(changed, *args, **kwargs)
+
+        with patch.object(packer, "build", side_effect=_pack_without):
+            try:
+                emit_image()
+            except packer.ImageError as exc:
+                lines = str(exc).splitlines()
+                assert any(line.startswith(refusal) for line in lines), \
+                    f"{name}: no {refusal!r} in {lines}"
+            else:
+                raise AssertionError(f"gate 36b: {name} without 0x{dtype:04X} accepted")
+        print(f"  [gate 36b] {name} without 0x{dtype:04X}: {refusal.split(':')[0]}")
+
+
 def test_shipping_image_contract() -> None:
-    """Gate 36b: L6/L10 boundaries and individual refusals after packing."""
+    """Gate 36b: L6/L10 boundaries, each refusal named by the packer's lint."""
     for name, path in CONFIGS.items():
         cfg = eb.load_config(path)
         blob = eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"]
@@ -28305,54 +28376,12 @@ def test_shipping_image_contract() -> None:
         _assert_image_contract_case(cfg, overlay, case)
 
 
-def test_shipping_image_contract_index_walk() -> None:
-    """Gate 36b: use row locations, unpadded lengths and every run member."""
-    import gen_desc_image as packer
-
-    cfg = eb.load_config(CONFIGS["arty_current"])
-    pristine = eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"]
-    cases = _image_contract_cases(pristine)
-    one, eight = cases[0][2], cases[1][2]
-    identity = cases[2][2]
-    # Same-length members exercise stride; unequal lengths exercise repeated
-    # type rows. A second configuration catches readers fixed at config zero.
-    rows = []
-    for config in (0, 1):
-        for dtype, bodies in ((0x0002, (one, one, eight)), (0x0024, (identity, identity))):
-            for index, data in enumerate(bodies):
-                body = bytearray(data)
-                struct.pack_into(">H", body, 2, index)
-                rows.append(dict(configuration=config, type=dtype, index=index, bytes=body.hex()))
-    document = dict(format="kl-aem-image", version=1, descriptors=rows)
-    blob, _ = packer.build(document, 576)
-    eb.aem_image_checks.validate_shipping_image(blob)
-    for row in rows:
-        changed = copy.deepcopy(document)
-        victim = changed["descriptors"][rows.index(row)]
-        body = bytearray.fromhex(victim["bytes"])
-        if row["type"] == 0x0002:
-            struct.pack_into(">H", body, 140, 143)
-            reason = "L10_OFFSET"
-        else:
-            struct.pack_into(">HH", body, 76, 1, 0)
-            reason = "L6_ORDER"
-        victim["bytes"] = body.hex()
-        damaged, _ = packer.build(changed, 576)
-        try:
-            eb.aem_image_checks.validate_shipping_image(damaged)
-        except eb.aem_image_checks.ImageCheckError as exc:
-            assert str(exc).startswith(reason + ":"), str(exc)
-        else:
-            raise AssertionError(f"gate 36b: skipped configuration/type/index {row}")
-    print(f"  [gate 36b] all {len(rows)} descriptors checked across configurations, strides and runs")
-
-
 def _soc_image_emitter(directory):
     """Load the real SoC emitter without importing elaboration dependencies.
 
     Only the overlay lookup is replaced. The function body is copied verbatim
     from the repository source, then imported as ordinary Python from scratch.
-    No checker or packer is substituted here.
+    No packer is substituted here.
     """
     import importlib.util
 
@@ -28369,7 +28398,7 @@ def _soc_image_emitter(directory):
 
 
 def test_soc_shipping_image_contract() -> None:
-    """Gate 36b: the deployed-image emitter checks its own final packed bytes."""
+    """Gate 36b: the deployed-image emitter packs with the lint its bytes must pass."""
     with tempfile.TemporaryDirectory(prefix="soc-image-contract-") as temporary:
         directory = Path(temporary)
         emit = _soc_image_emitter(directory)
@@ -28386,50 +28415,15 @@ def test_soc_shipping_image_contract() -> None:
         pristine = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
         for case in _image_contract_cases(pristine):
             _assert_image_contract_case(cfg, overlay, case, lambda: emit("fixture")[0])
+        _assert_image_presence(lambda: emit("fixture")[0], "SoC image")
 
 
 def test_shipping_image_contract_presence() -> None:
-    """Gate 36b: count checked descriptors in every header configuration."""
-    import gen_desc_image as packer
-
+    """Gate 36b: a configuration without its AUDIO_UNIT or CLOCK_DOMAIN is refused."""
     cfg = eb.load_config(CONFIGS["arty_current"])
-    pristine = eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"]
-    rows = [dict(configuration=config, type=dtype, index=0,
-                 bytes=image_descriptor(pristine, dtype).hex())
-            for config in (0, 1) for dtype in (0x0001, 0x0002, 0x0024)]
-
-    def _image(entries):
-        return packer.build(dict(format="kl-aem-image", version=1, descriptors=entries), 576)[0]
-
-    eb.aem_image_checks.validate_shipping_image(_image(rows))
-    for config in (0, 1):
-        for dtype, reason in ((0x0002, "L10_MISSING"), (0x0024, "L6_MISSING")):
-            missing = [row for row in rows if (row["configuration"], row["type"]) != (config, dtype)]
-            blob = _image(rows)
-            zero_count = bytearray(blob)
-            count, index = struct.unpack_from(">H", blob, 8)[0], struct.unpack_from(">I", blob, 12)[0]
-            for at in range(index, index + 16 * count, 16):
-                if struct.unpack_from(">HH", blob, at) == (config, dtype):
-                    struct.pack_into(">H", zero_count, at + 4, 0)
-            for label, damaged in (("absent row", _image(missing)), ("zero row count", bytes(zero_count))):
-                try:
-                    eb.aem_image_checks.validate_shipping_image(damaged)
-                except eb.aem_image_checks.ImageCheckError as exc:
-                    assert str(exc).startswith(f"{reason}: configuration {config}:"), str(exc)
-                else:
-                    raise AssertionError(f"gate 36b: {label}, configuration {config} accepted; missing {reason}")
-                print(f"  [gate 36b] {label}, configuration {config}: {reason}")
-    # Header-only populations must not turn the per-configuration loop vacuous.
-    for config_count, reason in ((0, "IMAGE_CONFIGS"), (3, "L10_MISSING")):
-        damaged = bytearray(_image(rows))
-        struct.pack_into(">H", damaged, 6, config_count)
-        try:
-            eb.aem_image_checks.validate_shipping_image(bytes(damaged))
-        except eb.aem_image_checks.ImageCheckError as exc:
-            assert str(exc).startswith(reason + ":"), str(exc)
-        else:
-            raise AssertionError(f"gate 36b: header count {config_count} accepted; missing {reason}")
-        print(f"  [gate 36b] header configuration count {config_count}: {reason}")
+    overlay = eb.emit_aem_overlay(cfg)
+    _assert_image_presence(lambda: eb._entity_model_image(cfg, overlay)["aem_desc.bin"],
+                           "builder image")
 
 
 def _assert_pp_shadow_audio_unit_rates(source: str, rates: list[int]) -> None:
@@ -28757,6 +28751,14 @@ def test_nvm_firmware_shapes() -> None:
          "--self-test"], check=True, cwd=ROOT, timeout=600)
 
 
+def test_soc_option_refusals() -> None:
+    """Refuse ignored CPU options before setup, including planted missing checks."""
+    python = _litex_or_skip("654 CPU options")
+    if python is not None:
+        subprocess.run([python, str(ROOT / "sw/builder/test_soc_options.py")],
+                       check=True, cwd=ROOT, timeout=300)
+
+
 def test_clock_crossing_constraints() -> None:
     """Run shipping elaborations, scoped exceptions and implementation-log controls."""
     python = _litex_or_skip("607 clock constraints")
@@ -29058,7 +29060,7 @@ if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
-    for fn in (test_commercial_timing_grade,
+    for fn in (test_soc_option_refusals, test_commercial_timing_grade,
                test_baremetal_clock_contract, test_rom_clock_contract, test_rom_clock_skip_reaches_the_ledger,
                test_extra_sweep_clocks, test_tap_clock_docs,
                test_sim_clock, test_extra_sweep_invocation, test_builder_clock_source,
@@ -29135,7 +29137,7 @@ if __name__ == "__main__":
                test_gptp_latency_corrections_are_declared_and_carried,
                test_audio_unit_rates_loader_contract,
                test_audio_unit_shipping_rates,
-               test_shipping_image_contract, test_shipping_image_contract_index_walk,
+               test_shipping_image_contract,
                test_soc_shipping_image_contract, test_shipping_image_contract_presence,
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device,

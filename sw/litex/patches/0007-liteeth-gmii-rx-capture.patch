@@ -1,0 +1,35 @@
+# Keep reset logic after the GMII input capture (#691). Sampling reset
+# alongside the pads preserves the original synchronous reset semantics:
+# the visible data, valid and last are zero after a reset clock edge,
+# and a reset transition between edges does not change those values.
+# The pad flops have no reset or enable for synthesis to remap onto D.
+--- a/liteeth/phy/gmii.py
++++ b/liteeth/phy/gmii.py
+@@ -41,13 +41,22 @@
+ 
+         # # #
+ 
+-        dv_d = Signal()
++        # Capture pads without reset, so control-set remapping cannot put
++        # reset logic before their IOB flops. Apply the sampled reset after
++        # capture, retaining the original latency and reset-edge behavior.
++        rx_dv = Signal(reset_less=True)
++        rx_data = Signal(8, reset_less=True)
++        rx_reset = Signal(reset=1, reset_less=True)
+         self.sync += [
+-            dv_d.eq(pads.rx_dv),
+-            source.valid.eq(pads.rx_dv),
+-            source.data.eq(pads.rx_data),
++            rx_dv.eq(pads.rx_dv),
++            rx_data.eq(pads.rx_data),
++            rx_reset.eq(ResetSignal()),
+         ]
+-        self.comb += source.last.eq(~pads.rx_dv & dv_d)
++        self.comb += [
++            source.valid.eq(rx_dv & ~rx_reset),
++            source.data.eq(Mux(rx_reset, 0, rx_data)),
++            source.last.eq(~pads.rx_dv & source.valid),
++        ]
+ 
+ # LiteEth PHY GMII RX ------------------------------------------------------------------------------
+ 

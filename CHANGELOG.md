@@ -8,6 +8,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
+- **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
+- **[Unreleased - processor pin ead80360](#unreleased---processor-pin-ead80360)** -- A silent NVM device is answered.
 - **[Unreleased - CRF unbind counts its unlock](#unreleased---crf-unbind-counts-its-unlock)** -- Counted at the unbind.
 - **[Unreleased - AAF or CRF media-clock following](#unreleased---aaf-or-crf-media-clock-following)** -- Follows one selected source.
 - **[Unreleased - processor pin 631eeb34](#unreleased---processor-pin-631eeb34)** -- AECP answers by its deadline.
@@ -37,6 +40,80 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 2ad2f845
+
+- Issue #682 adopts processor `2ad2f845`.
+- That pin carries processor PRs #156 and #159 to #162.
+- It also carries #164.
+- GET_COUNTERS notification spacing is now measured at grant (#148).
+- Later MAC stalls remain a wire-gap limitation.
+- The capture harness finishes frames crossing its observation boundary.
+- That extension stops after at most 2,048 cycles.
+- C11 documents the landed byte interfaces and TX backpressure.
+- It also documents complete FCS-good RX frames.
+- SRP registrar expiry precedes same-clock reception (#134).
+- Lv and LeaveAll finish MT; New and Join renew IN.
+- A held DEREGISTER waits for the notification round boundary (#158).
+- Subsequent controllers keep their notifications.
+- Its contents stay unchanged, but delivery can arrive later.
+- Existing declarations now precede use (#22).
+- The parent analysis budget has zero processor findings.
+- Domain and link-edge notification triggers gain tests (#42).
+- The parent still owns GET_AVB_INFO mapping words.
+- The processor top remains byte-identical to `ead80360`.
+- No port, parameter or register changes require parent adaptation.
+- The resource gate records this image as baseline F.
+- The ROM ledger adds `2ad2f845` rows; both ROMs are unchanged.
+- The capture census, receipt and product firmware remain unchanged.
+- After merge, the manager repeats #608 withdrawal cycles.
+- The manager also reads #658's default map.
+- VERSION is unchanged; the release step owns the bump.
+
+## Unreleased - power-on audio maps
+
+- Every dynamic stream port powered up unmapped (#658).
+- A controller saw no mapping until it added one.
+- Now stream channel c maps to the port's cluster c.
+- That holds below the smaller of channels and clusters.
+- AX7101: TDM8 In slot c feeds talker channel c.
+- Listener channel c renders on TDM8 Out slot c.
+- Both crossbar RAMs hold that map from boot.
+- A restored narrower format comes back with its map clipped.
+- Milan 5.4.2.7 still refuses an orphaning format.
+- So narrowing a listener first needs REMOVEs.
+- The CSR map window refuses writes.
+- That lasts until one sweep after the restore's terminal.
+- No port, register field or parameter changes.
+- VERSION is unchanged; the release step owns the bump.
+- `tb/verilator/milan_dp` proves it in `[DYNMAP]`.
+- It also stages the boot window's guard arms.
+- `make dynmap-mutants` plants 13 defects over three legs.
+
+## Unreleased - processor pin ead80360
+
+- Issue #661 adopts processor `ead80360`.
+- That pin carries processor PRs #144 to #147 and #149.
+- It also carries #150 and #152 to #155 and #157.
+- A silent NVM device is answered after 1,000 ms.
+- The port's error carries the new cause DEADLINE.
+- The change then fails three attempts and raises `nvm_alarm`.
+- `nvm_backed` is revoked instead of pending for ever.
+- Quarantine is still never released by time alone.
+- `NVM_MEM_TMO_CYC_P` sets that deadline; `KL_pp_shadow` keeps its default.
+- The D3 writer and walk now also carry user names.
+- Name pending still uses the sticky live-write term.
+- Channel maps are the parent's to persist (#637).
+- GET_DYNAMIC_INFO and ACMP stream steps no longer overlap.
+- `available_index` resets to 0 after ENTITY_DEPARTING.
+- The packer lints every descriptor model by default.
+- The 8x8 configuration declares its #584 cluster waiver.
+- The duplicate parent L6/L10 image checker is retired.
+- Three area lanes move processor storage into distributed RAM.
+- The resource gate records this image as its baseline.
+- The ROM ledger adds `ead80360` rows; both ROMs are unchanged.
+- The capture census and product firmware are unchanged.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - CRF unbind counts its unlock
 

@@ -27,6 +27,8 @@ Requirements [REQ-VER-03/04](../../REQUIREMENTS.md#8-verification-and-release-ac
 
 The parent must validate configuration-dependent semantic obligations.
 These include identity evolution, AUDIO_UNIT layout and clock-source shape.
+Since #661 the processor packer's default model lint checks the last two.
+Both parent image emitters run it; gate 36b holds each to it.
 ADP counts must represent maxima across supported configurations.
 
 The processor retains generic structural validation duties.
@@ -86,18 +88,17 @@ The consumer names identify the boundary relying on each rule.
 | L3: Base formats, role presence and rate completeness; Milan 5.3.3.4, 6.3/6.4 | Parent stream declarations -> processor format tables and media fabric | Parent **R**: `B._streams` rejects an empty direction. **C**: `B.base_format_complete`; **T**: builder gate 29 `test_milan_base_formats_are_rate_complete`. | One configuration; listener Base-rate family completion. Talkers follow 6.3's separate obligation, not listener-wide family completion. Generic model lint remains [PP60][pp60]; multi-configuration claims untested. |
 | L4: buffer floor, CLASS_A, format family, current membership, 46-format cap; Milan 5.3.3.4, IEEE Table 7-8 | Parent descriptor constructors -> processor and media consumers | Parent **C**: `D.d_stream`, `A._entity_descriptors` set CLASS_A, use first format as current, and emit Table 7-8. **T**: gate 29 checks shipped formats. `B._stream_buffer_ns` refuses listener declarations below the Milan floor or above UINT32_MAX. `B._validate_stream_formats` checks the final 46-entry cap and AAF/CRF family; `_crf_format` checks both Milan CRF words. Generic processor model lint remains open. | All shipped inputs use 2,126,000 ns; format lists have one or two entries. Buffer declarations outside 2126000..0xFFFFFFFF now refuse (#574). CRF-word, mixed-list and 47-entry declarations now refuse (#575). [PP60][pp60], [F2/F3](#follow-up-allocation). |
 | L5: stable physical-port index across configurations; Milan 5.3.3.5 | Parent AVB_INTERFACE -> processor/ADP interface selection | Parent **C**: `D.d_avb_interface` emits descriptor index 0. **T**: builder gate 37 checks its physical port_number against the gPTP declaration. Processor density is only supporting evidence. | One physical interface and configuration. Port_number is 1; descriptor index is 0. No cross-configuration mapping refusal is claimed. [PP60][pp60]. |
-| L6: one INPUT_STREAM per CRF input and per AAF input (#629), in class order INTERNAL, CRF, AAF; INTERNAL with outputs, at least one source per domain, identity list, restricted gPTP chain; Milan 5.3.3.6 (a minimum), 7.5; IEEE 1722.1-2021 7.2.32 and Table 7-141 (an unlisted index is BAD_ARGUMENTS), 7.4.23.1 (a failed response carries the current index) | Parent source rows/domain -> processor SET_CLOCK_SOURCE range check | Parent **C**: `B._overlay_clock_sources` emits the class order of #629 D1 and `D.d_clock_domain` the identity list `[0..1+N]`. **R/T**: `_load_clocking`, gate 33 grade the class order, refuse CRF without its sink and refuse a dropped source. `B._validate_output_clock_sources` requires INTERNAL when any AAF/CRF output exists (#576). Empty source lists receive a named L6 `ConfigError`. **R/T**: `I._clock_domain`, builder gate 36b, checks the emitted identity list and offset 76 (#577). Both `B._entity_model_image` and `G.build_desc_image` enforce it. | INTERNAL, one CRF input source and one source per AAF input ship (#629: INTERNAL 0, CRF 1, AAF input k at 2 + k). The loader admits INTERNAL, CRF and `input_stream`, so the non-redundant single-interface gPTP-as-media-clock arm is unreachable. Reversed, gapped and duplicate packed lists receive distinct refusals. CRF-only configurations with outputs refuse. [PP60][pp60], [PP89][pp89], [F4/F6](#follow-up-allocation). |
+| L6: one INPUT_STREAM per CRF input and per AAF input (#629), in class order INTERNAL, CRF, AAF; INTERNAL with outputs, at least one source per domain, identity list, restricted gPTP chain; Milan 5.3.3.6 (a minimum), 7.5; IEEE 1722.1-2021 7.2.32 and Table 7-141 (an unlisted index is BAD_ARGUMENTS), 7.4.23.1 (a failed response carries the current index) | Parent source rows/domain -> processor SET_CLOCK_SOURCE range check | Parent **C**: `B._overlay_clock_sources` emits the class order of #629 D1 and `D.d_clock_domain` the identity list `[0..1+N]`. **R/T**: `_load_clocking`, gate 33 grade the class order, refuse CRF without its sink and refuse a dropped source. `B._validate_output_clock_sources` requires INTERNAL when any AAF/CRF output exists (#576). Empty source lists receive a named L6 `ConfigError`. **R/T**: the processor packer's default model lint (processor PR #144; 07 section 3.1 L6) refuses a list at another offset than 76 or other than the identity list. Builder gate 36b holds both `B._entity_model_image` and `G.build_desc_image` to it (#577). #661 retired the parent's duplicate packed-byte check. | INTERNAL, one CRF input source and one source per AAF input ship (#629: INTERNAL 0, CRF 1, AAF input k at 2 + k). The loader admits INTERNAL, CRF and `input_stream`, so the non-redundant single-interface gPTP-as-media-clock arm is unreachable. Reversed, gapped and duplicate lists are each refused as `L6 domain-source-identity`. CRF-only configurations with outputs refuse. [PP60][pp60], [PP89][pp89], [F4/F6](#follow-up-allocation). |
 | L7: dynamic input maps, output uniqueness, mono clusters; Milan 5.3.3.7-.9; IEEE 7.2.19 | Parent ports/maps/clusters -> processor maps and media crossbars | Parent **R**: `B._streams` rejects static listener maps; `M._map_duplicate_rule` rejects duplicate output stream/channel targets. **C**: `D.d_audio_cluster` fixes channel_count=1. Generator self-test supplies negative controls. | Parent checks map indices and cluster bounds before packing. Stream-channel width deviations are recorded, not refused (`M._map_row_bounds`); shipping arty_current carries six, owned by [F8](#follow-up-allocation). Packer accepts static input-map fields, duplicate mapping bytes and channel_count=2. Generic semantic coverage remains [PP60][pp60]; repaired self-test belongs to [#464][selftest]. |
 | L8: IDENTIFY at one stable index; Milan 5.3.3.10 | Parent CONTROL/ADP CSR -> processor control lookup | Parent **C**: `D.d_control_identify`, `A._entity_descriptors` emit IDENTIFY[0]. `milan_csr.sv` resets ADP_IDX0 to zero; its upper half drives `identify_index_i`. **T**: gate 37 grades reset_time, not general IDENTIFY/CSR consistency. | Single configuration; no general missing/wrong CONTROL refusal. Packer accepts control_type=0. [PP60][pp60]; closed reset-time repair stays closed. |
 | L9: valid model identity and evolution; Milan 5.3.3.1/5.6.2 validity, 5.3.1 evolution; IEEE 6.2.2.8, Table 7-2 | Parent model hash/identity join -> ENTITY bytes, firmware and ADP inputs | Parent **C**: `B.model_shape`, `derive_model_id`, `J.identity_from_overlay`, `apply_identity`. **T**: gates 8/28 compare hashes and packed identity. `B._model_id` refuses zero/all-ones literal, pinned and resolved hash identities; declaration tests compare packed ENTITY and ADP firmware constants. | Zero/all-ones declarations are refused; generator-only reset_time changes retain a hash-derived ID. Evolution belongs to [#495][residue]/[PP38][pp38]; validity is enforced by [F1](#follow-up-allocation). |
-| L10: offset 144, count 1..8, full words, length=144+4N, current-rate membership; IEEE 7.2.3/7.4.21.1; Milan 5.3.3.3 | Parent AUDIO_UNIT -> processor SET_SAMPLING_RATE immediate-address walk | Parent **R**: `B._load_clocking` rejects >8 and duplicates; gate 36a proves distinct ninth-entry refusal. **C**: `D.d_audio_unit` emits offset/length. **R/T**: `I._audio_unit`, builder gate 36b, checks emitted offset/count/full-word extent against the processor walk (#577). It requires a listed current rate. Both `B._entity_model_image` and `G.build_desc_image` enforce it. | Shipped N=1 or 3. Eight-entry loader acceptance does not widen `S.spec_from_overlay`'s 48/96/192 kHz restriction. Parent image checks independently refuse offset, empty/excess count, missing/partial and extra words, and unlisted current rates. Generic packer acceptance alone remains insufficient. [#478][rate-bound] remains closed; [PP89][pp89] retains processor defence-in-depth work. |
+| L10: offset 144, count 1..8, full words, length=144+4N, current-rate membership; IEEE 7.2.3/7.4.21.1; Milan 5.3.3.3 | Parent AUDIO_UNIT -> processor SET_SAMPLING_RATE immediate-address walk | Parent **R**: `B._load_clocking` rejects >8 and duplicates; gate 36a proves distinct ninth-entry refusal. **C**: `D.d_audio_unit` emits offset/length. **R/T**: the processor packer's default model lint (07 section 3.1 L10) checks offset, count, full-word extent and a listed current rate. Builder gate 36b holds both `B._entity_model_image` and `G.build_desc_image` to it (#577). #661 retired the parent's duplicate packed-byte check. | Shipped N=1 or 3. Eight-entry loader acceptance does not widen `S.spec_from_overlay`'s 48/96/192 kHz restriction. The lint refuses offset, empty/excess count, missing/partial and extra words, and unlisted current rates. Packer acceptance with the lint off remains insufficient. [#478][rate-bound] remains closed; [PP89][pp89] closed with that lint. |
 | ADP maxima; Milan 5.3.3.1, IEEE Table 7-2 | Parent `B.adp_shape`/overlay -> generated header, ENTITY bytes and processor ADP | Parent **C**: common stream counts feed all three paths. **T**: `scripts/check_entity_shape.py --self-test` and builder gate 28 compare artifacts. `J` bakes the same metadata into ENTITY. | One configuration, so its count is its maximum. Packer accepts incorrect ENTITY counts. No two-configuration maximum calculation/refusal is claimed. [PP39][pp39]; future parent multi-configuration delivery remains a prerequisite. |
 
 | Source | Path and relevant responsibilities |
 |---|---|
 | B | [endstation_builder.py](../../sw/builder/endstation_builder.py): configuration validation, model identity, overlays and ADP shape |
 | G | [milan_soc.py](../../sw/litex/milan_soc.py): deployed-image emission before CRC binding and writing |
-| I | [aem_image_checks.py](../../sw/builder/aem_image_checks.py): packed shipping-image L6/L10 validation |
 | D | [aem_descriptors.py](../../avdecc/aem_descriptors.py): descriptor field layouts |
 | A | [aem_assemble.py](../../avdecc/aem_assemble.py): descriptor tree, directory and validation tables |
 | M | [aem_maps.py](../../avdecc/aem_maps.py): per-port bounds and configuration-wide output uniqueness |
@@ -180,62 +181,54 @@ The later audit table records original measurements.
 Processor acceptance remains distinct from subsequent parent shipping checks.
 
 Parent #577 checks both descriptor-image emitters.
-`B._entity_model_image` returns checked bytes for tests and audits.
-`G.build_desc_image` returns checked bytes for deployment.
-`I.validate_shipping_image` checks each emitter's final packed bytes.
+`B._entity_model_image` returns packed bytes for tests and audits.
+`G.build_desc_image` returns packed bytes for deployment.
+Both pack through the processor's `build()`, which lints the model by default.
 The SoC then CRC-binds those bytes into firmware constants.
 It writes those same bytes beside the bitstream.
-The [round-two decision][image-boundary-decision] defines this enforcement boundary.
+The [round-two decision][image-boundary-decision] defined this enforcement boundary.
+It was first enforced by a parent checker on the packed bytes.
+#661 retired that checker as a duplicate of the processor lint (processor PR #144).
 The ordinary builder CLI emits the overlay, not the image.
 The loader and model constructors supply no expected field values.
-Index rows supply descriptor locations, counts, strides and unpadded lengths.
-Descriptor bodies supply each list's offset, count and contents.
-The SET_SAMPLING_RATE microprogram supplies `SSR_LIST_OFF` and `SSR_WALK_MAX`.
-These are read without executing its microprogram generator.
-The checker derives the identity sequence from the served count.
-It measures rate-word extent independently of the declared count.
-IEEE 7.2.3/7.2.32 define the decoded field positions.
-The CLOCK_DOMAIN list must immediately follow its fixed fields.
-That places `clock_sources_offset` at 76, per Table 7-61.
-Current-rate membership compares complete emitted words, including pull bits.
-The image header supplies the configuration count.
-Each configuration needs a checked AUDIO_UNIT and CLOCK_DOMAIN.
-Zero-count rows do not satisfy that requirement.
+The lint reads each descriptor's offset, count and contents from its bytes.
+It requires the CLOCK_DOMAIN list at 76, per Table 7-61, as the identity list.
+It requires the AUDIO_UNIT list at 144, at most 8 words, and length `144 + 4N`.
+Current-rate membership compares complete words, including pull bits.
 
 Builder gate 36b plants faults after successful configuration loading.
-Every fault survives packing before the parent check refuses it.
+Each accepted fault reaches the packed bytes unchanged.
+Each refused fault is named by the lint check in the table.
 One/eight-rate and one/two-source controls pass through both emitters.
 SoC tests execute its source function without elaboration dependencies.
 Only the overlay-path lookup is substituted.
 Eight-rate acceptance is structural, without widening overlay conversion.
 All five shipping configurations pass without image changes.
-Additional fixtures exercise every descriptor across strides and repeated runs.
 
 | Packed-image case | Named result |
 |---|---|
 | Rate offset/count/length `144/1/148`, `144/8/176` | Accepted; eight-entry fixture includes a full pull-bearing word |
 | Source lists `[0]`, `[0,1]` | Accepted |
-| Rate offset 143 | `L10_OFFSET` |
-| Nine complete rate words, declared count 9 | `L10_COUNT` |
-| No rate words, declared count 0 | `L10_EMPTY` |
-| Current rate absent, including a pull-bit mismatch | `L10_CURRENT` |
+| Rate offset 143 | `L10 rate-offset` |
+| Nine complete rate words, declared count 9 | `L10 rate-count` |
+| No rate words, declared count 0 | `L10 rate-empty` |
+| Current rate absent, including a pull-bit mismatch | `L10 current-rate` |
 | Current rate last, or matching pull-bearing current rate | Accepted |
-| Declared count 2, one complete rate word | `L10_COUNT_EXTENT` |
-| One-rate descriptor one byte short | `L10_PARTIAL_WORD` |
-| One-rate descriptor one word too long | `L10_EXTRA_WORDS` |
-| Source list `[1,0]` | `L6_ORDER` |
-| Source list `[0,2]` | `L6_GAP` |
-| Source list `[0,0]` | `L6_DUPLICATE` |
-| Incomplete AUDIO_UNIT or CLOCK_DOMAIN fixed fields | `L10_HEADER` / `L6_HEADER` |
-| Empty source list | `L6_EMPTY` |
-| Source offset 70, or padded list at offset 78 | `L6_OFFSET` |
-| Source list extending beyond descriptor | `L6_EXTENT` |
-| Missing AUDIO_UNIT or zero-count AUDIO_UNIT row, either configuration | `L10_MISSING` |
-| Missing CLOCK_DOMAIN or zero-count CLOCK_DOMAIN row, either configuration | `L6_MISSING` |
-| Header declares another configuration without rows | `L10_MISSING` |
-| Header declares zero configurations | `IMAGE_CONFIGS` |
+| Declared count 2, one complete rate word | `L10 rate-length` |
+| One-rate descriptor one byte short | `L10 rate-length` |
+| One-rate descriptor one word too long | `L10 rate-length` |
+| Source lists `[1,0]`, `[0,2]` and `[0,0]` | `L6 domain-source-identity` |
+| Incomplete AUDIO_UNIT or CLOCK_DOMAIN fixed fields | `L10 rate-count` / `L6 domain-source-count` |
+| Empty source list | `L6 domain-source-count` |
+| Source offset 70, or padded list at offset 78 | `L6 domain-source-offset` |
+| Source list extending beyond descriptor | `L6 domain-source-length` |
+| Configuration without its AUDIO_UNIT, either emitter | `L1 audio-unit-for-aaf` |
+| Configuration without its CLOCK_DOMAIN, either emitter | `L1 required-type` |
 
-The same committed test detects each removed semantic refusal.
+The image header and index rows are the packer's generic format.
+The processor owns that format, as the ownership boundary states.
+
+The same committed test fails if either emitter switches the lint off.
 These checks preserve #478's separate loader acceptance boundary.
 
 | Layer and rule | Accepted control or boundary | One invalid change | Measured result |
@@ -338,7 +331,7 @@ Existing processor issues retain their published scope and acceptance criteria.
 | F3 (#575) | Enforced by `B._validate_stream_formats` and `_crf_format`. Coordinates [PP60][pp60] L3/L4. | Both directions accept legal families and 46 final entries. Declaration tests independently refuse count overflow, mixed families and altered CRF words. Removed-check mutants fail. |
 | F4 (#576) | Enforced by `B._validate_output_clock_sources` for every AAF/CRF output. Coordinates [PP60][pp60] L6. | Declaration tests accept INTERNAL+CRF with either selected. CRF-only outputs refuse; removed-check mutants fail. Input-only clock loading remains supported; full YAML still requires both AAF directions. |
 | F5 | [Processor #122][cluster-decision] retains F07.2's Milan 5.3.3.8 minimum. Parent [#584][cluster-fix] owns correcting D8's non-conforming zero-cluster 8x8 input pools. | Every input port must own at least one cluster. Product meaning, refusal tests and image changes remain #584's work; successful packing grants no waiver. |
-| F6 (#577) | Enforced by `I.validate_shipping_image` on the final packed bytes in `B._entity_model_image` and `G.build_desc_image`. The deployed bytes are checked before writing or firmware CRC binding. [PP89][pp89] retains processor defence-in-depth work. | Builder gate 36b accepts one/eight rates and identity lists; independently refuses offset, count, count/extent, partial/extra words, reversed/gapped/duplicate sources, zero rates, unlisted current rates and source offset. Each header configuration requires checked AUDIO_UNIT/CLOCK_DOMAIN rows. Removed-check mutants and either emitter bypass fail. All five configurations pass. #478 loader scope remains unchanged. |
+| F6 (#577) | Enforced by the processor packer's default model lint ([PP89][pp89], processor PR #144) inside `build()`, which `B._entity_model_image` and `G.build_desc_image` both call. The deployed bytes are packed from a linted model before writing or firmware CRC binding. #661 deleted the parent's duplicate packed-byte checker, `aem_image_checks.py`. | Builder gate 36b accepts one/eight rates and identity lists through both emitters. It requires the lint's named refusal for offset, count, count/extent, partial/extra words, reversed/gapped/duplicate sources, zero rates, unlisted current rates and source offset. A configuration without its AUDIO_UNIT or CLOCK_DOMAIN is refused as `L1 audio-unit-for-aaf` or `L1 required-type`. Either emitter switching the lint off fails. All five configurations pass. #478 loader scope remains unchanged. |
 | F7 | Body/key refusal is enforced by the processor packer at `493e5e4b`, adopted through `16be6768` in #580. This is separate from [PP60][pp60]'s published acceptance. | Processor `protocol-processor/tb/desc_store/test_gen_desc_image.py` retains a legal pair and independently rejects mismatched body type and index through `build()` and the CLI. |
 | F8 | Parent static-map product-policy follow-up. Disposition the six shipping arty_current stream-channel width deviations. Record a clause-backed policy and implement matching image validation and model changes. [#464][selftest] remains closed. | Decode AUDIO_MAP[0] channels 0..7 against stereo STREAM_OUTPUT[0]. Preserve a legal in-range control; detect each channel 2..7 deviation. Demonstrate the chosen policy with positive/negative image fixtures and matching shipping bytes. |
 | Existing L1/L2/L3/L5/L7/L8 debt | [PP60][pp60], with parent semantic allocation above. Generic metadata/body consistency is allocated separately to F7. Parent construction has no comprehensive negative model lint. | Named minimum/parent/order/Base-format/interface/map/IDENTIFY fixtures; supported configuration boundaries stated explicitly. |

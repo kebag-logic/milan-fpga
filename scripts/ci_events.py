@@ -588,6 +588,7 @@ INHERITED_STEP_ENV = {
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+                             "FIRMWARE_UNIT_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
     (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
@@ -1249,6 +1250,8 @@ FAST_SCOPE_STEP_ID = "scope"
 #: `|| true`, an echo, or a second command are all a different script.
 OOC_SH_SELFTEST = "python3 syn/yosys/ooc_selftest.py"
 OOC_SH_SELFTEST_JOB = "yosys-elaboration"
+#: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
+FIRMWARE_UNIT_JOB = "firmware-unit"
 OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
 #: ...and it must NAME the submodule. Holding the bare verb alone let the
 #: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
@@ -2336,6 +2339,47 @@ RTL_STEP_LISTS = {
         {"name": "Prove the result cache refuses a planted entry",
          "run": (
              'python3 syn/yosys/cache_selftest.py',
+         )},
+    ),
+    # #665 lanes FT/F4: the pinned SDK precedes the required freestanding
+    # control builds. SRP uses the exact lwSRP submodule and mutation campaign.
+    (RTL_FAST, FIRMWARE_UNIT_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP",)},
+        {"name": "Install GoogleTest and GoogleMock and print the versions",
+         "run": (
+             'set -euo pipefail',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+             'python3 -m pip install --quiet pyyaml',
+             'dpkg-query -W libgtest-dev libgmock-dev',
+             'g++ --version | head -n 1',
+             'gcov --version | head -n 1',
+         )},
+        {"name": "Prove the tally reads a failing and a crashing test as failures",
+         "run": (
+             'python3 sw/firmware/gtest/tally_selftest.py',
+         )},
+        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+         "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK",
+         "run": RV32_INSTALL},
+        {"name": "Run the control-plane firmware suites and RV32 builds",
+         "run": (
+             'set -euo pipefail',
+             'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
+             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
+         )},
+        {"name": "Run the saved-state store suites and its RV32 build",
+         "run": (
+             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
+         )},
+        {"name": "Hold the firmware coverage ratchet",
+         "run": (
+             'set -euo pipefail',
+             'python3 sw/firmware/gtest/fw_coverage.py --selftest',
+             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"',
          )},
     ),
 }
@@ -7697,7 +7741,8 @@ def _rv32_sdk_arms() -> list[Arm]:
     """#504: missing provenance inputs, adoption guards and provisioning refuse."""
     arms = []
     for path, jid, count in ((DOCS, "docs-check", 50),
-                             (ELABORATE, "elaborate", 20)):
+                             (ELABORATE, "elaborate", 20),
+                             (RTL_FAST, FIRMWARE_UNIT_JOB, 9)):
         for label, key, value in (
                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
                     "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
@@ -7716,6 +7761,17 @@ def _rv32_sdk_arms() -> list[Arm]:
         arms.append((f"RV32 {jid} verification skipped on cache hit",
                      _m_step_key_any(path, jid, "ci_rv32_sdk.py", "if", False),
                      "(`Install and verify the pinned RV32 SDK`)"))
+        if path == RTL_FAST:
+            # Each missing compiler must refuse, never silently skip a build.
+            for script, step_name in (
+                    ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
+                    ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build")):
+                suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
+                arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
+                             _m_step_key_any(path, jid, script, "run",
+                                             "\n".join(suites["run"]).replace(" --require-rv32", "")),
+                             f"(`{step_name}`) script is not the canonical form"))
+            continue
         builder_name = "End-station builder gates" if path == DOCS else "Elaboration gates"
         arms.append((f"RV32 {jid} allows a stood-down compiler",
                      _m_step_key_any(path, jid, BUILDER_CALL, "run",

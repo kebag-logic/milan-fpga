@@ -609,11 +609,12 @@ is the one consumer that cannot be asked (its expansion path is Yosys), and
 splitting the raw text had credited a commented-out top as elaborated. Every
 declared module is a top, or it is named in
 [`scripts/processor_yosys_tops.budget`](../../scripts/processor_yosys_tops.budget)
-with the reason it is not. The six are recorded there as **drift at the pin**,
-not as helper exceptions, because that is what they are; the fix is upstream,
-and the pin bump that brings it in deletes the lines, since a recorded name
-that has become a top is refused as stale and an omission that is not recorded
-is refused outright. The record can therefore only shrink.
+with the reason it is not. The six recorded there from pin 3770ae02 were
+**drift at the pin**, not helper exceptions; the processor's lane C10 (its
+issue #25) named all six as tops, and the pin bump that brought it in deleted
+their lines, since a recorded name that has become a top is refused as stale
+and an omission that is not recorded is refused outright. The record can
+therefore only shrink.
 
 The gPTP processor keeps no native tops list. Its portability coverage is the
 closure walk itself — every one of its six sources is reached from
@@ -1757,7 +1758,7 @@ did not move.
 |---|---:|---|
 | RTL suites with no executable mutation or negative arm | 82 of 87 (was 83) | Ratchet across the superproject (54 suites, entry `scripts/run_all_suites.sh`) and both project-owned processor submodules (30 under `protocol-processor/tb`, entry `protocol-processor/scripts/run_suites.sh` and its CI; 3 under `gptp-processor/tb/verilator`, entry `gptp-processor/Makefile`). Only an executed recipe arms a suite, as defined above. |
 | First-party files drawing random values with no recorded seed | **10** | Ratchet. The scan reads code, not comments or strings, in every language the test trees carry: Python module draws, `random.Random()`/`SystemRandom()` instance draws, `from random import …`, `choices`/`gauss` and friends, numpy, `secrets`; C `rand()`, `std::rand()`, `random()`, `*rand48`, `random_device`; SystemVerilog `$urandom`, `$urandom_range`, `$random`, `randomize()`. A seed is `random.seed(x)`, `random.Random(x)` with any non-empty `x` (the documented `TEST_SEED` pattern), `np.random.seed`/`default_rng(x)`, `srand(x)` (not `srand(time(NULL))`), a printed seed beside `random_device`, `srandom(x)`, `$urandom(x)` or a `+seed` plusarg. **All ten are legacy xsim benches** under `tb/utests`, `tb/itests` and `tb/avtp_packet_gen_sv` drawing `$urandom` with no seed ([TESTING.md section 5](../testing/TESTING.md#5-legacy--auxiliary-testbenches): superseded, not exit-code gating). Every gating harness is seeded. |
-| Unexplained tests reading production HDL text | **0** | Nine readers are explicitly classified: eight mutation campaigns and one structural boundary check. The count is the live disposition list in `scripts/measure_test_evidence.py`, which the gate prints on every run and requires to match the readers exactly. Idioms: `read_text`/`read_bytes`, `open(…).read()`/`readlines()`, C++ `ifstream`/`fopen`, SystemVerilog `` `include `` of `hdl/` or `$fopen`/`$readmemh`, shell `cat`/`grep`/`sed`/`awk` over `hdl/`, each paired with an `hdl/` path. A new reader is refused until review proves it is not importing expected behavior from the DUT. |
+| Unexplained tests reading production HDL text | **0** | Nine readers are explicitly classified: eight mutation campaigns and one structural boundary check. The count is the live disposition list in `scripts/measure_test_evidence_readers.py`, which the gate imports, prints on every run and requires to match the readers exactly. Idioms: `read_text`/`read_bytes`, `open(…).read()`/`readlines()`, C++ `ifstream`/`fopen`, SystemVerilog `` `include `` of `hdl/` or `$fopen`/`$readmemh`, shell `cat`/`grep`/`sed`/`awk` over `hdl/`, each paired with an `hdl/` path. A new reader is refused until review proves it is not importing expected behavior from the DUT. |
 | Suite files using host wall-clock/process deadlines | **3** | Ratcheted. Two are in the external `tsn_fuzz` cosimulation boundary; the third is the tcam mutation driver's per-mutant guard, a bound on a hang, not an oracle. Idioms: Python `time.*`/`datetime.now`/`settimeout`/`select.select`/`signal.alarm`/`SO_RCVTIMEO` and a `timeout=` keyword on `run`/`check_output`/`communicate`/`wait`/`wait_for` and friends (nested parentheses included); C++ `chrono`, `clock()`, `time(NULL)`, `gettimeofday`, `usleep`/`sleep`; shell and Makefile `sleep N`, `timeout N …`, `date`. Behavioral RTL timeouts elsewhere advance explicit DUT cycles. |
 
 ### Audit of weak-evidence failure modes

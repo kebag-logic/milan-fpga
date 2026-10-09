@@ -768,10 +768,15 @@ write:  new_seq = accepted_seq + 1
         erase(target) ; program(target, image(new_seq)) ; read back ; verify crc
         the authoritative slot is never erased
 
-read:   read both slots; newer = (int32_t)(A.seq - B.seq) > 0
+read:   read both slots; newer = (int32_t)(A.seq - B.seq) >= 0 ? A : B
         offer the newer; if it fails section 6.2, offer the other
         if both fail, do nothing -- boot unbound
 ```
+
+On equal sequences slot A is offered.
+The [#665 tie decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153) settles it.
+The shipping writer, and every saved state already on a device, use A.
+The writers never write equal sequences, so a tie arises only after a fault.
 
 At every instant of the write sequence at least one slot holds a complete image
 whose CRC closes. Power can be removed at any point. This is the guarantee the
@@ -1452,9 +1457,11 @@ D3 remains unimplemented; contract adoption supplies no persistence evidence.
   The last verified snapshot survives.
   Every writer lane must measure normal-load acceptance-to-durable time.
   No unconditional durability promise follows from adding the windows.
-- **Processor recovery remains incomplete.** #15 still requires reusable-port recovery.
+- **Processor recovery is bounded, not reuse.** Processor pin `ead80360` carries lane P2 (processor PR #145), which closed #15 and #20.
+  The port answers a silent device at its own deadline, and the producer gives the change up with `nvm_alarm` after three attempts ([D3 section 15 item 4](SAVED_STATE_MATERIALIZATION.md#15-unresolved), amended).
+  Quarantine is never released by time alone, and no reuse is claimed before the device ends the operation.
+  DR1a and DR1b in the [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) still govern full #70 closure.
   #109 adds DEVICE/UNFRAMED classification, bounded binding restore and admission.
-  #20 still needs processor-reviewer reconciliation under the [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
   The earlier PR #32 fixed unowned completion.
   The unchecked region remains load-bearing: section
   4's blocks are enforced by the manager and by

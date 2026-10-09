@@ -10,10 +10,10 @@ Dirty submodules invalidate local evidence.
 
 ## Contents
 
-- **[Pinned dependencies](#pinned-dependencies)** — Identify every imported repository.
-- **[Initialize safely](#initialize-safely)** — Populate exact recorded revisions.
-- **[Respect ownership](#respect-ownership)** — Separate donor and root responsibilities.
-- **[Known documentation conflicts](#known-documentation-conflicts)** — Avoid stale donor claims.
+- **[Pinned dependencies](#pinned-dependencies)** -- Identify every imported repository.
+- **[Initialize safely](#initialize-safely)** -- Populate exact recorded revisions.
+- **[Respect ownership](#respect-ownership)** -- Separate donor and root responsibilities.
+- **[Known documentation conflicts](#known-documentation-conflicts)** -- Avoid stale donor claims.
 
 ## Pinned dependencies
 
@@ -22,7 +22,8 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `631eeb342ca1e3fa80e734077a56a943aee76ff1` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `third_party/lwSRP` | `9197193e47a6bb1c45a56d90a18c1784123aba44` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -119,6 +120,71 @@ The parent can observe these processor changes.
 | C2 fixes the internal MAAP engine | The parent ties `cfg_maap_internal_i` to 0, so it stays inactive |
 | P141 grades SET/GET_CLOCK_SOURCE over ten sources | [Media-clock following](../design/MEDIA_CLOCK_FOLLOWING.md#protocol-processor-changes) records it as landed |
 
+Issue #661 adopts processor pin `ead80360`.
+
+| Processor lane | Merged PR | `main` after merge |
+|---|---|---|
+| C8, descriptor model lint | [144](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/144) | `88969246` |
+| #143, campaign jobs | [146](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/146) | `c74711d4` |
+| P2, NVM port deadline | [145](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/145) | `ddb3119d` |
+| C7, counters face | [147](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/147) | `f4167536` |
+| P1, persistence beyond BINDING | [150](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/150) | `c4cb84ff` |
+| C10, Yosys tops and declarations | [149](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/149) | `5c71928a` |
+| #85, ADP matrix walk | [152](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/152) | `83999eba` |
+| #232, notification registry RAM | [153](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/153) | `c050d971` |
+| #230, SRP area | [154](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/154) | `07b1469d` |
+| #81 and #84, scoreboard faces | [157](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/157) | `b0a74196` |
+| #639, arm queues and listener records | [155](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/155) | `ead80360` |
+
+- `ltn_rom.hex` and `ucode.hex` match the `631eeb34` rows.
+- The top gains one parameter and no port.
+
+The parent can observe these processor changes.
+
+| Processor change | Parent position |
+|---|---|
+| P2 adds parameter `NVM_MEM_TMO_CYC_P`, default `CLK_HZ_P` (1,000 ms) | `KL_pp_shadow` keeps the default |
+| P2 answers a silent NVM device at that deadline: err, cause DEADLINE | Three failed attempts raise `nvm_alarm`; the [D3 contract](../design/SAVED_STATE_MATERIALIZATION.md) is amended (W13, section 8.8, section 15 item 4) |
+| P1 adds the name stage; the channel maps are the parent's ([processor #83 ruling](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/83#issuecomment-5967611704)) | The D3 contract is amended; the map writer, restore and roll-back are #637's |
+| P1 keeps `pend_i`'s sticky live-name term | A parent lane transfers names to `d3_unflushed_o` |
+| C8 lints the descriptor model inside `build()` by default | Both image emitters run it; the 8x8 configuration carries its #584 waiver; the parent's duplicate L6/L10 checker is retired |
+| C10 names six modules as Yosys tops and declares before use | `processor_yosys_tops.budget` is empty and the xvlog ratchet banks the fix |
+| #232 drops the `pd_ix_w` use-before-declaration | The xvlog ratchet banks it |
+| #85 resets `available_index` to 0 after ENTITY_DEPARTING (IEEE 1722.1-2021 Section 6.2.2.15) | The [register map](REGISTER_MAP.md) `0x644` note says so |
+| #157 serializes GET_DYNAMIC_INFO against an in-flight ACMP stream step | No top port or parameter |
+| #230, #232 and #639 move storage into distributed RAM | No top port or parameter; the [resource gate](../design/AREA_BUDGET.md#the-resource-gate) is re-baselined |
+| C7 documents the integrator-owned `ctr_*` counters face | `milan_datapath` already meets it |
+| #143 adds `--jobs` to the processor's mutation campaigns | No parent change |
+
+Issue #682 adopts processor pin `2ad2f845`.
+
+| Processor lane | Merged PR | Parent-visible result |
+|---|---|---|
+| #148, counter notification spacing | [159](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/159) | The spacing stamp follows each waiting job through grant; the parent harness completes frames crossing an observation boundary |
+| C11, interface documentation | [156](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156) | Documents the landed byte interfaces, TX backpressure and complete FCS-good RX frames |
+| #134, SRP registrar expiry | [160](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/160) | Expiry precedes reception on a simultaneous event; Lv and LeaveAll finish MT, while New and Join renew IN |
+| #158, mid-round DEREGISTER | [161](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/161) | A held DEREGISTER waits for the round boundary, preserving subsequent controllers' notifications |
+| #22, declaration order | [162](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162) | Existing declarations precede use; the parent analysis budget has zero processor findings |
+| #42, Domain notifications | [164](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/164) | Tests Domain and link-edge notification triggers; the parent still owns the mapping words |
+
+The processor top is byte-identical to the previous pin.
+
+No port, parameter or register changes require parent adaptation.
+
+Both processor ROM digests match the `ead80360` rows.
+
+Counter spacing is measured at grant.
+
+Later MAC stalls remain a wire-gap limitation.
+
+The held DEREGISTER retains its contents but can arrive later.
+
+After merge, the manager repeats #608 withdrawal cycles.
+
+The manager also reads #658's default map.
+
+This adoption checks the resource baseline and capture receipt.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
@@ -146,14 +212,26 @@ It does not trust checked-out heads.
 
 ## Initialize safely
 
-Required root gates use three submodules.
+Firmware and root gates use these four submodules.
 
 ```sh
 git submodule update --init \
   third_party/verilog-axis \
   protocol-processor \
-  gptp-processor
+  gptp-processor \
+  third_party/lwSRP
 ```
+
+lwSRP uses the HTTPS URL recorded in `.gitmodules`.
+The repository is public; anonymous HTTPS fetch needs no credentials.
+
+The pin is published on `main`.
+It includes PR #12 and PR #15.
+
+The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
+
+lwSRP is licensed under Apache-2.0.
+Its pinned `LICENSE` and `NOTICE` retain dependency terms.
 
 The unused external import uses SSH.
 
@@ -197,6 +275,7 @@ The cleanliness command must print nothing.
 | `protocol-processor` | `protocol-processor/scripts/run_suites.sh` | `make -C tb/verilator/pp_shadow` |
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
+| `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts
@@ -214,18 +293,15 @@ Window overlap preserves lock until measured correction completes.
 - [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md)
 - [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md)
 
-Protocol donor prose retains these known contradictions.
+Processor PR 156 resolves both former RX-interface contradictions.
 
-Use root RTL for integration truth.
+The current guide describes byte-wide RX without a ready input.
 
-Imported prose never defines root runtime behavior.
+Its historical word-stream contract remains linked from the donor documentation.
 
-| Conflict | Implementation evidence |
-|---|---|
-| Protocol interface guide shows word-wide RX | Landed processor receives bytes |
-| Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
+The integrator supplies complete, FCS-good frames.
 
-Track donor repairs separately.
+Root RTL remains the authority for parent runtime wiring.
 
 Historical audit exceptions remain open disclosures.
 PR13/PR6 branch continuity is UNKNOWN.

@@ -1,5 +1,11 @@
 # Traceability — IEEE 802.1Q-2022 (VLAN / FQTSS-CBS / MRP / MSRP / MVRP)
 
+This page describes the all-fabric shipping placement.
+[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+
 Clause numbers are verified against the local standards PDF
 `$STANDARDS_DIR/8021Q-2022.pdf` (Q-2018 numbering is
 identical for these clauses). We are an **end station** (Talker/Listener PAAD),
@@ -27,10 +33,10 @@ on the page:
   the same modules, with the same testbenches, and the 2026-08-13 control-plane
   deletion did not touch them. Rows Q-1..Q-8, Q-13, Q-14 are unaffected.
 - **Reservation is the protocol processor's.** The lwSRP applicant, registrar,
-  TA-registrar, walker, context table, timers and bandwidth gate are deleted — no
-  parameter, no fallback: a build-time fallback would keep a second SRP
-  implementation alive, and the substitution's parity argument holds only with
-  exactly one owner of the wire law. MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
+  TA-registrar, walker, context table, timers and bandwidth gate were deleted.
+  This shipping integration uses the processor alone.
+  Mark II permits firmware placement while retaining one selected owner.
+  Both placements owe the same wire behavior. MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
   submodule owns the wire law, this fabric consumes the result off the class-D face
   (`srp_active_o` AND `srp_sr_admitted_o` as the per-source gate (#551), `srp_sum_slope_bps_o`
   read back as `LWSRP_SLOPE` status with no shaper to program, the adopted
@@ -106,6 +112,14 @@ admission for MAAP-claimed + protocol multicasts; ✅ RTL tcam 19 / rx_filter
 only — the MilanMAC back-to-back eater workaround; ✅ RTL ifg; NEVER on the
 final output = 600 Mbit cap).
 
+Split traceability: MRP-1..8 and SRP-1..10 bind both placements.
+The processor references below describe existing fabric evidence.
+F4 must establish equivalent lwSRP adapter behavior.
+Its [H-SRP hook](../reference/FR_NFR.md#342-control-service-test-hooks)
+binds NFR-SCOUT-01..03 to these rows, including MRP-6 timing.
+The generated module matrix continues to inventory actual RTL.
+It cannot claim completion of unimplemented firmware integration.
+
 ## 2. MRP core (Clause 10), as profiled by lwSRP
 
 These rows described a deliberate *simplified applicant*, and that applicant is DELETED
@@ -121,7 +135,7 @@ old deviations from the full 10.7 state tables went with it.
 | MRP-3 | 10.7.7 | Applicant SM: declare via NEW/JOININ/JOINMT, withdraw via LV; state advances on peer JoinIn | processor SRP stream FSMs | 🔵 PROCESSOR — the NEW/JOININ/LV lifecycle and the ≥ 2-JoinTime declare cadence were pinned by deleted suites. An applicant that stops re-declaring ages out in LeaveTime, and nothing in this repo would notice | 10.7.7: an applicant that stops re-declaring ages out of the bridge in LeaveTime — the "reservation quietly disappears" failure. |
 | MRP-4 | 10.7.8 | Registrar SM: IN on Join, leave-timer to MT on Lv/LeaveAll | processor SRP stream FSMs (talker and listener directions) | 🔵 PROCESSOR: the registrar state this fabric reads is now `srp_tk_reg_state_o` / `srp_lstn_decl_state_o` off the class-D face, and since #551 the composed licence reads ACTIVE AND the per-source real grant. ACTIVE takes the talker-side registrar's Listener Ready or Ready Failed as one of its terms. Since processor pin `b2db3a97` (processor issue 65) ACTIVE also waits for the stream VID's MVRP join to leave through the processor's TX arbiter (Milan v1.2 4.3.2): at most one T-MRP-JOIN more for a Ready registered before that VID's first MVRP MRPDU, and a VID beyond the engine's four-entry VLAN table holds the licence closed until the source is re-declared | 10.7.8: registrar state is what our talker reads as "listener present": stale IN keeps media flowing to nobody (and vice versa). |
 | MRP-5 | 10.7.9 / 10.7.5.20 / 10.8.2.6 | LeaveAll: the LeaveAll timer is per application, but the LeaveAll message is per Attribute Type (802.1Q-2014 10.7.5.20 NOTE). An own LeaveAll MRPDU flags every MSRP attribute type the application supports, with a NumberOfValues 0 vector for a type it declares nothing of, and ages every own registrar; a received LeaveAll applies once per MRPDU and only to the state machines of the flagged type (10.7.5.20 b) 2), 10.8.2.6). Registrations it ages enter leave-pending and must be re-declared | processor timer service, `KL_srp_encoder`, `KL_srp_decoder` and the SRP FSMs | 🔵 PROCESSOR: per-type transmit and receive since pin `09f9bf38` (processor issue 106), graded by its `srp_encoder`, `srp_decoder`, `srp_stream_fsms` and `srp_top` suites. In this repository `tb/verilator/milan_dp` `obj_crflic` plays the bench AVB switch's per-type LeaveAll exchange against the fabric: a bound CRF talker keeps its Talker Advertise and its licence across three cycles, and at pin `424c688f` it ends its own stream. Since processor pin `b2db3a97` (processor issues 29 and 108) a received LeaveAll restarts its application's leavealltimer and goes Passive, as Table 10-5's rLA! requires; `obj_crflic` `[C]` measures every DUT LeaveAll at least 10 s after the switch's preceding one | 10.7.9: mishandling the periodic bridge LeaveAll (~every 10 s) tears every stream down once per period. A LeaveAll scoped to the wrong attribute types ages a Listener Ready the bridge never re-declares, and the talker ends its own stream: the #530 silicon run. |
-| MRP-6 | 10.7.11 | Timer values: JoinTime ~200 ms, LeaveTime 600–1000 ms, LeaveAllTime ~10 s (+Milan tolerances 4.2.7.1.1) | processor timer service | 🔵 PROCESSOR -- Milan Table 4.3 tightens these values and the submodule owns them now; since processor pin `b2db3a97` its srp_top suite grades joinTime, the periodictimer and the leavealltimer against Table 4.3 (Q1-Q4, processor issue 64). [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) compresses the prescaler for liveness only, never for cadence | 10.7.11: too-slow Join loses the race against the registrar's LeaveTime on lossy links. |
+| MRP-6 | 10.7.11 | Timer values: JoinTime 200 ms (180 to 240), LeaveTime 5000 ms (4500 to 7500), periodic 1000 ms (900 to 1500), LeaveAllTime 10 to 15 s (+/-0.5 s), Milan 4.2.7.1.1 Table 4.3; firmware service uses NFR-SCOUT-03 and H-SRP | processor timer service | 🔵 PROCESSOR -- Milan Table 4.3 overrides the IEEE defaults and the submodule owns them now; since processor pin `b2db3a97` its srp_top suite grades joinTime, the periodictimer and the leavealltimer against Table 4.3 (Q1-Q4, processor issue 64). [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) compresses the prescaler for liveness only, never for cadence | 10.7.11: too-slow Join loses the race against the registrar's LeaveTime on lossy links. |
 | MRP-7 | 10.7.10 | PeriodicTransmission SM (periodic re-Join stimulus) | processor timer service | 🟡 → 🔵 PROCESSOR -- the periodic-transmission stimulus was implicit in the deleted applicant's declare cadence and is implicit in the processor's now; since processor pin `b2db3a97` its srp_top suite (Q2) grades the periodic re-Join of each declaration at 1000 ms against Table 4.3's 900-1500 ms, and still no in-repo bench carries one | 10.7.10: without periodic transmission, an MRPDU lost on a quiet link is never repaired until LeaveAll. |
 | MRP-8 | 10.9–10.12 | MMRP application | — | ➖ N/A — MMRP not used (dest-MAC admission handled by MAAP + TCAM) | Not required for Milan PAADs. |
 

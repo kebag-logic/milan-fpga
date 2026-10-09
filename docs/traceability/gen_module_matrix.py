@@ -137,6 +137,19 @@ def rtl_modules() -> list[ModuleRow]:
     return out
 
 
+def compiled_basenames(text: str) -> set[str]:
+    """Makefile source names, excluding explicitly declared text-only inputs.
+
+    A generated fragment can read an RTL file without compiling that module.
+    Mark each such input with `# traceability-text-input: basename.sv` so it
+    cannot imply coverage of the module or its transitive instantiations.
+    """
+    text_inputs = set(re.findall(
+        r"^\s*#\s*traceability-text-input:\s*([A-Za-z0-9_]+\.sv)\s*$",
+        text, re.M))
+    return set(re.findall(r"([A-Za-z0-9_]+\.sv)", text)) - text_inputs
+
+
 def tb_index() -> dict[str, set[str]]:
     """basename(.sv) -> sorted set of tb/verilator dirs that compile it."""
     idx = {}
@@ -147,7 +160,7 @@ def tb_index() -> dict[str, set[str]]:
         if not mk.is_file():
             continue
         txt = _read_text(mk, errors="ignore")
-        for base in re.findall(r"([A-Za-z0-9_]+\.sv)", txt):
+        for base in compiled_basenames(txt):
             idx.setdefault(base, set()).add(tb)
     return idx
 
@@ -431,7 +444,7 @@ def render_leaf(fam: str, leaf: str, frows: list[MatrixRow]) -> str:
         out.append("| %s `%s` | `%s` | %s | %s |"
                    % (STATUS_GLYPH[r["status"]], r["name"],
                       Path(r["rel"]).name, _test_cell(r), cl))
-    out.append("")
+    # no trailing blank line: `git diff --check` refuses a new one at EOF
     return "\n".join(out) + "\n"
 
 
@@ -520,7 +533,17 @@ def selftest() -> tuple[list[str], int]:
         problems.append("[archived cell] an archived row lost its stated "
                         "reason to the empty marker")
     problems += _boilerplate_arm(dash)
-    return problems, arms + 1
+    arms += 1
+    for label, source, expected in (
+        ("text input", "# traceability-text-input: parent.sv\n"
+         "DP_SRC ?= ../../../hdl/parent.sv\nSRCS = child.sv fragment.sv\n",
+         {"child.sv", "fragment.sv"}),
+        ("compiled input", "SRCS = parent.sv child.sv\n", {"parent.sv", "child.sv"}),
+    ):
+        arms += 1
+        if compiled_basenames(source) != expected:
+            problems.append(f"[{label}] compiled source classification differs from {expected}")
+    return problems, arms
 
 
 #: The four sentences of MODULE_MATRIX.md that carry U+2014 and keep it: the

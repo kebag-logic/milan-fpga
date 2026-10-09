@@ -130,7 +130,37 @@ Until #402 the three recipes restated the design argv as shell literals,
 kept equal to the builder by the shape gate; #155 repaired ten divergences
 at once and #157 and #362 two more. `BUILD_CFG=configs/<other>.yaml` rebinds
 one named recipe to another config under `configs/` for one call, the
-`SWEEP_CFG` counterpart; the refusals below then apply to that config.
+`SWEEP_CFG` counterpart; the section 2.1 refusals then apply to that config.
+
+The CLI rejects invalid options before platform construction.
+The constructor rejects them before CPU setup or generation.
+The CLI retains the single-hart, RV32 VexiiRiscv product profile.
+Neither AX7101 configuration changes.
+
+| Entry point | Option | Behavior |
+|---|---|---|
+| CLI or VexiiRiscv constructor | `--with-fpu` / `with_fpu=True` | Refused: the recipe does not enable floating-point hardware. |
+| CLI or VexiiRiscv constructor | `--l2-bytes` / `l2_bytes` | Omission and zero select no L2. Nonzero requests are refused: this recipe has no data cache. |
+| Developer NaxRiscv constructor | `with_fpu=True` | Enables hardware floating point at either register width. |
+| Developer NaxRiscv constructor | `l2_bytes` | Positive sizes configure L2; omission retains the upstream default. Explicit zero is refused because upstream silently retains that default. |
+
+L2 sizes must be finite, nonnegative whole-byte values.
+CLI validation preserves decimal fractions, including `1e-400` and `-1e-400`.
+Unknown constructor CPU names are refused before CPU setup.
+NaxRiscv constructor support does not enable another product CLI profile.
+The option tests include refusal mutations and generated-netlist comparisons:
+
+```sh
+python3 sw/builder/test_soc_options.py
+python3 sw/builder/test_soc_options.py --netlists
+```
+
+The second command requires the installed NaxRiscv generator sources.
+It caches generated netlists in the installed data package.
+Pass `--nax-data-dir <isolated-data-copy>` to isolate those writes.
+That copy must include the pinned generator sources.
+It compares RTL after removing comments and generated module names.
+This prevents renaming alone from proving a hardware change.
 
 ### 2.1 What `build.sh` refuses, before anything launches
 
@@ -603,6 +633,32 @@ could not traverse. Vivado raises Place 30-722 for the placement cases only;
 the rest are the check refusing to grade what it could not see. For a port
 shape the check models, the fix is in the RTL or the constraint, never in the
 check; for one it does not model (the three below), it is in the check.
+
+The GMII RX capture patch keeps reset after the capture.
+Data, valid and reset are sampled on the same edge.
+Sampled reset masks the captured data and valid.
+This preserves latency, synchronous reset and last-byte behavior.
+Control-set remapping therefore cannot put reset before pad capture.
+The patch series supplies this structure for every GMII instance.
+RX-error remains unused; MII RX has no IOB constraint.
+`sw/litex/test_gmii_rx_capture.py` checks the cycle contract.
+It checks direct pad capture and rejects six structural mutations.
+Its `--emit-dir` option generates good and reset-before-D placement fixtures.
+Run these with the patched pinned interpreter and exclusive implementation lock.
+Set `SCRATCH` outside the checkout; `VIVADO_LOCK` names that lock.
+
+```sh
+REPO="$PWD"
+"$MILAN_LITEX_PYTHON" sw/litex/test_gmii_rx_capture.py --emit-dir "$SCRATCH/capture"
+cd "$SCRATCH/capture"
+flock "$VIVADO_LOCK" vivado -mode batch -nojournal \
+  -source "$REPO/sw/litex/gmii_rx_capture_check.tcl" -tclargs "$PWD"
+```
+
+The driver uses `sw/litex/gmii_rx_capture.xdc` for both fixtures.
+Expect exit zero: nine PASS and nine expected FAIL rows.
+The negative rows must say "no register reads the pad".
+Each fixture's subdirectory retains its constraints and IOB report.
 
 An `INERT` row is not a failure, and exactly two structures reach it: a port
 that carries no net at all, and an output every driver of which is a constant

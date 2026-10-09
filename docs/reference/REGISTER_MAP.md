@@ -1029,9 +1029,12 @@ The processor emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType
 `ctl_tx_mux` merges the processor's packed TX with MAAP, and `adp_tx_mux` puts
 the result on the MAC boundary between data frames.
 
-`available_index` increments on EVERY transmitted ADPDU — periodic re-advertise,
-discover response and departing alike (controllers treat a repeated index as an
-incoherent entity; bump-on-change-only was silicon-diagnosed 2026-07-12).
+`available_index` increments after EVERY transmitted ENTITY_AVAILABLE: periodic
+re-advertise and discover response alike (controllers treat a repeated index as an
+incoherent entity; bump-on-change-only was silicon-diagnosed 2026-07-12). An
+ENTITY_DEPARTING carries the current value, and the index then resets to 0
+(IEEE 1722.1-2021 Section 6.2.2.15, as processor PR #152 notes), so the next
+ENTITY_AVAILABLE carries 0.
 
 A frozen `ADP_STATUS` therefore still means no ADPDUs are leaving at all — a
 retired incident signature preserved in Git history, and now the *only* liveness read
@@ -1864,7 +1867,7 @@ These two words are that evidence on silicon.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The unit is one dup per fed and primed pair per tick, so a lane of `LB_PAIRS_C` pairs counts `LB_PAIRS_C` per slipped beat (4 on the shipping 1x1x8 lane, 32 on an 8x8 elaboration); a lane never fed counts nothing |
+| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The unit is one dup per fed and primed pair per tick, so a lane of `LB_PAIRS_C` pairs counts `LB_PAIRS_C` per slipped beat (4 on the shipping 1x1x8 lane, 32 on an 8x8 elaboration); a lane never fed counts nothing. The #645 settle recentre's own held pops or dropped events count in neither half: it is the declared discontinuity of a source change or a pull-in ([design](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre)), so a word static from it on is the acceptance state |
 | `0x8D8` | `SLIP_TDM` | RO | `0` | `[15:0]` TDM-junction dups (a walk snapshot with no frame closed since the last one: the talker repeats a TDM frame), `[31:16]` TDM-junction skips (a frame close over an unread frame: no talker walk reads it). One event per frame, gated on the first physical frame. The frame close is the strobe of the frame's last pair (`CMAP_TDM_FRAME_PAIRS_C`); before #617 the marker was the slot-0 strobe and the consume the tick |
 
 **The counting law, and the ceiling.** A loopback pair is *fed* by its first
@@ -2153,6 +2156,13 @@ map after whole-command validation. The transaction excludes CSR writes until
 commit or abort, so the validation baseline cannot change underneath it. The
 CSR writer is also refused whenever `LOCK_ENTITY` is held. This protects both
 map stores and the authoritative protocol ownership state from non-ATDECC edits.
+
+On a shape with dynamic maps, each dynamic direction's store and crossbar hold
+the #658 power-on map from boot: stream channel c on the port's cluster c. The
+parent's boot writer fills the crossbars from reset until one sweep after the
+restore's terminal (`PP_STAT` done or CLOSED). The CSR writer is refused for
+that long, as it is during a transaction. `CHMAP_STAT` cannot see either
+refusal: it counts such a write in `[15:0]` as a commit.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|

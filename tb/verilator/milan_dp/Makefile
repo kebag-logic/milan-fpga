@@ -17,6 +17,10 @@
 #                 (gsi_mutants.py), outside the sweep's deadline
 #   make unb-mutants - the #653 [UNB] section's explicit mutation campaign
 #                 (unb_mutants.py), outside the sweep's deadline
+#   make dynmap - run only the #658 [DYNMAP] leg: the power-on audio maps,
+#                 a format change under Milan 5.4.2.7 and a restored format
+#   make dynmap-mutants - that leg's planted controls (dynmap_mutants.py),
+#                 outside the sweep's deadline
 #   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
 #                 the acceptance's controls of it (gmstep_mutants.py)
 #   make gmstep-mutants - that leg's whole control inventory, with five
@@ -211,7 +215,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -304,6 +308,25 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(NOTIFY_MDIR) \
   -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
   -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100 -Wall -Wextra" \
   $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
+endef
+
+# #658: the power-on audio maps on both stream ports, a SET_STREAM_FORMAT
+# under Milan 5.4.2.7 (refused while it would orphan a mapping) and the maps a
+# restored 4-channel input format leaves, graded by sim_nxn's [DYNMAP] section
+# on the shipping AX 1x1 TDM8 geometry (the AX1X1_BUILD argv), exiting right
+# after it (DYNMAP_DEFAULT_TB). Its restore serves a saved-state window that
+# gen_nvm_window.py frames; dynmap_probes.vlt opens the one processor row
+# its output-clip arm stages. dynmap_mutants.py builds a MUTATED datapath
+# through this same recipe (DP_SRC and DYNMAP_MDIR overridden), so its planted
+# controls elaborate exactly the gateware the positive leg does.
+DYNMAP_MDIR ?= obj_dynmap
+define DYNMAP_BUILD
+$(VERILATOR) dynmap_probes.vlt $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(DYNMAP_MDIR) \
+  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+  -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 -Wall -Wextra" \
+  $(SRCS) sim_nxn.cpp -o Vmilan_dp_dynmap
 endef
 
 # #447: the shipping TDM8 render lane's two elaborations, its leg source and
@@ -484,8 +507,23 @@ gsi-mutants: notify
 unb-mutants: notify
 	python3 unb_mutants.py
 
-ax1x1gptp: VERILATOR_JOBS = 4
-ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+# #658 (see DYNMAP_BUILD); `run` builds and runs the same leg.
+dynmap-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(DYNMAP_BUILD)
+
+dynmap: dynmap-build
+	$(abspath $(DYNMAP_MDIR))/Vmilan_dp_dynmap
+
+# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 13
+# mutated elaborations, 11 of the dynmap leg and one each of the two
+# end-to-end legs it names (milan_dp_render's and capture_coherence's
+# datapath leg), each with its clean control run.
+dynmap-mutants: dynmap
+	python3 dynmap_mutants.py
+
+# Build once for the independent positive and failure-control runs.
+ax1x1gptp ax1x1gptp-build: VERILATOR_JOBS = 4
+ax1x1gptp-build: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
 	  -GMILAN_CLK_FREQ_HZ=$(AX_GPTP_HZ) -GGPTP_PLANE_EN_P=1 \
 	  -CFLAGS "-DMILAN_CLK_HZ_TB=$(AX_GPTP_HZ) -Wall -Wextra" \
@@ -493,8 +531,10 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) 
 	  -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=$(AX_CHANS) \
 	  -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) -GAUDIO_IF_MASTER_P=1 \
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-	  $(SRCS) sim_ax1x1gptp.cpp -o Vmilan_dp_ax1x1gptp
+	  ax1x1gptp_probes.vlt $(SRCS) sim_ax1x1gptp.cpp -o Vmilan_dp_ax1x1gptp
 	sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex obj_ax1x1gptp/aemi.bin
+
+ax1x1gptp: ax1x1gptp-build
 	/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp $(AX_GPTP_ARGS)
 
 # Preserve the original long windows outside the default sweep.
@@ -565,14 +605,18 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 # above states the recipe; the real-time legs run [NOTIFY] untimed.
 	$(NOTIFY_BUILD)
 	$(CRFLIC_BUILD)
-# The write audit found only unique milan_nxn_* scratch directories; no
-# ordinary legs share a written path. Frame-dump presence serializes the set.
+	$(DYNMAP_BUILD)
+# The write audit found only unique milan_nxn_* scratch directories, and
+# obj_dynmap's unique milan_nvm_* window; no ordinary legs share a written
+# path. Frame-dump presence serializes the set.
 	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" \
 	  ./obj_dir/Vmilan_dp_sim \
 	  --banner "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" \
 	  ./$(NOTIFY_MDIR)/Vmilan_dp_notify \
 	  --banner "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" \
 	  ./$(CRFLIC_MDIR)/Vmilan_dp_crflic \
+	  --banner "---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" \
+	  ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap \
 	  ./obj_nxn/Vmilan_dp_nxn \
 	  --banner "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----" \
 	  ./obj_nxndv/Vmilan_dp_nxndv \
@@ -620,4 +664,4 @@ print-dp-vflags:
 	@echo '$(GPTP_OFF_VFLAGS)'
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep

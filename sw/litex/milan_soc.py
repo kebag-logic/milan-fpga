@@ -35,6 +35,7 @@ import sys
 import subprocess
 import json
 import argparse
+from decimal import Decimal, InvalidOperation
 import binascii
 import runpy
 from pathlib import Path
@@ -2472,6 +2473,132 @@ def pp_rw_bridge(m: Module, faces: tuple[Record, Record, Record, Record],
 
 # SoC ----------------------------------------------------------------------------------------------
 
+# ---- #665 lane F0: the packet mailbox of the control-plane firmware ------------------------------
+# The fabric half of the contract sw/mailbox/mailbox.yaml holds (registers,
+# rings, the ingress filter, the fabric timers, the event ring, one interrupt),
+# reached by the CPU over Wishbone through KL_mbx_wb. It exists ONLY under
+# --ctrl-mailbox, whose default is off: the default build carries no mailbox
+# source, instance, bus region, CSR bank or interrupt, so every shipped
+# config's top .v and source list are byte-identical to a build without this
+# block (docs/design/MAILBOX_SPLIT.md, section "Default build"). Package
+# first; tb/verilator/mbx/Makefile compiles the same set.
+CTRL_MBX_BASE = 0x9010_0000
+_CTRL_MAILBOX_SOURCES = [
+    "hdl/milan/mailbox/KL_mbx_pkg.sv",
+    "hdl/milan/mailbox/KL_mbx_ring.sv",
+    "hdl/milan/mailbox/KL_mbx_rx.sv",
+    "hdl/milan/mailbox/KL_mbx_tx.sv",
+    "hdl/milan/mailbox/KL_mbx_evt.sv",
+    "hdl/milan/mailbox/KL_mbx.sv",
+    "hdl/milan/mailbox/KL_mbx_wb.sv",
+]
+
+
+def ctrl_mailbox_contract() -> object:
+    """The mailbox contract (sw/mailbox/mailbox.yaml), validated; its sizes are never restated here."""
+    sys.path.insert(0, str(REPO_ROOT / "sw" / "mailbox"))
+    from mailbox_model import load as load_mailbox_contract
+    return load_mailbox_contract()
+
+
+class CtrlMailbox(LiteXModule):
+    """--ctrl-mailbox (#665 lane F0): the packet-mailbox skeleton on the CPU's Wishbone bus.
+
+    Only the hookup lives here; KL_mbx and KL_mbx_wb are the generated and
+    hand-written SystemVerilog sw/mailbox/gen_mailbox.py checks against the
+    contract. The DATAPATH SIDE IS NOT CONNECTED IN F0: the ingress and egress
+    byte streams, the link levels and the gPTP plane's grandmaster are held
+    idle below, so the window, the fabric timers, the TICK events and the
+    interrupt work and no frame ever reaches a ring. A firmware therefore sees
+    an empty, quiet mailbox, never a wrong one; the tap that feeds it comes
+    with the protocol lanes that need it (#665 F2 to F5).
+    """
+
+    def __init__(self, sys_clk_freq: int, contract: object) -> None:
+        from litex.soc.interconnect import wishbone
+        from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
+        self.bus = wishbone.Interface(data_width=32, adr_width=30)
+        self.ev = EventManager()
+        self.ev.mbx = EventSourceLevel()
+        self.ev.finalize()
+        # NOW_MS's one-cycle pulse per millisecond of the CPU clock.
+        ms_div = int(sys_clk_freq) // 1000
+        ms_cnt = Signal(max=ms_div)
+        ms_tick = Signal()
+        self.sync += If(ms_cnt == ms_div - 1, ms_cnt.eq(0), ms_tick.eq(1)).Else(
+            ms_cnt.eq(ms_cnt + 1), ms_tick.eq(0))
+        # the widths KL_mbx_pkg derives (MBX_ADDR_W_C, MBX_IF_W_C, MBX_CH_W_C)
+        addr_w = (contract.window_bytes // 4 - 1).bit_length()
+        if_w = max(1, (contract.interfaces - 1).bit_length())
+        ch_w = max(1, (len(contract.channels) - 1).bit_length())
+        req, we, ack, irq = Signal(), Signal(), Signal(), Signal()
+        addr, wdata, rdata, be = Signal(addr_w), Signal(32), Signal(32), Signal(4)
+        self.specials += Instance("KL_mbx_wb",
+            i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
+            i_wb_cyc_i=self.bus.cyc, i_wb_stb_i=self.bus.stb, i_wb_we_i=self.bus.we,
+            i_wb_adr_i=self.bus.adr, i_wb_dat_i=self.bus.dat_w, i_wb_sel_i=self.bus.sel,
+            o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
+            o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
+            o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
+        self.specials += Instance("KL_mbx",
+            i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
+            i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
+            i_host_be_i=be, o_host_ack_o=ack, o_host_rdata_o=rdata, o_irq_o=irq,
+            i_ms_tick_p_i=ms_tick,
+            # held idle in F0, see the class docstring
+            i_link_up_i=0, i_gm_change_p_i=0, i_gm_id_i=0, i_gptp_domain_i=0,
+            i_rx_valid_i=0, o_rx_ready_o=Signal(), i_rx_data_i=0, i_rx_last_i=0, i_rx_if_i=0,
+            o_tx_valid_o=Signal(), i_tx_ready_i=1, o_tx_data_o=Signal(8), o_tx_last_o=Signal(),
+            o_tx_if_o=Signal(if_w), o_tx_ch_o=Signal(ch_w))
+        self.comb += self.ev.mbx.trigger.eq(irq)
+
+
+def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
+    """Add the mailbox's sources, its Wishbone window, its CSR bank and its interrupt."""
+    for f in _CTRL_MAILBOX_SOURCES:
+        platform.add_source(str(REPO_ROOT / f))
+    # A NEW CSR BANK MUST NOT MOVE AN OLD ONE (the ppmem note above): pinned
+    # below the observer's page, where automatic allocation reaches last.
+    contract = ctrl_mailbox_contract()
+    soc.csr.add("ctrl_mbx", n=soc.csr.n_locs - 2)
+    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract)
+    soc.bus.add_slave("ctrl_mbx", soc.ctrl_mbx.bus,
+                      region=SoCRegion(origin=CTRL_MBX_BASE, size=contract.window_bytes, cached=False))
+    if soc.irq.enabled:
+        soc.irq.add("ctrl_mbx", use_loc_if_exists=True)
+    else:
+        print("[milan] --ctrl-mailbox: the CPU has no interrupt controller; firmware polls the mailbox")
+
+
+def _parse_l2_bytes(token: str) -> Decimal:
+    """Preserve fractional CLI tokens until whole-byte validation."""
+    try:
+        return Decimal(token)
+    except InvalidOperation as exc:
+        raise argparse.ArgumentTypeError(
+            "--l2-bytes must be a finite, non-negative whole number of bytes") from exc
+
+
+def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | None) -> None:
+    """Refuse CPU requests this recipe cannot honor, before CPU setup."""
+    if cpu not in ("vexiiriscv", "naxriscv"):
+        raise ValueError(f"unsupported CPU {cpu!r}; expected vexiiriscv or naxriscv")
+    if l2_bytes is not None:
+        size = Decimal(l2_bytes)
+        if not size.is_finite() or size < 0 or size != size.to_integral_value():
+            raise ValueError("--l2-bytes must be a finite, non-negative whole number of bytes")
+    if cpu == "vexiiriscv":
+        if with_fpu:
+            raise ValueError("--with-fpu is unsupported by the VexiiRiscv recipe; "
+                             "it does not enable floating-point hardware")
+        if l2_bytes:
+            raise ValueError("--l2-bytes must be 0 or omitted for the cacheless "
+                             "VexiiRiscv recipe; without a data cache it builds no L2")
+    if cpu == "naxriscv" and l2_bytes == 0:
+        raise ValueError("NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; "
+                         "omit the option or request a positive size")
+
+
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
                  with_milan=True, with_mac=False, with_dram=False,
@@ -2490,10 +2617,11 @@ class MilanSoC(SoCCore):
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  render_lpf=True, optional_blocks=None,
-                 entity_gen_dir=None, **kwargs):
+                 entity_gen_dir=None, ctrl_mailbox=False, **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
             raise ValueError("unsupported software profile")
+        _validate_cpu_options(cpu, with_fpu, l2_bytes)
         # Resolve the one PHC owner once, before it fans out into RTL, firmware
         # constants and the flash artifact contract.  `none` is a real state
         # for the documented --no-milan bare-SoC path; a missing value is not
@@ -3193,6 +3321,11 @@ class MilanSoC(SoCCore):
             except Exception:
                 print("[milan] no user_led pad - IDENTIFY LED not wired")
 
+        # #665 lane F0: the packet mailbox, ONLY under --ctrl-mailbox (default
+        # off, so the default build is untouched; see CtrlMailbox).
+        if ctrl_mailbox:
+            add_ctrl_mailbox(self, platform, sys_clk_freq)
+
     def _add_flashboot_constants(self, manifest_name):
         """Emit the product flash constants and deployment manifest."""
         # A build must never emit a flash map that cannot be erased safely.
@@ -3314,7 +3447,6 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
     import gen_aem_store as _aem
     import gen_desc_image as _img
     import gen_aemi_image as _join
-    from sw.builder import aem_image_checks
 
     with open(overlay, encoding="utf-8") as fh:
         ovl = json.load(fh)
@@ -3322,13 +3454,11 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
     # PP_DESC_LINE_BYTES_P: a descriptor longer than the store's line buffer
     # cannot be answered, and the packer is the only place that can see it
     # coming. Passed explicitly rather than defaulted so the two move together.
+    # build() also lints the model by default (processor 07 section 3.1, L6
+    # and L10 among its rules), so what main() CRC-binds and writes as
+    # aem_desc.bin has passed it; gate 36b holds this emitter to that.
     blob, report = _img.build(
         _join.model_to_document(model, _join.identity_from_overlay(ovl)), 576)
-    # Validate exactly what main() CRC-binds and writes as aem_desc.bin.
-    try:
-        aem_image_checks.validate_shipping_image(blob)
-    except aem_image_checks.ImageCheckError as exc:
-        raise RuntimeError(f"aem_desc.bin: {exc}") from exc
     return blob, report, overlay
 
 
@@ -3349,7 +3479,8 @@ def main() -> None:
                     choices=("baremetal",),
                     help="firmware shape; the product uses the cacheless RV32I "
                          "M-mode Vexii core and Milan UART/CSR firmware")
-    ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
+    ap.add_argument("--with-fpu", action="store_true",
+                    help="unsupported by the VexiiRiscv recipe and baremetal product profile")
     ap.add_argument("--scala-args",   action="append", default=[],
                     help="extra NaxRiscv scala args, e.g. "
                          "alu-count=1,decode-count=1 (append)")
@@ -3361,8 +3492,8 @@ def main() -> None:
                     help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
                          "arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, "
                          "second Milan node for AVDECC interop).")
-    ap.add_argument("--l2-bytes", default=None, type=float,
-                    help="shared-L2 size in bytes (the cacheless RV32I product recipes state 0)")
+    ap.add_argument("--l2-bytes", default=None, type=_parse_l2_bytes,
+                    help="shared-L2 bytes; omit or use 0 for the cacheless VexiiRiscv product")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
                     help="separate Milan and CPU domain in Hz; must equal CPU_HZ in "
                          "tb/verilator/nvm_capture_cpu/recipe.py (bare-metal build contract), "
@@ -3478,6 +3609,12 @@ def main() -> None:
     # SUBSTITUTED it for the legacy 1722.1/SRP plane, which is deleted, so
     # milan_datapath instantiates KL_pp_shadow unconditionally and every build
     # gets the processor. A flag that can only be "on" is not a flag.
+    ap.add_argument("--ctrl-mailbox", action="store_true",
+                    help="#665 lane F0: add the packet mailbox of the control-plane "
+                         "firmware (sw/mailbox/mailbox.yaml: KL_mbx behind KL_mbx_wb at "
+                         "0x9010_0000, its CSR bank and one interrupt). Its datapath side "
+                         "is held idle in F0. Default off => no source, no instance, no "
+                         "region: the top .v and source list are byte-identical.")
     ap.add_argument("--loopback-lane", action="store_true",
                     help="task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK "
                          "bucket (SRC_LOOP = 5) to the depacketizer payload clone, so a "
@@ -3662,6 +3799,10 @@ def main() -> None:
     builder_args(ap)
     args = ap.parse_args()
 
+    try:
+        _validate_cpu_options(args.cpu, args.with_fpu, args.l2_bytes)
+    except ValueError as exc:
+        ap.error(str(exc))
     if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
         ap.error("--software-profile baremetal requires --cpu vexiiriscv "
                  "--xlen 32 --cpu-count 1")
@@ -3808,6 +3949,7 @@ def main() -> None:
                        "datapath_probes":   not args.no_datapath_probes,
                    },
                    entity_gen_dir=args.entity_gen_dir,
+                   ctrl_mailbox=args.ctrl_mailbox,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),

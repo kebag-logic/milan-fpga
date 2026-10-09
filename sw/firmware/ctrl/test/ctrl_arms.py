@@ -1,0 +1,425 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""ctrl_arms.py - the arms of the control-plane firmware's host test (see test_ctrl_firmware.py)."""
+
+from __future__ import annotations
+
+import re
+import shutil
+import sys
+from pathlib import Path
+from subprocess import CompletedProcess
+
+from ctrl_build import (CTRL, HERE, HOST, NVM_DIR, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
+                        TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
+                        run, sources)
+import fw_rv32
+
+def arm_model(tree: Tree) -> Outcome:
+    """The RTL's mailbox checks, on the host model."""
+    objs = (compile_c(tree, sources(tree, ("host/mbx_model.c",)), "model", measured=False) +
+            compile_tests(tree, ("model_suite.cpp",), "model/tests", (f"-I{TB_COMMON}", f"-I{TB_MBX}")))
+    return execute("model", link(tree, "model_suite", objs))
+
+
+def arm_port(tree: Tree) -> Outcome:
+    """The port layer, the driver and the loop."""
+    objs = firmware(tree, PORTABLE, "port") + compile_tests(tree, ("test_port_loop.cpp",), "port/tests")
+    return execute("port", link(tree, "test_port_loop", objs))
+
+
+def arm_adp(tree: Tree) -> Outcome:
+    """The ADP core, its adapter and the latency bounds."""
+    objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ("test_adp.cpp",), "adp/tests")
+    return execute("adp", link(tree, "test_adp", objs))
+
+
+#: The ACMP binary's tests: the core over fake ports, then the adapter, the
+#: latency bounds and the composition on the model.
+ACMP_TESTS = ("test_acmp.cpp", "test_acmp_mbx.cpp")
+#: The host tests' build asserts the no-callback rule (#678, acmp.h).
+REENTRY_ASSERT = ("-DCTRL_REENTRY_ASSERT",)
+
+
+def arm_acmp(tree: Tree) -> Outcome:
+    """The ACMP core over fake ports, its adapter and the latency bounds on the model."""
+    objs = (compile_c(tree, sources(tree, PORTABLE), "acmp", REENTRY_ASSERT) +
+            compile_c(tree, sources(tree, HOST), "acmp/host", measured=False) +
+            compile_tests(tree, ACMP_TESTS, "acmp/tests"))
+    return execute("acmp", link(tree, "test_acmp", objs))
+
+
+#: The two-interface arm: the adapter's tests again, and its own label (R530-1-F1).
+IF2_TESTS = ("test_acmp_mbx.cpp", "acmp_if2.cpp")
+GEN_MAILBOX = ROOT / "sw/mailbox/gen_mailbox.py"
+
+
+def arm_acmpif2(tree: Tree) -> Outcome:
+    """The ACMP adapter, its latency paths and the composition on the contract
+    elaborated for two AVB interfaces. mbx.h includes the contract by quotes, so
+    its own directory's copy always wins: the arm builds a copy of the tree being
+    built (a planted defect included) whose mbx/mbx_contract.h is the variant's,
+    which the generator writes into the build. Unmeasured: coverage is the tracked
+    contract's arms'."""
+    work = tree.out / "acmpif2"
+    gen = work / "gen"
+    res = run([sys.executable, "-B", str(GEN_MAILBOX), "--variant-interfaces", "2", "--out", str(gen)])
+    if res.returncode != 0:
+        raise Refusal(f"the two-interface contract was refused: {res.stdout.strip()} {res.stderr.strip()}")
+    src = work / "ctrl"
+    if src.exists():
+        shutil.rmtree(src)
+    shutil.copytree(tree.src, src, ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copyfile(gen / "mbx_contract.h", src / "mbx" / "mbx_contract.h")
+    if2 = Tree(src, work / "build", tree.reuse, tree.build)
+    objs = (compile_c(if2, sources(if2, PORTABLE), "fw", REENTRY_ASSERT, measured=False) +
+            compile_c(if2, sources(if2, HOST), "host", measured=False) +
+            compile_tests(if2, IF2_TESTS, "tests"))
+    return execute("acmpif2", link(if2, "test_acmp_if2", objs))
+
+
+def arm_acmpwalk(tree: Tree) -> Outcome:
+    """The processor's ACMP stimulus and models, reused: its Table 5.30 matrix model, its Table 5.54
+    transcription and its talker constants, against the firmware's ACMP core. The processor's
+    harness helpers the walk does not call are cut with it, so they may go unused."""
+    extra = (f"-I{tree.reuse}", "-Wno-unused-function")
+    objs = firmware(tree, PORTABLE, "acmpwalk") + compile_tests(tree, ("acmp_walk.cpp",), "acmpwalk/tests", extra)
+    return execute("acmpwalk", link(tree, "acmp_walk", objs))
+
+
+#: The shape the bindings are saved at: the shipping 1x1 (lane F1's self-test shape).
+NVM_SHAPE = "endstation_ax7101_1x1_tdm8"
+#: The store as it ships and the host models behind its two ports: another lane's
+#: code and test equipment, built here unmeasured.
+NVM_STORE = ("nvm_klj2.c", "nvm_store.c", "host/nvm_fmodel.c", "host/nvm_smodel.c")
+#: The builder's answer for a shape, computed once per run.
+_NVM_INPUTS: dict = {}
+
+
+def arm_acmpnvm(tree: Tree) -> Outcome:
+    """The ACMP core and its binding owner on lane F1's store, over the flash model, at the 1x1 shape."""
+    sys.path.insert(0, str(NVM_DIR / "test"))
+    import nvm_bench  # noqa: E402
+
+    work = tree.out / "acmpnvm"
+    if NVM_SHAPE not in _NVM_INPUTS:
+        try:
+            _NVM_INPUTS[NVM_SHAPE] = nvm_bench.shape_inputs(ROOT / "configs" / f"{NVM_SHAPE}.yaml", work / "shape")
+        except nvm_bench.Refusal as exc:
+            raise Refusal(str(exc)) from exc
+    inputs = _NVM_INPUTS[NVM_SHAPE]
+    gen = work / "gen"
+    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
+    nvm_inc = (f"-I{gen}", f"-I{NVM_DIR / 'host'}")
+    store = compile_c(tree, [NVM_DIR / n for n in NVM_STORE], "acmpnvm/store", nvm_inc, measured=False)
+    objs = (firmware(tree, PORTABLE, "acmpnvm") + store +
+            compile_tests(tree, ("test_acmp_nvm.cpp",), "acmpnvm/tests", nvm_inc))
+    return execute("acmpnvm", link(tree, "test_acmp_nvm", objs))
+
+
+def arm_maap(tree: Tree) -> Outcome:
+    """Annex B core, allocation CSR port and H-MAAP on the host mailbox."""
+    objs = firmware(tree, PORTABLE, "maap")
+    results = [execute("maap", link(tree, name.removesuffix(".cpp"),
+                                   objs + compile_tests(tree, (name,), "maap/tests")))
+               for name in ("test_maap.cpp", "test_maap_mbx.cpp")]
+    return Outcome("maap", max(r.rc for r in results), "\n".join(r.log for r in results))
+
+
+def arm_maap_debug(tree: Tree) -> Outcome:
+    """Debug builds assert on synchronous port reentry; release is measured."""
+    objs = compile_c(tree, sources(tree, ("maap/maap.c",)), "maap_debug", ("-UNDEBUG",), measured=False)
+    test = compile_tests(tree, ("test_maap_debug.cpp",), "maap_debug/tests")
+    return execute("maap_debug", link(tree, "test_maap_debug", objs + test))
+
+
+def arm_maap_if2(tree: Tree) -> Outcome:
+    """The real generator's two-interface contract, on the same host checks."""
+    out = tree.out / "maap_if2"
+    result = run([sys.executable, str(ROOT / "sw/mailbox/gen_mailbox.py"),
+                  "--variant-interfaces", "2", "--out", str(out / "gen")])
+    if result.returncode != 0:
+        raise Refusal(result.stdout + result.stderr)
+    extra = (f"-include{out / 'gen/mbx_contract.h'}",)
+    objs = compile_c(tree, sources(tree, PORTABLE), "maap_if2", extra)
+    objs += compile_c(tree, sources(tree, ("host/mbx_model.c", "host/mbx_plat_host.c")),
+                      "maap_if2/host", extra, measured=False)
+    test = compile_tests(tree, ("test_maap_mbx.cpp",), "maap_if2/tests", extra)
+    return execute("maap_if2", link(tree, "test_maap_if2", objs + test))
+
+
+def reentry(tree: Tree, release: bool) -> Outcome:
+    """The same violating ports against assertions and release refusal."""
+    tag = "reentry_release" if release else "reentry_debug"
+    flags = ("-DNDEBUG",) if release else ("-UNDEBUG",)
+    tests = ("-DADP_TEST_RELEASE",) if release else ()
+    if tree.build.coverage:
+        tests += ("-DADP_TEST_COVERAGE",)
+    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), tag, flags)
+    objs += compile_tests(tree, ("test_adp_reentry.cpp",), f"{tag}/tests", tests)
+    return execute(tag, link(tree, f"test_{tag}", objs))
+
+
+def arm_reentry_debug(tree: Tree) -> Outcome:
+    """Debug/test assertion on a synchronous callback."""
+    return reentry(tree, False)
+
+
+def arm_reentry_release(tree: Tree) -> Outcome:
+    """Release count and ignore, with the outer transition preserved."""
+    return reentry(tree, True)
+
+
+def arm_unit(tree: Tree) -> Outcome:
+    """The driver, the loop and the composition on GoogleMock's HAL and port-layer
+    mocks; then the MMIO platform over a host window."""
+    fw = tuple(n for n in PORTABLE if n != "port/shlan_port.c")
+    objs = compile_c(tree, sources(tree, fw), "unit") + compile_tests(tree, UNIT_TESTS, "unit/tests")
+    seams = execute("unit", link(tree, "test_unit", objs))
+    window = (f"-include{HERE / 'mmio_window.h'}", "-DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window)",
+              "-DCTRL_MBX_WFI=ctrl_test_wfi")
+    mmio = compile_c(tree, sources(tree, ("plat/mbx_plat_mmio.c",)), "mmio", window)
+    platform = execute("unit", link(tree, "test_mmio", mmio + compile_tests(tree, ("test_mmio.cpp",), "mmio/tests")))
+    return Outcome("unit", max(seams.rc, platform.rc), f"{seams.log}\n{platform.log}")
+
+
+#: The unit binary: the two link-seam mocks and the tests written on them.
+UNIT_TESTS = ("mock_mbx_hal.cpp", "mock_shlan_port.cpp", "test_unit_seams.cpp", "test_unit_driver.cpp")
+
+
+def entity_caps() -> int:
+    """pp_adp_pkg::ADP_ENTITY_CAPS_C, the value the processor's ADP engine sends."""
+    m = re.search(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)\s*;", PP_ADP_PKG.read_text(encoding="utf-8"))
+    if m is None:
+        raise Refusal(f"no ADP_ENTITY_CAPS_C in {PP_ADP_PKG.relative_to(ROOT)}")
+    return int(m.group(1).replace("_", ""), 16)
+
+
+def arm_walk(tree: Tree) -> Outcome:
+    """The processor's ADP walk, reused, on the firmware and the model."""
+    extra = (f"-I{tree.reuse}", f"-DPP_ENTITY_CAPS=0x{entity_caps():X}u")
+    objs = firmware(tree, PORTABLE, "walk") + compile_tests(tree, ("adp_walk.cpp",), "walk/tests", extra)
+    return execute("walk", link(tree, "adp_walk", objs))
+
+
+# ---- entity: the firmware's fields against the fabric's sources, per shipped config ----
+
+#: struct adp_entity field -> (wire byte, bytes) in an 82-byte ENTITY_AVAILABLE
+#: (IEEE 1722.1-2021 Figure 6-1, after the 14-byte Ethernet header).
+WIRE = {"mac": (6, 6), "entity_id": (18, 8), "entity_model_id": (26, 8), "entity_capabilities": (34, 4),
+        "talker_stream_sources": (38, 2), "talker_capabilities": (40, 2), "listener_stream_sinks": (42, 2),
+        "listener_capabilities": (44, 2), "identify_control_index": (66, 2)}
+
+#: The fabric's ADP shape constants: field -> localparam in the builder's adp_shape include.
+SVH = {"talker_stream_sources": "ADP_TALKER_SRC_C", "listener_stream_sinks": "ADP_LISTENER_SINK_C",
+       "talker_capabilities": "ADP_TALKER_CAPS_C", "listener_capabilities": "ADP_LISTENER_CAPS_C"}
+
+
+def svh_value(svh: str, name: str) -> int:
+    """One localparam of the generated ADP shape include."""
+    m = re.search(rf"localparam\s+[^=;]*\b{name}\s*=\s*(?:16'h([0-9A-Fa-f_]+)|(\d+))\s*;", svh)
+    if m is None:
+        raise Refusal(f"the ADP shape include declares no {name}")
+    return int(m.group(1).replace("_", ""), 16) if m.group(1) else int(m.group(2))
+
+
+def fabric_view(config: Path) -> dict[str, int]:
+    """What the fabric is programmed with (boot_policy) and compiled with (the shape include) for one config."""
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    sys.path.insert(0, str(ROOT / "sw/litex"))
+    import boot_policy  # noqa: E402
+    import endstation_builder as eb  # noqa: E402
+
+    cfg = eb.load_config(str(config))
+    overlay = eb.emit_aem_overlay(cfg)
+    words = boot_policy.fabric_constants(overlay, eb.emit_lwsrp_table(cfg))
+    svh = eb.emit_adp_shape_svh(cfg, overlay)
+    mac = words["MILAN_STATION_MAC_LO"].to_bytes(4, "little") + words["MILAN_STATION_MAC_HI"].to_bytes(2, "little")
+    view = {"entity_id": words["MILAN_ENTITY_ID_HI"] << 32 | words["MILAN_ENTITY_ID_LO"],
+            "entity_model_id": words["MILAN_MODEL_ID_HI"] << 32 | words["MILAN_MODEL_ID_LO"],
+            "mac": int.from_bytes(mac, "big"), "entity_capabilities": entity_caps(),
+            # ADP_IDX0[31:16], reset 0 and written by no firmware (milan_csr.sv adp_idx0)
+            "identify_control_index": 0}
+    view.update({field: svh_value(svh, name) for field, name in SVH.items()})
+    return view
+
+
+def expect_header(config: Path) -> str:
+    """entity_expect_gen.hpp: each field's place in the frame and the fabric's value of it."""
+    rows = ",\n".join(f'    {{"{field}", {WIRE[field][0]}u, {WIRE[field][1]}u, 0x{want:X}ull}}'
+                       for field, want in fabric_view(config).items())
+    return "\n".join([
+        f"// GENERATED by sw/firmware/ctrl/test/ctrl_arms.py from {config.name}; DO NOT EDIT.",
+        "#pragma once",
+        "#include <cstdint>",
+        "namespace entity_expect {",
+        "struct Field {",
+        "    const char* name;",
+        "    unsigned at;",
+        "    unsigned bytes;",
+        "    std::uint64_t want;",
+        "};",
+        f'inline constexpr const char* kConfig = "{config.stem}";',
+        f'inline constexpr const char* kLabel = "ctrl ADP entity fields ({config.stem})";',
+        "inline constexpr Field kFields[] = {",
+        rows,
+        "};",
+        "}  // namespace entity_expect",
+        ""])
+
+
+def entity_binary(tree: Tree, config: Path, objs: list[Path]) -> Path:
+    """The entity test for one config, against adp_entity.py's header and the fabric's view."""
+    gen = tree.out / "entity" / config.stem
+    gen.mkdir(parents=True, exist_ok=True)
+    res = run([sys.executable, "-B", str(CTRL / "adp/adp_entity.py"), str(config), "-o", str(gen / "adp_entity_gen.h")])
+    if res.returncode != 0:
+        raise Refusal(f"adp_entity.py {config.name}: {res.stderr.strip()}")
+    (gen / "entity_expect_gen.hpp").write_text(expect_header(config), encoding="utf-8")
+    test = compile_tests(tree, ("entity_fields.cpp",), f"entity/{config.stem}/tests", (f"-I{gen}",))
+    return link(tree, f"entity_fields_{config.stem}", objs + test)
+
+
+def arm_entity(tree: Tree) -> Outcome:
+    """Every shipped config's ADPDU fields against the fabric's sources."""
+    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), "entity")
+    outcomes = [execute("entity", entity_binary(tree, config, objs))
+                for config in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
+    return Outcome("entity", max(o.rc for o in outcomes), "\n".join(o.log for o in outcomes))
+
+
+# ---- rv32: freestanding RV32I build, no heap and no OS ---------------------------------
+
+def rv32_compiler() -> str | None:
+    """The explicit compiler, or the first available SDK candidate."""
+    return fw_rv32.compiler()
+
+
+def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
+    """Undefined symbols, or definitions capable of resolving external references."""
+    flags = ("-u",) if undefined else ("--extern-only", "--defined-only")
+    res = run([tool, *flags, *map(str, objs)])
+    if res.returncode != 0:
+        raise Refusal(f"{tool}: {res.stderr.strip()}")
+    return {ln.split()[-1] for ln in res.stdout.splitlines() if ln.strip() and not ln.endswith(":")}
+
+
+def arm_rv32(tree: Tree, require: bool) -> Outcome:
+    """The portable set and the MMIO platform, cross-compiled; only C-library and libgcc symbols left open."""
+    cc = rv32_compiler()
+    if cc is None:
+        if require:
+            raise Refusal("no RV32 compiler (the pinned SDK's riscv32-linux-gcc or a bare-metal one)")
+        return Outcome("rv32", 0, "  SKIPPED: no RV32 compiler; --require-rv32 refuses instead")
+    obj_dir = tree.out / "rv32"
+    obj_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        runtime_inc = fw_rv32.includes(cc)
+    except ValueError as exc:
+        raise Refusal(str(exc)) from exc
+    objs = []
+    for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c",)):
+        obj = obj_dir / f"{src.parent.name}_{src.stem}.o"
+        res = run([cc, *RV32_FLAGS, *runtime_inc, *includes(tree), "-c", str(src), "-o", str(obj)])
+        if res.returncode != 0:
+            return Outcome("rv32", 1, f"  [FAIL] {src.name} does not build for RV32I:\n{res.stderr}")
+        objs.append(obj)
+    tool = cc.removesuffix("gcc")
+    open_syms = symbols(tool + "nm", objs, True) - symbols(tool + "nm", objs, False)
+    stray = sorted(open_syms - RV32_LIBC - fw_rv32.HELPERS)
+    findings = fw_rv32.object_findings(cc, objs)
+    try:
+        frame = fw_rv32.stack_frames(objs)
+    except ValueError as exc:
+        findings.append(str(exc))
+        frame = None
+    measured = run([tool + "size", "-t", *map(str, objs)])
+    if measured.returncode:
+        raise Refusal(f"RV32 size failed: {measured.stderr.strip()}")
+    size = measured.stdout.strip().splitlines()
+    lines = [f"  {cc.rsplit('/', 1)[-1]} {' '.join(RV32_FLAGS[:4])}: {len(objs)} objects",
+             f"  size (text data bss dec): {' '.join(size[-1].split()[:4]) if size else 'unknown'}",
+             f"  largest static frame: {frame} bytes (not a call-chain bound)",
+             f"  undefined: {', '.join(sorted(open_syms))}"]
+    if stray:
+        findings.append(f"symbols outside the C library and libgcc: {', '.join(stray)}")
+    lines += [f"  [FAIL] {finding}" for finding in findings]
+    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if findings else 0} ==",
+              f"RESULT: {'FAIL' if findings else 'PASS'}"]
+    return Outcome("rv32", 1 if findings else 0, "\n".join(lines))
+
+
+# ---- lwsrp: lwSRP's MRP core on the port layer -----------------------------------------
+
+LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c", "src/modules/mvrp.c")
+
+#: The lwSRP revision port/shlan_port.h is written against (it restates that
+#: revision's src/ports/alloc.h). Fetch it with
+#:     git clone https://github.com/kebag-logic/lwSRP lwSRP
+#:     git -C lwSRP checkout 9197193e47a6bb1c45a56d90a18c1784123aba44
+#: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
+LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
+LWSRP_REV = "9197193e47a6bb1c45a56d90a18c1784123aba44"
+#: Every source and header the arm compiles lives under this directory.
+LWSRP_TREE = "src"
+
+
+def lwsrp_pin(lwsrp: Path) -> str:
+    """Refuse a checkout that is not the pin, or whose compiled tree differs from it.
+
+    `--no-optional-locks` keeps `git status` from refreshing the index, so a
+    read-only checkout is read and never written.
+    """
+    def checked_git(args: list[str]) -> CompletedProcess[str]:
+        """Check the dependency root before each command in that checkout."""
+        top = run(["git", "-C", str(lwsrp), "rev-parse", "--show-toplevel"])
+        if top.returncode or Path(top.stdout.strip()).resolve() != lwsrp.resolve():
+            raise Refusal("lwSRP is not its own checkout")
+        return run(["git", "--no-optional-locks", "-C", str(lwsrp), *args])
+    head = checked_git(["rev-parse", "HEAD"]).stdout.strip()
+    if head != LWSRP_REV:
+        raise Refusal(f"lwSRP at {head or 'no git HEAD'} is not the pinned {LWSRP_REV} "
+                      f"(fetch {LWSRP_URL} and check the pin out)")
+    dirty = checked_git(["status", "--porcelain", "--untracked-files=all", "--", LWSRP_TREE])
+    if dirty.returncode != 0 or dirty.stdout.strip():
+        changed = ", ".join(ln[3:] for ln in dirty.stdout.splitlines()) or dirty.stderr.strip()
+        raise Refusal(f"lwSRP's {LWSRP_TREE}/ differs from the pinned {LWSRP_REV[:8]}: {changed}")
+    return head
+
+
+def arm_lwsrp(tree: Tree, lwsrp: Path) -> Outcome:
+    """lwSRP's own core and MVRP, unmodified, against the static pool, the loop's tick and the SRP channel."""
+    missing = [s for s in LWSRP_SOURCES if not (lwsrp / s).is_file()]
+    if missing:
+        raise Refusal(f"{lwsrp} is not a lwSRP checkout: no {', '.join(missing)}")
+    head = lwsrp_pin(lwsrp)
+    lw_inc = (f"-I{lwsrp / 'src/include'}", f"-I{lwsrp / 'src'}")
+    ours = firmware(tree, PORTABLE, "lwsrp")
+    test = compile_tests(tree, ("lwsrp_port.cpp",), "lwsrp/tests", lw_inc)
+    obj_dir = tree.out / "lwsrp_core"
+    obj_dir.mkdir(parents=True, exist_ok=True)
+    theirs = []
+    for src in LWSRP_SOURCES:
+        obj = obj_dir / f"{Path(src).stem}.o"
+        # lwSRP's own flags (its CMakeLists), not this gate's -Werror: the library is not ours to fix here
+        res = run(["gcc", "-std=c11", "-O2", "-Wall", "-Wextra", "-Wpedantic", *lw_inc, "-c", str(lwsrp / src),
+                   "-o", str(obj)])
+        if res.returncode != 0:
+            raise Refusal(f"lwSRP {src} does not compile:\n{res.stderr}")
+        theirs.append(obj)
+    outcome = execute("lwsrp", link(tree, "lwsrp_port", ours + test + theirs))
+    return Outcome("lwsrp", outcome.rc, f"  lwSRP at {head}\n{outcome.log}")
+
+
+# ---- the verdict -------------------------------------------------------------------------
+
+def report(outcomes: list[Outcome]) -> bool:
+    """Print every arm's evidence lines and verdict; True when one failed."""
+    failed = False
+    for o in outcomes:
+        print(f"[{'ok' if o.rc == 0 else 'FAIL'}] arm {o.arm}")
+        for ln in o.log.splitlines():
+            if ln.startswith(("  ", "==", "RESULT")):
+                print(f"    {ln.strip()}")
+        failed = failed or o.rc != 0
+    return failed
