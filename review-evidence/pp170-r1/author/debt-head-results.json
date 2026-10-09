@@ -1,0 +1,30 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "rollback_ignores_debt",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R10 16000"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R10 5000: done 6985 closed -1 cause 6 rolled back 1; the stores in reset from 5525 to 5527, the debt owed 2 cycles of it, fell at 6446",
+   "D3R10 16000: done -1 closed 13725 cause 6 rolled back 0; the stores in reset from 5525 to 5527, the debt owed 2 cycles of it, fell at -1",
+   "D3R15 debt wait: the pass-1 fault's READ (region 0x02 offset 8) granted on its steered cycle 1; at the bound the roll-back was under way (strobe 0, debt 1, image valid 0)"
+  ],
+  "verdict": "KILLED"
+ }
+]

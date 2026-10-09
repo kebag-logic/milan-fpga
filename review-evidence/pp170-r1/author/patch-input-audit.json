@@ -1,0 +1,27 @@
+{
+  "required_directory_empty_at_intake": true,
+  "required_patch_identities_not_supplied": true,
+  "location_question_pending": true,
+  "parent_pin": "5603c353137e90c1fa95429f6d00ef7a2298d9ee",
+  "historical_candidates": [
+    {
+      "candidate": "parent-adoption-22-28f9666f.patch",
+      "sha256": "8acf2b12f4cd67ffff19cc668c9d74cbf77f203f116a13f3f22db4e08b28e94f",
+      "bytes": 447,
+      "forward_rc": 1,
+      "forward_diagnostic": "error: patch failed: scripts/xvlog.budget:30\nerror: scripts/xvlog.budget: patch does not apply",
+      "reverse_rc": 0,
+      "reverse_diagnostic": ""
+    },
+    {
+      "candidate": "parent-adoption-148-6c22d3ca.patch",
+      "sha256": "bbd0301dc7e576f51f92d24c8d140eda0666f9c6699806649365110e7ecfea83",
+      "bytes": 966,
+      "forward_rc": 1,
+      "forward_diagnostic": "error: patch failed: tb/verilator/milan_dp/sim_nxn.cpp:889\nerror: tb/verilator/milan_dp/sim_nxn.cpp: patch does not apply",
+      "reverse_rc": 0,
+      "reverse_diagnostic": ""
+    }
+  ],
+  "disposition": "Neither candidate was applied or represented as a supplied input. Both reverse checks pass at the pinned parent: their changes are already present. Confirmation of intended input identities is still needed."
+}

@@ -1,0 +1,279 @@
+{
+  "base_suites": 33,
+  "head_suites": 34,
+  "compared": 33,
+  "all_common_identical": true,
+  "new_suite": [
+    "python3 run.py --verilator \"$VALIDATION_TOOLS/pinned-verilator-5.050/verilator\"",
+    "169 checks: 169 PASS, 0 FAIL",
+    "441 checks: 441 PASS, 0 FAIL",
+    "610 checks: 610 PASS, 0 FAIL"
+  ],
+  "normalization": "Compiler/build command output removed; all simulation value, cycle, seed and tally records retained without value normalization. Unit-test host duration is excluded; test count and verdict are preserved.",
+  "suites": [
+    {
+      "suite": "acmp_listener",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.8EhjnqNzhl",
+      "head_log": "head-suite-logs/tmp.q452UbGvzb",
+      "sha256": "72bb5b50ff149d2ecd4d8b0cf95df17ccf8cb00fcfb61abb7255bb1cf6ade24c"
+    },
+    {
+      "suite": "acmp_nvm",
+      "record_lines": 3,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.FdgprXGIHO",
+      "head_log": "head-suite-logs/tmp.BofFwUK1eu",
+      "sha256": "9c7cf1a247e472aa4a5c27e3f2bf0c09084796efba175d5b144192b720968fd3"
+    },
+    {
+      "suite": "acmp_talker",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.NO86y9P56L",
+      "head_log": "head-suite-logs/tmp.5xvsGEXYAU",
+      "sha256": "8f94509d5a1ed576ac27e7586b1527f43c2df35712335ff925ac94237cfb4ebe"
+    },
+    {
+      "suite": "adp_engine",
+      "record_lines": 4,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.kC6VszrlnO",
+      "head_log": "head-suite-logs/tmp.9CpuLSmUh7",
+      "sha256": "414cdc0ed936282b8e5ce9c5ac229e2db902b3f5800669f5e65c899e33a127c3"
+    },
+    {
+      "suite": "aecp_notify",
+      "record_lines": 23,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.tCF1FOAvfi",
+      "head_log": "head-suite-logs/tmp.MbOeogKtxZ",
+      "sha256": "b7c52ba24be406bea1674c8535bd4585009df54a121b80232f0af0e7094a9e64"
+    },
+    {
+      "suite": "ca_originator",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.YEJJNr2cu2",
+      "head_log": "head-suite-logs/tmp.4cDavJGfrd",
+      "sha256": "f825c3231e68c28e1d1ca3ff4492241189024cc94bb4311cd716c658f86eb2a2"
+    },
+    {
+      "suite": "desc_mem_guard",
+      "record_lines": 8,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.GA7euxWTOe",
+      "head_log": "head-suite-logs/tmp.91YDZ28VRH",
+      "sha256": "db9b21143c3a5bb2ed02e66e14334f2da82166221169e445ba70d338ba22fe24"
+    },
+    {
+      "suite": "desc_store",
+      "record_lines": 122,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.JJip9IYpws",
+      "head_log": "head-suite-logs/tmp.K878yWQZTM",
+      "sha256": "1ebe2f98cf224aeb1e47c0dbb690478dd589f28c4d3362dbb43ab4e82608f4ac"
+    },
+    {
+      "suite": "dispatch",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.Z5UMIXf7GV",
+      "head_log": "head-suite-logs/tmp.DHezdSigGp",
+      "sha256": "5701bd92221e2b7817b4e45ad0ad55416b80ee78f3bc28f93cdfcccec183764d"
+    },
+    {
+      "suite": "dyn_state",
+      "record_lines": 5,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.695l7WaeaI",
+      "head_log": "head-suite-logs/tmp.NWP4KKvLS3",
+      "sha256": "f94ff26354bc59aba3872a2307188a69ccf365932571c89a70245acd56f339fb"
+    },
+    {
+      "suite": "event_router",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.WuSpssZln6",
+      "head_log": "head-suite-logs/tmp.iQbnGQj0Ro",
+      "sha256": "7d5991bae84bcc2a0107a63034e4e56e24645a9d535ff9ce14d5e0592ec25fd7"
+    },
+    {
+      "suite": "lsn_admit",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.bMTLipP0N9",
+      "head_log": "head-suite-logs/tmp.IbUVMAAUpg",
+      "sha256": "61afb354571d5a665fb768f783bafdd1f2e89780a30665c4f3d0111bb35eee8a"
+    },
+    {
+      "suite": "maap",
+      "record_lines": 39,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.HSMzPYzfQF",
+      "head_log": "head-suite-logs/tmp.sbwOgGBqCD",
+      "sha256": "6eb27a24ac61775c4c5ce9202ba49a8a28e632d2fae2d2f42b430833c352b4c7"
+    },
+    {
+      "suite": "nvm_port",
+      "record_lines": 67,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.m43Mx8XTOO",
+      "head_log": "head-suite-logs/tmp.aa1HajVkH5",
+      "sha256": "5245a6243673987644e1be78454a0f90dd8ab12b6c57a00a750835677f525f63"
+    },
+    {
+      "suite": "originator",
+      "record_lines": 2,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.YsgH50LUMd",
+      "head_log": "head-suite-logs/tmp.S4OQRj0rVh",
+      "sha256": "853aaad08faf276d415544a0d1982e83be74f47985f128371967a4d5bfb5058d"
+    },
+    {
+      "suite": "pp_top",
+      "record_lines": 235,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.uhTw29mZCZ",
+      "head_log": "head-suite-logs/tmp.TETqQaDAsd",
+      "sha256": "c72c057c243506c142e362ae3cedd05f801dcf60b75808dcca9684fddf2acf5f"
+    },
+    {
+      "suite": "prng",
+      "record_lines": 9,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.vHWlLOjG7Q",
+      "head_log": "head-suite-logs/tmp.4YV1aEa7yz",
+      "sha256": "538096167d620d89291842261cdd3d287aa931509f41be88f050046e7ec96b86"
+    },
+    {
+      "suite": "release_merge",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.0suI389nyH",
+      "head_log": "head-suite-logs/tmp.LSQLBvrK0Q",
+      "sha256": "61afb354571d5a665fb768f783bafdd1f2e89780a30665c4f3d0111bb35eee8a"
+    },
+    {
+      "suite": "resp_buf",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.jhLseKhf2g",
+      "head_log": "head-suite-logs/tmp.wvSDNxuqOp",
+      "sha256": "dd7e47a3c58af654cbb0240356d32402e7e5ee3a20ab530e0c5eb9340c4fd05f"
+    },
+    {
+      "suite": "rx_slots",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.18fjpe2EHx",
+      "head_log": "head-suite-logs/tmp.b2WcZQZbMm",
+      "sha256": "2de12a9ceae272b0279a49c83686d427c170a772758961d1fca149c32d0fa38f"
+    },
+    {
+      "suite": "rx_validator",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.uZtpBeYWiN",
+      "head_log": "head-suite-logs/tmp.nCPOMSnd7z",
+      "sha256": "173c9c8f4c6ea1330269d8210262cefac7dd3d2497238360fc2aa512c462dfab"
+    },
+    {
+      "suite": "scoreboard",
+      "record_lines": 2,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.K4onLU0Edg",
+      "head_log": "head-suite-logs/tmp.oxyxfFD0HH",
+      "sha256": "17c107631157fa6ce331dd9a2260ffe41d64757d0999347c2ef0db174c1683b3"
+    },
+    {
+      "suite": "side_port",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.YFKii0HFBT",
+      "head_log": "head-suite-logs/tmp.n69aHL5LVW",
+      "sha256": "16ea79f43c3fafd7988e48dcaf90fe1a4976c4bcaf47c119a0a221779b11578b"
+    },
+    {
+      "suite": "srp_admission",
+      "record_lines": 505,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.yOqhmJ7xFu",
+      "head_log": "head-suite-logs/tmp.wo4UCm9zLo",
+      "sha256": "ffeab72de4e2e7538d3e7ba001691c1f48207a30b63983c31da0bb7b0a666acd"
+    },
+    {
+      "suite": "srp_decoder",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.ugRGBYAy5T",
+      "head_log": "head-suite-logs/tmp.D7uJwPrPpU",
+      "sha256": "aa3957637b8a456a2095596548933d753509397d0e493cb708c7c4e60d84d1b0"
+    },
+    {
+      "suite": "srp_encoder",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.bzOcsDPTg1",
+      "head_log": "head-suite-logs/tmp.zejEdV25tn",
+      "sha256": "fd4cb3f2f335b0688647e3134b4c43756bc10417e50d27dee1c40a3b6bc0f62b"
+    },
+    {
+      "suite": "srp_stream_fsms",
+      "record_lines": 9,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.4mWmikMHjI",
+      "head_log": "head-suite-logs/tmp.wLM87JS99K",
+      "sha256": "5e4d859407d65c2b763ff11d158200903f3ef4c2241bdb3e96ad5cc8dcc81a27"
+    },
+    {
+      "suite": "srp_top",
+      "record_lines": 6821,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.hMvT5JQOxA",
+      "head_log": "head-suite-logs/tmp.BRs851BEWC",
+      "sha256": "fa53304826c43b891e7bad97aea028b49ceaf8bc0a36a08e6e250a4c16d0c58b"
+    },
+    {
+      "suite": "timer_map",
+      "record_lines": 14,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.pGY2GPfHo3",
+      "head_log": "head-suite-logs/tmp.ZquX9h1Zor",
+      "sha256": "2274f34d3b01efa536efd8091cc882842d158f3efdaec565f48bff113d8aef86"
+    },
+    {
+      "suite": "timer_service",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.ryEFlBNW0C",
+      "head_log": "head-suite-logs/tmp.VOOe9EWUjN",
+      "sha256": "7cef9d177c06ba68d832832958ebf929a36a4dda68e5f5d1b7a64a9673ad5edd"
+    },
+    {
+      "suite": "tx_arbiter",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.7jRD5TjWhY",
+      "head_log": "head-suite-logs/tmp.0tl2TV4LCZ",
+      "sha256": "73700cd0c135b0285c4fe8d49ea37a270f447a78fd86f2a2085c6c98d3d17ae6"
+    },
+    {
+      "suite": "tx_slots",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.D8RWpX5StA",
+      "head_log": "head-suite-logs/tmp.YQGmDLaodP",
+      "sha256": "ad5251f7c468b26d419916973e9a75c05ba5e6d518789db779265c86f82d73d2"
+    },
+    {
+      "suite": "ucpu",
+      "record_lines": 1,
+      "identical": true,
+      "base_log": "base-suite-logs/tmp.M7vyMWOo9l",
+      "head_log": "head-suite-logs/tmp.WqFKCJX66h",
+      "sha256": "60069c78793152ac72872a437d0ce7a918cd27b58486969390ef3754e93b22a1"
+    }
+  ]
+}

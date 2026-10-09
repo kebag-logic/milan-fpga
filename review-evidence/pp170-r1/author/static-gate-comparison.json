@@ -1,0 +1,193 @@
+[
+  {
+    "group": "processor",
+    "gate": "lint",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "9a3703ba1ec6767b277e9d5102c94a93fe107454da19d13cab518ba312cd1e81",
+    "head_sha256": "9a3703ba1ec6767b277e9d5102c94a93fe107454da19d13cab518ba312cd1e81",
+    "diff": []
+  },
+  {
+    "group": "processor",
+    "gate": "check",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": false,
+    "base_sha256": "299cb98a717381f0f5df9e74183c6f3f60a18b9d517374fc542677946550cbd3",
+    "head_sha256": "f6bbd32c81f7df1f0e3830581aa6566c812835056e2df6262b238ed2e5c752c9",
+    "diff": [
+      "--- \n",
+      "+++ \n",
+      "@@ -3,3 +3,3 @@\n",
+      " parameters: top 29, guide 29, diagram 29, OK",
+      "-links: 1179 checked, OK",
+      "+links: 1180 checked, OK",
+      " wavedrom: 18 blocks checked, OK",
+      "@@ -8,3 +8,3 @@\n",
+      " ids selftest: 30 cases, OK",
+      "-ids: 556 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK",
+      "+ids: 562 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK",
+      " lint: 41 mermaid + 18 wavedrom blocks checked, OK"
+    ]
+  },
+  {
+    "group": "processor",
+    "gate": "matrix",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "7a2c98136a0892f195fa6a08ad82dfe7e36e8a81d0732cb304584f31e966e097",
+    "head_sha256": "7a2c98136a0892f195fa6a08ad82dfe7e36e8a81d0732cb304584f31e966e097",
+    "diff": []
+  },
+  {
+    "group": "processor",
+    "gate": "synthesis",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "1c74e4145f2426e344b8b61c8b7bcbf00cd2c4ed1d906cb8bc38b841ea58967f",
+    "head_sha256": "1c74e4145f2426e344b8b61c8b7bcbf00cd2c4ed1d906cb8bc38b841ea58967f",
+    "diff": []
+  },
+  {
+    "group": "parent",
+    "gate": "cpp",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": false,
+    "base_sha256": "14f0231f0c36f75bff6a643c0ff8f37ce14dacd38fe1e71cf60d13900bd6972d",
+    "head_sha256": "cf7b49c317a081ac38596a5126de1cdc1feff94da3053ac38806df02ade26cae",
+    "diff": [
+      "--- \n",
+      "+++ \n",
+      "@@ -1,2 +1,2 @@\n",
+      "-cpp idiom: 313 first-party translation units, 149 of them C",
+      "+cpp idiom: 314 first-party translation units, 149 of them C",
+      "   naked new/delete: 0"
+    ]
+  },
+  {
+    "group": "parent",
+    "gate": "python",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": false,
+    "base_sha256": "6b94c8fae8c2cfadaf997ddd3a89991ef5efed7a46a3b14e43119f048600f6ba",
+    "head_sha256": "54a4efe67c2f141c60f42725962d6e9c1eb22339cb97a82ee3f5873478ed2ab5",
+    "diff": [
+      "--- \n",
+      "+++ \n",
+      "@@ -1,2 +1,2 @@\n",
+      "-py idiom: 368 first-party modules, 213905 lines",
+      "+py idiom: 371 first-party modules, 214182 lines",
+      "   bare except: 0"
+    ]
+  },
+  {
+    "group": "parent",
+    "gate": "sources",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "head_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "diff": []
+  },
+  {
+    "group": "parent",
+    "gate": "pp_sources",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a",
+    "head_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a",
+    "diff": []
+  },
+  {
+    "group": "parent",
+    "gate": "ports",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "4e286ca25403eac974d7d3dfb5160e4ddcbe3f2a958b7f3d339458ca1db1557c",
+    "head_sha256": "4e286ca25403eac974d7d3dfb5160e4ddcbe3f2a958b7f3d339458ca1db1557c",
+    "diff": []
+  },
+  {
+    "group": "parent",
+    "gate": "naming",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "ec6546e61a31a2319bb756346ac469a817c84675a449f9dc65e61fbeb6925158",
+    "head_sha256": "ec6546e61a31a2319bb756346ac469a817c84675a449f9dc65e61fbeb6925158",
+    "diff": []
+  },
+  {
+    "group": "parent",
+    "gate": "evidence",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": false,
+    "base_sha256": "723b73576442fc556da14b995084014d60a6a05852642443cbe504d9ee7e443e",
+    "head_sha256": "91c72d24cd48862766c1d5166187356d1e2a790c62b4c11e926be8e63f525e5b",
+    "diff": [
+      "--- \n",
+      "+++ \n",
+      "@@ -1,4 +1,4 @@\n",
+      "-RTL suites with an executable mutation or negative arm: 30 of 100",
+      "+RTL suites with an executable mutation or negative arm: 30 of 101",
+      "     62 under tb/verilator  (entry: scripts/run_all_suites.sh)",
+      "-    33 under protocol-processor/tb  (entry: protocol-processor/scripts/run_suites.sh, protocol-processor/.github/workflows/hdl.yml)",
+      "+    34 under protocol-processor/tb  (entry: protocol-processor/scripts/run_suites.sh, protocol-processor/.github/workflows/hdl.yml)",
+      "      4 under gptp-processor/tb/verilator  (entry: gptp-processor/Makefile)",
+      "@@ -37,3 +37,3 @@\n",
+      " ",
+      "-suites with none (70):",
+      "+suites with none (71):",
+      "    gptp-processor/tb/verilator/parser",
+      "@@ -51,2 +51,3 @@\n",
+      "    protocol-processor/tb/lsn_admit",
+      "+   protocol-processor/tb/name_state",
+      "    protocol-processor/tb/originator",
+      "@@ -121,3 +122,3 @@\n",
+      " ",
+      "-test programs that read production HDL (39):",
+      "+test programs that read production HDL (40):",
+      "    gptp-processor/tb/check_phc_contract.py: structural boundary check; it asserts required/forbidden tokens, not behavior",
+      "@@ -127,2 +128,3 @@\n",
+      "    protocol-processor/tb/desc_store/test_gen_desc_image.py: unit test of the descriptor packer and its model lint; it imports the generator by path to call build() and its CLI on synthetic models and on the two models packaged beside it, passes the packaged model_ids.json in as the recorded digests, and reads no expectation from source",
+      "+   protocol-processor/tb/name_state/mutants.py: mutation campaign; plants name capture, replay and pending defects in isolated copies and requires named value assertions to fail in completed runs; name values and record ordinals come from an independent fixed inventory, never from RTL text",
+      "    protocol-processor/tb/nvm_port/measure_figures.py: mutation campaign; it rewrites one RTL arm and requires the suite to fail",
+      "@@ -171,3 +173,3 @@\n",
+      " ",
+      "-TEST-EVIDENCE RATCHET: PASS (70 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))",
+      "-  the mutation ratchet can be lowered to 70",
+      "+TEST-EVIDENCE RATCHET: PASS (71 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))",
+      "+  the mutation ratchet can be lowered to 71"
+    ]
+  },
+  {
+    "group": "parent",
+    "gate": "docs",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "623527d6f7b429ead4e603a79cbc9aae036bd645527d1342e4a980fd7ff1d4b4",
+    "head_sha256": "623527d6f7b429ead4e603a79cbc9aae036bd645527d1342e4a980fd7ff1d4b4",
+    "diff": []
+  },
+  {
+    "group": "parent",
+    "gate": "shell",
+    "base_rc": 0,
+    "head_rc": 0,
+    "identical": true,
+    "base_sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+    "head_sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+    "diff": []
+  }
+]
