@@ -145,7 +145,7 @@ def grade(rows: list[dict], descriptors: dict) -> dict:
         cmd = response(row, core, descriptors)
         if cmd >= 0:
             commands.add(cmd)
-        if cmd == 4:
+        if cmd == 4 and number(bytes.fromhex(row["request"]), 38) == 0:
             read.add((number(core[0], 42), number(core[0], 44)))
         notices.update(number(p, 36) & 0x7fff for p in core if p[15] == 1 and p[36] & 128)
         if row["kind"] in ("probe", "retry"):
