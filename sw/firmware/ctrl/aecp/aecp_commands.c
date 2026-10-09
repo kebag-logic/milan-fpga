@@ -279,9 +279,9 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 	if (len < (set ? 84u : 4u)) {
 		return AECP_BAD_ARGUMENTS;
 	}
-	memcpy(out, in, set ? 84u : 4u);
+	memcpy(out, in, 4u);
 	uint16_t type = (uint16_t)wire_be16(in), index = (uint16_t)wire_be16(in + 2);
-	if ((type != 5u && type != 6u) || (set && type == 5u)) {
+	if (type != 5u && type != 6u) {
 		return AECP_NOT_SUPPORTED;
 	}
 	struct aecp_descriptor *d = aecp_find(a, a->configuration, type, index);
@@ -292,15 +292,41 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 	if (!aecp_stream_read(a, type, index, &info)) {
 		return AECP_ENTITY_MISBEHAVING;
 	}
+	// IEEE 7.4.15.1: report current fields even when the SET is refused.
+	uint32_t flags = info.flags;
 	if (set) {
+		flags |= 0x80000000u; // The descriptor supplies the current format.
+		if (type == 6u) flags &= ~0x08000000u; // Failure information is input-only.
+	}
+	wire_put_be(out + 4, flags, 4);
+	memcpy(out + 8, d->value + 74, 8u);
+	wire_put_be(out + 16, info.stream_id, 8);
+	wire_put_be(out + 24, type == 6u && aecp_overridden(a, d, 2u) ? a->cfg.latency[index] : info.latency, 4);
+	wire_put_be(out + 28, info.dest_mac, 6);
+	if (!set || type == 5u) {
+		out[34] = info.failure_code;
+		wire_put_be(out + 36, info.failure_bridge_id, 8);
+	}
+	wire_put_be(out + 44, info.vlan, 2);
+	if (set) {
+		if (type == 5u) {
+			return AECP_NOT_SUPPORTED;
+		}
 		if (info.running) {
 			return AECP_STREAM_IS_RUNNING;
 		}
 		if (aecp_foreign_lock(a)) {
 			return AECP_ENTITY_LOCKED;
 		}
-		if (wire_be32(in + 4) != 0x20000000u) {
+		uint32_t requested = (uint32_t)wire_be32(in + 4);
+		// Milan 5.4.2.9: refuse unsupported XXX_VALID sub-commands.
+		// IEEE 7.4.15.1: SAVED_STATE and STREAMING_WAIT are ignored.
+		if ((requested & 0xdaf80000u) != 0u) {
 			return AECP_NOT_SUPPORTED;
+		}
+		if ((requested & 0x20000000u) == 0u) {
+			wire_put_be(out + 4, flags & ~0x20000000u, 4);
+			return AECP_SUCCESS;
 		}
 		uint32_t latency = (uint32_t)wire_be32(in + 24);
 		if ((latency & 0x80000000u) != 0u) {
@@ -311,16 +337,10 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 			aecp_override(a, d, 2u);
 			aecp_note(a, AECP_CHANGE_LATENCY, type, index);
 		}
+		wire_put_be(out + 4, flags | 0x20000000u, 4);
+		wire_put_be(out + 24, latency, 4); // Milan preserves the requested latency.
 		return AECP_SUCCESS;
 	}
-	wire_put_be(out + 4, info.flags, 4);
-	memcpy(out + 8, d->value + 74, 8u);
-	wire_put_be(out + 16, info.stream_id, 8);
-	wire_put_be(out + 24, type == 6u && aecp_overridden(a, d, 2u) ? a->cfg.latency[index] : info.latency, 4);
-	wire_put_be(out + 28, info.dest_mac, 6);
-	out[34] = info.failure_code;
-	wire_put_be(out + 36, info.failure_bridge_id, 8);
-	wire_put_be(out + 44, info.vlan, 2);
 	wire_put_be(out + 48, info.flags_ex, 4);
 	out[52] = (uint8_t)((info.probing_status << 5) | (info.acmp_status & 31u));
 	return AECP_SUCCESS;

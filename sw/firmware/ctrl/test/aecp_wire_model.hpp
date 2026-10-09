@@ -30,9 +30,12 @@ static const uint8_t *image_row(unsigned type,unsigned index) {
 }
 static uint64_t scenario_word(uint8_t kind,uint16_t ty,uint16_t ix,uint8_t sel,uint8_t ord) {
   if(kind==0){
-    if(sel==0)return ty==5?0x80000000:0xa0000000;
+    if(sel==0)return ty==5?0x80000000:0xf2000000;
     if(sel==1)return be(image_row(ty,ix)+74,8);
+    if(sel==2&&ty==6)return 0x0102030405060708ull;
     if(sel==3)return 12345;
+    if(sel==4&&ty==6)return 0x91e0f00001010000ull;
+    if(sel==6&&ty==6)return uint64_t(2)<<48;
     return 0;
   }
   if(kind==1){
@@ -81,7 +84,8 @@ struct Firmware {
     ports.now_ms=[](void*p){return static_cast<Firmware*>(p)->time;};
     ports.random=[](void*){return 0u;};ports.timer=[](void*,bool,uint32_t){};
     ports.stream=[](void*p,unsigned,uint16_t t,uint16_t,fw::aecp_stream_info*v){
-      *v={};v->flags=t==5?0x80000000:0xa0000000;v->latency=12345;
+      *v={};v->flags=t==5?0x80000000:0xf2000000;v->latency=12345;
+      if(t==6){v->stream_id=0x0102030405060708ull;v->dest_mac=0x91e0f0000101ull;v->vlan=2;}
       auto &s=*static_cast<Firmware*>(p);v->running=s.started;v->bound=s.bound;
       if(s.bound){v->probing_status=2;v->acmp_status=7;}
       if(t==5&&s.bound&&!s.started)v->flags|=8u;return true;};

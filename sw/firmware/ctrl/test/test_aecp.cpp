@@ -718,9 +718,40 @@ TEST_F(Core, StreamInfoDirectionFlagsAndLatency)
     auto b=target(6,0,84);put(b,4,0x20000000,4);put(b,24,123456,4);
     EXPECT_CALL(mock,Changed(AECP_CHANGE_LATENCY,6,0)).Times(1);
     ask(14,b);ask(14,b);auto out=ask(15,target(6,0));EXPECT_EQ(get(out,62,4),123456u);
-    put(b,0,5,2);ask(14,b,11);put(b,0,6,2);put(b,4,0,4);ask(14,b,11);
+    put(b,0,5,2);ask(14,b,11);put(b,0,6,2);put(b,4,0,4);ask(14,b);
     put(b,4,0x20000000,4);put(b,24,0x80000000,4);ask(14,b,7);
     streaming=true;ask(14,b,12);streaming=false;ask(14,Bytes(83),7);put(b,2,65535,2);ask(14,b,2);
+}
+
+TEST_F(Core, SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal)
+{
+    auto b=target(6,0,84);put(b,4,0x20000000,4);put(b,24,123456,4);
+    std::fill(b.begin()+48,b.end(),0x5a);
+    auto check=[&](const Bytes &out,unsigned type,uint32_t flags,uint32_t latency){
+        EXPECT_EQ(out.size(),122u);
+        EXPECT_EQ(get(out,42,4),flags)<<"SET response flags describe current state";
+        EXPECT_EQ(get(out,46,8),get(desc(type).value+74,8))<<"SET response uses current format";
+        EXPECT_EQ(get(out,54,8),0x0102030405060708ull)<<"SET response uses current ID";
+        EXPECT_EQ(get(out,66,6),0x91e0f0000101ull)<<"SET response uses current destination";
+        EXPECT_EQ(get(out,82,2),2u)<<"SET response uses current VLAN";
+        EXPECT_EQ(get(out,62,4),latency)<<"SET latency follows Milan success and current refusal rules";
+        EXPECT_EQ(Bytes(out.begin()+84,out.end()),Bytes(38))<<"SET does not serialize GET extensions or request IP fields";
+    };
+    check(ask(14,b),6,0xf7000000,123456);
+    for(uint32_t flags:{0u,4u,8u,12u,0x20000004u,0x20000008u,0x2000000cu}){
+        put(b,4,flags,4);check(ask(14,b),6,(flags&0x20000000)?0xf7000000:0xd7000000,123456);
+        EXPECT_EQ(latency[0],123456u)<<"ignored flags and no subcommand preserve latency";
+    }
+    for(uint32_t flags:{0x80000000u,0x40000000u,0x10000000u,0x08000000u,0x02000000u,
+                        0x00800000u,0x00400000u,0x00200000u,0x00100000u,0x00080000u}){
+        put(b,4,flags|0x20000000,4);put(b,24,765432,4);
+        check(ask(14,b,11),6,0xf7000000,123456);
+        EXPECT_EQ(latency[0],123456u)<<"unsupported subcommand is atomic";
+    }
+    put(b,4,0x20000000,4);put(b,24,0x80000000,4);check(ask(14,b,7),6,0xf7000000,123456);
+    streaming=true;check(ask(14,b,12),6,0xf7000000,123456);streaming=false;
+    ask(1,Bytes(16),0,CTLR+1);check(ask(14,b,3),6,0xf7000000,123456);
+    put(b,0,5,2);check(ask(14,b,11),5,0xff000000,12345);
 }
 
 TEST_F(Core, BackpressureOrdersResponseBeforeNotice)

@@ -89,6 +89,18 @@ def response(row: dict, core: list[bytes], descriptors: dict) -> int:
             assert len(reply) == 58 and number(reply, 46, 4) == 1, "MVU version"
         return -1
     status = {0: 11, 38: 7, 0x3fff: 1}.get(cmd, 0)
+    if cmd == 14:
+        flags = number(request, 42, 4)
+        status = 11 if flags == 0x60000000 else 7 if number(request, 62, 4) == 0x80000000 else 0
+        assert len(reply) == 122, "SET_STREAM_INFO length"
+        expected_flags = 0xf2000000 if flags & 0x20000000 else 0xd2000000
+        assert number(reply, 42, 4) == expected_flags, "SET response validity"
+        assert reply[46:54] == descriptors[6, 0][74:82], "SET current format"
+        assert number(reply, 54, 8) == 0x0102030405060708, "SET current ID"
+        assert number(reply, 66, 6) == 0x91e0f0000101, "SET current destination"
+        assert number(reply, 82) == 2, "SET current VLAN"
+        assert reply[72:82] == bytes(10) and reply[84:] == bytes(38), "SET reserved and output failure fields"
+        assert number(reply, 62, 4) == (67890 if status else number(request, 62, 4)), "SET requested or current latency"
     assert number(reply, 16) >> 11 == status, "command status"
     if cmd == 4:
         key = (number(request, 42), number(request, 44))
@@ -100,6 +112,15 @@ def difference(row: dict, fabric: list[bytes], core: list[bytes], counts: Counte
     """Permit only documented differences, retaining every other response byte."""
     request = bytes.fromhex(row["request"])
     cmd = number(request, 36) if row["kind"] == "command" else -1
+    if cmd == 14:
+        assert len(fabric) == len(core), "SET frame count"
+        expected_status = 11 if number(request, 42, 4) != 0x20000000 else 7 if number(request, 62, 4) == 0x80000000 else 0
+        for left, right in zip(fabric, core):
+            assert left[:16] == right[:16] and left[18:38] == right[18:38], "SET correlation"
+            assert number(left, 16) >> 11 == expected_status and left[38:] == request[38:122], "fabric SET request echo"
+            assert right[38:] == core[0][38:], "SET notice reports response state"
+        counts["IEEE 7.4.15.1 and Milan 5.4.2.9: current SET stream information"] += 1
+        return
     if cmd == 4 and number(request, 38) != 0 and number(request, 42) in (0, 1):
         assert len(fabric) == len(core) == 1, "root response count"
         assert number(fabric[0], 16) >> 11 == 7 and fabric[0][38:] == request[38:46], "fabric root refusal"
@@ -154,7 +175,7 @@ def grade(rows: list[dict], descriptors: dict) -> dict:
     assert commands == COMMANDS and read == descriptors.keys(), "command/descriptor census"
     assert notices == NOTICES, "notification census"
     assert all(kinds[k] == 1 for k in ("probe", "retry", "departure", "unlock")), "timer census"
-    assert sorted(counts.values()) == [2, 2, 3, 3, 4], "difference census"
+    assert sorted(counts.values()) == [2, 2, 3, 3, 4, 7], "difference census"
     return {"observations": len(rows), "commands": sorted(commands), "notifications": sorted(notices),
             "descriptors": len(read), "differences": dict(counts)}
 

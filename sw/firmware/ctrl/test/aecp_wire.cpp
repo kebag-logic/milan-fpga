@@ -55,6 +55,10 @@ int main(int argc,char **argv) {
   }
   auto name=target(0,0,72);std::fill(name.begin()+8,name.end(),0x4a);ask(16,name);ask(17,target(0,0,8));
   ask(15,target(5));ask(15,target(6));auto si=target(6,0,84);putbe(si.data()+4,0x20000000,4);putbe(si.data()+24,67890,4);ask(14,si);
+  for(unsigned flags:{0u,0x20000004u,0x20000008u,0x60000000u}){
+    auto b=si;putbe(b.data()+4,flags,4);ask(14,b);
+  }
+  auto invalid_latency=si;putbe(invalid_latency.data()+24,0x80000000u,4);ask(14,invalid_latency);
   auto control=target(26,0,5);control[4]=255;ask(24,control);ask(25,target(26));
   ask(34,target(5));ask(35,target(5));ask(39,target(9));ask(40,B(4));
   for(unsigned t:{5,6,9,36})ask(41,target(t));
