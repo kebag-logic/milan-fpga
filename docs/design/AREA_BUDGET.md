@@ -344,8 +344,8 @@ Later qualification does not delay the pre-flip measurement requirement.
 A missing route is a missed checkpoint, never a pass.
 
 M0s supplies reviewed split-aware recipe and gate coverage before routing.
-The current recipe requires one wrapper.
-The complete split removes it.
+The all-fabric recipe requires its existing wrapper.
+Selected split recipes check their own engine population.
 Keep named placement endpoints with comparable whole-image metrics.
 Retain all-fabric shipping and standalone 1x1/8x8 references independently.
 D7 compares M0s figures against the last accepted gate record.
@@ -353,7 +353,31 @@ Later lane deltas also name their matching M0s placement.
 Intermediate measurements enter the ledger; M9 alone re-records acceptance.
 The week-4 checkpoint and M9 consume this measurement coverage.
 The default flip additionally requires the selected functions' qualification.
-This page changes no record, gate implementation or policy value.
+Acceptance records and policy values remain unchanged.
+
+### M0s step-1 intermediate status
+
+The [step-1 ledger](MARK_II_AREA_PLAN.md#m0s-step-1-intermediate-status) records **STOP** at base `7c1b52be`.
+F0-F4 firmware exists, but parent datapath integration is missing.
+The mailbox remains idle and the wrapper remains unconditional.
+Therefore no selected route or new area figure is reported.
+LUT, FF, slices, RAMB36/RAMB18 and timing are **not measured**.
+The accepted 50,267-LUT route remains the comparison record.
+Its 74 RAMB36 plus 27 RAMB18 still total 87.5 tiles.
+Those stored figures are not this lane's measurement.
+
+[Measurement support](../testing/PP_SHADOW_BASELINE_RECIPE.md#selected-placement-measurements) names all-fabric, F0-F4 and complete split selections.
+Missing or wrong-placement engines fail by name.
+Whole-image comparison retains every existing gate tolerance and timing requirement.
+The standalone 1x1/8x8 references retain their original recipes.
+Acceptance records, schema and policy are unchanged.
+Intermediate selected placements cannot re-record acceptance; M9 owns that step.
+
+The future route must reconcile actual firmware and retained storage.
+About 50 firmware tiles remains a budget, not measured consumption.
+Partial placement cannot borrow the full split's reclamation credits.
+The 121.5-tile ceiling preserves the separate 10 percent reserve.
+Missing measurements cannot qualify the default flip.
 
 ### The resource gate
 

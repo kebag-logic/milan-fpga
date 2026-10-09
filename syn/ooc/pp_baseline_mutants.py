@@ -5,11 +5,24 @@
 import ast
 from pathlib import Path
 import subprocess
+import shutil
 import sys
 import tempfile
 
 
 MUTANTS = {
+    "absolute-file recipe import broken": ('sys.path.insert(0, str(Path(__file__).resolve().parent))\n', ''),
+    "split dispatch ignored": ('    if args.placement != "all-fabric":\n', '    if False:\n'),
+    "split pre-route census omitted": (
+        'commands[0] + pp_placement.census_tcl(placement)', 'commands[0]'),
+    "split final census omitted": (
+        'pp_placement.census_tcl(placement, report=True) + REPORTS', 'REPORTS'),
+    "split timing assumes wrapper": ('pp_placement.scope_timing_tcl() + "\\nquit\\n"', 'SCOPE_TIMING + "\\nquit\\n"'),
+    "split ROM error promotion omitted": (' + prefix + ROM_ERROR + "# Add constraints"',
+                                         ' + prefix + "# Add constraints"'),
+    "split retained AECP ROM skipped": (
+        'placement == "f0-f4" and parameter == "PP_TROM_HEX_P"',
+        'placement == "f0-f4" and parameter.startswith("PP_")'),
     "synthesis worker cap ignored": ("    if args.single_thread_synthesis:\n", "    if False:\n"),
     "synthesis worker cap enabled by default": ("    if args.single_thread_synthesis:\n", "    if True:\n"),
     "ROM error promotion": ("    prefix += ROM_ERROR\n", "    pass\n"),
@@ -104,6 +117,8 @@ def main() -> None:
             target = Path(tmp) / name / "syn/ooc/pp_baseline.py"
             target.parent.mkdir(parents=True)
             target.write_text(changed)
+            for sibling in ("pp_placement.py", "pp_placement_selftest.py"):
+                shutil.copy2(pristine.with_name(sibling), target.with_name(sibling))
             result = subprocess.run([sys.executable, "-B", str(target), "--selftest"],
                                     capture_output=True, text=True, timeout=60)
             if (result.returncode == 0) != (change is None):

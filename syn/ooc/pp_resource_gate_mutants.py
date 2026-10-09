@@ -92,7 +92,9 @@ MUTANTS = {
     "generated-file roots": ('                text = text.replace(root, f"$ROOT{index}")\n', "                pass\n"),
     "one generated top": ("    if len(generated) != 1 or len(repository) != 1:\n",
                           "    if not generated or not repository:\n"),
-    "wrapper source depth": (' and len(path.parents) > 2]', "]"),
+    "wrapper source depth": (
+        'path.name == "KL_pp_shadow.sv" and path.parent.name == "milan" and len(path.parents) > 2]',
+        'path.name == "KL_pp_shadow.sv" and path.parent.name == "milan"]'),
     "read source presence": ("        if not path.is_file():\n", "        if False:\n"),
     "include directory presence": ("            if not folder.is_dir():\n", "            if False:\n"),
     "include headers": (
@@ -137,8 +139,8 @@ MUTANTS = {
                      '    print(text if True else "".join(char if char == "\\n"'),
     "record --write validated": ("                load(args.baseline, text)  # never write",
                                  "                pass  # never write"),
-    "kind from the directory": ("        candidate = record(directory, kind_of(directory))\n",
-                                '        candidate = record(directory, "route")\n'),
+    "kind from the directory": ("        candidate = record(directory, kind_of(directory), args.placement)\n",
+                                '        candidate = record(directory, "route", args.placement)\n'),
     "unreadable baseline": ('raise Refusal(f"baseline {path} is unreadable: {error}") from error', "raise"),
     "baseline NaN and Infinity": ("parse_constant=constant, ", ""),
     "baseline decimals converted": ("parse_float=decimal,", ""),
@@ -278,6 +280,16 @@ RANK_MUTANTS = {
 }
 
 
+PLACEMENT_MUTANTS = {
+    "placement selection ignored": ('    if markers != [requested]:\n', '    if False:\n'),
+    "placement census ignored": ('    if not selection(script, requested):\n', '    if True:\n'),
+    "placement count limits ignored": ('        if not low <= count <= high:\n', '        if False:\n'),
+    "placement role completeness ignored": ('    if counts.keys() != MODULES.keys():\n', '    if False:\n'),
+    "placement row identity ignored": ('len(fields) != 3 or fields[0] != requested', 'len(fields) != 3'),
+    "placement duplicate role accepted": ('role not in MODULES or role in counts or', 'role not in MODULES or'),
+}
+
+
 def run(tmp: Path, here: Path, name: str, target: str, change: tuple[str, str] | None) -> str:
     """Apply one mutant to a copy of the three modules and require its self-test verdict; return the result."""
     source = (here / target).read_text()
@@ -290,7 +302,8 @@ def run(tmp: Path, here: Path, name: str, target: str, change: tuple[str, str] |
     ast.parse(changed)
     folder = tmp / name.replace(" ", "_")
     folder.mkdir()
-    for sibling in ("pp_resource_gate.py", "pp_baseline_rank.py", "pp_resource_gate_selftest.py"):
+    for sibling in ("pp_resource_gate.py", "pp_baseline_rank.py", "pp_resource_gate_selftest.py",
+                    "pp_placement.py", "pp_placement_selftest.py"):
         shutil.copy2(here / sibling, folder / sibling)
     (folder / target).write_text(changed)
     result = subprocess.run([sys.executable, "-B", str(folder / "pp_resource_gate.py"), "--selftest"],
@@ -305,12 +318,13 @@ def main() -> None:
     here = Path(__file__).resolve().parent
     jobs = [("control", "pp_resource_gate.py", None),
             *((name, "pp_resource_gate.py", change) for name, change in MUTANTS.items()),
-            *((name, "pp_baseline_rank.py", change) for name, change in RANK_MUTANTS.items())]
+            *((name, "pp_baseline_rank.py", change) for name, change in RANK_MUTANTS.items()),
+            *((name, "pp_placement.py", change) for name, change in PLACEMENT_MUTANTS.items())]
     with tempfile.TemporaryDirectory(prefix="pp-resource-gate-mutants-") as tmp, \
             concurrent.futures.ThreadPoolExecutor(os.cpu_count() or 1) as pool:
         for line in pool.map(lambda job: run(Path(tmp), here, *job), jobs):
             print(line)
-    print(f"resource gate mutants: control passes, all {len(MUTANTS) + len(RANK_MUTANTS)} mutants fail")
+    print(f"resource gate mutants: control passes, all {len(jobs) - 1} mutants fail")
 
 
 if __name__ == "__main__":
