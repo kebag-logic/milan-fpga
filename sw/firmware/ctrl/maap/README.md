@@ -186,7 +186,9 @@ This stimulus does not reach them.
 The differential observes software deadlines and parent frame completion cycles.
 Equal-length frames make completion intervals equal send intervals.
 A send at an arbitrary tick phase observes up to 1 ms less than the parent's draw.
-Varying the start phase reaches both ends of the parent's 518..581 ms draw.
+The sweep programs 1,024 MAC identities before first enable.
+Both draw endpoints are required within the strict timer bounds.
+A generator ignoring the MAC fails the draw-coverage check.
 Firmware sends span both 511/589 ms guarded draw boundaries.
 Named controls reject 1, 500 and 600 ms probe intervals.
 Separate controls falsify the parent probe bound and count expectations.
