@@ -1,0 +1,679 @@
+diff --git a/.github/workflows/quality.yml b/.github/workflows/quality.yml
+index 0184283..884a404 100644
+--- a/.github/workflows/quality.yml
++++ b/.github/workflows/quality.yml
+@@ -16,8 +16,8 @@ jobs:
+           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+       - name: Install host dependencies
+         run: |
+-          sudo apt-get update
+-          sudo apt-get install -y build-essential cmake clang clang-18 clang-tidy cppcheck libgtest-dev libgmock-dev gcc-riscv64-unknown-elf
++          sudo apt-get -o Acquire::Retries=3 update
++          sudo apt-get -o Acquire::Retries=3 install -y build-essential cmake clang clang-18 clang-tidy cppcheck pkg-config libgtest-dev libgmock-dev gcc-riscv64-unknown-elf
+           npm install --global @mermaid-js/mermaid-cli@11.16.0
+       - name: Validate the portable cores
+         run: python3 scripts/validate.py --work build-validation --jobs 16 --graphs
+@@ -32,20 +32,23 @@ jobs:
+             build-validation/gates.json
+             build-validation/mutations/results.json
+             build-validation/mutations/message-markers.json
++            build-validation/mutations/*/*.xml
++            build-validation/assertion-templates/*.xml
++            build-validation/assertion-templates/*.log
+             build-validation/conditionals/results.json
+             build-validation/conditionals/**/*.log
+             build-validation/graphs/*.svg
+   bare-metal:
+     runs-on: ubuntu-24.04
+-    timeout-minutes: 10
++    timeout-minutes: 20
+     steps:
+       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+       - name: Install RV32 dependencies
+         run: |
+-          sudo apt-get update
+-          sudo apt-get install -y cmake gcc-riscv64-unknown-elf binutils-riscv64-unknown-elf qemu-system-misc
++          sudo apt-get -o Acquire::Retries=3 update
++          sudo apt-get -o Acquire::Retries=3 install -y cmake gcc-riscv64-unknown-elf binutils-riscv64-unknown-elf qemu-system-misc
+       - name: Validate the freestanding cores
+         run: python3 scripts/baremetal.py --work build-rv32 --jobs 16
+       - name: Keep RV32 evidence
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index ba822ac..1798aee 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -2,10 +2,8 @@
+ 
+ ## Unreleased
+ 
+-Use compiler comment tokens and compile both sides of permitted conditional regions.
+-Refuse assembly hiding mechanisms. Grade mutations only from delimited assertion messages.
+-Require unique message needles with at least eight characters.
+-
++- Enforce the closed contributor rules for source bytes, suffixes, header modes, linker scripts and assembly. Restrict assertion forms and check generated GoogleTest defaults.
++- Use compiler comment tokens and compile both sides of permitted conditional regions. Refuse assembly hiding mechanisms. Grade mutations only from delimited assertion messages. Require unique message needles with at least eight characters.
+ - Close comment scanner gaps for digit separators, zero conditions and assembly directive bodies.
+ - Require mutation needles to come from named assertion messages. Preserve critical port contract phrases.
+ - Require fresh complete mutation reports, specific assertion messages, compiler boundary checks and executable test registration.
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 24a54b4..e5fb782 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -30,7 +30,7 @@ if(TSN_FREESTANDING)
+   target_compile_definitions(rv32_smoke PRIVATE CTRL_REENTRY_ASSERT)
+   target_link_libraries(rv32_smoke PRIVATE -Wl,--whole-archive tsn -Wl,--no-whole-archive gcc)
+   target_link_options(rv32_smoke PRIVATE -nostdlib -nostartfiles
+-    "-T${CMAKE_CURRENT_SOURCE_DIR}/examples/rv32/link.ld" -Wl,--no-undefined
++    "-T${CMAKE_CURRENT_SOURCE_DIR}/examples/rv32/link.ld" -Wl,--no-undefined -Wl,--fatal-warnings
+     "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/rv32_smoke.map")
+   set_target_properties(rv32_smoke PROPERTIES SUFFIX ".elf"
+     LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/rv32/link.ld")
+@@ -38,7 +38,7 @@ endif()
+ if(TSN_TESTS)
+   enable_language(CXX)
+   enable_testing()
+-  find_package(GTest REQUIRED)
++  find_package(GTest 1.14.0 EXACT REQUIRED)
+   add_library(tsn_test STATIC src/adp.c src/acmp.c src/maap.c)
+   target_include_directories(tsn_test PUBLIC include)
+   target_compile_definitions(tsn_test PRIVATE NDEBUG CTRL_REENTRY_ASSERT)
+diff --git a/README.md b/README.md
+index 9191a30..a147524 100644
+--- a/README.md
++++ b/README.md
+@@ -14,7 +14,7 @@ No SRP checkout is needed to build or test these cores.
+ ## Build and test
+ 
+ Install a C11 compiler, a C++20 compiler, [CMake](https://cmake.org/),
+-[GoogleTest and GMock](https://github.com/google/googletest), and Python 3.10 or later.
++[GoogleTest and GMock 1.14.0](https://github.com/google/googletest/tree/f8d7d77c06936315286eb55f8de22cd23c188571), and Python 3.10 or later.
+ On Ubuntu, the test packages are `libgtest-dev` and `libgmock-dev`.
+ 
+ ```sh
+diff --git a/docs/CODING_STANDARD.md b/docs/CODING_STANDARD.md
+index 3b6a8a9..55e6a8a 100644
+--- a/docs/CODING_STANDARD.md
++++ b/docs/CODING_STANDARD.md
+@@ -2,7 +2,33 @@
+ 
+ Code comments contain only SPDX lines, requirement IDs, or short references to standard clauses, tables and figures.
+ Put integration contracts in the [porting guide](PORTING.md) and [architecture](ARCHITECTURE.md).
+-The [comment gate](../scripts/check_comments.py) checks sources, headers, tests, examples and mutation fragments.
++The [comment gate](../scripts/check_comments.py) enforces the contributor rule through this closed contract.
++It checks every comment under these rules; it makes no broader text-classification claim.
++
++1. Files under `src/`, `include/`, `tests/` and `examples/` contain only printable ASCII, tab and LF.
++   CR, form feed, vertical tab, other controls and non-ASCII bytes are refused before lexing.
++2. Files there use `.c`, `.h`, `.cpp`, `.hpp`, `.S` or `.ld`.
++   Only [mutations.json](../tests/mutations.json) and [coverage.ratchet](../tests/coverage.ratchet) are data exceptions.
++   The gate also checks untracked files in these directories.
++3. Clang 18 raw comment tokens use C11 for `.c` and C++20 for `.cpp`.
++   Every `.h` and `.hpp` and every header mutation fragment uses both modes.
++   Each comment line allows only SPDX, requirement IDs or short standard references.
++   The conditional rules below also apply.
++4. Linker scripts forbid single quotes and use C11 raw comment tokens.
++   RV32 linking uses `-Wl,--fatal-warnings`.
++5. Assembly forbids single quotes and all preprocessor directives.
++   Every `#` starts a checked assembler comment. Keep `#` out of assembly strings.
++   Assembler conditionals (`.if*`), macros (`.macro`) and repeats (`.rept`, `.irp`, `.irpc`) are forbidden.
++   Use numeric character values. Macro-produced tracing is refused too.
++6. Tests use only `EXPECT_TRUE`, `ASSERT_TRUE`, `EXPECT_FALSE`, `ASSERT_FALSE`,
++   `EXPECT_EQ`, `ASSERT_EQ`, `EXPECT_NE`, `ASSERT_NE`, `EXPECT_LE`, `ASSERT_LE`,
++   `EXPECT_GE`, `ASSERT_GE`, `EXPECT_EXIT` and `EXPECT_CALL`.
++   The [assertion gate](../scripts/needle_audit.py) refuses other forms, including `EXPECT_NEAR`.
++   Assertion lexing uses C++20. Literal comment text is not an assertion.
++   Needles have at least eight characters and occur in exactly one owned message literal.
++   They must not be substrings of the [generated default diagnostics](../scripts/assertion-defaults.json).
++
++The [verification guide](VERIFICATION.md) lists the compiling controls and regeneration command.
+ 
+ The library uses ISO C11. Public headers also compile as C++20.
+ Use `-Wall -Wextra -Werror` with GCC and Clang.
+@@ -21,18 +47,13 @@ Keep callbacks bounded. Do not wait for external progress inside a core call.
+ Treat synchronous re-entry as a contract violation.
+ Static arrays are the storage pools; there is no dynamic pool allocator.
+ 
+-Tests use [GoogleTest and GMock](https://github.com/google/googletest).
++Tests use [GoogleTest and GMock 1.14.0](https://github.com/google/googletest/tree/f8d7d77c06936315286eb55f8de22cd23c188571).
+ Spell protocol oracle values independently when checking constants.
+ Add assertions for malformed input, boundary values, ordering and blocked output.
+ Use fatal assertions before indexing output that a faulty core may omit.
+ See [verification](VERIFICATION.md) for coverage and mutation obligations.
+ Document static-analysis suppressions in the [suppression register](STATIC_ANALYSIS.md).
+ 
+-The [comment gate](../scripts/check_comments.py) uses the Clang 18 lexer.
+-C and C++ use their respective language modes. Each comment token is checked.
+-Assembly forbids single quotes, conditional directives, macros and repeats.
+-Every assembly `#` after a preprocessor directive marker starts a checked comment.
+-Use numeric character values. Keep `#` out of assembly strings.
+ The [port contract gate](../scripts/check_port_contracts.py) keeps relocated interface names and critical contract phrases in the integrator guide.
+ 
+ ## Conditional compilation
+diff --git a/docs/VERIFICATION.md b/docs/VERIFICATION.md
+index 0e37180..d1519d4 100644
+--- a/docs/VERIFICATION.md
++++ b/docs/VERIFICATION.md
+@@ -24,8 +24,9 @@ No failing build, skipped test or empty test binary can establish a pass.
+ | Sanitizers and Clang | `cmake -S . -B build-sanitize -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DTSN_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug`, then build and test as above | Address and undefined-behavior sanitizers pass. The full runner enables leak detection and stops on findings. |
+ | Static analysis | `python3 scripts/static_analysis.py` | No project findings after [listed suppressions](STATIC_ANALYSIS.md). |
+ | Boundary | `python3 scripts/check_boundary.py --selftest` | Compiler dependencies permit only C library and owned headers. Object symbols refuse heap and OS use. Ten forbidden controls compile and are refused with both compilers; two pass controls compile and pass. |
+-| Assertion needles | `python3 scripts/needle_audit.py --selftest` | Each needle has at least eight characters and identifies exactly one assertion message literal in its named test or helper. Default-message fragments are refused. |
+-| Code comments | `python3 scripts/check_comments.py --selftest` | Clang 18 raw tokens supply every C11 and C++20 comment. Only SPDX, requirement IDs and short standard references pass. Compiling controls exercise the [conditional and assembly policy](CODING_STANDARD.md). |
++| Assertion needles | `python3 scripts/needle_audit.py --selftest` | Each needle has at least eight characters and identifies exactly one assertion message literal in its named test or helper. Substrings of the generated default diagnostics are refused. Other assertion forms are refused. |
++| Assertion templates | `python3 scripts/assertion_templates.py --check --selftest --work build-assertion-templates` | Compile and run one failing instance of each of the 14 allowed forms with GoogleTest 1.14.0. Blank streamed messages and compare the generated default diagnostics. A compiling `EXPECT_NEAR` control is refused. |
++| Code comments | `python3 scripts/check_comments.py --selftest` | Every comment under the closed [contributor rules](CODING_STANDARD.md) is checked. Only SPDX, requirement IDs and short standard references pass. Each rule has a compiling control. |
+ | Conditional regions | `python3 scripts/check_conditionals.py --selftest --work build-conditionals --jobs 16` | Every permitted non-guard region compiles both sides. Every file-specific macro combination is compiled. Nested unreachable regions fail. |
+ | Port contracts | `python3 scripts/check_port_contracts.py --selftest` | Each relocated callback, field, precondition and counter name stays in its guide section. Critical phrases stay beside their contract names. Name and meaning removal controls fail. |
+ | Report controls | `python3 scripts/mutation_selftest.py --work build-report-controls --jobs 16` | Reject stale, partial, skipped and mismatched reports. A real catch followed by early exit in the same work directory must escape. |
+@@ -37,18 +38,51 @@ No failing build, skipped test or empty test binary can establish a pass.
+ | Privacy | `python3 scripts/check_privacy.py` | Reachable metadata, historical blobs and current tree pass. |
+ | Graphs | `python3 scripts/render_graphs.py --output build-graphs` | Every Mermaid fence renders. |
+ 
+-Install [GoogleTest and GMock](https://github.com/google/googletest),
++Install [GoogleTest and GMock 1.14.0](https://github.com/google/googletest/tree/f8d7d77c06936315286eb55f8de22cd23c188571),
+ [CMake](https://cmake.org/), [GCC](https://gcc.gnu.org/),
+ [Clang](https://clang.llvm.org/), [cppcheck](https://cppcheck.sourceforge.io/),
+ [clang-tidy](https://clang.llvm.org/extra/clang-tidy/), and Python 3.10 or later.
+ The graph check needs [Mermaid CLI](https://github.com/mermaid-js/mermaid-cli).
+ The hosted [workflow](../.github/workflows/quality.yml) installs these dependencies.
+ Comment and assertion lexing use Clang 18 (`clang-18`), pinned by the package name.
+-The lexer runs `-cc1 -dump-raw-tokens`, with C11 for `.c` and `.h`, and C++20 for `.cpp` and `.hpp`.
++The lexer runs `-cc1 -dump-raw-tokens`, with C11 for `.c` and C++20 for `.cpp`.
++All `.h` and `.hpp` files and their mutation fragments use both C11 and C++20.
++This includes every header consumed by a C++ test unit. A compiling digit-separator control checks both modes.
+ Set `TSN_CLANG` to a Clang 18 executable when it is outside the command search path.
+ The comment controls also need the RV32 cross compiler listed below.
++The gate reads source bytes without newline conversion. Only printable ASCII, tab and LF pass.
++Compiling controls refuse CR, form feed, vertical tab, other controls and non-ASCII text.
++Only `.c`, `.h`, `.cpp`, `.hpp`, `.S` and `.ld` files and the two
++[listed data files](CODING_STANDARD.md) are accepted in the checked directories.
++A compiling included `.inc` control proves that an unscanned suffix fails.
++Linker scripts forbid single quotes. Their comments use C11 raw tokens.
++A linked quote control fails the comment rule and `-Wl,--fatal-warnings`; valid tracing links cleanly.
++Assembly forbids all preprocessor directives, including definitions that produce a hash comment.
++Every `#` starts a comment checked against the tracing allowlist. Single quotes,
++assembler conditionals, macros and repeats are refused. Direct tracing remains accepted.
++Compiling controls include plain and spliced directives and macro-produced prose and tracing.
+ The Linux job needs no FPGA tools, simulator, platform checkout or submodule.
+ 
++The six [contributor rules](CODING_STANDARD.md) are the gate's complete comment and assertion contract:
++
++| Rule | Accepted subset | Compiling control |
++|---|---|---|
++| Character set | Printable ASCII, tab and LF in every file under `src/`, `include/`, `tests/` and `examples/`. | CR, form feed, vertical tab, another control byte and non-ASCII are refused. |
++| Suffixes | `.c`, `.h`, `.cpp`, `.hpp`, `.S`, `.ld`; data exceptions are [mutations.json](../tests/mutations.json) and [coverage.ratchet](../tests/coverage.ratchet). | An included `.inc` is refused. |
++| Header modes | C11 and C++20 for every `.h`, `.hpp` and header plant fragment. | A digit separator hiding a C++ comment is refused; tracing passes. |
++| Linker scripts | No single quotes; C11 raw comment tokens; fatal RV32 linker warnings. | A quote plant links without fatal warnings, then fails both policy and fatal linking. |
++| Assembly | No preprocessor directives, single quotes, `.if*`, `.macro`, `.rept`, `.irp` or `.irpc`; every hash starts a checked comment. | Macro-produced comments and tracing are refused; direct tracing passes. |
++| Assertions | `EXPECT` and `ASSERT` forms `_TRUE`, `_FALSE`, `_EQ`, `_NE`, `_LE`, `_GE`, plus `EXPECT_EXIT` and `EXPECT_CALL`. | Each allowed form produces a default diagnostic; `EXPECT_NEAR` is refused. |
++
++The assertion gate scans the named macros in all C and C++ files below `tests/`.
++The template generator uses exactly GoogleTest and GMock 1.14.0, checked with `pkg-config`.
++CMake requires the same version; the mutation driver checks it too.
++Templates record one failing instance of each permitted form, including an unmet mock expectation.
++Streamed messages are removed. Only source line numbers are normalized.
++The template list does not claim to enumerate every value-dependent diagnostic variation.
++To regenerate, run `python3 scripts/assertion_templates.py --write --selftest --work build-assertion-templates`.
++Review changes to the [generated list](../scripts/assertion-defaults.json). CI uses `--check`.
++
+ ## Bare-metal RV32
+ 
+ Both targets are mandatory for every PR. The separate [bare-metal CI job](../.github/workflows/quality.yml)
+@@ -65,6 +99,7 @@ Only core headers, compiler intrinsic headers and the minimal port's C-library s
+ The core imports must stay within the explicit port, memory and integer-helper allowlist.
+ The final ELF must be 32-bit RISC-V with the soft-float ABI and no unresolved symbols.
+ The whole core archive is linked, so unused entry points cannot hide a missing dependency.
++Linker warnings are fatal through `-Wl,--fatal-warnings`.
+ 
+ The [smoke checks](../examples/rv32/smoke.c) reuse cases from the hosted tests:
+ 
+@@ -112,7 +147,7 @@ The original XML retains the complete diagnostics for independent regrading.
+ Marker insertion changes no assertion expression or production source.
+ Compiling controls prove that a needle in a default value printout does not count.
+ The [assertion inventory](../scripts/assertion_messages.py) follows referenced helpers and callbacks in the same test file.
+-It excludes assertion arguments, unrelated streams, comments and other tests. Unsupported forms fail the positive check.
++It excludes assertion arguments, unrelated streams, comments and other tests. Only the listed assertion forms supply message literals. Unsupported forms fail the source gate.
+ There are no inherited exceptions.
+ Header plants rebuild the affected test translation unit too.
+ 
+diff --git a/scripts/assertion-defaults.json b/scripts/assertion-defaults.json
+new file mode 100644
+index 0000000..7c4ca1e
+--- /dev/null
++++ b/scripts/assertion-defaults.json
+@@ -0,0 +1,19 @@
++{
++  "googletest_version": "1.14.0",
++  "templates": {
++    "ASSERT_EQ": "assertion-forms.cpp:LINE\nExpected equality of these values:\n  left\n    Which is: 1\n  right\n    Which is: 2\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "ASSERT_FALSE": "assertion-forms.cpp:LINE\nValue of: true\n  Actual: true\nExpected: false\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "ASSERT_GE": "assertion-forms.cpp:LINE\nExpected: (1) >= (2), actual: 1 vs 2\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "ASSERT_LE": "assertion-forms.cpp:LINE\nExpected: (2) <= (1), actual: 2 vs 1\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "ASSERT_NE": "assertion-forms.cpp:LINE\nExpected: (1) != (1), actual: 1 vs 1\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "ASSERT_TRUE": "assertion-forms.cpp:LINE\nValue of: false\n  Actual: false\nExpected: true\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "EXPECT_CALL": "assertion-forms.cpp:LINE\nActual function call count doesn't match EXPECT_CALL(mock, call())...\n         Expected: to be called once\n           Actual: never called - unsatisfied and active\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "EXPECT_EQ": "assertion-forms.cpp:LINE\nExpected equality of these values:\n  left\n    Which is: 1\n  right\n    Which is: 2\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "EXPECT_EXIT": "assertion-forms.cpp:LINE\nDeath test: std::_Exit(1)\n    Result: died but not with expected exit code:\n            Exited with exit status 1\nActual msg:\n[  DEATH   ] \n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "EXPECT_FALSE": "assertion-forms.cpp:LINE\nValue of: true\n  Actual: true\nExpected: false\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "EXPECT_GE": "assertion-forms.cpp:LINE\nExpected: (1) >= (2), actual: 1 vs 2\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "EXPECT_LE": "assertion-forms.cpp:LINE\nExpected: (2) <= (1), actual: 2 vs 1\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "EXPECT_NE": "assertion-forms.cpp:LINE\nExpected: (1) != (1), actual: 1 vs 1\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n",
++    "EXPECT_TRUE": "assertion-forms.cpp:LINE\nValue of: false\n  Actual: false\nExpected: true\n\nGoogle Test trace:\nassertion-forms.cpp:LINE: template trace\n"
++  }
++}
+diff --git a/scripts/assertion_forms.py b/scripts/assertion_forms.py
+new file mode 100644
+index 0000000..bbd22e0
+--- /dev/null
++++ b/scripts/assertion_forms.py
+@@ -0,0 +1,24 @@
++# SPDX-License-Identifier: MIT
++"""The assertion vocabulary used by the core tests."""
++import subprocess
++from compiler_tokens import raw_tokens
++
++GTEST_VERSION = '1.14.0'
++ALLOWED = frozenset(prefix + suffix for prefix in ('EXPECT_', 'ASSERT_')
++                    for suffix in ('TRUE', 'FALSE', 'EQ', 'NE', 'LE', 'GE')) | {'EXPECT_EXIT', 'EXPECT_CALL'}
++
++
++def errors(text):
++    return sorted({f'unsupported assertion form: {value}'
++                   for kind, value, *_ in raw_tokens(text, 'c++')
++                   if kind == 'raw_identifier'
++                   and (value.startswith(('EXPECT_', 'ASSERT_'))
++                        or value in ('FAIL', 'ADD_FAILURE', 'ADD_FAILURE_AT', 'SUCCEED', 'GTEST_SKIP'))
++                   and value not in ALLOWED})
++
++
++def require_version():
++    for package in ('gtest', 'gmock'):
++        version = subprocess.check_output(['pkg-config', '--modversion', package], text=True).strip()
++        if version != GTEST_VERSION:
++            raise RuntimeError(package + ' must be version ' + GTEST_VERSION + ', found ' + version)
+diff --git a/scripts/assertion_messages.py b/scripts/assertion_messages.py
+index b835628..238f26c 100644
+--- a/scripts/assertion_messages.py
++++ b/scripts/assertion_messages.py
+@@ -3,6 +3,7 @@
+ import ast
+ import re
+ from compiler_tokens import raw_tokens
++from assertion_forms import ALLOWED
+ 
+ 
+ def tokens(text):
+@@ -89,7 +90,7 @@ def inventory(text):
+                 messages += collect(helpers[word][0], visited)
+             if body[i + 1] != '(':
+                 continue
+-            if re.fullmatch(r'(?:ASSERT|EXPECT)_\w+|FAIL|ADD_FAILURE', word):
++            if word in ALLOWED:
+                 at = closing[i + 1] + 1
+                 while at < len(body) and body[at] == '<<':
+                     at += 1
+diff --git a/scripts/assertion_templates.py b/scripts/assertion_templates.py
+new file mode 100644
+index 0000000..d31a177
+--- /dev/null
++++ b/scripts/assertion_templates.py
+@@ -0,0 +1,119 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: MIT
++"""Generate default diagnostics from a failing instance of every allowed assertion."""
++import argparse
++import json
++import os
++from pathlib import Path
++import re
++import subprocess
++import xml.etree.ElementTree as ET
++from assertion_forms import ALLOWED, GTEST_VERSION, errors, require_version
++from assertion_messages import instrument
++from test_registry import environment
++
++ROOT = Path(__file__).resolve().parents[1]
++OUTPUT = ROOT / 'scripts/assertion-defaults.json'
++MARKERS = ('TSN_TEMPLATE_BEGIN', 'TSN_TEMPLATE_END')
++
++
++def generate(work):
++    require_version()
++    work.mkdir(parents=True, exist_ok=True)
++    forms = {}
++    for prefix in ('EXPECT_', 'ASSERT_'):
++        for suffix, args in (('TRUE', 'false'), ('FALSE', 'true'), ('EQ', 'left, right'),
++                             ('NE', '1, 1'), ('LE', '2, 1'), ('GE', '1, 2')):
++            forms[prefix + suffix] = prefix + suffix + '(' + args + ') << "discarded stream";'
++            if suffix == 'EQ':
++                forms[prefix + suffix] = 'int left = 1, right = 2; ' + forms[prefix + suffix]
++    forms['EXPECT_EXIT'] = 'EXPECT_EXIT(std::_Exit(1), ::testing::ExitedWithCode(0), "") << "discarded stream";'
++    forms['EXPECT_CALL'] = 'Mock mock; EXPECT_CALL(mock, call()).Times(1);'
++    if set(forms) != ALLOWED:
++        raise RuntimeError('missing assertion template form')
++    source = '#include <gtest/gtest.h>\n#include <gmock/gmock.h>\n#include <cstdlib>\n'
++    source += 'struct Mock { MOCK_METHOD(void, call, ()); };\n'
++    for name, body in sorted(forms.items()):
++        source += '#line 1 "assertion-forms.cpp"\n'
++        source += 'TEST(Forms, ' + name + ') { SCOPED_TRACE("template trace"); ' + body + ' }\n'
++    source = instrument(source, MARKERS)
++    path = work / 'forms.cpp'
++    path.write_text(source)
++    binary, report = work / 'forms', work / 'forms.xml'
++    flags = subprocess.check_output(['pkg-config', '--cflags', '--libs', 'gmock', 'gtest_main'], text=True).split()
++    subprocess.run([os.environ.get('CXX', 'g++'), '-std=c++20', '-Wall', '-Wextra', '-Werror',
++                    str(path), *flags, '-o', str(binary)], check=True)
++    report.unlink(missing_ok=True)
++    result = subprocess.run([str(binary), '--gtest_output=xml:' + str(report)],
++                            capture_output=True, text=True, env=environment(), timeout=30)
++    (work / 'forms.log').write_text(result.stdout + result.stderr)
++    doc = ET.parse(report).getroot()
++    cases = list(doc.iter('testcase'))
++    if (result.returncode != 1 or int(doc.get('tests', '0')) != len(ALLOWED)
++            or int(doc.get('failures', '0')) != len(ALLOWED)
++            or {case.get('name') for case in cases} != ALLOWED
++            or len(cases) != len(ALLOWED)
++            or any(case.get('result') != 'completed' or len(case.findall('failure')) != 1 for case in cases)):
++        raise RuntimeError('each allowed assertion must produce exactly one complete failure')
++    templates = {}
++    for case in cases:
++        message = case.find('failure').get('message', '')
++        if case.get('name') != 'EXPECT_CALL':
++            begin, end = ('\n' + marker + '\n' for marker in MARKERS)
++            if message.count(begin) != 1 or message.count(end) != 1:
++                raise RuntimeError('template stream delimiters missing')
++            before, _, rest = message.partition(begin)
++            _, _, after = rest.partition(end)
++            message = before + after
++        message = re.sub(r'assertion-forms\.cpp:\d+', 'assertion-forms.cpp:LINE', message)
++        if not message.strip() or 'discarded stream' in message or any(m in message for m in MARKERS):
++            raise RuntimeError('invalid default template')
++        templates[case.get('name')] = message
++    return {'googletest_version': GTEST_VERSION, 'templates': dict(sorted(templates.items()))}
++
++
++def selftest(work, generated):
++    source = '#include <gtest/gtest.h>\nTEST(Control, Near) { EXPECT_NEAR(1.0, 2.0, 0.1) << "The difference between"; }\n'
++    path = work / 'near.cpp'
++    path.write_text(source)
++    subprocess.run([os.environ.get('CXX', 'g++'), '-std=c++20', '-Wall', '-Wextra', '-Werror',
++                    '-c', str(path), '-o', str(work / 'near.o')], check=True)
++    if errors(source) != ['unsupported assertion form: EXPECT_NEAR']:
++        raise RuntimeError('numeric-nearness form accepted')
++    from assertion_messages import inventory
++    from needle_audit import validate_needles
++    kill = {'name': 'near', 'kills': [{'test': 'Control.Near', 'needle': 'The difference between'}]}
++    if not validate_needles([kill], inventory(source)):
++        raise RuntimeError('unsupported assertion message accepted')
++    for name, template in generated['templates'].items():
++        needle = next(line.strip() for line in template.splitlines()
++                      if len(line.strip()) >= 8 and not line.startswith('assertion-forms.cpp:'))
++        kill = {'name': name, 'kills': [{'test': 'Control.Default', 'needle': needle}]}
++        if not validate_needles([kill], {'Control.Default': [needle]}):
++            raise RuntimeError('generated default text accepted: ' + name)
++    if errors('TEST(Control, Allowed) { EXPECT_TRUE(false) << "owned diagnostic"; }'):
++        raise RuntimeError('allowed assertion refused')
++    print('assertion controls: EXPECT_NEAR compiles and is refused; all 14 generated defaults are refused')
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--work', type=Path, default=Path('build-assertion-templates'))
++    mode = parser.add_mutually_exclusive_group(required=True)
++    mode.add_argument('--check', action='store_true')
++    mode.add_argument('--write', action='store_true')
++    parser.add_argument('--selftest', action='store_true')
++    args = parser.parse_args()
++    work = args.work.resolve()
++    result = generate(work)
++    if args.write:
++        OUTPUT.write_text(json.dumps(result, indent=2) + '\n')
++    elif json.loads(OUTPUT.read_text()) != result:
++        raise RuntimeError('assertion templates differ; regenerate with --write and review')
++    if args.selftest:
++        selftest(work, result)
++    print('assertion templates: ' + GTEST_VERSION + '; 14 compiled failing forms; current')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/scripts/check_comments.py b/scripts/check_comments.py
+index 3e5cd58..006bf99 100644
+--- a/scripts/check_comments.py
++++ b/scripts/check_comments.py
+@@ -8,10 +8,12 @@ import re
+ import sys
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parent))
+-from compiler_tokens import compiler, logical, raw_tokens
++from compiler_tokens import compiler, directives, logical, raw_tokens
+ from conditional_policy import DIRECTIVES, inspect
+ 
+ ROOT = Path(__file__).resolve().parents[1]
++SUFFIXES = {'.c', '.h', '.cpp', '.hpp', '.S', '.ld'}
++DATA_FILES = {'tests/mutations.json', 'tests/coverage.ratchet'}
+ NUMBER = r'(?:B(?:\.\d+)*|\d+(?:[.-]\d+)*)'
+ REFERENCE = (r'(?:IEEE 1722\.1-2021|IEEE 1722-2016|Milan v1\.2) '
+              r'(?:(?:Table|Figure|Annex) )?' + NUMBER +
+@@ -38,7 +40,9 @@ def comment_errors(value, line):
+     return errors
+ 
+ 
+-def check(text, assembly=False, language='c++', path=None, fragment=False):
++def check_mode(text, assembly=False, language='c++', path=None, fragment=False):
++    if any(ord(c) not in (9, 10) and not 32 <= ord(c) <= 126 for c in text):
++        return ['only printable ASCII, tab and LF are permitted']
+     errors = []
+     if assembly:
+         if "'" in text:
+@@ -49,14 +53,17 @@ def check(text, assembly=False, language='c++', path=None, fragment=False):
+             first = line.lstrip()
+             words = first[1:].lstrip().split() if first.startswith('#') else []
+             directive = bool(words and words[0] in DIRECTIVES)
+-            start = line.index('#') + 1 if directive else 0
+-            at = line.find('#', start)
++            if directive:
++                errors.append(f'line {number}: assembly preprocessor directives are forbidden')
++            at = line.find('#')
+             if at >= 0:
+                 errors += comment_errors('//' + line[at + 1:], number)
+                 lines[number - 1] = line[:at] + '\n'
+         text = ''.join(lines)
+         language = 'c'
+     tokens = raw_tokens(text, language)
++    if assembly and directives(tokens):
++        errors.append('assembly preprocessor directives are forbidden')
+     for kind, value, _, _, number in tokens:
+         if kind == 'comment':
+             errors += comment_errors(value, number)
+@@ -70,6 +77,27 @@ def check(text, assembly=False, language='c++', path=None, fragment=False):
+     return errors
+ 
+ 
++def check(text, assembly=False, language='c++', path=None, fragment=False):
++    if path and Path(path).suffix == '.ld' and "'" in text:
++        return ['single quotes are forbidden in linker scripts']
++    modes = ('c', 'c++') if path and Path(path).suffix in ('.h', '.hpp') else (language,)
++    return [mode + ': ' + error for mode in modes
++            for error in check_mode(text, assembly, mode, path, fragment)]
++
++
++def check_file(path, root=ROOT):
++    relative = path.relative_to(root).as_posix()
++    if path.suffix not in SUFFIXES and relative not in DATA_FILES:
++        return ['unscanned file suffix is forbidden']
++    data = path.read_bytes()
++    if any(c not in (9, 10) and not 32 <= c <= 126 for c in data):
++        return ['only printable ASCII, tab and LF are permitted']
++    if relative in DATA_FILES:
++        return []
++    return check(data.decode('ascii'), path.suffix == '.S',
++                 'c++' if path.suffix in ('.cpp', '.hpp') else 'c', relative)
++
++
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument('--selftest', action='store_true')
+@@ -83,16 +111,16 @@ def main():
+     files = 0
+     for directory in ('src', 'include', 'tests', 'examples'):
+         for path in sorted((ROOT / directory).rglob('*')):
+-            if path.suffix in ('.c', '.h', '.cpp', '.hpp', '.S', '.ld'):
++            if not path.is_file():
++                continue
++            if path.suffix in SUFFIXES:
+                 files += 1
+-                relative = path.relative_to(ROOT).as_posix()
+-                errors += [relative + ': ' + e for e in check(
+-                    path.read_text(), path.suffix == '.S',
+-                    'c++' if path.suffix in ('.cpp', '.hpp') else 'c', relative)]
++            relative = path.relative_to(ROOT).as_posix()
++            errors += [relative + ': ' + e for e in check_file(path)]
+     for plant in json.loads((ROOT / 'tests/mutations.json').read_text()):
+         for field in ('old', 'new'):
+             errors += [plant['name'] + '/' + field + ': ' + e
+-                       for e in check(plant[field], language='c', fragment=True)]
++                       for e in check(plant[field], language='c', path=plant['path'], fragment=True)]
+     print('\n'.join(errors) if errors else f'comments: {files} code files and all mutation fragments pass')
+     return bool(errors)
+ 
+diff --git a/scripts/comment_selftest.py b/scripts/comment_selftest.py
+index a825812..186f0b1 100644
+--- a/scripts/comment_selftest.py
++++ b/scripts/comment_selftest.py
+@@ -8,7 +8,7 @@ from compiler_tokens import compiler
+ 
+ 
+ def selftest(work):
+-    from check_comments import check
++    from check_comments import check, check_file
+     cases = {
+         'c-identifier-digit': ('c', "#define V x1'a' /* prose */ 'b'\n", True),
+         'cpp-identifier-digit': ('c++', "#define V x1'a' /* prose */ 'b'\n", True),
+@@ -29,7 +29,16 @@ def selftest(work):
+         'assembly-quote': ('asm', '.equ quote, \'" # prose "\n', True),
+         'assembly-define-quote': ('asm', '#define V \'" # prose "\n.word V\n', True),
+         'assembly-define-prose': ('asm', '#define V 4 # prose\n.word V\n', True),
++        'assembly-macro-hash': ('asm', '#define HASH #\nnop HASH prose\n', True),
++        'assembly-macro-trace': ('asm', '#define HASH #\nnop HASH REQ: PORT-01\n', True),
++        'assembly-plain-define': ('asm', '#define V 4\n.word V\n', True),
++        'assembly-spliced-define': ('asm', '#def\\\nine V 4\n.word V\n', True),
+         'assembly-prose': ('asm', 'nop # prose\n', True),
++        'assembly-formfeed': ('asm', 'nop \f#define prose\n', True),
++        'assembly-formfeed-define': ('asm', '#define V 4 \f#define prose\n.word V\n', True),
++        'assembly-verticaltab': ('asm', 'nop \v#define prose\n', True),
++        'non-ascii': ('c', '/* caf\u00e9 */\nint value;\n', True),
++        'control-byte': ('c', '/* \x1c */\nint value;\n', True),
+         'assembly-pragma': ('asm', '#pragma prose\nnop\n', True),
+         'assembly-conditional': ('asm', '.if 0\nprose\n.endif\n', True),
+         'assembly-macro': ('asm', '.macro UNUSED\nprose\n.endm\n', True),
+@@ -49,6 +58,47 @@ def selftest(work):
+         raise RuntimeError('comment controls require an RV32 compiler')
+     with tempfile.TemporaryDirectory(dir=work) as name:
+         directory = Path(name)
++        assembly = directory / 'link.S'
++        assembly.write_text('.global _start\n_start:\nnop\n')
++        obj = directory / 'link.o'
++        subprocess.run([cross, '-march=rv32i', '-mabi=ilp32', '-c', str(assembly), '-o', str(obj)], check=True)
++        linker = directory / 'link.ld'
++        for label, source, refused in (
++                ('linker-quote', "PROVIDE(probe' = 1); /* prose */ PROVIDE(end' = 2);\n", True),
++                ('linker-tracing', '/* REQ: PORT-01 */\n', False)):
++            linker.write_text(source + 'SECTIONS { . = 0x80000000; .text : { *(.text) } }\n')
++            command = [cross, '-march=rv32i', '-mabi=ilp32', '-nostdlib',
++                       '-T' + str(linker), str(obj), '-o', str(directory / 'link.elf')]
++            subprocess.run(command, check=True, capture_output=True)
++            errors = check(linker.read_text(), path='examples/rv32/link.ld')
++            fatal = subprocess.run([*command, '-Wl,--fatal-warnings'], capture_output=True)
++            if bool(errors) != refused or bool(fatal.returncode) != refused:
++                raise RuntimeError(label + ': linker warning or policy result changed')
++            print('comment control ' + label + ': linked; policy and fatal warnings ' + ('refuse' if refused else 'pass'))
++        included = directory / 'tests/control.inc'
++        included.parent.mkdir()
++        included.write_text('// prose\n')
++        unit = directory / 'unit.cpp'
++        unit.write_text('#include "tests/control.inc"\nint value;\n')
++        subprocess.run([compiler(), '-x', 'c++', '-std=c++20', '-Wall', '-Wextra', '-Werror',
++                        '-c', str(unit), '-o', str(directory / 'unit.o')], check=True)
++        if check_file(included, directory) != ['unscanned file suffix is forbidden']:
++            raise RuntimeError('included unscanned suffix accepted')
++        print('comment control included-suffix: compiled; refused')
++        header = '#define IGNORE(a) 0\nenum { value = IGNORE(1\'2 // prose \'\n) };\n'
++        for suffix in ('.h', '.hpp'):
++            path = directory / ('control' + suffix)
++            path.write_text(header)
++            for language, standard in (('c', 'c11'), ('c++', 'c++20')):
++                subprocess.run([compiler(), '-x', language, '-std=' + standard,
++                                '-Wall', '-Wextra', '-Werror', '-c', str(path),
++                                '-o', str(directory / 'header.o')], check=True)
++            for fragment in (False, True):
++                if not check(header, path='include/control' + suffix, fragment=fragment):
++                    raise RuntimeError('header comment hidden from C++ accepted')
++                if check('// REQ: PORT-01\n', path='include/control' + suffix, fragment=fragment):
++                    raise RuntimeError('header tracing refused')
++            print('comment control header' + suffix + ': C11 and C++20 compiled; source and fragment refused; tracing passes')
+         for label, (language, source, refused) in cases.items():
+             path = directory / (label + ('.S' if language == 'asm' else '.c'))
+             path.write_text(source)
+diff --git a/scripts/mutation.py b/scripts/mutation.py
+index 134a071..ece8bc8 100644
+--- a/scripts/mutation.py
++++ b/scripts/mutation.py
+@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
+ from test_registry import environment, registered
+ from needle_audit import assertion_literals, validate_needles
+ from assertion_messages import instrument
++from assertion_forms import require_version
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ SOURCES = {"port": "test_port.cpp", "adp": "test_adp.cpp", "acmp": "test_acmp.cpp", "maap": "test_maap.cpp",
+@@ -106,6 +107,7 @@ def main():
+     work = args.work.resolve()
+     work.mkdir(parents=True, exist_ok=True)
+     (work / 'results.json').unlink(missing_ok=True)
++    require_version()
+     mutants = json.loads((ROOT / "tests/mutations.json").read_text())
+     messages = assertion_literals()
+     baseline = work / "baseline"
+diff --git a/scripts/needle_audit.py b/scripts/needle_audit.py
+index 8702bc8..3f9bfd3 100644
+--- a/scripts/needle_audit.py
++++ b/scripts/needle_audit.py
+@@ -7,16 +7,20 @@ import json
+ from pathlib import Path
+ import re
+ from assertion_messages import inventory
++from assertion_forms import errors as form_errors
+ from test_registry import canonical
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-DEFAULT_TEMPLATES = ('Expected equality of these values:', 'Which is: ', 'Value of: ',
+-                     'Actual: false', 'Actual: true', 'Expected: true', 'Expected: false',
+-                     'Expected: (', ') <= (', ') != (', 'Failed', 'Google Test trace:')
++DEFAULT_TEMPLATES = tuple(json.loads((ROOT / 'scripts/assertion-defaults.json').read_text())['templates'].values())
+ 
+ 
+ def assertion_literals(root=ROOT):
+     messages = {}
++    for path in sorted((root / 'tests').rglob('*')):
++        if path.suffix in ('.c', '.h', '.cpp', '.hpp'):
++            errors = form_errors(path.read_text())
++            if errors:
++                raise ValueError(path.relative_to(root).as_posix() + ': ' + '; '.join(errors))
+     for path in sorted((root / 'tests').glob('test_*.cpp')):
+         found = inventory(path.read_text())
+         if messages.keys() & found.keys():
+diff --git a/scripts/validate.py b/scripts/validate.py
+index 97b88a3..7e07f3f 100644
+--- a/scripts/validate.py
++++ b/scripts/validate.py
+@@ -53,6 +53,7 @@ def main():
+     for name, script, switches in (
+         ('boundary', 'check_boundary.py', ['--selftest', '--work', str(work / 'boundary'), '--jobs', str(args.jobs)]),
+         ('needles', 'needle_audit.py', ['--selftest']),
++        ('assertion-templates', 'assertion_templates.py', ['--check', '--selftest', '--work', str(work / 'assertion-templates')]),
+         ('comments', 'check_comments.py', ['--selftest', '--work', str(work / 'comment-controls')]),
+         ('conditionals', 'check_conditionals.py', ['--selftest', '--work', str(work / 'conditionals'), '--jobs', str(args.jobs)]),
+         ('port-contracts', 'check_port_contracts.py', ['--selftest']),

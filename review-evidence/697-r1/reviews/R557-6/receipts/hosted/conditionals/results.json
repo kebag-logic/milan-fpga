@@ -1,0 +1,752 @@
+[
+  {
+    "file": "src/acmp.c",
+    "expected": [
+      "TSN_BRANCH_0_false",
+      "TSN_BRANCH_0_true"
+    ],
+    "observed": [
+      "TSN_BRANCH_0_false",
+      "TSN_BRANCH_0_true"
+    ],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_0_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_0_true"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "src/adp.c",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "src/maap.c",
+    "expected": [
+      "TSN_BRANCH_0_false",
+      "TSN_BRANCH_0_true",
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true"
+    ],
+    "observed": [
+      "TSN_BRANCH_0_false",
+      "TSN_BRANCH_0_true",
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true"
+    ],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {
+          "NDEBUG": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_0_true",
+          "TSN_BRANCH_1_true"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "NDEBUG": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_0_false",
+          "TSN_BRANCH_1_false"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "include/acmp.h",
+    "expected": [
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true",
+      "TSN_BRANCH_2_false",
+      "TSN_BRANCH_2_true",
+      "TSN_BRANCH_3_false",
+      "TSN_BRANCH_3_true",
+      "TSN_BRANCH_4_false",
+      "TSN_BRANCH_4_true",
+      "TSN_BRANCH_5_false",
+      "TSN_BRANCH_5_true"
+    ],
+    "observed": [
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true",
+      "TSN_BRANCH_2_false",
+      "TSN_BRANCH_2_true",
+      "TSN_BRANCH_3_false",
+      "TSN_BRANCH_3_true",
+      "TSN_BRANCH_4_false",
+      "TSN_BRANCH_4_true",
+      "TSN_BRANCH_5_false",
+      "TSN_BRANCH_5_true"
+    ],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {
+          "ACMP_MAX_SINKS": false,
+          "ACMP_MAX_SOURCES": false,
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "ACMP_MAX_SINKS": false,
+          "ACMP_MAX_SOURCES": false,
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "ACMP_MAX_SINKS": false,
+          "ACMP_MAX_SOURCES": true,
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "ACMP_MAX_SINKS": false,
+          "ACMP_MAX_SOURCES": true,
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "ACMP_MAX_SINKS": true,
+          "ACMP_MAX_SOURCES": false,
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "ACMP_MAX_SINKS": true,
+          "ACMP_MAX_SOURCES": false,
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "ACMP_MAX_SINKS": true,
+          "ACMP_MAX_SOURCES": true,
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "ACMP_MAX_SINKS": true,
+          "ACMP_MAX_SOURCES": true,
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ACMP_MAX_SINKS": false,
+          "ACMP_MAX_SOURCES": false,
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_true"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ACMP_MAX_SINKS": false,
+          "ACMP_MAX_SOURCES": false,
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_true"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ACMP_MAX_SINKS": false,
+          "ACMP_MAX_SOURCES": true,
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_true"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ACMP_MAX_SINKS": false,
+          "ACMP_MAX_SOURCES": true,
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_true"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ACMP_MAX_SINKS": true,
+          "ACMP_MAX_SOURCES": false,
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_true"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ACMP_MAX_SINKS": true,
+          "ACMP_MAX_SOURCES": false,
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_true"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ACMP_MAX_SINKS": true,
+          "ACMP_MAX_SOURCES": true,
+          "CTRL_REENTRY_ASSERT": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_true"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ACMP_MAX_SINKS": true,
+          "ACMP_MAX_SOURCES": true,
+          "CTRL_REENTRY_ASSERT": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_true"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "include/adp.h",
+    "expected": [
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true",
+      "TSN_BRANCH_2_false",
+      "TSN_BRANCH_2_true"
+    ],
+    "observed": [
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true",
+      "TSN_BRANCH_2_false",
+      "TSN_BRANCH_2_true"
+    ],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_false"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_true"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "include/maap.h",
+    "expected": [
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true",
+      "TSN_BRANCH_2_false",
+      "TSN_BRANCH_2_true"
+    ],
+    "observed": [
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true",
+      "TSN_BRANCH_2_false",
+      "TSN_BRANCH_2_true"
+    ],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_2_false"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_true"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "include/wire.h",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "tests/acmp_fake.hpp",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "tests/main.cpp",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "tests/test_acmp.cpp",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "tests/test_adp.cpp",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "tests/test_adp_reentry.cpp",
+    "expected": [
+      "TSN_BRANCH_0_false",
+      "TSN_BRANCH_0_true",
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true",
+      "TSN_BRANCH_2_false",
+      "TSN_BRANCH_2_true",
+      "TSN_BRANCH_3_false",
+      "TSN_BRANCH_3_true",
+      "TSN_BRANCH_4_false",
+      "TSN_BRANCH_4_true",
+      "TSN_BRANCH_5_false",
+      "TSN_BRANCH_5_true"
+    ],
+    "observed": [
+      "TSN_BRANCH_0_false",
+      "TSN_BRANCH_0_true",
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true",
+      "TSN_BRANCH_2_false",
+      "TSN_BRANCH_2_true",
+      "TSN_BRANCH_3_false",
+      "TSN_BRANCH_3_true",
+      "TSN_BRANCH_4_false",
+      "TSN_BRANCH_4_true",
+      "TSN_BRANCH_5_false",
+      "TSN_BRANCH_5_true"
+    ],
+    "builds": [
+      {
+        "language": "c++",
+        "defined": {
+          "ADP_TEST_COVERAGE": false,
+          "ADP_TEST_RELEASE": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_0_false",
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_false",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ADP_TEST_COVERAGE": false,
+          "ADP_TEST_RELEASE": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_0_false",
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_true"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ADP_TEST_COVERAGE": true,
+          "ADP_TEST_RELEASE": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_0_true",
+          "TSN_BRANCH_1_true",
+          "TSN_BRANCH_2_true",
+          "TSN_BRANCH_3_false",
+          "TSN_BRANCH_4_false",
+          "TSN_BRANCH_5_false"
+        ]
+      },
+      {
+        "language": "c++",
+        "defined": {
+          "ADP_TEST_COVERAGE": true,
+          "ADP_TEST_RELEASE": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_0_true",
+          "TSN_BRANCH_1_false",
+          "TSN_BRANCH_3_true",
+          "TSN_BRANCH_4_true",
+          "TSN_BRANCH_5_true"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "tests/test_maap.cpp",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "tests/test_maap_debug.cpp",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "tests/test_port.cpp",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c++",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "examples/adp_port.c",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "examples/adp_port.h",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "examples/rv32/include/assert.h",
+    "expected": [
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true"
+    ],
+    "observed": [
+      "TSN_BRANCH_1_false",
+      "TSN_BRANCH_1_true"
+    ],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {
+          "NDEBUG": false
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_false"
+        ]
+      },
+      {
+        "language": "c",
+        "defined": {
+          "NDEBUG": true
+        },
+        "rc": 0,
+        "regions": [
+          "TSN_BRANCH_1_true"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "examples/rv32/include/string.h",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "examples/rv32/runtime.c",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "examples/rv32/smoke.c",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  },
+  {
+    "file": "examples/rv32/start.S",
+    "expected": [],
+    "observed": [],
+    "builds": [
+      {
+        "language": "c",
+        "defined": {},
+        "rc": 0,
+        "regions": []
+      }
+    ]
+  }
+]

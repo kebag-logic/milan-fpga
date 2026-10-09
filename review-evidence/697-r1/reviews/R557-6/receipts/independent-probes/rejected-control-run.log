@@ -1,0 +1,22 @@
+Running main() from $PACKET/scratch/dependencies/googletest/googletest/src/gtest_main.cc
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Review
+[ RUN      ] Review.Control
+$PACKET/scratch/independent-probes/rejected-control.cpp:4: Failure
+The difference between 1.0 and 2.0 is 1, which exceeds 0.1, where
+1.0 evaluates to 1,
+2.0 evaluates to 2, and
+0.1 evaluates to 0.10000000000000001.
+review diagnostic
+
+[  FAILED  ] Review.Control (0 ms)
+[----------] 1 test from Review (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Review.Control
+
+ 1 FAILED TEST

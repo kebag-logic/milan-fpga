@@ -1,0 +1,21 @@
+Running main() from $PACKET/scratch/dependencies/googletest/googletest/src/gtest_main.cc
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Review
+[ RUN      ] Review.Control
+$PACKET/scratch/independent-probes/allowed-control.cpp:4: Failure
+Value of: false
+  Actual: false
+Expected: true
+review diagnostic
+
+[  FAILED  ] Review.Control (0 ms)
+[----------] 1 test from Review (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Review.Control
+
+ 1 FAILED TEST

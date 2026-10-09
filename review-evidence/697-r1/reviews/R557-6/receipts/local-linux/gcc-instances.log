@@ -1,0 +1,914 @@
+Start testing: Oct 09 12:02 CEST
+----------------------------------------------------------
+1/7 Testing: adp_tests
+1/7 Test: adp_tests
+Command: "$PACKET/scratch/suites/linux/gcc/adp_tests"
+Directory: $PACKET/scratch/suites/linux/gcc
+"adp_tests" start time: Oct 09 12:02 CEST
+Output:
+----------------------------------------------------------
+[==========] Running 22 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 18 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+[       OK ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[ RUN      ] AdpCore.A6toA8DeferredSends
+[       OK ] AdpCore.A6toA8DeferredSends (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+[       OK ] AdpCore.A9DrawKinds (0 ms)
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+[       OK ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+[       OK ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+[       OK ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+[       OK ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+[       OK ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable
+[       OK ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A21DepartingCapacity
+[       OK ] AdpCore.A21DepartingCapacity (3 ms)
+[ RUN      ] AdpCore.A22GeneratorNeverStuckAtZero
+[       OK ] AdpCore.A22GeneratorNeverStuckAtZero (0 ms)
+[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+[       OK ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)
+[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+[       OK ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)
+[ RUN      ] AdpCore.LinkLevelsAndDisabledInputs
+[       OK ] AdpCore.LinkLevelsAndDisabledInputs (0 ms)
+[ RUN      ] AdpCore.EntityFieldsUseIndependentCounts
+[       OK ] AdpCore.EntityFieldsUseIndependentCounts (0 ms)
+[ RUN      ] AdpCore.MockedPortOrder
+[       OK ] AdpCore.MockedPortOrder (0 ms)
+[----------] 18 tests from AdpCore (3 ms total)
+
+[----------] 4 tests from AllInputs/AdpInputControl
+[ RUN      ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/0
+[       OK ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/0 (0 ms)
+[ RUN      ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/1
+[       OK ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/1 (0 ms)
+[ RUN      ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/2
+[       OK ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/2 (0 ms)
+[ RUN      ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/3
+[       OK ] AllInputs/AdpInputControl.InheritedDiscoveryAcceptance/3 (0 ms)
+[----------] 4 tests from AllInputs/AdpInputControl (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 2 test suites ran. (3 ms total)
+[  PASSED  ] 22 tests.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"adp_tests" end time: Oct 09 12:02 CEST
+"adp_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/7 Testing: acmp_tests
+2/7 Test: acmp_tests
+Command: "$PACKET/scratch/suites/linux/gcc/acmp_tests"
+Directory: $PACKET/scratch/suites/linux/gcc
+"acmp_tests" start time: Oct 09 12:02 CEST
+Output:
+----------------------------------------------------------
+[==========] Running 67 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 67 tests from AcmpCore
+[ RUN      ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold
+[       OK ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold (0 ms)
+[ RUN      ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled
+[       OK ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled (0 ms)
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+[       OK ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[ RUN      ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted
+[       OK ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateInEveryState
+[       OK ] AcmpCore.A2GetRxStateInEveryState (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed
+[       OK ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed (0 ms)
+[ RUN      ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId
+[       OK ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId (0 ms)
+[ RUN      ] AcmpCore.A3UnbindInEveryState
+[       OK ] AcmpCore.A3UnbindInEveryState (0 ms)
+[ RUN      ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind
+[       OK ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind (0 ms)
+[ RUN      ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked
+[       OK ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked (0 ms)
+[ RUN      ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+[       OK ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits (0 ms)
+[ RUN      ] AcmpCore.A6BindAnotherSourceRestartsTheSink
+[       OK ] AcmpCore.A6BindAnotherSourceRestartsTheSink (0 ms)
+[ RUN      ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding
+[       OK ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId
+[       OK ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId (0 ms)
+[ RUN      ] AcmpCore.A7EachGuardTermIsChecked
+[       OK ] AcmpCore.A7EachGuardTermIsChecked (0 ms)
+[ RUN      ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding
+[       OK ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesOutsideProbingAreIgnored
+[       OK ] AcmpCore.A7ResponsesOutsideProbingAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A8SuccessSettles
+[       OK ] AcmpCore.A8SuccessSettles (0 ms)
+[ RUN      ] AcmpCore.A9FailureWaitsForTheRetry
+[       OK ] AcmpCore.A9FailureWaitsForTheRetry (0 ms)
+[ RUN      ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+[       OK ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp (0 ms)
+[ RUN      ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+[       OK ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays (0 ms)
+[ RUN      ] AcmpCore.A12DelaySendsANewProbe
+[       OK ] AcmpCore.A12DelaySendsANewProbe (0 ms)
+[ RUN      ] AcmpCore.A13NoTalkerAttributeReprobes
+[       OK ] AcmpCore.A13NoTalkerAttributeReprobes (0 ms)
+[ RUN      ] AcmpCore.A14RegisteredSettlesTheReservation
+[       OK ] AcmpCore.A14RegisteredSettlesTheReservation (0 ms)
+[ RUN      ] AcmpCore.A15UnregisteredReprobes
+[       OK ] AcmpCore.A15UnregisteredReprobes (0 ms)
+[ RUN      ] AcmpCore.KindChangesOnlyTheSettledView
+[       OK ] AcmpCore.KindChangesOnlyTheSettledView (0 ms)
+[ RUN      ] AcmpCore.A16OneCounterForEveryNewProbe
+[       OK ] AcmpCore.A16OneCounterForEveryNewProbe (0 ms)
+[ RUN      ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[       OK ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline (0 ms)
+[ RUN      ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry
+[       OK ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry (0 ms)
+[ RUN      ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw
+[       OK ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw (0 ms)
+[ RUN      ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource
+[       OK ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource (0 ms)
+[ RUN      ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+[       OK ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection (0 ms)
+[ RUN      ] AcmpCore.A21MessagesNotForThisEntityAreIgnored
+[       OK ] AcmpCore.A21MessagesNotForThisEntityAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A21MalformedFramesAreCounted
+[       OK ] AcmpCore.A21MalformedFramesAreCounted (0 ms)
+[ RUN      ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+[       OK ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits (0 ms)
+[ RUN      ] AcmpCore.A19NothingPassesAnOwedFrame
+[       OK ] AcmpCore.A19NothingPassesAnOwedFrame (0 ms)
+[ RUN      ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs
+[       OK ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs (0 ms)
+[ RUN      ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered
+[       OK ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered (0 ms)
+[ RUN      ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether
+[       OK ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether (0 ms)
+[ RUN      ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+[       OK ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail
+[       OK ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStateCells
+[       OK ] AcmpCore.A22DiscoveredStateCells (0 ms)
+[ RUN      ] AcmpCore.A22DepartingAndAging
+[       OK ] AcmpCore.A22DepartingAndAging (0 ms)
+[ RUN      ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface
+[       OK ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface (0 ms)
+[ RUN      ] AcmpCore.A22OtherAdpFramesAreIgnored
+[       OK ] AcmpCore.A22OtherAdpFramesAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort
+[       OK ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort (0 ms)
+[ RUN      ] AcmpCore.A23EveryPortIsGuarded
+[       OK ] AcmpCore.A23EveryPortIsGuarded (0 ms)
+[ RUN      ] AcmpCore.A24ARestoredBindingFastConnects
+[       OK ] AcmpCore.A24ARestoredBindingFastConnects (0 ms)
+[ RUN      ] AcmpCore.A24UnboundRecordsRefusalsAndRollback
+[       OK ] AcmpCore.A24UnboundRecordsRefusalsAndRollback (0 ms)
+[ RUN      ] AcmpCore.A24StartedIsSavedAndReported
+[       OK ] AcmpCore.A24StartedIsSavedAndReported (0 ms)
+[ RUN      ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime
+[       OK ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime (0 ms)
+[ RUN      ] AcmpCore.A25OnlyTable522ItemsAreReported
+[       OK ] AcmpCore.A25OnlyTable522ItemsAreReported (0 ms)
+[ RUN      ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+[       OK ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead (0 ms)
+[ RUN      ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+[       OK ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves (0 ms)
+[ RUN      ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+[       OK ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval (0 ms)
+[ RUN      ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+[       OK ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing (0 ms)
+[ RUN      ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+[       OK ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+[       OK ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+[       OK ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker (0 ms)
+[ RUN      ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens
+[       OK ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens (0 ms)
+[ RUN      ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend
+[       OK ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+[       OK ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+[       OK ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry (0 ms)
+[ RUN      ] AcmpCore.DepartingStopsEveryProbingTimer
+[       OK ] AcmpCore.DepartingStopsEveryProbingTimer (0 ms)
+[ RUN      ] AcmpCore.CommandPortBudgets
+[       OK ] AcmpCore.CommandPortBudgets (0 ms)
+[ RUN      ] AcmpCore.TimerPortBudgets
+[       OK ] AcmpCore.TimerPortBudgets (0 ms)
+[ RUN      ] AcmpCore.DiscoveryPortBudgets
+[       OK ] AcmpCore.DiscoveryPortBudgets (0 ms)
+[----------] 67 tests from AcmpCore (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 67 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 67 tests.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"acmp_tests" end time: Oct 09 12:02 CEST
+"acmp_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/7 Testing: port_tests
+4/7 Test: port_tests
+Command: "$PACKET/scratch/suites/linux/gcc/port_tests"
+Directory: $PACKET/scratch/suites/linux/gcc
+"port_tests" start time: Oct 09 12:02 CEST
+Output:
+----------------------------------------------------------
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ExamplePort
+[ RUN      ] ExamplePort.DefersExpiryAndRetainsBlockedOutput
+[       OK ] ExamplePort.DefersExpiryAndRetainsBlockedOutput (0 ms)
+[----------] 1 test from ExamplePort (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"port_tests" end time: Oct 09 12:02 CEST
+"port_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/7 Testing: adp_release
+5/7 Test: adp_release
+Command: "$PACKET/scratch/suites/linux/gcc/adp_release"
+Directory: $PACKET/scratch/suites/linux/gcc
+"adp_release" start time: Oct 09 12:02 CEST
+Output:
+----------------------------------------------------------
+[==========] Running 122 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpReentry
+[ RUN      ] AdpReentry.AdvertiseInlineExpiry
+[       OK ] AdpReentry.AdvertiseInlineExpiry (0 ms)
+[ RUN      ] AdpReentry.DelayInlineExpiryOnGmChange
+[       OK ] AdpReentry.DelayInlineExpiryOnGmChange (0 ms)
+[----------] 2 tests from AdpReentry (0 ms total)
+
+[----------] 120 tests from AllPorts/AdpPortEntry
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/4
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/4 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/5
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/5 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/6
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/6 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/7
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/7 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/8
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/8 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/9
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/9 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/10
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/10 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/11
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/11 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/12
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/12 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/13
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/13 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/14
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/14 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/15
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/15 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/16
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/16 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/17
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/17 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/18
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/18 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/19
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/19 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/20
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/20 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/21
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/21 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/22
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/22 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/23
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/23 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/24
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/24 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/25
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/25 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/26
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/26 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/27
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/27 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/28
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/28 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/29
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/29 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/30
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/30 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/31
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/31 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/32
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/32 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/33
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/33 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/34
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/34 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/35
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/35 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/36
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/36 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/37
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/37 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/38
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/38 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/39
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/39 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/40
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/40 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/41
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/41 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/42
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/42 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/43
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/43 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/44
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/44 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/45
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/45 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/46
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/46 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/47
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/47 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/48
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/48 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/49
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/49 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/50
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/50 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/51
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/51 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/52
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/52 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/53
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/53 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/54
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/54 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/55
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/55 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/56
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/56 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/57
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/57 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/58
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/58 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/59
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/59 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/60
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/60 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/61
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/61 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/62
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/62 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/63
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/63 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/64
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/64 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/65
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/65 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/66
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/66 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/67
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/67 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/68
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/68 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/69
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/69 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/70
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/70 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/71
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/71 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/72
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/72 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/73
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/73 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/74
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/74 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/75
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/75 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/76
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/76 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/77
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/77 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/78
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/78 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/79
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/79 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/80
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/80 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/81
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/81 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/82
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/82 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/83
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/83 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/84
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/84 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/85
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/85 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/86
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/86 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/87
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/87 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/88
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/88 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/89
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/89 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/90
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/90 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/91
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/91 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/92
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/92 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/93
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/93 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/94
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/94 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/95
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/95 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/96
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/96 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/97
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/97 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/98
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/98 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/99
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/99 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/100
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/100 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/101
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/101 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/102
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/102 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/103
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/103 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/104
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/104 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/105
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/105 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/106
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/106 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/107
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/107 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/108
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/108 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/109
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/109 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/110
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/110 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/111
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/111 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/112
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/112 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/113
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/113 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/114
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/114 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/115
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/115 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/116
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/116 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/117
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/117 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/118
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/118 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/119
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/119 (0 ms)
+[----------] 120 tests from AllPorts/AdpPortEntry (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 122 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 122 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"adp_release" end time: Oct 09 12:02 CEST
+"adp_release" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/7 Testing: maap_tests
+3/7 Test: maap_tests
+Command: "$PACKET/scratch/suites/linux/gcc/maap_tests"
+Directory: $PACKET/scratch/suites/linux/gcc
+"maap_tests" start time: Oct 09 12:02 CEST
+Output:
+----------------------------------------------------------
+[==========] Running 34 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 16 tests from MaapCore
+[ RUN      ] MaapCore.InitialAndThreeRetransmissions
+[       OK ] MaapCore.InitialAndThreeRetransmissions (0 ms)
+[ RUN      ] MaapCore.ConstantsStrictTimersAndSeed
+[       OK ] MaapCore.ConstantsStrictTimersAndSeed (18 ms)
+[ RUN      ] MaapCore.ReverseOctetPriority
+[       OK ] MaapCore.ReverseOctetPriority (0 ms)
+[ RUN      ] MaapCore.PriorityAfterTiedOctets
+[       OK ] MaapCore.PriorityAfterTiedOctets (0 ms)
+[ RUN      ] MaapCore.RestartDrawsNewRange
+[       OK ] MaapCore.RestartDrawsNewRange (0 ms)
+[ RUN      ] MaapCore.UniformDrawRejectsIncompleteBucket
+[       OK ] MaapCore.UniformDrawRejectsIncompleteBucket (0 ms)
+[ RUN      ] MaapCore.DefendEchoAndIntersection
+[       OK ] MaapCore.DefendEchoAndIntersection (0 ms)
+[ RUN      ] MaapCore.DisjointAdjacentZeroAndDefendRange
+[       OK ] MaapCore.DisjointAdjacentZeroAndDefendRange (0 ms)
+[ RUN      ] MaapCore.MalformedAndVersionCompatibility
+[       OK ] MaapCore.MalformedAndVersionCompatibility (0 ms)
+[ RUN      ] MaapCore.InitAndPreferredRangeBounds
+[       OK ] MaapCore.InitAndPreferredRangeBounds (0 ms)
+[ RUN      ] MaapCore.ReleaseLossAndRetry
+[       OK ] MaapCore.ReleaseLossAndRetry (0 ms)
+[ RUN      ] MaapCore.BeginBeforePortOperationalRetainsRange
+[       OK ] MaapCore.BeginBeforePortOperationalRetainsRange (0 ms)
+[ RUN      ] MaapCore.LinkBounceDrawsAfterSuppliedRange
+[       OK ] MaapCore.LinkBounceDrawsAfterSuppliedRange (0 ms)
+[ RUN      ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry
+[       OK ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry (0 ms)
+[ RUN      ] MaapCore.QueueBoundAndWithdrawal
+[       OK ] MaapCore.QueueBoundAndWithdrawal (0 ms)
+[ RUN      ] MaapCore.ReentrantPortsAreCountedAndIgnored
+[       OK ] MaapCore.ReentrantPortsAreCountedAndIgnored (0 ms)
+[----------] 16 tests from MaapCore (18 ms total)
+
+[----------] 18 tests from AllStates/MaapCell
+[ RUN      ] AllStates/MaapCell.TableB7/0
+[       OK ] AllStates/MaapCell.TableB7/0 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/1
+[       OK ] AllStates/MaapCell.TableB7/1 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/2
+[       OK ] AllStates/MaapCell.TableB7/2 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/3
+[       OK ] AllStates/MaapCell.TableB7/3 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/4
+[       OK ] AllStates/MaapCell.TableB7/4 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/5
+[       OK ] AllStates/MaapCell.TableB7/5 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/6
+[       OK ] AllStates/MaapCell.TableB7/6 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/7
+[       OK ] AllStates/MaapCell.TableB7/7 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/8
+[       OK ] AllStates/MaapCell.TableB7/8 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/9
+[       OK ] AllStates/MaapCell.TableB7/9 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/10
+[       OK ] AllStates/MaapCell.TableB7/10 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/11
+[       OK ] AllStates/MaapCell.TableB7/11 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/12
+[       OK ] AllStates/MaapCell.TableB7/12 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/13
+[       OK ] AllStates/MaapCell.TableB7/13 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/14
+[       OK ] AllStates/MaapCell.TableB7/14 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/15
+[       OK ] AllStates/MaapCell.TableB7/15 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/16
+[       OK ] AllStates/MaapCell.TableB7/16 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/17
+[       OK ] AllStates/MaapCell.TableB7/17 (0 ms)
+[----------] 18 tests from AllStates/MaapCell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 34 tests from 2 test suites ran. (18 ms total)
+[  PASSED  ] 34 tests.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"maap_tests" end time: Oct 09 12:02 CEST
+"maap_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/7 Testing: adp_debug
+6/7 Test: adp_debug
+Command: "$PACKET/scratch/suites/linux/gcc/adp_debug"
+Directory: $PACKET/scratch/suites/linux/gcc
+"adp_debug" start time: Oct 09 12:02 CEST
+Output:
+----------------------------------------------------------
+[==========] Running 122 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpReentry
+[ RUN      ] AdpReentry.AdvertiseInlineExpiry
+[       OK ] AdpReentry.AdvertiseInlineExpiry (1 ms)
+[ RUN      ] AdpReentry.DelayInlineExpiryOnGmChange
+[       OK ] AdpReentry.DelayInlineExpiryOnGmChange (0 ms)
+[----------] 2 tests from AdpReentry (1 ms total)
+
+[----------] 120 tests from AllPorts/AdpPortEntry
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/4
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/4 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/5
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/5 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/6
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/6 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/7
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/7 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/8
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/8 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/9
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/9 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/10
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/10 (1 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/11
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/11 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/12
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/12 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/13
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/13 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/14
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/14 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/15
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/15 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/16
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/16 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/17
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/17 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/18
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/18 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/19
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/19 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/20
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/20 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/21
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/21 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/22
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/22 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/23
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/23 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/24
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/24 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/25
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/25 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/26
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/26 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/27
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/27 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/28
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/28 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/29
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/29 (1 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/30
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/30 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/31
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/31 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/32
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/32 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/33
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/33 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/34
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/34 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/35
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/35 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/36
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/36 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/37
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/37 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/38
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/38 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/39
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/39 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/40
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/40 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/41
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/41 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/42
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/42 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/43
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/43 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/44
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/44 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/45
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/45 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/46
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/46 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/47
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/47 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/48
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/48 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/49
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/49 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/50
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/50 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/51
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/51 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/52
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/52 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/53
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/53 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/54
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/54 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/55
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/55 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/56
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/56 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/57
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/57 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/58
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/58 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/59
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/59 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/60
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/60 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/61
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/61 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/62
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/62 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/63
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/63 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/64
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/64 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/65
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/65 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/66
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/66 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/67
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/67 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/68
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/68 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/69
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/69 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/70
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/70 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/71
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/71 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/72
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/72 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/73
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/73 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/74
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/74 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/75
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/75 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/76
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/76 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/77
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/77 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/78
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/78 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/79
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/79 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/80
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/80 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/81
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/81 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/82
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/82 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/83
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/83 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/84
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/84 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/85
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/85 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/86
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/86 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/87
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/87 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/88
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/88 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/89
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/89 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/90
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/90 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/91
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/91 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/92
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/92 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/93
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/93 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/94
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/94 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/95
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/95 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/96
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/96 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/97
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/97 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/98
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/98 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/99
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/99 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/100
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/100 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/101
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/101 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/102
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/102 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/103
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/103 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/104
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/104 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/105
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/105 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/106
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/106 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/107
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/107 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/108
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/108 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/109
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/109 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/110
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/110 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/111
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/111 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/112
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/112 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/113
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/113 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/114
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/114 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/115
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/115 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/116
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/116 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/117
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/117 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/118
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/118 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/119
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/119 (0 ms)
+[----------] 120 tests from AllPorts/AdpPortEntry (73 ms total)
+
+[----------] Global test environment tear-down
+[==========] 122 tests from 2 test suites ran. (75 ms total)
+[  PASSED  ] 122 tests.
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"adp_debug" end time: Oct 09 12:02 CEST
+"adp_debug" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/7 Testing: maap_debug
+7/7 Test: maap_debug
+Command: "$PACKET/scratch/suites/linux/gcc/maap_debug"
+Directory: $PACKET/scratch/suites/linux/gcc
+"maap_debug" start time: Oct 09 12:02 CEST
+Output:
+----------------------------------------------------------
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapDebug
+[ RUN      ] MaapDebug.SynchronousExpiryAsserts
+[       OK ] MaapDebug.SynchronousExpiryAsserts (134 ms)
+[----------] 1 test from MaapDebug (134 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (134 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"maap_debug" end time: Oct 09 12:02 CEST
+"maap_debug" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 09 12:02 CEST

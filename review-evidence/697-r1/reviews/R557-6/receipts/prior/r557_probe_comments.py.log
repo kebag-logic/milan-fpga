@@ -1,0 +1,9 @@
+baseline gate_rc 0 compile_rc 0
+plain-prose gate_rc 1 compile_rc 0
+spdx-block-prose gate_rc 1 compile_rc 0
+spliced-spdx-prose gate_rc 1 compile_rc 0
+Traceback (most recent call last):
+  File "$PACKET/scripts/prior/early/r557_probe_comments.py", line 40, in <module>
+    assert results[2]['gate_rc']==results[3]['gate_rc']==0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

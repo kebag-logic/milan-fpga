@@ -1,0 +1,45 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/prior/r5565-tree/tree/scripts/baremetal.py", line 98, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$PACKET/scratch/prior/r5565-tree/tree/scripts/baremetal.py", line 91, in main
+    results = list(pool.map(lambda kind: build(work, kind, args.jobs), ('Debug', 'Release')))
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$PACKET/scratch/prior/r5565-tree/tree/scripts/baremetal.py", line 91, in <lambda>
+    results = list(pool.map(lambda kind: build(work, kind, args.jobs), ('Debug', 'Release')))
+                                         ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/prior/r5565-tree/tree/scripts/baremetal.py", line 34, in build
+    output = command(['cmake', '--build', str(directory), '-j' + str(jobs)])
+  File "$PACKET/scratch/prior/r5565-tree/tree/scripts/baremetal.py", line 25, in command
+    raise RuntimeError('command failed: ' + ' '.join(map(str, argv)) + '\n' + result.stdout)
+RuntimeError: command failed: cmake --build $PACKET/scratch/prior/r5565-tree/B-rv32/debug -j4
+[ 12%] Building C object CMakeFiles/tsn.dir/src/adp.c.obj
+[ 25%] Building C object CMakeFiles/tsn.dir/src/acmp.c.obj
+[ 37%] Building C object CMakeFiles/tsn.dir/src/maap.c.obj
+[ 50%] Linking C static library libtsn.a
+[ 50%] Built target tsn
+[ 75%] Building C object CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+[ 75%] Building C object CMakeFiles/rv32_smoke.dir/examples/rv32/runtime.c.obj
+[ 87%] Building ASM object CMakeFiles/rv32_smoke.dir/examples/rv32/start.S.obj
+[100%] Linking C executable rv32_smoke.elf
+/usr/riscv64-elf/bin/ld:$PACKET/scratch/prior/r5565-tree/tree/examples/rv32/link.ld:3: ignoring invalid character `'' in script
+/usr/riscv64-elf/bin/ld:$PACKET/scratch/prior/r5565-tree/tree/examples/rv32/link.ld:3: ignoring invalid character `'' in script
+collect2: error: ld returned 1 exit status
+make[2]: *** [CMakeFiles/rv32_smoke.dir/build.make:133: rv32_smoke.elf] Error 1
+make[1]: *** [CMakeFiles/Makefile2:122: CMakeFiles/rv32_smoke.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
+

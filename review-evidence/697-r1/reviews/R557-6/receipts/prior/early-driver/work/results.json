@@ -1,0 +1,35 @@
+[
+  {
+    "name": "p-genuine",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A6toA8DeferredSends": "$PACKET/scratch/early-probes/driver-probes/work/baseline/tests/test_adp.cpp:204\nValue of: a.departing_owed == 1u && a.available_index == 0u && a.state == ADP_STATE_DOWN\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_a2483ab59c74c2d5cf58751e6e040c7b\nA8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset\nTSN_MESSAGE_END_96a3ef4a5a1413398e89e0ac6db5d7e9\n\n",
+      "ExamplePort.DefersExpiryAndRetainsBlockedOutput": "$PACKET/scratch/early-probes/driver-probes/work/baseline/tests/test_port.cpp:23\nExpected equality of these values:\n  p.core.available_index\n    Which is: 1\n  0u\n    Which is: 0\n\nTSN_MESSAGE_BEGIN_a2483ab59c74c2d5cf58751e6e040c7b\nshutdown resets the next advertisement index\nTSN_MESSAGE_END_96a3ef4a5a1413398e89e0ac6db5d7e9\n\n"
+    },
+    "tests": 1
+  },
+  {
+    "name": "p-unrelated-needle",
+    "status": "ESCAPED",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A6toA8DeferredSends": "$PACKET/scratch/early-probes/driver-probes/work/baseline/tests/test_adp.cpp:204\nValue of: a.departing_owed == 1u && a.available_index == 0u && a.state == ADP_STATE_DOWN\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_a2483ab59c74c2d5cf58751e6e040c7b\nA8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset\nTSN_MESSAGE_END_96a3ef4a5a1413398e89e0ac6db5d7e9\n\n"
+    },
+    "tests": 1
+  },
+  {
+    "name": "p-crash",
+    "status": "ESCAPED",
+    "rc": -11,
+    "failures": {},
+    "tests": 0
+  },
+  {
+    "name": "p-exit0",
+    "status": "ESCAPED",
+    "rc": 0,
+    "failures": {},
+    "tests": 0
+  }
+]

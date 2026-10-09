@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/early-probes/probes/r-core-defect/scripts/baremetal.py", line 98, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$PACKET/scratch/early-probes/probes/r-core-defect/scripts/baremetal.py", line 91, in main
+    results = list(pool.map(lambda kind: build(work, kind, args.jobs), ('Debug', 'Release')))
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$PACKET/scratch/early-probes/probes/r-core-defect/scripts/baremetal.py", line 91, in <lambda>
+    results = list(pool.map(lambda kind: build(work, kind, args.jobs), ('Debug', 'Release')))
+                                         ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/early-probes/probes/r-core-defect/scripts/baremetal.py", line 72, in build
+    output = command(['qemu-system-riscv32', '-machine', 'virt', '-nographic', '-bios', 'none',
+                      '-kernel', str(elf), '-no-reboot'])
+  File "$PACKET/scratch/early-probes/probes/r-core-defect/scripts/baremetal.py", line 25, in command
+    raise RuntimeError('command failed: ' + ' '.join(map(str, argv)) + '\n' + result.stdout)
+RuntimeError: command failed: qemu-system-riscv32 -machine virt -nographic -bios none -kernel $PACKET/scratch/early-probes/probes/r-core-defect/build-rv32/debug/rv32_smoke.elf -no-reboot
+

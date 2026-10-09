@@ -1,0 +1,52 @@
+[
+  {
+    "case": "allowed-control",
+    "form": "EXPECT_TRUE(false)",
+    "compile_rc": 0,
+    "assertion_form_errors": [],
+    "comment_errors": [],
+    "execution_rc": 1,
+    "inventory": {
+      "Review.Control": [
+        "review diagnostic"
+      ]
+    },
+    "source_gate": "accepted"
+  },
+  {
+    "case": "rejected-control",
+    "form": "EXPECT_NEAR(1.0, 2.0, 0.1)",
+    "compile_rc": 0,
+    "assertion_form_errors": [
+      "unsupported assertion form: EXPECT_NEAR"
+    ],
+    "comment_errors": [],
+    "execution_rc": 1,
+    "source_gate": "refused",
+    "error": "tests/test_review.cpp: unsupported assertion form: EXPECT_NEAR"
+  },
+  {
+    "case": "unlisted-fail",
+    "form": "GTEST_FAIL()",
+    "compile_rc": 0,
+    "assertion_form_errors": [],
+    "comment_errors": [],
+    "execution_rc": 1,
+    "inventory": {
+      "Review.Control": []
+    },
+    "source_gate": "accepted"
+  },
+  {
+    "case": "unlisted-comparison",
+    "form": "GTEST_ASSERT_LT(2, 1)",
+    "compile_rc": 0,
+    "assertion_form_errors": [],
+    "comment_errors": [],
+    "execution_rc": 1,
+    "inventory": {
+      "Review.Control": []
+    },
+    "source_gate": "accepted"
+  }
+]
