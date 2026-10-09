@@ -1,0 +1,31 @@
+=== hdl/top/protocol_processor_top.sv header diff
+(none)
+=== hdl/top/protocol_processor_top.sv parameter/localparam diff
+(none)
+=== hdl/acmp/KL_pp_acmp_listener.sv header diff
+134c134
+<     output logic [11:0]                  act_settle_vlan_o,//! settled stream_vlan_id
+---
+>     output logic [15:0]                  act_settle_vlan_o,//! settled stream_vlan_id
+177,179c177,180
+<     //! THE RECORD RAM WRITE BUS, and FUNCTIONAL despite the `dbg_` prefix
+<     //! (kept for the suites that shadow it): it is the single writer's
+<     //! view that KL_acmp_nvm_shadow captures and that protocol_processor_top
+---
+>     //! THE PUBLISHED RECORD WRITE VIEW, functional despite the `dbg_` prefix.
+>     //! The private probe-controller overlay reads as zero stream-ID here
+>     //! until settlement (Milan 5.3.8.9). It is the single writer's view that
+>     //! KL_acmp_nvm_shadow captures and that protocol_processor_top
+=== hdl/acmp/KL_pp_acmp_listener.sv parameter/localparam diff
+(none)
+=== hdl/acmp/KL_acmp_talker.sv header diff
+(none)
+=== hdl/acmp/KL_acmp_talker.sv parameter/localparam diff
+(none)
+=== hdl/acmp/pp_acmp_pkg.sv header diff
+(none)
+=== hdl/acmp/pp_acmp_pkg.sv parameter/localparam diff
+45c45
+<   localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd13;
+---
+>   localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd16;

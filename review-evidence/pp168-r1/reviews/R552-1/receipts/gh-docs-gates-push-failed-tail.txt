@@ -1,0 +1,30 @@
+2026-10-09T16:42:11.7742065Z Successfully built wavedrom
+2026-10-09T16:42:11.9244767Z Installing collected packages: svgwrite, wavedrom
+2026-10-09T16:42:11.9901647Z Successfully installed svgwrite-1.4.3 wavedrom-2.0.3.post3
+2026-10-09T16:42:28.9691857Z npm error code ECONNRESET
+2026-10-09T16:42:28.9693035Z npm error syscall read
+2026-10-09T16:42:28.9693359Z npm error errno -104
+2026-10-09T16:42:28.9693926Z npm error network read ECONNRESET
+2026-10-09T16:42:28.9695130Z npm error network This is a problem related to network connectivity.
+2026-10-09T16:42:28.9695903Z npm error network In most cases you are behind a proxy or have bad network settings.
+2026-10-09T16:42:28.9698590Z npm error network
+2026-10-09T16:42:28.9699244Z npm error network If you are behind a proxy, please make sure that the
+2026-10-09T16:42:28.9699917Z npm error network 'proxy' config is set properly.  See: 'npm help config'
+2026-10-09T16:42:28.9702315Z npm error A complete log of this run can be found in: <home-path>/.npm/_logs/2026-10-09T16_42_12_676Z-debug-0.log
+2026-10-09T16:42:28.9970480Z ##[error]Process completed with exit code 152.
+2026-10-09T16:42:29.0168150Z Post job cleanup.
+2026-10-09T16:42:29.0796088Z [command]/usr/bin/git version
+2026-10-09T16:42:29.0836962Z git version 2.55.0
+2026-10-09T16:42:29.0840045Z Temporarily overriding HOME='<home-path>/work/_temp/66a07306-e187-4c80-9871-7902e6c1a9b9' before making global git config changes
+2026-10-09T16:42:29.0840781Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-09T16:42:29.0841645Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-09T16:42:29.1362175Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-09T16:42:29.1389649Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-09T16:42:29.1553872Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-09T16:42:29.1661964Z http.https://github.com/.extraheader
+2026-10-09T16:42:29.1668562Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-09T16:42:29.2551656Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader'
+2026-10-09T16:42:29.2700631Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T16:42:29.2724614Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-09T16:42:29.2985491Z Cleaning up orphan processes
+2026-10-09T16:42:29.3176089Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-o
