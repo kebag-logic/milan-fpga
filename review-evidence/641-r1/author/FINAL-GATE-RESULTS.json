@@ -1,0 +1,117 @@
+[
+  {
+    "name": "regrade-1x1-all",
+    "command": [
+      "$LITEX_PYTHON",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--shape",
+      "endstation_ax7101_1x1_tdm8",
+      "--build-dir",
+      "$WORK/fw-1x1",
+      "--reuse-build",
+      "--regrade",
+      "--populated",
+      "--record-budget-findings",
+      "--plan",
+      "all"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "regrade-8x8-all",
+    "command": [
+      "$LITEX_PYTHON",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--shape",
+      "endstation_ax7101_8x8",
+      "--build-dir",
+      "$WORK/fw-8x8",
+      "--reuse-build",
+      "--regrade",
+      "--populated",
+      "--record-budget-findings",
+      "--plan",
+      "all"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "regrade-1x1-uart-paced",
+    "command": [
+      "$LITEX_PYTHON",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--shape",
+      "endstation_ax7101_1x1_tdm8",
+      "--build-dir",
+      "$WORK/fw-1x1",
+      "--reuse-build",
+      "--regrade",
+      "--populated",
+      "--record-budget-findings",
+      "--plan",
+      "uart-paced"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "oracle-generate",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/fw_service_budget/gen_oracle.py",
+      "--small-build",
+      "$WORK/fw-1x1",
+      "--large-build",
+      "$WORK/fw-8x8"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "oracle-repeat",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/fw_service_budget/gen_oracle.py",
+      "--small-build",
+      "$WORK/fw-1x1",
+      "--large-build",
+      "$WORK/fw-8x8",
+      "--output",
+      "$WORK/oracle-repeat.json"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "generator-controls",
+    "command": [
+      "python3",
+      "-B",
+      "$PACKET/GENERATOR-CONTROLS.py",
+      "--small-build",
+      "$WORK/fw-1x1"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "fixture-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--self-test"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "docs-replay",
+    "command": [
+      "python3",
+      "-B",
+      "$PACKET/RUN-DOC-GATES.py"
+    ],
+    "rc": 0
+  }
+]
