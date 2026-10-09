@@ -1,0 +1,1 @@
+cd $SCRATCH/tree-probe/tb/verilator/milan_dp_render && taskset -c 8-11 make tdm8render-pullin DP_SRC=$SCRATCH/probe-src/milan_datapath.sv TDM8R_MDIR=obj_mut PULLIN_PHASES=1562 PULLIN_JOBS=2 PULLIN_OUT=obj_pullin_mut VERILATOR_JOBS=4

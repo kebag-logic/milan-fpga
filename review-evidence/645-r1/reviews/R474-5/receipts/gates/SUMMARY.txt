@@ -1,0 +1,15 @@
+docs_check             rc=0  $TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/docs_check.py
+doc_style              rc=0  $TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_doc_style.py
+gen_toc                rc=0  $TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/gen_toc.py --check
+anchors                rc=0  $TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/gen_toc.py --verify-anchors
+doc_paths              rc=0  $TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_doc_paths.py
+em_dash                rc=0  $TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_em_dash.py --base 85db353400c6bf3965d279a9f5b5d47e08a0d1ed
+diff_check             rc=0  git diff --check 85db353400c6bf3965d279a9f5b5d47e08a0d1ed 1e79ebdc06528edff74c0a7f530f20f99e3326a2
+evidence_check         rc=0  python3 -B scripts/measure_test_evidence.py --check
+evidence_selftest      rc=0  python3 -B scripts/measure_test_evidence.py --selftest
+ci_events              rc=0  python3 -B scripts/ci_events.py --check
+hygiene                rc=0  python3 -B scripts/check_hygiene.py --check
+cpp_idiom              rc=0  python3 -B scripts/check_cpp_idiom.py
+fail_fast              rc=0  python3 -B scripts/measure_fail_fast.py --check
+suite_shards           rc=0  python3 -B scripts/suite_shards.py --selftest
+traceability           rc=0  python3 -B docs/traceability/gen_module_matrix.py --check
