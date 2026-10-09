@@ -11,6 +11,7 @@ The default fabric build and shipping image are unchanged.
 - **[Composition](#composition)** -- Boot order, allocation and asynchronous ports.
 - **[Protocol commitments](#protocol-commitments)** -- Declarations, timers and output ordering.
 - **[Evidence](#evidence)** -- Host, freestanding, coverage, mutation and timing checks.
+- **[Publication for the split datapath](#publication-for-the-split-datapath)** -- The licence, slope and Domain written before what promises them.
 - **[Processor comparison](#processor-comparison)** -- Reused stimuli and normative differences.
 - **[Integration still owed](#integration-still-owed)** -- Application wiring and target release evidence.
 
@@ -270,12 +271,16 @@ Each bound term has a named planted understatement at one and two interfaces.
 The fixed poll envelope separately measures idle link reads, reset increments
 and retained-receive increments: four per interface. Reset and retained receive
 are alternative paths, so their conservative sum is not a simultaneous trace.
+The publication term (lane F-INT) is measured apart, through the same callbacks:
+a reset writes three registers, a Domain adoption two and each licence change
+one, funded as one reset, one adoption and two changes for each of 16 sources
+(`SRP_MBX_PUB_POLL_MAX`, 37 per interface); a LINK event now costs four.
 The transmit observer wraps the real `send_pdu` callback and pads library output
 to the channel maximum. It measures 383 accesses for each of two calls per
 interface, preserving the firmware callback and the mailbox driver.
 A pass drains eight real event records and another drains two maximum RX records.
 Subtracting unrelated published terms checks their funding independently.
-The SRP envelope is 1,596 / 2,366 accesses at IF=1/2.
+The SRP envelope is 1,657 / 2,464 accesses at IF=1/2.
 Adding one read in either poll or send fails a named test.
 Poll-allocation tests exhaust storage after successful reception.
 Separate receive tests exhaust it before accepting a mailbox record.
@@ -307,6 +312,24 @@ restarting the origin when space becomes available.
 These are explicit host-envelope assumptions, not measured target execution or
 wire-departure latency. Target scheduling, ingress, egress and arbitration must
 validate those assumptions and the remaining normative margin before release.
+
+## Publication for the split datapath
+
+The adapter writes the class-D state the split placement's datapath reads in
+each interface's publication block of the mailbox (lane F-INT; the
+[design page](../../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)):
+
+- `LICENCE`: bit s while source s holds its licence, written before each
+  licence change is reported, and cleared before a reset's or destroy's
+  revocations are reported.
+- `IDLE_SLOPE`: the bandwidth admitted for the interface's sources, Ethernet
+  overhead included, written once the sources are declared, before those
+  declarations are sent (participant creation and Domain adoption).
+- `SR_DOMAIN`: the default Domain, not adopted, at participant creation; the
+  adopted one, with ADOPTED set, before the declarations that carry it.
+
+The tests read the block as the fabric held it at each SRP record's commit, so
+an MRPDU that left before its Domain or slope was published fails a named test.
 
 ## Processor comparison
 

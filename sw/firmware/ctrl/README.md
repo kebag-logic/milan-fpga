@@ -70,6 +70,13 @@ table in the mailbox block, which the core's `admit` port keeps equal to each
 bound sink's talker (sink k is entry k), and which `ctrl_app_open()` fills
 with the bindings the store restored
 ([design page](../../../docs/design/MAILBOX_SPLIT.md#discovery-and-the-adp-channels-filter)).
+The core's `publish` port (lane F-INT) writes each sink's binding into its
+interface's publication block for the split placement's datapath: whether it
+is bound, and the stream_id it listens to while settled. It is called before
+any frame of the entry is sent, so the BIND_RX and UNBIND_RX responses never
+leave ahead of the state they promise, and at the end of an entry before the
+store and the notifier hear of a change; `acmp_open` publishes the restored
+bindings ([design page](../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)).
 Only AVTP version 0 is read: the core discards an ACMPDU or ADPDU of another
 version before decoding it (IEEE 1722-2016 4.4.3.4). TMR_NO_RESP runs from
 the send the transmit ring accepts, so a probe owed behind other frames
@@ -106,13 +113,14 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
   that starts outside the B.4 pool (IEEE 1722-2016 Table B.9) or runs past
   its end. A refusal stops the composition before the later modules attach.
 - **The pass bound.** A pass of the three costs at most `CTRL_APP_THREE_PASS_MAX`
-  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,012 at
-  one interface) plus MAAP's share of 568, its costliest action on each of
-  the 8 events (48), its 2 records of the maap channel (20 + 48) and its
-  poll on each interface (48). That is 1,580 at one interface and 1,659 at
-  two. It is also the two modules' own pass bounds less what both count:
-  `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (616 at one interface, 664
-  at two) less the 6 accesses of each of the 8 event records. Every pass
+  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,030 at
+  one interface) plus MAAP's share of 576, its costliest action on each of
+  the 8 events (49, `DA_GATE` included), its 2 records of the maap channel
+  (20 + 48) and its poll on each interface (48). That is 1,606 at one
+  interface and 1,685 at two. It is also the two modules' own pass bounds
+  less what both count: `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (624 at
+  one interface, 672 at two) less the 6 accesses of each of the 8 event
+  records. Every pass
   count of `acmp_mbx.h` and of the MAAP page holds in the composed loop
   with this pass in place of its own
   ([design page](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)).
@@ -152,11 +160,12 @@ Keep application and adapter storage alive until loop service stops.
 `CTRL_APP_PASS_MAX` bounds all four modules: `ACMP_MBX_PASS_MAX` already
 includes ADP, then add `MAAP_MBX_PASS_MAX` and `SRP_MBX_PASS_MAX`, subtracting
 two copies of the shared event reads, then adding `CTRL_APP_SRP_FEEDBACK_MAX`.
-Feedback costs at most six accesses per sink.
+Feedback costs at most seven accesses per sink.
 Registration and withdrawal can each stop or re-arm a timer.
-Withdrawal can also read the clock and initial random seed.
-The static maximum of 16 sinks contributes 96 accesses.
-The result is 3,224 accesses at one interface and 4,073 at two. The SRP bound counts one maximum-size frame per
+Withdrawal can also read the clock and initial random seed, and publishes
+the sink's binding without its stream.
+The static maximum of 16 sinks contributes 112 accesses.
+The result is 3,327 accesses at one interface and 4,213 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most two calls per interface, receive readiness and
 retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
 The feedback allowance covers the same poll's ACMP registration entries.

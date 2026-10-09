@@ -21,8 +21,8 @@
    bound-talker checks run on two real interfaces.
 
 `make mutants` runs [`mutants.py`](mutants.py), every planted RTL defect in
-its table; the default `make` runs five of them (one per leaf and one in the
-filter's tuple, `--quick`).
+its table; the default `make` runs six of them (one per leaf, one in the
+filter's tuple and one in the publication block, `--quick`).
 
 The contract is [`sw/mailbox/mailbox.yaml`](../../../sw/mailbox/mailbox.yaml);
 the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
@@ -32,7 +32,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[The top and the bench](#the-top-and-the-bench)** -- One KL_mbx behind the adapter HOST_P selects, driven a clock at a time through real bus handshakes.
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model; the AXI4-Lite build adds the handshake rules.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
-- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; five run in the default make.
+- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; six run in the default make.
 - **[Run](#run)** -- The two make targets.
 
 ## The top and the bench
@@ -84,6 +84,7 @@ filter table. Register offsets and field positions are the generated
 | M0 to M2 | a timer expires at its deadline with its arm's tag; a cancel and a replaced arm post nothing; a past deadline expires at once |
 | K0 to K2 | no TICK while TICK_CTL.EN is clear; one per period; ticks counted while the ring is full post as one record with the count; clearing EN stops them |
 | G0 | GM_HI and DOMAIN read the snapshot GM_LO took |
+| P0 to P5 | the publication block (lane F-INT, #665 comment 6088423771): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface and sink; each field drives its own output, one source's or sink's bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, and in the firmware's write order never half written; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
 
 The AXI4-Lite build then runs the adapter's handshake rules, which a polite
 master (AW and W together, BREADY and RREADY high) never exercises:
@@ -263,6 +264,23 @@ bytes and copies; the rest are round 3's. The twins in the host model are in
 | `rx-bound-unwritten-word-copied-raw` | a word not written since the reset copied as stored | Q17, an entry enabled with no identity written |
 | `top-bound-unwritten-word-read-raw` | a word not written since the reset read as stored | Q17, every entry reads 0 after a reset |
 | `rx-bound-valid-kept-through-reset` | BOUND_EID_LO's written flag kept through a reset | Q17, every entry reads 0 after a reset |
+
+The publication block (lane F-INT) adds ten defects in the generated
+skeleton, each planted through both adapters; the twins in the host model
+are in `ctrl_mutants.py`'s table:
+
+| Arm | Defect | Caught by |
+|---|---|---|
+| `top-pub-sid-valid-held-high` | `pub_sid_valid_o` held high | P3, the stream_id 0 while SID_VALID is clear |
+| `top-pub-sid-halves-swapped` | `pub_sid_o` joins SID_LO above SID_HI | P3, SID_HI:SID_LO with SID_VALID set |
+| `top-pub-priority-from-vid` | the priority output takes the VID's bits | P2, every field on its own output |
+| `top-pub-bound-from-sid-valid` | `pub_bound_o` takes SID_VALID | P3, BOUND alone on its output |
+| `top-pub-domain-unmasked` | SR_DOMAIN keeps the bits between its fields | P1, each register's fields only |
+| `top-pub-sink-index-dropped` | every sink's BINDING lands in sink 0's | P1, each entry its own |
+| `top-pub-hole-aliases-a-register` | an interface block's holes alias its registers | P4, every hole reads 0 |
+| `top-pub-interface-unchecked` (two interfaces) | an interface index past the build aliases another's block | P4, nothing moved |
+| `top-pub-partial-strobe-accepted` | a partial strobe writes the block | P4, the partial strobe refused |
+| `top-pub-licence-kept-through-reset` | LICENCE not reset | P5, a reset clears the block |
 
 ## Run
 

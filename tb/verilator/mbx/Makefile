@@ -7,9 +7,9 @@
 #                    then the firmware co-simulation over the real RTL, then the
 #                    same checks on a two-interface variant of the contract
 #                    through both adapters and on the host model (run-if2), then
-#                    five planted RTL defects (one per leaf and one in the
-#                    filter's tuple), each of which must redden the check it
-#                    names (mutants.py --quick)
+#                    six planted RTL defects (one per leaf, one in the
+#                    filter's tuple and one in the publication block), each
+#                    of which must redden the check it names (mutants.py --quick)
 #   make mutants   - every planted RTL defect, after both positive controls
 #   make clean     - remove build artifacts
 #

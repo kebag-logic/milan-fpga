@@ -108,6 +108,12 @@ Before using this output, integration must supply that allocation.
 Feed the processor's MAAP face from the firmware allocation,
 or move ACMP onto the core through F3.
 This is a #664 decision 3 default-flip condition.
+For the split placement (lane F-INT), the adapter writes each interface's
+`DA_GATE` in the mailbox's publication block before it reports an
+allocation: bit s open for source s while the range is valid, every bit
+closed before a loss is reported. A PROBE_TX_RESPONSE therefore never
+promises an address the split datapath's talker gate holds closed.
+`maap_mbx_init` refuses more talker sources than the block holds (16).
 F2 records the dependency; it does not change that wiring.
 F3 composes ACMP on the core beside MAAP, but its talker learns a stream's destination only from the integrator's
 `source` port (`acmp.h`); the app does not feed that port from this allocation.
@@ -122,17 +128,17 @@ These are explicit simulation assumptions, not a measured core clock.
 The required project service limit is 10 ms, below the shared 50 ms ceiling.
 
 A 60-byte send costs 19 mailbox accesses; an arm costs three including the clock read.
-A cancel costs one and filter publication costs three.
-The final probe expiry costs at most 48 accesses: two sends, two arms,
-one cancel and allocation publication.
+A cancel costs one, filter publication three, and the DA gate one.
+The final probe expiry costs at most 49 accesses: two sends, two arms,
+one cancel and allocation publication (the range filter and `DA_GATE`).
 Receive and per-interface poll callbacks also have a conservative 48-access bound.
 This excludes the allocation callback's separate datapath CSR accesses;
 that callback must remain bounded and nonblocking.
 A standalone MAAP loop pass costs at most
-8*(6+48) + 2*(20+48) + interfaces*48 accesses: 616 for one interface, 664 for two.
+8*(6+49) + 2*(20+48) + interfaces*48 accesses: 624 for one interface, 672 for two.
 The receive bound includes the channel's maximum 64-byte record.
 Composed with ADP and ACMP, a pass costs at most `CTRL_APP_THREE_PASS_MAX` (`ctrl_app.h`):
-1,580 accesses for one interface, 1,659 for two.
+1,606 accesses for one interface, 1,685 for two.
 
 Tests include event and receive backlog, timer wrap, stale tags, link loss,
 short TX stalls and an 11 ms stall that must fail the original bound after recovery.
