@@ -17,7 +17,7 @@ package KL_mbx_pkg;
   //! contract major version
   localparam int unsigned MBX_VERSION_MAJOR_C = 32'd2;
   //! contract minor version
-  localparam int unsigned MBX_VERSION_MINOR_C = 32'd1;
+  localparam int unsigned MBX_VERSION_MINOR_C = 32'd2;
   //! ID.MAGIC
   localparam int unsigned MBX_MAGIC_C = 32'h00004D42;
   //! host window size
@@ -30,6 +30,10 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_N_TIMERS_C = 32'd16;
   //! bound-talker entries per interface (listener streams)
   localparam int unsigned MBX_N_BOUND_C = 32'd16;
+  //! publication sources per interface (talker streams)
+  localparam int unsigned MBX_N_PUB_SOURCES_C = 32'd16;
+  //! publication sink entries per interface (listener streams)
+  localparam int unsigned MBX_N_PUB_SINKS_C = 32'd16;
   //! NOW_MS milliseconds per TICK (one centisecond)
   localparam int unsigned MBX_TICK_MS_C = 32'd10;
   //! channels
@@ -292,6 +296,68 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_BOUND_EN_EN_LSB_C = 32'd0;
   //! BOUND_EN: the entry takes part in the eq_bound test
   localparam int unsigned MBX_BOUND_EN_EN_WIDTH_C = 32'd1;
+  //! first interface's publication block
+  localparam int unsigned MBX_PUB_BASE_C = 32'h00000800;
+  //! bytes per interface's publication block
+  localparam int unsigned MBX_PUB_STRIDE_C = 32'h00000200;
+  //! The talker destination-address gate: bit s is set while MAAP holds a stream destination address for source s on this interface (IEEE 1722-2016 Annex B; the processor's acmp_declaring_o). The MAAP owner writes it before it reports the allocation, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1).
+  localparam int unsigned MBX_PUB_REG_DA_GATE_C = 32'h00000000;
+  //! DA_GATE: bit s: source s may send to its destination address
+  localparam int unsigned MBX_DA_GATE_OPEN_LSB_C = 32'd0;
+  //! DA_GATE: bit s: source s may send to its destination address
+  localparam int unsigned MBX_DA_GATE_OPEN_WIDTH_C = 32'd16;
+  //! The SRP stream gate: bit s is set while source s holds its licence, an admitted Talker Advertise with a registered Listener Ready or Ready Failed after the stream VLAN's MVRP Join (Milan v1.2 5.3.7.3 and 4.3.2; the processor's srp_active_o AND srp_sr_admitted_o). The SRP owner writes it before it reports the licence.
+  localparam int unsigned MBX_PUB_REG_LICENCE_C = 32'h00000004;
+  //! LICENCE: bit s: source s's stream may leave
+  localparam int unsigned MBX_LICENCE_ACTIVE_LSB_C = 32'd0;
+  //! LICENCE: bit s: source s's stream may leave
+  localparam int unsigned MBX_LICENCE_ACTIVE_WIDTH_C = 32'd16;
+  //! The sum, in bits per second, of the bandwidth the SRP owner admitted for this interface's sources, Ethernet overhead included (the processor's srp_sum_slope_bps_o), written before the declarations it admitted are sent.
+  localparam int unsigned MBX_PUB_REG_IDLE_SLOPE_C = 32'h00000008;
+  //! IDLE_SLOPE: admitted bandwidth
+  localparam int unsigned MBX_IDLE_SLOPE_BPS_LSB_C = 32'd0;
+  //! IDLE_SLOPE: admitted bandwidth
+  localparam int unsigned MBX_IDLE_SLOPE_BPS_WIDTH_C = 32'd32;
+  //! The SR class A Domain this interface's declarations carry (Milan v1.2 4.2.7.2.1). ADOPTED is set once a received Domain replaced the default {priority 3, VID 2}, until the link restarts (the processor's srp_domain_adopted_o, class_a_prio_o and class_a_vid_o). Written in one access, before the declarations that carry it.
+  localparam int unsigned MBX_PUB_REG_SR_DOMAIN_C = 32'h0000000C;
+  //! SR_DOMAIN: the operational SR class A VID
+  localparam int unsigned MBX_SR_DOMAIN_VID_LSB_C = 32'd0;
+  //! SR_DOMAIN: the operational SR class A VID
+  localparam int unsigned MBX_SR_DOMAIN_VID_WIDTH_C = 32'd12;
+  //! SR_DOMAIN: the operational SR class A priority
+  localparam int unsigned MBX_SR_DOMAIN_PRIORITY_LSB_C = 32'd16;
+  //! SR_DOMAIN: the operational SR class A priority
+  localparam int unsigned MBX_SR_DOMAIN_PRIORITY_WIDTH_C = 32'd3;
+  //! SR_DOMAIN: a received Domain was adopted
+  localparam int unsigned MBX_SR_DOMAIN_ADOPTED_LSB_C = 32'd24;
+  //! SR_DOMAIN: a received Domain was adopted
+  localparam int unsigned MBX_SR_DOMAIN_ADOPTED_WIDTH_C = 32'd1;
+  //! first sink entry inside a publication block
+  localparam int unsigned MBX_PUB_SINK_BASE_C = 32'h00000100;
+  //! bytes per publication sink entry
+  localparam int unsigned MBX_PUB_SINK_STRIDE_C = 32'h00000010;
+  //! Sink k's stream_id, low word, as last written. The datapath reads it while SID_VALID is set.
+  localparam int unsigned MBX_PUB_SINK_REG_SID_LO_C = 32'h00000000;
+  //! SID_LO: stream_id[31:0]
+  localparam int unsigned MBX_SID_LO_SID_LSB_C = 32'd0;
+  //! SID_LO: stream_id[31:0]
+  localparam int unsigned MBX_SID_LO_SID_WIDTH_C = 32'd32;
+  //! Sink k's stream_id, high word, as last written. The datapath reads it while SID_VALID is set.
+  localparam int unsigned MBX_PUB_SINK_REG_SID_HI_C = 32'h00000004;
+  //! SID_HI: stream_id[63:32]
+  localparam int unsigned MBX_SID_HI_SID_LSB_C = 32'd0;
+  //! SID_HI: stream_id[63:32]
+  localparam int unsigned MBX_SID_HI_SID_WIDTH_C = 32'd32;
+  //! Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath reads the stream_id as 0 while it is clear. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath.
+  localparam int unsigned MBX_PUB_SINK_REG_BINDING_C = 32'h00000008;
+  //! BINDING: the sink is bound
+  localparam int unsigned MBX_BINDING_BOUND_LSB_C = 32'd0;
+  //! BINDING: the sink is bound
+  localparam int unsigned MBX_BINDING_BOUND_WIDTH_C = 32'd1;
+  //! BINDING: SID_LO and SID_HI are the settled stream_id
+  localparam int unsigned MBX_BINDING_SID_VALID_LSB_C = 32'd1;
+  //! BINDING: SID_LO and SID_HI are the settled stream_id
+  localparam int unsigned MBX_BINDING_SID_VALID_WIDTH_C = 32'd1;
   //! first channel register block
   localparam int unsigned MBX_CH_BASE_C = 32'h00000100;
   //! bytes per channel block

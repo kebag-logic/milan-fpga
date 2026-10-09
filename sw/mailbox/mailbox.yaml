@@ -49,17 +49,28 @@
 # bound on the receiving interface, read from a per-interface bound-talker
 # table the firmware writes as its bindings change. It only adds: a firmware
 # built against 2.0 leaves the table empty and sees the 2.0 filter.
+#
+# Minor 2 (#665 lane F-INT, the ruling on #665, comment 6088423771, decision
+# 2 (a)): a publication block per interface, in which the firmware owner of
+# ADP, ACMP, MAAP and SRP writes the class-D values the fabric datapath reads
+# in the split placement (the talker DA gate, the listener's bound level and
+# stream_id, the SRP stream gate, the idle slope and the Domain), each before
+# the response that promises it. It only adds: a firmware built against 2.1
+# leaves the block at its reset value, and nothing in the window moved.
 
 version:
   major: 2
-  minor: 1
+  minor: 2
 magic: 0x4D42          # "MB"
 window_bytes: 0x8000   # host-visible window
 interfaces: 1          # AVB interfaces (link, grandmaster and domain per interface)
 timers: 16             # fabric timer slots
 bound_talkers: 16      # bound-talker entries per interface: one per listener stream (STREAM_INPUT), 16 as
                        # the firmware's ACMP_MAX_SINKS and the saved-state binding block hold
-tick_ms: 10            # the TICK event period: one centisecond, lwSRP's timer unit
+publication:
+  sources: 16          # talker streams (STREAM_OUTPUT) per interface, the firmware's ACMP_MAX_SOURCES
+  sinks: 16            # listener streams (STREAM_INPUT) per interface, ACMP_MAX_SINKS as bound_talkers
+tick_ms: 10           # the TICK event period: one centisecond, lwSRP's timer unit
 index_bits: 16         # ring head and tail counters, in words, modulo 2^16
 
 registers:
@@ -290,6 +301,91 @@ interface_bound_registers:
         rewrites the entry's BOUND_EID, so a half-written identity never matches.
       fields:
         - {name: EN, lsb: 0, width: 1, doc: the entry takes part in the eq_bound test}
+
+# The publication block (#665, comment 6088423771, decision 2 (a)): per
+# interface, the class-D state of the protocols the firmware owns in the split
+# placement, which the fabric datapath reads there in place of the protocol
+# processor's. The firmware is its only writer. Each value is written before
+# the response that promises it is committed (docs/ARCHITECTURE_HW_SW_SPLIT.md,
+# section 1: state-apply acknowledgements precede responses promising that
+# state). Every register resets to 0; the fabric reads interface i's block
+# only, through KL_mbx's pub_*_o ports. Source s and sink k are the entity's
+# STREAM_OUTPUT s and STREAM_INPUT k. A hole in the block, a sink past `sinks`
+# and an interface the build does not have read 0 and take no write.
+interface_publication_registers:
+  base: 0x0800
+  stride: 0x200          # bytes per interface: the interface registers, then the sink entries
+  sink_base: 0x100       # the first sink entry, inside an interface's block
+  sink_stride: 0x10      # bytes per sink entry
+  registers:
+    - name: DA_GATE
+      offset: 0x00
+      access: rw
+      doc: >-
+        The talker destination-address gate: bit s is set while MAAP holds a stream
+        destination address for source s on this interface (IEEE 1722-2016 Annex B;
+        the processor's acmp_declaring_o). The MAAP owner writes it before it reports
+        the allocation, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1).
+      fields:
+        - {name: OPEN, lsb: 0, width: 16, doc: "bit s: source s may send to its destination address"}
+    - name: LICENCE
+      offset: 0x04
+      access: rw
+      doc: >-
+        The SRP stream gate: bit s is set while source s holds its licence, an admitted
+        Talker Advertise with a registered Listener Ready or Ready Failed after the
+        stream VLAN's MVRP Join (Milan v1.2 5.3.7.3 and 4.3.2; the processor's
+        srp_active_o AND srp_sr_admitted_o). The SRP owner writes it before it reports
+        the licence.
+      fields:
+        - {name: ACTIVE, lsb: 0, width: 16, doc: "bit s: source s's stream may leave"}
+    - name: IDLE_SLOPE
+      offset: 0x08
+      access: rw
+      doc: >-
+        The sum, in bits per second, of the bandwidth the SRP owner admitted for this
+        interface's sources, Ethernet overhead included (the processor's
+        srp_sum_slope_bps_o), written before the declarations it admitted are sent.
+      fields:
+        - {name: BPS, lsb: 0, width: 32, doc: admitted bandwidth, bits per second}
+    - name: SR_DOMAIN
+      offset: 0x0C
+      access: rw
+      doc: >-
+        The SR class A Domain this interface's declarations carry (Milan v1.2 4.2.7.2.1).
+        ADOPTED is set once a received Domain replaced the default {priority 3, VID 2},
+        until the link restarts (the processor's srp_domain_adopted_o, class_a_prio_o
+        and class_a_vid_o). Written in one access, before the declarations that carry it.
+      fields:
+        - {name: VID, lsb: 0, width: 12, doc: the operational SR class A VID}
+        - {name: PRIORITY, lsb: 16, width: 3, doc: the operational SR class A priority}
+        - {name: ADOPTED, lsb: 24, width: 1, doc: "a received Domain was adopted"}
+  sink_registers:
+    - name: SID_LO
+      offset: 0x0
+      access: rw
+      doc: Sink k's stream_id, low word, as last written. The datapath reads it while SID_VALID is set.
+      fields:
+        - {name: SID, lsb: 0, width: 32, doc: "stream_id[31:0]"}
+    - name: SID_HI
+      offset: 0x4
+      access: rw
+      doc: Sink k's stream_id, high word, as last written. The datapath reads it while SID_VALID is set.
+      fields:
+        - {name: SID, lsb: 0, width: 32, doc: "stream_id[63:32]"}
+    - name: BINDING
+      offset: 0x8
+      access: rw
+      doc: >-
+        Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's
+        acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says
+        SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4,
+        5.3.8.9; the processor's acmp_bound_sid_o); the datapath reads the stream_id as
+        0 while it is clear. The firmware clears SID_VALID before it rewrites SID_LO and
+        SID_HI and sets it after, so a half-written stream_id never reaches the datapath.
+      fields:
+        - {name: BOUND, lsb: 0, width: 1, doc: the sink is bound}
+        - {name: SID_VALID, lsb: 1, width: 1, doc: SID_LO and SID_HI are the settled stream_id}
 
 channel_registers:
   base: 0x100

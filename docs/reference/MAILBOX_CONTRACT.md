@@ -5,7 +5,7 @@
 Regenerate with `python3 sw/mailbox/gen_mailbox.py --write`.
 
 The design page is [MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md).
-This page is contract version 2.1.
+This page is contract version 2.2.
 
 ## Byte order
 
@@ -246,6 +246,72 @@ Interface i's bound-talker table starts at `0x200 + 0x100 * i`, and its entry e 
 |---|---|---|
 | `[0]` | `EN` | the entry takes part in the eq_bound test |
 
+### Interface publication registers
+
+Interface i's publication block starts at `0x800 + 0x200 * i`. Bit s of a source field is source s, for 16 sources. The firmware owner writes each value before the response that promises it; the datapath reads interface i's block through `KL_mbx`'s `pub_*_o` ports.
+
+| Offset | Register | Access | Meaning |
+|---|---|---|---|
+| `0x000` | `DA_GATE` | rw | The talker destination-address gate: bit s is set while MAAP holds a stream destination address for source s on this interface (IEEE 1722-2016 Annex B; the processor's acmp_declaring_o). The MAAP owner writes it before it reports the allocation, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1). |
+| `0x004` | `LICENCE` | rw | The SRP stream gate: bit s is set while source s holds its licence, an admitted Talker Advertise with a registered Listener Ready or Ready Failed after the stream VLAN's MVRP Join (Milan v1.2 5.3.7.3 and 4.3.2; the processor's srp_active_o AND srp_sr_admitted_o). The SRP owner writes it before it reports the licence. |
+| `0x008` | `IDLE_SLOPE` | rw | The sum, in bits per second, of the bandwidth the SRP owner admitted for this interface's sources, Ethernet overhead included (the processor's srp_sum_slope_bps_o), written before the declarations it admitted are sent. |
+| `0x00C` | `SR_DOMAIN` | rw | The SR class A Domain this interface's declarations carry (Milan v1.2 4.2.7.2.1). ADOPTED is set once a received Domain replaced the default {priority 3, VID 2}, until the link restarts (the processor's srp_domain_adopted_o, class_a_prio_o and class_a_vid_o). Written in one access, before the declarations that carry it. |
+
+`DA_GATE` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[15:0]` | `OPEN` | bit s: source s may send to its destination address |
+
+`LICENCE` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[15:0]` | `ACTIVE` | bit s: source s's stream may leave |
+
+`IDLE_SLOPE` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `BPS` | admitted bandwidth |
+
+`SR_DOMAIN` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[24]` | `ADOPTED` | a received Domain was adopted |
+| `[18:16]` | `PRIORITY` | the operational SR class A priority |
+| `[11:0]` | `VID` | the operational SR class A VID |
+
+### Interface publication sink registers
+
+Sink k's entry starts at `0x100 + 0x10 * k` inside interface i's publication block, for 16 sinks (one per listener stream). A hole, a sink past the last and an interface the build does not have read 0 and take no write.
+
+| Offset | Register | Access | Meaning |
+|---|---|---|---|
+| `0x000` | `SID_LO` | rw | Sink k's stream_id, low word, as last written. The datapath reads it while SID_VALID is set. |
+| `0x004` | `SID_HI` | rw | Sink k's stream_id, high word, as last written. The datapath reads it while SID_VALID is set. |
+| `0x008` | `BINDING` | rw | Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath reads the stream_id as 0 while it is clear. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. |
+
+`SID_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `SID` | stream_id[31:0] |
+
+`SID_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `SID` | stream_id[63:32] |
+
+`BINDING` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[1]` | `SID_VALID` | SID_LO and SID_HI are the settled stream_id |
+| `[0]` | `BOUND` | the sink is bound |
+
 ### Channel registers
 
 Channel c's block starts at `0x100 + 0x20 * c`.
@@ -447,13 +513,15 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | Name | Value |
 |---|---:|
 | `MBX_VERSION_MAJOR` | `0x2` |
-| `MBX_VERSION_MINOR` | `0x1` |
+| `MBX_VERSION_MINOR` | `0x2` |
 | `MBX_MAGIC` | `0x4d42` |
 | `MBX_WINDOW_BYTES` | `0x8000` |
 | `MBX_REGISTER_SPACE_BYTES` | `0x400` |
 | `MBX_N_IF` | `0x1` |
 | `MBX_N_TIMERS` | `0x10` |
 | `MBX_N_BOUND` | `0x10` |
+| `MBX_N_PUB_SOURCES` | `0x10` |
+| `MBX_N_PUB_SINKS` | `0x10` |
 | `MBX_TICK_MS` | `0xa` |
 | `MBX_N_CH` | `0x5` |
 | `MBX_INDEX_BITS` | `0x10` |
@@ -585,6 +653,37 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_BND_REG_BOUND_EN` | `0x8` |
 | `MBX_BOUND_EN_EN_LSB` | `0x0` |
 | `MBX_BOUND_EN_EN_WIDTH` | `0x1` |
+| `MBX_PUB_BASE` | `0x800` |
+| `MBX_PUB_STRIDE` | `0x200` |
+| `MBX_PUB_REG_DA_GATE` | `0x0` |
+| `MBX_DA_GATE_OPEN_LSB` | `0x0` |
+| `MBX_DA_GATE_OPEN_WIDTH` | `0x10` |
+| `MBX_PUB_REG_LICENCE` | `0x4` |
+| `MBX_LICENCE_ACTIVE_LSB` | `0x0` |
+| `MBX_LICENCE_ACTIVE_WIDTH` | `0x10` |
+| `MBX_PUB_REG_IDLE_SLOPE` | `0x8` |
+| `MBX_IDLE_SLOPE_BPS_LSB` | `0x0` |
+| `MBX_IDLE_SLOPE_BPS_WIDTH` | `0x20` |
+| `MBX_PUB_REG_SR_DOMAIN` | `0xc` |
+| `MBX_SR_DOMAIN_VID_LSB` | `0x0` |
+| `MBX_SR_DOMAIN_VID_WIDTH` | `0xc` |
+| `MBX_SR_DOMAIN_PRIORITY_LSB` | `0x10` |
+| `MBX_SR_DOMAIN_PRIORITY_WIDTH` | `0x3` |
+| `MBX_SR_DOMAIN_ADOPTED_LSB` | `0x18` |
+| `MBX_SR_DOMAIN_ADOPTED_WIDTH` | `0x1` |
+| `MBX_PUB_SINK_BASE` | `0x100` |
+| `MBX_PUB_SINK_STRIDE` | `0x10` |
+| `MBX_PUB_SINK_REG_SID_LO` | `0x0` |
+| `MBX_SID_LO_SID_LSB` | `0x0` |
+| `MBX_SID_LO_SID_WIDTH` | `0x20` |
+| `MBX_PUB_SINK_REG_SID_HI` | `0x4` |
+| `MBX_SID_HI_SID_LSB` | `0x0` |
+| `MBX_SID_HI_SID_WIDTH` | `0x20` |
+| `MBX_PUB_SINK_REG_BINDING` | `0x8` |
+| `MBX_BINDING_BOUND_LSB` | `0x0` |
+| `MBX_BINDING_BOUND_WIDTH` | `0x1` |
+| `MBX_BINDING_SID_VALID_LSB` | `0x1` |
+| `MBX_BINDING_SID_VALID_WIDTH` | `0x1` |
 | `MBX_CH_BASE` | `0x100` |
 | `MBX_CH_STRIDE` | `0x20` |
 | `MBX_CH_REG_RX_HEAD` | `0x0` |

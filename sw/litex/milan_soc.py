@@ -2511,7 +2511,10 @@ class CtrlMailbox(LiteXModule):
     idle below, so the window, the fabric timers, the TICK events and the
     interrupt work and no frame ever reaches a ring. A firmware therefore sees
     an empty, quiet mailbox, never a wrong one; the tap that feeds it comes
-    with the protocol lanes that need it (#665 F2 to F5).
+    with the protocol lanes that need it (#665 F2 to F5). The publication
+    block's outputs (contract 2.2, the class-D state the firmware owner writes
+    for the datapath) are left unread here too: only the split placement's
+    datapath reads them (#665, comment 6088423771).
     """
 
     def __init__(self, sys_clk_freq: int, contract: object) -> None:
@@ -2531,6 +2534,10 @@ class CtrlMailbox(LiteXModule):
         addr_w = (contract.window_bytes // 4 - 1).bit_length()
         if_w = max(1, (contract.interfaces - 1).bit_length())
         ch_w = max(1, (len(contract.channels) - 1).bit_length())
+        # the publication block's port widths: per interface, each field's
+        # width, a bit per source or sink, and 64 bits per sink's stream_id
+        n_if = contract.interfaces
+        pub_w = {(r.name, f.name): f.width for r in contract.pub_registers for f in r.fields}
         req, we, ack, irq = Signal(), Signal(), Signal(), Signal()
         addr, wdata, rdata, be = Signal(addr_w), Signal(32), Signal(32), Signal(4)
         self.specials += Instance("KL_mbx_wb",
@@ -2549,7 +2556,16 @@ class CtrlMailbox(LiteXModule):
             i_link_up_i=0, i_gm_change_p_i=0, i_gm_id_i=0, i_gptp_domain_i=0,
             i_rx_valid_i=0, o_rx_ready_o=Signal(), i_rx_data_i=0, i_rx_last_i=0, i_rx_if_i=0,
             o_tx_valid_o=Signal(), i_tx_ready_i=1, o_tx_data_o=Signal(8), o_tx_last_o=Signal(),
-            o_tx_if_o=Signal(if_w), o_tx_ch_o=Signal(ch_w))
+            o_tx_if_o=Signal(if_w), o_tx_ch_o=Signal(ch_w),
+            # unread here, see the class docstring
+            o_pub_da_gate_o=Signal(n_if * contract.pub_sources),
+            o_pub_licence_o=Signal(n_if * contract.pub_sources),
+            o_pub_idle_slope_o=Signal(n_if * pub_w[("IDLE_SLOPE", "BPS")]),
+            o_pub_dom_vid_o=Signal(n_if * pub_w[("SR_DOMAIN", "VID")]),
+            o_pub_dom_prio_o=Signal(n_if * pub_w[("SR_DOMAIN", "PRIORITY")]),
+            o_pub_dom_adopted_o=Signal(n_if * pub_w[("SR_DOMAIN", "ADOPTED")]),
+            o_pub_bound_o=Signal(n_if * contract.pub_sinks),
+            o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64))
         self.comb += self.ev.mbx.trigger.eq(irq)
 
 

@@ -19,7 +19,8 @@
 //
 // A bench provides: reset, idle(n), ms(n), set_link(mask), set_gm, gm_change,
 // send_frame, drain_rx, wait_tx(n), tx_ready_pattern, read, write(off, v,
-// strobes), irq(), and the members tx_frames and bus_timeouts.
+// strobes), irq(), pub(iface) (what the publication block drives into that
+// interface's datapath), and the members tx_frames and bus_timeouts.
 
 #ifndef MBX_SUITE_HPP
 #define MBX_SUITE_HPP
@@ -57,6 +58,17 @@ inline std::uint32_t bnd_reg(std::uint32_t i, std::uint32_t e, std::uint32_t reg
     return MBX_BND_BASE + MBX_BND_STRIDE * i + MBX_BND_ENTRY_STRIDE * e + reg;
 }
 
+//! Register `reg` of interface i's publication block, and of its sink k's entry.
+inline std::uint32_t pub_reg(std::uint32_t i, std::uint32_t reg) { return MBX_PUB_BASE + MBX_PUB_STRIDE * i + reg; }
+inline std::uint32_t pub_sink_reg(std::uint32_t i, std::uint32_t k, std::uint32_t reg) {
+    return pub_reg(i, MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k + reg);
+}
+//! The interface blocks the window holds below the first ring above it: the
+//! contract's interfaces, then blocks of interfaces no build of it has.
+inline constexpr std::uint32_t kPubBlocks = 4;
+static_assert(MBX_PUB_BASE + kPubBlocks * MBX_PUB_STRIDE <= MBX_CH_ADP_RX_BASE,
+              "the suite writes the publication block of every interface index below the adp receive ring");
+
 //! The interface indices the ingress stream can name: every configured
 //! interface and, where the index is wider, ones with no interface behind them.
 inline constexpr std::uint32_t kIfIndices = 1u << MBX_IF_W;
@@ -71,7 +83,7 @@ class Suite {
     Suite(Bench& bench, Check& check) : b_(bench), ck_(check) {}
 
     //! The groups run() runs, in its order.
-    static constexpr unsigned kGroups = 23;
+    static constexpr unsigned kGroups = 24;
     static constexpr const char* kGroupNames[kGroups] = {
         "ResetIdentityAndRegisterMasks", "PartialStrobeRefused", "AdpFilter", "Classification",
         "DropNeverTouchesAnUnreadRecord", "RateLimit", "TxMerge", "TxCommitOrder", "TxRefusals",
@@ -82,7 +94,9 @@ class Suite {
         // lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1)
         "MaapDefendToOwnUnicast",
         // lane F3 round 2: the adp channel's bound talkers (#665, comment 6029368753)
-        "AdpBoundTalkers"};
+        "AdpBoundTalkers",
+        // lane F-INT: the publication block (#665, comment 6088423771)
+        "Publication"};
 
     void run() {
         for (unsigned g = 0; g < kGroups; ++g) {
@@ -133,7 +147,8 @@ class Suite {
         case 19: check_filter_mismatch_count(); break;
         case 20: check_tokens_apart(); break;
         case 21: check_maap_defend(); break;
-        default: check_adp_bound_talkers(); break;
+        case 22: check_adp_bound_talkers(); break;
+        default: check_publication(); break;
         }
     }
 
@@ -314,6 +329,34 @@ class Suite {
     void check_bound_timing();
     void check_bound_verdict_interface();
     void clear_bound();
+    void check_publication();
+    void check_pub_masks();
+    void check_pub_outputs();
+    void check_pub_sid_valid();
+    void check_pub_out_of_window();
+    void check_pub_reset();
+    //! Every publication register of every interface written with a value
+    //! of its own (`seed` varies them), as read back from then on.
+    void fill_pub(std::uint32_t seed);
+    //! Every publication register of every interface, as the host reads it.
+    std::vector<std::uint32_t> pub_words();
+    //! The datapath's view of every interface.
+    std::vector<PubView> pub_views();
+    //! The view of an interface whose every field is 0.
+    static PubView pub_zero() {
+        PubView v;
+        v.sid.assign(MBX_N_PUB_SINKS, 0);
+        return v;
+    }
+    static std::uint32_t ones(std::uint32_t lsb, std::uint32_t width) {
+        return (width >= 32u ? 0xFFFFFFFFu : ((1u << width) - 1u)) << lsb;
+    }
+    //! fill_pub's SR_DOMAIN for seed t: VID[2:0] and PRIORITY always differ,
+    //! so a field read from the other's bits shows.
+    static std::uint32_t pub_domain(std::uint32_t t) {
+        return ((0x120u + t) << MBX_SR_DOMAIN_VID_LSB) | (((t + 5u) & 7u) << MBX_SR_DOMAIN_PRIORITY_LSB) |
+               ((t & 1u) << MBX_SR_DOMAIN_ADOPTED_LSB);
+    }
 
     //! One row of the owner's table (REQUIREMENTS.md section 1): its valid
     //! frame, the channel it must reach, and whether it carries an AVTP subtype.
@@ -1611,6 +1654,281 @@ void Suite<Bench, Check>::check_bound_verdict_interface() {
             stalled, MBX_N_IF - 1u);
     ck_.dec("Q23 the next one on that interface passes", next, MBX_N_IF - 1u);
 #endif
+}
+
+// ---- lane F-INT: the publication block (#665, comment 6088423771) ------------
+// The firmware owner writes the class-D state the datapath reads in the split
+// placement; the fabric holds it and drives it out on KL_mbx's pub_*_o ports.
+// Every register reads back as written within its fields, each lands in its
+// own interface and sink only, every field reaches its own output, the stream
+// id reaches the datapath only while SID_VALID is set, nothing outside the
+// registers takes a write, a partial strobe is refused, and a reset clears
+// the whole block.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_publication() {
+    bool zero = true;
+    for (std::uint32_t w : pub_words()) {
+        zero = zero && w == 0u;
+    }
+    ck_.that("P0 every publication register of every interface reads 0 after reset", zero);
+    bool idle = true;
+    for (const PubView& v : pub_views()) {
+        idle = idle && same_pub(v, pub_zero());
+    }
+    ck_.that("P0 and the datapath sees no gate open, no slope, the Domain 0, no sink bound and no stream_id", idle);
+    check_pub_masks();
+    check_pub_outputs();
+    check_pub_sid_valid();
+    check_pub_out_of_window();
+    check_pub_reset();
+}
+
+template <class Bench, class Check>
+std::vector<std::uint32_t> Suite<Bench, Check>::pub_words() {
+    std::vector<std::uint32_t> out;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE, MBX_PUB_REG_IDLE_SLOPE, MBX_PUB_REG_SR_DOMAIN}) {
+            out.push_back(rd(pub_reg(i, r)));
+        }
+        for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            for (std::uint32_t r : {MBX_PUB_SINK_REG_SID_LO, MBX_PUB_SINK_REG_SID_HI, MBX_PUB_SINK_REG_BINDING}) {
+                out.push_back(rd(pub_sink_reg(i, k, r)));
+            }
+        }
+    }
+    return out;
+}
+
+template <class Bench, class Check>
+std::vector<PubView> Suite<Bench, Check>::pub_views() {
+    std::vector<PubView> out;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        out.push_back(b_.pub(i));
+    }
+    return out;
+}
+
+template <class Bench, class Check>
+void Suite<Bench, Check>::fill_pub(std::uint32_t seed) {
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        const std::uint32_t t = seed + 0x10u * i;
+        wr(pub_reg(i, MBX_PUB_REG_DA_GATE), 0x0101u * (t + 1u));
+        wr(pub_reg(i, MBX_PUB_REG_LICENCE), 0x0202u * (t + 3u));
+        wr(pub_reg(i, MBX_PUB_REG_IDLE_SLOPE), 0x01000193u * (t + 5u));
+        wr(pub_reg(i, MBX_PUB_REG_SR_DOMAIN), pub_domain(t));
+        for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO), 0xC0DE0000u + 0x100u * t + k);
+            wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_HI), 0x5EED0000u + 0x100u * t + k);
+            wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), t + k);
+        }
+    }
+}
+
+// P1: every register keeps its own fields and every bit of them, at its own
+// interface and sink.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_pub_masks() {
+    const std::uint32_t domain = ones(MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |
+                                 ones(MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH) |
+                                 ones(MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH);
+    const std::uint32_t binding = ones(MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH) |
+                                  ones(MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH);
+    bool masked = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE, MBX_PUB_REG_IDLE_SLOPE, MBX_PUB_REG_SR_DOMAIN}) {
+            wr(pub_reg(i, r), 0xFFFFFFFFu);
+        }
+        masked = masked && rd(pub_reg(i, MBX_PUB_REG_DA_GATE)) == ones(MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH) &&
+                 rd(pub_reg(i, MBX_PUB_REG_LICENCE)) == ones(MBX_LICENCE_ACTIVE_LSB, MBX_LICENCE_ACTIVE_WIDTH) &&
+                 rd(pub_reg(i, MBX_PUB_REG_IDLE_SLOPE)) == 0xFFFFFFFFu &&
+                 rd(pub_reg(i, MBX_PUB_REG_SR_DOMAIN)) == domain;
+        for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 0xFFFFFFFFu);
+            masked = masked && rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING)) == binding;
+        }
+    }
+    ck_.that("P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, "
+             "BINDING BOUND and SID_VALID only, per interface and sink",
+             masked);
+    fill_pub(0x21u);
+    bool own = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        const std::uint32_t t = 0x21u + 0x10u * i;
+        own = own && rd(pub_reg(i, MBX_PUB_REG_DA_GATE)) == ((0x0101u * (t + 1u)) & 0xFFFFu) &&
+              rd(pub_reg(i, MBX_PUB_REG_LICENCE)) == ((0x0202u * (t + 3u)) & 0xFFFFu) &&
+              rd(pub_reg(i, MBX_PUB_REG_IDLE_SLOPE)) == 0x01000193u * (t + 5u) &&
+              rd(pub_reg(i, MBX_PUB_REG_SR_DOMAIN)) == pub_domain(t);
+        for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            own = own && rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO)) == 0xC0DE0000u + 0x100u * t + k &&
+                  rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_HI)) == 0x5EED0000u + 0x100u * t + k &&
+                  rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING)) == ((t + k) & binding);
+        }
+    }
+    ck_.that("P1 each interface's registers and each sink's entry read back what was written to them, and only that",
+             own);
+}
+
+// P2: each field reaches its own output, of its own interface and sink.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_pub_outputs() {
+    bool fields = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        const std::uint32_t t = 0x21u + 0x10u * i;
+        const std::uint32_t dom = pub_domain(t);
+        const PubView v = b_.pub(i);
+        std::uint32_t bound = 0;
+        bool sid = true;
+        for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            const std::uint32_t b = t + k;
+            bound |= ((b >> MBX_BINDING_BOUND_LSB) & 1u) << k;
+            const std::uint64_t want = ((b >> MBX_BINDING_SID_VALID_LSB) & 1u) != 0u
+                                           ? (std::uint64_t{0x5EED0000u + 0x100u * t + k} << 32) | (0xC0DE0000u + 0x100u * t + k)
+                                           : 0u;
+            sid = sid && v.sid.at(k) == want;
+        }
+        fields = fields && v.da_gate == ((0x0101u * (t + 1u)) & 0xFFFFu) &&
+                 v.licence == ((0x0202u * (t + 3u)) & 0xFFFFu) && v.idle_slope == 0x01000193u * (t + 5u) &&
+                 v.vid == field(dom, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) &&
+                 v.priority == field(dom, MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH) &&
+                 v.adopted == field(dom, MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH) &&
+                 v.bound == bound && sid;
+    }
+    ck_.that("P2 every field reaches the datapath on its own output, for its own interface and sink", fields);
+    // one bit at a time: a gate, a licence or a bound level moves its own bit only
+    bool single = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE}) {
+            wr(pub_reg(i, r), 0u);
+        }
+        for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 0u);
+        }
+    }
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            wr(pub_reg(i, MBX_PUB_REG_DA_GATE), 1u << s);
+            wr(pub_reg(i, MBX_PUB_REG_LICENCE), 1u << (MBX_N_PUB_SOURCES - 1u - s));
+            const std::vector<PubView> v = pub_views();
+            for (std::uint32_t j = 0; j < MBX_N_IF; ++j) {
+                single = single && v[j].da_gate == (j == i ? 1u << s : 0u) &&
+                         v[j].licence == (j == i ? 1u << (MBX_N_PUB_SOURCES - 1u - s) : 0u);
+            }
+        }
+        wr(pub_reg(i, MBX_PUB_REG_DA_GATE), 0u);
+        wr(pub_reg(i, MBX_PUB_REG_LICENCE), 0u);
+        for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 1u << MBX_BINDING_BOUND_LSB);
+            const std::vector<PubView> v = pub_views();
+            for (std::uint32_t j = 0; j < MBX_N_IF; ++j) {
+                single = single && v[j].bound == (j == i ? 1u << k : 0u);
+            }
+            wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 0u);
+        }
+    }
+    ck_.that("P2 source s's DA_GATE and LICENCE bits and sink k's BOUND move their own output bit only", single);
+}
+
+// P3: the stream_id reaches the datapath only while SID_VALID is set, and
+// rewritten in the firmware's order it is never seen half written.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_pub_sid_valid() {
+    const std::uint32_t i = MBX_N_IF - 1u;
+    const std::uint32_t k = MBX_N_PUB_SINKS - 1u;
+    const std::uint32_t bound = 1u << MBX_BINDING_BOUND_LSB;
+    const std::uint32_t valid = 1u << MBX_BINDING_SID_VALID_LSB;
+    for (std::uint32_t j = 0; j < MBX_N_PUB_SINKS; ++j) {
+        wr(pub_sink_reg(i, j, MBX_PUB_SINK_REG_BINDING), 0u);
+    }
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), bound);
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO), 0x89ABCDEFu);
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_HI), 0x01234567u);
+    PubView v = b_.pub(i);
+    ck_.hex("P3 with SID_VALID clear the datapath reads the stream_id as 0, SID_LO and SID_HI written", v.sid.at(k), 0);
+    ck_.hex("P3 and BOUND alone is on its output", v.bound, 1u << k);
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), bound | valid);
+    v = b_.pub(i);
+    ck_.hex("P3 with SID_VALID set the datapath reads SID_HI:SID_LO", v.sid.at(k), 0x0123456789ABCDEFull);
+    bool others = true;
+    for (std::uint32_t j = 0; j + 1u < MBX_N_PUB_SINKS; ++j) {
+        others = others && v.sid.at(j) == 0u;
+    }
+    ck_.that("P3 and no other sink's stream_id moves", others);
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), valid);
+    v = b_.pub(i);
+    ck_.that("P3 BOUND and SID_VALID are independent: BOUND clear, the stream_id stays",
+             v.bound == 0u && v.sid.at(k) == 0x0123456789ABCDEFull);
+    // the firmware's order: SID_VALID cleared, both words, SID_VALID set
+    bool never_half = true;
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), bound);
+    never_half = never_half && b_.pub(i).sid.at(k) == 0u;
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO), 0x76543210u);
+    never_half = never_half && b_.pub(i).sid.at(k) == 0u;
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_HI), 0xFEDCBA98u);
+    never_half = never_half && b_.pub(i).sid.at(k) == 0u;
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), bound | valid);
+    ck_.that("P3 rewritten in the firmware's order, the datapath sees 0, then the whole new stream_id",
+             never_half && b_.pub(i).sid.at(k) == 0xFEDCBA9876543210ull);
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 0u);
+    ck_.that("P3 SID_VALID cleared takes the stream_id off the datapath; SID_LO and SID_HI still read as written",
+             b_.pub(i).sid.at(k) == 0u && rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO)) == 0x76543210u &&
+                 rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_HI)) == 0xFEDCBA98u);
+}
+
+// P4: outside its registers the block takes no write and reads 0: the holes
+// of an interface block, the fourth word of a sink entry and the blocks of
+// interface indices this build does not have. A partial strobe is refused.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_pub_out_of_window() {
+    fill_pub(0x47u);
+    const std::vector<std::uint32_t> words = pub_words();
+    const std::vector<PubView> views = pub_views();
+    const std::uint32_t err_before = rd(MBX_REG_BUS_ERR);
+    bool holes_zero = true;
+    for (std::uint32_t i = 0; i < kPubBlocks; ++i) {
+        for (std::uint32_t off = 0; off < MBX_PUB_STRIDE; off += 4u) {
+            const bool sink = off >= MBX_PUB_SINK_BASE;
+            const std::uint32_t in = sink ? (off - MBX_PUB_SINK_BASE) % MBX_PUB_SINK_STRIDE : off;
+            const bool named = i < MBX_N_IF &&
+                               (sink ? (in == MBX_PUB_SINK_REG_SID_LO || in == MBX_PUB_SINK_REG_SID_HI ||
+                                        in == MBX_PUB_SINK_REG_BINDING)
+                                     : (in == MBX_PUB_REG_DA_GATE || in == MBX_PUB_REG_LICENCE ||
+                                        in == MBX_PUB_REG_IDLE_SLOPE || in == MBX_PUB_REG_SR_DOMAIN));
+            if (!named) {
+                wr(pub_reg(i, off), 0xFFFFFFFFu);
+                holes_zero = holes_zero && rd(pub_reg(i, off)) == 0u;
+            }
+        }
+    }
+    ck_.that("P4 every hole of every interface block, and every word of an interface the build does not have, "
+             "reads 0 after a write",
+             holes_zero);
+    bool kept = pub_words() == words;
+    const std::vector<PubView> after = pub_views();
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        kept = kept && same_pub(after[i], views[i]);
+    }
+    ck_.that("P4 and none of those writes moved a register or an output of an interface the build has", kept);
+    ck_.dec("P4 a write outside the registers is not a refusal", rd(MBX_REG_BUS_ERR), err_before);
+    b_.write(pub_reg(0, MBX_PUB_REG_IDLE_SLOPE), 0u, 0x3);
+    b_.write(pub_sink_reg(0, 0, MBX_PUB_SINK_REG_BINDING), 0u, 0xE);
+    ck_.that("P4 a write with a partial strobe leaves the register and the output",
+             pub_words() == words && same_pub(b_.pub(0), views[0]));
+    ck_.dec("P4 and counts in BUS_ERR", rd(MBX_REG_BUS_ERR), err_before + 2u);
+}
+
+// P5: a reset clears the whole block and every output.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_pub_reset() {
+    fill_pub(0x5Au);
+    b_.reset();
+    bool zero = true;
+    for (std::uint32_t w : pub_words()) {
+        zero = zero && w == 0u;
+    }
+    for (const PubView& v : pub_views()) {
+        zero = zero && same_pub(v, pub_zero());
+    }
+    ck_.that("P5 a reset clears every publication register and every output of every interface", zero);
 }
 
 }  // namespace mbx_tb

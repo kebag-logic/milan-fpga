@@ -22,6 +22,25 @@ struct TxFrame {
     unsigned channel = 0;
 };
 
+//! What the publication block drives into one interface's datapath (lane
+//! F-INT): each field as KL_mbx's pub_*_o ports carry it on the RTL, and as
+//! mbx_model_pub_view() reports it on the host model.
+struct PubView {
+    std::uint32_t da_gate = 0;       //!< DA_GATE.OPEN, bit s source s
+    std::uint32_t licence = 0;       //!< LICENCE.ACTIVE, bit s source s
+    std::uint32_t idle_slope = 0;    //!< IDLE_SLOPE.BPS
+    std::uint32_t vid = 0;           //!< SR_DOMAIN.VID
+    std::uint32_t priority = 0;      //!< SR_DOMAIN.PRIORITY
+    std::uint32_t adopted = 0;       //!< SR_DOMAIN.ADOPTED
+    std::uint32_t bound = 0;         //!< bit k: sink k's BINDING.BOUND
+    std::vector<std::uint64_t> sid;  //!< sink k's stream_id, 0 while its SID_VALID is clear
+};
+
+inline bool same_pub(const PubView& a, const PubView& b) {
+    return a.da_gate == b.da_gate && a.licence == b.licence && a.idle_slope == b.idle_slope && a.vid == b.vid &&
+           a.priority == b.priority && a.adopted == b.adopted && a.bound == b.bound && a.sid == b.sid;
+}
+
 constexpr std::uint16_t kEtherAvtp = 0x22F0;   // IEEE 1722-2016 Table 5
 constexpr std::uint16_t kEtherMsrp = 0x22EA;   // IEEE 802.1Q-2018 Table 10-2
 constexpr std::uint16_t kEtherMvrp = 0x88F5;   // IEEE 802.1Q-2018 Table 10-2
