@@ -1,0 +1,22 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.528 MB sources in 12 modules, into 1.126 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 7.709 s (elab=0.018, cvt=0.079, bld=7.549); cpu 0.145 s on 16 threads; allocated 636.809 MB
+make[1]: warning: -j16 forced in submake: resetting jobserver mode.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~

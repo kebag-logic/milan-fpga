@@ -1,0 +1,25 @@
+endpoint route-1x1: $VALIDATION_STORAGE/645-a531/round2f/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              50391       50267      -124  ok, below the baseline
+FF               54263       54413       150  ok
+SLICE            15788       15779        -9  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.241       0.299     0.058  ok
+WHS_ns           0.029       0.031     0.002  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT +269, FF -5
+  wrapper: LUT +264, FF -5
+  u_pp/u_aecp: LUT +154, FF -1
+  u_pp/u_aecp/u_dyn: LUT +141, FF +0
+  u_pp/u_aecp/u_d3: LUT -90, FF +0
+  u_pp/u_notify: LUT +57, FF -2
+  u_pp/u_srp/u_listener: LUT +22, FF +0
+  u_pp/u_srp: LUT +19, FF -2
+  u_pp/u_aecp/u_ucpu: LUT +6, FF +0
+  u_pp/u_srp/u_admission: LUT -6, FF +0
+  u_pp/u_srp/u_domain: LUT +6, FF +0
+  u_pp/u_talker: LUT -6, FF +0
+RESULT: PASS

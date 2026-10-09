@@ -1,0 +1,77 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.534 MB sources in 5 modules, into 1.382 MB in 7 C++ files needing 0.002 MB
+- Verilator: Walltime 11.732 s (elab=0.015, cvt=0.156, bld=11.491); cpu 0.268 s on 16 threads; allocated 769.406 MB
+make[1]: warning: -j16 forced in submake: resetting jobserver mode.
+%Warning-DECLFILENAME: $REVIEWS/645-r475-7-packet/scratch/cold-serial/tb/verilator/follow_ring/obj_mut/starved-held-dup/KL_chan_map_capture_planted.sv:366:8: Filename 'KL_chan_map_capture_planted' does not match MODULE name: 'KL_chan_map_capture'
+  366 | module KL_chan_map_capture #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/DECLFILENAME?v=5.050
+                       ... Use "/* verilator lint_off DECLFILENAME */" and lint_on around source to disable this message.
+%Warning-PINMISSING: chmap_wrap.sv:159:5: Instance has missing pin: 'map_flat_o'
+  159 |   ) u_chmap_a (
+      |     ^~~~~~~~~
+                     $REVIEWS/645-r475-7-packet/scratch/cold-serial/tb/verilator/follow_ring/obj_mut/starved-held-dup/KL_chan_map_capture_planted.sv:417:37: ... Location of port declaration
+  417 |   output logic [2*N_SLOTS_P*13-1:0] map_flat_o,
+      |                                     ^~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: chmap_wrap.sv:181:40: Instance has missing pin: 'frame_p_o'
+  181 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
+      |                                        ^~~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:185:23: ... Location of port declaration
+  185 |   output logic        frame_p_o,          
+      |                       ^~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:181:40: Instance has missing pin: 'frame_idx_o'
+  181 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
+      |                                        ^~~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:186:23: ... Location of port declaration
+  186 |   output logic [3:0]  frame_idx_o,        
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:181:40: Instance has missing pin: 'frame_tu_o'
+  181 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
+      |                                        ^~~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:190:23: ... Location of port declaration
+  190 |   output logic        frame_tu_o,
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:181:40: Instance has missing pin: 'frame_mr_o'
+  181 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
+      |                                        ^~~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:195:23: ... Location of port declaration
+  195 |   output logic        frame_mr_o
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:219:5: Instance has missing pin: 'map_flat_o'
+  219 |   ) u_chmap_b (
+      |     ^~~~~~~~~
+                     $REVIEWS/645-r475-7-packet/scratch/cold-serial/tb/verilator/follow_ring/obj_mut/starved-held-dup/KL_chan_map_capture_planted.sv:417:37: ... Location of port declaration
+  417 |   output logic [2*N_SLOTS_P*13-1:0] map_flat_o,
+      |                                     ^~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:241:40: Instance has missing pin: 'frame_p_o'
+  241 |   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (
+      |                                        ^~~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:185:23: ... Location of port declaration
+  185 |   output logic        frame_p_o,          
+      |                       ^~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:241:40: Instance has missing pin: 'frame_idx_o'
+  241 |   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (
+      |                                        ^~~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:186:23: ... Location of port declaration
+  186 |   output logic [3:0]  frame_idx_o,        
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:241:40: Instance has missing pin: 'frame_tu_o'
+  241 |   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (
+      |                                        ^~~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:190:23: ... Location of port declaration
+  190 |   output logic        frame_tu_o,
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:241:40: Instance has missing pin: 'frame_mr_o'
+  241 |   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (
+      |                                        ^~~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:195:23: ... Location of port declaration
+  195 |   output logic        frame_mr_o
+      |                       ^~~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:208:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  208 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.

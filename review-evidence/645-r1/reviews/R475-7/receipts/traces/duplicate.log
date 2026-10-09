@@ -1,0 +1,40 @@
+  info: INTERNAL: 15 slips in 3.735 s (beat 0.220 s); margin at the set +0.008..+1.006 ticks
+  info: t=3.735000 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED -4.735 s after the set; trim +0.000 ppm at the end
+  info: render recentre at 0.0428 s after the set, +4.7778 s from LOCKED
+  info: INTERNAL, last second      [   2.735,    3.735) s: ring slips 5+0, margin +0.008..+1.006 ticks; render n 7997 fill 8..14 (off-law 7981), delay 1.997..8.003 (out of band 7996), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: set to LOCKED              [   3.735,   -1.000) s: ring slips 0+0, margin +1000000000.000..-1000000000.000 ticks; render n 0 fill 1000000000..-1000000000 (off-law 0), delay 1000000000.000..-1000000000.000 (out of band 0), end-to-pop clearance 1000000000.000 ticks
+  info: LOCKED to the settle       [  -1.000,    3.736) s: ring slips 15+0, margin +0.008..+1.006 ticks; render n 25078 fill 8..14 (off-law 24721), delay 1.997..8.172 (out of band 24766), end-to-pop clearance 0.000 ticks NOT GRADABLE
+  info: settle to the hold's end   [   3.736,    3.835) s: ring slips 0+0, margin +0.553..+0.998 ticks; render n 790 fill 11..14 (off-law 334), delay 5.722..8.717 (out of band 334), end-to-pop clearance 0.086 ticks
+  info: [B8]: settle recentre DID NOT FIRE (0 pulse(s), render recentre executed 0); slips before it 0, after it 0; after it the loopback margin +0.553..+0.998 ticks, render fill 11..14 delay 5.722..8.717, not gradable
+MARGINS: [B8] empty 0.552960 full 10.076160 ticks
+ERROR-DISTRIBUTION: INTERNAL before switch window 3.235000000 3.735000000 samples 24000 axis_hz 6250000 histogram -1:26 0:23948 1:26
+ERROR-DISTRIBUTION: AAF after settle window 3.736000000 3.835000025 samples 4752 axis_hz 6250000 histogram -1:4 0:4742 1:6
+  [FAIL] [STEADY] AAF after settle has no pending settle got=4752 exp=0
+RESULT-645: phase 0.0000 jitter 0.0 us tail 0.0 us p 0e+00: slips set-to-settle 0 (declared bound 3), after the settle 0, margin at LOCKED +1000000000.000..-1000000000.000, after the settle +0.553..+0.998 ticks, LOCKED -4.74 s, settle -1.000 s after LOCKED, render after the settle fill 11..14 delay 5.722..8.717 (not gradable)
+  [FAIL] [B8] the servo read LOCKED within 15 s of the INTERNAL-to-AAF set
+  [FAIL] [B8] exactly one settle recentre from the transient to the hold's end got=0 exp=1
+  [FAIL] [B8] the settle recentre came 8 servo windows after LOCKED
+  [FAIL] [B8] the render stage executed the settle recentre got=0 exp=1
+  [FAIL] [B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)
+  [FAIL] [B8] empty-side margin at least one tick
+  [FAIL] [B8] the render stage is on its law after the settle recentre
+RING-EVENT: dup 0.657956240
+RING-EVENT: dup 0.879728400
+RING-EVENT: dup 1.099875440
+RING-EVENT: dup 1.320147440
+RING-EVENT: dup 1.539544400
+RING-EVENT: dup 1.759441360
+RING-EVENT: dup 1.978838320
+RING-EVENT: dup 2.198235280
+RING-EVENT: dup 2.418132240
+RING-EVENT: dup 2.637154160
+RING-EVENT: dup 2.857051120
+RING-EVENT: dup 3.076448080
+RING-EVENT: dup 3.295845040
+RING-EVENT: dup 3.515742000
+RING-EVENT: dup 3.734763920
+RING-EVENT: recentre 0.162953680
+RING-EVENTS: complete through 3.835000025 s
+== follow_ring: checks: 18   failures: 8 ==
+RESULT: FAIL

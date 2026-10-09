@@ -1,0 +1,17 @@
+Found at the #629 bench (lane B7, PR #644; review R450-1 F5). The case is B-AAF on dev `bbf704ec`: the DUT's CLOCK_DOMAIN follows the reference peer's AAF stream through its INPUT_STREAM clock source.
+
+**Observation:** after the INTERNAL-to-AAF switch, the DUT's loopback ring slipped one frame, `SLIP_LB` 386 → 388 on both channel pairs. This happened 14.7 to 44.9 s after the servo first read LOCKED, inside the graded window. The ring then held for about 570 s. Six duplicates fell between the set and the window. Evidence: `review-evidence/629-b7-r1` on branch `629-b7-review-evidence`, `runs/baaf/dut-window-0.txt` and `dut-window-1.txt`.
+
+**Why it matters:**
+- #629's fabric item requires that "a source switch re-locks without an undeclared discontinuity".
+- The declared switch behaviour is one #386 recentre after a settled source change, within 32,768 ticks of the aligner engaging (`docs/design/MEDIA_CLOCK_FOLLOWING.md:1043-1050`, `TIME_SYNC.md:384-385`). That does not cover a slip 15 to 45 s after lock.
+- The servo is frequency-only (`KL_mmcm_drp_servo.sv:22-34`), so a residual phase offset after lock is a plausible mechanism.
+- #632 covers the talker's presentation-time phase, not the listener ring.
+
+**Acceptance:**
+- The cause is established in simulation or at the bench.
+- Either the slip is removed (the ring holds through a source switch, after the declared recentre), or it is declared as bounded behaviour in the design and checked.
+- A bench repeat of the INTERNAL→AAF and AAF→CRF switches shows no undeclared discontinuity on the DUT's followed receive path.
+
+Relates to #629.
+

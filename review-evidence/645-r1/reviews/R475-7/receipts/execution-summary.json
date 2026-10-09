@@ -1,0 +1,92 @@
+{
+  "cold-serial": {
+    "shared_builds": 1,
+    "ordinary": [
+      [
+        "18",
+        "0"
+      ],
+      [
+        "48",
+        "0"
+      ]
+    ],
+    "controller_rates": [
+      "50000000",
+      "6250000",
+      "100000000",
+      "25000000"
+    ],
+    "small_pulls": "10/10",
+    "timing": {
+      "head": "8e4b1e53e9b5a8ef5f9854095347436ab84259b6",
+      "command": [
+        "taskset",
+        "-c",
+        "96-99",
+        "make",
+        "-C",
+        "tb/verilator/follow_ring"
+      ],
+      "MAKEFLAGS": "unset",
+      "cold": true,
+      "simulator": "Verilator 5.050 2026-07-01 rev v5.050",
+      "simulator_sha256": "905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f",
+      "rc": 0,
+      "wall_seconds": 471.8447600399377
+    }
+  },
+  "cold-parallel": {
+    "shared_builds": 1,
+    "ordinary": [
+      [
+        "18",
+        "0"
+      ],
+      [
+        "48",
+        "0"
+      ]
+    ],
+    "controller_rates": [
+      "6250000",
+      "50000000",
+      "100000000",
+      "25000000"
+    ],
+    "small_pulls": "10/10",
+    "timing": {
+      "head": "8e4b1e53e9b5a8ef5f9854095347436ab84259b6",
+      "command": [
+        "taskset",
+        "-c",
+        "100-103",
+        "make",
+        "-j16",
+        "-C",
+        "tb/verilator/follow_ring"
+      ],
+      "MAKEFLAGS": "unset",
+      "cold": true,
+      "simulator": "Verilator 5.050 2026-07-01 rev v5.050",
+      "simulator_sha256": "905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f",
+      "rc": 0,
+      "wall_seconds": 455.381121775019
+    }
+  },
+  "mutants": [
+    "[MUTANT] QUIET-ARM: caught by \"[STEADY] INTERNAL without a hold has no pending settle\"",
+    "[MUTANT] NO-RECOVERY: caught by \"[PULLIN] exactly one settle recentre from the transient to the hold's end\"",
+    "[MUTANT] HIGH-ARM: caught by \"[PULLIN] the render stage is on its law after the settle recentre\"",
+    "[MUTANT] NO-ARM: caught by \"[PULLIN] the render stage is on its law after the settle recentre\"",
+    "[MUTANT] NO-SETTLE: caught by \"[PULLIN] the render stage is on its law after the settle recentre\"",
+    "[MUTANT] HELD-DUP: caught by \"LRC: that held walk on a still-empty pair counts no dup\" and \"LRC: no recentre moved the dup counter\" and \"SPAN: no action counted as a duplicate\"",
+    "[MUTANT] STARVED-HELD-DUP: caught by \"LRC: that held walk on a still-empty pair counts no dup\" and \"LRC: no recentre moved the dup counter\"",
+    "[MUTANT] SINGLE-DROP: caught by \"LRC: ten left drops five excess events on both pairs\"",
+    "[MUTANT] RENDER-ONLY: caught by \"[B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)\"",
+    "[MUTANT] EARLY: caught by \"[B8] the render stage is on its law after the settle recentre\"",
+    "[MUTANT] OVERSHOOT: caught by \"[B8] no loopback slip after the settle recentre\"",
+    "[MUTANT] W1: caught by \"[SW] AAF to CRF: the switch moved the loopback margin less than 0.1 tick before its settle\""
+  ],
+  "unit_memory_peak_bytes": 4306477056
+}

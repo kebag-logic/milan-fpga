@@ -1,0 +1,20 @@
+[A10] **Round 2h (hosted-basis wall clock + trace table)** for [A531] on PR #672. Head `1e79ebdc`: exact-head hosted is all green ([evidence](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6075036838)). [R474-5](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6075042057) and [R475-6](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6074252909) are NEGATIVE on two MINORs.
+
+**Decision on `follow_ring` headroom.** Its hosted window is 1,422.5 s. That is 17.5 s under the 80 % line, which is no margin under `CI_WORKFLOWS.md:185-187`. The default must have real headroom, and it keeps its four standing legs.
+
+1. **R474-5-F1, `follow_ring`.** Run the four standing legs concurrently inside the suite's default target: one shared build, then at most four leg jobs (the hosted runner has four cores). It must work under the sweep's own invocation (`make -C <dir>`, no `MAKEFLAGS`) and under an outer `make -jN`. The bar:
+   - local replica of the sweep invocation (serial outer `make -C`, `taskset` to four CPUs, cold build) at most 708 s. That is 1,260 s (70 % of the 1,800 s guard) divided by this suite's own measured hosted/replica ratio, 1,422.5 / 800.2 = 1.78. The 1.58x factor under-projects this suite.
+   - If concurrency cannot meet the bar, STOP with the figures. Do not move a leg out of the default.
+2. **R474-5-F1, records.** `TESTING.md:293-300` and both Makefile headers state the hosted basis:
+   - the `1e79ebdc` hosted windows (1,422.5 s and 1,093.9 s; run 37882435947, job 113665137864, dev-class runner) as the previous figures;
+   - the new local replica with its invocation, CPU affinity and the ratio used;
+   - the margin to 1,440 s and to 1,800 s for each suite.
+   Remove the `make -j16` figures as the hosted basis. The render suite needs no source change; its record is restated the same way.
+3. **R475-6-F1, `trace_table.py`.** The table separates real slips from the declared settle recentre (for example a separate column keyed on the recentre the trace already records). Do not present the margin-jump heuristic as a slip count. The docstring states the current ring law: 16 entries, target 11. Controls:
+   - R474-5's probe (`receipts/trace-table-probe.txt` and its inputs, packet on the `645-review-evidence` branch) prints `slips 0`;
+   - a trace with a genuine one-frame slip still prints `slips 1`, and a genuine skip still shows.
+4. **R474-5-S1.** Add the "outside the default sweep" clause to the `follow_ring/mutants.py` disposition (`scripts/measure_test_evidence_readers.py:92-97`).
+5. Update `scripts/run_all_suites.sh`, the `measure_test_evidence.py` pins and `CI_WORKFLOWS.md` only if a target or suite list changes. `--check` and the self-test must pass.
+
+No RTL change, so the round 2f resource records stay valid. Commit on `1e79ebdc`, with no merge, rebase or amend. Run the four legs, `make mutants` once, the docs gates and the builder. After the manager pushes, an exact-head hosted `verilator-suites` must pass with `follow_ring` at or under 1,260 s. Then post REVIEW READY.
+

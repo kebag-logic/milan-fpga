@@ -1,0 +1,11 @@
+make -j4 b8 pullin small-pullin settle-control
+make[1]: Entering directory '$REVIEWS/645-r475-7-packet/scratch/schedule-probes'
+python3 action.py build
+python3 action.py small-pullin
+python3 action.py settle-control
+python3 action.py b8
+make[1]: Leaving directory '$REVIEWS/645-r475-7-packet/scratch/schedule-probes'
+make[1]: warning: -j4 forced in submake: resetting jobserver mode.
+make[1]: *** [Makefile:102: small-pullin] Error 1
+make[1]: *** Waiting for unfinished jobs....
+make: *** [Makefile:82: run] Error 2

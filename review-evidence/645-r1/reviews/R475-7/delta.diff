@@ -1,0 +1,373 @@
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index a70ecd08a..c293af9c2 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -288,17 +288,54 @@ The reason is wall clock and the numbers are in its Makefile header.
+ `milan_dp` measured 1037.7 s and the two render legs added about 109 s.
+ That took its 1800 s headroom to 1.57x, under the 1.58x hosted slowdown above.
+ Both default suites keep the 1800 s budget.
+-After #645's campaign split, their cold measurements on 2026-10-09 were:
+-
+-| Default suite (`make -j16`) | Measured seconds | At 1.58x | Required ceiling |
++The previous exact-head hosted windows at `1e79ebdc` came from
++[run 37882435947, job 113665137864](https://github.com/kebag-logic/milan-fpga/actions/runs/37882435947/job/113665137864)
++on a dev-class runner.
++The [review receipts](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6075042057)
++also give cold four-CPU replicas of that head: 800.2 s and 826.7 s.
++These replace the earlier `make -j16` figures as the hosted basis.
++
++| Previous hosted suite | Seconds | Margin to 1440 s | Margin to 1800 s |
+ |---|---:|---:|---:|
+-| `follow_ring`: four standing legs | 354.1 | 559.5 s | 1440 s |
+-| `milan_dp_render`: both legs and five leg-side controls | 733.2 | 1158.5 s | 1440 s |
++| `follow_ring` | 1422.5 | 17.5 s | 377.5 s |
++| `milan_dp_render` | 1093.9 | 346.1 s | 706.1 s |
++
++The [round 2h ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6075072415)
++requires all four `follow_ring` legs to overlap within the default target.
++A four-job sub-make bounds the leg pool under serial and parallel outer make.
++The `b8` and `pullin` legs share one build; fine pulls retain their own clock.
++No leg or check leaves the default.
++
++Cold replicas on 2026-10-09 used the sweep's serial outer invocation,
++with `MAKEFLAGS` unset and disjoint four-CPU sets:
++
++```sh
++env -u MAKEFLAGS taskset -c 32-35 make -C tb/verilator/follow_ring
++env -u MAKEFLAGS taskset -c 36-39 make -C tb/verilator/milan_dp_render
++```
+ 
+-The ceiling is 80% of 1800 s; both pass without changing any suite budget.
+-Builds used two concurrent elaborations and four compiler workers per elaboration,
+-with other validation jobs running beside them.
+-The render default retains all eighteen `[LAW]` phases.
++| New replica suite | Measured seconds | Hosted/replica ratio | Projection | Margin to 1440 s | Margin to 1800 s |
++|---|---:|---:|---:|---:|---:|
++| `follow_ring`: four standing legs | 437.204 | 1.78 | 778.2 s | 661.8 s | 1021.8 s |
++| `milan_dp_render`: both legs and five leg-side controls | 793.308 | 1.324 | 1050.3 s | 389.7 s | 749.7 s |
++
++The ratios round upward from 1422.5 / 800.2 and 1093.9 / 826.7.
++The prior 1.58x survey factor under-projects `follow_ring`.
++Its replica is below the 708 s bar; its projection leaves 481.8 s to 1260 s.
++Exact-head hosted acceptance still requires `follow_ring` at or below 1260 s
++and a successful `verilator-suites` aggregate.
++The guard stays at 1800 s; its 80% line stays at 1440 s.
++Independent validation jobs ran alongside these replicas on disjoint CPUs.
++The render default retains all eighteen `[LAW]` phases with no behavior change.
++
++The diagnostic `tb/verilator/follow_ring/trace_table.py` counts duplicate and skip frames
++from the harness's counter events, with declared recentres in a separate column.
++Run the harness with `--trace` to emit those absolute event records.
++The table marks older margin-only logs as lacking event evidence.
++A margin rise is not a measured slip.
++Run `python3 -B tb/verilator/follow_ring/test_trace_table.py` for the diagnostic
++controls: a declared action, genuine duplicate and skip frames, simultaneous
++action and slip, half-open time bins, and the older margin-only probe.
+ 
+ Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
+ LiteX integration boundary - CSR ID read, scratch-word readback, byte-exact
+diff --git a/scripts/measure_test_evidence_readers.py b/scripts/measure_test_evidence_readers.py
+index e345bdc1d..86bbe6ff9 100644
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -94,7 +94,8 @@ DUT_READER_DISPOSITIONS = {
+         "the band in place of 8 LOCKED windows, removed excursion arm, removed recovery "
+         "qualification, missed fine pull and quiet-noise arm) into a copy of the "
+         "datapath, overshoot and single-drop into a copy of the capture crossbar, and the "
+-        "render-only and W1 bindings by define; each must fail its named wire or law check",
++        "render-only and W1 bindings by define; each must fail its named wire or law check. "
++        "It is the explicit mutants target, outside the default sweep",
+     "tb/verilator/follow_ring/settle_control.py":
+         "controller harness; it copies the shipping recentre control verbatim for "
+         "compilation at four axis rates, then applies independent stimuli and "
+diff --git a/tb/verilator/follow_ring/Makefile b/tb/verilator/follow_ring/Makefile
+index 5fd3e63c2..85bf0e677 100644
+--- a/tb/verilator/follow_ring/Makefile
++++ b/tb/verilator/follow_ring/Makefile
+@@ -19,12 +19,18 @@
+ #                  graded on the settle law; exit 0 only when every run passed
+ #   make clean   - remove build artifacts
+ #
+-# DEFAULT WALL CLOCK (#645, 2026-10-09): 354.1 s cold with make -j16,
+-# two concurrent elaborations and four compiler workers per elaboration.
+-# At the documented 1.58x hosted factor this is 559.5 s, below the 1440 s
+-# headroom limit (80% of the unchanged 1800 s suite budget). The twelve
+-# rebuilt controls remain in make mutants, owned by the manager merge bank
+-# in docs/testing/TESTING.md; the four default legs retain all their checks.
++# DEFAULT WALL CLOCK (#645, 2026-10-09): the previous 1e79ebdc hosted
++# window was 1422.5 s (run 37882435947, job 113665137864, dev-class runner),
++# leaving 17.5 s to 1440 s and 377.5 s to the unchanged 1800 s guard.
++# New cold replica: env -u MAKEFLAGS taskset -c 32-35 make -C
++# tb/verilator/follow_ring; serial outer make, 437.204 s. The four standing
++# legs run in a bounded four-job sub-make with one shared b8/pullin build.
++# At this suite's measured ratio, 1422.5 / 800.2 rounded up to 1.78,
++# the projection is 778.2 s: margins 661.8 s to 1440 s and 1021.8 s to
++# 1800 s. It meets the 708 s replica bar; exact-head hosted acceptance
++# still requires <=1260 s. See docs/testing/TESTING.md for source receipts.
++# The twelve rebuilt controls remain in make mutants, owned by the manager
++# merge bank in TESTING.md; the four default legs retain all their checks.
+ #
+ # CLK_HZ is the ONE value for the wrapper's axis clock and the harness's
+ # wheel: derive, never mirror. The aligner's gains scale with it (the
+@@ -69,7 +75,11 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module follow_ring_wrap \
+ 
+ .PHONY: all run build b8 pullin small-pullin settle-control mutants sweep-b8 sweep-pullin clean
+ all: run
+-run: b8 pullin small-pullin settle-control
++# The sweep invokes serial outer make. Give these four independent legs a
++# bounded pool even there; b8 and pullin share one build in this sub-make.
++# An outer -jN cannot expand the pool past four leg jobs.
++run:
++	+$(MAKE) -j4 b8 pullin small-pullin settle-control
+ 
+ build:
+ 	mkdir -p $(MDIR)
+diff --git a/tb/verilator/follow_ring/sim_main.cpp b/tb/verilator/follow_ring/sim_main.cpp
+index b66cd3576..734f49454 100644
+--- a/tb/verilator/follow_ring/sim_main.cpp
++++ b/tb/verilator/follow_ring/sim_main.cpp
+@@ -617,6 +617,12 @@ class Bench {
+ 
+ void write_trace(const Bench& b, const std::string& path) {
+     if (path.empty()) return;
++    //! Absolute event times come from the slip counters and the settle pulse,
++    //! independently of PDU margin changes. A declared action is not a slip.
++    for (const double t : b.dup_times) std::printf("RING-EVENT: dup %.9f\n", t);
++    for (const double t : b.skip_times) std::printf("RING-EVENT: skip %.9f\n", t);
++    for (const double t : b.settle_times) std::printf("RING-EVENT: recentre %.9f\n", t);
++    std::printf("RING-EVENTS: complete through %.9f s\n", b.now_s());
+     FILE* f = std::fopen(path.c_str(), "w");
+     if (!f) return;
+     std::fprintf(f, "pdu,arrive_s,ring_margin_ticks,full_margin_ticks,render_fill,render_delay_ticks\n");
+diff --git a/tb/verilator/follow_ring/test_trace_table.py b/tb/verilator/follow_ring/test_trace_table.py
+new file mode 100644
+index 000000000..ae21c4449
+--- /dev/null
++++ b/tb/verilator/follow_ring/test_trace_table.py
+@@ -0,0 +1,88 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Exercise the diagnostic CLI with independent counter/pulse event fixtures.
++
++Run with python3 -B tb/verilator/follow_ring/test_trace_table.py.
++The four-tick step is the review's passing recentre counterexample. A real
++slip at that same instant must remain visible, even with no margin change.
++"""
++
++import csv
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import unittest
++
++
++class TraceTableTests(unittest.TestCase):
++    """Grade the printed CSV contract, not implementation helper functions."""
++
++    def table(self, events: str, complete: bool = True) -> list[dict[str, str]]:
++        """Run the actual CLI over a margin step and supplied event records."""
++        with tempfile.TemporaryDirectory() as tmp:
++            work = Path(tmp)
++            log = "info: t=1.000000 s  CLOCK_SOURCE <- 1\n" + events
++            if complete:
++                log += "RING-EVENTS: complete through 2.000000000 s\n"
++            (work / "run.log").write_text(log)
++            (work / "pdu.csv").write_text(
++                "arrive_s,ring_margin_ticks,render_fill,render_delay_ticks\n"
++                "1.000,1.3,14,8.5\n1.599,1.3,14,8.5\n"
++                "1.600,5.3,14,8.5\n1.900,5.3,14,8.5\n")
++            (work / "servo.csv").write_text(
++                "t_s,state,pi_run,ew_ns,trim_ppm,meter_valid\n"
++                "1.0,4,1,0,0.0,1\n")
++            argv = [sys.executable, "-B", str(Path(__file__).with_name("trace_table.py")),
++                    str(work / "run.log"), str(work / "pdu.csv"), str(work / "servo.csv"),
++                    "--from-s", "0", "--to-s", "1", "--step-s", "0.25",
++                    "--csv", str(work / "table.csv")]
++            result = subprocess.run(argv, capture_output=True, text=True, check=False)
++            self.assertEqual(result.returncode, 0, result.stderr)
++            with (work / "table.csv").open() as fh:
++                return list(csv.DictReader(fh))
++
++    def test_declared_action_is_not_a_slip(self) -> None:
++        """A four-tick recentre changes margins without moving slip counters."""
++        rows = self.table("RING-EVENT: recentre 1.600000000\n")
++        self.assertEqual([r["slips"] for r in rows], ["0"] * 4)
++        self.assertEqual([r["recentres"] for r in rows], ["0", "0", "1", "0"])
++        self.assertEqual(rows[2]["ring_margin_ticks"], "+1.300..+5.300")
++        self.assertTrue(all(r["event_trace"] == "complete" for r in rows))
++
++    def test_duplicate_during_recentre_is_counted(self) -> None:
++        """The declared pulse grants no exclusion window to a true duplicate."""
++        rows = self.table("RING-EVENT: recentre 1.600000000\n"
++                          "RING-EVENT: dup 1.600000000\n")
++        self.assertEqual(rows[2]["slips"], "1")
++        self.assertEqual(rows[2]["skips"], "0")
++        self.assertEqual(rows[2]["recentres"], "1")
++
++    def test_skip_with_flat_margin_is_counted(self) -> None:
++        """A genuine skip is observable without a positive margin jump."""
++        rows = self.table("RING-EVENT: skip 1.800000000\n")
++        self.assertEqual(rows[3]["slips"], "1")
++        self.assertEqual(rows[3]["skips"], "1")
++        self.assertEqual(rows[3]["recentres"], "0")
++
++    def test_bins_count_all_events_and_exclude_end(self) -> None:
++        """Counter events use half-open bins, even without a PDU in that bin."""
++        rows = self.table("RING-EVENT: dup 0.999000000\n"
++                          "RING-EVENT: dup 1.250000000\n"
++                          "RING-EVENT: skip 1.250000000\n"
++                          "RING-EVENT: recentre 1.250000000\n"
++                          "RING-EVENT: dup 2.000000000\n")
++        self.assertEqual([r["slips"] for r in rows], ["0", "2", "0", "0"])
++        self.assertEqual(rows[1]["skips"], "1")
++        self.assertEqual(rows[1]["recentres"], "1")
++
++    def test_legacy_probe_does_not_infer_slips(self) -> None:
++        """Old margin-only traces cannot establish a measured slip count."""
++        rows = self.table("", complete=False)
++        self.assertEqual([r["slips"] for r in rows], ["0"] * 4)
++        self.assertTrue(all(r["event_trace"] == "unavailable" for r in rows))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tb/verilator/follow_ring/trace_table.py b/tb/verilator/follow_ring/trace_table.py
+index 3baeb9b9d..a012cceaa 100644
+--- a/tb/verilator/follow_ring/trace_table.py
++++ b/tb/verilator/follow_ring/trace_table.py
+@@ -6,16 +6,24 @@
+   trace_table.py <run.log> <pdu.csv> <servo.csv> [--step-s S] [--from-s A] [--to-s B]
+                  [--csv OUT]
+ 
+-One row per step of S seconds, times relative to the run's last CLOCK_SOURCE
+-set before A (or to the hold, for the pull-in case):
++One row per step of S seconds, times relative to the first CLOCK_SOURCE set
++(or --origin-s, which can name the hold for the pull-in case):
+   ring margin  the loopback ring's margin range in the step, in media ticks
+-               (its law: a slip below 0, a skip above 3)
+-  slips        frames the ring slipped in the step (a margin jump of +1)
++               (16 entries, target 11 at PDU end: nominal margin (5, 6])
++  slips        recorded duplicate plus skip frames, from counter events
++  skips        the skip subset of slips
++  recentres    declared settle pulses, counted separately from slips
++  event_trace  complete when the log covers the whole bin; partial at its
++               end; unavailable on older logs without RING-EVENTS records
+   render       the render stage's fill range at PDU ends and first-event
+                delay range, in ticks (the law: 14, and (8, 9])
+   servo        the last window's state, PI run flag, error (ns per 512 ms),
+                trim (ppm) and the meter's rate validity before the step's end
+-The run log's `info:` lines give the set, LOCKED and recentre instants.
++RING-EVENT lines carry absolute times from the harness's counter and pulse
++observations. Bins are [start, end). Counts never derive from margin jumps,
++and a recentre never masks a simultaneous slip. Run with --trace to emit
++these records. On older logs, zero recorded events does not prove zero slips;
++event_trace explicitly marks the missing evidence.
+ """
+ 
+ import argparse
+@@ -29,10 +37,14 @@ STATES = {0: "IDLE", 1: "VERIFY", 2: "REPAIR", 3: "ACQUIRE", 4: "LOCKED", 5: "HO
+ 
+ 
+ def instants(log: str) -> dict[str, list[float]]:
+-    """The set, slip and recentre instants the run printed."""
+-    out: dict[str, list[float]] = {"set": [], "slip": [], "recentre": []}
++    """Read absolute event times, independently of PDU margin changes."""
++    out: dict[str, list[float]] = {"set": [], "dup": [], "skip": [], "recentre": [], "end": []}
+     for m in re.finditer(r"t=([0-9.]+) s  CLOCK_SOURCE <- (\d+)", log):
+         out["set"].append(float(m.group(1)))
++    for m in re.finditer(r"^RING-EVENT: (dup|skip|recentre) ([0-9.]+)$", log, re.MULTILINE):
++        out[m.group(1)].append(float(m.group(2)))
++    for m in re.finditer(r"^RING-EVENTS: complete through ([0-9.]+) s$", log, re.MULTILINE):
++        out["end"].append(float(m.group(1)))
+     return out
+ 
+ 
+@@ -48,22 +60,31 @@ def main() -> int:
+     ap.add_argument("--origin-s", type=float, default=None, help="time zero (default: the first set)")
+     ap.add_argument("--csv", type=Path, default=None)
+     a = ap.parse_args()
++    if not math.isfinite(a.step_s) or a.step_s <= 0:
++        ap.error("--step-s must be finite and positive")
+     marks = instants(a.log.read_text())
+     origin = a.origin_s if a.origin_s is not None else (marks["set"][0] if marks["set"] else 0.0)
+     t0 = origin + (a.from_s if a.from_s is not None else -2.0)
+     t1 = origin + (a.to_s if a.to_s is not None else 60.0)
++    if not all(math.isfinite(t) for t in (origin, t0, t1)) or t1 <= t0:
++        ap.error("the time range must be finite and increasing")
+     nbin = max(1, int(math.ceil((t1 - t0) / a.step_s)))
+-    bins = [{"mlo": math.inf, "mhi": -math.inf, "slips": 0, "flo": 99, "fhi": -1,
++    bins = [{"mlo": math.inf, "mhi": -math.inf, "slips": 0, "skips": 0, "recentres": 0,
++             "flo": 99, "fhi": -1,
+              "dlo": math.inf, "dhi": -math.inf} for _ in range(nbin)]
+-    prev = None
++    for kind in ("dup", "skip", "recentre"):
++        for t in marks[kind]:
++            if t0 <= t < t1:
++                b = bins[int((t - t0) / a.step_s)]
++                if kind == "recentre":
++                    b["recentres"] += 1
++                else:
++                    b["slips"] += 1
++                    b["skips"] += int(kind == "skip")
+     with a.pdus.open() as fh:
+         for r in csv.DictReader(fh):
+             t = float(r["arrive_s"])
+             m = float(r["ring_margin_ticks"])
+-            if not math.isnan(m):
+-                if prev is not None and m - prev > 0.5 and t0 <= t < t1:
+-                    bins[int((t - t0) / a.step_s)]["slips"] += 1
+-                prev = m
+             if not (t0 <= t < t1):
+                 continue
+             b = bins[int((t - t0) / a.step_s)]
+@@ -84,15 +105,19 @@ def main() -> int:
+             windows.append((float(r["t_s"]), int(r["state"]), int(r["pi_run"]), int(r["ew_ns"]),
+                             float(r["trim_ppm"]), int(r["meter_valid"])))
+     rows = []
+-    hdr = ("t_s", "ring_margin_ticks", "slips", "render_fill", "render_delay_ticks", "servo",
++    hdr = ("t_s", "ring_margin_ticks", "slips", "skips", "recentres", "event_trace",
++           "render_fill", "render_delay_ticks", "servo",
+            "pi", "e_ns", "trim_ppm", "rate_valid")
+     for i, b in enumerate(bins):
+-        te = t0 + (i + 1) * a.step_s
++        te = min(t1, t0 + (i + 1) * a.step_s)
++        coverage = "unavailable"
++        if marks["end"]:
++            coverage = "complete" if t0 + i * a.step_s >= 0 and te <= marks["end"][-1] else "partial"
+         last = [w for w in windows if w[0] <= te]
+         w = last[-1] if last else (0.0, 0, 0, 0, 0.0, 0)
+         rows.append((f"{te - origin:+.2f}",
+                      f"{b['mlo']:+.3f}..{b['mhi']:+.3f}" if b["mhi"] > -math.inf else "-",
+-                     str(b["slips"]),
++                     str(b["slips"]), str(b["skips"]), str(b["recentres"]), coverage,
+                      f"{b['flo']}..{b['fhi']}" if b["fhi"] >= 0 else "-",
+                      f"{b['dlo']:.3f}..{b['dhi']:.3f}" if b["dhi"] > -math.inf else "-",
+                      STATES.get(w[1], str(w[1])), str(w[2]), str(w[3]), f"{w[4]:+.3f}", str(w[5])))
+diff --git a/tb/verilator/milan_dp_render/Makefile b/tb/verilator/milan_dp_render/Makefile
+index 86a0fa32d..5f5a1c9a8 100644
+--- a/tb/verilator/milan_dp_render/Makefile
++++ b/tb/verilator/milan_dp_render/Makefile
+@@ -43,11 +43,16 @@
+ # shortened, and the sweep discovers and shards this directory on its own with
+ # the default 1800 s budget.
+ #
+-# DEFAULT WALL CLOCK (#645, 2026-10-09): 733.2 s cold with make -j16,
+-# two concurrent elaborations and four compiler workers per elaboration.
+-# At the documented 1.58x hosted factor this is 1158.5 s, below the 1440 s
+-# headroom limit (80% of the unchanged 1800 s suite budget). Both legs, all
+-# eighteen [LAW] phases and the five leg-side controls remain in the default.
++# DEFAULT WALL CLOCK (#645, 2026-10-09): the previous 1e79ebdc hosted
++# window was 1093.9 s (run 37882435947, job 113665137864, dev-class runner),
++# leaving 346.1 s to 1440 s and 706.1 s to the unchanged 1800 s guard.
++# New cold replica: env -u MAKEFLAGS taskset -c 36-39 make -C
++# tb/verilator/milan_dp_render; serial outer make, 793.308 s. At this suite's
++# measured ratio, 1093.9 / 826.7 rounded up to 1.324, the projection is
++# 1050.3 s: margins 389.7 s to 1440 s and 749.7 s to 1800 s.
++# See docs/testing/TESTING.md for source receipts. This is a projection;
++# exact-head hosted acceptance remains required. Both legs, all eighteen
++# [LAW] phases and the five leg-side controls remain in the default.
+ # The long [PULLIN] history and eighteen boot phases run in the explicit
+ # tdm8render-pullin campaign owned by the manager merge bank (TESTING.md).
+ 

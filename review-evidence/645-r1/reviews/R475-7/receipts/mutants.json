@@ -1,0 +1,17 @@
+{
+  "command": [
+    "env",
+    "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "taskset",
+    "-c",
+    "104-111",
+    "make",
+    "-j16",
+    "-C",
+    "$REVIEWS/645-r475-7-packet/scratch/cold-serial/tb/verilator/follow_ring",
+    "mutants",
+    "SWEEP_JOBS=4"
+  ],
+  "rc": 0,
+  "wall_seconds": 407.20426085207146
+}
