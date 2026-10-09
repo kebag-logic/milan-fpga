@@ -347,7 +347,7 @@
 #define MBX_SID_HI_SID_LSB 0u
 /* SID_HI: stream_id[63:32] */
 #define MBX_SID_HI_SID_WIDTH 32u
-/* Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath reads the stream_id as 0 while it is clear. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. */
+/* Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. */
 #define MBX_PUB_SINK_REG_BINDING 0x8u
 /* BINDING: the sink is bound */
 #define MBX_BINDING_BOUND_LSB 0u

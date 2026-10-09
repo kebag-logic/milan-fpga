@@ -58,8 +58,10 @@ PUB_OUTPUTS = {
     ("SR_DOMAIN", "ADOPTED"): ("pub_dom_adopted_o", "MBX_SR_DOMAIN_ADOPTED_WIDTH_C"),
 }
 
-#: The publication block's sink fields: BINDING.BOUND on pub_bound_o, one bit a
-#: sink, and the stream_id on pub_sid_o, 64 bits a sink, 0 while SID_VALID is clear.
+#: The publication block's sink fields: BINDING.BOUND on pub_bound_o and
+#: BINDING.SID_VALID on pub_sid_valid_o, one bit a sink, and SID_HI:SID_LO on
+#: pub_sid_o, 64 bits a sink, as last written: the datapath takes the stream_id
+#: only while its SID_VALID is set.
 PUB_SINK_FIELDS = {"SID_LO": ("SID",), "SID_HI": ("SID",), "BINDING": ("BOUND", "SID_VALID")}
 
 #: Read-only interface fields; `{i}` is the interface index.
@@ -189,8 +191,9 @@ def _pub_ports() -> list[str]:
     for (reg, fld), (port, width) in PUB_OUTPUTS.items():
         out.append(f"  output logic [MBX_N_IF_C*{width}-1:0] {port},   //! {reg}.{fld} per interface")
     out += ["  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_bound_o,   //! BINDING.BOUND per sink",
+            "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_sid_valid_o,   //! BINDING.SID_VALID per sink",
             "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   "
-            "//! SID_HI:SID_LO per sink, 0 while BINDING.SID_VALID is clear",
+            "//! SID_HI:SID_LO per sink, taken only while its SID_VALID is set",
             ");",
             "",
             "  localparam int unsigned AW2_C = MBX_ADDR_W_C + 2;   //! byte-offset width",
@@ -354,8 +357,8 @@ def _pub_block(contract: Contract) -> list[str]:
     bound = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C)"
     out += ["      for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin",
             f"        pub_bound_o[MBX_N_PUB_SINKS_C*i + k] = {bound} != 0;",
-            f"        pub_sid_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = ({valid} != 0)",
-            "            ? {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]} : 64'd0;",
+            f"        pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = {valid} != 0;",
+            "        pub_sid_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};",
             "      end", "    end", "  end : pub_out", ""]
     return out
 

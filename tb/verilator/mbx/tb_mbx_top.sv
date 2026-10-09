@@ -87,7 +87,8 @@ module tb_mbx_top
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_PRIORITY_WIDTH_C-1:0] pub_dom_prio_o,  //! SR_DOMAIN.PRIORITY
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_ADOPTED_WIDTH_C-1:0]  pub_dom_adopted_o, //! SR_DOMAIN.ADOPTED
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_bound_o,       //! BINDING.BOUND per sink
-  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0]         pub_sid_o          //! stream_id per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_sid_valid_o,   //! BINDING.SID_VALID per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0]         pub_sid_o          //! SID_HI:SID_LO per sink
 );
 
   logic                    host_req_w;
@@ -201,6 +202,7 @@ module tb_mbx_top
     .pub_dom_prio_o    (pub_dom_prio_o),
     .pub_dom_adopted_o (pub_dom_adopted_o),
     .pub_bound_o       (pub_bound_o),
+    .pub_sid_valid_o   (pub_sid_valid_o),
     .pub_sid_o         (pub_sid_o)
   );
 

@@ -33,7 +33,7 @@ struct PubView {
     std::uint32_t priority = 0;      //!< SR_DOMAIN.PRIORITY
     std::uint32_t adopted = 0;       //!< SR_DOMAIN.ADOPTED
     std::uint32_t bound = 0;         //!< bit k: sink k's BINDING.BOUND
-    std::vector<std::uint64_t> sid;  //!< sink k's stream_id, 0 while its SID_VALID is clear
+    std::vector<std::uint64_t> sid;  //!< the stream_id the datapath takes for sink k: 0 while its SID_VALID is clear
 };
 
 inline bool same_pub(const PubView& a, const PubView& b) {

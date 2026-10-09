@@ -2565,6 +2565,7 @@ class CtrlMailbox(LiteXModule):
             o_pub_dom_prio_o=Signal(n_if * pub_w[("SR_DOMAIN", "PRIORITY")]),
             o_pub_dom_adopted_o=Signal(n_if * pub_w[("SR_DOMAIN", "ADOPTED")]),
             o_pub_bound_o=Signal(n_if * contract.pub_sinks),
+            o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
             o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64))
         self.comb += self.ev.mbx.trigger.eq(irq)
 

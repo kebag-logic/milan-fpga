@@ -348,7 +348,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_SID_HI_SID_LSB_C = 32'd0;
   //! SID_HI: stream_id[63:32]
   localparam int unsigned MBX_SID_HI_SID_WIDTH_C = 32'd32;
-  //! Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath reads the stream_id as 0 while it is clear. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath.
+  //! Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath.
   localparam int unsigned MBX_PUB_SINK_REG_BINDING_C = 32'h00000008;
   //! BINDING: the sink is bound
   localparam int unsigned MBX_BINDING_BOUND_LSB_C = 32'd0;

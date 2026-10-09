@@ -66,7 +66,8 @@ module KL_mbx
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_PRIORITY_WIDTH_C-1:0] pub_dom_prio_o,   //! SR_DOMAIN.PRIORITY per interface
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_ADOPTED_WIDTH_C-1:0] pub_dom_adopted_o,   //! SR_DOMAIN.ADOPTED per interface
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_bound_o,   //! BINDING.BOUND per sink
-  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   //! SID_HI:SID_LO per sink, 0 while BINDING.SID_VALID is clear
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_sid_valid_o,   //! BINDING.SID_VALID per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   //! SID_HI:SID_LO per sink, taken only while its SID_VALID is set
 );
 
   localparam int unsigned AW2_C = MBX_ADDR_W_C + 2;   //! byte-offset width
@@ -352,8 +353,8 @@ module KL_mbx
       pub_dom_adopted_o[MBX_SR_DOMAIN_ADOPTED_WIDTH_C*i +: MBX_SR_DOMAIN_ADOPTED_WIDTH_C] = MBX_SR_DOMAIN_ADOPTED_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_ADOPTED_LSB_C, MBX_SR_DOMAIN_ADOPTED_WIDTH_C));
       for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin
         pub_bound_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C) != 0;
-        pub_sid_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = (mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C) != 0)
-            ? {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]} : 64'd0;
+        pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C) != 0;
+        pub_sid_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};
       end
     end
   end : pub_out

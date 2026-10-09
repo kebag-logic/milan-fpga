@@ -291,7 +291,7 @@ Sink k's entry starts at `0x100 + 0x10 * k` inside interface i's publication blo
 |---|---|---|---|
 | `0x000` | `SID_LO` | rw | Sink k's stream_id, low word, as last written. The datapath reads it while SID_VALID is set. |
 | `0x004` | `SID_HI` | rw | Sink k's stream_id, high word, as last written. The datapath reads it while SID_VALID is set. |
-| `0x008` | `BINDING` | rw | Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath reads the stream_id as 0 while it is clear. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. |
+| `0x008` | `BINDING` | rw | Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. |
 
 `SID_LO` fields:
 

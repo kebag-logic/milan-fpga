@@ -188,8 +188,10 @@ class Bench {
         v.adopted = static_cast<std::uint32_t>(
             slice(dut_->pub_dom_adopted_o, MBX_SR_DOMAIN_ADOPTED_WIDTH * iface, MBX_SR_DOMAIN_ADOPTED_WIDTH));
         v.bound = static_cast<std::uint32_t>(slice(dut_->pub_bound_o, MBX_N_PUB_SINKS * iface, MBX_N_PUB_SINKS));
+        // the stream_id the datapath takes: pub_sid_o while pub_sid_valid_o is set
         for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
-            v.sid.push_back(slice(dut_->pub_sid_o, 64u * (MBX_N_PUB_SINKS * iface + k), 64u));
+            const bool valid = slice(dut_->pub_sid_valid_o, MBX_N_PUB_SINKS * iface + k, 1u) != 0u;
+            v.sid.push_back(valid ? slice(dut_->pub_sid_o, 64u * (MBX_N_PUB_SINKS * iface + k), 64u) : 0u);
         }
         return v;
     }

@@ -420,11 +420,13 @@ ARMS += (
 #: sw/firmware/ctrl/test/ctrl_mutants.py) ----
 ARMS += (
     # the stream_id reaches the datapath only while SID_VALID is set, whole
-    *_both("top-pub-sid-not-gated", "KL_mbx.sv", "? {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]} : 64'd0;",
-           "? {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]} : {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};",
+    *_both("top-pub-sid-valid-held-high", "KL_mbx.sv",
+           "pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), "
+           "MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C) != 0;",
+           "pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = 1'b1;",
            "P3 with SID_VALID clear the datapath reads the stream_id as 0"),
-    *_both("top-pub-sid-halves-swapped", "KL_mbx.sv", "? {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]} : 64'd0;",
-           "? {pub_sid_lo_r[i][k], pub_sid_hi_r[i][k]} : 64'd0;",
+    *_both("top-pub-sid-halves-swapped", "KL_mbx.sv",
+           "= {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};", "= {pub_sid_lo_r[i][k], pub_sid_hi_r[i][k]};",
            "P3 with SID_VALID set the datapath reads SID_HI:SID_LO"),
     # every field on its own output
     *_both("top-pub-priority-from-vid", "KL_mbx.sv",
@@ -464,7 +466,7 @@ ARMS += (
 #: One defect per leaf and one in the skeleton, one in the filter's tuple and
 #: one in the publication block: the arms the suite's default target runs.
 QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted",
-         "rx-dst-ignored", "top-pub-sid-not-gated")
+         "rx-dst-ignored", "top-pub-sid-valid-held-high")
 
 
 def recipe() -> list[str]:
