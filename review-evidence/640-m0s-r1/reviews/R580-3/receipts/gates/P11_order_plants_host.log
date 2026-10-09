@@ -1,0 +1,13 @@
+variant	wanted	observed	verdict	diagnostic
+control	pass	rc=0	as-expected	placement gate: unchanged acceptance schema, record and policy PASS
+old order, per-plant arm (round-2 shape)	either	rc=0	reported	placement gate: unchanged acceptance schema, record and policy PASS
+old order, split-census arm only	either	rc=0	reported	placement gate: unchanged acceptance schema, record and policy PASS
+old order, both arms	either	rc=0	reported	placement gate: unchanged acceptance schema, record and policy PASS
+record arm without --write	fail	rc=1	as-expected	AssertionError: wrapper replaced record: wanted 2 / wrapper (KL_pp_shadow), got (0, ['{', ' "kind": "route",', ' "identity": {', '  "tool": "Vivado v.2026.1 (lin64) Build 6511674",', '  "device": "xc7a100tfgg484-2",', '  "design": "alinx_ax
+check arm only, gate ignores record --write	pass-shows-arm-needed	rc=0	survives-without-arm	placement gate: unchanged acceptance schema, record and policy PASS
+gate ignores record --write	fail	rc=1	as-expected	AssertionError: wrapper replaced record: wanted 2 / wrapper (KL_pp_shadow), got (0, ['{', ' "kind": "route",', ' "identity": {', '  "tool": "Vivado v.2026.1 (lin64) Build 6511674",', '  "device": "xc7a100tfgg484-2",', '  "design": "alinx_ax
+gate judges a printed record	fail	rc=1	as-expected	AssertionError: wrapper replaced printed record: wanted 0 / "kind": "route", got (2, ['NOT COMPARABLE: wrong placement all-fabric: wrapper (KL_pp_shadow) count 0, expected 1..1; acceptance records only the all-fabric image'])
+printed-record arm removed, gate judges a printed record	pass-shows-arm-needed	rc=0	survives-without-arm	placement gate: unchanged acceptance schema, record and policy PASS
+printed-record arm also on wrapper absent	fail	rc=1	as-expected	AssertionError: wrapper absent printed record: wanted 0 / "kind": "route", got (2, ['NOT COMPARABLE: hierarchy report has no alinx_ax7101/milan_datapath/pp_shadow; wrong placement all-fabric: wrapper (KL_pp_shadow) count 0, expected 1..1'])
+split-census arm skips record --write	pass-shows-arm-needed	rc=1	detected-elsewhere	AssertionError: wrapper replaced record: wanted 2 / wrapper (KL_pp_shadow), got (0, ['{', ' "kind": "route",', ' "identity": {', '  "tool": "Vivado v.2026.1 (lin64) Build 6511674",', '  "device": "xc7a100tfgg484-2",', '  "design": "alinx_ax
+interpreter Python 3.14.7: 11 variants, 0 unexpected

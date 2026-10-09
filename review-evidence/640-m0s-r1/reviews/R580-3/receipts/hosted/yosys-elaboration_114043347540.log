@@ -1,0 +1,1058 @@
+﻿2026-10-09T21:56:02.0271705Z Current runner version: '2.337.0'
+2026-10-09T21:56:02.0308870Z ##[group]Runner Image Provisioner
+2026-10-09T21:56:02.0310106Z Hosted Compute Agent
+2026-10-09T21:56:02.0311175Z Version: 20261002.596
+2026-10-09T21:56:02.0312254Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-09T21:56:02.0313403Z Build Date: 2026-10-02T22:28:27Z
+2026-10-09T21:56:02.0314671Z Worker ID: {2fc1a176-f0cf-4537-b0cc-74e7d49dac26}
+2026-10-09T21:56:02.0315924Z Region: eastus
+2026-10-09T21:56:02.0317210Z Cloud: Azure
+2026-10-09T21:56:02.0318123Z ##[endgroup]
+2026-10-09T21:56:02.0321062Z ##[group]Operating System
+2026-10-09T21:56:02.0322159Z Ubuntu
+2026-10-09T21:56:02.0323022Z 24.04.5
+2026-10-09T21:56:02.0324009Z LTS
+2026-10-09T21:56:02.0324847Z ##[endgroup]
+2026-10-09T21:56:02.0325772Z ##[group]Runner Image
+2026-10-09T21:56:02.0327136Z Image: ubuntu-24.04
+2026-10-09T21:56:02.0328063Z Version: 20261004.327.1
+2026-10-09T21:56:02.0330212Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-09T21:56:02.0332969Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-09T21:56:02.0334777Z ##[endgroup]
+2026-10-09T21:56:02.0337159Z ##[group]GITHUB_TOKEN Permissions
+2026-10-09T21:56:02.0340054Z Contents: read
+2026-10-09T21:56:02.0341122Z Metadata: read
+2026-10-09T21:56:02.0342080Z Packages: read
+2026-10-09T21:56:02.0343021Z ##[endgroup]
+2026-10-09T21:56:02.0346047Z Secret source: Actions
+2026-10-09T21:56:02.0347888Z Cache mode: write
+2026-10-09T21:56:02.0349546Z Prepare workflow directory
+2026-10-09T21:56:02.0913739Z Prepare all required actions
+2026-10-09T21:56:02.0984526Z Getting action download info
+2026-10-09T21:56:02.3166828Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-09T21:56:02.4129674Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-10-09T21:56:02.6060002Z Complete job name: yosys-elaboration
+2026-10-09T21:56:02.6974062Z ##[group]Run actions/checkout@v4
+2026-10-09T21:56:02.6974951Z with:
+2026-10-09T21:56:02.6975390Z   repository: kebag-logic/milan-fpga
+2026-10-09T21:56:02.6979728Z   token: ***
+2026-10-09T21:56:02.6980164Z   ssh-strict: true
+2026-10-09T21:56:02.6980597Z   ssh-user: git
+2026-10-09T21:56:02.6981026Z   persist-credentials: true
+2026-10-09T21:56:02.6981498Z   clean: true
+2026-10-09T21:56:02.6981931Z   sparse-checkout-cone-mode: true
+2026-10-09T21:56:02.6982439Z   fetch-depth: 1
+2026-10-09T21:56:02.6982857Z   fetch-tags: false
+2026-10-09T21:56:02.6983334Z   show-progress: true
+2026-10-09T21:56:02.6983763Z   lfs: false
+2026-10-09T21:56:02.6984164Z   submodules: false
+2026-10-09T21:56:02.6984595Z   set-safe-directory: true
+2026-10-09T21:56:02.6985087Z   allow-unsafe-pr-checkout: false
+2026-10-09T21:56:02.6985993Z env:
+2026-10-09T21:56:02.6986589Z   VERILATOR_VERSION: v5.050
+2026-10-09T21:56:02.6987091Z   YOSYS_VERSION: v0.66
+2026-10-09T21:56:02.6987537Z ##[endgroup]
+2026-10-09T21:56:02.7976856Z Syncing repository: kebag-logic/milan-fpga
+2026-10-09T21:56:02.7979668Z ##[group]Getting Git version info
+2026-10-09T21:56:02.7980987Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-09T21:56:02.7983295Z [command]/usr/bin/git version
+2026-10-09T21:56:02.8127243Z git version 2.55.0
+2026-10-09T21:56:02.8149763Z ##[endgroup]
+2026-10-09T21:56:02.8164978Z Temporarily overriding HOME='<home-path>/work/_temp/9452e706-ac13-4f71-8760-ddfe8ae014b2' before making global git config changes
+2026-10-09T21:56:02.8167519Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-09T21:56:02.8171784Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-09T21:56:02.8228147Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-09T21:56:02.8235724Z ##[group]Initializing the repository
+2026-10-09T21:56:02.8244420Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-10-09T21:56:02.8370083Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-09T21:56:02.8371889Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-09T21:56:02.8372962Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-09T21:56:02.8373804Z hint: call:
+2026-10-09T21:56:02.8374249Z hint:
+2026-10-09T21:56:02.8374811Z hint: 	git config --global init.defaultBranch <name>
+2026-10-09T21:56:02.8375510Z hint:
+2026-10-09T21:56:02.8376157Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-09T21:56:02.8378091Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-09T21:56:02.8379592Z hint:
+2026-10-09T21:56:02.8380413Z hint: 	git branch -m <name>
+2026-10-09T21:56:02.8381371Z hint:
+2026-10-09T21:56:02.8382372Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-09T21:56:02.8384067Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-10-09T21:56:02.8395444Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-10-09T21:56:02.8462001Z ##[endgroup]
+2026-10-09T21:56:02.8463072Z ##[group]Disabling automatic garbage collection
+2026-10-09T21:56:02.8465147Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-09T21:56:02.8502988Z ##[endgroup]
+2026-10-09T21:56:02.8503755Z ##[group]Setting up auth
+2026-10-09T21:56:02.8512604Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-09T21:56:02.8552551Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-09T21:56:02.8955865Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-09T21:56:02.8993091Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-09T21:56:02.9215536Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T21:56:02.9252593Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-09T21:56:02.9477655Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-09T21:56:02.9518411Z ##[endgroup]
+2026-10-09T21:56:02.9519420Z ##[group]Fetching the repository
+2026-10-09T21:56:02.9528121Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6c2fa69c5323d7b348b6574fc68f9f3a5cbbe148:refs/remotes/pull/702/merge
+2026-10-09T21:56:04.3363607Z From https://github.com/kebag-logic/milan-fpga
+2026-10-09T21:56:04.3366700Z  * [new ref]         6c2fa69c5323d7b348b6574fc68f9f3a5cbbe148 -> pull/702/merge
+2026-10-09T21:56:04.3372623Z ##[endgroup]
+2026-10-09T21:56:04.3374721Z ##[group]Determining the checkout info
+2026-10-09T21:56:04.3377369Z ##[endgroup]
+2026-10-09T21:56:04.3380437Z [command]/usr/bin/git sparse-checkout disable
+2026-10-09T21:56:04.3449823Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-09T21:56:04.3488490Z ##[group]Checking out the ref
+2026-10-09T21:56:04.3494004Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/702/merge
+2026-10-09T21:56:04.5358814Z Note: switching to 'refs/remotes/pull/702/merge'.
+2026-10-09T21:56:04.5359597Z 
+2026-10-09T21:56:04.5360178Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-09T21:56:04.5361460Z changes and commit them, and you can discard any commits you make in this
+2026-10-09T21:56:04.5362755Z state without impacting any branches by switching back to a branch.
+2026-10-09T21:56:04.5363502Z 
+2026-10-09T21:56:04.5364117Z If you want to create a new branch to retain commits you create, you may
+2026-10-09T21:56:04.5365689Z do so (now or later) by using -c with the switch command. Example:
+2026-10-09T21:56:04.5366697Z 
+2026-10-09T21:56:04.5367067Z   git switch -c <new-branch-name>
+2026-10-09T21:56:04.5367634Z 
+2026-10-09T21:56:04.5367981Z Or undo this operation with:
+2026-10-09T21:56:04.5368499Z 
+2026-10-09T21:56:04.5368803Z   git switch -
+2026-10-09T21:56:04.5369216Z 
+2026-10-09T21:56:04.5369950Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-09T21:56:04.5370960Z 
+2026-10-09T21:56:04.5372056Z HEAD is now at 6c2fa69 Merge 6904af6b79aae0566e6e47979223f54b8ba0eb6f into 8b61b70902f3ebf118e56967277e2686731081bd
+2026-10-09T21:56:04.5390003Z ##[endgroup]
+2026-10-09T21:56:04.5438641Z [command]/usr/bin/git log -1 --format=%H
+2026-10-09T21:56:04.5467469Z 6c2fa69c5323d7b348b6574fc68f9f3a5cbbe148
+2026-10-09T21:56:04.5816862Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+2026-10-09T21:56:04.5819809Z git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+2026-10-09T21:56:04.6102284Z shell: /usr/bin/bash -e {0}
+2026-10-09T21:56:04.6103661Z env:
+2026-10-09T21:56:04.6104801Z   VERILATOR_VERSION: v5.050
+2026-10-09T21:56:04.6106160Z   YOSYS_VERSION: v0.66
+2026-10-09T21:56:04.6107453Z ##[endgroup]
+2026-10-09T21:56:04.6450333Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-10-09T21:56:04.6455979Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-10-09T21:56:04.6462362Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-10-09T21:56:04.6485561Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-10-09T21:56:04.9258107Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-10-09T21:56:06.0159250Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-10-09T21:56:06.2829567Z Submodule path 'gptp-processor': checked out '5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d'
+2026-10-09T21:56:06.3567271Z Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+2026-10-09T21:56:06.3767103Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-10-09T21:56:06.3940210Z ##[group]Run actions/cache@v4
+2026-10-09T21:56:06.3940553Z with:
+2026-10-09T21:56:06.3940795Z   path: /opt/yosys
+2026-10-09T21:56:06.3941058Z   key: yosys-v0.66-Linux
+2026-10-09T21:56:06.3941364Z   enableCrossOsArchive: false
+2026-10-09T21:56:06.3941661Z   fail-on-cache-miss: false
+2026-10-09T21:56:06.3941939Z   lookup-only: false
+2026-10-09T21:56:06.3942203Z   save-always: false
+2026-10-09T21:56:06.3942454Z env:
+2026-10-09T21:56:06.3942690Z   VERILATOR_VERSION: v5.050
+2026-10-09T21:56:06.3942978Z   YOSYS_VERSION: v0.66
+2026-10-09T21:56:06.3943268Z ##[endgroup]
+2026-10-09T21:56:06.5018864Z (node:2383) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-09T21:56:06.5020316Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-09T21:56:06.5659823Z Cache hit for: yosys-v0.66-Linux
+2026-10-09T21:56:06.5765064Z (node:2383) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-09T21:56:06.7832132Z Received 19685025 of 19685025 (100.0%), 102.0 MBs/sec
+2026-10-09T21:56:06.7832867Z Cache Size: ~19 MB (19685025 B)
+2026-10-09T21:56:06.7865481Z [command]/usr/bin/tar -xf <home-path>/work/_temp/d0c87f8f-31ea-4826-9164-28bdc53ab64b/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-10-09T21:56:06.8985550Z Cache restored successfully
+2026-10-09T21:56:06.9071277Z Cache restored from key: yosys-v0.66-Linux
+2026-10-09T21:56:06.9218922Z ##[group]Run set -euo pipefail
+2026-10-09T21:56:06.9219270Z set -euo pipefail
+2026-10-09T21:56:06.9219676Z sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+2026-10-09T21:56:06.9220106Z test -x /opt/yosys/bin/yosys-abc
+2026-10-09T21:56:06.9220456Z echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+2026-10-09T21:56:06.9220823Z yosys -V
+2026-10-09T21:56:06.9221101Z yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+2026-10-09T21:56:06.9286755Z shell: /usr/bin/bash -e {0}
+2026-10-09T21:56:06.9287049Z env:
+2026-10-09T21:56:06.9287282Z   VERILATOR_VERSION: v5.050
+2026-10-09T21:56:06.9287566Z   YOSYS_VERSION: v0.66
+2026-10-09T21:56:06.9287823Z ##[endgroup]
+2026-10-09T21:56:06.9458969Z bundled ABC: 5d51a5e420f5de493d07bf61109a977248c86ffb
+2026-10-09T21:56:06.9487626Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+2026-10-09T21:56:06.9530677Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+2026-10-09T21:56:06.9564591Z ##[group]Run set -euo pipefail
+2026-10-09T21:56:06.9564926Z set -euo pipefail
+2026-10-09T21:56:06.9565185Z ver=v0.0.12
+2026-10-09T21:56:06.9565564Z sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+2026-10-09T21:56:06.9566165Z url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+2026-10-09T21:56:06.9566938Z curl -fsSL "$url" -o /tmp/sv2v.zip
+2026-10-09T21:56:06.9567322Z echo "${sha256}  /tmp/sv2v.zip" | sha256sum -c -
+2026-10-09T21:56:06.9567689Z unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+2026-10-09T21:56:06.9568106Z sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+2026-10-09T21:56:06.9568515Z   /usr/local/bin/sv2v
+2026-10-09T21:56:06.9568767Z sv2v --version
+2026-10-09T21:56:06.9632354Z shell: /usr/bin/bash -e {0}
+2026-10-09T21:56:06.9632644Z env:
+2026-10-09T21:56:06.9632855Z   VERILATOR_VERSION: v5.050
+2026-10-09T21:56:06.9633141Z   YOSYS_VERSION: v0.66
+2026-10-09T21:56:06.9633382Z ##[endgroup]
+2026-10-09T21:56:07.1350162Z /tmp/sv2v.zip: OK
+2026-10-09T21:56:07.2183078Z sv2v v0.0.12
+2026-10-09T21:56:07.2285132Z ##[group]Run syn/yosys/run.sh --mode elaborate --no-structural \
+2026-10-09T21:56:07.2285910Z syn/yosys/run.sh --mode elaborate --no-structural \
+2026-10-09T21:56:07.2286735Z   --top milan_datapath \
+2026-10-09T21:56:07.2287231Z   --top KL_pp_shadow \
+2026-10-09T21:56:07.2287652Z   --top KL_gptp_shadow
+2026-10-09T21:56:07.2368875Z shell: /usr/bin/bash -e {0}
+2026-10-09T21:56:07.2369273Z env:
+2026-10-09T21:56:07.2369588Z   VERILATOR_VERSION: v5.050
+2026-10-09T21:56:07.2369990Z   YOSYS_VERSION: v0.66
+2026-10-09T21:56:07.2370358Z ##[endgroup]
+2026-10-09T21:56:07.5144064Z == Yosys fast elaboration check (via sv2v) ==
+2026-10-09T21:56:07.5144857Z    yosys allocator: system
+2026-10-09T21:57:48.0060599Z   [PASS] milan_datapath         cells=75779
+2026-10-09T21:58:50.0002628Z   [PASS] KL_pp_shadow           cells=61758
+2026-10-09T21:58:51.2960889Z   [PASS] KL_gptp_shadow         cells=3567
+2026-10-09T21:58:51.2963162Z --------------------------------------------------------------
+2026-10-09T21:58:51.2963807Z tops: 3   pass: 3   fail: 0
+2026-10-09T21:58:51.2968753Z RESULT: PASS
+2026-10-09T21:58:51.2969256Z structural checks: skipped in this worker
+2026-10-09T21:58:51.3092934Z ##[group]Run set -euo pipefail
+2026-10-09T21:58:51.3093276Z set -euo pipefail
+2026-10-09T21:58:51.3093546Z command -v tclsh >/dev/null || {
+2026-10-09T21:58:51.3093853Z   sudo apt-get update -qq
+2026-10-09T21:58:51.3094212Z   sudo apt-get install -y --no-install-recommends tcl
+2026-10-09T21:58:51.3094551Z }
+2026-10-09T21:58:51.3094784Z python3 syn/ooc/dp_srcs.py --selftest
+2026-10-09T21:58:51.3095113Z python3 syn/ooc/ooc_tcl_selftest.py
+2026-10-09T21:58:51.3095635Z python3 syn/ooc/pp_baseline.py --selftest
+2026-10-09T21:58:51.3095978Z python3 syn/ooc/pp_baseline_mutants.py
+2026-10-09T21:58:51.3096638Z python3 syn/ooc/pp_baseline_reports_selftest.py
+2026-10-09T21:58:51.3097030Z python3 syn/ooc/pp_resource_gate.py --selftest
+2026-10-09T21:58:51.3097397Z python3 syn/ooc/pp_resource_gate_mutants.py
+2026-10-09T21:58:51.3097792Z python3 syn/ooc/pp_resource_gate.py check-baseline
+2026-10-09T21:58:51.3098222Z python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
+2026-10-09T21:58:51.3098668Z python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
+2026-10-09T21:58:51.3161720Z shell: /usr/bin/bash -e {0}
+2026-10-09T21:58:51.3161978Z env:
+2026-10-09T21:58:51.3162175Z   VERILATOR_VERSION: v5.050
+2026-10-09T21:58:51.3162425Z   YOSYS_VERSION: v0.66
+2026-10-09T21:58:51.3162678Z ##[endgroup]
+2026-10-09T21:59:04.0405810Z dp_srcs self-test: 35 arm(s) passed
+2026-10-09T22:07:20.0858946Z OOC .tcl refusal self-test: 58 arm(s) passed
+2026-10-09T22:07:20.5428864Z baseline selftest: complete image and exact block PASS; 9 refusals PASS
+2026-10-09T22:07:20.5429633Z baseline parameter selftest: 5 refusals PASS
+2026-10-09T22:07:20.5430277Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5431131Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5431870Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5432331Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5432773Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5433210Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5433605Z /tmp/pp-baseline-export-2ci38w6p/ooc/baseline_ooc.tcl
+2026-10-09T22:07:20.5433965Z /tmp/pp-baseline-export-2ci38w6p/ooc/baseline_ooc.tcl
+2026-10-09T22:07:20.5434315Z /tmp/pp-baseline-export-2ci38w6p/ooc/baseline_ooc.tcl
+2026-10-09T22:07:20.5434720Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5435124Z baseline inventory refusal: missing generated ROM PASS
+2026-10-09T22:07:20.5435473Z baseline inventory refusal: nonempty SRAM PASS
+2026-10-09T22:07:20.5435805Z baseline inventory refusal: unlisted readmemh PASS
+2026-10-09T22:07:20.5436155Z baseline inventory refusal: generated ROM short PASS
+2026-10-09T22:07:20.5436806Z baseline inventory refusal: generated ROM long PASS
+2026-10-09T22:07:20.5437154Z baseline inventory refusal: generated ROM narrow PASS
+2026-10-09T22:07:20.5437494Z baseline inventory refusal: generated ROM wide PASS
+2026-10-09T22:07:20.5437841Z baseline inventory refusal: PP_TROM_HEX_P short PASS
+2026-10-09T22:07:20.5438182Z baseline inventory refusal: PP_TROM_HEX_P narrow PASS
+2026-10-09T22:07:20.5438518Z baseline inventory refusal: PP_TROM_HEX_P wide PASS
+2026-10-09T22:07:20.5438868Z baseline inventory refusal: PP_TROM_HEX_P duplicate PASS
+2026-10-09T22:07:20.5439243Z baseline inventory refusal: PP_TROM_HEX_P missing PASS
+2026-10-09T22:07:20.5439608Z baseline inventory refusal: pp_acmp_pkg.sv duplicate PASS
+2026-10-09T22:07:20.5439982Z baseline inventory refusal: pp_acmp_pkg.sv missing PASS
+2026-10-09T22:07:20.5440396Z baseline inventory refusal: pp_acmp_pkg.sv TROM_DEPTH_C duplicate PASS
+2026-10-09T22:07:20.5440869Z baseline inventory refusal: pp_acmp_pkg.sv TROM_DEPTH_C missing PASS
+2026-10-09T22:07:20.5441624Z baseline inventory refusal: pp_acmp_pkg.sv TROM_W_C duplicate PASS
+2026-10-09T22:07:20.5442100Z baseline inventory refusal: pp_acmp_pkg.sv TROM_W_C missing PASS
+2026-10-09T22:07:20.5442488Z baseline inventory refusal: PP_UCODE_HEX_P short PASS
+2026-10-09T22:07:20.5442843Z baseline inventory refusal: PP_UCODE_HEX_P narrow PASS
+2026-10-09T22:07:20.5443192Z baseline inventory refusal: PP_UCODE_HEX_P wide PASS
+2026-10-09T22:07:20.5443586Z baseline inventory refusal: PP_UCODE_HEX_P duplicate PASS
+2026-10-09T22:07:20.5443961Z baseline inventory refusal: PP_UCODE_HEX_P missing PASS
+2026-10-09T22:07:20.5444517Z baseline inventory refusal: ucpu_pkg.sv duplicate PASS
+2026-10-09T22:07:20.5444861Z baseline inventory refusal: ucpu_pkg.sv missing PASS
+2026-10-09T22:07:20.5445239Z baseline inventory refusal: ucpu_pkg.sv UPC_W_C duplicate PASS
+2026-10-09T22:07:20.5445672Z baseline inventory refusal: ucpu_pkg.sv UPC_W_C missing PASS
+2026-10-09T22:07:20.5446096Z baseline inventory refusal: ucpu_pkg.sv UCODE_W_C duplicate PASS
+2026-10-09T22:07:20.5446860Z baseline inventory refusal: ucpu_pkg.sv UCODE_W_C missing PASS
+2026-10-09T22:07:20.5447351Z baseline inventory refusal: GPTP_UCODE_HEX_P short PASS
+2026-10-09T22:07:20.5447727Z baseline inventory refusal: GPTP_UCODE_HEX_P narrow PASS
+2026-10-09T22:07:20.5448088Z baseline inventory refusal: GPTP_UCODE_HEX_P wide PASS
+2026-10-09T22:07:20.5448464Z baseline inventory refusal: GPTP_UCODE_HEX_P duplicate PASS
+2026-10-09T22:07:20.5448851Z baseline inventory refusal: GPTP_UCODE_HEX_P missing PASS
+2026-10-09T22:07:20.5449261Z baseline inventory refusal: gptp_ucpu_pkg.sv duplicate PASS
+2026-10-09T22:07:20.5449661Z baseline inventory refusal: gptp_ucpu_pkg.sv missing PASS
+2026-10-09T22:07:20.5450076Z baseline inventory refusal: gptp_ucpu_pkg.sv UPC_W_C duplicate PASS
+2026-10-09T22:07:20.5450519Z baseline inventory refusal: gptp_ucpu_pkg.sv UPC_W_C missing PASS
+2026-10-09T22:07:20.5450975Z baseline inventory refusal: gptp_ucpu_pkg.sv UCODE_W_C duplicate PASS
+2026-10-09T22:07:20.5451433Z baseline inventory refusal: gptp_ucpu_pkg.sv UCODE_W_C missing PASS
+2026-10-09T22:07:20.5451876Z baseline inventory selftest: 40 refusals and restored control PASS
+2026-10-09T22:07:20.5452292Z /tmp/pp-baseline-export-2ci38w6p/ooc/baseline_ooc.tcl
+2026-10-09T22:07:20.5452705Z baseline endpoint selftest: valid pathname and 9 refusals PASS
+2026-10-09T22:07:20.5453094Z /tmp/pp-baseline-export-2ci38w6p/ooc/baseline_ooc.tcl
+2026-10-09T22:07:20.5453448Z /tmp/pp-baseline-export-2ci38w6p/ooc/baseline_ooc.tcl
+2026-10-09T22:07:20.5453859Z baseline clock selftest: 10 ns default, bound 50 MHz, 2 refusals PASS
+2026-10-09T22:07:20.5454334Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5454786Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5455216Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5455659Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5456125Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5456810Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5457239Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5457737Z /tmp/pp-baseline-export-2ci38w6p/gateware/baseline_integrated.tcl
+2026-10-09T22:07:20.5458334Z placement Tcl all-fabric: control and every role reversal at synthesis/route PASS
+2026-10-09T22:07:20.5458865Z placement Tcl f0-f4: control and every role reversal at synthesis/route PASS
+2026-10-09T22:07:20.5459392Z placement Tcl full-split: control and every role reversal at synthesis/route PASS
+2026-10-09T22:07:20.5459996Z placement recipe: legacy parity, split preparation, selection marker, ROM and endpoint refusals PASS
+2026-10-09T22:07:20.5460725Z baseline export selftest: 3 default and worker-capped scripts, attribution constraint, CLI containment refusal PASS
+2026-10-09T22:07:29.0423641Z control: rc=0 PASS
+2026-10-09T22:07:29.0424484Z absolute-file recipe import broken: rc=1 PASS
+2026-10-09T22:07:29.0425023Z split dispatch ignored: rc=1 PASS
+2026-10-09T22:07:29.0425516Z split pre-route census omitted: rc=1 PASS
+2026-10-09T22:07:29.0426062Z split final census omitted: rc=1 PASS
+2026-10-09T22:07:29.0426810Z split timing assumes wrapper: rc=1 PASS
+2026-10-09T22:07:29.0427193Z split ROM error promotion omitted: rc=1 PASS
+2026-10-09T22:07:29.0427570Z split retained AECP ROM skipped: rc=1 PASS
+2026-10-09T22:07:29.0427934Z split selection marker omitted: rc=1 PASS
+2026-10-09T22:07:29.0428545Z present removed-protocol ROM unchecked: rc=1 PASS
+2026-10-09T22:07:29.0428965Z split synthesis command count unchecked: rc=1 PASS
+2026-10-09T22:07:29.0429428Z split synthesis-only endpoint runs implementation: rc=1 PASS
+2026-10-09T22:07:29.0429860Z synthesis worker cap ignored: rc=1 PASS
+2026-10-09T22:07:29.0430241Z synthesis worker cap enabled by default: rc=1 PASS
+2026-10-09T22:07:29.0430616Z ROM error promotion: rc=1 PASS
+2026-10-09T22:07:29.0430937Z readmemh inventory equality: rc=1 PASS
+2026-10-09T22:07:29.0431278Z empty SRAM requirement: rc=1 PASS
+2026-10-09T22:07:29.0431597Z parameter ROM depth: rc=1 PASS
+2026-10-09T22:07:29.0431896Z generated ROM depth: rc=1 PASS
+2026-10-09T22:07:29.0432190Z generated ROM width: rc=1 PASS
+2026-10-09T22:07:29.0432484Z parameter ROM width: rc=1 PASS
+2026-10-09T22:07:29.0432806Z image and geometry ambiguity: rc=1 PASS
+2026-10-09T22:07:29.0433161Z image binding uniqueness: rc=1 PASS
+2026-10-09T22:07:29.0433526Z geometry package uniqueness: rc=1 PASS
+2026-10-09T22:07:29.0433894Z geometry declaration uniqueness: rc=1 PASS
+2026-10-09T22:07:29.0434244Z microcode address depth: rc=1 PASS
+2026-10-09T22:07:29.0434571Z outside repository guard: rc=1 PASS
+2026-10-09T22:07:29.0434881Z image depth: rc=1 PASS
+2026-10-09T22:07:29.0435143Z image width: rc=1 PASS
+2026-10-09T22:07:29.0435421Z hexadecimal image words: rc=1 PASS
+2026-10-09T22:07:29.0435726Z attribution constraint loading: rc=1 PASS
+2026-10-09T22:07:29.0436038Z attribution boundary preservation: rc=1 PASS
+2026-10-09T22:07:29.0436754Z wrapper declaration equality: rc=1 PASS
+2026-10-09T22:07:29.0437101Z empty parameter block: rc=1 PASS
+2026-10-09T22:07:29.0437372Z duplicate parameter: rc=1 PASS
+2026-10-09T22:07:29.0437635Z integrated output directory: rc=1 PASS
+2026-10-09T22:07:29.0437921Z attribution integrated endpoint: rc=1 PASS
+2026-10-09T22:07:29.0438209Z CLI integrated endpoint: rc=1 PASS
+2026-10-09T22:07:29.0438478Z single synthesis command: rc=1 PASS
+2026-10-09T22:07:29.0438749Z image pathname characters: rc=1 PASS
+2026-10-09T22:07:29.0439032Z template marker uniqueness: rc=1 PASS
+2026-10-09T22:07:29.0439310Z unfiltered hierarchy report: rc=1 PASS
+2026-10-09T22:07:29.0439581Z integrated clock ignored: rc=1 PASS
+2026-10-09T22:07:29.0439863Z integrated clock frequency check: rc=1 PASS
+2026-10-09T22:07:29.0440153Z integrated clock period: rc=1 PASS
+2026-10-09T22:07:29.0440422Z CLI integrated clock endpoint: rc=1 PASS
+2026-10-09T22:07:29.0833754Z baseline reports selftest: ancestry, sharing, omission, multiplicity, blackboxes, residual PASS
+2026-10-09T22:07:29.5901743Z resource gate route arm: unchanged control: exit 0 PASS
+2026-10-09T22:07:29.5902738Z resource gate route arm: changed source, unchanged figures: exit 0 PASS
+2026-10-09T22:07:29.5903736Z resource gate route arm: LUT growth at the tolerance: exit 0 PASS
+2026-10-09T22:07:29.5904726Z resource gate route arm: LUT growth over the tolerance: exit 1 PASS
+2026-10-09T22:07:29.5905573Z resource gate route arm: FF growth over the tolerance: exit 1 PASS
+2026-10-09T22:07:29.5906494Z resource gate route arm: register rows disagree: exit 2 PASS
+2026-10-09T22:07:29.5907037Z resource gate route arm: Slice growth over the tolerance: exit 1 PASS
+2026-10-09T22:07:29.5907542Z resource gate route arm: one more RAMB36: exit 1 PASS
+2026-10-09T22:07:29.5907972Z resource gate route arm: one more RAMB18: exit 1 PASS
+2026-10-09T22:07:29.5908395Z resource gate route arm: one more DSP: exit 1 PASS
+2026-10-09T22:07:29.5909085Z resource gate route arm: BRAM tiles over the ceiling: exit 1 PASS
+2026-10-09T22:07:29.5909605Z resource gate route arm: BRAM tiles at the ceiling: exit 0 PASS
+2026-10-09T22:07:29.5910112Z resource gate route arm: WNS below the floor: exit 1 PASS
+2026-10-09T22:07:29.5910570Z resource gate route arm: WNS at the floor: exit 0 PASS
+2026-10-09T22:07:29.5911077Z resource gate route arm: WNS fell more than the tolerance: exit 1 PASS
+2026-10-09T22:07:29.5911653Z resource gate route arm: WNS fell by exactly the tolerance: exit 0 PASS
+2026-10-09T22:07:29.5912205Z resource gate route arm: WNS fell within the tolerance: exit 0 PASS
+2026-10-09T22:07:29.5912839Z resource gate route arm: WHS below the floor: exit 1 PASS
+2026-10-09T22:07:29.5913282Z resource gate route arm: WHS at the floor: exit 0 PASS
+2026-10-09T22:07:29.5913716Z resource gate route arm: WNS not a number: exit 2 PASS
+2026-10-09T22:07:29.5914144Z resource gate route arm: WHS not a number: exit 2 PASS
+2026-10-09T22:07:29.5914594Z resource gate route arm: WNS and WHS infinite: exit 2 PASS
+2026-10-09T22:07:29.5915055Z resource gate route arm: WNS in other digits: exit 2 PASS
+2026-10-09T22:07:29.5915513Z resource gate route arm: WNS too long to be finite: exit 2 PASS
+2026-10-09T22:07:29.5915948Z resource gate route arm: WHS too long to be finite: exit 2 PASS
+2026-10-09T22:07:29.5916540Z resource gate route arm: no timed endpoint: exit 2 PASS
+2026-10-09T22:07:29.5916938Z resource gate route arm: no hold-timed endpoint: exit 2 PASS
+2026-10-09T22:07:29.5917377Z resource gate route arm: timed endpoints in other digits: exit 2 PASS
+2026-10-09T22:07:29.5917839Z resource gate route arm: timed endpoints past the bound: exit 2 PASS
+2026-10-09T22:07:29.5918337Z resource gate route arm: timing summary without its endpoint columns: exit 2 PASS
+2026-10-09T22:07:29.5918811Z resource gate route arm: WNS without a fraction: exit 2 PASS
+2026-10-09T22:07:29.5919256Z resource gate route arm: LUT improvement within the tolerance: exit 0 PASS
+2026-10-09T22:07:29.5919736Z resource gate route arm: LUT improvement beyond the tolerance: exit 0 PASS
+2026-10-09T22:07:29.5920191Z resource gate route arm: WNS rise beyond the tolerance: exit 0 PASS
+2026-10-09T22:07:29.5920623Z resource gate route arm: route status complete: exit 0 PASS
+2026-10-09T22:07:29.5921030Z resource gate route arm: nets with routing errors: exit 1 PASS
+2026-10-09T22:07:29.5921403Z resource gate route arm: unrouted nets: exit 1 PASS
+2026-10-09T22:07:29.5921903Z resource gate route arm: routable nets not fully routed: exit 1 PASS
+2026-10-09T22:07:29.5922344Z resource gate route arm: route status report missing: exit 2 PASS
+2026-10-09T22:07:29.5922766Z resource gate route arm: second route status report: exit 2 PASS
+2026-10-09T22:07:29.5923203Z resource gate route arm: route status without its error row: exit 2 PASS
+2026-10-09T22:07:29.5923673Z resource gate route arm: route status with a second error row: exit 2 PASS
+2026-10-09T22:07:29.5924153Z resource gate route arm: route status count unreadable: exit 2 PASS
+2026-10-09T22:07:29.5924599Z resource gate route arm: route status count a superscript: exit 2 PASS
+2026-10-09T22:07:29.5925064Z resource gate route arm: route status count in other digits: exit 2 PASS
+2026-10-09T22:07:29.5925509Z resource gate route arm: route status count negative: exit 2 PASS
+2026-10-09T22:07:29.5925939Z resource gate route arm: route status count past the bound: exit 2 PASS
+2026-10-09T22:07:29.5926498Z resource gate route arm: route status not UTF-8: exit 2 PASS
+2026-10-09T22:07:29.5926933Z resource gate route arm: route status without its routable row: exit 2 PASS
+2026-10-09T22:07:29.5927434Z resource gate route arm: route status without its fully routed row: exit 2 PASS
+2026-10-09T22:07:29.5927911Z resource gate route arm: route status without both net rows: exit 2 PASS
+2026-10-09T22:07:29.5928383Z resource gate route arm: route status with a second routable row: exit 2 PASS
+2026-10-09T22:07:29.5928821Z resource gate route arm: tool build changed: exit 2 PASS
+2026-10-09T22:07:29.5929302Z resource gate route arm: device changed: exit 2 PASS
+2026-10-09T22:07:29.5929661Z resource gate route arm: design changed: exit 2 PASS
+2026-10-09T22:07:29.5930260Z resource gate route arm: design state changed: exit 2 PASS
+2026-10-09T22:07:29.5930663Z resource gate route arm: project creation changed: exit 2 PASS
+2026-10-09T22:07:29.5931054Z resource gate route arm: thread count changed: exit 2 PASS
+2026-10-09T22:07:29.5931483Z resource gate route arm: synthesis directive changed: exit 2 PASS
+2026-10-09T22:07:29.5931918Z resource gate route arm: optimization directive changed: exit 2 PASS
+2026-10-09T22:07:29.5932475Z resource gate route arm: timing grade changed: exit 2 PASS
+2026-10-09T22:07:29.5933207Z resource gate route arm: placement directive changed: exit 2 PASS
+2026-10-09T22:07:29.5934077Z resource gate route arm: physical optimization directive changed: exit 2 PASS
+2026-10-09T22:07:29.5934947Z resource gate route arm: routing directive changed: exit 2 PASS
+2026-10-09T22:07:29.5935820Z resource gate route arm: identical inputs, different figures: exit 2 PASS
+2026-10-09T22:07:29.5936968Z resource gate route arm: identical inputs, different WNS: exit 2 PASS
+2026-10-09T22:07:29.5937757Z resource gate route arm: export date only: exit 2 PASS
+2026-10-09T22:07:29.5938476Z resource gate route arm: generated logic changed: exit 1 PASS
+2026-10-09T22:07:29.5939253Z resource gate route arm: include header changed: exit 1 PASS
+2026-10-09T22:07:29.5940030Z resource gate route arm: sourced constraint changed: exit 1 PASS
+2026-10-09T22:07:29.5940800Z resource gate route arm: memory image changed: exit 1 PASS
+2026-10-09T22:07:29.5941616Z resource gate route arm: image manifest of the wrong shape: exit 2 PASS
+2026-10-09T22:07:29.5942491Z resource gate route arm: image manifest nested too deep: exit 2 PASS
+2026-10-09T22:07:29.5943374Z resource gate route arm: image manifest with a repeated key: exit 2 PASS
+2026-10-09T22:07:29.5944290Z resource gate route arm: image manifest with a bracketed key: exit 2 PASS
+2026-10-09T22:07:29.5945205Z resource gate route arm: image manifest with another named key: exit 0 PASS
+2026-10-09T22:07:29.5946094Z resource gate route arm: duplicate conflicting row: exit 2 PASS
+2026-10-09T22:07:29.5947172Z resource gate route arm: duplicate conflicting header: exit 2 PASS
+2026-10-09T22:07:29.5947943Z resource gate route arm: malformed count: exit 2 PASS
+2026-10-09T22:07:29.5948647Z resource gate route arm: count in other digits: exit 2 PASS
+2026-10-09T22:07:29.5949376Z resource gate route arm: fractional count: exit 2 PASS
+2026-10-09T22:07:29.5950080Z resource gate route arm: count past the bound: exit 2 PASS
+2026-10-09T22:07:29.5950888Z resource gate route arm: BRAM tiles too long to be finite: exit 2 PASS
+2026-10-09T22:07:29.5951666Z resource gate route arm: missing Slice row: exit 2 PASS
+2026-10-09T22:07:29.5952395Z resource gate route arm: timing columns changed: exit 2 PASS
+2026-10-09T22:07:29.5953138Z resource gate route arm: second timing summary: exit 2 PASS
+2026-10-09T22:07:29.5953900Z resource gate route arm: timing value row missing: exit 2 PASS
+2026-10-09T22:07:29.5954656Z resource gate route arm: missing timing report: exit 2 PASS
+2026-10-09T22:07:29.5955399Z resource gate route arm: second generated top: exit 2 PASS
+2026-10-09T22:07:29.5956115Z resource gate route arm: read source missing: exit 2 PASS
+2026-10-09T22:07:29.5957087Z resource gate route arm: include directory missing: exit 2 PASS
+2026-10-09T22:07:29.5957900Z resource gate route arm: cell census header changed: exit 2 PASS
+2026-10-09T22:07:29.5958768Z resource gate route arm: hierarchy count in other digits: exit 2 PASS
+2026-10-09T22:07:29.5959733Z resource gate route arm: hierarchy count in other digits in a middle cell: exit 2 PASS
+2026-10-09T22:07:29.5960769Z resource gate route arm: hierarchy count in other digits in the last cell: exit 2 PASS
+2026-10-09T22:07:29.5961690Z resource gate route arm: hierarchy count past the bound: exit 2 PASS
+2026-10-09T22:07:29.5962538Z resource gate route arm: hierarchy row without counts: exit 2 PASS
+2026-10-09T22:07:29.5963683Z resource gate route arm: wrapper source read from too near the root: exit 2 PASS
+2026-10-09T22:07:29.5964605Z resource gate route arm: second recipe script: exit 2 PASS
+2026-10-09T22:07:29.5965347Z resource gate ooc arm: standalone control: exit 0 PASS
+2026-10-09T22:07:29.5966094Z resource gate ooc arm: standalone clock changed: exit 2 PASS
+2026-10-09T22:07:29.5967074Z resource gate ooc arm: generic changed: exit 1 PASS
+2026-10-09T22:07:29.5967811Z resource gate ooc arm: image path moved, same image: exit 2 PASS
+2026-10-09T22:07:29.5968579Z resource gate ooc arm: standalone RAMB36: exit 1 PASS
+2026-10-09T22:07:29.5969511Z resource gate ooc arm: standalone RAMB18: exit 1 PASS
+2026-10-09T22:07:29.5970161Z resource gate ooc arm: standalone DSP: exit 1 PASS
+2026-10-09T22:07:29.5970794Z resource gate ooc arm: standalone FF: exit 1 PASS
+2026-10-09T22:07:29.5971533Z resource gate route arm: export built at another root: exit 2 PASS
+2026-10-09T22:07:29.5972420Z resource gate command-line arm: check within tolerance: exit 0 PASS
+2026-10-09T22:07:29.5973434Z resource gate command-line arm: check reads the kind from a standalone directory: exit 0 PASS
+2026-10-09T22:07:29.5974457Z resource gate command-line arm: check of a regression: exit 1 PASS
+2026-10-09T22:07:29.5975339Z resource gate command-line arm: check of an unrouted route: exit 1 PASS
+2026-10-09T22:07:29.5976496Z resource gate command-line arm: check of an unreadable measurement: exit 2 PASS
+2026-10-09T22:07:29.5977524Z resource gate command-line arm: check of a route without its status: exit 2 PASS
+2026-10-09T22:07:29.5978638Z resource gate command-line arm: check of a route status count past the integer text limit: exit 2 PASS
+2026-10-09T22:07:29.5979777Z resource gate command-line arm: check of a WNS too long to be finite: exit 2 PASS
+2026-10-09T22:07:29.5980809Z resource gate command-line arm: check of a wrong-shape image manifest: exit 2 PASS
+2026-10-09T22:07:29.5981856Z resource gate command-line arm: check against a baseline that is not JSON: exit 2 PASS
+2026-10-09T22:07:29.5982888Z resource gate command-line arm: check against a missing baseline: exit 2 PASS
+2026-10-09T22:07:29.5983925Z resource gate command-line arm: check against a baseline without endpoints: exit 2 PASS
+2026-10-09T22:07:29.5985062Z resource gate command-line arm: check against a scope name with a generate index: exit 0 PASS
+2026-10-09T22:07:29.5986290Z resource gate command-line arm: check of a bracketed key in the last image manifest entry: exit 2 PASS
+2026-10-09T22:07:29.8697283Z resource gate command-line arm: check of a 128-character key of every name character in a note and an image manifest entry: exit 0 PASS
+2026-10-09T22:07:29.8698888Z resource gate command-line arm: check of an endpoint the baseline does not hold: exit 2 PASS
+2026-10-09T22:07:29.8699943Z resource gate command-line arm: check of an endpoint without a record: exit 2 PASS
+2026-10-09T22:07:29.8701000Z resource gate command-line arm: check of a gated figure without a tolerance: exit 2 PASS
+2026-10-09T22:07:29.8702006Z resource gate command-line arm: check of a ceiling naming no figure: exit 2 PASS
+2026-10-09T22:07:29.8702879Z resource gate check-baseline arm: a consistent baseline: exit 0 PASS
+2026-10-09T22:07:29.8703760Z resource gate check-baseline arm: a scope name with a generate index: exit 0 PASS
+2026-10-09T22:07:29.8704658Z resource gate check-baseline arm: a missing record: exit 2 PASS
+2026-10-09T22:07:29.8705120Z resource gate check-baseline arm: an incomplete record: exit 2 PASS
+2026-10-09T22:07:29.8705570Z resource gate check-baseline arm: a missing tolerance: exit 2 PASS
+2026-10-09T22:07:29.8706020Z resource gate check-baseline arm: a negative tolerance: exit 2 PASS
+2026-10-09T22:07:29.8706831Z resource gate check-baseline arm: a missing floor: exit 2 PASS
+2026-10-09T22:07:29.8707290Z resource gate check-baseline arm: a record below its floor: exit 2 PASS
+2026-10-09T22:07:29.8707770Z resource gate check-baseline arm: a record over its ceiling: exit 2 PASS
+2026-10-09T22:07:29.8708461Z resource gate check-baseline arm: a missing route ceiling: exit 2 PASS
+2026-10-09T22:07:29.8708942Z resource gate check-baseline arm: a ceiling naming no figure: exit 2 PASS
+2026-10-09T22:07:29.8709933Z resource gate check-baseline arm: a malformed policy: exit 2 PASS
+2026-10-09T22:07:29.8710857Z resource gate check-baseline arm: a tolerance the budget does not hold: exit 2 PASS
+2026-10-09T22:07:29.8711703Z resource gate check-baseline arm: a budget value the baseline does not hold: exit 2 PASS
+2026-10-09T22:07:29.8712283Z resource gate check-baseline arm: a budget floor the baseline does not hold: exit 2 PASS
+2026-10-09T22:07:29.8713066Z resource gate check-baseline arm: a budget ceiling the baseline does not hold: exit 2 PASS
+2026-10-09T22:07:29.8713667Z resource gate check-baseline arm: a baseline policy figure the budget table lacks: exit 2 PASS
+2026-10-09T22:07:29.8714228Z resource gate check-baseline arm: a budget cell in other digits: exit 2 PASS
+2026-10-09T22:07:29.8714755Z resource gate check-baseline arm: a budget cell too long to be finite: exit 2 PASS
+2026-10-09T22:07:29.8715276Z resource gate check-baseline arm: an endpoint the budget lacks: exit 2 PASS
+2026-10-09T22:07:29.8715782Z resource gate check-baseline arm: a budget row the baseline lacks: exit 2 PASS
+2026-10-09T22:07:29.8716239Z resource gate check-baseline arm: no budget table: exit 2 PASS
+2026-10-09T22:07:29.8716999Z resource gate check-baseline arm: two budget tables: exit 2 PASS
+2026-10-09T22:07:29.8717434Z resource gate check-baseline arm: a repeated budget row: exit 2 PASS
+2026-10-09T22:07:29.8717927Z resource gate check-baseline arm: a budget cell that is no value: exit 2 PASS
+2026-10-09T22:07:29.8718440Z resource gate check-baseline arm: a budget page that is not UTF-8: exit 2 PASS
+2026-10-09T22:07:29.8718910Z resource gate check-baseline arm: no budget page: exit 2 PASS
+2026-10-09T22:07:29.8719423Z resource gate malformed-baseline arm: a NaN floor: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8720090Z resource gate malformed-baseline arm: an infinite tolerance: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8720814Z resource gate malformed-baseline arm: a ceiling too large to be finite: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8721634Z resource gate malformed-baseline arm: a timing figure recorded as a long whole number: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8722427Z resource gate malformed-baseline arm: a scope count past the bound: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8723202Z resource gate malformed-baseline arm: a whole number past the integer text limit: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8723994Z resource gate malformed-baseline arm: a file nested too deep to read: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8724707Z resource gate malformed-baseline arm: a repeated key: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8725451Z resource gate malformed-baseline arm: an endpoint field named by a lone surrogate: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8726246Z resource gate malformed-baseline arm: a scope named by a lone surrogate: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8727199Z resource gate malformed-baseline arm: a key of 129 characters: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8728056Z resource gate malformed-baseline arm: an endpoint name with a generate index: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8728852Z resource gate malformed-baseline arm: a policy figure with a generate index: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8730050Z resource gate malformed-baseline arm: a note of the file holding a bracketed key: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8730967Z resource gate malformed-baseline arm: a note holding a bracketed key under scopes: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8732186Z resource gate malformed-baseline arm: a bracketed key in a note list past its first item: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8733210Z resource gate malformed-baseline arm: a note shaped as a record's scopes holding a bracketed key: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8734256Z resource gate malformed-baseline arm: an unknown field in the file: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8735112Z resource gate malformed-baseline arm: an unknown field in an endpoint: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8737232Z resource gate malformed-baseline arm: an unknown field in a record: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8738480Z resource gate malformed-baseline arm: a record kind that is a list: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8739396Z resource gate malformed-baseline arm: an unknown record kind: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8740253Z resource gate malformed-baseline arm: an identity that is text: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8741092Z resource gate malformed-baseline arm: an identity without its device: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8797000Z resource gate malformed-baseline arm: an identity with an extra key: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8798365Z resource gate malformed-baseline arm: an identity field of another type: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8799600Z resource gate malformed-baseline arm: a flow that is not text: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8800884Z resource gate malformed-baseline arm: a standalone clock that is not text: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8802147Z resource gate malformed-baseline arm: an input digest that is no digest: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8803390Z resource gate malformed-baseline arm: an input digest that is a number: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8804615Z resource gate malformed-baseline arm: an input digest in upper case: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8805799Z resource gate malformed-baseline arm: figures that are a list: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8807179Z resource gate malformed-baseline arm: figures without LUT: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8808357Z resource gate malformed-baseline arm: figures with an extra figure: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8809563Z resource gate malformed-baseline arm: a gated figure that is text: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8810828Z resource gate malformed-baseline arm: a gated figure that is null: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8812203Z resource gate malformed-baseline arm: a gated figure that is a bool: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8813656Z resource gate malformed-baseline arm: a malformed endpoint after the first: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8815144Z resource gate malformed-baseline arm: scopes that are a list: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8816724Z resource gate malformed-baseline arm: a scope without its CARRY4 count: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8817940Z resource gate malformed-baseline arm: a scope with an extra count: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8818734Z resource gate malformed-baseline arm: a fractional scope count: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8819458Z resource gate malformed-baseline arm: a negative scope count: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8820434Z resource gate malformed-baseline arm: a scope count that is a bool: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8821165Z resource gate malformed-baseline arm: a tolerance that is text: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8821860Z resource gate malformed-baseline arm: a ceiling that is a bool: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8822559Z resource gate malformed-baseline arm: a floor table that is a list: exit 2 through check and check-baseline PASS
+2026-10-09T22:07:29.8823125Z resource gate CARRY4 attribution and record --write PASS
+2026-10-09T22:07:29.8823559Z resource gate planted-exception arm: load through check: exit 2 PASS
+2026-10-09T22:07:29.8824158Z resource gate planted-exception arm: census through check: exit 2 PASS
+2026-10-09T22:07:29.8824636Z resource gate planted-exception arm: routing through check: exit 2 PASS
+2026-10-09T22:07:29.8825107Z resource gate planted-exception arm: judge through check: exit 2 PASS
+2026-10-09T22:07:31.6831364Z resource gate planted-exception arm: entry_problems through check: exit 2 PASS
+2026-10-09T22:07:31.6832171Z resource gate planted-exception arm: load through check-baseline: exit 2 PASS
+2026-10-09T22:07:31.6832940Z resource gate planted-exception arm: check_baseline through check-baseline: exit 2 PASS
+2026-10-09T22:07:31.6833728Z resource gate command-line arm: a directory named in another script: exit 0 PASS
+2026-10-09T22:07:31.6834534Z resource gate command-line arm: record --write of an endpoint name the baseline refuses: exit 2 PASS
+2026-10-09T22:07:31.6835390Z resource gate fuzz: alinx_ax7101_route_status.rpt: bytes: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6836199Z resource gate fuzz: alinx_ax7101_route_status.rpt: digit: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6837651Z resource gate fuzz: alinx_ax7101_route_status.rpt: duplicate line: 2 cases, check exits 0/1/2 = 2/0/0
+2026-10-09T22:07:31.6838540Z resource gate fuzz: alinx_ax7101_route_status.rpt: empty: 3 cases, check exits 0/1/2 = 0/0/3
+2026-10-09T22:07:31.6839335Z resource gate fuzz: alinx_ax7101_route_status.rpt: huge: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6840149Z resource gate fuzz: alinx_ax7101_route_status.rpt: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6840971Z resource gate fuzz: alinx_ax7101_route_status.rpt: missing: 3 cases, check exits 0/1/2 = 0/0/3
+2026-10-09T22:07:31.6841778Z resource gate fuzz: alinx_ax7101_route_status.rpt: number: 1 cases, check exits 0/1/2 = 0/1/0
+2026-10-09T22:07:31.6842600Z resource gate fuzz: alinx_ax7101_route_status.rpt: row removed: 6 cases, check exits 0/1/2 = 0/0/6
+2026-10-09T22:07:31.6843438Z resource gate fuzz: alinx_ax7101_route_status.rpt: row twice: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6844267Z resource gate fuzz: alinx_ax7101_route_status.rpt: truncate: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6845091Z resource gate fuzz: alinx_ax7101_route_status.rpt: unicode: 2 cases, check exits 0/1/2 = 2/0/0
+2026-10-09T22:07:31.6845639Z resource gate fuzz: baseline: add: 16 cases, check exits 0/1/2 = 4/0/12
+2026-10-09T22:07:31.6846116Z resource gate fuzz: baseline: bad name: 11 cases, check exits 0/1/2 = 0/0/11
+2026-10-09T22:07:31.6846754Z resource gate fuzz: baseline: bracket name: 10 cases, check exits 0/1/2 = 1/0/9
+2026-10-09T22:07:31.6847246Z resource gate fuzz: baseline: bytes: 20 cases, check exits 0/1/2 = 0/0/20
+2026-10-09T22:07:31.6847701Z resource gate fuzz: baseline: digit: 9 cases, check exits 0/1/2 = 0/0/9
+2026-10-09T22:07:31.6848167Z resource gate fuzz: baseline: duplicate: 13 cases, check exits 0/1/2 = 0/0/13
+2026-10-09T22:07:31.6848646Z resource gate fuzz: baseline: note: 6 cases, check exits 0/1/2 = 0/0/6
+2026-10-09T22:07:31.6849098Z resource gate fuzz: baseline: overflow: 15 cases, check exits 0/1/2 = 0/0/15
+2026-10-09T22:07:31.6849564Z resource gate fuzz: baseline: remove: 18 cases, check exits 0/1/2 = 2/0/16
+2026-10-09T22:07:31.6850058Z resource gate fuzz: baseline: size: deep nesting: 5 cases, check exits 0/1/2 = 0/0/5
+2026-10-09T22:07:31.6850810Z resource gate fuzz: baseline: size: long text: 2 cases, check exits 0/1/2 = 1/0/1
+2026-10-09T22:07:31.6851335Z resource gate fuzz: baseline: size: many scopes: 5 cases, check exits 0/1/2 = 5/0/0
+2026-10-09T22:07:31.6851830Z resource gate fuzz: baseline: truncate: 9 cases, check exits 0/1/2 = 0/0/9
+2026-10-09T22:07:31.6852290Z resource gate fuzz: baseline: type: 9 cases, check exits 0/1/2 = 0/0/9
+2026-10-09T22:07:31.6852743Z resource gate fuzz: baseline: unicode: 18 cases, check exits 0/1/2 = 11/0/7
+2026-10-09T22:07:31.6853213Z resource gate fuzz: baseline: value: 17 cases, check exits 0/1/2 = 17/0/0
+2026-10-09T22:07:31.6853837Z resource gate fuzz: baseline_cells.tsv: bytes: 9 cases, check exits 0/1/2 = 0/0/9
+2026-10-09T22:07:31.6854382Z resource gate fuzz: baseline_cells.tsv: census header: 9 cases, check exits 0/1/2 = 0/0/9
+2026-10-09T22:07:31.6854952Z resource gate fuzz: baseline_cells.tsv: duplicate line: 6 cases, check exits 0/1/2 = 6/0/0
+2026-10-09T22:07:31.6855500Z resource gate fuzz: baseline_cells.tsv: empty: 5 cases, check exits 0/1/2 = 0/0/5
+2026-10-09T22:07:31.6856029Z resource gate fuzz: baseline_cells.tsv: junk lines: 3 cases, check exits 0/1/2 = 0/0/3
+2026-10-09T22:07:31.6856689Z resource gate fuzz: baseline_cells.tsv: missing: 7 cases, check exits 0/1/2 = 0/0/7
+2026-10-09T22:07:31.6857221Z resource gate fuzz: baseline_cells.tsv: swap lines: 2 cases, check exits 0/1/2 = 1/0/1
+2026-10-09T22:07:31.6857749Z resource gate fuzz: baseline_cells.tsv: truncate: 3 cases, check exits 0/1/2 = 3/0/0
+2026-10-09T22:07:31.6858269Z resource gate fuzz: baseline_cells.tsv: unicode: 13 cases, check exits 0/1/2 = 12/0/1
+2026-10-09T22:07:31.6858805Z resource gate fuzz: baseline_hierarchy.rpt: bytes: 8 cases, check exits 0/1/2 = 0/0/8
+2026-10-09T22:07:31.6859366Z resource gate fuzz: baseline_hierarchy.rpt: delete line: 3 cases, check exits 0/1/2 = 1/0/2
+2026-10-09T22:07:31.6859922Z resource gate fuzz: baseline_hierarchy.rpt: digit: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6860492Z resource gate fuzz: baseline_hierarchy.rpt: duplicate line: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6861064Z resource gate fuzz: baseline_hierarchy.rpt: empty: 7 cases, check exits 0/1/2 = 0/0/7
+2026-10-09T22:07:31.6861591Z resource gate fuzz: baseline_hierarchy.rpt: garble: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6862123Z resource gate fuzz: baseline_hierarchy.rpt: huge: 3 cases, check exits 0/1/2 = 0/0/3
+2026-10-09T22:07:31.6862667Z resource gate fuzz: baseline_hierarchy.rpt: junk lines: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6863239Z resource gate fuzz: baseline_hierarchy.rpt: missing: 10 cases, check exits 0/1/2 = 0/0/10
+2026-10-09T22:07:31.6863790Z resource gate fuzz: baseline_hierarchy.rpt: number: 6 cases, check exits 0/1/2 = 6/0/0
+2026-10-09T22:07:31.6864338Z resource gate fuzz: baseline_hierarchy.rpt: swap lines: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6864904Z resource gate fuzz: baseline_hierarchy.rpt: truncate: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6865459Z resource gate fuzz: baseline_hierarchy.rpt: unicode: 4 cases, check exits 0/1/2 = 3/0/1
+2026-10-09T22:07:31.6865997Z resource gate fuzz: baseline_images.json: bytes: 4 cases, check exits 0/1/2 = 0/0/4
+2026-10-09T22:07:31.6866844Z resource gate fuzz: baseline_images.json: delete line: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6867423Z resource gate fuzz: baseline_images.json: empty: 8 cases, check exits 0/1/2 = 0/0/8
+2026-10-09T22:07:31.6867957Z resource gate fuzz: baseline_images.json: entry key: 10 cases, check exits 0/1/2 = 1/0/9
+2026-10-09T22:07:31.6868509Z resource gate fuzz: baseline_images.json: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6869046Z resource gate fuzz: baseline_images.json: missing: 12 cases, check exits 0/1/2 = 0/0/12
+2026-10-09T22:07:31.6869589Z resource gate fuzz: baseline_images.json: swap lines: 1 cases, check exits 0/1/2 = 1/0/0
+2026-10-09T22:07:31.6870124Z resource gate fuzz: baseline_images.json: truncate: 7 cases, check exits 0/1/2 = 0/0/7
+2026-10-09T22:07:31.6870789Z resource gate fuzz: baseline_images.json: unicode: 8 cases, check exits 0/1/2 = 0/0/8
+2026-10-09T22:07:31.6871328Z resource gate fuzz: baseline_timing.rpt: bytes: 4 cases, check exits 0/1/2 = 0/0/4
+2026-10-09T22:07:31.6871857Z resource gate fuzz: baseline_timing.rpt: delete line: 3 cases, check exits 0/1/2 = 1/0/2
+2026-10-09T22:07:31.6872388Z resource gate fuzz: baseline_timing.rpt: digit: 3 cases, check exits 0/1/2 = 0/0/3
+2026-10-09T22:07:31.6872929Z resource gate fuzz: baseline_timing.rpt: duplicate line: 2 cases, check exits 0/1/2 = 1/0/1
+2026-10-09T22:07:31.6873585Z resource gate fuzz: baseline_timing.rpt: empty: 7 cases, check exits 0/1/2 = 0/0/7
+2026-10-09T22:07:31.6874097Z resource gate fuzz: baseline_timing.rpt: garble: 4 cases, check exits 0/1/2 = 0/0/4
+2026-10-09T22:07:31.6874606Z resource gate fuzz: baseline_timing.rpt: huge: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6875128Z resource gate fuzz: baseline_timing.rpt: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6875669Z resource gate fuzz: baseline_timing.rpt: missing: 3 cases, check exits 0/1/2 = 0/0/3
+2026-10-09T22:07:31.6876194Z resource gate fuzz: baseline_timing.rpt: number: 7 cases, check exits 0/1/2 = 5/2/0
+2026-10-09T22:07:31.6876863Z resource gate fuzz: baseline_timing.rpt: summary twice: 4 cases, check exits 0/1/2 = 0/0/4
+2026-10-09T22:07:31.6877410Z resource gate fuzz: baseline_timing.rpt: swap lines: 1 cases, check exits 0/1/2 = 1/0/0
+2026-10-09T22:07:31.6877951Z resource gate fuzz: baseline_timing.rpt: truncate: 4 cases, check exits 0/1/2 = 0/0/4
+2026-10-09T22:07:31.6878478Z resource gate fuzz: baseline_timing.rpt: unicode: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6879011Z resource gate fuzz: baseline_utilization.rpt: bytes: 6 cases, check exits 0/1/2 = 0/0/6
+2026-10-09T22:07:31.6879560Z resource gate fuzz: baseline_utilization.rpt: digit: 4 cases, check exits 0/1/2 = 0/0/4
+2026-10-09T22:07:31.6880140Z resource gate fuzz: baseline_utilization.rpt: duplicate line: 1 cases, check exits 0/1/2 = 1/0/0
+2026-10-09T22:07:31.6880718Z resource gate fuzz: baseline_utilization.rpt: empty: 5 cases, check exits 0/1/2 = 0/0/5
+2026-10-09T22:07:31.6881265Z resource gate fuzz: baseline_utilization.rpt: garble: 8 cases, check exits 0/1/2 = 0/0/8
+2026-10-09T22:07:31.6881854Z resource gate fuzz: baseline_utilization.rpt: header removed: 6 cases, check exits 0/1/2 = 0/0/6
+2026-10-09T22:07:31.6882456Z resource gate fuzz: baseline_utilization.rpt: header twice: 6 cases, check exits 0/1/2 = 0/0/6
+2026-10-09T22:07:31.6883026Z resource gate fuzz: baseline_utilization.rpt: huge: 6 cases, check exits 0/1/2 = 0/0/6
+2026-10-09T22:07:31.6883598Z resource gate fuzz: baseline_utilization.rpt: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6884179Z resource gate fuzz: baseline_utilization.rpt: missing: 7 cases, check exits 0/1/2 = 0/0/7
+2026-10-09T22:07:31.6884735Z resource gate fuzz: baseline_utilization.rpt: number: 1 cases, check exits 0/1/2 = 0/1/0
+2026-10-09T22:07:31.6885306Z resource gate fuzz: baseline_utilization.rpt: swap lines: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.6885886Z resource gate fuzz: baseline_utilization.rpt: truncate: 6 cases, check exits 0/1/2 = 0/0/6
+2026-10-09T22:07:31.6886565Z resource gate fuzz: baseline_utilization.rpt: unicode: 5 cases, check exits 0/1/2 = 2/0/3
+2026-10-09T22:07:31.6887076Z resource gate fuzz: clock.xdc: bytes: 6 cases, check exits 0/1/2 = 0/0/6
+2026-10-09T22:07:31.6887547Z resource gate fuzz: clock.xdc: delete line: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.6888043Z resource gate fuzz: clock.xdc: duplicate line: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.8399598Z resource gate fuzz: clock.xdc: empty: 2 cases, check exits 0/1/2 = 0/0/2
+2026-10-09T22:07:31.8400831Z resource gate fuzz: clock.xdc: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+2026-10-09T22:07:31.8402000Z resource gate fuzz: clock.xdc: missing: 4 cases, check exits 0/1/2 = 0/0/4
+2026-10-09T22:07:31.8403427Z resource gate fuzz: clock.xdc: truncate: 2 cases, check exits 0/1/2 = 1/0/1
+2026-10-09T22:07:31.8404236Z resource gate fuzz: clock.xdc: unicode: 3 cases, check exits 0/1/2 = 3/0/0
+2026-10-09T22:07:31.8404886Z resource gate fuzz: control: 2 cases, check exits 0/1/2 = 2/0/0
+2026-10-09T22:07:31.8405695Z resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 07067ee87d28a829
+2026-10-09T22:07:31.8406751Z resource gate selftest: 260 arms and 500 generated cases PASS
+2026-10-09T22:07:31.8407468Z placement gate all-fabric unmarked control: expected exit 0, RESULT: PASS: PASS
+2026-10-09T22:07:31.8408468Z placement gate wrapper replaced check: expected exit 2, wrapper (KL_pp_shadow): PASS
+2026-10-09T22:07:31.8409327Z placement gate wrapper replaced record: expected exit 2, wrapper (KL_pp_shadow): PASS
+2026-10-09T22:07:31.8410176Z placement gate wrapper replaced printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8411014Z placement gate wrapper absent check: expected exit 2, wrapper (KL_pp_shadow): PASS
+2026-10-09T22:07:31.8411834Z placement gate wrapper absent record: expected exit 2, wrapper (KL_pp_shadow): PASS
+2026-10-09T22:07:31.8412642Z placement gate wrapper excess check: expected exit 2, wrapper (KL_pp_shadow): PASS
+2026-10-09T22:07:31.8413440Z placement gate wrapper excess record: expected exit 2, wrapper (KL_pp_shadow): PASS
+2026-10-09T22:07:31.8414251Z placement gate wrapper excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8415025Z placement gate adp absent check: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.8415757Z placement gate adp absent record: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.8416647Z placement gate adp absent printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8417405Z placement gate adp excess check: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.8418090Z placement gate adp excess record: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.8418637Z placement gate adp excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8419263Z placement gate acmp-listener absent check: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+2026-10-09T22:07:31.8419979Z placement gate acmp-listener absent record: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+2026-10-09T22:07:31.8420640Z placement gate acmp-listener absent printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8421293Z placement gate acmp-listener excess check: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+2026-10-09T22:07:31.8421990Z placement gate acmp-listener excess record: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+2026-10-09T22:07:31.8422660Z placement gate acmp-listener excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8423281Z placement gate acmp-talker absent check: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+2026-10-09T22:07:31.8423911Z placement gate acmp-talker absent record: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+2026-10-09T22:07:31.8424520Z placement gate acmp-talker absent printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8425122Z placement gate acmp-talker excess check: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+2026-10-09T22:07:31.8425746Z placement gate acmp-talker excess record: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+2026-10-09T22:07:31.8426476Z placement gate acmp-talker excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8427024Z placement gate srp absent check: expected exit 2, srp (KL_srp_top): PASS
+2026-10-09T22:07:31.8427511Z placement gate srp absent record: expected exit 2, srp (KL_srp_top): PASS
+2026-10-09T22:07:31.8428019Z placement gate srp absent printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8428508Z placement gate srp excess check: expected exit 2, srp (KL_srp_top): PASS
+2026-10-09T22:07:31.8429095Z placement gate srp excess record: expected exit 2, srp (KL_srp_top): PASS
+2026-10-09T22:07:31.8429587Z placement gate srp excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8430084Z placement gate maap absent check: expected exit 2, maap (KL_maap): PASS
+2026-10-09T22:07:31.8430544Z placement gate maap absent record: expected exit 2, maap (KL_maap): PASS
+2026-10-09T22:07:31.8431029Z placement gate maap absent printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8431527Z placement gate maap excess check: expected exit 2, maap (KL_maap): PASS
+2026-10-09T22:07:31.8432093Z placement gate maap excess record: expected exit 2, maap (KL_maap): PASS
+2026-10-09T22:07:31.8432577Z placement gate maap excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8433159Z placement gate processor-maap excess check: expected exit 2, processor-maap (KL_pp_maap): PASS
+2026-10-09T22:07:31.8433795Z placement gate processor-maap excess record: expected exit 2, processor-maap (KL_pp_maap): PASS
+2026-10-09T22:07:31.8434416Z placement gate processor-maap excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8434972Z placement gate aecp absent check: expected exit 2, aecp (KL_aecp_engine): PASS
+2026-10-09T22:07:31.8435484Z placement gate aecp absent record: expected exit 2, aecp (KL_aecp_engine): PASS
+2026-10-09T22:07:31.8436003Z placement gate aecp absent printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8436634Z placement gate aecp excess check: expected exit 2, aecp (KL_aecp_engine): PASS
+2026-10-09T22:07:31.8437140Z placement gate aecp excess record: expected exit 2, aecp (KL_aecp_engine): PASS
+2026-10-09T22:07:31.8437653Z placement gate aecp excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8438175Z placement gate notify absent check: expected exit 2, notify (KL_aecp_notify): PASS
+2026-10-09T22:07:31.8438707Z placement gate notify absent record: expected exit 2, notify (KL_aecp_notify): PASS
+2026-10-09T22:07:31.8439245Z placement gate notify absent printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8439776Z placement gate notify excess check: expected exit 2, notify (KL_aecp_notify): PASS
+2026-10-09T22:07:31.8440299Z placement gate notify excess record: expected exit 2, notify (KL_aecp_notify): PASS
+2026-10-09T22:07:31.8440821Z placement gate notify excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8441336Z placement gate mailbox excess check: expected exit 2, mailbox (KL_mbx): PASS
+2026-10-09T22:07:31.8441848Z placement gate mailbox excess record: expected exit 2, mailbox (KL_mbx): PASS
+2026-10-09T22:07:31.8442369Z placement gate mailbox excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8442894Z placement gate gptp absent check: expected exit 2, gptp (KL_gptp_shadow): PASS
+2026-10-09T22:07:31.8443399Z placement gate gptp absent record: expected exit 2, gptp (KL_gptp_shadow): PASS
+2026-10-09T22:07:31.8443919Z placement gate gptp absent printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8444435Z placement gate gptp excess check: expected exit 2, gptp (KL_gptp_shadow): PASS
+2026-10-09T22:07:31.8444949Z placement gate gptp excess record: expected exit 2, gptp (KL_gptp_shadow): PASS
+2026-10-09T22:07:31.8445492Z placement gate gptp excess printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8446104Z placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.8446969Z placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+2026-10-09T22:07:31.8447742Z placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+2026-10-09T22:07:31.8448448Z placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, srp (KL_srp_top): PASS
+2026-10-09T22:07:31.8449230Z placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, maap (KL_maap): PASS
+2026-10-09T22:07:31.8449899Z placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.8450641Z placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+2026-10-09T22:07:31.8451406Z placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+2026-10-09T22:07:31.8452106Z placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, srp (KL_srp_top): PASS
+2026-10-09T22:07:31.8452875Z placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, maap (KL_maap): PASS
+2026-10-09T22:07:31.8453560Z placement gate wrapper-retaining f0-f4 without marker printed record: expected exit 0, "kind": "route": PASS
+2026-10-09T22:07:31.8454267Z placement gate all-fabric with a split census check: expected exit 2, baseline_placement.tsv present: PASS
+2026-10-09T22:07:31.8454964Z placement gate all-fabric with a split census record: expected exit 2, baseline_placement.tsv present: PASS
+2026-10-09T22:07:31.8455639Z placement gate all-fabric identity before population: expected exit 2, tool or recipe change: PASS
+2026-10-09T22:07:31.8456399Z placement gate all-fabric own rows and specialized modules: expected exit 0, RESULT: PASS: PASS
+2026-10-09T22:07:31.8457038Z placement gate all-fabric module prefix is insufficient: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.8457571Z placement gate f0-f4: expected exit 0, placement f0-f4: PASS
+2026-10-09T22:07:31.8458018Z placement gate f0-f4 absent selection: expected exit 2, recipe names: PASS
+2026-10-09T22:07:31.8458508Z placement gate f0-f4 duplicate selection: expected exit 2, recipe names: PASS
+2026-10-09T22:07:31.8458998Z placement gate f0-f4 wrong selection: expected exit 2, recipe names: PASS
+2026-10-09T22:07:31.8459461Z placement gate f0-f4 unselected: expected exit 2, wrong placement: PASS
+2026-10-09T22:07:31.8459893Z placement gate f0-f4 re-record: expected exit 2, M9: PASS
+2026-10-09T22:07:31.8460347Z placement gate f0-f4 missing census: expected exit 2, baseline_placement.tsv: PASS
+2026-10-09T22:07:31.8460824Z placement gate f0-f4 wrong header: expected exit 2, header: PASS
+2026-10-09T22:07:31.8461273Z placement gate f0-f4 wrong placement: expected exit 2, wrong placement: PASS
+2026-10-09T22:07:31.9220834Z placement gate f0-f4 missing wrapper row: expected exit 2, missing roles: PASS
+2026-10-09T22:07:31.9221991Z placement gate f0-f4 duplicate row: expected exit 2, duplicate: PASS
+2026-10-09T22:07:31.9222981Z placement gate f0-f4 invalid count: expected exit 2, invalid: PASS
+2026-10-09T22:07:31.9224004Z placement gate f0-f4 wrapper: expected exit 2, wrapper (KL_pp_shadow): PASS
+2026-10-09T22:07:31.9225032Z placement gate f0-f4 adp: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.9225995Z placement gate f0-f4 acmp-listener: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+2026-10-09T22:07:31.9227091Z placement gate f0-f4 acmp-talker: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+2026-10-09T22:07:31.9227759Z placement gate f0-f4 srp: expected exit 2, srp (KL_srp_top): PASS
+2026-10-09T22:07:31.9228327Z placement gate f0-f4 maap: expected exit 2, maap (KL_maap): PASS
+2026-10-09T22:07:31.9228993Z placement gate f0-f4 processor-maap: expected exit 2, processor-maap (KL_pp_maap): PASS
+2026-10-09T22:07:31.9229696Z placement gate f0-f4 aecp: expected exit 2, aecp (KL_aecp_engine): PASS
+2026-10-09T22:07:31.9230337Z placement gate f0-f4 notify: expected exit 2, notify (KL_aecp_notify): PASS
+2026-10-09T22:07:31.9230988Z placement gate f0-f4 mailbox: expected exit 2, mailbox (KL_mbx): PASS
+2026-10-09T22:07:31.9231602Z placement gate f0-f4 gptp: expected exit 2, gptp (KL_gptp_shadow): PASS
+2026-10-09T22:07:31.9232172Z placement gate f0-f4 RAMB36: expected exit 1, RAMB36: PASS
+2026-10-09T22:07:31.9232693Z placement gate f0-f4 ceiling: expected exit 1, ceiling: PASS
+2026-10-09T22:07:31.9233449Z placement gate f0-f4 LUT: expected exit 1, LUT: PASS
+2026-10-09T22:07:31.9233939Z placement gate f0-f4 WHS_ns: expected exit 1, WHS_ns: PASS
+2026-10-09T22:07:31.9234533Z placement gate f0-f4 ROUTE INCOMPLETE: expected exit 1, ROUTE INCOMPLETE: PASS
+2026-10-09T22:07:31.9235370Z placement gate f0-f4 tool or recipe change: expected exit 2, tool or recipe change: PASS
+2026-10-09T22:07:31.9236062Z placement gate full-split: expected exit 0, placement full-split: PASS
+2026-10-09T22:07:31.9236864Z placement gate full-split absent selection: expected exit 2, recipe names: PASS
+2026-10-09T22:07:31.9237757Z placement gate full-split duplicate selection: expected exit 2, recipe names: PASS
+2026-10-09T22:07:31.9238483Z placement gate full-split wrong selection: expected exit 2, recipe names: PASS
+2026-10-09T22:07:31.9239172Z placement gate full-split unselected: expected exit 2, wrong placement: PASS
+2026-10-09T22:07:31.9239802Z placement gate full-split re-record: expected exit 2, M9: PASS
+2026-10-09T22:07:31.9240479Z placement gate full-split missing census: expected exit 2, baseline_placement.tsv: PASS
+2026-10-09T22:07:31.9241142Z placement gate full-split wrong header: expected exit 2, header: PASS
+2026-10-09T22:07:31.9241634Z placement gate full-split wrong placement: expected exit 2, wrong placement: PASS
+2026-10-09T22:07:31.9242213Z placement gate full-split missing wrapper row: expected exit 2, missing roles: PASS
+2026-10-09T22:07:31.9242728Z placement gate full-split duplicate row: expected exit 2, duplicate: PASS
+2026-10-09T22:07:31.9243202Z placement gate full-split invalid count: expected exit 2, invalid: PASS
+2026-10-09T22:07:31.9243694Z placement gate full-split wrapper: expected exit 2, wrapper (KL_pp_shadow): PASS
+2026-10-09T22:07:31.9244195Z placement gate full-split adp: expected exit 2, adp (KL_adp_engine): PASS
+2026-10-09T22:07:31.9244758Z placement gate full-split acmp-listener: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+2026-10-09T22:07:31.9245391Z placement gate full-split acmp-talker: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+2026-10-09T22:07:31.9245922Z placement gate full-split srp: expected exit 2, srp (KL_srp_top): PASS
+2026-10-09T22:07:31.9246496Z placement gate full-split maap: expected exit 2, maap (KL_maap): PASS
+2026-10-09T22:07:31.9247024Z placement gate full-split processor-maap: expected exit 2, processor-maap (KL_pp_maap): PASS
+2026-10-09T22:07:31.9247580Z placement gate full-split aecp: expected exit 2, aecp (KL_aecp_engine): PASS
+2026-10-09T22:07:31.9248089Z placement gate full-split notify: expected exit 2, notify (KL_aecp_notify): PASS
+2026-10-09T22:07:31.9248597Z placement gate full-split mailbox: expected exit 2, mailbox (KL_mbx): PASS
+2026-10-09T22:07:31.9249095Z placement gate full-split gptp: expected exit 2, gptp (KL_gptp_shadow): PASS
+2026-10-09T22:07:31.9249554Z placement gate full-split RAMB36: expected exit 1, RAMB36: PASS
+2026-10-09T22:07:31.9249981Z placement gate full-split ceiling: expected exit 1, ceiling: PASS
+2026-10-09T22:07:31.9250388Z placement gate full-split LUT: expected exit 1, LUT: PASS
+2026-10-09T22:07:31.9250784Z placement gate full-split WHS_ns: expected exit 1, WHS_ns: PASS
+2026-10-09T22:07:31.9251257Z placement gate full-split ROUTE INCOMPLETE: expected exit 1, ROUTE INCOMPLETE: PASS
+2026-10-09T22:07:31.9251832Z placement gate full-split tool or recipe change: expected exit 2, tool or recipe change: PASS
+2026-10-09T22:07:31.9252357Z placement gate: unchanged acceptance schema, record and policy PASS
+2026-10-09T22:08:25.4848964Z control: rc=0 PASS
+2026-10-09T22:08:25.4849295Z all-fabric population not read: rc=1 PASS
+2026-10-09T22:08:25.4849874Z all-fabric population judged in a printed record: rc=1 PASS
+2026-10-09T22:08:25.4850505Z all-fabric population ignored by check: rc=1 PASS
+2026-10-09T22:08:25.4851151Z all-fabric population ignored by record --write: rc=1 PASS
+2026-10-09T22:08:25.4851852Z all-fabric population read for split routes: rc=1 PASS
+2026-10-09T22:08:25.4852507Z all-fabric population read for standalone: rc=1 PASS
+2026-10-09T22:08:25.4855105Z missing wrapper root names no role: rc=1 PASS
+2026-10-09T22:08:25.4855786Z split fuzz refusal removed: rc=1 PASS
+2026-10-09T22:08:25.4856536Z identity comparison: rc=1 PASS
+2026-10-09T22:08:25.4857000Z endpoint kind comparison: rc=1 PASS
+2026-10-09T22:08:25.4857482Z identical-input refusal: rc=1 PASS
+2026-10-09T22:08:25.4857949Z identical-input figures: rc=1 PASS
+2026-10-09T22:08:25.4858287Z resource tolerance: rc=1 PASS
+2026-10-09T22:08:25.4858575Z resource tolerance boundary: rc=1 PASS
+2026-10-09T22:08:25.4858861Z timing floor: rc=1 PASS
+2026-10-09T22:08:25.4859293Z timing floor boundary: rc=1 PASS
+2026-10-09T22:08:25.4859555Z timing fall: rc=1 PASS
+2026-10-09T22:08:25.4859784Z timing fall boundary: rc=1 PASS
+2026-10-09T22:08:25.4860046Z ceiling: rc=1 PASS
+2026-10-09T22:08:25.4860259Z ceiling boundary: rc=1 PASS
+2026-10-09T22:08:25.4860499Z verdict status: rc=1 PASS
+2026-10-09T22:08:25.4860744Z standalone RAMB36: rc=1 PASS
+2026-10-09T22:08:25.4860993Z standalone DSP: rc=1 PASS
+2026-10-09T22:08:25.4861241Z improvement report: rc=1 PASS
+2026-10-09T22:08:25.4861499Z improvement threshold: rc=1 PASS
+2026-10-09T22:08:25.4861768Z improvement direction: rc=1 PASS
+2026-10-09T22:08:25.4862010Z Slice row: rc=1 PASS
+2026-10-09T22:08:25.4862229Z row agreement: rc=1 PASS
+2026-10-09T22:08:25.4862456Z count format: rc=1 PASS
+2026-10-09T22:08:25.4862691Z count format decimals: rc=1 PASS
+2026-10-09T22:08:25.4862940Z count format ASCII: rc=1 PASS
+2026-10-09T22:08:25.4863200Z header uniqueness: rc=1 PASS
+2026-10-09T22:08:25.4863451Z one timing summary: rc=1 PASS
+2026-10-09T22:08:25.4863701Z timing value row: rc=1 PASS
+2026-10-09T22:08:25.4863943Z timing columns: rc=1 PASS
+2026-10-09T22:08:25.4864176Z timed endpoints: rc=1 PASS
+2026-10-09T22:08:25.4864434Z timed endpoint columns: rc=1 PASS
+2026-10-09T22:08:25.4864702Z timed endpoint converter: rc=1 PASS
+2026-10-09T22:08:25.4864979Z timed endpoint boundary: rc=1 PASS
+2026-10-09T22:08:25.4865251Z hold-timed endpoints counted: rc=1 PASS
+2026-10-09T22:08:25.4865530Z slack converter: rc=1 PASS
+2026-10-09T22:08:25.4865768Z hold slack converter: rc=1 PASS
+2026-10-09T22:08:25.4866024Z utilization converter: rc=1 PASS
+2026-10-09T22:08:25.4866275Z half-count converter: rc=1 PASS
+2026-10-09T22:08:25.4866890Z finite slack: rc=1 PASS
+2026-10-09T22:08:25.4867242Z finite WHS: rc=1 PASS
+2026-10-09T22:08:25.4867584Z slack fraction: rc=1 PASS
+2026-10-09T22:08:25.4867957Z ASCII slack: rc=1 PASS
+2026-10-09T22:08:25.4868307Z tool build: rc=1 PASS
+2026-10-09T22:08:25.4868660Z design identity: rc=1 PASS
+2026-10-09T22:08:25.4869083Z design state identity: rc=1 PASS
+2026-10-09T22:08:25.4869502Z flow commands: rc=1 PASS
+2026-10-09T22:08:25.4869893Z flow create_project: rc=1 PASS
+2026-10-09T22:08:25.4870294Z flow set_param: rc=1 PASS
+2026-10-09T22:08:25.4870681Z flow synth_design: rc=1 PASS
+2026-10-09T22:08:25.4871100Z flow opt_design: rc=1 PASS
+2026-10-09T22:08:25.4871489Z flow place_design: rc=1 PASS
+2026-10-09T22:08:25.4871891Z flow phys_opt_design: rc=1 PASS
+2026-10-09T22:08:25.4872293Z flow route_design: rc=1 PASS
+2026-10-09T22:08:25.4872692Z flow kl_timing_grade_configure: rc=1 PASS
+2026-10-09T22:08:25.4872981Z standalone clock: rc=1 PASS
+2026-10-09T22:08:25.4873238Z generated-file normalization: rc=1 PASS
+2026-10-09T22:08:25.4873519Z generated-file roots: rc=1 PASS
+2026-10-09T22:08:25.4873764Z one generated top: rc=1 PASS
+2026-10-09T22:08:25.4874007Z wrapper source depth: rc=1 PASS
+2026-10-09T22:08:25.4874252Z read source presence: rc=1 PASS
+2026-10-09T22:08:25.4874503Z include directory presence: rc=1 PASS
+2026-10-09T22:08:25.4874775Z include headers: rc=1 PASS
+2026-10-09T22:08:25.4875014Z generic inputs: rc=1 PASS
+2026-10-09T22:08:25.4875241Z image inputs: rc=1 PASS
+2026-10-09T22:08:25.4875465Z image manifest shape: rc=1 PASS
+2026-10-09T22:08:25.4875714Z recipe script uniqueness: rc=1 PASS
+2026-10-09T22:08:25.4875975Z census header: rc=1 PASS
+2026-10-09T22:08:25.4876213Z route status of a route: rc=1 PASS
+2026-10-09T22:08:25.4876879Z one route status report: rc=1 PASS
+2026-10-09T22:08:25.4877456Z route status converter: rc=1 PASS
+2026-10-09T22:08:25.4877733Z undecodable route status: rc=1 PASS
+2026-10-09T22:08:25.4878006Z routing-error row: rc=1 PASS
+2026-10-09T22:08:25.4878253Z routing-error row single: rc=1 PASS
+2026-10-09T22:08:25.4878534Z routable and routed rows present: rc=1 PASS
+2026-10-09T22:08:25.4878838Z routable and routed rows single: rc=1 PASS
+2026-10-09T22:08:25.4879129Z fully routed row required: rc=1 PASS
+2026-10-09T22:08:25.4879390Z routing errors fail: rc=1 PASS
+2026-10-09T22:08:25.4879634Z unrouted nets fail: rc=1 PASS
+2026-10-09T22:08:25.4880014Z partly routed nets fail: rc=1 PASS
+2026-10-09T22:08:25.4880281Z incomplete route fails: rc=1 PASS
+2026-10-09T22:08:25.4880541Z complete route reported: rc=1 PASS
+2026-10-09T22:08:25.4880803Z check reads the route status: rc=1 PASS
+2026-10-09T22:08:25.4881078Z refusal exit status: rc=1 PASS
+2026-10-09T22:08:25.4881323Z barrier: rc=1 PASS
+2026-10-09T22:08:25.4881550Z printable ASCII output: rc=1 PASS
+2026-10-09T22:08:25.4881810Z ASCII output: rc=1 PASS
+2026-10-09T22:08:25.4882047Z record --write validated: rc=1 PASS
+2026-10-09T22:08:25.4882315Z kind from the directory: rc=1 PASS
+2026-10-09T22:08:25.4882579Z unreadable baseline: rc=1 PASS
+2026-10-09T22:08:25.4882831Z baseline NaN and Infinity: rc=1 PASS
+2026-10-09T22:08:25.4883115Z baseline decimals converted: rc=1 PASS
+2026-10-09T22:08:25.4883393Z baseline integers converted: rc=1 PASS
+2026-10-09T22:08:25.4883664Z finite decimals: rc=1 PASS
+2026-10-09T22:08:25.4883907Z baseline key names: rc=1 PASS
+2026-10-09T22:08:25.4884156Z baseline repeated keys: rc=1 PASS
+2026-10-09T22:08:25.4884417Z baseline keys checked: rc=1 PASS
+2026-10-09T22:08:25.4884690Z scope names hold a generate index: rc=1 PASS
+2026-10-09T22:08:25.4884981Z every key named: rc=1 PASS
+2026-10-09T22:08:25.4885216Z baseline scope names: rc=1 PASS
+2026-10-09T22:08:25.4885476Z scope names at their path only: rc=1 PASS
+2026-10-09T22:08:25.4885761Z scope path matched in full: rc=1 PASS
+2026-10-09T22:08:25.4886062Z scope path matched from its first key: rc=1 PASS
+2026-10-09T22:08:25.4886640Z scope path rooted at the endpoints table: rc=1 PASS
+2026-10-09T22:08:25.4886957Z names inside lists: rc=1 PASS
+2026-10-09T22:08:25.4887216Z names past a list's first item: rc=1 PASS
+2026-10-09T22:08:25.4887500Z names hold upper case: rc=1 PASS
+2026-10-09T22:08:25.4887747Z names hold lower case: rc=1 PASS
+2026-10-09T22:08:25.4887994Z names hold digits: rc=1 PASS
+2026-10-09T22:08:25.4888243Z names hold an underscore: rc=1 PASS
+2026-10-09T22:08:25.4888504Z names hold a dot: rc=1 PASS
+2026-10-09T22:08:25.4888746Z names hold a colon: rc=1 PASS
+2026-10-09T22:08:25.4888984Z names hold a slash: rc=1 PASS
+2026-10-09T22:08:25.4889226Z names hold a hyphen: rc=1 PASS
+2026-10-09T22:08:25.4889476Z names hold 128 characters: rc=1 PASS
+2026-10-09T22:08:25.4889748Z names below the top level: rc=1 PASS
+2026-10-09T22:08:25.4890007Z image manifest strict: rc=1 PASS
+2026-10-09T22:08:25.4890262Z baseline nested too deep: rc=1 PASS
+2026-10-09T22:08:25.4890530Z baseline endpoints table: rc=1 PASS
+2026-10-09T22:08:25.4890791Z baseline file fields: rc=1 PASS
+2026-10-09T22:08:25.4891041Z baseline shape validated: rc=1 PASS
+2026-10-09T22:08:25.4891312Z check names a recorded endpoint: rc=1 PASS
+2026-10-09T22:08:25.4891603Z check validates its endpoint: rc=1 PASS
+2026-10-09T22:08:25.4891891Z check-baseline exit status: rc=1 PASS
+2026-10-09T22:08:25.4892160Z baseline record presence: rc=1 PASS
+2026-10-09T22:08:25.4892425Z baseline record completeness: rc=1 PASS
+2026-10-09T22:08:25.4892700Z baseline record kind: rc=1 PASS
+2026-10-09T22:08:25.4892959Z baseline record fields: rc=1 PASS
+2026-10-09T22:08:25.4893246Z baseline every endpoint validated: rc=1 PASS
+2026-10-09T22:08:25.4893547Z baseline endpoint fields: rc=1 PASS
+2026-10-09T22:08:25.4893816Z baseline identity keys: rc=1 PASS
+2026-10-09T22:08:25.4894076Z baseline identity types: rc=1 PASS
+2026-10-09T22:08:25.4894341Z baseline identity text: rc=1 PASS
+2026-10-09T22:08:25.4894599Z baseline identity exact keys: rc=1 PASS
+2026-10-09T22:08:25.4895018Z baseline standalone clock text: rc=1 PASS
+2026-10-09T22:08:25.4895309Z baseline input digest: rc=1 PASS
+2026-10-09T22:08:25.4895576Z baseline input digest type: rc=1 PASS
+2026-10-09T22:08:25.4895855Z baseline input digest lower case: rc=1 PASS
+2026-10-09T22:08:25.4896140Z baseline figure names: rc=1 PASS
+2026-10-09T22:08:25.4896641Z baseline figures exact: rc=1 PASS
+2026-10-09T22:08:25.4896900Z baseline figure numbers: rc=1 PASS
+2026-10-09T22:08:25.4897156Z numbers are not bools: rc=1 PASS
+2026-10-09T22:08:25.4897405Z baseline scope shape: rc=1 PASS
+2026-10-09T22:08:25.4897797Z baseline scope whole numbers: rc=1 PASS
+2026-10-09T22:08:25.4898085Z baseline scope counts not bools: rc=1 PASS
+2026-10-09T22:08:25.4898378Z baseline scope counts exact: rc=1 PASS
+2026-10-09T22:08:25.4898653Z baseline scope non-negative: rc=1 PASS
+2026-10-09T22:08:25.4898920Z baseline policy tables: rc=1 PASS
+2026-10-09T22:08:25.4899181Z baseline policy numbers: rc=1 PASS
+2026-10-09T22:08:25.4899447Z baseline tolerance: rc=1 PASS
+2026-10-09T22:08:25.4899694Z baseline floor presence: rc=1 PASS
+2026-10-09T22:08:25.4899948Z baseline floor value: rc=1 PASS
+2026-10-09T22:08:25.4900190Z baseline route ceiling: rc=1 PASS
+2026-10-09T22:08:25.4900448Z baseline ceiling figure: rc=1 PASS
+2026-10-09T22:08:25.4900698Z baseline ceiling: rc=1 PASS
+2026-10-09T22:08:25.4900936Z budget table compared: rc=1 PASS
+2026-10-09T22:08:25.4901222Z budget comparison of every policy field: rc=1 PASS
+2026-10-09T22:08:25.4901585Z budget comparison of baseline-only figures: rc=1 PASS
+2026-10-09T22:08:25.4901913Z budget floors read: rc=1 PASS
+2026-10-09T22:08:25.4902160Z budget cell converter: rc=1 PASS
+2026-10-09T22:08:25.4902407Z budget cells ASCII: rc=1 PASS
+2026-10-09T22:08:25.4902661Z budget endpoints compared: rc=1 PASS
+2026-10-09T22:08:25.4902925Z one budget table: rc=1 PASS
+2026-10-09T22:08:25.4903169Z budget row shape: rc=1 PASS
+2026-10-09T22:08:25.4903402Z budget cell values: rc=1 PASS
+2026-10-09T22:08:25.4903650Z unreadable budget page: rc=1 PASS
+2026-10-09T22:08:25.4903915Z undecodable budget page: rc=1 PASS
+2026-10-09T22:08:25.4904185Z image manifest nested too deep: rc=1 PASS
+2026-10-09T22:08:25.4904459Z hierarchy counts: rc=1 PASS
+2026-10-09T22:08:25.4904722Z hierarchy counts from the fourth cell: rc=1 PASS
+2026-10-09T22:08:25.4905046Z hierarchy counts end early: rc=1 PASS
+2026-10-09T22:08:25.4905316Z hierarchy count converter: rc=1 PASS
+2026-10-09T22:08:25.4905577Z whole numbers ASCII: rc=1 PASS
+2026-10-09T22:08:25.4905821Z whole number bound: rc=1 PASS
+2026-10-09T22:08:25.4906073Z whole numbers unsigned: rc=1 PASS
+2026-10-09T22:08:25.4906605Z hierarchy ASCII counts: rc=1 PASS
+2026-10-09T22:08:25.4907034Z hierarchy header only: rc=1 PASS
+2026-10-09T22:08:25.4907305Z all-fabric count limits ignored: rc=1 PASS
+2026-10-09T22:08:25.4907610Z all-fabric split census accepted: rc=1 PASS
+2026-10-09T22:08:25.4907902Z all-fabric own rows counted: rc=1 PASS
+2026-10-09T22:08:25.4908191Z all-fabric module prefix accepted: rc=1 PASS
+2026-10-09T22:08:25.4908493Z placement selection ignored: rc=1 PASS
+2026-10-09T22:08:25.4908768Z placement census ignored: rc=1 PASS
+2026-10-09T22:08:25.4909045Z placement count limits ignored: rc=1 PASS
+2026-10-09T22:08:25.4909347Z placement role completeness ignored: rc=1 PASS
+2026-10-09T22:08:25.4909654Z placement row identity ignored: rc=1 PASS
+2026-10-09T22:08:25.4909952Z placement duplicate role accepted: rc=1 PASS
+2026-10-09T22:08:25.4910303Z resource gate mutants: control passes, all 192 mutants fail
+2026-10-09T22:08:25.5398137Z baseline PASS: 3 endpoints
+2026-10-09T22:08:39.8581220Z ##[group]Run python3 syn/yosys/ooc_selftest.py
+2026-10-09T22:08:39.8581609Z python3 syn/yosys/ooc_selftest.py
+2026-10-09T22:08:39.8642268Z shell: /usr/bin/bash -e {0}
+2026-10-09T22:08:39.8642522Z env:
+2026-10-09T22:08:39.8642723Z   VERILATOR_VERSION: v5.050
+2026-10-09T22:08:39.8642976Z   YOSYS_VERSION: v0.66
+2026-10-09T22:08:39.8643195Z ##[endgroup]
+2026-10-09T22:09:08.5473282Z ooc.sh refusal self-test: 75 arm(s) passed
+2026-10-09T22:09:08.5603509Z ##[group]Run python3 syn/yosys/guard_selftest.py
+2026-10-09T22:09:08.5603981Z python3 syn/yosys/guard_selftest.py
+2026-10-09T22:09:08.5665016Z shell: /usr/bin/bash -e {0}
+2026-10-09T22:09:08.5665297Z env:
+2026-10-09T22:09:08.5665518Z   VERILATOR_VERSION: v5.050
+2026-10-09T22:09:08.5665795Z   YOSYS_VERSION: v0.66
+2026-10-09T22:09:08.5666130Z ##[endgroup]
+2026-10-09T22:09:42.0370345Z elaboration guard self-test: 36 controls passed
+2026-10-09T22:09:42.0467794Z ##[group]Run python3 syn/yosys/cache_selftest.py
+2026-10-09T22:09:42.0468381Z python3 syn/yosys/cache_selftest.py
+2026-10-09T22:09:42.0529167Z shell: /usr/bin/bash -e {0}
+2026-10-09T22:09:42.0529432Z env:
+2026-10-09T22:09:42.0529642Z   VERILATOR_VERSION: v5.050
+2026-10-09T22:09:42.0529901Z   YOSYS_VERSION: v0.66
+2026-10-09T22:09:42.0530120Z ##[endgroup]
+2026-10-09T22:10:35.2922298Z ROM cache controls: OK (3 images, 2 modes, 2 selected tops, head/seed, generation and schema refusals)
+2026-10-09T22:10:35.2923704Z cache selftest: OK (unit self-test + 5 original live arms on cdc_pulse + ROM controls)
+2026-10-09T22:10:35.3085390Z Post job cleanup.
+2026-10-09T22:10:35.4171744Z Cache hit occurred on the primary key yosys-v0.66-Linux, not saving cache.
+2026-10-09T22:10:35.4173524Z (node:18620) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-09T22:10:35.4174593Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-09T22:10:35.4327740Z Post job cleanup.
+2026-10-09T22:10:35.5178492Z [command]/usr/bin/git version
+2026-10-09T22:10:35.5223903Z git version 2.55.0
+2026-10-09T22:10:35.5269201Z Temporarily overriding HOME='<home-path>/work/_temp/0264fd37-9838-4402-9135-81b60a02172e' before making global git config changes
+2026-10-09T22:10:35.5270253Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-09T22:10:35.5275437Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-09T22:10:35.5314748Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-09T22:10:35.5350619Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-09T22:10:35.5587937Z Entering 'gptp-processor'
+2026-10-09T22:10:35.5638429Z Entering 'protocol-processor'
+2026-10-09T22:10:35.5683105Z Entering 'third_party/verilog-axis'
+2026-10-09T22:10:35.5752907Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-09T22:10:35.5780965Z http.https://github.com/.extraheader
+2026-10-09T22:10:35.5794303Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-09T22:10:35.5840441Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-09T22:10:35.6099275Z Entering 'gptp-processor'
+2026-10-09T22:10:35.6144342Z Entering 'protocol-processor'
+2026-10-09T22:10:35.6207245Z Entering 'third_party/verilog-axis'
+2026-10-09T22:10:35.6278217Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T22:10:35.6318095Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-09T22:10:35.6554120Z Entering 'gptp-processor'
+2026-10-09T22:10:35.6576773Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-10-09T22:10:35.6594948Z Entering 'protocol-processor'
+2026-10-09T22:10:35.6614002Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-10-09T22:10:35.6633047Z Entering 'third_party/verilog-axis'
+2026-10-09T22:10:35.6652722Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-10-09T22:10:35.6689251Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T22:10:35.6728612Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T22:10:35.6764673Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-09T22:10:35.6951251Z Cleaning up orphan processes
+2026-10-09T22:10:35.7264962Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

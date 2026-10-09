@@ -1,0 +1,9 @@
+usage: probe_cli_order.py [-h] [--endpoint ENDPOINT]
+                          [--placement {all-fabric,f0-f4,full-split}]
+                          [--baseline BASELINE] [--budget BUDGET] [--write]
+                          [--selftest] [--fuzz N] [--seed SEED]
+                          [{check,record,check-baseline}] [directory]
+probe_cli_order.py: error: unrecognized arguments: $REVIEWS/640-m0s-r580-3-packet/scratch/p10_py3123/f/gateware
+3.12.3
+documented: record <dir> --endpoint E --write	exit 2	baseline_changed=False	NOT COMPARABLE: wrong placement all-fabric: adp (KL_adp_engine) count 0, expected 1..1; wrong placement all-fabric: acmp-listener (KL_pp_acmp_listener) count 0, expected 1..1; wrong placement all-fabr
+self-test order: record --write <dir> --endpoint E	exit 2	baseline_changed=False	exited through argparse

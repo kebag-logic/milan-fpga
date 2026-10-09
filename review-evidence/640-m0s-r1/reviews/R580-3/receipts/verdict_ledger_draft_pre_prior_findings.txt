@@ -1,0 +1,11 @@
+R580-3 draft written after the independent pass and before reading any prior review findings.
+Exact head 6904af6b79aae0566e6e47979223f54b8ba0eb6f (tree c0e859f0fccbb7af27f75d14e321f9a3e27e361f).
+Draft verdict: POSITIVE. Draft findings: none at MINOR or above; one SUGGESTION (S1: an order guard in the
+self-test cli() helper would make the option-before-directory class fail on every interpreter, not only 3.12.3).
+Lens | draft | basis
+Conformance | CLEAN | round-3 items 1 and 2 met: documented order at pp_placement_selftest.py:244-260; P11; order_scan; PR body
+RTL | CLEAN | no HDL in the delta; gate product code unchanged since d10aee62 (diff names two test/driver files only)
+Robustness | CLEAN | both interpreters; wrapper-absent printed-record exclusion required (P11); baseline bytes; P4/P10
+Tests | CLEAN | 192/192 + control on both interpreters; P1 29/34 unchanged; P11 11/11 as expected on both
+Docs | CLEAN | recipe page :237 and gate docstring :23 already state the printed-record rule the new arm pins; no doc in delta
+Fri Oct  9 10:26:22 PM UTC 2026
