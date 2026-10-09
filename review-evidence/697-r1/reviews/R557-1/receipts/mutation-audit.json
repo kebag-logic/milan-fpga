@@ -1,0 +1,4776 @@
+{
+  "original_portable_plants": 311,
+  "imported_plants": 311,
+  "missing": [],
+  "extra": [],
+  "changed_substitutions": [],
+  "required_assertion_kills": 325,
+  "results": {
+    "CAUGHT": 311
+  },
+  "plants": [
+    {
+      "name": "reentry-guard-removed",
+      "status": "CAUGHT",
+      "required_kills": 4,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp_debug",
+          "test": "AdpReentry.AdvertiseInlineExpiry",
+          "needle": "inline ADVERTISE expiry asserts",
+          "assertion_present": true,
+          "xml_sha256": "eb377578378700ca9f67f6049c55b9732bcd0f0cdb3b3fa83af4d270e93d5393"
+        },
+        {
+          "arm": "adp_debug",
+          "test": "AdpReentry.DelayInlineExpiryOnGmChange",
+          "needle": "inline DELAY expiry asserts",
+          "assertion_present": true,
+          "xml_sha256": "eb377578378700ca9f67f6049c55b9732bcd0f0cdb3b3fa83af4d270e93d5393"
+        },
+        {
+          "arm": "adp_release",
+          "test": "AdpReentry.AdvertiseInlineExpiry",
+          "needle": "inline ADVERTISE expiry is counted",
+          "assertion_present": true,
+          "xml_sha256": "499c19e9bfd86d899c0c446c9ae9ce980e8a788e442cec99702d81813e6c8aaa"
+        },
+        {
+          "arm": "adp_release",
+          "test": "AdpReentry.DelayInlineExpiryOnGmChange",
+          "needle": "inline DELAY expiry is counted",
+          "assertion_present": true,
+          "xml_sha256": "499c19e9bfd86d899c0c446c9ae9ce980e8a788e442cec99702d81813e6c8aaa"
+        }
+      ]
+    },
+    {
+      "name": "reentry-uncounted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp_release",
+          "test": "AdpReentry.AdvertiseInlineExpiry",
+          "needle": "inline ADVERTISE expiry is counted",
+          "assertion_present": true,
+          "xml_sha256": "3006b1f081fbfba9c6607b8537b1c8f37a64ad8e9bc18963fa7cf1e6c9b991d4"
+        }
+      ]
+    },
+    {
+      "name": "reentry-not-ignored",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp_release",
+          "test": "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/",
+          "needle": "callback leaves core state unchanged",
+          "assertion_present": true,
+          "xml_sha256": "51e2843d897794334141fed427dae8d7f199aef6dfdfea41813b88197916c606"
+        }
+      ]
+    },
+    {
+      "name": "departing-keeps-index",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A6toA8DeferredSends",
+          "needle": "A8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset",
+          "assertion_present": true,
+          "xml_sha256": "928526b86cb27b18201320339006736c7daf9ad4d08c15f10004bd3e53116c85"
+        },
+        {
+          "arm": "port",
+          "test": "ExamplePort.DefersExpiryAndRetainsBlockedOutput",
+          "needle": "shutdown resets",
+          "assertion_present": true,
+          "xml_sha256": "68b6bc7bcafacce335537a7a03fe2b0a0a5f365740efa5b6501f7cfd613ada8f"
+        }
+      ]
+    },
+    {
+      "name": "departing-sends-zero",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A10toA14DepartingIndex",
+          "needle": "A10 SHUTDOWN in WAITING",
+          "assertion_present": true,
+          "xml_sha256": "1711777bd1d22e04fa518666cec2040052858c7cd8df251e4f5381a48eba65c5"
+        }
+      ]
+    },
+    {
+      "name": "available-replaces-owed-departing",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A15OwedDepartingAcrossARestart",
+          "needle": "A15 with room, the next poll sends the owed ENTITY_DEPARTING first",
+          "assertion_present": true,
+          "xml_sha256": "8f026f28630d300489ee20a75ea2f4308bd29164ccd2dd3f9045c5f42d81b1f0"
+        }
+      ]
+    },
+    {
+      "name": "available-passes-owed-departing",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A17RoomBackBeforeAPoll",
+          "needle": "A17 room back and TMR_DELAY expiring before a poll",
+          "assertion_present": true,
+          "xml_sha256": "68d243950837eceab8b2b65d962413fabb792674a27414da0ed16952b7c26fae"
+        }
+      ]
+    },
+    {
+      "name": "second-departing-dropped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A16SecondShutdownQueuesItsOwn",
+          "needle": "A16 a SHUTDOWN while one is owed queues its own",
+          "assertion_present": true,
+          "xml_sha256": "83ff028809f1093a41d9a126531654a86c3e766df8b8cf4ba1a60c06dfd74d7b"
+        }
+      ]
+    },
+    {
+      "name": "second-shutdown-overwrites-index",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A16SecondShutdownQueuesItsOwn",
+          "needle": "A16 a SHUTDOWN while one is owed queues its own",
+          "assertion_present": true,
+          "xml_sha256": "d6f1308e8da55f77fe5921cb821b530be868c8bcab28715224017551748f2a6d"
+        }
+      ]
+    },
+    {
+      "name": "link-loss-drops-owed-departing",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A18LinkLossKeepsTheOwedDeparting",
+          "needle": "A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING",
+          "assertion_present": true,
+          "xml_sha256": "4cc9bcc6fe4941d1bfe713b2cf6660edaece18b7fdf8e7e2819588e23f01daaf"
+        }
+      ]
+    },
+    {
+      "name": "gm-change-drops-owed-available",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+          "needle": "A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed",
+          "assertion_present": true,
+          "xml_sha256": "a0f52fcc8134e4fd450e917928c9d1c00db52f7a2507799fb06821b9c9e780e5"
+        }
+      ]
+    },
+    {
+      "name": "discover-drops-owed-available",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+          "needle": "A19 so does an ENTITY_DISCOVER",
+          "assertion_present": true,
+          "xml_sha256": "5a5915e62ce4f86f5a6bbcdbb5e795490560fc48c83de408e346c1bc64095bd6"
+        }
+      ]
+    },
+    {
+      "name": "stray-expiry-drops-owed-available",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+          "needle": "A19 and a stray expiry, which is counted",
+          "assertion_present": true,
+          "xml_sha256": "655fb23bb12b340f3e836567eeecf502d32b65b742ced22d8c1340c91ef4e29b"
+        }
+      ]
+    },
+    {
+      "name": "link-loss-keeps-owed-available",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A20LinkLossDropsTheOwedAvailable",
+          "needle": "A20 a link loss drops the owed ENTITY_AVAILABLE at once",
+          "assertion_present": true,
+          "xml_sha256": "7a67aeada4e64cb13d9b5c579a0707172c4f5749d6499bb057a642dff2c0469e"
+        }
+      ]
+    },
+    {
+      "name": "departing-queue-unbounded",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A21DepartingCapacity",
+          "needle": "A21 then the running restart's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING",
+          "assertion_present": true,
+          "xml_sha256": "64040541fbd70b45cdc35a2cf1066e5c471d48f79b47b90ed57ecdc70f5ad499"
+        }
+      ]
+    },
+    {
+      "name": "coalesced-departing-uncounted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A21DepartingCapacity",
+          "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+          "assertion_present": true,
+          "xml_sha256": "e1e687f6b87aec8a2e21049abd5e79d3229fc78a3c8296440a71d68db10126e4"
+        }
+      ]
+    },
+    {
+      "name": "coalesce-drops-queued-departing",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A21DepartingCapacity",
+          "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+          "assertion_present": true,
+          "xml_sha256": "48391e6e74dae0092738528459364d6cfbaf4b700ef711f9660dadfae551bd3b"
+        }
+      ]
+    },
+    {
+      "name": "coalesce-overwrites-oldest-index",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A21DepartingCapacity",
+          "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+          "assertion_present": true,
+          "xml_sha256": "cb6dd9eb0de260352e7b54523d73a8eff62a7444e5881f8b8fd41eb27ce1a2c2"
+        }
+      ]
+    },
+    {
+      "name": "own-discover-discarded",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A3toA5DiscoverAndDiscard",
+          "needle": "A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)",
+          "assertion_present": true,
+          "xml_sha256": "bf44b560081136a5f09fb92b704ab68c54a91415c6684c33e8072b12f07c9099"
+        }
+      ]
+    },
+    {
+      "name": "down-answers-discover",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A3toA5DiscoverAndDiscard",
+          "needle": "A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)",
+          "assertion_present": true,
+          "xml_sha256": "9714a0bf5db00fe30323a0fbe6b9031979bfec854dabeeb98d084401fab02c54"
+        }
+      ]
+    },
+    {
+      "name": "link-down-departs",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.LinkLevelsAndDisabledInputs",
+          "needle": "shutdown in DOWN sends nothing",
+          "assertion_present": true,
+          "xml_sha256": "0d75165a581d3e889b88b8e4fd7ad2126792469df6696c078d6194502a29ec7a"
+        }
+      ]
+    },
+    {
+      "name": "gm-change-ignored",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A0toA2Schedule",
+          "needle": "A2 with the new current_configuration_index (6.2.2.18)",
+          "assertion_present": true,
+          "xml_sha256": "1f4515879537ef098925a3513fecba2d4a02b899538f28d8febd78540f3a6cdc"
+        }
+      ]
+    },
+    {
+      "name": "delay-ignores-link-down",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A6toA8DeferredSends",
+          "needle": "A7 a link loss drops an owed ENTITY_AVAILABLE and departs nothing (5.6.3.5.10)",
+          "assertion_present": true,
+          "xml_sha256": "f4ddbf1fa893ee7560b565f5c63cc15cf3749f9930114b5c2fe937857833186d"
+        }
+      ]
+    },
+    {
+      "name": "shutdown-in-down-departs",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A6toA8DeferredSends",
+          "needle": "A8 SHUTDOWN in DOWN sends nothing (Table 5.51)",
+          "assertion_present": true,
+          "xml_sha256": "917e26d8df622d8cf5d89aeb96ecab282728d09e4ebff165a24b094cd10f799c"
+        }
+      ]
+    },
+    {
+      "name": "advertise-expiry-skips-delay",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A0toA2Schedule",
+          "needle": "A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7)",
+          "assertion_present": true,
+          "xml_sha256": "a5db14695d455e2a408f1928b913e33a78c9322855adc5c12c6df6f0c1df1f65"
+        }
+      ]
+    },
+    {
+      "name": "advertise-period-wrong",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A0toA2Schedule",
+          "needle": "A1 TMR_DELAY: ENTITY_AVAILABLE, WAITING, TMR_ADVERTISE 5 s (5.6.3.5.9)",
+          "assertion_present": true,
+          "xml_sha256": "a2ab3975bbd14f9cda6c60c3b0146ec6e58e4c9c134c742d001a15689c47fe67"
+        },
+        {
+          "arm": "adp",
+          "test": "AdpCore.MockedPortOrder",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "a2ab3975bbd14f9cda6c60c3b0146ec6e58e4c9c134c742d001a15689c47fe67"
+        }
+      ]
+    },
+    {
+      "name": "link-up-draws-startup-kind",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A0toA2Schedule",
+          "needle": "A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)",
+          "assertion_present": true,
+          "xml_sha256": "fc05d6f2079798a9f8c785c60fdc27d177fabdfb3371cad42834ebb7981c5a01"
+        }
+      ]
+    },
+    {
+      "name": "draw-kinds-merged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A9DrawKinds",
+          "needle": "A9 every startup draw",
+          "assertion_present": true,
+          "xml_sha256": "449750f08719053e4e738539107bf0c4403a70fb08e818466910867e82227115"
+        }
+      ]
+    },
+    {
+      "name": "foreign-discover-answered",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A3toA5DiscoverAndDiscard",
+          "needle": "A4 a foreign DISCOVER",
+          "assertion_present": true,
+          "xml_sha256": "9392b6442d07b756101f4c76f010b80d8c67f2914677792c6ad055651a022d45"
+        }
+      ]
+    },
+    {
+      "name": "frame-misses-config-index",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A0toA2Schedule",
+          "needle": "A2 with the new current_configuration_index (6.2.2.18)",
+          "assertion_present": true,
+          "xml_sha256": "a4b0a2ee58e24edc9220e4b02a923f98342b76fad0c1e9e55dbffd5112044177"
+        }
+      ]
+    },
+    {
+      "name": "frame-sources-from-sinks",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.EntityFieldsUseIndependentCounts",
+          "needle": "talker count is independent of listener count",
+          "assertion_present": true,
+          "xml_sha256": "c17860f5e1a3b244fb8c8daab904468934381765609b6f08eecde9f16455ce02"
+        }
+      ]
+    },
+    {
+      "name": "seed-left-at-zero",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A22GeneratorNeverStuckAtZero",
+          "needle": "A22 an entity id whose words cancel the seed constant",
+          "assertion_present": true,
+          "xml_sha256": "f67c904c213cb1d1e218dbb5e207254e2e955a9d82a2cbad0902031a03ff0bd2"
+        }
+      ]
+    },
+    {
+      "name": "enable-not-idempotent",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
+          "needle": "A23 an enable while enabled draws and arms nothing",
+          "assertion_present": true,
+          "xml_sha256": "a6d9e20b59e97706d3d080e0453be65b89f763ed799012d9edc8cb9314f40bf0"
+        }
+      ]
+    },
+    {
+      "name": "other-subtype-accepted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded",
+          "needle": "A24 a DISCOVER under another EtherType or subtype is discarded",
+          "assertion_present": true,
+          "xml_sha256": "6c475831ef69c2f099c8d8a5e2dc7c6ce47c082d1e5956ae2d62314499c310c8"
+        }
+      ]
+    },
+    {
+      "name": "acmp-init-no-interface",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+          "needle": "A0 no interface is refused",
+          "assertion_present": true,
+          "xml_sha256": "c821efdf05c3d3909a4abe4d505b89399838c531eebaa488d50d862bb1605e3f"
+        }
+      ]
+    },
+    {
+      "name": "acmp-init-too-many-sinks",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+          "needle": "A0 more sinks than ACMP_MAX_SINKS",
+          "assertion_present": true,
+          "xml_sha256": "7fa5585dfa9555b3afdc3abcd2cd17f74a7357030f851c3fac6179f104ced089"
+        }
+      ]
+    },
+    {
+      "name": "acmp-init-too-many-sources",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+          "needle": "A0 more sources than ACMP_MAX_SOURCES",
+          "assertion_present": true,
+          "xml_sha256": "25ef4b2e45a229493273bf2653e60347e78910096516cb17ec565d8c7c440627"
+        }
+      ]
+    },
+    {
+      "name": "acmp-init-sink-interface",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+          "needle": "A0 a sink on an interface the entity lacks is refused",
+          "assertion_present": true,
+          "xml_sha256": "e46a8838227369a220566fb537159cf34319e2e0f363b9fc49d9bf986c125d68"
+        }
+      ]
+    },
+    {
+      "name": "acmp-init-source-interface",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+          "needle": "A0 a source on an interface the entity lacks is refused",
+          "assertion_present": true,
+          "xml_sha256": "38d673ccd1fdd9edfa645b113a3f7c3789fb5605241f247991dc71f93dd50090"
+        }
+      ]
+    },
+    {
+      "name": "acmp-init-reads-the-seed",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled",
+          "needle": "A0 init calls no port",
+          "assertion_present": true,
+          "xml_sha256": "1c1374d536d4c6d5f3e5143518af691999f8f238f006d2e02dea2aa48de8bd45"
+        }
+      ]
+    },
+    {
+      "name": "acmp-header-no-resp-2s",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 and TMR_NO_RESP armed 200 ms",
+          "assertion_present": true,
+          "xml_sha256": "ee043d44a77cec5605dda88e4acf3e356d85cd57c45477a76977ae1b00913576"
+        }
+      ]
+    },
+    {
+      "name": "acmp-header-retry-2s",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A9FailureWaitsForTheRetry",
+          "needle": "A9 and TMR_RETRY 4 s",
+          "assertion_present": true,
+          "xml_sha256": "89498bf3e58772973e750cd89ef43267185401bc9092d6eb7ae4c3383d0ef40a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-header-no-tk-5s",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A8SuccessSettles",
+          "needle": "A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started",
+          "assertion_present": true,
+          "xml_sha256": "fda6aac458eac9c75508530577157754820be2028cb75ba5486f7b11d13b6134"
+        }
+      ]
+    },
+    {
+      "name": "acmp-header-valid-time-in-seconds",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+          "needle": "A22 TMR_NO_ADP is the received valid_time in two-second units",
+          "assertion_present": true,
+          "xml_sha256": "04619eb56731cc297b86dbabd1451aed6f0e70d6c5b0021db93b88af1cc4c3ab"
+        }
+      ]
+    },
+    {
+      "name": "acmp-header-listener-unknown-is-2",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId",
+          "needle": "A2 LISTENER_UNKNOWN_ID, the command's fields echoed",
+          "assertion_present": true,
+          "xml_sha256": "ddd8aba100566b018cfb94ec13c5bb826052af9a9c90266837cd85a073f35d3a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-header-registering-failed-bit",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+          "needle": "REGISTERING_FAILED 1 (Table 5.39)",
+          "assertion_present": true,
+          "xml_sha256": "02683765900d1f5a9267c03dbb202ba568cdaeabdc7bb534d37fbcee5cc94fd0"
+        }
+      ]
+    },
+    {
+      "name": "acmp-header-cdl-84",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 every frame goes to the ACMP multicast address",
+          "assertion_present": true,
+          "xml_sha256": "5b3d994a2814b1a0e3621beadf2e8e7b7bc1de5d8a47d310a92889090288b146"
+        }
+      ]
+    },
+    {
+      "name": "acmp-bind-count-0",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 BIND_RX_RESPONSE is Table 5.32",
+          "assertion_present": true,
+          "xml_sha256": "6e1efb4be0954ffb5c035c11ce81cd8cba9a351d0fc663f1fddc10b4dc7bdeb5"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probe-without-fast-connect",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 PROBE_TX_COMMAND is Table 5.33",
+          "assertion_present": true,
+          "xml_sha256": "686b8d76b29e0f55e622682f54fe6aa307802c4b5ebbac7edf914ceccbf6b21e"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probe-before-response",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 BIND_RX_RESPONSE is Table 5.32",
+          "assertion_present": true,
+          "xml_sha256": "786b59bb984758370f278d12be9e3740133144e0d48f7da1b69aa1bc507ec770"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-resp-2s",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 and TMR_NO_RESP armed 200 ms",
+          "assertion_present": true,
+          "xml_sha256": "a09d7b9e6d2f02b40d3ade514d97747bffad7ddf63149e074cc1f61781f9a340"
+        }
+      ]
+    },
+    {
+      "name": "acmp-bind-starts-no-discovery",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 the discovery machine starts",
+          "assertion_present": true,
+          "xml_sha256": "8ae179bdcec92e810509329a39ca589d7e9f186ee822a0e18cca3c3321e6fa86"
+        }
+      ]
+    },
+    {
+      "name": "acmp-bind-change-before-response",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 the change is reported after the response",
+          "assertion_present": true,
+          "xml_sha256": "4f502b314336146faa2b16bea506d28c778221934fdf61387f16ad9ba511ecde"
+        }
+      ]
+    },
+    {
+      "name": "acmp-nothing-persisted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 the binding is saved",
+          "assertion_present": true,
+          "xml_sha256": "8b7206aba191831d686489b254b64b06efed2519e2a1c21a8254736e16d051fc"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unbind-not-persisted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A3UnbindInEveryState",
+          "needle": "A3 the cleared binding is saved, unless there was none, in state 7",
+          "assertion_present": true,
+          "xml_sha256": "af1308b7af07d9f14f15a73c02ab9e5658c063bea170abd2f45e5f545741f334"
+        }
+      ]
+    },
+    {
+      "name": "acmp-rebind-not-persisted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+          "needle": "A6 the new binding is saved",
+          "assertion_present": true,
+          "xml_sha256": "e96a9870398044544b63fb67876a69c85a6a078df871a84727b96f36178a08db"
+        }
+      ]
+    },
+    {
+      "name": "acmp-streaming-wait-ignored",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "STREAMING_WAIT binds it stopped",
+          "assertion_present": true,
+          "xml_sha256": "b57a6575b6763a07560420477ced270ff815b4892b6656947bdb55f9c48f9049"
+        }
+      ]
+    },
+    {
+      "name": "acmp-sw-read-from-fast-connect",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+          "needle": "STREAMING_WAIT saved",
+          "assertion_present": true,
+          "xml_sha256": "f9837372237823868bbf52a32213f6ddc2ebb3add100666603e031bdd67af9db"
+        }
+      ]
+    },
+    {
+      "name": "acmp-getrx-count-unbound",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2GetRxStateInEveryState",
+          "needle": "A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39",
+          "assertion_present": true,
+          "xml_sha256": "48a81db16d739cf89c3f8cbf697dd3beb90d36a8d4366bfee87f4b03fb56af38"
+        }
+      ]
+    },
+    {
+      "name": "acmp-getrx-no-fast-connect",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2GetRxStateInEveryState",
+          "needle": "A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39",
+          "assertion_present": true,
+          "xml_sha256": "8cafbb40682f7e8361858bc5a4668c90e6307fe8c8d079efe1192d0c9b881748"
+        }
+      ]
+    },
+    {
+      "name": "acmp-getrx-no-registering-failed",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+          "needle": "REGISTERING_FAILED 1 (Table 5.39)",
+          "assertion_present": true,
+          "xml_sha256": "a6bed23296741c4f965bcfb60a601fc7eb7fab76f0a033eac965da4645780e10"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unknown-sink-silent",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId",
+          "needle": "A2 a command for a sink the entity lacks",
+          "assertion_present": true,
+          "xml_sha256": "3527e24fd5632bf5b36ac5de081d0d602fbdea1155e150bdccd4c75a0659c7a7"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unbind-echoes-the-talker",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A3UnbindInEveryState",
+          "needle": "A3 UNBIND_RX_RESPONSE is Table 5.36",
+          "assertion_present": true,
+          "xml_sha256": "b2167227c87e21338a0fa2047f343da4dce16aa08819a18fe4e73b1a30e8ede5"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unbind-keeps-srp",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A3UnbindInEveryState",
+          "needle": "A3 a settled sink stops SRP before the response",
+          "assertion_present": true,
+          "xml_sha256": "995779102cb560191d674107cbd3938673f060d91fc5218b7ab8105465992d33"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unbind-srp-after-response",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A3UnbindInEveryState",
+          "needle": "A3 a settled sink stops SRP before the response",
+          "assertion_present": true,
+          "xml_sha256": "ca9a72f6168cb0fd9ff855fbb85bb48f45930256db52fbc4bc14aa99255bbc3f"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unbind-keeps-discovery",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A3UnbindInEveryState",
+          "needle": "A3 then UNBOUND, binding cleared",
+          "assertion_present": true,
+          "xml_sha256": "228b97fbf663bf91795a6199e844d070d0329ada318f4c27807057b2c1f52415"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unbind-change-before-response",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A3UnbindInEveryState",
+          "needle": "A3 the change is reported after the response (#653)",
+          "assertion_present": true,
+          "xml_sha256": "8aab0f5799c89e5fbdfa58645848f7886a165d2204f0163c2973ccab8d9fe06a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-not-authorized-is-13",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+          "needle": "A4 CONTROLLER_NOT_AUTHORIZED (16",
+          "assertion_present": true,
+          "xml_sha256": "04c7476b9a50eb9a246e99f51248c992c903d09d68021bb6c5372777b95d5c93"
+        }
+      ]
+    },
+    {
+      "name": "acmp-lock-ignored",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind",
+          "needle": "A4 one response",
+          "assertion_present": true,
+          "xml_sha256": "58ccb681b022063ec42d79ee5a309e71ff70a33c35ab36b027cff84848aa78da"
+        }
+      ]
+    },
+    {
+      "name": "acmp-lock-refuses-the-holder",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked",
+          "needle": "A4 the locking controller binds",
+          "assertion_present": true,
+          "xml_sha256": "8bb4309bbc5b89fc62f01ab87848de50f8d4e1c5ec1b1696bf27d8bda216639c"
+        }
+      ]
+    },
+    {
+      "name": "acmp-get-rx-state-locked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked",
+          "needle": "A4 GET_RX_STATE asks no lock",
+          "assertion_present": true,
+          "xml_sha256": "15b51a307c71d544cad4d6af9772fff8409da318759cf6d3f1f99c2d440f2bcf"
+        }
+      ]
+    },
+    {
+      "name": "acmp-rebind-same-reprobes",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+          "needle": "A5 a re-bind of the same source sends the response alone",
+          "assertion_present": true,
+          "xml_sha256": "4fe5dba3f01d188122541ef8c4aaf7b0bf5b838b3ddb302b781b9f89a1cf8dc6"
+        }
+      ]
+    },
+    {
+      "name": "acmp-rebind-same-keeps-the-controller",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+          "needle": "A5 the controller and STREAMING_WAIT are updated",
+          "assertion_present": true,
+          "xml_sha256": "34741f434de162d18ba8c57add53a1d6ed4d6cd419af236fb8c0ec0391fb12d5"
+        }
+      ]
+    },
+    {
+      "name": "acmp-bind-new-keeps-srp",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+          "needle": "A6 SRP is stopped and its parameters cleared",
+          "assertion_present": true,
+          "xml_sha256": "1a0ea08c8d17728a57dac61ee2c30d4aadf6bab35a7b55d3a4e6b6cf45d202f6"
+        }
+      ]
+    },
+    {
+      "name": "acmp-bind-same-talker-is-the-same-source",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding",
+          "needle": "A6 the same talker with another talker_unique_id is a new source",
+          "assertion_present": true,
+          "xml_sha256": "66d821e553e501478aa5b59e1d2051de3d0f618a05fa0c4ba3db23465ad1e1fd"
+        }
+      ]
+    },
+    {
+      "name": "acmp-sequence-id-never-advances",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A12DelaySendsANewProbe",
+          "needle": "A12 a new PROBE_TX_COMMAND with the next sequence_id",
+          "assertion_present": true,
+          "xml_sha256": "c5ceed7e8ddbe9f3a2efefabfe752e9273846e6bba2bfe2d0442825071145fcd"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A16OneCounterForEveryNewProbe",
+          "needle": "A16 each new PROBE_TX_COMMAND takes the next",
+          "assertion_present": true,
+          "xml_sha256": "c5ceed7e8ddbe9f3a2efefabfe752e9273846e6bba2bfe2d0442825071145fcd"
+        }
+      ]
+    },
+    {
+      "name": "acmp-sequence-id-per-sink",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A16OneCounterForEveryNewProbe",
+          "needle": "A16 each new PROBE_TX_COMMAND takes the next",
+          "assertion_present": true,
+          "xml_sha256": "6e34d1ecb94ac46031ec274b0632d4b0056ab345cb8270be5d08ebbd4b41e491"
+        }
+      ]
+    },
+    {
+      "name": "acmp-response-keyed-on-the-source",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A7ResponsesKeyOnTheListenerUniqueId",
+          "needle": "A7 the response belongs to the sink",
+          "assertion_present": true,
+          "xml_sha256": "9b7e4dde48235c34a18773783ef5ede4bb827e1541f763f7cea20ebd64accd38"
+        }
+      ]
+    },
+    {
+      "name": "acmp-guard-controller-dropped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A7EachGuardTermIsChecked",
+          "needle": "A7 a response with another controller",
+          "assertion_present": true,
+          "xml_sha256": "effb11f673379e4a6c21cc33ec81b7ed637a648d46a74908f49914b1282bca4b"
+        }
+      ]
+    },
+    {
+      "name": "acmp-guard-talker-dropped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A7EachGuardTermIsChecked",
+          "needle": "A7 a response with another controller",
+          "assertion_present": true,
+          "xml_sha256": "3c166757b95d27fb8242359bc4240bdcdb913972e595965831901b3da5d2e045"
+        }
+      ]
+    },
+    {
+      "name": "acmp-guard-unique-id-dropped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A7EachGuardTermIsChecked",
+          "needle": "A7 a response with another controller",
+          "assertion_present": true,
+          "xml_sha256": "82274adc9d0d84c25c6dbf2955f0ccc52554ba09a574ea28bca8001e9ea7a589"
+        }
+      ]
+    },
+    {
+      "name": "acmp-guard-sequence-id-dropped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A7EachGuardTermIsChecked",
+          "needle": "A7 a response with another controller",
+          "assertion_present": true,
+          "xml_sha256": "cd0723936a5a84598be390c56f6923a20f1e60c61eefdde0c0ff10ad167fa0cd"
+        }
+      ]
+    },
+    {
+      "name": "acmp-guard-reads-the-binding",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding",
+          "needle": "A7 the answer to the probe sent before a re-bind still matches",
+          "assertion_present": true,
+          "xml_sha256": "12eb6b361f4dd53daf9b5777ae0b6ccebb4d7aeaf4284509811804695c1f0a03"
+        }
+      ]
+    },
+    {
+      "name": "acmp-responses-taken-outside-probing",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A7ResponsesOutsideProbingAreIgnored",
+          "needle": "A7 RCV_PROBE_TX_RESP is ignored outside",
+          "assertion_present": true,
+          "xml_sha256": "81649b8cbb2e9119b085d61d6b83adbe91d66587db88eec2fcd8cc247f8b6db7"
+        }
+      ]
+    },
+    {
+      "name": "acmp-vlan-masked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A8SuccessSettles",
+          "needle": "A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly",
+          "assertion_present": true,
+          "xml_sha256": "5a1f8d9494ef9321c6f8a30141b545cb030d247150b4bc4911219ce1d3dc5a23"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-tk-1s",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A8SuccessSettles",
+          "needle": "A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started",
+          "assertion_present": true,
+          "xml_sha256": "8816177a5c00882dd0c3b59bb80b03020ca592d10c672fb17309f943c12b6337"
+        }
+      ]
+    },
+    {
+      "name": "acmp-settle-starts-no-srp",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A8SuccessSettles",
+          "needle": "A8 SRP is started",
+          "assertion_present": true,
+          "xml_sha256": "472e60272602c48f68fcca25924df0e1c3db91234725aafe7ebb3ca1c443570e"
+        }
+      ]
+    },
+    {
+      "name": "acmp-settle-swaps-stream-fields",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A8SuccessSettles",
+          "needle": "stream_vlan_id exactly",
+          "assertion_present": true,
+          "xml_sha256": "b15c988fc0cfc0d9a17d0c98b9743f510f48b578c5e754d6a7f6fe3149569c12"
+        }
+      ]
+    },
+    {
+      "name": "acmp-failure-status-dropped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A9FailureWaitsForTheRetry",
+          "needle": "A9 a failed response: PRB_W_RETRY, the ACMP status is its status",
+          "assertion_present": true,
+          "xml_sha256": "d0ddd4d87be9b0b9fa62ec2370dded3808e52d505c39f926d30e6542bb32d9ef"
+        }
+      ]
+    },
+    {
+      "name": "acmp-failure-retries-at-200ms",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A9FailureWaitsForTheRetry",
+          "needle": "A9 and TMR_RETRY 4 s",
+          "assertion_present": true,
+          "xml_sha256": "b35cdb8bdede4b63213dc50bb7f1e9dcee79e16ef0b097268f4451c21029a113"
+        }
+      ]
+    },
+    {
+      "name": "acmp-duplicate-takes-a-new-sequence-id",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+          "needle": "A10 an exact duplicate of the first probe",
+          "assertion_present": true,
+          "xml_sha256": "af9df96d8f86abe0514ccd9c4736033dfe559bd272b35c2e69a01ad654d77586"
+        }
+      ]
+    },
+    {
+      "name": "acmp-second-timeout-keeps-status-0",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+          "needle": "A10 the second: no frame, LISTENER_TALKER_TIMEOUT",
+          "assertion_present": true,
+          "xml_sha256": "28fb02b7a446035add1bc7c06b62f58fc797df013dcdef1d042b406092e93324"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+          "needle": "A25 the ACMP status LISTENER_TALKER_TIMEOUT does",
+          "assertion_present": true,
+          "xml_sha256": "28fb02b7a446035add1bc7c06b62f58fc797df013dcdef1d042b406092e93324"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-duplicate",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+          "needle": "A10 the first TMR_NO_RESP sends one frame",
+          "assertion_present": true,
+          "xml_sha256": "0bec85036174cc0a014c9aec968c50863247caf13a2e66dac178fbc280546d3c"
+        }
+      ]
+    },
+    {
+      "name": "acmp-retry-ignores-discovery",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+          "needle": "A11 TMR_RETRY, talker discovered: TMR_DELAY",
+          "assertion_present": true,
+          "xml_sha256": "5e7839f7883514317a2bc1590ce6d927b4d6d0b825a3acbce9a03d6264e39e65"
+        }
+      ]
+    },
+    {
+      "name": "acmp-retry-zeroes-the-status",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+          "needle": "A11 and the ACMP status stays",
+          "assertion_present": true,
+          "xml_sha256": "5113077537c42e9a48ea87845b8a14257a432fde3fe3d03b9b2e3455ef7edc73"
+        }
+      ]
+    },
+    {
+      "name": "acmp-delay-resends-the-old-probe",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A12DelaySendsANewProbe",
+          "needle": "A12 a new PROBE_TX_COMMAND with the next sequence_id",
+          "assertion_present": true,
+          "xml_sha256": "cb8c28debdabf63cbc0b0ff1c78550f7d8a753efffaf37dfd49ec9a7e27c552d"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-tk-keeps-srp",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A13NoTalkerAttributeReprobes",
+          "needle": "A13 TMR_NO_TK clears the SRP parameters and stops SRP",
+          "assertion_present": true,
+          "xml_sha256": "3fbc824edc21f910bc1171a0e59e4c9a35343bc06789b0bcc007acda565ae26a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-reprobe-ignores-discovery",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A13NoTalkerAttributeReprobes",
+          "needle": "A13 talker discovered: TMR_DELAY, PRB_W_DELAY",
+          "assertion_present": true,
+          "xml_sha256": "89633b6c8414f24a811fb8e9faec6fe083adb25d6647b029989f86dbfeed1a36"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A15UnregisteredReprobes",
+          "needle": "A15 talker discovered: TMR_DELAY, PRB_W_DELAY",
+          "assertion_present": true,
+          "xml_sha256": "89633b6c8414f24a811fb8e9faec6fe083adb25d6647b029989f86dbfeed1a36"
+        }
+      ]
+    },
+    {
+      "name": "acmp-registered-anywhere",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A14RegisteredSettlesTheReservation",
+          "needle": "A14 EVT_TK_REGISTERED anywhere else",
+          "assertion_present": true,
+          "xml_sha256": "574730af092eac7a466d13b440b6fabd55bab4415a1a789c6c012842c8c20556"
+        }
+      ]
+    },
+    {
+      "name": "acmp-registered-keeps-no-tk",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A14RegisteredSettlesTheReservation",
+          "needle": "A14 EVT_TK_REGISTERED: TMR_NO_TK cleared",
+          "assertion_present": true,
+          "xml_sha256": "efbfee1ed3d2e431a42117758c72283a05f76aaf4171f4fb6a27438e091f78b5"
+        }
+      ]
+    },
+    {
+      "name": "acmp-registered-kind-dropped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+          "needle": "REGISTERING_FAILED 1 (Table 5.39)",
+          "assertion_present": true,
+          "xml_sha256": "75aa91e286439c6a316023327521a12fcd4b8635a6a8d611551765242fe2849d"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unregistered-anywhere",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A15UnregisteredReprobes",
+          "needle": "A15 EVT_TK_UNREGISTERED anywhere else",
+          "assertion_present": true,
+          "xml_sha256": "16d4a4a4eb5a3dc0008cb716bcfc5a694dbc39072f911679fd4bb49930c5ac59"
+        }
+      ]
+    },
+    {
+      "name": "acmp-kind-lost",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.KindChangesOnlyTheSettledView",
+          "needle": "kind updates the reported view",
+          "assertion_present": true,
+          "xml_sha256": "c3720199426c8919abb11b4749a50d800db859f03ec40324043b2c75256de284"
+        }
+      ]
+    },
+    {
+      "name": "acmp-kind-any-state",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.KindChangesOnlyTheSettledView",
+          "needle": "kind refuses non-settled state",
+          "assertion_present": true,
+          "xml_sha256": "deb991b7cd1d00539da7c2aef382a8786059b4e7a09595d9567de5f82450882a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unregistered-keeps-srp",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A15UnregisteredReprobes",
+          "needle": "A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped",
+          "assertion_present": true,
+          "xml_sha256": "45861e43f279c6a8e81305c00aa82fa39c41defadc3295d44dee3598d19a2d2b"
+        }
+      ]
+    },
+    {
+      "name": "acmp-timer-at-the-latest-deadline",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+          "needle": "A17 each interface's timer is armed at the earliest",
+          "assertion_present": true,
+          "xml_sha256": "719f8bbc8a0d23b870cabbd067e3a7346e51faf9bdcf00cdff9ec1acc4ea419a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-timer-port-called-every-time",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+          "needle": "A17 the port is called only when the earliest deadline moves",
+          "assertion_present": true,
+          "xml_sha256": "6912f2448831524b23947b65cde3bb59d42fcca1b3574bdaef452d5b07344487"
+        }
+      ]
+    },
+    {
+      "name": "acmp-timer-never-stopped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+          "needle": "A17 an interface whose sinks hold no deadline",
+          "assertion_present": true,
+          "xml_sha256": "e10db2504133ce3748afc95920853366de41b50f2023bada80a7ac799d541515"
+        }
+      ]
+    },
+    {
+      "name": "acmp-expiry-takes-every-interface",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+          "needle": "A17 an expiry takes the due timers only",
+          "assertion_present": true,
+          "xml_sha256": "521f4c59feb5aae521e2a33ed1a39ad0c005c1efafa7b6428cff96c50e63f644"
+        }
+      ]
+    },
+    {
+      "name": "acmp-expiry-not-consumed",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+          "needle": "A17 an expiry with nothing due changes nothing and re-arms the timer it consumed",
+          "assertion_present": true,
+          "xml_sha256": "b67c0defa4f40fffb5df7b5a37a57c2df7763d09a2b759648c86962e5e0e268e"
+        }
+      ]
+    },
+    {
+      "name": "acmp-zero-delay-waits",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
+          "needle": "A18 TMR_RETRY drawing 0 ms sends its probe in the same expiry",
+          "assertion_present": true,
+          "xml_sha256": "c20701e1c3073fca2b6eb54f5d274705b8e675c999e5652e8ada6247d0c49eb7"
+        }
+      ]
+    },
+    {
+      "name": "acmp-delay-up-to-4s",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
+          "needle": "A18 the longest draw is 1000 ms",
+          "assertion_present": true,
+          "xml_sha256": "a9af955ba0a668fe358ff3e3fc458eea3955aa5332b2661ae30affda96102682"
+        }
+      ]
+    },
+    {
+      "name": "acmp-seed-at-every-draw",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw",
+          "needle": "A18 and never again",
+          "assertion_present": true,
+          "xml_sha256": "19ba1da49dea99940e3718c3cfd5d0d57ec224cbf7dea7183e878466fd40939f"
+        }
+      ]
+    },
+    {
+      "name": "acmp-rng-left-at-0",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw",
+          "needle": "A18 a seed that cancels the state to 0 leaves it 1",
+          "assertion_present": true,
+          "xml_sha256": "541b3590627c22fa644dc6082614932637a0a7c35666fb4a59c4870fa8c300ea"
+        }
+      ]
+    },
+    {
+      "name": "acmp-response-passes-an-owed-frame",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A19NothingPassesAnOwedFrame",
+          "needle": "A19 a response does not pass one already owed",
+          "assertion_present": true,
+          "xml_sha256": "fdb18085be2eb9200e776c0c064f17d4cc8ee13360feaf6097c608d79c5cbeaa"
+        }
+      ]
+    },
+    {
+      "name": "acmp-poll-drains-everything",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+          "needle": "A19 one frame per poll",
+          "assertion_present": true,
+          "xml_sha256": "bbe988d8eab904972c9be0f7b76316f10eac1eaa57bb9ae721fe11b833df93d2"
+        }
+      ]
+    },
+    {
+      "name": "acmp-change-not-held-for-its-response",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+          "needle": "A19 but its change is not reported while its response waits (#653)",
+          "assertion_present": true,
+          "xml_sha256": "8b012d0bd3937e77e3d54a4c68df7ccd124b45907958a8aa6f8d83efaee928f8"
+        }
+      ]
+    },
+    {
+      "name": "acmp-full-queue-acts",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs",
+          "needle": "A19 a command whose response would find the queue full is dropped",
+          "assertion_present": true,
+          "xml_sha256": "9bb3cf46022f1cefc1daa0dec50f3191c4acd88df887f2090876c77ed99142c0"
+        }
+      ]
+    },
+    {
+      "name": "acmp-lost-probe-uncounted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+          "needle": "A19 a probe the full queue cannot take is lost and counted",
+          "assertion_present": true,
+          "xml_sha256": "c195dd7bf4d58bb9ccba466fe75be8b06350f3f70cbda35fdddfaf0be1621861"
+        }
+      ]
+    },
+    {
+      "name": "acmp-first-owed-releases-every-change",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
+          "needle": "A19 the bind's response left but the unbind's is still owed",
+          "assertion_present": true,
+          "xml_sha256": "d797663a2a4b66d205d96760a3be8713bfaedb872135fbe9d9db95f74973b6c0"
+        }
+      ]
+    },
+    {
+      "name": "acmp-poll-newest-first",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A19NothingPassesAnOwedFrame",
+          "needle": "A19 they leave in the order they were made",
+          "assertion_present": true,
+          "xml_sha256": "6c0323c87083f52f9b512bd7642c0db55db3ef579e82ad17ea5bfddc5c319e8a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probe-tx-reports-asking-failed",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+          "needle": "A20 PROBE_TX_RESPONSE is Table 5.43",
+          "assertion_present": true,
+          "xml_sha256": "2c747ef0e051490106a16c49ae553c6bf5a43ab797d202a2fb6e1d645f29dfd0"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probe-tx-echoes-every-flag",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+          "needle": "A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0",
+          "assertion_present": true,
+          "xml_sha256": "937b6427d09ab53d55682daebf87eba2c0b4295b69e5d2b7a6da6391e89fed9e"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probe-tx-any-interface",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+          "needle": "A20 a probe from another interface than the source's",
+          "assertion_present": true,
+          "xml_sha256": "0881badafed003dbfbd8268e5b117920246c4d50e798a558bd39411c861a6a66"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probe-tx-no-destination-mac-check",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+          "needle": "A20 no destination MAC: TALKER_DEST_MAC_FAILED",
+          "assertion_present": true,
+          "xml_sha256": "9261285a884dd92c7cd98c97931288e505d91ddae991e3cbac137b97de4e01d9"
+        }
+      ]
+    },
+    {
+      "name": "acmp-disconnect-always-succeeds",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+          "needle": "A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID",
+          "assertion_present": true,
+          "xml_sha256": "32e59cf8d0b81b7206f0a47ddabea213eab0cdc3dff3c286c4f226e33b370b96"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unknown-source-answered",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+          "needle": "A20 an unknown source: TALKER_UNKNOWN_ID",
+          "assertion_present": true,
+          "xml_sha256": "70289493af48273b790452b70fe95722870fe4b8e497f1c107c4942f14150ee9"
+        }
+      ]
+    },
+    {
+      "name": "acmp-get-tx-state-echoes-the-listener",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+          "needle": "A20 GET_TX_STATE: listener fields 0",
+          "assertion_present": true,
+          "xml_sha256": "8e9e55da6f8c0b3d091f6876ccb64044c90dc8cb6239b09f6782f57428482e15"
+        }
+      ]
+    },
+    {
+      "name": "acmp-get-tx-state-registering-failed-0",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+          "needle": "REGISTERING_FAILED live",
+          "assertion_present": true,
+          "xml_sha256": "48cc638f5d502305bf321d8954f61ef94786df29c7955d8d6ed30c2e06d0ed0b"
+        }
+      ]
+    },
+    {
+      "name": "acmp-get-tx-state-unheld-mac",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+          "needle": "A20 with no destination MAC held, none is reported",
+          "assertion_present": true,
+          "xml_sha256": "450f112e752a07c7abfc1abb0634bf9aa6dd1157358e693227c70839b4cd6cd8"
+        }
+      ]
+    },
+    {
+      "name": "acmp-get-tx-connection-supported",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+          "needle": "A20 GET_TX_CONNECTION: NOT_SUPPORTED",
+          "assertion_present": true,
+          "xml_sha256": "5a7418e100e86164ed988343b538c71d6819c982c59af6e06657bba1a818ebd3"
+        }
+      ]
+    },
+    {
+      "name": "acmp-every-listener-is-this-one",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A21MessagesNotForThisEntityAreIgnored",
+          "needle": "A21 commands for another listener or talker",
+          "assertion_present": true,
+          "xml_sha256": "e04e4c37e76917d52556456783ca90c933116d3714ec20389e08c0f52fe2da0b"
+        }
+      ]
+    },
+    {
+      "name": "acmp-every-talker-is-this-one",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A21MessagesNotForThisEntityAreIgnored",
+          "needle": "A21 commands for another listener or talker",
+          "assertion_present": true,
+          "xml_sha256": "e92af93ed11a84c9ffda7529945fa2b188bb3f689fdc67feb260f921b6ea2288"
+        }
+      ]
+    },
+    {
+      "name": "acmp-short-pdu-read",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A21MalformedFramesAreCounted",
+          "needle": "A21 a frame shorter than the Milan ACMPDU",
+          "assertion_present": true,
+          "xml_sha256": "d56690aeb94679449e70cad665bf0bdc806eed0bd23220df6d818db1664a3039"
+        }
+      ]
+    },
+    {
+      "name": "acmp-longer-pdu-refused",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A21MalformedFramesAreCounted",
+          "needle": "A21 the longer IEEE 1722.1-2021 PDU is accepted",
+          "assertion_present": true,
+          "xml_sha256": "e9a3180124beceabca392f2fe47c06b87bc118224eeefdb3f730420464e9f274"
+        }
+      ]
+    },
+    {
+      "name": "acmp-discovery-reads-no-grandmaster",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+          "needle": "A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster",
+          "assertion_present": true,
+          "xml_sha256": "1bb7f95663e23c5a457fa0db477fbf2a9c67403267d40b4a94053b34744d25cf"
+        }
+      ]
+    },
+    {
+      "name": "acmp-discovery-reads-no-domain",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+          "needle": "A22 and from another domain",
+          "assertion_present": true,
+          "xml_sha256": "b27bc2ec9b391c46daa9e3f00715e67f51768064e5c2ca8d6fd2d48714a3318a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-valid-time-in-seconds",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+          "needle": "A22 TMR_NO_ADP is the received valid_time in two-second units",
+          "assertion_present": true,
+          "xml_sha256": "c98ebdd51181ec93368b5d4584a2c5fac1fbcf6a46c8359a172488dc04397158"
+        }
+      ]
+    },
+    {
+      "name": "acmp-discovered-interface-unchecked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DiscoveredStateCells",
+          "needle": "A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored",
+          "assertion_present": true,
+          "xml_sha256": "3a9857b36fd6b1ba3b7716da4609486130635f19f4709957e496921a82a49b3a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-restart-on-a-smaller-index-only",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DiscoveredStateCells",
+          "needle": "A22 available_index 700 <= last",
+          "assertion_present": true,
+          "xml_sha256": "afc621614eb14d82054c3973c97c216400e8c3095a4f4327fdeb7cde2561e287"
+        }
+      ]
+    },
+    {
+      "name": "acmp-restart-raises-no-discovered",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DiscoveredStateCells",
+          "needle": "EVT_TK_DEPARTED then EVT_TK_DISCOVERED",
+          "assertion_present": true,
+          "xml_sha256": "3533840006c8f8dc9768d558cfa79fd37d0896f6cb9dd686570412433e32761f"
+        }
+      ]
+    },
+    {
+      "name": "acmp-restart-mismatch-keeps-aging",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DiscoveredStateCells",
+          "needle": "A22 index <= last from another grandmaster",
+          "assertion_present": true,
+          "xml_sha256": "e8bf7186b7324bea93a93f2b0de4be80b6a90d7aa49fa896d6c35e86157dc6ac"
+        }
+      ]
+    },
+    {
+      "name": "acmp-refresh-notes-no-index",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DiscoveredStateCells",
+          "needle": "A22 a rising available_index is noted",
+          "assertion_present": true,
+          "xml_sha256": "bf49578fabd200a79ad79508892b88f6a2ee4d45fccc52b7176bf5f8f2a86331"
+        }
+      ]
+    },
+    {
+      "name": "acmp-departing-taken-undiscovered",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DepartingAndAging",
+          "needle": "A22 a DEPARTING in TK_NOT_DISCOVERED is ignored",
+          "assertion_present": true,
+          "xml_sha256": "cbf312b63c1dc814042c6fc45896a3ca5f62d6195d3e86ea91367b5f773ad09c"
+        }
+      ]
+    },
+    {
+      "name": "acmp-departing-interface-unchecked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DepartingAndAging",
+          "needle": "A22 a DEPARTING with another interface_index is ignored",
+          "assertion_present": true,
+          "xml_sha256": "f511dd8255367d457ac76bc150ce6f07ab423eff5ea812d9df7337da34176be7"
+        }
+      ]
+    },
+    {
+      "name": "acmp-departing-keeps-aging",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DepartingAndAging",
+          "needle": "A22 a DEPARTING: TMR_NO_ADP stopped",
+          "assertion_present": true,
+          "xml_sha256": "17b82437aa8b2976e37b13edf151772653774747c3738ec7b6026f379e2d6827"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-aging",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DepartingAndAging",
+          "needle": "A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED",
+          "assertion_present": true,
+          "xml_sha256": "35bd12de31e8c33e381979aa8cc7a54632743ddf29f7bfb5a4cec519c97d4f39"
+        }
+      ]
+    },
+    {
+      "name": "acmp-discovery-on-every-interface",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+          "needle": "A22 every bound sink of the talker processes it",
+          "assertion_present": true,
+          "xml_sha256": "3bd0d03cc10ee7f02822ea188b4760bb148804354eff8d5359ac4ed4a1871e2a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-discovery-on-unbound-sinks",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+          "needle": "A22 an unbound sink runs no discovery",
+          "assertion_present": true,
+          "xml_sha256": "711444bac31235e4e99e615e42b1a20e2d59a7ee22aa0766c8d67b1bd2f173fd"
+        }
+      ]
+    },
+    {
+      "name": "acmp-grandmaster-sampled-for-the-refresh",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DiscoveredStateCells",
+          "needle": "A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored",
+          "assertion_present": true,
+          "xml_sha256": "07bead2f89488b6028139db0530ca71845399f95e872cf1171f68bb9b2c66cf1"
+        }
+      ]
+    },
+    {
+      "name": "acmp-grandmaster-sampled-per-sink",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+          "needle": "A22 and the grandmaster is sampled once for the frame",
+          "assertion_present": true,
+          "xml_sha256": "8f5f067214d16be60415b63b3892757b027eb59fd3379a5171c9b79ffac50040"
+        }
+      ]
+    },
+    {
+      "name": "acmp-reentry-unguarded",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+          "needle": "A23 a call made from inside the send port is refused",
+          "assertion_present": true,
+          "xml_sha256": "e40971bf44af1aeee12de4afb5686b872a74e6911be3e1d5db7bbdeb946cc43c"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 1 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "e40971bf44af1aeee12de4afb5686b872a74e6911be3e1d5db7bbdeb946cc43c"
+        }
+      ]
+    },
+    {
+      "name": "acmp-reentry-untrapped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+          "needle": "refused, counted and trapped",
+          "assertion_present": true,
+          "xml_sha256": "daf9e262c9f882f3d22ab732bfed52db2f45624de146fcdbeda358b81705fbbd"
+        }
+      ]
+    },
+    {
+      "name": "acmp-send-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+          "needle": "A23 a call made from inside the send port is refused",
+          "assertion_present": true,
+          "xml_sha256": "a39b977e40ad5793b23c5cdf7e1a2dcdd75c7efd66364cf0ce16901e31e895da"
+        }
+      ]
+    },
+    {
+      "name": "acmp-timer-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 1 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "bb22b9f3953322ba53df6cbcc70fb52156133798f08819ff3390ec76ee0735b3"
+        }
+      ]
+    },
+    {
+      "name": "acmp-gptp-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 2 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "33d8a0067c4e1d0a461ace15b7211a3a28090234c963ae8493ee65afd9560c42"
+        }
+      ]
+    },
+    {
+      "name": "acmp-clock-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 3 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "510c7445ccdc420fee54861233423b230311cdb0945e5301137805b06ff033c9"
+        }
+      ]
+    },
+    {
+      "name": "acmp-seed-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 4 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "23622a135e6104af1c20c81a87664511ac26cdffc82e9b46f6a5a9c79df4228d"
+        }
+      ]
+    },
+    {
+      "name": "acmp-lock-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 5 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "ec02c05258a1408070d7e1b667487655d06d218544a3cf6cfb1616ff54d08165"
+        }
+      ]
+    },
+    {
+      "name": "acmp-source-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 6 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "813fa8d24189fa74a35131db6151f37ee7c1989c4a1afd7f6ec22550ec31d4ec"
+        }
+      ]
+    },
+    {
+      "name": "acmp-srp-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 7 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "af6932f8b8fb688d28ab6e40115844ea3eb6a43466a2f6ebbcdb0ee8502b60f4"
+        }
+      ]
+    },
+    {
+      "name": "acmp-persist-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 8 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "a98b4000360ada20be550195f21a244e73fb2c237d14a6dc56309096565862b5"
+        }
+      ]
+    },
+    {
+      "name": "acmp-changed-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 9 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "35e09da61e5dc802ce9ab981c97e173a3b839497fa29a134671dad310ae36eff"
+        }
+      ]
+    },
+    {
+      "name": "acmp-restore-lands-in-prb-w-resp",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24ARestoredBindingFastConnects",
+          "needle": "A24 startup with a saved binding",
+          "assertion_present": true,
+          "xml_sha256": "a37e9d6f148244fdeb13e5ffde006ff8b2ccd205f0d85d2af6b8064a9f8d9331"
+        }
+      ]
+    },
+    {
+      "name": "acmp-restore-starts-no-discovery",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24ARestoredBindingFastConnects",
+          "needle": "A24 startup with a saved binding",
+          "assertion_present": true,
+          "xml_sha256": "245ba5da5ac03e010f06df789fc7ebca12956a376706379a39d628c526f9410a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-restore-announced",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+          "needle": "A29 sink 1's talker on its interface, and nothing else: no timer, nothing to save or report",
+          "assertion_present": true,
+          "xml_sha256": "b7971bb6f96545d218ad1780ee9e1e89c733159f7c678b91cc03e6763f7fbcab"
+        }
+      ]
+    },
+    {
+      "name": "acmp-record-flags-swapped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+          "needle": "A24 bound with STREAMING_WAIT: flags 0x05",
+          "assertion_present": true,
+          "xml_sha256": "0db86c5dd2311be0619fc71572ca238b45cd7e9c358a3bcecc2d64cd1ed41d17"
+        }
+      ]
+    },
+    {
+      "name": "acmp-record-unique-id-little-endian",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24ARestoredBindingFastConnects",
+          "needle": "A24 the latch gives the same record back",
+          "assertion_present": true,
+          "xml_sha256": "a454e4779f173d2141b09561b1891648473edf7d89155366c7c8c1c570ab364b"
+        }
+      ]
+    },
+    {
+      "name": "acmp-restore-unique-id-little-endian",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24ARestoredBindingFastConnects",
+          "needle": "A24 the record's flags and parameters, big-endian",
+          "assertion_present": true,
+          "xml_sha256": "5b687f8ef2c4f7e7c864de376bfc38cc1649607cc602bc8d6e2beec6e07687a8"
+        }
+      ]
+    },
+    {
+      "name": "acmp-roll-back-keeps-the-bindings",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+          "needle": "A24 the roll-back drops every restored binding",
+          "assertion_present": true,
+          "xml_sha256": "41fc89667749ecd880a9b5b637465e2f30857f4bd7262eb92eb9a08ec56adfa8"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unbound-record-not-zero",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+          "needle": "A24 an unbound sink's record is all zeros",
+          "assertion_present": true,
+          "xml_sha256": "fe8bb0eb46d12c37d6ec10cc86b5b85618bd65b45b980ad63a81acfb12e73791"
+        }
+      ]
+    },
+    {
+      "name": "acmp-started-not-saved",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24StartedIsSavedAndReported",
+          "needle": "A24 the started state is saved (5.3.8.7)",
+          "assertion_present": true,
+          "xml_sha256": "ec7e6b84f5b1b6af6c0c19acbc4f495a795dc326dbea903be499cf3c2a00806e"
+        }
+      ]
+    },
+    {
+      "name": "acmp-discovery-notifies",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+          "needle": "A25 discovery noted while settled moves no Table 5.22 item",
+          "assertion_present": true,
+          "xml_sha256": "fb62bd727aa515747c784dd2979054bf70ab54f5bbcbcac150bfb7dec4a87080"
+        }
+      ]
+    },
+    {
+      "name": "acmp-status-not-notified",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+          "needle": "A25 the ACMP status LISTENER_TALKER_TIMEOUT does",
+          "assertion_present": true,
+          "xml_sha256": "50b2ea38dd8727f0c91333b5721034d91c27cf366373bb5de9685b7c2c80915c"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probing-status-not-notified",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.DepartingStopsEveryProbingTimer",
+          "needle": "departing publishes the passive probing status",
+          "assertion_present": true,
+          "xml_sha256": "a3884e3e881724a9ef98d10c5ce6c8d33a8ea0074605c32458bba27094334f56"
+        }
+      ]
+    },
+    {
+      "name": "acmp-bind-reads-the-clock-twice",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 3 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "90b7963399495a1cc6aa5e622628fc93b451db0ff5166855ac24dbb726610244"
+        }
+      ]
+    },
+    {
+      "name": "acmp-get-rx-state-reads-the-clock",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.CommandPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "3043b27bbd40f01e5318574c5b97beef4ebaaa23ed9a33070b00a0e71b3965de"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probe-response-reads-the-clock-twice",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.CommandPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "6ec352df60708e94c788ecefb00ba0d85f61e92ac50dbac0767619ba0427fb17"
+        }
+      ]
+    },
+    {
+      "name": "acmp-unbind-reads-the-clock",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.CommandPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "4a77ed79e0457e383182ae1c14b8f122bd87f1f30045e2e8ad59bced94606fe1"
+        }
+      ]
+    },
+    {
+      "name": "acmp-talker-reads-the-clock",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.CommandPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "b9c166819b5ed39b8006253836284575da66b6387715058d758f4313c8c7df67"
+        }
+      ]
+    },
+    {
+      "name": "acmp-expiry-reads-the-clock-twice",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.TimerPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "a424d45faa9d187dfe23aff0c4b0467bbce6f8015d99cf3b63a3176ee5e7696d"
+        }
+      ]
+    },
+    {
+      "name": "acmp-available-reads-the-clock-twice",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.DiscoveryPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "5cac2e92251a201a79d88c133af3e2d9dc744f1fd88695e725aca7439884c68e"
+        }
+      ]
+    },
+    {
+      "name": "acmp-departing-samples-the-grandmaster",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.DiscoveryPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "7cfb79a2f1801590484ce86daa93dfebb32457caed3cb14cdf93e0b1b653a6de"
+        }
+      ]
+    },
+    {
+      "name": "acmp-aging-samples-the-grandmaster",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.DiscoveryPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "b83ae0dcc503e101c000a84b880917d9675bd8149082751f570ffbf416d21c01"
+        }
+      ]
+    },
+    {
+      "name": "acmp-discovery-takes-the-first-sink",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+          "needle": "A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on",
+          "assertion_present": true,
+          "xml_sha256": "087f2324d4204154d8ea3619911b2c5c3e5ac3c3a786c9b51c92eb8059ca7791"
+        }
+      ]
+    },
+    {
+      "name": "acmp-second-no-resp-samples-the-grandmaster",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.TimerPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "e93baeec96da9fea779ed81fff31d6ef2b6b5cac9f714b67b03099463dcce565"
+        }
+      ]
+    },
+    {
+      "name": "acmp-retry-samples-the-grandmaster",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.TimerPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "e9376be493acd309296428e467e3f76618e48e65faac72fb443354feb8f0a2d6"
+        }
+      ]
+    },
+    {
+      "name": "acmp-delay-reads-the-clock-again",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.TimerPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "434d4d18d241c3ca33962d2c10fcfccb5a5dfb60991776da04d2d5a2e5237112"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-tk-samples-the-grandmaster",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.TimerPortBudgets",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "363c28e48930e875af2bc8e2c774dad7e2813490745e97ac406f879f348778ca"
+        }
+      ]
+    },
+    {
+      "name": "acmp-new-bind-never-started",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindWithoutStreamingWaitBindsStarted",
+          "needle": "A1 a bind without STREAMING_WAIT lands started",
+          "assertion_present": true,
+          "xml_sha256": "f57dd71dcf60431fa786da041490cd43bcab7364930ae810914656bc4cdd6881"
+        }
+      ]
+    },
+    {
+      "name": "acmp-bind-response-always-streaming-wait",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindWithoutStreamingWaitBindsStarted",
+          "needle": "A1 a bind without STREAMING_WAIT lands started",
+          "assertion_present": true,
+          "xml_sha256": "e258c5969129f3117435960b1235cce7f4874a41129881966cf6ad388c2a4d29"
+        }
+      ]
+    },
+    {
+      "name": "acmp-view-without-registering-failed",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed",
+          "needle": "A2 and the view says so",
+          "assertion_present": true,
+          "xml_sha256": "46d1b9ff44bf094f2e32b71687c91ff6d6995f0fcb3f573baf6b0cf2a03c83ab"
+        }
+      ]
+    },
+    {
+      "name": "acmp-discovered-probing-stays-passive",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail",
+          "needle": "A22 EVT_TK_DISCOVERED in PRB_W_AVAIL",
+          "assertion_present": true,
+          "xml_sha256": "e295b291cece4c87eb3acb2f6c8b14fb2bb764fc64e866b40d6c9fdb817cb896"
+        }
+      ]
+    },
+    {
+      "name": "acmp-grandmaster-read-twice",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail",
+          "needle": "A22 the grandmaster is sampled once for the frame",
+          "assertion_present": true,
+          "xml_sha256": "7d7728923ceca06698c9d63cc16220610ff0009a4d8c139b343ebb9292c7d464"
+        }
+      ]
+    },
+    {
+      "name": "acmp-adp-short-frame-taken",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+          "needle": "A22 a short ADPDU, a DISCOVER",
+          "assertion_present": true,
+          "xml_sha256": "f2ee94f481ed087d169872782ccef8c8b92c2fa259c9577a895c69011cbe427e"
+        }
+      ]
+    },
+    {
+      "name": "acmp-adp-ethertype-unchecked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+          "needle": "A22 a short ADPDU, a DISCOVER",
+          "assertion_present": true,
+          "xml_sha256": "bce45796814151ef8b4243e49c20e229a6b00fa1c8cc884ae4f21a302c24e3a6"
+        }
+      ]
+    },
+    {
+      "name": "acmp-adp-subtype-unchecked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+          "needle": "A22 a short ADPDU, a DISCOVER",
+          "assertion_present": true,
+          "xml_sha256": "70ade8930fae1ebe50874f53dcbe0846aeb1f2f0294e9bd921d325cd06f75d49"
+        }
+      ]
+    },
+    {
+      "name": "acmp-adp-discover-taken",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A22OtherAdpFramesAreIgnored",
+          "needle": "A22 a short ADPDU, a DISCOVER",
+          "assertion_present": true,
+          "xml_sha256": "3faa720b96d77c0e99e77638a89705480c9480c6e6a4baa3811eda4bde608247"
+        }
+      ]
+    },
+    {
+      "name": "acmp-frames-to-the-own-mac",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)",
+          "assertion_present": true,
+          "xml_sha256": "5ab64ad65cabad3633b3bb0c6f3872af28d2c2e1dd454ec6f4a6858eaeac108a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-version-unchecked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+          "needle": "A26 a BIND_RX of AVTP version 1",
+          "assertion_present": true,
+          "xml_sha256": "85f7a9bb88bb06d286281db08f93bba779a26a7ff9a75a62a2958029343e6543"
+        }
+      ]
+    },
+    {
+      "name": "acmp-adp-version-unchecked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+          "needle": "A26 an ENTITY_AVAILABLE of version 1",
+          "assertion_present": true,
+          "xml_sha256": "a57bbd778e676e57346684e7866317a512e1121352524a992135e48420e53e62"
+        }
+      ]
+    },
+    {
+      "name": "acmp-version-bits-misread",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+          "needle": "A26 a BIND_RX of AVTP version 1",
+          "assertion_present": true,
+          "xml_sha256": "5b769a928922410bc82db18e3b1ad042bd8943ff61f52dd74dc712b51b46898e"
+        }
+      ]
+    },
+    {
+      "name": "acmp-header-version-1",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+          "needle": "A1 BIND_RX sends two frames: the response and the probe",
+          "assertion_present": true,
+          "xml_sha256": "8b6e7bc83a6d19672f9821c613c18b27fc264a9eb89b1a8354889d7281f74f47"
+        }
+      ]
+    },
+    {
+      "name": "acmp-owed-probe-timer-runs",
+      "status": "CAUGHT",
+      "required_kills": 3,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+          "needle": "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held",
+          "assertion_present": true,
+          "xml_sha256": "19d55175724c8773e7cefd776d775408ab004d0ddf9bb5870d58e73172804c8c"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+          "needle": "A27 the first TMR_NO_RESP finds no room",
+          "assertion_present": true,
+          "xml_sha256": "19d55175724c8773e7cefd776d775408ab004d0ddf9bb5870d58e73172804c8c"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+          "needle": "A23 and the outer call completes as if it had not been made",
+          "assertion_present": true,
+          "xml_sha256": "19d55175724c8773e7cefd776d775408ab004d0ddf9bb5870d58e73172804c8c"
+        }
+      ]
+    },
+    {
+      "name": "acmp-owed-probe-never-starts",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+          "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
+          "assertion_present": true,
+          "xml_sha256": "447b0b24a8d7472df1102c4af2764a2a3f166b66a5a3550f5ca6580ddd61cf18"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+          "needle": "A27 the duplicate, the first probe's",
+          "assertion_present": true,
+          "xml_sha256": "447b0b24a8d7472df1102c4af2764a2a3f166b66a5a3550f5ca6580ddd61cf18"
+        }
+      ]
+    },
+    {
+      "name": "acmp-owed-probe-no-resp-2s",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+          "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
+          "assertion_present": true,
+          "xml_sha256": "9f9441f7204b36a641c757ace86f56a67d5ee3789fdbfdb1a99f3e1cd9aa1a4f"
+        }
+      ]
+    },
+    {
+      "name": "acmp-owed-probe-sequence-unchecked",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+          "needle": "A27 the old probe leaving starts no timer for the new one",
+          "assertion_present": true,
+          "xml_sha256": "0e5d200b47b6df08ee09d2827582916aa30c4e88d2890ed45a27f2e50cda5ceb"
+        }
+      ]
+    },
+    {
+      "name": "acmp-owed-probe-unnamed",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+          "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
+          "assertion_present": true,
+          "xml_sha256": "f821332c3659d725f2e2ea6f60fa5f4db56fda6cabec3e6691b5499540bf2628"
+        }
+      ]
+    },
+    {
+      "name": "acmp-owed-probe-names-the-next-sink",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+          "needle": "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
+          "assertion_present": true,
+          "xml_sha256": "cb54a5264c00b90f6d72576194593b14690603428084671cb28e7fc34014ec69"
+        }
+      ]
+    },
+    {
+      "name": "acmp-probe-timer-before-its-send",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend",
+          "needle": "A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send",
+          "assertion_present": true,
+          "xml_sha256": "62c93ff30e4b4a4e187b32b7b93789c2d228b2d822dd9c57c776628c32bac128"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+          "needle": "A30 the duplicate taken at once",
+          "assertion_present": true,
+          "xml_sha256": "62c93ff30e4b4a4e187b32b7b93789c2d228b2d822dd9c57c776628c32bac128"
+        }
+      ]
+    },
+    {
+      "name": "acmp-taken-probe-timer-from-the-entry-clock",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+          "needle": "A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's",
+          "assertion_present": true,
+          "xml_sha256": "b8906aca46f2ed704ff2c210470baf84b270ab5c96eb981331246bcc62a944c4"
+        }
+      ]
+    },
+    {
+      "name": "acmp-expiry-due-at-its-first-read",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry",
+          "needle": "A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock",
+          "assertion_present": true,
+          "xml_sha256": "c6c1a5bcddf756207147b9a08a97539bbd53d2a9908a9143bf31f9501d271577"
+        }
+      ]
+    },
+    {
+      "name": "acmp-held-timer-expires",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+          "needle": "A27 an expiry of the interface while the probe is owed takes nothing",
+          "assertion_present": true,
+          "xml_sha256": "7e5a995c5956f20aae25f012a1169a014c3af557076e241f4b2e4a14aec0bb58"
+        }
+      ]
+    },
+    {
+      "name": "acmp-held-timer-armed",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+          "needle": "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held, no timer armed",
+          "assertion_present": true,
+          "xml_sha256": "bbbc43cbfa88574b5c23bf48c1f331335093361b531b30ae89270129bdb20c01"
+        }
+      ]
+    },
+    {
+      "name": "acmp-lost-probe-held",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+          "needle": "A19 and it does",
+          "assertion_present": true,
+          "xml_sha256": "756f2c8d87031064ff9b6c29156058ef0cdeec2deefddb0494dd58ce985807c1"
+        }
+      ]
+    },
+    {
+      "name": "acmp-stop-keeps-the-hold",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+          "needle": "A27 an UNBIND_RX while the probe is owed stops its timer",
+          "assertion_present": true,
+          "xml_sha256": "1b83885a684e80ee698b88a207388540c98b64626a343899cae3622cc11c91e6"
+        }
+      ]
+    },
+    {
+      "name": "acmp-record-flag-defines-swapped",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+          "needle": "A24 bound and started: flags 0x03",
+          "assertion_present": true,
+          "xml_sha256": "45335f2e730b8300520f4d1bbdb869716ded27a1ea77ef9f6a4a1cfbf27fb1a1"
+        }
+      ]
+    },
+    {
+      "name": "acmp-record-valid-bit-moved",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+          "needle": "A24 bound and stopped: the valid flag alone, 0x01",
+          "assertion_present": true,
+          "xml_sha256": "5d70deacfea2bba613cc962a93863c9e484fea34e5c0caf49526e8af3806d2f7"
+        }
+      ]
+    },
+    {
+      "name": "acmp-longer-record-applied",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+          "needle": "A24 a payload of 21 bytes is refused",
+          "assertion_present": true,
+          "xml_sha256": "23a49796256fdd183c99841591350d0ea9f4f217b5a9e72931ee2ef3b214c589"
+        }
+      ]
+    },
+    {
+      "name": "acmp-due-unsigned",
+      "status": "CAUGHT",
+      "required_kills": 2,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+          "needle": "A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline",
+          "assertion_present": true,
+          "xml_sha256": "79e947e70812f5922f220909e07c6b8f8cf173793225c632c80582db8ff16004"
+        },
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+          "needle": "A28 the first expiry takes sink 0 only",
+          "assertion_present": true,
+          "xml_sha256": "79e947e70812f5922f220909e07c6b8f8cf173793225c632c80582db8ff16004"
+        }
+      ]
+    },
+    {
+      "name": "acmp-earliest-unsigned",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+          "needle": "A28 the interface timer holds the earlier deadline",
+          "assertion_present": true,
+          "xml_sha256": "f96baaf93c795597cda164679eabdd62f1788e66edab1004398e0d4b00a0df28"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-adp-due-unsigned",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+          "needle": "A28 TMR_NO_ADP: nothing before",
+          "assertion_present": true,
+          "xml_sha256": "cc882201fe660cf5df682712831a23d09ff57ccf0a7d657a4469e2e7210c7596"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-resp-deadline-saturates",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+          "needle": "A28 TMR_NO_RESP: nothing",
+          "assertion_present": true,
+          "xml_sha256": "240b34f94a030aaaf13c52c624e848b9a8640757651baefe1739a70227fe217a"
+        }
+      ]
+    },
+    {
+      "name": "acmp-retry-deadline-saturates",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+          "needle": "A28 TMR_RETRY: nothing",
+          "assertion_present": true,
+          "xml_sha256": "47fd27930761eb2fd9a68b4db3b0e61848bf60b5967561f44f7c8acd86095d96"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-tk-deadline-saturates",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+          "needle": "A28 TMR_NO_TK: nothing",
+          "assertion_present": true,
+          "xml_sha256": "df6dfcf168bff6cb373139269e874d7e7b1b510a5a163c457fa37bb4d0747141"
+        }
+      ]
+    },
+    {
+      "name": "acmp-delay-deadline-saturates",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+          "needle": "A28 TMR_DELAY: nothing",
+          "assertion_present": true,
+          "xml_sha256": "2c0637be04c948785b3b1ff6abf406e1cfc1f6cb64208cec0464171ad3bd194d"
+        }
+      ]
+    },
+    {
+      "name": "acmp-no-adp-deadline-saturates",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+          "needle": "A28 TMR_NO_ADP: nothing before",
+          "assertion_present": true,
+          "xml_sha256": "f8cf58300b4e0e6624ac97ac1fca37524a0f95653ed94c4929baaaa23c950b21"
+        }
+      ]
+    },
+    {
+      "name": "acmp-admit-never-called",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+          "needle": "A29 a BIND_RX admits its talker once",
+          "assertion_present": true,
+          "xml_sha256": "326867d6877273fdd926b2021a418f4a9860951d59cac1148ab9280cd420b3a4"
+        }
+      ]
+    },
+    {
+      "name": "acmp-admit-on-every-entry",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+          "needle": "A29 a re-bind to the same talker, from any controller or source, admits nothing",
+          "assertion_present": true,
+          "xml_sha256": "fb777356ba349bcd942757016589d1eb76247407970c4836e67828d14975a5b1"
+        }
+      ]
+    },
+    {
+      "name": "acmp-admit-ignores-another-talker",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+          "needle": "A29 a re-bind to another talker admits it",
+          "assertion_present": true,
+          "xml_sha256": "7359458f289ec7af43d1eed1440e332877ccbf6534b69b9c63029087e206dd01"
+        }
+      ]
+    },
+    {
+      "name": "acmp-admit-on-interface-0",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+          "needle": "A29 sink 2's talker on interface 1",
+          "assertion_present": true,
+          "xml_sha256": "4fee01c1be5c3833019a5e994ecd7e9c225fbd4edebd35fad16b558f7f40de86"
+        }
+      ]
+    },
+    {
+      "name": "acmp-admit-port-unflagged",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryPortIsGuarded",
+          "needle": "A23 the port kind 10 is guarded",
+          "assertion_present": true,
+          "xml_sha256": "272d7862460ed29ce5050075840dddf3685f363cfc8beda4b513911390c5aa64"
+        }
+      ]
+    },
+    {
+      "name": "acmp-reset-forgets-the-admitted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+          "needle": "A29 a sink the store resets is withdrawn at the next open",
+          "assertion_present": true,
+          "xml_sha256": "e74ba4a921c6a67d7eb7039511e0c67f5632663cbd9f95806188a2078c72429c"
+        }
+      ]
+    },
+    {
+      "name": "acmp-open-does-nothing",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+          "needle": "A29 acmp_open admits each restored binding's talker",
+          "assertion_present": true,
+          "xml_sha256": "9699af66695aa3c15698cb2d721135e522e311285997ed26a69f37b0859f3b6f"
+        }
+      ]
+    },
+    {
+      "name": "acmp-open-unguarded",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "acmp",
+          "test": "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+          "needle": "A23 a call made from inside the send port is refused, counted and trapped, entry 10",
+          "assertion_present": true,
+          "xml_sha256": "79335f60c13e598e75a5e19504f0f873fea7b65ccb1d6d126d9491896be8f562"
+        }
+      ]
+    },
+    {
+      "name": "maap-down-start-keeps-owner",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ReleaseLossAndRetry",
+          "needle": "starting down withdraws the prior owner",
+          "assertion_present": true,
+          "xml_sha256": "676dc6a39fb5d7a99ed8d5a7494d3983ce067d7edd9d750cdeac0a826148d1a2"
+        }
+      ]
+    },
+    {
+      "name": "maap-initial-send-absent",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitialAndThreeRetransmissions",
+          "needle": "initial PROBE is immediate",
+          "assertion_present": true,
+          "xml_sha256": "51e637235fc7e7ffa4930c73b375fcf802022eeed13cca04e85fb3f99df1beb3"
+        }
+      ]
+    },
+    {
+      "name": "maap-retransmit-count",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitialAndThreeRetransmissions",
+          "needle": "three retransmissions remain",
+          "assertion_present": true,
+          "xml_sha256": "fff4e45c8d692bae87617be407bb260c0cc31dfec1d5f4bc3cb64107bdd6c6c0"
+        }
+      ]
+    },
+    {
+      "name": "maap-probe-count-not-decremented",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitialAndThreeRetransmissions",
+          "needle": "retransmission decrements once",
+          "assertion_present": true,
+          "xml_sha256": "38e93b1640831cef39bcf93f89031d17f0773674fcb6b066b2fdbd4dd7f88b1f"
+        }
+      ]
+    },
+    {
+      "name": "maap-wire-version",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitialAndThreeRetransmissions",
+          "needle": "B.2 complete PROBE bytes",
+          "assertion_present": true,
+          "xml_sha256": "a36aea3a7cc682c0605733087985e6180c089289690e7efdef80e17b64b53c2e"
+        }
+      ]
+    },
+    {
+      "name": "maap-wire-length",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitialAndThreeRetransmissions",
+          "needle": "B.2 complete PROBE bytes",
+          "assertion_present": true,
+          "xml_sha256": "7bdd113f5b459d30713321478485bc2d1af41a44a7ec24cba8893f4d48b21995"
+        }
+      ]
+    },
+    {
+      "name": "maap-wire-source",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitialAndThreeRetransmissions",
+          "needle": "B.2 complete PROBE bytes",
+          "assertion_present": true,
+          "xml_sha256": "df2bd1fe1ffa6dd452f09b4e35891ef3128169f118627674918301a46fd283e6"
+        }
+      ]
+    },
+    {
+      "name": "maap-wire-padding",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitialAndThreeRetransmissions",
+          "needle": "B.2 complete PROBE bytes",
+          "assertion_present": true,
+          "xml_sha256": "db6643af2626c176a75b827678731731b03e0280ff4d061fd1f6e9e2ef3d8261"
+        }
+      ]
+    },
+    {
+      "name": "maap-constant-probe_base",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ConstantsStrictTimersAndSeed",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "d3260f15a9ae1572ae5f9cfce24f4ec991a7067bd291aea1bd8a2159329aeb94"
+        }
+      ]
+    },
+    {
+      "name": "maap-constant-probe_variation",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ConstantsStrictTimersAndSeed",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "81946ba00cec0b37d614baf201bde076e35ec37ee57abe60036c7d97b5b7a8d3"
+        }
+      ]
+    },
+    {
+      "name": "maap-constant-announce_base",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ConstantsStrictTimersAndSeed",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "2bf57afae8d58a8414d5926d4c2cefac6c780fa6870ce34a2285ff61172d9653"
+        }
+      ]
+    },
+    {
+      "name": "maap-constant-announce_variation",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ConstantsStrictTimersAndSeed",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "165351ed123924beb90d93557fc320b701160c1a339771e7db91d1c9a984def1"
+        }
+      ]
+    },
+    {
+      "name": "maap-seed-clock-ignored",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ConstantsStrictTimersAndSeed",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "55cf1a030ff74f7b60b09b54512f4ba6b6a72bf59235e4eed2c262d5855c4fb4"
+        }
+      ]
+    },
+    {
+      "name": "maap-zero-seed-sticks",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ConstantsStrictTimersAndSeed",
+          "needle": "zero sum cannot lock generator",
+          "assertion_present": true,
+          "xml_sha256": "590f68214addf5679fba4f09484de48444c1509920ceeb7cc4487a7b352e290d"
+        }
+      ]
+    },
+    {
+      "name": "maap-biased-random-bucket",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.UniformDrawRejectsIncompleteBucket",
+          "needle": "incomplete random bucket rejected",
+          "assertion_present": true,
+          "xml_sha256": "ba4a9f6c8cb627a973d93946f12abd37ed9d43ecb8e7b202cbe4a077e63943b5"
+        }
+      ]
+    },
+    {
+      "name": "maap-numeric-mac-priority",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ReverseOctetPriority",
+          "needle": "least significant octet decides first",
+          "assertion_present": true,
+          "xml_sha256": "04e1ddabebc20d1e6ff91ac314e4a5e6bbb795a9236b9ff9e04031dff41911a4"
+        }
+      ]
+    },
+    {
+      "name": "maap-defend-multicast",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.DefendEchoAndIntersection",
+          "needle": "echo request and exact intersection",
+          "assertion_present": true,
+          "xml_sha256": "1534c3cdef94ba54c3fcca49b636cf27b6ba13f71767c228cbe2fbf9291c9c55"
+        }
+      ]
+    },
+    {
+      "name": "maap-defend-echo-own-range",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.DefendEchoAndIntersection",
+          "needle": "echo request and exact intersection",
+          "assertion_present": true,
+          "xml_sha256": "a7c1a3840204b0dc77cf7aa4ad5d32773611c78fd66aefba77d4d997a12e2c13"
+        }
+      ]
+    },
+    {
+      "name": "maap-intersection-too-long",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.DefendEchoAndIntersection",
+          "needle": "echo request and exact intersection",
+          "assertion_present": true,
+          "xml_sha256": "ec80e55a23f31b7e4b0044bec34352f0220bcc9076e1ac2479f9987b41396718"
+        }
+      ]
+    },
+    {
+      "name": "maap-adjacent-overlaps",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+          "needle": "half open intervals",
+          "assertion_present": true,
+          "xml_sha256": "6e3ddda1c7f63500f8135610240de565ebe2075f41832f3ef112df7cd783f0e8"
+        }
+      ]
+    },
+    {
+      "name": "maap-zero-count-conflicts",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+          "needle": "half open intervals",
+          "assertion_present": true,
+          "xml_sha256": "2e41fd7db951811f07ea8a00f4b9b7e2a93eda72d5e34f37048481e6d48dc341"
+        }
+      ]
+    },
+    {
+      "name": "maap-defend-checks-request",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+          "needle": "DEFEND tests conflict fields",
+          "assertion_present": true,
+          "xml_sha256": "c2bcb3f880428a78243bbd03b4da61ac623d5a23a73669687acb452067216899"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-ethertype",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "9c871f4be24e8a1f0d9324d9722c3f82475fc43c236cc79d028cb2df7c677c4a"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-subtype",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "0bf0e1fb81d30e42c09ddb6acd2cace43de816e14a9e3656eab31a5e5616166d"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-version",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "a51f12daf993da7160029859ad1fc181205c60dcb164f4035dd8722abd30f4a9"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-reserved-zero",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "90271d2d32dc54d53b1c2d113ccf623bc2714489ef38c76dd22c62511581916d"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-reserved-high",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "0b32bc7dd718ad9bded062c4bf334ab54728ca76ac4daa1ec3ba5836f1ab4075"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-cdl-short",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "780b87728a42f3036f26fb6abf6c03cd1660d61fcb915dedfc7a4c49851d0f19"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-cdl-truncated",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "b11721dcca361b26055d6d05c81d7838ade7c269930f7e9a319feda89b6e53f2"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-cdl-current",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "fbc5444cc1d04605f19584effbe30e1f9f2ccc7ed65cad1fc7c0bae63914a7a3"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-source-zero",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "84a9e6a644c77e68f7ab2aeba2e21032fc366c243c5b0cad35b92733a45c13fd"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-source-group",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "b870cbd8175341402dd69b0bf51a3be3767c3a7db735de15e870fd8acb21dd05"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-destination",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "4ad482aac9eed497e2a445a7c97ffc3324388741f02ebb2d35b9ca228506b924"
+        }
+      ]
+    },
+    {
+      "name": "maap-malformed-own-probe",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "malformed input is rejected",
+          "assertion_present": true,
+          "xml_sha256": "3294dacd844cf004c1361b11379f027aab2be058da116660728ca2496b999560"
+        }
+      ]
+    },
+    {
+      "name": "maap-valid-minimum-refused",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "B.2.3 recognized future",
+          "assertion_present": true,
+          "xml_sha256": "6fd986babf1ad8ed787ce3c787fcb16d75eb96efc7f6aa9d6fc013ac286ec78a"
+        }
+      ]
+    },
+    {
+      "name": "maap-future-version-refused",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.MalformedAndVersionCompatibility",
+          "needle": "B.2.3 recognized future",
+          "assertion_present": true,
+          "xml_sha256": "b741377f8b7ad8e285598dfb33925e5f6f23da4a558b9795ea3ae63593a7b27b"
+        }
+      ]
+    },
+    {
+      "name": "maap-range-end-off-by-one",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitAndPreferredRangeBounds",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "c0008ea60e5f19c7140667849994fe8c378377ef7d8331cac087adb06905a36a"
+        }
+      ]
+    },
+    {
+      "name": "maap-port-up-keeps-claim",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ReleaseLossAndRetry",
+          "needle": "PortOperational invalidates acquired address",
+          "assertion_present": true,
+          "xml_sha256": "cfe045b58b247e622db90baafa48963735a370d01065bae34402a7a6e4c1a01d"
+        }
+      ]
+    },
+    {
+      "name": "maap-release-keeps-enable",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ReleaseLossAndRetry",
+          "needle": "released instance stays idle",
+          "assertion_present": true,
+          "xml_sha256": "e7da86329bbfd6e61043356384037fd46c2b0ed0127aa17d1c5fe7f22bb0f6c9"
+        }
+      ]
+    },
+    {
+      "name": "maap-expiry-forgotten-on-stall",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+          "needle": "original expiry remains owed",
+          "assertion_present": true,
+          "xml_sha256": "f121294ed750a220cb322c57bb14fd39c8c1301770ce8000f62906ac566d83f8"
+        }
+      ]
+    },
+    {
+      "name": "maap-allocation-before-commit",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+          "needle": "allocation waits for committed ANNOUNCE",
+          "assertion_present": true,
+          "xml_sha256": "6a937ac703e35a2a773261e6edbff350e10931a4ab34021d58f51a0d2ecf1997"
+        }
+      ]
+    },
+    {
+      "name": "maap-probe-announce-reordered",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "a3e8895f8f7a1920411d4fa411a1af10752c49b2c9cde2c20c42d492bd87a43e"
+        }
+      ]
+    },
+    {
+      "name": "maap-overflow-uncounted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.QueueBoundAndWithdrawal",
+          "needle": "overload is counted as failure",
+          "assertion_present": true,
+          "xml_sha256": "21bcfa09a553d4a59df65202cddf88a6f443c706bab21ae8f0ad895bcf9318f1"
+        }
+      ]
+    },
+    {
+      "name": "maap-poll-unbounded",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.QueueBoundAndWithdrawal",
+          "needle": "poll has bounded work",
+          "assertion_present": true,
+          "xml_sha256": "09f04e779e4eed17a52cc8e71b54c4386d05571190de7c05a730113eadab4231"
+        }
+      ]
+    },
+    {
+      "name": "maap-release-leaves-output",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.QueueBoundAndWithdrawal",
+          "needle": "",
+          "assertion_present": true,
+          "xml_sha256": "2b8f3b86c135dc0151b9d0609d747a1c5576fc8523dcb29c4dbe58156986e69f"
+        }
+      ]
+    },
+    {
+      "name": "maap-reentry-not-counted",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ReentrantPortsAreCountedAndIgnored",
+          "needle": "all input guards fire",
+          "assertion_present": true,
+          "xml_sha256": "e753c15c0254954941e7b6ed5c855aa55c5330c8bb8a68bb01ac147f5b237fee"
+        }
+      ]
+    },
+    {
+      "name": "maap-debug-no-assert",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap_debug",
+          "test": "MaapDebug.SynchronousExpiryAsserts",
+          "needle": "debug reentry assertion",
+          "assertion_present": true,
+          "xml_sha256": "eacf515a70ee0210044bb8fb6f10f20af4798b1a10d6e5ec2fe08badd92a1a45"
+        }
+      ]
+    },
+    {
+      "name": "maap-stall-unqueued",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+          "needle": "    Which is: 5",
+          "assertion_present": true,
+          "xml_sha256": "4b19abdefe83d18998e523c96fe7356bfc0050428e98165267832c3fdf17d33c"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-0",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/0",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "adac16c7893de229d7b2e875d3bff31ff40cedd2c726c95edc71790d6e8ce2c4"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-1",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/1",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "09c3f0888c9e6efda547f932d183acb73c85a2c0d1a0d38eaa18171f242af34c"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-2",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/2",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "484ca23b981be27f562a693f85f69f8a7dfbc3ca654719ca9aa72b6bd468e011"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-3",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/3",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "5a7803fdbf018891dff45efc6611d6668882fba17ac11d84418f2ac7134216ad"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-4",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/4",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "c85cc759857b62bef3da0a0a2fe57293247bf4be1e6073acd329be157ec87629"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-5",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/5",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "89e2a883dce7529f4e10f48445601c2ea02125d41811aa9828132d610d774f45"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-6",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/6",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "252b97ff44e58a220550150e1f616e242b00b22bbb229f25d2df4ee362b75048"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-7",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/7",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "fd095b50d93122e8278d8c4d739e5e0db0a5b9ae602d594545855bfbeccd7497"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-8",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/8",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "88cd60cc8a1efb57f9d590571cb8468eb87ad0525952f891f13c52cb82804b0b"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-9",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/9",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "a6410b80c54e4f766acf4c7219e4b4b2d60c46c49a02428c3ffb214ffbc2262e"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-10",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/10",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "0bc44c0a3a2e2327053a510ff5ff616c3c1254d5884a50ac48ac3ac2842555d3"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-11",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/11",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "c6ac79fea0de100245fac22c94f0effa08c5f6cf6a1c397a1311763803e77a9b"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-12",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/12",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "52e8992db9b45e48d67863d96a14e8ec515435fe2d96f7b62e6bc43a9f9a2e68"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-13",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/13",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "8562d2fd828eb8490ddf9d2c8892635f25a3754ab88427dca0610423cdf54d03"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-14",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/14",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "e37ff3332c29dd8a1b99ae3d4ad82fbfdde7f62d92bdb056d927ccfa9024c756"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-15",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/15",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "62ed41685893ee58a8db4ce25b8e0626daa1cfd9ac7870f23eb0867f8e26b046"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-16",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/16",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "530b26cd455b5a260f0f7fe89b243430573f22d0db209720cd94629336a130da"
+        }
+      ]
+    },
+    {
+      "name": "maap-table-b7-17",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/17",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "e2bd87d816c51680c5816389b9543f3c62cc7b1fe8b95c872785832fdce03eb0"
+        }
+      ]
+    },
+    {
+      "name": "maap-allocation-seam-disconnected",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.InitialAndThreeRetransmissions",
+          "needle": "Expected: true",
+          "assertion_present": true,
+          "xml_sha256": "057067c65f5e2eb91c2b78fd2c8b26c0caf9b3eea6f847019ec4041a9128bde9"
+        }
+      ]
+    },
+    {
+      "name": "maap-begin-down-forgets-range",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.BeginBeforePortOperationalRetainsRange",
+          "needle": "Begin supplied range survives port down",
+          "assertion_present": true,
+          "xml_sha256": "76f4b39ab423020f93d87a51a17633fa3e757504082be9ddc85af84c07414053"
+        }
+      ]
+    },
+    {
+      "name": "maap-restart-reuses-range",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.RestartDrawsNewRange",
+          "needle": "fixed seed Restart draws a new range",
+          "assertion_present": true,
+          "xml_sha256": "78a6781b7271c0e568c3e42e29538bff8db53fa55a12c80fa17ba26b6db0bc79"
+        }
+      ]
+    },
+    {
+      "name": "maap-reverse-five-octets",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.PriorityAfterTiedOctets",
+          "needle": "every reversed octet decides",
+          "assertion_present": true,
+          "xml_sha256": "29033c16ec91fcf811fed8a58405d27a91035a2a3815d7e7294e11ff005879da"
+        }
+      ]
+    },
+    {
+      "name": "maap-compare-mac-lsb-only",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.PriorityAfterTiedOctets",
+          "needle": "every reversed octet decides",
+          "assertion_present": true,
+          "xml_sha256": "31ce55f20ee8ba66e4037b9fcce879e9099a1823459d1e4c48eb58a1708c6597"
+        }
+      ]
+    },
+    {
+      "name": "maap-generic-initial-handles-conflict",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/0",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "52c64f6ba71e7e57e72f51fb6c031c0f4396a407b5640db73aab95810c1f5c31"
+        }
+      ]
+    },
+    {
+      "name": "maap-generic-probe-state-defends",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/12",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "5910ff9879b01069bb456c764e6a040f3e58b023e5a9c92a351c7a56d343540d"
+        }
+      ]
+    },
+    {
+      "name": "maap-generic-probe-defend-uses-priority",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "AllStates/MaapCell.TableB7/10",
+          "needle": "Table B.7",
+          "assertion_present": true,
+          "xml_sha256": "f3928b16ed00b1eedcba21742dee312f96bebccf4bd147cb2de84a56584cd165"
+        }
+      ]
+    },
+    {
+      "name": "maap-generic-equal-mac-wins",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.ReverseOctetPriority",
+          "needle": "equal MAC is not lower",
+          "assertion_present": true,
+          "xml_sha256": "9c5148f05e8a4ba2e5bba2232839a55babbd437106732e4a6361e3f698e838a3"
+        }
+      ]
+    },
+    {
+      "name": "r2-saved-range-never-consumed",
+      "status": "CAUGHT",
+      "required_kills": 1,
+      "all_named_assertions_present": true,
+      "proofs": [
+        {
+          "arm": "maap",
+          "test": "MaapCore.LinkBounceDrawsAfterSuppliedRange",
+          "needle": "link bounce draws after consuming supplied range",
+          "assertion_present": true,
+          "xml_sha256": "bb8c3281ac39c9362500c6d793e09625b21aa66f287ecad437eae4b71c41a719"
+        }
+      ]
+    }
+  ]
+}

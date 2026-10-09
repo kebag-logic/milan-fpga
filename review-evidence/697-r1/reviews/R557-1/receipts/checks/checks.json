@@ -1,0 +1,182 @@
+[
+  {
+    "check": "gcc-configure",
+    "rc": 0,
+    "seconds": 0.72,
+    "command": [
+      "cmake",
+      "-S",
+      "$REPOSITORY",
+      "-B",
+      "$REVIEW_SCRATCH/checks/gcc",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DCMAKE_C_COMPILER=gcc",
+      "-DCMAKE_CXX_COMPILER=g++",
+      "-DTSN_COVERAGE=ON"
+    ]
+  },
+  {
+    "check": "gcc-build",
+    "rc": 0,
+    "seconds": 3.98,
+    "command": [
+      "make",
+      "-C",
+      "$REVIEW_SCRATCH/checks/gcc",
+      "-j16"
+    ]
+  },
+  {
+    "check": "sanitizers-configure",
+    "rc": 0,
+    "seconds": 0.87,
+    "command": [
+      "cmake",
+      "-S",
+      "$REPOSITORY",
+      "-B",
+      "$REVIEW_SCRATCH/checks/sanitizers",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DCMAKE_C_COMPILER=clang",
+      "-DCMAKE_CXX_COMPILER=clang++",
+      "-DTSN_SANITIZERS=ON"
+    ]
+  },
+  {
+    "check": "sanitizers-build",
+    "rc": 0,
+    "seconds": 4.36,
+    "command": [
+      "make",
+      "-C",
+      "$REVIEW_SCRATCH/checks/sanitizers",
+      "-j16"
+    ]
+  },
+  {
+    "check": "mutation",
+    "rc": 0,
+    "seconds": 19.54,
+    "command": [
+      "python3",
+      "scripts/mutation.py",
+      "--work",
+      "$REVIEW_SCRATCH/checks/mutations",
+      "--jobs",
+      "8"
+    ]
+  },
+  {
+    "check": "static-analysis",
+    "rc": 0,
+    "seconds": 10.91,
+    "command": [
+      "python3",
+      "scripts/static_analysis.py"
+    ]
+  },
+  {
+    "check": "check_boundary",
+    "rc": 0,
+    "seconds": 0.07,
+    "command": [
+      "python3",
+      "scripts/check_boundary.py",
+      "--selftest"
+    ]
+  },
+  {
+    "check": "check_license",
+    "rc": 0,
+    "seconds": 0.11,
+    "command": [
+      "python3",
+      "scripts/check_license.py",
+      "--selftest"
+    ]
+  },
+  {
+    "check": "traceability",
+    "rc": 0,
+    "seconds": 0.06,
+    "command": [
+      "python3",
+      "scripts/traceability.py",
+      "--selftest"
+    ]
+  },
+  {
+    "check": "test_inventory",
+    "rc": 0,
+    "seconds": 0.11,
+    "command": [
+      "python3",
+      "scripts/test_inventory.py"
+    ]
+  },
+  {
+    "check": "coverage_selftest",
+    "rc": 0,
+    "seconds": 0.06,
+    "command": [
+      "python3",
+      "scripts/coverage_selftest.py"
+    ]
+  },
+  {
+    "check": "check_privacy",
+    "rc": 0,
+    "seconds": 1.07,
+    "command": [
+      "python3",
+      "scripts/check_privacy.py"
+    ]
+  },
+  {
+    "check": "render_graphs",
+    "rc": 0,
+    "seconds": 2.48,
+    "command": [
+      "python3",
+      "scripts/render_graphs.py",
+      "--output",
+      "$REVIEW_SCRATCH/checks/graphs"
+    ]
+  },
+  {
+    "check": "gcc-test",
+    "rc": 0,
+    "seconds": 0.42,
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEW_SCRATCH/checks/gcc",
+      "--output-on-failure",
+      "-V",
+      "-j1"
+    ]
+  },
+  {
+    "check": "coverage",
+    "rc": 0,
+    "seconds": 0.11,
+    "command": [
+      "python3",
+      "scripts/coverage.py",
+      "$REVIEW_SCRATCH/checks/gcc"
+    ]
+  },
+  {
+    "check": "sanitizers-test",
+    "rc": 0,
+    "seconds": 0.72,
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEW_SCRATCH/checks/sanitizers",
+      "--output-on-failure",
+      "-V",
+      "-j1"
+    ]
+  }
+]

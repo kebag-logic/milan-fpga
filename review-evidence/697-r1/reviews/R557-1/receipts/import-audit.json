@@ -1,0 +1,300 @@
+{
+  "files": [
+    {
+      "source": "sw/firmware/ctrl/adp/adp.c",
+      "destination": "src/adp.c",
+      "equal_after_spdx": true,
+      "sha256": "48c5059d066fc6bb75a30f748792d98bbce7e661e0f29255b721101cf143d7e0"
+    },
+    {
+      "source": "sw/firmware/ctrl/adp/adp.h",
+      "destination": "include/adp.h",
+      "equal_after_spdx": true,
+      "sha256": "86f49358bed0cdbb69cc3eca8f3163df7af1508628a32b7e5c8083a986d02188"
+    },
+    {
+      "source": "sw/firmware/ctrl/acmp/acmp.c",
+      "destination": "src/acmp.c",
+      "equal_after_spdx": true,
+      "sha256": "040ff704cbf4315a93faacd1013726172e05f4b78fff8aab7458b799a2871859"
+    },
+    {
+      "source": "sw/firmware/ctrl/acmp/acmp.h",
+      "destination": "include/acmp.h",
+      "equal_after_spdx": true,
+      "sha256": "2241b931d413fd0c1bc7d2a1e07ac8e02c1f1568b051ac0a4d2645d8db86e713"
+    },
+    {
+      "source": "sw/firmware/ctrl/maap/maap.c",
+      "destination": "src/maap.c",
+      "equal_after_spdx": true,
+      "sha256": "6b8d2d542904c08bda86acf59a5661f39906b08a880340680d19381272876dca"
+    },
+    {
+      "source": "sw/firmware/ctrl/maap/maap.h",
+      "destination": "include/maap.h",
+      "equal_after_spdx": true,
+      "sha256": "37316d0f1453678f993149380cc6475e75037e953e4be08215d73ffd3610b5e6"
+    },
+    {
+      "source": "sw/firmware/ctrl/wire/wire.h",
+      "destination": "include/wire.h",
+      "equal_after_spdx": true,
+      "sha256": "f88b3a74bd956dcda2e2c17ae5e2564d4dd93f876f533b1a581a948c281f63fd"
+    },
+    {
+      "test": "test_adp.cpp",
+      "source_core_declarations": 15,
+      "destination_declarations": 18,
+      "removed": [],
+      "added": [
+        [
+          "AdpCore",
+          "EntityFieldsUseIndependentCounts"
+        ],
+        [
+          "AdpCore",
+          "LinkLevelsAndDisabledInputs"
+        ],
+        [
+          "AdpCore",
+          "MockedPortOrder"
+        ]
+      ],
+      "equal_after_declared_cleanup_and_annotations": false
+    },
+    {
+      "test": "test_adp_reentry.cpp",
+      "source_core_declarations": 3,
+      "destination_declarations": 3,
+      "removed": [],
+      "added": [],
+      "equal_after_declared_cleanup_and_annotations": true
+    },
+    {
+      "test": "test_acmp.cpp",
+      "source_core_declarations": 63,
+      "destination_declarations": 67,
+      "removed": [],
+      "added": [
+        [
+          "AcmpCore",
+          "CommandPortBudgets"
+        ],
+        [
+          "AcmpCore",
+          "DepartingStopsEveryProbingTimer"
+        ],
+        [
+          "AcmpCore",
+          "DiscoveryPortBudgets"
+        ],
+        [
+          "AcmpCore",
+          "TimerPortBudgets"
+        ]
+      ],
+      "equal_after_declared_cleanup_and_annotations": false
+    },
+    {
+      "test": "acmp_fake.hpp",
+      "source_core_declarations": 0,
+      "destination_declarations": 0,
+      "removed": [],
+      "added": [],
+      "equal_after_declared_cleanup_and_annotations": true
+    },
+    {
+      "test": "test_maap.cpp",
+      "source_core_declarations": 17,
+      "destination_declarations": 17,
+      "removed": [],
+      "added": [],
+      "equal_after_declared_cleanup_and_annotations": true
+    },
+    {
+      "test": "test_maap_debug.cpp",
+      "source_core_declarations": 1,
+      "destination_declarations": 1,
+      "removed": [],
+      "added": [],
+      "equal_after_declared_cleanup_and_annotations": true
+    }
+  ],
+  "history": [
+    {
+      "commit": "b9b9c20a9a44650e176db0c72ad7c752bee20dc4",
+      "holder_identity": true,
+      "subject": "Add standalone validation and portable stack documentation",
+      "single_line": true
+    },
+    {
+      "commit": "e529a7b09a783f42290abbb5f5a08724ba5d2e37",
+      "holder_identity": true,
+      "subject": "Import portable protocol cores and core tests",
+      "single_line": true
+    },
+    {
+      "commit": "b2fb516129fa941f43e8adcd10fb0a62cb686c50",
+      "holder_identity": true,
+      "subject": "Start the repository with the MIT licence and a README",
+      "single_line": true
+    },
+    {
+      "commit": "21d132baa148f4731a1622b425e4327c1ac7a44f",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "45f901f73a04567cdf34447bc1fe7a597472b0c8",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "04ef07dcd7a2bf91bbda88931023524d96f4e658",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "7880839b74e962d71fcd0cc55fc392d091f5c036",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "537548433829e238e714eb752a2a3b3419b88be1",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "c369add12886fba546683c340a19d1b94c6d2a11",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "fc80b724a5b347feb82293e81d81cd4e8b51cc7a",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "bcc88a9325f43a2a4e40ac7d5771d6f059c67334",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "03326a8f1a2c8180a8aa62b633c6cdc56b81598b",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "31d1b2cbc12e3e112f454cb505dd0f425aa3c93c",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "ba5cf26d3e156d01d64eafed60a906e8162a56f2",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "8af735b2b498928699847a14ff0128e9920dc613",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "c6a4168f361e5ed90d3430df11a1ed65421c64ca",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "6ad854091fa6e6fed5878f5be4215200a797d9ee",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "590edd350f8b8790002b2ca7972b55ddea4d3c84",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "3205c29e583e6f395ded7921674f59c119a07f9e",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "53e6b06b7660876748cce9b6c6c9838cf0def922",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "3b0ad89f7ef09d05349b494c0abd539c76abe446",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "53d4b4f171107808df5f053c74b27044d126ebcf",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "42bb384d69cffc46b80c073c01d32edb78c51c19",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "e279a12585c918534846d8c4742f3ce5368c228a",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "578e1c608e8e896466b1b997f94cb567b972f279",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "9911f6586778abd8f9c5f81ffbc7c0343a9c9d7d",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "dca441ce463702e231652d20e6c4adaeef4fe99e",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "724b6152b811eeb0ede28f425b3097bf294d5adb",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    },
+    {
+      "commit": "7eec4a874bf68a00f5a134ef83314d9d78a9becd",
+      "holder_identity": true,
+      "subject": "Update portable protocol cores and tests",
+      "single_line": true
+    }
+  ]
+}

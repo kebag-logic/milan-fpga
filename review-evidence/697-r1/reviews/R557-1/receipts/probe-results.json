@@ -1,0 +1,88 @@
+{
+  "boundary_normal_outside_include": {
+    "rc": 1,
+    "output": "boundary: valid control passes; seven forbidden controls refused\nsrc/review_control.c: forbidden include: #include <unistd.h>\n"
+  },
+  "boundary_digraph_outside_include": {
+    "rc": 0,
+    "output": "boundary: valid control passes; seven forbidden controls refused\nboundary: pass\n"
+  },
+  "boundary_digraph_compiles": {
+    "rc": 0,
+    "output": ""
+  },
+  "trace_unindented_unknown": {
+    "rc": 1,
+    "output": "traceability: unknown ID, untraced test and untested requirement controls refused\nunknown requirement: UNKNOWN-REVIEW-ID\n"
+  },
+  "trace_indented_unknown": {
+    "rc": 0,
+    "output": "traceability: unknown ID, untraced test and untested requirement controls refused\ntraceability: 17 requirements; 107 test declarations\n"
+  },
+  "inventory_indented_unmapped": {
+    "rc": 0,
+    "output": "test sensitivity: 107 declarations, 311 plants\n"
+  },
+  "trace_indented_compiles": {
+    "rc": 0,
+    "output": ""
+  },
+  "trace_indented_links": {
+    "rc": 0,
+    "output": ""
+  },
+  "trace_indented_runs": {
+    "rc": 0,
+    "output": "Note: Google Test filter = ReviewControl.*\n[==========] Running 1 test from 1 test suite.\n[----------] Global test environment set-up.\n[----------] 1 test from ReviewControl\n[ RUN      ] ReviewControl.UnrecognizedRequirement\n[       OK ] ReviewControl.UnrecognizedRequirement (0 ms)\n[----------] 1 test from ReviewControl (0 ms total)\n\n[----------] Global test environment tear-down\n[==========] 1 test from 1 test suite ran. (0 ms total)\n[  PASSED  ] 1 test.\n"
+  },
+  "stale_original_plant": {
+    "name": "departing-keeps-index",
+    "path": "src/adp.c",
+    "old": "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
+    "new": "\tuint32_t index = a->available_index;\n",
+    "kills": [
+      {
+        "test": "AdpCore.A6toA8DeferredSends",
+        "needle": "A8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset"
+      },
+      {
+        "test": "ExamplePort.DefersExpiryAndRetainsBlockedOutput",
+        "needle": "shutdown resets",
+        "arm": "port"
+      }
+    ],
+    "original_tests": [
+      "Table551/AdpWalkCell.Graded/"
+    ]
+  },
+  "stale_campaign": {
+    "rc": 0,
+    "output": "CAUGHT departing-keeps-index\n{\"CAUGHT\": 1, \"ESCAPED\": 0, \"ERROR\": 0}\n"
+  },
+  "stale_campaign_results": [
+    {
+      "name": "departing-keeps-index",
+      "status": "CAUGHT",
+      "rc": 1,
+      "failures": {
+        "AdpCore.A6toA8DeferredSends": "$REPOSITORY/tests/test_adp.cpp:207\nValue of: a.departing_owed == 1u && a.available_index == 0u && a.state == ADP_STATE_DOWN\n  Actual: false\nExpected: true\nA8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset\n",
+        "ExamplePort.DefersExpiryAndRetainsBlockedOutput": "$REPOSITORY/tests/test_port.cpp:23\nExpected equality of these values:\n  p.core.available_index\n    Which is: 1\n  0u\n    Which is: 0\nshutdown resets the next advertisement index\n"
+      },
+      "tests": 1
+    }
+  ],
+  "stale_xml_unchanged": true,
+  "fresh_campaign": {
+    "rc": 1,
+    "output": "ESCAPED departing-keeps-index\n{\"CAUGHT\": 0, \"ESCAPED\": 1, \"ERROR\": 0}\n"
+  },
+  "fresh_campaign_results": [
+    {
+      "name": "departing-keeps-index",
+      "status": "ESCAPED",
+      "rc": 1,
+      "failures": {},
+      "tests": 0
+    }
+  ]
+}

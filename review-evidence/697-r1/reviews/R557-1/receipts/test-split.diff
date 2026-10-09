@@ -1,0 +1,161 @@
+--- pinned/test_adp.cpp
++++ import/test_adp.cpp
+@@ -4,6 +4,7 @@
+ // ADP core cases over fake ports.
+ 
+ #include <gtest/gtest.h>
++#include <gmock/gmock.h>
+ 
+ #include <cstddef>
+ #include <cstdint>
+@@ -590,4 +591,77 @@
+ TEST(AdpCore, A23RepeatedEnableOrDisableChangesNothing) { core_enable_idempotent(); }
+ TEST(AdpCore, A24OtherEtherTypeOrSubtypeDiscarded) { core_discard_kinds(); }
+ 
++
++TEST(AdpCore, LinkLevelsAndDisabledInputs) {
++    adp a;
++    uint8_t f[ADP_FRAME_BYTES];
++    fresh(&a, true);
++    discover(f, ADP_MSG_ENTITY_DISCOVER, 0);
++    adp_rx(&a, f, sizeof f);
++    adp_gm_change(&a);
++    EXPECT_EQ(fk.sends, 0u);
++    EXPECT_EQ(fk.starts, 0u);
++    adp_set_enable(&a, true);
++    const auto starts = fk.starts;
++    adp_link_change(&a, true);
++    EXPECT_EQ(fk.starts, starts) << "duplicate link level keeps the timer";
++    adp_link_change(&a, false);
++    EXPECT_EQ(a.state, ADP_STATE_DOWN);
++    adp_rx(&a, f, sizeof f);
++    EXPECT_EQ(a.state, ADP_STATE_DOWN) << "DOWN ignores discovery";
++    adp_set_enable(&a, false);
++    EXPECT_EQ(fk.sends, 0u) << "shutdown in DOWN sends nothing";
++}
++
++TEST(AdpCore, EntityFieldsUseIndependentCounts) {
++    auto e = entity;
++    e.talker_stream_sources = 7;
++    e.listener_stream_sinks = 3;
++    adp a;
++    fresh(&a, true);
++    adp_init(&a, &e, a.ports, 2, 0x1234);
++    uint8_t f[ADP_FRAME_BYTES];
++    adp_build(&a, 0, 0x87654321, f);
++    EXPECT_EQ(wire_be16(f + 38), 7u) << "talker count is independent of listener count";
++    EXPECT_EQ(wire_be16(f + 42), 3u);
++    EXPECT_EQ(wire_be16(f + 64), 0x1234u);
++    EXPECT_EQ(wire_be16(f + 68), 2u);
++}
++
++class AdpPortMock {
++ public:
++    MOCK_METHOD(bool, Send, (const uint8_t*, size_t));
++    MOCK_METHOD(void, Start, (uint32_t));
++    MOCK_METHOD(void, Stop, ());
++    MOCK_METHOD(void, Gptp, (uint64_t*, uint8_t*));
++    MOCK_METHOD(bool, Link, ());
++    MOCK_METHOD(uint32_t, Seed, ());
++};
++
++TEST(AdpCore, MockedPortOrder) {
++    using namespace testing;
++    StrictMock<AdpPortMock> mock;
++    adp_ports ports = {
++        &mock,
++        [](void* c, unsigned, const uint8_t* f, size_t n) { return static_cast<AdpPortMock*>(c)->Send(f, n); },
++        [](void* c, unsigned, uint32_t ms) { static_cast<AdpPortMock*>(c)->Start(ms); },
++        [](void* c, unsigned) { static_cast<AdpPortMock*>(c)->Stop(); },
++        [](void* c, unsigned, uint64_t* gm, uint8_t* d) { static_cast<AdpPortMock*>(c)->Gptp(gm, d); },
++        [](void* c, unsigned) { return static_cast<AdpPortMock*>(c)->Link(); },
++        [](void* c) { return static_cast<AdpPortMock*>(c)->Seed(); }
++    };
++    adp a;
++    adp_init(&a, &entity, &ports, 0, 0);
++    InSequence sequence;
++    EXPECT_CALL(mock, Seed()).WillOnce(Return(1u));
++    EXPECT_CALL(mock, Link()).WillOnce(Return(true));
++    EXPECT_CALL(mock, Start(Le(2000u)));
++    adp_set_enable(&a, true);
++    EXPECT_CALL(mock, Gptp(_, _)).WillOnce(DoAll(SetArgPointee<0>(1u), SetArgPointee<1>(0u)));
++    EXPECT_CALL(mock, Send(_, 82u)).WillOnce(Return(true));
++    EXPECT_CALL(mock, Start(5000u));
++    adp_timer_expired(&a);
++    EXPECT_EQ(a.state, ADP_STATE_WAITING);
++}
++
+ } // namespace
+--- pinned/test_acmp.cpp
++++ import/test_acmp.cpp
+@@ -1907,4 +1907,70 @@
+         << "A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry";
+ }
+ 
++
++TEST_F(AcmpCore, DepartingStopsEveryProbingTimer) {
++    for (const auto state : {ACMP_PRB_W_DELAY, ACMP_PRB_W_RESP, ACMP_PRB_W_RESP2, ACMP_PRB_W_RETRY}) {
++        SetUp();
++        to_state(0, state);
++        adp(Adp{});
++        fk.clear();
++        Adp departing;
++        departing.msg = spec::ADPDU_ENTITY_DEPARTING;
++        adp(departing);
++        EXPECT_EQ(a.sinks[0].state, ACMP_PRB_W_AVAIL);
++        EXPECT_EQ(a.sinks[0].timer, ACMP_TIMER_NONE);
++        EXPECT_FALSE(a.sinks[0].discovered);
++        EXPECT_EQ(a.sinks[0].probing, ACMP_PROBING_PASSIVE);
++        EXPECT_EQ(fk.count(Call::CHANGED), 1u) << "departing publishes the passive probing status";
++    }
++}
++
++TEST_F(AcmpCore, CommandPortBudgets) {
++    bind(0);
++    EXPECT_EQ(fk.count(Call::NOW), 1u) << "BIND reads the clock after the accepted probe";
++    fk.clear();
++    rx(command(spec::MSG_GET_RX_STATE_COMMAND, 0));
++    EXPECT_EQ(fk.count(Call::NOW), 0u) << "GET_RX_STATE needs no clock";
++    fk.clear();
++    rx(probe_answer(0));
++    EXPECT_EQ(fk.count(Call::NOW), 1u) << "successful probe response starts one reservation timer";
++    fk.clear();
++    rx(command(spec::MSG_UNBIND_RX_COMMAND, 0));
++    EXPECT_EQ(fk.count(Call::NOW), 0u) << "UNBIND needs no clock";
++    fk.clear();
++    Pdu p; p.msg = spec::MSG_GET_TX_STATE_COMMAND; p.talker = kOwn;
++    rx(p);
++    EXPECT_EQ(fk.count(Call::NOW), 0u) << "talker response needs no clock";
++}
++
++TEST_F(AcmpCore, TimerPortBudgets) {
++    for (const auto state : {ACMP_PRB_W_DELAY, ACMP_PRB_W_RESP, ACMP_PRB_W_RESP2,
++                             ACMP_PRB_W_RETRY, ACMP_SETTLED_NO_RSV}) {
++        SetUp();
++        to_state(0, state);
++        if (state == ACMP_PRB_W_RETRY) { adp(Adp{}); }
++        fk.clear();
++        fire(0);
++        const unsigned clocks = (state == ACMP_PRB_W_DELAY || state == ACMP_PRB_W_RESP) ? 2u : 1u;
++        EXPECT_EQ(fk.count(Call::NOW), clocks) << "timer clock budget for state " << state;
++        EXPECT_EQ(fk.count(Call::GPTP), 0u) << "timer expiry never samples the grandmaster";
++    }
++}
++
++TEST_F(AcmpCore, DiscoveryPortBudgets) {
++    bind(0);
++    fk.clear();
++    adp(Adp{});
++    EXPECT_EQ(fk.count(Call::NOW), 1u) << "AVAILABLE starts one discovery deadline";
++    EXPECT_EQ(fk.count(Call::GPTP), 1u);
++    fk.clear();
++    Adp gone; gone.msg = spec::ADPDU_ENTITY_DEPARTING;
++    adp(gone);
++    EXPECT_EQ(fk.count(Call::GPTP), 0u) << "DEPARTING needs no grandmaster";
++    adp(Adp{});
++    fk.clear();
++    fire_adp(0);
++    EXPECT_EQ(fk.count(Call::GPTP), 0u) << "aging needs no grandmaster";
++}
++
+ }  // namespace
