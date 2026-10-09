@@ -278,8 +278,14 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 		arm(a);
 		return;
 	}
-	if ((msg != 0u && msg != 6u) || wire_be64(p + 4) != a->cfg.entity_id) {
+	// IEEE Table 9-1: reserved/extended message types have no command contract.
+	if ((msg != 0u && msg != 2u && msg != 4u && msg != 6u && msg != 8u) ||
+	    wire_be64(p + 4) != a->cfg.entity_id) {
 		++a->ignored;
+		return;
+	}
+	if (msg == 8u && bytes < 28u) {
+		++a->malformed;
 		return;
 	}
 	if (!aecp_ready(a)) {
@@ -298,6 +304,16 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 	header(a, interface, source, a->cfg.entity_id, a->requester, (uint16_t)wire_be16(p + 20), cmd, msg + 1u);
 	if (msg == 6u) {
 		mvu(a, p, bytes);
+	} else if (msg == 8u) {
+		// IEEE 9.7.4: empty HDCP data, retaining flags and fragment offset.
+		wire_put_be(a->response + 36, 0u, 2);
+		a->response[38] = p[24];
+		memcpy(a->response + 40, p + 26, 2u);
+		finish(a, AECP_NOT_IMPLEMENTED, 4u);
+	} else if (msg == 2u || msg == 4u) {
+		// IEEE 9.4.4/9.4.5 and 9.5.4/9.5.5: unsupported AA and AV/C.
+		memcpy(a->response + 36, p + 22, bytes - 22u);
+		finish(a, AECP_NOT_IMPLEMENTED, bytes - 24u);
 	} else {
 		size_t result = 0;
 		unsigned status;

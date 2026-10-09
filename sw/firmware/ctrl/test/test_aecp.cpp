@@ -1123,7 +1123,7 @@ TEST_F(Core, FramingRejectsInvalidIdentityAndTruncation)
     for(auto [at,value]:std::vector<std::array<unsigned,2>>{{0,0xff},{12,0},{14,0xfa},{15,0x10},{16,0x07},{17,1}}){
         auto p=original;p[at]=value;aecp_rx(&a,0,p.data(),p.size());
     }
-    auto p=original;p[18]^=1;aecp_rx(&a,0,p.data(),p.size());p=original;p[15]=2;aecp_rx(&a,0,p.data(),p.size());
+    auto p=original;p[18]^=1;aecp_rx(&a,0,p.data(),p.size());p=original;p[15]=10;aecp_rx(&a,0,p.data(),p.size());
     aecp_rx(&a,2,original.data(),original.size());p.resize(AECP_FRAME_BYTES+1);aecp_rx(&a,0,p.data(),p.size());
     EXPECT_TRUE(sent.empty());EXPECT_EQ(a.ignored,2u);EXPECT_EQ(a.malformed,46u);
 }
@@ -1213,6 +1213,42 @@ TEST_F(Core, InitRefusalsAndClosedService)
     maps[0].default_count=65;EXPECT_FALSE(aecp_init(&a,&cfg,&ports));maps[0].default_count=0;
     EXPECT_TRUE(aecp_init(&a,&cfg,&ports));EXPECT_FALSE(aecp_ready(&a));EXPECT_FALSE(aecp_poll(&a));
     auto p=command(2);aecp_rx(&a,0,p.data(),p.size());EXPECT_TRUE(sent.empty());
+}
+
+TEST_F(Core, NonAemMessageTypesFollowTheirOwnContracts)
+{
+    for(unsigned interface=0;interface<AECP_TEST_INTERFACES;++interface){
+        for(unsigned msg:{2u,4u,8u}){
+            // Nonzero type-specific fields expose accidental AEM decoding.
+            auto request=command(0xc123,Bytes{0xa5,0,0x12,0x34,0xde,0xad},CTLR,interface,msg);
+            if(msg==8)put(request,36,2,2);
+            sent.clear();room=false;aecp_rx(&a,interface,request.data(),request.size());drain();
+            EXPECT_TRUE(sent.empty());room=true;drain();ASSERT_EQ(sent.size(),1u);
+            const auto &reply=sent[0].second;
+            EXPECT_EQ(sent[0].first,interface);EXPECT_EQ(reply[15],msg+1)<<"type-specific response";
+            EXPECT_EQ(get(reply,16,2)>>11,1u)<<"unsupported protocol returns NOT_IMPLEMENTED";
+            EXPECT_EQ(get(reply,16,2)&2047,reply.size()-26);
+            EXPECT_EQ(get(reply,0,6),CMAC);EXPECT_EQ(get(reply,6,6),MAC+interface);
+            EXPECT_TRUE(std::equal(reply.begin()+18,reply.begin()+36,request.begin()+18));
+            if(msg==8){
+                EXPECT_EQ(reply.size(),42u)<<"HDCP refusal contains no data";
+                EXPECT_EQ(get(reply,36,2),0u)<<"HDCP refusal clears data length";
+                EXPECT_EQ(reply[38],0xa5);EXPECT_EQ(reply[39],0u);
+                EXPECT_EQ(get(reply,40,2),0x1234u)<<"HDCP preserves fragment offset";
+            }else EXPECT_EQ(Bytes(reply.begin()+36,reply.end()),Bytes(request.begin()+36,request.end()));
+        }
+    }
+    for(unsigned msg:{3u,5u,7u,9u,10u,11u,12u,13u,14u,15u}){
+        auto request=command(0,Bytes(8),CTLR,0,msg);sent.clear();unsigned before=a.ignored;
+        aecp_rx(&a,0,request.data(),request.size());drain();
+        EXPECT_TRUE(sent.empty())<<"reserved, extended and unrequested responses are ignored";
+        EXPECT_EQ(a.ignored,before+1);
+    }
+    for(unsigned bytes=0;bytes<4;++bytes){
+        auto request=command(0,Bytes(bytes),CTLR,0,8);unsigned before=a.malformed;
+        aecp_rx(&a,0,request.data(),request.size());drain();EXPECT_TRUE(sent.empty());
+        EXPECT_EQ(a.malformed,before+1)<<"HDCP requires its complete fixed header";
+    }
 }
 
 TEST_F(Core, MilanVendorCommandsAndRefusals)

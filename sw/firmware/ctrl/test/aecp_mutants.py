@@ -32,6 +32,11 @@ def defect(name: str, file: str, old: str, new: str,
 
 
 DEFECTS = (
+    defect('hdcp-data-length-echo', 'aecp.c',
+           'wire_put_be(a->response + 36, 0u, 2);',
+           'wire_put_be(a->response + 36, wire_be16(p + 22), 2);',
+           ('Core.NonAemMessageTypesFollowTheirOwnContracts',
+            'HDCP refusal clears data length')),
     defect('cross-instance-guard-removed', 'aecp.c',
            'port_owner != NULL || (a != NULL && a->in_port)',
            'a != NULL && a->in_port',

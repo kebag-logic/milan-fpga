@@ -21,7 +21,7 @@ The command owner implements entity availability, acquisition refusal and locks;
 configuration, names, stream formats and information; rates and clock sources;
 IDENTIFY control; START/STOP; registration; AVB information, AS path, counters,
 audio mappings and dynamic information. MVU implements Milan information and
-system unique ID. Other commands return NOT_IMPLEMENTED, except the required
+system unique ID. Other AEM commands return NOT_IMPLEMENTED, except the required
 BAD_ARGUMENTS response to a solicited IDENTIFY_NOTIFICATION. The command model
 consolidation remains owed while
 [processor #73](https://github.com/kebag-logic/protocol-processor/issues/73)
@@ -84,6 +84,21 @@ stream/channel ownership is global across output ports. An accepted default-valu
 SET still establishes a persistent override. Store dirty marks are queued for
 later polling. The reserved system-ID/media-clock-reference saved spans remain
 erased; system unique ID is volatile until a record-format decision is made.
+
+## Non-AEM message contract
+
+| Message type | Decision and clause | Reference wire difference |
+|---|---|---|
+| AA_COMMAND (2) | AA_RESPONSE / NOT_IMPLEMENTED; IEEE 9.4.4/9.4.5. Type-specific body is retained. | None. |
+| AVC_COMMAND (4) | AVC_RESPONSE / NOT_IMPLEMENTED; IEEE 9.5.4/9.5.5. Type-specific body is retained. | None. |
+| VENDOR_UNIQUE_COMMAND (6) | Milan MVU commands as above; other protocols/commands return NOT_IMPLEMENTED under IEEE 9.6.4. | System-ID difference recorded below. |
+| HDCP_APM_COMMAND (8) | HDCP_APM_RESPONSE / NOT_IMPLEMENTED with zero data length, preserved sequence, flags and fragment offset; IEEE 9.7.4. | The reference echoes the HDCP data and length; the core sends no HDCP data. |
+| Reserved (10, 12), EXTENDED_COMMAND (14) | Ignore: IEEE Table 9-1 and 9.2.2.4 assign no defined protocol handling to these values. | The reference returns an odd message type with status 1; the core emits nothing. |
+| Response types | Ignore unsolicited responses, except matching AEM availability responses (IEEE 9.3.2.5). | No additional response generated. |
+
+`Core.NonAemMessageTypesFollowTheirOwnContracts` checks these decisions,
+including the complete HDCP fixed header, transmit stalls and both interfaces.
+No reserved message type is interpreted as an AEM command.
 
 ## Verification and limits
 
