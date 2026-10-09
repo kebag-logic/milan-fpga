@@ -1,0 +1,20 @@
+run 37973662908 (rtl-full, pull_request) head_sha 62c261c2d1b899a9cf90c901b25b5a85846dfef6; job 113966628806 Verilator shard 0/5
+2026-10-09T18:30:56.1920355Z HEAD is now at d44e3e4 Merge 62c261c2d1b899a9cf90c901b25b5a85846dfef6 into 7c1b52bee26b497080ee22b1c1986109f80a5ee7
+2026-10-09T18:32:09.3559591Z shard: 0/5   selected suites: 12
+2026-10-09T18:32:25.9924535Z PASS     aaf_latency_tap_bank
+2026-10-09T18:32:36.7694487Z PASS     avtp_stream
+2026-10-09T18:32:42.0846441Z PASS     cls
+2026-10-09T18:32:47.3788339Z PASS     eth_tx_reset
+2026-10-09T18:52:39.8148535Z PASS     follow_ring
+2026-10-09T18:53:49.5941035Z PASS     gptp_txts
+2026-10-09T18:53:54.9880695Z PASS     i2spb
+2026-10-09T18:54:00.2836247Z PASS     ifg
+2026-10-09T19:12:22.2490590Z PASS     milan_dp_render
+2026-10-09T19:12:45.6658319Z PASS     ptp
+2026-10-09T19:12:51.0596539Z PASS     queues
+2026-10-09T19:13:07.5806414Z PASS     rx_filter
+2026-10-09T19:13:07.5806905Z ----------------------------------------------------------------
+2026-10-09T19:13:07.5807355Z suites: 12   passed: 12   failed: 0   timed out: 0
+2026-10-09T19:13:07.6562655Z checks: 402117   in-suite failures: 0
+window milan_dp_render = 19:12:22.249059 - 18:54:00.283683 = 1101.965 s (margin 338.035 s to 1440, 698.035 s to 1800)
+window follow_ring = 18:52:39.814853 - 18:32:47.378833 = 1192.436 s (under 1260)

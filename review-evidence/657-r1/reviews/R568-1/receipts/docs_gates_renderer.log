@@ -1,0 +1,16 @@
+### venv-python -B scripts/gen_toc.py --check
+TOC gate: OK (140 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### rc=0 : scripts/gen_toc.py --check
+### venv-python -B scripts/gen_toc.py --verify-anchors
+anchor check: 417 existing cross-page fragment links reproduced
+### rc=0 : scripts/gen_toc.py --verify-anchors
+### venv-python -B scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+check_em_dash: 0 finding(s) over 23 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5603c353..HEAD]
+### rc=0 : scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+### venv-python -B scripts/docs_check.py
+docs_check: 0 finding(s) across 200 md files + 1208 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### rc=0 : scripts/docs_check.py
+### venv-python -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### rc=0 : scripts/check_doc_style.py
+Python 3.14.7

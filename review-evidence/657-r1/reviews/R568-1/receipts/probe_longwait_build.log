@@ -1,0 +1,10 @@
+../sim_tdm8_render.cpp: In member function ‘void {anonymous}::TdmRenderHarness::pull_in_at_a_feed_phase(long int)’:
+../sim_tdm8_render.cpp:3915:60: warning: ‘snprintf’ output may be truncated before the last format character [-Wformat-truncation=]
+ 3915 |     std::snprintf(after, sizeof after, "%s after the settle", tag);
+      |                                                            ^
+../sim_tdm8_render.cpp:3915:18: note: ‘snprintf’ output between 18 and 65 bytes into a destination of size 64
+ 3915 |     std::snprintf(after, sizeof after, "%s after the settle", tag);
+      |     ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 14.181 s (elab=0.000, cvt=0.000, bld=14.178); cpu 0.003 s on 4 threads; allocated 16.629 MB
