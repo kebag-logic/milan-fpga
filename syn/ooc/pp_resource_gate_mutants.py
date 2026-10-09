@@ -281,9 +281,12 @@ RANK_MUTANTS = {
 
 
 PLACEMENT_MUTANTS = {
+    "all-fabric census problems ignored": ('    if problems:\n', '    if False:\n'),
     "placement selection ignored": ('    if markers != [requested]:\n', '    if False:\n'),
     "placement census ignored": ('    if not selection(script, requested):\n', '    if True:\n'),
-    "placement count limits ignored": ('        if not low <= count <= high:\n', '        if False:\n'),
+    "placement count limits ignored": (
+        '        if not low <= count <= high:\n            raise ValueError',
+        '        if False:\n            raise ValueError'),
     "placement role completeness ignored": ('    if counts.keys() != MODULES.keys():\n', '    if False:\n'),
     "placement row identity ignored": ('len(fields) != 3 or fields[0] != requested', 'len(fields) != 3'),
     "placement duplicate role accepted": ('role not in MODULES or role in counts or', 'role not in MODULES or'),
@@ -317,6 +320,8 @@ def main() -> None:
     """Run a positive control and require every single mutant to fail the self-test, one per processor."""
     here = Path(__file__).resolve().parent
     jobs = [("control", "pp_resource_gate.py", None),
+            ("all-fabric census not called", "pp_resource_gate.py",
+             ('        pp_placement.validate_all_fabric(directory)\n', '        pass\n')),
             *((name, "pp_resource_gate.py", change) for name, change in MUTANTS.items()),
             *((name, "pp_baseline_rank.py", change) for name, change in RANK_MUTANTS.items()),
             *((name, "pp_placement.py", change) for name, change in PLACEMENT_MUTANTS.items())]

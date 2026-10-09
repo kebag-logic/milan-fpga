@@ -26,6 +26,22 @@ MODULES = ("KL_pp_shadow", "KL_adp_engine", "KL_pp_acmp_listener", "KL_acmp_talk
            "KL_maap", "KL_pp_maap", "KL_aecp_engine", "KL_aecp_notify", "KL_mbx", "KL_gptp_shadow")
 
 
+def hierarchy_fixture(kind: str, prefix: list[str]) -> list[str]:
+    """Complete the route's control population while retaining legacy resource rows."""
+    lines = [f"| {'  ' * depth}{name} | m{depth} | {900 - depth} | {900 - depth} | 0 | 0 | 50 | 1 | 0 | 0 |"
+             for depth, name in enumerate(prefix + ["u_pp", "u_srp"])]
+    if kind == "route":
+        lines[2] = lines[2].replace("| m2 |", "| KL_pp_shadow |")
+        lines[4] = lines[4].replace("| m4 |", "| KL_srp_top |")
+        for depth, name, module in (
+                (4, "u_adp", "KL_adp_engine"), (4, "u_listener", "KL_pp_acmp_listener"),
+                (4, "u_talker", "KL_acmp_talker"), (4, "u_aecp", "KL_aecp_engine"),
+                (4, "u_notify", "KL_aecp_notify"), (2, "g_maap.maap_engine", "KL_maap"),
+                (2, "g_gptp_plane.u_gptp_shadow", "KL_gptp_shadow")):
+            lines.append(f"| {'  ' * depth}{name} | {module} | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |")
+    return lines
+
+
 def census_text(selected: str, counts: tuple[int, ...]) -> str:
     """Write a synthetic observed population using the independently specified roles."""
     return "placement\trole\tcount\n" + "".join(
@@ -153,6 +169,52 @@ def expect_case(label: str, result: tuple[int, list[str]], status: int, reason: 
     print(f"placement gate {label}: expected exit {status}, {reason}: PASS")
 
 
+def all_fabric_selftest(root: Path, baseline: Path) -> None:
+    """Refuse unmarked wrong populations in both comparisons and acceptance writes."""
+    from pp_resource_gate_selftest import cli, fixture
+    folder = fixture(root / "all-fabric", "route")
+    arguments = (folder, "--endpoint", "route-1x1", "--baseline", baseline)
+    report = folder / "baseline_hierarchy.rpt"
+    original = report.read_text()
+    baseline_bytes = baseline.read_bytes()
+    expect_case("all-fabric unmarked control", cli("check", *arguments), 0, "RESULT: PASS")
+    plants = []
+    for role, module, count in zip(ROLES, MODULES, COUNTS["all-fabric"]):
+        matching = next((line for line in original.splitlines(keepends=True) if f"| {module} |" in line), None)
+        if count:
+            plants.append((role + " absent", original.replace(matching, ""), (role,)))
+            duplicate = matching.replace(matching.split("|")[1], "  duplicate_" + role + " ", 1)
+        else:
+            duplicate = f"|   unexpected_{role} | {module} | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |\n"
+        plants.append((role + " excess", original + duplicate, (role,)))
+    removed = ("adp", "acmp-listener", "acmp-talker", "srp", "maap")
+    removed_modules = {MODULES[ROLES.index(role)] for role in removed}
+    split = "".join(line for line in original.splitlines(keepends=True)
+                    if line.split("|")[2].strip() not in removed_modules)
+    plants.append(("wrapper-retaining f0-f4 without marker", split, removed))
+    try:
+        for label, changed, roles in plants:
+            report.write_text(changed)
+            for command in (("check",), ("record", "--write")):
+                result = cli(*command, *arguments)
+                for role in roles:
+                    expect_case(label + " " + command[0], result, 2, f"{role} ({MODULES[ROLES.index(role)]})")
+                if baseline.read_bytes() != baseline_bytes:
+                    raise AssertionError("wrong all-fabric population changed acceptance baseline")
+        # Own-logic rows repeat module names; specializations retain their identity.
+        valid = original
+        for module in MODULES:
+            valid = valid.replace(f"| {module} |", f"| {module}__parameterized12 |")
+        valid += "|   (own) | KL_pp_shadow | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |\n"
+        valid += "|   shim | KL_pp_maap_shim | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |\n"
+        report.write_text(valid)
+        expect_case("all-fabric own rows and specialized modules", cli("check", *arguments), 0, "RESULT: PASS")
+        report.write_text(valid.replace("KL_adp_engine__parameterized12", "KL_adp_engine_impostor"))
+        expect_case("all-fabric module prefix is insufficient", cli("check", *arguments), 2, "adp (KL_adp_engine)")
+    finally:
+        report.write_text(original)
+
+
 def gate_selftest() -> None:
     """Compare split routes against unchanged policy and refuse mislabelled populations."""
     import pp_resource_gate as gate
@@ -164,6 +226,7 @@ def gate_selftest() -> None:
         baseline = root / "baseline.json"
         baseline.write_text(json.dumps({"endpoints": {"route-1x1": entry}}))
         baseline_bytes = baseline.read_bytes()
+        all_fabric_selftest(root, baseline)
         for selected in ("f0-f4", "full-split"):
             folder = selected_fixture(root / selected, selected)
             arguments = (folder, "--endpoint", "route-1x1", "--baseline", baseline,

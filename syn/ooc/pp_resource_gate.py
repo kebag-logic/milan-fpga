@@ -251,6 +251,8 @@ def scopes(directory: Path, kind: str, carry: dict[str, int],
            placement: str = "all-fabric") -> dict[str, dict[str, int]]:
     """Count three hierarchy levels below the legacy wrapper or selected image."""
     rows = hierarchy(directory / "baseline_hierarchy.rpt")
+    if placement == "all-fabric" and kind == "route":
+        pp_placement.validate_all_fabric(directory)
     root = ROOTS[kind] if placement == "all-fabric" else "alinx_ax7101"
     if root not in rows:
         raise Refusal(f"hierarchy report has no {root}")
