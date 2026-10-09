@@ -184,7 +184,7 @@ These figures are estimates of the complete qualified default image:
 | Lane | Estimated saving, central | Image after, central | Dependency |
 |---|---:|---:|---|
 | F0-F5 split | 14,000 | 36,267 | Approved [#664](https://github.com/kebag-logic/milan-fpga/issues/664); both M0s measurements before flip; function, service and bench qualification |
-| M2 retained SoC tables | 200 | 36,067 | Adopted pin; excludes removed processor and M6/M7 tables |
+| M2 retained SoC tables | 200 | 36,067 | Adopted pin; [L3](MARK_II_AREA_PLAN.md#l3-ram-friendly-retained-tables) names surviving MAC/CSR FIFOs; excludes DDR3 and M6/M7 tables |
 | M5 CSR read path | 600 | 35,467 | Stable existing ABI and both placement faces |
 | M6 media contexts | 600 | 34,867 | Fabric-owned counters, channel map and render state |
 | M7 gPTP tables | 500 | 34,367 | Fabric gPTP deadlines preserved |

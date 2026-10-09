@@ -444,12 +444,35 @@ Unqualified functions remain all-fabric until their acceptance passes.
 
 ### L3 RAM-friendly retained tables
 
-M2 now covers only SoC FIFO/table storage outside other lanes.
+M2 covers retained SoC FIFOs, identified below after D4.
 **Saving:** 200 LUTs (100-400), reduced from the original 800.
 The old inventory included processor tables removed by L2.
 gPTP belongs to M7; media context tables belong to M6.
-The historical RAM census and [#639](https://github.com/kebag-logic/milan-fpga/issues/639) exchange bound this estimate.
+The historical RAM census motivates this target.
+[#639](https://github.com/kebag-logic/milan-fpga/issues/639) illustrates storage tradeoffs, not these FIFOs' measured savings.
 Budget up to two extra tiles, subject to measured primitive counts.
+
+[The SoC wiring](../../sw/litex/milan_soc.py) names the surviving scope:
+
+| Retained object | Purpose after D4 | M2 treatment |
+|---|---|---|
+| `MilanMAC.tx_sf` payload and parameter FIFOs | Gapless complete-frame transmission | Already synchronous block-RAM storage; no credit for its earlier conversion |
+| `MilanMAC.mac_tx_cdc`, `MilanMAC.mac_rx_cdc` | MAC/datapath crossings at distinct clocks | Inspect residual storage and control; retain buffering and paired reset |
+| `milan_axil_cdc` AW/W/B/AR/R FIFOs | CPU-to-datapath CSR crossing at distinct clocks | Inspect shallow storage and control; preserve AXI-Lite ordering and coherent snapshots |
+
+D4 removes DDR3, not the MAC or CSR crossings.
+The estimate is an aggregate target for this surviving scope.
+It is not a measured per-FIFO saving.
+Preserve widths, depths, throughput, reset behavior and clock-domain contracts.
+The implemented conversion and its LUT saving still need proof.
+Already inferred block RAM supplies no second conversion credit.
+
+Exclude LiteDRAM bank-machine, command, read and write queues.
+Exclude `memory_port_cdc*` and CPU-internal bridge FIFOs under M8.
+Exclude `descmem_*`, `respmem_*` and `nvmmem_*` crossings under L2/M8.
+Their retained-AECP variants remain those lanes' responsibility.
+Mailbox rings belong to L2; media/gPTP tables belong to M6/M7.
+Reconcile the actual post-D4 export before assigning any M2 saving.
 
 **Risk: medium.** Same-cycle reads may prevent block RAM inference.
 **Verification:** per-array lockstep and negative controls, owning suites,
@@ -667,7 +690,7 @@ The full route, primitive counts and service timing remain unmeasured.
 
 | Lane | Default saving, central (range) | Basis and overlap exclusion |
 |---|---:|---|
-| M2 / L3 | 200 (100-400) | SoC FIFO/table storage only; old 800 included removed processor arrays and M6/M7 tables |
+| M2 / L3 | 200 (100-400) | Retained MAC and CSR FIFOs listed in L3; excludes DDR3, CPU/protocol-memory bridges and M6/M7 tables |
 | M3 / L1a, L4, L5 | 0 | AECP/notification residual applies only where fabric AECP remains; ACMP/ADP work is replaced by F0-F5 |
 | M5 / L8 | 600 (400-1,000) | Historical 2,907-LUT CSR read path; optimize existing status mux only, not split-interface growth |
 | M6 / L9 | 600 (400-900) | Historical monitor, counter, channel-map and set-point contexts; retained media functions |
@@ -816,7 +839,7 @@ Measurements queue serially; no Vivado overlaps another heavy build.
 | 0, complete | M0 | Adopted processor pin and current three-endpoint record | [#661](https://github.com/kebag-logic/milan-fpga/issues/661), [#682](https://github.com/kebag-logic/milan-fpga/issues/682), [#686](https://github.com/kebag-logic/milan-fpga/issues/686), [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) present at assigned dev | Already in 50,267 | Reuse committed record; do not subtract old lane deltas |
 | 0s, now through week 3 | M0s | Manager resource bench: split-aware recipe and gate coverage, then two selected-placement routes | First: integrated F0-F4 with fabric AECP; second: F5 merged; both before week 4 and default flip | No assumed saving | Reviewed measurement support; whole-image metrics, timing and D7 comparison; preserve all-fabric references |
 | 1, weeks 1-6 | F0-F5 / L2 | [`sw/firmware/ctrl/`](../../sw/firmware/ctrl/), [`sw/firmware/ctrl_nvm/`](../../sw/firmware/ctrl_nvm/), mailbox contract and parent integration; complete F5 and connect the datapath | Approved [#664](https://github.com/kebag-logic/milan-fpga/issues/664) text; F0-F4 foundations present; both M0s measurements and F2-F5 suites/bench before default flip | 14,000 (11,500-16,000) | Highest risk: exact ownership, full service/wire bounds, all streams/counters and soak; no full credit for a partial flip |
-| 2, weeks 1-4 | M2 | SoC FIFO/table storage in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py); exclude processor, media and gPTP arrays | Adopted pin; settled split interface allocation; measure final split for default credit | 200 (100-400) | RAM inference and per-array lockstep; primitive growth still judged by gate |
+| 2, weeks 1-4 | M2 | MAC packet/CDC and CSR AW/W/B/AR/R FIFOs listed in [L3](#l3-ram-friendly-retained-tables); [SoC wiring](../../sw/litex/milan_soc.py) | Adopted pin; confirm post-D4 FIFO survival; settled split interface allocation; measure final split | 200 (100-400) | RAM inference and per-array lockstep; primitive growth still judged by gate |
 | 3, weeks 2-6 | M5 | Existing read mux and snapshots in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
 | 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under [`hdl/ieee1722/`](../../hdl/ieee1722/) | Adopted pin; fabric media ownership fixed by [#664](https://github.com/kebag-logic/milan-fpga/issues/664) | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
 | 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
@@ -978,6 +1001,101 @@ python3 syn/resmap/resmap_map.py map "$WORK/route-map" --baseline "$WORK/scratch
 ```
 
 **The core pricing (L11b).** Three cacheless RV32I cores synthesized out of context with `AreaOptimized_high` for the same part: the shipping VexiiRiscv netlist the export reads, LiteX's VexRiscv `Min` netlist, and PicoRV32 with LiteX's `minimal` parameters. Each is the core alone, with whatever bus bridges its netlist contains; the figures are in [L11](#l11-the-soc-side).
+
+### Reproduce L11b core pricing
+
+This recipe reproduces the three historical area-only syntheses.
+It is documentation; Round 1c executes no Vivado run.
+Use Vivado 2026.1 build 6511674 and the named source bytes.
+Set these environment variables to absolute paths:
+
+| Variable | Meaning |
+|---|---|
+| `WORK` | Fresh scratch output directory, outside the repository |
+| `CPU_VEXII_DIR` | VexiiRiscv package's `verilog` directory |
+| `CPU_VEXMIN_DIR` | VexRiscv package's `verilog` directory |
+| `CPU_PICO_DIR` | PicoRV32 package's `verilog` directory |
+
+The retained sources have these sizes and SHA-256 digests:
+
+| Source | Bytes | SHA-256 |
+|---|---:|---|
+| `Ram_1w_1rs_Generic.v` | 1,580 | `c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523` |
+| `Ram_1w_1ra_Generic.v` | 1,068 | `c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626` |
+| `VexiiRiscvLitex_f5f08b170311db53220574624f819159.v` | 1,575,730 | `c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d` |
+| `VexRiscv_Min.v` | 198,950 | `758874a989724fe2b92a5413b43265c9a5129638fee9d7358fcd6724992b598f` |
+| `picorv32.v` | 94,657 | `0836050971b3c6cdd28ac3b1e5719a67fb645161912bef1e472e63995ceb0622` |
+
+Check the digests before reproduction; regeneration may change the netlist.
+Export the variables above and put Vivado on `PATH`.
+Create this Tcl in the scratch directory:
+
+```sh
+rtk proxy bash -c 'cat > "$WORK/price_core.tcl"' <<'TCL'
+set_param general.maxThreads 8
+set name [lindex $argv 0]
+set options {}
+switch -- $name {
+  vexii {
+    set root $::env(CPU_VEXII_DIR)
+    read_verilog [file join $root Ram_1w_1rs_Generic.v]
+    read_verilog [file join $root Ram_1w_1ra_Generic.v]
+    set top VexiiRiscvLitex_f5f08b170311db53220574624f819159
+    read_verilog [file join $root ${top}.v]
+  }
+  vexmin {
+    set top VexRiscv
+    read_verilog [file join $::env(CPU_VEXMIN_DIR) VexRiscv_Min.v]
+  }
+  pico {
+    set top picorv32
+    read_verilog [file join $::env(CPU_PICO_DIR) picorv32.v]
+    foreach {parameter value} {
+      ENABLE_COUNTERS 0 ENABLE_COUNTERS64 0 ENABLE_REGS_16_31 1
+      ENABLE_REGS_DUALPORT 1 LATCHED_MEM_RDATA 0 TWO_STAGE_SHIFT 0
+      TWO_CYCLE_COMPARE 0 TWO_CYCLE_ALU 0 CATCH_MISALIGN 0
+      CATCH_ILLINSN 1 ENABLE_PCPI 0 ENABLE_MUL 0 ENABLE_DIV 0
+      ENABLE_FAST_MUL 0 ENABLE_IRQ 1 ENABLE_IRQ_QREGS 1
+      ENABLE_IRQ_TIMER 0 ENABLE_TRACE 0
+    } {
+      lappend options -generic ${parameter}=${value}
+    }
+  }
+  default { error "Unknown core: $name" }
+}
+synth_design -mode out_of_context -directive AreaOptimized_high \
+  -part xc7a100t-fgg484-2 -top $top {*}$options
+report_utilization -file ${name}_util.rpt
+report_utilization -hierarchical -hierarchical_depth 4 \
+  -hierarchical_min_primitive_count 0 -file ${name}_hier.rpt
+puts "PRICED $name"
+TCL
+```
+
+Run sequentially under one lock, without another heavy build:
+
+```sh
+rtk proxy flock /tmp/milan-vivado.lock bash -c '
+  set -eu
+  for core in vexii vexmin pico; do
+    mkdir "$WORK/$core"
+    cd "$WORK/$core"
+    rc=0
+    vivado -mode batch -source "$WORK/price_core.tcl" -nojournal \
+      -log "$core.log" -tclargs "$core" > "$core.stdout" 2>&1 || rc=$?
+    echo "$rc" > "$core.rc"
+    test "$rc" -eq 0 || exit "$rc"
+  done
+'
+```
+
+No XDC or clock constraint was supplied in these syntheses.
+Synthesis-worker settings were defaults; general threads were eight.
+These match the retained Tcl, including every PicoRV32 override.
+The reports should show 3,066 / 843 / 1,051 LUTs.
+Read FF and BRAM against the [L11 table](#l11-the-soc-side).
+A changed source digest makes this a different pricing experiment.
+Neither result establishes integrated replacement cost or timing acceptance.
 
 | Run | rc | Minutes | Log | Log SHA-256, first 16 | Log bytes |
 |---|---:|---:|---|---|---:|
