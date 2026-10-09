@@ -1,7 +1,7 @@
 # Mark II area plan
 
 Stage 1 of [#640](https://github.com/kebag-logic/milan-fpga/issues/640) plans the [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) redesign.
-Round 1c uses records committed on dev `5603c353`.
+Round 1d uses records committed on dev `5603c353`.
 It incorporates the [recorded decisions](#recorded-decisions).
 The original 2026-10-05 inventory remains labelled measurement history.
 This stage changes documentation only.
@@ -39,6 +39,9 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
 - **No double counting:** M3/M10 receive zero default-image credit.
   Their AECP hardware leaves with F5.
   M4 is replaced by the split; diagnostics remain enabled.
+- **Firmware allocation:** 224 KB, budgeted at about 50 RAMB36 tiles.
+  The [memory ledger](#firmware-and-block-ram-ledger) preserves the 10 percent reserve.
+  Its reuse and packing assumptions require routed confirmation.
 - **Qualification risk:** F5, target service timing and bench acceptance remain.
   M8's smaller core must pass capture, boot and split-load bounds.
   Every function lacking qualification retains its fabric placement.
@@ -66,7 +69,7 @@ That is [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](http
 It uses processor `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 Dev `5603c353137e90c1fa95429f6d00ef7a2298d9ee` carries those records unchanged.
 This names the stored baseline, not a measurement of `5603c353`.
-No new Vivado measurement was made for Round 1b.
+No new Vivado measurement was made for Rounds 1b-1d.
 
 | Endpoint | LUT | FF | Slice | RAMB36 | RAMB18 | BRAM tiles | DSP | WNS / WHS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -427,10 +430,12 @@ A software protocol owner must not become a software media path.
 
 **Risk: high.** Target service time, ring backlog, flash interference,
 firmware capacity and F5 qualification remain implementation obligations.
-The owner's early 25-40 KiB code and 8-32 KiB RAM
-estimate covered fewer protocols; it is no full-F5 memory budget.
-Measure linked ROM use, stack, static contexts and saved-state staging.
-Do not assume the 128 KiB ROM can absorb everything.
+The [owner's memory decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413) replaces the earlier approximately 128 KB budget.
+F5's limit is now 224 KB, including AECP.
+Budget about 50 RAMB36 tiles for firmware.
+The [memory ledger](#firmware-and-block-ram-ledger) includes the measured preflight and packing risk.
+Measure linked code, data, stack, static pools and saved-state staging.
+The current ROM parameter does not establish Mark II capacity.
 
 **Verification:** F0 mailbox tests on both adapters, filter mutation campaigns,
 F1 store tests, F2-F5 unit and differential protocol suites,
@@ -590,6 +595,8 @@ Shared sites or larger replacement logic can erase that saving.
 Anonymous DDR logic could instead increase the measured saving.
 M8a must replace these assumptions with a routed delta.
 M0s and M9 retain independent primitive and memory-capacity checks.
+M8a replaces the existing CPU memory allocation within the 50-tile budget.
+It must reconcile that reuse against the [memory ledger](#firmware-and-block-ram-ledger).
 The lane owns its memory-map migration and both placement contracts.
 
 D5 conditionally approves a smaller cacheless RV32I control hart.
@@ -686,6 +693,118 @@ The wrapper's full 17.5 tiles require proven removal.
 F5 needs an image, state and firmware memory census.
 M8 must fit within the unchanged 121.5-tile ceiling.
 The full route, primitive counts and service timing remain unmeasured.
+
+### Firmware and block RAM ledger
+
+The [owner decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413) allocates about 50 RAMB36 tiles to firmware.
+The [F5 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081705916) sets its linked-image limit at 224 KB, AECP included.
+This supersedes the approximately 128 KB figure.
+The device still reserves 13.5 of its 135 tiles.
+The usable ceiling remains 121.5 tiles.
+
+The [F5 sizing preflight](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081556432) used dev `5603c353`.
+It linked existing protocol code with the F1 store retained.
+It contained neither AECP nor its descriptor image.
+
+| Preflight shape | Linked span, bytes | Status |
+|---|---:|---|
+| Shipping 1x1, one interface | 94,688 | Size fixture; AECP absent |
+| Largest supported shape, two interfaces | 147,360 | Size fixture; AECP absent |
+
+The largest fixture has 56,948 text and 3,458 rodata bytes.
+Data is zero; BSS is 78,744 bytes, including static pools.
+Its stack reservation is 8,192 bytes.
+Those sections total 147,342 bytes; link alignment adds 18.
+Do not add the pools to BSS again.
+These are measured link spans, not an irreducible minimum.
+They establish neither F5 completion nor mapped RAMB36 counts.
+
+The 50-tile figure uses approximately 4.5 KB per RAMB36.
+That is raw capacity; mapping can expose less usable storage.
+For example, 224 KiB needs 56 tiles at 4 KiB usable each.
+That example is a packing check, not a new F5 threshold.
+M8a must report actual usable bytes and allocated primitives.
+
+This ledger first withholds the wrapper's remaining 11 tiles.
+It credits only the same removed scopes as L2's LUT basis.
+RAMB18 counts as half a tile; deltas carry their signs.
+The firmware row replaces CPU memory, so replacement storage counts once.
+
+| Item | RAMB36 delta | RAMB18 delta | Tile delta | Image tiles after |
+|---|---:|---:|---:|---:|
+| Recorded route at `a5ca6e51` | 74 | 27 | 87.5 | 87.5 |
+| L2 credited removals: AECP and SRP storage | -6 | -1 | -6.5 | 81 |
+| Measured mailbox replacement | +1 | +10 | +6 | 87 |
+| M8a reuse of existing BIOS ROM and SRAM, estimate | -18 | -1 | -18.5 | 68.5 |
+| Total firmware allocation, including reused CPU memory | +50 | 0 | +50 | 118.5 |
+| M2 maximum additional allocation | +2 | 0 | +2 | 120.5 |
+| Conditional release of remaining wrapper storage | -10 | -2 | -11 | 109.5 |
+
+The base and wrapper counts come from the [route record](../../syn/ooc/pp_resource_baseline.json).
+The [mailbox measurement](MAILBOX_SPLIT.md#measured-area) supplies its debit.
+The reuse estimate comes from the [earlier SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic).
+That census reports BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
+It is historical attribution, not a new census of `a5ca6e51`.
+M8a must confirm the reusable count at its actual checkpoint.
+Any retained boot memory outside the firmware allocation adds a debit.
+The allocation must also contain stack, pools and shape-sized saved-state staging.
+Any descriptor image or alignment space outside it adds a debit.
+No separate smaller-core RAM saving is credited.
+
+Before the conditional release, the estimate leaves one tile below 121.5.
+After it, 109.5 tiles leaves twelve below that ceiling.
+Both leave the separate 13.5-tile reserve untouched.
+Neither number proves integrated fit.
+Unpriced M6/M7 RAM conversions and integration buffers consume that allowance.
+Each lane must debit them before accepting its LUT saving.
+Without the estimated CPU-memory reuse, those totals become 139 and 128.
+Both exceed the ceiling; reuse is a prerequisite, not free headroom.
+
+**What gives way above 50 firmware tiles:** the remaining wrapper storage.
+These disjoint scopes are outside the six AECP tiles and SRP half-tile:
+
+| Released fabric scope, relative to wrapper | RAMB36 | RAMB18 | Tiles |
+|---|---:|---:|---:|
+| `u_pp/g_rx_pool[0,1,2,4,5].u_rx_slots`, five separate pools | 5 | 0 | 5 |
+| `u_pp/u_mrp_strip` | 1 | 0 | 1 |
+| `u_pp/u_tx_slots` | 1 | 0 | 1 |
+| `u_pp/u_timer` | 1 | 0 | 1 |
+| `u_pp/u_trace` | 1 | 0 | 1 |
+| `u_pp/u_rx_validator` | 0 | 1 | 0.5 |
+| `ctl_fifo` | 1 | 1 | 1.5 |
+| Total | 10 | 2 | 11 |
+
+Full-split integration must remove these stores before claiming their capacity.
+Debit every replacement event, queue or diagnostic store separately.
+Equivalent observability remains required by D2.
+The measured mailbox already supplies its own queues and timers.
+Do not credit its storage or these released stores twice.
+At 56 firmware tiles, the conditional total becomes 115.5 tiles.
+It leaves six below the ceiling, before other unpriced debits.
+Beyond that allowance, defer M2's two-tile MAC/CSR FIFO conversion first.
+Keep its existing storage and reprice the associated LUT saving.
+Defer new M6/M7 block-RAM conversions next, with the same repricing.
+No media buffer, diagnostic function or protocol capacity is pruned.
+If these trades still exceed 121.5, the manager must commission further redesign.
+
+Partial placement retains AECP's six tiles and any still-used wrapper stores.
+With the same 50-tile hold, the pre-release estimate becomes 126.5.
+That is five tiles over the ceiling, before extra fabric-AECP staging.
+M0s must substitute measured firmware use and actual retained storage.
+A partial route cannot borrow the full split's reclamation credits.
+The all-fabric option needs its own complete memory reconciliation.
+
+**Checkpoint evidence:** both M0s routes, the default flip and M9 report this ledger.
+Record linked text, rodata, data, BSS, stack and static pools.
+Count pools once; report alignment, descriptor images and staging separately.
+Cover shipping and largest supported shapes, at one and two interfaces.
+Report allocated RAMB36/RAMB18, usable bytes and unused firmware capacity.
+Name the five largest BSS consumers and a reduction option each.
+F5 implements no reductions outside AECP's own footprint.
+Publish whole-image LUT, FF, RAMB36/RAMB18 and timing at each routed checkpoint.
+Reconcile removals, replacement debits and actual firmware allocation against 121.5.
+The default flip requires firmware resident in block RAM and the reserve intact.
+Missing measurements or an exceeded ceiling cannot qualify the flip.
 
 ### Remaining levers without overlap
 
@@ -838,13 +957,13 @@ Measurements queue serially; no Vivado overlaps another heavy build.
 | Order / window | Lane | Scope and files | Dependency | Estimated default saving | Required evidence and risk |
 |---|---|---|---|---:|---|
 | 0, complete | M0 | Adopted processor pin and current three-endpoint record | [#661](https://github.com/kebag-logic/milan-fpga/issues/661), [#682](https://github.com/kebag-logic/milan-fpga/issues/682), [#686](https://github.com/kebag-logic/milan-fpga/issues/686), [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) present at assigned dev | Already in 50,267 | Reuse committed record; do not subtract old lane deltas |
-| 0s, now through week 3 | M0s | Manager resource bench: split-aware recipe and gate coverage, then two selected-placement routes | First: integrated F0-F4 with fabric AECP; second: F5 merged; both before week 4 and default flip | No assumed saving | Reviewed measurement support; whole-image metrics, timing and D7 comparison; preserve all-fabric references |
-| 1, weeks 1-6 | F0-F5 / L2 | [`sw/firmware/ctrl/`](../../sw/firmware/ctrl/), [`sw/firmware/ctrl_nvm/`](../../sw/firmware/ctrl_nvm/), mailbox contract and parent integration; complete F5 and connect the datapath | Approved [#664](https://github.com/kebag-logic/milan-fpga/issues/664) text; F0-F4 foundations present; both M0s measurements and F2-F5 suites/bench before default flip | 14,000 (11,500-16,000) | Highest risk: exact ownership, full service/wire bounds, all streams/counters and soak; no full credit for a partial flip |
+| 0s, now through week 3 | M0s | Manager resource bench: split-aware recipe and gate coverage, then two selected-placement routes | First: integrated F0-F4 with fabric AECP; second: F5 merged; both before week 4 and default flip | No assumed saving | Reviewed measurement support; whole-image metrics, memory-ledger reconciliation, timing and D7 comparison; preserve all-fabric references |
+| 1, weeks 1-6 | F0-F5 / L2 | [`sw/firmware/ctrl/`](../../sw/firmware/ctrl/), [`sw/firmware/ctrl_nvm/`](../../sw/firmware/ctrl_nvm/), mailbox contract and parent integration; complete F5 and connect the datapath | Approved [#664](https://github.com/kebag-logic/milan-fpga/issues/664) text; F0-F4 foundations present; both M0s measurements, firmware in block RAM within the ledger, and F2-F5 suites/bench before default flip | 14,000 (11,500-16,000) | Highest risk: exact ownership, full service/wire bounds, all streams/counters and soak; no full credit for a partial flip |
 | 2, weeks 1-4 | M2 | MAC packet/CDC and CSR AW/W/B/AR/R FIFOs listed in [L3](#l3-ram-friendly-retained-tables); [SoC wiring](../../sw/litex/milan_soc.py) | Adopted pin; confirm post-D4 FIFO survival; settled split interface allocation; measure final split | 200 (100-400) | RAM inference and per-array lockstep; primitive growth still judged by gate |
 | 3, weeks 2-6 | M5 | Existing read mux and snapshots in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
 | 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under [`hdl/ieee1722/`](../../hdl/ieee1722/) | Adopted pin; fabric media ownership fixed by [#664](https://github.com/kebag-logic/milan-fpga/issues/664) | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
 | 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
-| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; measure linked F5 storage and split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
+| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; reconcile 50-tile firmware allocation and measured linked storage; prove split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
 | 7, decision at week 4; weeks 4-8 | M3 | Retained fabric AECP dispatch, notification, D3 and entity widths in processor | D1/D3 approved; ACMP/ADP portion replaced; schedule residual only for a selected fabric-AECP image | **0**; fabric-only opportunity 2,600 (1,500-3,600) | PDU/port equivalence and complete processor/consumer bank; no F5 overlap |
 | 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200 (900-1,500) | Sharing turnaround proof; removed AECP cannot be saved twice |
 | 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane deltas known; required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |
@@ -873,6 +992,9 @@ Qualification may continue through week 6; measurement precedes qualification.
 A delayed F5 merge makes M0s's second measurement late.
 Report that missed checkpoint explicitly; do not claim full-split evidence.
 The planned default flip waits for both measurements and qualification.
+Both M0s routes reconcile RAMB36 use against the [memory ledger](#firmware-and-block-ram-ledger).
+The flip reports its own routed LUT, FF and RAMB36 use.
+Its firmware resides in block RAM, with the 10 percent reserve intact.
 
 At week 4, replace estimates with M0s's routed figures.
 Reprice M3/M10 against the measured remaining fabric ownership.
@@ -936,7 +1058,9 @@ No gate, schema or policy implementation changes occur here.
 ## Recorded decisions
 
 Round 1b followed the [assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6080904058).
-Round 1c follows its [measurement and review ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081534590).
+Round 1c followed its [measurement and review ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081534590).
+Round 1d follows the [firmware-memory assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081895732).
+It incorporates the [owner's 224 KB decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413).
 Later decisions below supersede earlier alternatives explicitly.
 They authorize future implementation lanes, not RTL changes here.
 

@@ -155,7 +155,7 @@ The [#232](https://github.com/kebag-logic/milan-fpga/issues/232), [#230](https:/
 
 ### Mark II planning ledger
 
-Round 1c uses the three records committed on dev `5603c353`.
+Round 1d uses the three records committed on dev `5603c353`.
 Their measurement inputs are `a5ca6e51`, as the endpoint notes state.
 No new implementation run is claimed by this documentation update.
 
@@ -183,7 +183,7 @@ These figures are estimates of the complete qualified default image:
 
 | Lane | Estimated saving, central | Image after, central | Dependency |
 |---|---:|---:|---|
-| F0-F5 split | 14,000 | 36,267 | Approved [#664](https://github.com/kebag-logic/milan-fpga/issues/664); both M0s measurements before flip; function, service and bench qualification |
+| F0-F5 split | 14,000 | 36,267 | Approved [#664](https://github.com/kebag-logic/milan-fpga/issues/664); both M0s measurements and memory-ledger reconciliation before flip; function, service and bench qualification |
 | M2 retained SoC tables | 200 | 36,067 | Adopted pin; [L3](MARK_II_AREA_PLAN.md#l3-ram-friendly-retained-tables) names surviving MAC/CSR FIFOs; excludes DDR3 and M6/M7 tables |
 | M5 CSR read path | 600 | 35,467 | Stable existing ABI and both placement faces |
 | M6 media contexts | 600 | 34,867 | Fabric-owned counters, channel map and render state |
@@ -218,6 +218,66 @@ These estimates prove neither routing nor timing nor memory capacity.
 M8 must include F5's image, stack, contexts and saved-state staging.
 All-fabric must retain its response/staging capacity too.
 The 121.5-tile ceiling and 13.5-tile reserve remain unchanged.
+
+The [owner's memory decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413) replaces the approximately 128 KB firmware budget.
+The [F5 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081705916) allows 224 KB, AECP included.
+Budget about 50 RAMB36 tiles for the complete firmware allocation.
+The [F5 preflight](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081556432) measured 94,688 bytes for shipping 1x1 with one interface.
+The largest supported shape with two interfaces measured 147,360 bytes.
+Both fixtures retain F1 but exclude AECP and its descriptor image.
+These are linked spans, not mapped RAMB36 measurements or irreducible minima.
+
+The [memory ledger](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger) gives each source and condition:
+
+| Item | RAMB36 delta | RAMB18 delta | Tile delta | Image tiles after |
+|---|---:|---:|---:|---:|
+| Recorded route at `a5ca6e51` | 74 | 27 | 87.5 | 87.5 |
+| L2 credited removals: AECP and SRP storage | -6 | -1 | -6.5 | 81 |
+| Measured mailbox replacement | +1 | +10 | +6 | 87 |
+| M8a reuse of existing BIOS ROM and SRAM, estimate | -18 | -1 | -18.5 | 68.5 |
+| Total firmware allocation, including reused CPU memory | +50 | 0 | +50 | 118.5 |
+| M2 maximum additional allocation | +2 | 0 | +2 | 120.5 |
+| Conditional release of remaining wrapper storage | -10 | -2 | -11 | 109.5 |
+
+The CPU-memory reuse uses the [historical SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic).
+M8a must confirm it at the actual checkpoint.
+Retained boot storage outside the firmware allocation adds a debit.
+Descriptor images, alignment and saved-state staging outside it add debits.
+Without that reuse, the totals become 139 and 128 tiles.
+Neither fits the ceiling.
+
+The nominal 50 tiles use approximately 4.5 KB raw capacity each.
+A 4 KiB usable mapping would require 56 tiles for 224 KiB.
+Actual primitive counts decide fit; the byte-to-tile estimate cannot prove it.
+At 50 tiles, the ledger leaves one tile before conditional reclamation.
+After it, twelve tiles remain below 121.5.
+At 56 firmware tiles, the conditional total is 115.5, leaving six.
+The separate 13.5-tile reserve remains untouched in these estimates.
+Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
+
+Above 50 firmware tiles, the remaining wrapper stores give way first.
+They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and `ctl_fifo`.
+The plan names their exact [scopes and counts](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): eleven tiles altogether.
+These credits require full removal and debiting every replacement store.
+D2 still requires equivalent diagnostics.
+If more capacity is needed, defer M2's two-tile MAC/CSR FIFO conversion.
+Defer new M6/M7 RAM conversions next; reprice every lost LUT saving.
+Keep existing functionality, capacities and the 10 percent reserve.
+Further unmet demand needs a manager ruling commissioning redesign.
+Partial placement cannot claim retained AECP or wrapper storage as released.
+Its same 50-tile hold gives 126.5 before additional fabric-AECP staging.
+M0s must replace that over-ceiling estimate with the actual allocation.
+
+Both M0s routes, the default flip and M9 publish memory-ledger reconciliation.
+Report linked text, rodata, data, BSS, stack and static pools.
+Count pools once; identify alignment, descriptor images and staging separately.
+Report usable bytes, RAMB36/RAMB18 allocation and unused firmware capacity.
+Cover shipping and largest supported shapes at one and two interfaces.
+List the five largest BSS consumers and a reduction option each.
+F5 changes no footprint outside AECP's own implementation.
+The flip needs routed LUT, FF, RAMB36/RAMB18 and timing evidence.
+Firmware must reside in block RAM, with total use at most 121.5 tiles.
+Missing evidence or exceeding that ceiling prevents the default flip.
 
 The [fallback scenarios](MARK_II_AREA_PLAN.md#no-split-and-partial-flip-estimates) price retained fabric AECP separately.
 No-split central is 45,667 before M3/M10.
