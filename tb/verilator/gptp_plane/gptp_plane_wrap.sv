@@ -23,8 +23,9 @@
 //                enter through the event-specific rx_ts_i and txts_ns_i
 //                faces. The addend latch is the one piece of fabric the
 //                splice adds beyond wires; it lives here until then. The
-//                counter runs its 125 MHz shape (8.0 ns Q8.24 increment)
-//                while the bench clock is CLK_HZ_P -- the engine's µcode
+//                counter defaults to an 8.0 ns Q8.24 increment, with
+//                PHC_INCR_P selecting a true-time regression clock.
+//                The bench clock is CLK_HZ_P -- the engine's µcode
 //                gain is generated for the bench's ticks-per-interval, so
 //                the closed loop is exact in counter time.
 //---------------------------------------------------------------------------//
@@ -32,7 +33,8 @@
 
 module gptp_plane_wrap #(
     parameter string       UCODE_HEX_P = "gptp_ucode.hex",
-    parameter int unsigned CLK_HZ_P    = 2_000_000
+    parameter int unsigned CLK_HZ_P    = 2_000_000,
+    parameter logic [31:0] PHC_INCR_P  = 32'h0800_0000
 ) (
     input  wire         clk_i,
     input  wire         rst_n,
@@ -108,7 +110,7 @@ module gptp_plane_wrap #(
       .clk                  (clk_i),
       .resetn               (rst_n),
       .enable_i             (1'b1),
-      .incr_i               (32'h0800_0000),   // 8.0 ns, the 125 MHz shape
+      .incr_i               (PHC_INCR_P),
       .adj_i                (adj_r),
       .tod_wr_i             (64'd0),
       .cmd_load_i           (1'b0),
