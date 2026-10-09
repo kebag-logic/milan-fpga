@@ -1,0 +1,65 @@
+{
+  "head": "62c261c2d1b899a9cf90c901b25b5a85846dfef6",
+  "parent": "5603c353137e90c1fa95429f6d00ef7a2298d9ee",
+  "branch": "657-render-mutants",
+  "origin_verified": true,
+  "subject": "test(render): settle epoch controls and exercise underrun counting",
+  "one_line_commit_no_trailers": true,
+  "changed_files": [
+    "docs/design/MEDIA_CLOCK_FOLLOWING.md",
+    "docs/testing/TESTING.md",
+    "tb/verilator/milan_dp_render/sim_tdm8_render.cpp",
+    "tb/verilator/milan_dp_render/tdm8_render_mutants.py"
+  ],
+  "submodules": [
+    {
+      "path": "external",
+      "tracked_head": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+      "initialized": false,
+      "boundary_check": "resolves to parent; no further command run inside entry"
+    },
+    {
+      "path": "gptp-processor",
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "initialized": true
+    },
+    {
+      "path": "protocol-processor",
+      "head": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "initialized": true
+    },
+    {
+      "path": "third_party/lwSRP",
+      "head": "9197193e47a6bb1c45a56d90a18c1784123aba44",
+      "initialized": true
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "initialized": true
+    }
+  ],
+  "tracked_and_untracked_status": "clean",
+  "root_ignored_generated_artifacts": "none remaining",
+  "generated_artifacts_moved_to_assigned_scratch": [
+    "avdecc/__pycache__",
+    "configs/generated/ltn_rom.hex",
+    "configs/generated/ucode.hex",
+    "scripts/__pycache__",
+    "sw/builder/__pycache__",
+    "sw/builder/out",
+    "sw/litex/platforms/__pycache__",
+    "tb/verilator/milan_dp_render/gen_tdm8r_multi",
+    "tb/verilator/milan_dp_render/ltn_rom.hex",
+    "tb/verilator/milan_dp_render/obj_tdm8r",
+    "tb/verilator/milan_dp_render/obj_tdm8r_aem",
+    "tb/verilator/milan_dp_render/obj_tdm8rm",
+    "tb/verilator/milan_dp_render/obj_tdm8rm_aem",
+    "tb/verilator/milan_dp_render/tdm8r_aemi.bin",
+    "tb/verilator/milan_dp_render/tdm8rm_aemi.bin",
+    "tb/verilator/milan_dp_render/ucode.hex"
+  ],
+  "executable_input_hashes_match": true,
+  "service_memory_peak_bytes": 6759710720,
+  "disk_free_bytes_at_handoff": 92600016896
+}

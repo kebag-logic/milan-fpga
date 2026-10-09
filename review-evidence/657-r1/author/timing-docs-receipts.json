@@ -1,0 +1,42 @@
+[
+  {
+    "command": "python3 -B scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 6.418,
+    "log": "01.log",
+    "raw_bytes": 128,
+    "raw_sha256": "623527d6f7b429ead4e603a79cbc9aae036bd645527d1342e4a980fd7ff1d4b4"
+  },
+  {
+    "command": "python3 -B scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.063,
+    "log": "02.log",
+    "raw_bytes": 47,
+    "raw_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "command": "python3 -B scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.098,
+    "log": "03.log",
+    "raw_bytes": 85,
+    "raw_sha256": "3894f939ffe03253533710af84632bfd4d6f06e5d583a0e9781906d19ab6f560"
+  },
+  {
+    "command": "python3 -B scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 5.484,
+    "log": "04.log",
+    "raw_bytes": 94,
+    "raw_sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a"
+  },
+  {
+    "command": "python3 -B scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "seconds": 3.566,
+    "log": "05.log",
+    "raw_bytes": 64,
+    "raw_sha256": "585eb88312962c60f6920bfa6414ffc3be28de66acb5881995338c186245ce54"
+  }
+]

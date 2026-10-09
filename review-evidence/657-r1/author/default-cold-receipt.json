@@ -1,0 +1,23 @@
+{
+  "command": "env -u MAKEFLAGS taskset -c 80-83 make -C tb/verilator/milan_dp_render",
+  "build_workers": 2,
+  "rc": 0,
+  "cold_build": true,
+  "input_manifest": "candidate-inputs.json",
+  "raw_bytes": 156887,
+  "raw_sha256": "fafdd8df7165abbe8a3f103ed35e84eb2672e0fb52ce4c1b557bdc2a3edf99ec",
+  "time": "real 809.21\nuser 862.59\nsys 4.70",
+  "observed_affinity": [
+    {
+      "cpus": [
+        80,
+        81,
+        82,
+        83
+      ],
+      "mode": [
+        "--crf-only"
+      ]
+    }
+  ]
+}

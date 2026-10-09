@@ -1,0 +1,32 @@
+{
+  "head": "62c261c2d1b899a9cf90c901b25b5a85846dfef6",
+  "command": "make -C tb/verilator/milan_dp_render tdm8render-mutants",
+  "compiler_release": "5.050",
+  "build_workers": 2,
+  "rc": 0,
+  "checks": 34,
+  "pass": 34,
+  "fail": 0,
+  "original_inventory": {
+    "checks": 32,
+    "pass": 32
+  },
+  "pr_672_additions": {
+    "checks": 2,
+    "pass": 2,
+    "verdicts": [
+      "[PASS] the unmutated gateware still passes the render lane leg (ship --pullin)",
+      "[PASS] mutant caught (ship --pullin): the settle recentre never pulses - breaks \"T647 PULLIN +1562 after the settle: every PDU's first event is inside the law band from its PDU end\""
+    ]
+  },
+  "categories": {
+    "unmodified_positive_controls": 6,
+    "leg_defects": 3,
+    "clean_controls": 3,
+    "rebuilt_mutants": 22
+  },
+  "input_manifest": "candidate-inputs.json",
+  "time": "real 7243.92\nuser 7707.38\nsys 73.95",
+  "raw_bytes": 20618,
+  "raw_sha256": "ce3fddeb85539c2d7f934af23e2683717cb14159f31c23b07291931adba1a49f"
+}

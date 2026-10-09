@@ -1,0 +1,106 @@
+[A574] REVIEW READY
+Commit: `62c261c2d1b899a9cf90c901b25b5a85846dfef6`
+Branch: `657-render-mutants` from `5603c353137e90c1fa95429f6d00ef7a2298d9ee`.
+
+Changed: four files, test/campaign/documentation only. The shortened epoch-only
+history now takes the existing boot pull-in dwell before CRF grading. All four
+exact recentre expectations remain unchanged, under the law recorded in
+`docs/design/MEDIA_CLOCK_FOLLOWING.md` (#643/#645). A bounded double-rate
+physical audio/serial-clock burst forces real serializer underruns; the frozen
+counter now fails `T6 UNDERRUN: every forced repeat is a counted underrun`.
+The burst runs after clock-law grading while bound. The campaign row now names
+manager merge-bank ownership, and nested builds suppress directory banners.
+No RTL, interface, submodule-pin or normative-law changes.
+
+Baseline: the complete assigned-base campaign reproduced 30/34, rc 2,
+5942.19 s: the epoch clean leg, both arrival-skew clean controls and the surviving
+counter mutant failed. The inherited inventory is the issue's original 32 plus
+PR #672's clean pull-in and missing-settle arms. All were retained.
+
+Validation used pinned release 5.050 and two build workers:
+
+| Command | Result |
+|---|---|
+| `make -C tb/verilator/milan_dp_render tdm8render-mutants` | 34/34, rc 0, 7243.92 s: original 32/32 plus 2/2 |
+| `env -u MAKEFLAGS taskset -c "$FOUR_CPUS" make -C tb/verilator/milan_dp_render` | Complete cold default, serial outer make, four CPUs: 809.21 s, rc 0; shipping 266/266, multi-stream 71/71, controls 5/5 |
+| `make -C tb/verilator/milan_dp_render tdm8render-pullin PULLIN_JOBS=4` | 19/19 legs, 838 checks, zero failures, all law windows graded; rc 0, 3224.74 s |
+| `python3 -B sw/builder/test_builder.py --require-rv32 --require-elaboration` | rc 0, 1169.34 s; historical gate-11 calibration explicitly unrun because its reference report is absent |
+| Documentation/source commands below | 41/41 rc 0; five documentation checks repeated successfully after the timing paragraph |
+| `python3 -B scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee` | rc 0 on committed head; zero findings, 339/339 planted arms |
+
+The separate pull-in run used scratch output/model directories. The cold
+default's executable input hashes match the commit; builder inputs are unchanged.
+
+Negative controls: nominal serial traffic previously produced zero repeats.
+The new clean burst produces 23 frames, 11 repeats and zero uncounted repeats
+(66/66). Freezing the counter fails exactly the new named counter check with
+11 uncounted repeats. Suppressing the burst fails exactly the exercised-repeat
+guard. Both deliberate negative runs return raw rc 1. All final gates return rc 0.
+
+Acceptance: the clean epoch-only leg passes, the counter mutant is killed by
+its named check, and the complete original 32/32 plus both additions pass.
+The cold local default has 630.79 s margin to 1440 s and 990.79 s to 1800 s.
+
+Open risks/questions: candidate hosted timing and protected contexts remain
+pending authorized publication by the manager; this lane was forbidden to push
+or create/edit a PR. The missing historical builder calibration report supplies
+no calibration evidence. The four initialized submodules match their pins;
+`external` remains uninitialized with its tracked gitlink unchanged, and the
+required gates passed in that state. Independent reviews by [R568] and [R569], the clean
+lens ledger, candidate merge validation and post-merge containment remain pending.
+`HANDOFF.md` and template-based `PR-BODY.md` are prepared in the assigned evidence
+bundle; the PR body uses `Relates to #657` while hosted acceptance remains pending.
+IEEE 1722-2016 clauses consulted: 4.4.4.3, 10.4.3 and 10.6; no standard text copied.
+
+<details>
+<summary>Exact documentation and source commands; every command returned rc 0</summary>
+
+```sh
+python3 -B scripts/docs_check.py
+python3 -B scripts/check_doc_style.py
+python3 -B scripts/check_doc_style.py --selftest
+python3 -B scripts/check_gptp_docs.py --with-submodule
+python3 -B scripts/check_gptp_docs.py --selftest
+python3 -B scripts/check_solution_docs.py
+python3 -B scripts/check_solution_docs.py --selftest
+python3 -B scripts/check_feature_status.py --self-test
+python3 -B docs/traceability/gen_module_matrix.py --check
+python3 -B scripts/check_doc_paths.py
+python3 -B scripts/check_archive.py
+python3 -B scripts/check_archive.py --selftest
+python3 -B scripts/gen_toc.py --selftest
+python3 -B scripts/gen_toc.py --verify-anchors
+python3 -B scripts/gen_toc.py --check
+python3 -B scripts/check_cpp_idiom.py
+python3 -B scripts/check_cpp_idiom.py --selftest
+python3 -B scripts/check_py_idiom.py
+python3 -B scripts/check_py_idiom.py --selftest
+python3 -B scripts/check_sh_idiom.py
+python3 -B scripts/check_sh_idiom.py --selftest
+python3 -B scripts/check_hygiene.py --check
+python3 -B scripts/check_hygiene.py --selftest
+python3 -B scripts/measure_fail_fast.py --check
+python3 -B scripts/measure_fail_fast.py --selftest
+python3 -B scripts/measure_test_evidence.py --check
+python3 -B scripts/measure_test_evidence.py --selftest
+python3 -B scripts/check_todo_ownership.py
+python3 -B scripts/check_todo_ownership.py --selftest
+python3 -B scripts/pp_srcs.py --check
+python3 -B scripts/pp_srcs.py --selftest
+python3 -B scripts/check_rtl_source_lists.py
+python3 -B scripts/check_rtl_source_lists.py --selftest
+python3 -B scripts/check_soc_sources.py
+python3 -B scripts/check_soc_sources.py --selftest
+python3 -B scripts/measure_control_flow.py --selftest
+python3 -B scripts/measure_cohesion.py --selftest
+python3 -B scripts/ci_events.py --check
+python3 -B scripts/ci_events.py --selftest
+python3 -B scripts/suite_tally.py --selftest
+python3 -B scripts/check_em_dash.py --selftest
+```
+
+After the timing paragraph: `docs_check.py`, `check_doc_style.py`,
+`check_doc_paths.py`, `gen_toc.py --check` and `gen_toc.py --verify-anchors`
+were run again with the same interpreter and flags, all rc 0.
+
+</details>
