@@ -1,0 +1,360 @@
+--- base
++++ head
+@@ -73,8 +73,8 @@
+ [PASS] #400 adoption leaves diagnostic LWSRP VID  got=0x00000013 exp=0x00000013
+ [PASS] #400 adoption leaves diagnostic LWSRP VID  got=0x00000013 exp=0x00000013
+ [PASS] #400 diagnostic writes preserve Domain default got=0x00030002 exp=0x00030002
+-[PASS] #400 diagnostic writes preserve Domain default got=0x00030002 exp=0x00030002
+ [PASS] #400 diagnostic writes preserve Domain default got=0x00030049 exp=0x00030049
++[PASS] #400 diagnostic writes preserve Domain default got=0x0003g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_OUTPUTS=2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__6.cpp
+ [PASS] #400 generated parent/wrapper/top/child startup VID got=0x00030002 exp=0x00030002
+ [PASS] #400 generated parent/wrapper/top/child startup VID got=0x00030002 exp=0x00030002
+ [PASS] #400 generated parent/wrapper/top/child startup VID got=0x00030049 exp=0x00030049
+@@ -275,7 +275,7 @@
+ [PASS] ID == 'MILN'                               got=0x4D494C4E exp=0x4D494C4E
+ [PASS] ID == 'MILN'                               got=0x4D494C4E exp=0x4D494C4E
+ [PASS] ID == 'MILN'                               got=0x4D494C4E exp=0x4D494C4E
+-[PASS] K 0001 exp=0x00000001
++[PASS] K GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+ [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+ [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+ [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+@@ -373,7 +373,7 @@
+ [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+ [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+ [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+-[PASS] K accepted name lanes    _PP_STAT    got=0x00000001 exp=0x00000001
++[PASS] K accepted name lanes    x00000040 exp=0x00000040
+ [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+ [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+ [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+@@ -476,6 +476,7 @@
+ [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+ [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+ [PASS] K capture closed                           got=0x00000000 exp=0x00000000
++[PASS] K comm0 exp=0x00000000
+ [PASS] K command marks                            got=0x00000000 exp=0x00000000
+ [PASS] K command marks                            got=0x00000000 exp=0x00000000
+ [PASS] K command marks                            got=0x00000000 exp=0x00000000
+@@ -612,43 +613,42 @@
+ [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+ [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+ [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+-[PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+-[PASS] K command: response status                 got=0x0000000     got=0x02112233 exp=0x02112233
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
+-[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x00000000 exp=0x00000000
++[PASS] K command: response status                 got=0x0000000g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_VID=73 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__Slow.cpp
++[PASS] K commdurable_claim_over_unsaved got=0x00000000 exp=0x00000000
+ [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+ [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+ [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+@@ -663,54 +663,53 @@
+ [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+ [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+ [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+-[PASS] K commmark group                               got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+-[PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
++[PASS] K control: reset/load permits durable status got=00001 exp=0x00000001
+ [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+ [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+ [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+@@ -845,11 +844,11 @@
+ [PASS] K10 GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+ [PASS] K10 GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+ [PASS] K10 GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+-[PASS] K10 GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+ [PASS] K10 SET_NAME returns all changed lanes     got=0x00000001 exp=0x00000001
+ [PASS] K10 SET_NAME returns all changed lanes     got=0x00000001 exp=0x00000001
+ [PASS] K10 SET_NAME returns all changed lanes     got=0x00000001 exp=0x00000001
+ [PASS] K10 SET_NAME returns all changed lanes     got=0x00000001 exp=0x00000001
++[PASS] K10 g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_vid73
+ [PASS] K10 live_state_changed                     got=0x00000001 exp=0x00000001
+ [PASS] K10 live_state_changed                     got=0x00000001 exp=0x00000001
+ [PASS] K10 live_state_changed                     got=0x00000001 exp=0x00000001
+@@ -878,10 +877,10 @@
+ [PASS] K10 repeat sticky_pending_PP_NVM_STAT      got=0x00000001 exp=0x00000001
+ [PASS] K10 repeat sticky_pending_PP_NVM_STAT      got=0x00000001 exp=0x00000001
+ [PASS] K10 repeat sticky_pending_PP_NVM_STAT      got=0x00000001 exp=0x00000001
+-[PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000 exp=0x00000000
+ [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000001 exp=0x00000001
+ [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000001 exp=0x00000001
+ [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000001 exp=0x00000001
++[PASS] K10 repeat sticky_pending_PP_STAT          got=0x0000g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DPENDING_OUTPUT_DYNAMIC=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__ConstPool__0__Slow.cpp
+ [PASS] K10 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+ [PASS] K10 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+ [PASS] K10 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+@@ -940,7 +939,7 @@
+ [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+ [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+ [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+-[PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
++[PASS] K12 duplicate input no_durable_claim_over_uns response status       got=0x00000000 exp=0x00000000
+ [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+ [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+ [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+@@ -962,8 +961,8 @@
+ [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+ [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+ [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+-[PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+-[PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
++[PASS] K12 duplicate input:aved got=0x00000000 exp=0x00000000
++[PASS] K12 duplicate input:mark group                               got=0x00000000 exp=0x00000000
+ [PASS] K12 duplicate output GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+ [PASS] K12 duplicate output GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+ [PASS] K12 duplicate output GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+@@ -1020,7 +1019,7 @@
+ [PASS] K12 partial refusal input live_state_changed got=0x00000000 exp=0x00000000
+ [PASS] K12 partial refusal input live_state_changed got=0x00000000 exp=0x00000000
+ [PASS] K12 partial refusal input live_state_changed got=0x00000000 exp=0x00000000
+-[PASS] K12 partial refusal input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
++[PASS] K12 partial refusal input no_and: matching response completes     got=0x00000001 exp=0x00000001
+ [PASS] K12 partial refusal input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+ [PASS] K12 partial refusal input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+ [PASS] K12 partial refusal input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+@@ -1127,6 +1126,7 @@
+ [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+ [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+ [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
++[PASS] K12 remove input sticky_pending                  got=0x00000000 exp=0x00000000
+ [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+ [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+ [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+@@ -1134,7 +1134,6 @@
+ [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+ [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+ [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+-[PASS] K12 remove input sticky_pendingand: matching response completes     got=0x00000001 exp=0x00000001
+ [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+ [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+ [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+@@ -1461,7 +1460,7 @@
+ [PASS] L5b: the unclaimed quadlets 12..31 are zero got=0x00000000 exp=0x00000000
+ [PASS] L5b: unicast back to the requester         got=0x02112233 exp=0x02112233
+ [PASS] L5b: unicast back to the requester         got=0x02112233 exp=0x02112233
+-[PASS] L5b: unicast back to the requester    il 1 done 1)
++[PASS] L5b: unicast back to the requester         got=0x02112233 exp=0x02112233
+ [PASS] L5c GET_COUNTERS(STREAM_INPUT 9) was ANSWERED an AECPDU egressed
+ [PASS] L5c GET_COUNTERS(STREAM_INPUT 9) was ANSWERED an AECPDU egressed
+ [PASS] L5c GET_COUNTERS(STREAM_INPUT 9) was ANSWERED an AECPDU egressed
+@@ -1933,7 +1932,7 @@
+ [PASS] PP_STAT[9] nvm_stale == 0 (never backed is not stale) got=0x00000000 exp=0x00000000
+ [PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0x0000BB80
+ [PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0x0000BB80
+-[PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0xmake[1]: Entering directory '$VALIDATION_STORAGE/pp168-a567/round2/parent/tb/verilator/pp_shadow/obj_dir'
++[PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0xg++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DPENDING_OUTPUT_DYNAMIC=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath.cpp
+ [PASS] R2: SET_SAMPLING_RATE(44100), not on the list, is BAD_ARGUMENTS got=0x00000007 exp=0x00000007
+ [PASS] R2: SET_SAMPLING_RATE(44100), not on the list, is BAD_ARGUMENTS got=0x00000007 exp=0x00000007
+ [PASS] R2: SET_SAMPLING_RATE(44100), not on the list, is BAD_ARGUMENTS got=0x00000007 exp=0x00000007
+@@ -1957,7 +1956,7 @@
+ [PASS] R6b: ...carrying the 96000 it stored       got=0x00017700 exp=0x00017700
+ [PASS] R7: GET_SAMPLING_RATE reads 96000          got=0x00017700 exp=0x00017700
+ [PASS] R7: GET_SAMPLING_RATE reads 96000          got=0x00017700 exp=0x00017700
+-[PASS] R7: GET_SAMPLING_RATE reads 96000          got=0x00017700 exp=0x00017700
++[PASS] R7: GET_SAMPLING_RATE reads 96000          got=g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_OUTPUTS=2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__0.cpp
+ [PASS] R8: exactly one unsolicited SET_SAMPLING_RATE reached the second controller got=0x00000001 exp=0x00000001
+ [PASS] R8: exactly one unsolicited SET_SAMPLING_RATE reached the second controller got=0x00000001 exp=0x00000001
+ [PASS] R8: exactly one unsolicited SET_SAMPLING_RATE reached the second controller got=0x00000001 exp=0x00000001
+@@ -2066,7 +2065,7 @@
+ [PASS] T: no Listener is registered yet (word 13 [1:0]) got=0x00000000 exp=0x00000000
+ [PASS] T: no Listener is registered yet (word 13 [1:0]) got=0x00000000 exp=0x00000000
+ [PASS] T: no Listener is registered yet (word 13 [1:0]) got=0x00000000 exp=0x00000000
+-[PASS] T: source 0 declares Talker Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
++[PASS] T: source 0 declares Talkemake[1]: Entering directory '$VALIDATION_STORAGE/pp168-a567/round2/parent/tb/verilator/pp_shadow/obj_crf'
+ [PASS] T: source 0 declares Talker Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+ [PASS] T: source 0 declares Talker Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+ [PASS] T: source 0's DA gate is open (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+@@ -2189,7 +2188,7 @@
+ [PASS] no TX-trunk arbiter ever stalled           got=0x00000000 exp=0x00000000
+ [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
+ [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
+-[PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
++[PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x0000000make[1]: Entering directory '$VALIDATION_STORAGE/pp168-a567/round2/parent/tb/verilator/pp_shadow/obj_pending'
+ [PASS] no frame carried an unknown EtherType      got=0x00000000 exp=0x00000000
+ [PASS] no frame carried an unknown EtherType      got=0x00000000 exp=0x00000000
+ [PASS] no frame carried an unknown EtherType      got=0x00000000 exp=0x00000000
+@@ -2250,6 +2249,7 @@
+ [PASS] the store FETCHED from descriptor memory   bursts served
+ [PASS] the store FETCHED from descriptor memory   bursts served
+ [PASS] the store FETCHED from descriptor memory   bursts served
++[PAS_PP_STAT    got=0x00000001 exp=0x00000001
+ [P] saved state: an absent backend must not report a restore
+ [P] saved state: an absent backend must not report a restore
+ [P] saved state: an absent backend must not report a restore
+@@ -2271,7 +2271,7 @@
+ [i]    PP_STAT 0x924 = 0x5B0008CC after a heartbeat
+ [i]    PP_STAT 0x924 = 0x5B0008CC after a heartbeat
+ [i]    PP_STAT 0x924 = 0x5B0008CC after a heartbeat
+-[i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fag++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath.cpp
++[i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fag++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DPENDING_OUTPUT_DYNAMIC=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__2__Slow.cpp
+ [i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fail 1 done 1)
+ [i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fail 1 done 1)
+ [i]    R: media_lrclk_o toggles after SET(44100) = 96
+@@ -2334,7 +2334,6 @@
+ [i] K12 remove input first write 12765, mark 12780, tail 15 cycles
+ [i] K12 remove input first write 12765, mark 12780, tail 15 cycles
+ [i] K12 remove output first write 12766, mark 12781, tail 15 cycles
+-got=0x00000000 exp=0x00000000
+ pp_shadow: 317 checks, 0 failures
+ pp_shadow: 609 checks, 0 failures
+ pp_shadow: 609 checks, 0 failures

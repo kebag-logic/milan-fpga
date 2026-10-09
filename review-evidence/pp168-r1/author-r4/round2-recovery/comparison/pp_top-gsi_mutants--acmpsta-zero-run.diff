@@ -1,0 +1,11 @@
+--- base
++++ head
+@@ -10,6 +10,8 @@
+ FAIL: GI TIMEOUT unsolicited: byte-exact sink 0 response
+ FAIL: GI TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+ FAIL: GI TIMEOUT solicited: byte-exact sink 0 response
++FAIL: GI RETRY-RETAIN solicited: acmpsta sink 0 = 7, got 0
++FAIL: GI RETRY-RETAIN solicited: byte-exact sink 0 response
+ FAIL: GI REBIND-TIMEOUT unsolicited: acmpsta sink 0 = 7, got 0
+ FAIL: GI REBIND-TIMEOUT unsolicited: byte-exact sink 0 response
+ FAIL: GI REBIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0

@@ -1,0 +1,34 @@
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index a4df5ec..29b9aa1 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -1054,12 +1054,23 @@ Table 5.22 set: GET_STREAM_INFO field changes (input/output splits per F06.13),
+ GET_AVB_INFO (GM, prop delay, domain, asCapable, class-A prio/VID), GET_AS_PATH,
+ GET_COUNTERS (`T-CTR-NOTIF`-limited), LOCK_ENTITY auto-unlock, targeted DEREGISTER.
+ **STREAM_INPUT triggers** (`protocol_processor_top` `stri_events`): the
+-committed pbsta/acmpsta compare off the listener record write bus (bind,
+-unbind, settle, teardown, double probe timeout, retry); the committed
+-started/stopped change under a live binding (`act_strt_chg_o`: the §5.5.3.5.6
+-re-bind short-circuit, and a re-bind to another talker from a bound state,
+-which from PRB_W_RESP leaves pbsta/acmpsta at ACTIVE/0 so this is its only
+-push); the SRP registration and unregistration events; SRP's committed
++pbsta/acmpsta compare off the listener record write bus pushes only on a
++committed byte change, as on bind, unbind, settle or teardown. A discovered
++retry (A12, then the A5 delay expiry) retains the status and pushes nothing
++(Milan v1.2 §5.5.3.5.30 step 2, §5.5.3.5.10, Table 5.22). A retry with the
++talker gone (A17) changes the status to PASSIVE/0 and pushes (§5.5.3.5.30
++step 1). A repeated double probe timeout that leaves the status unchanged
++pushes nothing.
++
++The committed started/stopped change under a live binding also pushes
++(`act_strt_chg_o`: the §5.5.3.5.6 re-bind short-circuit, and a re-bind to
++another talker from a bound state). For a re-bind to another talker from
++PRB_W_RESP that changes started/stopped, with no retained status the byte
++stays ACTIVE/0, so `act_strt_chg_o` is the only push. With a retained status,
++both listener terms fire on the same record write and their OR sends one
++frame.
++
++The other triggers are the SRP registration and unregistration events; SRP's committed
+ per-sink accumulated-latency change (`evt_tk_latency_chg_o`, including a
+ latency-only Talker refresh, with no pulse for an unchanged value); and SRP's
+ FailureInformation change strobe. Both change strobes feed only this notification (no

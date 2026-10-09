@@ -1,0 +1,27 @@
+--- base
++++ head
+@@ -5,7 +5,7 @@
+   -GN_NAME_P=99 -GT_HOLD_MS_P=50 -GCAP_ID_W_P=16 ../../../hdl/milan/KL_nvm_backend.sv
+ - V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+ - Verilator: Built from 0.081 MB sources in 2 modules, into 0.301 MB in 3 C++ files needing 0.000 MB
+-- Verilator: Walltime 0.070 s (elab=0.017, cvt=0.043, bld=0.000); cpu 0.069 s on 1 threads; allocated 23.430 MB
++- Verilator: Walltime 0.080 s (elab=0.019, cvt=0.048, bld=0.000); cpu 0.079 s on 1 threads; allocated 23.422 MB
+ verilator --lint-only -Wall -Wno-fatal -Werror-USERERROR --top-module cosim_top \
+   +define+NVM_CONTRACT_3 \
+   -GCLK_HZ_P=1000000 -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 \
+@@ -313,7 +313,7 @@
+       |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ %Warning-UNUSEDPARAM: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv:123:26: Parameter is not used: 'AST_CONTROLLER_NOT_AUTH_C'
+                                                                                 : ... note: In instance 'cosim_top.u_nvm'
+-  123 |   localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd13;
++  123 |   localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd16;
+       |                          ^~~~~~~~~~~~~~~~~~~~~~~~~
+ %Warning-UNUSEDPARAM: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv:126:27: Parameter is not used: 'AFLG_FAST_CONNECT_C'
+                                                                                 : ... note: In instance 'cosim_top.u_nvm'
+@@ -362,5 +362,5 @@
+                        ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+ - V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+ - Verilator: Built from 0.608 MB sources in 8 modules, into 0.489 MB in 3 C++ files needing 0.000 MB
+-- Verilator: Walltime 0.119 s (elab=0.026, cvt=0.070, bld=0.000); cpu 0.118 s on 1 threads; allocated 28.152 MB
++- Verilator: Walltime 0.125 s (elab=0.027, cvt=0.075, bld=0.000); cpu 0.124 s on 1 threads; allocated 28.152 MB
+ make: Leaving directory '$VALIDATION_STORAGE/pp168-a567/round2/parent/tb/verilator/nvm_cosim'

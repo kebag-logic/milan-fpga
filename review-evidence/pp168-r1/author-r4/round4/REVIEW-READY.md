@@ -1,0 +1,11 @@
+[A567] REVIEW READY — `5024dcad23140597bc1ffa58d1613990b9f73279`
+
+Round 4 resolves R552-2-F1 in `docs/architecture/06_aecp_engine.md` §7 only. This is one new commit on `66d1b501`, with no rebase, amend or push.
+
+- The pbsta/acmpsta compare pushes only on a committed byte change. A discovered retry (A12 and subsequent A5 delay expiry) retains status and pushes nothing; a retry with the talker gone (A17) pushes; a repeated double timeout with unchanged status pushes nothing. Authority: Milan v1.2 §5.5.3.5.30, §5.5.3.5.10 and Table 5.22.
+- A different-talker re-bind from PRB_W_RESP that changes started/stopped has only that push when no status is retained. With retained status, both terms fire on the same record write and send one frame.
+- The two related RTL comments remain unchanged, as assigned, for the manager's residue checklist. No test expectation or automated check changes.
+
+Fresh baseline/head validation: `make -j16 check` and `python3 scripts/gen_matrix.py --check` return 0/0, with identical records apart from parallel completion order. Existing negative fixtures pass. The scratch-parent documentation consumer also returns 0/0 with byte-identical records; its only staged change is the final processor gitlink. Earlier suite, campaign and area tables remain historical evidence, not fresh Round 4 runs.
+
+`HANDOFF.md` and `PR-BODY.md` now include Round 4 scope, clause/location references, validation, deferred items and delivery receipts. The processor tree is clean and all lane commands have completed.

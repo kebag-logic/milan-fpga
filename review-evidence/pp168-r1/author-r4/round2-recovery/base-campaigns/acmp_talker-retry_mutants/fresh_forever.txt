@@ -1,0 +1,96 @@
+return code: 2
+1335 checks: 1241 PASS, 94 FAIL
+FAIL: D2 freshness lapse: gate strobe missing
+FAIL: D2 declaring_o[3] OBSERVED 1 -> 0
+FAIL: D2 only src3's gate closed, got 0x09
+FAIL: D4 re-declare: gate strobe missing
+FAIL: F6 src0 exits backoff without declaring
+FAIL: F: leftovers resp=0 gate=1 arm=2 mreq=0
+FAIL: G2a declare open src got 0
+FAIL: G2a declare open sid got ab00000000000000
+FAIL: G2a declare open da got 91e0f0000100 want 91e0f0000104
+FAIL: G2a ping arm slot got 20
+FAIL: G2a ping arm owner got 53
+FAIL: G2a ping arm deadline got 65000 want 215000
+FAIL: G3 declare src5 open src got 4
+FAIL: G3 declare src5 open sid got ab00000000000004
+FAIL: G3 declare src5 open da got 91e0f0000104 want 91e0f0000105
+FAIL: G2b re-ping arm slot got 17
+FAIL: G2b re-ping arm owner got 50
+FAIL: G2b re-ping arm deadline got 18000 want 215000
+FAIL: G: leftovers resp=0 gate=1 arm=2 mreq=0
+FAIL: H1 cancel shared slot arm slot got 21
+FAIL: H1 cancel shared slot arm owner got 54
+FAIL: H1 cancel shared slot arm cancel got 0
+FAIL: H1 src6 was not declaring: no withdraw
+FAIL: H: leftovers resp=0 gate=1 arm=2 mreq=0
+FAIL: I0 gates carried in from A-H, got 0x3b
+FAIL: I1 no DECLARE_TALKER on a refusal
+FAIL: I3 no DECLARE_TALKER without a DA
+FAIL: I4 ping arm slot got 21
+FAIL: I4 ping arm owner got 54
+FAIL: I4 ping arm deadline got 215000 want 225000
+FAIL: I4 grant declares open src got 5
+FAIL: I4 grant declares open sid got ab00000000000005
+FAIL: I4 grant declares open da got 91e0f0000105 want 91e0f000010a
+FAIL: I4 only src6 moved, got 0x7b
+FAIL: I: leftovers resp=0 gate=1 arm=2 mreq=0
+FAIL: J1 withdraw on removal expected close, got open
+FAIL: J1 withdraw on removal close src got 6
+FAIL: J1 cancel shared slot arm slot got 23
+FAIL: J1 cancel shared slot arm owner got 56
+FAIL: J5 ping still arms freshness arm slot got 23
+FAIL: J5 ping still arms freshness arm owner got 56
+FAIL: J5 ping still arms freshness arm deadline got 225000 want 315000
+FAIL: J7 grant re-declares expected open, got close
+FAIL: J7 grant re-declares open da got 000000000000 want 91e0f000010b
+FAIL: J7 final gates, got 0x7b
+FAIL: J7b ping arm cancel got 1
+FAIL: J7b ping arm deadline got 0 want 335000
+FAIL: J: leftovers resp=0 gate=1 arm=2 mreq=0
+FAIL: K0 cancel src2 slot arm slot got 21
+FAIL: K0 cancel src2 slot arm owner got 54
+FAIL: K0 cancel src2 slot arm cancel got 0
+FAIL: K0 withdraw on removal expected close, got open
+FAIL: K0 withdraw on removal close src got 4
+FAIL: K0 cancel src6 slot arm slot got 21
+FAIL: K0 cancel src6 slot arm owner got 54
+FAIL: K0 cancel src6 slot arm cancel got 0
+FAIL: K0 gates after removal, got 0x3b
+FAIL: K0: leftovers resp=0 gate=1 arm=2 mreq=0
+FAIL: K2 no gate can open, got 0x3b
+FAIL: K3 ping still arms freshness arm slot got 19
+FAIL: K3 ping still arms freshness arm owner got 52
+FAIL: K3 ping still arms freshness arm cancel got 1
+FAIL: K3 ping still arms freshness arm deadline got 0 want 415000
+FAIL: K6 a STALE response must not open any gate (1 strobes)
+FAIL: K6 stale response changed the gate level to 0x3b
+FAIL: K7 src2 declares with ITS OWN DA expected open, got close
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 src2 declares with ITS OWN DA open da got 000000000000 want 91e0f00001aa
+FAIL: K7 gates, got 0x3f
+FAIL: K8 abandoned source recovers with a FRESH DA open src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002
+FAIL: K8 abandoned source recovers with a FRESH DA open da got 91e0f00001aa want 91e0f00001bb
+FAIL: K8 final gates, got 0x7f
+FAIL: K: leftovers resp=0 gate=1 arm=2 mreq=0
+FAIL: L0 cancel src7 slot arm slot got 23
+FAIL: L0 cancel src7 slot arm owner got 56
+FAIL: L0: leftovers resp=0 gate=1 arm=2 mreq=0
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face expected close, got open
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face close src got 6
+FAIL: L1 cancel src1 slot arm slot got 23
+FAIL: L1 cancel src1 slot arm owner got 56
+FAIL: L1 cancel src1 slot arm cancel got 0
+FAIL: L4 cancel src0 slot arm slot got 24
+FAIL: L4 cancel src0 slot arm owner got 57
+FAIL: L4 src3 withdraws at once close src got 1
+FAIL: L4 cancel src3 slot arm slot got 18
+FAIL: L4 cancel src3 slot arm owner got 51
+FAIL: L4 src5 withdraws at once close src got 0
+FAIL: L4 cancel src5 slot arm slot got 17
+FAIL: L4 cancel src5 slot arm owner got 50
+FAIL: L: leftovers resp=0 gate=2 arm=2 mreq=0
+FAIL: R1 freshness expiry still withdraws every source
+FAIL: R16 freshness event served under continuous commands (gates 0x02 want 0x00)
