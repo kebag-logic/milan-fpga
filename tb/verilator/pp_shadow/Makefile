@@ -105,6 +105,9 @@ VFLAGS = --cc --exe --build -j 0 \
 # a duplicate module definition (MODDUP), and with warnings fatal here that is a
 # build failure, not a nuisance.
 DP_SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+ifneq ($(.SHELLSTATUS),0)
+$(error ../milan_dp print-srcs failed; the datapath source list could not be derived)
+endif
 
 CPP = sim_main.cpp
 BUILD_DIR ?= obj_dir
