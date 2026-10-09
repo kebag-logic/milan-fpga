@@ -1,0 +1,22 @@
+{"mutant": "golden-acmp_listener", "verdict": "PASS"}
+{"mutant": "golden-acmp_talker", "verdict": "PASS"}
+{"mutant": "golden-pp_top--gsi-internal-only", "verdict": "PASS"}
+{"mutant": "disconnect_not_accepted@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "unbind_talker_echo@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "field_reset_blocked@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "retry_status_cleared@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "lock_status_13@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "disconnect_invalid_success@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "disconnect_changes_gate@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "settled_vlan_truncated@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "settlement_vlan_truncated@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "retry_probe_status_cleared@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "settled_vlan_truncated@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "lock_gate_bypassed@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "gsi_vlan_external@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "parent_vlan_shifted@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "probe_guard_current_controller@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "probe_retry_current_controller@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "retry_probe_status_cleared@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "stored_vlan_truncated@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 18 of 18 KILLED by their named checks; goldens PASS

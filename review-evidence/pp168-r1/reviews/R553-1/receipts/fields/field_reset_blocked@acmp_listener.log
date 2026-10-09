@@ -1,0 +1,2106 @@
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+$REVIEWS/pp168-r553-1-packet/scripts/simulator.py --cc --exe --build -j 0 --top-module KL_pp_acmp_listener -GSTRM_TIMEOUT_CYC_P=32 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp168-r553-1-packet/scratch/pp-acmp-mutant-ivpd49b3/tb/acmp_listener -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/acmp/KL_pp_acmp_listener.sv sim_main.cpp -o Vacmp_lsm_sim
+make[1]: Entering directory '$REVIEWS/pp168-r553-1-packet/scratch/pp-acmp-mutant-ivpd49b3/tb/acmp_listener/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp168-r553-1-packet/scratch/pp-acmp-mutant-ivpd49b3/tb/acmp_listener -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp168-r553-1-packet/scratch/pp-acmp-mutant-ivpd49b3/tb/acmp_listener -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp168-r553-1-packet/scratch/pp-acmp-mutant-ivpd49b3/tb/acmp_listener -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_pp_acmp_listener.cpp VKL_pp_acmp_listener___024root__0.cpp VKL_pp_acmp_listener__ConstPool__0__Slow.cpp VKL_pp_acmp_listener___024root__Slow.cpp VKL_pp_acmp_listener___024root__0__Slow.cpp VKL_pp_acmp_listener__Syms__Slow.cpp > VKL_pp_acmp_listener__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp168-r553-1-packet/scratch/pp-acmp-mutant-ivpd49b3/tb/acmp_listener -Wall -Wextra   -c -o VKL_pp_acmp_listener__ALL.o VKL_pp_acmp_listener__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_pp_acmp_listener__ALL.a    -pthread -lpthread -latomic   -o Vacmp_lsm_sim
+rm VKL_pp_acmp_listener__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/pp168-r553-1-packet/scratch/pp-acmp-mutant-ivpd49b3/tb/acmp_listener/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.166 MB sources in 4 modules, into 0.235 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 6.070 s (elab=0.006, cvt=0.034, bld=6.012); cpu 0.061 s on 2 threads; allocated 217.996 MB
+./obj_dir/Vacmp_lsm_sim
+FAIL: idle after reset + init sweep
+FAIL: park7: completes
+FAIL: park7: completes
+FAIL: park7(setup): state sync got UNB want PWR
+FAIL: park7: completes
+FAIL: park7(setup): state sync got UNB want SNR
+FAIL: park7: completes
+FAIL: park7(setup): state sync got UNB want SOK
+FAIL: F05.3 BIND_SAME x UNB: completes
+FAIL: F05.3 BIND_SAME x UNB: completes
+FAIL: F05.3 BIND_SAME x UNB: writebacks got 4000 want 1
+FAIL: F05.3 BIND_SAME x UNB: frames got 0 want 2
+FAIL: F05.3 BIND_SAME x UNB: timer ops got 0 want 1
+FAIL: F05.3 BIND_SAME x UNB: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da1 dd0 nv1/1
+FAIL: F05.3 BIND_SAME x UNB: notify got 0 want 1
+FAIL: F05.3 BIND_SAME x UNB: rx frees got 0 want 1
+FAIL: F05.3 BIND_SAME x UNB: sm_state got UNB want PWR
+FAIL: F05.3 BIND_SAME x UNB: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_SAME x UNB: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s0 w1 r0 d0 g0 t0
+FAIL: F05.3 BIND_SAME x UNB: binding got 0000000000000000/0/0000000000000000 want 0000000000000000/0/0099aabbccddeeff
+FAIL: F05.3 BIND_SAME x UNB: probe_seq got 0 want 1
+FAIL: F05.3 BIND_SAME x UNB: plumbing smh 0 want 9
+FAIL: F05.3 BIND_SAME x PWA: completes
+FAIL: F05.3 BIND_SAME x PWA: completes
+FAIL: F05.3 BIND_SAME x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_SAME x PWA: completes
+FAIL: F05.3 BIND_SAME x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 BIND_SAME x PWA: completes
+FAIL: F05.3 BIND_SAME x PWA: writebacks got 4000 want 1
+FAIL: F05.3 BIND_SAME x PWA: frames got 0 want 1
+FAIL: F05.3 BIND_SAME x PWA: notify got 0 want 1
+FAIL: F05.3 BIND_SAME x PWA: rx frees got 0 want 1
+FAIL: F05.3 BIND_SAME x PWA: sm_state got UNB want PWA
+FAIL: F05.3 BIND_SAME x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 BIND_SAME x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s0 w1 r0 d0 g0 t0
+FAIL: F05.3 BIND_SAME x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0099aabbccddeeff
+FAIL: F05.3 BIND_SAME x PWA: probe_seq got 0 want 2
+FAIL: F05.3 BIND_SAME x PWA: plumbing smh 0 want 10
+FAIL: F05.3 BIND_SAME x PWD: completes
+FAIL: F05.3 BIND_SAME x PWD: completes
+FAIL: F05.3 BIND_SAME x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_SAME x PWD: completes
+FAIL: F05.3 BIND_SAME x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 BIND_SAME x PWD: completes
+FAIL: F05.3 BIND_SAME x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 BIND_SAME x PWD: completes
+FAIL: F05.3 BIND_SAME x PWD: writebacks got 4000 want 1
+FAIL: F05.3 BIND_SAME x PWD: frames got 0 want 1
+FAIL: F05.3 BIND_SAME x PWD: notify got 0 want 1
+FAIL: F05.3 BIND_SAME x PWD: rx frees got 0 want 1
+FAIL: F05.3 BIND_SAME x PWD: sm_state got UNB want PWD
+FAIL: F05.3 BIND_SAME x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_SAME x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s0 w1 r0 d0 g0 t1
+FAIL: F05.3 BIND_SAME x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0099aabbccddeeff
+FAIL: F05.3 BIND_SAME x PWD: probe_seq got 0 want 3
+FAIL: F05.3 BIND_SAME x PWD: plumbing smh 0 want 11
+FAIL: F05.3 BIND_SAME x PWR: completes
+FAIL: F05.3 BIND_SAME x PWR: completes
+FAIL: F05.3 BIND_SAME x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_SAME x PWR: completes
+FAIL: F05.3 BIND_SAME x PWR: writebacks got 4000 want 1
+FAIL: F05.3 BIND_SAME x PWR: frames got 0 want 1
+FAIL: F05.3 BIND_SAME x PWR: notify got 0 want 1
+FAIL: F05.3 BIND_SAME x PWR: rx frees got 0 want 1
+FAIL: F05.3 BIND_SAME x PWR: sm_state got UNB want PWR
+FAIL: F05.3 BIND_SAME x PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_SAME x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s0 w1 r0 d0 g0 t0
+FAIL: F05.3 BIND_SAME x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0099aabbccddeeff
+FAIL: F05.3 BIND_SAME x PWR: probe_seq got 0 want 4
+FAIL: F05.3 BIND_SAME x PWR: plumbing smh 0 want 12
+FAIL: F05.3 BIND_SAME x PW2: completes
+FAIL: F05.3 BIND_SAME x PW2: completes
+FAIL: F05.3 BIND_SAME x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_SAME x PW2: completes
+FAIL: F05.3 BIND_SAME x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 BIND_SAME x PW2: completes
+FAIL: F05.3 BIND_SAME x PW2: writebacks got 4000 want 1
+FAIL: F05.3 BIND_SAME x PW2: frames got 0 want 1
+FAIL: F05.3 BIND_SAME x PW2: notify got 0 want 1
+FAIL: F05.3 BIND_SAME x PW2: rx frees got 0 want 1
+FAIL: F05.3 BIND_SAME x PW2: sm_state got UNB want PW2
+FAIL: F05.3 BIND_SAME x PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_SAME x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s0 w1 r1 d0 g0 t0
+FAIL: F05.3 BIND_SAME x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0099aabbccddeeff
+FAIL: F05.3 BIND_SAME x PW2: probe_seq got 0 want 5
+FAIL: F05.3 BIND_SAME x PW2: plumbing smh 0 want 13
+FAIL: F05.3 BIND_SAME x PWT: completes
+FAIL: F05.3 BIND_SAME x PWT: completes
+FAIL: F05.3 BIND_SAME x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_SAME x PWT: completes
+FAIL: F05.3 BIND_SAME x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 BIND_SAME x PWT: completes
+FAIL: F05.3 BIND_SAME x PWT: writebacks got 4000 want 1
+FAIL: F05.3 BIND_SAME x PWT: frames got 0 want 1
+FAIL: F05.3 BIND_SAME x PWT: notify got 0 want 1
+FAIL: F05.3 BIND_SAME x PWT: rx frees got 0 want 1
+FAIL: F05.3 BIND_SAME x PWT: sm_state got UNB want PWT
+FAIL: F05.3 BIND_SAME x PWT: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 BIND_SAME x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s0 w1 r0 d0 g0 t0
+FAIL: F05.3 BIND_SAME x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0099aabbccddeeff
+FAIL: F05.3 BIND_SAME x PWT: probe_seq got 0 want 6
+FAIL: F05.3 BIND_SAME x PWT: plumbing smh 0 want 14
+FAIL: F05.3 BIND_SAME x SNR: completes
+FAIL: F05.3 BIND_SAME x SNR: completes
+FAIL: F05.3 BIND_SAME x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_SAME x SNR: completes
+FAIL: F05.3 BIND_SAME x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 BIND_SAME x SNR: completes
+FAIL: F05.3 BIND_SAME x SNR: writebacks got 4000 want 1
+FAIL: F05.3 BIND_SAME x SNR: frames got 0 want 1
+FAIL: F05.3 BIND_SAME x SNR: notify got 0 want 1
+FAIL: F05.3 BIND_SAME x SNR: rx frees got 0 want 1
+FAIL: F05.3 BIND_SAME x SNR: sm_state got UNB want SNR
+FAIL: F05.3 BIND_SAME x SNR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 BIND_SAME x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s0 w1 r0 d1 g0 t0
+FAIL: F05.3 BIND_SAME x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0099aabbccddeeff
+FAIL: F05.3 BIND_SAME x SNR: probe_seq got 0 want 7
+FAIL: F05.3 BIND_SAME x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002239/91e0f0004455/2
+FAIL: F05.3 BIND_SAME x SNR: plumbing smh 0 want 15
+FAIL: F05.3 BIND_SAME x SOK: completes
+FAIL: F05.3 BIND_SAME x SOK: completes
+FAIL: F05.3 BIND_SAME x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_SAME x SOK: completes
+FAIL: F05.3 BIND_SAME x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 BIND_SAME x SOK: completes
+FAIL: F05.3 BIND_SAME x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 BIND_SAME x SOK: completes
+FAIL: F05.3 BIND_SAME x SOK: writebacks got 4000 want 1
+FAIL: F05.3 BIND_SAME x SOK: frames got 0 want 1
+FAIL: F05.3 BIND_SAME x SOK: notify got 0 want 1
+FAIL: F05.3 BIND_SAME x SOK: rx frees got 0 want 1
+FAIL: F05.3 BIND_SAME x SOK: sm_state got UNB want SOK
+FAIL: F05.3 BIND_SAME x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 BIND_SAME x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s0 w1 r0 d1 g1 t0
+FAIL: F05.3 BIND_SAME x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0099aabbccddeeff
+FAIL: F05.3 BIND_SAME x SOK: probe_seq got 0 want 8
+FAIL: F05.3 BIND_SAME x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: F05.3 BIND_SAME x SOK: plumbing smh 0 want 9
+FAIL: F05.3 BIND_NEW x UNB: completes
+FAIL: F05.3 BIND_NEW x UNB: completes
+FAIL: F05.3 BIND_NEW x UNB: writebacks got 4000 want 1
+FAIL: F05.3 BIND_NEW x UNB: frames got 0 want 2
+FAIL: F05.3 BIND_NEW x UNB: timer ops got 0 want 1
+FAIL: F05.3 BIND_NEW x UNB: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da1 dd0 nv1/1
+FAIL: F05.3 BIND_NEW x UNB: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: F05.3 BIND_NEW x UNB: notify got 0 want 1
+FAIL: F05.3 BIND_NEW x UNB: rx frees got 0 want 1
+FAIL: F05.3 BIND_NEW x UNB: sm_state got UNB want PWR
+FAIL: F05.3 BIND_NEW x UNB: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_NEW x UNB: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 BIND_NEW x UNB: binding got 0000000000000000/0/0000000000000000 want 00221100aabbcc55/2/0011223344556677
+FAIL: F05.3 BIND_NEW x UNB: probe_seq got 0 want 9
+FAIL: F05.3 BIND_NEW x UNB: plumbing smh 0 want 10
+FAIL: F05.3 BIND_NEW x PWA: completes
+FAIL: F05.3 BIND_NEW x PWA: completes
+FAIL: F05.3 BIND_NEW x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_NEW x PWA: completes
+FAIL: F05.3 BIND_NEW x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 BIND_NEW x PWA: completes
+FAIL: F05.3 BIND_NEW x PWA: writebacks got 4000 want 1
+FAIL: F05.3 BIND_NEW x PWA: frames got 0 want 2
+FAIL: F05.3 BIND_NEW x PWA: timer ops got 0 want 2
+FAIL: F05.3 BIND_NEW x PWA: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x PWA: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: F05.3 BIND_NEW x PWA: notify got 0 want 1
+FAIL: F05.3 BIND_NEW x PWA: rx frees got 0 want 1
+FAIL: F05.3 BIND_NEW x PWA: sm_state got UNB want PWR
+FAIL: F05.3 BIND_NEW x PWA: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_NEW x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 BIND_NEW x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbcc55/2/0011223344556677
+FAIL: F05.3 BIND_NEW x PWA: probe_seq got 0 want 11
+FAIL: F05.3 BIND_NEW x PWA: plumbing smh 0 want 11
+FAIL: F05.3 BIND_NEW x PWD: completes
+FAIL: F05.3 BIND_NEW x PWD: completes
+FAIL: F05.3 BIND_NEW x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_NEW x PWD: completes
+FAIL: F05.3 BIND_NEW x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 BIND_NEW x PWD: completes
+FAIL: F05.3 BIND_NEW x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 BIND_NEW x PWD: completes
+FAIL: F05.3 BIND_NEW x PWD: writebacks got 4000 want 1
+FAIL: F05.3 BIND_NEW x PWD: frames got 0 want 2
+FAIL: F05.3 BIND_NEW x PWD: timer ops got 0 want 2
+FAIL: F05.3 BIND_NEW x PWD: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x PWD: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: F05.3 BIND_NEW x PWD: notify got 0 want 1
+FAIL: F05.3 BIND_NEW x PWD: rx frees got 0 want 1
+FAIL: F05.3 BIND_NEW x PWD: sm_state got UNB want PWR
+FAIL: F05.3 BIND_NEW x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_NEW x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 BIND_NEW x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbcc55/2/0011223344556677
+FAIL: F05.3 BIND_NEW x PWD: probe_seq got 0 want 13
+FAIL: F05.3 BIND_NEW x PWD: plumbing smh 0 want 12
+FAIL: F05.3 BIND_NEW x PWR: completes
+FAIL: F05.3 BIND_NEW x PWR: completes
+FAIL: F05.3 BIND_NEW x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_NEW x PWR: completes
+FAIL: F05.3 BIND_NEW x PWR: writebacks got 4000 want 1
+FAIL: F05.3 BIND_NEW x PWR: frames got 0 want 2
+FAIL: F05.3 BIND_NEW x PWR: timer ops got 0 want 2
+FAIL: F05.3 BIND_NEW x PWR: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x PWR: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: F05.3 BIND_NEW x PWR: notify got 0 want 1
+FAIL: F05.3 BIND_NEW x PWR: rx frees got 0 want 1
+FAIL: F05.3 BIND_NEW x PWR: sm_state got UNB want PWR
+FAIL: F05.3 BIND_NEW x PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_NEW x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 BIND_NEW x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbcc55/2/0011223344556677
+FAIL: F05.3 BIND_NEW x PWR: probe_seq got 0 want 15
+FAIL: F05.3 BIND_NEW x PWR: plumbing smh 0 want 13
+FAIL: F05.3 BIND_NEW x PW2: completes
+FAIL: F05.3 BIND_NEW x PW2: completes
+FAIL: F05.3 BIND_NEW x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_NEW x PW2: completes
+FAIL: F05.3 BIND_NEW x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 BIND_NEW x PW2: completes
+FAIL: F05.3 BIND_NEW x PW2: writebacks got 4000 want 1
+FAIL: F05.3 BIND_NEW x PW2: frames got 0 want 2
+FAIL: F05.3 BIND_NEW x PW2: timer ops got 0 want 2
+FAIL: F05.3 BIND_NEW x PW2: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x PW2: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: F05.3 BIND_NEW x PW2: notify got 0 want 1
+FAIL: F05.3 BIND_NEW x PW2: rx frees got 0 want 1
+FAIL: F05.3 BIND_NEW x PW2: sm_state got UNB want PWR
+FAIL: F05.3 BIND_NEW x PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_NEW x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 BIND_NEW x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbcc55/2/0011223344556677
+FAIL: F05.3 BIND_NEW x PW2: probe_seq got 0 want 17
+FAIL: F05.3 BIND_NEW x PW2: plumbing smh 0 want 14
+FAIL: F05.3 BIND_NEW x PWT: completes
+FAIL: F05.3 BIND_NEW x PWT: completes
+FAIL: F05.3 BIND_NEW x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_NEW x PWT: completes
+FAIL: F05.3 BIND_NEW x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 BIND_NEW x PWT: completes
+FAIL: F05.3 BIND_NEW x PWT: writebacks got 4000 want 1
+FAIL: F05.3 BIND_NEW x PWT: frames got 0 want 2
+FAIL: F05.3 BIND_NEW x PWT: timer ops got 0 want 2
+FAIL: F05.3 BIND_NEW x PWT: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x PWT: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: F05.3 BIND_NEW x PWT: notify got 0 want 1
+FAIL: F05.3 BIND_NEW x PWT: rx frees got 0 want 1
+FAIL: F05.3 BIND_NEW x PWT: sm_state got UNB want PWR
+FAIL: F05.3 BIND_NEW x PWT: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_NEW x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 BIND_NEW x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbcc55/2/0011223344556677
+FAIL: F05.3 BIND_NEW x PWT: probe_seq got 0 want 19
+FAIL: F05.3 BIND_NEW x PWT: plumbing smh 0 want 15
+FAIL: F05.3 BIND_NEW x SNR: completes
+FAIL: F05.3 BIND_NEW x SNR: completes
+FAIL: F05.3 BIND_NEW x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_NEW x SNR: completes
+FAIL: F05.3 BIND_NEW x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 BIND_NEW x SNR: completes
+FAIL: F05.3 BIND_NEW x SNR: writebacks got 4000 want 1
+FAIL: F05.3 BIND_NEW x SNR: frames got 0 want 2
+FAIL: F05.3 BIND_NEW x SNR: timer ops got 0 want 2
+FAIL: F05.3 BIND_NEW x SNR: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x SNR: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: F05.3 BIND_NEW x SNR: notify got 0 want 1
+FAIL: F05.3 BIND_NEW x SNR: rx frees got 0 want 1
+FAIL: F05.3 BIND_NEW x SNR: sm_state got UNB want PWR
+FAIL: F05.3 BIND_NEW x SNR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_NEW x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 BIND_NEW x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbcc55/2/0011223344556677
+FAIL: F05.3 BIND_NEW x SNR: probe_seq got 0 want 21
+FAIL: F05.3 BIND_NEW x SNR: plumbing smh 0 want 9
+FAIL: F05.3 BIND_NEW x SOK: completes
+FAIL: F05.3 BIND_NEW x SOK: completes
+FAIL: F05.3 BIND_NEW x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 BIND_NEW x SOK: completes
+FAIL: F05.3 BIND_NEW x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 BIND_NEW x SOK: completes
+FAIL: F05.3 BIND_NEW x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 BIND_NEW x SOK: completes
+FAIL: F05.3 BIND_NEW x SOK: writebacks got 4000 want 1
+FAIL: F05.3 BIND_NEW x SOK: frames got 0 want 2
+FAIL: F05.3 BIND_NEW x SOK: timer ops got 0 want 2
+FAIL: F05.3 BIND_NEW x SOK: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x SOK: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: F05.3 BIND_NEW x SOK: notify got 0 want 1
+FAIL: F05.3 BIND_NEW x SOK: rx frees got 0 want 1
+FAIL: F05.3 BIND_NEW x SOK: sm_state got UNB want PWR
+FAIL: F05.3 BIND_NEW x SOK: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 BIND_NEW x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 BIND_NEW x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbcc55/2/0011223344556677
+FAIL: F05.3 BIND_NEW x SOK: probe_seq got 0 want 23
+FAIL: F05.3 BIND_NEW x SOK: plumbing smh 0 want 10
+FAIL: F05.3 UNBIND x UNB: completes
+FAIL: F05.3 UNBIND x UNB: completes
+FAIL: F05.3 UNBIND x UNB: writebacks got 4000 want 1
+FAIL: F05.3 UNBIND x UNB: frames got 0 want 1
+FAIL: F05.3 UNBIND x UNB: rx frees got 0 want 1
+FAIL: F05.3 UNBIND x UNB: plumbing smh 0 want 11
+FAIL: F05.3 UNBIND x PWA: completes
+FAIL: F05.3 UNBIND x PWA: completes
+FAIL: F05.3 UNBIND x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 UNBIND x PWA: completes
+FAIL: F05.3 UNBIND x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 UNBIND x PWA: completes
+FAIL: F05.3 UNBIND x PWA: writebacks got 4000 want 1
+FAIL: F05.3 UNBIND x PWA: frames got 0 want 1
+FAIL: F05.3 UNBIND x PWA: timer ops got 0 want 1
+FAIL: F05.3 UNBIND x PWA: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da0 dd1 nv1/0
+FAIL: F05.3 UNBIND x PWA: notify got 0 want 1
+FAIL: F05.3 UNBIND x PWA: rx frees got 0 want 1
+FAIL: F05.3 UNBIND x PWA: plumbing smh 0 want 12
+FAIL: F05.3 UNBIND x PWD: completes
+FAIL: F05.3 UNBIND x PWD: completes
+FAIL: F05.3 UNBIND x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 UNBIND x PWD: completes
+FAIL: F05.3 UNBIND x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 UNBIND x PWD: completes
+FAIL: F05.3 UNBIND x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 UNBIND x PWD: completes
+FAIL: F05.3 UNBIND x PWD: writebacks got 4000 want 1
+FAIL: F05.3 UNBIND x PWD: frames got 0 want 1
+FAIL: F05.3 UNBIND x PWD: timer ops got 0 want 1
+FAIL: F05.3 UNBIND x PWD: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da0 dd1 nv1/0
+FAIL: F05.3 UNBIND x PWD: notify got 0 want 1
+FAIL: F05.3 UNBIND x PWD: rx frees got 0 want 1
+FAIL: F05.3 UNBIND x PWD: plumbing smh 0 want 13
+FAIL: F05.3 UNBIND x PWR: completes
+FAIL: F05.3 UNBIND x PWR: completes
+FAIL: F05.3 UNBIND x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 UNBIND x PWR: completes
+FAIL: F05.3 UNBIND x PWR: writebacks got 4000 want 1
+FAIL: F05.3 UNBIND x PWR: frames got 0 want 1
+FAIL: F05.3 UNBIND x PWR: timer ops got 0 want 1
+FAIL: F05.3 UNBIND x PWR: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da0 dd1 nv1/0
+FAIL: F05.3 UNBIND x PWR: notify got 0 want 1
+FAIL: F05.3 UNBIND x PWR: rx frees got 0 want 1
+FAIL: F05.3 UNBIND x PWR: plumbing smh 0 want 14
+FAIL: F05.3 UNBIND x PW2: completes
+FAIL: F05.3 UNBIND x PW2: completes
+FAIL: F05.3 UNBIND x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 UNBIND x PW2: completes
+FAIL: F05.3 UNBIND x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 UNBIND x PW2: completes
+FAIL: F05.3 UNBIND x PW2: writebacks got 4000 want 1
+FAIL: F05.3 UNBIND x PW2: frames got 0 want 1
+FAIL: F05.3 UNBIND x PW2: timer ops got 0 want 1
+FAIL: F05.3 UNBIND x PW2: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da0 dd1 nv1/0
+FAIL: F05.3 UNBIND x PW2: notify got 0 want 1
+FAIL: F05.3 UNBIND x PW2: rx frees got 0 want 1
+FAIL: F05.3 UNBIND x PW2: plumbing smh 0 want 15
+FAIL: F05.3 UNBIND x PWT: completes
+FAIL: F05.3 UNBIND x PWT: completes
+FAIL: F05.3 UNBIND x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 UNBIND x PWT: completes
+FAIL: F05.3 UNBIND x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 UNBIND x PWT: completes
+FAIL: F05.3 UNBIND x PWT: writebacks got 4000 want 1
+FAIL: F05.3 UNBIND x PWT: frames got 0 want 1
+FAIL: F05.3 UNBIND x PWT: timer ops got 0 want 1
+FAIL: F05.3 UNBIND x PWT: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da0 dd1 nv1/0
+FAIL: F05.3 UNBIND x PWT: notify got 0 want 1
+FAIL: F05.3 UNBIND x PWT: rx frees got 0 want 1
+FAIL: F05.3 UNBIND x PWT: plumbing smh 0 want 9
+FAIL: F05.3 UNBIND x SNR: completes
+FAIL: F05.3 UNBIND x SNR: completes
+FAIL: F05.3 UNBIND x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 UNBIND x SNR: completes
+FAIL: F05.3 UNBIND x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 UNBIND x SNR: completes
+FAIL: F05.3 UNBIND x SNR: writebacks got 4000 want 1
+FAIL: F05.3 UNBIND x SNR: frames got 0 want 1
+FAIL: F05.3 UNBIND x SNR: timer ops got 0 want 1
+FAIL: F05.3 UNBIND x SNR: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd1 nv1/0
+FAIL: F05.3 UNBIND x SNR: notify got 0 want 1
+FAIL: F05.3 UNBIND x SNR: rx frees got 0 want 1
+FAIL: F05.3 UNBIND x SNR: plumbing smh 0 want 10
+FAIL: F05.3 UNBIND x SOK: completes
+FAIL: F05.3 UNBIND x SOK: completes
+FAIL: F05.3 UNBIND x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 UNBIND x SOK: completes
+FAIL: F05.3 UNBIND x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 UNBIND x SOK: completes
+FAIL: F05.3 UNBIND x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 UNBIND x SOK: completes
+FAIL: F05.3 UNBIND x SOK: writebacks got 4000 want 1
+FAIL: F05.3 UNBIND x SOK: frames got 0 want 1
+FAIL: F05.3 UNBIND x SOK: timer ops got 0 want 1
+FAIL: F05.3 UNBIND x SOK: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd1 nv1/0
+FAIL: F05.3 UNBIND x SOK: notify got 0 want 1
+FAIL: F05.3 UNBIND x SOK: rx frees got 0 want 1
+FAIL: F05.3 UNBIND x SOK: plumbing smh 0 want 11
+FAIL: F05.3 GETRX x UNB: completes
+FAIL: F05.3 GETRX x UNB: completes
+FAIL: F05.3 GETRX x UNB: writebacks got 4000 want 1
+FAIL: F05.3 GETRX x UNB: frames got 0 want 1
+FAIL: F05.3 GETRX x UNB: rx frees got 0 want 1
+FAIL: F05.3 GETRX x UNB: plumbing smh 0 want 12
+FAIL: F05.3 GETRX x PWA: completes
+FAIL: F05.3 GETRX x PWA: completes
+FAIL: F05.3 GETRX x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 GETRX x PWA: completes
+FAIL: F05.3 GETRX x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 GETRX x PWA: completes
+FAIL: F05.3 GETRX x PWA: writebacks got 4000 want 1
+FAIL: F05.3 GETRX x PWA: frames got 0 want 1
+FAIL: F05.3 GETRX x PWA: rx frees got 0 want 1
+FAIL: F05.3 GETRX x PWA: sm_state got UNB want PWA
+FAIL: F05.3 GETRX x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 GETRX x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 GETRX x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 GETRX x PWA: probe_seq got 0 want 31
+FAIL: F05.3 GETRX x PWA: plumbing smh 0 want 13
+FAIL: F05.3 GETRX x PWD: completes
+FAIL: F05.3 GETRX x PWD: completes
+FAIL: F05.3 GETRX x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 GETRX x PWD: completes
+FAIL: F05.3 GETRX x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 GETRX x PWD: completes
+FAIL: F05.3 GETRX x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 GETRX x PWD: completes
+FAIL: F05.3 GETRX x PWD: writebacks got 4000 want 1
+FAIL: F05.3 GETRX x PWD: frames got 0 want 1
+FAIL: F05.3 GETRX x PWD: rx frees got 0 want 1
+FAIL: F05.3 GETRX x PWD: sm_state got UNB want PWD
+FAIL: F05.3 GETRX x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 GETRX x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 GETRX x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 GETRX x PWD: probe_seq got 0 want 32
+FAIL: F05.3 GETRX x PWD: plumbing smh 0 want 14
+FAIL: F05.3 GETRX x PWR: completes
+FAIL: F05.3 GETRX x PWR: completes
+FAIL: F05.3 GETRX x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 GETRX x PWR: completes
+FAIL: F05.3 GETRX x PWR: writebacks got 4000 want 1
+FAIL: F05.3 GETRX x PWR: frames got 0 want 1
+FAIL: F05.3 GETRX x PWR: rx frees got 0 want 1
+FAIL: F05.3 GETRX x PWR: sm_state got UNB want PWR
+FAIL: F05.3 GETRX x PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 GETRX x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 GETRX x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 GETRX x PWR: probe_seq got 0 want 33
+FAIL: F05.3 GETRX x PWR: plumbing smh 0 want 15
+FAIL: F05.3 GETRX x PW2: completes
+FAIL: F05.3 GETRX x PW2: completes
+FAIL: F05.3 GETRX x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 GETRX x PW2: completes
+FAIL: F05.3 GETRX x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 GETRX x PW2: completes
+FAIL: F05.3 GETRX x PW2: writebacks got 4000 want 1
+FAIL: F05.3 GETRX x PW2: frames got 0 want 1
+FAIL: F05.3 GETRX x PW2: rx frees got 0 want 1
+FAIL: F05.3 GETRX x PW2: sm_state got UNB want PW2
+FAIL: F05.3 GETRX x PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 GETRX x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: F05.3 GETRX x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 GETRX x PW2: probe_seq got 0 want 34
+FAIL: F05.3 GETRX x PW2: plumbing smh 0 want 9
+FAIL: F05.3 GETRX x PWT: completes
+FAIL: F05.3 GETRX x PWT: completes
+FAIL: F05.3 GETRX x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 GETRX x PWT: completes
+FAIL: F05.3 GETRX x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 GETRX x PWT: completes
+FAIL: F05.3 GETRX x PWT: writebacks got 4000 want 1
+FAIL: F05.3 GETRX x PWT: frames got 0 want 1
+FAIL: F05.3 GETRX x PWT: rx frees got 0 want 1
+FAIL: F05.3 GETRX x PWT: sm_state got UNB want PWT
+FAIL: F05.3 GETRX x PWT: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 GETRX x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 GETRX x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 GETRX x PWT: probe_seq got 0 want 35
+FAIL: F05.3 GETRX x PWT: plumbing smh 0 want 10
+FAIL: F05.3 GETRX x SNR: completes
+FAIL: F05.3 GETRX x SNR: completes
+FAIL: F05.3 GETRX x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 GETRX x SNR: completes
+FAIL: F05.3 GETRX x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 GETRX x SNR: completes
+FAIL: F05.3 GETRX x SNR: writebacks got 4000 want 1
+FAIL: F05.3 GETRX x SNR: frames got 0 want 1
+FAIL: F05.3 GETRX x SNR: rx frees got 0 want 1
+FAIL: F05.3 GETRX x SNR: sm_state got UNB want SNR
+FAIL: F05.3 GETRX x SNR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 GETRX x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 GETRX x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 GETRX x SNR: probe_seq got 0 want 36
+FAIL: F05.3 GETRX x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002235/91e0f0004455/2
+FAIL: F05.3 GETRX x SNR: plumbing smh 0 want 11
+FAIL: F05.3 GETRX x SOK: completes
+FAIL: F05.3 GETRX x SOK: completes
+FAIL: F05.3 GETRX x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 GETRX x SOK: completes
+FAIL: F05.3 GETRX x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 GETRX x SOK: completes
+FAIL: F05.3 GETRX x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 GETRX x SOK: completes
+FAIL: F05.3 GETRX x SOK: writebacks got 4000 want 1
+FAIL: F05.3 GETRX x SOK: frames got 0 want 1
+FAIL: F05.3 GETRX x SOK: rx frees got 0 want 1
+FAIL: F05.3 GETRX x SOK: sm_state got UNB want SOK
+FAIL: F05.3 GETRX x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 GETRX x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 GETRX x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 GETRX x SOK: probe_seq got 0 want 37
+FAIL: F05.3 GETRX x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002236/91e0f0004455/2
+FAIL: F05.3 GETRX x SOK: plumbing smh 0 want 12
+FAIL: F05.3 PROBE_OK x UNB: completes
+FAIL: F05.3 PROBE_OK x UNB: completes
+FAIL: F05.3 PROBE_OK x UNB: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_OK x UNB: rx frees got 0 want 1
+FAIL: F05.3 PROBE_OK x UNB: plumbing smh 0 want 13
+FAIL: F05.3 PROBE_OK x PWA: completes
+FAIL: F05.3 PROBE_OK x PWA: completes
+FAIL: F05.3 PROBE_OK x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_OK x PWA: completes
+FAIL: F05.3 PROBE_OK x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 PROBE_OK x PWA: completes
+FAIL: F05.3 PROBE_OK x PWA: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_OK x PWA: rx frees got 0 want 1
+FAIL: F05.3 PROBE_OK x PWA: sm_state got UNB want PWA
+FAIL: F05.3 PROBE_OK x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 PROBE_OK x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 PROBE_OK x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_OK x PWA: probe_seq got 0 want 38
+FAIL: F05.3 PROBE_OK x PWA: plumbing smh 0 want 14
+FAIL: F05.3 PROBE_OK x PWD: completes
+FAIL: F05.3 PROBE_OK x PWD: completes
+FAIL: F05.3 PROBE_OK x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_OK x PWD: completes
+FAIL: F05.3 PROBE_OK x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 PROBE_OK x PWD: completes
+FAIL: F05.3 PROBE_OK x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 PROBE_OK x PWD: completes
+FAIL: F05.3 PROBE_OK x PWD: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_OK x PWD: rx frees got 0 want 1
+FAIL: F05.3 PROBE_OK x PWD: sm_state got UNB want PWD
+FAIL: F05.3 PROBE_OK x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 PROBE_OK x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 PROBE_OK x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_OK x PWD: probe_seq got 0 want 39
+FAIL: F05.3 PROBE_OK x PWD: plumbing smh 0 want 15
+FAIL: F05.3 PROBE_OK x PWR: completes
+FAIL: F05.3 PROBE_OK x PWR: completes
+FAIL: F05.3 PROBE_OK x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_OK x PWR: completes
+FAIL: F05.3 PROBE_OK x PWR: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_OK x PWR: timer ops got 0 want 2
+FAIL: F05.3 PROBE_OK x PWR: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: F05.3 PROBE_OK x PWR: settle payload got 0000000000000000/000000000000/0
+FAIL: F05.3 PROBE_OK x PWR: notify got 0 want 1
+FAIL: F05.3 PROBE_OK x PWR: rx frees got 0 want 1
+FAIL: F05.3 PROBE_OK x PWR: sm_state got UNB want SNR
+FAIL: F05.3 PROBE_OK x PWR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 PROBE_OK x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 PROBE_OK x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_OK x PWR: probe_seq got 0 want 40
+FAIL: F05.3 PROBE_OK x PWR: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: F05.3 PROBE_OK x PWR: plumbing smh 0 want 9
+FAIL: F05.3 PROBE_OK x PW2: completes
+FAIL: F05.3 PROBE_OK x PW2: completes
+FAIL: F05.3 PROBE_OK x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_OK x PW2: completes
+FAIL: F05.3 PROBE_OK x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 PROBE_OK x PW2: completes
+FAIL: F05.3 PROBE_OK x PW2: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_OK x PW2: timer ops got 0 want 2
+FAIL: F05.3 PROBE_OK x PW2: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: F05.3 PROBE_OK x PW2: settle payload got 0000000000000000/000000000000/0
+FAIL: F05.3 PROBE_OK x PW2: notify got 0 want 1
+FAIL: F05.3 PROBE_OK x PW2: rx frees got 0 want 1
+FAIL: F05.3 PROBE_OK x PW2: sm_state got UNB want SNR
+FAIL: F05.3 PROBE_OK x PW2: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 PROBE_OK x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d1 g0 t0
+FAIL: F05.3 PROBE_OK x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_OK x PW2: probe_seq got 0 want 41
+FAIL: F05.3 PROBE_OK x PW2: settled got 0000000000000000/000000000000/0 want 5544332211002234/91e0f0004455/2
+FAIL: F05.3 PROBE_OK x PW2: plumbing smh 0 want 10
+FAIL: F05.3 PROBE_OK x PWT: completes
+FAIL: F05.3 PROBE_OK x PWT: completes
+FAIL: F05.3 PROBE_OK x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_OK x PWT: completes
+FAIL: F05.3 PROBE_OK x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 PROBE_OK x PWT: completes
+FAIL: F05.3 PROBE_OK x PWT: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_OK x PWT: rx frees got 0 want 1
+FAIL: F05.3 PROBE_OK x PWT: sm_state got UNB want PWT
+FAIL: F05.3 PROBE_OK x PWT: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 PROBE_OK x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 PROBE_OK x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_OK x PWT: probe_seq got 0 want 42
+FAIL: F05.3 PROBE_OK x PWT: plumbing smh 0 want 11
+FAIL: F05.3 PROBE_OK x SNR: completes
+FAIL: F05.3 PROBE_OK x SNR: completes
+FAIL: F05.3 PROBE_OK x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_OK x SNR: completes
+FAIL: F05.3 PROBE_OK x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 PROBE_OK x SNR: completes
+FAIL: F05.3 PROBE_OK x SNR: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_OK x SNR: rx frees got 0 want 1
+FAIL: F05.3 PROBE_OK x SNR: sm_state got UNB want SNR
+FAIL: F05.3 PROBE_OK x SNR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 PROBE_OK x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 PROBE_OK x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_OK x SNR: probe_seq got 0 want 43
+FAIL: F05.3 PROBE_OK x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002236/91e0f0004455/2
+FAIL: F05.3 PROBE_OK x SNR: plumbing smh 0 want 12
+FAIL: F05.3 PROBE_OK x SOK: completes
+FAIL: F05.3 PROBE_OK x SOK: completes
+FAIL: F05.3 PROBE_OK x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_OK x SOK: completes
+FAIL: F05.3 PROBE_OK x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 PROBE_OK x SOK: completes
+FAIL: F05.3 PROBE_OK x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 PROBE_OK x SOK: completes
+FAIL: F05.3 PROBE_OK x SOK: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_OK x SOK: rx frees got 0 want 1
+FAIL: F05.3 PROBE_OK x SOK: sm_state got UNB want SOK
+FAIL: F05.3 PROBE_OK x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 PROBE_OK x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 PROBE_OK x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_OK x SOK: probe_seq got 0 want 44
+FAIL: F05.3 PROBE_OK x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002237/91e0f0004455/2
+FAIL: F05.3 PROBE_OK x SOK: plumbing smh 0 want 13
+FAIL: F05.3 PROBE_FAIL x UNB: completes
+FAIL: F05.3 PROBE_FAIL x UNB: completes
+FAIL: F05.3 PROBE_FAIL x UNB: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_FAIL x UNB: rx frees got 0 want 1
+FAIL: F05.3 PROBE_FAIL x UNB: plumbing smh 0 want 14
+FAIL: F05.3 PROBE_FAIL x PWA: completes
+FAIL: F05.3 PROBE_FAIL x PWA: completes
+FAIL: F05.3 PROBE_FAIL x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_FAIL x PWA: completes
+FAIL: F05.3 PROBE_FAIL x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 PROBE_FAIL x PWA: completes
+FAIL: F05.3 PROBE_FAIL x PWA: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_FAIL x PWA: rx frees got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWA: sm_state got UNB want PWA
+FAIL: F05.3 PROBE_FAIL x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 PROBE_FAIL x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 PROBE_FAIL x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_FAIL x PWA: probe_seq got 0 want 45
+FAIL: F05.3 PROBE_FAIL x PWA: plumbing smh 0 want 15
+FAIL: F05.3 PROBE_FAIL x PWD: completes
+FAIL: F05.3 PROBE_FAIL x PWD: completes
+FAIL: F05.3 PROBE_FAIL x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_FAIL x PWD: completes
+FAIL: F05.3 PROBE_FAIL x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 PROBE_FAIL x PWD: completes
+FAIL: F05.3 PROBE_FAIL x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 PROBE_FAIL x PWD: completes
+FAIL: F05.3 PROBE_FAIL x PWD: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_FAIL x PWD: rx frees got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWD: sm_state got UNB want PWD
+FAIL: F05.3 PROBE_FAIL x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 PROBE_FAIL x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 PROBE_FAIL x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_FAIL x PWD: probe_seq got 0 want 46
+FAIL: F05.3 PROBE_FAIL x PWD: plumbing smh 0 want 9
+FAIL: F05.3 PROBE_FAIL x PWR: completes
+FAIL: F05.3 PROBE_FAIL x PWR: completes
+FAIL: F05.3 PROBE_FAIL x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_FAIL x PWR: completes
+FAIL: F05.3 PROBE_FAIL x PWR: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_FAIL x PWR: timer ops got 0 want 2
+FAIL: F05.3 PROBE_FAIL x PWR: notify got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWR: rx frees got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWR: sm_state got UNB want PWT
+FAIL: F05.3 PROBE_FAIL x PWR: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 PROBE_FAIL x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 PROBE_FAIL x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_FAIL x PWR: probe_seq got 0 want 47
+FAIL: F05.3 PROBE_FAIL x PWR: plumbing smh 0 want 10
+FAIL: F05.3 PROBE_FAIL x PW2: completes
+FAIL: F05.3 PROBE_FAIL x PW2: completes
+FAIL: F05.3 PROBE_FAIL x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_FAIL x PW2: completes
+FAIL: F05.3 PROBE_FAIL x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 PROBE_FAIL x PW2: completes
+FAIL: F05.3 PROBE_FAIL x PW2: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_FAIL x PW2: timer ops got 0 want 2
+FAIL: F05.3 PROBE_FAIL x PW2: notify got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PW2: rx frees got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PW2: sm_state got UNB want PWT
+FAIL: F05.3 PROBE_FAIL x PW2: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 PROBE_FAIL x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: F05.3 PROBE_FAIL x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_FAIL x PW2: probe_seq got 0 want 48
+FAIL: F05.3 PROBE_FAIL x PW2: plumbing smh 0 want 11
+FAIL: F05.3 PROBE_FAIL x PWT: completes
+FAIL: F05.3 PROBE_FAIL x PWT: completes
+FAIL: F05.3 PROBE_FAIL x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_FAIL x PWT: completes
+FAIL: F05.3 PROBE_FAIL x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 PROBE_FAIL x PWT: completes
+FAIL: F05.3 PROBE_FAIL x PWT: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_FAIL x PWT: rx frees got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWT: sm_state got UNB want PWT
+FAIL: F05.3 PROBE_FAIL x PWT: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 PROBE_FAIL x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 PROBE_FAIL x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_FAIL x PWT: probe_seq got 0 want 49
+FAIL: F05.3 PROBE_FAIL x PWT: plumbing smh 0 want 12
+FAIL: F05.3 PROBE_FAIL x SNR: completes
+FAIL: F05.3 PROBE_FAIL x SNR: completes
+FAIL: F05.3 PROBE_FAIL x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_FAIL x SNR: completes
+FAIL: F05.3 PROBE_FAIL x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 PROBE_FAIL x SNR: completes
+FAIL: F05.3 PROBE_FAIL x SNR: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_FAIL x SNR: rx frees got 0 want 1
+FAIL: F05.3 PROBE_FAIL x SNR: sm_state got UNB want SNR
+FAIL: F05.3 PROBE_FAIL x SNR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 PROBE_FAIL x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 PROBE_FAIL x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_FAIL x SNR: probe_seq got 0 want 50
+FAIL: F05.3 PROBE_FAIL x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002237/91e0f0004455/2
+FAIL: F05.3 PROBE_FAIL x SNR: plumbing smh 0 want 13
+FAIL: F05.3 PROBE_FAIL x SOK: completes
+FAIL: F05.3 PROBE_FAIL x SOK: completes
+FAIL: F05.3 PROBE_FAIL x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 PROBE_FAIL x SOK: completes
+FAIL: F05.3 PROBE_FAIL x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 PROBE_FAIL x SOK: completes
+FAIL: F05.3 PROBE_FAIL x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 PROBE_FAIL x SOK: completes
+FAIL: F05.3 PROBE_FAIL x SOK: writebacks got 4000 want 1
+FAIL: F05.3 PROBE_FAIL x SOK: rx frees got 0 want 1
+FAIL: F05.3 PROBE_FAIL x SOK: sm_state got UNB want SOK
+FAIL: F05.3 PROBE_FAIL x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 PROBE_FAIL x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 PROBE_FAIL x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 PROBE_FAIL x SOK: probe_seq got 0 want 51
+FAIL: F05.3 PROBE_FAIL x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002238/91e0f0004455/2
+FAIL: F05.3 PROBE_FAIL x SOK: plumbing smh 0 want 14
+FAIL: F05.3 TMR_DELAY x UNB: completes
+FAIL: F05.3 TMR_DELAY x UNB: completes
+FAIL: F05.3 TMR_DELAY x UNB: writebacks got 4000 want 1
+FAIL: F05.3 TMR_DELAY x UNB: plumbing smh 0 want 15
+FAIL: F05.3 TMR_DELAY x PWA: completes
+FAIL: F05.3 TMR_DELAY x PWA: completes
+FAIL: F05.3 TMR_DELAY x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_DELAY x PWA: completes
+FAIL: F05.3 TMR_DELAY x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 TMR_DELAY x PWA: completes
+FAIL: F05.3 TMR_DELAY x PWA: writebacks got 4000 want 1
+FAIL: F05.3 TMR_DELAY x PWA: sm_state got UNB want PWA
+FAIL: F05.3 TMR_DELAY x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TMR_DELAY x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TMR_DELAY x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_DELAY x PWA: probe_seq got 0 want 52
+FAIL: F05.3 TMR_DELAY x PWA: plumbing smh 0 want 9
+FAIL: F05.3 TMR_DELAY x PWD: completes
+FAIL: F05.3 TMR_DELAY x PWD: completes
+FAIL: F05.3 TMR_DELAY x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_DELAY x PWD: completes
+FAIL: F05.3 TMR_DELAY x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 TMR_DELAY x PWD: completes
+FAIL: F05.3 TMR_DELAY x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 TMR_DELAY x PWD: completes
+FAIL: F05.3 TMR_DELAY x PWD: writebacks got 4000 want 1
+FAIL: F05.3 TMR_DELAY x PWD: frames got 0 want 1
+FAIL: F05.3 TMR_DELAY x PWD: timer ops got 0 want 1
+FAIL: F05.3 TMR_DELAY x PWD: notify got 0 want 1
+FAIL: F05.3 TMR_DELAY x PWD: sm_state got UNB want PWR
+FAIL: F05.3 TMR_DELAY x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TMR_DELAY x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 TMR_DELAY x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_DELAY x PWD: probe_seq got 0 want 54
+FAIL: F05.3 TMR_DELAY x PWD: plumbing smh 0 want 10
+FAIL: F05.3 TMR_DELAY x PWR: completes
+FAIL: F05.3 TMR_DELAY x PWR: completes
+FAIL: F05.3 TMR_DELAY x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_DELAY x PWR: armed deadline 0 proves the slot carries the state's own T-ID (+200)
+FAIL: F05.3 TMR_DELAY x PW2: completes
+FAIL: F05.3 TMR_DELAY x PW2: completes
+FAIL: F05.3 TMR_DELAY x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_DELAY x PW2: completes
+FAIL: F05.3 TMR_DELAY x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 TMR_DELAY x PW2: armed deadline 0 proves the slot carries the state's own T-ID (+200)
+FAIL: F05.3 TMR_DELAY x PWT: completes
+FAIL: F05.3 TMR_DELAY x PWT: completes
+FAIL: F05.3 TMR_DELAY x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_DELAY x PWT: completes
+FAIL: F05.3 TMR_DELAY x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 TMR_DELAY x PWT: armed deadline 0 proves the slot carries the state's own T-ID (+4000)
+FAIL: F05.3 TMR_DELAY x SNR: completes
+FAIL: F05.3 TMR_DELAY x SNR: completes
+FAIL: F05.3 TMR_DELAY x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_DELAY x SNR: completes
+FAIL: F05.3 TMR_DELAY x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 TMR_DELAY x SNR: armed deadline 0 proves the slot carries the state's own T-ID (+10000)
+FAIL: F05.3 TMR_DELAY x SOK: completes
+FAIL: F05.3 TMR_DELAY x SOK: completes
+FAIL: F05.3 TMR_DELAY x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_DELAY x SOK: completes
+FAIL: F05.3 TMR_DELAY x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 TMR_DELAY x SOK: completes
+FAIL: F05.3 TMR_DELAY x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 TMR_DELAY x SOK: completes
+FAIL: F05.3 TMR_DELAY x SOK: writebacks got 4000 want 1
+FAIL: F05.3 TMR_DELAY x SOK: sm_state got UNB want SOK
+FAIL: F05.3 TMR_DELAY x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TMR_DELAY x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TMR_DELAY x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_DELAY x SOK: probe_seq got 0 want 59
+FAIL: F05.3 TMR_DELAY x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002239/91e0f0004455/2
+FAIL: F05.3 TMR_DELAY x SOK: plumbing smh 0 want 15
+FAIL: F05.3 TMR_CMD x UNB: completes
+FAIL: F05.3 TMR_CMD x UNB: completes
+FAIL: F05.3 TMR_CMD x UNB: writebacks got 4000 want 1
+FAIL: F05.3 TMR_CMD x UNB: plumbing smh 0 want 9
+FAIL: F05.3 TMR_CMD x PWA: completes
+FAIL: F05.3 TMR_CMD x PWA: completes
+FAIL: F05.3 TMR_CMD x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_CMD x PWA: completes
+FAIL: F05.3 TMR_CMD x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 TMR_CMD x PWA: completes
+FAIL: F05.3 TMR_CMD x PWA: writebacks got 4000 want 1
+FAIL: F05.3 TMR_CMD x PWA: sm_state got UNB want PWA
+FAIL: F05.3 TMR_CMD x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TMR_CMD x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TMR_CMD x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_CMD x PWA: probe_seq got 0 want 60
+FAIL: F05.3 TMR_CMD x PWA: plumbing smh 0 want 10
+FAIL: F05.3 TMR_CMD x PWD: completes
+FAIL: F05.3 TMR_CMD x PWD: completes
+FAIL: F05.3 TMR_CMD x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_CMD x PWD: completes
+FAIL: F05.3 TMR_CMD x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 TMR_CMD x PWD: completes
+FAIL: F05.3 TMR_CMD x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 TMR_CMD x PWD: armed deadline 0 proves the slot carries the state's own T-ID (+777)
+FAIL: F05.3 TMR_CMD x PWR: completes
+FAIL: F05.3 TMR_CMD x PWR: completes
+FAIL: F05.3 TMR_CMD x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_CMD x PWR: completes
+FAIL: F05.3 TMR_CMD x PWR: writebacks got 4000 want 1
+FAIL: F05.3 TMR_CMD x PWR: frames got 0 want 1
+FAIL: F05.3 TMR_CMD x PWR: timer ops got 0 want 1
+FAIL: F05.3 TMR_CMD x PWR: notify got 0 want 1
+FAIL: F05.3 TMR_CMD x PWR: sm_state got UNB want PW2
+FAIL: F05.3 TMR_CMD x PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TMR_CMD x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: F05.3 TMR_CMD x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_CMD x PWR: probe_seq got 0 want 62
+FAIL: F05.3 TMR_CMD x PWR: plumbing smh 0 want 12
+FAIL: F05.3 TMR_CMD x PW2: completes
+FAIL: F05.3 TMR_CMD x PW2: completes
+FAIL: F05.3 TMR_CMD x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_CMD x PW2: completes
+FAIL: F05.3 TMR_CMD x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 TMR_CMD x PW2: completes
+FAIL: F05.3 TMR_CMD x PW2: writebacks got 4000 want 1
+FAIL: F05.3 TMR_CMD x PW2: timer ops got 0 want 1
+FAIL: F05.3 TMR_CMD x PW2: notify got 0 want 1
+FAIL: F05.3 TMR_CMD x PW2: sm_state got UNB want PWT
+FAIL: F05.3 TMR_CMD x PW2: pbsta/acmpsta got 0/0 want 2/7
+FAIL: F05.3 TMR_CMD x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: F05.3 TMR_CMD x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_CMD x PW2: probe_seq got 0 want 63
+FAIL: F05.3 TMR_CMD x PW2: plumbing smh 0 want 13
+FAIL: F05.3 TMR_CMD x PWT: completes
+FAIL: F05.3 TMR_CMD x PWT: completes
+FAIL: F05.3 TMR_CMD x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_CMD x PWT: completes
+FAIL: F05.3 TMR_CMD x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 TMR_CMD x PWT: armed deadline 0 proves the slot carries the state's own T-ID (+4000)
+FAIL: F05.3 TMR_CMD x SNR: completes
+FAIL: F05.3 TMR_CMD x SNR: completes
+FAIL: F05.3 TMR_CMD x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_CMD x SNR: completes
+FAIL: F05.3 TMR_CMD x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 TMR_CMD x SNR: armed deadline 0 proves the slot carries the state's own T-ID (+10000)
+FAIL: F05.3 TMR_CMD x SOK: completes
+FAIL: F05.3 TMR_CMD x SOK: completes
+FAIL: F05.3 TMR_CMD x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_CMD x SOK: completes
+FAIL: F05.3 TMR_CMD x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 TMR_CMD x SOK: completes
+FAIL: F05.3 TMR_CMD x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 TMR_CMD x SOK: completes
+FAIL: F05.3 TMR_CMD x SOK: writebacks got 4000 want 1
+FAIL: F05.3 TMR_CMD x SOK: sm_state got UNB want SOK
+FAIL: F05.3 TMR_CMD x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TMR_CMD x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TMR_CMD x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_CMD x SOK: probe_seq got 0 want 66
+FAIL: F05.3 TMR_CMD x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: F05.3 TMR_CMD x SOK: plumbing smh 0 want 9
+FAIL: F05.3 TMR_RETRY x UNB: completes
+FAIL: F05.3 TMR_RETRY x UNB: completes
+FAIL: F05.3 TMR_RETRY x UNB: writebacks got 4000 want 1
+FAIL: F05.3 TMR_RETRY x UNB: plumbing smh 0 want 10
+FAIL: F05.3 TMR_RETRY x PWA: completes
+FAIL: F05.3 TMR_RETRY x PWA: completes
+FAIL: F05.3 TMR_RETRY x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_RETRY x PWA: completes
+FAIL: F05.3 TMR_RETRY x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 TMR_RETRY x PWA: completes
+FAIL: F05.3 TMR_RETRY x PWA: writebacks got 4000 want 1
+FAIL: F05.3 TMR_RETRY x PWA: sm_state got UNB want PWA
+FAIL: F05.3 TMR_RETRY x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TMR_RETRY x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TMR_RETRY x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_RETRY x PWA: probe_seq got 0 want 67
+FAIL: F05.3 TMR_RETRY x PWA: plumbing smh 0 want 11
+FAIL: F05.3 TMR_RETRY x PWD: completes
+FAIL: F05.3 TMR_RETRY x PWD: completes
+FAIL: F05.3 TMR_RETRY x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_RETRY x PWD: completes
+FAIL: F05.3 TMR_RETRY x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 TMR_RETRY x PWD: completes
+FAIL: F05.3 TMR_RETRY x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 TMR_RETRY x PWD: armed deadline 0 proves the slot carries the state's own T-ID (+777)
+FAIL: F05.3 TMR_RETRY x PWR: completes
+FAIL: F05.3 TMR_RETRY x PWR: completes
+FAIL: F05.3 TMR_RETRY x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_RETRY x PWR: armed deadline 0 proves the slot carries the state's own T-ID (+200)
+FAIL: F05.3 TMR_RETRY x PW2: completes
+FAIL: F05.3 TMR_RETRY x PW2: completes
+FAIL: F05.3 TMR_RETRY x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_RETRY x PW2: completes
+FAIL: F05.3 TMR_RETRY x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 TMR_RETRY x PW2: armed deadline 0 proves the slot carries the state's own T-ID (+200)
+FAIL: F05.3 TMR_RETRY x PWT: completes
+FAIL: F05.3 TMR_RETRY x PWT: completes
+FAIL: F05.3 TMR_RETRY x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_RETRY x PWT: completes
+FAIL: F05.3 TMR_RETRY x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 TMR_RETRY x PWT: completes
+FAIL: F05.3 TMR_RETRY x PWT: writebacks got 4000 want 1
+FAIL: F05.3 TMR_RETRY x PWT: notify got 0 want 1
+FAIL: F05.3 TMR_RETRY x PWT: sm_state got UNB want PWA
+FAIL: F05.3 TMR_RETRY x PWT: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TMR_RETRY x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TMR_RETRY x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_RETRY x PWT: probe_seq got 0 want 71
+FAIL: F05.3 TMR_RETRY x PWT: plumbing smh 0 want 15
+FAIL: F05.3 TMR_RETRY x SNR: completes
+FAIL: F05.3 TMR_RETRY x SNR: completes
+FAIL: F05.3 TMR_RETRY x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_RETRY x SNR: completes
+FAIL: F05.3 TMR_RETRY x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 TMR_RETRY x SNR: armed deadline 0 proves the slot carries the state's own T-ID (+10000)
+FAIL: F05.3 TMR_RETRY x SOK: completes
+FAIL: F05.3 TMR_RETRY x SOK: completes
+FAIL: F05.3 TMR_RETRY x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_RETRY x SOK: completes
+FAIL: F05.3 TMR_RETRY x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 TMR_RETRY x SOK: completes
+FAIL: F05.3 TMR_RETRY x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 TMR_RETRY x SOK: completes
+FAIL: F05.3 TMR_RETRY x SOK: writebacks got 4000 want 1
+FAIL: F05.3 TMR_RETRY x SOK: sm_state got UNB want SOK
+FAIL: F05.3 TMR_RETRY x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TMR_RETRY x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TMR_RETRY x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_RETRY x SOK: probe_seq got 0 want 73
+FAIL: F05.3 TMR_RETRY x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002234/91e0f0004455/2
+FAIL: F05.3 TMR_RETRY x SOK: plumbing smh 0 want 10
+FAIL: F05.3 TMR_NOTK x UNB: completes
+FAIL: F05.3 TMR_NOTK x UNB: completes
+FAIL: F05.3 TMR_NOTK x UNB: writebacks got 4000 want 1
+FAIL: F05.3 TMR_NOTK x UNB: plumbing smh 0 want 11
+FAIL: F05.3 TMR_NOTK x PWA: completes
+FAIL: F05.3 TMR_NOTK x PWA: completes
+FAIL: F05.3 TMR_NOTK x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_NOTK x PWA: completes
+FAIL: F05.3 TMR_NOTK x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 TMR_NOTK x PWA: completes
+FAIL: F05.3 TMR_NOTK x PWA: writebacks got 4000 want 1
+FAIL: F05.3 TMR_NOTK x PWA: sm_state got UNB want PWA
+FAIL: F05.3 TMR_NOTK x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TMR_NOTK x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TMR_NOTK x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_NOTK x PWA: probe_seq got 0 want 74
+FAIL: F05.3 TMR_NOTK x PWA: plumbing smh 0 want 12
+FAIL: F05.3 TMR_NOTK x PWD: completes
+FAIL: F05.3 TMR_NOTK x PWD: completes
+FAIL: F05.3 TMR_NOTK x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_NOTK x PWD: completes
+FAIL: F05.3 TMR_NOTK x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 TMR_NOTK x PWD: completes
+FAIL: F05.3 TMR_NOTK x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 TMR_NOTK x PWD: armed deadline 0 proves the slot carries the state's own T-ID (+777)
+FAIL: F05.3 TMR_NOTK x PWR: completes
+FAIL: F05.3 TMR_NOTK x PWR: completes
+FAIL: F05.3 TMR_NOTK x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_NOTK x PWR: armed deadline 0 proves the slot carries the state's own T-ID (+200)
+FAIL: F05.3 TMR_NOTK x PW2: completes
+FAIL: F05.3 TMR_NOTK x PW2: completes
+FAIL: F05.3 TMR_NOTK x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_NOTK x PW2: completes
+FAIL: F05.3 TMR_NOTK x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 TMR_NOTK x PW2: armed deadline 0 proves the slot carries the state's own T-ID (+200)
+FAIL: F05.3 TMR_NOTK x PWT: completes
+FAIL: F05.3 TMR_NOTK x PWT: completes
+FAIL: F05.3 TMR_NOTK x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_NOTK x PWT: completes
+FAIL: F05.3 TMR_NOTK x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 TMR_NOTK x PWT: armed deadline 0 proves the slot carries the state's own T-ID (+4000)
+FAIL: F05.3 TMR_NOTK x SNR: completes
+FAIL: F05.3 TMR_NOTK x SNR: completes
+FAIL: F05.3 TMR_NOTK x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_NOTK x SNR: completes
+FAIL: F05.3 TMR_NOTK x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 TMR_NOTK x SNR: completes
+FAIL: F05.3 TMR_NOTK x SNR: writebacks got 4000 want 1
+FAIL: F05.3 TMR_NOTK x SNR: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd0 nv0/0
+FAIL: F05.3 TMR_NOTK x SNR: notify got 0 want 1
+FAIL: F05.3 TMR_NOTK x SNR: sm_state got UNB want PWA
+FAIL: F05.3 TMR_NOTK x SNR: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TMR_NOTK x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TMR_NOTK x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_NOTK x SNR: probe_seq got 0 want 79
+FAIL: F05.3 TMR_NOTK x SNR: plumbing smh 0 want 10
+FAIL: F05.3 TMR_NOTK x SOK: completes
+FAIL: F05.3 TMR_NOTK x SOK: completes
+FAIL: F05.3 TMR_NOTK x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 TMR_NOTK x SOK: completes
+FAIL: F05.3 TMR_NOTK x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 TMR_NOTK x SOK: completes
+FAIL: F05.3 TMR_NOTK x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 TMR_NOTK x SOK: completes
+FAIL: F05.3 TMR_NOTK x SOK: writebacks got 4000 want 1
+FAIL: F05.3 TMR_NOTK x SOK: sm_state got UNB want SOK
+FAIL: F05.3 TMR_NOTK x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TMR_NOTK x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TMR_NOTK x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TMR_NOTK x SOK: probe_seq got 0 want 80
+FAIL: F05.3 TMR_NOTK x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002235/91e0f0004455/2
+FAIL: F05.3 TMR_NOTK x SOK: plumbing smh 0 want 11
+FAIL: F05.3 TK_DISC x UNB: completes
+FAIL: F05.3 TK_DISC x UNB: completes
+FAIL: F05.3 TK_DISC x UNB: writebacks got 4000 want 1
+FAIL: F05.3 TK_DISC x UNB: plumbing smh 0 want 12
+FAIL: F05.3 TK_DISC x PWA: completes
+FAIL: F05.3 TK_DISC x PWA: completes
+FAIL: F05.3 TK_DISC x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DISC x PWA: completes
+FAIL: F05.3 TK_DISC x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 TK_DISC x PWA: completes
+FAIL: F05.3 TK_DISC x PWA: writebacks got 4000 want 1
+FAIL: F05.3 TK_DISC x PWA: timer ops got 0 want 1
+FAIL: F05.3 TK_DISC x PWA: notify got 0 want 1
+FAIL: F05.3 TK_DISC x PWA: sm_state got UNB want PWD
+FAIL: F05.3 TK_DISC x PWA: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_DISC x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 TK_DISC x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DISC x PWA: probe_seq got 0 want 81
+FAIL: F05.3 TK_DISC x PWA: plumbing smh 0 want 13
+FAIL: F05.3 TK_DISC x PWD: completes
+FAIL: F05.3 TK_DISC x PWD: completes
+FAIL: F05.3 TK_DISC x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DISC x PWD: completes
+FAIL: F05.3 TK_DISC x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 TK_DISC x PWD: completes
+FAIL: F05.3 TK_DISC x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 TK_DISC x PWD: completes
+FAIL: F05.3 TK_DISC x PWD: writebacks got 4000 want 1
+FAIL: F05.3 TK_DISC x PWD: sm_state got UNB want PWD
+FAIL: F05.3 TK_DISC x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_DISC x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 TK_DISC x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DISC x PWD: probe_seq got 0 want 82
+FAIL: F05.3 TK_DISC x PWD: plumbing smh 0 want 14
+FAIL: F05.3 TK_DISC x PWR: completes
+FAIL: F05.3 TK_DISC x PWR: completes
+FAIL: F05.3 TK_DISC x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DISC x PWR: completes
+FAIL: F05.3 TK_DISC x PWR: writebacks got 4000 want 1
+FAIL: F05.3 TK_DISC x PWR: sm_state got UNB want PWR
+FAIL: F05.3 TK_DISC x PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_DISC x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 TK_DISC x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DISC x PWR: probe_seq got 0 want 83
+FAIL: F05.3 TK_DISC x PWR: plumbing smh 0 want 15
+FAIL: F05.3 TK_DISC x PW2: completes
+FAIL: F05.3 TK_DISC x PW2: completes
+FAIL: F05.3 TK_DISC x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DISC x PW2: completes
+FAIL: F05.3 TK_DISC x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 TK_DISC x PW2: completes
+FAIL: F05.3 TK_DISC x PW2: writebacks got 4000 want 1
+FAIL: F05.3 TK_DISC x PW2: sm_state got UNB want PW2
+FAIL: F05.3 TK_DISC x PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_DISC x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t1
+FAIL: F05.3 TK_DISC x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DISC x PW2: probe_seq got 0 want 84
+FAIL: F05.3 TK_DISC x PW2: plumbing smh 0 want 9
+FAIL: F05.3 TK_DISC x PWT: completes
+FAIL: F05.3 TK_DISC x PWT: completes
+FAIL: F05.3 TK_DISC x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DISC x PWT: completes
+FAIL: F05.3 TK_DISC x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 TK_DISC x PWT: completes
+FAIL: F05.3 TK_DISC x PWT: writebacks got 4000 want 1
+FAIL: F05.3 TK_DISC x PWT: sm_state got UNB want PWT
+FAIL: F05.3 TK_DISC x PWT: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 TK_DISC x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 TK_DISC x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DISC x PWT: probe_seq got 0 want 85
+FAIL: F05.3 TK_DISC x PWT: plumbing smh 0 want 10
+FAIL: F05.3 TK_DISC x SNR: completes
+FAIL: F05.3 TK_DISC x SNR: completes
+FAIL: F05.3 TK_DISC x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DISC x SNR: completes
+FAIL: F05.3 TK_DISC x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 TK_DISC x SNR: completes
+FAIL: F05.3 TK_DISC x SNR: writebacks got 4000 want 1
+FAIL: F05.3 TK_DISC x SNR: sm_state got UNB want SNR
+FAIL: F05.3 TK_DISC x SNR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TK_DISC x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t1
+FAIL: F05.3 TK_DISC x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DISC x SNR: probe_seq got 0 want 86
+FAIL: F05.3 TK_DISC x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002235/91e0f0004455/2
+FAIL: F05.3 TK_DISC x SNR: plumbing smh 0 want 11
+FAIL: F05.3 TK_DISC x SOK: completes
+FAIL: F05.3 TK_DISC x SOK: completes
+FAIL: F05.3 TK_DISC x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DISC x SOK: completes
+FAIL: F05.3 TK_DISC x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 TK_DISC x SOK: completes
+FAIL: F05.3 TK_DISC x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 TK_DISC x SOK: completes
+FAIL: F05.3 TK_DISC x SOK: writebacks got 4000 want 1
+FAIL: F05.3 TK_DISC x SOK: sm_state got UNB want SOK
+FAIL: F05.3 TK_DISC x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TK_DISC x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t1
+FAIL: F05.3 TK_DISC x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DISC x SOK: probe_seq got 0 want 87
+FAIL: F05.3 TK_DISC x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002236/91e0f0004455/2
+FAIL: F05.3 TK_DISC x SOK: plumbing smh 0 want 12
+FAIL: F05.3 TK_DEP x UNB: completes
+FAIL: F05.3 TK_DEP x UNB: completes
+FAIL: F05.3 TK_DEP x UNB: writebacks got 4000 want 1
+FAIL: F05.3 TK_DEP x UNB: plumbing smh 0 want 13
+FAIL: F05.3 TK_DEP x PWA: completes
+FAIL: F05.3 TK_DEP x PWA: completes
+FAIL: F05.3 TK_DEP x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DEP x PWA: completes
+FAIL: F05.3 TK_DEP x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 TK_DEP x PWA: completes
+FAIL: F05.3 TK_DEP x PWA: writebacks got 4000 want 1
+FAIL: F05.3 TK_DEP x PWA: sm_state got UNB want PWA
+FAIL: F05.3 TK_DEP x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TK_DEP x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_DEP x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DEP x PWA: probe_seq got 0 want 88
+FAIL: F05.3 TK_DEP x PWA: plumbing smh 0 want 14
+FAIL: F05.3 TK_DEP x PWD: completes
+FAIL: F05.3 TK_DEP x PWD: completes
+FAIL: F05.3 TK_DEP x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DEP x PWD: completes
+FAIL: F05.3 TK_DEP x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 TK_DEP x PWD: completes
+FAIL: F05.3 TK_DEP x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 TK_DEP x PWD: completes
+FAIL: F05.3 TK_DEP x PWD: writebacks got 4000 want 1
+FAIL: F05.3 TK_DEP x PWD: timer ops got 0 want 1
+FAIL: F05.3 TK_DEP x PWD: notify got 0 want 1
+FAIL: F05.3 TK_DEP x PWD: sm_state got UNB want PWA
+FAIL: F05.3 TK_DEP x PWD: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TK_DEP x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_DEP x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DEP x PWD: probe_seq got 0 want 89
+FAIL: F05.3 TK_DEP x PWD: plumbing smh 0 want 15
+FAIL: F05.3 TK_DEP x PWR: completes
+FAIL: F05.3 TK_DEP x PWR: completes
+FAIL: F05.3 TK_DEP x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DEP x PWR: completes
+FAIL: F05.3 TK_DEP x PWR: writebacks got 4000 want 1
+FAIL: F05.3 TK_DEP x PWR: timer ops got 0 want 1
+FAIL: F05.3 TK_DEP x PWR: notify got 0 want 1
+FAIL: F05.3 TK_DEP x PWR: sm_state got UNB want PWA
+FAIL: F05.3 TK_DEP x PWR: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TK_DEP x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_DEP x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DEP x PWR: probe_seq got 0 want 90
+FAIL: F05.3 TK_DEP x PWR: plumbing smh 0 want 9
+FAIL: F05.3 TK_DEP x PW2: completes
+FAIL: F05.3 TK_DEP x PW2: completes
+FAIL: F05.3 TK_DEP x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DEP x PW2: completes
+FAIL: F05.3 TK_DEP x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 TK_DEP x PW2: completes
+FAIL: F05.3 TK_DEP x PW2: writebacks got 4000 want 1
+FAIL: F05.3 TK_DEP x PW2: timer ops got 0 want 1
+FAIL: F05.3 TK_DEP x PW2: notify got 0 want 1
+FAIL: F05.3 TK_DEP x PW2: sm_state got UNB want PWA
+FAIL: F05.3 TK_DEP x PW2: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TK_DEP x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: F05.3 TK_DEP x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DEP x PW2: probe_seq got 0 want 91
+FAIL: F05.3 TK_DEP x PW2: plumbing smh 0 want 10
+FAIL: F05.3 TK_DEP x PWT: completes
+FAIL: F05.3 TK_DEP x PWT: completes
+FAIL: F05.3 TK_DEP x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DEP x PWT: completes
+FAIL: F05.3 TK_DEP x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 TK_DEP x PWT: completes
+FAIL: F05.3 TK_DEP x PWT: writebacks got 4000 want 1
+FAIL: F05.3 TK_DEP x PWT: timer ops got 0 want 1
+FAIL: F05.3 TK_DEP x PWT: notify got 0 want 1
+FAIL: F05.3 TK_DEP x PWT: sm_state got UNB want PWA
+FAIL: F05.3 TK_DEP x PWT: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TK_DEP x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_DEP x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DEP x PWT: probe_seq got 0 want 92
+FAIL: F05.3 TK_DEP x PWT: plumbing smh 0 want 11
+FAIL: F05.3 TK_DEP x SNR: completes
+FAIL: F05.3 TK_DEP x SNR: completes
+FAIL: F05.3 TK_DEP x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DEP x SNR: completes
+FAIL: F05.3 TK_DEP x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 TK_DEP x SNR: completes
+FAIL: F05.3 TK_DEP x SNR: writebacks got 4000 want 1
+FAIL: F05.3 TK_DEP x SNR: sm_state got UNB want SNR
+FAIL: F05.3 TK_DEP x SNR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TK_DEP x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 TK_DEP x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DEP x SNR: probe_seq got 0 want 93
+FAIL: F05.3 TK_DEP x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002236/91e0f0004455/2
+FAIL: F05.3 TK_DEP x SNR: plumbing smh 0 want 12
+FAIL: F05.3 TK_DEP x SOK: completes
+FAIL: F05.3 TK_DEP x SOK: completes
+FAIL: F05.3 TK_DEP x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_DEP x SOK: completes
+FAIL: F05.3 TK_DEP x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 TK_DEP x SOK: completes
+FAIL: F05.3 TK_DEP x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 TK_DEP x SOK: completes
+FAIL: F05.3 TK_DEP x SOK: writebacks got 4000 want 1
+FAIL: F05.3 TK_DEP x SOK: sm_state got UNB want SOK
+FAIL: F05.3 TK_DEP x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TK_DEP x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TK_DEP x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_DEP x SOK: probe_seq got 0 want 94
+FAIL: F05.3 TK_DEP x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002237/91e0f0004455/2
+FAIL: F05.3 TK_DEP x SOK: plumbing smh 0 want 13
+FAIL: F05.3 TK_REG x UNB: completes
+FAIL: F05.3 TK_REG x UNB: completes
+FAIL: F05.3 TK_REG x UNB: writebacks got 4000 want 1
+FAIL: F05.3 TK_REG x UNB: plumbing smh 0 want 14
+FAIL: F05.3 TK_REG x PWA: completes
+FAIL: F05.3 TK_REG x PWA: completes
+FAIL: F05.3 TK_REG x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_REG x PWA: completes
+FAIL: F05.3 TK_REG x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 TK_REG x PWA: completes
+FAIL: F05.3 TK_REG x PWA: writebacks got 4000 want 1
+FAIL: F05.3 TK_REG x PWA: sm_state got UNB want PWA
+FAIL: F05.3 TK_REG x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TK_REG x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_REG x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_REG x PWA: probe_seq got 0 want 95
+FAIL: F05.3 TK_REG x PWA: plumbing smh 0 want 15
+FAIL: F05.3 TK_REG x PWD: completes
+FAIL: F05.3 TK_REG x PWD: completes
+FAIL: F05.3 TK_REG x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_REG x PWD: completes
+FAIL: F05.3 TK_REG x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 TK_REG x PWD: completes
+FAIL: F05.3 TK_REG x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 TK_REG x PWD: completes
+FAIL: F05.3 TK_REG x PWD: writebacks got 4000 want 1
+FAIL: F05.3 TK_REG x PWD: sm_state got UNB want PWD
+FAIL: F05.3 TK_REG x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_REG x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 TK_REG x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_REG x PWD: probe_seq got 0 want 96
+FAIL: F05.3 TK_REG x PWD: plumbing smh 0 want 9
+FAIL: F05.3 TK_REG x PWR: completes
+FAIL: F05.3 TK_REG x PWR: completes
+FAIL: F05.3 TK_REG x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_REG x PWR: completes
+FAIL: F05.3 TK_REG x PWR: writebacks got 4000 want 1
+FAIL: F05.3 TK_REG x PWR: sm_state got UNB want PWR
+FAIL: F05.3 TK_REG x PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_REG x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_REG x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_REG x PWR: probe_seq got 0 want 97
+FAIL: F05.3 TK_REG x PWR: plumbing smh 0 want 10
+FAIL: F05.3 TK_REG x PW2: completes
+FAIL: F05.3 TK_REG x PW2: completes
+FAIL: F05.3 TK_REG x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_REG x PW2: completes
+FAIL: F05.3 TK_REG x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 TK_REG x PW2: completes
+FAIL: F05.3 TK_REG x PW2: writebacks got 4000 want 1
+FAIL: F05.3 TK_REG x PW2: sm_state got UNB want PW2
+FAIL: F05.3 TK_REG x PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_REG x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: F05.3 TK_REG x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_REG x PW2: probe_seq got 0 want 98
+FAIL: F05.3 TK_REG x PW2: plumbing smh 0 want 11
+FAIL: F05.3 TK_REG x PWT: completes
+FAIL: F05.3 TK_REG x PWT: completes
+FAIL: F05.3 TK_REG x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_REG x PWT: completes
+FAIL: F05.3 TK_REG x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 TK_REG x PWT: completes
+FAIL: F05.3 TK_REG x PWT: writebacks got 4000 want 1
+FAIL: F05.3 TK_REG x PWT: sm_state got UNB want PWT
+FAIL: F05.3 TK_REG x PWT: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 TK_REG x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_REG x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_REG x PWT: probe_seq got 0 want 99
+FAIL: F05.3 TK_REG x PWT: plumbing smh 0 want 12
+FAIL: F05.3 TK_REG x SNR: completes
+FAIL: F05.3 TK_REG x SNR: completes
+FAIL: F05.3 TK_REG x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_REG x SNR: completes
+FAIL: F05.3 TK_REG x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 TK_REG x SNR: completes
+FAIL: F05.3 TK_REG x SNR: writebacks got 4000 want 1
+FAIL: F05.3 TK_REG x SNR: timer ops got 0 want 1
+FAIL: F05.3 TK_REG x SNR: sm_state got UNB want SOK
+FAIL: F05.3 TK_REG x SNR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TK_REG x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TK_REG x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_REG x SNR: probe_seq got 0 want 100
+FAIL: F05.3 TK_REG x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002237/91e0f0004455/2
+FAIL: F05.3 TK_REG x SNR: plumbing smh 0 want 13
+FAIL: F05.3 TK_REG x SOK: completes
+FAIL: F05.3 TK_REG x SOK: completes
+FAIL: F05.3 TK_REG x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_REG x SOK: completes
+FAIL: F05.3 TK_REG x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 TK_REG x SOK: completes
+FAIL: F05.3 TK_REG x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 TK_REG x SOK: completes
+FAIL: F05.3 TK_REG x SOK: writebacks got 4000 want 1
+FAIL: F05.3 TK_REG x SOK: sm_state got UNB want SOK
+FAIL: F05.3 TK_REG x SOK: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TK_REG x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TK_REG x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_REG x SOK: probe_seq got 0 want 101
+FAIL: F05.3 TK_REG x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002238/91e0f0004455/2
+FAIL: F05.3 TK_REG x SOK: plumbing smh 0 want 14
+FAIL: F05.3 TK_UNREG x UNB: completes
+FAIL: F05.3 TK_UNREG x UNB: completes
+FAIL: F05.3 TK_UNREG x UNB: writebacks got 4000 want 1
+FAIL: F05.3 TK_UNREG x UNB: plumbing smh 0 want 15
+FAIL: F05.3 TK_UNREG x PWA: completes
+FAIL: F05.3 TK_UNREG x PWA: completes
+FAIL: F05.3 TK_UNREG x PWA(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_UNREG x PWA: completes
+FAIL: F05.3 TK_UNREG x PWA(setup): state sync got UNB want PWA
+FAIL: F05.3 TK_UNREG x PWA: completes
+FAIL: F05.3 TK_UNREG x PWA: writebacks got 4000 want 1
+FAIL: F05.3 TK_UNREG x PWA: sm_state got UNB want PWA
+FAIL: F05.3 TK_UNREG x PWA: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TK_UNREG x PWA: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_UNREG x PWA: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_UNREG x PWA: probe_seq got 0 want 102
+FAIL: F05.3 TK_UNREG x PWA: plumbing smh 0 want 9
+FAIL: F05.3 TK_UNREG x PWD: completes
+FAIL: F05.3 TK_UNREG x PWD: completes
+FAIL: F05.3 TK_UNREG x PWD(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_UNREG x PWD: completes
+FAIL: F05.3 TK_UNREG x PWD(setup): state sync got UNB want PWA
+FAIL: F05.3 TK_UNREG x PWD: completes
+FAIL: F05.3 TK_UNREG x PWD(setup): state sync got UNB want PWD
+FAIL: F05.3 TK_UNREG x PWD: completes
+FAIL: F05.3 TK_UNREG x PWD: writebacks got 4000 want 1
+FAIL: F05.3 TK_UNREG x PWD: sm_state got UNB want PWD
+FAIL: F05.3 TK_UNREG x PWD: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_UNREG x PWD: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: F05.3 TK_UNREG x PWD: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_UNREG x PWD: probe_seq got 0 want 103
+FAIL: F05.3 TK_UNREG x PWD: plumbing smh 0 want 10
+FAIL: F05.3 TK_UNREG x PWR: completes
+FAIL: F05.3 TK_UNREG x PWR: completes
+FAIL: F05.3 TK_UNREG x PWR(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_UNREG x PWR: completes
+FAIL: F05.3 TK_UNREG x PWR: writebacks got 4000 want 1
+FAIL: F05.3 TK_UNREG x PWR: sm_state got UNB want PWR
+FAIL: F05.3 TK_UNREG x PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_UNREG x PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_UNREG x PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_UNREG x PWR: probe_seq got 0 want 104
+FAIL: F05.3 TK_UNREG x PWR: plumbing smh 0 want 11
+FAIL: F05.3 TK_UNREG x PW2: completes
+FAIL: F05.3 TK_UNREG x PW2: completes
+FAIL: F05.3 TK_UNREG x PW2(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_UNREG x PW2: completes
+FAIL: F05.3 TK_UNREG x PW2(setup): state sync got UNB want PW2
+FAIL: F05.3 TK_UNREG x PW2: completes
+FAIL: F05.3 TK_UNREG x PW2: writebacks got 4000 want 1
+FAIL: F05.3 TK_UNREG x PW2: sm_state got UNB want PW2
+FAIL: F05.3 TK_UNREG x PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: F05.3 TK_UNREG x PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: F05.3 TK_UNREG x PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_UNREG x PW2: probe_seq got 0 want 105
+FAIL: F05.3 TK_UNREG x PW2: plumbing smh 0 want 12
+FAIL: F05.3 TK_UNREG x PWT: completes
+FAIL: F05.3 TK_UNREG x PWT: completes
+FAIL: F05.3 TK_UNREG x PWT(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_UNREG x PWT: completes
+FAIL: F05.3 TK_UNREG x PWT(setup): state sync got UNB want PWT
+FAIL: F05.3 TK_UNREG x PWT: completes
+FAIL: F05.3 TK_UNREG x PWT: writebacks got 4000 want 1
+FAIL: F05.3 TK_UNREG x PWT: sm_state got UNB want PWT
+FAIL: F05.3 TK_UNREG x PWT: pbsta/acmpsta got 0/0 want 2/5
+FAIL: F05.3 TK_UNREG x PWT: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_UNREG x PWT: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_UNREG x PWT: probe_seq got 0 want 106
+FAIL: F05.3 TK_UNREG x PWT: plumbing smh 0 want 13
+FAIL: F05.3 TK_UNREG x SNR: completes
+FAIL: F05.3 TK_UNREG x SNR: completes
+FAIL: F05.3 TK_UNREG x SNR(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_UNREG x SNR: completes
+FAIL: F05.3 TK_UNREG x SNR(setup): state sync got UNB want SNR
+FAIL: F05.3 TK_UNREG x SNR: completes
+FAIL: F05.3 TK_UNREG x SNR: writebacks got 4000 want 1
+FAIL: F05.3 TK_UNREG x SNR: sm_state got UNB want SNR
+FAIL: F05.3 TK_UNREG x SNR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: F05.3 TK_UNREG x SNR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 TK_UNREG x SNR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_UNREG x SNR: probe_seq got 0 want 107
+FAIL: F05.3 TK_UNREG x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002238/91e0f0004455/2
+FAIL: F05.3 TK_UNREG x SNR: plumbing smh 0 want 14
+FAIL: F05.3 TK_UNREG x SOK: completes
+FAIL: F05.3 TK_UNREG x SOK: completes
+FAIL: F05.3 TK_UNREG x SOK(setup): state sync got UNB want PWR
+FAIL: F05.3 TK_UNREG x SOK: completes
+FAIL: F05.3 TK_UNREG x SOK(setup): state sync got UNB want SNR
+FAIL: F05.3 TK_UNREG x SOK: completes
+FAIL: F05.3 TK_UNREG x SOK(setup): state sync got UNB want SOK
+FAIL: F05.3 TK_UNREG x SOK: completes
+FAIL: F05.3 TK_UNREG x SOK: writebacks got 4000 want 1
+FAIL: F05.3 TK_UNREG x SOK: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd0 nv0/0
+FAIL: F05.3 TK_UNREG x SOK: notify got 0 want 1
+FAIL: F05.3 TK_UNREG x SOK: sm_state got UNB want PWA
+FAIL: F05.3 TK_UNREG x SOK: pbsta/acmpsta got 0/0 want 1/0
+FAIL: F05.3 TK_UNREG x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TK_UNREG x SOK: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: F05.3 TK_UNREG x SOK: probe_seq got 0 want 108
+FAIL: F05.3 TK_UNREG x SOK: plumbing smh 0 want 15
+FAIL: B1: completes
+FAIL: B1: completes
+FAIL: B1(setup): state sync got UNB want PWR
+FAIL: B1: completes
+FAIL: B1: bind completes
+FAIL: B1: bind resp + probe #1
+FAIL: B1 dup: completes
+FAIL: B1 dup: writebacks got 4000 want 1
+FAIL: B1 dup: frames got 0 want 1
+FAIL: B1 dup: timer ops got 0 want 1
+FAIL: B1 dup: notify got 0 want 1
+FAIL: B1 dup: sm_state got UNB want PW2
+FAIL: B1 dup: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B1 dup: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B1 dup: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B1 dup: probe_seq got 0 want 110
+FAIL: B1 dup: plumbing smh 0 want 9
+FAIL: B1: probe #2 is the exact duplicate of probe #1
+FAIL: B1: same probe_seq 110
+FAIL: B1: retried flag set
+FAIL: B2 dbl-timeout: completes
+FAIL: B2 dbl-timeout: writebacks got 4000 want 1
+FAIL: B2 dbl-timeout: timer ops got 0 want 1
+FAIL: B2 dbl-timeout: notify got 0 want 1
+FAIL: B2 dbl-timeout: sm_state got UNB want PWT
+FAIL: B2 dbl-timeout: pbsta/acmpsta got 0/0 want 2/7
+FAIL: B2 dbl-timeout: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B2 dbl-timeout: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B2 dbl-timeout: probe_seq got 0 want 110
+FAIL: B2 dbl-timeout: plumbing smh 0 want 9
+FAIL: B2: PWT with acmpsta LISTENER_TALKER_TIMEOUT got UNB/0
+FAIL: B3: completes
+FAIL: B3(setup): state sync got UNB want PWT
+FAIL: B3 RETRY tk arm: completes
+FAIL: B3 RETRY tk arm: writebacks got 4000 want 1
+FAIL: B3 RETRY tk arm: timer ops got 0 want 1
+FAIL: B3 RETRY tk arm: notify got 0 want 1
+FAIL: B3 RETRY tk arm: sm_state got UNB want PWD
+FAIL: B3 RETRY tk arm: pbsta/acmpsta got 0/0 want 2/7
+FAIL: B3 RETRY tk arm: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t1
+FAIL: B3 RETRY tk arm: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B3 RETRY tk arm: probe_seq got 0 want 110
+FAIL: B3 RETRY tk arm: plumbing smh 0 want 9
+FAIL: B3: RETRY with talker -> PWD got UNB
+FAIL: B3b: completes
+FAIL: B3b: completes
+FAIL: B3b(setup): state sync got UNB want PWR
+FAIL: B3b: completes
+FAIL: B3b(setup): state sync got UNB want SNR
+FAIL: B3b: completes
+FAIL: B3b(setup): state sync got UNB want SNR
+FAIL: B3b NOTK tk arm: completes
+FAIL: B3b NOTK tk arm: writebacks got 4000 want 1
+FAIL: B3b NOTK tk arm: timer ops got 0 want 1
+FAIL: B3b NOTK tk arm: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd0 nv0/0
+FAIL: B3b NOTK tk arm: notify got 0 want 1
+FAIL: B3b NOTK tk arm: sm_state got UNB want PWD
+FAIL: B3b NOTK tk arm: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B3b NOTK tk arm: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: B3b NOTK tk arm: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B3b NOTK tk arm: probe_seq got 0 want 111
+FAIL: B3b NOTK tk arm: plumbing smh 0 want 9
+FAIL: B3b: NOTK with talker -> PWD got UNB
+FAIL: B3c: completes
+FAIL: B3c: completes
+FAIL: B3c(setup): state sync got UNB want PWR
+FAIL: B3c: completes
+FAIL: B3c(setup): state sync got UNB want SNR
+FAIL: B3c: completes
+FAIL: B3c(setup): state sync got UNB want SOK
+FAIL: B3c: completes
+FAIL: B3c(setup): state sync got UNB want SOK
+FAIL: B3c UNREG tk arm: completes
+FAIL: B3c UNREG tk arm: writebacks got 4000 want 1
+FAIL: B3c UNREG tk arm: timer ops got 0 want 1
+FAIL: B3c UNREG tk arm: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd0 nv0/0
+FAIL: B3c UNREG tk arm: notify got 0 want 1
+FAIL: B3c UNREG tk arm: sm_state got UNB want PWD
+FAIL: B3c UNREG tk arm: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B3c UNREG tk arm: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t1
+FAIL: B3c UNREG tk arm: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B3c UNREG tk arm: probe_seq got 0 want 112
+FAIL: B3c UNREG tk arm: plumbing smh 0 want 9
+FAIL: B3c: UNREG with talker -> PWD got UNB
+FAIL: B4: completes
+FAIL: B4: completes
+FAIL: B4(setup): state sync got UNB want PWR
+FAIL: B4: completes
+FAIL: B4(setup): state sync got UNB want SNR
+FAIL: B4: completes
+FAIL: B4(setup): state sync got UNB want SOK
+FAIL: B4 REF-BUG: completes
+FAIL: B4 REF-BUG: writebacks got 4000 want 1
+FAIL: B4 REF-BUG: sm_state got UNB want SOK
+FAIL: B4 REF-BUG: pbsta/acmpsta got 0/0 want 3/0
+FAIL: B4 REF-BUG: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: B4 REF-BUG: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B4 REF-BUG: probe_seq got 0 want 113
+FAIL: B4 REF-BUG: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: B4 REF-BUG: plumbing smh 0 want 9
+FAIL: B4: no invented arc, no RF latch from the spurious rise
+FAIL: B5: completes
+FAIL: B5: completes
+FAIL: B5(setup): state sync got UNB want PWR
+FAIL: B5: completes
+FAIL: B5(setup): state sync got UNB want SNR
+FAIL: B5 reg-failed: completes
+FAIL: B5 reg-failed: writebacks got 4000 want 1
+FAIL: B5 reg-failed: timer ops got 0 want 1
+FAIL: B5 reg-failed: sm_state got UNB want SOK
+FAIL: B5 reg-failed: pbsta/acmpsta got 0/0 want 3/0
+FAIL: B5 reg-failed: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d3 g1 t0
+FAIL: B5 reg-failed: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B5 reg-failed: probe_seq got 0 want 114
+FAIL: B5 reg-failed: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: B5 reg-failed: plumbing smh 0 want 9
+FAIL: B5: GET_RX_STATE completes
+FAIL: B5: flags carry REGISTERING_FAILED 0x0040
+FAIL: B5: writebacks got 4000 want 1
+FAIL: B5: frames got 0 want 1
+FAIL: B5: rx frees got 0 want 1
+FAIL: B6 msg 6 uid 8 completes
+FAIL: B6 msg 6 uid 8: writebacks got 4000 want 0
+FAIL: B6 msg 6 uid 8: frames got 0 want 1
+FAIL: B6 msg 6 uid 8: rx frees got 0 want 1
+FAIL: B6 msg 6 uid 8: status LISTENER_UNKNOWN_ID
+FAIL: B6 msg 8 uid 8 completes
+FAIL: B6 msg 8 uid 8: writebacks got 4000 want 0
+FAIL: B6 msg 8 uid 8: frames got 0 want 1
+FAIL: B6 msg 8 uid 8: rx frees got 0 want 1
+FAIL: B6 msg 8 uid 8: status LISTENER_UNKNOWN_ID
+FAIL: B6 msg 10 uid 8 completes
+FAIL: B6 msg 10 uid 8: writebacks got 4000 want 0
+FAIL: B6 msg 10 uid 8: frames got 0 want 1
+FAIL: B6 msg 10 uid 8: rx frees got 0 want 1
+FAIL: B6 msg 10 uid 8: status LISTENER_UNKNOWN_ID
+FAIL: B6 probe uid 8 completes
+FAIL: B6 probe uid 8 (silent): writebacks got 4000 want 0
+FAIL: B6 probe uid 8 (silent): rx frees got 0 want 1
+FAIL: B7 foreign EID completes
+FAIL: B7 foreign EID: writebacks got 4000 want 0
+FAIL: B7 foreign EID: rx frees got 0 want 1
+FAIL: B7 foreign protocol completes
+FAIL: B7 foreign protocol: writebacks got 4000 want 0
+FAIL: B7 foreign protocol: rx frees got 0 want 1
+FAIL: B8: completes
+FAIL: B8: completes
+FAIL: B8(setup): state sync got UNB want PWR
+FAIL: B8 completes
+FAIL: B8 guard mismatch: writebacks got 4000 want 0
+FAIL: B8 guard mismatch: rx frees got 0 want 1
+FAIL: B8: no write-back, slot returned
+FAIL: B8: still PRB_W_RESP
+FAIL: B13: completes
+FAIL: B13: completes
+FAIL: B13(setup): state sync got UNB want PWR
+FAIL: B13 msg 3 status 0 in PWR: completes
+FAIL: B13 msg 3 status 0 in PWR: writebacks got 4000 want 0
+FAIL: B13 msg 3 status 0 in PWR: rx frees got 0 want 1
+FAIL: B13 msg 3 status 0 in PWR: sm_state got UNB want PWR
+FAIL: B13 msg 3 status 0 in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 3 status 0 in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B13 msg 3 status 0 in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 3 status 0 in PWR: probe_seq got 0 want 116
+FAIL: B13 msg 3 status 0 in PWR: plumbing smh 0 want 9
+FAIL: B13 msg 3 status 0 in PWR: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 3 status 0 in PWR: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 3 status 0 in PWR: record untouched, still PWR (got UNB)
+FAIL: B13 msg 5 status 0 in PWR: completes
+FAIL: B13 msg 5 status 0 in PWR: writebacks got 4000 want 0
+FAIL: B13 msg 5 status 0 in PWR: rx frees got 0 want 1
+FAIL: B13 msg 5 status 0 in PWR: sm_state got UNB want PWR
+FAIL: B13 msg 5 status 0 in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 5 status 0 in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B13 msg 5 status 0 in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 5 status 0 in PWR: probe_seq got 0 want 116
+FAIL: B13 msg 5 status 0 in PWR: plumbing smh 0 want 9
+FAIL: B13 msg 5 status 0 in PWR: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 5 status 0 in PWR: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 5 status 0 in PWR: record untouched, still PWR (got UNB)
+FAIL: B13 msg 7 status 0 in PWR: completes
+FAIL: B13 msg 7 status 0 in PWR: writebacks got 4000 want 0
+FAIL: B13 msg 7 status 0 in PWR: rx frees got 0 want 1
+FAIL: B13 msg 7 status 0 in PWR: sm_state got UNB want PWR
+FAIL: B13 msg 7 status 0 in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 7 status 0 in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B13 msg 7 status 0 in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 7 status 0 in PWR: probe_seq got 0 want 116
+FAIL: B13 msg 7 status 0 in PWR: plumbing smh 0 want 9
+FAIL: B13 msg 7 status 0 in PWR: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 7 status 0 in PWR: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 7 status 0 in PWR: record untouched, still PWR (got UNB)
+FAIL: B13 msg 9 status 0 in PWR: completes
+FAIL: B13 msg 9 status 0 in PWR: writebacks got 4000 want 0
+FAIL: B13 msg 9 status 0 in PWR: rx frees got 0 want 1
+FAIL: B13 msg 9 status 0 in PWR: sm_state got UNB want PWR
+FAIL: B13 msg 9 status 0 in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 9 status 0 in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B13 msg 9 status 0 in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 9 status 0 in PWR: probe_seq got 0 want 116
+FAIL: B13 msg 9 status 0 in PWR: plumbing smh 0 want 9
+FAIL: B13 msg 9 status 0 in PWR: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 9 status 0 in PWR: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 9 status 0 in PWR: record untouched, still PWR (got UNB)
+FAIL: B13 msg 11 status 0 in PWR: completes
+FAIL: B13 msg 11 status 0 in PWR: writebacks got 4000 want 0
+FAIL: B13 msg 11 status 0 in PWR: rx frees got 0 want 1
+FAIL: B13 msg 11 status 0 in PWR: sm_state got UNB want PWR
+FAIL: B13 msg 11 status 0 in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 11 status 0 in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B13 msg 11 status 0 in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 11 status 0 in PWR: probe_seq got 0 want 116
+FAIL: B13 msg 11 status 0 in PWR: plumbing smh 0 want 9
+FAIL: B13 msg 11 status 0 in PWR: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 11 status 0 in PWR: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 11 status 0 in PWR: record untouched, still PWR (got UNB)
+FAIL: B13 msg 13 status 0 in PWR: completes
+FAIL: B13 msg 13 status 0 in PWR: writebacks got 4000 want 0
+FAIL: B13 msg 13 status 0 in PWR: rx frees got 0 want 1
+FAIL: B13 msg 13 status 0 in PWR: sm_state got UNB want PWR
+FAIL: B13 msg 13 status 0 in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 13 status 0 in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B13 msg 13 status 0 in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 13 status 0 in PWR: probe_seq got 0 want 116
+FAIL: B13 msg 13 status 0 in PWR: plumbing smh 0 want 9
+FAIL: B13 msg 13 status 0 in PWR: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 13 status 0 in PWR: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 13 status 0 in PWR: record untouched, still PWR (got UNB)
+FAIL: B13 msg 14 status 0 in PWR: completes
+FAIL: B13 msg 14 status 0 in PWR: writebacks got 4000 want 0
+FAIL: B13 msg 14 status 0 in PWR: rx frees got 0 want 1
+FAIL: B13 msg 14 status 0 in PWR: sm_state got UNB want PWR
+FAIL: B13 msg 14 status 0 in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 14 status 0 in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B13 msg 14 status 0 in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 14 status 0 in PWR: probe_seq got 0 want 116
+FAIL: B13 msg 14 status 0 in PWR: plumbing smh 0 want 9
+FAIL: B13 msg 14 status 0 in PWR: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 14 status 0 in PWR: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 14 status 0 in PWR: record untouched, still PWR (got UNB)
+FAIL: B13 msg 15 status 0 in PWR: completes
+FAIL: B13 msg 15 status 0 in PWR: writebacks got 4000 want 0
+FAIL: B13 msg 15 status 0 in PWR: rx frees got 0 want 1
+FAIL: B13 msg 15 status 0 in PWR: sm_state got UNB want PWR
+FAIL: B13 msg 15 status 0 in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 15 status 0 in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B13 msg 15 status 0 in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 15 status 0 in PWR: probe_seq got 0 want 116
+FAIL: B13 msg 15 status 0 in PWR: plumbing smh 0 want 9
+FAIL: B13 msg 15 status 0 in PWR: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 15 status 0 in PWR: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 15 status 0 in PWR: record untouched, still PWR (got UNB)
+FAIL: B13: completes
+FAIL: B13: completes
+FAIL: B13(setup): state sync got UNB want PWR
+FAIL: B13: completes
+FAIL: B13(setup): state sync got UNB want PW2
+FAIL: B13 msg 3 status 5 in PW2: completes
+FAIL: B13 msg 3 status 5 in PW2: writebacks got 4000 want 0
+FAIL: B13 msg 3 status 5 in PW2: rx frees got 0 want 1
+FAIL: B13 msg 3 status 5 in PW2: sm_state got UNB want PW2
+FAIL: B13 msg 3 status 5 in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 3 status 5 in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B13 msg 3 status 5 in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 3 status 5 in PW2: probe_seq got 0 want 117
+FAIL: B13 msg 3 status 5 in PW2: plumbing smh 0 want 9
+FAIL: B13 msg 3 status 5 in PW2: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 3 status 5 in PW2: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 3 status 5 in PW2: record untouched, still PW2 (got UNB)
+FAIL: B13 msg 5 status 5 in PW2: completes
+FAIL: B13 msg 5 status 5 in PW2: writebacks got 4000 want 0
+FAIL: B13 msg 5 status 5 in PW2: rx frees got 0 want 1
+FAIL: B13 msg 5 status 5 in PW2: sm_state got UNB want PW2
+FAIL: B13 msg 5 status 5 in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 5 status 5 in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B13 msg 5 status 5 in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 5 status 5 in PW2: probe_seq got 0 want 117
+FAIL: B13 msg 5 status 5 in PW2: plumbing smh 0 want 9
+FAIL: B13 msg 5 status 5 in PW2: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 5 status 5 in PW2: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 5 status 5 in PW2: record untouched, still PW2 (got UNB)
+FAIL: B13 msg 7 status 5 in PW2: completes
+FAIL: B13 msg 7 status 5 in PW2: writebacks got 4000 want 0
+FAIL: B13 msg 7 status 5 in PW2: rx frees got 0 want 1
+FAIL: B13 msg 7 status 5 in PW2: sm_state got UNB want PW2
+FAIL: B13 msg 7 status 5 in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 7 status 5 in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B13 msg 7 status 5 in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 7 status 5 in PW2: probe_seq got 0 want 117
+FAIL: B13 msg 7 status 5 in PW2: plumbing smh 0 want 9
+FAIL: B13 msg 7 status 5 in PW2: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 7 status 5 in PW2: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 7 status 5 in PW2: record untouched, still PW2 (got UNB)
+FAIL: B13 msg 9 status 5 in PW2: completes
+FAIL: B13 msg 9 status 5 in PW2: writebacks got 4000 want 0
+FAIL: B13 msg 9 status 5 in PW2: rx frees got 0 want 1
+FAIL: B13 msg 9 status 5 in PW2: sm_state got UNB want PW2
+FAIL: B13 msg 9 status 5 in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 9 status 5 in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B13 msg 9 status 5 in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 9 status 5 in PW2: probe_seq got 0 want 117
+FAIL: B13 msg 9 status 5 in PW2: plumbing smh 0 want 9
+FAIL: B13 msg 9 status 5 in PW2: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 9 status 5 in PW2: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 9 status 5 in PW2: record untouched, still PW2 (got UNB)
+FAIL: B13 msg 11 status 5 in PW2: completes
+FAIL: B13 msg 11 status 5 in PW2: writebacks got 4000 want 0
+FAIL: B13 msg 11 status 5 in PW2: rx frees got 0 want 1
+FAIL: B13 msg 11 status 5 in PW2: sm_state got UNB want PW2
+FAIL: B13 msg 11 status 5 in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 11 status 5 in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B13 msg 11 status 5 in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 11 status 5 in PW2: probe_seq got 0 want 117
+FAIL: B13 msg 11 status 5 in PW2: plumbing smh 0 want 9
+FAIL: B13 msg 11 status 5 in PW2: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 11 status 5 in PW2: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 11 status 5 in PW2: record untouched, still PW2 (got UNB)
+FAIL: B13 msg 13 status 5 in PW2: completes
+FAIL: B13 msg 13 status 5 in PW2: writebacks got 4000 want 0
+FAIL: B13 msg 13 status 5 in PW2: rx frees got 0 want 1
+FAIL: B13 msg 13 status 5 in PW2: sm_state got UNB want PW2
+FAIL: B13 msg 13 status 5 in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 13 status 5 in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B13 msg 13 status 5 in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 13 status 5 in PW2: probe_seq got 0 want 117
+FAIL: B13 msg 13 status 5 in PW2: plumbing smh 0 want 9
+FAIL: B13 msg 13 status 5 in PW2: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 13 status 5 in PW2: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 13 status 5 in PW2: record untouched, still PW2 (got UNB)
+FAIL: B13 msg 14 status 5 in PW2: completes
+FAIL: B13 msg 14 status 5 in PW2: writebacks got 4000 want 0
+FAIL: B13 msg 14 status 5 in PW2: rx frees got 0 want 1
+FAIL: B13 msg 14 status 5 in PW2: sm_state got UNB want PW2
+FAIL: B13 msg 14 status 5 in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 14 status 5 in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B13 msg 14 status 5 in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 14 status 5 in PW2: probe_seq got 0 want 117
+FAIL: B13 msg 14 status 5 in PW2: plumbing smh 0 want 9
+FAIL: B13 msg 14 status 5 in PW2: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 14 status 5 in PW2: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 14 status 5 in PW2: record untouched, still PW2 (got UNB)
+FAIL: B13 msg 15 status 5 in PW2: completes
+FAIL: B13 msg 15 status 5 in PW2: writebacks got 4000 want 0
+FAIL: B13 msg 15 status 5 in PW2: rx frees got 0 want 1
+FAIL: B13 msg 15 status 5 in PW2: sm_state got UNB want PW2
+FAIL: B13 msg 15 status 5 in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B13 msg 15 status 5 in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B13 msg 15 status 5 in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B13 msg 15 status 5 in PW2: probe_seq got 0 want 117
+FAIL: B13 msg 15 status 5 in PW2: plumbing smh 0 want 9
+FAIL: B13 msg 15 status 5 in PW2: inert (frames 0, writes 4000, timer ops 0, notifies 0, strobes st0 td0 da0 dd0 nv0)
+FAIL: B13 msg 15 status 5 in PW2: one RX free of slot 0 (got 0 frees, slot 255)
+FAIL: B13 msg 15 status 5 in PW2: record untouched, still PW2 (got UNB)
+FAIL: B14: completes
+FAIL: B14: completes
+FAIL: B14(setup): state sync got UNB want PWR
+FAIL: B14 wrong controller_entity_id in PWR: completes
+FAIL: B14 wrong controller_entity_id in PWR: writebacks got 4000 want 0
+FAIL: B14 wrong controller_entity_id in PWR: rx frees got 0 want 1
+FAIL: B14 wrong controller_entity_id in PWR: sm_state got UNB want PWR
+FAIL: B14 wrong controller_entity_id in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B14 wrong controller_entity_id in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B14 wrong controller_entity_id in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B14 wrong controller_entity_id in PWR: probe_seq got 0 want 118
+FAIL: B14 wrong controller_entity_id in PWR: plumbing smh 0 want 9
+FAIL: B14 wrong controller_entity_id in PWR: silently ignored (writes 4000, frames 0, timer ops 0, settle 0, frees 0)
+FAIL: B14 wrong controller_entity_id in PWR: record untouched, still PWR
+FAIL: B14 wrong talker_entity_id in PWR: completes
+FAIL: B14 wrong talker_entity_id in PWR: writebacks got 4000 want 0
+FAIL: B14 wrong talker_entity_id in PWR: rx frees got 0 want 1
+FAIL: B14 wrong talker_entity_id in PWR: sm_state got UNB want PWR
+FAIL: B14 wrong talker_entity_id in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B14 wrong talker_entity_id in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B14 wrong talker_entity_id in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B14 wrong talker_entity_id in PWR: probe_seq got 0 want 118
+FAIL: B14 wrong talker_entity_id in PWR: plumbing smh 0 want 9
+FAIL: B14 wrong talker_entity_id in PWR: silently ignored (writes 4000, frames 0, timer ops 0, settle 0, frees 0)
+FAIL: B14 wrong talker_entity_id in PWR: record untouched, still PWR
+FAIL: B14 wrong talker_unique_id in PWR: completes
+FAIL: B14 wrong talker_unique_id in PWR: writebacks got 4000 want 0
+FAIL: B14 wrong talker_unique_id in PWR: rx frees got 0 want 1
+FAIL: B14 wrong talker_unique_id in PWR: sm_state got UNB want PWR
+FAIL: B14 wrong talker_unique_id in PWR: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B14 wrong talker_unique_id in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: B14 wrong talker_unique_id in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B14 wrong talker_unique_id in PWR: probe_seq got 0 want 118
+FAIL: B14 wrong talker_unique_id in PWR: plumbing smh 0 want 9
+FAIL: B14 wrong talker_unique_id in PWR: silently ignored (writes 4000, frames 0, timer ops 0, settle 0, frees 0)
+FAIL: B14 wrong talker_unique_id in PWR: record untouched, still PWR
+FAIL: B14 exact answer in PWR: completes
+FAIL: B14 exact answer in PWR: writebacks got 4000 want 1
+FAIL: B14 exact answer in PWR: timer ops got 0 want 2
+FAIL: B14 exact answer in PWR: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: B14 exact answer in PWR: settle payload got 0000000000000000/000000000000/0
+FAIL: B14 exact answer in PWR: notify got 0 want 1
+FAIL: B14 exact answer in PWR: rx frees got 0 want 1
+FAIL: B14 exact answer in PWR: sm_state got UNB want SNR
+FAIL: B14 exact answer in PWR: pbsta/acmpsta got 0/0 want 3/0
+FAIL: B14 exact answer in PWR: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: B14 exact answer in PWR: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B14 exact answer in PWR: probe_seq got 0 want 118
+FAIL: B14 exact answer in PWR: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: B14 exact answer in PWR: plumbing smh 0 want 9
+FAIL: B14 exact answer in PWR: the unaltered response settles (got UNB)
+FAIL: B14: completes
+FAIL: B14: completes
+FAIL: B14(setup): state sync got UNB want PWR
+FAIL: B14: completes
+FAIL: B14(setup): state sync got UNB want PW2
+FAIL: B14 wrong controller_entity_id in PW2: completes
+FAIL: B14 wrong controller_entity_id in PW2: writebacks got 4000 want 0
+FAIL: B14 wrong controller_entity_id in PW2: rx frees got 0 want 1
+FAIL: B14 wrong controller_entity_id in PW2: sm_state got UNB want PW2
+FAIL: B14 wrong controller_entity_id in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B14 wrong controller_entity_id in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B14 wrong controller_entity_id in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B14 wrong controller_entity_id in PW2: probe_seq got 0 want 119
+FAIL: B14 wrong controller_entity_id in PW2: plumbing smh 0 want 9
+FAIL: B14 wrong controller_entity_id in PW2: silently ignored (writes 4000, frames 0, timer ops 0, settle 0, frees 0)
+FAIL: B14 wrong controller_entity_id in PW2: record untouched, still PW2
+FAIL: B14 wrong talker_entity_id in PW2: completes
+FAIL: B14 wrong talker_entity_id in PW2: writebacks got 4000 want 0
+FAIL: B14 wrong talker_entity_id in PW2: rx frees got 0 want 1
+FAIL: B14 wrong talker_entity_id in PW2: sm_state got UNB want PW2
+FAIL: B14 wrong talker_entity_id in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B14 wrong talker_entity_id in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B14 wrong talker_entity_id in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B14 wrong talker_entity_id in PW2: probe_seq got 0 want 119
+FAIL: B14 wrong talker_entity_id in PW2: plumbing smh 0 want 9
+FAIL: B14 wrong talker_entity_id in PW2: silently ignored (writes 4000, frames 0, timer ops 0, settle 0, frees 0)
+FAIL: B14 wrong talker_entity_id in PW2: record untouched, still PW2
+FAIL: B14 wrong talker_unique_id in PW2: completes
+FAIL: B14 wrong talker_unique_id in PW2: writebacks got 4000 want 0
+FAIL: B14 wrong talker_unique_id in PW2: rx frees got 0 want 1
+FAIL: B14 wrong talker_unique_id in PW2: sm_state got UNB want PW2
+FAIL: B14 wrong talker_unique_id in PW2: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B14 wrong talker_unique_id in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d0 g0 t0
+FAIL: B14 wrong talker_unique_id in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B14 wrong talker_unique_id in PW2: probe_seq got 0 want 119
+FAIL: B14 wrong talker_unique_id in PW2: plumbing smh 0 want 9
+FAIL: B14 wrong talker_unique_id in PW2: silently ignored (writes 4000, frames 0, timer ops 0, settle 0, frees 0)
+FAIL: B14 wrong talker_unique_id in PW2: record untouched, still PW2
+FAIL: B14 exact answer in PW2: completes
+FAIL: B14 exact answer in PW2: writebacks got 4000 want 1
+FAIL: B14 exact answer in PW2: timer ops got 0 want 2
+FAIL: B14 exact answer in PW2: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: B14 exact answer in PW2: settle payload got 0000000000000000/000000000000/0
+FAIL: B14 exact answer in PW2: notify got 0 want 1
+FAIL: B14 exact answer in PW2: rx frees got 0 want 1
+FAIL: B14 exact answer in PW2: sm_state got UNB want SNR
+FAIL: B14 exact answer in PW2: pbsta/acmpsta got 0/0 want 3/0
+FAIL: B14 exact answer in PW2: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r1 d1 g0 t0
+FAIL: B14 exact answer in PW2: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B14 exact answer in PW2: probe_seq got 0 want 119
+FAIL: B14 exact answer in PW2: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: B14 exact answer in PW2: plumbing smh 0 want 9
+FAIL: B14 exact answer in PW2: the unaltered response settles (got UNB)
+FAIL: B9 entry: completes
+FAIL: B9 entry: completes
+FAIL: B9 entry(setup): state sync got UNB want PWR
+FAIL: B9 locked bind completes
+FAIL: B9 locked bind: writebacks got 4000 want 0
+FAIL: B9 locked bind: frames got 0 want 1
+FAIL: B9 locked bind: rx frees got 0 want 1
+FAIL: B9: CONTROLLER_NOT_AUTHORIZED
+FAIL: B9: cell aborted, no commit
+FAIL: B9 locked unbind completes
+FAIL: B9 locked unbind: writebacks got 4000 want 0
+FAIL: B9 locked unbind: frames got 0 want 1
+FAIL: B9 locked unbind: rx frees got 0 want 1
+FAIL: B9 GET_RX_STATE under lock completes
+FAIL: B9 getrx under lock: writebacks got 4000 want 1
+FAIL: B9 getrx under lock: frames got 0 want 1
+FAIL: B9 getrx under lock: rx frees got 0 want 1
+FAIL: B9: GET_RX_STATE unaffected by the lock
+FAIL: B9 holder bind completes
+FAIL: B9 holder bind: writebacks got 4000 want 1
+FAIL: B9 holder bind: frames got 0 want 2
+FAIL: B9 holder bind: timer ops got 0 want 2
+FAIL: B9 holder bind: strobes got st0 td0 da0 dd0 nv0/0 want st0 td0 da1 dd1 nv1/1
+FAIL: B9 holder bind: disc payload got 0000000000000000 want 00221100aabbcc55
+FAIL: B9 holder bind: notify got 0 want 1
+FAIL: B9 holder bind: rx frees got 0 want 1
+FAIL: B9: the lock holder's bind commits
+FAIL: B10: completes
+FAIL: B10 preload: sm_state got UNB want PWA
+FAIL: B10 preload: pbsta/acmpsta got 0/0 want 1/0
+FAIL: B10 preload: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w1 r0 d0 g0 t0
+FAIL: B10 preload: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B10 preload: plumbing smh 0 want 11
+FAIL: B10: A4 discovery arm with the restored talker
+FAIL: B10: the RESTORED started bit reached the admission view (got 0)
+FAIL: B10: one record write, no notification at boot
+FAIL: B10 disc after preload: completes
+FAIL: B10 disc after preload: writebacks got 4000 want 1
+FAIL: B10 disc after preload: timer ops got 0 want 1
+FAIL: B10 disc after preload: notify got 0 want 1
+FAIL: B10 disc after preload: sm_state got UNB want PWD
+FAIL: B10 disc after preload: pbsta/acmpsta got 0/0 want 2/0
+FAIL: B10 disc after preload: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w1 r0 d0 g0 t1
+FAIL: B10 disc after preload: binding got 0000000000000000/0/0000000000000000 want 00221100aabbccdd/1/0011223344556677
+FAIL: B10 disc after preload: plumbing smh 0 want 11
+FAIL: B10: preloaded sink probes on discovery
+FAIL: B11: completes
+FAIL: B11: completes
+FAIL: B11(setup): state sync got UNB want PWR
+FAIL: B11 settle beats stale expiry: writebacks got 4003 want 1
+FAIL: B11 settle beats stale expiry: timer ops got 0 want 2
+FAIL: B11 settle beats stale expiry: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: B11 settle beats stale expiry: settle payload got 0000000000000000/000000000000/0
+FAIL: B11 settle beats stale expiry: notify got 0 want 1
+FAIL: B11 settle beats stale expiry: rx frees got 0 want 1
+FAIL: B11: no second work item; still SETTLED_NO_RSV (got sm UNB, wr 60 td 0 tops 0 nf 0)
+FAIL: B12: parked sink 7 record untouched through the whole walk
+FAIL: S1: completes
+FAIL: S1: completes
+FAIL: S1(setup): state sync got UNB want PWR
+FAIL: S1b: a bind with STREAMING_WAIT clear lands STARTED (got 0)
+FAIL: post_started(5,1): error got 1 want 0
+FAIL: S1e: START through the request face set the bit (got 0)
+FAIL: post_started(5,0): error got 1 want 0
+FAIL: S1i: a real STOP raises the Table 5.22 trigger once (got 0)
+FAIL: post_started(5,0): error got 1 want 0
+FAIL: post_started(5,1): error got 1 want 0
+FAIL: S1: completes
+FAIL: S1: completes
+FAIL: S1(setup): state sync got UNB want PWR
+FAIL: S1: completes
+FAIL: S1(setup): state sync got UNB want PWR
+FAIL: S1k0: precondition, re-bound and started
+FAIL: S1: completes
+FAIL: S1(setup): state sync got UNB want PWR
+FAIL: S1l: ...and it raises the Table 5.22 trigger (got 0)
+FAIL: S1: completes
+FAIL: S1(setup): state sync got UNB want PWR
+FAIL: RV7: ...and every acceptor is free again once it has drained
+FAIL: RV4: completes
+FAIL: RV4: completes
+FAIL: RV4(setup): state sync got UNB want PWR
+FAIL: RV4: completes
+FAIL: RV4: completes
+FAIL: RV4(setup): state sync got UNB want PWR
+FAIL: RV4pre: the control leg's expiry IS serviced (0 timer ops) - without this the comparison below means nothing
+FAIL: RV8: completes
+FAIL: RV8(setup): state sync got UNB want PWD
+FAIL: RV8pre: bound to talker A and started
+FAIL: RV8: completes
+FAIL: RV8(setup): state sync got UNB want PWR
+FAIL: RV8b: ...and raised the started/stopped trigger exactly once (got 0)
+FAIL: RV8d: ...one cycle after its record write, for that sink (pulse @-1 sink -1, write @2108720 sink 0)
+FAIL: RV8: completes
+FAIL: RV8(setup): state sync got UNB want PWR
+FAIL: S1: completes
+FAIL: S1o3: the original ACMP walk retires after release
+FAIL: S1n: an out-of-range started/stopped request is COUNTED (0 -> 0)
+FAIL: post_started(5,1): error got 1 want 0
+FAIL: idle after reset + init sweep
+FAIL: RS GET_RX_STATE after the reset: completes
+FAIL: RS GET_RX_STATE after the reset: writebacks got 4000 want 1
+FAIL: RS GET_RX_STATE after the reset: frames got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: rx frees got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: plumbing smh 0 want 9
+FAIL: RS GET_RX_STATE after the reset: completes
+FAIL: RS GET_RX_STATE after the reset: writebacks got 4000 want 1
+FAIL: RS GET_RX_STATE after the reset: frames got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: rx frees got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: plumbing smh 0 want 10
+FAIL: RS GET_RX_STATE after the reset: completes
+FAIL: RS GET_RX_STATE after the reset: writebacks got 4000 want 1
+FAIL: RS GET_RX_STATE after the reset: frames got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: rx frees got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: plumbing smh 0 want 11
+FAIL: RS GET_RX_STATE after the reset: completes
+FAIL: RS GET_RX_STATE after the reset: writebacks got 4000 want 1
+FAIL: RS GET_RX_STATE after the reset: frames got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: rx frees got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: plumbing smh 0 want 12
+FAIL: RS GET_RX_STATE after the reset: completes
+FAIL: RS GET_RX_STATE after the reset: writebacks got 4000 want 1
+FAIL: RS GET_RX_STATE after the reset: frames got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: rx frees got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: plumbing smh 0 want 13
+FAIL: RS GET_RX_STATE after the reset: completes
+FAIL: RS GET_RX_STATE after the reset: writebacks got 4000 want 1
+FAIL: RS GET_RX_STATE after the reset: frames got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: rx frees got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: plumbing smh 0 want 14
+FAIL: RS GET_RX_STATE after the reset: completes
+FAIL: RS GET_RX_STATE after the reset: writebacks got 4000 want 1
+FAIL: RS GET_RX_STATE after the reset: frames got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: rx frees got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: plumbing smh 0 want 15
+FAIL: RS GET_RX_STATE after the reset: completes
+FAIL: RS GET_RX_STATE after the reset: writebacks got 4000 want 1
+FAIL: RS GET_RX_STATE after the reset: frames got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: rx frees got 0 want 1
+FAIL: RS GET_RX_STATE after the reset: plumbing smh 0 want 16
+FAIL: field check reset completes
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FAIL: VLAN response settles
+FIELD VLAN received=0xf123 action=0x0000 record=0x0000
+FAIL: VLAN full field at settle action
+FAIL: field check stimulus completes
+FAIL: VLAN GET_RX_STATE response exists
+FAIL: field check reset completes
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: same-talker rebind changes binding controller while probe remains pending
+FAIL: field check stimulus completes
+FIELD saved-controller response settle=0 state=UNB
+FAIL: guard accepts controller from sent probe after same-talker rebind
+FAIL: field check reset completes
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FIELD current-controller response settle=0 state=UNB
+FAIL: guard rejects controller absent from sent probe after same-talker rebind
+FAIL: field check reset completes
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FAIL: duplicate probe exists
+FAIL: field check reset completes
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FAIL: LD1 response exists
+FAIL: field check reset completes
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FAIL: field check stimulus completes
+FAIL: field check stimulus completes
+FAIL: LD2 discovered retry preserves received status
+FAIL: field check stimulus completes
+FAIL: LD2 retry probe preserves received status
+FAIL: field check reset completes
+FAIL: field check stimulus completes
+FAIL: field bind responds
+FAIL: field check stimulus completes
+FAIL: LD3 lock refusal status 16 for message 6
+FAIL: field check stimulus completes
+FAIL: LD3 lock refusal status 16 for message 8
+FAIL: idle at the end
+3048 checks: 963 PASS, 2085 FAIL
+make: *** [Makefile:20: run] Error 1

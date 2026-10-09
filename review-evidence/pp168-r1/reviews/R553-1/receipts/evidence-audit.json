@@ -1,0 +1,958 @@
+{
+  "base_area_inputs": {
+    "files": 55,
+    "mismatches": []
+  },
+  "merged_area_inputs": {
+    "files": 55,
+    "mismatches": []
+  },
+  "compare-byte_area_inputs": {
+    "files": 55,
+    "mismatches": []
+  },
+  "recipe": {
+    "sha256": "3bd999f4be6059fb49aad4642f54e46311a9b3d46bccd5e749bf11f7bd6e6e9d",
+    "unchanged": true
+  },
+  "items": [
+    {
+      "item": "LD1",
+      "input_files": 55,
+      "mismatches": [],
+      "result": {
+        "item": "LD1",
+        "lut": 21500,
+        "ff": 18901,
+        "rc": 0,
+        "seconds": 615.6
+      }
+    },
+    {
+      "item": "LD2",
+      "input_files": 55,
+      "mismatches": [],
+      "result": {
+        "item": "LD2",
+        "lut": 21613,
+        "ff": 18908,
+        "rc": 0,
+        "seconds": 565.66
+      }
+    },
+    {
+      "item": "LD3",
+      "input_files": 55,
+      "mismatches": [],
+      "result": {
+        "item": "LD3",
+        "lut": 21628,
+        "ff": 18905,
+        "rc": 0,
+        "seconds": 562.02
+      }
+    },
+    {
+      "item": "TD1",
+      "input_files": 55,
+      "mismatches": [],
+      "result": {
+        "item": "TD1",
+        "lut": 21614,
+        "ff": 18908,
+        "rc": 0,
+        "seconds": 578.82
+      }
+    },
+    {
+      "item": "VLAN",
+      "input_files": 55,
+      "mismatches": [],
+      "result": {
+        "item": "VLAN",
+        "lut": 21606,
+        "ff": 18925,
+        "rc": 0,
+        "seconds": 721.84
+      }
+    },
+    {
+      "item": "guard",
+      "input_files": 55,
+      "mismatches": [],
+      "result": {
+        "item": "guard",
+        "lut": 21750,
+        "ff": 18905,
+        "rc": 0,
+        "seconds": 1132.85
+      }
+    }
+  ],
+  "raw_area_reports": [
+    {
+      "variant": "base",
+      "lut": 21614,
+      "ff": 18908,
+      "rc": 0
+    },
+    {
+      "variant": "merged",
+      "lut": 21741,
+      "ff": 18922,
+      "rc": 0
+    },
+    {
+      "variant": "compare-byte",
+      "lut": 21643,
+      "ff": 18922,
+      "rc": 0
+    },
+    {
+      "variant": "LD1",
+      "lut": 21500,
+      "ff": 18901,
+      "rc": 0
+    },
+    {
+      "variant": "LD2",
+      "lut": 21613,
+      "ff": 18908,
+      "rc": 0
+    },
+    {
+      "variant": "LD3",
+      "lut": 21628,
+      "ff": 18905,
+      "rc": 0
+    },
+    {
+      "variant": "TD1",
+      "lut": 21614,
+      "ff": 18908,
+      "rc": 0
+    },
+    {
+      "variant": "VLAN",
+      "lut": 21606,
+      "ff": 18925,
+      "rc": 0
+    },
+    {
+      "variant": "guard",
+      "lut": 21750,
+      "ff": 18905,
+      "rc": 0
+    }
+  ],
+  "sum_individual_deltas": {
+    "lut": 27,
+    "ff": 4
+  },
+  "top_first_1000_lines_equal": true,
+  "subject_gitlinks": [],
+  "round2_changed_files": [
+    "hdl/acmp/KL_acmp_talker.sv",
+    "hdl/acmp/KL_pp_acmp_listener.sv",
+    "hdl/acmp/pp_acmp_pkg.sv",
+    "hdl/top/protocol_processor_top.sv",
+    "tb/acmp_listener/README.md",
+    "tb/acmp_listener/field_cases.hpp",
+    "tb/acmp_listener/sim_main.cpp",
+    "tb/acmp_talker/README.md",
+    "tb/acmp_talker/sim_main.cpp",
+    "tb/pp_top/README.md",
+    "tb/pp_top/acmp_mutants.py",
+    "tb/pp_top/gsi_internal.hpp",
+    "tb/pp_top/sim_main.cpp"
+  ],
+  "merge_parents": [
+    "ba3f3f31e8fda01c3ef5271ff8005f3cf92ab4de",
+    "09e357fb4bf3d35c8a9deba9a787e13f74d08c83"
+  ],
+  "remerge_diff_empty": true,
+  "published_gates": {
+    "base": {
+      "gates": [
+        {
+          "name": "acmp_talker-retry_mutants",
+          "command": [
+            "python3",
+            "tb/acmp_talker/retry_mutants.py",
+            "--logs",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/acmp_talker-retry_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "adp_engine-mutants",
+          "command": [
+            "python3",
+            "tb/adp_engine/mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/adp_engine-mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "check",
+          "command": [
+            "make",
+            "-j16",
+            "check"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "lint",
+          "command": [
+            "bash",
+            "scripts/lint_hdl.sh"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "maap-mutants",
+          "command": [
+            "python3",
+            "tb/maap/mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/maap-mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "matrix",
+          "command": [
+            "python3",
+            "scripts/gen_matrix.py",
+            "--check"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-acmp_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/acmp_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/pp_top-acmp_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-aecp_dispatch_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/aecp_dispatch_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/pp_top-aecp_dispatch_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-aecp_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/aecp_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/pp_top-aecp_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-ctr_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/ctr_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/pp_top-ctr_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-d3_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/d3_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/pp_top-d3_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-gsi_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/gsi_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/pp_top-gsi_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-name_wr_mutant",
+          "command": [
+            "python3",
+            "tb/pp_top/name_wr_mutant.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/pp_top-name_wr_mutant"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-notify_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/notify_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/pp_top-notify_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "srp_admission-mutants",
+          "command": [
+            "python3",
+            "tb/srp_admission/mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/srp_admission-mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "srp_top-mutants",
+          "command": [
+            "python3",
+            "tb/srp_top/mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/base-campaigns/srp_top-mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "suites",
+          "command": [
+            "bash",
+            "scripts/run_suites.sh"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "yosys",
+          "command": [
+            "bash",
+            "syn/yosys/run.sh"
+          ],
+          "rc": 0
+        }
+      ],
+      "suites": [
+        [
+          "acmp_listener",
+          "3111",
+          "3111"
+        ],
+        [
+          "acmp_nvm",
+          "388",
+          "388"
+        ],
+        [
+          "acmp_talker",
+          "1342",
+          "1342"
+        ],
+        [
+          "adp_engine",
+          "1359",
+          "1359"
+        ],
+        [
+          "aecp_notify",
+          "67",
+          "67"
+        ],
+        [
+          "ca_originator",
+          "16",
+          "16"
+        ],
+        [
+          "desc_mem_guard",
+          "78",
+          "78"
+        ],
+        [
+          "desc_store",
+          "586",
+          "586"
+        ],
+        [
+          "dispatch",
+          "211",
+          "211"
+        ],
+        [
+          "dyn_state",
+          "118",
+          "118"
+        ],
+        [
+          "event_router",
+          "81",
+          "81"
+        ],
+        [
+          "lsn_admit",
+          "18",
+          "18"
+        ],
+        [
+          "maap",
+          "196",
+          "196"
+        ],
+        [
+          "nvm_port",
+          "1219",
+          "1219"
+        ],
+        [
+          "originator",
+          "107",
+          "107"
+        ],
+        [
+          "pp_top",
+          "10469",
+          "10469"
+        ],
+        [
+          "prng",
+          "76",
+          "76"
+        ],
+        [
+          "release_merge",
+          "18",
+          "18"
+        ],
+        [
+          "resp_buf",
+          "64",
+          "64"
+        ],
+        [
+          "rx_slots",
+          "130",
+          "130"
+        ],
+        [
+          "rx_validator",
+          "555",
+          "555"
+        ],
+        [
+          "scoreboard",
+          "3705",
+          "3705"
+        ],
+        [
+          "side_port",
+          "368",
+          "368"
+        ],
+        [
+          "srp_admission",
+          "991231",
+          "991231"
+        ],
+        [
+          "srp_decoder",
+          "190",
+          "190"
+        ],
+        [
+          "srp_encoder",
+          "581",
+          "581"
+        ],
+        [
+          "srp_stream_fsms",
+          "1347",
+          "1347"
+        ],
+        [
+          "srp_top",
+          "8656",
+          "8656"
+        ],
+        [
+          "timer_map",
+          "1360",
+          "1360"
+        ],
+        [
+          "timer_service",
+          "48",
+          "48"
+        ],
+        [
+          "tx_arbiter",
+          "66",
+          "66"
+        ],
+        [
+          "tx_slots",
+          "95",
+          "95"
+        ],
+        [
+          "ucpu",
+          "437",
+          "437"
+        ]
+      ],
+      "total_checks": 1028293
+    },
+    "head": {
+      "gates": [
+        {
+          "name": "acmp_talker-retry_mutants",
+          "command": [
+            "python3",
+            "tb/acmp_talker/retry_mutants.py",
+            "--logs",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/acmp_talker-retry_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "adp_engine-mutants",
+          "command": [
+            "python3",
+            "tb/adp_engine/mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/adp_engine-mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "check",
+          "command": [
+            "make",
+            "-j16",
+            "check"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "lint",
+          "command": [
+            "bash",
+            "scripts/lint_hdl.sh"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "maap-mutants",
+          "command": [
+            "python3",
+            "tb/maap/mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/maap-mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "matrix",
+          "command": [
+            "python3",
+            "scripts/gen_matrix.py",
+            "--check"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-acmp_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/acmp_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/pp_top-acmp_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-aecp_dispatch_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/aecp_dispatch_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/pp_top-aecp_dispatch_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-aecp_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/aecp_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/pp_top-aecp_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-ctr_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/ctr_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/pp_top-ctr_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-d3_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/d3_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/pp_top-d3_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-gsi_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/gsi_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/pp_top-gsi_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-name_wr_mutant",
+          "command": [
+            "python3",
+            "tb/pp_top/name_wr_mutant.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/pp_top-name_wr_mutant"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "pp_top-notify_mutants",
+          "command": [
+            "python3",
+            "tb/pp_top/notify_mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/pp_top-notify_mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "srp_admission-mutants",
+          "command": [
+            "python3",
+            "tb/srp_admission/mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/srp_admission-mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "srp_top-mutants",
+          "command": [
+            "python3",
+            "tb/srp_top/mutants.py",
+            "--output",
+            "$VALIDATION_STORAGE/pp168-a567/recovery/head-campaigns/srp_top-mutants",
+            "--jobs",
+            "2"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "suites",
+          "command": [
+            "bash",
+            "scripts/run_suites.sh"
+          ],
+          "rc": 0
+        },
+        {
+          "name": "yosys",
+          "command": [
+            "bash",
+            "syn/yosys/run.sh"
+          ],
+          "rc": 0
+        }
+      ],
+      "suites": [
+        [
+          "acmp_listener",
+          "3167",
+          "3167"
+        ],
+        [
+          "acmp_nvm",
+          "388",
+          "388"
+        ],
+        [
+          "acmp_talker",
+          "1376",
+          "1376"
+        ],
+        [
+          "adp_engine",
+          "1359",
+          "1359"
+        ],
+        [
+          "aecp_notify",
+          "67",
+          "67"
+        ],
+        [
+          "ca_originator",
+          "16",
+          "16"
+        ],
+        [
+          "desc_mem_guard",
+          "78",
+          "78"
+        ],
+        [
+          "desc_store",
+          "586",
+          "586"
+        ],
+        [
+          "dispatch",
+          "211",
+          "211"
+        ],
+        [
+          "dyn_state",
+          "118",
+          "118"
+        ],
+        [
+          "event_router",
+          "81",
+          "81"
+        ],
+        [
+          "lsn_admit",
+          "18",
+          "18"
+        ],
+        [
+          "maap",
+          "196",
+          "196"
+        ],
+        [
+          "nvm_port",
+          "1219",
+          "1219"
+        ],
+        [
+          "originator",
+          "107",
+          "107"
+        ],
+        [
+          "pp_top",
+          "10470",
+          "10470"
+        ],
+        [
+          "prng",
+          "76",
+          "76"
+        ],
+        [
+          "release_merge",
+          "18",
+          "18"
+        ],
+        [
+          "resp_buf",
+          "64",
+          "64"
+        ],
+        [
+          "rx_slots",
+          "130",
+          "130"
+        ],
+        [
+          "rx_validator",
+          "555",
+          "555"
+        ],
+        [
+          "scoreboard",
+          "3705",
+          "3705"
+        ],
+        [
+          "side_port",
+          "368",
+          "368"
+        ],
+        [
+          "srp_admission",
+          "991231",
+          "991231"
+        ],
+        [
+          "srp_decoder",
+          "190",
+          "190"
+        ],
+        [
+          "srp_encoder",
+          "581",
+          "581"
+        ],
+        [
+          "srp_stream_fsms",
+          "1347",
+          "1347"
+        ],
+        [
+          "srp_top",
+          "8656",
+          "8656"
+        ],
+        [
+          "timer_map",
+          "1360",
+          "1360"
+        ],
+        [
+          "timer_service",
+          "48",
+          "48"
+        ],
+        [
+          "tx_arbiter",
+          "66",
+          "66"
+        ],
+        [
+          "tx_slots",
+          "95",
+          "95"
+        ],
+        [
+          "ucpu",
+          "437",
+          "437"
+        ]
+      ],
+      "total_checks": 1028384
+    }
+  },
+  "source_archive_hashes": [
+    {
+      "label": "base",
+      "sha256": "31657870fb816d5ba1e9a9fa873db86bfcb1e91a7464b24bf0868b1b65efe5b1",
+      "size": 9666560,
+      "matches": true
+    },
+    {
+      "label": "merged",
+      "sha256": "30740d53ed0dca4626c688688b17770f745f4a167a353c63e5b90649dda1568e",
+      "size": 9687040,
+      "matches": true
+    },
+    {
+      "label": "head",
+      "sha256": "fb94e634bf588f6a8ebe52b2b934a583b00a126184b0fb9dbd90317f175dafa0",
+      "size": 9697280,
+      "matches": true
+    }
+  ],
+  "identical_canonical_campaigns": [
+    {
+      "campaign": "pp_top-aecp_dispatch_mutants",
+      "identical_records": 44
+    },
+    {
+      "campaign": "pp_top-d3_mutants",
+      "identical_records": 116
+    },
+    {
+      "campaign": "pp_top-gsi_mutants",
+      "identical_records": 22
+    },
+    {
+      "campaign": "pp_top-name_wr_mutant",
+      "identical_records": 3
+    },
+    {
+      "campaign": "pp_top-notify_mutants",
+      "identical_records": 106
+    }
+  ],
+  "published_new_mutants": {
+    "count": 18,
+    "all_required_witnesses": true
+  }
+}

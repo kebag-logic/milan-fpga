@@ -1,0 +1,32 @@
+{
+  "cwd": "$REVIEWS/pp168-r553-1-packet/scratch/golden",
+  "argv": [
+    "python3",
+    "tb/pp_top/acmp_mutants.py",
+    "--output",
+    "$REVIEWS/pp168-r553-1-packet/receipts/fields",
+    "--verilator",
+    "$REVIEWS/pp168-r553-1-packet/scripts/simulator.py",
+    "--jobs",
+    "4",
+    "--only",
+    "unbind_talker_echo",
+    "retry_status_cleared",
+    "retry_probe_status_cleared",
+    "lock_status_13",
+    "lock_gate_bypassed",
+    "disconnect_invalid_success",
+    "disconnect_changes_gate",
+    "disconnect_not_accepted",
+    "settled_vlan_truncated",
+    "settlement_vlan_truncated",
+    "stored_vlan_truncated",
+    "gsi_vlan_external",
+    "parent_vlan_shifted",
+    "probe_guard_current_controller",
+    "probe_retry_current_controller",
+    "field_reset_blocked"
+  ],
+  "rc": 0,
+  "elapsed_seconds": 171.867
+}
