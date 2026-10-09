@@ -1,0 +1,10 @@
+The two new plant-table rows were run through the table's own campaign driver
+(aecp_mutants.campaign, app mode, two interfaces). Both rows report caught=false
+because the driver REFUSED before compiling: "lwSRP is not its own checkout".
+The review clone keeps third_party/lwSRP as an uninitialised gitlink
+(9197193e47a6bb1c45a56d90a18c1784123aba44), and app mode composes lwSRP.
+This is an environment refusal, not a test escape. The plant-table drift
+control (every test claimed by a row) PASSED. The same two plant strings were
+run in core mode at one and two interfaces (receipts/X8-*, X9-*), and two
+independent reordering variants likewise (receipts/V8-*, V9-*): every run
+completed and failed its named test with its named diagnostic.

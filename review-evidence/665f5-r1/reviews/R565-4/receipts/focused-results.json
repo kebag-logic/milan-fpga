@@ -1,0 +1,48 @@
+{
+  "native-2": [
+    {
+      "interfaces": 2,
+      "case": "baseline",
+      "rc": 0
+    },
+    {
+      "interfaces": 2,
+      "case": "X8-nosub-bypasses-running-only",
+      "test": "Core.S1_NoSubcommandSetOnRunningOutputIsRefused",
+      "diagnostic": "STREAM_IS_RUNNING for a no-sub-command SET",
+      "rc": 1,
+      "completed_named_failure": true
+    },
+    {
+      "interfaces": 2,
+      "case": "X9-nosub-bypasses-input-refusal",
+      "test": "Core.S2_NoSubcommandSetOnInputIsNotSupported",
+      "diagnostic": "NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT",
+      "rc": 1,
+      "completed_named_failure": true
+    }
+  ],
+  "native-1": [
+    {
+      "interfaces": 1,
+      "case": "baseline",
+      "rc": 0
+    },
+    {
+      "interfaces": 1,
+      "case": "X8-nosub-bypasses-running-only",
+      "test": "Core.S1_NoSubcommandSetOnRunningOutputIsRefused",
+      "diagnostic": "STREAM_IS_RUNNING for a no-sub-command SET",
+      "rc": 1,
+      "completed_named_failure": true
+    },
+    {
+      "interfaces": 1,
+      "case": "X9-nosub-bypasses-input-refusal",
+      "test": "Core.S2_NoSubcommandSetOnInputIsNotSupported",
+      "diagnostic": "NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT",
+      "rc": 1,
+      "completed_named_failure": true
+    }
+  ]
+}

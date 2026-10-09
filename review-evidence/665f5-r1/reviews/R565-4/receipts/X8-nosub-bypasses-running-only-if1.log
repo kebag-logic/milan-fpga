@@ -1,0 +1,114 @@
+Note: Google Test filter = Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:851: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:855: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  12u
+    Which is: 12
+STREAM_IS_RUNNING for a no-sub-command SET
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:851: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:851: 4
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:855: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  12u
+    Which is: 12
+STREAM_IS_RUNNING for a no-sub-command SET
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:851: 4
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:851: 8
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:855: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  12u
+    Which is: 12
+STREAM_IS_RUNNING for a no-sub-command SET
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:851: 8
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:851: 12
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:855: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  12u
+    Which is: 12
+STREAM_IS_RUNNING for a no-sub-command SET
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:851: 12
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:849: 0
+[  FAILED  ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

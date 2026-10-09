@@ -1,0 +1,24 @@
+delta fb9c57d2..c2a4d298 changed paths:
+M	sw/firmware/ctrl/aecp/README.md
+M	sw/firmware/ctrl/test/aecp_mutants.py
+M	sw/firmware/ctrl/test/aecp_wire.cpp
+M	sw/firmware/ctrl/test/aecp_wire_model.hpp
+M	sw/firmware/ctrl/test/aecp_wire_oracle.py
+M	sw/firmware/ctrl/test/test_aecp.cpp
+
+non-test non-README paths changed fb9c57d2..c2a4d298 (expect none):
+
+changed paths since 0ded1f26 (last independent relink, external round 2):
+sw/firmware/ctrl/aecp/README.md
+sw/firmware/ctrl/test/aecp_mutants.py
+sw/firmware/ctrl/test/aecp_wire.cpp
+sw/firmware/ctrl/test/aecp_wire.py
+sw/firmware/ctrl/test/aecp_wire_model.hpp
+sw/firmware/ctrl/test/aecp_wire_oracle.py
+sw/firmware/ctrl/test/test_aecp.cpp
+
+RV32 image inputs per sw/firmware/ctrl/test/ctrl_srp_image.py: PORTABLE C sources, plat/mbx_plat_mmio.c, test/ctrl_aecp_image.c, aecp/*.c (AECP_SOURCES, aecp_mbx.c, aecp_nvm.c), app/ctrl_app_aecp.c, app/ctrl_app_srp.c, srp/srp_mbx.c, NVM sources, lwSRP pin, test/ctrl_image.ld, generator scripts; none appears in the lists above.
+
+commit messages:
+c2a4d2982fc5f9c345746ded7a0c8f6658c05cce b3187dc0df3deb085d342454b55c4f563a7ef87b test: compare no-subcommand stream info refusals on the wire
+b3187dc0df3deb085d342454b55c4f563a7ef87b fb9c57d2ae3484804ff90f67feb57bf420c93dfa test: pin no-subcommand stream info refusals

@@ -1,0 +1,112 @@
+Note: Google Test filter = Core.*
+[==========] Running 50 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 50 tests from Core
+[ RUN      ] Core.EveryDescriptorAndReadFailures
+[       OK ] Core.EveryDescriptorAndReadFailures (0 ms)
+[ RUN      ] Core.RootDescriptorConfigurationIsIgnored
+[       OK ] Core.RootDescriptorConfigurationIsIgnored (0 ms)
+[ RUN      ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+[       OK ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks (0 ms)
+[ RUN      ] Core.UnsupportedAndAcquire
+[       OK ] Core.UnsupportedAndAcquire (0 ms)
+[ RUN      ] Core.LockQueriesAndExpiry
+[       OK ] Core.LockQueriesAndExpiry (0 ms)
+[ RUN      ] Core.NamesAndDescriptorOverlay
+[       OK ] Core.NamesAndDescriptorOverlay (0 ms)
+[ RUN      ] Core.ScalarGetSetAndCurrentValueRefusals
+[       OK ] Core.ScalarGetSetAndCurrentValueRefusals (0 ms)
+[ RUN      ] Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet
+[       OK ] Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet (0 ms)
+[ RUN      ] Core.RestoreValuesValidateAndRollbackWithoutLiveEvents
+[       OK ] Core.RestoreValuesValidateAndRollbackWithoutLiveEvents (0 ms)
+[ RUN      ] Core.RestoreMapWholeSetClipAndDefaults
+[       OK ] Core.RestoreMapWholeSetClipAndDefaults (0 ms)
+[ RUN      ] Core.ObservationsHaveFullWireForms
+[       OK ] Core.ObservationsHaveFullWireForms (0 ms)
+[ RUN      ] Core.ObservationRefusals
+[       OK ] Core.ObservationRefusals (0 ms)
+[ RUN      ] Core.StreamInfoDirectionFlagsAndLatency
+[       OK ] Core.StreamInfoDirectionFlagsAndLatency (0 ms)
+[ RUN      ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[       OK ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal (0 ms)
+[ RUN      ] Core.SetStreamInfoWithoutSubcommandPreservesState
+[       OK ] Core.SetStreamInfoWithoutSubcommandPreservesState (0 ms)
+[ RUN      ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+[       OK ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused (0 ms)
+[ RUN      ] Core.S2_NoSubcommandSetOnInputIsNotSupported
+[       OK ] Core.S2_NoSubcommandSetOnInputIsNotSupported (0 ms)
+[ RUN      ] Core.BackpressureOrdersResponseBeforeNotice
+[       OK ] Core.BackpressureOrdersResponseBeforeNotice (0 ms)
+[ RUN      ] Core.StartIsDeferredAndHasFailureDeadline
+[       OK ] Core.StartIsDeferredAndHasFailureDeadline (0 ms)
+[ RUN      ] Core.DynamicInfoWhitelistAndIndependentResults
+[       OK ] Core.DynamicInfoWhitelistAndIndependentResults (0 ms)
+[ RUN      ] Core.RegistryCapacityInterfaceKeysAndLiveness
+[       OK ] Core.RegistryCapacityInterfaceKeysAndLiveness (0 ms)
+[ RUN      ] Core.ConfigurationAndLockedSetRefusals
+[       OK ] Core.ConfigurationAndLockedSetRefusals (0 ms)
+[ RUN      ] Core.NameRefusalsAndNoOp
+[       OK ] Core.NameRefusalsAndNoOp (0 ms)
+[ RUN      ] Core.IdentifyCurrentValueAndRefusals
+[       OK ] Core.IdentifyCurrentValueAndRefusals (0 ms)
+[ RUN      ] Core.ChangedScalarValuesAndDamagedLists
+[       OK ] Core.ChangedScalarValuesAndDamagedLists (0 ms)
+[ RUN      ] Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords
+[       OK ] Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords (0 ms)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+[       OK ] Core.MapsAreAtomicAndPaginated (0 ms)
+[ RUN      ] Core.CounterNoticesCoalesceAndWaitForEligibility
+[       OK ] Core.CounterNoticesCoalesceAndWaitForEligibility (0 ms)
+[ RUN      ] Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded
+[       OK ] Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded (0 ms)
+[ RUN      ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+[       OK ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin (0 ms)
+[ RUN      ] Core.StaticMapsPreventOrphaningFormats
+[       OK ] Core.StaticMapsPreventOrphaningFormats (0 ms)
+[ RUN      ] Core.OutputMappingsHaveOneGlobalOwner
+[       OK ] Core.OutputMappingsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+[       OK ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+[       OK ] Core.MapTopologyFailuresAndEmptyPartitions (0 ms)
+[ RUN      ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+[       OK ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths (0 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.ProbeRepliesResetOnlyTheirOwnInterface
+[       OK ] Core.ProbeRepliesResetOnlyTheirOwnInterface (0 ms)
+[ RUN      ] Core.FramingRejectsInvalidIdentityAndTruncation
+[       OK ] Core.FramingRejectsInvalidIdentityAndTruncation (0 ms)
+[ RUN      ] Core.ReentrantPortsCannotMutateState
+[       OK ] Core.ReentrantPortsCannotMutateState (0 ms)
+[ RUN      ] Core.ProbeIdentityAndSequenceMustBothMatch
+[       OK ] Core.ProbeIdentityAndSequenceMustBothMatch (0 ms)
+[ RUN      ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+[       OK ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots (0 ms)
+[ RUN      ] Core.MetadataConfigurationKeysAndRepeatedOverrides
+[       OK ] Core.MetadataConfigurationKeysAndRepeatedOverrides (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[       OK ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.InitRefusalsAndClosedService
+[       OK ] Core.InitRefusalsAndClosedService (0 ms)
+[ RUN      ] Core.EntityAvailableIndexUsesTheIngressObservation
+[       OK ] Core.EntityAvailableIndexUsesTheIngressObservation (0 ms)
+[ RUN      ] Core.NonAemMessageTypesFollowTheirOwnContracts
+[       OK ] Core.NonAemMessageTypesFollowTheirOwnContracts (0 ms)
+[ RUN      ] Core.MilanVendorCommandsAndRefusals
+[       OK ] Core.MilanVendorCommandsAndRefusals (0 ms)
+[ RUN      ] Core.GroupNameDoesNotOverwriteFirmwareVersion
+[       OK ] Core.GroupNameDoesNotOverwriteFirmwareVersion (0 ms)
+[ RUN      ] Core.NotificationBackpressureAndLatestCompletion
+[       OK ] Core.NotificationBackpressureAndLatestCompletion (0 ms)
+[ RUN      ] Core.DescriptorAndObservationBoundaryFailures
+[       OK ] Core.DescriptorAndObservationBoundaryFailures (0 ms)
+[----------] 50 tests from Core (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 50 tests from 1 test suite ran. (5 ms total)
+[  PASSED  ] 50 tests.
+== AECP core: checks: 50   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (50 tests, 0 failures, exit 0)

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "nosub-bypasses-running-only",
+    "checks": [
+      [
+        "Core.S1_NoSubcommandSetOnRunningOutputIsRefused",
+        "STREAM_IS_RUNNING for a no-sub-command SET"
+      ]
+    ],
+    "caught": false
+  },
+  {
+    "name": "nosub-bypasses-input-refusal",
+    "checks": [
+      [
+        "Core.S2_NoSubcommandSetOnInputIsNotSupported",
+        "NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT"
+      ]
+    ],
+    "caught": false
+  }
+]

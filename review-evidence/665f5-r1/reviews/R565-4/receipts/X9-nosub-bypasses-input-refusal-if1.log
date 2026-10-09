@@ -1,0 +1,114 @@
+Note: Google Test filter = Core.S2_NoSubcommandSetOnInputIsNotSupported
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.S2_NoSubcommandSetOnInputIsNotSupported
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 11
+status for command 14
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:869: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+
+  [FAIL] Core.S2_NoSubcommandSetOnInputIsNotSupported: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:873: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  11u
+    Which is: 11
+NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:869: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+
+  [FAIL] Core.S2_NoSubcommandSetOnInputIsNotSupported: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 11
+status for command 14
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:869: 4
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+
+  [FAIL] Core.S2_NoSubcommandSetOnInputIsNotSupported: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:873: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  11u
+    Which is: 11
+NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:869: 4
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+
+  [FAIL] Core.S2_NoSubcommandSetOnInputIsNotSupported: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 11
+status for command 14
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:869: 8
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+
+  [FAIL] Core.S2_NoSubcommandSetOnInputIsNotSupported: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:873: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  11u
+    Which is: 11
+NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:869: 8
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+
+  [FAIL] Core.S2_NoSubcommandSetOnInputIsNotSupported: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 11
+status for command 14
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:869: 12
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+
+  [FAIL] Core.S2_NoSubcommandSetOnInputIsNotSupported: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:873: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  11u
+    Which is: 11
+NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT
+Google Test trace:
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:869: 12
+$CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+
+  [FAIL] Core.S2_NoSubcommandSetOnInputIsNotSupported: $CLONE/sw/firmware/ctrl/test/test_aecp.cpp:867: 0
+[  FAILED  ] Core.S2_NoSubcommandSetOnInputIsNotSupported (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.S2_NoSubcommandSetOnInputIsNotSupported
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

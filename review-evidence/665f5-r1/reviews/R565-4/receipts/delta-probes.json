@@ -1,0 +1,261 @@
+{
+  "native-variants-if1": [
+    {
+      "case": "V8-running-check-after-nosub-return-if1",
+      "diagnostic": "STREAM_IS_RUNNING for a no-sub-command SET",
+      "named_failures": 4,
+      "rc": 1,
+      "test": "Core.S1_NoSubcommandSetOnRunningOutputIsRefused"
+    },
+    {
+      "case": "V9-input-check-after-nosub-return-if1",
+      "diagnostic": "NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT",
+      "named_failures": 4,
+      "rc": 1,
+      "test": "Core.S2_NoSubcommandSetOnInputIsNotSupported"
+    }
+  ],
+  "native-variants-if2": [
+    {
+      "case": "V8-running-check-after-nosub-return-if2",
+      "diagnostic": "STREAM_IS_RUNNING for a no-sub-command SET",
+      "named_failures": 8,
+      "rc": 1,
+      "test": "Core.S1_NoSubcommandSetOnRunningOutputIsRefused"
+    },
+    {
+      "case": "V9-input-check-after-nosub-return-if2",
+      "diagnostic": "NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT",
+      "named_failures": 8,
+      "rc": 1,
+      "test": "Core.S2_NoSubcommandSetOnInputIsNotSupported"
+    }
+  ],
+  "wire-X8-if1": {
+    "case": "wire-X8-if1",
+    "diagnostic": "running STREAM_OUTPUT SET refusal",
+    "rc": 1
+  },
+  "wire-X8-if2": {
+    "case": "wire-X8-if2",
+    "diagnostic": "running STREAM_OUTPUT SET refusal",
+    "rc": 1
+  },
+  "wire-X9-if1": {
+    "case": "wire-X9-if1",
+    "diagnostic": "STREAM_INPUT SET refusal",
+    "rc": 1
+  },
+  "wire-X9-if2": {
+    "case": "wire-X9-if2",
+    "diagnostic": "STREAM_INPUT SET refusal",
+    "rc": 1
+  },
+  "wire-clean-if1": {
+    "case": "wire-clean-if1",
+    "rc": 0,
+    "verdict": [
+      {
+        "commands": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          7,
+          8,
+          9,
+          14,
+          15,
+          16,
+          17,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          43,
+          44,
+          45,
+          75,
+          16383
+        ],
+        "descriptors": 42,
+        "differences": {
+          "IEEE 7.4.15.1 and Milan 5.4.2.9: current SET stream information": 15,
+          "IEEE 7.4.2.1: unlock flag alternatives": 3,
+          "IEEE 7.4.5.1/2: ignored root configuration": 4,
+          "Milan 5.4.4.2/3: system unique ID": 2,
+          "Milan 5.4.5.2: saved default override": 3,
+          "Milan Table 5.22: started-state GET_STREAM_INFO": 2
+        },
+        "notifications": [
+          1,
+          6,
+          8,
+          14,
+          15,
+          16,
+          20,
+          22,
+          24,
+          34,
+          35,
+          37,
+          39,
+          40,
+          41,
+          44,
+          45
+        ],
+        "observations": 142,
+        "planted_controls": 11
+      }
+    ]
+  },
+  "wire-clean-if2": {
+    "case": "wire-clean-if2",
+    "rc": 0,
+    "verdict": [
+      {
+        "commands": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          7,
+          8,
+          9,
+          14,
+          15,
+          16,
+          17,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          43,
+          44,
+          45,
+          75,
+          16383
+        ],
+        "descriptors": 42,
+        "differences": {
+          "IEEE 7.4.15.1 and Milan 5.4.2.9: current SET stream information": 15,
+          "IEEE 7.4.2.1: unlock flag alternatives": 3,
+          "IEEE 7.4.5.1/2: ignored root configuration": 4,
+          "Milan 5.4.4.2/3: system unique ID": 2,
+          "Milan 5.4.5.2: saved default override": 3,
+          "Milan Table 5.22: started-state GET_STREAM_INFO": 2
+        },
+        "notifications": [
+          1,
+          6,
+          8,
+          14,
+          15,
+          16,
+          20,
+          22,
+          24,
+          34,
+          35,
+          37,
+          39,
+          40,
+          41,
+          44,
+          45
+        ],
+        "observations": 147,
+        "planted_controls": 11
+      },
+      {
+        "commands": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          7,
+          8,
+          9,
+          14,
+          15,
+          16,
+          17,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          43,
+          44,
+          45,
+          75,
+          16383
+        ],
+        "descriptors": 42,
+        "differences": {
+          "IEEE 7.4.15.1 and Milan 5.4.2.9: current SET stream information": 15,
+          "IEEE 7.4.2.1: unlock flag alternatives": 3,
+          "IEEE 7.4.5.1/2: ignored root configuration": 4,
+          "Milan 5.4.4.2/3: system unique ID": 2,
+          "Milan 5.4.5.2: saved default override": 3,
+          "Milan Table 5.22: started-state GET_STREAM_INFO": 2
+        },
+        "notifications": [
+          1,
+          6,
+          8,
+          14,
+          15,
+          16,
+          20,
+          22,
+          24,
+          34,
+          35,
+          37,
+          39,
+          40,
+          41,
+          44,
+          45
+        ],
+        "observations": 147,
+        "planted_controls": 11
+      }
+    ]
+  }
+}
