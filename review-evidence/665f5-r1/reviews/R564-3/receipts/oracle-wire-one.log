@@ -1,0 +1,19 @@
+[ok] wire-one/wire-if0.log baseline/head-oracle: ACCEPT
+[ok] wire-one/wire-if0.log baseline/pre-round3-rule: REJECT: SET requested or current latency
+[ok] wire-one/wire-if0.log nosub-core-echoes-request: REJECT: SET requested or current latency
+[ok] wire-one/wire-if0.log nosub-core-latency-off-by-one: REJECT: SET requested or current latency
+[ok] wire-one/wire-if0.log nosub-core-sets-latency-valid: REJECT: SET response validity
+[ok] wire-one/wire-if0.log subcommand-core-latency-not-echoed: REJECT: SET requested or current latency
+[ok] wire-one/wire-if0.log nosub-stimulus-equals-current: REJECT: no-subcommand stimulus distinguishes current latency
+{
+ "wire-one/wire-if0.log": {
+  "set_rows": 7,
+  "nosub_rows": 1,
+  "nosub_request_latency": [
+   765432
+  ],
+  "nosub_core_latency": [
+   67890
+  ]
+ }
+}

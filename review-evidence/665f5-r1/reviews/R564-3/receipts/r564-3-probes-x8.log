@@ -1,0 +1,133 @@
+=== plant=X8.nosub-bypasses-running-only interfaces=1 filter=Core.S1_*:Core.S2_* rc=1
+Note: Google Test filter = Core.S1_*:Core.S2_*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Core
+[ RUN      ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 0
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 4
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 4
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 8
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 8
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 12
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 12
+[  FAILED  ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused (0 ms)
+[ RUN      ] Core.S2_NoSubcommandSetOnInputIsNotSupported
+[       OK ] Core.S2_NoSubcommandSetOnInputIsNotSupported (0 ms)
+[----------] 2 tests from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+
+ 1 FAILED TEST
+== AECP core: checks: 2   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)
+wrote $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+=== plant=X8.nosub-bypasses-running-only interfaces=2 filter=Core.S1_*:Core.S2_* rc=1
+Note: Google Test filter = Core.S1_*:Core.S2_*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Core
+[ RUN      ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 0
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 0
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 4
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 4
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 8
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 8
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 12
+status for command 14
+Google Test trace:
+$REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 12
+
+  [FAIL] Core.S1_NoSubcommandSetOnRunningOutputIsRefused: $REVIEWS/665f5-r564-3-packet/scratch/probes-x8/suite/test_aecp.cpp:1614: 12
+[  FAILED  ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused (0 ms)
+[ RUN      ] Core.S2_NoSubcommandSetOnInputIsNotSupported
+[       OK ] Core.S2_NoSubcommandSetOnInputIsNotSupported (0 ms)
+[----------] 2 tests from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+
+ 1 FAILED TEST
+== AECP core: checks: 2   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)

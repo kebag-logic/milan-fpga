@@ -1,0 +1,396 @@
+wrote $REVIEWS/665f5-r564-3-packet/scratch/arms-app-if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665f5-r564-3-packet/scratch/arms-app-if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665f5-r564-3-packet/scratch/arms-app-if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[==========] Running 70 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 7 tests from Nvm
+[ RUN      ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[       OK ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords (2 ms)
+[ RUN      ] Nvm.WholeMapFramingAndEmptySetAreDistinct
+[       OK ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)
+[ RUN      ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle
+[       OK ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle (0 ms)
+[ RUN      ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+[       OK ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat (0 ms)
+[ RUN      ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+[       OK ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups (0 ms)
+[ RUN      ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+[       OK ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch (0 ms)
+[ RUN      ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+[       OK ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords (0 ms)
+[----------] 7 tests from Nvm (7 ms total)
+
+[----------] 8 tests from App
+[ RUN      ] App.EntityReadSeesTheRealAdpAdvertisementCount
+[       OK ] App.EntityReadSeesTheRealAdpAdvertisementCount (2 ms)
+[ RUN      ] App.DeferredStartAndLockUseTheRealAcmpOwner
+[       OK ] App.DeferredStartAndLockUseTheRealAcmpOwner (0 ms)
+[ RUN      ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+[       OK ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse (0 ms)
+[ RUN      ] App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner
+[       OK ] App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner (0 ms)
+[ RUN      ] App.InputInfoReflectsAcmpSettlementAndFailures
+[       OK ] App.InputInfoReflectsAcmpSettlementAndFailures (0 ms)
+[ RUN      ] App.CompositionRefusalsLeaveExistingBindingsIntact
+[       OK ] App.CompositionRefusalsLeaveExistingBindingsIntact (0 ms)
+[ RUN      ] App.ExpiredAndMissingStartRequestsCannotApplyLate
+[       OK ] App.ExpiredAndMissingStartRequestsCannotApplyLate (0 ms)
+[ RUN      ] App.UnboundStartAndStopAreSuccessfulNoOps
+[       OK ] App.UnboundStartAndStopAreSuccessfulNoOps (0 ms)
+[----------] 8 tests from App (8 ms total)
+
+[----------] 48 tests from Core
+[ RUN      ] Core.EveryDescriptorAndReadFailures
+[       OK ] Core.EveryDescriptorAndReadFailures (0 ms)
+[ RUN      ] Core.RootDescriptorConfigurationIsIgnored
+[       OK ] Core.RootDescriptorConfigurationIsIgnored (0 ms)
+[ RUN      ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+[       OK ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks (0 ms)
+[ RUN      ] Core.UnsupportedAndAcquire
+[       OK ] Core.UnsupportedAndAcquire (0 ms)
+[ RUN      ] Core.LockQueriesAndExpiry
+[       OK ] Core.LockQueriesAndExpiry (0 ms)
+[ RUN      ] Core.NamesAndDescriptorOverlay
+[       OK ] Core.NamesAndDescriptorOverlay (0 ms)
+[ RUN      ] Core.ScalarGetSetAndCurrentValueRefusals
+[       OK ] Core.ScalarGetSetAndCurrentValueRefusals (0 ms)
+[ RUN      ] Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet
+[       OK ] Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet (0 ms)
+[ RUN      ] Core.RestoreValuesValidateAndRollbackWithoutLiveEvents
+[       OK ] Core.RestoreValuesValidateAndRollbackWithoutLiveEvents (0 ms)
+[ RUN      ] Core.RestoreMapWholeSetClipAndDefaults
+[       OK ] Core.RestoreMapWholeSetClipAndDefaults (0 ms)
+[ RUN      ] Core.ObservationsHaveFullWireForms
+[       OK ] Core.ObservationsHaveFullWireForms (0 ms)
+[ RUN      ] Core.ObservationRefusals
+[       OK ] Core.ObservationRefusals (0 ms)
+[ RUN      ] Core.StreamInfoDirectionFlagsAndLatency
+[       OK ] Core.StreamInfoDirectionFlagsAndLatency (0 ms)
+[ RUN      ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[       OK ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal (0 ms)
+[ RUN      ] Core.SetStreamInfoWithoutSubcommandPreservesState
+[       OK ] Core.SetStreamInfoWithoutSubcommandPreservesState (0 ms)
+[ RUN      ] Core.BackpressureOrdersResponseBeforeNotice
+[       OK ] Core.BackpressureOrdersResponseBeforeNotice (0 ms)
+[ RUN      ] Core.StartIsDeferredAndHasFailureDeadline
+[       OK ] Core.StartIsDeferredAndHasFailureDeadline (0 ms)
+[ RUN      ] Core.DynamicInfoWhitelistAndIndependentResults
+[       OK ] Core.DynamicInfoWhitelistAndIndependentResults (0 ms)
+[ RUN      ] Core.RegistryCapacityInterfaceKeysAndLiveness
+[       OK ] Core.RegistryCapacityInterfaceKeysAndLiveness (0 ms)
+[ RUN      ] Core.ConfigurationAndLockedSetRefusals
+[       OK ] Core.ConfigurationAndLockedSetRefusals (0 ms)
+[ RUN      ] Core.NameRefusalsAndNoOp
+[       OK ] Core.NameRefusalsAndNoOp (0 ms)
+[ RUN      ] Core.IdentifyCurrentValueAndRefusals
+[       OK ] Core.IdentifyCurrentValueAndRefusals (0 ms)
+[ RUN      ] Core.ChangedScalarValuesAndDamagedLists
+[       OK ] Core.ChangedScalarValuesAndDamagedLists (0 ms)
+[ RUN      ] Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords
+[       OK ] Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords (0 ms)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+[       OK ] Core.MapsAreAtomicAndPaginated (0 ms)
+[ RUN      ] Core.CounterNoticesCoalesceAndWaitForEligibility
+[       OK ] Core.CounterNoticesCoalesceAndWaitForEligibility (0 ms)
+[ RUN      ] Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded
+[       OK ] Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded (0 ms)
+[ RUN      ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+[       OK ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin (0 ms)
+[ RUN      ] Core.StaticMapsPreventOrphaningFormats
+[       OK ] Core.StaticMapsPreventOrphaningFormats (0 ms)
+[ RUN      ] Core.OutputMappingsHaveOneGlobalOwner
+[       OK ] Core.OutputMappingsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+[       OK ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+[       OK ] Core.MapTopologyFailuresAndEmptyPartitions (0 ms)
+[ RUN      ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+[       OK ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths (0 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.ProbeRepliesResetOnlyTheirOwnInterface
+[       OK ] Core.ProbeRepliesResetOnlyTheirOwnInterface (0 ms)
+[ RUN      ] Core.FramingRejectsInvalidIdentityAndTruncation
+[       OK ] Core.FramingRejectsInvalidIdentityAndTruncation (0 ms)
+[ RUN      ] Core.ReentrantPortsCannotMutateState
+[       OK ] Core.ReentrantPortsCannotMutateState (0 ms)
+[ RUN      ] Core.ProbeIdentityAndSequenceMustBothMatch
+[       OK ] Core.ProbeIdentityAndSequenceMustBothMatch (0 ms)
+[ RUN      ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+[       OK ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots (0 ms)
+[ RUN      ] Core.MetadataConfigurationKeysAndRepeatedOverrides
+[       OK ] Core.MetadataConfigurationKeysAndRepeatedOverrides (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[       OK ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.InitRefusalsAndClosedService
+[       OK ] Core.InitRefusalsAndClosedService (0 ms)
+[ RUN      ] Core.EntityAvailableIndexUsesTheIngressObservation
+[       OK ] Core.EntityAvailableIndexUsesTheIngressObservation (0 ms)
+[ RUN      ] Core.NonAemMessageTypesFollowTheirOwnContracts
+[       OK ] Core.NonAemMessageTypesFollowTheirOwnContracts (0 ms)
+[ RUN      ] Core.MilanVendorCommandsAndRefusals
+[       OK ] Core.MilanVendorCommandsAndRefusals (0 ms)
+[ RUN      ] Core.GroupNameDoesNotOverwriteFirmwareVersion
+[       OK ] Core.GroupNameDoesNotOverwriteFirmwareVersion (0 ms)
+[ RUN      ] Core.NotificationBackpressureAndLatestCompletion
+[       OK ] Core.NotificationBackpressureAndLatestCompletion (0 ms)
+[ RUN      ] Core.DescriptorAndObservationBoundaryFailures
+[       OK ] Core.DescriptorAndObservationBoundaryFailures (0 ms)
+[----------] 48 tests from Core (5 ms total)
+
+[----------] 4 tests from Mailbox
+[ RUN      ] Mailbox.EveryInterfaceAndObservationPort
+[       OK ] Mailbox.EveryInterfaceAndObservationPort (0 ms)
+[ RUN      ] Mailbox.OutputTailStartsCounterSpacingAfterAStall
+[       OK ] Mailbox.OutputTailStartsCounterSpacingAfterAStall (0 ms)
+[ RUN      ] Mailbox.TimerIdentityAndAttachRefusals
+[       OK ] Mailbox.TimerIdentityAndAttachRefusals (1 ms)
+[ RUN      ] Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse
+[       OK ] Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse (0 ms)
+[----------] 4 tests from Mailbox (2 ms total)
+
+[----------] 3 tests from Latency
+[ RUN      ] Latency.EveryCommandAndRefusalUsesOneArrivalBudget
+H-AECP if=2 path=4 elapsed_ns=1011300 accesses=142
+H-AECP if=2 path=4 elapsed_ns=1006100 accesses=232
+H-AECP if=2 path=4 elapsed_ns=1007200 accesses=333
+H-AECP if=2 path=4 elapsed_ns=1007300 accesses=435
+H-AECP if=2 path=4 elapsed_ns=1007100 accesses=535
+H-AECP if=2 path=4 elapsed_ns=1007100 accesses=635
+H-AECP if=2 path=4 elapsed_ns=1007100 accesses=735
+H-AECP if=2 path=4 elapsed_ns=1006000 accesses=824
+H-AECP if=2 path=4 elapsed_ns=1005600 accesses=909
+H-AECP if=2 path=4 elapsed_ns=1005600 accesses=994
+H-AECP if=2 path=4 elapsed_ns=1005600 accesses=1079
+H-AECP if=2 path=4 elapsed_ns=1005300 accesses=1161
+H-AECP if=2 path=4 elapsed_ns=1014800 accesses=1338
+H-AECP if=2 path=4 elapsed_ns=1004000 accesses=1407
+H-AECP if=2 path=4 elapsed_ns=1004000 accesses=1476
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=1562
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=1648
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=1734
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=1820
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=1906
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=1992
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2078
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2164
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2250
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2336
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2422
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2508
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2594
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2680
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2766
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2852
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=2938
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=3024
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=3110
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=3196
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=3282
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=3368
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=3454
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=3540
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=3626
+H-AECP if=2 path=4 elapsed_ns=1006300 accesses=3718
+H-AECP if=2 path=4 elapsed_ns=1005500 accesses=3802
+H-AECP if=2 path=0 elapsed_ns=1004000 accesses=3871
+H-AECP if=2 path=0 elapsed_ns=1003700 accesses=3937
+H-AECP if=2 path=1 elapsed_ns=1004200 accesses=4008
+H-AECP if=2 path=1 elapsed_ns=1003700 accesses=4074
+H-AECP if=2 path=2 elapsed_ns=1003700 accesses=4140
+H-AECP if=2 path=2 elapsed_ns=1003800 accesses=4207
+H-AECP if=2 path=6 elapsed_ns=1003400 accesses=4270
+H-AECP if=2 path=6 elapsed_ns=1003400 accesses=4333
+H-AECP if=2 path=7 elapsed_ns=1003300 accesses=4395
+H-AECP if=2 path=7 elapsed_ns=1003400 accesses=4458
+H-AECP if=2 path=8 elapsed_ns=1003800 accesses=4525
+H-AECP if=2 path=8 elapsed_ns=1003600 accesses=4590
+H-AECP if=2 path=9 elapsed_ns=1003600 accesses=4655
+H-AECP if=2 path=9 elapsed_ns=1003600 accesses=4720
+H-AECP if=2 path=14 elapsed_ns=1007400 accesses=4823
+H-AECP if=2 path=14 elapsed_ns=1005400 accesses=4906
+H-AECP if=2 path=15 elapsed_ns=1004700 accesses=4982
+H-AECP if=2 path=15 elapsed_ns=1004700 accesses=5058
+H-AECP if=2 path=16 elapsed_ns=1006800 accesses=5155
+H-AECP if=2 path=16 elapsed_ns=1005100 accesses=5235
+H-AECP if=2 path=17 elapsed_ns=1005200 accesses=5316
+H-AECP if=2 path=17 elapsed_ns=1005100 accesses=5396
+H-AECP if=2 path=20 elapsed_ns=1003600 accesses=5461
+H-AECP if=2 path=20 elapsed_ns=1003500 accesses=5525
+H-AECP if=2 path=21 elapsed_ns=1003500 accesses=5589
+H-AECP if=2 path=21 elapsed_ns=1003500 accesses=5653
+H-AECP if=2 path=22 elapsed_ns=1003600 accesses=5718
+H-AECP if=2 path=22 elapsed_ns=1003500 accesses=5782
+H-AECP if=2 path=23 elapsed_ns=1003500 accesses=5846
+H-AECP if=2 path=23 elapsed_ns=1003500 accesses=5910
+H-AECP if=2 path=24 elapsed_ns=1003400 accesses=5973
+H-AECP if=2 path=24 elapsed_ns=1003400 accesses=6036
+H-AECP if=2 path=25 elapsed_ns=1003400 accesses=6099
+H-AECP if=2 path=25 elapsed_ns=1003400 accesses=6162
+H-AECP if=2 path=34 elapsed_ns=1005600 accesses=6249
+H-AECP if=2 path=34 elapsed_ns=1003400 accesses=6312
+H-AECP if=2 path=35 elapsed_ns=1005600 accesses=6399
+H-AECP if=2 path=35 elapsed_ns=1003400 accesses=6462
+H-AECP if=2 path=36 elapsed_ns=1003500 accesses=6526
+H-AECP if=2 path=36 elapsed_ns=1003600 accesses=6591
+H-AECP if=2 path=37 elapsed_ns=1003400 accesses=6654
+H-AECP if=2 path=37 elapsed_ns=1003300 accesses=6716
+H-AECP if=2 path=38 elapsed_ns=1003400 accesses=6779
+H-AECP if=2 path=38 elapsed_ns=1003400 accesses=6842
+H-AECP if=2 path=39 elapsed_ns=1003900 accesses=6910
+H-AECP if=2 path=39 elapsed_ns=1003800 accesses=6977
+H-AECP if=2 path=40 elapsed_ns=1016200 accesses=7168
+H-AECP if=2 path=40 elapsed_ns=1003400 accesses=7231
+H-AECP if=2 path=41 elapsed_ns=1006700 accesses=7327
+H-AECP if=2 path=41 elapsed_ns=1006700 accesses=7423
+H-AECP if=2 path=43 elapsed_ns=1003700 accesses=7489
+H-AECP if=2 path=43 elapsed_ns=1003600 accesses=7554
+H-AECP if=2 path=44 elapsed_ns=1074000 accesses=8323
+H-AECP if=2 path=44 elapsed_ns=1003500 accesses=8387
+H-AECP if=2 path=45 elapsed_ns=1074000 accesses=9156
+H-AECP if=2 path=45 elapsed_ns=1003500 accesses=9220
+H-AECP if=2 path=75 elapsed_ns=1017300 accesses=9422
+H-AECP if=2 path=75 elapsed_ns=1003300 accesses=9484
+H-AECP if=2 path=16383 elapsed_ns=1077000 accesses=10283
+H-AECP if=2 path=16383 elapsed_ns=1003400 accesses=10346
+H-AECP if=2 path=514 elapsed_ns=1003600 accesses=10411
+H-AECP if=2 path=516 elapsed_ns=1003600 accesses=10476
+H-AECP if=2 path=520 elapsed_ns=1003500 accesses=10540
+H-AECP if=2 path=256 elapsed_ns=1004100 accesses=10610
+H-AECP if=2 path=257 elapsed_ns=1004000 accesses=10679
+H-AECP if=2 path=258 elapsed_ns=1004000 accesses=10748
+H-AECP if=2 path=4 elapsed_ns=1011300 accesses=10890
+H-AECP if=2 path=4 elapsed_ns=1006100 accesses=10980
+H-AECP if=2 path=4 elapsed_ns=1007200 accesses=11081
+H-AECP if=2 path=4 elapsed_ns=1007300 accesses=11183
+H-AECP if=2 path=4 elapsed_ns=1007100 accesses=11283
+H-AECP if=2 path=4 elapsed_ns=1007100 accesses=11383
+H-AECP if=2 path=4 elapsed_ns=1007100 accesses=11483
+H-AECP if=2 path=4 elapsed_ns=1006000 accesses=11572
+H-AECP if=2 path=4 elapsed_ns=1005600 accesses=11657
+H-AECP if=2 path=4 elapsed_ns=1005600 accesses=11742
+H-AECP if=2 path=4 elapsed_ns=1005600 accesses=11827
+H-AECP if=2 path=4 elapsed_ns=1005300 accesses=11909
+H-AECP if=2 path=4 elapsed_ns=1014800 accesses=12086
+H-AECP if=2 path=4 elapsed_ns=1004000 accesses=12155
+H-AECP if=2 path=4 elapsed_ns=1004000 accesses=12224
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12310
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12396
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12482
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12568
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12654
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12740
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12826
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12912
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=12998
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13084
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13170
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13256
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13342
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13428
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13514
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13600
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13686
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13772
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13858
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=13944
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=14030
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=14116
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=14202
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=14288
+H-AECP if=2 path=4 elapsed_ns=1005700 accesses=14374
+H-AECP if=2 path=4 elapsed_ns=1006300 accesses=14466
+H-AECP if=2 path=4 elapsed_ns=1005500 accesses=14550
+H-AECP if=2 path=0 elapsed_ns=1004000 accesses=14619
+H-AECP if=2 path=0 elapsed_ns=1003700 accesses=14685
+H-AECP if=2 path=1 elapsed_ns=1004200 accesses=14756
+H-AECP if=2 path=1 elapsed_ns=1003700 accesses=14822
+H-AECP if=2 path=2 elapsed_ns=1003700 accesses=14888
+H-AECP if=2 path=2 elapsed_ns=1003800 accesses=14955
+H-AECP if=2 path=6 elapsed_ns=1003400 accesses=15018
+H-AECP if=2 path=6 elapsed_ns=1003400 accesses=15081
+H-AECP if=2 path=7 elapsed_ns=1003300 accesses=15143
+H-AECP if=2 path=7 elapsed_ns=1003400 accesses=15206
+H-AECP if=2 path=8 elapsed_ns=1003800 accesses=15273
+H-AECP if=2 path=8 elapsed_ns=1003600 accesses=15338
+H-AECP if=2 path=9 elapsed_ns=1003600 accesses=15403
+H-AECP if=2 path=9 elapsed_ns=1003600 accesses=15468
+H-AECP if=2 path=14 elapsed_ns=1007400 accesses=15571
+H-AECP if=2 path=14 elapsed_ns=1005400 accesses=15654
+H-AECP if=2 path=15 elapsed_ns=1004700 accesses=15730
+H-AECP if=2 path=15 elapsed_ns=1004700 accesses=15806
+H-AECP if=2 path=16 elapsed_ns=1006800 accesses=15903
+H-AECP if=2 path=16 elapsed_ns=1005100 accesses=15983
+H-AECP if=2 path=17 elapsed_ns=1005200 accesses=16064
+H-AECP if=2 path=17 elapsed_ns=1005100 accesses=16144
+H-AECP if=2 path=20 elapsed_ns=1003600 accesses=16209
+H-AECP if=2 path=20 elapsed_ns=1003500 accesses=16273
+H-AECP if=2 path=21 elapsed_ns=1003500 accesses=16337
+H-AECP if=2 path=21 elapsed_ns=1003500 accesses=16401
+H-AECP if=2 path=22 elapsed_ns=1003600 accesses=16466
+H-AECP if=2 path=22 elapsed_ns=1003500 accesses=16530
+H-AECP if=2 path=23 elapsed_ns=1003500 accesses=16594
+H-AECP if=2 path=23 elapsed_ns=1003500 accesses=16658
+H-AECP if=2 path=24 elapsed_ns=1003400 accesses=16721
+H-AECP if=2 path=24 elapsed_ns=1003400 accesses=16784
+H-AECP if=2 path=25 elapsed_ns=1003400 accesses=16847
+H-AECP if=2 path=25 elapsed_ns=1003400 accesses=16910
+H-AECP if=2 path=34 elapsed_ns=1005600 accesses=16997
+H-AECP if=2 path=34 elapsed_ns=1003400 accesses=17060
+H-AECP if=2 path=35 elapsed_ns=1005600 accesses=17147
+H-AECP if=2 path=35 elapsed_ns=1003400 accesses=17210
+H-AECP if=2 path=36 elapsed_ns=1003500 accesses=17274
+H-AECP if=2 path=36 elapsed_ns=1003600 accesses=17339
+H-AECP if=2 path=37 elapsed_ns=1003400 accesses=17402
+H-AECP if=2 path=37 elapsed_ns=1003300 accesses=17464
+H-AECP if=2 path=38 elapsed_ns=1003400 accesses=17527
+H-AECP if=2 path=38 elapsed_ns=1003400 accesses=17590
+H-AECP if=2 path=39 elapsed_ns=1003900 accesses=17658
+H-AECP if=2 path=39 elapsed_ns=1003800 accesses=17725
+H-AECP if=2 path=40 elapsed_ns=1016200 accesses=17916
+H-AECP if=2 path=40 elapsed_ns=1003400 accesses=17979
+H-AECP if=2 path=41 elapsed_ns=1006700 accesses=18075
+H-AECP if=2 path=41 elapsed_ns=1006700 accesses=18171
+H-AECP if=2 path=43 elapsed_ns=1003700 accesses=18237
+H-AECP if=2 path=43 elapsed_ns=1003600 accesses=18302
+H-AECP if=2 path=44 elapsed_ns=1074000 accesses=19071
+H-AECP if=2 path=44 elapsed_ns=1003500 accesses=19135
+H-AECP if=2 path=45 elapsed_ns=1074000 accesses=19904
+H-AECP if=2 path=45 elapsed_ns=1003500 accesses=19968
+H-AECP if=2 path=75 elapsed_ns=1017300 accesses=20170
+H-AECP if=2 path=75 elapsed_ns=1003300 accesses=20232
+H-AECP if=2 path=16383 elapsed_ns=1077000 accesses=21031
+H-AECP if=2 path=16383 elapsed_ns=1003400 accesses=21094
+H-AECP if=2 path=514 elapsed_ns=1003600 accesses=21159
+H-AECP if=2 path=516 elapsed_ns=1003600 accesses=21224
+H-AECP if=2 path=520 elapsed_ns=1003500 accesses=21288
+H-AECP if=2 path=256 elapsed_ns=1004100 accesses=21358
+H-AECP if=2 path=257 elapsed_ns=1004000 accesses=21427
+H-AECP if=2 path=258 elapsed_ns=1004000 accesses=21496
+[       OK ] Latency.EveryCommandAndRefusalUsesOneArrivalBudget (1 ms)
+[ RUN      ] Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin
+H-AECP if=2 path=32773 elapsed_ns=1093300 accesses=3215
+H-AECP if=2 path=32774 elapsed_ns=1093300 accesses=4444
+H-AECP if=2 path=32777 elapsed_ns=1067700 accesses=5417
+H-AECP if=2 path=32777 elapsed_ns=1064500 accesses=6358
+H-AECP if=2 path=32773 elapsed_ns=1157300 accesses=8227
+H-AECP if=2 path=32774 elapsed_ns=1157300 accesses=10096
+H-AECP if=2 path=32777 elapsed_ns=1157300 accesses=11965
+H-AECP if=2 path=32804 elapsed_ns=1157300 accesses=13834
+H-AECP if=2 path=2 elapsed_ns=2006900 accesses=14773
+[       OK ] Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin (0 ms)
+[ RUN      ] Latency.DeferredFailureAndTimerPathsUseTheirDueTime
+H-AECP if=2 path=34 elapsed_ns=9006100 accesses=93
+H-AECP if=2 path=3 elapsed_ns=1005600 accesses=580
+H-AECP if=2 path=3 elapsed_ns=1005600 accesses=941
+H-AECP if=2 path=3 elapsed_ns=1005000 accesses=1290
+H-AECP if=2 path=1 elapsed_ns=1005900 accesses=1787
+[       OK ] Latency.DeferredFailureAndTimerPathsUseTheirDueTime (3 ms)
+[----------] 3 tests from Latency (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 70 tests from 5 test suites ran. (29 ms total)
+[  PASSED  ] 70 tests.
+== AECP core: checks: 70   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (70 tests, 0 failures, exit 0)

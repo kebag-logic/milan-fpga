@@ -1,0 +1,32 @@
+[
+  {
+    "plant": "X7.nosub-bypasses-running-and-lock",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.ConfigurationAndLockedSetRefusals"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: status for command 14": false
+    },
+    "killed": false
+  },
+  {
+    "plant": "X7.nosub-bypasses-running-and-lock",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.ConfigurationAndLockedSetRefusals"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: status for command 14": false
+    },
+    "killed": false
+  }
+]

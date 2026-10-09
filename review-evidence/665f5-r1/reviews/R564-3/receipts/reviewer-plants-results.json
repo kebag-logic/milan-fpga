@@ -1,0 +1,282 @@
+[
+  {
+    "plant": "baseline",
+    "interfaces": 1,
+    "rc": 0,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [],
+    "expected_diagnostics": {},
+    "killed": false
+  },
+  {
+    "plant": "baseline",
+    "interfaces": 2,
+    "rc": 0,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [],
+    "expected_diagnostics": {},
+    "killed": false
+  },
+  {
+    "plant": "R564-2.nosub-applies-request-latency",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand preserves stored latency": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "R564-2.nosub-applies-request-latency",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand preserves stored latency": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "R564-2.nosub-reports-request-latency",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand reports current latency, not requested latency": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "R564-2.nosub-reports-request-latency",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand reports current latency, not requested latency": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X1.nosub-sets-latency-valid",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: latency valid follows the request": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X1.nosub-sets-latency-valid",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: latency valid follows the request": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X2.nosub-writes-store-only",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand preserves stored latency": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X2.nosub-writes-store-only",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand preserves stored latency": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X3.nosub-marks-override-only",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand preserves saved override": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X3.nosub-marks-override-only",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoWithoutSubcommandPreservesState"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand preserves saved override": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X4.current-latency-ignores-override",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet",
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState",
+      "Core.StreamInfoDirectionFlagsAndLatency"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand reports current latency, not requested latency": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X4.current-latency-ignores-override",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet",
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState",
+      "Core.StreamInfoDirectionFlagsAndLatency"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: no subcommand reports current latency, not requested latency": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X5.nosub-refused",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState",
+      "Core.StreamInfoDirectionFlagsAndLatency"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: status for command 14": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X5.nosub-refused",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+      "Core.SetStreamInfoWithoutSubcommandPreservesState",
+      "Core.StreamInfoDirectionFlagsAndLatency"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoWithoutSubcommandPreservesState: status for command 14": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X6.subcommand-echo-dropped",
+    "interfaces": 1,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET latency follows Milan success and current refusal rules": true
+    },
+    "killed": true
+  },
+  {
+    "plant": "X6.subcommand-echo-dropped",
+    "interfaces": 2,
+    "rc": 1,
+    "tests_ran": [
+      "70"
+    ],
+    "failed_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal"
+    ],
+    "expected_diagnostics": {
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal: SET latency follows Milan success and current refusal rules": true
+    },
+    "killed": true
+  }
+]

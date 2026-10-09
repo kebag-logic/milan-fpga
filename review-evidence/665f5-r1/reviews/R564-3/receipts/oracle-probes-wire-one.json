@@ -1,0 +1,49 @@
+{
+  "wire-one/wire-if0.log": {
+    "census": {
+      "set_rows": 7,
+      "nosub_rows": 1,
+      "nosub_request_latency": [
+        765432
+      ],
+      "nosub_core_latency": [
+        67890
+      ]
+    },
+    "baseline/head-oracle": {
+      "expected": "ACCEPT",
+      "observed": "ACCEPT",
+      "ok": true
+    },
+    "baseline/pre-round3-rule": {
+      "expected": "REJECT: SET requested or current latency",
+      "observed": "REJECT: SET requested or current latency",
+      "ok": true
+    },
+    "nosub-core-echoes-request": {
+      "expected": "REJECT: SET requested or current latency",
+      "observed": "REJECT: SET requested or current latency",
+      "ok": true
+    },
+    "nosub-core-latency-off-by-one": {
+      "expected": "REJECT: SET requested or current latency",
+      "observed": "REJECT: SET requested or current latency",
+      "ok": true
+    },
+    "nosub-core-sets-latency-valid": {
+      "expected": "REJECT: SET response validity",
+      "observed": "REJECT: SET response validity",
+      "ok": true
+    },
+    "subcommand-core-latency-not-echoed": {
+      "expected": "REJECT: SET requested or current latency",
+      "observed": "REJECT: SET requested or current latency",
+      "ok": true
+    },
+    "nosub-stimulus-equals-current": {
+      "expected": "REJECT: no-subcommand stimulus distinguishes current latency",
+      "observed": "REJECT: no-subcommand stimulus distinguishes current latency",
+      "ok": true
+    }
+  }
+}
