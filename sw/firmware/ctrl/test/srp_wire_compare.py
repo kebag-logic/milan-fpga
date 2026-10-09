@@ -203,7 +203,10 @@ def controls() -> dict[str, Any]:
         "wrong-AttributeEvent": fixture([one, message(3, sid2, 1, b"\x24", b"\x80")]),
         "wrong-FourPackedEvent": fixture([one, message(3, sid2, 1, b"\0", b"\x40")]),
         "dropped-declaration": fixture([one]),
-        "extra-declaration": fixture([one, two, two]),
+        "extra-declaration": fixture([one, two, message(3, bytes.fromhex("1122334455660003"), 1,
+                                                        b"\0", b"\x80")]),
+        # Multiplicity: the same tuple twice must not collapse into one.
+        "duplicated-declaration": fixture([one, two, two]),
     }
     assert equal_frame_opportunity(packed, fixture([two, one]))
     assert equal_opportunities([[packed]], [[fixture([one]), fixture([two])]])
