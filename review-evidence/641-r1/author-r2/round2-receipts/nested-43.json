@@ -1,0 +1,29 @@
+{
+  "make": "GNU Make 4.3",
+  "controls": [
+    {
+      "variant": "head",
+      "rc": 2,
+      "expected_refusal": true
+    },
+    {
+      "variant": "status-check-deleted",
+      "rc": 0,
+      "expected_refusal": false
+    },
+    {
+      "consumer": "tb/verilator/pp_shadow/Makefile",
+      "readable": true,
+      "prerequisites": [
+        "../../../hdl/common/gen/adp_shape_defaults.svh"
+      ]
+    },
+    {
+      "consumer": "tb/verilator/milan_dp_render/Makefile",
+      "readable": true,
+      "prerequisites": [
+        "../../../configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh"
+      ]
+    }
+  ]
+}

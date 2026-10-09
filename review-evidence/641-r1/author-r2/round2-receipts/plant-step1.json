@@ -1,0 +1,32 @@
+{
+  "head": "759d1d248fad095ab07bfcc480a0828117501f39",
+  "functional_rtl_unchanged": true,
+  "patches_checked": 0,
+  "anchors": [
+    {
+      "name": "missing lookup binding",
+      "source": "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+      "occurrences": 1
+    },
+    {
+      "name": "swapped key and mask bindings",
+      "source": "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+      "occurrences": 1
+    },
+    {
+      "name": "tied-off lookup key",
+      "source": "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+      "occurrences": 1
+    },
+    {
+      "name": "child lookup port declared output (direction-wrong binding)",
+      "source": "hdl/ieee8021q/filtering/tcam.sv",
+      "occurrences": 1
+    },
+    {
+      "name": "DUT m_tready declared output (direction-wrong boundary)",
+      "source": "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+      "occurrences": 1
+    }
+  ]
+}

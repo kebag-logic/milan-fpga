@@ -1,0 +1,21 @@
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+KL_chan_map_render               5468        0     5468     2101        0        0        0        2
+KL_render_setpoint               1385      512     1897      358        1        0        0      107
+KL_tdm_render_master              712      128      840     1083        0        0        0       22
+KL_chan_map_capture              6202        0     6202     4071        1        0        0       52
+KL_crf_rx                         368        0      368      544        0        1        0      147
+KL_aaf_clock_meter                558       16      574      636        0        0        0      102
+KL_pp_shadow                    55780     4100    59880    26205       15        4       10     2379
+KL_mmcm_drp_servo                 865        0      865      792        0        0        1      150
+KL_aaf_latency_taps               806        0      806      612        0        0        0       96
+KL_maap                           515        0      515      278        0        0        0       59
+KL_i2s_playback                   454       32      486      630        1        0        0       36
+rx_mac_filter                    1378        0     1378     1691        0        0        0        0
+tcam                              678        0      678     1680        0        0        0        0
+KL_pcm_lpf                        750       32      782      372        0        0        1       38
+timestamp_counter                 391        0      391      153        0        0        0       38
+milan_datapath                  88986     4472    93458    41469       17       20       20     4016
+KL_nvm_blankflash_sizer            35        0       35       21        0        0        0        5
+KL_nvm_backend                   1340      128     1468      515        0        0        6      113
