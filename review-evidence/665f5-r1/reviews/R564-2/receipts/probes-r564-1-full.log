@@ -1,0 +1,52 @@
+command: python3 -B $REVIEWS/665f5-r564-2-packet/scripts/run_probes.py $REVIEWS/665f5-r564-2-packet/scratch/tree $REVIEWS/665f5-r564-2-packet r564-1-full
+start: 2026-10-09T17:48:18Z
+=== r564-1-full interfaces=1 filter=Core.P* rc=0
+Note: Google Test filter = Core.P*
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from Core
+[ RUN      ] Core.ProbeRepliesResetOnlyTheirOwnInterface
+[       OK ] Core.ProbeRepliesResetOnlyTheirOwnInterface (0 ms)
+[ RUN      ] Core.ProbeIdentityAndSequenceMustBothMatch
+[       OK ] Core.ProbeIdentityAndSequenceMustBothMatch (0 ms)
+[ RUN      ] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration
+PROBE P1 type=0 cfg_in=0x0000 status=0 bytes=354 cfg_out=0x0000
+PROBE P1 type=0 cfg_in=0x0001 status=0 bytes=354 cfg_out=0x0000
+PROBE P1 type=0 cfg_in=0xffff status=0 bytes=354 cfg_out=0x0000
+PROBE P1 type=1 cfg_in=0x0000 status=0 bytes=148 cfg_out=0x0000
+PROBE P1 type=1 cfg_in=0x0001 status=0 bytes=148 cfg_out=0x0000
+PROBE P1 type=1 cfg_in=0xffff status=0 bytes=148 cfg_out=0x0000
+[       OK ] Core.P1_ReadDescriptorIgnoresConfigurationIndexForEntityAndConfiguration (0 ms)
+[ RUN      ] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand
+PROBE P2 flags=0x20000000 status=0
+PROBE P2 flags=0x00000000 status=0
+PROBE P2 flags=0x20000004 status=0
+PROBE P2 flags=0x20000008 status=0
+[       OK ] Core.P2_SetStreamInfoIgnoresUnsettableFlagsAndAcceptsNoSubcommand (0 ms)
+[ RUN      ] Core.P3_HdcpApmCommandIsAcknowledgedNotImplemented
+PROBE P3 message_type=2 responses=1 ignored_delta=0 reply_type=3 status=1
+PROBE P3 message_type=4 responses=1 ignored_delta=0 reply_type=5 status=1
+PROBE P3 message_type=8 responses=1 ignored_delta=0 reply_type=9 status=1
+PROBE P3 message_type=14 responses=0 ignored_delta=1
+[       OK ] Core.P3_HdcpApmCommandIsAcknowledgedNotImplemented (0 ms)
+[ RUN      ] Core.P4_NotImplementedResponseSizes
+PROBE P4 command=0x0013 status=1 control_data_length=12
+PROBE P4 command=0x000b status=1 control_data_length=12
+PROBE P4 command=0x002e status=1 control_data_length=12
+PROBE P4 command=0x3fff status=1 control_data_length=12
+[       OK ] Core.P4_NotImplementedResponseSizes (0 ms)
+[ RUN      ] Core.P5_EntityAvailableIndexIsStatic
+PROBE P5 entity available_index=0 (image constant; no ADP port exists)
+[       OK ] Core.P5_EntityAvailableIndexIsStatic (0 ms)
+[ RUN      ] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices
+PROBE P6 sent=2 avb_counter_notices=1 clock_domain_counter_notices=1 busy_polls=2/100
+[       OK ] Core.P6_OneFailingObservationDoesNotStarveOtherDescriptorNotices (0 ms)
+[----------] 8 tests from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 8 tests.
+== AECP core: checks: 8   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (8 tests, 0 failures, exit 0)
+end: 2026-10-09T17:48:35Z rc=0

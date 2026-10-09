@@ -1,0 +1,309 @@
+[
+  {
+    "name": "retry-timer-lost",
+    "path": "aecp/aecp.c",
+    "old": "e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))",
+    "new": "e->retry_pending == 0u && (!armed || due(deadline, e->retry_at))",
+    "checks": [
+      [
+        "Core.CounterTimerArmsOnlyEligibleCompletedSnapshots",
+        "Unexpected mock function call"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "cross-instance-guard-removed",
+    "path": "aecp/aecp.c",
+    "old": "port_owner != NULL || (a != NULL && a->in_port)",
+    "new": "a != NULL && a->in_port",
+    "checks": [
+      [
+        "Core.CrossInstanceInputsAreRefusedInsideRealCallbacks",
+        "every cross-instance public input counts its refusal"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "stream-info-request-echo",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out + 8, d->value + 74, 8u);",
+    "new": "memcpy(out + 8, in + 8, len >= 16u ? 8u : 0u);",
+    "checks": [
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "SET response uses current format"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "root-configuration-refused",
+    "path": "aecp/aecp_commands.c",
+    "old": "if (type == 0u || type == 1u) {",
+    "new": "if (type == 0xffffu) {",
+    "checks": [
+      [
+        "Core.RootDescriptorConfigurationIsIgnored",
+        "root descriptor ignores received configuration"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unknown-body-lost",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out, in, len);",
+    "new": "memset(out, 0, len);",
+    "checks": [
+      [
+        "Core.UnsupportedAndAcquire",
+        "unsupported command echoes its exact body"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "scalar-refusal-reports-request",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out + 4, d->value + offset, width);\n\t}",
+    "new": "memcpy(out + 4, in + 4, len >= 4u + width ? width : 0u);\n\t}",
+    "checks": [
+      [
+        "Core.ScalarGetSetAndCurrentValueRefusals",
+        "refused SET reports current value"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "boot-clip-boundary",
+    "path": "aecp/aecp_maps.c",
+    "old": "m->rows[k].channel >= channels(wire_be64(d->value + 74))",
+    "new": "m->rows[k].channel > channels(wire_be64(d->value + 74))",
+    "checks": [
+      [
+        "Core.RestoreMapWholeSetClipAndDefaults",
+        "m.count"
+      ],
+      [
+        "Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat",
+        "m.count"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "latency-sign-accepted",
+    "path": "aecp/aecp_commands.c",
+    "old": "(latency & 0x80000000u) != 0u",
+    "new": "latency == UINT32_MAX",
+    "checks": [
+      [
+        "Core.StreamInfoDirectionFlagsAndLatency",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "dynamic-unknown-status",
+    "path": "aecp/aecp_commands.c",
+    "old": "status = AECP_NOT_SUPPORTED;",
+    "new": "status = AECP_SUCCESS;",
+    "checks": [
+      [
+        "Core.DynamicInfoWhitelistAndIndependentResults",
+        "per-record NOT_SUPPORTED"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "extra-name-accepted",
+    "path": "aecp/aecp_commands.c",
+    "old": "return name == 0u ? 4u : 0u;",
+    "new": "return name <= 1u ? 4u : 0u;",
+    "checks": [
+      [
+        "Core.NameRefusalsAndNoOp",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "dynamic-overflow-kept",
+    "path": "aecp/aecp_commands.c",
+    "old": "*bytes + 8u + result_bytes <= 512u",
+    "new": "*bytes + 8u + result_bytes <= 1024u",
+    "checks": [
+      [
+        "Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords",
+        "out.size()"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unsupported-events-queued",
+    "path": "aecp/aecp.c",
+    "old": "(events & supported)",
+    "new": "(events | supported)",
+    "checks": [
+      [
+        "Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded",
+        "pending"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "saved-latency-wrong-type",
+    "path": "aecp/aecp_state.c",
+    "old": "if (v.type != 6u) return false;",
+    "new": "if (v.type != 5u && v.type != 6u) return false;",
+    "checks": [
+      [
+        "Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors",
+        "aecp_value_restore"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "probe-status-matters",
+    "path": "aecp/aecp.c",
+    "old": "if (msg == 1u) {",
+    "new": "if (msg == 1u && (p[2] & 0xf8u) == 0u) {",
+    "checks": [
+      [
+        "Core.ProbeRepliesResetOnlyTheirOwnInterface",
+        "probing"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "probe-sequence-ignored",
+    "path": "aecp/aecp.c",
+    "old": "r->probe_sequence == wire_be16(p + 20)",
+    "new": "r->probe_sequence != UINT16_MAX",
+    "checks": [
+      [
+        "Core.ProbeIdentityAndSequenceMustBothMatch",
+        "probing"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "map-cluster-channel-ignored",
+    "path": "aecp/aecp_maps.c",
+    "old": "a->cluster_channel == b->cluster_channel;",
+    "new": "((void)a->cluster_channel, true);",
+    "checks": [
+      [
+        "Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore",
+        "a distinct cluster channel is a distinct input key"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "completion-cookie-ignored",
+    "path": "aecp/aecp.c",
+    "old": "e->cookie == cookie",
+    "new": "(e->cookie != UINT32_MAX || cookie == UINT32_MAX)",
+    "checks": [
+      [
+        "Core.NotificationBackpressureAndLatestCompletion",
+        "an old completion cannot release a newer copy"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-latency-dirty-lost",
+    "path": "aecp/aecp_nvm.c",
+    "old": "mark(n, NVM_G_PTOF, index);",
+    "new": "(void)index;",
+    "checks": [
+      [
+        "Nvm.AcceptedStateSurvivesTheRealStorePowerCycle",
+        "owner.port.latch"
+      ],
+      [
+        "Nvm.EveryChangeQueuesOnlyItsOwnedRecords",
+        "owner.pending"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-notice-overtakes-unbind",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "if (acmp_change_pending(a, n)) pending = true;",
+    "new": "if (false) pending = true;",
+    "checks": [
+      [
+        "App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse",
+        "response) < (notice"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-poll-space-short",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "app->loop.n_polls + 2u > CTRL_LOOP_MAX_POLLS",
+    "new": "app->loop.n_polls + 1u > CTRL_LOOP_MAX_POLLS",
+    "checks": [
+      [
+        "App.CompositionRefusalsLeaveExistingBindingsIntact",
+        "ctrl_app_compose_aecp"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "mailbox-interface-crossed",
+    "path": "aecp/aecp_mbx.c",
+    "old": "aecp_rx(&m->core, f->interface, f->bytes, f->len);",
+    "new": "aecp_rx(&m->core, 0, f->bytes, f->len);",
+    "checks": [
+      [
+        "Mailbox.EveryInterfaceAndObservationPort",
+        "fabric.tx_sent"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "latency-response-missing",
+    "path": "aecp/aecp_commands.c",
+    "old": "case 4: return descriptor(a, interface, in, len, out, bytes);",
+    "new": "case 4: a->start_pending = true; return descriptor(a, interface, in, len, out, bytes);",
+    "checks": [
+      [
+        "Latency.EveryCommandAndRefusalUsesOneArrivalBudget",
+        "commits.size()"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "image-crc-ignored",
+    "path": "aecp/aecp_image.c",
+    "old": "crc32(image, bytes) == expected_crc",
+    "new": "(crc32(image, bytes) == expected_crc || true)",
+    "checks": [
+      [
+        "Image.RejectHeader",
+        "image CRC rejects corrupted descriptor bytes"
+      ]
+    ],
+    "caught": true
+  }
+]

@@ -1,0 +1,63 @@
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 81840,
+    ".rodata": 25158,
+    ".data": 448,
+    ".bss": 77428,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8472,
+    "image_arena": 24032,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2480,
+    "image_latency": 36,
+    "image_licences": 9,
+    "image_map_pools": 448,
+    "image_maps": 4608,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_sources": 288,
+    "image_srp": 5240,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libstubc.a",
+      "size": 9174,
+      "sha256": "3e9b235cb73f6ed45739f3cead46beee5a8b1bc30877104ab18a5501a00202b9"
+    },
+    {
+      "name": "libstubrt.a",
+      "size": 8,
+      "sha256": "f0a17a43c74d2fe5474fa2fd29c8f14799e777d7d75a2cc4d11c20a6e7b161c5"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 133644,
+      "sha256": "f47e0bdb4fb5508f8336c001029741bbd9c2ad2312c820bdce488e9b3d8fe789"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 136289,
+      "sha256": "e25570b77503e2f0b42462390b7e8e27d48554f85354815f1f661c2400bf3613"
+    }
+  ],
+  "ram_sections": 193066,
+  "ram_span": 193088
+}

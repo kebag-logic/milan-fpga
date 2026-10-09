@@ -1,0 +1,24 @@
+command: python3 -B $REVIEWS/665f5-r564-2-packet/scripts/run_probes.py $REVIEWS/665f5-r564-2-packet/scratch/tree $REVIEWS/665f5-r564-2-packet r565-1
+start: 2026-10-09T17:47:10Z
+=== r565-1 interfaces=2 filter=Core.R565* rc=0
+Note: Google Test filter = Core.R565*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Core
+[ RUN      ] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors
+[       OK ] Core.R565ReadDescriptorIgnoresConfigurationForRootDescriptors (0 ms)
+[ RUN      ] Core.R565SetStreamInfoReturnsCurrentObservationFields
+[       OK ] Core.R565SetStreamInfoReturnsCurrentObservationFields (0 ms)
+[ RUN      ] Core.R565UnavailableStreamDoesNotStarveOtherNotices
+[       OK ] Core.R565UnavailableStreamDoesNotStarveOtherNotices (0 ms)
+[ RUN      ] Core.R565CrossInstanceCallbackIsRefused
+[       OK ] Core.R565CrossInstanceCallbackIsRefused (0 ms)
+[----------] 4 tests from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 4 tests.
+== AECP core: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
+end: 2026-10-09T17:47:26Z rc=0

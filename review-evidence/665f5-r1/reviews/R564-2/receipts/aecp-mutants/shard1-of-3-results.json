@@ -1,0 +1,309 @@
+[
+  {
+    "name": "entity-available-index-static",
+    "path": "aecp/aecp_commands.c",
+    "old": "wire_put_be(out + 40, available, 4u);",
+    "new": "(void)available;",
+    "checks": [
+      [
+        "Core.EntityAvailableIndexUsesTheIngressObservation",
+        "ENTITY reads current ADP available index"
+      ],
+      [
+        "App.EntityReadSeesTheRealAdpAdvertisementCount",
+        "ENTITY sees N advertisements from the ADP owner"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unavailable-head-blocks-notices",
+    "path": "aecp/aecp.c",
+    "old": "e->retry_at = a->now + 1u;",
+    "new": "e->retry_at = a->now + 1u; return true;",
+    "checks": [
+      [
+        "Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin",
+        "backpressure retains the built independent snapshot"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "stream-info-flags-echo",
+    "path": "aecp/aecp_commands.c",
+    "old": "uint32_t flags = info.flags;",
+    "new": "uint32_t flags = (uint32_t)wire_be32(in + 4);",
+    "checks": [
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "SET response flags describe current state"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "identify-refusal-body-lost",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out, in, len < 4u ? len : 4u);",
+    "new": "memset(out, 0, 4u);",
+    "checks": [
+      [
+        "Core.UnsupportedAndAcquire",
+        "identify refusal preserves descriptor fields"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "lock-long",
+    "path": "aecp/aecp_commands.c",
+    "old": "a->now + 60000u",
+    "new": "a->now + 60001u",
+    "checks": [
+      [
+        "Core.LockQueriesAndExpiry",
+        "lock expires at exactly sixty seconds"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "default-is-not-override",
+    "path": "aecp/aecp_commands.c",
+    "old": "!aecp_overridden(a, d, 1u) || memcmp",
+    "new": "memcmp",
+    "checks": [
+      [
+        "Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet",
+        "aecp_value_latch"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "counter-last-word",
+    "path": "aecp/aecp_commands.c",
+    "old": "n < 32u; ++n",
+    "new": "n < 31u; ++n",
+    "checks": [
+      [
+        "Core.ObservationsHaveFullWireForms",
+        "coherent bank includes every counter"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "owed-response-discarded",
+    "path": "aecp/aecp.c",
+    "old": "if (a->response_owed) {",
+    "new": "if (a->response_owed && false) {",
+    "checks": [
+      [
+        "Core.BackpressureOrdersResponseBeforeNotice",
+        "sent.size()"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "registry-no-retry",
+    "path": "aecp/aecp.c",
+    "old": "if (r->probing == 2u)",
+    "new": "if (r->probing == 1u)",
+    "checks": [
+      [
+        "Core.RegistryCapacityInterfaceKeysAndLiveness",
+        "sent.size()"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "identify-one-accepted",
+    "path": "aecp/aecp_commands.c",
+    "old": "in[4] != 0u && in[4] != 255u",
+    "new": "in[4] > 1u && in[4] != 255u",
+    "checks": [
+      [
+        "Core.IdentifyCurrentValueAndRefusals",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "map-capacity-ignored",
+    "path": "aecp/aecp_maps.c",
+    "old": "additions > m->capacity - m->count",
+    "new": "additions > 65535u",
+    "checks": [
+      [
+        "Core.MapsAreAtomicAndPaginated",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "static-map-orphan-accepted",
+    "path": "aecp/aecp_maps.c",
+    "old": "wire_be16(record) == index && wire_be16(record + 2) >= channels(format)",
+    "new": "wire_be16(record) == index && wire_be16(record + 2) > 1023u",
+    "checks": [
+      [
+        "Core.StaticMapsPreventOrphaningFormats",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "empty-map-no-page",
+    "path": "aecp/aecp_maps.c",
+    "old": "pages = 1u;",
+    "new": "pages = 0u;",
+    "checks": [
+      [
+        "Core.MapTopologyFailuresAndEmptyPartitions",
+        "status for command"
+      ],
+      [
+        "Core.OutputPartitionGeometryUsesAllAdvertisedWidths",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "framing-version-ignored",
+    "path": "aecp/aecp.c",
+    "old": "(p[1] & 0xf0u) != 0u",
+    "new": "(p[1] & 0xe0u) != 0u",
+    "checks": [
+      [
+        "Core.FramingRejectsInvalidIdentityAndTruncation",
+        "a.malformed"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "counter-timer-during-output",
+    "path": "aecp/aecp.c",
+    "old": "e->counter_sent && !e->awaiting_output &&",
+    "new": "e->counter_sent &&",
+    "checks": [
+      [
+        "Core.CounterTimerArmsOnlyEligibleCompletedSnapshots",
+        "Unexpected mock function call"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "no-interface-accepted",
+    "path": "aecp/aecp.c",
+    "old": "cfg->interfaces == 0u ||",
+    "new": "",
+    "checks": [
+      [
+        "Core.InitRefusalsAndClosedService",
+        "aecp_init"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "stream-interface-bound-ignored",
+    "path": "aecp/aecp_commands.c",
+    "old": "if (interface >= a->cfg.interfaces)",
+    "new": "if (interface > 65535u)",
+    "checks": [
+      [
+        "Core.DescriptorAndObservationBoundaryFailures",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-partial-latch-writes",
+    "path": "aecp/aecp_nvm.c",
+    "old": "len != m->capacity * 8u) return 0;",
+    "new": "len > m->capacity * 8u) return 0;",
+    "checks": [
+      [
+        "Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch",
+        "owner.port.latch"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-write-owner-lost",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "aecp_nvm_changed(c->state, kind, type, index);",
+    "new": "(void)c->state;",
+    "checks": [
+      [
+        "App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner",
+        "nvm_store_status()->dirty"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-expired-start-applies",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "if (c->aecp->core.start_pending) {",
+    "new": "if (true) {",
+    "checks": [
+      [
+        "App.ExpiredAndMissingStartRequestsCannotApplyLate",
+        "sinks[0].started"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "mailbox-stale-tag-accepted",
+    "path": "aecp/aecp_mbx.c",
+    "old": "e->timer_tag != m->tag",
+    "new": "e->timer_tag == m->tag",
+    "checks": [
+      [
+        "Mailbox.TimerIdentityAndAttachRefusals",
+        "adapter.stale_expiries"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "latency-budget-relaxed",
+    "path": "test/aecp_latency_policy.hpp",
+    "old": "10000000;",
+    "new": "20000000;",
+    "checks": [
+      [
+        "Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin",
+        "late output cannot restart the service clock"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "image-type-ignored",
+    "path": "aecp/aecp_image.c",
+    "old": "wire_be16(body) != type ||",
+    "new": "wire_be16(body) == 0xfffeu ||",
+    "checks": [
+      [
+        "Image.RejectDirectory",
+        "invalid descriptor directory is refused at its boundary"
+      ]
+    ],
+    "caught": true
+  }
+]

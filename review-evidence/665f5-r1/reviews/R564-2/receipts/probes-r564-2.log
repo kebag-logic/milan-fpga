@@ -1,0 +1,59 @@
+command: python3 -B $REVIEWS/665f5-r564-2-packet/scripts/run_probes.py $REVIEWS/665f5-r564-2-packet/scratch/tree $REVIEWS/665f5-r564-2-packet r564-2
+start: 2026-10-09T17:47:10Z
+=== r564-2 interfaces=1 filter=Core.Q* rc=0
+Note: Google Test filter = Core.Q*
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Core
+[ RUN      ] Core.Q1_PersistentlyUnavailableSnapshotRetriesAtTimerPaceOnly
+PROBE Q1 reads=1000 over 1000 ms with 5 polls/ms busy_polls=0 sent=0
+[       OK ] Core.Q1_PersistentlyUnavailableSnapshotRetriesAtTimerPaceOnly (2 ms)
+[ RUN      ] Core.Q2_SetStreamInfoWithoutSubcommandReportsCurrentLatency
+PROBE Q2 no-subcommand status=0 flags=0xd7000000 latency=111 stored=111
+[       OK ] Core.Q2_SetStreamInfoWithoutSubcommandReportsCurrentLatency (0 ms)
+[ RUN      ] Core.Q3_RootConfigurationAbsentIndexNormalizesAndRefuses
+PROBE Q3 CONFIGURATION idx1 cfg_in=1 status=2 cfg_out=0
+[       OK ] Core.Q3_RootConfigurationAbsentIndexNormalizesAndRefuses (0 ms)
+[ RUN      ] Core.Q4_HdcpExactFixedHeaderIsAnswered
+PROBE Q4 hdcp 28-byte pdu responses=1
+[       OK ] Core.Q4_HdcpExactFixedHeaderIsAnswered (0 ms)
+[ RUN      ] Core.Q5_LockQueryInsideOwnPortIsRefusedWithoutWriting
+PROBE Q5 locked_result=0 owner=0x1234 reentries_delta=1
+[       OK ] Core.Q5_LockQueryInsideOwnPortIsRefusedWithoutWriting (0 ms)
+[----------] 5 tests from Core (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 5 tests.
+== AECP core: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+=== r564-2 interfaces=2 filter=Core.Q* rc=0
+Note: Google Test filter = Core.Q*
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Core
+[ RUN      ] Core.Q1_PersistentlyUnavailableSnapshotRetriesAtTimerPaceOnly
+PROBE Q1 reads=1000 over 1000 ms with 5 polls/ms busy_polls=0 sent=0
+[       OK ] Core.Q1_PersistentlyUnavailableSnapshotRetriesAtTimerPaceOnly (2 ms)
+[ RUN      ] Core.Q2_SetStreamInfoWithoutSubcommandReportsCurrentLatency
+PROBE Q2 no-subcommand status=0 flags=0xd7000000 latency=111 stored=111
+[       OK ] Core.Q2_SetStreamInfoWithoutSubcommandReportsCurrentLatency (0 ms)
+[ RUN      ] Core.Q3_RootConfigurationAbsentIndexNormalizesAndRefuses
+PROBE Q3 CONFIGURATION idx1 cfg_in=1 status=2 cfg_out=0
+[       OK ] Core.Q3_RootConfigurationAbsentIndexNormalizesAndRefuses (0 ms)
+[ RUN      ] Core.Q4_HdcpExactFixedHeaderIsAnswered
+PROBE Q4 hdcp 28-byte pdu responses=1
+[       OK ] Core.Q4_HdcpExactFixedHeaderIsAnswered (0 ms)
+[ RUN      ] Core.Q5_LockQueryInsideOwnPortIsRefusedWithoutWriting
+PROBE Q5 locked_result=0 owner=0x1234 reentries_delta=1
+[       OK ] Core.Q5_LockQueryInsideOwnPortIsRefusedWithoutWriting (0 ms)
+[----------] 5 tests from Core (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 5 tests.
+== AECP core: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+end: 2026-10-09T17:47:41Z rc=0

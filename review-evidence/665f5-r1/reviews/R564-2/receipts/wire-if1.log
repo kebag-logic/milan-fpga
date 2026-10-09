@@ -1,0 +1,4 @@
+command: python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference protocol-processor --interfaces 1 --output $REVIEWS/665f5-r564-2-packet/scratch/wire-one --verilator $VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+start: 2026-10-09T17:49:02Z
+wire comparison PASS: 1 ingress paths, 132 observations; six oracle controls per ingress
+end: 2026-10-09T17:49:57Z rc=0

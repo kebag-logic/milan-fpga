@@ -1,0 +1,321 @@
+[
+  {
+    "name": "hdcp-data-length-echo",
+    "path": "aecp/aecp.c",
+    "old": "wire_put_be(a->response + 36, 0u, 2);",
+    "new": "wire_put_be(a->response + 36, wire_be16(p + 22), 2);",
+    "checks": [
+      [
+        "Core.NonAemMessageTypesFollowTheirOwnContracts",
+        "HDCP refusal clears data length"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unavailable-retry-spins",
+    "path": "aecp/aecp.c",
+    "old": "e->retry_at = a->now + 1u;",
+    "new": "e->retry_at = a->now;",
+    "checks": [
+      [
+        "Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin",
+        "failed snapshots wait for a timed retry"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "stream-info-noop-refused",
+    "path": "aecp/aecp_commands.c",
+    "old": "(requested & 0xdaf80000u) != 0u",
+    "new": "requested != 0x20000000u",
+    "checks": [
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "descriptor-last-byte",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out + 4, d->value, d->length);",
+    "new": "memcpy(out + 4, d->value, d->length); out[4] ^= 1u;",
+    "checks": [
+      [
+        "Core.EveryDescriptorAndReadFailures",
+        "every READ_DESCRIPTOR is byte exact"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "group-name-offset",
+    "path": "aecp/aecp_commands.c",
+    "old": "48u + 132u * name",
+    "new": "48u + 64u * name",
+    "checks": [
+      [
+        "Core.GroupNameDoesNotOverwriteFirmwareVersion",
+        "group_name changes only"
+      ],
+      [
+        "Core.NamesAndDescriptorOverlay",
+        "READ_DESCRIPTOR uses the same name"
+      ],
+      [
+        "Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords",
+        "b"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-forgets-override",
+    "path": "aecp/aecp_state.c",
+    "old": "aecp_override(a, d, bit);",
+    "new": "(void)bit;",
+    "checks": [
+      [
+        "Core.RestoreValuesValidateAndRollbackWithoutLiveEvents",
+        "aecp_value_latch"
+      ],
+      [
+        "Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups",
+        "owner.port.latch"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "path-failure-success",
+    "path": "aecp/aecp_commands.c",
+    "old": "if (!ok || count > AECP_PATH_ITEMS)",
+    "new": "if ((void)ok, count > AECP_PATH_ITEMS)",
+    "checks": [
+      [
+        "Core.ObservationRefusals",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "start-wait-ten-ms",
+    "path": "aecp/aecp.c",
+    "old": "a->start_deadline = a->now + 8u;",
+    "new": "a->start_deadline = a->now + 10u;",
+    "checks": [
+      [
+        "Core.StartIsDeferredAndHasFailureDeadline",
+        "sent.size()"
+      ],
+      [
+        "Latency.DeferredFailureAndTimerPathsUseTheirDueTime",
+        "commits.size()"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "foreign-lock-ignored",
+    "path": "aecp/aecp_commands.c",
+    "old": "return a->locked && a->lock_owner != a->requester;",
+    "new": "return a->locked && a->lock_owner == a->requester;",
+    "checks": [
+      [
+        "Core.ConfigurationAndLockedSetRefusals",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "clock-reserved-halfword-omitted",
+    "path": "aecp/aecp_commands.c",
+    "old": "len < (set ? *bytes : 4u)",
+    "new": "len < (set ? 4u + width : 4u)",
+    "checks": [
+      [
+        "Core.ChangedScalarValuesAndDamagedLists",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "counter-spacing-short",
+    "path": "aecp/aecp.c",
+    "old": "departure_ms + 1000u",
+    "new": "departure_ms + 999u",
+    "checks": [
+      [
+        "Core.CounterNoticesCoalesceAndWaitForEligibility",
+        "sent.empty()"
+      ],
+      [
+        "Mailbox.OutputTailStartsCounterSpacingAfterAStall",
+        "fabric.tx_sent"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "output-owner-crossed",
+    "path": "aecp/aecp_maps.c",
+    "old": "other->index == port->index",
+    "new": "other->index != port->index",
+    "checks": [
+      [
+        "Core.OutputMappingsHaveOneGlobalOwner",
+        "another port already owns this stream channel"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "boot-map-capacity-ignored",
+    "path": "aecp/aecp_maps.c",
+    "old": "count > m->capacity) return AECP_BAD_ARGUMENTS;",
+    "new": "count > 65535u) return AECP_BAD_ARGUMENTS;",
+    "checks": [
+      [
+        "Core.BootMapFaultsCannotPartlyReplaceTheSet",
+        "aecp_map_restore"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "reentry-uncounted",
+    "path": "aecp/aecp.c",
+    "old": "++a->reentries;",
+    "new": "(void)a;",
+    "checks": [
+      [
+        "Core.ReentrantPortsCannotMutateState",
+        "a.reentries"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "descriptor-configuration-ignored",
+    "path": "aecp/aecp_commands.c",
+    "old": "d->configuration == cfg && d->type == type",
+    "new": "(void)cfg, d->type == type",
+    "checks": [
+      [
+        "Core.MetadataConfigurationKeysAndRepeatedOverrides",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "system-id-write-lost",
+    "path": "aecp/aecp.c",
+    "old": "a->system_id = wire_be64(p + 32);",
+    "new": "a->system_id = 0;",
+    "checks": [
+      [
+        "Core.MilanVendorCommandsAndRefusals",
+        "get(out,46,8)"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-hole-accepted",
+    "path": "aecp/aecp_nvm.c",
+    "old": "if (unused) return refused(n, m);",
+    "new": "if (unused && false) return refused(n, m);",
+    "checks": [
+      [
+        "Nvm.WholeMapFramingAndEmptySetAreDistinct",
+        "owner.port.apply"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-start-inverted",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "c->start_value = value;",
+    "new": "c->start_value = !value;",
+    "checks": [
+      [
+        "App.DeferredStartAndLockUseTheRealAcmpOwner",
+        "v.started"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-failure-flags-lost",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "s.registering_failed ? 0x08000040u : 0u",
+    "new": "s.registering_failed ? 0u : 0u",
+    "checks": [
+      [
+        "App.InputInfoReflectsAcmpSettlementAndFailures",
+        "v.flags"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-unbound-start-refused",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "(!old.bound || acmp_set_started(a, c->start_index, c->start_value))",
+    "new": "acmp_set_started(a, c->start_index, c->start_value)",
+    "checks": [
+      [
+        "App.UnboundStartAndStopAreSuccessfulNoOps",
+        "get(p->bytes+16,2)>>11"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "mailbox-full-completions-overwritten",
+    "path": "aecp/aecp_mbx.c",
+    "old": "m->completion_count == AECP_MBX_COMPLETIONS ||",
+    "new": "m->completion_count > AECP_MBX_COMPLETIONS ||",
+    "checks": [
+      [
+        "Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse",
+        "adapter.ports.send"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "image-byte-corrupted",
+    "path": "aecp/aecp_image.c",
+    "old": "memcpy(values + used, body, length);",
+    "new": "memcpy(values + used, body, length); values[used] ^= 1u;",
+    "checks": [
+      [
+        "Image.EveryDescriptor",
+        "descriptor defaults survive the image load"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "debug-guard-silent",
+    "path": "aecp/aecp.c",
+    "old": "ctrl_reentry_assert(\"aecp\");",
+    "new": "(void)a;",
+    "checks": [
+      [
+        "AecpDebug.EveryInputRejectsSynchronousPortDelivery",
+        "died but not with expected exit code"
+      ]
+    ],
+    "caught": true
+  }
+]

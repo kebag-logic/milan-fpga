@@ -1,0 +1,16 @@
+command: $REVIEWS/665f5-r564-2-packet/scripts/run_sizes.sh $REVIEWS/665f5-r564-2-packet
+start: 2026-10-09T17:50:49Z
+tree-r1 endstation_ax7101_1x1_tdm8 1 rc 0 span 137920 {'.text': 80808, '.rodata': 11950, '.data': 56, '.bss': 36908, '.stack': 8192}
+tree-r1 endstation_ax7101_1x1_tdm8 2 rc 0 span 150592 {'.text': 82096, '.rodata': 11950, '.data': 56, '.bss': 48276, '.stack': 8192}
+tree-r1 endstation_ax7101_8x8 1 rc 0 span 191088 {'.text': 80856, '.rodata': 25158, '.data': 448, '.bss': 76428, '.stack': 8192}
+tree-r1 endstation_ax7101_8x8 2 rc 0 span 218592 {'.text': 82232, '.rodata': 25158, '.data': 448, '.bss': 102556, '.stack': 8192}
+tree endstation_ax7101_1x1_tdm8 1 rc 0 span 139264 {'.text': 81792, '.rodata': 11950, '.data': 56, '.bss': 37252, '.stack': 8192}
+tree endstation_ax7101_1x1_tdm8 2 rc 0 span 151904 {'.text': 83080, '.rodata': 11950, '.data': 56, '.bss': 48620, '.stack': 8192}
+tree endstation_ax7101_8x8 1 rc 0 span 193088 {'.text': 81840, '.rodata': 25158, '.data': 448, '.bss': 77428, '.stack': 8192}
+tree endstation_ax7101_8x8 2 rc 0 span 220592 {'.text': 83216, '.rodata': 25158, '.data': 448, '.bss': 103556, '.stack': 8192}
+delta round2-round1 (same stub runtime):
+endstation_ax7101_1x1_tdm8 1 span delta 1344 {'.text': 984, '.rodata': 0, '.data': 0, '.bss': 344}
+endstation_ax7101_1x1_tdm8 2 span delta 1312 {'.text': 984, '.rodata': 0, '.data': 0, '.bss': 344}
+endstation_ax7101_8x8 1 span delta 2000 {'.text': 984, '.rodata': 0, '.data': 0, '.bss': 1000}
+endstation_ax7101_8x8 2 span delta 2000 {'.text': 984, '.rodata': 0, '.data': 0, '.bss': 1000}
+end: 2026-10-09T17:50:54Z rc=0

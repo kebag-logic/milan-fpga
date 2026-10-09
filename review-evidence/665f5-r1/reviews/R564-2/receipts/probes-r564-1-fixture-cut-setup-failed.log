@@ -1,0 +1,45 @@
+command: python3 -B $REVIEWS/665f5-r564-2-packet/scripts/run_probes.py $REVIEWS/665f5-r564-2-packet/scratch/tree $REVIEWS/665f5-r564-2-packet r564-1
+start: 2026-10-09T17:47:10Z
+Traceback (most recent call last):
+  File "$REVIEWS/665f5-r564-2-packet/scratch/tree/sw/firmware/ctrl/test/aecp_arms.py", line 82, in core_arm
+    tests = fw_gtest.compile_tests(tree.build, inc, [HERE / test_source], out / "tests")
+  File "$REVIEWS/665f5-r564-2-packet/scratch/tree/sw/firmware/gtest/fw_gtest.py", line 154, in compile_tests
+    compile_many(build, todo)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/665f5-r564-2-packet/scratch/tree/sw/firmware/gtest/fw_gtest.py", line 118, in compile_many
+    future.result()
+    ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$REVIEWS/665f5-r564-2-packet/scratch/tree/sw/firmware/gtest/fw_gtest.py", line 110, in _compile
+    raise BuildError(f"{src.name} does not compile:\n{res.stderr}")
+fw_gtest.BuildError: test_aecp.cpp does not compile:
+In file included from $REVIEWS/665f5-r564-2-packet/scratch/probe-r564-1/test_aecp.cpp:10:
+$REVIEWS/665f5-r564-2-packet/scratch/probe-r564-1/aecp_callback_inputs.hpp:9:13: error: ‘void callback_input(unsigned int, aecp&, const aecp_config&, const aecp_ports&)’ defined but not used [-Werror=unused-function]
+    9 | static void callback_input(unsigned entry, aecp &a, const aecp_config &cfg,
+      |             ^~~~~~~~~~~~~~
+cc1plus: all warnings being treated as errors
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$REVIEWS/665f5-r564-2-packet/scripts/run_probes.py", line 41, in <module>
+    result = aecp_arms.core_arm(tree, root / "configs/endstation_ax7101_1x1_tdm8.yaml", interfaces, "core", selected)
+  File "$REVIEWS/665f5-r564-2-packet/scratch/tree/sw/firmware/ctrl/test/aecp_arms.py", line 87, in core_arm
+    raise Refusal(str(error)) from error
+ctrl_build.Refusal: test_aecp.cpp does not compile:
+In file included from $REVIEWS/665f5-r564-2-packet/scratch/probe-r564-1/test_aecp.cpp:10:
+$REVIEWS/665f5-r564-2-packet/scratch/probe-r564-1/aecp_callback_inputs.hpp:9:13: error: ‘void callback_input(unsigned int, aecp&, const aecp_config&, const aecp_ports&)’ defined but not used [-Werror=unused-function]
+    9 | static void callback_input(unsigned entry, aecp &a, const aecp_config &cfg,
+      |             ^~~~~~~~~~~~~~
+cc1plus: all warnings being treated as errors
+
+end: 2026-10-09T17:47:17Z rc=1

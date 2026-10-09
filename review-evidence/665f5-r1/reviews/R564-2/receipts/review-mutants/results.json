@@ -1,0 +1,34 @@
+[
+  {
+    "plant": "nosub-applies-request-latency",
+    "rc": 0,
+    "failing_tests": []
+  },
+  {
+    "plant": "nosub-reports-request-latency",
+    "rc": 0,
+    "failing_tests": []
+  },
+  {
+    "plant": "saved-state-refused",
+    "rc": 1,
+    "failing_tests": [
+      "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal"
+    ]
+  },
+  {
+    "plant": "unavailable-event-dropped",
+    "rc": 1,
+    "failing_tests": [
+      "Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded",
+      "Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin"
+    ]
+  },
+  {
+    "plant": "init-guard-after-memset",
+    "rc": 1,
+    "failing_tests": [
+      "Core.CrossInstanceInputsAreRefusedInsideRealCallbacks"
+    ]
+  }
+]
