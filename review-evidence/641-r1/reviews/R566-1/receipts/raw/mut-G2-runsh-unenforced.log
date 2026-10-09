@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/tree-g/syn/yosys/guard_selftest.py", line 112, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/tree-g/syn/yosys/guard_selftest.py", line 107, in main
+    count = controls(Path(directory))
+  File "$PACKET/scratch/tree-g/syn/yosys/guard_selftest.py", line 72, in controls
+    require((run.returncode == 0) == expected,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f'{flow} {task} N_NAME_P={names}: {run.stdout} {run.stderr}')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/tree-g/syn/yosys/guard_selftest.py", line 20, in require
+    raise RuntimeError(message)
+RuntimeError: run.sh converted N_NAME_P=0: == Yosys open-synthesis check (synth, via sv2v; shard 0/1) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] tcam                   cells=3
+--------------------------------------------------------------
+tops: 1   pass: 1   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+ 

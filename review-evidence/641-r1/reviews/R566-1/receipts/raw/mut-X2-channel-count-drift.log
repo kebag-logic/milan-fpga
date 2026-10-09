@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/tree-h/tb/verilator/fw_service_budget/run.py", line 766, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/tree-h/tb/verilator/fw_service_budget/run.py", line 694, in main
+    self_test()
+    ~~~~~~~~~^^
+  File "$PACKET/scratch/tree-h/tb/verilator/fw_service_budget/run.py", line 644, in self_test
+    count += trace_controls() + wait_controls() + tick_controls() + service_controls()
+             ~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/tree-h/tb/verilator/fw_service_budget/run.py", line 447, in trace_controls
+    require(media['slots_sha256'] == receipt['media']['slots_sha256'],
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'oracle image changed; rebuild and regenerate the trace fixture')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/tree-h/tb/verilator/fw_service_budget/run.py", line 39, in require
+    raise RuntimeError(message)
+RuntimeError: oracle image changed; rebuild and regenerate the trace fixture

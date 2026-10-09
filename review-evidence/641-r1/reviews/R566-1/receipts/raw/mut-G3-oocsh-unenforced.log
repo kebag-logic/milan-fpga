@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/tree-g/syn/yosys/guard_selftest.py", line 112, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/tree-g/syn/yosys/guard_selftest.py", line 107, in main
+    count = controls(Path(directory))
+  File "$PACKET/scratch/tree-g/syn/yosys/guard_selftest.py", line 72, in controls
+    require((run.returncode == 0) == expected,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f'{flow} {task} N_NAME_P={names}: {run.stdout} {run.stderr}')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/tree-g/syn/yosys/guard_selftest.py", line 20, in require
+    raise RuntimeError(message)
+RuntimeError: ooc.sh converted N_NAME_P=0: == OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+tcam                                0        0        0        1        0        0        0        0
+ 

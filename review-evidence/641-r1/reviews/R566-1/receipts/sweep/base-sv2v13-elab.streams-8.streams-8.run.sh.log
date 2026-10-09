@@ -1,0 +1,8 @@
+== Yosys fast elaboration check (via sv2v) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [FAIL] milan_datapath         yosys: 
+--------------------------------------------------------------
+tops: 1   pass: 0   fail: 1
+RESULT: FAIL
+structural checks: skipped in this worker
+$PACKET/scratch/work/sweep/base-sv2v13-elab/streams-8/streams-8.run.sh: line 535: 3033254 Aborted                    (core dumped) ( cd "$TMP" || exit 2; apply_malloc_env "$MALLOC_LIB"; yosys -p "$program" ) > "$TMP/$top.yos.log" 2>&1
