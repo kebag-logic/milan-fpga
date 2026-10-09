@@ -1,0 +1,34 @@
+OK   C0 real accepted route-1x1, unchanged | check | exit 0 | named {} | baseline changed False | RESULT: PASS
+OK   C0 real accepted route-1x1, unchanged | record --write | exit 0 | named {} | baseline changed True | }
+OK   C0 real accepted route-1x1, unchanged | record | exit 0 | named {} | baseline changed False | }
+OK   C1 SRP removed | check | exit 2 | named {'srp': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: srp (KL_srp_top) count 0, expected 1..1; measure a split image with its --placement
+OK   C1 SRP removed | record --write | exit 2 | named {'srp': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: srp (KL_srp_top) count 0, expected 1..1; acceptance records only the all-fabric image
+OK   C1 SRP removed | record | exit 0 | named {'srp': False} | baseline changed False | }
+OK   C2 wrapper-retaining F0-F4, no marker | check | exit 2 | named {'adp': True, 'acmp-listener': True, 'acmp-talker': True, 'srp': True, 'maap': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: adp (KL_adp_engine) count 0, expected 1..1; wrong placement all-fabric: acmp-listener (KL_pp_acmp_listener) count 0,
+OK   C2 wrapper-retaining F0-F4, no marker | record --write | exit 2 | named {'adp': True, 'acmp-listener': True, 'acmp-talker': True, 'srp': True, 'maap': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: adp (KL_adp_engine) count 0, expected 1..1; wrong placement all-fabric: acmp-listener (KL_pp_acmp_listener) count 0,
+OK   C2 wrapper-retaining F0-F4, no marker | record | exit 0 | named {'adp': False, 'acmp-listener': False, 'acmp-talker': False, 'srp': False, 'maap': False} | baseline changed False | }
+OK   C3 ADP duplicated | check | exit 2 | named {'adp': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: adp (KL_adp_engine) count 2, expected 1..1; measure a split image with its --placement
+OK   C3 ADP duplicated | record --write | exit 2 | named {'adp': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: adp (KL_adp_engine) count 2, expected 1..1; acceptance records only the all-fabric image
+OK   C3 ADP duplicated | record | exit 0 | named {'adp': False} | baseline changed False | }
+OK   C4 talker module renamed (misplaced identity) | check | exit 2 | named {'acmp-talker': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: acmp-talker (KL_acmp_talker) count 0, expected 1..1; measure a split image with its --placement
+OK   C4 talker module renamed (misplaced identity) | record --write | exit 2 | named {'acmp-talker': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: acmp-talker (KL_acmp_talker) count 0, expected 1..1; acceptance records only the all-fabric image
+OK   C4 talker module renamed (misplaced identity) | record | exit 0 | named {'acmp-talker': False} | baseline changed False | }
+OK   C5 mailbox present | check | exit 2 | named {'mailbox': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: mailbox (KL_mbx) count 1, expected 0..0; measure a split image with its --placement
+OK   C5 mailbox present | record --write | exit 2 | named {'mailbox': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: mailbox (KL_mbx) count 1, expected 0..0; acceptance records only the all-fabric image
+OK   C5 mailbox present | record | exit 0 | named {'mailbox': False} | baseline changed False | }
+OK   C6 processor MAAP present | check | exit 2 | named {'processor-maap': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: processor-maap (KL_pp_maap) count 1, expected 0..0; measure a split image with its --placement
+OK   C6 processor MAAP present | record --write | exit 2 | named {'processor-maap': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: processor-maap (KL_pp_maap) count 1, expected 0..0; acceptance records only the all-fabric image
+OK   C6 processor MAAP present | record | exit 0 | named {'processor-maap': False} | baseline changed False | }
+OK   C7 gPTP plane removed | check | exit 2 | named {'gptp': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: gptp (KL_gptp_shadow) count 0, expected 1..1; measure a split image with its --placement
+OK   C7 gPTP plane removed | record --write | exit 2 | named {'gptp': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: gptp (KL_gptp_shadow) count 0, expected 1..1; acceptance records only the all-fabric image
+OK   C7 gPTP plane removed | record | exit 0 | named {'gptp': False} | baseline changed False | }
+OK   C8 AECP and notify removed | check | exit 2 | named {'aecp': True, 'notify': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: aecp (KL_aecp_engine) count 0, expected 1..1; wrong placement all-fabric: notify (KL_aecp_notify) count 0, expected 
+OK   C8 AECP and notify removed | record --write | exit 2 | named {'aecp': True, 'notify': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: aecp (KL_aecp_engine) count 0, expected 1..1; wrong placement all-fabric: notify (KL_aecp_notify) count 0, expected 
+OK   C8 AECP and notify removed | record | exit 0 | named {'aecp': False, 'notify': False} | baseline changed False | }
+OK   C9 every role removed but wrapper | check | exit 2 | named {'adp': True, 'acmp-listener': True, 'acmp-talker': True, 'srp': True, 'maap': True, 'aecp': True, 'notify': True, 'gptp': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: adp (KL_adp_engine) count 0, expected 1..1; wrong placement all-fabric: acmp-listener (KL_pp_acmp_listener) count 0,
+OK   C9 every role removed but wrapper | record --write | exit 2 | named {'adp': True, 'acmp-listener': True, 'acmp-talker': True, 'srp': True, 'maap': True, 'aecp': True, 'notify': True, 'gptp': True} | baseline changed False | NOT COMPARABLE: wrong placement all-fabric: adp (KL_adp_engine) count 0, expected 1..1; wrong placement all-fabric: acmp-listener (KL_pp_acmp_listener) count 0,
+OK   C9 every role removed but wrapper | record | exit 0 | named {'adp': False, 'acmp-listener': False, 'acmp-talker': False, 'srp': False, 'maap': False, 'aecp': False, 'notify': False, 'gptp': False} | baseline changed False | }
+OK   C10 specialised module names | check | exit 0 | named {} | baseline changed False | RESULT: PASS
+OK   C10 specialised module names | record --write | exit 0 | named {} | baseline changed True | }
+OK   C10 specialised module names | record | exit 0 | named {} | baseline changed False | }
+f1 real-report probe: 11 cases x 3 commands, 0 failures

@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/hooks/g13/pp_resource_gate_mutants.py", line 359, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/hooks/g13/pp_resource_gate_mutants.py", line 353, in main
+    for line in pool.map(lambda job: run(Path(tmp), here, *job), jobs):
+                ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$PACKET/scratch/hooks/g13/pp_resource_gate_mutants.py", line 353, in <lambda>
+    for line in pool.map(lambda job: run(Path(tmp), here, *job), jobs):
+                                     ~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/hooks/g13/pp_resource_gate_mutants.py", line 339, in run
+    raise AssertionError("the control passed without running the placement gate controls")
+AssertionError: the control passed without running the placement gate controls

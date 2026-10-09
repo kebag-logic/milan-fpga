@@ -1,0 +1,37 @@
+mutant	file	snippet	gate_rc	recipe_rc	verdict
+C0 control	None	ok	0	0	CONTROL-PASS
+G1 ooc split refusal removed	pp_resource_gate.py	ok	0	0	SURVIVED
+G2 M9 re-record refusal removed	pp_resource_gate.py	ok	1	0	DETECTED
+G3 M9 refusal ignores check-baseline	pp_resource_gate.py	ok	0	0	SURVIVED
+G4 placement omitted from input digest	pp_resource_gate.py	ok	1	0	DETECTED
+G5 split scopes rooted at wrapper	pp_resource_gate.py	ok	1	0	DETECTED
+G6 split scope names not image-prefixed	pp_resource_gate.py	ok	1	0	DETECTED
+G7 cross-root scope deltas claimed	pp_resource_gate.py	ok	1	0	DETECTED
+G8 datapath provenance accepted for all-fabric	pp_resource_gate.py	ok	0	0	SURVIVED
+G9 datapath provenance removed	pp_resource_gate.py	ok	1	0	DETECTED
+G10 fuzz split refusal removed	pp_resource_gate.py	ok	1	0	DETECTED
+G11 CLI placement not passed to record	pp_resource_gate.py	ok	1	0	DETECTED
+G12 census validation not called	pp_resource_gate.py	ok	1	0	DETECTED
+G13 placement selftest hook disabled	pp_resource_gate.py	ok	0	0	SURVIVED
+L1 all-fabric expects mailbox and processor MAAP	pp_placement.py	ok	1	1	DETECTED
+L2 f0-f4 wrapper required	pp_placement.py	ok	1	0	DETECTED
+L3 f0-f4 wrapper may duplicate	pp_placement.py	ok	1	1	DETECTED
+L4 f0-f4 AECP optional	pp_placement.py	ok	1	1	DETECTED
+L5 mailbox and gPTP optional	pp_placement.py	ok	1	1	DETECTED
+L6 census matches ORIG_REF_NAME only	pp_placement.py	ok	0	1	DETECTED
+L7 Tcl census lower bound dropped	pp_placement.py	ok	0	1	DETECTED
+L8 Tcl census row not written	pp_placement.py	ok	0	1	DETECTED
+L9 processor MAAP role dropped	pp_placement.py	ok	1	1	DETECTED
+L10 census header check dropped	pp_placement.py	ok	1	0	DETECTED
+L11 all-fabric request ignores split marker	pp_placement.py	ok	1	1	DETECTED
+L12 image timing path check dropped	pp_placement.py	ok	0	1	DETECTED
+B1 split synthesis-command count unchecked	pp_baseline.py	ok	0	1	DETECTED
+B2 split endpoint option refusal dropped	pp_baseline.py	ok	0	1	DETECTED
+B3 full-split may drop gPTP ROM	pp_baseline.py	ok	0	1	DETECTED
+B4 present removed-protocol ROM unchecked	pp_baseline.py	ok	0	1	DETECTED
+B5 split marker omitted	pp_baseline.py	ok	0	1	DETECTED
+B6 split synthesis-only endpoint swapped	pp_baseline.py	ok	0	1	DETECTED
+B7 split image timing omitted	pp_baseline.py	ok	0	1	DETECTED
+B8 split image manifest not written	pp_baseline.py	ok	0	1	DETECTED
+B9 recipe placement selftest hook disabled	pp_baseline.py	ok	0	0	SURVIVED
+summary: 34 mutants, 29 detected, survived/invalid: ['G1 ooc split refusal removed', 'G3 M9 refusal ignores check-baseline', 'G8 datapath provenance accepted for all-fabric', 'G13 placement selftest hook disabled', 'B9 recipe placement selftest hook disabled']

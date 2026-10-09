@@ -1,0 +1,12 @@
+Reviewer-side redaction before hashing: host paths in receipts are replaced by $PACKET (this packet), $CLONE (the exact-head clone), $PY311/$PY312 (user-local CPython 3.11.15 / 3.12.13), $MDVENV (pinned Markdown venv: cmarkgfm 2025.10.22, html5lib 1.1), $HOME, $DATA. Redacted files:
+receipts/head/baseline_selftest.log
+receipts/head/md_env.txt
+receipts/r580-1-probes/probe_scripts.sha256
+receipts/r580-1-probes/probe_marker.tsv
+receipts/hook-drivers/b9_recipe_driver.log
+receipts/hook-drivers/g13_gate_driver.log
+receipts/py311/gate_selftest_py311.log
+receipts/py311/fixcopy_baseline_selftest.log
+receipts/py312/argparse_order_repro.log
+receipts/py312/baseline_selftest_py312.log
+receipts/integrity/tree_integrity.txt
