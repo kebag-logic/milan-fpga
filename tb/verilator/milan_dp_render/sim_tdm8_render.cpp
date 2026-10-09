@@ -110,11 +110,13 @@
 // THE PULL-IN UNDER A RUNNING STREAM (#647, #645). [PULLIN] runs a fresh
 // stream at a [LAW] feed phase through T14's serial-clock hold and grades the
 // law again after milan_datapath's settle recentre, which the aligner's
-// excursion arms and its return to the settle band fires. The full leg runs
-// its standing phase; --pullin=PHASES is the campaign the
-// tdm8render-pullin target spreads over every [LAW] phase.
+// excursion arms and its return to the settle band fires. --with-pullin
+// retains its standing phase after the full leg's serial/CRF/LAW history;
+// --pullin=PHASES runs after boot. The explicit tdm8render-pullin target
+// runs both histories. The default leg leaves this long phase to that target.
 //
-// Modes: no argument runs every phase. --serial-only, --epoch-only,
+// Modes: no argument runs every phase except [PULLIN]. --with-pullin adds
+// that phase to the full leg. --serial-only, --epoch-only,
 // --crf-only, --law-only and --pullin are the short legs
 // tdm8_render_mutants.py runs, and --defect-stopped-clock, --defect-one-sample
 // and --defect-internal-select are its three leg-side defect arms.
@@ -245,13 +247,13 @@ constexpr long kLawUngradedTailPdus = 4;
 constexpr long kPullinHoldCycles = 5200;
 constexpr long kPullinBeforePdus = 64;
 constexpr long kPullinWaitPdus = 3200;
-//! 2 s: after the [CRF] phase's history the aligner overshoots the band on
-//! its way in and decays back over most of a second (the trace this phase
-//! prints), against 152.6 ms from a fresh boot
+//! 2 s: the quiet-band recentre arrives about 1.247 s after this hold even
+//! from a fresh boot. Keep the bounded wait for the full [CRF]/[LAW] history
+//! too; the trace below measures the actual wait in either history.
 constexpr long kPullinMaxWaitPdus = 16000;
 constexpr long kPullinAfterPdus = 128;
-//! the standing phase the full leg runs: the half-sample pull carries its
-//! first pop back across the PDU end, so with nothing re-centring it the
+//! the standing phase --with-pullin and --pullin run: the half-sample pull
+//! carries its first pop back across the PDU end, so with nothing re-centring it the
 //! stream would leave the law (the NO-SETTLE arm of tdm8_render_mutants.py),
 //! and after the settle recentre its window is clear of the ambiguity window
 constexpr long kPullinStandingPhase = 1562;
@@ -383,6 +385,7 @@ class TdmRenderHarness {
     //! campaign at those feed phases, where (as under --law-boundary) a
     //! window may be NOT GRADABLE without failing the leg
     bool pullin_only = false;
+    bool with_pullin = false;
     bool pullin_sweep = false;
     std::vector<long> pullin_phases;
     bool defect_stopped_clock = false;
@@ -4314,6 +4317,7 @@ bool TdmRenderHarness::parse_the_modes(int argc, char** argv) {
             }
         }
         else if (a == "--pullin") pullin_only = true;
+        else if (a == "--with-pullin") with_pullin = true;
         else if (a.rfind("--pullin=", 0) == 0) {
             pullin_only = true;
             pullin_sweep = true;
@@ -4399,7 +4403,7 @@ int TdmRenderHarness::run(int argc, char** argv) {
     if (!serial_only) {
         phase_crf();
         if (!epoch_only) phase_internal_law();
-        if (!epoch_only) phase_pullin({kPullinStandingPhase});
+        if (!epoch_only && with_pullin) phase_pullin({kPullinStandingPhase});
         phase_csr();
         phase_reset();
         phase_bind_loss();

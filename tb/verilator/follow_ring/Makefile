@@ -7,7 +7,7 @@
 # capture crossbar LOOP bucket and render setpoint stage, with
 # milan_datapath's own glue between them, the #645 settle recentre included,
 # copied verbatim by dp_glue.py.
-#   make         - the standing legs, then the mutation arm (mutants.py)
+#   make         - the four standing legs (run)
 #   make build   - build the harness (MDIR, default obj_dir)
 #   make b8      - lane B8's INTERNAL-to-AAF set, then AAF to CRF and back,
 #                  each graded on its settle recentre
@@ -18,6 +18,13 @@
 #                  phase sweeps (sweep.py; SWEEP_JOBS at a time), every run
 #                  graded on the settle law; exit 0 only when every run passed
 #   make clean   - remove build artifacts
+#
+# DEFAULT WALL CLOCK (#645, 2026-10-09): 354.1 s cold with make -j16,
+# two concurrent elaborations and four compiler workers per elaboration.
+# At the documented 1.58x hosted factor this is 559.5 s, below the 1440 s
+# headroom limit (80% of the unchanged 1800 s suite budget). The twelve
+# rebuilt controls remain in make mutants, owned by the manager merge bank
+# in docs/testing/TESTING.md; the four default legs retain all their checks.
 #
 # CLK_HZ is the ONE value for the wrapper's axis clock and the harness's
 # wheel: derive, never mirror. The aligner's gains scale with it (the
@@ -61,7 +68,7 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module follow_ring_wrap \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=$(CLK_HZ) -DFRAME_DIV_TB=$(FRAME_DIV)"
 
 .PHONY: all run build b8 pullin small-pullin settle-control mutants sweep-b8 sweep-pullin clean
-all: run mutants
+all: run
 run: b8 pullin small-pullin settle-control
 
 build:
