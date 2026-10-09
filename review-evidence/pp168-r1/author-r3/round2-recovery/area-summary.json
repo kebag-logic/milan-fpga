@@ -1,0 +1,157 @@
+{
+  "base": {
+    "item": "base",
+    "lut": 21614,
+    "ff": 18908,
+    "rc": 0,
+    "seconds": null,
+    "note": "Completed synthesis receipt parsed after correcting the report footnote marker",
+    "delta_lut": 0,
+    "delta_ff": 0,
+    "within_area_limits": true
+  },
+  "items": [
+    {
+      "item": "LD1",
+      "lut": 21500,
+      "ff": 18901,
+      "rc": 0,
+      "seconds": 615.6,
+      "delta_lut": -114,
+      "delta_ff": -7,
+      "within_area_limits": true
+    },
+    {
+      "item": "LD2",
+      "lut": 21613,
+      "ff": 18908,
+      "rc": 0,
+      "seconds": 565.66,
+      "delta_lut": -1,
+      "delta_ff": 0,
+      "within_area_limits": true
+    },
+    {
+      "item": "LD3",
+      "lut": 21628,
+      "ff": 18905,
+      "rc": 0,
+      "seconds": 562.02,
+      "delta_lut": 14,
+      "delta_ff": -3,
+      "within_area_limits": true
+    },
+    {
+      "item": "TD1",
+      "lut": 21614,
+      "ff": 18908,
+      "rc": 0,
+      "seconds": 578.82,
+      "delta_lut": 0,
+      "delta_ff": 0,
+      "within_area_limits": true
+    },
+    {
+      "item": "VLAN",
+      "lut": 21606,
+      "ff": 18925,
+      "rc": 0,
+      "seconds": 721.84,
+      "delta_lut": -8,
+      "delta_ff": 17,
+      "within_area_limits": true
+    },
+    {
+      "item": "guard",
+      "lut": 21750,
+      "ff": 18905,
+      "rc": 0,
+      "seconds": 1132.85,
+      "delta_lut": 136,
+      "delta_ff": -3,
+      "within_area_limits": false
+    }
+  ],
+  "sum_individual_deltas": {
+    "delta_lut": 27,
+    "delta_ff": 4
+  },
+  "combined": {
+    "item": "merged",
+    "lut": 21741,
+    "ff": 18922,
+    "rc": 0,
+    "seconds": 569.35,
+    "delta_lut": 127,
+    "delta_ff": 14,
+    "within_area_limits": false
+  },
+  "reductions": [
+    {
+      "item": "compare",
+      "lut": 21665,
+      "ff": 18924,
+      "rc": 0,
+      "seconds": 133.53,
+      "delta_lut": 51,
+      "delta_ff": 16,
+      "within_area_limits": false
+    },
+    {
+      "item": "compare-clear",
+      "lut": 21732,
+      "ff": 18922,
+      "rc": 0,
+      "seconds": 134.39,
+      "delta_lut": 118,
+      "delta_ff": 14,
+      "within_area_limits": false
+    },
+    {
+      "item": "compare-byte",
+      "lut": 21643,
+      "ff": 18922,
+      "rc": 0,
+      "seconds": 133.92,
+      "delta_lut": 29,
+      "delta_ff": 14,
+      "within_area_limits": true
+    },
+    {
+      "item": "octets",
+      "lut": 21622,
+      "ff": 18922,
+      "rc": 0,
+      "seconds": 135.42,
+      "delta_lut": 8,
+      "delta_ff": 14,
+      "within_area_limits": true
+    },
+    {
+      "item": "octets-clear",
+      "lut": 21662,
+      "ff": 18922,
+      "rc": 0,
+      "seconds": 128.62,
+      "delta_lut": 48,
+      "delta_ff": 14,
+      "within_area_limits": false
+    }
+  ],
+  "combined_minus_sum": {
+    "delta_lut": 100,
+    "delta_ff": 10
+  },
+  "lowest_lut_variant": "octets",
+  "selected": {
+    "item": "compare-byte",
+    "lut": 21643,
+    "ff": 18922,
+    "rc": 0,
+    "seconds": 133.92,
+    "delta_lut": 29,
+    "delta_ff": 14,
+    "within_area_limits": true
+  },
+  "selection_reason": "Controller-only byte selection meets the ceiling and limits the response-builder change."
+}

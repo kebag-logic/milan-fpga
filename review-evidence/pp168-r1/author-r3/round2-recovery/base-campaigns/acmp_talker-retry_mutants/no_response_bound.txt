@@ -1,0 +1,18 @@
+return code: 2
+1340 checks: 1324 PASS, 16 FAIL
+FAIL: K5 THE REGRESSION: another source allocates again: maap request missing
+FAIL: K6 a STALE response must not open any gate (1 strobes)
+FAIL: K6 stale response changed the gate level to 0x7a
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 src2 declares with ITS OWN DA open da got deadbeefcafe want 91e0f00001aa
+FAIL: K7 gates, got 0x7e
+FAIL: K8 the abandoned source retries maap src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002
+FAIL: K8 abandoned source recovers with a FRESH DA open da got 91e0f00001aa want 91e0f00001bb
+FAIL: R5 timeout retries automatically across wrap
+FAIL: R5 stale timeout response src0 status/tuple
+FAIL: R5 retry response src0 status/tuple
+FAIL: R5 silent accepts stop at stale-credit capacity
+FAIL: R5 stale drain releases capacity for another source

@@ -1,0 +1,14 @@
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -670,10 +670,8 @@
+         b_flags_w = flags_f_r & AFLG_STREAMING_WAIT_C;
+       end
+       B_UNBIND: begin
+-        // A7: SUCCESS, command talker fields echoed
++        // Milan Table 5.36: both talker fields are zero on success.
+         b_msg_w   = AMSG_UNBIND_RX_RESP_C;
+-        b_tkeid_w = tk_eid_f_r;
+-        b_tkuid_w = tk_uid_f_r;
+       end
+       B_GETRX: begin
+         // A16: F05.14 — SUCCESS always, content by state

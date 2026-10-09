@@ -1,0 +1,22 @@
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -1241,7 +1241,8 @@
+               end
+               5'(ACT_A12_C): begin       // arm T-ACMP-DELAY via PRNG draw
+                 rec_r.pbsta   <= PB_ACTIVE_C;
+-                rec_r.acmpsta <= 5'd0;
++                // Milan 5.5.3.5.30 step 2 preserves the retry status.
++                if (evt_r != LEV_TMR_RETRY) rec_r.acmpsta <= 5'd0;
+                 cellmut_r     <= 1'b1;
+                 draw_issued_r <= 1'b0;
+                 ord_r         <= ord_r;  // hold: X_DRAW advances on return
+@@ -1311,7 +1312,8 @@
+                 probe_ctr_r     <= probe_ctr_r + 16'd1;
+                 rec_r.f_retried <= 1'b0;
+                 rec_r.pbsta     <= PB_ACTIVE_C;
+-                rec_r.acmpsta   <= 5'd0;
++                // Milan 5.5.3.5.10 leaves the prior probe status unchanged.
++                if (evt_r != LEV_TMR_DELAY) rec_r.acmpsta <= 5'd0;
+                 cellmut_r       <= 1'b1;
+                 bk_r            <= B_PROBE;
+                 ord_r           <= ord_r;

@@ -1,0 +1,1317 @@
+[
+  {
+    "campaign": "acmp_talker-retry_mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": null,
+    "completed_log_pairs": 72,
+    "identical_failure_lists": 59,
+    "different_failure_lists": [
+      {
+        "log": "declare_without_demand.txt",
+        "base": 158,
+        "head": 160,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "fresh_forever.txt",
+        "base": 94,
+        "head": 96,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "no_accept_bound.txt",
+        "base": 197,
+        "head": 199,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "no_command_ready.txt",
+        "base": 693,
+        "head": 713,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "no_conflict_daok_initset.txt",
+        "base": 39,
+        "head": 41,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "no_pacing.txt",
+        "base": 40,
+        "head": 42,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "no_turn_restore.txt",
+        "base": 57,
+        "head": 59,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "ready_ignores_turn.txt",
+        "base": 89,
+        "head": 91,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "reallocate_owned.txt",
+        "base": 119,
+        "head": 121,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "retry_monopoly.txt",
+        "base": 60,
+        "head": 62,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "source_alias.txt",
+        "base": 172,
+        "head": 174,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "tick_no_rearm.txt",
+        "base": 43,
+        "head": 45,
+        "equal_after_excluding_TD1": true
+      },
+      {
+        "log": "wait_on_release.txt",
+        "base": 48,
+        "head": 50,
+        "equal_after_excluding_TD1": true
+      }
+    ],
+    "different_tallies": [
+      {
+        "log": "accept_kill_no_disable.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "accept_kill_zero.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "backoff_bypass.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "baseline.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "busy_tracker_blocks_commands.txt",
+        "base": [
+          "1338 checks: 1276 PASS, 62 FAIL"
+        ],
+        "head": [
+          "1372 checks: 1310 PASS, 62 FAIL"
+        ]
+      },
+      {
+        "log": "command_monopoly.txt",
+        "base": [
+          "1342 checks: 1333 PASS, 9 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1367 PASS, 9 FAIL"
+        ]
+      },
+      {
+        "log": "declare_without_demand.txt",
+        "base": [
+          "1338 checks: 1180 PASS, 158 FAIL"
+        ],
+        "head": [
+          "1372 checks: 1212 PASS, 160 FAIL"
+        ]
+      },
+      {
+        "log": "disabled_alloc.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "early_round.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "elig_drop_conflict.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "elig_drop_lsn.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "elig_drop_off.txt",
+        "base": [
+          "1342 checks: 1338 PASS, 4 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1372 PASS, 4 FAIL"
+        ]
+      },
+      {
+        "log": "elig_drop_pcp.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "elig_drop_rel.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "elig_drop_tmr.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "eligible_ignores_init.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "eligible_only_init.txt",
+        "base": [
+          "1342 checks: 1334 PASS, 8 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1368 PASS, 8 FAIL"
+        ]
+      },
+      {
+        "log": "fixed_priority.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "fresh_forever.txt",
+        "base": [
+          "1335 checks: 1241 PASS, 94 FAIL"
+        ],
+        "head": [
+          "1369 checks: 1273 PASS, 96 FAIL"
+        ]
+      },
+      {
+        "log": "gate_without_ownership.txt",
+        "base": [
+          "1342 checks: 1286 PASS, 56 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1320 PASS, 56 FAIL"
+        ]
+      },
+      {
+        "log": "grant_kill_reg_only.txt",
+        "base": [
+          "1342 checks: 1339 PASS, 3 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1373 PASS, 3 FAIL"
+        ]
+      },
+      {
+        "log": "half_backoff.txt",
+        "base": [
+          "1342 checks: 1336 PASS, 6 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1370 PASS, 6 FAIL"
+        ]
+      },
+      {
+        "log": "init_busy_else_removed.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "init_elig_no_avail.txt",
+        "base": [
+          "1342 checks: 1327 PASS, 15 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1361 PASS, 15 FAIL"
+        ]
+      },
+      {
+        "log": "init_ignores_off_conflict.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "init_no_enable_check.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "init_ready_no_en.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "kill_no_conflict_at_all.txt",
+        "base": [
+          "1342 checks: 1332 PASS, 10 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1366 PASS, 10 FAIL"
+        ]
+      },
+      {
+        "log": "kill_no_disable.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "kill_no_disable_at_all.txt",
+        "base": [
+          "1342 checks: 1333 PASS, 9 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1367 PASS, 9 FAIL"
+        ]
+      },
+      {
+        "log": "kill_no_live_conflict.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "kill_no_pending_conflict.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "kill_sticky_off.txt",
+        "base": [
+          "1342 checks: 1332 PASS, 10 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1366 PASS, 10 FAIL"
+        ]
+      },
+      {
+        "log": "kill_w_no_off.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "late_round.txt",
+        "base": [
+          "1340 checks: 1318 PASS, 22 FAIL"
+        ],
+        "head": [
+          "1374 checks: 1352 PASS, 22 FAIL"
+        ]
+      },
+      {
+        "log": "no_accept_bound.txt",
+        "base": [
+          "1333 checks: 1136 PASS, 197 FAIL"
+        ],
+        "head": [
+          "1367 checks: 1168 PASS, 199 FAIL"
+        ]
+      },
+      {
+        "log": "no_backoff_exit_initset.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "no_command_ready.txt",
+        "base": [
+          "1342 checks: 649 PASS, 693 FAIL"
+        ],
+        "head": [
+          "1376 checks: 663 PASS, 713 FAIL"
+        ]
+      },
+      {
+        "log": "no_conflict_daok_initset.txt",
+        "base": [
+          "1340 checks: 1301 PASS, 39 FAIL"
+        ],
+        "head": [
+          "1374 checks: 1333 PASS, 41 FAIL"
+        ]
+      },
+      {
+        "log": "no_conflict_wait_clear.txt",
+        "base": [
+          "1342 checks: 1339 PASS, 3 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1373 PASS, 3 FAIL"
+        ]
+      },
+      {
+        "log": "no_enable_wait_clear.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "no_get_tx_state_response.txt",
+        "base": [
+          "1342 checks: 1211 PASS, 131 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1245 PASS, 131 FAIL"
+        ]
+      },
+      {
+        "log": "no_lsn_initset.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "no_pacing.txt",
+        "base": [
+          "1342 checks: 1302 PASS, 40 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1334 PASS, 42 FAIL"
+        ]
+      },
+      {
+        "log": "no_probe_initset.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "no_requests.txt",
+        "base": [
+          "1191 checks: 976 PASS, 215 FAIL"
+        ],
+        "head": [
+          "1225 checks: 1010 PASS, 215 FAIL"
+        ]
+      },
+      {
+        "log": "no_response_bound.txt",
+        "base": [
+          "1340 checks: 1324 PASS, 16 FAIL"
+        ],
+        "head": [
+          "1374 checks: 1358 PASS, 16 FAIL"
+        ]
+      },
+      {
+        "log": "no_rotate_advance.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "no_round.txt",
+        "base": [
+          "1342 checks: 1320 PASS, 22 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1354 PASS, 22 FAIL"
+        ]
+      },
+      {
+        "log": "no_stale_capacity.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "no_stale_drain.txt",
+        "base": [
+          "1320 checks: 1304 PASS, 16 FAIL"
+        ],
+        "head": [
+          "1354 checks: 1338 PASS, 16 FAIL"
+        ]
+      },
+      {
+        "log": "no_stale_swallow.txt",
+        "base": [
+          "1342 checks: 1333 PASS, 9 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1367 PASS, 9 FAIL"
+        ]
+      },
+      {
+        "log": "no_sticky_gp_window.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "no_turn_restore.txt",
+        "base": [
+          "1333 checks: 1276 PASS, 57 FAIL"
+        ],
+        "head": [
+          "1367 checks: 1308 PASS, 59 FAIL"
+        ]
+      },
+      {
+        "log": "obsolete_grant.txt",
+        "base": [
+          "1342 checks: 1323 PASS, 19 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1357 PASS, 19 FAIL"
+        ]
+      },
+      {
+        "log": "obsolete_release_lost.txt",
+        "base": [
+          "1342 checks: 1331 PASS, 11 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1365 PASS, 11 FAIL"
+        ]
+      },
+      {
+        "log": "ready_ignores_turn.txt",
+        "base": [
+          "1318 checks: 1229 PASS, 89 FAIL"
+        ],
+        "head": [
+          "1352 checks: 1261 PASS, 91 FAIL"
+        ]
+      },
+      {
+        "log": "reallocate_owned.txt",
+        "base": [
+          "1331 checks: 1212 PASS, 119 FAIL"
+        ],
+        "head": [
+          "1365 checks: 1244 PASS, 121 FAIL"
+        ]
+      },
+      {
+        "log": "refusal_is_grant.txt",
+        "base": [
+          "1338 checks: 1276 PASS, 62 FAIL"
+        ],
+        "head": [
+          "1372 checks: 1310 PASS, 62 FAIL"
+        ]
+      },
+      {
+        "log": "response_wrap.txt",
+        "base": [
+          "1342 checks: 1341 PASS, 1 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1375 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "restored.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "retry_monopoly.txt",
+        "base": [
+          "1333 checks: 1273 PASS, 60 FAIL"
+        ],
+        "head": [
+          "1367 checks: 1305 PASS, 62 FAIL"
+        ]
+      },
+      {
+        "log": "retry_period_200.txt",
+        "base": [
+          "1340 checks: 1318 PASS, 22 FAIL"
+        ],
+        "head": [
+          "1374 checks: 1352 PASS, 22 FAIL"
+        ]
+      },
+      {
+        "log": "retry_wrap.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "short_accept_bound.txt",
+        "base": [
+          "1342 checks: 1340 PASS, 2 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1374 PASS, 2 FAIL"
+        ]
+      },
+      {
+        "log": "source_alias.txt",
+        "base": [
+          "1256 checks: 1084 PASS, 172 FAIL"
+        ],
+        "head": [
+          "1290 checks: 1116 PASS, 174 FAIL"
+        ]
+      },
+      {
+        "log": "sticky_kill_ignores_accept.txt",
+        "base": [
+          "1342 checks: 1342 PASS, 0 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1376 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "tick_ge_to_gt.txt",
+        "base": [
+          "1340 checks: 1318 PASS, 22 FAIL"
+        ],
+        "head": [
+          "1374 checks: 1352 PASS, 22 FAIL"
+        ]
+      },
+      {
+        "log": "tick_keeps_wait.txt",
+        "base": [
+          "1322 checks: 1289 PASS, 33 FAIL"
+        ],
+        "head": [
+          "1356 checks: 1323 PASS, 33 FAIL"
+        ]
+      },
+      {
+        "log": "tick_no_rearm.txt",
+        "base": [
+          "1342 checks: 1299 PASS, 43 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1331 PASS, 45 FAIL"
+        ]
+      },
+      {
+        "log": "wait_on_release.txt",
+        "base": [
+          "1335 checks: 1287 PASS, 48 FAIL"
+        ],
+        "head": [
+          "1369 checks: 1319 PASS, 50 FAIL"
+        ]
+      },
+      {
+        "log": "wait_only_on_accept.txt",
+        "base": [
+          "1342 checks: 1338 PASS, 4 FAIL"
+        ],
+        "head": [
+          "1376 checks: 1372 PASS, 4 FAIL"
+        ]
+      }
+    ],
+    "console_identical": false
+  },
+  {
+    "campaign": "adp_engine-mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": null,
+    "completed_log_pairs": 57,
+    "identical_failure_lists": 57,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": true
+  },
+  {
+    "campaign": "maap-mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": null,
+    "completed_log_pairs": 32,
+    "identical_failure_lists": 32,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": true
+  },
+  {
+    "campaign": "pp_top-acmp_mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": {
+      "base": 37,
+      "head": 57,
+      "common": 37,
+      "different": [
+        "guard_ctlr_dropped@acmp_listener",
+        "rec_settled_vlan_unstored@acmp_listener"
+      ],
+      "added": [
+        "disconnect_changes_gate@acmp_talker",
+        "disconnect_invalid_success@acmp_talker",
+        "disconnect_not_accepted@acmp_talker",
+        "field_reset_blocked@acmp_listener",
+        "golden-acmp_talker",
+        "golden-pp_top--gsi-internal-only",
+        "gsi_vlan_external@pp_top",
+        "lock_gate_bypassed@acmp_listener",
+        "lock_status_13@acmp_listener",
+        "parent_vlan_shifted@pp_top",
+        "probe_guard_current_controller@acmp_listener",
+        "probe_retry_current_controller@acmp_listener",
+        "retry_probe_status_cleared@acmp_listener",
+        "retry_probe_status_cleared@pp_top",
+        "retry_status_cleared@acmp_listener",
+        "settled_vlan_truncated@acmp_listener",
+        "settled_vlan_truncated@pp_top",
+        "settlement_vlan_truncated@acmp_listener",
+        "stored_vlan_truncated@pp_top",
+        "unbind_talker_echo@acmp_listener"
+      ],
+      "removed": []
+    },
+    "completed_log_pairs": 37,
+    "identical_failure_lists": 35,
+    "different_failure_lists": [
+      {
+        "log": "guard_ctlr_dropped@acmp_listener.log",
+        "base": 50,
+        "head": 51,
+        "equal_after_excluding_TD1": false
+      },
+      {
+        "log": "rec_settled_vlan_unstored@acmp_listener.log",
+        "base": 25,
+        "head": 26,
+        "equal_after_excluding_TD1": false
+      }
+    ],
+    "different_tallies": [
+      {
+        "log": "golden-acmp_listener.log",
+        "base": [
+          "3111 checks: 3111 PASS, 0 FAIL"
+        ],
+        "head": [
+          "3167 checks: 3167 PASS, 0 FAIL"
+        ]
+      },
+      {
+        "log": "guard_ctlr_dropped@acmp_listener.log",
+        "base": [
+          "3107 checks: 3057 PASS, 50 FAIL"
+        ],
+        "head": [
+          "3163 checks: 3112 PASS, 51 FAIL"
+        ]
+      },
+      {
+        "log": "guard_talker_eid_dropped@acmp_listener.log",
+        "base": [
+          "3107 checks: 3067 PASS, 40 FAIL"
+        ],
+        "head": [
+          "3163 checks: 3123 PASS, 40 FAIL"
+        ]
+      },
+      {
+        "log": "guard_talker_uid_dropped@acmp_listener.log",
+        "base": [
+          "3107 checks: 3077 PASS, 30 FAIL"
+        ],
+        "head": [
+          "3163 checks: 3133 PASS, 30 FAIL"
+        ]
+      },
+      {
+        "log": "msg_ok_forced@acmp_listener.log",
+        "base": [
+          "3111 checks: 3018 PASS, 93 FAIL"
+        ],
+        "head": [
+          "3167 checks: 3074 PASS, 93 FAIL"
+        ]
+      },
+      {
+        "log": "rec_read_in_idle@acmp_listener.log",
+        "base": [
+          "3111 checks: 3110 PASS, 1 FAIL"
+        ],
+        "head": [
+          "3167 checks: 3166 PASS, 1 FAIL"
+        ]
+      },
+      {
+        "log": "rec_read_sink_zero@acmp_listener.log",
+        "base": [
+          "3080 checks: 2435 PASS, 645 FAIL"
+        ],
+        "head": [
+          "3136 checks: 2491 PASS, 645 FAIL"
+        ]
+      },
+      {
+        "log": "rec_settled_vlan_unstored@acmp_listener.log",
+        "base": [
+          "3111 checks: 3086 PASS, 25 FAIL"
+        ],
+        "head": [
+          "3167 checks: 3141 PASS, 26 FAIL"
+        ]
+      },
+      {
+        "log": "rec_started_unstored@acmp_listener.log",
+        "base": [
+          "3111 checks: 3020 PASS, 91 FAIL"
+        ],
+        "head": [
+          "3167 checks: 3076 PASS, 91 FAIL"
+        ]
+      },
+      {
+        "log": "rec_sweep_misaddressed@acmp_listener.log",
+        "base": [
+          "3111 checks: 3074 PASS, 37 FAIL"
+        ],
+        "head": [
+          "3167 checks: 3130 PASS, 37 FAIL"
+        ]
+      }
+    ],
+    "console_identical": false
+  },
+  {
+    "campaign": "pp_top-aecp_dispatch_mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": {
+      "base": 44,
+      "head": 44,
+      "common": 44,
+      "different": [],
+      "added": [],
+      "removed": []
+    },
+    "completed_log_pairs": 41,
+    "identical_failure_lists": 41,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": true
+  },
+  {
+    "campaign": "pp_top-aecp_mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": null,
+    "completed_log_pairs": 67,
+    "identical_failure_lists": 67,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": true
+  },
+  {
+    "campaign": "pp_top-ctr_mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": null,
+    "completed_log_pairs": 18,
+    "identical_failure_lists": 18,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": true
+  },
+  {
+    "campaign": "pp_top-d3_mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": {
+      "base": 116,
+      "head": 116,
+      "common": 116,
+      "different": [],
+      "added": [],
+      "removed": []
+    },
+    "completed_log_pairs": 116,
+    "identical_failure_lists": 116,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": false
+  },
+  {
+    "campaign": "pp_top-gsi_mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": {
+      "base": 22,
+      "head": 22,
+      "common": 22,
+      "different": [],
+      "added": [],
+      "removed": []
+    },
+    "completed_log_pairs": 22,
+    "identical_failure_lists": 17,
+    "different_failure_lists": [
+      {
+        "log": "acmpsta-zero-run.log",
+        "base": 20,
+        "head": 22,
+        "equal_after_excluding_TD1": false
+      },
+      {
+        "log": "integrator-path-run.log",
+        "base": 1342,
+        "head": 1342,
+        "equal_after_excluding_TD1": false
+      },
+      {
+        "log": "pbsta-zero-run.log",
+        "base": 1682,
+        "head": 1680,
+        "equal_after_excluding_TD1": false
+      },
+      {
+        "log": "status-notification-zero-run.log",
+        "base": 979,
+        "head": 52,
+        "equal_after_excluding_TD1": false
+      },
+      {
+        "log": "wrong-sink-run.log",
+        "base": 2500,
+        "head": 2500,
+        "equal_after_excluding_TD1": false
+      }
+    ],
+    "different_tallies": [
+      {
+        "log": "acmpsta-zero-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 20 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 22 failures"
+        ]
+      },
+      {
+        "log": "bridge-gate-removed-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 768 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 790 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 768 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 790 failures"
+        ]
+      },
+      {
+        "log": "failure-bridge-zero-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 768 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 806 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 768 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 806 failures"
+        ]
+      },
+      {
+        "log": "failure-change-redeclares-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 1 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 1 failures"
+        ]
+      },
+      {
+        "log": "failure-change-strobe-removed-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6177 checks, 2 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6178 checks, 2 failures"
+        ]
+      },
+      {
+        "log": "failure-code-zero-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 768 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 806 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 768 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 806 failures"
+        ]
+      },
+      {
+        "log": "golden-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 0 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 0 failures"
+        ]
+      },
+      {
+        "log": "index-guard-removed-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 2 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 2 failures"
+        ]
+      },
+      {
+        "log": "integrator-path-run.log",
+        "base": [
+          "GI latency walks added: 1728 checks, 1216 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1922 checks, 1342 failures"
+        ],
+        "head": [
+          "GI latency walks added: 1728 checks, 1216 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1928 checks, 1342 failures"
+        ]
+      },
+      {
+        "log": "latency-cmp-bit31-dropped-run.log",
+        "base": [
+          "GI latency walks added: 5548 checks, 8 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6162 checks, 8 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5548 checks, 8 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6163 checks, 8 failures"
+        ]
+      },
+      {
+        "log": "latency-cmp-high16-run.log",
+        "base": [
+          "GI latency walks added: 5248 checks, 128 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5862 checks, 128 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5248 checks, 128 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5863 checks, 128 failures"
+        ]
+      },
+      {
+        "log": "latency-cmp-high2-run.log",
+        "base": [
+          "GI latency walks added: 4968 checks, 240 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5582 checks, 240 failures"
+        ],
+        "head": [
+          "GI latency walks added: 4968 checks, 240 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5583 checks, 240 failures"
+        ]
+      },
+      {
+        "log": "latency-cmp-low16-run.log",
+        "base": [
+          "GI latency walks added: 5248 checks, 128 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5862 checks, 128 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5248 checks, 128 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5863 checks, 128 failures"
+        ]
+      },
+      {
+        "log": "latency-cmp-low31-run.log",
+        "base": [
+          "GI latency walks added: 5548 checks, 8 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6162 checks, 8 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5548 checks, 8 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6163 checks, 8 failures"
+        ]
+      },
+      {
+        "log": "latency-cmp-low8-run.log",
+        "base": [
+          "GI latency walks added: 5088 checks, 192 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5702 checks, 192 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5088 checks, 192 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5703 checks, 192 failures"
+        ]
+      },
+      {
+        "log": "latency-trigger-removed-run.log",
+        "base": [
+          "GI latency walks added: 4928 checks, 256 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5522 checks, 264 failures"
+        ],
+        "head": [
+          "GI latency walks added: 4928 checks, 256 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5523 checks, 264 failures"
+        ]
+      },
+      {
+        "log": "missing-descriptor-leak-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 4 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 4 failures"
+        ]
+      },
+      {
+        "log": "pbsta-zero-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 1536 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 1682 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 1536 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 1680 failures"
+        ]
+      },
+      {
+        "log": "rebind-started-trigger-removed-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6177 checks, 3 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6178 checks, 3 failures"
+        ]
+      },
+      {
+        "log": "restored-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 0 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 0 failures"
+        ]
+      },
+      {
+        "log": "status-notification-zero-run.log",
+        "base": [
+          "GI latency walks added: 5248 checks, 859 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 5712 checks, 979 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 0 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6073 checks, 52 failures"
+        ]
+      },
+      {
+        "log": "wrong-sink-run.log",
+        "base": [
+          "GI latency walks added: 5568 checks, 2304 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6182 checks, 2500 failures"
+        ],
+        "head": [
+          "GI latency walks added: 5568 checks, 2304 failures",
+          "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 2500 failures"
+        ]
+      }
+    ],
+    "console_identical": true
+  },
+  {
+    "campaign": "pp_top-name_wr_mutant",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": {
+      "base": 3,
+      "head": 3,
+      "common": 3,
+      "different": [],
+      "added": [],
+      "removed": []
+    },
+    "completed_log_pairs": 3,
+    "identical_failure_lists": 3,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": true
+  },
+  {
+    "campaign": "pp_top-notify_mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": {
+      "base": 102,
+      "head": 102,
+      "common": 102,
+      "different": [],
+      "added": [],
+      "removed": []
+    },
+    "completed_log_pairs": 102,
+    "identical_failure_lists": 102,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": false
+  },
+  {
+    "campaign": "srp_admission-mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": null,
+    "completed_log_pairs": 12,
+    "identical_failure_lists": 12,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": true
+  },
+  {
+    "campaign": "srp_top-mutants",
+    "base_rc": 0,
+    "head_rc": 0,
+    "canonical_records": null,
+    "completed_log_pairs": 130,
+    "identical_failure_lists": 130,
+    "different_failure_lists": [],
+    "different_tallies": [],
+    "console_identical": true
+  }
+]

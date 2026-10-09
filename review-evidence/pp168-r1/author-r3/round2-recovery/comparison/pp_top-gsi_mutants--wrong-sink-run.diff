@@ -1,0 +1,21 @@
+--- base
++++ head
+@@ -37,10 +37,9 @@
+ FAIL: GI OTHER-PASSIVE solicited: pbsta sink 1 = 1, got 2
+ FAIL: GI OTHER-PASSIVE solicited: acmpsta sink 1 = 0, got 7
+ FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+-FAIL: GI RETRY-CLEAR unsolicited: pbsta sink 0 = 2, got 1
+-FAIL: GI RETRY-CLEAR unsolicited: byte-exact sink 0 response
+-FAIL: GI RETRY-CLEAR solicited: pbsta sink 0 = 2, got 1
+-FAIL: GI RETRY-CLEAR solicited: byte-exact sink 0 response
++FAIL: GI RETRY-RETAIN solicited: pbsta sink 0 = 2, got 1
++FAIL: GI RETRY-RETAIN solicited: acmpsta sink 0 = 7, got 0
++FAIL: GI RETRY-RETAIN solicited: byte-exact sink 0 response
+ FAIL: GI COMPLETED unsolicited: pbsta sink 0 = 3, got 1
+ FAIL: GI COMPLETED unsolicited: byte-exact sink 0 response
+ FAIL: GI COMPLETED solicited: pbsta sink 0 = 3, got 1
+@@ -2498,3 +2497,4 @@
+ FAIL: GI PASSIVE solicited: byte-exact sink 1 response
+ FAIL: GI INDEX-GUARD-ALIAS solicited: pbsta sink 1 = 1, got 0
+ FAIL: GI INDEX-GUARD-ALIAS solicited: byte-exact sink 1 response
++FAIL: VLAN168 GET_STREAM_INFO retains all received bits

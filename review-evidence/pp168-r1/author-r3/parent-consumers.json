@@ -1,0 +1,121 @@
+[
+  {
+    "consumer": "01_cpp",
+    "command": "scripts/check_cpp_idiom.py",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "01_cpp.rc"
+  },
+  {
+    "consumer": "02_py",
+    "command": "scripts/check_py_idiom.py",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "02_py-final.rc"
+  },
+  {
+    "consumer": "03_sources",
+    "command": "scripts/check_rtl_source_lists.py",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "03_sources.rc"
+  },
+  {
+    "consumer": "04_pp_sources",
+    "command": "scripts/pp_srcs.py --check --selftest",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "04_pp_sources.rc"
+  },
+  {
+    "consumer": "05_ports",
+    "command": "scripts/check_port_contracts.py",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "05_ports.rc"
+  },
+  {
+    "consumer": "06_naming",
+    "command": "scripts/measure_naming.py --check",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "06_naming.rc"
+  },
+  {
+    "consumer": "07_evidence",
+    "command": "scripts/measure_test_evidence.py --check",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "07_evidence.rc"
+  },
+  {
+    "consumer": "08_docs",
+    "command": "scripts/docs_check.py",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "08_docs.rc"
+  },
+  {
+    "consumer": "09_xvlog",
+    "command": "scripts/xvlog_gate.py --check",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "09_xvlog.rc"
+  },
+  {
+    "consumer": "10_builder",
+    "command": "sw/builder/test_builder.py",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "10_builder.rc"
+  },
+  {
+    "consumer": "11_lint",
+    "command": "scripts/lint_rtl.py --check",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "11_lint.rc"
+  },
+  {
+    "consumer": "12_shadow",
+    "command": "make -j16 -C tb/verilator/pp_shadow",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "12_shadow.rc"
+  },
+  {
+    "consumer": "13_nvm_lint",
+    "command": "make -j16 -C tb/verilator/nvm_cosim lint",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "13_nvm_lint.rc"
+  },
+  {
+    "consumer": "14_nvm_quick",
+    "command": "make -j16 -C tb/verilator/nvm_cosim quick JOBS=16 POOL=2",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "14_nvm_quick.rc"
+  },
+  {
+    "consumer": "15_datapath",
+    "command": "make -j16 -C tb/verilator/milan_dp VERILATOR_JOBS=16",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "15_datapath.rc"
+  },
+  {
+    "consumer": "16_render",
+    "command": "make -j16 -C tb/verilator/milan_dp_render VERILATOR_JOBS=16 MUTANT_JOBS=2",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "16_render.rc"
+  },
+  {
+    "consumer": "17_shell",
+    "command": "scripts/check_sh_idiom.py",
+    "base_rc": 0,
+    "head_rc": 0,
+    "head_receipt": "17_shell.rc"
+  }
+]
