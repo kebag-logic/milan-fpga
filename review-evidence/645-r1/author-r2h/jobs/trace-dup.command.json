@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "$BUILD_AREA/bench-inputs/tb/verilator/follow_ring/obj_dir/Vfollow_ring",
+    "--case",
+    "b8",
+    "--dwell-s",
+    "1.0",
+    "--set-phase",
+    "0.0",
+    "--hold-s",
+    "16",
+    "--trace",
+    "$BUILD_AREA/traces/trace-dup.pdu.csv",
+    "--servo-trace",
+    "$BUILD_AREA/traces/trace-dup.servo.csv"
+  ],
+  "cwd": "$BUILD_AREA/bench-inputs",
+  "cpus": "61"
+}

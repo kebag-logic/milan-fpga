@@ -1,0 +1,11 @@
+COMMAND: ["python3", "-B", "$LANE/tb/verilator/follow_ring/trace_table.py", "$BUILD_AREA/jobs/trace-dup.log", "$BUILD_AREA/traces/trace-dup.pdu.csv", "$BUILD_AREA/traces/trace-dup.servo.csv", "--origin-s", "0", "--from-s", "1.25", "--to-s", "1.75", "--step-s", ".25", "--csv", "$BUILD_AREA/traces/dup-table.csv"]
+CPU LIST: 60
+MAKEFLAGS: unset
+COLD BUILD: False
+| t_s | ring_margin_ticks | slips | skips | recentres | event_trace | render_fill | render_delay_ticks | servo | pi | e_ns | trim_ppm | rate_valid |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| +1.50 | +0.023..+0.100 | 0 | 0 | 0 | complete | 13..14 | 7.933..8.010 | IDLE | 0 | 0 | +0.000 | 0 |
+| +1.75 | +0.008..+1.006 | 1 | 0 | 0 | complete | 13..13 | 7.864..7.941 | IDLE | 0 | 0 | +0.000 | 0 |
+
+WALL SECONDS: 1.001
+RETURN CODE: 0

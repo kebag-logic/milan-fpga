@@ -1,0 +1,26 @@
+F
+======================================================================
+FAIL: test_legacy_probe_does_not_infer_slips (__main__.TraceTableTests.test_legacy_probe_does_not_infer_slips)
+Old margin-only traces cannot establish a measured slip count.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$BUILD_AREA/old-reader-control/test_trace_table.py", line 83, in test_legacy_probe_does_not_infer_slips
+    self.assertEqual([r["slips"] for r in rows], ["0"] * 4)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['0', '0', '1', '0'] != ['0', '0', '0', '0']
+
+First differing element 2:
+'1'
+'0'
+
+- ['0', '0', '1', '0']
+?             ^
+
++ ['0', '0', '0', '0']
+?             ^
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.049s
+
+FAILED (failures=1)

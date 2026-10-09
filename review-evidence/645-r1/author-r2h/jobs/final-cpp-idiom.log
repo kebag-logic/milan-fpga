@@ -1,0 +1,18 @@
+COMMAND: ["python3", "-B", "scripts/check_cpp_idiom.py"]
+CPU LIST: 62
+MAKEFLAGS: unset
+COLD BUILD: False
+cpp idiom: 310 first-party translation units, 149 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+
+WALL SECONDS: 11.003
+RETURN CODE: 0

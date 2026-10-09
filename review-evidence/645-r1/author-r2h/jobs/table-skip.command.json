@@ -1,0 +1,22 @@
+{
+  "cwd": "$LANE",
+  "cpus": "60",
+  "argv": [
+    "python3",
+    "-B",
+    "$LANE/tb/verilator/follow_ring/trace_table.py",
+    "$BUILD_AREA/jobs/trace-skip-frame.log",
+    "$BUILD_AREA/traces/trace-skip-frame.pdu.csv",
+    "$BUILD_AREA/traces/trace-skip-frame.servo.csv",
+    "--origin-s",
+    "0",
+    "--from-s",
+    "38.5",
+    "--to-s",
+    "38.75",
+    "--step-s",
+    ".25",
+    "--csv",
+    "$BUILD_AREA/traces/skip-table.csv"
+  ]
+}

@@ -1,0 +1,13 @@
+COMMAND: ["python3", "-B", "$LANE/tb/verilator/follow_ring/trace_table.py", "$BUILD_AREA/review-inputs/trace-table-probe-inputs/run.log", "$BUILD_AREA/review-inputs/trace-table-probe-inputs/pdu.csv", "$BUILD_AREA/review-inputs/trace-table-probe-inputs/servo.csv", "--from-s", "0", "--to-s", "1", "--step-s", ".25", "--csv", "$BUILD_AREA/traces/reviewer-probe.csv"]
+CPU LIST: 60
+MAKEFLAGS: unset
+COLD BUILD: False
+| t_s | ring_margin_ticks | slips | skips | recentres | event_trace | render_fill | render_delay_ticks | servo | pi | e_ns | trim_ppm | rate_valid |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| +0.25 | +1.300..+1.300 | 0 | 0 | 0 | unavailable | 14..14 | 8.500..8.500 | LOCKED | 1 | 0 | +0.000 | 1 |
+| +0.50 | +1.300..+1.300 | 0 | 0 | 0 | unavailable | 14..14 | 8.500..8.500 | LOCKED | 1 | 0 | +0.000 | 1 |
+| +0.75 | +1.300..+5.300 | 0 | 0 | 0 | unavailable | 14..14 | 8.500..8.500 | LOCKED | 1 | 0 | +0.000 | 1 |
+| +1.00 | +5.300..+5.300 | 0 | 0 | 0 | unavailable | 14..14 | 8.500..8.500 | LOCKED | 1 | 0 | +0.000 | 1 |
+
+WALL SECONDS: 1.001
+RETURN CODE: 0
