@@ -6,11 +6,11 @@ figures are useful for comparing isolated fabric blocks; the builder's model is
 useful for refusing obviously oversized configurations. Neither is a placement
 result.
 
-The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records issue #231.
-It also records issue #587's 50 MHz 8x8 rerun.
+The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records issue [#231](https://github.com/kebag-logic/milan-fpga/issues/231).
+It also records issue [#587](https://github.com/kebag-logic/milan-fpga/issues/587)'s 50 MHz 8x8 rerun.
 It separates standalone synthesis from integrated implementation.
 Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image after merging dev `6aa25dec` for #645 and #647, retaining processor `2ad2f845`.
+The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image after merging dev `6aa25dec` for [#645](https://github.com/kebag-logic/milan-fpga/issues/645) and [#647](https://github.com/kebag-logic/milan-fpga/issues/647), retaining processor `2ad2f845`.
 Its figures back the protocol processor budget and resource gate below.
 
 The current command and media-clock claims are checked against the
@@ -57,13 +57,13 @@ real RTL generate arms.
 
 ## Isolated synthesis estimates
 
-Measured with `syn/yosys/ooc.sh` at the 8-stream, 16-slot fabric shape. These
+Measured with [`syn/yosys/ooc.sh`](../../syn/yosys/ooc.sh) at the 8-stream, 16-slot fabric shape. These
 are comparison numbers, not guaranteed savings after placement.
 
 > **Entity-shape provenance.** The stream and slot parameters above do not
 > identify the generated entity shape bound through
 > `` `include "gen/adp_shape_defaults.svh" ``. At the time of this measurement,
-> `ooc.sh` named no `configs/generated/**` include directory, so the record
+> [`ooc.sh`](../../syn/yosys/ooc.sh) named no `configs/generated/**` include directory, so the record
 > does not establish which generated shape supplied the ACMP context counts.
 > Treat these figures as **parameter-pinned and entity-shape-unknown** until
 > they are repeated with a named configuration.
@@ -97,27 +97,27 @@ named campaign before quoting the resulting image as release-ready.
 
 ## Protocol processor budget and resource gate
 
-Issue #234 first measured the shipping 1x1 image at dev `1269cdaf`, processor pin `631eeb34`.
-Later records cover PR #634 and #661's adoption of processor `ead80360`.
-[Combination F](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845) was measured for #682 at parent `4d253880` after merging dev `79b086d4`, processor `2ad2f845`.
+Issue [#234](https://github.com/kebag-logic/milan-fpga/issues/234) first measured the shipping 1x1 image at dev `1269cdaf`, processor pin `631eeb34`.
+Later records cover PR [#634](https://github.com/kebag-logic/milan-fpga/issues/634) and [#661](https://github.com/kebag-logic/milan-fpga/issues/661)'s adoption of processor `ead80360`.
+[Combination F](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845) was measured for [#682](https://github.com/kebag-logic/milan-fpga/issues/682) at parent `4d253880` after merging dev `79b086d4`, processor `2ad2f845`.
 It explicitly limits synthesis to one worker; the flow identity records this memory setting.
 The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) holds those measurements, differences and receipts.
-Issue #686 re-recorded all three endpoints on 2026-10-08 at `e519e31f`, its merge of dev `291710b1`, after `KL_maap`'s Annex B change.
-Issue #645 then re-recorded all three endpoints on merge result `a5ca6e51`, including dev `6aa25dec`, the GMII capture change and the listener settle recentre.
-That merge-result measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-08-issues-645-and-647) retain the preceding #686 record.
+Issue [#686](https://github.com/kebag-logic/milan-fpga/issues/686) re-recorded all three endpoints on 2026-10-08 at `e519e31f`, its merge of dev `291710b1`, after `KL_maap`'s Annex B change.
+Issue [#645](https://github.com/kebag-logic/milan-fpga/issues/645) then re-recorded all three endpoints on merge result `a5ca6e51`, including dev `6aa25dec`, the GMII capture change and the listener settle recentre.
+That merge-result measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-08-issues-645-and-647) retain the preceding [#686](https://github.com/kebag-logic/milan-fpga/issues/686) record.
 Both measurements use the same recipe identity and policy.
-The #686 flow identity matches F, the one synthesis worker included.
-The #686 repository inputs differ from F's only in `KL_maap.sv` and comment lines of `milan_datapath.sv`; the processor pins are F's.
+The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) flow identity matches F, the one synthesis worker included.
+The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inputs differ from F's only in [`KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv) and comment lines of [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv); the processor pins are F's.
 
 ### Headroom target
 
-NFR-RES-01 in the [requirements](../reference/FR_NFR.md) is the accepted headroom target.
+[NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted headroom target.
 The baseline product must fit `xc7a100t` with at most 60 percent of its LUTs used.
 The adopted image does not meet it:
 
 | Resource | Device | Shipping route, processor `2ad2f845` | Used | Target | Status |
 |---|---:|---:|---:|---|---|
-| Slice LUT | 63,400 | 50,267 | 79.29 % | NFR-RES-01: at most 38,040 (60 %) | not met, 12,227 over |
+| Slice LUT | 63,400 | 50,267 | 79.29 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): at most 38,040 (60 %) | not met, 12,227 over |
 | Slice register | 126,800 | 54,413 | 42.91 % | none stated | - |
 | Slice | 15,850 | 15,779 | 99.55 % | must stay below the device to place | 71 free |
 | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
@@ -128,7 +128,7 @@ The table is the gate's record.
 The slice row is the binding limit: placement has 71 slices left.
 The routed critical setup path has 14 logic levels, from `milansoc_write_w_buffer_level0_reg[1]` to `storage_13_dat1_reg[14]`.
 Its data delay is 9.294 ns, of which 7.331 ns is routing.
-The preceding #686 image used 50,391 LUTs and 15,788 slices, 62 free, at +0.241 / +0.029 ns.
+The preceding [#686](https://github.com/kebag-logic/milan-fpga/issues/686) image used 50,391 LUTs and 15,788 slices, 62 free, at +0.241 / +0.029 ns.
 The earlier F image used 49,957 LUTs and 15,734 slices, 116 free, at +0.124 / +0.031 ns; its critical path had 18 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
 The E image before F used 49,888 LUTs and 15,805 slices, 45 free, at +0.101 / +0.031 ns.
 The baseline records F's endpoint and sub-block differences from E.
@@ -136,22 +136,22 @@ The baseline records F's endpoint and sub-block differences from E.
 ### Allocation to the protocol processor
 
 The standalone wrapper uses 23,179 LUTs, 36.6 % of the device, at the shipping clock.
-The superseded #229 milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
+The superseded [#229](https://github.com/kebag-logic/milan-fpga/issues/229) milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
 Read as `milan_datapath`, that stack names 41,689 LUTs in the routed image, 65.8 % of the device.
 The wrapper names 23,345 of them in that rebuilt hierarchy.
 The wrapper alone exceeds that historical allocation.
-The active #640 acceptance bar is the whole-image NFR-RES-01 target.
+The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the whole-image [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) target.
 
-Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper at most 11,118 LUTs.
+Meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with the rest of the image unchanged needs the wrapper at most 11,118 LUTs.
 That requires removing 12,227 LUTs, 52 % of the wrapper.
-The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that NFR-RES-01 stays at 60 %.
-It is met by the [Mark II redesign plan](MARK_II_AREA_PLAN.md) (#640).
+The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) stays at 60 %.
+It is met by the [Mark II redesign plan](MARK_II_AREA_PLAN.md) ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)).
 The [2026-10-05 schedule correction](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5988555968)
 places milestone 12 before P3, with delivery planned by 2026-12-15.
 The former Instrument-verification prerequisite no longer applies.
-The #396 release campaigns run on the qualified redesigned image.
+The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaigns run on the qualified redesigned image.
 Until M9, comparisons retain the last recorded baseline and unchanged policy.
-The #232, #230 and #639 storage changes are now adopted and measured; the remaining redesign stays under #640.
+The [#232](https://github.com/kebag-logic/milan-fpga/issues/232), [#230](https://github.com/kebag-logic/milan-fpga/issues/230) and [#639](https://github.com/kebag-logic/milan-fpga/issues/639) storage changes are now adopted and measured; the remaining redesign stays under [#640](https://github.com/kebag-logic/milan-fpga/issues/640).
 
 ### Mark II planning ledger
 
@@ -165,28 +165,30 @@ No new implementation run is claimed by this documentation update.
 | `ooc-1x1` | 23,179 | 19,779 | 16 / 3 | 8 | Synthesis only, no integrated-fit claim |
 | `ooc-8x8` | 30,135 | 27,380 | 21 / 5 | 8 | Synthesis only, no integrated-fit claim |
 
-The [owner's final placement decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5993114362)
-puts the bare-metal split in milestone 12 before P3.
+The [owner's decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5993114362) assigns the bare-metal split to milestone 12.
+Integration precedes P3.
 ADP, ACMP, MAAP, SRP, AECP and saved-state handling move.
 All-fabric remains supported and remains the current shipping default.
-The flip waits for F2-F5 suites and bench acceptance under #664.
+The flip requires F2-F5 suites and bench acceptance.
+[#664](https://github.com/kebag-logic/milan-fpga/issues/664) governs that qualification.
 Unqualified functions retain fabric placement.
 The hard-core port remains milestone 13.
 Diagnostics stay in the shipping image under D2.
 The optional-block table above grants no Mark II diagnostic-pruning credit.
-MAAP remains required in either placement; relocating it is not disabling it.
+MAAP remains required in either placement.
+Relocation does not disable it.
 
 The [plan ledger](MARK_II_AREA_PLAN.md#ledger) gives each saving's basis.
 These figures are estimates of the complete qualified default image:
 
 | Lane | Estimated saving, central | Image after, central | Dependency |
 |---|---:|---:|---|
-| F0-F5 split | 14,000 | 36,267 | Approved #664; both M0s measurements before flip; function, service and bench qualification |
+| F0-F5 split | 14,000 | 36,267 | Approved [#664](https://github.com/kebag-logic/milan-fpga/issues/664); both M0s measurements before flip; function, service and bench qualification |
 | M2 retained SoC tables | 200 | 36,067 | Adopted pin; excludes removed processor and M6/M7 tables |
 | M5 CSR read path | 600 | 35,467 | Stable existing ABI and both placement faces |
 | M6 media contexts | 600 | 34,867 | Fabric-owned counters, channel map and render state |
 | M7 gPTP tables | 500 | 34,367 | Fabric gPTP deadlines preserved |
-| M8a on-chip main memory | 1,000 | 33,367 | D4 approved; shape-sized #70/F1 staging; packing/replacement estimate below |
+| M8a on-chip main memory | 1,000 | 33,367 | D4 approved; shape-sized [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging; packing/replacement estimate below |
 | M8b smaller cacheless RV32I | 1,700 | 31,667 | D5 conditional: capture <= 24.5 ms at 8x8, boot and split load |
 | M3 residual fabric AECP | 0 | 31,667 | 2,600 estimated only where fabric AECP remains |
 | M10 shared gPTP/AECP engine | 0 | 31,667 | 1,200 estimated only with a separate retained AECP engine |
@@ -206,25 +208,31 @@ Its 3,231 anonymous LUT cells have no assigned owner.
 No saving is credited to that unowned remainder.
 [L11](MARK_II_AREA_PLAN.md#l11-the-soc-side) applies 50/75/100 percent packing assumptions.
 It debits 400/250/100 LUTs respectively for replacement logic.
-Rounding down gives the 400/1,000/1,500-LUT planning cases.
+Round down to each [L11 case](MARK_II_AREA_PLAN.md#l11-the-soc-side).
 They remain estimates requiring M8a's routed and memory-capacity checks.
 
-The combined estimate spans 27,567-35,867 LUTs; central is 31,667.
-Without the conditional smaller core, the conservative estimate is 37,167.
+The combined estimate spans 27,567-35,867 LUTs.
+Its central estimate is 31,667.
+Without the smaller core, the conservative estimate is 37,167.
 These estimates prove neither routing nor timing nor memory capacity.
 M8 must include F5's image, stack, contexts and saved-state staging.
 All-fabric must retain its response/staging capacity too.
 The 121.5-tile ceiling and 13.5-tile reserve remain unchanged.
 
 The [fallback scenarios](MARK_II_AREA_PLAN.md#no-split-and-partial-flip-estimates) price retained fabric AECP separately.
-No-split central is 45,667 before M3/M10, or 41,867 including them.
+No-split central is 45,667 before M3/M10.
+Including them gives 41,867.
 The partial case qualifies F0-F4 while F5 stays unqualified.
 AECP, notification, originator and their NVM path remain fabric-owned.
-F1/F3 owns moved binding persistence; integration must preserve single ownership.
+F1/F3 owns moved binding persistence.
+Integration must preserve single ownership.
 The partial removal basis is 8,012 LUTs.
-Mailbox, integration and mapping allowances leave 3,910 centrally, range 1,410-5,910.
-Remaining M-lane savings are 4,600 centrally, range 2,900-6,700.
-M3/M10 add 3,800 centrally, range 2,400-5,100, only for fabric AECP.
+Mailbox, integration and mapping allowances leave 3,910 centrally.
+The range is 1,410-5,910.
+Remaining M-lane savings are 4,600 centrally.
+Their range is 2,900-6,700.
+For fabric AECP, M3/M10 add 3,800 centrally.
+Their range is 2,400-5,100.
 M3 must preserve a separate removable engine for M10.
 
 | Placement | Case | Estimated image LUT | Headroom to 38,040 | Headroom to 37,659 |
@@ -248,17 +256,20 @@ Without M8b, partial central is 39,657 and misses both.
 
 No-split centrally needs another 4,208 LUTs to clear both.
 Partial centrally needs 298; its conservative case needs 5,898.
-F5 qualification enables the priced full-split outcome without M3/M10 credit.
+F5 qualification enables the priced full-split outcome.
+That removes M3/M10 credit.
 Otherwise, week 4 needs a manager ruling commissioning further redesign.
 That ruling must name its measured target and revised schedule.
 No unpriced saving or margin exception is assumed.
-A D8 exception alone cannot cure an NFR-RES-01 miss.
+A D8 exception alone cannot cure an [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) miss.
 
 [D8](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
-sets the planning margin to at least 1 percent: <= 37,659 LUTs.
+requires at least 1 percent planning margin.
+The integer ceiling is 37,659 LUTs.
 The binding bar remains 38,040 with timing met.
 [M0s](MARK_II_AREA_PLAN.md#lane-sequence) is owned by the manager's resource bench.
-Its tooling and two measurements precede week 4 and default flip.
+Its tooling and both measurements precede week 4.
+They also precede the default flip.
 First, now: route integrated F0-F4 with AECP in fabric.
 Second, after F5 merges: route the complete selected split.
 Both select build switches; all-fabric remains the shipping default.
@@ -267,7 +278,8 @@ Later qualification does not delay the pre-flip measurement requirement.
 A missing route is a missed checkpoint, never a pass.
 
 M0s supplies reviewed split-aware recipe and gate coverage before routing.
-The current recipe requires one wrapper; the complete split removes it.
+The current recipe requires one wrapper.
+The complete split removes it.
 Keep named placement endpoints with comparable whole-image metrics.
 Retain all-fabric shipping and standalone 1x1/8x8 references independently.
 D7 compares M0s figures against the last accepted gate record.
@@ -336,23 +348,22 @@ keeps intermediate lane measurements in the [plan ledger](MARK_II_AREA_PLAN.md#l
 M0s supplies measured placement figures against the last gate record.
 Each later lane publishes its comparison and matching M0s delta.
 Growth remains visible across the default flip.
-M9 re-records only after meeting NFR-RES-01 with timing met.
+M9 re-records only after meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with timing met.
 An improvement recommendation does not authorize an intermediate re-record.
 No tolerance, floor or ceiling is weakened.
 A primitive increase remains a gate failure requiring explicit disposition.
 The RAM-conversion estimate never waives that zero-growth policy.
 
-
-The first re-baseline recorded PR #634's growth on 2026-10-03, in PR #638, which added the gate.
+The first re-baseline recorded PR [#634](https://github.com/kebag-logic/milan-fpga/issues/634)'s growth on 2026-10-03, in PR [#638](https://github.com/kebag-logic/milan-fpga/issues/638), which added the gate.
 The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-03-after-pr-634) gives its delta per endpoint and sub-block.
-The [second re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-05-processor-ead80360) records the adopted `ead80360` image on dev `506d91db` for #661.
-The [third re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-06-processor-2ad2f845) records processor `2ad2f845` on dev `bd884631` for #682, including its changed measurement flow.
-The [fourth re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845) records the same processor after #682 merges dev `79b086d4`, under the same measurement flow.
-The fifth records #686's `KL_maap` change on its merge of dev `291710b1`, under the same flow.
+The [second re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-05-processor-ead80360) records the adopted `ead80360` image on dev `506d91db` for [#661](https://github.com/kebag-logic/milan-fpga/issues/661).
+The [third re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-06-processor-2ad2f845) records processor `2ad2f845` on dev `bd884631` for [#682](https://github.com/kebag-logic/milan-fpga/issues/682), including its changed measurement flow.
+The [fourth re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-07-processor-2ad2f845) records the same processor after [#682](https://github.com/kebag-logic/milan-fpga/issues/682) merges dev `79b086d4`, under the same measurement flow.
+The fifth records [#686](https://github.com/kebag-logic/milan-fpga/issues/686)'s `KL_maap` change on its merge of dev `291710b1`, under the same flow.
 Against F, its route moved by +434 LUTs, -11 FFs and +54 slices, and its WNS rose from +0.124 to +0.241 ns while WHS fell from +0.031 to +0.029 ns; both standalone records kept every figure.
-In #686's routed hierarchy `KL_maap` uses 429 LUTs and 279 FFs, against 479 and 267 for the previous `KL_maap` in the [resource map](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md), and the wrapper 47 LUTs fewer than F; the rest of the LUT growth lies in blocks the change does not touch.
-The [sixth re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-08-issues-645-and-647) records #645 and #647 on their merge of dev `6aa25dec`.
-Against #686, its route moved by -124 LUTs, +150 FFs and -9 slices, with WNS +0.058 ns and WHS +0.002 ns.
+In [#686](https://github.com/kebag-logic/milan-fpga/issues/686)'s routed hierarchy `KL_maap` uses 429 LUTs and 279 FFs, against 479 and 267 for the previous `KL_maap` in the [resource map](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md), and the wrapper 47 LUTs fewer than F; the rest of the LUT growth lies in blocks the change does not touch.
+The [sixth re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-08-issues-645-and-647) records [#645](https://github.com/kebag-logic/milan-fpga/issues/645) and [#647](https://github.com/kebag-logic/milan-fpga/issues/647) on their merge of dev `6aa25dec`.
+Against [#686](https://github.com/kebag-logic/milan-fpga/issues/686), its route moved by -124 LUTs, +150 FFs and -9 slices, with WNS +0.058 ns and WHS +0.002 ns.
 All three endpoints passed against the preceding records before being written; every policy value stays unchanged.
 
 The gate refuses, with exit 2, to compare across a tool or recipe change.
@@ -401,13 +412,13 @@ So the bank runs the comparison for any merge whose dev delta since that revisio
 That holds even when the PR itself changes none of them.
 Growth the PR did not make is not charged to it.
 Outside Mark II, the predecessor's growth is first recorded with attribution,
-as issue #234 recorded PR #634's; the PR uses that record.
+as issue [#234](https://github.com/kebag-logic/milan-fpga/issues/234) recorded PR [#634](https://github.com/kebag-logic/milan-fpga/issues/634)'s; the PR uses that record.
 For Mark II, D7 instead retains the last gate record until M9.
 Its ledger distinguishes predecessor movement from the current lane's delta.
 Both the comparison and any regression remain visible.
 This is the bank's rule, stated here; it adds no tooling.
 Here a route took 39 to 56 minutes and a 1x1 standalone synthesis 15 to 24, sharing the host.
-That bank run is the local half of #234's fourth criterion (manager ruling); CONTRIBUTING is unchanged here.
+That bank run is the local half of [#234](https://github.com/kebag-logic/milan-fpga/issues/234)'s fourth criterion (manager ruling); CONTRIBUTING is unchanged here.
 
 A Yosys-based hosted ratchet is not proposed.
 [The Yosys gate's documentation](../../syn/yosys/README.md#the-cells-record) records a deliberate decision against a checked-in cell baseline.

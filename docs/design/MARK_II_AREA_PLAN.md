@@ -1,12 +1,12 @@
 # Mark II area plan
 
-Stage 1 of #640 plans the NFR-RES-01 redesign.
+Stage 1 of [#640](https://github.com/kebag-logic/milan-fpga/issues/640) plans the [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) redesign.
 Round 1c uses records committed on dev `5603c353`.
 It incorporates the [recorded decisions](#recorded-decisions).
 The original 2026-10-05 inventory remains labelled measurement history.
 This stage changes documentation only.
 Milestone 12 precedes P3, with delivery planned by 2026-12-15.
-The #396 release campaigns run on the qualified redesigned image.
+The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaigns run on the qualified redesigned image.
 
 ## Contents
 
@@ -25,7 +25,7 @@ The #396 release campaigns run on the qualified redesigned image.
 ## Summary
 
 - **Recorded start:** 50,267 routed LUTs, 12,227 above 38,040.
-  The #645/#647 record already includes the third processor adoption.
+  The [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) record already includes the third processor adoption.
   Its +0.299/+0.031 ns setup/hold slacks meet the build gate.
 - **Default split:** ADP, ACMP, MAAP, SRP and AECP move to firmware.
   F1 supplies saved-state read, apply and write-back.
@@ -47,7 +47,7 @@ The #396 release campaigns run on the qualified redesigned image.
 
 | Item | Value |
 |---|---|
-| NFR-RES-01 ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
+| [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
 | Planning margin, D8 | At least 1 percent below the limit: <= 37,659 LUTs |
 | Timing | Shipping 50 MHz datapath; every build-gate corner WNS >= +0.030 ns and WHS >= 0 |
 | Gate comparison | With the current record, WNS >= +0.049 ns also preserves the 0.25 ns fall limit |
@@ -62,7 +62,7 @@ The [resource policy](AREA_BUDGET.md#the-resource-gate) remains unchanged.
 
 Source: [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json), all three `record` objects.
 Each `measured` note identifies `a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb`.
-That is #645/#647's measured merge of dev `6aa25dec`.
+That is [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647)'s measured merge of dev `6aa25dec`.
 It uses processor `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 Dev `5603c353137e90c1fa95429f6d00ef7a2298d9ee` carries those records unchanged.
 This names the stored baseline, not a measurement of `5603c353`.
@@ -135,9 +135,9 @@ The [historical inventory](#inventory) supplies functions, clauses and construct
 | `u_pp/u_dispatch` | 665 | 887 | 908 | Replaced routing; no separate credit |
 | `u_pp/u_trace` | 31 | 37 | 28 | Equivalent diagnostics retained; no credit |
 
-The #232 registry, #230 SRP storage and #639 rings/listener changes
+The [#232](https://github.com/kebag-logic/milan-fpga/issues/232) registry, [#230](https://github.com/kebag-logic/milan-fpga/issues/230) SRP storage and [#639](https://github.com/kebag-logic/milan-fpga/issues/639) rings/listener changes
 are already included; their savings cannot be subtracted again.
-#686 also changed MAAP, before #645/#647 refreshed the record.
+[#686](https://github.com/kebag-logic/milan-fpga/issues/686) also changed MAAP, before [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) refreshed the record.
 
 ## Baseline at dev `e6172750`
 
@@ -147,9 +147,10 @@ The tables in this section are not the Round 1b baseline.
 
 ### What changed since the gate's record
 
-The resource gate's record describes dev `54643724` ([area budget](AREA_BUDGET.md#the-resource-gate)).
-Since then dev changed one shipping-image input functionally: `KL_crf_rx.sv` now scores a locked CRF input's unbind as one MEDIA_UNLOCKED (#653).
-`KL_nvm_backend.sv` gained a named constant with no logic, `milan_datapath.sv` a comment, the builder a generation-time refusal (#652), and `syn/ooc/pp_baseline.py` the `--integrated-clock` option.
+At `e6172750`, the gate's record described dev `54643724`.
+The [budget](AREA_BUDGET.md#the-resource-gate) now holds a later record.
+Since then dev changed one shipping-image input functionally: [`KL_crf_rx.sv`](../../hdl/ieee1722/crf/KL_crf_rx.sv) now scores a locked CRF input's unbind as one MEDIA_UNLOCKED ([#653](https://github.com/kebag-logic/milan-fpga/issues/653)).
+[`KL_nvm_backend.sv`](../../hdl/milan/KL_nvm_backend.sv) gained a named constant with no logic, [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) a comment, the builder a generation-time refusal ([#652](https://github.com/kebag-logic/milan-fpga/issues/652)), and [`syn/ooc/pp_baseline.py`](../../syn/ooc/pp_baseline.py) the `--integrated-clock` option.
 No routed checkpoint of this tree existed on the host: the checkpoints there were processor-lane scratch parents and the in-flight second pin adoption.
 So the shipping image was routed again here with the [#234 recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md), and `KL_pp_shadow` was synthesized out of context at 1x1.
 
@@ -166,7 +167,8 @@ Against the gate's record the route exits 0 (`pp_resource_gate.py check --endpoi
 All four signoff corners meet the [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): the worst setup slack is +0.244 ns at the slow corners and the worst hold slack +0.036 ns at the fast corners.
 The wrapper moved by +147 LUTs although no wrapper source changed: optimization moving with an unrelated change, which the gate prints without gating ([budget](AREA_BUDGET.md#the-resource-gate)).
 The critical path starts at `u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[11]` and ends at `u_pp/u_tx_arbiter`: 39 logic levels and 19.443 ns, 73 percent of it routing, inside the processor.
-22 slices are free: placement, not LUTs, is the binding limit until this plan lands.
+At `e6172750`, 22 slices were free.
+Placement was the binding limit at that checkpoint.
 
 ### The routed hierarchy
 
@@ -273,37 +275,37 @@ The standalone synthesis attributes the wrapper in source terms, at the build's 
 | Processor top's own logic | `u_pp/@own` | 432 | 0 | 3,170 | 0 | 0 | 0 |
 | Control-frame FIFO (wrapper) | `ctl_fifo` | 79 | 0 | 33 | 1 | 1 | 0 |
 
-The run equals the gate's `ooc-1x1` record in every gated figure (`check --endpoint ooc-1x1` exits 0 with no movement): no wrapper input changed since dev `54643724`, and its sub-blocks match the #234 page's combination C.
+The run equals the gate's `ooc-1x1` record in every gated figure (`check --endpoint ooc-1x1` exits 0 with no movement): no wrapper input changed since dev `54643724`, and its sub-blocks match the [#234](https://github.com/kebag-logic/milan-fpga/issues/234) page's combination C.
 The historical routed wrapper was 0.988 of it (24,051 LUTs).
 Round 1b does not reuse that ratio as a calibration.
 The two hierarchies attribute differently: the AECP dynamic-state store is 152 LUTs here and 1,265 in the routed hierarchy, which places other AECP logic under its name.
 
 ### After the second pin adoption
 
-The second pin adoption (#661) moves the processor to `ead80360`, which carries #232, #230 and #639.
-Its lane published its measured image on 2026-10-05 ([REVIEW READY](https://github.com/kebag-logic/milan-fpga/issues/661#issuecomment-5990292142), head `42f65447`, on dev `506d91db`, which already carries #653).
+The second pin adoption ([#661](https://github.com/kebag-logic/milan-fpga/issues/661)) moves the processor to `ead80360`, which carries [#232](https://github.com/kebag-logic/milan-fpga/issues/232), [#230](https://github.com/kebag-logic/milan-fpga/issues/230) and [#639](https://github.com/kebag-logic/milan-fpga/issues/639).
+Its lane published its measured image on 2026-10-05 ([REVIEW READY](https://github.com/kebag-logic/milan-fpga/issues/661#issuecomment-5990292142), head `42f65447`, on dev `506d91db`, which already carries [#653](https://github.com/kebag-logic/milan-fpga/issues/653)).
 That evidence was under review when the original plan was written.
 The later adopted records are in the current baseline above.
 
 | Endpoint | LUT | FF | Slice | RAMB36 | WNS / WHS ns | Against the gate's record |
 |---|---:|---:|---:|---:|---:|---|
-| Route, second pin (#661) | 50,318 | 54,214 | 15,789 | 74 | +0.108 / +0.036 | -449 LUT, -5,420 FF, -43 slices, -5 RAMB36 |
+| Route, second pin ([#661](https://github.com/kebag-logic/milan-fpga/issues/661)) | 50,318 | 54,214 | 15,789 | 74 | +0.108 / +0.036 | -449 LUT, -5,420 FF, -43 slices, -5 RAMB36 |
 | Route, this head | 50,702 | 59,677 | 15,828 | 79 | +0.244 / +0.036 | -65 LUT, +43 FF, -4 slices |
-| Standalone 1x1, second pin (#661) | 23,178 | 19,776 | - | - | - | -1,154 LUT, -5,569 FF |
-| Standalone 8x8, second pin (#661) | 29,853 | 27,370 | - | - | - | -1,703 LUT, -6,567 FF |
+| Standalone 1x1, second pin ([#661](https://github.com/kebag-logic/milan-fpga/issues/661)) | 23,178 | 19,776 | - | - | - | -1,154 LUT, -5,569 FF |
+| Standalone 8x8, second pin ([#661](https://github.com/kebag-logic/milan-fpga/issues/661)) | 29,853 | 27,370 | - | - | - | -1,703 LUT, -6,567 FF |
 
 So the adoption moves the route by -384 LUTs against this head and leaves 61 slices free.
 The three area lanes' own routes, each measured against one base route with the C8, P2-P1 and C10 parent patches, explain most of it:
 
 | Change | Base route LUT / FF | Head route LUT / FF | LUT change | FF change | Other |
 |---|---:|---:|---:|---:|---|
-| Processor `main` before the area lanes, with the parent patches, against the gate's record | 50,767 / 59,634 | 51,434 / 59,691 | +667 | +57 | C7, C8, P1, P2, #143, C10 |
-| #232, notification registry in distributed RAM (processor PR #153) | 51,434 / 59,691 | 50,671 / 57,660 | -763 | -2,031 | `u_notify` -927 LUT |
-| #230, SRP timer FIFOs and walk storage (processor PR #154) | 51,434 / 59,691 | 51,005 / 57,262 | -429 | -2,429 | `u_srp` 4,340 to 3,711 LUT |
-| #639, timer-arm rings and listener records (processor PR #155) | 51,434 / 59,691 | 51,152 / 58,598 | -282 | -1,093 | RAMB36 79 to 74 |
+| Processor `main` before the area lanes, with the parent patches, against the gate's record | 50,767 / 59,634 | 51,434 / 59,691 | +667 | +57 | C7, C8, P1, P2, [#143](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/143), C10 |
+| [#232](https://github.com/kebag-logic/milan-fpga/issues/232), notification registry in distributed RAM (processor PR [#153](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/153)) | 51,434 / 59,691 | 50,671 / 57,660 | -763 | -2,031 | `u_notify` -927 LUT |
+| [#230](https://github.com/kebag-logic/milan-fpga/issues/230), SRP timer FIFOs and walk storage (processor PR [#154](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/154)) | 51,434 / 59,691 | 51,005 / 57,262 | -429 | -2,429 | `u_srp` 4,340 to 3,711 LUT |
+| [#639](https://github.com/kebag-logic/milan-fpga/issues/639), timer-arm rings and listener records (processor PR [#155](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/155)) | 51,434 / 59,691 | 51,152 / 58,598 | -282 | -1,093 | RAMB36 79 to 74 |
 | The three added, as a projection | | 49,960 / 54,138 | -807 against the record | | |
 
-The measured adoption is 358 LUTs and 76 FFs above that projection: the lanes' deltas do not add exactly, and processor PRs #152 (tests) and #157 (one GET_DYNAMIC_INFO classifier hunk) were in none of those routes.
+The measured adoption is 358 LUTs and 76 FFs above that projection: the lanes' deltas do not add exactly, and processor PRs [#152](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/152) (tests) and [#157](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/157) (one GET_DYNAMIC_INFO classifier hunk) were in none of those routes.
 The original ledger started from 50,318.
 The [current ledger](#ledger) starts from the committed 50,267 record.
 
@@ -325,15 +327,15 @@ Clauses are IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q-2018, IEEE 802.1AS-201
 |---|---:|---:|---|---|---|---|
 | `milan_datapath` | 42,138 | 48,474 | the whole fabric endpoint below the SoC: the protocol processor, the gPTP plane, AVTP/AAF/CRF media, the CSR plane | one module with the blocks below and its own per-stream registers | see the blocks | see the blocks |
 | `milan_datapath/pp_shadow` | 24,051 | 24,263 | The ATDECC entity: ADP, ACMP, AECP, SRP, the saved-state backend (1722.1 clauses 6 to 9; Milan v1.2 Sections 4.2.7 and 5) | `KL_pp_shadow` around `protocol_processor_top`, the NVM backend and the control-frame FIFO | the protocols and their state | one engine per protocol, contexts per stream |
-| `.../pp_shadow/u_pp` | 23,480 | 23,433 | `protocol_processor_top`: every engine below, the packet engine and the timer-arm queues | one engine per protocol around a shared RX parser, TX slot pool and timer service | the protocols | one engine per protocol; its own logic holds the timer-arm queues in flip-flops at this head (#639 moves them to distributed RAM) |
+| `.../pp_shadow/u_pp` | 23,480 | 23,433 | `protocol_processor_top`: every engine below, the packet engine and the timer-arm queues | one engine per protocol around a shared RX parser, TX slot pool and timer service | the protocols | one engine per protocol; its own logic holds the timer-arm queues in flip-flops at this head ([#639](https://github.com/kebag-logic/milan-fpga/issues/639) moves them to distributed RAM) |
 | `.../u_pp/u_aecp` | 7,451 | 3,500 | AECP AEM commands and responses (1722.1 clauses 7.4 and 9; Milan v1.2 Section 5.4) | a dispatch cone, the micro-coded engine, the dynamic-state store, the descriptor store over DRAM, the saved-state writer and the response-buffer DMA | the served command set, the response formats, the dynamic state Milan lets a controller set | the dispatch decode in logic, dynamic state in flip-flops |
 | `.../u_aecp/@own` | 1,798 | 1,099 | command dispatch and AECPDU framing | a pop-time opcode decode feeding the microcode address, operand staging and the TX slot writer | the opcode set and PDU layout | the decode as a logic cone rather than a dispatch ROM |
 | `.../u_aecp/u_ucpu` | 1,720 | 495 | executes every AEM command's microprogram | four-stage pipeline, 16 x 64 operand file in distributed RAM, 2,048 x 48 microcode in three RAMB36 | none | the engine itself: it is the time-multiplexed form L1 extends |
 | `.../u_aecp/u_d3` | 1,405 | 485 | saving and restoring the non-binding dynamic state (Milan v1.2 Sections 5.3.5.1, 5.3.7.1, 5.3.8.1, 5.3.11.1) | a hardwired record writer per group with debounce, framing and restore transaction | which values survive power loss | a second record manager beside the binding manager, hardwired |
 | `.../u_aecp/u_dyn` | 1,265 | 467 | the settable dynamic state (Milan v1.2 Sections 5.3.5, 5.3.7, 5.3.8, 5.3.11, 5.3.12) | flip-flop fields behind a read multiplexer addressed by field | the set of values and their widths | flip-flops rather than a RAM table |
 | `.../u_aecp/u_store` | 974 | 694 | READ_DESCRIPTOR and the name table (1722.1 Section 7.4.5; Milan v1.2 Section 5.3.13) | index map in distributed RAM, line and names in block RAM, a DRAM read master | the descriptors and names served | the image in DRAM, the index in distributed RAM |
-| `.../u_pp/u_notify` | 3,118 | 3,299 | registered controllers, the entity lock and unsolicited notifications (Milan v1.2 Sections 5.3.4.1, 5.3.4.2, 5.4.5; 1722.1 Sections 7.4.2, 7.4.37, 7.4.38) | at this head, a 16 x 128-bit registry in flip-flops with 16 parallel identity compares, pending-class vectors per controller, throttle stamps (#232 moves the registry to distributed RAM) | at least 16 controllers, each with its own sequence ID; 60 s lock | parallel compares and flop storage |
-| `.../u_pp/u_listener` | 1,414 | 1,110 | the ACMP listener state machine (Milan v1.2 Section 5.5.3; 1722.1 clause 8) | already one event-at-a-time executor over per-sink records, a ROM transition matrix and hardwired action primitives, records in five RAMB36 at this head (#639 moves them to distributed RAM) | the state machine and the ACMPDU | hardwired actions and a 376-bit record |
+| `.../u_pp/u_notify` | 3,118 | 3,299 | registered controllers, the entity lock and unsolicited notifications (Milan v1.2 Sections 5.3.4.1, 5.3.4.2, 5.4.5; 1722.1 Sections 7.4.2, 7.4.37, 7.4.38) | at this head, a 16 x 128-bit registry in flip-flops with 16 parallel identity compares, pending-class vectors per controller, throttle stamps ([#232](https://github.com/kebag-logic/milan-fpga/issues/232) moves the registry to distributed RAM) | at least 16 controllers, each with its own sequence ID; 60 s lock | parallel compares and flop storage |
+| `.../u_pp/u_listener` | 1,414 | 1,110 | the ACMP listener state machine (Milan v1.2 Section 5.5.3; 1722.1 clause 8) | already one event-at-a-time executor over per-sink records, a ROM transition matrix and hardwired action primitives, records in five RAMB36 at this head ([#639](https://github.com/kebag-logic/milan-fpga/issues/639) moves them to distributed RAM) | the state machine and the ACMPDU | hardwired actions and a 376-bit record |
 | `.../u_pp/u_talker` | 689 | 517 | the stateless ACMP talker responder and the destination-MAC gate (Milan v1.2 Sections 5.5.2.7, 5.5.4) | response logic and one gate per source | the four responses | per-source gate replication |
 | `.../u_pp/u_timer` | 884 | 179 | every protocol timer: MRP, ACMP and AECP timeouts, ADP valid time, the lock | prescalers, a millisecond timebase, a 61-slot deadline RAM swept one slot per cycle | the timers and their values | per-slot armed flip-flops and wide modular compares |
 | `.../u_pp/u_dispatch` | 775 | 635 | per-protocol command queues between the parser and the engines | four queues of wide transaction records in distributed RAM (depths 4, 4, 4, 2) | none | one queue per protocol |
@@ -342,10 +344,10 @@ Clauses are IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q-2018, IEEE 802.1AS-201
 | `.../u_pp/u_rx_validator` | 543 | 751 | the shared receive front end: address and EtherType gates, subtype demux, common-header extraction, the MRP bypass | a beat-wise parser | the address, EtherType and header rules | one parser for every protocol, already shared |
 | `.../u_pp/u_srp` | 4,219 | 6,264 | the MSRP and MVRP participant (802.1Q-2018 clauses 10, 11, 35; Milan v1.2 Section 4.2.7) | stream FSMs per context, a vector decoder, an encoder with pending tables, admission, VLAN and Domain | one applicant and registrar per declared attribute, the exact three-field match, the MRP timers | every context evaluated in parallel every cycle |
 | `.../u_srp/u_encoder` | 1,320 | 1,062 | MRPDU vector encoding, one MRPDU per application per join tick (802.1Q-2018 Sections 10.8, 35.2.2) | two pending tables in distributed RAM, run detection, three- and four-packed coding | the PDU format and the aggregation rule | table storage and parallel run compares |
-| `.../u_srp/@own` | 862 | 2,792 | SRP glue: the event merge, the service port and the timer-arm FIFOs | at this head the two FIFOs are one flop array (#230 moves them to distributed RAM) | none | the FIFO storage |
+| `.../u_srp/@own` | 862 | 2,792 | SRP glue: the event merge, the service port and the timer-arm FIFOs | at this head the two FIFOs are one flop array ([#230](https://github.com/kebag-logic/milan-fpga/issues/230) moves them to distributed RAM) | none | the FIFO storage |
 | `.../u_srp/u_talker` | 612 | 672 | the talker-side applicant and registrar per source (802.1Q-2018 Tables 10-3, 10-4; Milan v1.2 Section 4.2.7.2.2) | one FSM pair per context, evaluated in parallel | the state machines | parallel evaluation per context |
 | `.../u_srp/u_decoder` | 584 | 630 | MRPDU vector decoding and its malformed-PDU tolerance (802.1Q-2018 Section 10.8.1.2; Milan v1.2 Section 4.2.7.1) | a byte-serial walker emitting one value per cycle | the PDU grammar | none of note |
-| `.../pp_shadow/u_nvm` | 504 | 476 | the saved-state backend (#70) | record framing and the KLJ2 container over the NVM port | which state is saved | a fabric backend |
+| `.../pp_shadow/u_nvm` | 504 | 476 | the saved-state backend ([#70](https://github.com/kebag-logic/milan-fpga/issues/70)) | record framing and the KLJ2 container over the NVM port | which state is saved | a fabric backend |
 
 **The rest of the datapath**
 
@@ -411,8 +413,8 @@ The ledger shows disjoint removal references and all cost allowances.
 The measured mailbox skeleton costs 3,102 LUTs and six BRAM tiles.
 F0-F4 code is present at the assigned dev revision.
 Presence does not establish integrated, bench-qualified operation.
-`milan_soc.py` still holds the mailbox datapath side idle.
-`milan_datapath.sv` still instantiates `KL_pp_shadow` unconditionally.
+[`milan_soc.py`](../../sw/litex/milan_soc.py) still holds the mailbox datapath side idle.
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) still instantiates `KL_pp_shadow` unconditionally.
 Consequently, enabling `--ctrl-mailbox` alone saves no processor logic.
 
 **What leaves after qualification:** the selected protocol engines, their
@@ -446,7 +448,7 @@ M2 now covers only SoC FIFO/table storage outside other lanes.
 **Saving:** 200 LUTs (100-400), reduced from the original 800.
 The old inventory included processor tables removed by L2.
 gPTP belongs to M7; media context tables belong to M6.
-The historical RAM census and #639 exchange bound this estimate.
+The historical RAM census and [#639](https://github.com/kebag-logic/milan-fpga/issues/639) exchange bound this estimate.
 Budget up to two extra tiles, subject to measured primitive counts.
 
 **Risk: medium.** Same-cycle reads may prevent block RAM inference.
@@ -460,7 +462,7 @@ Wire IDs, addresses, sequence numbers and counters retain standard widths.
 Only implementation indices can narrow from the generated entity shape.
 The historical 200-LUT estimate is included in M3's residual.
 It receives zero default-split credit.
-#233 already found shipping stream geometry fully derived.
+[#233](https://github.com/kebag-logic/milan-fpga/issues/233) already found shipping stream geometry fully derived.
 
 **Risk: low. Verification:** boundary indices, all supported shapes,
 refusals and owning suites; unchanged wire bytes.
@@ -502,7 +504,7 @@ MRP timers and bench protocol checks under D3.
 
 M5 restructures the existing live-status read mux and snapshots.
 **Saving:** 600 LUTs (400-1,000), from the historical 2,907-LUT block
-and #649's 2,893 fixed plus 211-per-stream OOC model.
+and [#649](https://github.com/kebag-logic/milan-fpga/issues/649)'s 2,893 fixed plus 211-per-stream OOC model.
 New split-interface logic is charged to L2, not saved again here.
 
 **Risk: medium.** Snapshot coherence and AXI-Lite latency must hold.
@@ -514,7 +516,7 @@ Register addresses, widths and reset values remain unchanged by M5.
 
 M6 owns listener/talker counters, channel-map capture and render set-point.
 **Saving:** 600 LUTs (400-900), from the historical routed inventory
-and #649's per-stream OOC marginals of 208, 317 and 205.
+and [#649](https://github.com/kebag-logic/milan-fpga/issues/649)'s per-stream OOC marginals of 208, 317 and 205.
 These datapath functions remain fabric-owned in the split.
 
 **Risk: medium.** Read-modify-write hazards can break coherent counters.
@@ -533,18 +535,18 @@ F5 already removes the AECP engine in the split.
 
 **Risk:** medium for tables; high for shared execution and turnaround.
 **Verification:** gPTP processor suites, `gptp_plane`, `gptp_shadow`,
-`gptp_txts`, `milan_dp_gptp`, timestamp/CDC checks and #117 bench evidence.
+`gptp_txts`, `milan_dp_gptp`, timestamp/CDC checks and [#117](https://github.com/kebag-logic/milan-fpga/issues/117) bench evidence.
 M10 additionally proves arbitration and worst-case gPTP turnaround.
 Audio and gPTP deadlines remain independent of firmware service.
 
 ### L11 The SoC side
 
 D4 approves on-chip main memory instead of DDR3.
-M8a sizes #70/F1 staging to the selected shape's container.
+M8a sizes [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging to the selected shape's container.
 **Saving:** 1,000 LUTs (400-1,500), repriced in Round 1c.
 The [historical census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) reports pre-packing LUT cells.
 Its controller has 823; its PHY has 873.
-Those 1,696 cells are not 1,696 packed LUT sites.
+The 1,696 cells do not identify packed LUT sites.
 Another 3,231 anonymous LUT cells have no assigned owner.
 Their DDR share is unknown and receives zero credit.
 
@@ -567,7 +569,8 @@ M0s and M9 retain independent primitive and memory-capacity checks.
 The lane owns its memory-map migration and both placement contracts.
 
 D5 conditionally approves a smaller cacheless RV32I control hart.
-**Saving:** 1,700 LUTs (1,300-2,200), including 300-600 retained bridge LUTs.
+**Saving:** 1,700 LUTs (1,300-2,200).
+This includes 300-600 retained bridge LUTs.
 The original same-part `AreaOptimized_high` OOC pricing was:
 
 | Core/netlist | LUT | FF | BRAM tiles |
@@ -578,14 +581,15 @@ The original same-part `AreaOptimized_high` OOC pricing was:
 
 These are isolated netlists, not integrated replacement measurements.
 **Risk: high.** CPU service and on-chip capacity can invalidate estimates.
-Prove 8x8 capture <= 24.5 ms with `check_nvm_capture.py`.
+Prove 8x8 capture <= 24.5 ms with [`check_nvm_capture.py`](../../scripts/check_nvm_capture.py).
 Keep boot timing and recheck service under filtered SRP churn.
 A smaller core failing those conditions is reverted.
 
-**Verification:** firmware host tests, `nvm_cosim`, `nvm_capture_cpu`,
-builder/deploy gates, target service hooks and bench boot/persistence.
+**Verification:** firmware host tests, `nvm_cosim` and `nvm_capture_cpu`.
+Also run builder/deploy gates and target service hooks.
+Repeat bench boot and persistence checks.
 The all-fabric option still needs its response and staging memory.
-Neither the 8x8 shape nor F5's memory may be assumed fitting.
+Neither 8x8 nor F5 memory fit is established.
 
 ### L12 Functional prunes excluded
 
@@ -616,15 +620,15 @@ Only the full qualified split receives the complete credit.
 | NVM port and arbiter | 542 | F1 |
 | Wrapper NVM backend | 581 | F1 |
 | **Disjoint wrapper subtotal** | **17,678** | Does not credit remaining wrapper logic |
-| Parent MAAP | **429** | F2; measured #686 route reference |
+| Parent MAAP | **429** | F2; measured [#686](https://github.com/kebag-logic/milan-fpga/issues/686) route reference |
 | **Gross reference** | **18,107** | Mixed measurement contexts, not a routed delta |
 
 MAAP's 429-LUT reference is recorded in [AREA_BUDGET](AREA_BUDGET.md#the-resource-gate).
-It predates #645/#647; its uncertainty is included below.
-The standalone processor's own MAAP is excluded: shipping uses parent MAAP.
+It predates [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647); its uncertainty is included below.
+Processor MAAP is excluded; shipping uses parent MAAP.
 Removing source instances does not guarantee their attributed routed saving.
-For example, AECP is 8,084 routed but 6,150 standalone.
-Its dynamic child is 1,440 routed but only 134 standalone.
+AECP measures 8,084 routed and 6,150 standalone.
+Its dynamic child measures 1,440 routed and 134 standalone.
 The larger routed figures are deliberately not removal credits.
 
 | Added or retained cost | Central LUT debit | Basis |
@@ -633,29 +637,30 @@ The larger routed figures are deliberately not removal credits.
 | Remaining integration and retained interfaces | 1,000 | Estimate, 500-2,000: ingress/egress CDC, media settings/licences, admission enforcement, coherent counter/status faces and retained diagnostics |
 | Mapping allowance | 0 | Estimate +/- 1,500 for source attribution, changed CPU region decode and integrated optimization |
 
-The 1,000-LUT allowance includes the 345-LUT standalone SRP admission reference.
+The allowance includes SRP admission: 345 LUTs standalone.
 It also includes the owner's 200-400-LUT control-register estimate.
 Those are not independently subtracted elsewhere.
-Mailbox timers, filter, rings and TX arbitration already cost 3,102.
+Mailbox timers, filter, rings and arbitration already cost 3,102.
 No second cost is added for those same blocks.
-No LUT saving is credited for shared timers, trace, pools or dispatch.
-The other 5,501 standalone wrapper LUTs receive no removal credit.
-That residual also includes processor MAAP, absent from the shipping image.
+Shared timers, trace, pools and dispatch receive no saving credit.
+The remaining 5,501 wrapper LUTs receive no removal credit.
+That residual includes processor MAAP, absent from shipping.
 It is not a guaranteed reserve or an additional saving.
 
 Central arithmetic: `18,107 - 3,102 - 1,000 = 14,005`.
 Round down to **14,000 LUTs saved**.
 Conservative arithmetic: `18,107 - 3,102 - 2,000 - 1,500 = 11,505`.
 Optimistic arithmetic: `18,107 - 3,102 - 500 + 1,500 = 16,005`.
-Use the rounded planning range **11,500-16,000**, not measured savings.
-The old 6,800-7,300 estimate covered fewer functions and cheaper mailboxes.
+Use **11,500-16,000** as the rounded planning range.
+The old 6,800-7,300 estimate covered fewer functions.
+It assumed cheaper mailboxes.
 It is superseded, not added to this estimate.
 
-The credited source rows release 6.5 BRAM tiles before replacement.
-The mailbox skeleton needs six, leaving only 0.5 net tiles credited.
-Do not spend the wrapper's full 17.5 tiles before proving removal.
-F5's image, state and firmware memory need their own capacity census.
-M8 must fit that census within the unchanged 121.5-tile ceiling.
+Credited source rows release 6.5 BRAM tiles before replacement.
+The mailbox needs six; net credit is 0.5 tiles.
+The wrapper's full 17.5 tiles require proven removal.
+F5 needs an image, state and firmware memory census.
+M8 must fit within the unchanged 121.5-tile ceiling.
 The full route, primitive counts and service timing remain unmeasured.
 
 ### Remaining levers without overlap
@@ -671,18 +676,25 @@ The full route, primitive counts and service timing remain unmeasured.
 | M8b / L11b | 1,700 (1,300-2,200) | Core OOC comparison in L11; conditional on capture, boot and split service under load |
 | M10 / L10b | 0 | F5 removes fabric AECP's engine; sharing it cannot save twice |
 
-M3 remains a priced fabric-AECP lane, approximately 2,600 LUTs (1,500-3,600).
-Its basis is 60 percent of notification's 2,125 LUTs,
-70 percent of D3's 1,703 and dynamic state's 134,
-50 percent of AECP own logic's 1,302,
-and 40 percent of the AECP dispatch queue's 421.
-That displaces about 3,380 LUTs before about 1,000 engine/arbitration LUTs.
-Approximately 200 LUTs of residual width work bring it near 2,600.
+M3 remains a priced fabric-AECP lane.
+Its estimate is 2,600 LUTs (1,500-3,600).
+Its basis uses these shares:
+
+| Scope | LUT basis | Share |
+|---|---:|---:|
+| Notification | 2,125 | 60 percent |
+| D3 and dynamic state | 1,703 + 134 | 70 percent |
+| AECP own logic | 1,302 | 50 percent |
+| AECP dispatch queue | 421 | 40 percent |
+That displaces about 3,380 LUTs.
+Engine and arbitration overhead costs about 1,000 LUTs.
+Residual width work adds approximately 200 LUTs.
+That brings the saving near 2,600.
 This is a prototype target for retained fabric AECP only.
 M10 remains planned there at 1,200 LUTs (900-1,500).
-Its 1,727-LUT routed AECP engine bounds the historical sharing estimate.
-M3 must preserve that engine before M10 claims its separate removal.
-If M3 consumes it instead, M10 must be repriced to zero.
+The routed AECP engine bounds sharing: 1,727 LUTs.
+M3 must preserve that engine for M10 to remove.
+If M3 consumes it, reprice M10 to zero.
 Neither lane receives credit in the default-split total.
 
 ### Cumulative default-image estimates
@@ -703,10 +715,12 @@ Ranges describe all-low or all-high savings, not statistical confidence.
 | 8 | M3 and M10 | 0 | 31,667 | 35,867 | 27,567 |
 | 9 | M9 | No assumed saving | Measure | Measure | Measure |
 
-Central headroom is 6,373 LUTs below 38,040, or 16.75 percent.
+Central headroom below 38,040 is 6,373 LUTs.
+That is 16.75 percent.
 The conservative estimate leaves 2,173, or 5.71 percent.
 Both exceed D8's 1 percent planning margin.
-Without M8b, the conservative image is 37,167 and still clears it.
+Without M8b, the conservative image is 37,167.
+It still clears the margin.
 Timing cannot be inferred from these LUT calculations.
 
 ### No-split and partial-flip estimates
@@ -714,16 +728,18 @@ Timing cannot be inferred from these LUT calculations.
 All scenarios retain required function, diagnostics and D7 policy.
 Each assumes its credited levers qualify independently, including conditional M8b.
 M3 must preserve a separate AECP engine for M10.
-Their combined credit is 3,800 LUTs centrally, range 2,400-5,100.
+Their combined central credit is 3,800 LUTs.
+The range is 2,400-5,100.
 They receive no credit in the complete split.
 
-**No split:** M2/M5/M6/M7/M8a/M8b alone leave 45,667 LUTs centrally.
+**No split:** apply M2/M5/M6/M7/M8a/M8b first.
+Those levers alone leave 45,667 LUTs centrally.
 Adding M3 and M10 gives **41,867 LUTs**.
 No F-lane removal or mailbox replacement is counted here.
 
 **Partial flip:** F0-F4 qualify; F5 remains unqualified.
 AECP, notification, originator and their NVM path remain in fabric.
-That retains 10,095 LUTs of the complete split's source basis:
+That retains 10,095 LUTs from the full-split basis:
 `6,150 + 2,125 + 697 + 542 + 581 = 10,095`.
 F1/F3 owns moved binding persistence; fabric retains AECP persistence.
 Each field still has one owner; integration must prove arbitration.
@@ -731,7 +747,8 @@ The ACMP binding store's 808-LUT removal is conditional on this.
 
 The disjoint removal basis is **8,012 LUTs**:
 `523 + 1,561 + 823 + 808 + 3,868 + 429 = 8,012`.
-Debit the complete 3,102-LUT mailbox; do not assume fewer rings.
+Debit the complete 3,102-LUT mailbox.
+Do not assume fewer rings.
 Use the complete split's integration and mapping allowances unchanged.
 Retained shared timers, pools and dispatch receive no removal credit.
 
@@ -741,8 +758,9 @@ Retained shared timers, pools and dispatch receive no removal credit.
 | Central | `8,012 - 3,102 - 1,000` | 3,910 |
 | Optimistic | `8,012 - 3,102 - 500 + 1,500` | 5,910 |
 
-The remaining M2/M5/M6/M7/M8a/M8b savings are 4,600 centrally.
-Their conservative and optimistic sums are 2,900 and 6,700.
+The remaining lanes are M2/M5/M6/M7/M8a/M8b.
+Their central saving totals 4,600 LUTs.
+Conservative savings total 2,900; optimistic savings total 6,700.
 The partial scenario also credits M3/M10's retained-AECP work.
 Thus: `50,267 - 3,910 - 4,600 - 3,800 = 37,957`.
 Neither this arithmetic nor its range establishes measured savings.
@@ -765,12 +783,14 @@ The two bars remain distinct; timing qualification remains mandatory.
 
 The full split clears both bars in all three estimates.
 The no-split cases all miss both bars, including M3/M10.
-The partial central case clears 38,040 but misses 37,659.
+Partial central clears 38,040 but misses 37,659.
 Its conservative case misses both; its optimistic case clears both.
-Without M8b, partial central rises to 39,657 and misses both.
+Without M8b, partial central rises to 39,657.
+It misses both bars.
 
-No-split needs 3,827 further LUTs centrally for NFR-RES-01.
-It needs 4,208 for D8; conservative gaps are tabled above.
+No-split needs 3,827 further LUTs centrally for [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest).
+D8 requires 4,208 further LUTs.
+Conservative gaps are tabled above.
 The partial central case needs 298 further LUTs for D8.
 Its conservative case needs 5,898 to clear both bars.
 Qualifying F5 supplies the priced route to the full-split scenario.
@@ -778,13 +798,13 @@ When switching scenarios, remove M3/M10 credit to avoid overlap.
 If F5 cannot qualify, the manager must commission additional redesign.
 The week-4 ruling names its measured target and revised schedule.
 No additional lever has earned credit in these fallback totals.
-A D8 margin exception alone cannot cure an NFR-RES-01 miss.
+A D8 margin exception alone cannot cure an [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) miss.
 It also needs an explicit ruling; no exception is assumed.
 
 ## Lane sequence
 
 All parent lanes start from the third adoption, processor `2ad2f845`.
-The earlier #661 dependency is satisfied on dev `5603c353`.
+The earlier [#661](https://github.com/kebag-logic/milan-fpga/issues/661) dependency is satisfied on dev `5603c353`.
 Weeks count from 2026-10-12; 2026-12-15 is week 10.
 This is a schedule estimate, conditional on split qualification.
 Each implementation needs its own settled public scope and review.
@@ -793,21 +813,21 @@ Measurements queue serially; no Vivado overlaps another heavy build.
 
 | Order / window | Lane | Scope and files | Dependency | Estimated default saving | Required evidence and risk |
 |---|---|---|---|---:|---|
-| 0, complete | M0 | Adopted processor pin and current three-endpoint record | #661, #682, #686, #645/#647 present at assigned dev | Already in 50,267 | Reuse committed record; do not subtract old lane deltas |
+| 0, complete | M0 | Adopted processor pin and current three-endpoint record | [#661](https://github.com/kebag-logic/milan-fpga/issues/661), [#682](https://github.com/kebag-logic/milan-fpga/issues/682), [#686](https://github.com/kebag-logic/milan-fpga/issues/686), [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) present at assigned dev | Already in 50,267 | Reuse committed record; do not subtract old lane deltas |
 | 0s, now through week 3 | M0s | Manager resource bench: split-aware recipe and gate coverage, then two selected-placement routes | First: integrated F0-F4 with fabric AECP; second: F5 merged; both before week 4 and default flip | No assumed saving | Reviewed measurement support; whole-image metrics, timing and D7 comparison; preserve all-fabric references |
-| 1, weeks 1-6 | F0-F5 / L2 | `sw/firmware/ctrl/`, `sw/firmware/ctrl_nvm/`, mailbox contract and parent integration; complete F5 and connect the datapath | Approved #664 text; F0-F4 foundations present; both M0s measurements and F2-F5 suites/bench before default flip | 14,000 (11,500-16,000) | Highest risk: exact ownership, full service/wire bounds, all streams/counters and soak; no full credit for a partial flip |
-| 2, weeks 1-4 | M2 | SoC FIFO/table storage in `sw/litex/milan_soc.py`; exclude processor, media and gPTP arrays | Adopted pin; settled split interface allocation; measure final split for default credit | 200 (100-400) | RAM inference and per-array lockstep; primitive growth still judged by gate |
-| 3, weeks 2-6 | M5 | Existing read mux and snapshots in `hdl/common/csr/milan_csr.sv` | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
-| 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under `hdl/ieee1722/` | Adopted pin; fabric media ownership fixed by #664 | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
+| 1, weeks 1-6 | F0-F5 / L2 | [`sw/firmware/ctrl/`](../../sw/firmware/ctrl/), [`sw/firmware/ctrl_nvm/`](../../sw/firmware/ctrl_nvm/), mailbox contract and parent integration; complete F5 and connect the datapath | Approved [#664](https://github.com/kebag-logic/milan-fpga/issues/664) text; F0-F4 foundations present; both M0s measurements and F2-F5 suites/bench before default flip | 14,000 (11,500-16,000) | Highest risk: exact ownership, full service/wire bounds, all streams/counters and soak; no full credit for a partial flip |
+| 2, weeks 1-4 | M2 | SoC FIFO/table storage in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py); exclude processor, media and gPTP arrays | Adopted pin; settled split interface allocation; measure final split for default credit | 200 (100-400) | RAM inference and per-array lockstep; primitive growth still judged by gate |
+| 3, weeks 2-6 | M5 | Existing read mux and snapshots in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
+| 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under [`hdl/ieee1722/`](../../hdl/ieee1722/) | Adopted pin; fabric media ownership fixed by [#664](https://github.com/kebag-logic/milan-fpga/issues/664) | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
 | 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
-| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and #70/F1 staging | D4 approved; D5 conditional; measure linked F5 storage and split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
+| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; measure linked F5 storage and split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
 | 7, decision at week 4; weeks 4-8 | M3 | Retained fabric AECP dispatch, notification, D3 and entity widths in processor | D1/D3 approved; ACMP/ADP portion replaced; schedule residual only for a selected fabric-AECP image | **0**; fabric-only opportunity 2,600 (1,500-3,600) | PDU/port equivalence and complete processor/consumer bank; no F5 overlap |
 | 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200 (900-1,500) | Sharing turnaround proof; removed AECP cannot be saved twice |
 | 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane deltas known; required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |
 
 M1 is dropped by D2; M4 is replaced by F4.
 M3/M10's listed order is for any retained fabric-AECP work.
-It does not make them blockers for a fully qualified split.
+They do not block a fully qualified split.
 Their zero default contribution follows from F5's ownership change.
 The manager assigns those implementation lanes against their chosen placement.
 
@@ -850,7 +870,7 @@ It precedes both split routes, the checkpoint and default flip.
 Name each measured placement and retain comparable whole-image metrics.
 Preserve tool/flow identities, route completion, primitive counts and timing.
 Retain the all-fabric shipping endpoint and standalone 1x1/8x8 references.
-Each later lane records its selected route and both standalone references.
+Later lanes record selected routes and both standalone references.
 M9 consumes M0s coverage for final qualification and re-recording.
 No gate, schema or policy implementation changes occur here.
 
@@ -874,8 +894,8 @@ No gate, schema or policy implementation changes occur here.
   M9 re-records at the LUT target with timing met.
   The BRAM reserve, tolerances and floors are unchanged.
   RAM conversions may exceed zero primitive-growth tolerances before M9.
-  Such a result is a reported regression requiring explicit disposition,
-  never a claimed pass or permission to raise the threshold.
+  Report that regression for explicit disposition.
+  It authorizes neither a pass nor raised thresholds.
 - **Bounded timing.** D3 requires deterministic internal service bounds.
   Normative deadlines retain margin and ordering remains independent.
   The 10 ms project budget cannot replace a wire deadline.
@@ -887,11 +907,12 @@ No gate, schema or policy implementation changes occur here.
 - **Release proof.** Validate the exact integrated route at shipping clocks.
   Run the required build gates, suites and campaigns after adoption.
   Qualify placement on the bench before changing defaults.
-  P3/#396 then runs on the qualified redesigned image.
+  P3/[#396](https://github.com/kebag-logic/milan-fpga/issues/396) then runs on the qualified redesigned image.
 
 ## Recorded decisions
 
-Round 1b follows the [assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6080904058).
+Round 1b followed the [assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6080904058).
+Round 1c follows its [measurement and review ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081534590).
 Later decisions below supersede earlier alternatives explicitly.
 They authorize future implementation lanes, not RTL changes here.
 
@@ -920,7 +941,7 @@ The last decision replaces M3's ACMP/ADP portion and M4 with F0-F5.
 M2, M5, M6, M7 and M8 remain area lanes.
 Functions change shipping placement only after suites and bench qualification.
 Unqualified functions retain fabric ownership.
-The #396 release campaigns then run on the qualified split image.
+The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaigns then run on the qualified split image.
 
 The [approved #664 text](https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6015500032) is now merged.
 [Product ownership](../../REQUIREMENTS.md#1-product-ownership) and [NFR-SCOUT-02/03](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) govern implementation.
@@ -933,15 +954,16 @@ See the [version landing contract](../ARCHITECTURE_HW_SW_SPLIT.md#7-version-and-
 ## Method and receipts
 
 The receipts below are the original 2026-10-05 measurements.
-Round 1b only reads committed records; it runs no Vivado.
+Rounds 1b and 1c use committed records without new synthesis.
 Current recipe provenance is in the current baseline above.
 
-**Tools and recipe.** Vivado 2026.1 build 6511674 for `xc7a100t-fgg484-2`, the [#234 recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) unchanged: the shipping `endstation_ax7101_1x1_tdm8` export without `--build`, `pp_baseline.py` for the integrated script, `AreaOptimized_high` synthesis, `ExploreArea` optimization, `ExtraPostPlacementOpt` placement, `AggressiveExplore` physical optimization and routing, 32 threads, the default seed; the standalone wrapper with `--integrated-clock` (20 ns).
+**Tools and recipe.** Vivado 2026.1 build 6511674 for `xc7a100t-fgg484-2`, the [#234 recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) unchanged: the shipping `endstation_ax7101_1x1_tdm8` export without `--build`, [`pp_baseline.py`](../../syn/ooc/pp_baseline.py) for the integrated script, `AreaOptimized_high` synthesis, `ExploreArea` optimization, `ExtraPostPlacementOpt` placement, `AggressiveExplore` physical optimization and routing, 32 threads, the default seed; the standalone wrapper with `--integrated-clock` (20 ns).
 Each historical Vivado run held the shared lock.
 Future runs must also exclude competing heavy builds.
 
-**Mapping a head the gate does not describe.** `syn/resmap/resmap_map.py map` ties the route map to a recorded `route-1x1` endpoint, and the gate's record describes dev `54643724`, not this head.
-The map was therefore tied to a scratch copy of `syn/ooc/pp_resource_baseline.json` into which this route was recorded with `pp_resource_gate.py record --write --baseline <copy>`; the tracked baseline is unchanged.
+**Historical mapping at `e6172750`.** The gate then described dev `54643724`.
+The [mapper](../../syn/resmap/resmap_map.py) required a matching recorded endpoint.
+The map was therefore tied to a scratch copy of [`syn/ooc/pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json) into which this route was recorded with `pp_resource_gate.py record --write --baseline <copy>`; the tracked baseline is unchanged.
 A Mark II lane maps its own route the same way:
 
 ```sh
@@ -959,10 +981,10 @@ python3 syn/resmap/resmap_map.py map "$WORK/route-map" --baseline "$WORK/scratch
 
 | Run | rc | Minutes | Log | Log SHA-256, first 16 | Log bytes |
 |---|---:|---:|---|---|---:|
-| Shipping export, `milan_soc.py` without `--build` | 0 | about 2 | `ax7101-elaboration.log` | `437f11cf5ddd1ce4` | 60,087 |
+| Shipping export, [`milan_soc.py`](../../sw/litex/milan_soc.py) without `--build` | 0 | about 2 | `ax7101-elaboration.log` | `437f11cf5ddd1ce4` | 60,087 |
 | Integrated route, 1x1 | 0 | 52.5 | `baseline.log` | `16cbfa00cca1f514` | 816,503 |
 | Standalone synthesis, 1x1, 20 ns | 0 | 21.0 | `baseline.log` | `96910f8fcb64bf1c` | 248,489 |
-| Route map, `route_map.tcl` | 0 | 0.5 | `route_map.log` | `0881e5e4dcd735f2` | 6,929 |
+| Route map, [`route_map.tcl`](../../syn/resmap/route_map.tcl) | 0 | 0.5 | `route_map.log` | `0881e5e4dcd735f2` | 6,929 |
 | Map tie, `resmap_map.py map` (175 blocks, every tie held) | 0 | - | `resmap.log` | `2e789a95f2c5064e` | 107 |
 | Gate, `check --endpoint route-1x1` against the record | 0 | - | `gate_route_vs_record.log` | `b82def0b753d4fd6` | 1,051 |
 | Gate, `check --endpoint ooc-1x1` against the record | 0 | - | `gate_ooc_vs_record.log` | `b2469c8f91130e4b` | 371 |
