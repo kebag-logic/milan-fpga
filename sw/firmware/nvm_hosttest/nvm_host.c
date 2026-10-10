@@ -188,6 +188,11 @@ struct read_fault {
 #define READ_STORM 1000000u
 
 static uint64_t now_ns;
+/* PP_NVM_STAT[31:24], the backend's saved-state contract tag. --boot-backend
+ * contract reads an older one; with over (the boot load ended and none was
+ * accepted) and live (the restore walk already sequenced) it selects the
+ * retire paths a cold boot of this model never takes. */
+static uint32_t stat_tag = 0xc3u;
 static struct read_fault rf;
 static uint8_t flash_view[NVM_HOST_FLASH_BYTES];
 static int view_loaded;
@@ -473,7 +478,7 @@ static void recompose(void)
 			     ((uint32_t)walk.closed << 16);
 	csr[A_PP_NVM_SEL / 4] = be.sel;
 	csr[A_PP_NVM_DATA / 4] = data_readback();
-	csr[A_PP_NVM_STAT / 4] = 0xc3000000u |
+	csr[A_PP_NVM_STAT / 4] = (stat_tag << 24) |
 				 ((uint32_t)be.unres << 23) |
 				 ((uint32_t)be.unres << 22) |
 				 ((uint32_t)be.arm_ref << 21) |
@@ -839,7 +844,18 @@ int main(int argc, char **argv)
 			takes = 0;
 		} else if (strcmp(a, "--refuse-loads") == 0 && v)
 			be.refuse_loads = (unsigned int)strtoul(v, NULL, 0);
-		else if (strcmp(a, "--stray-ack") == 0 && v)
+		else if (strcmp(a, "--boot-backend") == 0 && v && !booted) {
+			if (strcmp(v, "contract") == 0)
+				stat_tag = 0xc2u;
+			else if (strcmp(v, "over") == 0)
+				be.ld_pend = 0;
+			else if (strcmp(v, "live") == 0)
+				walk.done = 1;
+			else {
+				fprintf(stderr, "HOST: bad boot backend %s\n", v);
+				return 2;
+			}
+		} else if (strcmp(a, "--stray-ack") == 0 && v)
 			/* an acknowledgement quoting ANOTHER capture: it names
 			 * nothing the backend holds and must be refused */
 			strobes(2u | ((uint32_t)strtoul(v, NULL, 0) << 16));

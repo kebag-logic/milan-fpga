@@ -163,6 +163,17 @@ MUTATIONS = {
 #: the product shapes, which the #671 controls are planted into besides the
 #: first shape
 PRODUCT_SHAPES = ("endstation_ax7101_1x1_tdm8", "endstation_ax7101_8x8")
+#: check 13's boots that retire the writer for a cause of their own: the cause,
+#: the harness options, the boot's line for it, and what `milan_nvm` reports
+RETIRE_CAUSES = (
+    ("the backend's contract", ("--boot-backend", "contract"),
+     "does not carry saved-state contract 3", "writer disabled"),
+    ("no accepted load", ("--boot-backend", "over"),
+     "no window load was accepted in this boot", "writer retired"),
+    ("a window gone live", ("--boot-backend", "live"),
+     "the window went live without a validated load", "writer retired"),
+    ("refused loads", ("--refuse-loads", "4"),
+     "refused 4 window loads; the window is not validated", "writer retired"))
 
 
 @dataclass
@@ -793,8 +804,8 @@ def grade_read_faults(bench: Bench, until: str = "") -> list[str]:
 def grade_hold_console(bench: Bench) -> list[str]:
     """Check 13's console. A held writer refuses the console's commit and
     reports the hold; the operator's explicit wipe still erases both slots,
-    as for a retired writer; and a writer that retires with a slot unread
-    names the retire, not the slot."""
+    as for a retired writer; and a writer that retires with a slot unread,
+    for any cause RETIRE_CAUSES names, names the retire, not the slot."""
     f = []
     w = bench.work
     held = ("--slot-a", slot_file(bench, "rf_a.bin", bench.assemble(bench.frames, 0x5A5A5)),
@@ -811,12 +822,12 @@ def grade_hold_console(bench: Bench) -> list[str]:
     _check(f, s.get("erases") == 2 and (w / "rf_a1.bin").read_bytes() == b"\xff" * SLOT
            and (w / "rf_b1.bin").read_bytes() == b"\xff" * SLOT,
            f"the operator's wipe did not erase both slots while the writer was held: {s}")
-    out, s, _ = run(bench, "--refuse-loads", "4", *held, "--uart", "milan_nvm commit",
-                    "--uart", "milan_nvm")
-    _check(f, "unread=1." in out and "writer retired" in out and "writer HELD" not in out
-           and "gave no standing verdict at boot" not in out and HELD_LINE not in out,
-           f"a writer retired with a slot unread named the slot on the console, not the "
-           f"retire: {s}")
+    for cause, opts, line, state in RETIRE_CAUSES:
+        out, s, _ = run(bench, *opts, *held, "--uart", "milan_nvm commit", "--uart", "milan_nvm")
+        _check(f, "unread=1." in out and line in out and state in out and "writer HELD" not in out
+               and "gave no standing verdict at boot" not in out and HELD_LINE not in out,
+               f"a writer retired by {cause} with a slot unread named the slot on the console, "
+               f"not the retire: {s}")
     return f
 
 

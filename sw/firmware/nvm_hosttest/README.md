@@ -118,7 +118,9 @@ the harness through boot, idle time and console commands, and compares bytes:
     slot). A held writer refuses `milan_nvm commit` and reports the hold on
     `milan_nvm`; an explicit `milan_nvm wipe` still erases both slots, as
     for a retired writer; and a writer that retires at boot with a slot
-    unread (four refused window loads) names the retire, not the slot. The
+    unread names the retire, not the slot, for each cause: an older backend
+    contract, a boot load ended with none accepted, a window gone live
+    (`--boot-backend contract|over|live`) and four refused window loads. The
     cases run on `--jobs` threads, every CPU by default;
 14. a slot whose bytes read cleanly but fail validation (a foreign entity,
     a bad CRC) names no generation: with the other slot blank, no slot is
