@@ -873,33 +873,74 @@ value without naming its wire, and each fails wherever it appears:
 A file the datapath includes must not name a population wire, and an include
 the census cannot find under `hdl/` or `configs/` fails.
 
-A read is an occurrence in a right-hand side, an index, a declaration's
-initialiser, the parentheses of an `if`, `case` or `for`, or a named port
-connection. The census follows each read to where it ends. Each read must
-then be one of three kinds:
+A statement is cut into its assignments first: a comma outside brackets after
+the first `=` starts the next one of a list (`assign a = x, b = y`). A read is
+an occurrence in an assignment's right-hand side, an index of its target, a
+declaration's initialiser, the parentheses of an `if`, `case`, `for` or
+`while` that controls it, or a named port connection, whatever the port is
+called.
 
-- read on the wire (another module's port, or a module output), and carried
-  by the block field the census names, which the contract must define;
-- read back as CSR status only, through `milan_csr` ports the census names;
-- the wrapper's own GET_STREAM_INFO and GET_AVB_INFO answers, which need no
-  publication (the ruling, decision 2). F5's AECP owner answers both from
-  firmware state. A STREAM_INPUT's bound, stream_id, destination MAC, VLAN,
-  started and registration fields come from the ACMP view
-  (`ctrl_app_aecp.c`). The rest come through the platform's `stream` and
-  `avb` ports (`aecp.h`): a STREAM_OUTPUT's fields, MSRP latency and failure,
-  and the Domain's priority and VLAN. None reads the block.
+A read's cone decides its kind, and the cone fails closed at every node, as
+the occurrences do at the first hop: any occurrence is an edge (the round-5
+assignment on
+[#665 (6095903333)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6095903333)).
+A read leads to every signal its statement can drive: its assignment's
+targets, every target of the procedural block (`always`, `initial`, `final`)
+it lies in, or the instance port it connects to. From each signal reached,
+every occurrence of its name in the datapath must be one of these:
 
-A read the census does not map fails the suite, and so does a status read
-that reaches the wire. At this head the 25 population wires occur 89 times:
-25 declarations, 25 wrapper connections and 39 reads. Of the 39 reads, 10 are
-on the wire and map to the block, 14 are CSR status, and 15 are the answer
-face. The census's self-test plants 33 defects and requires each refused by
-its own words. They include every form the round-3 reviews found escaping: a
-class-D output wired under another name, a case item label, positional and
-implicit `.name` ports, and a function's return. The idle
-slope's one read is status, for LWSRP_SLOPE: no shaper consumes it, and the
-block carries it as ruled. The census covers the class-D face and the started
-level. The wrapper's other faces the datapath reads (its AECP settings, and
+- its declaration;
+- an assignment's target, which drives it;
+- a read, which leads on to every signal its own statement can drive.
+
+Any other occurrence counts as reaching the wire, whatever its form. That
+covers a positional or implicit `.name` port, a case item label, an event
+control, a member or hierarchical name, anything inside a function, task,
+property or sequence declaration (a `return` among them), a read inside the
+arguments of a call to a function, task, system function or macro, and any
+form not yet written. A signal that a file the datapath includes names counts
+as reaching the wire too. Only two terminals stop the cone, each named by
+instance and port, never by a port's name:
+
+- a port of the `milan_csr` instance that the census's `CSR_READBACK` lists,
+  read back as status;
+- a port of the `KL_pp_shadow` instance that its `PROCESSOR_FACE` lists, the
+  wrapper's GET_STREAM_INFO and GET_AVB_INFO answer face.
+
+Every other port of every instance, those two included, and a module output
+are the wire. Each read must then be one of three kinds:
+
+- read on the wire, and carried by the block field the census names, which
+  the contract must define;
+- read back as CSR status only: its cone reaches the read-back face and
+  nothing else;
+- the wrapper's own GET_STREAM_INFO and GET_AVB_INFO answers: its cone
+  reaches the answer face and nothing else. These need no publication (the
+  ruling, decision 2). F5's AECP owner answers both from firmware state. A
+  STREAM_INPUT's bound, stream_id, destination MAC, VLAN, started and
+  registration fields come from the ACMP view (`ctrl_app_aecp.c`). The rest
+  come through the platform's `stream` and `avb` ports (`aecp.h`): a
+  STREAM_OUTPUT's fields, MSRP latency and failure, and the Domain's
+  priority and VLAN. None reads the block.
+
+A read the census does not map fails the suite, and so does a status or
+answer-face read whose cone reaches the wire, and a status read whose cone
+reaches the wrapper. At this head the 25 population wires occur 89 times: 25
+declarations, 25 wrapper connections and 39 reads. Of the 39 reads, 10 are on
+the wire and map to the block, 14 are CSR status, and 15 are the answer face.
+The census's self-test plants 62 defects and requires each refused by its own
+words, a cone hop by its read's row and the occurrence that reaches the wire.
+They include every form the round-3 reviews found escaping: a class-D output
+wired under another name, a case item label, positional and implicit `.name`
+ports, and a function's return. They include every cone hop the reviews of
+the round-4 head found escaping, from a status consumer and from an
+answer-face consumer: positional and implicit `.name` ports, a case item
+label, a function's return, an event control and an input port named like an
+output, each beside its plain-assign control.
+
+The idle slope's one read is status, for LWSRP_SLOPE: no shaper consumes it,
+and the block carries it as ruled. The census covers the class-D face and the
+started level. The wrapper's other faces the datapath reads (its AECP settings, and
 its counter and audio-map requests) belong to AECP. F5's owner now holds the
 settings and the audio maps, and reaches the platform through its ports
 (`aecp.h`): `changed` to apply a setting or a map, `format` for the
