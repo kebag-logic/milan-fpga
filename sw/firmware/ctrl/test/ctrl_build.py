@@ -19,6 +19,9 @@ public headers (its include/), and nothing of the stack includes the firmware
 
 from __future__ import annotations
 
+import argparse
+import hashlib
+import os
 import shutil
 import subprocess
 import sys
@@ -180,10 +183,36 @@ def stack_gitlink(root: Path = ROOT) -> str:
     return entry[1]
 
 
+#: What the pin check proves file by file: everything of the stack a gate builds, runs or searches (its
+#: sources, public headers, tests, examples, scripts and CMake files).
+STACK_PROVEN = ("src", "include", "tests", "examples", "scripts", "cmake", "CMakeLists.txt")
+
+
+def blob_id(path: Path, algorithm: str) -> str:
+    """The object id git gives `path`'s content as a blob (a symbolic link's is its target), read from the
+    file itself and never from an index."""
+    data = os.readlink(path).encode() if path.is_symlink() else path.read_bytes()
+    return hashlib.new(algorithm, b"blob %d\0" % len(data) + data).hexdigest()
+
+
+def worktree_files(stack: Path) -> set[str]:
+    """Every file and symbolic link on disk under STACK_PROVEN, relative to the stack."""
+    found = set()
+    for part in STACK_PROVEN:
+        top = stack / part
+        if top.is_symlink() or top.is_file():
+            found.add(part)
+        for here, dirs, files in os.walk(top):
+            found |= {(Path(here) / n).relative_to(stack).as_posix() for n in files}
+            found |= {(Path(here) / n).relative_to(stack).as_posix() for n in dirs if (Path(here) / n).is_symlink()}
+    return found
+
+
 def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
-    """Refuse a stack checkout that is not the recorded gitlink, or whose sources, headers or tests differ
-    from it: every gate builds the pinned cores and tests or none. `--no-optional-locks` keeps the status
-    read-only."""
+    """Refuse a stack checkout that is not at the recorded gitlink, or whose content under STACK_PROVEN is not
+    the gitlink's tree: every file is hashed as git hashes a blob and compared with that tree, and a file the
+    tree does not hold is refused too. The index is never consulted, so an edit hidden from `git status`
+    (assume-unchanged, skip-worktree) is refused like any other: every gate builds the pinned stack or none."""
     pin = pin or stack_gitlink()
     top = run(["git", "-C", str(stack), "rev-parse", "--show-toplevel"])
     if top.returncode or Path(top.stdout.strip()).resolve() != stack.resolve():
@@ -191,11 +220,23 @@ def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
     head = run(["git", "-C", str(stack), "rev-parse", "HEAD"]).stdout.strip()
     if head != pin:
         raise Refusal(f"tsn-c-stack at {head or 'no HEAD'} is not the pinned {pin}")
-    dirty = run(["git", "--no-optional-locks", "-C", str(stack), "status", "--porcelain", "--untracked-files=all",
-                 "--", *STACK_PARTS, "tests"])
-    if dirty.returncode or dirty.stdout.strip():
-        changed = ", ".join(ln[3:] for ln in dirty.stdout.splitlines()) or dirty.stderr.strip()
-        raise Refusal(f"tsn-c-stack differs from the pinned {pin[:8]}: {changed}")
+    algorithm = run(["git", "-C", str(stack), "rev-parse", "--show-object-format"]).stdout.strip()
+    tree = run(["git", "-C", str(stack), "ls-tree", "-r", "-z", "--full-tree", pin, "--", *STACK_PROVEN])
+    if tree.returncode or algorithm not in hashlib.algorithms_available:
+        raise Refusal(f"cannot read the pinned tree {pin[:8]} of {stack}: {tree.stderr.strip()}")
+    want = {}
+    for entry in filter(None, tree.stdout.split("\0")):
+        meta, name = entry.split("\t", 1)
+        mode, kind, oid = meta.split()
+        want[name] = (mode, kind, oid)
+    differ = []
+    for name in sorted(want.keys() | worktree_files(stack)):
+        path, (mode, kind, oid) = stack / name, want.get(name, ("", "", ""))
+        if kind != "blob" or path.is_symlink() != (mode == "120000") or not (path.is_symlink() or path.is_file()) \
+                or blob_id(path, algorithm) != oid:
+            differ.append(name)
+    if differ:
+        raise Refusal(f"tsn-c-stack differs from the pinned {pin[:8]}: {', '.join(differ)}")
     return head
 
 
@@ -219,3 +260,22 @@ def legacy_stack(ctrl: Path, into: Path) -> Path | None:
         (into / new).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ctrl / old, into / new)
     return into
+
+
+def main(argv: list[str] | None = None) -> int:
+    """The pin check from a command line, for the gates that are not Python (the mailbox bench's Makefile):
+    exit 0 with the pinned revision, or 2 with the refusal."""
+    ap = argparse.ArgumentParser(description="Refuse a tsn-c-stack checkout off its gitlink or differing from it.")
+    ap.add_argument("--stack-pin", type=Path, nargs="?", const=STACK, required=True, metavar="DIR",
+                    help="the stack checkout a gate builds (default: the submodule)")
+    args = ap.parse_args(argv)
+    try:
+        print(f"tsn-c-stack at {stack_pin(args.stack_pin.resolve())}")
+    except Refusal as exc:
+        print(f"REFUSED: {exc}")
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

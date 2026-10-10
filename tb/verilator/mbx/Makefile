@@ -41,7 +41,9 @@ VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
 # target builds them, plus the host model the same scenario also runs on.
 # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
 # The ADP, ACMP and MAAP cores and the wire layer are the TSN stack's, from the
-# pinned tsn-c-stack submodule (#697), included through its public headers.
+# pinned tsn-c-stack submodule (#697), included through its public headers. The
+# shared pin check (stack-pin) runs before every firmware build, so a stack off
+# its gitlink or differing from it is refused and never built.
 FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
 STACK_DIR := $(abspath $(ROOT)/third_party/tsn-c-stack)
 FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
@@ -56,7 +58,7 @@ FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(STACK_DIR)/include/*.h) \
 CC     ?= cc
 AR     ?= ar
 
-.PHONY: all run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags clean
+.PHONY: all run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags stack-pin clean
 all: run-wb run-axil run-cosim run-if2 mutants-quick
 
 run-wb:
@@ -69,7 +71,12 @@ run-axil:
 	@echo "======================================================================"
 	./obj_axil/Vmbx_axil 1
 
-obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR)
+# Phony, so it runs even when the library is current: a stack changed in a file
+# the library does not depend on is refused all the same.
+stack-pin:
+	python3 -B $(FW_DIR)/test/ctrl_build.py --stack-pin $(STACK_DIR)
+
+obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR) | stack-pin
 	@mkdir -p obj_fw
 	rm -f obj_fw/*.o obj_fw/libctrlfw.a
 	cd obj_fw && $(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(FW_INC) -c $(FW_SRC)

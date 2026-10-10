@@ -168,6 +168,8 @@ python3 sw/firmware/ctrl/test/maap_differential.py --self-test
 
 Use the repository-pinned simulator for the last command.
 Set TMPDIR to disk-backed scratch before running the gates.
+The differential first runs the shared stack pin check, in both modes.
+It refuses a `third_party/tsn-c-stack` checkout off its gitlink or differing from it.
 The differential drives shared probe, per-state conflict, loss and retry stimulus
 through the C core and the parent MAAP engine.
 Annex B is the oracle for both.
