@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "$REVIEWS/621-r570-1-packet/scratch/work/phc-drop-ratio-at-step/clean/generate.py", line 2156, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/621-r570-1-packet/scratch/work/phc-drop-ratio-at-step/clean/generate.py", line 2145, in main
+    rom, used = build(args.mac, args.seq_seed, args.sync_seq_seed)
+                ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/621-r570-1-packet/scratch/work/phc-drop-ratio-at-step/clean/generate.py", line 2105, in build
+    raise AssertionError(f"leg {name} ({sz} words) does not fit")
+AssertionError: leg SERVO (17 words) does not fit

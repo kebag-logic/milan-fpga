@@ -1,0 +1,8 @@
+gen_head skips=3: PROBE skips=3 done=3 drops=0 steps=1 0 FAIL lines, rc=0
+gen_head skips=4: PROBE skips=4 done=4 drops=1 steps=1 0 FAIL lines, rc=0
+gen_liveness-not-marked skips=3: PROBE skips=3 done=3 drops=1 steps=1 1 FAIL lines, rc=1
+      [FAIL] probe: asCapable drops (allowedLostResponses = 3) got=1 exp=0
+gen_liveness-not-marked skips=4: PROBE skips=4 done=4 drops=1 steps=1 0 FAIL lines, rc=0
+gen_base skips=3: PROBE skips=3 done=3 drops=1 steps=1 1 FAIL lines, rc=1
+      [FAIL] probe: asCapable drops (allowedLostResponses = 3) got=1 exp=0
+gen_base skips=4: PROBE skips=4 done=4 drops=1 steps=1 0 FAIL lines, rc=0

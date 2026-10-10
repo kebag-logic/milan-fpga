@@ -1,0 +1,9 @@
+STEP cycle=20000936 ns=1000001000
+STEP cycle=49601263 ns=10000000
+LOSS cycle=81600103 delay=500 since_step_ns=3999855000
+RETURN outage_ns=1000939625
+PROBE skips=3 done=3 drops=1 steps=1
+  [FAIL] probe: asCapable drops (allowedLostResponses = 3) got=1 exp=0
+== phc_step: checks: 6   failures: 1 ==
+RESULT: FAIL
+rc=1

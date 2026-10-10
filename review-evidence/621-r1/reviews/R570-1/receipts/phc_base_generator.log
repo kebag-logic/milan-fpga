@@ -1,0 +1,49 @@
+STEP cycle=20000936 ns=1000001000
+STEP cycle=48800866 ns=10000000
+LOSS cycle=49607597 delay=-3466 since_step_ns=100841375
+RETURN outage_ns=2000001750
+ARM forward drops=1 outage_ns=2000001750 exchanges=4 last_req=73600204
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=80800866 ns=-10000000
+LOSS cycle=81607601 delay=4545 since_step_ns=100841875
+RETURN outage_ns=2000001250
+ARM backward drops=1 outage_ns=2000001250 exchanges=4 last_req=105600204
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=113601262 ns=10000000
+LOSS cycle=113607601 delay=4947029 since_step_ns=792375
+RETURN outage_ns=2000001250
+ARM t1 before forward step drops=1 outage_ns=2000001250 exchanges=4 last_req=137600204
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=145601262 ns=-10000000
+LOSS cycle=145607597 delay=-5045960 since_step_ns=791875
+RETURN outage_ns=2000001750
+ARM t1 before backward step drops=1 outage_ns=2000001750 exchanges=4 last_req=169600204
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=177607662 ns=10000000
+LOSS cycle=185611097 delay=-3466 since_step_ns=1000429375
+RETURN outage_ns=2000001750
+ARM response before step drops=1 outage_ns=2000001750 exchanges=4 last_req=201600204
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=209610062 ns=-10000000
+LOSS cycle=217620607 delay=4545 since_step_ns=1001318125
+RETURN outage_ns=2000001250
+ARM deferred t1 after step drops=1 outage_ns=2000001250 exchanges=4 last_req=233600204
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+== phc_step: checks: 49   failures: 12 ==
+RESULT: FAIL
+Traceback (most recent call last):
+  File "$REVIEWS/621-r570-1-packet/scratch/run-head/tb/verilator/gptp_plane/phc_step.py", line 95, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/621-r570-1-packet/scratch/run-head/tb/verilator/gptp_plane/phc_step.py", line 88, in main
+    run(args.work.resolve(), args.generator.resolve(), args.mutants)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/621-r570-1-packet/scratch/run-head/tb/verilator/gptp_plane/phc_step.py", line 72, in run
+    raise RuntimeError("clean step regression failed")
+RuntimeError: clean step regression failed

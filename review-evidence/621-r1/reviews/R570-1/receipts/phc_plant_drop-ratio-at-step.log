@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "$REVIEWS/621-r570-1-packet/scratch/run-head/tb/verilator/gptp_plane/phc_step.py", line 95, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/621-r570-1-packet/scratch/run-head/tb/verilator/gptp_plane/phc_step.py", line 88, in main
+    run(args.work.resolve(), args.generator.resolve(), args.mutants)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/621-r570-1-packet/scratch/run-head/tb/verilator/gptp_plane/phc_step.py", line 66, in run
+    raise RuntimeError(f"{name}: generation failed")
+RuntimeError: clean: generation failed
