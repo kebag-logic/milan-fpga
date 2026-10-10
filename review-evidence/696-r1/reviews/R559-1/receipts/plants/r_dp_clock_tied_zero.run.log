@@ -1,0 +1,38 @@
+wire type=1 bytes=60 start=531
+wire type=1 bytes=60 start=5720
+wire type=1 bytes=60 start=11270
+wire type=1 bytes=60 start=16770
+station 0 probe intervals: 5189 5550 5500
+wire type=3 bytes=60 start=17290
+wire type=1 bytes=60 start=17810
+wire type=1 bytes=60 start=22850
+wire type=1 bytes=60 start=28240
+wire type=1 bytes=60 start=33520
+wire type=3 bytes=60 start=34040
+link return: probes 4 -> 8, announces 2, delay 504
+wire type=1 bytes=60 start=531
+wire type=1 bytes=60 start=5730
+wire type=1 bytes=60 start=11090
+wire type=1 bytes=60 start=16640
+station 1 probe intervals: 5199 5360 5550
+wire type=3 bytes=60 start=17160
+wire type=1 bytes=60 start=17680
+wire type=1 bytes=60 start=22380
+wire type=1 bytes=60 start=27860
+wire type=1 bytes=60 start=33370
+wire type=3 bytes=60 start=33890
+link return: probes 4 -> 8, announces 2, delay 504
+[ok] M4 datapath: programmed MAC changes probe intervals
+[ok] M5 datapath: link return starts four fresh PROBEs
+wire type=1 bytes=60 start=1531
+wire type=1 bytes=60 start=6720
+wire type=1 bytes=60 start=12270
+wire type=1 bytes=60 start=17770
+clock trial 0 probe intervals: 5189 5550 5500
+wire type=1 bytes=60 start=2531
+wire type=1 bytes=60 start=7720
+wire type=1 bytes=60 start=13270
+wire type=1 bytes=60 start=18770
+clock trial 1 probe intervals: 5189 5550 5500
+[FAIL] M3 datapath: real-time clock changes probe intervals
+MAAP integration: 3 checks, 1 failures

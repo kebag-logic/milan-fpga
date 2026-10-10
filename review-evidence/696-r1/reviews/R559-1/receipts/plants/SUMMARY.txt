@@ -1,0 +1,13 @@
+Reviewer plants (not in the author's table). Kill rule = run_case's: build ok, exit 1, a named [FAIL] line.
+[CAUGHT] unit     r_equal_mac_counts_as_lower -> M1 rProbe/PROBE higher or equal MAC yields | M1 rDefend/DEFEND higher or equal MAC yields  (killed by: ['M1 rProbe/PROBE higher or equal MAC yields', 'M1 rDefend/DEFEND higher or equal MAC yields'])
+[CAUGHT] unit     r_truncation_not_accumulated -> M8 B.2 truncated PROBE-state input has no effect | M8 B.2 truncated DEFEND-state input has no effect  (killed by: ['M8 B.2 truncated PROBE-state input has no effect', 'M8 B.2 truncated DEFEND-state input has no effect'])
+[CAUGHT] unit     r_conflict_count_low_byte_only -> M8 B.2 truncated PROBE-state input has no effect | M8 B.2 truncated DEFEND-state input has no effect  (killed by: ['M8 B.2 truncated PROBE-state input has no effect', 'M8 B.2 truncated DEFEND-state input has no effect'])
+[CAUGHT] unit     r_pending_not_cleared_on_send -> M6 pending response sent exactly once  (killed by: ['M6 pending response sent exactly once'])
+[CAUGHT] unit     r_seed_from_mac_high_bits -> M3 B.3.6.1 first enable seeds MAC plus clock  (killed by: ['M3 B.3.6.1 first enable seeds MAC plus clock'])
+[CAUGHT] unit     r_count_echo_low_byte -> M2 B.3.6.6 requested count echoes all 16 bits  (killed by: ['M2 B.3.6.6 requested count echoes all 16 bits'])
+[ESCAPED] unit     r_restart_on_link_loss -> M5 B.3.5.9 link return restarts PROBE | M5 B.3.5.9 link return revokes and reprobes  (KL_maap: 171 checks, 0 failures)
+[CAUGHT] unit     r_seed_end_ignores_count -> M7 Table B.9 invalid supplied range refused  (killed by: ['M7 Table B.9 invalid supplied range refused'])
+[CAUGHT] datapath r_dp_link_tied_high -> M5 datapath: link return starts four fresh PROBEs  (rc 1; milan_datapath.sv edited in the clone, restored; patch r_dp_link_tied_high.patch)
+[CAUGHT] datapath r_dp_clock_tied_zero -> M3 datapath: real-time clock changes probe intervals  (rc 1; milan_datapath.sv edited in the clone, restored; patch r_dp_clock_tied_zero.patch)
+[ESCAPED] datapath r_restart_on_link_loss -> M5 datapath: link return starts four fresh PROBEs  (rc 0; MAAP integration: 3 checks, 0 failures)
+Note: the campaign's first attempt at the two r_dp_* plants failed to BUILD in a non-git probe copy (pp_srcs.py needs git); that infrastructure failure is superseded by the in-clone reruns above.

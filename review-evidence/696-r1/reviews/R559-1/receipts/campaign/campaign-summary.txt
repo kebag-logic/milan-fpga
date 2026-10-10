@@ -1,0 +1,65 @@
+#686 item guard: items [1, 2, 3, 4] == [1, 2, 3, 4]: True
+[AUTHOR] [ok] clean
+[AUTHOR] [ok] m3_short_period -> M3 B.3.6.1 generator period is 2^32-1
+[AUTHOR] [ok] m3_trap_outside_basis -> M3 B.3.6.1 generator period is 2^32-1
+[AUTHOR] [ok] m3_ignores_clock -> M3 B.3.6.1 first enable seeds MAC plus clock
+[AUTHOR] [ok] m3_xors_clock -> M3 B.3.6.1 first enable seeds MAC plus clock
+[AUTHOR] [ok] m3_reseeds_after_release -> M3 Release/Begin retains the generator sequence
+[AUTHOR] [ok] m6_overwrite_active_response -> M6 occupied response buffer preserves active DEFEND
+[AUTHOR] [ok] m6_replace_pending_response -> M6 pending response preserves prober and requested range
+[AUTHOR] [ok] m6_pending_survives_release -> M6 pending response cancelled with allocation
+[AUTHOR] [ok] m6_drop_busy_probe -> M6 busy PROBE gets DEFEND after wire is free
+[AUTHOR] [ok] m6_pending_source_not_saved -> M6 pending response preserves prober and requested range
+[AUTHOR] [ok] m5_ignore_link_return -> M5 B.3.5.9 link return revokes and reprobes
+[AUTHOR] [ok] m5_level_restarts -> M5 B.3.5.9 link return restarts PROBE
+[AUTHOR] [ok] m1_probe_no_compare -> M1 rProbe/PROBE lower MAC keeps range
+[AUTHOR] [ok] m1_defend_no_compare -> M1 rDefend/DEFEND lower MAC keeps range
+[AUTHOR] [ok] m8_early_last_accepted -> M8 B.2 truncated PROBE-state input has no effect
+[AUTHOR] [ok] m8_missing_bytes_accepted -> M8 B.2 truncated DEFEND-state input has no effect
+[AUTHOR] [ok] m7_accept_invalid_seed -> M7 Table B.9 invalid supplied range refused
+[AUTHOR] [ok] m7_reject_valid_boundary -> M7 Table B.9 valid supplied boundary retained
+[AUTHOR] [ok] m2_own_requested_start -> M2 B.3.6.6 requested start echoes PROBE
+[AUTHOR] [ok] m2_own_requested_count -> M2 B.3.6.6 requested count echoes all 16 bits
+[AUTHOR] [ok] cdl_28 -> B.2.1 cdl 16 (Begin! PROBE 1)
+[AUTHOR] [ok] defend_to_multicast -> B.2.1 DEFEND DA = PROBE source (above)
+[AUTHOR] [ok] defend_destination_not_latched -> B.2.1 DEFEND DA latched at send
+[AUTHOR] [ok] every_frame_to_the_prober -> B.2.1 PROBE DA multicast (Begin! 1)
+[AUTHOR] [ok] probe_draw_7_bits -> B.3.4.2 probe T < 600 ms (campaign)
+[AUTHOR] [ok] probe_base_500 -> B.3.4.2 probe T > 500 ms (campaign)
+[AUTHOR] [ok] announce_base_3s -> B.3.4.1 announce T > 30 s
+[AUTHOR] [ok] announce_draw_11_bits -> B.3.4.1 announce T < 32 s
+[AUTHOR] [ok] announce_not_randomized -> B.3.4.1 announce T randomized
+[AUTHOR] [ok] zero_seed_freezes_the_probe_draw -> B.3.4.2 probe T randomized (zero-seed MAC)
+[AUTHOR] [ok] zero_seed_freezes_the_announce_draw -> B.3.4.1 announce T randomized (zero-seed MAC)
+[AUTHOR] [ok] announce_judged_on_conflict_fields -> B.2.7 ANNOUNCE conflict_* is not its range
+[AUTHOR] [ok] inclusive_range_end -> note b adjacent above: no conflict
+[AUTHOR] [ok] inclusive_range_start -> note b adjacent below: no conflict
+[AUTHOR] [ok] empty_range_conflicts -> note b empty range: no conflict
+[AUTHOR] [ok] no_compare_mac -> T.B7 note d: lower MAC keeps range
+[AUTHOR] [ok] compare_mac_while_probing -> T.B7 rAnnounce!/PROBE: no compare_MAC
+[AUTHOR] [ok] compare_mac_unreversed -> T.B7 rAnnounce!/DEFEND: re-address
+[AUTHOR] [ok] three_probes -> T.B7 Begin!: four PROBEs before ANNOUNCE
+[AUTHOR] [ok] first_probe_after_a_timer -> T.B7 Begin!: first PROBE at once
+[AUTHOR] [ok] restart_probe_after_a_timer -> T.B7 Restart!: first PROBE at once
+[AUTHOR] [ok] announce_after_a_timer -> T.B7 probeCount!: ANNOUNCE at once (Begin!)
+[AUTHOR] [ok] restart_rewrites_the_frame_on_the_wire -> frame on the wire keeps its offset
+[AUTHOR] [ok] overlap_count_to_our_end -> B.2.8 conflict_count = overlap (below)
+[AUTHOR] [ok] defend_rewrites_the_frame_on_the_wire -> PROBE mid-frame: frame on the wire byte-identical
+[AUTHOR] [ok] own_empty_range_conflicts -> note b: this station's empty range never conflicts
+[AUTHOR] [ok] m4_datapath_clean (datapath)
+[AUTHOR] [ok] m4_reset_time_sampling -> M4 datapath: programmed MAC changes probe intervals (datapath)
+[AUTHOR] [ok] m5_datapath_ignores_link -> M5 datapath: link return starts four fresh PROBEs (datapath)
+[AUTHOR] [ok] m3_datapath_ignores_clock -> M3 datapath: real-time clock changes probe intervals (datapath)
+[REVIEWER] [ok] r_equal_mac_counts_as_lower -> M1 rProbe/PROBE higher or equal MAC yields | M1 rDefend/DEFEND higher or equal MAC yields
+[REVIEWER] [ok] r_truncation_not_accumulated -> M8 B.2 truncated PROBE-state input has no effect | M8 B.2 truncated DEFEND-state input has no effect
+[REVIEWER] [ok] r_conflict_count_low_byte_only -> M8 B.2 truncated PROBE-state input has no effect | M8 B.2 truncated DEFEND-state input has no effect
+[REVIEWER] [ok] r_pending_not_cleared_on_send -> M6 pending response sent exactly once
+[REVIEWER] [ok] r_seed_from_mac_high_bits -> M3 B.3.6.1 first enable seeds MAC plus clock
+[REVIEWER] [ok] r_count_echo_low_byte -> M2 B.3.6.6 requested count echoes all 16 bits
+[REVIEWER] [ESCAPED] r_restart_on_link_loss -> M5 B.3.5.9 link return restarts PROBE | M5 B.3.5.9 link return revokes and reprobes
+[REVIEWER] [ok] r_seed_end_ignores_count -> M7 Table B.9 invalid supplied range refused
+[REVIEWER] [ESCAPED] r_dp_link_tied_high -> M5 datapath: link return starts four fresh PROBEs (datapath)
+[REVIEWER] [ESCAPED] r_dp_clock_tied_zero -> M3 datapath: real-time clock changes probe intervals (datapath)
+== author campaign replay: rows 51 (controls 2, defects 49), failures 0 ==
+== reviewer plants: 10, escaped 3 ==
+job rcs: {"coverage": 0, "differential": 0, "integration": 0, "unit": 0}

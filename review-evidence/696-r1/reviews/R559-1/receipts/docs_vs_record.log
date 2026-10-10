@@ -1,0 +1,26 @@
+ok   findings route row '| `route-1x1` | 50,230 | 54,308 | 15,823 | 74 / 27 | 14 | 3,397 | +0.114 | +0.036 |'
+ok   findings ooc-1x1 row '| `ooc-1x1` | 23,179 | 19,779 | - | 16 / 3 | 8 | 1,494 | -3.562 | +0.159 |'
+ok   findings ooc-8x8 row '| `ooc-8x8` | 30,135 | 27,380 | - | 21 / 5 | 8 | 1,889 | -2.278 | +0.159 |'
+ok   findings route-1x1 input sha '| `route-1x1` | `a657424864b80a757be6e87cfee55730474d6a60e6d346c27edd3892446e4fab` |'
+ok   findings ooc-1x1 input sha '| `ooc-1x1` | `80fe5d9017b819d9c13b08f5529be7f26fde2bfb414607c4e3c270b915223d09` |'
+ok   findings ooc-8x8 input sha '| `ooc-8x8` | `cf62186b9d52d5876c8dffa92d46432c428236f1a5396ddb65cd45cc6195a4c4` |'
+ok   budget LUT row '| Slice LUT | 63,400 | 50,230 | 79.23 % |'
+ok   budget LUT over 'not met, 12,190 over'
+ok   budget FF row '| Slice register | 126,800 | 54,308 | 42.83 % |'
+ok   budget slice row '| Slice | 15,850 | 15,823 | 99.83 % | must stay below the device to place | 27 free |'
+ok   budget BRAM row '| Block RAM tile | 135 | 87.5 |'
+ok   budget DSP row '| DSP | 240 | 14 |'
+ok   budget WNS/WHS '+0.114 / +0.036 ns'
+ok   budget slices left 'placement has 27 slices left'
+ok   budget wrapper LUT 'The wrapper names 22,873 of them'
+ok   findings wrapper LUT 'of which the wrapper uses 22,873'
+ok   budget wrapper ceiling 'needs the wrapper at most 10,683 LUTs'
+ok   budget removal 'removing 12,190 LUTs, 53 % of the wrapper'
+ok   budget binding limit 'At the current +0.114 ns WNS record, the absolute +0.030 ns floor binds first, after a fall of 0.084 ns'
+binding check: floor 0.03 > -0.136 = True
+ok   findings delta row '| `route-1x1` | -37 | -105 | +44 | -0.185 | +0.005 |'
+ok   budget seventh delta 'its route moved by -37 LUTs, -105 FFs and +44 slices, with WNS -0.185 ns and WHS +0.005 ns'
+ok   budget preceding image 'The preceding [#645](https://github.com/kebag-logic/milan-fpga/issues/645) image used 50,267 LUTs and 15,779 slices, 71 free, at +0.299 / +0.031 ns'
+ok   ooc-1x1 figures equal to preceding record
+ok   ooc-8x8 figures equal to preceding record
+FAILURES 0
