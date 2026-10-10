@@ -1,0 +1,12 @@
+golden 1x1/late4000 4 checks: 1 PASS, 3 FAIL DEBT late 4000: au 0x20000248 done 16535 closed -1 fail 0 cause 0 rb 0
+golden 1x1/late5000 4 checks: 4 PASS, 0 FAIL DEBT late 5000: au 0x20000248 done 11694 closed -1 fail 1 cause 6 rb 1
+golden 1x1/late16000 4 checks: 4 PASS, 0 FAIL DEBT late 16000: au 0x20000248 done 22694 closed -1 fail 1 cause 6 rb 1
+golden 8x8/late4000 4 checks: 1 PASS, 3 FAIL DEBT late 4000: au 0x20000248 done 28127 closed -1 fail 0 cause 0 rb 0
+golden 8x8/late5000 4 checks: 4 PASS, 0 FAIL DEBT late 5000: au 0x20000248 done 17946 closed -1 fail 1 cause 6 rb 1
+golden 8x8/late16000 4 checks: 4 PASS, 0 FAIL DEBT late 16000: au 0x20000248 done 28946 closed -1 fail 1 cause 6 rb 1
+rollback_ignores_debt 1x1/late4000 4 checks: 1 PASS, 3 FAIL DEBT late 4000: au 0x20000248 done 16535 closed -1 fail 0 cause 0 rb 0
+rollback_ignores_debt 1x1/late5000 4 checks: 4 PASS, 0 FAIL DEBT late 5000: au 0x20000248 done 11692 closed -1 fail 1 cause 6 rb 1
+rollback_ignores_debt 1x1/late16000 4 checks: 0 PASS, 4 FAIL DEBT late 16000: au 0x20000248 done -1 closed 18210 fail 1 cause 6 rb 0
+rollback_ignores_debt 8x8/late4000 4 checks: 1 PASS, 3 FAIL DEBT late 4000: au 0x20000248 done 28127 closed -1 fail 0 cause 0 rb 0
+rollback_ignores_debt 8x8/late5000 4 checks: 4 PASS, 0 FAIL DEBT late 5000: au 0x20000248 done 17944 closed -1 fail 1 cause 6 rb 1
+rollback_ignores_debt 8x8/late16000 4 checks: 0 PASS, 4 FAIL DEBT late 16000: au 0x20000248 done -1 closed 23886 fail 1 cause 6 rb 0

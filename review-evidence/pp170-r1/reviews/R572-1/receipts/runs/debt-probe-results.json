@@ -1,0 +1,110 @@
+{
+  "golden": {
+    "1x1/late4000": {
+      "rc": 1,
+      "tally": "4 checks: 1 PASS, 3 FAIL",
+      "status": [
+        "DEBT late 4000: au 0x20000248 done 16535 closed -1 fail 0 cause 0 rb 0",
+        "FAIL: DEBT 4000 premise: rolled back to DEFAULTS",
+        "FAIL: DEBT 4000 names: every entry and GET_NAME at the image default after the roll-back",
+        "FAIL: DEBT 4000 names: READ_DESCRIPTOR serves both image ENTITY names"
+      ]
+    },
+    "1x1/late5000": {
+      "rc": 0,
+      "tally": "4 checks: 4 PASS, 0 FAIL",
+      "status": [
+        "DEBT late 5000: au 0x20000248 done 11694 closed -1 fail 1 cause 6 rb 1"
+      ]
+    },
+    "1x1/late16000": {
+      "rc": 0,
+      "tally": "4 checks: 4 PASS, 0 FAIL",
+      "status": [
+        "DEBT late 16000: au 0x20000248 done 22694 closed -1 fail 1 cause 6 rb 1"
+      ]
+    },
+    "8x8/late4000": {
+      "rc": 1,
+      "tally": "4 checks: 1 PASS, 3 FAIL",
+      "status": [
+        "DEBT late 4000: au 0x20000248 done 28127 closed -1 fail 0 cause 0 rb 0",
+        "FAIL: DEBT 4000 premise: rolled back to DEFAULTS",
+        "FAIL: DEBT 4000 names: every entry and GET_NAME at the image default after the roll-back",
+        "FAIL: DEBT 4000 names: READ_DESCRIPTOR serves both image ENTITY names"
+      ]
+    },
+    "8x8/late5000": {
+      "rc": 0,
+      "tally": "4 checks: 4 PASS, 0 FAIL",
+      "status": [
+        "DEBT late 5000: au 0x20000248 done 17946 closed -1 fail 1 cause 6 rb 1"
+      ]
+    },
+    "8x8/late16000": {
+      "rc": 0,
+      "tally": "4 checks: 4 PASS, 0 FAIL",
+      "status": [
+        "DEBT late 16000: au 0x20000248 done 28946 closed -1 fail 1 cause 6 rb 1"
+      ]
+    }
+  },
+  "rollback_ignores_debt": {
+    "1x1/late4000": {
+      "rc": 1,
+      "tally": "4 checks: 1 PASS, 3 FAIL",
+      "status": [
+        "DEBT late 4000: au 0x20000248 done 16535 closed -1 fail 0 cause 0 rb 0",
+        "FAIL: DEBT 4000 premise: rolled back to DEFAULTS",
+        "FAIL: DEBT 4000 names: every entry and GET_NAME at the image default after the roll-back",
+        "FAIL: DEBT 4000 names: READ_DESCRIPTOR serves both image ENTITY names"
+      ]
+    },
+    "1x1/late5000": {
+      "rc": 0,
+      "tally": "4 checks: 4 PASS, 0 FAIL",
+      "status": [
+        "DEBT late 5000: au 0x20000248 done 11692 closed -1 fail 1 cause 6 rb 1"
+      ]
+    },
+    "1x1/late16000": {
+      "rc": 1,
+      "tally": "4 checks: 0 PASS, 4 FAIL",
+      "status": [
+        "DEBT late 16000: au 0x20000248 done -1 closed 18210 fail 1 cause 6 rb 0",
+        "FAIL: DEBT 16000 premise: rolled back to DEFAULTS",
+        "FAIL: DEBT 16000 names: every entry and GET_NAME at the image default after the roll-back",
+        "FAIL: DEBT 16000 names: READ_DESCRIPTOR serves both image ENTITY names",
+        "FAIL: DEBT 16000 names: a later SET_NAME of the last ordinal saves and reads back"
+      ]
+    },
+    "8x8/late4000": {
+      "rc": 1,
+      "tally": "4 checks: 1 PASS, 3 FAIL",
+      "status": [
+        "DEBT late 4000: au 0x20000248 done 28127 closed -1 fail 0 cause 0 rb 0",
+        "FAIL: DEBT 4000 premise: rolled back to DEFAULTS",
+        "FAIL: DEBT 4000 names: every entry and GET_NAME at the image default after the roll-back",
+        "FAIL: DEBT 4000 names: READ_DESCRIPTOR serves both image ENTITY names"
+      ]
+    },
+    "8x8/late5000": {
+      "rc": 0,
+      "tally": "4 checks: 4 PASS, 0 FAIL",
+      "status": [
+        "DEBT late 5000: au 0x20000248 done 17944 closed -1 fail 1 cause 6 rb 1"
+      ]
+    },
+    "8x8/late16000": {
+      "rc": 1,
+      "tally": "4 checks: 0 PASS, 4 FAIL",
+      "status": [
+        "DEBT late 16000: au 0x20000248 done -1 closed 23886 fail 1 cause 6 rb 0",
+        "FAIL: DEBT 16000 premise: rolled back to DEFAULTS",
+        "FAIL: DEBT 16000 names: every entry and GET_NAME at the image default after the roll-back",
+        "FAIL: DEBT 16000 names: READ_DESCRIPTOR serves both image ENTITY names",
+        "FAIL: DEBT 16000 names: a later SET_NAME of the last ordinal saves and reads back"
+      ]
+    }
+  }
+}

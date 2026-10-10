@@ -1,0 +1,28 @@
+head=c3864686c0b254bd2d7b7f733078ec302fb9be62 tree=305218ec054c05ed7e023594e71642049fc790e9
+merge-base=09e357fb4bf3d35c8a9deba9a787e13f74d08c83
+hdl                    base=4d21ab6512ec2293cec6f43ff9456784c7f6c642 head=4d21ab6512ec2293cec6f43ff9456784c7f6c642 IDENTICAL
+syn                    base=a5e560a610a05d27d0c184285253d1763a1ec3de head=a5e560a610a05d27d0c184285253d1763a1ec3de IDENTICAL
+scripts                base=316cdbc84b54f7cf2172e272594f1ec2aa88686a head=316cdbc84b54f7cf2172e272594f1ec2aa88686a IDENTICAL
+.github                base=33d4660d22440c425597020421eaa9cef48cbf85 head=33d4660d22440c425597020421eaa9cef48cbf85 IDENTICAL
+tb/pp_top              base=4c9d4c4982dba2b8eb0c04bf37aacad01735fed6 head=4c9d4c4982dba2b8eb0c04bf37aacad01735fed6 IDENTICAL
+tb/common              base=118f445418721637006d9c3c6f8cb943f5073953 head=118f445418721637006d9c3c6f8cb943f5073953 IDENTICAL
+Makefile               base=ebfd881bb8d2cf7f8cb3881d6bea30589cbc54cb head=ebfd881bb8d2cf7f8cb3881d6bea30589cbc54cb IDENTICAL
+docs/guides            base=33a691d3ed086839d93a23ab9131790e4a6e9a88 head=33a691d3ed086839d93a23ab9131790e4a6e9a88 IDENTICAL
+docs/diagrams          base=786715b4de60b67c5c9034fa84272457f4ac1144 head=786715b4de60b67c5c9034fa84272457f4ac1144 IDENTICAL
+docs/traceability      base=e160a14dfa60fbb5cf5cc24d82f28692d3d8784e head=e160a14dfa60fbb5cf5cc24d82f28692d3d8784e IDENTICAL
+--- changed paths (raw, with modes)
+:100644 100644 e6db8b90d09ec033d550f551a3268da395392cff 6d1e4e472ef439c057c26800f83b40323c15165e M	docs/architecture/09_verification.md
+:000000 100644 0000000000000000000000000000000000000000 abdaf8ccd0823addf5a27245fd748bf5f867f290 A	tb/name_state/Makefile
+:000000 100644 0000000000000000000000000000000000000000 12b9e6412d959b795137c8063a73606a38b02384 A	tb/name_state/README.md
+:000000 100644 0000000000000000000000000000000000000000 e74aa6b30f80000adf879ad70a5eb13897b3c260 A	tb/name_state/fixture.py
+:000000 100644 0000000000000000000000000000000000000000 d0f66f5c8685f6dd1355cdb3e44edb9877db8433 A	tb/name_state/mutants.py
+:000000 100644 0000000000000000000000000000000000000000 ed3786e3026241bf33503cd8fc7bbd2b6f2b484e A	tb/name_state/run.py
+:000000 100644 0000000000000000000000000000000000000000 29a337d70177f5ea26d0d9f0cacab75e51398667 A	tb/name_state/sim_main.cpp
+--- RTL/param/port/NVM-framing sources differing from base (expect none)
+--- DESC_NAME_ENTRIES_P and 0x80 name block at head
+c3864686c0b254bd2d7b7f733078ec302fb9be62:hdl/top/protocol_processor_top.sv:155:    parameter int unsigned DESC_NAME_ENTRIES_P = 32,
+c3864686c0b254bd2d7b7f733078ec302fb9be62:docs/architecture/07_memory_maps.md:631:| `0x80` .. `0xFF` | user name | writable-name ordinal | 64 B | D3 writer (name stage): `DESC_NAME_ENTRIES_P` records, at most 128 |
+--- submodules/gitlinks
+gitlinks: 0
+--- worktree
+status-lines: 0

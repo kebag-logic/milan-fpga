@@ -1,0 +1,63 @@
+[
+  {
+    "name": "golden_1x1",
+    "aaf": 1,
+    "case": "all",
+    "expect": "",
+    "run_rc": 0,
+    "tally": "169 checks: 169 PASS, 0 FAIL",
+    "verdict": "PASS",
+    "failures": [],
+    "n_failures": 0
+  },
+  {
+    "name": "golden_8x8",
+    "aaf": 8,
+    "case": "inventory",
+    "expect": "",
+    "run_rc": 0,
+    "tally": "434 checks: 434 PASS, 0 FAIL",
+    "verdict": "PASS",
+    "failures": [],
+    "n_failures": 0
+  },
+  {
+    "name": "R6_replay_before_locate_answer",
+    "aaf": 1,
+    "case": "inventory",
+    "expect": "N4 every name reset",
+    "run_rc": 1,
+    "tally": "162 checks: 161 PASS, 1 FAIL",
+    "verdict": "KILLED",
+    "failures": [
+      "N4 every name reset to image default before replay"
+    ],
+    "n_failures": 1
+  },
+  {
+    "name": "R8_image_proof_bypassed_inventory",
+    "aaf": 1,
+    "case": "inventory",
+    "expect": "N4 every name reset",
+    "run_rc": 1,
+    "tally": "162 checks: 161 PASS, 1 FAIL",
+    "verdict": "KILLED",
+    "failures": [
+      "N4 every name reset to image default before replay"
+    ],
+    "n_failures": 1
+  },
+  {
+    "name": "R9_reset_walk_keeps_names",
+    "aaf": 1,
+    "case": "inventory",
+    "expect": "N4 every name reset",
+    "run_rc": 1,
+    "tally": "162 checks: 161 PASS, 1 FAIL",
+    "verdict": "KILLED",
+    "failures": [
+      "N4 every name reset to image default before replay"
+    ],
+    "n_failures": 1
+  }
+]

@@ -1,0 +1,97 @@
+{
+  "cap128_golden_1x1": {
+    "capacity_in_wrapper": [
+      "128"
+    ],
+    "aaf": 1,
+    "boundary_edit": false,
+    "all_rc": 0,
+    "all_tally": "169 checks: 169 PASS, 0 FAIL",
+    "all_fails": [],
+    "measure": [
+      "DR3a names=39 CLK_HZ=1000001 RS_TMO=20001 AGG=1000001; byte-per-cycle NVM",
+      "DR3a all 39 names, DRAM 31 cyc                      release     122  terminal    15326  COMPLETE cause 0  longest wait: binding     12 D3    627  longest D3 record op   87",
+      "DR3a late image, 39 names, DRAM 31 cyc              release     122  terminal    15461  COMPLETE cause 0  longest wait: binding     12 D3    762  longest D3 record op   87",
+      "DR3a last name DEVICE, DRAM 31 cyc                  release     122  terminal    14748  DEFAULTS cause 2  longest wait: binding     12 D3    762  longest D3 record op   87",
+      "DR3a all 39 names, DRAM 143 cyc                     release     122  terminal    15774  COMPLETE cause 0  longest wait: binding     12 D3   1075  longest D3 record op   87",
+      "DR3a late image, 39 names, DRAM 143 cyc             release     122  terminal    15909  COMPLETE cause 0  longest wait: binding     12 D3   1210  longest D3 record op   87",
+      "DR3a last name DEVICE, DRAM 143 cyc                 release     122  terminal    15644  DEFAULTS cause 2  longest wait: binding     12 D3   1210  longest D3 record op   87"
+    ]
+  },
+  "cap128_boundary_1x1": {
+    "capacity_in_wrapper": [
+      "128"
+    ],
+    "aaf": 1,
+    "boundary_edit": true,
+    "all_rc": 0,
+    "all_tally": "169 checks: 169 PASS, 0 FAIL",
+    "all_fails": []
+  },
+  "cap39_golden_1x1": {
+    "capacity_in_wrapper": [
+      "39"
+    ],
+    "aaf": 1,
+    "boundary_edit": false,
+    "all_rc": 0,
+    "all_tally": "169 checks: 169 PASS, 0 FAIL",
+    "all_fails": [],
+    "measure": [
+      "DR3a names=39 CLK_HZ=1000001 RS_TMO=20001 AGG=1000001; byte-per-cycle NVM",
+      "DR3a all 39 names, DRAM 31 cyc                      release     122  terminal    12834  COMPLETE cause 0  longest wait: binding     12 D3    627  longest D3 record op   87",
+      "DR3a late image, 39 names, DRAM 31 cyc              release     122  terminal    12969  COMPLETE cause 0  longest wait: binding     12 D3    762  longest D3 record op   87",
+      "DR3a last name DEVICE, DRAM 31 cyc                  release     122  terminal    13502  DEFAULTS cause 2  longest wait: binding     12 D3    762  longest D3 record op   87",
+      "DR3a all 39 names, DRAM 143 cyc                     release     122  terminal    13282  COMPLETE cause 0  longest wait: binding     12 D3   1075  longest D3 record op   87",
+      "DR3a late image, 39 names, DRAM 143 cyc             release     122  terminal    13417  COMPLETE cause 0  longest wait: binding     12 D3   1210  longest D3 record op   87",
+      "DR3a last name DEVICE, DRAM 143 cyc                 release     122  terminal    14398  DEFAULTS cause 2  longest wait: binding     12 D3   1210  longest D3 record op   87"
+    ]
+  },
+  "cap39_boundary_1x1": {
+    "capacity_in_wrapper": [
+      "39"
+    ],
+    "aaf": 1,
+    "boundary_edit": true,
+    "all_rc": 1,
+    "all_tally": "169 checks: 166 PASS, 3 FAIL",
+    "all_fails": [
+      "FAIL: N3 saved ordinal 38",
+      "FAIL: N5 restored ordinal 38",
+      "FAIL: N6 pending: first and last saved name values survive separate completion"
+    ]
+  },
+  "cap107_golden_8x8": {
+    "capacity_in_wrapper": [
+      "107"
+    ],
+    "aaf": 8,
+    "boundary_edit": false,
+    "all_rc": 0,
+    "all_tally": "441 checks: 441 PASS, 0 FAIL",
+    "all_fails": [],
+    "measure": [
+      "DR3a names=107 CLK_HZ=1000001 RS_TMO=20001 AGG=1000001; byte-per-cycle NVM",
+      "DR3a all 107 names, DRAM 31 cyc                     release     122  terminal    26330  COMPLETE cause 0  longest wait: binding     12 D3   1203  longest D3 record op   87",
+      "DR3a late image, 107 names, DRAM 31 cyc             release     122  terminal    26465  COMPLETE cause 0  longest wait: binding     12 D3   1338  longest D3 record op   87",
+      "DR3a last name DEVICE, DRAM 31 cyc                  release     122  terminal    27574  DEFAULTS cause 2  longest wait: binding     12 D3   1338  longest D3 record op   87",
+      "DR3a all 107 names, DRAM 143 cyc                    release     122  terminal    26890  COMPLETE cause 0  longest wait: binding     12 D3   1763  longest D3 record op   87",
+      "DR3a late image, 107 names, DRAM 143 cyc            release     122  terminal    27025  COMPLETE cause 0  longest wait: binding     12 D3   1898  longest D3 record op   87",
+      "DR3a last name DEVICE, DRAM 143 cyc                 release     122  terminal    28694  DEFAULTS cause 2  longest wait: binding     12 D3   1898  longest D3 record op   87"
+    ]
+  },
+  "cap107_boundary_8x8": {
+    "capacity_in_wrapper": [
+      "107"
+    ],
+    "aaf": 8,
+    "boundary_edit": true,
+    "all_rc": 1,
+    "all_tally": "441 checks: 438 PASS, 3 FAIL",
+    "all_fails": [
+      "FAIL: N3 saved ordinal 106",
+      "FAIL: N5 restored ordinal 106",
+      "FAIL: N6 pending: first and last saved name values survive separate completion"
+    ]
+  }
+}
