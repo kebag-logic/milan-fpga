@@ -1897,13 +1897,14 @@ four points of its path at the same time and located the loss:
 | Format check before every bind | Held | Every listener read against its talker; one listener format set, read back and restored. See [B15: method](#b15-method) |
 | Where the tone is lost | Upstream of the peer's talker | Absent at (a), (b) and (c) in both runs, at the same idle floor. See [B15: where the tone is lost](#b15-where-the-tone-is-lost) |
 | The DUT's receive and render path | Loses nothing | Its TDM output equals the stream it receives, 480,000 of 480,000 frames in both runs. See [B15: the DUT renders what it receives](#b15-the-dut-renders-what-it-receives) |
-| Positive control of the same observation chain | PASS | A tone on the DUT's own talker is found on both taps and at the external capture, at the 24-bit floor |
+| Positive control of the same observation chain | PASS | A tone on the DUT's own talker is found on both taps and at the external capture, with THD+N at the loop's 24-bit floor |
 | Direction B: B0, B-CRF, B-AAF by THD+N and SNR | NOT RUN | The tone does not reach the DUT; the assignment's branch for "absent at (a)" is a STOP |
 | A DUT fix | Not needed | The DUT does not lose the tone |
 | Restore | Done | See [B15: bench as left](#b15-bench-as-left) |
 
 These are operator observations, not review verdicts. Paths such as
-`runs/pts1/events.jsonl` are in the lane packet, `629-b15-a588`.
+`runs/pts1/events.jsonl` are in the lane packet, `629-b15-a588`; where it is
+published is in [B15: artifact hashes](#b15-artifact-hashes).
 
 ### B15: identity and setup
 
@@ -1943,7 +1944,9 @@ As found:
 -20 dBFS), SHA-256 `d9684a8f...`, equal to lanes B9 and B10's. It was played
 into the reference peer's talker inputs by the owner's method, through the
 authorised tone source, from 15:26:59 to 15:35:31 CEST. Starting and stopping
-that playback were the only instrument actions.
+that playback, one read of the tone source's state, passive reads of its meters
+and the external capture's recordings were the only instrument actions; no
+instrument setting was written.
 
 **The four points.** Each run is one locked action:
 
@@ -2049,6 +2052,9 @@ counters agree:
 | `pts1` | 1 / 0 at both reads | 0, 0, 0 | 0, 0, 0, 0 | 0 | +191,998 in 24.5 s |
 | `pts2` | 1 / 0 at both reads | 0, 0, 0 | 0, 0, 0, 0 | 0 | +199,998 in 24.5 s |
 
+FRAMES_RX counts per committed observation interval of at most 1 s, so the two
+increments are 24 and 25 committed intervals, not a frame rate.
+
 So the depacketiser, the channel map, the sample conversion and the TDM render
 lose nothing here. No stage of the DUT was localised, no RTL or firmware was
 changed and no suite check was added: the assignment's DUT branch did not apply.
@@ -2109,14 +2115,37 @@ routing state was read and nothing was changed.
   level meters during it, without writing any setting. The tone left it at
   -38.5 dBFS on the outputs that carry it and on no other output. Its playback
   read -20.0 dB, and those outputs' level setting read -18.5 dB; nothing was
-  changed.
-- **The peer, over ATDECC reads.** GET_AUDIO_MAP on its STREAM_PORT_OUTPUT 0
-  gives its talker's channels 0 to 3 from that port's clusters 0 to 3 by
-  identity mappings. Each of those AUDIO_CLUSTER descriptors takes its signal
-  from the peer's AUDIO_UNIT 0. The model declares no JACK_INPUT,
-  EXTERNAL_PORT_INPUT or INTERNAL_PORT_INPUT, and one CONTROL, IDENTIFY. So
-  the path from the peer's physical inputs to its talker's channels is not
-  described over ATDECC, and this lane cannot read or check it.
+  changed. The state read and the meter rows are held privately, as the
+  loop's layout is. The packet's only trace of them is `runs/tone-start.txt`.
+- **The peer, over ATDECC reads.** The published start survey,
+  `restore/peer-descs.jsonl` at 15:19 CEST, read the peer's current
+  configuration, 1. GET_AUDIO_MAP on its STREAM_PORT_OUTPUT 0 gives its
+  talker's channels 0 to 3 from that port's clusters, base 16, by identity
+  mappings. Its CONFIGURATION counts and its AUDIO_UNIT 0 port fields declare
+  no JACK_INPUT, no external or internal port, and one CONTROL.
+- **The survey's 20 NO_SUCH_DESCRIPTOR answers.** The same survey has 20
+  NO_SUCH_DESCRIPTOR answers in configuration 1, to its reads of indices 0 to
+  19 meant as the stream ports' clusters. Each of those reads carries
+  descriptor type `0x0010` (its `what` field, `desc-peer-1-0x0010-<i>`, and
+  its payload). IEEE 1722.1 Table 7.1 gives `0x0010` to EXTERNAL_PORT_INPUT;
+  AUDIO_CLUSTER is `0x0014` (`avdecc/aem_descriptors.py:103`). The inherited
+  survey's audio-unit walk uses the wrong code, the defect a
+  [review on PR #628](https://github.com/kebag-logic/milan-fpga/pull/628#issuecomment-5926558221)
+  recorded. So those answers say that the peer has no EXTERNAL_PORT_INPUT 0 to
+  19, which agrees with its AUDIO_UNIT fields, and say nothing about its
+  clusters.
+- **A second read, held privately.** At 15:35:10 CEST the lane read the peer's
+  AUDIO_CLUSTER 0 to 19 with type `0x0014`, in configuration 1, the same
+  configuration as the survey. Its descriptor payloads are held privately.
+  Every read answered SUCCESS, and clusters 16 to 19, STREAM_PORT_OUTPUT 0's,
+  each give signal_type AUDIO_UNIT, signal_index 0 and signal_output 0. The two
+  reads disagree only because they asked for different descriptor types.
+  The same read found one CONTROL, IDENTIFY.
+
+So the path from the peer's physical inputs to its talker's channels is not
+described over ATDECC, and this lane cannot read or check it. The lane's
+conclusion does not rest on the private read. It rests on the tap decode at
+(a) and on the published CONFIGURATION and AUDIO_UNIT fields.
 
 The owner decides any instrument change.
 
@@ -2141,13 +2170,20 @@ Residuals that no permitted command restores:
 - **`SLIP_LB`** read 146 dups at the start and 152 at the end, 3 slipped
   frames on the loopback ring. The DUT was on INTERNAL while the peer's talker
   was bound, as with lanes B8 and B9's probe. It was not polled, so the slips
-  are not timed.
+  are not timed. They are unexplained: the
+  [register map](../reference/REGISTER_MAP.md#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture)
+  reads `SLIP_LB` as static under one media clock, and
+  [#645](https://github.com/kebag-logic/milan-fpga/issues/645) tracks the
+  ring's slips.
 
-**One incident.** In `pts1` the to-host leg's restart checked for a running
-leg with a `ps` pattern. The pattern matched the SSH command's own line, so the
-leg was not restarted. It was down from 15:27:23 to 15:28:23 CEST, when it was
-restarted under the lock with a check that reads the bridge's `status`. `pts2`
-used the corrected check.
+**One incident.** In `pts1` the to-host leg was stopped on purpose, by its
+process ID, at 15:27:19.7 CEST, so that McASP0 could record. Its restart
+checked for a running leg with a `ps` pattern. The pattern matched the SSH
+command's own line, so at 15:27:55 the restart printed
+`LEG_PRESENT_NOT_STARTED` and the leg was not restarted; that is where the
+unintended part began. The leg was restarted at 15:28:23 under the lock, with a
+check that reads the bridge's `status`. It was down about 63 s in all, by the
+board's uptime in `soc/pts1-legs.log`. `pts2` used the corrected check.
 
 ### B15: #629 acceptance
 
@@ -2195,3 +2231,32 @@ withheld there and here, because they would state its channel count.
 | `pts2` | `mcasp-all.raw`, (c) | 15,360,000 | `1a331755a46b87868fc941932581f4ee94af6528831ad9b6597b4c02f10869e0` |
 | `pts2` | `extcap.raw`, (d) | Withheld | `fa771dccc383b4b463ee3d27684b3d2f8414c86d6a1a6a14461cc2b6c44abeb1` |
 | `pts2` | `b6-loop.raw`, the control's loop | 1,536,000 | `566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588` |
+
+**Where the packet is.** It is published on branch `629-tone-review-evidence`,
+pinned at commit `06148614c910d3986991dd130f95d073b4bbe491`. The packet label
+`629-b15-a588` maps to `review-evidence/629-tone-r1/author/` there:
+`runs/pts1/events.jsonl` is
+`review-evidence/629-tone-r1/author/runs/pts1/events.jsonl`.
+`review-evidence/629-tone-r1/MANIFEST.json` gives each file's `original_sha256`,
+the lane packet's file, beside the published file's `published_sha256`. The
+publication masked three files: the local tool path in `gates/gates.txt`, and
+a USB function name and USB position in `restore/host-start.txt` and
+`restore/host-end.txt`. `MANIFEST.json` alone records their two hashes, and no
+row below cites them.
+
+Every row below equals its file's `published_sha256` at `06148614`, which for
+each of them is also its `original_sha256`. The lane packet already held
+`tone_points_b15.py` masked, and `redaction.json` alone holds its as-run hash.
+Every raw row above is recorded in `RAW-ARTIFACTS.json` at `06148614`.
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/tone_points_b15.py` (the tap decode and the per-point presence verdicts; masked, as run `3adb505f...`) | 16,207 | `a899f2e7a746265338606f1cfd7f41543d6e2f540b02e1c8022d05d13766f608` |
+| `tools/align_b15.py` (the SAMPLE-EXACT verdicts) | 6,399 | `701554820de6dcb532caf90052116226d7d80e858daa012ef540b87e07e497a3` |
+| `controls/b15-tap-controls.json` (the tap decode's controls) | 924 | `f69bf5cf4002cd0059c938bfa6bac76ce4a398bae223918facd34a2f290e7b7c` |
+| `controls/b15-align-controls.json` (the alignment's controls) | 961 | `d46f7bc52148f5f3a3cd82f7000f119d4e27e31150c2c54f4ce55c1cf75b959e` |
+| `summary/pts1/align-b-c.json` (`pts1`'s alignment of (c) with (b)) | 340 | `e4b04e3fb99ae69540fee9a4d7535c8b1281df226147fd0390852467e3a9d951` |
+| `summary/pts2/align-b-c.json` (`pts2`'s alignment of (c) with (b)) | 340 | `fc0edb9c1774f4464b761bd10a0841815b99bca4de251c5c9362d4ae4d4d58ad` |
+| `runs/pts1/events.jsonl` | 6,213 | `063f01784e0b308cdc34cf154d4d603e8f7bf84fa6eb31ec0d7db52b10a851de` |
+| `runs/pts2/events.jsonl` | 6,007 | `c81c682006b884e7f3cd3e6cb01df9895df4a6f74b7bbbaa2580e2cf83442db4` |
+| `restore/census-compare.txt` (the start against the end) | 369 | `a38dca80e66a1e108f7e9418ba33dba47e56fc6b2c7cd6420dadea3f2ff7164f` |
