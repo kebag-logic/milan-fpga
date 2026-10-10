@@ -47,7 +47,9 @@ from qspi_owner_transition import aem_image_binding, bitstream_binding
 from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
                    Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
                    NextState, Memory, Module, Record)
+from migen.genlib import fifo as migen_fifo
 from migen.genlib.cdc import MultiReg
+from migen.genlib.record import layout_len
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import LiteXModule
@@ -763,6 +765,39 @@ def _board_audio_ports(platform):
     return ports, i2s_pads
 
 
+#: The CSR crossing's channel FIFOs, in the order LiteX's
+#: `AXILiteClockDomainCrossing` adds them.
+_CSR_CDC_CHANNELS = ("aw", "w", "b", "ar", "r")
+
+
+def _cross_csr_bus(host, axil, milan_cd):
+    """The CPU's AXI-Lite CSR bus (`axil`, sys) as the datapath reads it in
+    `milan_cd`: `axil` itself when that is sys, else the far side of LiteX's
+    `AXILiteClockDomainCrossing`, one 4-deep async FIFO per channel.
+
+    The two 32-bit data channels, W and R, keep their payload in block RAM
+    (`_payload_in_block_ram`): one RAMB18 each holds the array and its read
+    register, which were LUTRAM and flip-flops. They take the two RAMB18s the
+    MAC crossings free, so the image's block RAM count is unchanged. AW and
+    AR stay in LUTRAM."""
+    if milan_cd == "sys":
+        return axil
+    csr_axil = axi.AXILiteInterface(data_width=32, address_width=32)
+    host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
+        axil, csr_axil, cd_from="sys", cd_to=milan_cd)
+    channels = [module for _, module in host.milan_axil_cdc._submodules]
+    if len(channels) != len(_CSR_CDC_CHANNELS) or any(
+            channel.sink.description.payload_layout
+            != getattr(axil, name).description.payload_layout
+            for channel, name in zip(channels, _CSR_CDC_CHANNELS)):
+        raise ValueError("the AXI-Lite crossing is not one FIFO per channel "
+                         "in %s order" % "/".join(_CSR_CDC_CHANNELS))
+    by_name = dict(zip(_CSR_CDC_CHANNELS, channels))
+    _payload_in_block_ram(by_name["w"])
+    _payload_in_block_ram(by_name["r"])
+    return csr_axil
+
+
 def add_milan_datapath(host: Module, platform: object,
                        axil: axi.AXILiteInterface,
                        extra_ports: dict[str, object] | None = None,
@@ -800,12 +835,7 @@ def add_milan_datapath(host: Module, platform: object,
     # fast. `milan_cd == "sys"` (the default, and what the sim uses) keeps the old
     # single-clock direct wiring. The MAC AXIS boundary is likewise crossed by
     # its own stream CDC in MilanMAC when `milan_cd != "sys"`.
-    if milan_cd != "sys":
-        csr_axil = axi.AXILiteInterface(data_width=32, address_width=32)
-        host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
-            axil, csr_axil, cd_from="sys", cd_to=milan_cd)
-    else:
-        csr_axil = axil
+    csr_axil = _cross_csr_bus(host, axil, milan_cd)
     ports = dict(
         # clocks / reset  -  the whole datapath runs in `milan_cd`
         i_axis_clk    = ClockSignal(milan_cd),  i_axis_resetn = ~ResetSignal(milan_cd),
@@ -1364,6 +1394,88 @@ class _AxisDP:
 #: the same number in one place.
 _AXIS_CDC_DEPTH = 16
 
+#: Bits `stream.AsyncFIFO` stores above a record's payload and params: its
+#: `first` and `last` flags, in that order.
+_FIFO_FRAMING_BITS = 2
+
+
+def _crossing_storage(crossing):
+    """The async FIFO inside one LiteX `stream.ClockDomainCrossing`, and the one
+    storage `Memory` it writes in its `write` domain and reads in `read`.
+
+    Only the array is reached here. The crossing's control (its gray-code
+    pointers, their two-stage synchronizers and the full and empty compares)
+    stays LiteX's own. Each step refuses any shape but the one the pinned LiteX
+    builds, so a pin that moves it fails elaboration instead of placing
+    nothing. Anonymous submodules and specials have no public accessor, hence
+    `_submodules` and `_fragment`."""
+    wrappers = [module for _, module in crossing._submodules]
+    if len(wrappers) != 1 or type(wrappers[0]) is not stream.AsyncFIFO:
+        raise ValueError("a crossing must hold exactly one stream.AsyncFIFO")
+    core = wrappers[0].fifo
+    if type(core) is migen_fifo.AsyncFIFOBuffered:
+        core = core.fifo
+    if type(core) is not migen_fifo.AsyncFIFO:
+        raise ValueError("the crossing's FIFO is not a migen AsyncFIFO")
+    arrays = [s for s in core._fragment.specials if isinstance(s, Memory)]
+    if len(arrays) != 1:
+        raise ValueError("the async FIFO must hold exactly one storage array")
+    storage = arrays[0]
+    ports = storage.ports
+    if (len(ports) != 2 or ports[0].we is None or ports[1].we is not None
+            or ports[1].async_read
+            or (ports[0].clock.cd, ports[1].clock.cd) != ("write", "read")):
+        raise ValueError("the storage array must have one write port in the "
+                         "write domain and one synchronous read port in read")
+    return core, storage
+
+
+def _payload_in_block_ram(crossing):
+    """Hold one crossing's payload in block RAM and its two framing flags in
+    distributed RAM (#640 lane M2, plan L3).
+
+    LiteX stores `first` and `last` above the payload, so a 72-bit payload is a
+    74-bit array that fills a RAMB36 and spills two bits into a RAMB18. Here
+    the array becomes two, both written at the FIFO's write address and enable
+    and read at its read address. Every entry is therefore in both at every
+    moment, and the FIFO reads their concatenation exactly as it read the one
+    array: same depth, width, read latency and clock domains, and no reset on
+    the storage, as in LiteX. A framing flag nobody reads costs nothing; one
+    that is read costs one LUTRAM column."""
+    core, storage = _crossing_storage(crossing)
+    description = crossing.sink.description
+    payload_bits = (layout_len(description.payload_layout)
+                    + layout_len(description.param_layout))
+    if storage.width != payload_bits + _FIFO_FRAMING_BITS:
+        raise ValueError("the storage array is not the payload, its params "
+                         "and the two framing flags")
+    write, read = storage.ports
+    core._fragment.specials -= {storage, write, read}
+    lsb, pieces = 0, []
+    for bits, ram_style in ((payload_bits, "block"),
+                            (_FIFO_FRAMING_BITS, "distributed")):
+        array = Memory(bits, storage.depth, name="storage")
+        array.attr = {("ram_style", ram_style)}
+        array_write = array.get_port(write_capable=True, clock_domain="write")
+        array_read = array.get_port(clock_domain="read")
+        core.specials += array, array_write, array_read
+        core.comb += [
+            array_write.adr.eq(write.adr),
+            array_write.we.eq(write.we),
+            array_write.dat_w.eq(write.dat_w[lsb:lsb + bits]),
+            array_read.adr.eq(read.adr),
+        ]
+        pieces.append(array_read.dat_r)
+        lsb += bits
+    core.comb += read.dat_r.eq(Cat(*pieces))
+
+
+def _mac_cdc_rename(milan_cd):
+    """The shadow domains both MAC crossings run in. `macsys` and `macdp` are
+    sys and `milan_cd` with `reinit` added to their resets (`MilanMAC`), so one
+    LINK_CTRL[1] reinit resets both sides of each crossing together."""
+    return {"sys": "macsys", milan_cd: "macdp"}
+
 
 def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, rename=None):
     """Cross one AXIS lane between the sys domain (memory bridge / MAC core) and the
@@ -1666,13 +1778,20 @@ class MilanMAC(LiteXModule):
             self.comb += self.cd_macdp.clk.eq(ClockSignal(milan_cd))
             self.specials += AsyncResetSynchronizer(
                 self.cd_macdp, ResetSignal(milan_cd) | self.reinit)
-            mac_cdc_rename = {"sys": "macsys", milan_cd: "macdp"}
+            mac_cdc_rename = _mac_cdc_rename(milan_cd)
         else:
             mac_cdc_rename = None
         tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False,
                              rename=mac_cdc_rename)  # dp -> MAC
         rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True,
                              rename=mac_cdc_rename)  # MAC -> dp
+        if milan_cd != "sys":
+            # Each 16 x 74 crossing filled a RAMB36 and spilled its two framing
+            # flags into a RAMB18. The flags now sit in LUTRAM, which frees
+            # both RAMB18s for the CSR crossing's W and R FIFOs
+            # (`_cross_csr_bus`; #640 lane M2).
+            _payload_in_block_ram(self.mac_tx_cdc)
+            _payload_in_block_ram(self.mac_rx_cdc)
         # LiteEth's `last_be` is NOT an AXIS keep mask  -  it is a **one-hot pointer to the
         # last valid byte** of the final beat (liteeth/mac/padding.py Case: 0x01->1 byte,
         # 0x02->2 … 0x80->8; the RX side builds it by up-converting a single `last` bit).

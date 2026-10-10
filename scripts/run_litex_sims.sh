@@ -102,6 +102,7 @@ INVENTORY=(
   test_gptp_tx_timestamp
   test_pp_boot_bus_freeze
   test_pp_mem_bridge
+  test_retained_cdc_storage
 )
 
 TMO="${LITEX_SIM_TIMEOUT:-900}"

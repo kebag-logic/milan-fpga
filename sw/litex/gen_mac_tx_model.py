@@ -18,7 +18,8 @@ WHAT IS CONVERTED, and in which domains. Exactly the objects
 status CSR, with their product parameters:
 
   * the datapath AXIS crossing `mac_tx_cdc`, both halves, built by the
-    PRODUCT's own `_axis_dp_cdc` in `cd_macdp` and `cd_macsys`;
+    PRODUCT's own `_axis_dp_cdc` in `cd_macdp` and `cd_macsys`, with the
+    product's storage placement (`_payload_in_block_ram`);
   * the `last_be` conversion and the loopback mux, byte for byte the same
     expressions;
   * the store-and-forward `tx_sf` PacketFIFO in `cd_macsys`, 512 payload
@@ -272,7 +273,8 @@ if HAVE_LITEX:
             layout = [("data", DATA_WIDTH), ("keep", DATA_WIDTH // 8)]
             tx_dp = milan_soc._axis_dp_cdc(
                 self, "mac_tx_cdc", layout, "macdp", to_datapath=False,
-                rename={"sys": "macsys", "macdp": "macdp"})
+                rename=milan_soc._mac_cdc_rename("macdp"))
+            milan_soc._payload_in_block_ram(self.mac_tx_cdc)
 
             # ---- the boundary wiring, byte for byte the product's ----------
             self.comb += [
