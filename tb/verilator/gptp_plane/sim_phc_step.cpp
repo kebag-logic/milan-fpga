@@ -72,6 +72,7 @@ class Harness {
     exercise_crossing("response before step", 10000000, 6600, 4000, 0);
     exercise_crossing("deferred t1 after step", -10000000, 9000, 500, 20000);
     prove_real_failures();
+    exercise_liveness();
     return check_.report();
   }
 
@@ -98,6 +99,9 @@ class Harness {
   uint64_t fu_delay_cycles_ = 500;
   uint64_t stamp_delay_cycles_ = 0;
   bool answer_ = true;
+  bool silent_after_probe_ = false;
+  uint64_t unanswered_ = 0;
+  uint64_t unanswered_at_drop_ = 0;
   Frame receiving_;
   size_t rx_offset_ = 0;
   std::vector<uint8_t> transmitting_;
@@ -176,6 +180,7 @@ class Harness {
     if (monitor_ && !probe_request_) {
       probe_request_ = tx_cycle_; probe_seq_ = seq;
     }
+    if (silent_after_probe_ && seq != probe_seq_) { ++unanswered_; return; }
     if (!answer_) return;
     const uint64_t t2 = tx_cycle_ * kTickNs + kPeerEpochNs + link_ns_;
     const uint64_t t3 = t2 + kTurnNs;
@@ -226,10 +231,11 @@ class Harness {
     const bool capable = (dut_->pub_flags_o & 4) != 0;
     if (monitor_) {
       if (!capable && capable_prev_) {
-        ++drops_; low_start_ = cycle_;
-        printf("LOSS cycle=%llu delay=%d since_step_ns=%llu\n",
+        ++drops_; low_start_ = cycle_; unanswered_at_drop_ = unanswered_;
+        printf("LOSS cycle=%llu delay=%d since_step_ns=%llu unanswered=%llu\n",
                static_cast<unsigned long long>(cycle_), static_cast<int32_t>(dut_->pub_pdelay_ns_o),
-               static_cast<unsigned long long>((cycle_ - last_step_cycle_) * kTickNs));
+               static_cast<unsigned long long>((cycle_ - last_step_cycle_) * kTickNs),
+               static_cast<unsigned long long>(unanswered_));
       }
       if (capable && !capable_prev_) {
         low_ticks_ += cycle_ - low_start_;
@@ -314,6 +320,40 @@ class Harness {
     answer_ = false;
     drive(5 * kHz);
     check_.dec("missing peer still clears asCapable", dut_->pub_flags_o & 4, 0);
+  }
+
+  void exercise_liveness() {
+    // A received response resets lostResponses (IEEE 802.1AS-2020 11.2.19).
+    // allowedLostResponses is 3 (11.2.13.4), so after a crossing exchange
+    // that is answered, the fourth unanswered request, not the third,
+    // clears asCapable when the next interval judges it lost.
+    answer_ = true;
+    drive(4 * kHz);
+    check_.dec("liveness: answered exchanges requalify after silence", dut_->pub_flags_o & 4, 4);
+    const uint64_t target = last_request_cycle_ + kHz;
+    if (target > cycle_ + 8000) drive(target - cycle_ - 8000);
+    gm_id_ = gm_id_ == kGmA ? kGmB : kGmA;
+    --priority_;
+    const uint64_t initial_steps = steps_;
+    drops_ = bad_delays_ = low_ticks_ = unanswered_ = unanswered_at_drop_ = 0;
+    probe_request_ = probe_response_ = probe_follow_up_ = probe_stamp_ = 0;
+    monitor_ = silent_after_probe_ = true;
+    gm_epoch_ns_ += 10000000;
+    announce(); next_announce_ = cycle_ + kHz;
+    // The step lands between the crossing request's returned t1 and its response.
+    next_sync_ = target + 200;
+    drive(6 * kHz);
+    monitor_ = silent_after_probe_ = false;
+    printf("ARM liveness drops=%llu unanswered=%llu unanswered_at_drop=%llu\n",
+           static_cast<unsigned long long>(drops_), static_cast<unsigned long long>(unanswered_),
+           static_cast<unsigned long long>(unanswered_at_drop_));
+    check_.dec("liveness: one grandmaster-driven step", steps_ - initial_steps, 1);
+    check_.that("liveness: step falls between returned t1 and response",
+                probe_stamp_ < last_step_cycle_ && last_step_cycle_ < probe_response_);
+    check_.dec("liveness: no invalid link-delay publication", bad_delays_, 0);
+    check_.dec("liveness: asCapable falls once while the peer is silent", drops_, 1);
+    check_.dec("asCapable falls at the fourth unanswered request after a crossing exchange",
+               unanswered_at_drop_, 4);
   }
 };
 }

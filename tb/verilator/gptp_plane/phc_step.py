@@ -22,6 +22,19 @@ def invoke(argv: list[str], cwd: Path, log: Path) -> int:
     return result.returncode
 
 
+def plant(source: str, name: str, scope: str | None, old: str, new: str) -> str:
+    """Replace one anchor that is unique within the named function, or the file."""
+    start, end = 0, len(source)
+    if scope:
+        start = source.index(f"\ndef {scope}(")
+        end = source.find("\ndef ", start + 1)
+        end = len(source) if end < 0 else end
+    region = source[start:end]
+    if region.count(old) != 1:
+        raise RuntimeError(f"{name}: mutation anchor is not unique")
+    return source[:start] + region.replace(old, new) + source[end:]
+
+
 def run(work: Path, generator: Path, mutants: bool) -> None:
     """One compiled counter/engine model, independently generated ROM per arm."""
     work.mkdir(parents=True, exist_ok=True)
@@ -44,18 +57,23 @@ def run(work: Path, generator: Path, mutants: bool) -> None:
     source = generator.read_text()
     arms = [("clean", source, None)]
     if mutants:
+        credit = '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
+        liveness = "asCapable falls at the fourth unanswered request after a crossing exchange"
         defects = (
-            ("stale-rate-window", '    p.emit("WRST", ra=0, imm=RG_SCR | S_NR3, fmt=FMT_Q)\n',
+            ("stale-rate-window", None, '    p.emit("WRST", ra=0, imm=RG_SCR | S_NR3, fmt=FMT_Q)\n',
              "", "asCapable never falls after step"),
-            ("crossing-exchange", '    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
+            ("crossing-exchange", None, '    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
              '    p.emit("MOVE", rd=RT, ra=0, imm=0)\n', "no invalid link-delay publication"),
-            ("never-rearm-measurement", '    p.emit("WRST", ra=0, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
+            ("never-rearm-measurement", None, '    p.emit("WRST", ra=0, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
              "", "real excessive delay still clears asCapable"),
+            # The two review rounds' plants delete the crossing exchange's
+            # liveness credit through different anchors.
+            ("liveness-not-marked", "prog_leg_pdepoch", credit, "", liveness),
+            ("r571-no-liveness", None, credit + '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair',
+             '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair', liveness),
         )
-        for name, old, new, assertion in defects:
-            if source.count(old) != 1:
-                raise RuntimeError(f"{name}: mutation anchor is not unique")
-            arms.append((name, source.replace(old, new), assertion))
+        for name, scope, old, new, assertion in defects:
+            arms.append((name, plant(source, name, scope, old, new), assertion))
     for name, program, assertion in arms:
         directory = work / name
         directory.mkdir(exist_ok=True)

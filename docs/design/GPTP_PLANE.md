@@ -125,12 +125,16 @@ Crossing responses and delayed transmit timestamps remain covered.
 
 Excessive delay and peer silence still clear asCapable.
 
+An answered crossing exchange still resets the lost-response count.
+
+The fourth unanswered request after it clears asCapable.
+
 ```sh
 make -C tb/verilator/gptp_plane phc-step
 make -C tb/verilator/milan_dp gmstep
 ```
 
-The first command includes three planted-defect controls.
+The first command includes five planted-defect controls.
 
 The second checks uncertainty, public counters, and media continuity.
 
