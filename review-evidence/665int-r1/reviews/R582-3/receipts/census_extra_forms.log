@@ -1,0 +1,9 @@
+control: 0 finding(s)
+[REFUSED] generate-if condition: unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w (line 5681) reaches the wire; name its block field or its ruled exclusion
+[REFUSED] let construct: unmapped read: pp_cd_srp_over_limit_w -> probe_l (line 5677) reaches the wire; name its block field or its ruled exclusion
+[REFUSED] sensitivity list: unaccounted occurrence of pp_cd_srp_over_limit_w at `always @(pp_cd_srp_over_limit_w) probe_w = 1'b1;` (line 5678): not its declaration, the wrapper's connection or a rea
+[REFUSED] macro body: unaccounted occurrence of pp_cd_srp_over_limit_w at ``define PROBE_M pp_cd_srp_over_limit_w` (line 5677): not its declaration, the wrapper's connection or a read
+[REFUSED] ternary select: unmapped read: pp_cd_srp_over_limit_w -> probe_w (line 5677) reaches the wire; name its block field or its ruled exclusion
+[REFUSED] concatenation lvalue: unmapped read: pp_cd_srp_over_limit_w -> probe_w (line 5678) reaches the wire; name its block field or its ruled exclusion
+extra forms: 6 of 6 refused
+rc=0

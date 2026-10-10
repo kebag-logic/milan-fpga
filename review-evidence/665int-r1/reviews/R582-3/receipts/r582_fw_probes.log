@@ -1,0 +1,38 @@
+== controls (unplanted)
+[CONTROL-CLEAN] control acmp/unit/model/acmpif2 (rc acmp=0,unit=0,model=0,acmpif2=0): 0 failing check(s)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/control/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/control/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/control/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[CONTROL-CLEAN] control srp_mbx.cpp at two interfaces (rc srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8=0): 0 failing check(s)
+== ctrl plants
+[CAUGHT] r582-unbind-keeps-started (rc acmp=1): 10 failing check(s)
+    [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 unbound, not started, with no stream
+[ESCAPED] r582-adapter-sid-valid-always (rc acmp=0,acmpif2=0): 0 failing check(s)
+[CAUGHT] r582-driver-started-on-sid-valid (rc unit=1): 2 failing check(s)
+    [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+    [FAIL] DriverUnit.D14PublicationBlock: D14 a start with no stream: BINDING alone, STARTED set, SID_VALID clear, one write
+[CAUGHT] r582-restore-started-dropped (rc acmp=1): 5 failing check(s)
+    [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a binding saved started is published started
+[CAUGHT] r582-model-started-from-bound (rc model=1,acmp=1): 5 failing check(s)
+    [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+    [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 source s's DA_GATE, LICENCE and TALKER_DECL bits and sink k's BOUND and STARTED move their own output bit only
+    [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P3 STARTED moves on its own output; the stream_id and BOUND stay through a write that keeps SID_VALID
+== SRP plants (full srp_mbx.cpp suite, two interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[CAUGHT] r582-withdraw-on-interface-0 (rc srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8=1): 2 failing check(s)
+    [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB a link restart withdraws TALKER_DECL before the new participants declare
+    [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB another interface keeps its own declarations
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] r582-declarations-cleared-at-adoption (rc srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8=0): 0 failing check(s)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwprobe/srpwork/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[CAUGHT] r582-declarations-published-to-interface-0 (rc srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8=1): 6 failing check(s)
+    [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB TALKER_DECL holds every declared source from startup
+    [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB and publishes it again as they declare
+    [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again
+probes done

@@ -1,0 +1,7 @@
+R582-3 verdict and ledger draft, written 2026-10-10T09:49:58+02:00 before any prior-round finding text was read.
+Verdict: NEGATIVE - exact head 232d466312890c978cd6f74e38550a176650fe55
+Findings (own pass):
+  F1 MINOR Tests, Robustness, Docs - census cone not fail-closed past the population (8 of 8 probe arms escape; head itself clean, part 2: 0 unmodelled occurrences)
+  F2 MINOR Tests - ACMP adapter SID_VALID on a no-stream bound/started move untested (plant E1 escapes every arm run so far; demo pending)
+  F3 MINOR Tests - TALKER_DECL across a Domain adoption untested (plant E2 escapes srp_mbx.cpp at two interfaces; full sweep and demo pending)
+Ledger draft: Conformance CLEAN; RTL CLEAN; Robustness UNCLEAN (F1); Tests UNCLEAN (F1, F2, F3); Docs UNCLEAN (F1)

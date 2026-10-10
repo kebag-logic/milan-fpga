@@ -1,0 +1,164 @@
+ctrl publication plants: 34
+[ok] mutant pub-sid-valid-set-first (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant pub-sid-halves-swapped (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_LO holds stream_id[31:0]
+[ok] mutant pub-domain-priority-and-vid-swapped (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields
+[ok] mutant pub-licence-in-the-da-gate (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 DA_GATE.OPEN holds the gate
+[ok] mutant pub-sink-past-the-block (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+[ok] mutant pub-sink-binding-past-the-block (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+[ok] mutant pub-started-in-the-bound-bit (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant pub-sink-binding-drops-sid-valid (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a stop with the stream unchanged: BINDING alone, STARTED clear, SID_VALID kept, one write
+[ok] mutant pub-talker-decl-in-the-licence (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 LICENCE.ACTIVE holds the licences
+[ok] mutant model-pub-sid-not-gated (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+[ok] mutant model-pub-hole-takes-a-write (model): 3 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] mutant model-pub-started-not-stored (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] mutant model-pub-declarations-a-hole (model): 4 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] mutant model-pub-every-sink-reads-entry-0 (model): 7 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+[ok] mutant pub-acmp-after-the-response (acmp, acmp): 16 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+[ok] mutant pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 36 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a PROBE_TX_RESPONSE that settles publishes the stream
+[ok] mutant pub-acmp-talker-for-the-stream (acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the stream_id the response carried (5.5.3.5.18 step 4)
+[ok] mutant pub-acmp-stream-held-past-settlement (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath: A31 TMR_NO_TK publishes the sink without its stream (5.5.3.5.36 step 1)
+[ok] mutant pub-acmp-every-sink-every-entry (acmp): 22 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+[ok] mutant pub-acmp-port-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31ACallBackFromThePublishPortIsRefused: A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)
+[ok] mutant pub-acmp-reset-forgets-the-port (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a sink the store resets is published unbound at the next open
+[ok] mutant pub-acmp-adapter-drops-the-port (acmp, acmp): 20 check(s) failed
+    first: [FAIL] AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse: B10 a BIND_RX publishes its sink bound, with no stream, interface 0
+[ok] mutant pub-acmp-started-after-the-response (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 the started move is published before the BIND_RX response
+[ok] mutant pub-acmp-started-after-the-report (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 and before the notifier hears of the settled sink
+[ok] mutant pub-acmp-started-from-bound (acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a bind with STREAMING_WAIT is published bound and stopped
+[ok] mutant pub-acmp-started-move-skipped (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a re-bind to the same talker without STREAMING_WAIT publishes once
+[ok] mutant pub-acmp-adapter-rewrites-the-stream (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 a started move is one write to the sink's entry, interface 0
+[ok] mutant pub-acmp-adapter-drops-sid-valid (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 that write is BINDING, with SID_VALID kept and STARTED moved, interface 0
+[ok] mutant pub-maap-gate-after-the-report (maap): 4 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-skipped (maap): 24 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-one-source-short (maap): 15 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 3 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 10 check(s) failed
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 34 of 34 caught
+SRP publication plants: 23
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-licence-after-the-report: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-licence-skipped: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-licence-wrong-bit: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-licence-after-the-revocations: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB a link loss clears LICENCE before the revocation is reported
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-licence-kept-at-destroy: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB destroy clears LICENCE before any revocation is reported
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-domain-adoption-skipped: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-domain-priority-for-vid: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-domain-default-skipped: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-domain-default-marked-adopted: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB the default Domain {priority 3, VID 2}, not adopted, from startup
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-slope-skipped: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-slope-halved: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB IDLE_SLOPE is the admitted bandwidth from startup
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-domain-adoption-after-the-declarations: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-domain-default-after-the-declarations: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-slope-after-the-declarations: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-term-poll-understated: PollPublicationTermIsMeasuredThroughRealCallbacks / the poll's publication term funds a reset, an adoption and two changes per source
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-term-reset-understated: PollPublicationTermIsMeasuredThroughRealCallbacks / a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-declared-skipped: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-declared-in-the-licence: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-declared-wrong-bit: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-declared-after-the-declarations: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-declared-kept-at-reset: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-declared-withdrawn-after-the-new-declarations: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/pubplants/srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] pub-declared-kept-at-destroy: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB destroy withdraws every declaration from the datapath
+r582 publication plants: all caught

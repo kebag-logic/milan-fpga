@@ -1,0 +1,21 @@
+R582-3 review clone integrity (final), 2026-10-10T10:14:03+02:00
+HEAD: 232d466312890c978cd6f74e38550a176650fe55
+tree: 3e21bd325e634732436df43f2c08d1bc3eb74f3f
+git status --porcelain --ignored (empty = clean, nothing ignored either):
+[end status]
+index vs HEAD tree (git diff --cached --quiet): rc=0
+worktree vs index (git diff --quiet): rc=0
+index (mode blob path) sha256: e70d925b8b30913333e87e77a18aa42958148dfc4aadf4d94f5b7cb59006ea49
+HEAD tree (mode blob path) sha256: e70d925b8b30913333e87e77a18aa42958148dfc4aadf4d94f5b7cb59006ea49
+index == tree (blob bytes and modes): yes
+gitlinks:
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 2ad2f845dd583f8310075fa2380cb60a04fd091a 0	protocol-processor
+160000 9197193e47a6bb1c45a56d90a18c1784123aba44 0	third_party/lwSRP
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+submodule checkouts:
+protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a dirty=0
+gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d dirty=0
+third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
+uninitialised as checked out: third_party/lwSRP external (lwSRP was used from a scratch clone at its pin)

@@ -1,0 +1,39 @@
+== Part A: the escaping plants against every suite
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] E2b r582-declarations-zero-at-adoption: rc srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8=0,srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8=0,srp-srp_app-if1-endstation_ax7101_1x1_tdm8=0,srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8=0,srp-srp_latency-if1-endstation_ax7101_1x1_tdm8=0,srp-srp_walk-if1-endstation_ax7101_1x1_tdm8=0,srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8=0,srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8=0,srp-srp_app-if2-endstation_ax7101_1x1_tdm8=0,srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8=0,srp-srp_latency-if2-endstation_ax7101_1x1_tdm8=0,srp-srp_walk-if2-endstation_ax7101_1x1_tdm8=0; 0 failing check(s)
+== Part B: demonstration tests
+[demo E1 unplanted, must pass]: rc acmp=0,acmpif2=0; 0 failing check(s)
+[demo E1 planted, must fail on the demo]: rc acmp=1,acmpif2=1; 3 failing check(s)
+    [FAIL] AcmpMailbox.R582DemoNoStaleStreamAfterRebind: R582 demo: a re-bound sink with no settled stream carries no stream_id, interface 0
+    [FAIL] AcmpMailbox.R582DemoNoStaleStreamAfterRebind: R582 demo: a re-bound sink with no settled stream carries no stream_id, interface 0
+    [FAIL] AcmpMailbox.R582DemoNoStaleStreamAfterRebind: R582 demo: a re-bound sink with no settled stream carries no stream_id, interface 1
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[demo E2b unplanted, must pass]: rc srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8=0,srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8=0; 0 failing check(s)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-3-packet/scratch/fwdemo2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[demo E2b planted, must fail on the demo]: rc srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8=1,srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8=1; 6 failing check(s)
+    [FAIL] Srp.R582DemoTalkerDeclHeldAcrossAdoption: R582 demo: every Talker MRPDU after a Domain adoption left with TALKER_DECL set
+    [FAIL] Srp.R582DemoTalkerDeclHeldAcrossAdoption: R582 demo: every Talker MRPDU after a Domain adoption left with TALKER_DECL set
+    [FAIL] Srp.R582DemoTalkerDeclHeldAcrossAdoption: R582 demo: TALKER_DECL holds every source after the adoption
+    [FAIL] Srp.R582DemoTalkerDeclHeldAcrossAdoption: R582 demo: every Talker MRPDU after a Domain adoption left with TALKER_DECL set
+demo done

@@ -1,0 +1,14 @@
+control: tracked head -> 0 finding(s)
+[REFUSED] status consumer lwsrp_talker_declared routed to vlan_en_i by plain assign (control): pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared (line 7335): counted as status, but it reaches the wire at crf_tx.vlan_en_i
+[ESCAPED] status consumer lwsrp_talker_declared routed to vlan_en_i by positional port: census reports 0 findings, PASS
+[ESCAPED] status consumer lwsrp_talker_declared routed to vlan_en_i by implicit .name port: census reports 0 findings, PASS
+[ESCAPED] status consumer lwsrp_talker_declared routed to vlan_en_i by case item label: census reports 0 findings, PASS
+[ESCAPED] status consumer lwsrp_talker_declared routed to vlan_en_i by function body return: census reports 0 findings, PASS
+[REFUSED] processor consumer gsi_tkdcl_w routed to vlan_en_i by plain assign (control): pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w (line 4920): counted as processor, but it reaches the wire at crf_tx.vlan_en_i
+[ESCAPED] processor consumer gsi_tkdcl_w routed to vlan_en_i by positional port: census reports 0 findings, PASS
+[ESCAPED] processor consumer gsi_tkdcl_w routed to vlan_en_i by implicit .name port: census reports 0 findings, PASS
+[ESCAPED] processor consumer gsi_tkdcl_w routed to vlan_en_i by case item label: census reports 0 findings, PASS
+[ESCAPED] processor consumer gsi_tkdcl_w routed to vlan_en_i by function body return: census reports 0 findings, PASS
+part 1: 8 escaping arm(s) (controls excluded)
+part 2: 37 intermediate cone node(s) of status/processor reads; 0 occurrence(s) the netlist neither reads, targets nor declares:
+rc=0

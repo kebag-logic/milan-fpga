@@ -1,0 +1,6 @@
+control: named port, rhs (expected caught)    rc=1 REFUSED            [FAIL] unmapped read: pp_cd_srp_over_limit_w -> probe_w (line 5678) reaches the wire; name its block field or its ruled exclusion
+case-item label in an always_comb             rc=1 REFUSED            [FAIL] unaccounted occurrence of pp_cd_srp_over_limit_w at `pp_cd_srp_over_limit_w: probe_w = 1'b1;` (line 5681): not its declaration, the wrapper's connection 
+positional port connection                    rc=1 REFUSED            [FAIL] unaccounted occurrence of pp_cd_srp_over_limit_w at `KL_probe_buf u_probe_pos (pp_cd_srp_over_limit_w, probe_w);` (line 5678): not its declaration, the w
+implicit .name port connection                rc=1 REFUSED            [FAIL] unaccounted occurrence of pp_cd_srp_over_limit_w at `KL_probe_buf u_probe_dot (.pp_cd_srp_over_limit_w, .y_o(probe_w));` (line 5678): not its declaration
+function body return                          rc=1 REFUSED            [FAIL] unaccounted occurrence of pp_cd_srp_over_limit_w at `return pp_cd_srp_over_limit_w;` (line 5678): not its declaration, the wrapper's connection or a read
+rc=0
