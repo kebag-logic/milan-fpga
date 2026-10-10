@@ -78,7 +78,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
-| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602: a 1.5 s PHC step under CRF selection asserts `tu` and counts one render re-base, with unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; `gmstep_mutants.py` plants five controls in the sweep and `make gmstep-mutants` the whole inventory |
+| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602: a 1.5 s PHC step under CRF selection asserts `tu` and counts one render re-base, with unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; the [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs it: its `gmstep_mutants.py` plants five controls in the sweep and its `make gmstep-mutants` the whole inventory |
 
 The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 
@@ -897,9 +897,13 @@ accept phase. At head `471892a9`, both round-2 reviews measured 103 checks
 and zero failures at all 42 delays ([R366-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861287085),
 [R367-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861301512)).
 
-**It runs in the default sweep, with its negative controls.**
-`run` invokes `gmstep_mutants.py` after the clean leg.
-It rebuilds through the same `gmstep-build` recipe.
+**It runs in the default sweep, with its negative controls, in its own suite.**
+`run` here no longer runs it: the #621 phase made it this suite's costliest leg.
+The [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs the clean leg once.
+Then it invokes its [`gmstep_mutants.py`](../milan_dp_gm_steps/gmstep_mutants.py).
+That driver rebuilds through this suite's `gmstep-build` recipe.
+In the sweep it passes `--no-small-steps`, which leaves out only the #621 phase.
+No sweep control names a check in that phase; its README tabulates them.
 `GMSTEP_MDIR` selects a disposable build directory.
 `DP_SRC`, `CLKV_SRC`, `RSP_SRC` and `MCR_SRC` select mutated copies.
 Each control must fail its named check:
@@ -927,8 +931,9 @@ Each control must fail its named check:
 Each control costs one datapath elaboration.
 The sweep carries five controls named by the two acceptances.
 
-The explicit `make gmstep-mutants` target runs all twenty controls.
-The `CONTROLS` list in [`gmstep_mutants.py`](gmstep_mutants.py) defines that inventory.
+The explicit `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` target runs all twenty controls.
+Each runs on the whole leg, the #621 phase included.
+The `CONTROLS` list in [`gmstep_mutants.py`](../milan_dp_gm_steps/gmstep_mutants.py) defines that inventory.
 
 It includes the seventeen tabulated above, plus three #545 controls.
 The additions cover the policy level and applied-rate tail.
@@ -1376,6 +1381,6 @@ Real Sync pairs raise and clear the exported slew level.
 It measures fractional PHC advances into each staged servo sample.
 The last measured slew increment identifies the release tail.
 The phase checks wiring; it does not grade media-loop settling.
-Run `python3 gmstep_mutants.py --slew` for the connection controls.
+Run `python3 gmstep_mutants.py --slew` in `../milan_dp_gm_steps` for the connection controls.
 Tied-low input, missing tail and added addend delay must fail.
-These controls also belong to `make gmstep-mutants`.
+These controls also belong to that suite's `make gmstep-mutants`.

@@ -17,8 +17,8 @@
 // the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
 // opened by the escape bit), pending genuine mr requests (tb/verilator/tkdiag
 // T17 and T18 grade the unchanged restart engine PDU by PDU), and the
-// physical re-base (#117). Its
-// negative controls are gmstep_mutants.py.
+// physical re-base (#117). Its negative controls are
+// ../milan_dp_gm_steps/gmstep_mutants.py, and that suite runs this leg.
 //
 // Elaboration: the `gptp` leg's (AX7101 1x1 TDM8 entity, fabric gPTP ON, the
 // fabric clock compressed to 2 MHz so the plane's real timers fit a runnable
@@ -67,7 +67,9 @@
 // optional feed delay (fabric cycles, default 0) idles before the peer's
 // media feed starts, which moves the accept phase against the media tick; a
 // correct datapath passes at every delay. --no-small-steps leaves the #621
-// phase out, and nothing else. Exit 0 only when every check passes.
+// phase out, and nothing else: the sweep runs its gmstep_mutants.py controls
+// that way, because none of their named checks is in that phase, and runs
+// the clean leg once with it. Exit 0 only when every check passes.
 
 #include "../../common/verilator_harness.hpp"
 #include "../../common/gptp_launch_observer.hpp"

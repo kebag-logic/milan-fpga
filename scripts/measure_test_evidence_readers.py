@@ -132,10 +132,6 @@ DUT_READER_DISPOSITIONS = {
         "of a restored input format or of an output format row, no crossbar writer) into a copy of "
         "the datapath, and the empty image under the listener and talker end-to-end legs too, and "
         "requires a named failure. It is the explicit dynmap-mutants target, outside the default sweep",
-    "tb/verilator/milan_dp/gmstep_mutants.py":
-        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
-        "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
-        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls",
     "tb/verilator/milan_dp/render_csr_controls.py":
         "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
         "and bit-9 selector defects into copies and requires named failures. Its "
@@ -143,6 +139,12 @@ DUT_READER_DISPOSITIONS = {
         "despite accepted ingress; no expected value is derived from source text",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+    "tb/verilator/milan_dp_gm_steps/gmstep_mutants.py":
+        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
+        "named failure on milan_dp's gmstep leg or, for five, its option-off leg. The milan_dp_gm_steps sweep "
+        "plants the five #387/#602 acceptance controls on the gmstep leg without its #621 phase, which holds "
+        "none of their named checks; gmstep-mutants plants all on the whole leg, and --slew selects the three "
+        "#545 controls",
     "tb/verilator/milan_dp_mclk/mclk_mutants.py":
         "mutation campaign; it plants the #629 design's fourteen named root defects as "
         "mutant schemata in copies of the datapath, the AAF clock meter and the CSR "

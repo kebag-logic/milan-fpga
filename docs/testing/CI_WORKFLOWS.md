@@ -281,10 +281,24 @@ The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
 That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
 That historical budget left 1140.1 s: 31.7%, approximately 32%.
 These historical samples do not measure the corrected candidate.
-The five default gmstep controls remain in `run` (#602).
+The five default gmstep controls stayed in `run` (#602) until #621.
 The additional controls stay in the explicit `gmstep-mutants` campaign.
 The hosted shards allow 120 minutes; #673's envelopes appear above.
 If later exact-head margin falls below 10%, split further.
+
+#621 split further. Its small-step phase took the gmstep leg from 48 s to
+253 s of CPU, and `milan_dp` ran that leg seven times: the clean leg, the
+driver's positive control and five controls. Hosted run 38048622822 then
+timed out at 4800 s. Dev's own windows before it were already above 60% of
+that budget: 2972.7 to 3519.6 s on the six dev pushes from runs 37968528697
+to 38067159953. The leg and its five default controls therefore moved to the
+`milan_dp_gm_steps` suite, which the stable hash gives worker 3/5, the
+default worker with the most headroom: its jobs took 459 to 680 s in those six runs.
+`suite_shards.py` pins that owner among its five-worker landmarks.
+The new suite keeps the 1800 s default budget. The clean leg runs every
+phase once; the controls run without the #621 phase, which holds none of
+their named checks. Its README records the native per-leg times at base,
+at the #621 head and at the split head.
 
 The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.

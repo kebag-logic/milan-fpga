@@ -21,11 +21,9 @@
 #                 a format change under Milan 5.4.2.7 and a restored format
 #   make dynmap-mutants - that leg's planted controls (dynmap_mutants.py),
 #                 outside the sweep's deadline
-#   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
-#                 the acceptance's controls of it (gmstep_mutants.py)
-#   make gmstep-mutants - that leg's whole control inventory, with five
-#                 controls of the option-off leg's #602 PHC-only mr exclusions, outside
-#                 the sweep's deadline
+#   make gmstep - run only the #387 GM step re-base leg. The sweep runs it,
+#                 and its acceptance controls, in ../milan_dp_gm_steps, which
+#                 also holds its whole control inventory (gmstep-mutants)
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -215,7 +213,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -371,13 +369,16 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 # issue #387 acceptance 3: the `gptp` leg's elaboration, driven through a
 # grandmaster change that steps the PHC by 1.5 s while the AAF listener is
 # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
-# model). `run` runs it and then its negative controls, gmstep_mutants.py,
-# which build mutated copies through this same recipe (GMSTEP_MDIR and
-# DP_SRC, CLKV_SRC, RSP_SRC or MCR_SRC overridden); the sweep plants the five
-# controls the #387/#602 acceptances name, and gmstep-mutants below the whole
-# inventory. The AEM image is the shipping config's. GMSTEP_FEED_DELAY idles
-# that many fabric cycles before the peer's media feed starts, which moves
-# the accept phase against the media tick; the leg must pass at every delay.
+# model). The ../milan_dp_gm_steps suite runs it and then its negative
+# controls, ../milan_dp_gm_steps/gmstep_mutants.py, which build mutated copies
+# through this same recipe (GMSTEP_MDIR and DP_SRC, CLKV_SRC, RSP_SRC or
+# MCR_SRC overridden); the sweep plants the five controls the #387/#602
+# acceptances name, and that suite's gmstep-mutants target the whole
+# inventory. `run` here no longer runs the leg (#621): its #621 phase made it
+# the costliest leg on this suite's worker. The AEM image is the shipping
+# config's. GMSTEP_FEED_DELAY idles that many fabric cycles before the peer's
+# media feed starts, which moves the accept phase against the media tick; the
+# leg must pass at every delay.
 GMSTEP_MDIR ?= obj_gmstep
 GMSTEP_FEED_DELAY ?= 0
 gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
@@ -389,11 +390,6 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 
 gmstep: gmstep-build
 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
-
-# An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md): the
-# gmstep leg's whole control inventory, one datapath elaboration per control.
-gmstep-mutants: gmstep
-	python3 gmstep_mutants.py --all
 
 # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
 # target above leaves both constants at their zero defaults and therefore
@@ -423,9 +419,10 @@ gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 
 # Focused ownerless boundary: the same 1x1 harness used by the broad suite,
 # with the gPTP product plane structurally absent and every legacy write inert.
-# Its build alone, into OPTOFF_MDIR, is what gmstep_mutants.py rebuilds with
-# a MUTATED datapath (DP_SRC) for its option-off controls (#602: a PHC-only
-# re-base leaves mr and MEDIA_RESET unchanged).
+# Its build alone, into OPTOFF_MDIR, is what ../milan_dp_gm_steps/
+# gmstep_mutants.py rebuilds with a MUTATED datapath (DP_SRC) for its
+# option-off controls (#602: a PHC-only re-base leaves mr and MEDIA_RESET
+# unchanged).
 OPTOFF_MDIR ?= obj_dir
 option-off-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir $(OPTOFF_MDIR) $(SRCS) $(CPP) -o Vmilan_dp_sim
@@ -541,7 +538,7 @@ ax1x1gptp: ax1x1gptp-build
 ax1x1gptp-extended: AX_GPTP_ARGS = --extended
 ax1x1gptp-extended: ax1x1gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat gmstep
+run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -633,8 +630,6 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 	  ./obj_aclk/Vmilan_dp_aclk
 	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
 	python3 render_mutants.py
-	@echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"
-	python3 gmstep_mutants.py
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
 # target stays here so there is only one source/parameter/build recipe.
 
