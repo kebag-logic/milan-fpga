@@ -59,7 +59,9 @@ all: census run-wb run-axil run-cosim run-if2 mutants-quick
 
 # The publication census (#665, comment 6092086337): the block must carry
 # every value the split datapath consumes, so the datapath's reads are counted
-# from the source, never from a list.
+# from the source, never from a list. It reads the datapath as text and
+# simulates none of it.
+# traceability-text-input: milan_datapath.sv
 census:
 	python3 -B $(ROOT)/sw/mailbox/publication_census.py --check --selftest
 
