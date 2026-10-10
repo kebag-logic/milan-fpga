@@ -1,0 +1,10 @@
+GNU Make 4.4.1
+dry run 'make -n -C maap integration-build' rc=2
+integration.mk:13: *** datapath source list names non-files: echo.  Stop.
+make: *** [Makefile:29: integration-build] Error 2
+database read 'make -pqrR' of maap/integration.mk rc=2
+integration.mk:10: *** datapath source derivation failed.  Stop.
+database read 'make -pqrR' of capture_coherence/Makefile rc=2
+Makefile:103: *** ../milan_dp print-srcs failed; the datapath source list could not be derived.  Stop.
+database read 'make -pqrR' of milan_dp_mclk/Makefile rc=0
+integration.mk names adp_shape_defaults.svh (shape-inventory consumer): 0

@@ -1,0 +1,23 @@
+== head_plain MAKEFLAGS='' rc=0 entering_lines_in_output=0
+   SRCS words=114 non-regular-files: none
+== head_w MAKEFLAGS='w' rc=0 entering_lines_in_output=1
+   SRCS words=114 non-regular-files: none
+== f909_w MAKEFLAGS='w' rc=0 entering_lines_in_output=2
+   SRCS words=122 non-regular-files: make[1]: Entering directory <scratch>/tb/verilator/milan_dp make[1]: Leaving directory <scratch>/tb/verilator/milan_dp
+== f909_plain MAKEFLAGS='' rc=0 entering_lines_in_output=0
+   SRCS words=114 non-regular-files: none
+== oldcap_guard_w MAKEFLAGS='w' rc=2 entering_lines_in_output=1
+probe_oldcap_guard.mk:13: *** datapath source list names non-files: make[1]:.  Stop.
+== nonfile MAKEFLAGS='' rc=2 entering_lines_in_output=0
+probe_nonfile.mk:13: *** datapath source list names non-files: bogus_not_a_file.sv.  Stop.
+== glob MAKEFLAGS='' rc=2 entering_lines_in_output=0
+probe_glob.mk:13: *** datapath source list names non-files: *.cpp.  Stop.
+== directory MAKEFLAGS='' rc=0 entering_lines_in_output=0
+   SRCS words=115 non-regular-files: ../milan_dp
+== empty MAKEFLAGS='' rc=0 entering_lines_in_output=0
+   SRCS words=0 non-regular-files: none
+== override_cmdline MAKEFLAGS='' rc=2 entering_lines_in_output=0
+integration.mk:13: *** datapath source list names non-files: bogus_not_a_file.sv.  Stop.
+== nested_fail MAKEFLAGS='' rc=2 entering_lines_in_output=0
+make[1]: *** No rule to make target 'no-such-target'.  Stop.
+probe_status.mk:10: *** datapath source derivation failed.  Stop.
