@@ -1,0 +1,24 @@
+#### GNU Make 4.3
+== A MAKEFLAGS='w' rc=0 ::       1 --build -j 0       1 Entering directory 
+== A MAKEFLAGS='w -j8 --jobserver-auth=97,98' rc=2 ::       1 Entering directory 
+   stderr: make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+== A MAKEFLAGS=' -j8 --jobserver-auth=97,98' rc=0 ::       1 --build -j 0 
+   stderr: make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+== B MAKEFLAGS='w' rc=0 ::       1 --build -j 2       1 Entering directory 
+== B MAKEFLAGS='w -j8 --jobserver-auth=97,98' rc=0 ::       1 --build -j 2       1 Entering directory 
+   stderr: make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+== B MAKEFLAGS=' -j8 --jobserver-auth=97,98' rc=0 ::       1 --build -j 2 
+   stderr: make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+#### GNU Make 4.4.1
+== A MAKEFLAGS='w' rc=0 ::       1 --build -j 0       1 Entering directory 
+== A MAKEFLAGS='w -j8 --jobserver-auth=97,98' rc=0 ::       1 --build -j 0       1 Entering directory 
+   stderr: make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+== A MAKEFLAGS=' -j8 --jobserver-auth=97,98' rc=0 ::       1 --build -j 0 
+   stderr: make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+== B MAKEFLAGS='w' rc=0 ::       1 --build -j 2       1 Entering directory 
+== B MAKEFLAGS='w -j8 --jobserver-auth=97,98' rc=0 ::       1 --build -j 2       1 Entering directory 
+   stderr: make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+== B MAKEFLAGS=' -j8 --jobserver-auth=97,98' rc=0 ::       1 --build -j 2 
+   stderr: make: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.

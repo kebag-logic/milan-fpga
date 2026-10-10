@@ -1,0 +1,76 @@
+#### GNU Make 4.3
+== prefix plain rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 0] 
+== prefix w rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 0] 
+== prefix j8 rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 0] 
+== prefix w+j8 rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 0] 
+== head plain rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2] 
+== head w rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2] 
+== head j8 rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2] 
+== head w+j8 rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2] 
+== bound default w+j8 :: make: Entering directory '/'
+make[1]: Entering directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2]
+make[1]: Leaving directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+make: Leaving directory '/'
+== bound cmdline=5 w+j8 :: make: Entering directory '/'
+make[1]: Entering directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 5]
+make[1]: Leaving directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+make: Leaving directory '/'
+== bound env=7 w+j8 :: make: Entering directory '/'
+make[1]: Entering directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 7]
+make[1]: Leaving directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+make: Leaving directory '/'
+== suite chain cmdline=3 (-n) ::       1 --build -j 3
+== control no-pass cmdline=5 :: make: Entering directory '/'
+make[1]: Entering directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 5]
+make[1]: Leaving directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+make: Leaving directory '/'
+#### GNU Make 4.4.1
+== prefix plain rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 0] 
+== prefix w rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 0] 
+== prefix j8 rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 0] 
+== prefix w+j8 rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 0] 
+== head plain rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2] 
+== head w rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2] 
+== head j8 rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2] 
+== head w+j8 rc=0 :: SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2] 
+== bound default w+j8 :: make: Entering directory '/'
+make[1]: Entering directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 2]
+make[1]: Leaving directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+make: Leaving directory '/'
+== bound cmdline=5 w+j8 :: make: Entering directory '/'
+make[1]: Entering directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 5]
+make[1]: Leaving directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+make: Leaving directory '/'
+== bound env=7 w+j8 :: make: Entering directory '/'
+make[1]: Entering directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 7]
+make[1]: Leaving directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+make: Leaving directory '/'
+== suite chain cmdline=3 (-n) ::       1 --build -j 3
+== control no-pass cmdline=5 :: make: Entering directory '/'
+make[1]: Entering directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+SRCS-WORDS=114 DIRLINES=0 JFLAG=[--exe] JPOS=[-j 5]
+make[1]: Leaving directory '$REVIEWS/r559-4-696/tb/verilator/maap'
+make: Leaving directory '/'
+#### guards GNU Make 4.3
+== good rc=0 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' SRCS-WORDS=1 DIRLINES=0 JFLAG=[--build] JPOS=[4] make: Leaving directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap'
+== empty rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' integration.mk:17: *** datapath source list is empty.  Stop. make: Leaving directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/veri
+== blank rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' integration.mk:17: *** datapath source list is empty.  Stop. make: Leaving directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/veri
+== nonfile rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' integration.mk:20: *** datapath source list names non-files: make[1]:.  Stop. make: Leaving directory '$REVIEWS/696-r559-4-packet/scr
+== mixed rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' integration.mk:20: *** datapath source list names non-files: no_such.sv.  Stop. make: Leaving directory '$REVIEWS/696-r559-4-packet/s
+== fail rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' make: *** [Makefile:2: print-srcs] Error 1 integration.mk:14: *** datapath source derivation failed.  Stop. make: Leaving directory '$VALIDATION_STORAGE
+== flagfail rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' make: *** [Makefile:4: print-dp-vflags] Error 1 integration.mk:24: *** datapath flag derivation failed.  Stop. make: Leaving directory '/data/mi
+#### guards GNU Make 4.4.1
+== good rc=0 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' SRCS-WORDS=1 DIRLINES=0 JFLAG=[--build] JPOS=[4] make: Leaving directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap'
+== empty rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' integration.mk:17: *** datapath source list is empty.  Stop. make: Leaving directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/veri
+== blank rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' integration.mk:17: *** datapath source list is empty.  Stop. make: Leaving directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/veri
+== nonfile rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' integration.mk:20: *** datapath source list names non-files: make[1]:.  Stop. make: Leaving directory '$REVIEWS/696-r559-4-packet/scr
+== mixed rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' integration.mk:20: *** datapath source list names non-files: no_such.sv.  Stop. make: Leaving directory '$REVIEWS/696-r559-4-packet/s
+== fail rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' make[1]: *** [Makefile:2: print-srcs] Error 1 integration.mk:14: *** datapath source derivation failed.  Stop. make: Leaving directory '/data/mi
+== flagfail rc=2 :: make: Entering directory '$REVIEWS/696-r559-4-packet/scratch/fg/g/tb/verilator/maap' make[1]: *** [Makefile:4: print-dp-vflags] Error 1 integration.mk:24: *** datapath flag derivation failed.  Stop. make: Leaving directory '/data

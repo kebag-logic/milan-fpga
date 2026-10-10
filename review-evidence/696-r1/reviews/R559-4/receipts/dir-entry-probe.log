@@ -1,0 +1,7 @@
+GNU Make 4.3 srcs='adir' :: make: *** [integration.mk:30: build] Error 2 
+GNU Make 4.3 srcs='real.sv adir' :: make: *** [integration.mk:30: build] Error 2 
+GNU Make 4.3 srcs='../milan_dp' :: make: *** [integration.mk:30: build] Error 2 
+GNU Make 4.4.1 srcs='adir' :: make: *** [integration.mk:30: build] Error 2 
+GNU Make 4.4.1 srcs='real.sv adir' :: make: *** [integration.mk:30: build] Error 2 
+GNU Make 4.4.1 srcs='../milan_dp' :: make: *** [integration.mk:30: build] Error 2 
+# note: 'integration.mk:30: build' is the recipe's first generator line (absent in the disposable tree); reaching it means the parse-time guards admitted the directory entry.
