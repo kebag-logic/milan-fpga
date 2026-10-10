@@ -1,0 +1,36 @@
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Background:   # tests/features/switch.feature:4
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:8
+      Assertion Failed: after connecting: ports 0-47 enabled, expected disabled
+
+    When port 0 is enabled        # None
+    Then port 0 should be active  # None
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:8
+      Assertion Failed: after connecting: ports 0-47 enabled, expected disabled
+
+    Given port 0 is enabled        # None
+    When port 0 is disabled        # None
+    Then port 0 should be inactive # None
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:8
+      Assertion Failed: after connecting: ports 0-47 enabled, expected disabled
+
+    When port 255 is enabled             # None
+    Then the operation should fail       # None
+
+
+Failing scenarios:
+  tests/features/switch.feature:7  Enable a port
+  tests/features/switch.feature:11  Disable a port
+  tests/features/switch.feature:16  Reject an out-of-range port
+
+0 features passed, 1 failed, 0 skipped
+0 scenarios passed, 3 failed, 0 skipped
+0 steps passed, 3 failed, 7 skipped, 0 undefined
+Took 0m0.000s

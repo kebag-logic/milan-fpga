@@ -1,0 +1,14 @@
+[
+ {
+  "label": "hdr-field-before-priv",
+  "file": "src/include/shish_lan/switch.h",
+  "old": "    void                          *priv; /* adapter-private data */",
+  "new": "    void                          *cookie;\n    void                          *priv; /* adapter-private data */"
+ },
+ {
+  "label": "hdr-swap-ops-priv",
+  "file": "src/include/shish_lan/switch.h",
+  "old": "    const struct shlan_switch_ops *ops;\n    void                          *priv; /* adapter-private data */",
+  "new": "    void                          *priv; /* adapter-private data */\n    const struct shlan_switch_ops *ops;"
+ }
+]

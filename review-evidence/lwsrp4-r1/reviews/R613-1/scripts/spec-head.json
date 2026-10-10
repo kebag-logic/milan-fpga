@@ -1,0 +1,176 @@
+[
+ {
+  "label": "a-disable-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    return shlan_port_enable(sw, port_id);"
+ },
+ {
+  "label": "a-disable-mapping",
+  "file": "tests/features/environment.py",
+  "old": "getattr(lib, f\"shlan_test_{name}\")",
+  "new": "getattr(lib, \"shlan_test_\" + name.replace(\"disable\", \"enable\"))"
+ },
+ {
+  "label": "a-disable-port",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    return shlan_port_disable(sw, (uint8_t)(port_id + 1u));"
+ },
+ {
+  "label": "a-enable-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    return shlan_port_disable(sw, port_id);"
+ },
+ {
+  "label": "a-connect-noop",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    (void)sw;\n    return 0;"
+ },
+ {
+  "label": "a-connect-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    shlan_disconnect(sw);\n    return 0;"
+ },
+ {
+  "label": "a-disconnect-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    shlan_disconnect(sw);",
+  "new": "    (void)shlan_connect(sw);"
+ },
+ {
+  "label": "r-disable-calls-enable",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    int rc = shlan_port_enable(sw, port_id);\n    return rc;"
+ },
+ {
+  "label": "r-connect-noop",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    return sw ? 0 : -1;"
+ },
+ {
+  "label": "r-enable-noop",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    (void)sw;\n    (void)port_id;\n    return 0;"
+ },
+ {
+  "label": "r-disable-noop",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    (void)sw;\n    (void)port_id;\n    return 0;"
+ },
+ {
+  "label": "r-enable-xor-port",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    return shlan_port_enable(sw, (uint8_t)(port_id ^ 1u));"
+ },
+ {
+  "label": "r-enable-wraps-range",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    return shlan_port_enable(sw, (uint8_t)(port_id % 48u));"
+ },
+ {
+  "label": "r-enable-accepts-oor",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    if (port_id >= 48u) {\n        return 0;\n    }\n    return shlan_port_enable(sw, port_id);"
+ },
+ {
+  "label": "r-enable-rc-lie",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    (void)shlan_port_enable(sw, port_id);\n    return -1;"
+ },
+ {
+  "label": "r-connect-rc-lie",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    (void)shlan_connect(sw);\n    return 1;"
+ },
+ {
+  "label": "r-connect-enables-last",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    int rc = shlan_connect(sw);\n    (void)shlan_port_enable(sw, 47u);\n    return rc;"
+ },
+ {
+  "label": "r-disconnect-disables-all",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    shlan_disconnect(sw);",
+  "new": "    shlan_disconnect(sw);\n    for (uint8_t i = 0; i < 48u; i++) {\n        (void)shlan_port_disable(sw, i);\n    }"
+ },
+ {
+  "label": "r-env-connect-to-disconnect",
+  "file": "tests/features/environment.py",
+  "old": "getattr(lib, f\"shlan_test_{name}\")",
+  "new": "getattr(lib, \"shlan_test_\" + {\"connect\": \"disconnect\"}.get(name, name))"
+ },
+ {
+  "label": "r-env-enable-to-disable",
+  "file": "tests/features/environment.py",
+  "old": "getattr(lib, f\"shlan_test_{name}\")",
+  "new": "getattr(lib, \"shlan_test_\" + name.replace(\"enable\", \"disable\"))"
+ },
+ {
+  "label": "lim-disconnect-noop",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    shlan_disconnect(sw);",
+  "new": "    (void)sw;"
+ },
+ {
+  "label": "lim-disable-reconnects",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    (void)port_id;\n    return shlan_connect(sw);"
+ },
+ {
+  "label": "lim-disable-all",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    for (uint8_t i = 0; i < 48u; i++) {\n        (void)shlan_port_disable(sw, i);\n    }\n    return port_id < 48u ? 0 : -1;"
+ },
+ {
+  "label": "lay-field-after",
+  "file": "src/modules/sim_adapter.c",
+  "old": "    int port_state[SIM_MAX_PORTS]; /* 1 = enabled, 0 = disabled */\n};",
+  "new": "    int port_state[SIM_MAX_PORTS]; /* 1 = enabled, 0 = disabled */\n    int connected;\n};"
+ },
+ {
+  "label": "lay-field-before",
+  "file": "src/modules/sim_adapter.c",
+  "old": "struct sim_priv {\n",
+  "new": "struct sim_priv {\n    long generation;\n"
+ },
+ {
+  "label": "lay-narrow-type",
+  "file": "src/modules/sim_adapter.c",
+  "old": "    int port_state[SIM_MAX_PORTS];",
+  "new": "    unsigned char port_state[SIM_MAX_PORTS];"
+ },
+ {
+  "label": "lay-count-64",
+  "file": "src/modules/sim_adapter.c",
+  "old": "#define SIM_MAX_PORTS 48",
+  "new": "#define SIM_MAX_PORTS 64"
+ },
+ {
+  "label": "lay-count-paren",
+  "file": "src/modules/sim_adapter.c",
+  "old": "#define SIM_MAX_PORTS 48",
+  "new": "#define SIM_MAX_PORTS (48)"
+ },
+ {
+  "label": "unmodified",
+  "file": null,
+  "old": null,
+  "new": null
+ }
+]

@@ -1,0 +1,395 @@
+[
+ {
+  "label": "a-disable-dispatch",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped"
+  ]
+ },
+ {
+  "label": "a-disable-mapping",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped"
+  ]
+ },
+ {
+  "label": "a-disable-port",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped"
+  ]
+ },
+ {
+  "label": "a-enable-dispatch",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "1 scenario passed, 2 failed, 0 skipped",
+   "5 steps passed, 2 failed, 3 skipped"
+  ]
+ },
+ {
+  "label": "a-connect-noop",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port",
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "0 scenarios passed, 3 failed, 0 skipped",
+   "0 steps passed, 3 failed, 7 skipped"
+  ]
+ },
+ {
+  "label": "a-connect-dispatch",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port",
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "0 scenarios passed, 3 failed, 0 skipped",
+   "0 steps passed, 3 failed, 7 skipped"
+  ]
+ },
+ {
+  "label": "a-disconnect-dispatch",
+  "behave_rc": 1,
+  "failed": [
+   "Enable a port"
+  ],
+  "assertions": [
+   "HOOK-ERROR in after_scenario: AssertionError: after disconnecting: port 0 disabled, expected enabled"
+  ],
+  "summary": [
+   "0 features passed, 0 failed, 1 error, 0 skipped",
+   "2 scenarios passed, 0 failed, 1 hook_error, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped"
+  ]
+ },
+ {
+  "label": "r-disable-calls-enable",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped"
+  ]
+ },
+ {
+  "label": "r-connect-noop",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port",
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "0 scenarios passed, 3 failed, 0 skipped",
+   "0 steps passed, 3 failed, 7 skipped"
+  ]
+ },
+ {
+  "label": "r-enable-noop",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port",
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "0 scenarios passed, 3 failed, 0 skipped",
+   "3 steps passed, 3 failed, 4 skipped"
+  ]
+ },
+ {
+  "label": "r-disable-noop",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped"
+  ]
+ },
+ {
+  "label": "r-enable-xor-port",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "1 scenario passed, 2 failed, 0 skipped",
+   "5 steps passed, 2 failed, 3 skipped"
+  ]
+ },
+ {
+  "label": "r-enable-wraps-range",
+  "behave_rc": 1,
+  "failed": [
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped"
+  ]
+ },
+ {
+  "label": "r-enable-accepts-oor",
+  "behave_rc": 1,
+  "failed": [
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped"
+  ]
+ },
+ {
+  "label": "r-enable-rc-lie",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "1 scenario passed, 2 failed, 0 skipped",
+   "5 steps passed, 2 failed, 3 skipped"
+  ]
+ },
+ {
+  "label": "r-connect-rc-lie",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port",
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "0 scenarios passed, 3 failed, 0 skipped",
+   "0 steps passed, 3 failed, 7 skipped"
+  ]
+ },
+ {
+  "label": "r-connect-enables-last",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port",
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "0 scenarios passed, 3 failed, 0 skipped",
+   "0 steps passed, 3 failed, 7 skipped"
+  ]
+ },
+ {
+  "label": "r-disconnect-disables-all",
+  "behave_rc": 1,
+  "failed": [
+   "Enable a port"
+  ],
+  "assertions": [
+   "HOOK-ERROR in after_scenario: AssertionError: after disconnecting: port 0 disabled, expected enabled"
+  ],
+  "summary": [
+   "0 features passed, 0 failed, 1 error, 0 skipped",
+   "2 scenarios passed, 0 failed, 1 hook_error, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped"
+  ]
+ },
+ {
+  "label": "r-env-connect-to-disconnect",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port",
+   "Reject an out-of-range port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "0 scenarios passed, 3 failed, 0 skipped",
+   "0 steps passed, 3 failed, 7 skipped"
+  ]
+ },
+ {
+  "label": "r-env-enable-to-disable",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port"
+  ],
+  "assertions": [],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "1 scenario passed, 2 failed, 0 skipped",
+   "5 steps passed, 2 failed, 3 skipped"
+  ]
+ },
+ {
+  "label": "lim-disconnect-noop",
+  "behave_rc": 0,
+  "failed": [],
+  "assertions": [],
+  "summary": [
+   "1 feature passed, 0 failed, 0 skipped",
+   "3 scenarios passed, 0 failed, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped"
+  ]
+ },
+ {
+  "label": "lim-disable-reconnects",
+  "behave_rc": 0,
+  "failed": [],
+  "assertions": [],
+  "summary": [
+   "1 feature passed, 0 failed, 0 skipped",
+   "3 scenarios passed, 0 failed, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped"
+  ]
+ },
+ {
+  "label": "lim-disable-all",
+  "behave_rc": 0,
+  "failed": [],
+  "assertions": [],
+  "summary": [
+   "1 feature passed, 0 failed, 0 skipped",
+   "3 scenarios passed, 0 failed, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped"
+  ]
+ },
+ {
+  "label": "lay-field-after",
+  "behave_rc": 1,
+  "failed": [],
+  "assertions": [
+   "ABORTED: HOOK-ERROR in hook=before_all",
+   "HOOK-ERROR in before_all: AssertionError: struct sim_priv in sim_adapter.c no longer matches the port flag reader"
+  ],
+  "summary": [
+   "0 features passed, 0 failed, 0 skipped, 1 untested",
+   "0 scenarios passed, 0 failed, 0 skipped, 3 untested",
+   "0 steps passed, 0 failed, 0 skipped, 10 untested"
+  ]
+ },
+ {
+  "label": "lay-field-before",
+  "behave_rc": 1,
+  "failed": [],
+  "assertions": [
+   "ABORTED: HOOK-ERROR in hook=before_all",
+   "HOOK-ERROR in before_all: AssertionError: struct sim_priv in sim_adapter.c no longer matches the port flag reader"
+  ],
+  "summary": [
+   "0 features passed, 0 failed, 0 skipped, 1 untested",
+   "0 scenarios passed, 0 failed, 0 skipped, 3 untested",
+   "0 steps passed, 0 failed, 0 skipped, 10 untested"
+  ]
+ },
+ {
+  "label": "lay-narrow-type",
+  "behave_rc": 1,
+  "failed": [],
+  "assertions": [
+   "ABORTED: HOOK-ERROR in hook=before_all",
+   "HOOK-ERROR in before_all: AssertionError: struct sim_priv in sim_adapter.c no longer matches the port flag reader"
+  ],
+  "summary": [
+   "0 features passed, 0 failed, 0 skipped, 1 untested",
+   "0 scenarios passed, 0 failed, 0 skipped, 3 untested",
+   "0 steps passed, 0 failed, 0 skipped, 10 untested"
+  ]
+ },
+ {
+  "label": "lay-count-64",
+  "behave_rc": 0,
+  "failed": [],
+  "assertions": [],
+  "summary": [
+   "1 feature passed, 0 failed, 0 skipped",
+   "3 scenarios passed, 0 failed, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped"
+  ]
+ },
+ {
+  "label": "lay-count-paren",
+  "behave_rc": 1,
+  "failed": [],
+  "assertions": [
+   "ABORTED: HOOK-ERROR in hook=before_all",
+   "HOOK-ERROR in before_all: AssertionError: struct sim_priv in sim_adapter.c no longer matches the port flag reader"
+  ],
+  "summary": [
+   "0 features passed, 0 failed, 0 skipped, 1 untested",
+   "0 scenarios passed, 0 failed, 0 skipped, 3 untested",
+   "0 steps passed, 0 failed, 0 skipped, 10 untested"
+  ]
+ },
+ {
+  "label": "unmodified",
+  "behave_rc": 0,
+  "failed": [],
+  "assertions": [],
+  "summary": [
+   "1 feature passed, 0 failed, 0 skipped",
+   "3 scenarios passed, 0 failed, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped"
+  ]
+ }
+]

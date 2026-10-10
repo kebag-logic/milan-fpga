@@ -1,0 +1,119 @@
+[
+ {
+  "label": "a-disable-dispatch",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port"
+  ],
+  "assertions": [
+   "Assertion Failed: after disabling port 0: port 0 enabled, expected disabled"
+  ],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped, 0 undefined"
+  ]
+ },
+ {
+  "label": "a-enable-dispatch",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port"
+  ],
+  "assertions": [
+   "Assertion Failed: after enabling port 0: port 0 disabled, expected enabled"
+  ],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "1 scenario passed, 2 failed, 0 skipped",
+   "5 steps passed, 2 failed, 3 skipped, 0 undefined"
+  ]
+ },
+ {
+  "label": "a-connect-noop",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port",
+   "Enable a port",
+   "Reject an out-of-range port"
+  ],
+  "assertions": [
+   "Assertion Failed: after connecting: ports 0-47 enabled, expected disabled"
+  ],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "0 scenarios passed, 3 failed, 0 skipped",
+   "0 steps passed, 3 failed, 7 skipped, 0 undefined"
+  ]
+ },
+ {
+  "label": "a-disconnect-dispatch",
+  "behave_rc": 1,
+  "failed": [
+   "Enable a port"
+  ],
+  "assertions": [
+   "HOOK-ERROR in after_scenario: AssertionError: after disconnecting: port 0 disabled, expected enabled"
+  ],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped, 0 undefined"
+  ]
+ },
+ {
+  "label": "r-disable-calls-enable",
+  "behave_rc": 1,
+  "failed": [
+   "Disable a port"
+  ],
+  "assertions": [
+   "Assertion Failed: after disabling port 0: port 0 enabled, expected disabled"
+  ],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped, 0 undefined"
+  ]
+ },
+ {
+  "label": "r-enable-wraps-range",
+  "behave_rc": 1,
+  "failed": [
+   "Reject an out-of-range port"
+  ],
+  "assertions": [
+   "Assertion Failed: enabling port 255 returned 0, but the simulated switch has no such port"
+  ],
+  "summary": [
+   "0 features passed, 1 failed, 0 skipped",
+   "2 scenarios passed, 1 failed, 0 skipped",
+   "8 steps passed, 1 failed, 1 skipped, 0 undefined"
+  ]
+ },
+ {
+  "label": "lay-field-after",
+  "behave_rc": 1,
+  "failed": [],
+  "assertions": [
+   "HOOK-ERROR in before_all: AssertionError: struct sim_priv in sim_adapter.c no longer matches the port flag reader"
+  ],
+  "summary": [
+   "0 features passed, 0 failed, 0 skipped, 1 untested",
+   "0 scenarios passed, 0 failed, 0 skipped, 3 untested",
+   "0 steps passed, 0 failed, 0 skipped, 0 undefined, 10 untested"
+  ]
+ },
+ {
+  "label": "unmodified",
+  "behave_rc": 0,
+  "failed": [],
+  "assertions": [],
+  "summary": [
+   "1 feature passed, 0 failed, 0 skipped",
+   "3 scenarios passed, 0 failed, 0 skipped",
+   "10 steps passed, 0 failed, 0 skipped, 0 undefined"
+  ]
+ }
+]

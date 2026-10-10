@@ -1,0 +1,11 @@
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:8
+      ASSERT FAILED: after connecting: ports 0-47 enabled, expected disabled
+
+    When port 0 is enabled        # None
+    Then port 0 should be active  # None

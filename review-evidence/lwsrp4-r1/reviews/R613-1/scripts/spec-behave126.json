@@ -1,0 +1,50 @@
+[
+ {
+  "label": "a-disable-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    return shlan_port_enable(sw, port_id);"
+ },
+ {
+  "label": "a-enable-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    return shlan_port_disable(sw, port_id);"
+ },
+ {
+  "label": "a-connect-noop",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    (void)sw;\n    return 0;"
+ },
+ {
+  "label": "a-disconnect-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    shlan_disconnect(sw);",
+  "new": "    (void)shlan_connect(sw);"
+ },
+ {
+  "label": "r-disable-calls-enable",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    int rc = shlan_port_enable(sw, port_id);\n    return rc;"
+ },
+ {
+  "label": "r-enable-wraps-range",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    return shlan_port_enable(sw, (uint8_t)(port_id % 48u));"
+ },
+ {
+  "label": "lay-field-after",
+  "file": "src/modules/sim_adapter.c",
+  "old": "    int port_state[SIM_MAX_PORTS]; /* 1 = enabled, 0 = disabled */\n};",
+  "new": "    int port_state[SIM_MAX_PORTS]; /* 1 = enabled, 0 = disabled */\n    int connected;\n};"
+ },
+ {
+  "label": "unmodified",
+  "file": null,
+  "old": null,
+  "new": null
+ }
+]

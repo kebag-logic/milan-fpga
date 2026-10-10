@@ -1,0 +1,62 @@
+[
+ {
+  "label": "a-disable-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    return shlan_port_enable(sw, port_id);"
+ },
+ {
+  "label": "a-disable-mapping",
+  "file": "tests/features/environment.py",
+  "old": "getattr(lib, f\"shlan_test_{name}\")",
+  "new": "getattr(lib, \"shlan_test_\" + name.replace(\"disable\", \"enable\"))"
+ },
+ {
+  "label": "a-disable-port",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    return shlan_port_disable(sw, (uint8_t)(port_id + 1u));"
+ },
+ {
+  "label": "a-enable-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_enable(sw, port_id);",
+  "new": "    return shlan_port_disable(sw, port_id);"
+ },
+ {
+  "label": "a-connect-noop",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    (void)sw;\n    return 0;"
+ },
+ {
+  "label": "a-connect-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    shlan_disconnect(sw);\n    return 0;"
+ },
+ {
+  "label": "a-disconnect-dispatch",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    shlan_disconnect(sw);",
+  "new": "    (void)shlan_connect(sw);"
+ },
+ {
+  "label": "r-disable-calls-enable",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_port_disable(sw, port_id);",
+  "new": "    int rc = shlan_port_enable(sw, port_id);\n    return rc;"
+ },
+ {
+  "label": "r-connect-noop",
+  "file": "tests/features/switch_bindings.c",
+  "old": "    return shlan_connect(sw);",
+  "new": "    return sw ? 0 : -1;"
+ },
+ {
+  "label": "unmodified",
+  "file": null,
+  "old": null,
+  "new": null
+ }
+]

@@ -1,0 +1,37 @@
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:8
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:54
+      ASSERT FAILED: after enabling port 0: port 0 disabled, expected enabled
+
+    Then port 0 should be active  # None
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:8
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:46
+      ASSERT FAILED: after enabling port 0: port 0 disabled, expected enabled
+
+    When port 0 is disabled        # None
+    Then port 0 should be inactive # None
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:8
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:54
+      ASSERT FAILED: enabling port 255 returned 0, but the simulated switch has no such port
+
+    Then the operation should fail       # None
+
+
+Failing scenarios:
+  tests/features/switch.feature:7  Enable a port
+  tests/features/switch.feature:11  Disable a port
+  tests/features/switch.feature:16  Reject an out-of-range port
+
+0 features passed, 1 failed, 0 skipped
+0 scenarios passed, 3 failed, 0 skipped
+3 steps passed, 3 failed, 4 skipped
+Took 0min 0.001s
