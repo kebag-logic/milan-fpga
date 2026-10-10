@@ -91,6 +91,7 @@ Every unit is judged as its builders compile it, and nothing about that is liste
 [`ctrl_capture.py`](test/ctrl_capture.py) runs a builder with a recording wrapper first on `PATH` for every C and C++ compiler name, for the RV32 compiler (`MILAN_RV32_CC`), and for `CC` and `CXX` where they are set.
 The wrapper's recorder ([`ctrl_shim.py`](test/ctrl_shim.py), compiled into the capture when it starts) records each invocation and then runs the real compiler with the same arguments, so every object, binary and image is what it would be without it.
 It keeps the text of every C++ source, and of every header outside the checkout that a C++ source reaches in a builder's own directories, so a source a builder writes and deletes is still read.
+A C++ source outside the checkout and outside the builder's temporary and working directories is an installed tool's own (Verilator's runtime, which its builds compile), and it is not followed.
 Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
 The hosted `firmware-unit` job runs its firmware steps under one capture, and the boundary step judges it (`--capture`).
 Run without one, the gate first runs every known builder under a capture of its own.
@@ -124,7 +125,7 @@ It runs each preprocessing once per run and reuses it where it would read the sa
 `--selftest` first judges unplanted copies of both trees, the base every control shares, which must pass.
 A control's planted builder runs through the capture, and what it compiled joins the run's capture for that control.
 One that only compiles a mode runs once, before the base, and its invocations join the base every control shares.
-It then plants 80 defects, each refused by name, and four passing controls.
+It then plants 82 defects, each refused by name, and four passing controls.
 Among them is each form a builder can write a mode or a C++ source's name in, and each way the capture can be missing, empty or incomplete.
 A control that must be refused stops at the finding it names.
 

@@ -86,6 +86,8 @@ FORCED = "srp_entity_gen.h"
 BUILDER_NAMES = ("sw/firmware/ctrl", "ctrl_build")
 #: A -D or -U flag, its macro's name in group 1 (a function-like macro's parameters after it).
 FLAG = re.compile(r"-[DU]([A-Za-z_]\w*)(?:\([^)]*\))?(?:=.*)?", re.S)
+#: The digest the recorder gives an installed tool's own C++ source, which is not followed (ctrl_shim.RECORDER).
+INSTALLED = "installed"
 #: A macro name the C implementation reserves (C11 7.1.3): never a firmware mode.
 RESERVED = re.compile(r"_[A-Z_]")
 #: A #define line, read as text: its macro and its definition.
@@ -553,8 +555,10 @@ def sources_of(capture: Capture) -> dict[tuple[str, str], tuple[dict[str, None],
         if not any(lang == "c++" for _, lang, _ in inv.sources):
             continue
         kept = dict(inv.kept)
-        starts = [(path, digest) for path, lang, digest in inv.sources if lang == "c++" and digest]
-        for key in [*starts, *((f, kept.get(f, "")) for f in inv.forced)]:
+        starts = [(path, digest) for path, lang, digest in inv.sources
+                  if lang == "c++" and digest and digest != INSTALLED]
+        forced = [(f, kept.get(f, "")) for f in inv.forced if f in kept or Path(f).is_relative_to(ROOT)]
+        for key in [*starts, *forced]:
             dirs, beside = found.setdefault(key, ({}, {}))
             dirs.update(dict.fromkeys(inv.dirs))
             beside.update(kept)
@@ -579,6 +583,8 @@ def configurations(universe: dict[str, tuple[str, ...]], capture: Capture, witho
           f"contracts: the tracked one and {', '.join(f'{n} interfaces' for n in found.contracts) or 'no variant'}")
     sources = cxx_sources(capture)
     inside = [s for s in sources if s.path.is_relative_to(ROOT)]
+    tools = {Path(path).name for inv in capture.invocations for path, lang, digest in inv.sources
+             if digest == INSTALLED}
     print(f"C++ sources the recorded invocations compile, and the files they read first: "
           f"{len({s.path for s in sources})} ({len({s.path for s in inside})} in the checkout, the rest as the "
-          "capture kept them)", flush=True)
+          f"capture kept them); installed tools' own, not followed: {', '.join(sorted(tools)) or 'none'}", flush=True)

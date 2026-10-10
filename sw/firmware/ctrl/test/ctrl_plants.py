@@ -310,6 +310,11 @@ PLANTS = (
                    PY + 'from pathlib import Path\nPath(WORK, "gen.hpp").write_text(\'#include "adp_r5.h"\\n\')\n'
                         'Path(WORK, "planted.cpp").write_text(\'#include "gen.hpp"\\n\')\n'
                         'cc("c++", "-fsyntax-only", "-I" + CTRL + "/adp", "planted.cpp")\n', probe=False),
+    Plant("a builder writes a C++ source whose include a macro computes", "ctrl", "", "", "",
+          "includes H, which text cannot follow",
+          run=PY + 'from pathlib import Path\n'
+                   'Path(WORK, "planted.cpp").write_text(\'#define H "adp_mbx.h"\\n#include H\\n\')\n'
+                   'cc("c++", "-fsyntax-only", "-I" + CTRL + "/adp", "planted.cpp")\n'),
     Plant("a builder compiles a C++ source that is no file", "ctrl", "", "", "",
           "compiled C++ from ", run=PY + 'cc("c++", "-fsyntax-only", "planted_r5_absent.cpp")\n'),
     Plant("a builder compiles C++ from its standard input", "ctrl", "", "", "",
