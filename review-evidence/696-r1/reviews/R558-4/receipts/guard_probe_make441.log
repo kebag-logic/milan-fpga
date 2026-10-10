@@ -1,0 +1,79 @@
+head=30073ee9cc30d1d8fc12163ab3e3f8dc27cc126f make=GNU Make 4.4.1
+== head plain []
+SRCS-WORDS=114
+--build -j 2
+rc=0
+== head plain [VERILATOR_JOBS=5]
+SRCS-WORDS=114
+--build -j 5
+rc=0
+== head w+j8 []
+SRCS-WORDS=114
+--build -j 2
+rc=0
+== head w+j8 [VERILATOR_JOBS=5]
+SRCS-WORDS=114
+--build -j 5
+rc=0
+== prefix plain []
+SRCS-WORDS=114
+--build -j 2
+rc=0
+== prefix plain [VERILATOR_JOBS=5]
+SRCS-WORDS=114
+--build -j 5
+rc=0
+== prefix w+j8 []
+SRCS-WORDS=114
+--build -j 2
+rc=0
+== prefix w+j8 [VERILATOR_JOBS=5]
+SRCS-WORDS=114
+--build -j 5
+rc=0
+== nopass plain []
+SRCS-WORDS=114
+--build -j 0
+rc=0
+== nopass plain [VERILATOR_JOBS=5]
+SRCS-WORDS=114
+--build -j 5
+rc=0
+== nopass w+j8 []
+SRCS-WORDS=114
+--build -j 0
+rc=0
+== nopass w+j8 [VERILATOR_JOBS=5]
+SRCS-WORDS=114
+--build -j 5
+rc=0
+== guard empty plain
+$REVIEWS/696-r558-4-packet/scratch/g441/g-empty.mk:17: *** datapath source list is empty.  Stop.
+rc=2
+== guard empty w+j8
+$REVIEWS/696-r558-4-packet/scratch/g441/g-empty.mk:17: *** datapath source list is empty.  Stop.
+make: *** [$REVIEWS/696-r558-4-packet/scratch/g441/parent.mk:2: all] Error 2
+rc=2
+== guard dirline plain
+$REVIEWS/696-r558-4-packet/scratch/g441/g-dirline.mk:20: *** datapath source list names non-files: make[2]:.  Stop.
+rc=2
+== guard dirline w+j8
+$REVIEWS/696-r558-4-packet/scratch/g441/g-dirline.mk:20: *** datapath source list names non-files: make[2]:.  Stop.
+make: *** [$REVIEWS/696-r558-4-packet/scratch/g441/parent.mk:2: all] Error 2
+rc=2
+== guard nonfile plain
+$REVIEWS/696-r558-4-packet/scratch/g441/g-nonfile.mk:20: *** datapath source list names non-files: /no/such/file.sv.  Stop.
+rc=2
+== guard nonfile w+j8
+$REVIEWS/696-r558-4-packet/scratch/g441/g-nonfile.mk:20: *** datapath source list names non-files: /no/such/file.sv.  Stop.
+make: *** [$REVIEWS/696-r558-4-packet/scratch/g441/parent.mk:2: all] Error 2
+rc=2
+== guard fail plain
+make[1]: *** [Makefile:2: print-srcs] Error 2
+$REVIEWS/696-r558-4-packet/scratch/g441/g-fail.mk:14: *** datapath source derivation failed.  Stop.
+rc=2
+== guard fail w+j8
+make[2]: *** [Makefile:2: print-srcs] Error 2
+$REVIEWS/696-r558-4-packet/scratch/g441/g-fail.mk:14: *** datapath source derivation failed.  Stop.
+make: *** [$REVIEWS/696-r558-4-packet/scratch/g441/parent.mk:2: all] Error 2
+rc=2
