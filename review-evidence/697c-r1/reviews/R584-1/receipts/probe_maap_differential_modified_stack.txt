@@ -1,0 +1,74 @@
+[==========] Running 12 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+  parent ANNOUNCE interval: 307811 cycles (10 cycles/ms)
+DIFF #686: conformed; core and parent initial+3 retransmissions, CDL 16, announce 30-32 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (59 ms)
+[ RUN      ] MaapDifferential.ProbeTimingAndCount
+  parent PROBE 1: 5417 cycles (10 cycles/ms)
+  parent PROBE 2: 5310 cycles (10 cycles/ms)
+  parent PROBE 3: 5490 cycles (10 cycles/ms)
+  parent PROBE intervals over 1024 phases: 5172..5811 cycles
+DIFF #686: conformed; core 511..589 ms and parent 518..581 ms draws, both 4 PROBEs, the first at once
+[       OK ] MaapDifferential.ProbeTimingAndCount (2514 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (2 ms)
+[----------] 3 tests from MaapDifferential (2575 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (2 ms)
+[----------] 9 tests from AllStates/DifferentialCell (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 2 test suites ran. (2582 ms total)
+[  PASSED  ] 12 tests.
+== MAAP core and parent wire differential: checks: 12   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (12 tests, 0 failures, exit 0)
+	Command being timed: "<packet>/scripts/sysgtest.sh python3 sw/firmware/ctrl/test/maap_differential.py"
+	User time (seconds): 13.65
+	System time (seconds): 0.52
+	Percent of CPU this job got: 159%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.87
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 391008
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 67508
+	Voluntary context switches: 1000
+	Involuntary context switches: 134
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

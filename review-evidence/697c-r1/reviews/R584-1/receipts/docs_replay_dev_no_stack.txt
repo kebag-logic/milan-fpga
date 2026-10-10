@@ -1,0 +1,65 @@
+rc=0 :: python3 scripts/docs_check.py
+rc=0 :: python3 scripts/check_em_dash.py --base 8b61b70902f3ebf118e56967277e2686731081bd^
+rc=0 :: python3 scripts/check_doc_style.py
+rc=0 :: python3 scripts/check_doc_style.py --selftest
+rc=0 :: python3 scripts/check_gptp_docs.py
+rc=0 :: python3 scripts/check_gptp_docs.py --selftest
+rc=0 :: python3 docs/DOC_MAP.gen.py --check
+rc=0 :: python3 docs/DOC_MAP.gen.py --selftest
+rc=0 :: python3 docs/diagrams/timesync_chain.gen.py --check
+rc=0 :: python3 docs/diagrams/timesync_chain.gen.py --selftest
+rc=0 :: python3 scripts/check_solution_docs.py
+rc=0 :: python3 scripts/check_solution_docs.py --selftest
+rc=0 :: python3 docs/diagrams/submodule_boundaries.gen.py --check
+rc=0 :: python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+rc=0 :: python3 scripts/check_submodule_docs.py
+rc=0 :: python3 scripts/check_submodule_docs.py --selftest
+rc=0 :: python3 scripts/check_diagram_pngs.py
+rc=0 :: python3 scripts/check_diagram_pngs.py --selftest
+rc=0 :: python3 scripts/check_feature_status.py --self-test
+rc=0 :: python3 docs/traceability/gen_module_matrix.py --check
+rc=0 :: python3 scripts/check_baremetal_only.py --check
+rc=0 :: python3 scripts/check_baremetal_only.py --selftest
+rc=0 :: python3 scripts/check_nvm_record_space.py
+rc=0 :: python3 scripts/check_nvm_capture.py
+rc=0 :: python3 scripts/check_rtl_source_lists.py
+rc=0 :: python3 scripts/measure_naming.py --check
+rc=0 :: python3 scripts/check_port_contracts.py
+rc=0 :: python3 scripts/measure_fail_fast.py --check
+rc=0 :: python3 scripts/check_todo_ownership.py
+rc=0 :: python3 scripts/measure_test_evidence.py --check
+rc=0 :: python3 scripts/check_hygiene.py --check
+rc=0 :: python3 scripts/check_sv_idiom.py
+rc=0 :: python3 scripts/check_cpp_idiom.py
+rc=0 :: python3 scripts/check_py_idiom.py
+rc=0 :: python3 scripts/check_sh_idiom.py
+rc=0 :: python3 scripts/ci_events.py --check
+rc=0 :: python3 scripts/check_doc_paths.py
+rc=0 :: python3 scripts/check_archive.py
+rc=0 :: python3 scripts/gen_toc.py --verify-anchors
+rc=0 :: python3 scripts/gen_toc.py --check
+rc=0 :: python3 scripts/ci_scope.py --selftest
+rc=0 :: python3 scripts/pp_srcs.py --check
+	Command being timed: "env PATH=<tools>:<home>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin <packet>/scripts/docs_replay.sh <dev-tree-no-stack> 8b61b70902f3ebf118e56967277e2686731081bd^"
+	User time (seconds): 79.86
+	System time (seconds): 9.21
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:30.01
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 108924
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 1455884
+	Voluntary context switches: 14514
+	Involuntary context switches: 5865
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 624
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1,0 +1,47 @@
+=== probe: stack source includes the platform pool header
+tsn-c-stack at 5bd32e9589e04c038d22731534b3b02ab182c8b1
+  [FAIL] host: the stack's src/acmp.c includes sw/firmware/ctrl/port/ctrl_pool.h
+  [FAIL] rv32: the stack's src/acmp.c includes sw/firmware/ctrl/port/ctrl_pool.h
+  [FAIL] the stack's own gate third_party/tsn-c-stack/scripts/check_boundary.py refused: exit 1
+ctrl_boundary: 34 firmware units and the stack's sources and headers, host and RV32; 3 finding(s)
+ctrl_boundary: FAIL
+rc=0
+=== probe: stack source includes the mailbox driver by relative path
+tsn-c-stack at 6b1214a5839cbece5e8d0f48b51ac69046f02d01
+  [FAIL] host: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h
+  [FAIL] host: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+  [FAIL] rv32: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h
+  [FAIL] rv32: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+  [FAIL] the stack's own gate third_party/tsn-c-stack/scripts/check_boundary.py refused: exit 1
+ctrl_boundary: 34 firmware units and the stack's sources and headers, host and RV32; 5 finding(s)
+ctrl_boundary: FAIL
+rc=0
+=== probe: stack test includes the mailbox HAL
+tsn-c-stack at 6defb9c10ffe7e75a0b3cde100a51b702564357d
+ctrl_boundary: 34 firmware units and the stack's sources and headers, host and RV32; 0 finding(s)
+ctrl_boundary: PASS
+rc=0
+ 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 third_party/tsn-c-stack (1a9f651)
+	Command being timed: "<packet>/scripts/probe_boundary_realpath.sh <head-probe-tree>"
+	User time (seconds): 4.73
+	System time (seconds): 4.40
+	Percent of CPU this job got: 103%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.86
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 143256
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 828924
+	Voluntary context switches: 3838
+	Involuntary context switches: 3982
+	Swaps: 0
+	File system inputs: 536
+	File system outputs: 2072
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

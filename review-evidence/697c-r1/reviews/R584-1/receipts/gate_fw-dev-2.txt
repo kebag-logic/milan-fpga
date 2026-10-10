@@ -1,0 +1,1959 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] arm model
+    == mbx (host model): checks: 23   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (23 tests, 0 failures, exit 0)
+[ok] arm port
+    == ctrl port, driver and loop (host model): checks: 31   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (31 tests, 0 failures, exit 0)
+[ok] arm adp
+    C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+    C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+    C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+    C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+    C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+    C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+    C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+    backlog: 16 event records, 30 centiseconds, 28 receive records
+    passes: events by 2, ENTITY_AVAILABLE in 2 (175 accesses), receive ring by 14 (457 accesses), idle at 15; worst pass 105 accesses
+    F5 the costliest pass of the backlog         105 accesses (bound 407)
+    E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  63 accesses (bound 1628)
+    E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  69 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+    == ctrl ADP slice (fake ports and host model): checks: 26   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (26 tests, 0 failures, exit 0)
+[ok] arm unit
+    == ctrl units on the HAL and port-layer mocks: checks: 24   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (24 tests, 0 failures, exit 0)
+    == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm walk
+    walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+    == ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (41 tests, 0 failures, exit 0)
+[ok] arm acmp
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          25 accesses (bound 9108)
+    E2 3 owed ahead: room to response                                         100 accesses (bound 9108)
+    E2 7 owed ahead: room to response                                         200 accesses (bound 9108)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 193 accesses
+    F3 the worst pass of the backlog                                          193 accesses (bound 1012)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22264)
+    three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 231 accesses
+    F6 the worst pass of the three-way backlog                                231 accesses (bound 1580)
+    == ctrl ACMP core and adapter (fake ports and host model): checks: 85   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (85 tests, 0 failures, exit 0)
+[ok] arm acmpwalk
+    == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (127 tests, 0 failures, exit 0)
+[ok] arm acmpnvm
+    == ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (7 tests, 0 failures, exit 0)
+[ok] arm acmpif2
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 1                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     49 accesses (bound 49)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 28)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 1                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                               12 accesses (bound 13)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 1   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          25 accesses (bound 9387)
+    E2 3 owed ahead: room to response                                         100 accesses (bound 9387)
+    E2 7 owed ahead: room to response                                         200 accesses (bound 9387)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 195 accesses
+    F3 the worst pass of the backlog                                          195 accesses (bound 1043)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22946)
+    three-way backlog: 14 event records, 12 acmp and 7 maap records; worst pass 233 accesses
+    F6 the worst pass of the three-way backlog                                233 accesses (bound 1659)
+    == ctrl ACMP adapter on the two-interface contract (host model): checks: 22   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (22 tests, 0 failures, exit 0)
+[ok] arm entity
+    == ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+[ok] arm rv32
+    riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 15 objects
+    size (text data bss dec): 34716 0 178 34894
+    largest static frame: 256 bytes (not a call-chain bound)
+    undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+    == ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+    RESULT: PASS
+[ok] arm maap
+    == ctrl MAAP Annex B: checks: 37   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (37 tests, 0 failures, exit 0)
+    H-MAAP timer 0: 30 accesses, 8300 ns from original deadline (model)
+    H-MAAP timer 1: 30 accesses, 11300 ns from original deadline (model)
+    H-MAAP timer 2: 56 accesses, 16600 ns from original deadline (model)
+    H-MAAP timer 3: 30 accesses, 19900 ns from original deadline (model)
+    H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+    H-MAAP wake interface 0: 4700 ns from RX_HEAD (model)
+    == ctrl H-MAAP mailbox: checks: 12   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (12 tests, 0 failures, exit 0)
+[ok] arm maap_debug
+    == ctrl MAAP debug port contract: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm maap_if2
+    H-MAAP timer 0: 30 accesses, 12200 ns from original deadline (model)
+    H-MAAP timer 1: 30 accesses, 15200 ns from original deadline (model)
+    H-MAAP timer 2: 56 accesses, 20500 ns from original deadline (model)
+    H-MAAP timer 3: 30 accesses, 23800 ns from original deadline (model)
+    H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+    H-MAAP wake interface 0: 4700 ns from RX_HEAD (model)
+    H-MAAP wake interface 1: 4700 ns from RX_HEAD (model)
+    H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)
+    == ctrl H-MAAP mailbox: checks: 13   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (13 tests, 0 failures, exit 0)
+[ok] arm reentry_debug
+    == ADP debug re-entry: checks: 122   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (122 tests, 0 failures, exit 0)
+[ok] arm reentry_release
+    == ADP release re-entry: checks: 122   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (122 tests, 0 failures, exit 0)
+[ok] arm lwsrp
+    lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44
+    pool class 0: 64-byte stride, high-water 1 of 32 blocks
+    pool class 1: 256-byte stride, high-water 3 of 16 blocks
+    pool class 2: 1024-byte stride, high-water 0 of 4 blocks
+    == ctrl lwSRP port (lwSRP core on the static pool and the mailbox): checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP mailbox: checks: 53   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (53 tests, 0 failures, exit 0)
+[ok] arm srp-debug-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP debug guard: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (17 tests, 0 failures, exit 0)
+[ok] arm srp-srp_app-if1-endstation_ax7101_1x1_tdm8
+    SRP event bound: 1 accesses, bound 1
+    SRP refused receive bound: 2 accesses, bound 2
+    SRP retained receive poll bound: 3 accesses, bound 770
+    SRP transmitting poll bound: 48 accesses, bound 770
+    SRP maximum TX record bound: 383 accesses, bound 383
+    SRP maximum RX record bound: 383 accesses, bound 383
+    SRP complete pass bound: 388 accesses, bound 1596
+    SRP poll terms: fixed 4, calls 2, real send accesses 766, envelope 770/770
+    SRP pass terms: event 56, receive 770, poll 770, envelope 1596/1596
+    == ctrl ADP MAAP SRP composition: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          25 accesses (bound 9108)
+    E2 3 owed ahead: room to response                                         100 accesses (bound 9108)
+    E2 7 owed ahead: room to response                                         200 accesses (bound 9108)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 193 accesses
+    F3 the worst pass of the backlog                                          193 accesses (bound 1012)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22264)
+    three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 265 accesses
+    F6 the worst pass of the four-way backlog                                 265 accesses (bound 3224)
+    == ctrl ADP ACMP MAAP SRP composition: checks: 52   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (52 tests, 0 failures, exit 0)
+[ok] arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP service latency: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_walk-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP mailbox: checks: 53   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (53 tests, 0 failures, exit 0)
+[ok] arm srp-debug-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP debug guard: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (17 tests, 0 failures, exit 0)
+[ok] arm srp-srp_app-if2-endstation_ax7101_1x1_tdm8
+    SRP event bound: 1 accesses, bound 1
+    SRP refused receive bound: 2 accesses, bound 2
+    SRP retained receive poll bound: 4 accesses, bound 1540
+    SRP transmitting poll bound: 91 accesses, bound 1540
+    SRP maximum TX record bound: 383 accesses, bound 383
+    SRP maximum RX record bound: 383 accesses, bound 383
+    SRP complete pass bound: 389 accesses, bound 2366
+    SRP poll terms: fixed 8, calls 4, real send accesses 1532, envelope 1540/1540
+    SRP pass terms: event 56, receive 770, poll 1540, envelope 2366/2366
+    == ctrl ADP MAAP SRP composition: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   76 accesses (bound 76)
+    C1 GET_RX_STATE -> response, interface 1                                   47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       28 accesses (bound 28)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     49 accesses (bound 49)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 28)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1             35 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                             12 accesses (bound 13)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 1                               13 accesses (bound 13)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                         35 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                               12 accesses (bound 13)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 1   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          25 accesses (bound 9387)
+    E2 3 owed ahead: room to response                                         100 accesses (bound 9387)
+    E2 7 owed ahead: room to response                                         200 accesses (bound 9387)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 195 accesses
+    F3 the worst pass of the backlog                                          195 accesses (bound 1043)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22946)
+    three-way backlog: 14 event records, 12 acmp and 7 maap records; worst pass 260 accesses
+    F6 the worst pass of the four-way backlog                                 260 accesses (bound 4073)
+    == ctrl ADP ACMP MAAP SRP composition: checks: 52   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (52 tests, 0 failures, exit 0)
+[ok] arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP service latency: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_shape-if1-endstation_arty_4x4
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if1-endstation_arty_4x4
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3636	      0	     26	   3662	    e4e	<tmp>
+    1636	      0	      0	   1636	    664	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1168	      0	      0	   1168	    490	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    1648	      0	      0	   1648	    670	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1260	      0	      0	   1260	    4ec	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1088	      0	      0	   1088	    440	<tmp>
+    9392	     20	      4	   9416	   24c8	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    65005	    160	    186	  65351	   ff47	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if2-endstation_arty_4x4
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if2-endstation_arty_4x4
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3724	      0	     26	   3750	    ea6	<tmp>
+    1656	      0	      0	   1656	    678	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1548	      0	      0	   1548	    60c	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    2092	      0	      0	   2092	    82c	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1320	      0	      0	   1320	    528	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1104	      0	      0	   1104	    450	<tmp>
+    9940	     20	      4	   9964	   26ec	<tmp>
+    1852	      0	      0	   1852	    73c	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    66577	    160	    186	  66923	  1056b	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if1-endstation_arty_8ch
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if1-endstation_arty_8ch
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3636	      0	     26	   3662	    e4e	<tmp>
+    1636	      0	      0	   1636	    664	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1168	      0	      0	   1168	    490	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    1648	      0	      0	   1648	    670	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1260	      0	      0	   1260	    4ec	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1088	      0	      0	   1088	    440	<tmp>
+    9392	     20	      4	   9416	   24c8	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    65005	    160	    186	  65351	   ff47	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if2-endstation_arty_8ch
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if2-endstation_arty_8ch
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3724	      0	     26	   3750	    ea6	<tmp>
+    1656	      0	      0	   1656	    678	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1548	      0	      0	   1548	    60c	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    2092	      0	      0	   2092	    82c	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1320	      0	      0	   1320	    528	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1104	      0	      0	   1104	    450	<tmp>
+    9940	     20	      4	   9964	   26ec	<tmp>
+    1852	      0	      0	   1852	    73c	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    66577	    160	    186	  66923	  1056b	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if1-endstation_arty_current
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if1-endstation_arty_current
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3636	      0	     26	   3662	    e4e	<tmp>
+    1636	      0	      0	   1636	    664	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1168	      0	      0	   1168	    490	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    1648	      0	      0	   1648	    670	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1260	      0	      0	   1260	    4ec	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1088	      0	      0	   1088	    440	<tmp>
+    9104	     20	      4	   9128	   23a8	<tmp>
+    1828	      0	      0	   1828	    724	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    64709	    160	    186	  65055	   fe1f	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if2-endstation_arty_current
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if2-endstation_arty_current
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3724	      0	     26	   3750	    ea6	<tmp>
+    1656	      0	      0	   1656	    678	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1548	      0	      0	   1548	    60c	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    2092	      0	      0	   2092	    82c	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1320	      0	      0	   1320	    528	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1104	      0	      0	   1104	    450	<tmp>
+    9608	     20	      4	   9632	   25a0	<tmp>
+    1844	      0	      0	   1844	    734	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    66237	    160	    186	  66583	  10417	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if1-endstation_ax7101_1x1_tdm8
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3636	      0	     26	   3662	    e4e	<tmp>
+    1636	      0	      0	   1636	    664	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1168	      0	      0	   1168	    490	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    1648	      0	      0	   1648	    670	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1260	      0	      0	   1260	    4ec	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1088	      0	      0	   1088	    440	<tmp>
+    9424	     20	      4	   9448	   24e8	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    65013	    160	    186	  65359	   ff4f	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if2-endstation_ax7101_1x1_tdm8
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if2-endstation_ax7101_1x1_tdm8
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3724	      0	     26	   3750	    ea6	<tmp>
+    1656	      0	      0	   1656	    678	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1548	      0	      0	   1548	    60c	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    2092	      0	      0	   2092	    82c	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1320	      0	      0	   1320	    528	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1104	      0	      0	   1104	    450	<tmp>
+    9852	     20	      4	   9876	   2694	<tmp>
+    1828	      0	      0	   1828	    724	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    66465	    160	    186	  66811	  104fb	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if1-endstation_ax7101_8x8
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if1-endstation_ax7101_8x8
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3636	      0	     26	   3662	    e4e	<tmp>
+    1636	      0	      0	   1636	    664	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1168	      0	      0	   1168	    490	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    1648	      0	      0	   1648	    670	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1260	      0	      0	   1260	    4ec	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1088	      0	      0	   1088	    440	<tmp>
+    9424	     20	      4	   9448	   24e8	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    65037	    160	    186	  65383	   ff67	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] arm srp-srp_shape-if2-endstation_ax7101_8x8
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if2-endstation_ax7101_8x8
+    largest static frame: 256 bytes (not a call-chain bound)
+    runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    text	   data	    bss	    dec	    hex	filename
+    3724	      0	     26	   3750	    ea6	<tmp>
+    1656	      0	      0	   1656	    678	<tmp>
+    1836	      0	      0	   1836	    72c	<tmp>
+    332	      0	    140	    472	    1d8	<tmp>
+    336	      0	      4	    340	    154	<tmp>
+    3592	      0	      8	   3600	    e10	<tmp>
+    1548	      0	      0	   1548	    60c	<tmp>
+    4524	      0	      0	   4524	   11ac	<tmp>
+    2092	      0	      0	   2092	    82c	<tmp>
+    972	      0	      0	    972	    3cc	<tmp>
+    12020	      0	      0	  12020	   2ef4	<tmp>
+    1320	      0	      0	   1320	    528	<tmp>
+    552	      0	      0	    552	    228	<tmp>
+    1104	      0	      0	   1104	    450	<tmp>
+    9948	     20	      4	   9972	   26f4	<tmp>
+    1852	      0	      0	   1852	    73c	<tmp>
+    12709	    140	      0	  12849	   3231	<tmp>
+    1812	      0	      0	   1812	    714	<tmp>
+    328	      0	      4	    332	    14c	<tmp>
+    3242	      0	      0	   3242	    caa	<tmp>
+    970	      0	      0	    970	    3ca	<tmp>
+    116	      0	      0	    116	     74	<tmp>
+    66585	    160	    186	  66931	  10573	(TOTALS)
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    RESULT: PASS
+[ok] mutant acmp-unbound-record-not-zero (acmp): 35 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding is saved (5.5.2.4)
+[ok] mutant acmp-started-not-saved (acmp, acmpnvm): 3 check(s) failed
+    first: [FAIL] AcmpCore.A24StartedIsSavedAndReported: A24 the started state is saved (5.3.8.7) and is a Table 5.22 item
+[ok] mutant acmp-discovery-notifies (acmp, acmpwalk): 8 check(s) failed
+    first: [FAIL] AcmpCore.A25OnlyTable522ItemsAreReported: A25 discovery noted while settled moves no Table 5.22 item
+[ok] mutant acmp-status-not-notified (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A25OnlyTable522ItemsAreReported: A25 the ACMP status LISTENER_TALKER_TIMEOUT does
+[ok] mutant acmp-probing-status-not-notified (acmpwalk): 4 check(s) failed
+    first: [FAIL] Table530/ListenerWalk.Graded/TK_DISC_PWA: LW TK_DISC x PWA: notified exactly when a Table 5.22 item moved
+[ok] mutant acmp-frames-on-the-adp-channel (acmp): 5 check(s) failed
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the response, then the probe, on the acmp channel, 70 bytes each, in commit order
+[ok] mutant acmp-timer-on-the-next-slot (acmp): 20 check(s) failed
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 0's ACMP slot at NOW_MS + 200 (Table 5.26)
+[ok] mutant acmp-timer-deadline-taken-as-a-delay (acmp): 12 check(s) failed
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 0's ACMP slot at NOW_MS + 200 (Table 5.26)
+[ok] mutant acmp-stale-tag-taken (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+[ok] mutant acmp-tag-reused (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+[ok] mutant acmp-stop-keeps-the-arm (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a stopped arm is counted, never acted on, interface 0
+[ok] mutant acmp-tap-takes-discover (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+[ok] mutant acmp-tap-drops-the-rest (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+[ok] mutant acmp-no-tap (acmp, acmp): 32 check(s) failed
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+[ok] mutant acmp-domain-not-sampled (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from interface 0's grandmaster and domain is taken
+[ok] mutant acmp-attach-before-adp (acmp): 2 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 attaching before ADP bound the adp channel is refused
+[ok] mutant acmp-attach-ignores-sink-room (acmp): 1 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the event sink is refused
+[ok] mutant acmp-attach-ignores-poll-room (acmp): 1 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the poll is refused
+[ok] mutant acmp-slots-past-the-bank (acmp): 6 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 16 is refused: past the bank, wrapping the sum, or truncating to a slot
+[ok] mutant acmp-interfaces-past-the-mailbox (acmp): 1 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 more interfaces than the mailbox has are refused
+[ok] mutant acmp-poll-owes-nothing (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 nothing reported yet, and the loop does not sleep while frames are owed
+[ok] mutant acmp-bind-reads-the-clock-twice (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 3 is guarded
+[ok] mutant acmp-get-rx-state-reads-the-clock (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C1 GET_RX_STATE -> response, interface 0
+[ok] mutant acmp-probe-response-reads-the-clock-twice (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0
+[ok] mutant acmp-unbind-reads-the-clock (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0
+[ok] mutant acmp-talker-reads-the-clock (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C4 talker command -> response, interface 0
+[ok] mutant acmp-expiry-reads-the-clock-twice (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0
+[ok] mutant acmp-available-reads-the-clock-twice (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0
+[ok] mutant acmp-departing-samples-the-grandmaster (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0
+[ok] mutant acmp-aging-samples-the-grandmaster (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0
+[ok] mutant acmp-smallest-record-overstated (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing: F4 the ring holds ACMP_MBX_RX_BACKLOG records of the smallest frame
+[ok] mutant acmp-pass-bound-understated (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F3 the worst pass of the backlog
+[ok] mutant acmp-adp-ring-bound-understated (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound: F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)
+[ok] mutant acmp-discovery-takes-the-first-sink (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on
+[ok] mutant rx-one-record-per-pass (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F2 every acmp record is taken by ACMP_MBX_RX_PASSES
+[ok] mutant acmp-second-no-resp-samples-the-grandmaster (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0
+[ok] mutant acmp-retry-samples-the-grandmaster (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C7 TMR_RETRY -> TMR_DELAY armed, interface 0
+[ok] mutant acmp-delay-reads-the-clock-again (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0
+[ok] mutant acmp-no-tk-samples-the-grandmaster (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK -> TMR_DELAY armed, interface 0
+[ok] mutant acmp-backlog-understated (acmp, acmp): 10 check(s) failed
+    first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F0 the acmp ring holds no more records than A1 assumes
+[ok] mutant model-event-ring-a-record-short (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F0 the event ring is full
+[ok] mutant acmp-new-bind-never-started (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A1BindWithoutStreamingWaitBindsStarted: A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)
+[ok] mutant acmp-bind-response-always-streaming-wait (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A1BindWithoutStreamingWaitBindsStarted: A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)
+[ok] mutant acmp-view-without-registering-failed (acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 and the view says so (5.3.8.8)
+[ok] mutant acmp-discovered-probing-stays-passive (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+[ok] mutant acmp-grandmaster-read-twice (acmp, acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 the grandmaster is sampled once for the frame
+[ok] mutant acmp-adp-short-frame-taken (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+[ok] mutant acmp-adp-ethertype-unchecked (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+[ok] mutant acmp-adp-subtype-unchecked (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+[ok] mutant acmp-adp-discover-taken (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+[ok] mutant acmp-frames-to-the-own-mac (acmp, acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)
+[ok] mutant app-acmp-before-adp (acmp): 21 check(s) failed
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B0 the app with ACMP starts on the model
+[ok] mutant app-acmp-never-composed (acmp): 52 check(s) failed
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the filter passes a BIND_RX for this listener
+[ok] mutant acmp-nvm-bindings-to-the-others (acmpnvm): 11 check(s) failed
+    first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+[ok] mutant acmp-nvm-refusal-applied (acmpnvm, acmpnvm): 4 check(s) failed
+    first: [FAIL] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault: N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+[ok] mutant acmp-nvm-d3-roll-back-kept (acmpnvm): 5 check(s) failed
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+[ok] mutant acmp-nvm-latch-length-unchecked (acmpnvm): 1 check(s) failed
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 a latch of another length gives nothing
+[ok] mutant acmp-nvm-bindings-latched-by-the-others (acmpnvm): 11 check(s) failed
+    first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+[ok] mutant acmp-nvm-release-dropped (acmpnvm): 1 check(s) failed
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+[ok] mutant acmp-nvm-settle-dropped (acmpnvm): 3 check(s) failed
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+[ok] mutant acmp-nvm-model-always-ready (acmpnvm): 1 check(s) failed
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 the model's readiness is the other owners'
+[ok] mutant acmp-version-unchecked (acmp, acmp): 64 check(s) failed
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+[ok] mutant acmp-adp-version-unchecked (acmp, acmp): 64 check(s) failed
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 an ENTITY_AVAILABLE of version 1 discovers nothing
+[ok] mutant acmp-version-bits-misread (acmp): 10 check(s) failed
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+[ok] mutant acmp-header-version-1 (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX sends two frames: the response and the probe
+[ok] mutant acmp-owed-probe-timer-runs (acmp, acmp, acmp): 66 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry 0
+[ok] mutant acmp-owed-probe-never-starts (acmp, acmp): 12 check(s) failed
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+[ok] mutant acmp-owed-probe-no-resp-2s (acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+[ok] mutant acmp-owed-probe-sequence-unchecked (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 the old probe leaving starts no timer for the new one
+[ok] mutant acmp-owed-probe-unnamed (acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+[ok] mutant acmp-owed-probe-names-the-next-sink (acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+[ok] mutant acmp-probe-timer-before-its-send (acmp, acmp): 12 check(s) failed
+    first: [FAIL] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend: A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send
+[ok] mutant acmp-taken-probe-timer-from-the-entry-clock (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend: A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's
+[ok] mutant acmp-expiry-due-at-its-first-read (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry: A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry
+[ok] mutant acmp-held-timer-expires (acmp): 7 check(s) failed
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 an expiry of the interface while the probe is owed takes nothing: a held timer is never due
+[ok] mutant acmp-held-timer-armed (acmp): 15 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry 0
+[ok] mutant acmp-lost-probe-held (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered: A19 and it does
+[ok] mutant acmp-stop-keeps-the-hold (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 an UNBIND_RX while the probe is owed stops its timer
+[ok] mutant acmp-slot-sum-wraps (acmp): 2 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 4294967295 is refused: past the bank, wrapping the sum, or truncating to a slot
+[ok] mutant acmp-slot-narrowed-first (acmp): 2 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 256 is refused: past the bank, wrapping the sum, or truncating to a slot
+[ok] mutant acmp-slots-one-short (acmp): 2 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 the last slot range that fits is taken
+[ok] mutant acmp-one-slot-for-all-interfaces (acmpif2): 20 check(s) failed
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 1's ACMP slot at NOW_MS + 200 (Table 5.26)
+[ok] mutant acmp-expiry-to-interface-0 (acmpif2): 9 check(s) failed
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 the duplicate leaves at 200 ms exactly, on interface 1 (5.5.3.5.16)
+[ok] mutant acmp-gptp-of-interface-0 (acmpif2): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from interface 1's grandmaster and domain is taken
+[ok] mutant acmp-record-flag-defines-swapped (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime: A24 bound and started: flags 0x03, then the parameters, byte for byte
+[ok] mutant acmp-record-valid-bit-moved (acmp): 30 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+[ok] mutant acmp-longer-record-applied (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 a payload of 21 bytes is refused, the longer ones too, before a byte is read
+[ok] mutant acmp-nvm-d3-rollback-drops-bindings (acmpnvm, acmpnvm): 4 check(s) failed
+    first: [FAIL] AcmpStore.N7AD3RollBackKeepsTheBindings: N7 and leaves the applied binding as the binding walk left it: bound, PRB_W_AVAIL, discovery running
+[ok] mutant acmp-due-unsigned (acmp, acmp): 18 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline
+[ok] mutant acmp-earliest-unsigned (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap: A28 the interface timer holds the earlier deadline, the numerically larger one before the wrap
+[ok] mutant acmp-no-adp-due-unsigned (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_ADP: nothing before its deadline
+[ok] mutant acmp-no-resp-deadline-saturates (acmp): 5 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP armed 100 ms before the wrap ends 100 ms after it
+[ok] mutant acmp-retry-deadline-saturates (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it
+[ok] mutant acmp-no-tk-deadline-saturates (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_TK armed 4999 ms before the wrap ends 5 s after it
+[ok] mutant acmp-delay-deadline-saturates (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_DELAY drawn at the last millisecond before the wrap ends after it
+[ok] mutant acmp-no-adp-deadline-saturates (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_DELAY: nothing before its deadline
+[ok] mutant acmp-admit-never-called (acmp, acmp, acmp): 60 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 10 is guarded
+[ok] mutant acmp-admit-on-every-entry (acmp, acmp): 42 check(s) failed
+    first: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 1
+[ok] mutant acmp-admit-ignores-another-talker (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 a re-bind to another talker admits it
+[ok] mutant acmp-admit-on-interface-0 (acmp, acmpif2): 13 check(s) failed
+    first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 sink 2's talker on interface 1
+[ok] mutant acmp-admit-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 10 is guarded
+[ok] mutant acmp-reset-forgets-the-admitted (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens: A29 a sink the store resets is withdrawn at the next open
+[ok] mutant acmp-open-does-nothing (acmp, acmp): 20 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+[ok] mutant acmp-open-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+[ok] mutant app-acmp-never-opened (acmp, acmp): 16 check(s) failed
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 the open wrote the restored binding's talker into interface 0's bound-talker table
+[ok] mutant acmp-mbx-admit-on-entry-0 (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 and writes the bound-talker entry of the binding restored between compose and open, only that one
+[ok] mutant acmp-mbx-admit-always-bound (acmp, acmp): 6 check(s) failed
+    first: [FAIL] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding: B8 an UNBIND_RX clears the entry's BOUND_EN
+[ok] mutant mbx-bound-unguarded (unit): 3 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an interface past the contract's is refused
+[ok] mutant mbx-bound-entry-unguarded (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an entry past the table's is refused
+[ok] mutant mbx-bound-withdraw-writes-nothing (unit, acmp): 4 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 a withdrawn entry: BOUND_EN cleared, one write
+[ok] mutant mbx-bound-enabled-before-the-identity (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+[ok] mutant mbx-bound-halves-swapped (unit, acmp): 17 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EID_LO holds talker[31:0]
+[ok] mutant mbx-bound-entry-stride-ignored (unit, acmp): 6 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+[ok] mutant model-bound-term-misses (model): 16 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring
+[ok] mutant model-bound-enable-ignored (model): 4 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed
+[ok] mutant model-bound-low-word-only (model): 4 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 an entity_id differing from the entry in [63:32] only: no RX record, no delivery
+[ok] mutant model-bound-table-of-interface-0 (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q13 on another interface, or an index with no interface, it reaches no ring and counts nothing
+[ok] mutant model-bound-term-any-type (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 no other message_type of a bound talker passes on its entity_id, ENTITY_DISCOVER included
+[ok] mutant model-bound-entry-decoded-as-0 (model): 3 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+[ok] mutant model-bound-en-reads-the-eid (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+[ok] mutant app-maap-slots-overlap-acmp (acmp): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+[ok] mutant app-maap-slots-overlap-adp (maap, acmp): 3 check(s) failed
+    first: [FAIL] MaapHost.ExplicitAppComposition: protocol timer slots disjoint
+[ok] mutant app-maap-attached-after-open (acmp, maap): 11 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-before-acmp (acmp, acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll
+[ok] mutant app-maap-started-in-compose (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-never-started (acmp, maap): 11 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-channel-unbound (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-preferred-unchecked (acmp, maap): 6 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 a preferred range below the B.4 pool is refused
+[ok] mutant app-maap-last-range-refused (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the pool's last range is not
+[ok] mutant app-maap-range-past-the-pool (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+[ok] mutant app-maap-refusal-ignored (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 MAAP for an entity with no talker source is refused
+[ok] mutant app-acmp-refusal-ignored (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 an ACMP configuration the module refuses fails the composition
+[ok] mutant app-maap-entry-takes-no-port (acmp, maap): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the explicit MAAP entry refuses a missing stream-address port
+[ok] mutant app-maap-entry-drops-preferred (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.ExplicitAppComposition: Expected: false
+[ok] mutant app-three-way-pass-overrun (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the worst pass of the three-way backlog
+[ok] mutant app-maap-mac-per-interface (acmpif2): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+[ok] mutant app-own-mac-per-interface (acmpif2): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+[ok] mutant app-three-way-bound-drops-maap (acmp, acmpif2): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once
+[ok] mutant app-three-way-bound-one-maap-poll (acmpif2): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once
+[ok] mutant maap-down-start-keeps-owner (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: starting down withdraws the prior owner
+[ok] mutant maap-initial-send-absent (maap): 20 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: initial PROBE is immediate
+[ok] mutant maap-retransmit-count (maap): 27 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: three retransmissions remain
+[ok] mutant maap-probe-count-not-decremented (maap): 10079 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: retransmission decrements once
+[ok] mutant maap-wire-version (maap): 13 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+[ok] mutant maap-wire-length (maap): 17 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+[ok] mutant maap-wire-source (maap): 13 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+[ok] mutant maap-wire-padding (maap): 13 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+[ok] mutant maap-constant-probe_base (maap): 4 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 500
+[ok] mutant maap-constant-probe_variation (maap): 3 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 100
+[ok] mutant maap-constant-announce_base (maap): 3 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 30000
+[ok] mutant maap-constant-announce_variation (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 2000
+[ok] mutant maap-seed-clock-ignored (maap): 6 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 511
+[ok] mutant maap-zero-seed-sticks (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: zero sum cannot lock generator
+[ok] mutant maap-biased-random-bucket (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.UniformDrawRejectsIncompleteBucket: incomplete random bucket rejected
+[ok] mutant maap-numeric-mac-priority (maap): 29 check(s) failed
+    first: [FAIL] MaapCore.ReverseOctetPriority: least significant octet decides first
+[ok] mutant maap-defend-multicast (maap): 8 check(s) failed
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+[ok] mutant maap-defend-echo-own-range (maap): 4 check(s) failed
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+[ok] mutant maap-intersection-too-long (maap): 4 check(s) failed
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+[ok] mutant maap-adjacent-overlaps (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: half open intervals and zero count do not conflict
+[ok] mutant maap-zero-count-conflicts (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: half open intervals and zero count do not conflict
+[ok] mutant maap-defend-checks-request (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: DEFEND tests conflict fields
+[ok] mutant maap-malformed-ethertype (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-subtype (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-version (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-reserved-zero (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-reserved-high (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-cdl-short (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-cdl-truncated (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-cdl-current (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-source-zero (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-source-group (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-destination (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-own-probe (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-valid-minimum-refused (maap): 4 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+[ok] mutant maap-future-version-refused (maap): 3 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+[ok] mutant maap-range-end-off-by-one (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.InitAndPreferredRangeBounds: Expected: false
+[ok] mutant maap-port-up-keeps-claim (maap): 9 check(s) failed
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: PortOperational invalidates acquired address
+[ok] mutant maap-release-keeps-enable (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: Expected: false
+[ok] mutant maap-expiry-forgotten-on-stall (maap): 7 check(s) failed
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry: Expected: true
+[ok] mutant maap-allocation-before-commit (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry: allocation waits for committed ANNOUNCE
+[ok] mutant maap-probe-announce-reordered (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions:     Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+[ok] mutant maap-overflow-uncounted (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.QueueBoundAndWithdrawal: overload is counted as failure
+[ok] mutant maap-poll-unbounded (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.QueueBoundAndWithdrawal: Expected: true
+[ok] mutant maap-release-leaves-output (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.QueueBoundAndWithdrawal:     Which is: 0
+[ok] mutant maap-reentry-not-counted (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.ReentrantPortsAreCountedAndIgnored: all input guards fire
+[ok] mutant maap-debug-no-assert (maap_debug): 1 check(s) failed
+    first: [FAIL] MaapDebug.SynchronousExpiryAsserts: debug reentry assertion
+[ok] mutant maap-stream-index-missing (maap): 7 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+[ok] mutant maap-selection-not-restored (maap): 1 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: selection restored
+[ok] mutant maap-fabric-owner-kept (maap): 1 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: fabric MAAP disabled without touching seed
+[ok] mutant maap-loss-keeps-crf (maap): 24 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 2
+[ok] mutant maap-count-mismatch-accepted (maap): 2 check(s) failed
+    first: [FAIL] MaapCsr.ShapesAndCountRefusal:     Which is: 1
+[ok] mutant maap-crf-index-wrong (maap): 3 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 4026532104
+[ok] mutant maap-timer-tag-ignored (maap): 2 check(s) failed
+    first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: old timer tag ignored
+[ok] mutant maap-foreign-not-counted (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges:     Which is: 2
+[ok] mutant maap-half-attach (maap): 2 check(s) failed
+    first: [FAIL] MaapHost.AttachRefusalsAndTimerWrap: Expected: false
+[ok] mutant maap-interface-zero (maap_if2): 5 check(s) failed
+    first: [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: record index selects state
+[ok] mutant maap-no-range-filter (maap): 10 check(s) failed
+    first: [FAIL] MaapHost.HMaapConflictLossAndRetry: Expected: true
+[ok] mutant maap-filter-destination-ignored (maap): 8 check(s) failed
+    first: [FAIL] MaapHost.HMaapFilterTupleAndRate: Expected: false
+[ok] mutant maap-late-service (maap): 56 check(s) failed
+    first: [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: H-MAAP original timer deadline to TX_HEAD within 10 ms
+[ok] mutant maap-stall-unqueued (maap): 18 check(s) failed
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry:     Which is: 1
+[ok] mutant maap-app-channel-closed (maap): 11 check(s) failed
+    first: [FAIL] MaapHost.HMaapConflictLossAndRetry: Expected: true
+[ok] mutant maap-callback-work-overrun (maap): 18 check(s) failed
+    first: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: callback work bound
+[ok] mutant maap-ignored-input-late (maap): 13 check(s) failed
+    first: [FAIL] MaapHost.HMaapConflictLossAndRetry: H-MAAP RX_HEAD to DEFEND TX_HEAD within 10 ms
+[ok] mutant maap-table-b7-0 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/0: Table B.7 output count
+[ok] mutant maap-table-b7-1 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/1: Table B.7 output count
+[ok] mutant maap-table-b7-2 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/2: Table B.7 output count
+[ok] mutant maap-table-b7-3 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/3: Table B.7 output count
+[ok] mutant maap-table-b7-4 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/4: Table B.7 output count
+[ok] mutant maap-table-b7-5 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/5: Table B.7 output count
+[ok] mutant maap-table-b7-6 (maap): 5 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-table-b7-7 (maap): 6 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-table-b7-8 (maap): 9 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+[ok] mutant maap-table-b7-9 (maap): 2 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/9: Table B.7 output count
+[ok] mutant maap-table-b7-10 (maap): 2 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/10: Table B.7 conflict decision
+[ok] mutant maap-table-b7-11 (maap): 2 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/11: Table B.7 conflict decision
+[ok] mutant maap-table-b7-12 (maap): 15 check(s) failed
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+[ok] mutant maap-table-b7-13 (maap): 13 check(s) failed
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: DEFEND conflict wins over echoed request
+[ok] mutant maap-table-b7-14 (maap): 10 check(s) failed
+    first: [FAIL] MaapCore.RestartDrawsNewRange:     Which is: 1
+[ok] mutant maap-table-b7-15 (maap): 2 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/15: Table B.7 output count
+[ok] mutant maap-table-b7-16 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/16: Table B.7 output count
+[ok] mutant maap-table-b7-17 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/17: Table B.7 output count
+[ok] mutant maap-allocation-seam-disconnected (maap): 10030 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: Expected: true
+[ok] mutant maap-app-missing-rx-interrupt (maap): 4 check(s) failed
+    first: [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: MAAP wake preserves ADP and event interrupts
+[ok] mutant maap-begin-down-forgets-range (maap): 3 check(s) failed
+    first: [FAIL] MaapCore.BeginBeforePortOperationalRetainsRange: Begin supplied range survives port down
+[ok] mutant maap-restart-reuses-range (maap): 4 check(s) failed
+    first: [FAIL] MaapCore.RestartDrawsNewRange: fixed seed Restart draws a new range
+[ok] mutant maap-reverse-five-octets (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 0
+[ok] mutant maap-compare-mac-lsb-only (maap): 5 check(s) failed
+    first: [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 0
+[ok] mutant maap-csr-select-listener (maap): 7 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+[ok] mutant maap-csr-enable-before-programming (maap): 23 check(s) failed
+    first: [FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite: enables follow every destination word
+[ok] mutant maap-poll-first-interface-only (maap_if2): 2 check(s) failed
+    first: [FAIL] MaapHost.InterfaceOneStallDrainsWithinBudget: interface 1 poll drains deferred output
+[ok] mutant maap-generic-initial-handles-conflict (maap): 12 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/0: Table B.7 conflict decision
+[ok] mutant maap-generic-probe-state-defends (maap): 32 check(s) failed
+    first: [FAIL] MaapCore.ReverseOctetPriority: least significant octet decides first
+[ok] mutant maap-generic-probe-defend-uses-priority (maap): 4 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/10: Table B.7 conflict decision
+[ok] mutant maap-generic-equal-mac-wins (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.ReverseOctetPriority: equal MAC is not lower
+[ok] mutant r2-saved-range-never-consumed (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.LinkBounceDrawsAfterSuppliedRange: link bounce draws after consuming supplied range
+mutants: 235 of 235 caught (slice 2 of 2 of 471)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] startup-vid: StartupDeclaresTalkersDomainAndVlan / d.value
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] ignore-link: InterfaceStateDoesNotCross / adapter.ifs[i].active[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] ignore-peer-domain: DomainUsesPeerPriorityAndVlan / domain.priority
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] rx-overtakes-owed: RefusedMailboxRetainsOwedFrameAndDefersInput / adapter.received
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] rx-overtakes-expiry: ExpiryBacklogPrecedesSamePassReceive / adapter.stops
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] reentry-uncounted: ReentryFromOutputIsRefusedAndCounted / adapter.reentries
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] invalid-vid: InvalidBindingsAndDuplicateBindingsPreserveState / srp_mbx_bind
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] failed-init-leaks: ExhaustionDuringEachStartupStageReleasesEveryBlock / ctrl_pool_in_use
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] missing-port-accepted: MissingBootDependenciesRefuseBeforeAttachment / srp_mbx_init
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] attach-nonatomic: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / srp_mbx_attach
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] malformed-uncounted: InvalidFramesHaveNoReservationSideEffects / adapter.malformed
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] reset-skips-recreate: RecreateAllocationFailureIsCountedAndRetried / adapter.ifs[0].msrp
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] foreign-domain-stored: DomainFilterAndDuplicateDoNotGrowDeclarations / ctrl_pool_in_use
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] foreign-vlan-stored: MvrpAcceptsOnlyCurrentDomainVid / ctrl_pool_in_use
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] sink-da-ignored: WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt / declared
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] admission-ceiling-ignored: AdmissionUsesBandwidthAndEthernetMinimum / admitted[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] domain-refusal-lost: DomainExhaustionPreservesOldDeclarationUntilRetry / domain.vid
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] listener-refusal-lost: SinkDeclarationExhaustionRetriesWithoutLosingBinding / declared
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] other-link-cancels-owed: LinkLossCancelsItsOwedFrameOnly / adapter.owed_len
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] duplicate-tick-owner: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-debug-guard: SynchronousReceiveFromOutputAsserts / failed to die
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] tick-debug-guard: SynchronousTickFromOutputAsserts / failed to die
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] licence-before-vlan: ListenerBeforeVlanCommitCannotStartTalker / joined
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] unbind-shared-listener: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] withdraw-bound-domain: BoundOldDomainVlanSurvivesDomainChange / d.event
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] withdraw-same-domain: PriorityOnlyDomainChangeKeepsVlanMembership / d.event
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] sink-vlan-refusal-lost: SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent / vlan_requested
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] ready-before-vlan: SinkMembershipCommitsBeforeReadyAtStartup / joined
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] latency-missing-startup: SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size()
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] latency-domain-unserviced: SrpLatency.ReceiveStateMalformedDomainAndListenerPaths / domain.vid
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] latency-leave-origin: SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] latency-relaxed-budget: SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails / service_limit
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] walk-domain-ignored: SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA / domain.vid
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] walk-match-da-ignored: SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal / declared
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] walk-leave-shortened: SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] walk-startup-is-join: SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire / d.event
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] walk-malformed-uncounted: SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput / adapter.malformed
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] shape-last-output-missing: EveryGeneratedOutputIsDeclaredAndEverySinkFits / outputs
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] tag-overhead-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] preamble-ifg-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] ninety-percent-ceiling: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] readyfailed-callback-stop: ReadyToReadyFailedNeverGlitchesAnActiveLicence / mock function call
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] short-link-interruption-ignored: AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] old-prefix-accepted: LinkEventsDiscardOnlyTheirPublishedReceivePrefix / mock function call
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] shared-identity-overwritten: SharedIdentityReconcilesBothBindingOrdersOnTheWire / last
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] event-reentry-unguarded: EventReentryAndSinkCapacityAreGuarded / adapter.reentries
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] failed-interface-starves-peer: RecreateAllocationFailureIsCountedAndRetried / other_sent
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] backlogged-old-prefix-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / mock function call
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] link-level-loss-ignored: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] reset-leaks-owned-participants: ExhaustedPoolStillReusesOwnedBlocksOnLinkReset / adapter.refused
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] downlink-receive-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / adapter.ifs[i].registered[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] delayed-in-listener: InListenerWithdrawalRevokesLicenceImmediately / adapter.ifs[i].active[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] delayed-in-talker: InTalkerWithdrawalImmediatelyWithdrawsListener / declared
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] attach-ignores-current-link: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] rebind-loses-shared-applicant: SharedRebindKeepsOnlyTheRemainingEligibleRequest / left
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] consecutive-rebind-loses-applicant: ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation / left
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] joining-binding-loses-applicant: JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves / d.event
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] applicant-inherited-across-streams: ReboundStreamCannotInheritAnotherStreamsReady / ready
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] final-unbind-withdraws-domain-vid: FinalDomainVidUnbindKeepsSrClassMembership / d.event
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] last-ineligible-vid-leaks: LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder / vlan_left
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] reset-keeps-owed-domain: RefusedPeerDomainDoesNotSurviveLinkRestart / domain.vid
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] reset-keeps-sink-vlan: SinkVlanRedeclaredBeforeReadyAfterLinkRestart / vlan
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] shared-ready-uses-first-vlan: SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] milan-rapid-leave-leaks-to-mvrp: MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline / registered()
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-retry-removed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.received
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] partial-receive-retry-removed: SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop / domain.vid
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-record-lost: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.pending_rx.len
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-refusal-malformed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.malformed
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-overtakes-retained: SrpRetry.LaterRecordsCannotOvertakeRetainedInterface / loop.stats.rx_records
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] reset-keeps-retained-receive: SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords / adapter.received
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] peer-reset-cancels-retained-receive: SrpRetry.OtherInterfaceResetPreservesRetainedPayload / adapter.pending_rx.len
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] destroy-keeps-retained-receive: SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization / adapter.pending_rx.len
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] bind-overtakes-retained-receive: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / srp_mbx_bind
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] composition-attach-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.n_ticks
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] composition-srp-irq-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / model.irq_enable
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] composition-srp-tick-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.stats.ticks
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] recreated-receive-retry-removed: SrpRetry.FailedParticipantRecreationRetainsFreshReceive / adapter.received
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] mvrp-receive-retry-removed: SrpRetry.RetainedMvrpUsesItsOriginalParticipant / adapter.received
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-retry-passes-owed: SrpRetry.RetainedReceiveWaitsForOwedTransmit / adapter.pending_rx.len
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-retry-passes-backlog: SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs / adapter.received
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] future-receive-refused: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] invalid-suffix-uncounted: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.malformed
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] composition-refusal-ignored: SrpApp.AttachRefusalPreservesExistingComposition / ctrl_app_attach_srp
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] recovery-latency-retry-removed: SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget / adapter.ifs[0].active[0]
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-retention-unbounded: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-retention-short: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-retention-late: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-discard-uncounted: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-discard-malformed: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.malformed
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-discard-as-success: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-queue-renews-deadline: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-first-refusal-never-expires: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-expiry-precedes-recovery: SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord / adapter.received
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-recreate-never-expires: SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline / adapter.rx_discarded
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-flood-unbounded: SrpRetry.DomainFloodCannotDelayLaterRapidLeave / adapter.pending_rx.len
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] receive-deadline-not-modular: SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard / adapter.rx_discarded
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] four-way-srp-irq-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] four-way-srp-wake-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] four-way-acmp-enable-lost: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] four-way-unbound-irq-enabled: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] four-way-bound-drops-srp: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] four-way-bound-duplicates-events: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-bound-event: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-bound-poll-transmit: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP transmitting poll bound
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-bound-poll: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-bound-tx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-bound-rx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-bound-pass: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-advertise-missing: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-failed-as-advertise: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-withdrawal-missing: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-sink-crossed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-interface-suppressed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-repeated: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-park-keeps-old: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-invalid-retries: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-invalid-upper-bound: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] binding-park-never-clears: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-term-fixed: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-term-transmit-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll transmit count is funded independently
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-term-interface-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-term-send-cost: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-term-event-record: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-term-rx-count: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-term-pass-poll: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] srp-send-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record accesses
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-kind-failed-lost: SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-kind-advertise-lost: SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-leave-clears-advertise-only: SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-failed-indication-as-advertise: SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-expiry-lost: SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-first-registration-lost: SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-kind-order-lost: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-supersession-lost: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+wrote <tmp> (2 interfaces)
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] four-way-srp-irq-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-srp-wake-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone
+[ok] four-way-acmp-enable-lost: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others
+[ok] four-way-unbound-irq-enabled: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-bound-drops-srp: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] four-way-bound-duplicates-events: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+[ok] srp-bound-event: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] srp-bound-poll-transmit: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP transmitting poll bound
+[ok] srp-bound-poll: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+[ok] srp-bound-tx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound
+[ok] srp-bound-rx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound
+[ok] srp-bound-pass: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound
+[ok] feedback-advertise-missing: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+[ok] feedback-failed-as-advertise: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+[ok] feedback-withdrawal-missing: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+[ok] feedback-sink-crossed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+[ok] feedback-interface-suppressed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+[ok] feedback-repeated: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+[ok] binding-park-keeps-old: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+[ok] binding-invalid-retries: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+[ok] binding-invalid-upper-bound: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+[ok] binding-park-never-clears: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+[ok] srp-term-fixed: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-transmit-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll transmit count is funded independently
+[ok] srp-term-interface-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-send-cost: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+[ok] srp-term-event-record: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+[ok] srp-term-rx-count: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+[ok] srp-term-pass-poll: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] srp-send-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record accesses
+[ok] feedback-kind-failed-lost: SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-kind-advertise-lost: SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-leave-clears-advertise-only: SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-failed-indication-as-advertise: SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+[ok] feedback-expiry-lost: SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive
+[ok] feedback-first-registration-lost: SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes
+[ok] feedback-kind-order-lost: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+[ok] feedback-supersession-lost: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 9197193e: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 3626f1eaca76cb0ad3e4ea4335fe34e9eb5738f2 is not the pinned 9197193e47a6bb1c45a56d90a18c1784123aba44 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+	Command being timed: "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --slice 2/2"
+	User time (seconds): 1548.27
+	System time (seconds): 246.50
+	Percent of CPU this job got: 139%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 21:29.97
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 521612
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 57
+	Minor (reclaiming a frame) page faults: 34143213
+	Voluntary context switches: 1308911
+	Involuntary context switches: 310022
+	Swaps: 0
+	File system inputs: 408
+	File system outputs: 1872
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
