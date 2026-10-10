@@ -194,6 +194,11 @@ These figures are estimates of the complete qualified default image:
 | M10 shared gPTP/AECP engine | 0 | 31,667 | 1,200 estimated only with a separate retained AECP engine |
 | M9 closure and re-record | No assumed saving | Measured at closure | <= 38,040 LUT and timing met |
 
+M7 has measured its lane: the gPTP plane is 107-253 LUTs smaller.
+It also sheds 1,149 FFs and frees one block-RAM tile.
+The [plan ledger](MARK_II_AREA_PLAN.md#m7-intermediate-measurement) gives the routes and why the image delta is not credited.
+This table keeps its planning estimates until the week-4 re-measure.
+
 The split estimate includes the measured 3,102-LUT mailbox skeleton.
 It also reserves 1,000 LUTs for remaining fabric integration.
 Its 11,500-16,000 range includes mapping and integration uncertainty.
@@ -259,7 +264,8 @@ At 50 tiles, the ledger leaves one tile before conditional reclamation.
 After it, twelve tiles remain below 121.5.
 At 56 firmware tiles, the conditional total is 115.5, leaving six.
 The separate 13.5-tile reserve remains untouched in these estimates.
-Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
+Unpriced integration buffers and M6 conversions consume the remaining allowance.
+M7's measured route frees one tile instead: 74 RAMB36 and 25 RAMB18.
 
 Above 50 firmware tiles, the remaining wrapper stores give way first.
 They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and `ctl_fifo`.
