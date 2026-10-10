@@ -29,7 +29,9 @@ class Plant:
     that only compiles a mode (`shared`) runs once, before the base, and what it compiled joins the base every
     control shares, which must still pass. `texts` are builder texts the checkout is read as holding (a path
     from the gate's directory, and its text), never run; `alter` changes the capture the control is judged
-    against: "missing", "empty", or "drop " and a builder whose invocations it loses."""
+    against: "missing", "empty", or "drop " and a builder whose invocations it loses. `needs` names the builders
+    whose capture the control needs ("verilator": the run that judges the builders that need Verilator; ""
+    the firmware steps' run): a run judges the controls of its scope and names every other one."""
 
     name: str
     side: str
@@ -44,6 +46,7 @@ class Plant:
     alter: str = ""
     extra: tuple[tuple[str, str, str], ...] = ()
     shared: bool = False
+    needs: str = ""
 
 
 #: A planted Python builder's head: the copies and its own directory, and the compiler runs it makes there.
@@ -85,6 +88,16 @@ def through_source(name: str, run: str, make: bool = False, probe: bool = True,
     extra = (("+" + PROBE, "", '#include "adp_r5.h"\n'),) if probe else ()
     return Plant(name, "ctrl", "+adp/adp_r5.h", "", CXX_HEADER, CXX_NEEDLE, run=run, make=make, beside=beside,
                  extra=extra)
+
+
+def wire_mode(name: str, condition: str, label: str) -> Plant:
+    """A control only the AECP wire comparison's capture catches (R584-5 V1 to V3): the AECP image header, which
+    its C++ compile reaches, reaches a stack example's header only under `condition`, a mode only that
+    builder's configurations give (its one- and two-interface references)."""
+    anchor = '#include "aecp_model.h"\n'
+    return Plant(name, "ctrl", "aecp/aecp_image.h", anchor,
+                 anchor + f"#if {condition}\n#include \"adp_port.h\"\n#endif\n",
+                 f"[{label}]: aecp/aecp_image.h includes tsn-c-stack/examples/adp_port.h", needs="verilator")
 
 
 def makefile(recipe: str, head: str = "") -> str:
@@ -404,6 +417,14 @@ PLANTS = (
           "tsn-c-stack/src/adp.c first, a file of the stack that is not one of its public headers",
           run=PY + 'cc("cc", "-include", STACK + "/src/adp.c", "-I" + STACK + "/include", "-c", "planted.c", "-o", '
                    '"planted.o")\n'),
+    # R584-5-F2: the configurations only the AECP wire comparison compiles, judged where its capture is.
+    wire_mode("V1 a mode only the AECP wire comparison gives", "defined(PP_TOP_TIM_DEFAULTS)", "-DPP_TOP_TIM_DEFAULTS"),
+    wire_mode("V2 a mode only its two-interface reference gives", "defined(PP_TOP_IF2)", "-DPP_TOP_IF2"),
+    wire_mode("V3 a value only its two-interface reference gives",
+              "defined(AECP_WIRE_INTERFACES) && AECP_WIRE_INTERFACES > 1", "-DAECP_WIRE_INTERFACES=2"),
+    Plant("the capture holds nothing of the AECP wire comparison", "ctrl", "", "", "",
+          "the capture holds no invocation of sw/firmware/ctrl/test/aecp_wire.py",
+          alter="drop sw/firmware/ctrl/test/aecp_wire.py", needs="verilator"),
     Plant("pass: the firmware includes a public header", "ctrl", "port/ctrl_debug.c", "#include \"ctrl_debug.h\"\n",
           "#include \"ctrl_debug.h\"\n#include \"wire.h\"\n", ""),
     Plant("pass: the stack includes only its own header and the C library", "stack", "src/maap.c",

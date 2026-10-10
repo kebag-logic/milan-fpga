@@ -18,7 +18,7 @@ never this gate's: the capture needs the invocations only.
 
 STANDALONE, when the gate is given no capture: every other builder of
 ctrl_configs.BUILDERS, by its own commands, from the checkout's root, but the
-ones needing what the run says it has none of. Each must exit 0: a builder
+ones the run leaves out (ctrl_configs.Scope). Each must exit 0: a builder
 that fails may have compiled less than it does.
 
 THE STACK'S GATE (stack_gate) and THE CONTROLS' BUILDERS (planted_run,
@@ -42,7 +42,7 @@ import ctrl_capture
 import ctrl_image
 from ctrl_build import HERE, ROOT, STACK, Refusal
 from ctrl_capture import Capture
-from ctrl_configs import BUILDERS, CONFIGS, left_out, run
+from ctrl_configs import BUILDERS, CONFIGS, Scope, run
 from ctrl_pin import named_compilers
 from ctrl_plants import Plant
 
@@ -109,10 +109,10 @@ def owned(capture: Path, work: Path) -> list[str]:
     return lines
 
 
-def standalone(capture: Path, work: Path, without: frozenset[str], verilator: str | None) -> list[str]:
+def standalone(capture: Path, work: Path, scope: Scope, verilator: str | None) -> list[str]:
     """Every builder of BUILDERS with commands, but those the run leaves out, run under the capture; one line
     each. A builder that does not exit 0 refuses the gate."""
-    out = {b.path for b in left_out(without)}
+    out = {b.path for b in scope.left_out()}
     lines = []
     for b in BUILDERS:
         if b.path in out or not b.runs:
@@ -137,13 +137,13 @@ def standalone(capture: Path, work: Path, without: frozenset[str], verilator: st
     return lines
 
 
-def captures(given: list[Path] | None, work: Path, without: frozenset[str]) -> list[ctrl_capture.Capture]:
+def captures(given: list[Path] | None, work: Path, scope: Scope) -> list[ctrl_capture.Capture]:
     """The captures the gate judges beside its own: the ones given, each of whose builder runs exited 0, or one
-    it makes by running every known builder under it."""
+    it makes by running every known builder the run judges under it."""
     if not given:
         mine = work / "standalone"
-        print("no capture given: running every known builder under one", flush=True)
-        standalone(mine, work / "builders", without, verilator_of())
+        print("no capture given: running every known builder the run judges under one", flush=True)
+        standalone(mine, work / "builders", scope, verilator_of())
         return [ctrl_capture.load(mine)]
     loaded = [ctrl_capture.load(path.resolve()) for path in given]
     failed = [f"{' '.join(c['argv'])} exited {c['rc']}" for capture in loaded for c in capture.commands if c["rc"]]

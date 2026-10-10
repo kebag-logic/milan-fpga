@@ -112,14 +112,19 @@ So does an invocation the compiler could not expand: the expansion failed, print
 So does a precompiled header read first that no compile in the capture made, a file of the stack other than its public headers read first, and a file of the checkout read first into a compile of the stack's own sources.
 So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
 Three such compilers are not seen, and no builder has one: one a shell runs by its path (a shell script's, or a command a builder runs through a shell), one a compiled helper runs by its path, and one a Python builder started with `-I` or `-E` runs by its path, since that process loads no audit hook.
-`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; the hosted job has no Verilator.
+`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; `firmware-unit` has no Verilator.
+`--only verilator` judges those three alone, under the gate's own capture, and names the others.
+Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
+The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
+The two jobs split the builders, never an invocation: each recorded compile is judged whole, with every mode it was given, in the job that ran it.
+Only a run given both captures also tries a mode only one job records beside a mode only the other does, which no compile combines.
 The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
-Each must have compiled in the capture, be a known builder, or be listed in `OUTSIDE` with the reason its compiles are none of the firmware's.
+Each must have compiled in the capture, be a known builder, or be listed in `OUTSIDE` with the reason its compiles are none of the firmware's; the run that holds the firmware steps checks this.
 Every unit is judged as C.
 A firmware unit that a recorded C++ compile reaches is judged as C++ too, with the arms' test include path.
 That compile's source is read as the trees hold it, or as the capture kept it, and every `#include` is followed as text in every branch through the directories its expansion searched.
 A file of the checkout outside the stack that a compile read first is judged as a firmware unit too.
-The build modes are the macros each recorded invocation's expansion has when its source begins, with each value the builds gave them (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches, the arms' interface counts).
+The build modes are the macros each recorded invocation's expansion has when its source begins, with each value the builds gave them (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches, the arms' interface counts, the AECP wire comparison's).
 They are every macro the command line, the driver's built-ins, or a file of the checkout or of a builder read first defines, and every one the command line or such a file leaves undefined or the baseline predefines and the invocation does not.
 A macro that the C library's headers, an installed tool's, or a generated header the shapes and contracts model define is not a mode, and neither is a name the C implementation reserves.
 The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config; a recorded one that no shipped config gives refuses the gate.
@@ -137,8 +142,10 @@ It runs each preprocessing once per run and reuses it where it would read the sa
 `--selftest` first judges unplanted copies of both trees, the base every control shares, which must pass.
 A control's planted builder runs through the capture, and what it compiled joins the run's capture for that control.
 One that only compiles a mode runs once, before the base, and its invocations join the base every control shares.
-It then plants 95 defects, each refused by name, and five passing controls.
-Among them is each spelling the reviewers gave a mode, a directory or a file read first in, each form a builder can write a mode or a C++ source's name in, and each way the capture can be missing, empty or incomplete.
+It then plants 95 defects, each refused by name, and five passing controls, where the firmware steps' capture is.
+Among them is each spelling a compiler takes a mode, a directory or a file read first in (`-Wp,`, `-Xpreprocessor`, the long options, a response file, `-imacros`, a precompiled header), each form a builder can write a mode or a C++ source's name in, and each way the capture can be missing, empty or incomplete.
+Where the Verilator builders' capture is, it plants four more: a header the wire comparison reaches includes a stack example only under a mode its one-interface or its two-interface reference gives (`PP_TOP_TIM_DEFAULTS`, `PP_TOP_IF2`, `AECP_WIRE_INTERFACES=2`), and that capture without the wire comparison's compiles.
+A run names each control of the other run as left out.
 A control that must be refused stops at the finding it names.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).

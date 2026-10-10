@@ -565,6 +565,10 @@ ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove 
 #: reads one thing and a hostile line has nowhere quiet to sit.
 ENV_FILE_WRITERS[(ELABORATE, "elaborate", "Put Verilator on PATH and prove the version")] = \
     ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
+#: #697: the fast job that judges the TSN stack boundary over the Verilator builders' compiles puts the same
+#: pinned Verilator on PATH as the exhaustive shard that owns the mailbox bench, by the same script.
+ENV_FILE_WRITERS[(RTL_FAST, "firmware-verilator", "Put Verilator on PATH and prove the version")] = \
+    ENV_FILE_WRITERS[(RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")]
 
 #: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
 #: ([R3] round 9): `ref:` or `repository:` on an unpinned carrier's checkout
@@ -588,7 +592,7 @@ INHERITED_STEP_ENV = {
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
-                             "FIRMWARE_UNIT_RESULT",
+                             "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
     (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
@@ -1255,6 +1259,8 @@ GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
 OOC_SH_SELFTEST_JOB = "yosys-elaboration"
 #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
 FIRMWARE_UNIT_JOB = "firmware-unit"
+#: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
+FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
 #: ...and it must NAME the submodule. Holding the bare verb alone let the
 #: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
@@ -2393,6 +2399,38 @@ RTL_STEP_LISTS = {
          "run": (
              'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture '
              '"$RUNNER_TEMP/ctrl-capture" --without verilator',
+         )},
+    ),
+    # #697: the same boundary over the compiles only the builders that need Verilator make, each run by its own
+    # commands under the gate's own capture, with the pinned Verilator from the cache verilator-lint shares.
+    (RTL_FAST, FIRMWARE_VERILATOR_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
+        {"name": "Install GoogleTest and GoogleMock and print the versions",
+         "run": (
+             'set -euo pipefail',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+             'python3 -m pip install --quiet pyyaml',
+             'dpkg-query -W libgtest-dev libgmock-dev',
+             'g++ --version | head -n 1',
+         )},
+        {"name": "Cache the pinned Verilator build", "id": "cache-verilator",
+         "uses": "actions/cache@v4", "with": VERILATOR_CACHE_WITH},
+        {"name": "Build Verilator from source on cache miss",
+         "if": VERILATOR_CACHE_MISS_IF,
+         "run": RTL_VERILATOR_BUILD_SCRIPT},
+        {"name": "Put Verilator on PATH and prove the version",
+         "run": ENV_FILE_WRITERS[(RTL_FAST, FIRMWARE_VERILATOR_JOB,
+                                  "Put Verilator on PATH and prove the version")]},
+        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+         "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK",
+         "run": RV32_INSTALL},
+        {"name": "Hold the TSN stack boundary over the Verilator builders' compiles",
+         "run": (
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator',
          )},
     ),
 }

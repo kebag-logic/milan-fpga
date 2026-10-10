@@ -54,13 +54,14 @@ pull-request update and on every push to `dev`. It produces one stable
   These builds report objects and frames, not linked-image bounds.
   F4 initializes the public lwSRP submodule at its exact pin.
   The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
-  Its firmware steps run under one capture (`ctrl_capture.py`): a recording wrapper on `PATH` for every compiler records each invocation and runs the real compiler unchanged.
+  Its firmware steps run under one capture (`ctrl_capture.py`): a recording wrapper on `PATH` for every compiler has the real compiler expand each invocation, records it and runs the real compiler unchanged.
   The boundary step runs last, judges that capture, and holds both directions with planted controls.
   It judges each unit in every configuration the capture recorded its builders compiling: as C, and as C++ where a recorded C++ compile reaches it.
-  Its configurations are every recorded `-D` and `-U` flag, every shipped config's shape and generated headers, the image's stream counts and both mailbox contracts.
-  It refuses a missing or empty capture, and a known builder the capture holds nothing of, by name.
+  Its configurations are the macros each recorded invocation's own expansion reports, every shipped config's shape and generated headers, the image's stream counts and both mailbox contracts.
+  The compiler reads each invocation's arguments itself, so a response file, `-Wp,`, `-Xpreprocessor`, a long option or a file read first gives the modes it gives the real compile.
+  It refuses a missing or empty capture, a known builder the capture holds nothing of, and an invocation the compiler could not expand, by name.
   It runs the stack's own gate and the image builders under the capture itself.
-  The builders that need Verilator, which this job has none of, are named and left out (`--without verilator`).
+  The builders that need Verilator, which this job has none of, are named and left out (`--without verilator`); `firmware-verilator` judges them.
   The cores include only their own headers and the C library.
   The stack's tests reach nothing of this repository outside the submodule.
   The firmware reaches only the stack's public headers.
@@ -73,17 +74,34 @@ pull-request update and on every push to `dev`. It produces one stable
   A control that must be refused stops at its finding, and the stack's own self-test runs beside the controls.
   A unit's configurations go to four compilers at once, the hosted runner's CPU count.
   The capture's recorder is compiled C, so it adds a millisecond or two to each of the job's 23,000 compiles.
-  Before the capture, the hosted step took 93 s at `e07b3054` (job 114206016568).
-  With it, on four otherwise idle CPUs of a shared host, the step took 101 to 106 s at `93540c3a`, where `e07b3054`'s took 80 to 82 s on the same CPUs.
-  Scaled to the hosted 93 s, the worst is about 124 s, which leaves 176 s of the 300 s budget, a 59% margin, until a hosted run measures it.
-  The slowest local run, on four CPUs that other jobs were using too, took 215 s and left 85 s.
+  The compiler's own expansion runs once for each of the 551 distinct argument vectors among them and is reused for the rest.
+  Under it the firmware steps took 2203 s in the CI-parity container, where they took 2188 s at `92b5be18`.
+  On a hosted runner the step took 93 s at `e07b3054` (job 114206016568), before the capture, and 113 s at `92b5be18` (job 114282060753), with it.
+  The step now judges twelve more controls and the one file of the checkout a compile reads first.
+  On the same four CPUs of a shared host, one run after the other, it took 117.6 s where `92b5be18`'s took 100.5 s.
+  Scaled to the hosted 113 s, it takes about 132 s, which leaves about 168 s of the 300 s budget, a 56% margin.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
   The job runs the tally listener's planted cases.
+- the same TSN stack boundary over the compiles only the builders that need
+  Verilator make, `firmware-verilator` (#697), when RTL or its tooling
+  changes: the mailbox bench at its default target, the MAAP differential
+  with its self-test, and the AECP wire comparison at each processor
+  reference it pins (`--every`: one interface at the processor's gitlink,
+  two at the merged #69 revision, each tree taken from the processor
+  submodule's own objects).
+  Each runs by its own commands (`ctrl_configs.BUILDERS`) under the gate's own capture, with the pinned Verilator from the cache `verilator-lint` shares.
+  The step is `ctrl_boundary.py --require-rv32 --selftest --only verilator`: the same judgement over that capture, with the controls that need it (the modes only the wire comparison's references give) and the pin controls.
+  It names the firmware steps' builders and their controls as `firmware-unit`'s.
+  Each recorded compile is judged whole, with every mode it was given, in the job that ran it.
+  Its budget is the job's own 40 minutes.
+  A replica of the step took 440 s on four CPUs of a shared host, on the runner's Ubuntu 24.04 with its GCC 13.3, CPython 3.12.3, static GoogleTest 1.14.0 and clang 18.
+  Of that, the bench took 50 s, the differential 142 s and the wire comparison at both references 210 s; the judgement and its controls took the rest.
+  With the job's setup on a warm Verilator cache, that is under a third of the 40 minutes; a hosted run gives the figure that counts.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+jobs, `firmware-unit` and `firmware-verilator`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
 other than the builder bank that `docs-check` runs whole. A page a gated module

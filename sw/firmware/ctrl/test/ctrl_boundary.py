@@ -51,9 +51,10 @@ listed nowhere, an invocation the compiler could not expand, a file read
 first the boundary does not model, and a compiler a builder runs by a path no
 wrapper stands on (one a Python builder starts, which the capture's audit
 hook sees, or one a Makefile builder's recipe names, read from make's own dry
-run under the capture's PATH) all refuse the gate by name; --without
-verilator leaves out the builders that need Verilator, each named on the
-run.
+run under the capture's PATH) all refuse the gate by name. --without
+verilator leaves out the builders that need Verilator, and --only verilator
+judges them alone, as the hosted firmware-verilator job does; each builder
+and control left out is named on the run.
 - Language. Every firmware unit is judged as C, as every builder compiles the
   firmware's sources and their headers with them. A firmware unit is judged
   as C++ too, with the arms' test flags and include path (the stack's tests/
@@ -122,7 +123,8 @@ control shares, which must pass; then plants defects in the copies, each of
 which must be refused by name (a control stops at the finding it names), and
 controls each of which must pass; a control's planted builder runs through
 the capture, and what it compiled joins the run's capture for that control
-alone (ctrl_plants.py). Then the pin controls (ctrl_pin.pin_controls: the
+alone (ctrl_plants.py); a control that needs a builder the run leaves out is
+named, not planted. Then the pin controls (ctrl_pin.pin_controls: the
 check on edited clones, the gates that build the stack on an edited clone,
 and every Makefile target that reaches the stack run for real on a poisoned
 one). --require-rv32 refuses, rather than skips, the RV32 arm when no RV32
@@ -131,6 +133,7 @@ compiler is found.
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture DIR --without verilator
+    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
 
 Exit 0 = both sides hold; 1 = a finding or a control that misbehaved; 2 =
 refused (no compiler, GoogleTest, cmake or clang, the stack's gate could not
@@ -165,8 +168,8 @@ import fw_rv32  # noqa: E402
 from ctrl_build import (C_FLAGS, CTRL, HARNESS, NVM_DIR, ROOT, RV32_FLAGS, STACK, STACK_INCLUDE,  # noqa: E402
                         STACK_PARTS, TB_COMMON, Refusal, Tree, includes, stack_pin)
 from ctrl_capture import Capture, CaptureError  # noqa: E402
-from ctrl_configs import (FLAG, FORCED, NEEDS, Read, Space, configurations, cxx_index, derive, held,  # noqa: E402
-                          makefiles, mode_dims, read_first_units, run, spaces, variants)
+from ctrl_configs import (FLAG, FORCED, NEEDS, Read, Scope, Space, configurations, cxx_index, derive,  # noqa: E402
+                          held, makefiles, mode_dims, read_first_units, run, spaces, variants)
 from ctrl_pin import makefile_findings, named_compilers, pin_controls  # noqa: E402
 from ctrl_plants import BASE, PLANTS, Plant  # noqa: E402
 from ctrl_runs import captures, control_capture, owned, planted_run, stack_gate  # noqa: E402
@@ -760,14 +763,14 @@ def shadows(trees: Trees, firmware: Path) -> list[str]:
 
 
 def judge(trees: Trees, rv32: str | None, work: Path, capture: Capture, control: Plant | None = None,
-          without: frozenset[str] = frozenset()) -> list[str]:
+          scope: Scope = Scope()) -> list[str]:
     """Every finding on both sides of the boundary for these trees, in every configuration and language the
     capture's invocations compile them in; each side judged at once, reusing the run's preprocessings. The
-    capture must hold every known builder's invocations but those `without` leaves out (ctrl_configs.held,
-    with a `control`'s builder texts added to the checkout's). A control that must be refused is judged until
-    the finding it names is found."""
+    capture must hold every known builder's invocations but those the run's `scope` leaves out
+    (ctrl_configs.held, with a `control`'s builder texts added to the checkout's). A control that must be refused
+    is judged until the finding it names is found."""
     texts, needle = ({HERE / name: text for name, text in control.texts}, control.needle) if control else (None, "")
-    held(capture, without, texts, (trees.ctrl, trees.stack))
+    held(capture, scope, texts, (trees.ctrl, trees.stack))
     each = spaces(derive(capture))
     trees = replace(trees, memo=MEMO.judgement(trees))
     names = shadows(trees, ROOT / "sw/firmware")
@@ -836,11 +839,15 @@ def planted(plant: Plant, work: Path) -> Trees:
     return trees
 
 
-def controls(rv32: str | None, work: Path, run: Capture, without: frozenset[str]) -> tuple[int, int]:
+def controls(rv32: str | None, work: Path, run: Capture, scope: Scope) -> tuple[int, int]:
     """The base the controls share passing (the run's capture, with what every shared planted builder compiled),
-    every plant refused by the finding it names (judged until it is found), every pass control passing; the
-    misbehaving count and the controls run."""
-    plants = list(PLANTS)
+    every plant of the run's scope refused by the finding it names (judged until it is found), every pass control
+    passing, each other plant named as left out; the misbehaving count and the controls run."""
+    plants = [plant for plant in PLANTS if scope.judges(plant.needs)]
+    for plant in PLANTS:
+        if not scope.judges(plant.needs):
+            print(f"  LEFT OUT: boundary control {plant.name}, judged where its builders' capture is (needs "
+                  f"{plant.needs or 'the firmware steps'})")
     shared = (work / "shared-capture").resolve()
     with ThreadPoolExecutor(max_workers=JOBS, thread_name_prefix="ctrl-boundary-plant") as runner:
         runs = [runner.submit(planted_run, plant, Trees(CTRL, STACK), work / "shared" / str(at), shared)
@@ -852,7 +859,7 @@ def controls(rv32: str | None, work: Path, run: Capture, without: frozenset[str]
         trees = planted(plant, work / "plants")
         try:
             capture = control_capture(plant, trees, base, work / "plant-run")
-            findings = judge(trees, rv32, work / "plants-build", capture, control=plant, without=without)
+            findings = judge(trees, rv32, work / "plants-build", capture, control=plant, scope=scope)
         except (Refusal, CaptureError) as exc:
             findings = [f"REFUSED: {exc}"]
         shutil.rmtree(work / "plants-build", ignore_errors=True)
@@ -875,8 +882,13 @@ def main(argv: list[str] | None = None) -> int:
                          "gate runs every known builder under its own")
     ap.add_argument("--without", action="append", choices=sorted(NEEDS), default=[],
                     help="leave out the builders that need this, which the run has none of (each is named)")
+    ap.add_argument("--only", choices=sorted(NEEDS), default="",
+                    help="judge only the builders that need this, and the controls that need them (each other one "
+                         "is named)")
     args = ap.parse_args(argv)
-    without = frozenset(args.without)
+    if args.only in args.without:
+        ap.error("--only and --without name the same builders")
+    scope = Scope(frozenset(args.without), args.only)
     rv32 = fw_rv32.compiler()
     if rv32 is None and args.require_rv32:
         print("REFUSED: no RV32 compiler (the pinned SDK's riscv32-linux-gcc or MILAN_RV32_CC)")
@@ -889,7 +901,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"tsn-c-stack at {stack_pin()}", flush=True)
             mine = work / "capture"
             build = beside.submit(stack_gate, False, work / "stack-gate-build", mine)
-            given = captures(args.capture, work, without)
+            given = captures(args.capture, work, scope)
             ran = owned(mine, work / "images")
             said, refused = build.result()
             # the stack's own self-test runs beside the controls; its build is the one the capture holds
@@ -897,19 +909,19 @@ def main(argv: list[str] | None = None) -> int:
             env = ctrl_capture.install(mine)
             named = [record for makefile in makefiles() for record in named_compilers(makefile, env)]
             capture = sum(given[1:], given[0]) + ctrl_capture.load(mine) + Capture((), (), (), tuple(named))
-            held(capture, without)
+            held(capture, scope)
             universe = derive(capture)
-            configurations(universe, capture, without, ran)
+            configurations(universe, capture, scope, ran)
             bad = pins = planted_count = 0
             if args.selftest:
-                bad, planted_count = controls(rv32, work / "controls", capture, without)
+                bad, planted_count = controls(rv32, work / "controls", capture, scope)
                 print(f"boundary controls: {MEMO.total('ran')} preprocessings run, {MEMO.total('reused')} reused",
                       flush=True)
                 (work / "pins").mkdir()
                 misbehaved, pins = pin_controls(work / "pins", makefiles())
                 bad += misbehaved
             PREPROCESSED.clear()
-            findings = judge(Trees(CTRL, STACK), rv32, work / "checkout", capture, without=without)
+            findings = judge(Trees(CTRL, STACK), rv32, work / "checkout", capture, scope=scope)
             runs, checkout = sum(PREPROCESSED), MEMO.made[-1].counts
             cxx = len(cxx_units(Trees(CTRL, STACK), work / "count", capture)[0])
             findings += makefile_findings(makefiles(), work / "makefiles")

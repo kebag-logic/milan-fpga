@@ -8,16 +8,22 @@ builders' compiler invocations (ctrl_capture.py), and lists none of them.
 
 THE BUILDERS. BUILDERS is the known set: every builder of the firmware that
 compiles, each with the commands that run it when the gate makes the capture
-itself. A capture judged must hold an invocation of each, unless the run says
-it has none of what that builder needs (--without verilator); each one left
-out is named on every run. The builders are found by text as well, as a
-cross-check that cannot pass on its own: every Python module and Makefile of
-the checkout, tracked or new and not ignored, that names the firmware's tree
-(sw/firmware/ctrl, or its shared builder ctrl_build), the gate's own modules
-excepted, must have compiled in the capture, be one of BUILDERS (or run only
-under one the run leaves out, PART_OF), or be listed in OUTSIDE with the reason
-its compiles, if any, are none of the firmware's. Any other refuses the gate
-by name, and so does a compiler a builder runs by a path that is no wrapper.
+itself. A capture judged must hold an invocation of each, unless the run
+leaves it out (Scope): it has none of what that builder needs (--without
+verilator), or it judges only the builders that need it (--only verilator,
+which leaves out the firmware steps' builders, judged by the run that holds
+them); each one left out is named on every run. The builders are found by
+text as well, as a cross-check that cannot pass on its own: every Python
+module and Makefile of the checkout, tracked or new and not ignored, that
+names the firmware's tree (sw/firmware/ctrl, or its shared builder
+ctrl_build), the gate's own modules excepted, must have compiled in the
+capture, be one of BUILDERS (or run only under one the run leaves out,
+PART_OF), or be listed in OUTSIDE with the reason its compiles, if any, are
+none of the firmware's. Any other refuses the gate by name, and so does a
+compiler a builder runs by a path that is no wrapper.
+A run that judges only the builders that need Verilator leaves that
+cross-check to the run that holds the firmware steps, whose capture holds
+the builders found by text.
 
 THE BUILD MODES: the macros of every recorded invocation as the compiler's own
 expansion of it reports them (ctrl_expand, THE EXPANSION), never as a reader
@@ -133,7 +139,9 @@ class Builder:
 
 #: The known set: every builder of the firmware that compiles. The hosted firmware-unit job runs the first four
 #: under the capture (rtl-fast.yml); the gate runs the stack's gate and the image builders itself on every run
-#: (ctrl_runs.owned); the last three need Verilator, which the hosted job has none of.
+#: (ctrl_runs.owned); the last three need Verilator, and the hosted firmware-verilator job runs them through the
+#: gate's own capture (--only verilator). Each runs every configuration its own list holds: the bench's default
+#: target, the differential with its self-test, the wire comparison at every reference it pins (--every).
 BUILDERS = (
     Builder("sw/firmware/gtest/fw_rv32_selftest.py",
             (("{python}", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"),)),
@@ -154,8 +162,8 @@ BUILDERS = (
     Builder("sw/firmware/ctrl/test/maap_differential.py",
             (("{python}", "sw/firmware/ctrl/test/maap_differential.py", "--self-test"),), "verilator"),
     Builder("sw/firmware/ctrl/test/aecp_wire.py",
-            (("{python}", "sw/firmware/ctrl/test/aecp_wire.py", "--reference", "protocol-processor", "--interfaces",
-              "1", "--output", "{work}/aecp-wire", "--verilator", "{verilator}"),), "verilator"),
+            (("{python}", "sw/firmware/ctrl/test/aecp_wire.py", "--every", "--output", "{work}/aecp-wire",
+              "--verilator", "{verilator}"),), "verilator"),
 )
 #: What a run may say it has none of: each builder that needs it is left out of the capture, and named.
 NEEDS = {"verilator": "Verilator"}
@@ -281,22 +289,36 @@ def makefiles() -> list[Path]:
     return [path for path in builder_texts() if path.suffix != ".py"]
 
 
-def left_out(without: frozenset[str]) -> list[Builder]:
-    """The known builders a run leaves out: those needing what it says it has none of."""
-    return [b for b in BUILDERS if b.needs and b.needs in without]
+@dataclass(frozen=True)
+class Scope:
+    """Which known builders a run judges: every one but those needing what it has none of (`without`), or, with
+    `only`, those that need it alone (the gate's own runs beside them, which need nothing)."""
+
+    without: frozenset[str] = frozenset()
+    only: str = ""
+
+    def left_out(self) -> list[Builder]:
+        """The known builders the run leaves out."""
+        return [b for b in BUILDERS if (b.needs and b.needs in self.without) or
+                (self.only and b.runs and b.needs != self.only)]
+
+    def judges(self, needs: str) -> bool:
+        """Whether a control that needs this ("" for nothing) is the run's: its plant needs a builder the run
+        holds."""
+        return needs == self.only if self.only else needs not in self.without
 
 
-def held(capture: Capture, without: frozenset[str], planted: dict[Path, str] | None = None,
+def held(capture: Capture, scope: Scope, planted: dict[Path, str] | None = None,
          trees: tuple[Path, Path] = (CTRL, STACK)) -> None:
     """Refuse, by name, a known builder the capture holds no invocation of, a builder found by text that compiled
     nothing in it and is none of BUILDERS, PART_OF or OUTSIDE, a compiler a builder ran by a path that is no
     wrapper, and an invocation whose expansion is none or reads a file first that is not modeled (expanded; a
     file of the trees judged, the ctrl tree's and the stack's, is the checkout's)."""
-    out = {b.path for b in left_out(without)}
+    out = {b.path for b in scope.left_out()}
     known = {b.path for b in BUILDERS}
     reasons = [f"the capture holds no invocation of {b.path}, a builder of the firmware that compiles"
                for b in BUILDERS if b.path not in out and b.path not in capture.builders]
-    for path in builder_texts(planted):
+    for path in builder_texts(planted) if not scope.only else ():
         name = rel(path)
         if name in capture.builders or name in known or name in OUTSIDE or PART_OF.get(name) in out:
             continue
@@ -755,16 +777,19 @@ def sources_of(capture: Capture) -> dict[tuple[str, str], tuple[dict[str, None],
     return found
 
 
-def configurations(universe: dict[str, tuple[str, ...]], capture: Capture, without: frozenset[str],
-                   ran: list[str]) -> None:
+def configurations(universe: dict[str, tuple[str, ...]], capture: Capture, scope: Scope, ran: list[str]) -> None:
     """What the configurations are drawn from: the capture's invocations, and the builders' generators."""
     found = variants()
     image = image_dim()
     known = [b.path for b in BUILDERS if b.path in capture.builders]
     print(f"capture: {len(capture.invocations)} compiler invocations from {len(capture.commands)} builder runs; "
           f"every known builder held: {', '.join(known)}")
-    for b in left_out(without):
-        print(f"  LEFT OUT: {b.path}, which needs {NEEDS[b.needs]}, which this run has none of (--without {b.needs})")
+    for b in scope.left_out():
+        print(f"  LEFT OUT: {b.path}, which needs {NEEDS[b.needs]}, which this run has none of (--without {b.needs})"
+              if b.needs else f"  LEFT OUT: {b.path}, which the run that holds the firmware steps judges (--only "
+              f"{scope.only})")
+    if scope.only:
+        print("  the builders found by text are cross-checked by the run that holds the firmware steps")
     print("\n".join(ran))
     print("build modes, from the recorded invocations: " +
           "; ".join(f"{name} ({' '.join(flags)})" for name, flags in universe.items()))
