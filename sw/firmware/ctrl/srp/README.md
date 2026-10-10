@@ -342,7 +342,7 @@ validation. No register-map change is made here.
 
 The lwSRP pin is public `main` at `08ee86e8`.
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
-Decoded events are unchanged.
+Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
 Round 6 adapts to its recoverable receive-allocation contract.
 The earlier claim that production needed no adaptation was incorrect.
 Two independent reviews, candidate-merge gates and deployment
