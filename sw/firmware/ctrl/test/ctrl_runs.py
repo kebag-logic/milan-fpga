@@ -25,6 +25,7 @@ that fails may have compiled less than it does.
 from __future__ import annotations
 
 import os
+import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -63,7 +64,7 @@ def image_runs(work: Path) -> list[tuple[str, list[str]]]:
     return runs
 
 
-def stopped_at_link(argv: list[str], res) -> bool:
+def stopped_at_link(argv: list[str], res: subprocess.CompletedProcess) -> bool:
     """Whether an image builder run stopped where a runtime-less one must: ctrl_srp_image.py at its link, on the
     archives that do not exist; every other one passing."""
     if Path(argv[2]).name != "ctrl_srp_image.py":
@@ -81,6 +82,7 @@ def owned(capture: Path, work: Path) -> list[str]:
     lines, bad = [], []
 
     def one(label: str, argv: list[str]) -> tuple[str, list[str], object, float]:
+        """One image builder run, timed."""
         start = time.monotonic()
         res = ctrl_capture.run(capture, argv, cwd=ROOT, capture_output=True, text=True)
         return label, argv, res, time.monotonic() - start

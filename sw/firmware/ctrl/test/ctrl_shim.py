@@ -16,10 +16,9 @@ called by, the real compiler, the arguments, the working directory, every
 source with its language as parse() reads it (and, for C++, the digest of its
 text), the files it reads first (-include, -imacros) as the compiler finds
 them, the builder files on the Python stack of the process that started it
-(CTRL_CAPTURE_FROM, set by ctrl_capture's audit hook), the digest of the map
-of texts kept beside it, and the name of its ancestry: the directory and
-command line of each ancestor process up to the capture's own, written once
-per parent process (chain-<parent>-<its start time>). The text of every C++
+(CTRL_CAPTURE_FROM, set by ctrl_capture's audit hook), the builder file of the
+command the capture ran it under (CTRL_CAPTURE_RUN, set by ctrl_capture.run),
+and the digest of the map of texts kept beside it. The text of every C++
 source, of a file a C++ compile reads first outside the checkout, and of every
 header outside the checkout a C++ source reaches in a builder's own
 directories (the temporary directory, the compile's, the source's) by its
@@ -452,93 +451,6 @@ static void closure(Map *kept, const char *capture, const char *root, char *cons
     }
 }
 
-/* ---- the ancestry ---- */
-
-/* A process's parent and start time, from /proc/<pid>/stat. */
-static int stat_of(long pid, long *parent, unsigned long long *start)
-{
-    char path[64], buf[4096], *save = NULL;
-    snprintf(path, sizeof path, "/proc/%ld/stat", pid);
-    int fd = open(path, O_RDONLY);
-    if (fd < 0)
-        return -1;
-    ssize_t n = read(fd, buf, sizeof buf - 1);
-    close(fd);
-    if (n <= 0)
-        return -1;
-    buf[n] = '\0';
-    char *p = strrchr(buf, ')');
-    if (p == NULL || p[1] == '\0')
-        return -1;
-    int k = 0;
-    for (char *tok = strtok_r(p + 2, " ", &save); tok != NULL; tok = strtok_r(NULL, " ", &save), k++) {
-        if (k == 1)
-            *parent = strtol(tok, NULL, 10);
-        if (k == 19) {
-            *start = strtoull(tok, NULL, 10);
-            return 0;
-        }
-    }
-    return -1;
-}
-
-/* The ancestry's name, its text written once per parent process. */
-static void chain(const char *capture, const char *top, char *name, size_t size)
-{
-    long pid = (long)getppid(), parent = 0;
-    unsigned long long start = 0;
-    if (stat_of(pid, &parent, &start) != 0)
-        fail("cannot read the parent process", NULL);
-    snprintf(name, size, "chain-%ld-%llu", pid, start);
-    char *path = NULL, *part = NULL;
-    if (asprintf(&path, "%s/text/%s", capture, name) < 0 || asprintf(&part, "%s.%ld", path, (long)getpid()) < 0)
-        fail("out of memory", NULL);
-    if (access(path, F_OK) == 0) {
-        free(path);
-        free(part);
-        return;
-    }
-    Buf b = {0};
-    text(&b, "[");
-    for (int depth = 0; pid > 1 && depth < 32; depth++) {
-        char where[64], cwd[PATH_MAX], *cmd;
-        size_t n = 0;
-        snprintf(where, sizeof where, "%ld", pid);
-        if (top != NULL && strcmp(where, top) == 0)
-            break;
-        snprintf(where, sizeof where, "/proc/%ld/cmdline", pid);
-        if ((cmd = slurp(where, &n)) == NULL)
-            break;
-        snprintf(where, sizeof where, "/proc/%ld/cwd", pid);
-        ssize_t m = readlink(where, cwd, sizeof cwd - 1);
-        if (m < 0 || stat_of(pid, &parent, &start) != 0) {
-            free(cmd);
-            break;
-        }
-        cwd[m] = '\0';
-        text(&b, depth ? ", [" : "[");
-        quoted(&b, cwd);
-        text(&b, ", [");
-        int words = 0;
-        for (size_t i = 0; i < n && words < 16; i += strlen(cmd + i) + 1) {
-            if (cmd[i] == '\0')
-                continue;
-            text(&b, words++ ? ", " : "");
-            quoted(&b, cmd + i);
-        }
-        text(&b, "]]");
-        free(cmd);
-        pid = parent;
-    }
-    text(&b, "]");
-    int fd = open(part, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0 || write(fd, b.data, b.len) != (ssize_t)b.len || close(fd) != 0 || rename(part, path) != 0)
-        fail("cannot write the ancestry", path);
-    free(b.data);
-    free(path);
-    free(part);
-}
-
 int main(int argc, char **argv)
 {
     if (argc < 4) {
@@ -674,12 +586,10 @@ int main(int argc, char **argv)
     } else {
         quoted(&r, "");
     }
-    char key[96];
-    chain(capture, getenv("CTRL_CAPTURE_TOP"), key, sizeof key);
     text(&r, ", \"from\": ");
     quoted(&r, getenv("CTRL_CAPTURE_FROM") ? getenv("CTRL_CAPTURE_FROM") : "");
-    text(&r, ", \"chain\": ");
-    quoted(&r, key);
+    text(&r, ", \"run\": ");
+    quoted(&r, getenv("CTRL_CAPTURE_RUN") ? getenv("CTRL_CAPTURE_RUN") : "");
     text(&r, "}\n");
     char *path = NULL;
     if (asprintf(&path, "%s/records.jsonl", capture) < 0)

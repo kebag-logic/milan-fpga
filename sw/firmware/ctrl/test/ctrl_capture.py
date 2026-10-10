@@ -21,7 +21,8 @@ command's.
 
 THE READER. load(DIR) gives every invocation the capture holds, each with the
 builders it came from: the checkout's files on the Python stack of the process
-that ran the compiler, and the script or Makefile of each ancestor process.
+that ran the compiler, and the script or Makefile of the command the capture
+ran (CTRL_CAPTURE_RUN, which run() sets and every process below inherits).
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_capture.py --out DIR -- python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
@@ -50,7 +51,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 #: The recorder's name in a capture's bin/.
 RECORDER = ".ctrl-recorder"
-#: A C or C++ compiler's name, prefixed (x86_64-linux-gnu-, riscv32-linux-) or versioned (-13) or neither.
+#: A C or C++ compiler's name, prefixed with a target's name or suffixed with a version (-13), or neither.
 COMPILER = re.compile(r"^(?:[\w.+-]+-)?(?:gcc|g\+\+|c\+\+|cc|cpp|clang|clang\+\+)(?:-\d+(?:\.\d+)*)?$")
 #: The audit hook every Python process of a capture loads: it names the builders on the stack of each process
 #: it starts (CTRL_CAPTURE_FROM, after its own parent's), and records a compiler run by a path that is no
@@ -240,15 +241,16 @@ def installed(capture: Path) -> dict[str, str]:
     (hook / "sitecustomize.py").write_text(HOOK, encoding="utf-8")
     env.update({"PATH": os.pathsep.join([str(bin_dir), search]), "CTRL_CAPTURE_DIR": str(capture),
                 "CTRL_CAPTURE_BIN": str(bin_dir), "CTRL_CAPTURE_ROOT": str(ROOT), "CTRL_CAPTURE_FROM": "",
-                "CTRL_CAPTURE_TOP": str(os.getpid()),
                 "PYTHONPATH": os.pathsep.join(p for p in (str(hook), os.environ.get("PYTHONPATH", "")) if p)})
     return env
 
 
 def run(capture: Path, argv: list[str], cwd: Path | None = None, env_extra: dict[str, str] | None = None,
         **kwargs) -> subprocess.CompletedProcess:
-    """One command under the capture, listed in its manifest."""
-    env = {**install(capture), **(env_extra or {})}
+    """One command under the capture, listed in its manifest; its records name the command's builder file
+    (CTRL_CAPTURE_RUN: its Python script or its Makefile, when one of the checkout's)."""
+    env = {**install(capture), **(env_extra or {}),
+           "CTRL_CAPTURE_RUN": json.dumps(script_of(str((cwd or Path.cwd()).resolve()), argv))}
     start = time.monotonic()
     res = subprocess.run(argv, cwd=cwd, env=env, check=False, **kwargs)
     line = json.dumps({"argv": argv, "cwd": str(cwd or Path.cwd()), "rc": res.returncode,
@@ -316,7 +318,7 @@ class Capture:
 
 
 def script_of(cwd: str, argv: list[str]) -> list[str]:
-    """The checkout's builder files an ancestor process names: a Python process's script, a make's Makefile."""
+    """The checkout's builder files a command names: a Python process's script, a make's Makefile."""
     if not argv:
         return []
     program = Path(argv[0]).name
@@ -354,10 +356,10 @@ def resolved(cwd: str, name: str) -> str:
     return str((Path(cwd) / name).resolve())
 
 
-def invocation(raw: dict, kept: Callable[[str], object], chained: Callable[[str], frozenset[str]]) -> Invocation:
-    """One record, read: the headers kept beside it are a kept text (`kept` reads one), and its ancestry's
-    builders are read once per ancestry (`chained`)."""
-    builders = set(json.loads(raw.get("from") or "[]")) | chained(raw["chain"])
+def invocation(raw: dict, kept: Callable[[str], object]) -> Invocation:
+    """One record, read: its builders are the Python stack's that started it and the builder file of the command
+    the capture ran (THE CAPTURE); the headers kept beside it are a kept text (`kept` reads one)."""
+    builders = set(json.loads(raw.get("from") or "[]")) | set(json.loads(raw.get("run") or "[]"))
     cwd = raw["cwd"]
     seen = ctrl_shim.parse(raw["tool"], raw["args"])
     dirs = tuple(dict.fromkeys(resolved(cwd, d) for _, d in seen["dirs"]))
@@ -377,11 +379,8 @@ def load(where: Path, required: bool = True) -> Capture:
 
     @lru_cache(maxsize=None)
     def kept(digest: str) -> object:
+        """A kept map, read once."""
         return json.loads((where / "text" / digest).read_text(encoding="utf-8"))
-
-    @lru_cache(maxsize=None)
-    def chained(name: str) -> frozenset[str]:
-        return frozenset(builder for cwd, argv in kept(name) for builder in script_of(cwd, argv))
 
     lines = records.read_text(encoding="utf-8").splitlines() if records.is_file() else []
     for number, line in enumerate(lines, 1):
@@ -390,7 +389,7 @@ def load(where: Path, required: bool = True) -> Capture:
             if "bypass" in raw:
                 bypassed.append({**raw, "from": json.loads(raw.get("from") or "[]")})
             else:
-                invocations.append(invocation(raw, kept, chained))
+                invocations.append(invocation(raw, kept))
         except (OSError, ValueError, KeyError, TypeError) as exc:
             raise CaptureError(f"the capture at {where} has an unreadable record, line {number}: {exc}") from exc
     commands = tuple(json.loads(line) for line in manifest.read_text(encoding="utf-8").splitlines() if line)
