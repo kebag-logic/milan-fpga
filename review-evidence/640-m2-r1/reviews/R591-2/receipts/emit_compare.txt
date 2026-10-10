@@ -1,0 +1,145 @@
+# probe_emit.py output (LiteX/migen emitters, pinned stack + product patch series), header comment lines stripped
+b09223db0c9e44373d12eeba29858aec28d7bb5518b73a5e2f36e3acccfa9181  e8454e27/csr.litex.v
+7acad2908d8314db7c6d2bf3472b501128b9ad46c7dd07e60b52ab0914341927  e8454e27/csr.migen.v
+b32349e9c96b03fc6a55012ad5653e9b039e74f2f9b4851682469a52ceda4f94  e8454e27/mac_rx.litex.v
+6a9e615e28791e345d9192a26319a5d23c86720049966c3e187faa8d3ca39628  e8454e27/mac_rx.migen.v
+779861b32d5867435605a625607a90160401bffd14a17eeaf827c2bf53dde9b5  e8454e27/mac_tx.litex.v
+56459a0603f6f01d2e9825217472d0713da1a36737385d867a46ac6cf4f172f8  e8454e27/mac_tx.migen.v
+f09e74c74801ba150db292a1f593c2ef0389a2de27a3df7de854352cb436fca2  4177835c/csr.litex.v
+9f771555e23b6a7a9f756e2b0109867a40a5d832b56e08d74fe6481a21ca7222  4177835c/csr.migen.v
+710ad989e238d16bb60765ae2235b218ed23e8a68b002f85e796a04c6e6961ec  4177835c/mac_rx.litex.v
+a8d8b016562f742beaf2742288b43566e2fc392c212be309efb1e3ad00203e26  4177835c/mac_rx.migen.v
+5c6e911092989ede8eca60b99707df2dfb3866e3f2352491d7a52dde757ad8ec  4177835c/mac_tx.litex.v
+9fcabb67605dc99f23d989392c55dacc832ae9d34b807264ba559afae37c7632  4177835c/mac_tx.migen.v
+f09e74c74801ba150db292a1f593c2ef0389a2de27a3df7de854352cb436fca2  67a3b68d/csr.litex.v
+42c9f6d079f7c0669aff54f8040df2dc4d16f3a857cfcf5823eb65269176c230  67a3b68d/csr.migen.v
+710ad989e238d16bb60765ae2235b218ed23e8a68b002f85e796a04c6e6961ec  67a3b68d/mac_rx.litex.v
+de10a907cb9a36c6321a04e2ce9c1ef07eebc217374631f7ab23176b48f32a7f  67a3b68d/mac_rx.migen.v
+5c6e911092989ede8eca60b99707df2dfb3866e3f2352491d7a52dde757ad8ec  67a3b68d/mac_tx.litex.v
+16a52e0627eb23207f4b4d3580e2f57bd6833699af1eced28887fa39a85636c3  67a3b68d/mac_tx.migen.v
+f09e74c74801ba150db292a1f593c2ef0389a2de27a3df7de854352cb436fca2  f340d923/csr.litex.v
+42c9f6d079f7c0669aff54f8040df2dc4d16f3a857cfcf5823eb65269176c230  f340d923/csr.migen.v
+710ad989e238d16bb60765ae2235b218ed23e8a68b002f85e796a04c6e6961ec  f340d923/mac_rx.litex.v
+de10a907cb9a36c6321a04e2ce9c1ef07eebc217374631f7ab23176b48f32a7f  f340d923/mac_rx.migen.v
+5c6e911092989ede8eca60b99707df2dfb3866e3f2352491d7a52dde757ad8ec  f340d923/mac_tx.litex.v
+16a52e0627eb23207f4b4d3580e2f57bd6833699af1eced28887fa39a85636c3  f340d923/mac_tx.migen.v
+
+mac_tx.litex.v measured-4177835c vs head-f340d923: IDENTICAL
+mac_tx.migen.v measured-4177835c vs head-f340d923: DIFFERENT
+mac_rx.litex.v measured-4177835c vs head-f340d923: IDENTICAL
+mac_rx.migen.v measured-4177835c vs head-f340d923: DIFFERENT
+csr.litex.v measured-4177835c vs head-f340d923: IDENTICAL
+csr.migen.v measured-4177835c vs head-f340d923: DIFFERENT
+
+## diff 4177835c vs head, mac_tx migen
+202c202
+< reg [3:0] memadr_1;
+---
+> reg [71:0] memdat;
+210c210
+< 	memadr_1 <= array_read_memory0_adr;
+---
+> 	memdat <= storage[array_read_memory0_adr];
+214c214
+< assign array_read_memory0_dat_r = storage[memadr_1];
+---
+> assign array_read_memory0_dat_r = memdat;
+217,218c217,218
+< reg [3:0] memadr_2;
+< reg [3:0] memadr_3;
+---
+> reg [3:0] memadr_1;
+> reg [1:0] memdat_1;
+222c222
+< 	memadr_2 <= array_write_memory1_adr;
+---
+> 	memadr_1 <= array_write_memory1_adr;
+226c226
+< 	memadr_3 <= array_read_memory1_adr;
+---
+> 	memdat_1 <= storage_1[array_read_memory1_adr];
+229,230c229,230
+< assign array_write_memory1_dat_r = storage_1[memadr_2];
+< assign array_read_memory1_dat_r = storage_1[memadr_3];
+---
+> assign array_write_memory1_dat_r = storage_1[memadr_1];
+> assign array_read_memory1_dat_r = memdat_1;
+## diff base e8454e27 vs head, mac_tx litex
+55a56,67
+> wire    [3:0] array_read_memory0_adr;
+> wire   [71:0] array_read_memory0_dat_r;
+> wire    [3:0] array_read_memory1_adr;
+> wire    [1:0] array_read_memory1_dat_r;
+> wire    [3:0] array_write_memory0_adr;
+> wire   [71:0] array_write_memory0_dat_r;
+> wire   [71:0] array_write_memory0_dat_w;
+> wire          array_write_memory0_we;
+> wire    [3:0] array_write_memory1_adr;
+> wire    [1:0] array_write_memory1_dat_r;
+> wire    [1:0] array_write_memory1_dat_w;
+> wire          array_write_memory1_we;
+100d111
+< wire   [73:0] cdc_wrport_dat_r;
+147a159,167
+> assign array_write_memory0_adr = cdc_wrport_adr;
+> assign array_write_memory0_we = cdc_wrport_we;
+> assign array_write_memory0_dat_w = cdc_wrport_dat_w[71:0];
+> assign array_read_memory0_adr = cdc_rdport_adr;
+> assign array_write_memory1_adr = cdc_wrport_adr;
+> assign array_write_memory1_we = cdc_wrport_we;
+> assign array_write_memory1_dat_w = cdc_wrport_dat_w[73:72];
+> assign array_read_memory1_adr = cdc_rdport_adr;
+> assign cdc_rdport_dat_r = {array_read_memory1_dat_r, array_read_memory0_dat_r};
+205a226
+> (* ram_style = "block" *)
+207c228
+< // Memory storage: 16-words x 74-bit
+---
+> // Memory storage: 16-words x 72-bit
+211,213c232,234
+< reg [73:0] storage[0:15];
+< reg [73:0] storage_dat0;
+< reg [73:0] storage_dat1;
+---
+> reg [71:0] storage[0:15];
+> reg [71:0] storage_dat0;
+> reg [71:0] storage_dat1;
+215,217c236,238
+< 	if (cdc_wrport_we)
+< 		storage[cdc_wrport_adr] <= cdc_wrport_dat_w;
+< 	storage_dat0 <= storage[cdc_wrport_adr];
+---
+> 	if (array_write_memory0_we)
+> 		storage[array_write_memory0_adr] <= array_write_memory0_dat_w;
+> 	storage_dat0 <= storage[array_write_memory0_adr];
+220c241
+< 	storage_dat1 <= storage[cdc_rdport_adr];
+---
+> 	storage_dat1 <= storage[array_read_memory0_adr];
+222,223c243,265
+< assign cdc_wrport_dat_r = storage_dat0;
+< assign cdc_rdport_dat_r = storage_dat1;
+---
+> assign array_write_memory0_dat_r = storage_dat0;
+> assign array_read_memory0_dat_r = storage_dat1;
+> 
+> 
+> (* ram_style = "distributed" *)
+> 
+> // Memory storage_1: 16-words x 2-bit
+> 
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+> 
+> reg [1:0] storage_1[0:15];
+> reg [1:0] storage_1_dat0;
+> reg [1:0] storage_1_dat1;
+> always @(posedge macdp_clk) begin
+> 	if (array_write_memory1_we)
+> 		storage_1[array_write_memory1_adr] <= array_write_memory1_dat_w;
+> 	storage_1_dat0 <= storage_1[array_write_memory1_adr];
+> end
+> always @(posedge macsys_clk) begin
+> 	storage_1_dat1 <= storage_1[array_read_memory1_adr];
+> end
+> assign array_write_memory1_dat_r = storage_1_dat0;
+> assign array_read_memory1_dat_r = storage_1_dat1;

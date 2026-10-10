@@ -1,0 +1,19 @@
+# reviewer environment identity
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+verilator wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+python: Python 3.14.7
+LiteX stack: exports (git archive) of the revisions pinned in sw/litex/litex_pins.txt, imported ahead of the base interpreter's packages:
+  git+https://github.com/m-labs/migen.git@4c2ae8dfeea37f235b52acb8166f12acaaae4f7c
+  git+https://github.com/enjoy-digital/litex.git@a1e1c3652ec2f1346ebaea7663d2867f393ae2c4
+  git+https://github.com/enjoy-digital/litedram.git@f9b75e0347fc43267d083f7ff5965170fe8f9a58
+  git+https://github.com/enjoy-digital/liteeth.git@276c9e37fb4d92a5c0f30d39a51c20f42a59cf93
+  git+https://github.com/litex-hub/litespi.git@02d5a209bc0010d33ddb506ba18e736636d4109a
+  git+https://github.com/litex-hub/litex-boards.git@9ac53c7a11f2571ba2c9f165f468ae021a4f9bda
+  git+https://github.com/litex-hub/pythondata-cpu-vexiiriscv.git@15cfab529a17c473d0fc75edf3f409eb374cef35
+product patch series applied to those exports (sha256 of the patch files at head):
+  eb44cc0365eb2f20b8c76412032b080242c7daca2e67ac84f166976e5dd8018a  0002-liteeth-gmii-tx-clk-invert.patch
+  1d26df59aa0bbd9285f84c7be7852a1833bfd88810fdfd002473e98ac833a20f  0007-liteeth-gmii-rx-capture.patch
+  cfbd904607759b1effec0705bcc501d821684c6cdddf4cedb2dd2c14eafa9ea8  0004-vexiiriscv-baremetal-variant.patch
+  f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f  0006-bios-dispatch-hook.patch
+not applied: 0005 (pythondata-cpu-vexiiriscv, not on the crossings' path; not exported)
+docs/quality gate interpreter: Python 3.14.7 (md-venv)
