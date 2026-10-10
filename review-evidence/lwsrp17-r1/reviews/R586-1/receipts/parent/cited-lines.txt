@@ -1,0 +1,27 @@
+milan-fpga 554e61d299ef7ddb5aca6fb9ce0e6a6cd076d8cb; third_party/lwSRP gitlink: 9197193e47a6bb1c45a56d90a18c1784123aba44
+== sw/firmware/ctrl/test/srp_latency.cpp:66-77
+            const bool mvrp=wire_be16(f->bytes+12)==0x88f5;
+            const unsigned i=f->interface; const unsigned p=mvrp?1:0;
+            bool la=false; unsigned off=15;
+            while(off+2<f->len && (f->bytes[off] || f->bytes[off+1])) {
+                unsigned width=f->bytes[off+1]; off+=2;
+                unsigned end=f->len;
+                if(!mvrp) { end=off+2+wire_be16(f->bytes+off); off+=2; }
+                // LA appears on the first vector of each message.
+                la=la || (f->bytes[off]&0x20u);
+                if(!mvrp) off=end;
+                else { const unsigned n=wire_be16(f->bytes+off)&8191u;
+                       off+=2+width+(n+2)/3+2; }
+== sw/firmware/ctrl/srp/srp_mbx.c:519-522
+    if (s->app->ops->ethertype == MRP_ETHERTYPE_MVRP) {
+        // Only the accepted record licenses this VID (Milan 4.3.2).
+        (void)mrpdu_parse(pdu,len,s->app->ops,vlan_committed,NULL,s->interface);
+    }
+== sw/firmware/ctrl/srp/srp_mbx.c:800-800
+            int result = mrp_transmit(app,0,m->frame,sizeof(m->frame) - 14u,send_pdu,&send);
+== sw/firmware/ctrl/test/ctrl_arms.py:362-362
+LWSRP_REV = "9197193e47a6bb1c45a56d90a18c1784123aba44"
+== docs/reference/SUBMODULES.md:26-26
+| `third_party/lwSRP` | `9197193e47a6bb1c45a56d90a18c1784123aba44` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+== docs/diagrams/submodule_boundaries.svg:72-72
+<text x="558" y="837" font-size="16" fill="#37474F">pin 9197193e47a6</text>

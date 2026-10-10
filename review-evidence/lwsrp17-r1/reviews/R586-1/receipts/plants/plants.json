@@ -1,0 +1,200 @@
+[
+  {
+    "label": "R1-base-encoder",
+    "class": "split Message (per-value Messages, the old encoder)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 10,
+    "failing": [
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "domain_classes_share_one_message_in_ascending_order",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "stream_pdus_stop_at_the_attribute_list_length_reach",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ]
+  },
+  {
+    "label": "R2-no-list-endmark",
+    "class": "wrong EndMark count (no AttributeList EndMark)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 15,
+    "failing": [
+      "a_full_pdu_retries_omitted_attributes_before_repeats",
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "changed_listener_redeclares_from_a_quiet_applicant",
+      "domain_classes_share_one_message_in_ascending_order",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "fresh_ladder_and_refusal_are_transactional",
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "one_octet_short_moves_a_vector_to_a_second_pdu",
+      "stream_pdus_stop_at_the_attribute_list_length_reach",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "transmitted_leaveall_includes_every_supported_type",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ]
+  },
+  {
+    "label": "R3-sort-ignores-last-octet",
+    "class": "wrong vector order (partial key)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 6,
+    "failing": [
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ]
+  },
+  {
+    "label": "R3b-no-sort",
+    "class": "wrong vector order (list order)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 8,
+    "failing": [
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "domain_classes_share_one_message_in_ascending_order",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ]
+  },
+  {
+    "label": "R4-drop-values-under-leaveall",
+    "class": "dropped vector (values after LeaveAll)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 2,
+    "failing": [
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ]
+  },
+  {
+    "label": "R4b-drop-list-head",
+    "class": "dropped vector (newest declaration)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 14,
+    "failing": [
+      "a_full_pdu_retries_omitted_attributes_before_repeats",
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "changed_listener_redeclares_from_a_quiet_applicant",
+      "domain_classes_share_one_message_in_ascending_order",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "fresh_ladder_and_refusal_are_transactional",
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "one_octet_short_moves_a_vector_to_a_second_pdu",
+      "stream_pdus_stop_at_the_attribute_list_length_reach",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ]
+  },
+  {
+    "label": "R5-cost-misses-endmark",
+    "class": "sizing under-count (overrun)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 1,
+    "failing": [
+      "one_octet_short_moves_a_vector_to_a_second_pdu"
+    ]
+  },
+  {
+    "label": "R6-cost-per-value",
+    "class": "sizing over-count (old per-value cost)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 3,
+    "failing": [
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "stream_pdus_stop_at_the_attribute_list_length_reach"
+    ]
+  },
+  {
+    "label": "R7-descending-types",
+    "class": "Message order",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 4,
+    "failing": [
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "talker_and_listener_messages_follow_attribute_type_order"
+    ]
+  },
+  {
+    "label": "R8-list-length-excludes-endmark",
+    "class": "AttributeListLength",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 13,
+    "failing": [
+      "a_full_pdu_retries_omitted_attributes_before_repeats",
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "changed_listener_redeclares_from_a_quiet_applicant",
+      "domain_classes_share_one_message_in_ascending_order",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "fresh_ladder_and_refusal_are_transactional",
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "one_octet_short_moves_a_vector_to_a_second_pdu",
+      "stream_pdus_stop_at_the_attribute_list_length_reach",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "transmitted_leaveall_includes_every_supported_type",
+      "two_listener_values_share_one_message"
+    ]
+  },
+  {
+    "label": "R9-writes-unselected-events",
+    "class": "event semantics (TX none written)",
+    "unit_rc": 0,
+    "killed": false,
+    "failing_count": 0,
+    "failing": []
+  },
+  {
+    "label": "R10-leaveall-cost-misses-vector",
+    "class": "sizing under-count under LeaveAll",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 1,
+    "failing": [
+      "full_leaveall_reports_each_required_transition"
+    ]
+  },
+  {
+    "label": "R11-leaveall-vector-carries-values",
+    "class": "LeaveAll form (NumberOfValues 0 dropped)",
+    "unit_rc": 1,
+    "killed": true,
+    "failing_count": 5,
+    "failing": [
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "transmitted_leaveall_includes_every_supported_type",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ]
+  }
+]
