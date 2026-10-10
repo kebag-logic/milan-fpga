@@ -42,8 +42,11 @@ VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
 # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
 # The ADP, ACMP and MAAP cores and the wire layer are the TSN stack's, from the
 # pinned tsn-c-stack submodule (#697), included through its public headers. The
-# shared pin check (stack-pin) runs before every firmware build, so a stack off
-# its gitlink or differing from it is refused and never built.
+# shared pin check (stack-pin) is a prerequisite of every target whose recipe
+# compiles against the stack (the firmware library, the co-simulation and
+# run-if2's host model), so whichever target runs alone, a stack off its gitlink
+# or differing from it is refused and never built. ctrl_pin.py finds those
+# targets in make's own dry run and refuses one without it.
 FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
 STACK_DIR := $(abspath $(ROOT)/third_party/tsn-c-stack)
 FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
@@ -85,7 +88,7 @@ obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR) | stack-pin
 # Verilator's own build relinks Vmbx_cosim only when one of its objects
 # changed, and the firmware library is not one of them: the binary goes
 # whenever the library is newer, so a firmware-only change is never run stale.
-run-cosim: obj_fw/libctrlfw.a
+run-cosim: obj_fw/libctrlfw.a | stack-pin
 	if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \
 	  rm -f obj_cosim/Vmbx_cosim; fi
 	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_cosim $(RTL) cosim_main.cpp \
@@ -109,7 +112,7 @@ CXX ?= c++
 if2-gen:
 	python3 -B $(ROOT)/sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out $(IF2_GEN)
 
-run-if2: if2-gen
+run-if2: if2-gen | stack-pin
 	$(VERILATOR) $(IF2_VFLAGS) -GHOST_P=0 --Mdir $(IF2)/obj_wb $(IF2_RTL) sim_main.cpp -o Vmbx_wb
 	$(VERILATOR) $(IF2_VFLAGS) -GHOST_P=1 --Mdir $(IF2)/obj_axil $(IF2_RTL) sim_main.cpp -o Vmbx_axil
 	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I$(IF2_GEN) $(FW_INC) \
