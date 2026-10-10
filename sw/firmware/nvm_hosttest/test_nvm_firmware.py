@@ -729,11 +729,12 @@ def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path) -> li
     if s.get("boot_reads", 0) > BOOT_READ_BOUND:
         return [f"{name}: the boot read the flash {s.get('boot_reads')} times, "
                 f"over the bound of {BOOT_READ_BOUND}"]
-    tally = UNREAD_RE.search(out)
-    if boot is None or tally is None:
+    if boot is None:
         return [f"{name}: the faulty boot printed no boot line"]
+    tally = UNREAD_RE.search(out)
+    unread = int(tally.group(2)) if tally else 0
     held = HELD_LINE in out
-    f = boot_findings(bench, case, boot, int(tally.group(2)), slots, w / "rf_ddr0.bin")
+    f = boot_findings(bench, case, boot, unread, slots, w / "rf_ddr0.bin")
     if case.count == 1 and held:
         f.append(f"{name}: one faulty read held the writer; the bound must resolve it")
     if (case.skip, case.count) == (0, 64) and not held:
@@ -743,7 +744,7 @@ def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path) -> li
                s.get("starts") == 0 and s.get("acks") == 0 and s.get("backed") == 0
                and s.get("dirty") == 1 and s.get("hb") == 0,
                f"{name}: the held writer persisted something or claimed backing: {s}")
-        _check(f, tally.group(2) != "0", f"{name}: the boot line did not name the unread slot")
+        _check(f, unread != 0, f"{name}: the boot line did not name the unread slot")
     else:
         _check(f, s.get("acks") == 1 and s.get("dirty") == 0,
                f"{name}: the change was neither committed nor refused: {s}")
