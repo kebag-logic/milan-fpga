@@ -1,0 +1,100 @@
+[
+  {
+    "name": "record-route-1x1",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "record",
+      "<scratch>/shipping/ax7101/gateware",
+      "--endpoint",
+      "route-1x1",
+      "--write"
+    ],
+    "rc": 0,
+    "seconds": 0.2,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "record-ooc-1x1",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "record",
+      "<scratch>/shipping/ax7101-ooc",
+      "--endpoint",
+      "ooc-1x1",
+      "--write"
+    ],
+    "rc": 0,
+    "seconds": 0.1,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "record-ooc-8x8",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "record",
+      "<scratch>/shipping/ax8x8-ooc",
+      "--endpoint",
+      "ooc-8x8",
+      "--write"
+    ],
+    "rc": 0,
+    "seconds": 0.1,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "after-route-1x1",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "<scratch>/shipping/ax7101/gateware",
+      "--endpoint",
+      "route-1x1"
+    ],
+    "rc": 0,
+    "seconds": 0.2,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "after-ooc-1x1",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "<scratch>/shipping/ax7101-ooc",
+      "--endpoint",
+      "ooc-1x1"
+    ],
+    "rc": 0,
+    "seconds": 0.1,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "after-ooc-8x8",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "<scratch>/shipping/ax8x8-ooc",
+      "--endpoint",
+      "ooc-8x8"
+    ],
+    "rc": 0,
+    "seconds": 0.1,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "check-baseline",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "rc": 0,
+    "seconds": 0.1,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  }
+]

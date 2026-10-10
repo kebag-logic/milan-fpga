@@ -1,0 +1,54 @@
+[
+  {
+    "commit": "39bf3d5f4f7027d130976067231cd45902df3b00",
+    "subject": "fix(maap): seed from the programmed MAC at first enable",
+    "paths": [
+      "docs/design/MAAP_FABRIC.md",
+      "hdl/ieee1722/maap/KL_maap.sv",
+      "tb/verilator/maap/Makefile",
+      "tb/verilator/maap/integration.mk",
+      "tb/verilator/maap/mutants.py",
+      "tb/verilator/maap/sim_integration.cpp"
+    ]
+  },
+  {
+    "commit": "74692746d3fe97d37697c163543536984cd1270c",
+    "subject": "fix(maap): echo requested ranges and reject invalid inputs",
+    "paths": [
+      "docs/design/MAAP_FABRIC.md",
+      "hdl/ieee1722/maap/KL_maap.sv",
+      "tb/verilator/maap/Makefile",
+      "tb/verilator/maap/mutants.py",
+      "tb/verilator/maap/sim_main.cpp"
+    ]
+  },
+  {
+    "commit": "19cc4eec74c2f149d7529a71600fa52abd207171",
+    "subject": "fix(maap): apply MAC ordering and reprobe on link return",
+    "paths": [
+      "docs/design/MAAP_FABRIC.md",
+      "hdl/ieee1722/maap/KL_maap.sv",
+      "hdl/milan/milan_datapath.sv",
+      "tb/verilator/maap/mutants.py",
+      "tb/verilator/maap/sim_integration.cpp",
+      "tb/verilator/maap/sim_main.cpp"
+    ]
+  },
+  {
+    "commit": "832ee972e36605cef085cda5e8ae1867186ff2f8",
+    "subject": "fix(maap): retain a pending DEFEND while transmission is busy",
+    "paths": [
+      "docs/design/MAAP_FABRIC.md",
+      "hdl/ieee1722/maap/KL_maap.sv",
+      "tb/verilator/maap/mutants.py",
+      "tb/verilator/maap/sim_main.cpp"
+    ]
+  },
+  {
+    "commit": "bc89c6c1c6289cb286a39406413ebc1c742d7745",
+    "subject": "test(maap): grade missing frames without crashing the harness",
+    "paths": [
+      "tb/verilator/maap/sim_main.cpp"
+    ]
+  }
+]

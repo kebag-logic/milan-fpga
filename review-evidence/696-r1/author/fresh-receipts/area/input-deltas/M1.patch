@@ -1,0 +1,36 @@
+--- KL_maap.sv
++++ KL_maap.sv
+@@ -31,17 +31,17 @@
+                   500..600 ms, announce strictly inside 30..32 s.
+                   RX, only for a range that conflicts (note b: the ranges
+                   share an address; an empty range never conflicts):
+-                  PROBE while probing -> re-address; PROBE while announced
++                  PROBE while probing -> compare_MAC; PROBE while announced
+                   -> DEFEND with the overlapping sub-range (B.2.7/B.2.8);
+-                  DEFEND -> re-address; ANNOUNCE while probing ->
++                  DEFEND while probing -> re-address; while announced ->
++                  compare_MAC; ANNOUNCE while probing ->
+                   re-address; ANNOUNCE while announced -> compare_MAC
+                   (B.3.6.4), re-address only when this station is not the
+                   lower. A DEFEND is judged on its conflict_* fields, a
+                   PROBE or ANNOUNCE on its requested_* fields (B.2.5-B.2.8).
+ 
+                 Deviations (documented in MAAP_FABRIC.md, outside #686's
+-                items): no compare_MAC in the rProbe!/PROBE and
+-                rDefend!/DEFEND cells; a 16-bit
++                items): a 16-bit
+                 station-MAC-seeded LFSR draws the offset (B.3.6.1); no
+                 PortOperational! input; RX parse is untagged-only (a tagged
+                 MAAP PDU is ignored); a PROBE parsed while a frame is on
+@@ -271,8 +271,9 @@
+   wire rx_hit_w = rx_done_p && (state_r != IDLE_S) && conflict_w;
+   //! INITIAL/Restart!: re-address and probe again
+   wire restart_w = rx_hit_w &&
+-                   (((rx_msg_r == {2'b00, MSG_PROBE_C}) && (state_r == PROBE_S)) ||
+-                    (rx_msg_r == {2'b00, MSG_DEFEND_C}) ||
++                   (((rx_msg_r == {2'b00, MSG_PROBE_C}) && (state_r == PROBE_S) && !mac_lower_w) ||
++                    ((rx_msg_r == {2'b00, MSG_DEFEND_C}) &&
++                     ((state_r != ANNOUNCE_S) || !mac_lower_w)) ||
+                     ((rx_msg_r == {2'b00, MSG_ANNOUNCE_C}) &&
+                      ((state_r == PROBE_S) || !mac_lower_w)));
+   //! sDefend; a PROBE parsed while a frame is in flight goes unanswered

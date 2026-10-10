@@ -1,0 +1,27 @@
+[
+  {
+    "name": "resource-selftest",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "recipe-mutants",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_baseline_mutants.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "resource-mutants",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate_mutants.py"
+    ],
+    "rc": 0
+  }
+]

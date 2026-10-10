@@ -1,0 +1,9 @@
+
+== pre-build: tracked definition vs endstation_ax7101_1x1_tdm8 ==
+  [ok]   tracked ADP shape is endstation_ax7101_1x1_tdm8's = True
+----------------------------------------------------------------------
+checks: 1   failures: 0
+RESULT: PASS
+[ax7101] design argv from <validation-tree>/sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json (regenerated from configs/endstation_ax7101_1x1_tdm8.yaml); flow flags from cfg_ax7101
+DRY [ax7101] -> <home>/litex-milan/work/build_ax7101_10092344
+ cd <validation-tree>/sw/litex && source <home>/Xilinx2/2026.1/Vivado/settings64.sh && export PATH=<litex-env>/bin:$PATH && export PYTHONHASHSEED=0 && exec python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <validation-tree>/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --vivado-max-threads 32 --build --output-dir <home>/litex-milan/work/build_ax7101_10092344

@@ -1,0 +1,25 @@
+endpoint route-1x1: <scratch>/shipping/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              50267       50230       -37  ok, below the baseline
+FF               54413       54308      -105  ok, below the baseline
+SLICE            15779       15823        44  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.299       0.114    -0.185  ok
+WHS_ns           0.031       0.036     0.005  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT -476, FF +3
+  wrapper: LUT -472, FF +3
+  u_pp/u_aecp/u_dyn: LUT -386, FF +0
+  u_pp/u_aecp: LUT -351, FF +1
+  u_pp/u_aecp/u_d3: LUT +90, FF +0
+  u_pp/u_notify: LUT -60, FF +1
+  u_pp/u_srp: LUT -43, FF +1
+  u_pp/u_aecp/u_ucpu: LUT +36, FF +0
+  u_pp/u_srp/u_talker: LUT -29, FF +2
+  u_pp/u_talker: LUT +23, FF +0
+  u_pp/u_srp/u_vlan: LUT +10, FF +0
+  u_pp/u_event_router: LUT -7, FF +0
+RESULT: PASS

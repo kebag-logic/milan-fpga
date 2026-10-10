@@ -1,0 +1,208 @@
+{
+  "head": "0df486370990fddf9b60096be2f2371150692a10",
+  "before": [
+    {
+      "shape": "ax7101",
+      "input_files": 127,
+      "lane_file_comparisons": 122,
+      "verified_images": 6,
+      "inputs_sha256": "a657424864b80a757be6e87cfee55730474d6a60e6d346c27edd3892446e4fab",
+      "problems": []
+    },
+    {
+      "shape": "ax8x8",
+      "input_files": 124,
+      "lane_file_comparisons": 119,
+      "verified_images": 6,
+      "inputs_sha256": "e05f6bd1eeecc179189ecaa2fb1e4479ad0cfddc31dfcb2f5b8be58170c820e0",
+      "problems": []
+    }
+  ],
+  "after": [
+    {
+      "shape": "ax7101",
+      "input_files": 127,
+      "lane_file_comparisons": 122,
+      "verified_images": 6,
+      "inputs_sha256": "a657424864b80a757be6e87cfee55730474d6a60e6d346c27edd3892446e4fab",
+      "problems": []
+    },
+    {
+      "shape": "ax8x8",
+      "input_files": 124,
+      "lane_file_comparisons": 119,
+      "verified_images": 6,
+      "inputs_sha256": "e05f6bd1eeecc179189ecaa2fb1e4479ad0cfddc31dfcb2f5b8be58170c820e0",
+      "problems": []
+    }
+  ],
+  "rows": [
+    {
+      "name": "parser",
+      "argv": [
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "cwd": "<lane>",
+      "rc": 0,
+      "seconds": 151.8
+    },
+    {
+      "name": "route",
+      "argv": [
+        "<synthesis-install>/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "baseline_integrated.tcl",
+        "-nojournal",
+        "-log",
+        "baseline.log"
+      ],
+      "cwd": "<scratch>/shipping/ax7101/gateware",
+      "rc": 0,
+      "seconds": 3011.8
+    },
+    {
+      "name": "check-route-1x1",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check",
+        "<scratch>/shipping/ax7101/gateware",
+        "--endpoint",
+        "route-1x1"
+      ],
+      "cwd": "<lane>",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "route-queries",
+      "argv": [
+        "<synthesis-install>/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "queries.tcl",
+        "-nojournal",
+        "-log",
+        "queries.log"
+      ],
+      "cwd": "<scratch>/route-queries",
+      "rc": 0,
+      "seconds": 36.7
+    },
+    {
+      "name": "rtl-8x8",
+      "argv": [
+        "<synthesis-install>/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "rtl.tcl",
+        "-nojournal",
+        "-log",
+        "baseline.log"
+      ],
+      "cwd": "<scratch>/shipping/ax8x8-rtl",
+      "rc": 0,
+      "seconds": 69.8
+    },
+    {
+      "name": "ax7101-prepare-ooc",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_baseline.py",
+        "<scratch>/shipping/ax7101/gateware",
+        "--single-thread-synthesis",
+        "--integrated-clock",
+        "--output",
+        "<scratch>/shipping/ax7101-ooc",
+        "--integrated-log",
+        "<scratch>/shipping/ax7101/gateware/baseline.log"
+      ],
+      "cwd": "<lane>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "ax7101-ooc",
+      "argv": [
+        "<synthesis-install>/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "baseline_ooc.tcl",
+        "-nojournal",
+        "-log",
+        "baseline.log"
+      ],
+      "cwd": "<scratch>/shipping/ax7101-ooc",
+      "rc": 0,
+      "seconds": 1337.7
+    },
+    {
+      "name": "check-ooc-1x1",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check",
+        "<scratch>/shipping/ax7101-ooc",
+        "--endpoint",
+        "ooc-1x1"
+      ],
+      "cwd": "<lane>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "ax8x8-prepare-ooc",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_baseline.py",
+        "<scratch>/shipping/ax8x8/gateware",
+        "--single-thread-synthesis",
+        "--integrated-clock",
+        "--output",
+        "<scratch>/shipping/ax8x8-ooc",
+        "--integrated-log",
+        "<scratch>/shipping/ax8x8-rtl/baseline.log"
+      ],
+      "cwd": "<lane>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "ax8x8-ooc",
+      "argv": [
+        "<synthesis-install>/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "baseline_ooc.tcl",
+        "-nojournal",
+        "-log",
+        "baseline.log"
+      ],
+      "cwd": "<scratch>/shipping/ax8x8-ooc",
+      "rc": 0,
+      "seconds": 2581.1
+    },
+    {
+      "name": "check-ooc-8x8",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check",
+        "<scratch>/shipping/ax8x8-ooc",
+        "--endpoint",
+        "ooc-8x8"
+      ],
+      "cwd": "<lane>",
+      "rc": 0,
+      "seconds": 0.1
+    }
+  ]
+}

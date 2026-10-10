@@ -1,0 +1,17 @@
+--- KL_maap.sv
++++ KL_maap.sv
+@@ -276,7 +276,13 @@
+                    && (state_r == ANNOUNCE_S) && !tx_busy_r;
+ 
+   // ---- main SM ---------------------------------------------------------------
+-  wire [15:0] new_off_w = seed_valid_i && !seed_used_r
++  //! Table B.9: reject supplied ranges extending outside the dynamic pool.
++  wire [16:0] seed_end_w = {1'b0, seed_offset_i} + {9'd0, count_i};
++  wire seed_in_pool_w = (seed_offset_i < POOL_SIZE_C)
++                         && (seed_end_w <= {1'b0, POOL_SIZE_C});
++  //! generate_address for Begin!: use a valid provisioning seed once (note a).
++  //! An invalid seed falls back to the normal bounded random draw.
++  wire [15:0] new_off_w = seed_valid_i && !seed_used_r && seed_in_pool_w
+                           ? seed_offset_i : rand_offset(rng_seeded_r ? lfsr_next_w
+                                                                     : enable_seed_w, count_i);
+ 

@@ -1,0 +1,151 @@
+[
+  {
+    "name": "lint",
+    "argv": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check",
+      "--self-test",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 33.7,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "behave",
+    "argv": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "<gate-tree>/tests",
+    "rc": 0,
+    "seconds": 2.1,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "maap-unit",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "run",
+      "MDIR=<scratch>/focus-merged/unit-build"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 17.4,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "maap-integration-build",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "integration-build",
+      "DP_MDIR=<scratch>/focus-merged/integration-build"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 31.0,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "maap-integration",
+    "argv": [
+      "<scratch>/focus-merged/integration-build/maap_integration"
+    ],
+    "cwd": "<scratch>/focus-merged/integration-build",
+    "rc": 0,
+    "seconds": 0.4,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "maap-mutants",
+    "argv": [
+      "python3",
+      "tb/verilator/maap/mutants.py"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 500.5,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "maap-coverage",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "coverage",
+      "COV_MDIR=<scratch>/focus-merged/coverage-build"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 12.4,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "maap-differential",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/maap_differential.py",
+      "--self-test",
+      "--keep",
+      "<scratch>/focus-merged/differential"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 181.4,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "firmware",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 2005.5,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "portability",
+    "argv": [
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "<scratch>/focus-merged/portability-results"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 917.3,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  },
+  {
+    "name": "field-campaigns",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/tsn_fuzz"
+    ],
+    "cwd": "<gate-tree>",
+    "rc": 0,
+    "seconds": 33.6,
+    "head": "0df486370990fddf9b60096be2f2371150692a10"
+  }
+]
