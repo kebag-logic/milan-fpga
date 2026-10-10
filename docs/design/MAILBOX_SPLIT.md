@@ -837,20 +837,56 @@ round-3 ruling on [#665 (6092086337)](https://github.com/kebag-logic/milan-fpga/
 from `milan_datapath.sv` as an elaborator builds it, never from its text (the
 round-6 assignment on
 [#665 (6097292237)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6097292237)),
+in every shape the builder builds (the round-7 assignment on
+[#665 (6100024293)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6100024293)),
 and it fails closed (the round-4 assignment on
 [#665 (6094461419)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6094461419)).
 
 [`census_elab.py`](../../sw/mailbox/census_elab.py) elaborates the datapath
-in the all-fabric shape with the recipe of CI's Yosys gate, which
+with the recipe of CI's Yosys gate, which
 `syn/yosys/run.sh --emit milan_datapath` prints: its defines, its include
-directories (the shape's header among them) and its sources. sv2v lowers the
-SystemVerilog and Yosys elaborates the result, both at the versions CI pins
-(Yosys `v0.66`, sv2v `v0.0.12`). The hierarchy is kept. Every module but the
-datapath is read as a blackbox, so the processor wrapper, the CSR block and
-every other instance stay cells whose ports have directions, and
-`hierarchy -check` refuses an unknown module or port. The passes `proc` runs,
-in its order, turn every process into cells, with two changes that keep a
-read under the name the source gave it:
+directories (a shape's header slot among them) and its sources. sv2v lowers
+the SystemVerilog and Yosys elaborates the result, both at the versions
+`rtl-fast.yml` pins (Yosys `v0.66`, sv2v `v0.0.12`); the census refuses any
+other version of either, naming both pins and both versions it found.
+
+It does so once per shape, and the shapes are every one the builder builds:
+
+- the recipe's own: the module's default parameters, the define `SYNTHESIS`
+  and the all-fabric header `configs/generated/endstation_arty_current`;
+- one per `configs/*.yaml`, in name order: its generated header directory
+  `configs/generated/<name>` and that directory's `gen/`, in place of the
+  recipe's header slot, as `milan_soc.py --entity-gen-dir` puts both ahead of
+  the tracked include directories; the integer parameters
+  `endstation_builder.datapath_params()` states for it; and `SYNTHESIS`, the
+  one define a build sees (`milan_soc.py` adds none, and Vivado's synthesis
+  defines that one).
+
+The parameters come from the builder alone. `test_builder.py` gate 23m runs
+`milan_soc.py` on every configuration and requires the integer parameters it
+hands `Instance("milan_datapath")` to be exactly what the builder states. The
+three it leaves at their defaults are the ROM image paths, which only the
+processor and gPTP wrappers read. Arm D of `scripts/check_entity_shape.py`
+holds each generated header to what the builder generates. A configuration
+added to `configs/` is elaborated with no edit to the census. At this head
+the six shapes are these; every configuration also binds its 50 MHz datapath
+clock and its processor memory window:
+
+| Shape | Streams | Front end | Other bindings |
+|---|---|---|---|
+| the recipe's | 1 | I2S | the module's defaults |
+| `endstation_arty_current` | 1 | I2S | none |
+| `endstation_arty_4x4` | 4 | TDM8 master, I2S pair blended | 4-channel talkers |
+| `endstation_arty_8ch` | 4 | TDM8 master, I2S pair blended | 8-channel talkers |
+| `endstation_ax7101_1x1_tdm8` | 1 | TDM8 master, 8-slot render | 8-channel talkers, the loopback lane, I2S playback and its filter pruned, the gPTP latencies |
+| `endstation_ax7101_8x8` | 8 | TDM32 master | 8-channel talkers, the latency taps, I2S playback, its filter and the datapath probes pruned, the gPTP latencies |
+
+The hierarchy is kept. Every module but the datapath is read as a blackbox,
+so the processor wrapper, the CSR block and every other instance stay cells
+whose ports have directions. The datapath is read deferred and bound to the
+shape's parameters by `hierarchy -check -chparam`, which refuses an unknown
+module or port. The passes `proc` runs, in its order, turn every process into
+cells, with two changes that keep a read under the name the source gave it:
 
 - `insbuf` turns every connection into a buffer cell before `proc_prune`,
   before `proc_dff` and after the last pass, because those two passes
@@ -934,18 +970,36 @@ must then be one of three kinds:
   STREAM_OUTPUT's fields, MSRP latency and failure, and the Domain's
   priority and VLAN. None reads the block.
 
-A read the census does not map fails, and so does a row no read matches, a
-status or answer-face read whose cone reaches the wire, and a status read
-whose cone reaches the wrapper. At this head the 25 population nets have 39
-reads, and four nets are unread. Of the 39 reads, 10 are on the wire and map
-to the block, 14 are CSR status, and 15 are the answer face: the same reads
-and kinds the text census counted before.
+In any shape, a read the census does not map fails, and so does a row no
+read matches, a field read whose cone reaches no wire, a status or
+answer-face read whose cone reaches the wire, and a status read whose cone
+reaches the wrapper. Across the shapes, a population, an unread net, a read
+or a read's classes of cone end (the wire, CSR read-back, the answer face)
+that is not the same in every shape fails. Which CSR input or which
+instance's input a cone ends at is not compared: from four streams up, the
+AAF stream gate also reaches the CSR read-back input `i_tlk_lobs_v`, which no
+one-stream shape builds. At this head every shape has the same 25 population
+nets and the same 39 reads, and four nets are unread. Of the 39 reads, 10 are
+on the wire and map to the block, 14 are CSR status, and 15 are the answer
+face: the same reads and kinds the text census counted before.
 
-The census's self-test elaborates a planted copy for each of 98 defects, plants
-two more in its table, and requires each refused by its own words: a cone
-plant by its read's row and the port it reaches, a refused form by the tool's
-words. They include every probe the reviews of rounds 2 to 5 found escaping,
-each beside its plain-assign control:
+[`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
+the shapes' and the tools' included, 31 in all, and the census enforces each
+only where it tests that name.
+
+The census's self-test
+([`census_selftest.py`](../../sw/mailbox/census_selftest.py)) elaborates a
+planted copy for each of 116 defects, plants two more in its table, and
+requires each refused by its own words: a cone plant by its read's row and
+the port it reaches, a refused form by the tool's words. A plant whose branch
+only another shape builds is elaborated in the first shape that binds what it
+needs: R583-5's reads under `N_STREAMS > 1`, in a loop with no iteration at
+one stream and under `LOOPBACK_P != 0`, R582-5's arm B and its arm E (a
+status consumer added to the stream gate of streams 1 and up), a read under
+a constant of a multi-stream shape's header, and a field read that reaches
+CSR read-back in the multi-stream shapes alone. The plants include every
+probe review rounds 2 to 5 found escaping, each beside its plain-assign
+control:
 
 - a class-D output wired under another name;
 - a case item label, ports by position and by `.name`, a function's return
@@ -957,8 +1011,21 @@ each beside its plain-assign control:
   initialiser as a second driver.
 
 A wildcard `.*` connection, a memory, a print and the CSR or wrapper ports
-outside their faces are planted too. The census runs in `rtl-fast`'s `yosys-elaboration` job with
-that job's Yosys and sv2v, and by `make census` in the mailbox bench.
+outside their faces are planted too, and so is one defect for each rule no
+probe reached: a status read on a new datapath output, a status read into the
+answer face's change strobe, a field read whose wire is cut, a second driver
+of a net outside the population, two class-D ports on one net, the wrapper's
+or the CSR block's cell renamed, a class-D output named twice in the port
+list, the started port renamed, and an sv2v or a Yosys off its pin.
+
+Each arm names the rule whose removal must let it through. The self-test then
+removes each rule in turn, judges that rule's arms again, and fails unless
+every one is accepted; it fails too on a rule no arm names, and on a name
+`census_rules.py` and the census's code do not both hold, so a rule added
+without a plant fails CI. The census runs in `rtl-fast`'s own
+`publication-census` job, on every core of its runner, with the same Yosys
+cache and sv2v release as `yosys-elaboration`, and by `make census` in the
+mailbox bench.
 
 The idle slope's one read is status, for LWSRP_SLOPE: no shaper consumes it,
 and the block carries it as ruled. The census covers the class-D face and the
@@ -1034,7 +1101,7 @@ on the host model.
 
 | Evidence | What it shows |
 |---|---|
-| the publication census (above), `rtl-fast`'s `yosys-elaboration` job and `make census` | the 39 reads of the 25 class-D nets, classified from the elaborated netlist, and its 100 plants, each refused by its own words |
+| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | the 39 reads of the 25 class-D nets, classified from the netlist of each of the six shapes the builder builds and the same in all; its 118 plants, each refused by its own words; each of its 31 rules removed in turn, each letting its arms through |
 | [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 402 checks through the Wishbone adapter and the same 402 through the AXI4-Lite adapter (404 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |

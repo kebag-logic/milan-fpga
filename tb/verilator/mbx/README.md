@@ -21,11 +21,16 @@
    bound-talker checks run on two real interfaces.
 
 `make census` runs [`publication_census.py`](../../../sw/mailbox/publication_census.py)
-`--check --selftest` (#665, comments 6092086337, 6094461419 and 6097292237).
-It elaborates `milan_datapath.sv` with the recipe, the sv2v and the Yosys of
-CI's elaboration gate ([`census_elab.py`](../../../sw/mailbox/census_elab.py)),
-every other module a blackbox cell, and reads the netlist, never the text,
-so the form a read is written in does not matter. Its population is the nets
+`--check --selftest` (#665, comments 6092086337, 6094461419, 6097292237 and
+6100024293). It elaborates `milan_datapath.sv` with the recipe, the sv2v and
+the Yosys of CI's elaboration gate
+([`census_elab.py`](../../../sw/mailbox/census_elab.py)), every other module a
+blackbox cell, in every shape the builder builds: run.sh's recipe at the
+module's default parameters, and each `configs/*.yaml` (five at this head,
+from one to eight streams) with its generated header directory, the
+parameters `endstation_builder.datapath_params()` states for it and the
+define `SYNTHESIS`. It reads each netlist, never the
+text, so the form a read is written in does not matter. Its population is the nets
 the processor wrapper cell's class-D ports (checked against the wrapper's own
 class-D sections) and its started level drive, each with that port as its only
 driver. From each net it follows every cell to the first named net, the
@@ -33,15 +38,18 @@ read's consumer, and from there every cell and net onward. Only the CSR cell's
 read-back inputs and the wrapper cell's GET_STREAM_INFO face, each named by
 cell and port, stop it; every other input, every datapath output and a cell
 with no output are the wire. Each read must map to a block field or a ruled
-exclusion, and a status or answer-face read must stay off the wire. Its
-self-test elaborates a planted copy for each of 98 defects, among them every
-escaping probe of the reviews, and plants two in its table; each must be
-refused by its own words. It needs sv2v and Yosys on `PATH` (or named by
-`SV2V=` and `YOSYS=`) at the versions
-[syn/yosys/README.md](../../../syn/yosys/README.md#tooling) pins, which is
-why `make` does not run it and CI runs it in `rtl-fast`'s
-`yosys-elaboration` job; `CENSUS_JOBS=` sets how many copies elaborate at
-once (2).
+exclusion, and a status or answer-face read must stay off the wire, in every
+shape; the shapes must agree on the population, the reads and each read's
+classes of cone end. Its self-test elaborates a planted copy for each of 116
+defects, among them every escaping probe of the reviews and the reads only a
+multi-stream or loopback shape builds, each at a shape that builds it, and
+plants two in its table; each must be refused by its own words. It then
+removes each rule of [`census_rules.py`](../../../sw/mailbox/census_rules.py)
+in turn and requires the arms planted against it to be let through. It needs
+sv2v and Yosys on `PATH` (or named by `SV2V=` and `YOSYS=`) at the versions
+`rtl-fast.yml` pins, and refuses any other, which is why `make` does not run
+it and CI runs it in `rtl-fast`'s `publication-census` job; `CENSUS_JOBS=`
+sets how many copies elaborate at once (2).
 
 `make mutants` runs [`mutants.py`](mutants.py), every planted RTL defect in
 its table; the default `make` runs six of them (one per leaf, one in the
