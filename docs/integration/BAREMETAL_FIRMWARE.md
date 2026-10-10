@@ -2035,14 +2035,20 @@ UNREAD slot holds the writer until reset.** Its authority is unknown: it may
 hold a newer container than any slot that was read, and a commit could
 restart the sequence below one a later clean boot prefers. The window is
 still loaded with what was accepted and the walk still runs, but the held
-writer captures, erases and writes nothing, refuses `milan_nvm commit`, and
-answers no liveness deadline, so `nvm_backed` reads 0, as for a retired
-writer. The boot line and `milan_nvm` name the hold. The next reset reads
-every slot again. A boot opens at most twelve container reads, three
-judgements and three re-stages per slot. A clean boot with both slots valid
-opens three. Before this rule it walked each valid slot twice through the
-mapping, once for the CRC and once for the records, and copied the chosen
-one a third time into the window.
+writer captures, erases and writes nothing of its own, refuses
+`milan_nvm commit`, and answers no liveness deadline, so `nvm_backed` reads
+0, as for a retired writer. An operator's explicit `milan_nvm wipe` still
+erases both slots while the writer is held, as it does for a retired writer.
+The boot line and `milan_nvm` name the hold. A boot that retires the writer
+for another cause (the backend's contract, no accepted load, a window gone
+live or refused loads) names that cause, even with a slot unread. The next
+reset reads every slot again. A boot opens at most twelve slot reads, three
+judgements and three re-stages per slot. A read whose header is refused
+stops at its 40 bytes, and one whose header passes copies as many bytes as
+its length word names, up to the 64 KiB slot. A clean boot with both slots
+valid opens three, each one container long. Before this rule it walked each
+valid slot twice through the mapping, once for the CRC and once for the
+records, and copied the chosen one a third time into the window.
 It then programs the backing store through `PP_NVM_SEL`/`PP_NVM_DATA`: the
 record area's base and length, the per-port channel-map tables (framed length
 and running prefix, direction distinct), the sequence, and the verdict with
@@ -2149,10 +2155,13 @@ shape: the staged and committed containers equal the Python encoder's byte for
 byte, the verdict the firmware prints for every section 6.2 refusal equals
 `klj2_decode`'s for the same bytes, the A/B rule, the debounce, the three
 transaction failures and the heartbeat through a 3 s erase, and the read
-faults of #671 walked over every boot read of both slots at the sequence
-boundaries, each followed by a change, its commit and a clean reboot;
-`--self-test` plants nine writer defects and requires each to be caught,
-the four #671 ones by a finding of their own. A partial ownership fixture protects an open record beside an unaligned edge.
+faults of #671 (a header, sequence or record-area byte, the blank slot, an
+all-`0xFF` read, and the other slot's container answering a re-stage) walked
+over every boot read of both slots at the sequence boundaries, with the
+other slot blank or both valid across the wrap, each followed by a change,
+its commit and a clean reboot; `--self-test` plants fourteen writer defects
+and requires each to be caught, the nine #671 ones on the first shape and
+both product shapes by a finding of their own. A partial ownership fixture protects an open record beside an unaligned edge.
 The edge-crossing word-copy control must fail that fixture.
 What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the

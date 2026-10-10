@@ -782,8 +782,9 @@ The writers never write equal sequences, so a tie arises only after a fault.
 That is the [#665 decision 2](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153),
 which [#671](https://github.com/kebag-logic/milan-fpga/issues/671) applies to the shipping writer.
 Take A valid at sequence s > 1, B blank, and a transient fault on the boot read of A.
-If A is then taken as refused, the next commit lands in B at sequence 1.
-The next clean boot prefers A at s, and that commit is lost.
+If A is then taken as refused, the next commit restarts at sequence 1.
+The bare-metal store writes it to B, and the next clean boot prefers A at s, so that commit is lost.
+The shipping writer writes it over A, so the saved state is lost.
 So a slot refused by a media read fault leaves the authority unknown.
 The read is retried within a bound.
 Until every slot has been read without a media fault, nothing is persisted, and the status says so.
