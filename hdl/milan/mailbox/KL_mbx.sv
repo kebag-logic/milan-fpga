@@ -56,7 +56,20 @@ module KL_mbx
   output logic [7:0]                   tx_data_o,      //! egress: the byte, wire order
   output logic                         tx_last_o,      //! egress: the frame's last byte
   output logic [MBX_IF_W_C-1:0]        tx_if_o,        //! egress: interface, held for the frame
-  output logic [MBX_CH_W_C-1:0]        tx_ch_o         //! egress: channel, held for the frame
+  output logic [MBX_CH_W_C-1:0]        tx_ch_o,        //! egress: channel, held for the frame
+
+  // the publication block, what the firmware owner publishes for the datapath
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0] pub_da_gate_o,   //! DA_GATE.OPEN per interface
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0] pub_licence_o,   //! LICENCE.ACTIVE per interface
+  output logic [MBX_N_IF_C*MBX_IDLE_SLOPE_BPS_WIDTH_C-1:0] pub_idle_slope_bps_o,   //! IDLE_SLOPE.BPS per interface
+  output logic [MBX_N_IF_C*MBX_SR_DOMAIN_VID_WIDTH_C-1:0] pub_dom_vid_o,   //! SR_DOMAIN.VID per interface
+  output logic [MBX_N_IF_C*MBX_SR_DOMAIN_PRIORITY_WIDTH_C-1:0] pub_dom_prio_o,   //! SR_DOMAIN.PRIORITY per interface
+  output logic [MBX_N_IF_C*MBX_SR_DOMAIN_ADOPTED_WIDTH_C-1:0] pub_dom_adopted_o,   //! SR_DOMAIN.ADOPTED per interface
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0] pub_talker_decl_o,   //! TALKER_DECL.DECLARED per interface
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_bound_o,   //! BINDING.BOUND per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_sid_valid_o,   //! BINDING.SID_VALID per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_started_o,   //! BINDING.STARTED per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   //! SID_HI:SID_LO per sink, taken only while its SID_VALID is set
 );
 
   localparam int unsigned AW2_C = MBX_ADDR_W_C + 2;   //! byte-offset width
@@ -133,6 +146,34 @@ module KL_mbx
                   && entry < AW2_C'(MBX_N_BOUND_C)
                   && (in_entry == AW2_C'(MBX_BND_REG_BOUND_EID_LO_C) || in_entry == AW2_C'(MBX_BND_REG_BOUND_EID_HI_C) || in_entry == AW2_C'(MBX_BND_REG_BOUND_EN_C));
   end : bound_decode
+
+  // ---- the publication block: decoded and held here, read by the datapath -----------
+  // The strides are powers of two, so an offset's interface and sink entry
+  // are its bit fields; a hole between the registers names none.
+  localparam int unsigned PUB_KW_C = (MBX_N_PUB_SINKS_C > 1) ? $clog2(MBX_N_PUB_SINKS_C) : 1;   //! sink index bits
+  logic                  pub_at_w;     //! the offset names a publication register
+  logic                  pub_sink_w;   //! a sink entry's register, else an interface register
+  logic [MBX_IF_W_C-1:0] pub_if_w;     //! its interface
+  logic [PUB_KW_C-1:0]   pub_k_w;      //! its sink entry
+  logic [AW2_C-1:0]      pub_reg_w;    //! its offset inside the interface block or the sink entry
+  always_comb begin : pub_decode
+    logic [AW2_C-1:0] rel;
+    logic [AW2_C-1:0] in_if;
+    logic [AW2_C-1:0] in_sinks;
+    logic [AW2_C-1:0] entry;
+    rel        = off_w - AW2_C'(MBX_PUB_BASE_C);
+    in_if      = rel & AW2_C'(MBX_PUB_STRIDE_C - 1);
+    in_sinks   = in_if - AW2_C'(MBX_PUB_SINK_BASE_C);
+    entry      = in_sinks >> $clog2(MBX_PUB_SINK_STRIDE_C);
+    pub_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_PUB_STRIDE_C));
+    pub_sink_w = in_if >= AW2_C'(MBX_PUB_SINK_BASE_C);
+    pub_k_w    = PUB_KW_C'(entry);
+    pub_reg_w  = pub_sink_w ? (in_sinks & AW2_C'(MBX_PUB_SINK_STRIDE_C - 1)) : in_if;
+    pub_at_w   = off_w >= AW2_C'(MBX_PUB_BASE_C)
+                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < AW2_C'(MBX_N_IF_C)
+                 && (pub_sink_w ? (entry < AW2_C'(MBX_N_PUB_SINKS_C) && (pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C) || pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C) || pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)))
+                                : (pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C)));
+  end : pub_decode
 
   // ---- what the host writes -----------------------------------------------------
   logic [31:0] irq_enable_r;   //! IRQ_ENABLE
@@ -217,6 +258,68 @@ module KL_mbx
     end
   end : host_write
 
+  // ---- the publication registers: the firmware writes them, the datapath reads them ---
+  logic [15:0] pub_da_gate_r [MBX_N_IF_C];   //! DA_GATE per interface
+  logic [15:0] pub_licence_r [MBX_N_IF_C];   //! LICENCE per interface
+  logic [31:0] pub_idle_slope_r [MBX_N_IF_C];   //! IDLE_SLOPE per interface
+  logic [24:0] pub_sr_domain_r [MBX_N_IF_C];   //! SR_DOMAIN per interface
+  logic [15:0] pub_talker_decl_r [MBX_N_IF_C];   //! TALKER_DECL per interface
+  logic [31:0] pub_sid_lo_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! SID_LO per sink
+  logic [31:0] pub_sid_hi_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! SID_HI per sink
+  logic [2:0] pub_binding_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! BINDING per sink
+
+  always_ff @(posedge clk_i) begin : pub_write
+    if (!rst_n) begin
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        pub_da_gate_r[i] <= '0;
+        pub_licence_r[i] <= '0;
+        pub_idle_slope_r[i] <= '0;
+        pub_sr_domain_r[i] <= '0;
+        pub_talker_decl_r[i] <= '0;
+        for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin
+          pub_sid_lo_r[i][k] <= '0;
+          pub_sid_hi_r[i][k] <= '0;
+          pub_binding_r[i][k] <= '0;
+        end
+      end
+    end else if (wr_w && pub_at_w) begin
+      if (!pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C))
+        pub_da_gate_r[pub_if_w] <= 16'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_DA_GATE_OPEN_LSB_C, MBX_DA_GATE_OPEN_WIDTH_C)));
+      if (!pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C))
+        pub_licence_r[pub_if_w] <= 16'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_LICENCE_ACTIVE_LSB_C, MBX_LICENCE_ACTIVE_WIDTH_C)));
+      if (!pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C))
+        pub_idle_slope_r[pub_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_IDLE_SLOPE_BPS_LSB_C, MBX_IDLE_SLOPE_BPS_WIDTH_C)));
+      if (!pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C))
+        pub_sr_domain_r[pub_if_w] <= 25'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_SR_DOMAIN_VID_LSB_C, MBX_SR_DOMAIN_VID_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_SR_DOMAIN_PRIORITY_LSB_C, MBX_SR_DOMAIN_PRIORITY_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_SR_DOMAIN_ADOPTED_LSB_C, MBX_SR_DOMAIN_ADOPTED_WIDTH_C)));
+      if (!pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C))
+        pub_talker_decl_r[pub_if_w] <= 16'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_TALKER_DECL_DECLARED_LSB_C, MBX_TALKER_DECL_DECLARED_WIDTH_C)));
+      if (pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C))
+        pub_sid_lo_r[pub_if_w][pub_k_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_SID_LO_SID_LSB_C, MBX_SID_LO_SID_WIDTH_C)));
+      if (pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C))
+        pub_sid_hi_r[pub_if_w][pub_k_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_SID_HI_SID_LSB_C, MBX_SID_HI_SID_WIDTH_C)));
+      if (pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C))
+        pub_binding_r[pub_if_w][pub_k_w] <= 3'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C)));
+    end
+  end : pub_write
+
+  always_comb begin : pub_out
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      pub_da_gate_o[MBX_N_PUB_SOURCES_C*i +: MBX_N_PUB_SOURCES_C] = MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_da_gate_r[i]), MBX_DA_GATE_OPEN_LSB_C, MBX_DA_GATE_OPEN_WIDTH_C));
+      pub_licence_o[MBX_N_PUB_SOURCES_C*i +: MBX_N_PUB_SOURCES_C] = MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_licence_r[i]), MBX_LICENCE_ACTIVE_LSB_C, MBX_LICENCE_ACTIVE_WIDTH_C));
+      pub_idle_slope_bps_o[MBX_IDLE_SLOPE_BPS_WIDTH_C*i +: MBX_IDLE_SLOPE_BPS_WIDTH_C] = MBX_IDLE_SLOPE_BPS_WIDTH_C'(mbx_field_f(32'(pub_idle_slope_r[i]), MBX_IDLE_SLOPE_BPS_LSB_C, MBX_IDLE_SLOPE_BPS_WIDTH_C));
+      pub_dom_vid_o[MBX_SR_DOMAIN_VID_WIDTH_C*i +: MBX_SR_DOMAIN_VID_WIDTH_C] = MBX_SR_DOMAIN_VID_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_VID_LSB_C, MBX_SR_DOMAIN_VID_WIDTH_C));
+      pub_dom_prio_o[MBX_SR_DOMAIN_PRIORITY_WIDTH_C*i +: MBX_SR_DOMAIN_PRIORITY_WIDTH_C] = MBX_SR_DOMAIN_PRIORITY_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_PRIORITY_LSB_C, MBX_SR_DOMAIN_PRIORITY_WIDTH_C));
+      pub_dom_adopted_o[MBX_SR_DOMAIN_ADOPTED_WIDTH_C*i +: MBX_SR_DOMAIN_ADOPTED_WIDTH_C] = MBX_SR_DOMAIN_ADOPTED_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_ADOPTED_LSB_C, MBX_SR_DOMAIN_ADOPTED_WIDTH_C));
+      pub_talker_decl_o[MBX_N_PUB_SOURCES_C*i +: MBX_N_PUB_SOURCES_C] = MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_talker_decl_r[i]), MBX_TALKER_DECL_DECLARED_LSB_C, MBX_TALKER_DECL_DECLARED_WIDTH_C));
+      for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin
+        pub_bound_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C) != 0;
+        pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C) != 0;
+        pub_started_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C) != 0;
+        pub_sid_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};
+      end
+    end
+  end : pub_out
+
   logic [31:0] reg_rdata_w;   //! the register a read addresses, 0 when none
   always_comb begin : reg_read
     reg_rdata_w = '0;
@@ -245,6 +348,14 @@ module KL_mbx
     if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_HI_C)) reg_rdata_w = 32'(own_mac_hi_r[0]);
     if (bnd_at_w && bnd_reg_w == 2'd2) reg_rdata_w = mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C);
     if (bnd_at_w && bnd_reg_w != 2'd2 && bnd_eid_vld_w) reg_rdata_w = bnd_eid_w;
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C)) reg_rdata_w = 32'(pub_da_gate_r[pub_if_w]);
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C)) reg_rdata_w = 32'(pub_licence_r[pub_if_w]);
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C)) reg_rdata_w = 32'(pub_idle_slope_r[pub_if_w]);
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C)) reg_rdata_w = 32'(pub_sr_domain_r[pub_if_w]);
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C)) reg_rdata_w = 32'(pub_talker_decl_r[pub_if_w]);
+    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C)) reg_rdata_w = 32'(pub_sid_lo_r[pub_if_w][pub_k_w]);
+    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C)) reg_rdata_w = 32'(pub_sid_hi_r[pub_if_w][pub_k_w]);
+    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)) reg_rdata_w = 32'(pub_binding_r[pub_if_w][pub_k_w]);
     for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
       if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(rx_head_w[16*c +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C);
       if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(rx_tail_r[c]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C);

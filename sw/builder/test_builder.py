@@ -23343,6 +23343,94 @@ def test_clock_plan_instance_gate_bites() -> None:
           f"and a parameter passed at the default")
 
 
+# ============================================================== gate 23m ====
+#  THE BUILDER'S STATEMENT OF EACH SHAPE'S DATAPATH PARAMETERS (#665).
+#
+#  sw/mailbox/publication_census.py elaborates milan_datapath at every
+#  config's shape, with the parameters eb.datapath_params() states and never
+#  from a list of its own.  That function is the builder saying what the SoC
+#  will bind, so this gate runs the SoC: for every config, the integer p_*
+#  keywords milan_soc.py hands Instance("milan_datapath") for the config's
+#  own argv must be exactly eb.datapath_params(cfg), and every keyword the
+#  builder leaves out must be text (a ROM image path, which only the
+#  processor and gPTP wrappers read).  A parameter the SoC starts passing,
+#  or a derivation that moves on either side, turns it red.
+
+
+def _datapath_param_contract(got, cfgs):
+    """Every disagreement between the live Instance keywords and eb.datapath_params()."""
+    bad = []
+    for name, cfg in cfgs.items():
+        row = got.get(name) or {"error": "case not run"}
+        if "params" not in row:
+            bad.append(f"{name}: never reached the datapath Instance: "
+                       f"{_why_failed(row)}")
+            continue
+        live = {k[2:]: v for k, v in row["params"].items()
+                if not isinstance(v, str)}
+        want = eb.datapath_params(cfg)
+        bad += [f"{name}: the SoC binds {k}={live.get(k, '<absent>')!r}, the "
+                f"builder states {want.get(k, '<absent>')!r}"
+                for k in sorted(set(live) | set(want))
+                if live.get(k) != want.get(k)]
+    return bad
+
+
+def test_datapath_params_match_the_instance() -> None:
+    """gate 23m - eb.datapath_params() is what every config's SoC binds."""
+    python = _litex_or_skip("gate 23m")
+    if python is None:
+        return
+    cfgs, runs = {}, []
+    for name in CONFIGS:
+        cfgs[name], argv = _config_argv(name)
+        runs.append((name, argv))
+    t0 = time.time()
+    bad = _datapath_param_contract(_instance_params(python, runs), cfgs)
+    assert not bad, "gate 23m:\n  " + "\n  ".join(bad)
+    print(f"  [gate 23m] {len(runs)} real milan_soc.py elaborations in "
+          f"{time.time() - t0:.0f} s: for every config the integer "
+          f'parameters Instance("milan_datapath") receives are exactly '
+          f"eb.datapath_params(), the shapes the publication census "
+          f"elaborates; every other keyword is a ROM image path")
+
+
+#: Each cut moves one keyword of one config's Instance; gate 23m must name it.
+DATAPATH_PARAM_MUTATIONS = (
+    ("the loopback lane stops reaching LOOPBACK_P",
+     [('        dp_params["p_LOOPBACK_P"] = 1',
+       '        dp_params["p_LOOPBACK_P"] = 0', 1)],
+     "ax7101_1x1_tdm8", "LOOPBACK_P"),
+    ("N_STREAMS reaches the Instance one short",
+     [("p_N_STREAMS=int(num_streams),", "p_N_STREAMS=int(num_streams) - 1,", 1)],
+     "arty_4x4", "N_STREAMS"),
+    ("the SoC binds a parameter the builder does not state",
+     [("    if loopback_lane:\n",
+       '    dp_params["p_PROBE_EXTRA_P"] = 1\n    if loopback_lane:\n', 1)],
+     "arty_current", "PROBE_EXTRA_P"),
+)
+
+
+def test_datapath_params_gate_bites() -> None:
+    """Gate 23m negative controls: a moved, short or extra keyword turns it red."""
+    python = _litex_or_skip("gate 23m mutation")
+    if python is None:
+        return
+    t0 = time.time()
+    for why, mutations, name, param in DATAPATH_PARAM_MUTATIONS:
+        cfg, argv = _config_argv(name)
+        bad = _datapath_param_contract(
+            _instance_params(python, [(name, argv)], mutations), {name: cfg})
+        assert any(line.startswith(f"{name}: the SoC binds {param}=")
+                   for line in bad), (
+            f"gate 23m accepted a milan_soc.py in which {why}: {bad}")
+    print(f"  [gate 23m mutation] {len(DATAPATH_PARAM_MUTATIONS)}/"
+          f"{len(DATAPATH_PARAM_MUTATIONS)} cuts rejected in "
+          f"{time.time() - t0:.0f} s, each naming its keyword: a binding "
+          f"dropped to 0, a value one short, and a keyword the builder does "
+          f"not state")
+
+
 #  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
 #
 #  Every shape gate this repo has compares a recipe's argv against the config
@@ -29101,6 +29189,8 @@ if __name__ == "__main__":
                test_optional_block_instance_gate_bites,
                test_clock_plan_reaches_the_instance,
                test_clock_plan_instance_gate_bites,
+               test_datapath_params_match_the_instance,
+               test_datapath_params_gate_bites,
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
                test_recipe_skip_classifier_bites,

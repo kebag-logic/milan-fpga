@@ -30,6 +30,7 @@ struct Declaration {
     unsigned interface, ethertype, type, event, subtype, time_ms;
     bool leaveall;
     std::vector<uint8_t> value;
+    uint32_t frame = 0;         // the model's frame count when it left (mbx_model_tx_frame's k)
 };
 class Srp : public ::testing::Test {
 protected:
@@ -105,6 +106,7 @@ protected:
                         unsigned sub=subtype ? (p[off+width+(count+2)/3+n/4]>>(6-2*(n%4)))&3 : 0;
                         Declaration d{f->interface,et,type,ev,sub,f->now_ms,(vh>>13)==1,
                                       std::vector<uint8_t>(p+off,p+off+width)};
+                        d.frame=k;
                         // 802.1Q 10.8.2 / 35.2: increment the first value by
                         // its vector offset, independently of the transmitter.
                         auto add = [&](unsigned first, unsigned bytes) {

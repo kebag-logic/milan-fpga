@@ -4947,6 +4947,54 @@ def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
     return argv
 
 
+def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:
+    """The integer parameters this config's build binds on milan_datapath,
+    by the names the module declares them under.
+
+    The same values sw/litex/milan_soc.py's add_milan_datapath hands
+    Instance("milan_datapath") for emit_soc_argv(cfg), each taken from the
+    fact emit_design_opts emits its flag from; test_builder gate 23m runs the
+    SoC on every config and requires the two to be equal. The SoC's three
+    text parameters, the ROM image paths, are not here: only the processor
+    and gPTP wrappers read them. sw/mailbox/publication_census.py elaborates
+    the datapath of every config at exactly these values (#665)."""
+    plat, slots = cfg["platform"], audio_if_slots(cfg)
+    out = {"MILAN_CLK_FREQ_HZ": int(cfg["constraints"]["milan_clk_hz"]),
+           "N_STREAMS": max(len(cfg["listeners"]), len(cfg["talkers"])),
+           "AUDIO_IF_SLOTS_P": slots,
+           "GPTP_PLANE_EN_P": 1}                  # --fabric-gptp, always
+    for param, key in (("GPTP_INGRESS_LAT_NS_P", "ingress_latency_ns"),
+                       ("GPTP_EGRESS_LAT_NS_P", "egress_latency_ns")):
+        if cfg["gptp"][key]:
+            out[param] = int(cfg["gptp"][key])
+    # The processor window of emit_platform_shape: the descriptor image at
+    # its foot, the AECP response buffer in its last 4 KiB.
+    base = int(plat["pp_mem_phys"])
+    out["PP_DESC_BASE_P"] = base
+    out["PP_RESP_BASE_P"] = base + int(plat["pp_mem_bytes"]) - 0x1000
+    wire_chans = framer_wire_channels(cfg)
+    if wire_chans != WIRE_CHANS_MIN:
+        out["TALKER_WIRE_CHANS_P"] = wire_chans
+    if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
+        out["LOOPBACK_P"] = 1
+    if slots and tdm_bus_master():
+        fs_hz, slot_bits = cfg["clocking"]["sampling_rate_hz"], tdm_slot_bits(cfg)
+        out["AUDIO_IF_MASTER_P"] = 1
+        out["AUDIO_IF_CLK_HZ_P"] = 2 * slots * slot_bits * fs_hz
+        if fs_hz != soc_audio_const("AUDIO_IF_FS_HZ_DEFAULT", 48000):
+            out["AUDIO_IF_FS_HZ_P"] = fs_hz
+        if slot_bits != soc_audio_const("AUDIO_IF_WORD_BITS_DEFAULT", 32):
+            out["AUDIO_IF_WORD_BITS_P"] = slot_bits
+        if render_slots(cfg):
+            out["AUDIO_IF_RENDER_SLOTS_P"] = render_slots(cfg)
+        if i2s_pair_blended(cfg):
+            out["AUDIO_IF_I2S_PAIR_P"] = 1
+    for name, (_flag, param, _why) in OPTIONAL_BLOCKS.items():
+        if not block_present(cfg, name):
+            out[param] = 0
+    return out
+
+
 def emit_soc_argv(cfg: dict[str, Any]) -> list[str]:
     """The milan_soc.py DESIGN argv this config implies (flow flags -
     --build/--vivado-max-threads/--place-directive/--output-dir - are

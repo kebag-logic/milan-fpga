@@ -6,11 +6,13 @@
 // Every public entry that changes state runs the same way: refuse a call made
 // from inside a port call (#678), act, reading the clock only when a deadline
 // is needed (once, and again after each probe the port accepts, which starts
-// its TMR_NO_RESP), then finish(): arm each interface's timer at the
+// its TMR_NO_RESP), then finish(): tell the publish port every sink whose
+// binding the datapath reads moved, arm each interface's timer at the
 // earliest deadline its sinks hold, tell the admit port every sink whose bound
 // talker moved, announce to the store every sink whose saved record moved,
 // and report every sink whose view moved and that holds no change behind an
-// owed response.
+// owed response. The publish port is also told before any frame is sent, so
+// a response never leaves ahead of the state it promises.
 //
 // A sink's connection timer holds the one Table 5.29 timer its state owns
 // (TMR_DELAY in PRB_W_DELAY, TMR_NO_RESP in PRB_W_RESP and PRB_W_RESP2,
@@ -183,6 +185,32 @@ static void p_admit(struct acmp *a, unsigned interface, unsigned sink, bool boun
 	a->in_port = false;
 }
 
+static void p_publish(struct acmp *a, unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream,
+		      bool moved)
+{
+	a->in_port = true;
+	a->ports->publish(a->ports->ctx, interface, sink, bound, started, stream, moved);
+	a->in_port = false;
+}
+
+// The datapath's view of each sink (acmp.h): bound, started, and the settled
+// stream's id; the port is told only of a sink whose triple moved.
+static void publish(struct acmp *a)
+{
+	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
+		struct acmp_sink *s = &a->sinks[k];
+		bool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;
+		uint64_t stream = settled ? s->stream.stream_id : 0u;
+		bool moved = stream != s->published_stream;
+		if (s->bound != s->published_bound || s->started != s->published_started || moved) {
+			s->published_bound = s->bound;
+			s->published_started = s->started;
+			s->published_stream = stream;
+			p_publish(a, s->interface, k, s->bound, s->started, stream, moved);
+		}
+	}
+}
+
 // ---- the wire ----------------------------------------------------------------------
 
 static void decode(const uint8_t *frame, struct pdu *p)
@@ -257,6 +285,7 @@ enum sent { SENT, OWED, LOST };
 static enum sent transmit(struct acmp *a, unsigned interface, const uint8_t *frame, uint32_t release,
 			  unsigned probe_of)
 {
+	publish(a);
 	if (a->owed_count == 0u && p_send(a, interface, frame)) {
 		return SENT;
 	}
@@ -454,9 +483,11 @@ static void admit(struct acmp *a)
 	}
 }
 
-// After every entry: the timers, the ingress, then the store, then the notifier.
+// After every entry: the datapath's view, the timers, the ingress, then the
+// store, then the notifier.
 static void finish(struct acmp *a)
 {
+	publish(a);
 	rearm(a);
 	admit(a);
 	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
@@ -478,15 +509,21 @@ static void finish(struct acmp *a)
 
 // A sink as the configuration starts it, and as a restore or a roll-back
 // leaves it: UNBOUND, probing disabled, nothing running (5.5.3.5.1). What the
-// admit port holds is not the sink's state, and stays.
+// admit and publish ports hold is not the sink's state, and stays.
 static void sink_reset(struct acmp *a, unsigned k)
 {
 	struct acmp_sink *s = &a->sinks[k];
 	bool admitted = s->admitted;
 	uint64_t admitted_talker = s->admitted_talker;
+	bool published_bound = s->published_bound;
+	bool published_started = s->published_started;
+	uint64_t published_stream = s->published_stream;
 	memset(s, 0, sizeof *s);
 	s->admitted = admitted;
 	s->admitted_talker = admitted_talker;
+	s->published_bound = published_bound;
+	s->published_started = published_started;
+	s->published_stream = published_stream;
 	s->interface = a->cfg.sink_interface[k];
 	s->state = ACMP_UNBOUND;
 	s->probing = ACMP_PROBING_DISABLED;

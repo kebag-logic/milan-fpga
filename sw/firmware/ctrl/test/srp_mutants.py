@@ -6,6 +6,7 @@ import shutil
 from ctrl_build import CTRL, Tree, Refusal, Outcome
 import fw_gtest
 from srp_arms import arm_srp
+import srp_pub_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -36,6 +37,7 @@ class Defect:
     path: str = "srp/srp_mbx.c"
     suite: str = "srp_mbx.cpp"
     debug: bool = False
+    also: tuple[tuple[str, str], ...] = ()   # further (old, new) edits of the same file, each at one site
 
 DEFECTS = (
     Defect(
@@ -480,6 +482,12 @@ DEFECTS = (
            'm->ifs[n].link = mbx_link_up(n);', 'm->ifs[n].link = false;', 'adapter.ifs[i].link'),
     Defect('cancelled-link-never-recovers','CancelledLinkRecordRecoversFromLevelAndFencesOldReceive',
            'if (i->link != link)', 'if (i->link && !link)', 'adapter.ifs[i].link'),
+    # The test's held record: a poster that ignores the hold posts the DOWN
+    # record at the reset's publication writes, and the UP record that follows
+    # would restore the link for the plant above.
+    Defect('cancelled-link-record-posted','CancelledLinkRecordRecoversFromLevelAndFencesOldReceive',
+           'if (m->evt_paused || free_words < MBX_EV_WORDS', 'if (free_words < MBX_EV_WORDS',
+           'the DOWN record stayed held', path='host/mbx_model.c'),
     Defect('rebind-loses-shared-applicant','SharedRebindKeepsOnlyTheRemainingEligibleRequest',
            'replacement.declared |= r->declared;', '(void)r;', 'left'),
     Defect('consecutive-rebind-loses-applicant','ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation',
@@ -682,17 +690,19 @@ DEFECTS = (
            'app->acmp.acmp.env == &app->acmp_delivery ||', '',
            'recompose before replacing the attached adapter', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('srp-bound-event','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
-           'SRP_MBX_EVENT_MAX 1u', 'SRP_MBX_EVENT_MAX 0u', 'SRP event bound',
+           'SRP_MBX_EVENT_MAX (1u + SRP_MBX_PUB_RESET)', 'SRP_MBX_EVENT_MAX (0u + SRP_MBX_PUB_RESET)',
+           'SRP event bound',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-bound-receive','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
            'SRP_MBX_RX_MAX 2u', 'SRP_MBX_RX_MAX 1u', 'SRP refused receive bound',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-bound-poll-transmit','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
-           '(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))',
-           '(MBX_N_IF * (4u + 0u * SRP_MBX_TX_MAX))', 'SRP transmitting poll bound',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 0u * SRP_MBX_TX_MAX))', 'SRP transmitting poll bound',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-bound-poll','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
-           '(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))', '0u', 'SRP retained receive poll bound',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))', '0u',
+           'SRP retained receive poll bound',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-bound-tx-record','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
            'SRP_MBX_TX_MAX (2u +', 'SRP_MBX_TX_MAX (1u +', 'SRP maximum TX record bound',
@@ -746,16 +756,16 @@ DEFECTS = (
            'r->parked = r->parked || (r->bound && (r->stream.vlan_id == 0 || r->stream.vlan_id >= 4095));',
            'replacement clears parking', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('srp-term-fixed','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           '(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))',
-           '(MBX_N_IF * (0u + 2u * SRP_MBX_TX_MAX))',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
+           '(MBX_N_IF * (0u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
            'poll fixed term is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-term-transmit-count','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           '(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))',
-           '(MBX_N_IF * (4u + 1u * SRP_MBX_TX_MAX))',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 1u * SRP_MBX_TX_MAX))',
            'poll transmit count is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-term-interface-count','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           '(MBX_N_IF * (4u + 2u * SRP_MBX_TX_MAX))',
-           '((MBX_N_IF - 1u) * (4u + 2u * SRP_MBX_TX_MAX))',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
+           '((MBX_N_IF - 1u) * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
            'poll fixed term is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-term-send-cost','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
            'SRP_MBX_TX_MAX (2u +',
@@ -853,13 +863,13 @@ DEFECTS = (
            'pending = r->pending || pending;', 'pending = r->pending;',
            'earlier refusal keeps delivery awake', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('r10-feedback-allowance-quarter','SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath',
-           '(ACMP_MAX_SINKS * 6u)', '(ACMP_MAX_SINKS * 1u)',
+           '(ACMP_MAX_SINKS * 7u)', '(ACMP_MAX_SINKS * 1u)',
            'measured feedback per sink allowance', path='app/ctrl_app.h', suite='test_acmp_mbx.cpp'),
     Defect('r10-feedback-allowance-eight','SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath',
-           '(ACMP_MAX_SINKS * 6u)', '(8u)',
+           '(ACMP_MAX_SINKS * 7u)', '(8u)',
            'measured feedback per sink allowance', path='app/ctrl_app.h', suite='test_acmp_mbx.cpp'),
-
 )
+DEFECTS += srp_pub_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure."""
@@ -872,9 +882,11 @@ def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> boo
         shutil.copytree(CTRL,src,dirs_exist_ok=True,ignore=shutil.ignore_patterns("__pycache__","*.pyc"))
         target=src/d.path
         source=target.read_text()
-        if source.count(d.old)!=1:
-            raise Refusal(f"SRP defect {d.name} has {source.count(d.old)} planting sites")
-        target.write_text(source.replace(d.old,d.new))
+        for old,new in ((d.old,d.new),*d.also):
+            if source.count(old)!=1:
+                raise Refusal(f"SRP defect {d.name} has {source.count(old)} planting sites")
+            source=source.replace(old,new)
+        target.write_text(source)
         selected=d.test if "." in d.test else "Srp."+d.test
         try:
             result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,interfaces,

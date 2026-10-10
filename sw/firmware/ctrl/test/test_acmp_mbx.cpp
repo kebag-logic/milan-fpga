@@ -8,7 +8,8 @@
 //       interface with the tag rule for raced expiries, the ADP channel's tap
 //       (ENTITY_DISCOVER still ADP's), the gPTP pair, the adapter's refusals,
 //       the bound-talker table each binding writes, another AVTP version
-//       passing the filter and changing nothing;
+//       passing the filter and changing nothing, the publication block each
+//       binding writes ahead of the response that promises it (lane F-INT);
 //   C   every response path's service cost, counted access by access on the
 //       model in the pass that takes the input (acmp_mbx.h ACMP_MBX_LAT_*):
 //       the H-ACMP and H-DISC hooks of FR_NFR.md 3.4.2 on the host model;
@@ -571,6 +572,216 @@ TEST_F(AcmpMailbox, B9AnotherAvtpVersionPassesTheFilterAndChangesNothing) {
     }
 }
 
+// ---- B10, B11: the publication block (lane F-INT; #665 comment 6088423771) ----------------
+
+// Every write the firmware makes, in order, while a trace runs.
+std::vector<std::pair<std::uint32_t, std::uint32_t>> pub_writes;
+
+void trace_writes(void*, bool write, std::uint32_t off, std::uint32_t value) {
+    if (write) {
+        pub_writes.emplace_back(off, value);
+    }
+}
+
+// The position of the first write to `off` in the trace, or SIZE_MAX.
+std::size_t first_write(std::uint32_t off) {
+    for (std::size_t n = 0; n < pub_writes.size(); ++n) {
+        if (pub_writes[n].first == off) {
+            return n;
+        }
+    }
+    return SIZE_MAX;
+}
+
+std::uint32_t binding_reg(unsigned i, unsigned k) {
+    return MBX_PUB_BASE + MBX_PUB_STRIDE * i + MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k + MBX_PUB_SINK_REG_BINDING;
+}
+
+constexpr std::uint32_t kAcmpTxHead = MBX_CH_BASE + MBX_CH_STRIDE * MBX_CH_ACMP + MBX_CH_REG_TX_HEAD;
+
+mbx_model_pub pub_view(unsigned i) {
+    mbx_model_pub v;
+    mbx_model_pub_view(&model, i, &v);
+    return v;
+}
+
+// Each binding writes its sink's entry of its interface's publication block,
+// and the response that promises it is committed (TX_HEAD) only after.
+TEST_F(AcmpMailbox, B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse) {
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        pub_writes.clear();
+        mbx_host_trace(trace_writes, nullptr);
+        bind(k);
+        mbx_host_trace(nullptr, nullptr);
+        EXPECT_TRUE(pub_view(i).bound[k] && pub_view(i).started[k] && pub_view(i).sid[k] == 0u)
+            << on_if(i, "B10 a BIND_RX publishes its sink bound, with no stream");
+        EXPECT_LT(first_write(binding_reg(i, k)), first_write(kAcmpTxHead))
+            << on_if(i, "B10 BINDING is written before the BIND_RX response's TX_HEAD commit");
+        pub_writes.clear();
+        mbx_host_trace(trace_writes, nullptr);
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        mbx_host_trace(nullptr, nullptr);
+        EXPECT_EQ(pub_view(i).sid[k], kSid) << on_if(i, "B10 a PROBE_TX_RESPONSE that settles publishes its stream");
+        std::vector<std::size_t> at;   // the entry's writes, in order: BINDING, SID_LO, SID_HI, BINDING
+        std::vector<std::uint32_t> values;
+        const std::uint32_t entry = binding_reg(i, k) - MBX_PUB_SINK_REG_BINDING;
+        for (std::size_t n = 0; n < pub_writes.size(); ++n) {
+            if (pub_writes[n].first >= entry && pub_writes[n].first < entry + MBX_PUB_SINK_STRIDE) {
+                at.push_back(pub_writes[n].first - entry);
+                values.push_back(pub_writes[n].second);
+            }
+        }
+        const std::uint32_t valid = 1u << MBX_BINDING_SID_VALID_LSB;
+        EXPECT_TRUE(at == std::vector<std::size_t>({MBX_PUB_SINK_REG_BINDING, MBX_PUB_SINK_REG_SID_LO,
+                                                    MBX_PUB_SINK_REG_SID_HI, MBX_PUB_SINK_REG_BINDING}) &&
+                    (values[0] & valid) == 0u && (values[3] & valid) == valid)
+            << on_if(i, "B10 SID_VALID is cleared, both stream_id words written, then SID_VALID set by the last write");
+        pub_writes.clear();
+        mbx_host_trace(trace_writes, nullptr);
+        ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, k), spec::MULTICAST_MAC, i));
+        settle();
+        mbx_host_trace(nullptr, nullptr);
+        EXPECT_TRUE(wire(model.tx_sent - 1u).stream_id == kSid && first_write(binding_reg(i, k)) == SIZE_MAX)
+            << on_if(i, "B10 a GET_RX_STATE reports the stream the datapath already has, and writes no publication");
+        pub_writes.clear();
+        mbx_host_trace(trace_writes, nullptr);
+        ASSERT_TRUE(offer(command(spec::MSG_UNBIND_RX_COMMAND, k), spec::MULTICAST_MAC, i));
+        settle();
+        mbx_host_trace(nullptr, nullptr);
+        EXPECT_TRUE(!pub_view(i).bound[k] && pub_view(i).sid[k] == 0u)
+            << on_if(i, "B10 an UNBIND_RX publishes its sink unbound, with no stream");
+        EXPECT_LT(first_write(binding_reg(i, k)), first_write(kAcmpTxHead))
+            << on_if(i, "B10 BINDING is written before the UNBIND_RX response's TX_HEAD commit");
+        for (unsigned j = 0; j < MBX_N_IF; ++j) {
+            mbx_model_pub v = pub_view(j);
+            bool any = false;
+            for (unsigned e = 0; e < MBX_N_PUB_SINKS; ++e) {
+                any = any || v.bound[e] || v.started[e] || v.sid[e] != 0u;
+            }
+            EXPECT_FALSE(any) << on_if(i, "B10 no entry of any interface's block is left behind");
+        }
+    }
+}
+
+// The bindings the store restored are published once the mailbox is open.
+TEST_F(AcmpMailbox, B11RestoredBindingsArePublishedAtOpen) {
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        boot_restored({i});
+        for (unsigned j = 0; j < MBX_N_IF; ++j) {
+            for (unsigned e = 0; e < MBX_N_PUB_SINKS; ++e) {
+                EXPECT_EQ(pub_view(j).bound[e], j == i && e == i)
+                    << on_if(i, "B11 the restored sink, and only it, is published bound on its interface");
+                EXPECT_EQ(pub_view(j).started[e], j == i && e == i)
+                    << on_if(i, "B11 and started, as its record saved it");
+            }
+        }
+    }
+}
+
+// The started level (Milan v1.2 5.3.8.7) reaches the block before the BIND_RX
+// response that echoes STREAMING_WAIT, and a later START_STREAMING or
+// STOP_STREAMING of a settled sink is one write of BINDING that keeps
+// SID_VALID: the stream never leaves the datapath.
+TEST_F(AcmpMailbox, B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream) {
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        const std::uint32_t entry = binding_reg(i, k) - MBX_PUB_SINK_REG_BINDING;
+        const std::uint32_t valid = 1u << MBX_BINDING_SID_VALID_LSB;
+        const std::uint32_t bound = 1u << MBX_BINDING_BOUND_LSB;
+        const std::uint32_t started = 1u << MBX_BINDING_STARTED_LSB;
+        Pdu cmd = command(spec::MSG_BIND_RX_COMMAND, k);
+        cmd.flags = spec::FLAG_STREAMING_WAIT;
+        pub_writes.clear();
+        mbx_host_trace(trace_writes, nullptr);
+        ASSERT_TRUE(offer(cmd, spec::MULTICAST_MAC, i));
+        settle();
+        mbx_host_trace(nullptr, nullptr);
+        EXPECT_TRUE(pub_view(i).bound[k] && !pub_view(i).started[k])
+            << on_if(i, "B12 a BIND_RX with STREAMING_WAIT publishes its sink bound and stopped");
+        EXPECT_LT(first_write(binding_reg(i, k)), first_write(kAcmpTxHead))
+            << on_if(i, "B12 BINDING is written before the response that echoes STREAMING_WAIT is committed");
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_EQ(pub_view(i).sid[k], kSid);
+        for (bool start : {true, false}) {
+            pub_writes.clear();
+            mbx_host_trace(trace_writes, nullptr);
+            ASSERT_TRUE(acmp_set_started(core(), k, start));
+            mbx_host_trace(nullptr, nullptr);
+            std::vector<std::pair<std::uint32_t, std::uint32_t>> in_entry;
+            for (const auto& w : pub_writes) {
+                if (w.first >= entry && w.first < entry + MBX_PUB_SINK_STRIDE) {
+                    in_entry.push_back(w);
+                }
+            }
+            ASSERT_EQ(in_entry.size(), 1u) << on_if(i, "B12 a started move is one write to the sink's entry");
+            EXPECT_TRUE(in_entry[0].first == binding_reg(i, k) &&
+                        in_entry[0].second == (bound | valid | (start ? started : 0u)))
+                << on_if(i, "B12 that write is BINDING, with SID_VALID kept and STARTED moved");
+            EXPECT_TRUE(pub_view(i).started[k] == start && pub_view(i).sid[k] == kSid)
+                << on_if(i, "B12 the datapath sees the move, and the stream_id stays");
+        }
+    }
+}
+
+// A bound or started move of a sink with no settled stream publishes
+// SID_VALID clear, though SID_LO and SID_HI still hold the stream an earlier
+// binding settled on (an unbind clears SID_VALID and leaves them): the
+// datapath takes no stream_id for a sink that settled on none (#665,
+// comment 6095903333).
+TEST_F(AcmpMailbox, B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream) {
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        const std::uint32_t entry = binding_reg(i, k) - MBX_PUB_SINK_REG_BINDING;
+        const std::uint32_t valid = 1u << MBX_BINDING_SID_VALID_LSB;
+        const std::uint32_t* words = model.pub[i] + (MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u;
+        // every write to the sink's entry is BINDING with SID_VALID clear, and there is one
+        auto binding_only = [&] {
+            bool ok = false;
+            for (const auto& w : pub_writes) {
+                if (w.first >= entry && w.first < entry + MBX_PUB_SINK_STRIDE) {
+                    if (w.first != binding_reg(i, k) || (w.second & valid) != 0u) {
+                        return false;
+                    }
+                    ok = true;
+                }
+            }
+            return ok;
+        };
+        bind(k);
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_EQ(pub_view(i).sid[k], kSid);
+        ASSERT_TRUE(offer(command(spec::MSG_UNBIND_RX_COMMAND, k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_TRUE(!pub_view(i).bound[k] && pub_view(i).sid[k] == 0u);
+        ASSERT_EQ((std::uint64_t{words[MBX_PUB_SINK_REG_SID_HI / 4u]} << 32) | words[MBX_PUB_SINK_REG_SID_LO / 4u], kSid)
+            << on_if(i, "B13 the unbind leaves the settled stream_id in SID_LO and SID_HI");
+        pub_writes.clear();
+        mbx_host_trace(trace_writes, nullptr);
+        bind(k);
+        mbx_host_trace(nullptr, nullptr);
+        EXPECT_TRUE(binding_only())
+            << on_if(i, "B13 a BIND_RX of a sink with no settled stream writes only BINDING, SID_VALID clear");
+        EXPECT_TRUE(pub_view(i).bound[k] && pub_view(i).sid[k] == 0u)
+            << on_if(i, "B13 the re-bound sink carries no stream_id to the datapath");
+        for (bool start : {false, true}) {
+            pub_writes.clear();
+            mbx_host_trace(trace_writes, nullptr);
+            ASSERT_TRUE(acmp_set_started(core(), k, start));
+            mbx_host_trace(nullptr, nullptr);
+            EXPECT_TRUE(binding_only() && pub_view(i).started[k] == start)
+                << on_if(i, "B13 a started move with no settled stream writes only BINDING, SID_VALID clear");
+            EXPECT_EQ(pub_view(i).sid[k], 0u) << on_if(i, "B13 the started move carries no stream_id to the datapath");
+        }
+    }
+}
+
 // ---- C: the service cost of every path (H-ACMP, H-DISC) -----------------------------------
 
 TEST_F(AcmpMailbox, C0ToC4CommandsAreAnsweredInThePassThatTakesThem) {
@@ -648,6 +859,22 @@ TEST_F(AcmpMailbox, C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry) {
         n = pass();
         EXPECT_EQ(core()->sinks[k].state, ACMP_PRB_W_DELAY) << "C9 TMR_NO_TK, talker discovered";
         bound(on_if(i, "C9 TMR_NO_TK -> TMR_DELAY armed"), n, ACMP_MBX_LAT_TIMER_ARM);
+        // the costliest TMR_NO_TK: the run's first TMR_DELAY draw reads the
+        // seed beside the clock, and the binding is published without its stream
+        SetUp();
+        bind(k);
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_TRUE(available(Adp{}, i));
+        settle();
+        ASSERT_TRUE(core()->sinks[k].state == ACMP_SETTLED_NO_RSV && core()->sinks[k].discovered &&
+                    core()->draws == 0u)
+            << "C9 settled with the talker discovered, no TMR_DELAY drawn in this run";
+        to_deadline(i);
+        n = pass();
+        EXPECT_TRUE(core()->sinks[k].state == ACMP_PRB_W_DELAY && core()->draws == 1u)
+            << "C9 TMR_NO_TK draws the run's first TMR_DELAY";
+        bound(on_if(i, "C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed"), n, ACMP_MBX_LAT_TIMER_ARM);
     }
 }
 

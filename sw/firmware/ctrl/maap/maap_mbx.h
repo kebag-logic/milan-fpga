@@ -11,8 +11,9 @@
 extern "C" {
 #endif
 
-// Bounds count bus transactions, not target CPU time. See maap/README.md.
-#define MAAP_MBX_EVENT_MAX 48u
+// Bounds count bus transactions, not target CPU time. See maap/README.md. An
+// allocation reported writes the range filter (3) and DA_GATE (1).
+#define MAAP_MBX_EVENT_MAX 49u
 #define MAAP_MBX_RX_MAX 48u
 #define MAAP_MBX_POLL_MAX 48u
 #define MAAP_MBX_PASS_MAX (CTRL_LOOP_EVENTS_PER_PASS * (6u + MAAP_MBX_EVENT_MAX) + \
@@ -39,7 +40,10 @@ struct maap_mbx {
 };
 
 // Every interface owns its own MAC, machine and timer slot. allocation must
-// be supplied and returns without waiting or calling any protocol core.
+// be supplied and returns without waiting or calling any protocol core. count
+// is the entity's talker sources, one address each, at most the publication
+// block's MBX_N_PUB_SOURCES: before each allocation is reported, the adapter
+// writes the interface's DA_GATE (bit s open while the range is valid).
 bool maap_mbx_init(struct maap_mbx *m, const uint64_t mac[MBX_N_IF], uint16_t count,
 		   unsigned first_slot, maap_allocation_fn allocation, void *ctx);
 bool maap_mbx_attach(struct maap_mbx *m, struct ctrl_loop *loop);

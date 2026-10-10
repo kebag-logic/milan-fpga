@@ -118,6 +118,20 @@ struct Fake {
     acmp_source_state source[ACMP_MAX_SOURCES] = {};
     std::vector<Sent> sent;
     std::vector<Call> calls;
+    // the publish port's calls, apart from `calls` (each remembers how many
+    // calls came before it, so its order against a send can be read)
+    struct Pub {
+        unsigned interface;
+        unsigned sink;
+        bool bound;
+        bool started;
+        std::uint64_t stream;
+        bool moved;
+        std::size_t before;
+    };
+    std::vector<Pub> pubs;
+    // one call back into the core, made from inside the publish port, then cleared
+    std::function<void()> pub_hook;
     bool armed[ACMP_MAX_INTERFACES] = {};
     std::uint32_t at[ACMP_MAX_INTERFACES] = {};
     // one call back into the core, made from inside the port named by
@@ -151,6 +165,7 @@ struct Fake {
     void clear() {
         sent.clear();
         calls.clear();
+        pubs.clear();
     }
 };
 
@@ -228,7 +243,17 @@ inline void f_admit(void*, unsigned interface, unsigned sink, bool bound, std::u
     fk.reenter(Call::ADMIT);
 }
 
-inline const acmp_ports kPorts = {nullptr, f_send, f_now, f_timer, f_gptp, f_seed, f_admit};
+inline void f_publish(void*, unsigned interface, unsigned sink, bool bound, bool started, std::uint64_t stream,
+                      bool moved) {
+    fk.pubs.push_back({interface, sink, bound, started, stream, moved, fk.calls.size()});
+    if (fk.pub_hook) {
+        auto h = fk.pub_hook;
+        fk.pub_hook = nullptr;
+        h();
+    }
+}
+
+inline const acmp_ports kPorts = {nullptr, f_send, f_now, f_timer, f_gptp, f_seed, f_admit, f_publish};
 inline const acmp_env kEnv = {nullptr, f_locked, f_source, f_srp, f_persist, f_changed};
 
 // ---- frames -------------------------------------------------------------------------

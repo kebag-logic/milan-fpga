@@ -20,7 +20,10 @@
 //
 // WHAT IT ADDS FOR THE HARNESS. Every bus access is counted, every TMR_CMD is
 // logged with the time it was made, the TX merge can be paused to fill a TX
-// ring, and the frames it sends are captured in order.
+// ring, the event poster can be held as a full event ring holds it, the
+// frames it sends are captured in order, and what the publication
+// block would drive into each interface's datapath can be read
+// (mbx_model_pub_view).
 
 #ifndef MBX_MODEL_H
 #define MBX_MODEL_H
@@ -87,6 +90,7 @@ struct mbx_model {
 	uint64_t own_mac[MBX_N_IF];                     // OWN_MAC_HI:OWN_MAC_LO per interface, 48 bits
 	uint64_t bound_eid[MBX_N_IF][MBX_N_BOUND];     // BOUND_EID_HI:BOUND_EID_LO per interface and entry
 	bool bound_en[MBX_N_IF][MBX_N_BOUND];           // BOUND_EN
+	uint32_t pub[MBX_N_IF][MBX_PUB_STRIDE / 4u];    // the publication block, word by word, its fields masked
 	uint32_t filter_en;
 	uint64_t maap_base;
 	uint16_t maap_count;
@@ -110,6 +114,7 @@ struct mbx_model {
 	uint16_t tick_count;
 	uint8_t tx_last_ch;
 	bool tx_paused;
+	bool evt_paused;
 	// harness view
 	uint64_t reads;
 	uint64_t writes;
@@ -140,6 +145,11 @@ bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigne
 // Hold the TX merge (records stay in their rings) or let it drain.
 void mbx_model_tx_pause(struct mbx_model *m, bool paused);
 
+// Hold the event poster, as a full event ring holds the RTL's, or let it post.
+// Each source keeps its state while held, so a LINK level that returns to the
+// last posted one before the release owes no record.
+void mbx_model_evt_pause(struct mbx_model *m, bool paused);
+
 // The interrupt line: IRQ_STATUS AND IRQ_ENABLE, OR-reduced.
 bool mbx_model_irq(const struct mbx_model *m);
 
@@ -148,6 +158,23 @@ const struct mbx_model_tx *mbx_model_tx_frame(const struct mbx_model *m, uint32_
 
 // The k-th TMR_CMD since reset, or NULL if it is no longer held.
 const struct mbx_model_tmr_op *mbx_model_tmr_op(const struct mbx_model *m, uint32_t k);
+
+// What interface `interface`'s datapath takes from KL_mbx's pub_*_o ports:
+// every field, and each sink's stream_id only while its SID_VALID is set.
+// All zero for an interface the build lacks.
+struct mbx_model_pub {
+	uint32_t da_gate;                               // DA_GATE.OPEN, bit s source s
+	uint32_t licence;                               // LICENCE.ACTIVE, bit s source s
+	uint32_t idle_slope_bps;                        // IDLE_SLOPE.BPS
+	uint16_t vid;                                   // SR_DOMAIN.VID
+	uint8_t priority;                               // SR_DOMAIN.PRIORITY
+	bool adopted;                                   // SR_DOMAIN.ADOPTED
+	uint32_t talker_decl;                           // TALKER_DECL.DECLARED, bit s source s
+	bool bound[MBX_N_PUB_SINKS];                    // BINDING.BOUND
+	bool started[MBX_N_PUB_SINKS];                  // BINDING.STARTED
+	uint64_t sid[MBX_N_PUB_SINKS];                  // SID_HI:SID_LO, 0 while SID_VALID is clear
+};
+void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mbx_model_pub *out);
 
 // mbx_plat_host.c routes mbx_hal.h to this model; mbx_hal_wait() calls
 // `wait` (when set) so a harness can advance time while the firmware sleeps.

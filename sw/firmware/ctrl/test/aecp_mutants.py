@@ -390,6 +390,23 @@ DEFECTS = (
            'acmp_set_started(a, c->start_index, c->start_value)',
            ('App.UnboundStartAndStopAreSuccessfulNoOps',
             'get(p->bytes+16,2)>>11')),
+    # #665 F-INT: the split datapath's started level, skipped by the bridge or
+    # published only after the START/STOP response is committed; each keeps
+    # the bridge's refusals, so only the publication tells it apart
+    defect('app-start-skips-publication', 'app/ctrl_app_aecp.c',
+           'acmp_set_started(a, c->start_index, c->start_value)',
+           '(!a->in_port && (a->sinks[c->start_index].started = c->start_value, true))',
+           ('App.StartAndStopPublishTheStartedLevelBeforeTheirResponse',
+            "the datapath's started level follows START/STOP")),
+    defect('app-start-response-before-publication', 'app/ctrl_app_aecp.c',
+           '\t\t\tbool ok = exists && (!old.bound || acmp_set_started(a, c->start_index, c->start_value));\n'
+           '\t\t\taecp_start_done(&c->aecp->core, ok, ok && old.bound && old.started != c->start_value);\n',
+           '\t\t\tbool ok = exists && (!old.bound || !a->in_port);\n'
+           '\t\t\taecp_start_done(&c->aecp->core, ok, ok && old.bound && old.started != c->start_value);\n'
+           '\t\t\t(void)aecp_poll(&c->aecp->core);\n'
+           '\t\t\t(void)(ok && old.bound && acmp_set_started(a, c->start_index, c->start_value));\n',
+           ('App.StartAndStopPublishTheStartedLevelBeforeTheirResponse',
+            'BINDING.STARTED is published before the response is committed')),
     defect('mailbox-interface-crossed', 'aecp_mbx.c',
            'aecp_rx(&m->core, f->interface, f->bytes, f->len);',
            'aecp_rx(&m->core, 0, f->bytes, f->len);',

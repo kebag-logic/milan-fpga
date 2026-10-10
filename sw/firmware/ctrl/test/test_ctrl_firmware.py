@@ -65,13 +65,18 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
            with its src/ unmodified, or the arm refuses.
   srp      per-interface MSRP/MVRP, static entity shapes, service latency,
-           debug reentry guards and processor-derived wire stimuli.
+           debug reentry guards and processor-derived wire stimuli;
+  srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
+           decoder and transmit-opportunity comparator the placement switch
+           compares the two placements' SRP frames with (#665, ruling
+           6088423771), its five named controls passing and its eighteen
+           named planted defects each present and caught;
   aecp     the complete command, notification and saved-state owner, composed
            with ACMP and SRP at one and two interfaces; every generated AEM
            image, mailbox completion ordering, latency and debug guards.
 
-Every arm but rv32 and entity's header generation is a GoogleTest binary
-(sw/firmware/gtest/README.md), graded by the tally it prints.
+Every arm but rv32, srpcmp and entity's header generation is a GoogleTest
+binary (sw/firmware/gtest/README.md), graded by the tally it prints.
 
 --self-test then plants each defect of ctrl_mutants.py into a COPY of the
 firmware tree and requires the named GoogleTest test of the named arm to
@@ -109,6 +114,7 @@ import ctrl_arms  # noqa: E402
 import ctrl_mutants  # noqa: E402
 import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
+import srp_pub_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
 import fw_gtest  # noqa: E402
@@ -184,7 +190,8 @@ def main(argv: list[str] | None = None) -> int:
                         ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
                         ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
-                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
+                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
+                        ctrl_arms.arm_srpcmp()]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
                 for i in (1, 2):
@@ -210,7 +217,8 @@ def main(argv: list[str] | None = None) -> int:
                     srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                               if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
                                                                     "p11-", "srp-bound-", "srp-term-",
-                                                                    "srp-poll-extra", "srp-send-extra")))
+                                                                    "srp-poll-extra", "srp-send-extra",
+                                                                    *srp_pub_mutants.ROUND5)))
                     failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
                 finally:
                     srp_mutants.DEFECTS = complete_srp_table

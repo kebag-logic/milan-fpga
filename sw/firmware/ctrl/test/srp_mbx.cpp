@@ -13,6 +13,271 @@ std::vector<uint8_t> talker_value(const msrp_stream_id &sid, const uint8_t da[6]
     return value;
 }
 
+// ---- the publication block (lane F-INT; #665 comment 6088423771) -----------------
+
+mbx_model_pub pub_of(const mbx_model &m, unsigned i) {
+    mbx_model_pub v;
+    mbx_model_pub_view(&m,i,&v);
+    return v;
+}
+
+// The publication block as the fabric held it when each SRP record was
+// committed: the trace sees a write before the model applies it, so the
+// snapshot at a TX_HEAD write is what the datapath read while that frame left.
+struct Commit {
+    uint32_t frame;
+    mbx_model_pub pub[MBX_N_IF];
+};
+std::vector<Commit> commits_seen;
+const mbx_model *traced_model;
+
+void commit_trace(void *, bool write, uint32_t off, uint32_t) {
+    if (write && off==MBX_CH_BASE+MBX_CH_STRIDE*MBX_CH_SRP+MBX_CH_REG_TX_HEAD) {
+        Commit c{traced_model->tx_sent,{}};
+        for (unsigned i=0;i<MBX_N_IF;++i) mbx_model_pub_view(traced_model,i,&c.pub[i]);
+        commits_seen.push_back(c);
+    }
+}
+
+const Commit *commit_of(uint32_t frame) {
+    for (const auto &c:commits_seen) if (c.frame==frame) return &c;
+    return nullptr;
+}
+
+// Source 0, the one allocated, admitted at 1 Gb/s: (224 + 22 + 20) bytes, 8 bits,
+// 8000 frames/s (srp_mbx.c's admission, Ethernet overhead included).
+constexpr uint32_t kAdmittedBps=17024000u;
+
+TEST_F(Srp, PubDomainPrecedesEveryDeclarationThatCarriesIt) {
+    settle();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const auto v=pub_of(model,i);
+        EXPECT_TRUE(!v.adopted && v.priority==3u && v.vid==2u)
+            << "PUB the default Domain {priority 3, VID 2}, not adopted, from startup";
+    }
+    commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
+    offer(frame(4,{6,4,0,3},0)); advance(200);
+    // a down interface sends nothing: every later frame of it is the restart's,
+    // the first of them sent while the link comes back
+    const uint32_t restarted=model.tx_sent;
+    mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle();
+    advance(200);
+    mbx_host_trace(nullptr,nullptr);
+    capture();
+    unsigned adopted=0, restored=0;
+    for (const auto &d:declarations) {
+        if (d.interface!=0 || d.ethertype!=0x22ea || commit_of(d.frame)==nullptr) continue;
+        const auto &p=commit_of(d.frame)->pub[0];
+        const bool new_vid=d.value==std::vector<uint8_t>({6,4,0,3}) ||
+                           (d.type==1 && wire_be16(d.value.data()+14)==3u);
+        if (new_vid && d.frame<restarted) {
+            ++adopted;
+            EXPECT_TRUE(p.adopted && p.priority==4u && p.vid==3u)
+                << "PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it";
+        }
+        if (d.type==4 && d.value==std::vector<uint8_t>({6,3,0,2}) && d.frame>=restarted) {
+            ++restored;
+            EXPECT_TRUE(!p.adopted && p.priority==3u && p.vid==2u)
+                << "PUB after a link restart, the default Domain is published before it is declared again";
+        }
+    }
+    EXPECT_GT(adopted,0u) << "PUB the adopted Domain was declared";
+    EXPECT_GT(restored,0u) << "PUB the default Domain was declared again after the restart";
+    for (unsigned i=1;i<MBX_N_IF;++i) {
+        const auto v=pub_of(model,i);
+        EXPECT_TRUE(!v.adopted && v.priority==3u && v.vid==2u) << "PUB another interface keeps its own Domain";
+    }
+}
+
+TEST_F(Srp, PubLicenceIsSetAndClearedBeforeEachChangeIsReported) {
+    settle();
+    unsigned seen=0xFFFFu;
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        auto look=[&,i](unsigned,unsigned,bool) { seen=pub_of(model,i).licence; };
+        EXPECT_EQ(pub_of(model,i).licence,0u) << "PUB no licence before a Listener Ready";
+        EXPECT_CALL(licence,Change(i,0,true)).WillOnce(look); offer(frame(3,identity(i),1,2),i);
+        EXPECT_EQ(seen,1u) << "PUB LICENCE holds source 0's bit before the licence is reported";
+        EXPECT_CALL(licence,Change(i,0,false)).WillOnce(look); offer(frame(3,identity(i),5,2),i);
+        EXPECT_EQ(seen,0u) << "PUB LICENCE clears source 0's bit before the revocation is reported";
+        EXPECT_CALL(licence,Change(i,0,true)).WillOnce(look); offer(frame(3,identity(i),1,2),i);
+        EXPECT_CALL(licence,Change(i,0,false)).WillOnce(look);
+        mbx_model_set_link(&model,i,false); settle();
+        EXPECT_EQ(seen,0u) << "PUB a link loss clears LICENCE before the revocation is reported";
+        mbx_model_set_link(&model,i,true); settle();
+        ASSERT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence));
+    }
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
+    }
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,false)).WillOnce([&,i](unsigned,unsigned,bool) {
+            seen=pub_of(model,i).licence;
+            EXPECT_EQ(seen,0u) << "PUB destroy clears LICENCE before any revocation is reported";
+        });
+    }
+    srp_mbx_destroy(&adapter);
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+}
+
+TEST_F(Srp, PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits) {
+    settle();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).idle_slope_bps,kAdmittedBps) << "PUB IDLE_SLOPE is the admitted bandwidth from startup";
+    }
+    const unsigned last=MBX_N_IF-1u;
+    // a value the firmware did not write, then a link restart: the slope is
+    // published again before the restart's first declaration leaves
+    mbx_model_write(&model,MBX_PUB_BASE+MBX_PUB_STRIDE*last+MBX_PUB_REG_IDLE_SLOPE,0u,0xFu);
+    ASSERT_EQ(pub_of(model,last).idle_slope_bps,0u);
+    commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
+    const uint32_t first=model.tx_sent;
+    mbx_model_set_link(&model,last,false); settle(); mbx_model_set_link(&model,last,true); settle();
+    advance(200);
+    mbx_host_trace(nullptr,nullptr);
+    unsigned left=0;
+    for (const auto &c:commits_seen) {
+        const auto *f=mbx_model_tx_frame(&model,c.frame);
+        if (c.frame<first || f==nullptr || f->interface!=last) continue;
+        ++left;
+        EXPECT_EQ(c.pub[last].idle_slope_bps,kAdmittedBps)
+            << "PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again";
+    }
+    EXPECT_GT(left,0u) << "PUB the restarted interface declared again";
+}
+
+// TALKER_DECL (#665 comment 6092086337): every source's Talker attribute is
+// declared, so its bit is set before any MRPDU carrying it leaves, and cleared
+// before the participants holding it are destroyed: by a link restart, before
+// the new participants declare again, and by destroy.
+std::vector<std::pair<uint32_t,uint32_t>> pub_trace;
+void pub_writes(void*, bool write, uint32_t off, uint32_t value) {
+    if (write && off>=MBX_PUB_BASE && off<MBX_PUB_BASE+MBX_N_IF*MBX_PUB_STRIDE) pub_trace.emplace_back(off,value);
+}
+
+TEST_F(Srp, PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst) {
+    const uint32_t all=(1u<<CTRL_SRP_SOURCES)-1u;
+    settle();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,all) << "PUB TALKER_DECL holds every declared source from startup";
+        EXPECT_EQ(pub_of(model,i).licence,0u) << "PUB and is not the licence: no Listener is registered";
+    }
+    const unsigned last=MBX_N_IF-1u;
+    const uint32_t block=MBX_PUB_BASE+MBX_PUB_STRIDE*last;
+    // a value the firmware did not write, then a link restart: the
+    // declarations are withdrawn, then published again before the restart's
+    // first declaration leaves
+    mbx_model_write(&model,block+MBX_PUB_REG_TALKER_DECL,0u,0xFu);
+    pub_trace.clear(); mbx_host_trace(pub_writes,nullptr);
+    mbx_model_set_link(&model,last,false); settle();
+    mbx_host_trace(nullptr,nullptr);
+    std::size_t withdrawn=SIZE_MAX, recreated=SIZE_MAX;
+    for (std::size_t n=0;n<pub_trace.size();++n) {
+        if (pub_trace[n].first==block+MBX_PUB_REG_TALKER_DECL && pub_trace[n].second==0u && withdrawn==SIZE_MAX)
+            withdrawn=n;
+        if (pub_trace[n].first==block+MBX_PUB_REG_SR_DOMAIN && recreated==SIZE_MAX) recreated=n;
+    }
+    EXPECT_TRUE(withdrawn!=SIZE_MAX && recreated!=SIZE_MAX && withdrawn<recreated)
+        << "PUB a link restart withdraws TALKER_DECL before the new participants declare";
+    EXPECT_EQ(pub_of(model,last).talker_decl,all) << "PUB and publishes it again as they declare";
+    commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
+    const uint32_t first=model.tx_sent;
+    mbx_model_write(&model,block+MBX_PUB_REG_TALKER_DECL,0u,0xFu);
+    mbx_model_set_link(&model,last,true); settle();
+    advance(200);
+    mbx_host_trace(nullptr,nullptr);
+    capture();
+    unsigned talkers=0;
+    for (const auto &d:declarations) {
+        if (d.interface!=last || d.ethertype!=0x22ea || d.frame<first || commit_of(d.frame)==nullptr) continue;
+        if (d.type!=1 && d.type!=2) continue;
+        ++talkers;
+        EXPECT_EQ(commit_of(d.frame)->pub[last].talker_decl,all)
+            << "PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again";
+    }
+    EXPECT_GT(talkers,0u) << "PUB the restarted interface declared its Talkers again";
+    for (unsigned i=0;i+1u<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,all) << "PUB another interface keeps its own declarations";
+    }
+    srp_mbx_destroy(&adapter);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,0u) << "PUB destroy withdraws every declaration from the datapath";
+    }
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+}
+
+// TALKER_DECL across a Domain adoption (#665, comment 6095903333): the
+// adoption declares every source again under the adopted VID, and
+// declare_sources publishes TALKER_DECL again before those declarations
+// leave. A value the firmware did not write stands in the register first, so
+// an adoption that skips the publication shows too; it holds after.
+TEST_F(Srp, PubTalkerDeclHoldsAcrossADomainAdoption) {
+    const uint32_t all=(1u<<CTRL_SRP_SOURCES)-1u;
+    settle();
+    ASSERT_EQ(pub_of(model,0).talker_decl,all);
+    mbx_model_write(&model,MBX_PUB_BASE+MBX_PUB_REG_TALKER_DECL,0u,0xFu);
+    commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
+    const uint32_t first=model.tx_sent;
+    offer(frame(4,{6,4,0,3},0)); advance(200);
+    mbx_host_trace(nullptr,nullptr);
+    capture();
+    unsigned talkers=0;
+    for (const auto &d:declarations) {
+        if (d.interface!=0 || d.ethertype!=0x22ea || d.frame<first || commit_of(d.frame)==nullptr) continue;
+        if ((d.type!=1 && d.type!=2) || wire_be16(d.value.data()+14)!=3u) continue;
+        ++talkers;
+        EXPECT_EQ(commit_of(d.frame)->pub[0].talker_decl,all)
+            << "PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again";
+    }
+    EXPECT_GT(talkers,0u) << "PUB the adoption declared the Talkers again under the adopted VID";
+    EXPECT_EQ(pub_of(model,0).talker_decl,all) << "PUB TALKER_DECL holds every declared source after the adoption";
+    for (unsigned i=1;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,all) << "PUB another interface keeps its own declarations";
+    }
+}
+
+// A creation that fails declares nothing the block shows (srp_mbx.c,
+// withdraw_declared; #665, comment 6095903333, R583-3-S1): declare_sources
+// publishes TALKER_DECL only once every source joined. Each allocation of a
+// link restart's re-creation is refused in turn, the sources' joins among
+// them, so one refusal lands after the first source joined and before the
+// last: no such re-creation writes TALKER_DECL nonzero, and it holds 0 after.
+TEST_F(Srp, PubTalkerDeclIsNotPublishedByACreationThatFails) {
+    settle();
+    const unsigned last=MBX_N_IF-1u;
+    const uint32_t reg=MBX_PUB_BASE+MBX_PUB_STRIDE*last+MBX_PUB_REG_TALKER_DECL;
+    // the allocations a re-creation makes: what a successful one consumes
+    calloc_before_failure=1000000;
+    mbx_model_set_link(&model,last,false); ctrl_loop_service(&loop);
+    const int made=1000000-calloc_before_failure;
+    calloc_before_failure=-1;
+    ASSERT_NE(adapter.ifs[last].msrp,nullptr);
+    ASSERT_GT(made,static_cast<int>(CTRL_SRP_SOURCES)) << "PUB a re-creation allocates for each source's join";
+    mbx_model_set_link(&model,last,true); settle();
+    int failed=0;
+    for (int failure=0;failure<made;++failure) {
+        const unsigned refused=adapter.refused;
+        pub_trace.clear(); mbx_host_trace(pub_writes,nullptr);
+        calloc_before_failure=failure;
+        mbx_model_set_link(&model,last,false); ctrl_loop_service(&loop);
+        calloc_before_failure=-1;
+        mbx_host_trace(nullptr,nullptr);
+        ASSERT_GT(adapter.refused,refused) << "PUB the re-creation refused at allocation " << failure << " fails";
+        ++failed;
+        bool declared=false;
+        for (const auto &w:pub_trace) declared=declared || (w.first==reg && w.second!=0u);
+        EXPECT_FALSE(declared)
+            << "PUB a re-creation refused at allocation " << failure << " publishes no Talker declaration";
+        EXPECT_EQ(pub_of(model,last).talker_decl,0u)
+            << "PUB TALKER_DECL holds 0 after a re-creation refused at allocation " << failure;
+        settle();
+        ASSERT_NE(adapter.ifs[last].msrp,nullptr);
+        mbx_model_set_link(&model,last,true); settle();
+    }
+    EXPECT_EQ(failed,made) << "PUB every allocation of the re-creation was refused in turn";
+    EXPECT_EQ(pub_of(model,last).talker_decl,(1u<<CTRL_SRP_SOURCES)-1u)
+        << "PUB the retried creation declares every source";
+}
+
 TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
     settle();
     ASSERT_EQ(pool.refused,0u);
@@ -713,14 +978,19 @@ TEST_F(Srp, CancelledLinkRecordRecoversFromLevelAndFencesOldReceive) {
     }
     for(unsigned i=0;i<MBX_N_IF;++i) {
         EXPECT_CALL(licence,Change(i,0,false));
-        // The DOWN level is observed while its record is held. The level
-        // returns to the last posted UP, so no new LINK record is owed.
+        // The DOWN level is observed while its record is held, as a full event
+        // ring holds it: the writes the level's reset makes, the publication
+        // block's included, must not post it. The level returns to the last
+        // posted UP, so no new LINK record is owed.
+        mbx_model_evt_pause(&model,true);
         model.link_up[i]=false; ctrl_loop_service(&loop);
         ASSERT_FALSE(adapter.ifs[i].link);
         auto ready=frame(3,identity(i),1,2);
         for(unsigned n=0;n<CTRL_LOOP_RX_PER_PASS+1;++n)
             ASSERT_TRUE(mbx_model_rx(&model,ready.data(),ready.size(),i));
         model.link_up[i]=true;
+        ASSERT_TRUE(model.posted_up[i])<<"the DOWN record stayed held";
+        mbx_model_evt_pause(&model,false);
         const unsigned start=model.now_ms;
         advance(1500); capture();
         EXPECT_TRUE(adapter.ifs[i].link);

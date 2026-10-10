@@ -271,6 +271,17 @@ def emit_doc(contract: Contract) -> str:
         f"and its entry e at `0x{contract.bnd_entry_stride:X} * e` inside it, for {contract.bound_talkers} entries "
         "(one per listener stream). An `eq_bound` term reads the table of the interface the frame arrived on.")
     lines += _register_section(
+        "Interface publication registers", contract.pub_registers,
+        f"Interface i's publication block starts at `0x{contract.pub_base:03X} + 0x{contract.pub_stride:X} * i`. "
+        f"Bit s of a source field is source s, for {contract.pub_sources} sources. "
+        "The firmware owner writes each value before the response that promises it; "
+        "the datapath reads interface i's block through `KL_mbx`'s `pub_*_o` ports.")
+    lines += _register_section(
+        "Interface publication sink registers", contract.pub_sink_registers,
+        f"Sink k's entry starts at `0x{contract.pub_sink_base:X} + 0x{contract.pub_sink_stride:X} * k` inside "
+        f"interface i's publication block, for {contract.pub_sinks} sinks (one per listener stream). "
+        "A hole, a sink past the last and an interface the build does not have read 0 and take no write.")
+    lines += _register_section(
         "Channel registers", contract.ch_registers,
         f"Channel c's block starts at `0x{contract.ch_base:03X} + 0x{contract.ch_stride:X} * c`.")
     lines += ["## Records", "", contract.rx_doc, "", contract.tx_doc, "", contract.ev_doc, "",

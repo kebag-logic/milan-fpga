@@ -14,7 +14,8 @@
 //       TMR_NO_RESP from the accepted send of each attempt, timed from the
 //       clock after that send even when it moves inside it; every timer across
 //       the 32-bit millisecond wrap; the admit port behind the adp channel's
-//       bound-talker term.
+//       bound-talker term; the publish port behind the datapath's view of each
+//       binding (lane F-INT), told before the response that promises it.
 //
 // The walk of the processor's own Table 5.30 transcription is acmp_walk.cpp;
 // the mailbox adapter, the latency bounds and the composition are
@@ -1907,6 +1908,168 @@ TEST_F(AcmpCore, A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry) {
     EXPECT_TRUE(fk.sent.size() == 2u && a.sinks[0].state == ACMP_PRB_W_RESP2 && a.sinks[1].state == ACMP_PRB_W_RESP &&
                 a.sinks[1].timer_deadline == fk.sent[1].at + spec::TMR_NO_RESP_MS)
         << "A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry";
+}
+
+// ---- A31: the publish port behind the datapath's view of each binding (lane F-INT;
+// #665 comment 6088423771) --------------------------------------------------------------
+
+// The position, in the call log, of the n-th send (the frames in their order).
+int send_at(unsigned n) { return fk.position(Call::SEND, n); }
+
+// The publish calls since the log was cleared, and whether the m-th came before the n-th send.
+bool published_before_send(unsigned m, unsigned n) {
+    return m < fk.pubs.size() && send_at(n) >= 0 && fk.pubs[m].before <= static_cast<std::size_t>(send_at(n));
+}
+
+TEST_F(AcmpCore, A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt) {
+    bind(0);
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 a BIND_RX publishes the sink's binding once";
+    EXPECT_TRUE(fk.pubs[0].interface == 0u && fk.pubs[0].sink == 0u && fk.pubs[0].bound && fk.pubs[0].stream == 0u)
+        << "A31 bound, on the sink's interface, with no stream yet";
+    EXPECT_TRUE(fk.pubs[0].started) << "A31 started: the command had no STREAMING_WAIT (5.3.8.7)";
+    ASSERT_TRUE(fk.sent.size() == 2u && read(fk.sent[0].bytes.data()).msg == spec::MSG_BIND_RX_RESPONSE);
+    EXPECT_TRUE(published_before_send(0, 0)) << "A31 the binding is published before the BIND_RX response";
+    fk.clear();
+    rx(probe_answer(0));
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 a PROBE_TX_RESPONSE that settles publishes the stream";
+    EXPECT_TRUE(fk.pubs[0].bound && fk.pubs[0].stream == kSid && fk.pubs[0].sink == 0u && fk.pubs[0].moved)
+        << "A31 the stream_id the response carried (5.5.3.5.18 step 4)";
+    const int changed = fk.position(Call::CHANGED);
+    EXPECT_TRUE(changed >= 0 && fk.pubs[0].before <= static_cast<std::size_t>(changed))
+        << "A31 and before the notifier hears of the settled sink";
+    fk.clear();
+    rx(command(spec::MSG_GET_RX_STATE_COMMAND, 0));
+    EXPECT_TRUE(fk.pubs.empty() && last().stream_id == kSid)
+        << "A31 a GET_RX_STATE reports the stream already published, and publishes nothing";
+    rx(command(spec::MSG_UNBIND_RX_COMMAND, 0));
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 an UNBIND_RX publishes the sink unbound";
+    EXPECT_TRUE(!fk.pubs[0].bound && !fk.pubs[0].started && fk.pubs[0].stream == 0u)
+        << "A31 unbound, not started, with no stream";
+    ASSERT_EQ(read(fk.sent.back().bytes.data()).msg, spec::MSG_UNBIND_RX_RESPONSE);
+    EXPECT_TRUE(published_before_send(0, static_cast<unsigned>(fk.sent.size() - 1u)))
+        << "A31 the sink is published unbound before the UNBIND_RX response";
+    fk.clear();
+    rx(command(spec::MSG_UNBIND_RX_COMMAND, 0));
+    EXPECT_TRUE(fk.pubs.empty()) << "A31 an UNBIND_RX of an unbound sink publishes nothing";
+}
+
+TEST_F(AcmpCore, A31LeavingSettlementTakesTheStreamOffTheDatapath) {
+    to_state(0, ACMP_SETTLED_NO_RSV);
+    fk.clear();
+    bind(0, kTkB);
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 a re-bind of a settled sink to another talker publishes once";
+    EXPECT_TRUE(fk.pubs[0].bound && fk.pubs[0].stream == 0u) << "A31 still bound, its old stream gone";
+    EXPECT_TRUE(published_before_send(0, 0)) << "A31 before the BIND_RX response";
+    to_state(1, ACMP_SETTLED_NO_RSV);
+    adp(Adp{});
+    fk.clear();
+    fire(1);
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 TMR_NO_TK publishes the sink without its stream (5.5.3.5.36 step 1)";
+    EXPECT_TRUE(fk.pubs[0].sink == 1u && fk.pubs[0].bound && fk.pubs[0].stream == 0u);
+    to_state(2, ACMP_SETTLED_RSV_OK);
+    fk.clear();
+    acmp_tk_unregistered(&a, 2);
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 EVT_TK_UNREGISTERED publishes the sink without its stream (5.5.3.5.48)";
+    EXPECT_TRUE(fk.pubs[0].sink == 2u && fk.pubs[0].interface == 1u && fk.pubs[0].bound && fk.pubs[0].stream == 0u)
+        << "A31 sink 2, on interface 1";
+}
+
+TEST_F(AcmpCore, A31OnlyAMovedTripleIsPublished) {
+    to_state(0, ACMP_SETTLED_NO_RSV);
+    fk.clear();
+    bind(0, kTkA, 1, kCtl2);
+    acmp_tk_registered(&a, 0, false);
+    EXPECT_TRUE(acmp_set_started(&a, 0, true));
+    adp(Adp{});
+    EXPECT_TRUE(fk.pubs.empty() && a.sinks[0].state == ACMP_SETTLED_RSV_OK)
+        << "A31 a re-bind to the same talker, a registration, a start of a started sink and a discovery move "
+           "neither bound, started nor stream";
+    acmp_tk_kind_changed(&a, 0, true);
+    EXPECT_TRUE(fk.pubs.empty()) << "A31 nor does a change of the registered kind";
+}
+
+// The started level (Milan v1.2 5.3.8.7) is published before the BIND_RX
+// response that echoes STREAMING_WAIT, and a later START_STREAMING or
+// STOP_STREAMING before the notifier, and before acmp_set_started returns to
+// the AECP side that answers it.
+TEST_F(AcmpCore, A31TheStartedLevelIsPublishedBeforeItIsPromised) {
+    bind(0, kTkA, 1, kCtl1, true);
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 a BIND_RX with STREAMING_WAIT publishes once";
+    EXPECT_TRUE(fk.pubs[0].bound && !fk.pubs[0].started)
+        << "A31 a bind with STREAMING_WAIT is published bound and stopped";
+    EXPECT_TRUE(published_before_send(0, 0)) << "A31 before the BIND_RX response that echoes STREAMING_WAIT";
+    fk.clear();
+    bind(0, kTkA, 1, kCtl2, false);
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 a re-bind to the same talker without STREAMING_WAIT publishes once";
+    EXPECT_TRUE(fk.pubs[0].bound && fk.pubs[0].started && !fk.pubs[0].moved && fk.pubs[0].stream == 0u)
+        << "A31 started now, the stream not moved";
+    ASSERT_TRUE(!fk.sent.empty() && read(fk.sent[0].bytes.data()).msg == spec::MSG_BIND_RX_RESPONSE);
+    EXPECT_TRUE(published_before_send(0, 0)) << "A31 the started move is published before the BIND_RX response";
+    rx(probe_answer(0));
+    ASSERT_EQ(a.sinks[0].state, ACMP_SETTLED_NO_RSV);
+    fk.clear();
+    ASSERT_TRUE(acmp_set_started(&a, 0, false));
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 a STOP_STREAMING publishes once";
+    EXPECT_TRUE(fk.pubs[0].bound && !fk.pubs[0].started && fk.pubs[0].stream == kSid && !fk.pubs[0].moved)
+        << "A31 stopped, the settled stream kept and not moved";
+    int changed = fk.position(Call::CHANGED);
+    EXPECT_TRUE(changed >= 0 && fk.pubs[0].before <= static_cast<std::size_t>(changed))
+        << "A31 the stop is published before the notifier hears of it";
+    fk.clear();
+    EXPECT_TRUE(acmp_set_started(&a, 0, false));
+    EXPECT_TRUE(fk.pubs.empty()) << "A31 a STOP_STREAMING of a stopped sink publishes nothing";
+    ASSERT_TRUE(acmp_set_started(&a, 0, true));
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 a START_STREAMING publishes once";
+    EXPECT_TRUE(fk.pubs[0].started && fk.pubs[0].stream == kSid && !fk.pubs[0].moved);
+    changed = fk.position(Call::CHANGED);
+    EXPECT_TRUE(changed >= 0 && fk.pubs[0].before <= static_cast<std::size_t>(changed))
+        << "A31 the start is published before the notifier hears of it";
+}
+
+TEST_F(AcmpCore, A31RestoredBindingsArePublishedWhenTheTransportOpens) {
+    const auto bound = payload(kRecValid, 1u, kTkB, kCtl1);
+    const auto none = payload(0u, 0u, 0u, 0u);
+    ASSERT_EQ(acmp_restore_binding(&a, 2, bound.data(), spec::BINDING_BYTES), ACMP_RESTORE_APPLIED);
+    EXPECT_TRUE(fk.pubs.empty()) << "A31 the boot restore publishes nothing: the transport is not open";
+    acmp_open(&a);
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 acmp_open publishes each restored binding";
+    EXPECT_TRUE(fk.pubs[0].sink == 2u && fk.pubs[0].interface == 1u && fk.pubs[0].bound && fk.pubs[0].stream == 0u)
+        << "A31 sink 2, bound on interface 1, with no stream until it settles";
+    EXPECT_FALSE(fk.pubs[0].started) << "A31 stopped, as its record saved it";
+    fk.clear();
+    acmp_open(&a);
+    EXPECT_TRUE(fk.pubs.empty()) << "A31 a second open publishes nothing";
+    SetUp();
+    const auto started = payload(kRecValid | kRecStarted, 1u, kTkB, kCtl1);
+    ASSERT_EQ(acmp_restore_binding(&a, 1, started.data(), spec::BINDING_BYTES), ACMP_RESTORE_APPLIED);
+    acmp_open(&a);
+    ASSERT_EQ(fk.pubs.size(), 1u);
+    EXPECT_TRUE(fk.pubs[0].sink == 1u && fk.pubs[0].bound && fk.pubs[0].started)
+        << "A31 a binding saved started is published started";
+    SetUp();
+    ASSERT_EQ(acmp_restore_binding(&a, 1, bound.data(), spec::BINDING_BYTES), ACMP_RESTORE_APPLIED);
+    acmp_restore_rollback(&a);
+    acmp_open(&a);
+    EXPECT_TRUE(fk.pubs.empty()) << "A31 a binding the roll-back dropped is never published";
+    SetUp();
+    bind(0, kTkA);
+    fk.clear();
+    ASSERT_EQ(acmp_restore_binding(&a, 0, none.data(), spec::BINDING_BYTES), ACMP_RESTORE_APPLIED);
+    EXPECT_TRUE(fk.pubs.empty()) << "A31 the store's reset of a sink is not published at once";
+    acmp_open(&a);
+    ASSERT_EQ(fk.pubs.size(), 1u) << "A31 a sink the store resets is published unbound at the next open";
+    EXPECT_TRUE(!fk.pubs[0].bound && fk.pubs[0].sink == 0u)
+        << "A31 what the port holds outlives the sink's reset, so the open publishes the change";
+}
+
+TEST_F(AcmpCore, A31ACallBackFromThePublishPortIsRefused) {
+    fk.pub_hook = [this] {
+        rx(command(spec::MSG_UNBIND_RX_COMMAND, 0));
+        static_cast<void>(acmp_poll(&a));
+    };
+    bind(0);
+    EXPECT_TRUE(a.reentries == 2u && reentry_traps == 2u && a.sinks[0].bound && a.sinks[0].state == ACMP_PRB_W_RESP)
+        << "A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)";
 }
 
 }  // namespace

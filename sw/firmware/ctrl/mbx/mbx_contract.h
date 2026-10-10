@@ -16,7 +16,7 @@
 /* contract major version */
 #define MBX_VERSION_MAJOR 2u
 /* contract minor version */
-#define MBX_VERSION_MINOR 1u
+#define MBX_VERSION_MINOR 2u
 /* ID.MAGIC */
 #define MBX_MAGIC 0x4D42u
 /* host window size */
@@ -29,6 +29,10 @@
 #define MBX_N_TIMERS 16u
 /* bound-talker entries per interface (listener streams) */
 #define MBX_N_BOUND 16u
+/* publication sources per interface (talker streams) */
+#define MBX_N_PUB_SOURCES 16u
+/* publication sink entries per interface (listener streams) */
+#define MBX_N_PUB_SINKS 16u
 /* NOW_MS milliseconds per TICK (one centisecond) */
 #define MBX_TICK_MS 10u
 /* channels */
@@ -291,6 +295,78 @@
 #define MBX_BOUND_EN_EN_LSB 0u
 /* BOUND_EN: the entry takes part in the eq_bound test */
 #define MBX_BOUND_EN_EN_WIDTH 1u
+/* first interface's publication block */
+#define MBX_PUB_BASE 0x800u
+/* bytes per interface's publication block */
+#define MBX_PUB_STRIDE 0x200u
+/* The talker destination-address gate: bit s is set while MAAP holds a stream destination address for source s on this interface (IEEE 1722-2016 Annex B). The MAAP owner writes it before it reports the allocation, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1). It is address validity only. The processor's acmp_declaring_o also needs a probe within T-SRP-DAFRESH or a registered Listener (Milan v1.2 4.3.3.1), which the firmware ACMP talker does not implement yet (#665, comment 6092086337). */
+#define MBX_PUB_REG_DA_GATE 0x0u
+/* DA_GATE: bit s: source s may send to its destination address */
+#define MBX_DA_GATE_OPEN_LSB 0u
+/* DA_GATE: bit s: source s may send to its destination address */
+#define MBX_DA_GATE_OPEN_WIDTH 16u
+/* The SRP stream gate: bit s is set while source s holds its licence, an admitted Talker Advertise with a registered Listener Ready or Ready Failed after the stream VLAN's MVRP Join (Milan v1.2 5.3.7.3 and 4.3.2; the processor's srp_active_o AND srp_sr_admitted_o). The SRP owner writes it before it reports the licence. */
+#define MBX_PUB_REG_LICENCE 0x4u
+/* LICENCE: bit s: source s's stream may leave */
+#define MBX_LICENCE_ACTIVE_LSB 0u
+/* LICENCE: bit s: source s's stream may leave */
+#define MBX_LICENCE_ACTIVE_WIDTH 16u
+/* The sum, in bits per second, of the bandwidth the SRP owner admitted for this interface's sources, Ethernet overhead included (the processor's srp_sum_slope_bps_o), written before the declarations it admitted are sent. */
+#define MBX_PUB_REG_IDLE_SLOPE 0x8u
+/* IDLE_SLOPE: admitted bandwidth */
+#define MBX_IDLE_SLOPE_BPS_LSB 0u
+/* IDLE_SLOPE: admitted bandwidth */
+#define MBX_IDLE_SLOPE_BPS_WIDTH 32u
+/* The SR class A Domain this interface's declarations carry (Milan v1.2 4.2.7.2.1). ADOPTED is set once a received Domain replaced the default {priority 3, VID 2}, until the link restarts (the processor's srp_domain_adopted_o, class_a_prio_o and class_a_vid_o). Written in one access, before the declarations that carry it. */
+#define MBX_PUB_REG_SR_DOMAIN 0xCu
+/* SR_DOMAIN: the operational SR class A VID */
+#define MBX_SR_DOMAIN_VID_LSB 0u
+/* SR_DOMAIN: the operational SR class A VID */
+#define MBX_SR_DOMAIN_VID_WIDTH 12u
+/* SR_DOMAIN: the operational SR class A priority */
+#define MBX_SR_DOMAIN_PRIORITY_LSB 16u
+/* SR_DOMAIN: the operational SR class A priority */
+#define MBX_SR_DOMAIN_PRIORITY_WIDTH 3u
+/* SR_DOMAIN: a received Domain was adopted */
+#define MBX_SR_DOMAIN_ADOPTED_LSB 24u
+/* SR_DOMAIN: a received Domain was adopted */
+#define MBX_SR_DOMAIN_ADOPTED_WIDTH 1u
+/* The Talker declarations: bit s is set while source s's MSRP Talker attribute, a Talker Advertise or a Talker Failed, is declared on this interface (IEEE 802.1Q-2018 clause 35; the processor's srp_tk_decl_state_o other than NONE). The datapath tags a stream's frames only while its bit is set, because a bridge prunes a tagged stream that is not declared (802.1Q 35.1.2). The SRP owner sets a bit before the declaration it describes is sent, and clears it before the declaration is destroyed. */
+#define MBX_PUB_REG_TALKER_DECL 0x10u
+/* TALKER_DECL: bit s: source s has a Talker declaration */
+#define MBX_TALKER_DECL_DECLARED_LSB 0u
+/* TALKER_DECL: bit s: source s has a Talker declaration */
+#define MBX_TALKER_DECL_DECLARED_WIDTH 16u
+/* first sink entry inside a publication block */
+#define MBX_PUB_SINK_BASE 0x100u
+/* bytes per publication sink entry */
+#define MBX_PUB_SINK_STRIDE 0x10u
+/* Sink k's stream_id, low word, as last written. The datapath reads it while SID_VALID is set. */
+#define MBX_PUB_SINK_REG_SID_LO 0x0u
+/* SID_LO: stream_id[31:0] */
+#define MBX_SID_LO_SID_LSB 0u
+/* SID_LO: stream_id[31:0] */
+#define MBX_SID_LO_SID_WIDTH 32u
+/* Sink k's stream_id, high word, as last written. The datapath reads it while SID_VALID is set. */
+#define MBX_PUB_SINK_REG_SID_HI 0x4u
+/* SID_HI: stream_id[63:32] */
+#define MBX_SID_HI_SID_LSB 0u
+/* SID_HI: stream_id[63:32] */
+#define MBX_SID_HI_SID_WIDTH 32u
+/* Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. STARTED is the started state (5.3.8.7; the processor wrapper's aecp_strm_started_o, which the ACMP binding record owns), 0 while the sink is unbound: the datapath discards the AVTPDUs of a sink that is bound and not started. The firmware writes it before the BIND_RX response that echoes STREAMING_WAIT and before a later START_STREAMING or STOP_STREAMING is reported, in one write that keeps SID_VALID. */
+#define MBX_PUB_SINK_REG_BINDING 0x8u
+/* BINDING: the sink is bound */
+#define MBX_BINDING_BOUND_LSB 0u
+/* BINDING: the sink is bound */
+#define MBX_BINDING_BOUND_WIDTH 1u
+/* BINDING: SID_LO and SID_HI are the settled stream_id */
+#define MBX_BINDING_SID_VALID_LSB 1u
+/* BINDING: SID_LO and SID_HI are the settled stream_id */
+#define MBX_BINDING_SID_VALID_WIDTH 1u
+/* BINDING: the bound sink is started */
+#define MBX_BINDING_STARTED_LSB 2u
+/* BINDING: the bound sink is started */
+#define MBX_BINDING_STARTED_WIDTH 1u
 /* first channel register block */
 #define MBX_CH_BASE 0x100u
 /* bytes per channel block */

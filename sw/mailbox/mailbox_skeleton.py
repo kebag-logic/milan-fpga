@@ -7,7 +7,9 @@ register decode (a storage register for every ``rw`` register, a pulse for
 every ``wo`` register, a read for every readable one), the read multiplexer
 and one ring instance per direction per channel. The bound-talker registers
 are the exception: the skeleton decodes them and ``KL_mbx_rx`` holds them, in
-distributed RAM beside the compare that reads them. The leaves it instantiates
+distributed RAM beside the compare that reads them. The publication block is
+decoded and held here, and each of its fields leaves on a ``pub_*_o`` port
+named in ``PUB_OUTPUTS``, for the datapath of the split placement. The leaves it instantiates
 (``KL_mbx_ring``, ``KL_mbx_rx``, ``KL_mbx_tx``, ``KL_mbx_evt``) are written by
 hand against ``KL_mbx_pkg`` and are the same for every contract.
 
@@ -44,6 +46,27 @@ BOUND_BITS = {"BOUND_EID_HI": (63, 32), "BOUND_EID_LO": (31, 0), "BOUND_EN": (0,
 
 #: The code KL_mbx_rx's bnd_reg_i gives each bound-talker register.
 BOUND_CODE = {"BOUND_EID_LO": 0, "BOUND_EID_HI": 1, "BOUND_EN": 2}
+
+#: The publication block's interface fields, each on a port of its own:
+#: (register, field) -> (port, the port's bits per interface).
+PUB_OUTPUTS = {
+    ("DA_GATE", "OPEN"): ("pub_da_gate_o", "MBX_N_PUB_SOURCES_C"),
+    ("LICENCE", "ACTIVE"): ("pub_licence_o", "MBX_N_PUB_SOURCES_C"),
+    ("IDLE_SLOPE", "BPS"): ("pub_idle_slope_bps_o", "MBX_IDLE_SLOPE_BPS_WIDTH_C"),
+    ("SR_DOMAIN", "VID"): ("pub_dom_vid_o", "MBX_SR_DOMAIN_VID_WIDTH_C"),
+    ("SR_DOMAIN", "PRIORITY"): ("pub_dom_prio_o", "MBX_SR_DOMAIN_PRIORITY_WIDTH_C"),
+    ("SR_DOMAIN", "ADOPTED"): ("pub_dom_adopted_o", "MBX_SR_DOMAIN_ADOPTED_WIDTH_C"),
+    ("TALKER_DECL", "DECLARED"): ("pub_talker_decl_o", "MBX_N_PUB_SOURCES_C"),
+}
+
+#: The interface fields that carry one bit per talker source.
+PUB_SOURCE_REGS = ("DA_GATE", "LICENCE", "TALKER_DECL")
+
+#: The publication block's sink fields: BINDING.BOUND on pub_bound_o,
+#: BINDING.SID_VALID on pub_sid_valid_o and BINDING.STARTED on pub_started_o,
+#: one bit a sink, and SID_HI:SID_LO on pub_sid_o, 64 bits a sink, as last
+#: written: the datapath takes the stream_id only while its SID_VALID is set.
+PUB_SINK_FIELDS = {"SID_LO": ("SID",), "SID_HI": ("SID",), "BINDING": ("BOUND", "SID_VALID", "STARTED")}
 
 #: Read-only interface fields; `{i}` is the interface index.
 IF_SOURCES = {
@@ -159,12 +182,29 @@ def _ports() -> list[str]:
         "  output logic [7:0]                   tx_data_o,      //! egress: the byte, wire order",
         "  output logic                         tx_last_o,      //! egress: the frame's last byte",
         "  output logic [MBX_IF_W_C-1:0]        tx_if_o,        //! egress: interface, held for the frame",
-        "  output logic [MBX_CH_W_C-1:0]        tx_ch_o         //! egress: channel, held for the frame",
-        ");",
-        "",
-        "  localparam int unsigned AW2_C = MBX_ADDR_W_C + 2;   //! byte-offset width",
+        "  output logic [MBX_CH_W_C-1:0]        tx_ch_o,        //! egress: channel, held for the frame",
         "",
     ]
+
+
+def _pub_ports() -> list[str]:
+    """The publication block's outputs, which close the port list: interface i's
+    field takes bits [width*i +: width], and sink k of interface i is entry
+    N_PUB_SINKS*i + k."""
+    out = ["  // the publication block, what the firmware owner publishes for the datapath"]
+    for (reg, fld), (port, width) in PUB_OUTPUTS.items():
+        out.append(f"  output logic [MBX_N_IF_C*{width}-1:0] {port},   //! {reg}.{fld} per interface")
+    out += ["  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_bound_o,   //! BINDING.BOUND per sink",
+            "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_sid_valid_o,   //! BINDING.SID_VALID per sink",
+            "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_started_o,   //! BINDING.STARTED per sink",
+            "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   "
+            "//! SID_HI:SID_LO per sink, taken only while its SID_VALID is set",
+            ");",
+            "",
+            "  localparam int unsigned AW2_C = MBX_ADDR_W_C + 2;   //! byte-offset width",
+            "",
+            ]
+    return out
 
 
 def _core() -> list[str]:
@@ -251,6 +291,82 @@ def _bound_decode(contract: Contract) -> list[str]:
             f"                  && ({named});",
             "  end : bound_decode",
             ""]
+    return out
+
+
+def _pub_decode(contract: Contract) -> list[str]:
+    """The publication register an offset names: its interface, whether it is a
+    sink entry's, the entry, and its offset inside the block or the entry, by
+    the bit fields of the offset, the strides being powers of two."""
+    regs = " || ".join(f"pub_reg_w == {AW}'(MBX_PUB_REG_{r.name}_C)" for r in contract.pub_registers)
+    sinks = " || ".join(f"pub_reg_w == {AW}'(MBX_PUB_SINK_REG_{r.name}_C)" for r in contract.pub_sink_registers)
+    return ["  // ---- the publication block: decoded and held here, read by the datapath -----------",
+            "  // The strides are powers of two, so an offset's interface and sink entry",
+            "  // are its bit fields; a hole between the registers names none.",
+            "  localparam int unsigned PUB_KW_C = (MBX_N_PUB_SINKS_C > 1) ? $clog2(MBX_N_PUB_SINKS_C) : 1;"
+            "   //! sink index bits",
+            "  logic                  pub_at_w;     //! the offset names a publication register",
+            "  logic                  pub_sink_w;   //! a sink entry's register, else an interface register",
+            "  logic [MBX_IF_W_C-1:0] pub_if_w;     //! its interface",
+            "  logic [PUB_KW_C-1:0]   pub_k_w;      //! its sink entry",
+            f"  logic [{AW}-1:0]      pub_reg_w;    //! its offset inside the interface block or the sink entry",
+            "  always_comb begin : pub_decode",
+            f"    logic [{AW}-1:0] rel;",
+            f"    logic [{AW}-1:0] in_if;",
+            f"    logic [{AW}-1:0] in_sinks;",
+            f"    logic [{AW}-1:0] entry;",
+            f"    rel        = off_w - {AW}'(MBX_PUB_BASE_C);",
+            f"    in_if      = rel & {AW}'(MBX_PUB_STRIDE_C - 1);",
+            f"    in_sinks   = in_if - {AW}'(MBX_PUB_SINK_BASE_C);",
+            "    entry      = in_sinks >> $clog2(MBX_PUB_SINK_STRIDE_C);",
+            "    pub_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_PUB_STRIDE_C));",
+            f"    pub_sink_w = in_if >= {AW}'(MBX_PUB_SINK_BASE_C);",
+            "    pub_k_w    = PUB_KW_C'(entry);",
+            f"    pub_reg_w  = pub_sink_w ? (in_sinks & {AW}'(MBX_PUB_SINK_STRIDE_C - 1)) : in_if;",
+            f"    pub_at_w   = off_w >= {AW}'(MBX_PUB_BASE_C)",
+            f"                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < {AW}'(MBX_N_IF_C)",
+            f"                 && (pub_sink_w ? (entry < {AW}'(MBX_N_PUB_SINKS_C) && ({sinks}))",
+            f"                                : ({regs}));",
+            "  end : pub_decode",
+            ""]
+
+
+def _pub_block(contract: Contract) -> list[str]:
+    """The publication registers: storage per interface and per sink, the host
+    writes, and the outputs the datapath reads."""
+    out = ["  // ---- the publication registers: the firmware writes them, the datapath reads them ---"]
+    for r in contract.pub_registers:
+        out.append(f"  logic [{_bits(r) - 1}:0] pub_{r.name.lower()}_r [MBX_N_IF_C];   //! {r.name} per interface")
+    for r in contract.pub_sink_registers:
+        out.append(f"  logic [{_bits(r) - 1}:0] pub_{r.name.lower()}_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];"
+                   f"   //! {r.name} per sink")
+    out += ["", "  always_ff @(posedge clk_i) begin : pub_write", "    if (!rst_n) begin",
+            "      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin"]
+    out += [f"        pub_{r.name.lower()}_r[i] <= '0;" for r in contract.pub_registers]
+    out.append("        for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin")
+    out += [f"          pub_{r.name.lower()}_r[i][k] <= '0;" for r in contract.pub_sink_registers]
+    out += ["        end", "      end", "    end else if (wr_w && pub_at_w) begin"]
+    for r in contract.pub_registers:
+        out.append(f"      if (!pub_sink_w && pub_reg_w == {AW}'(MBX_PUB_REG_{r.name}_C))")
+        out.append(f"        pub_{r.name.lower()}_r[pub_if_w] <= {_bits(r)}'(host_wdata_i & ({_mask(r)}));")
+    for r in contract.pub_sink_registers:
+        out.append(f"      if (pub_sink_w && pub_reg_w == {AW}'(MBX_PUB_SINK_REG_{r.name}_C))")
+        out.append(f"        pub_{r.name.lower()}_r[pub_if_w][pub_k_w] <= {_bits(r)}'(host_wdata_i & ({_mask(r)}));")
+    out += ["    end", "  end : pub_write", "",
+            "  always_comb begin : pub_out",
+            "    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin"]
+    for (reg, fld), (port, width) in PUB_OUTPUTS.items():
+        field = (f"mbx_field_f(32'(pub_{reg.lower()}_r[i]), MBX_{reg}_{fld}_LSB_C, MBX_{reg}_{fld}_WIDTH_C)")
+        out.append(f"      {port}[{width}*i +: {width}] = {width}'({field});")
+    valid = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C)"
+    bound = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C)"
+    started = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C)"
+    out += ["      for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin",
+            f"        pub_bound_o[MBX_N_PUB_SINKS_C*i + k] = {bound} != 0;",
+            f"        pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = {valid} != 0;",
+            f"        pub_started_o[MBX_N_PUB_SINKS_C*i + k] = {started} != 0;",
+            "        pub_sid_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};",
+            "      end", "    end", "  end : pub_out", ""]
     return out
 
 
@@ -350,6 +466,12 @@ def _read_block(contract: Contract) -> list[str]:
                f"{_place('BOUND_EN', 'EN', 'bnd_en_w')};")
     out.append(f"    if (bnd_at_w && bnd_reg_w != 2'd{BOUND_CODE['BOUND_EN']} && bnd_eid_vld_w) "
                "reg_rdata_w = bnd_eid_w;")
+    for reg in contract.pub_registers:
+        out.append(f"    if (pub_at_w && !pub_sink_w && pub_reg_w == {AW}'(MBX_PUB_REG_{reg.name}_C)) "
+                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[pub_if_w]);")
+    for reg in contract.pub_sink_registers:
+        out.append(f"    if (pub_at_w && pub_sink_w && pub_reg_w == {AW}'(MBX_PUB_SINK_REG_{reg.name}_C)) "
+                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[pub_if_w][pub_k_w]);")
     out.append("    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin")
     for reg in contract.ch_registers:
         base = f"MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_{reg.name}_C"
@@ -453,6 +575,26 @@ def _check_wiring(contract: Contract) -> None:
         if stride & (stride - 1):
             raise ContractError(f"the bound-talker {name} {stride:#x} is not a power of two: the skeleton decodes "
                                 "an entry by its offset's bit fields")
+    for name, stride in (("stride", contract.pub_stride), ("sink_stride", contract.pub_sink_stride)):
+        if stride & (stride - 1):
+            raise ContractError(f"the publication {name} {stride:#x} is not a power of two: the skeleton decodes "
+                                "an interface and a sink entry by its offset's bit fields")
+    if any(r.access != "rw" for r in contract.pub_registers + contract.pub_sink_registers):
+        raise ContractError("the skeleton stores the publication block's registers, which are rw only")
+    fields = {(r.name, f.name): f for r in contract.pub_registers for f in r.fields}
+    if set(fields) != set(PUB_OUTPUTS) or {r.name: tuple(f.name for f in r.fields)
+                                           for r in contract.pub_sink_registers} != PUB_SINK_FIELDS:
+        raise ContractError("the skeleton wires DA_GATE.OPEN, LICENCE.ACTIVE, IDLE_SLOPE.BPS, SR_DOMAIN's VID, "
+                            "PRIORITY and ADOPTED, TALKER_DECL.DECLARED, and the sinks' SID_LO, SID_HI and "
+                            "BINDING's BOUND, SID_VALID and STARTED onto the pub_*_o ports; the publication "
+                            "registers changed")
+    for name in PUB_SOURCE_REGS:
+        width = next(f for (reg, _), f in fields.items() if reg == name).width
+        if width != contract.pub_sources:
+            raise ContractError(f"{name} carries {width} sources, the contract publishes {contract.pub_sources}")
+    sid = [f for r in contract.pub_sink_registers if r.name in ("SID_LO", "SID_HI") for f in r.fields]
+    if any(f.lsb != 0 or f.width != 32 for f in sid):
+        raise ContractError("the skeleton joins SID_HI and SID_LO, each a whole word, into the 64-bit stream_id")
     bound = {t.offset for ch in contract.channels for t in ch.terms if t.test == "eq_bound"}
     if len(bound) > 1:
         raise ContractError(f"eq_bound terms read the fields at {sorted(bound)}: KL_mbx_rx compares one "
@@ -556,7 +698,7 @@ def _leaves(contract: Contract) -> list[str]:
 
 def emit_sv_top(contract: Contract) -> str:
     """KL_mbx.sv, the generated fabric skeleton."""
-    lines = (_banner() + _ports() + _core() + _bound_decode(contract) + _storage(contract)
-             + _write_block(contract) + _read_block(contract) + _ring_block(contract) + _mux_block(contract)
-             + _leaves(contract))
+    lines = (_banner() + _ports() + _pub_ports() + _core() + _bound_decode(contract) + _pub_decode(contract)
+             + _storage(contract) + _write_block(contract) + _pub_block(contract) + _read_block(contract)
+             + _ring_block(contract) + _mux_block(contract) + _leaves(contract))
     return "\n".join(lines)

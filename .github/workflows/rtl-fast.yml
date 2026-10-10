@@ -232,6 +232,76 @@ jobs:
       - name: Prove the result cache refuses a planted entry
         run: python3 syn/yosys/cache_selftest.py
 
+  # The mailbox publication census (#665): every class-D value the datapath
+  # reads, followed through milan_datapath as this job's pinned sv2v and Yosys
+  # elaborate it in every shape the builder builds (run.sh's recipe and each
+  # configs/*.yaml with its generated header and parameters), must be a block
+  # field, CSR read-back or the processor's own answer face. Its self-test
+  # elaborates one planted copy per defect, then removes each of the census's
+  # rules in turn. A job of its own, on every core of its runner, with the
+  # Yosys cache and sv2v release of yosys-elaboration (#665, comment
+  # 6100024293).
+  publication-census:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+      - name: Cache the pinned Yosys build
+        id: cache-yosys
+        uses: actions/cache@v4
+        with:
+          path: /opt/yosys
+          key: yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}
+
+      - name: Build Yosys from source on cache miss
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+          git clone --depth 1 --branch "$YOSYS_VERSION" \
+            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+          make -C /tmp/yosys-src config-gcc
+          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+            >> /tmp/yosys-src/Makefile.conf
+          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
+          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+          # runner-owned so the cache action's save and restore are symmetric
+          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+
+      - name: Install the pinned Yosys and prove the version
+        run: |
+          set -euo pipefail
+          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+          test -x /opt/yosys/bin/yosys-abc
+          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+          yosys -V
+          yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+      - name: Install the pinned sv2v release
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          curl -fsSL "$url" -o /tmp/sv2v.zip
+          echo "${sha256}  /tmp/sv2v.zip" | sha256sum -c -
+          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+      - name: Run the publication census in every shape the builder builds
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"
+
   # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
   # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at
   # every shipped shape, both freestanding RV32 object builds, the tally
@@ -297,7 +367,7 @@ jobs:
   rtl-fast:
     name: rtl-fast
     if: ${{ always() && !cancelled() }}
-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit]
+    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -307,6 +377,7 @@ jobs:
           VERILATOR_LINT_RESULT: ${{ needs.verilator-lint.result }}
           BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
+          PUBLICATION_CENSUS_RESULT: ${{ needs.publication-census.result }}
           FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
         run: |
           set -euo pipefail
@@ -316,6 +387,7 @@ jobs:
             "verilator-lint:$VERILATOR_LINT_RESULT" \
             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+            "publication-census:$PUBLICATION_CENSUS_RESULT" \
             "firmware-unit:$FIRMWARE_UNIT_RESULT"; do
             name="${pair%%:*}"
             result="${pair#*:}"

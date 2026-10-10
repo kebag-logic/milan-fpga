@@ -32,7 +32,9 @@ with no fabric source, a match tuple naming a VLAN tag's TPID or no
 destination, an own-MAC block that spills or collides, message types named
 with no subtype or wider than four bits, a message_type byte not the one after
 the subtype, a bound-talker table that spills its interface stride or runs into
-the channel registers) and requires each to be refused. A clean run of the tracked outputs is the positive control.
+the channel registers, a publication block that runs into a ring, spills its
+interface stride, or carries a field the skeleton does not wire) and requires
+each to be refused. A clean run of the tracked outputs is the positive control.
 
 ``--variant-interfaces N --out DIR`` writes the package, the skeleton and the
 header of the same contract elaborated for N AVB interfaces into a build
@@ -80,7 +82,7 @@ C_TABLE = re.compile(r"^#define MBX_(\w+_TBL) \{ (.*) \}$", re.M)
 SV_CONST = re.compile(r"^\s*localparam int unsigned MBX_(\w+)_C = 32'([hd])([0-9A-F_]+);$", re.M)
 SV_TABLE = re.compile(r"^\s*localparam int unsigned MBX_(\w+_TBL)_C \[[^\]]+\] = '\{(.*)\};$", re.M)
 DOC_CONST = re.compile(r"^\| `MBX_(\w+)` \| `(0x[0-9a-f]+)` \|$", re.M)
-SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|CH_REG)_(\w+)_C\b")
+SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SINK_REG|CH_REG)_(\w+)_C\b")
 
 
 def parse_c(text: str) -> tuple[dict[str, int], dict[str, list[str]]]:
@@ -124,7 +126,7 @@ def crosscheck(contract: Contract, texts: dict[str, str]) -> list[str]:
     top = texts["hdl/milan/mailbox/KL_mbx.sv"]
     named = set(SV_REG_REF.findall(top))
     every = (contract.registers + contract.if_registers + contract.iff_registers + contract.bnd_registers
-             + contract.ch_registers)
+             + contract.pub_registers + contract.pub_sink_registers + contract.ch_registers)
     for reg in every:
         if reg.name not in named:
             findings.append(f"skeleton: register {reg.name} is never decoded")
@@ -252,6 +254,20 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
         ("reference page entry stride", _plant(base, doc, "| `MBX_BND_ENTRY_STRIDE` | `0x10` |",
                                                "| `MBX_BND_ENTRY_STRIDE` | `0x8` |"), "MBX_BND_ENTRY_STRIDE"),
         ("C header table size", _plant(base, hdr, "#define MBX_N_BOUND 16u", "#define MBX_N_BOUND 8u"), "MBX_N_BOUND"),
+        ("C header publication field moved", _plant(base, hdr, "#define MBX_SR_DOMAIN_PRIORITY_LSB 16u",
+                                                     "#define MBX_SR_DOMAIN_PRIORITY_LSB 17u"),
+         "MBX_SR_DOMAIN_PRIORITY_LSB"),
+        ("SV package publication base", _plant(base, pkg, "MBX_PUB_BASE_C = 32'h00000800",
+                                               "MBX_PUB_BASE_C = 32'h00000400"), "MBX_PUB_BASE"),
+        ("reference page sink stride", _plant(base, doc, "| `MBX_PUB_SINK_STRIDE` | `0x10` |",
+                                              "| `MBX_PUB_SINK_STRIDE` | `0x8` |"), "MBX_PUB_SINK_STRIDE"),
+        ("skeleton publication register dropped", _plant_all(base, top, "MBX_PUB_SINK_REG_SID_HI_C",
+                                                             "MBX_PUB_SINK_REG_SID_LO_C"), "SID_HI"),
+        # lane F-INT round 3: the started levels and the Talker declarations
+        ("C header started bit moved", _plant(base, hdr, "#define MBX_BINDING_STARTED_LSB 2u",
+                                              "#define MBX_BINDING_STARTED_LSB 3u"), "MBX_BINDING_STARTED_LSB"),
+        ("skeleton declarations register dropped", _plant_all(base, top, "MBX_PUB_REG_TALKER_DECL_C",
+                                                              "MBX_PUB_REG_LICENCE_C"), "TALKER_DECL"),
         ("skeleton bound enable dropped", _plant_all(base, top, "MBX_BND_REG_BOUND_EN_C", "MBX_BND_REG_BOUND_EID_LO_C"),
          "BOUND_EN"),
     ]
@@ -298,6 +314,27 @@ def _contract_arms() -> list[tuple[str, str, str]]:
          "  stride: 0x180          # bytes per interface"),
         ("eq_bound terms on two fields", "{test: eq_own, offset: 42, field: listener_entity_id",
          "{test: eq_bound, offset: 42, field: listener_entity_id"),
+        # lane F-INT: the publication block
+        ("publication block over the event ring", "interface_publication_registers:\n  base: 0x0800",
+         "interface_publication_registers:\n  base: 0x0400"),
+        ("publication block over the adp receive ring", "interface_publication_registers:\n  base: 0x0800",
+         "interface_publication_registers:\n  base: 0x0F00"),
+        ("publication block in the register space", "interface_publication_registers:\n  base: 0x0800",
+         "interface_publication_registers:\n  base: 0x0300"),
+        ("publication sink entries spill their interface stride", "  sinks: 16 ", "  sinks: 17 "),
+        ("publication register over the sink entries", "    - name: SR_DOMAIN\n      offset: 0x0C",
+         "    - name: SR_DOMAIN\n      offset: 0x100"),
+        ("publication stride not a power of two", "  stride: 0x200          # bytes per interface: the",
+         "  stride: 0x300          # bytes per interface: the"),
+        ("publication field the skeleton does not wire", "{name: ADOPTED, lsb: 24, width: 1,",
+         "{name: ADOPT, lsb: 24, width: 1,"),
+        ("publication gate narrower than its sources", "{name: OPEN, lsb: 0, width: 16,",
+         "{name: OPEN, lsb: 0, width: 8,"),
+        # lane F-INT round 3: the started levels and the Talker declarations
+        ("publication declarations narrower than their sources", "{name: DECLARED, lsb: 0, width: 16,",
+         "{name: DECLARED, lsb: 0, width: 8,"),
+        ("publication sink field the skeleton does not wire", "{name: STARTED, lsb: 2, width: 1,",
+         "{name: RUNNING, lsb: 2, width: 1,"),
     ]
 
 

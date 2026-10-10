@@ -85,6 +85,17 @@ The fabric also posts timer, GM-change, link and tick events.
 Coalesced events retain their defined state and elapsed tick count.
 The [F0 contract](design/MAILBOX_SPLIT.md#rings-records-and-events) defines those details.
 
+A publication block carries firmware-owned class-D state to the fabric.
+It holds the talker DA gate, each sink's bound and started states and stream_id, and the SRP licence, Talker declarations, idle slope and Domain.
+It carries every class-D value the datapath reads on the wire.
+A census elaborates the datapath with CI's pinned sv2v and Yosys and follows each net the processor wrapper cell's class-D ports drive through the netlist.
+It does so in every shape the builder builds: run.sh's recipe at the module's defaults, and each `configs/*.yaml` (five at this head, from one to eight streams) with its generated header, the parameters the builder states for it and the define `SYNTHESIS`.
+It fails `rtl-fast` on a read the block does not carry and no ruling excludes, and on a status or answer-face read that reaches the wire, in any shape.
+It also fails when the shapes differ in their reads.
+Each owner writes a value before the response that promises it.
+The split placement's datapath reads the block through a build-time selection, never a runtime multiplexer.
+The [publication contract](design/MAILBOX_SPLIT.md#the-publication-block) defines its layout and writers.
+
 Each host supplies a bus adapter to the same window.
 F0 implements Wishbone and AXI4-Lite adapters.
 A hard-core AXI4 host requires its own conforming adapter.
@@ -178,6 +189,7 @@ In the ownerless test form:
 
 F0's `--ctrl-mailbox` switch is default-off.
 Its datapath inputs remain idle until protocol integration connects them.
+The publication block's outputs remain unread until the placement switch selects them.
 F1's flash and state ports await integration with those owners.
 Access counts and model time do not prove target service latency.
 F2 to F5 must close the [timing hooks](reference/FR_NFR.md#342-control-service-test-hooks).

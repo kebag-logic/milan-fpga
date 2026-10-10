@@ -589,6 +589,7 @@ INHERITED_STEP_ENV = {
     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
                              "FIRMWARE_UNIT_RESULT",
+                             "PUBLICATION_CENSUS_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
     (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
@@ -1253,6 +1254,9 @@ GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
 OOC_SH_SELFTEST_JOB = "yosys-elaboration"
 #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
 FIRMWARE_UNIT_JOB = "firmware-unit"
+#: #665 F-INT: the fast job that runs the mailbox publication census in every
+#: shape the builder builds, on its own runner (comment 6100024293).
+CENSUS_JOB = "publication-census"
 OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
 #: ...and it must NAME the submodule. Holding the bare verb alone let the
 #: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
@@ -2346,6 +2350,33 @@ RTL_STEP_LISTS = {
     ),
     # #665 lanes FT/F4: the pinned SDK precedes the required freestanding
     # control builds. SRP uses the exact lwSRP submodule and mutation campaign.
+    (RTL_FAST, CENSUS_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": RTL_FETCH_SCRIPT},
+        {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": YOSYS_CACHE_MISS_IF,
+         "run": RTL_YOSYS_BUILD_SCRIPT},
+        {"name": "Install the pinned Yosys and prove the version",
+         "run": (
+             'set -euo pipefail',
+             'sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/',
+             'test -x /opt/yosys/bin/yosys-abc',
+             'echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"',
+             'yosys -V',
+             'yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"',
+         )},
+        {"name": "Install the pinned sv2v release",
+         "run": SV2V_INSTALL},
+        {"name": "Run the publication census in every shape the builder builds",
+         "run": (
+             'set -euo pipefail',
+             'python3 -m pip install --quiet pyyaml',
+             'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"',
+         )},
+    ),
     (RTL_FAST, FIRMWARE_UNIT_JOB): (
         {"uses": "actions/checkout@v4"},
         {"name": "Fetch RTL dependencies",
