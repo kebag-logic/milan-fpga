@@ -1,0 +1,36 @@
+{
+  "plant": "P6-descending-types",
+  "diff": "diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c\nindex b0d4156..ad14be6 100644\n--- a/src/core/mrp_mad.c\n+++ b/src/core/mrp_mad.c\n@@ -1391,7 +1391,7 @@ static int tx_assemble(const struct mrp_app_ops *ops, struct mrp_port_state *ps,\n {\n     size_t off = 1;\n     pdu[0] = ops->proto_version;\n-    for (unsigned type = 0; type < 256u; ++type) {\n+    for (unsigned type = 256u; type-- > 0;) {\n         if (!tx_type_in(types->open, type)) {\n             continue;\n         }\n",
+  "OFF": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "talker_and_listener_messages_follow_attribute_type_order"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 117; layout-only: 21; different: 0; problems: 11"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 32
+  },
+  "ON": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "leaveall_flags_every_stream_type_including_empty_ones",
+      "talker_and_listener_messages_follow_attribute_type_order"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 117; layout-only: 21; different: 0; problems: 11"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 32
+  }
+}

@@ -1,0 +1,37 @@
+/usr/bin/python3 $REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/check_equivalence.py --work-dir $REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/eq-ON --prefix $REVIEWS/lwsrp17-r587-1-packet/scratch/cgreen-prefix --milan ON
+archive: rc=0
+extract-base: rc=0
+extract-candidate: rc=0
+shim: rc=0
+configure-base: rc=0
+build-base: rc=0
+unit-base: rc=0
+configure-candidate: rc=0
+build-candidate: rc=0
+unit-candidate: rc=1
+| Scenario | Opportunities | PDUs | Byte-identical | Layout-only | Different |
+| --- | --- | --- | --- | --- | --- |
+| fresh_ladder_and_refusal_are_transactional | 7 | 4 | 4 | 0 | 0 |
+| refused_pdu_survives_timers_without_aging_unsent_leaveall | 4 | 4 | 3 | 1 | 0 |
+| receive_redeclare_requests_transmission_without_periodic_wait | 5 | 4 | 4 | 0 | 0 |
+| a_full_pdu_retries_omitted_attributes_before_repeats | 5 | 5 | 0 | 5 | 0 |
+| changed_listener_redeclares_from_a_quiet_applicant | 4 | 4 | 4 | 0 | 0 |
+| periodic_is_one_second_independent_of_join_time | 7 | 4 | 4 | 0 | 0 |
+| registrar_ages_while_a_transmission_is_retained | 2 | 2 | 2 | 0 | 0 |
+| applicant_declaration_recovery_and_withdrawal_follow_the_table | 3 | 3 | 3 | 0 | 0 |
+| applicant_receive_conditions_follow_link_mode | 2 | 2 | 2 | 0 | 0 |
+| transmitted_leaveall_includes_every_supported_type | 1 | 1 | 1 | 0 | 0 |
+| transmitted_leaveall_keeps_the_ieee_deadline | 1 | 1 | 1 | 0 | 0 |
+| retained_ports_replay_propagated_join_and_timer_leave_in_order | 8 | 8 | 7 | 1 | 0 |
+| queued_propagation_owns_values_and_survives_source_reclamation | 2 | 2 | 2 | 0 | 0 |
+| committed_leaveall_delivers_local_receive_and_omitted_events | 3 | 3 | 0 | 3 | 0 |
+| full_leaveall_reports_each_required_transition | 3 | 3 | 0 | 3 | 0 |
+| leaving_observer_is_retained_until_its_pending_transmission | 1 | 1 | 1 | 0 | 0 |
+| changed_values_after_transmitted_leaveall_are_indicated_and_propagated | 4 | 4 | 4 | 0 | 0 |
+| reservation_failure_is_reported_without_partial_publication | 2 | 0 | 0 | 0 | 0 |
+| failed_commit_replay_is_retried_by_the_next_poll | 3 | 2 | 2 | 0 | 0 |
+| destroy_releases_all_queued_allocations | 1 | 1 | 1 | 0 | 0 |
+| replacement_allocation_failures_keep_leave_before_join | 40 | 40 | 40 | 0 | 0 |
+| replacement_from_lv_keeps_leave_before_join_at_every_allocation | 40 | 40 | 40 | 0 | 0 |
+Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 1
+FAIL candidate unit suite: rc=1

@@ -1,0 +1,30 @@
+declare TA: 0
+tx: 1
+tx: 1
+withdraw TA: 0
+declare TF: 0
+tx: 1
+tx: 1
+tx: 1
+pdu 0: 000119001e0001020000000010000191e0f000fe01000200e0000160000007d00000000000
+pdu 1: 000119001e0001020000000010000191e0f000fe01000200e0000160000007d00000000000
+pdu 2: 000119001e0001020000000010000191e0f000fe01000200e0000160000007d0b40000022200270001020000000010000191e0f000fe01000200e0000160000007d00000000000000001020000000000
+pdu 3: 00022200270001020000000010000191e0f000fe01000200e0000160000007d00000000000000001020000000000
+pdu 4: 00022200270001020000000010000191e0f000fe01000200e0000160000007d00000000000000001026c00000000
+   ind: TalkerAdvertise join new=1
+receiver: pdu 0 -> 0
+   ind: TalkerFailed join new=1
+receiver: pdu 2 -> 0
+   ind: leave type 1
+receiver: after timers
+   ind: TalkerAdvertise join new=1
+receiver: pdu 0 -> 0
+   ind: TalkerFailed join new=1
+receiver: pdu 3 -> 0
+receiver: after timers
+   ind: TalkerAdvertise join new=1
+receiver: pdu 0 -> 0
+   ind: leave type 1
+   ind: TalkerFailed join new=0
+receiver: pdu 4 -> 0
+receiver: after timers

@@ -1,0 +1,111 @@
+## srp_latency.cpp:60-80
+L1+59	        last_ms[previous->interface][wire_be16(previous->bytes+12)==0x88f5]=previous->now_ms;
+L2+59	    }
+L3+59	    for(unsigned ms=1010;ms<=15200;ms+=10) {
+L4+59	        const unsigned first=model.tx_sent; at(ms);
+L5+59	        for(unsigned k=first;k<model.tx_sent;++k) {
+L6+59	            const auto *f=mbx_model_tx_frame(&model,k); ASSERT_NE(f,nullptr);
+L7+59	            const bool mvrp=wire_be16(f->bytes+12)==0x88f5;
+L8+59	            const unsigned i=f->interface; const unsigned p=mvrp?1:0;
+L9+59	            bool la=false; unsigned off=15;
+L10+59	            while(off+2<f->len && (f->bytes[off] || f->bytes[off+1])) {
+L11+59	                unsigned width=f->bytes[off+1]; off+=2;
+L12+59	                unsigned end=f->len;
+L13+59	                if(!mvrp) { end=off+2+wire_be16(f->bytes+off); off+=2; }
+L14+59	                // LA appears on the first vector of each message.
+L15+59	                la=la || (f->bytes[off]&0x20u);
+L16+59	                if(!mvrp) off=end;
+L17+59	                else { const unsigned n=wire_be16(f->bytes+off)&8191u;
+L18+59	                       off+=2+width+(n+2)/3+2; }
+L19+59	            }
+L20+59	            if(la && !seen[i][p]) {
+L21+59	                seen[i][p]=true; EXPECT_GE(ms,due[i][p]);
+## srp_fixture.hpp:76-128
+    void capture() {
+        declarations.clear();
+        for (unsigned k=0;k<model.tx_sent;++k) {
+            const auto *f=mbx_model_tx_frame(&model,k);
+            ASSERT_NE(f,nullptr);
+            ASSERT_EQ(f->channel,MBX_CH_SRP);
+            ASSERT_LT(f->interface,MBX_N_IF);
+            const unsigned et=wire_be16(f->bytes+12);
+            ASSERT_TRUE(et==0x22ea || et==0x88f5);
+            EXPECT_EQ(wire_be64(f->bytes+4)&0x0000ffffffffffffull,config.mac[f->interface]);
+            EXPECT_EQ(wire_be32(f->bytes),0x0180c200u);
+            EXPECT_EQ(wire_be16(f->bytes+4),et==0x22ea ? 0x000eu : 0x0021u);
+            const auto *p=f->bytes+14;
+            unsigned off=1, len=f->len-14;
+            EXPECT_EQ(p[0],0u);
+            while (off+2<=len && (p[off] || p[off+1])) {
+                unsigned type=p[off++], width=p[off++];
+                unsigned end=len;
+                if(et==0x22ea) { ASSERT_LE(off+2,len); end=off+2+wire_be16(p+off); off+=2; }
+                ASSERT_LE(end,len);
+                while(off+2<=end && (p[off] || p[off+1])) {
+                    const unsigned vh=wire_be16(p+off), count=vh&8191;
+                    const bool subtype=et==0x22ea && type==3;
+                    off+=2;
+                    ASSERT_LE(off+width+(count+2)/3+(subtype?(count+3)/4:0),end);
+                    for(unsigned n=0;n<count;++n) {
+                        unsigned packed=p[off+width+n/3];
+                        ASSERT_LE(packed,215u);
+                        unsigned ev=n%3==0 ? packed/36 : n%3==1 ? (packed/6)%6 : packed%6;
+                        unsigned sub=subtype ? (p[off+width+(count+2)/3+n/4]>>(6-2*(n%4)))&3 : 0;
+                        Declaration d{f->interface,et,type,ev,sub,f->now_ms,(vh>>13)==1,
+                                      std::vector<uint8_t>(p+off,p+off+width)};
+                        // 802.1Q 10.8.2 / 35.2: increment the first value by
+                        // its vector offset, independently of the transmitter.
+                        auto add = [&](unsigned first, unsigned bytes) {
+                            unsigned carry=n;
+                            for(unsigned k=first+bytes;k>first;--k) {
+                                carry+=d.value[k-1]; d.value[k-1]=carry&255; carry>>=8;
+                            }
+                        };
+                        if(et==0x88f5) add(0,2);
+                        else if(type==4) { d.value[0]+=n; d.value[1]+=n; }
+                        else { add(6,2); if(type==1 || type==2) add(8,6); }
+                        declarations.push_back(d);
+                    }
+                    off+=width+(count+2)/3+(subtype?(count+3)/4:0);
+                }
+                ASSERT_LE(off+2,end); EXPECT_EQ(wire_be16(p+off),0u); off+=2;
+                if(et==0x22ea) { EXPECT_EQ(off,end); }
+            }
+            ASSERT_LE(off+2,len); EXPECT_EQ(wire_be16(p+off),0u);
+        }
+    }
+## srp_mbx.c:515-525
+    }
+    if (mbx_tx_send(MBX_CH_SRP,m->owed_if,m->owed_frame,m->owed_len) != MBX_STATUS_OK) {
+        return -SHLAN_ERROR_NO_BUFFER;
+    }
+    if (s->app->ops->ethertype == MRP_ETHERTYPE_MVRP) {
+        // Only the accepted record licenses this VID (Milan 4.3.2).
+        (void)mrpdu_parse(pdu,len,s->app->ops,vlan_committed,NULL,s->interface);
+    }
+    m->owed_len = 0;
+    ++m->transmitted;
+    return 0;
+## srp_mbx.c:795-803
+            continue;
+        }
+        (void)mrp_reclaim(i->msrp,0);
+        (void)mrp_reclaim(i->mvrp,0);
+        if (i->link) {
+            int result = mrp_transmit(app,0,m->frame,sizeof(m->frame) - 14u,send_pdu,&send);
+            if (result != 0) {
+                owed = true;
+            }
+## ctrl_arms.py:357-364
+#: revision's src/ports/alloc.h). Fetch it with
+#:     git clone https://github.com/kebag-logic/lwSRP lwSRP
+#:     git -C lwSRP checkout 9197193e47a6bb1c45a56d90a18c1784123aba44
+#: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
+LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
+LWSRP_REV = "9197193e47a6bb1c45a56d90a18c1784123aba44"
+#: Every source and header the arm compiles lives under this directory.
+LWSRP_TREE = "src"
+## SUBMODULES.md:26
+| `third_party/lwSRP` | `9197193e47a6bb1c45a56d90a18c1784123aba44` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+## submodule_boundaries.svg:72
+<text x="558" y="837" font-size="16" fill="#37474F">pin 9197193e47a6</text>

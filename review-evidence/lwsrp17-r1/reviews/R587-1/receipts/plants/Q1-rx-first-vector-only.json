@@ -1,0 +1,34 @@
+{
+  "plant": "Q1-rx-first-vector-only",
+  "diff": "diff --git a/src/core/mrp_pdu.c b/src/core/mrp_pdu.c\nindex c321c9b..834c917 100644\n--- a/src/core/mrp_pdu.c\n+++ b/src/core/mrp_pdu.c\n@@ -174,6 +174,9 @@ static int parse_pass(const uint8_t *pdu, size_t len,\n             const uint8_t *ev = fv + alen;\n             const uint8_t *sub = ev + events;\n             off += need;\n+            if (vector_seen) {\n+                continue;\n+            }\n             vector_seen = true;\n             bool unknown_event = la > MRP_LA_ALL;\n             for (size_t k = 0; k < events; ++k) {\n",
+  "OFF": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "a_full_pdu_retries_omitted_attributes_before_repeats",
+      "later_versions_skip_unknown_events_but_current_versions_reject_them",
+      "received_values_grouped_in_one_message_register"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 1"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 0
+  },
+  "ON": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "a_full_pdu_retries_omitted_attributes_before_repeats",
+      "later_versions_skip_unknown_events_but_current_versions_reject_them",
+      "received_values_grouped_in_one_message_register"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 1"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 0
+  }
+}

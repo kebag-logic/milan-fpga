@@ -1,0 +1,30 @@
+{
+  "plant": "P7-cost-misses-endmark",
+  "diff": "diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c\nindex b0d4156..01cf8d7 100644\n--- a/src/core/mrp_mad.c\n+++ b/src/core/mrp_mad.c\n@@ -1464,7 +1464,7 @@ int mrp_transmit(struct mrp_app *app, uint8_t port_id,\n                 // The first vector of a type also pays for its Message.\n                 size_t n = tx_vector_len(ops, a->attr_type, false);\n                 if (!tx_type_in(types.open, a->attr_type)) {\n-                    n += hdr + 2u;\n+                    n += hdr;\n                 }\n                 if (ops->attr_len(a->attr_type) == 0 || used + n > room) {\n                     a->tx_deferred = true;\n",
+  "OFF": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "one_octet_short_moves_a_vector_to_a_second_pdu"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 0,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 0"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 24
+  },
+  "ON": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "one_octet_short_moves_a_vector_to_a_second_pdu"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 0,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 0"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 24
+  }
+}

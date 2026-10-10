@@ -1,0 +1,38 @@
+Test project $REVIEWS/lwsrp17-r587-1-packet/scratch/gates/rev-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.15 sec
+Running "main" (102 tests)...
+  "mrp_pdu_suite": 1690 passes in 10ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 2ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 8ms.
+  "milan_suite": 442 passes in 7ms.
+  "boundaries_suite": 17156 passes in 72ms.
+$REVIEWS/lwsrp17-r587-1-packet/scratch/gates/rev-OFF/source/tests/unit/grouping_test.c:351: Failure: grouping_suite -> stream_pdus_stop_at_the_attribute_list_length_reach 
+	Expected [measured] to [equal] [65529]
+		actual value:			[67209]
+		expected value:			[65529]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/gates/rev-OFF/source/tests/unit/grouping_test.c:353: Failure: grouping_suite -> stream_pdus_stop_at_the_attribute_list_length_reach 
+	Expected [storage[3] << 8 | storage[4]] to [equal] [65522]
+		actual value:			[1666]
+		expected value:			[65522]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/gates/rev-OFF/source/tests/unit/grouping_test.c:360: Failure: grouping_suite -> stream_pdus_stop_at_the_attribute_list_length_reach 
+	Expected [storage[65525] | storage[65526] | storage[65527] | storage[65528]] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+  "grouping_suite": 6754 passes, 3 failures in 39ms.
+Completed "main": 26655 passes, 3 failures in 144ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.15 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

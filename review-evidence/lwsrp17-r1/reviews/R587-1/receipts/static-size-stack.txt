@@ -1,0 +1,5 @@
+toolchains: gcc (GCC) 16.2.1 20260810 | riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
+base host (gcc -O2): text=14661 data=288 bss=0 | mrp_transmit: 176 dynamic,bounded | tx_*: tx_vector 112 static | max frame: mrp_transmit 176
+base rv32 ($VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1/bin/riscv32-linux-gcc -Os -march=rv32gc -mabi=ilp32d): text=10183 data=140 bss=0 | mrp_transmit: 96 static | tx_*: tx_vector 80 static | max frame: rx_on_attr 112
+head host (gcc -O2): text=15518 data=288 bss=0 | mrp_transmit: 304 static | tx_*:  | max frame: mrp_transmit 304
+head rv32 ($VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1/bin/riscv32-linux-gcc -Os -march=rv32gc -mabi=ilp32d): text=10611 data=140 bss=0 | mrp_transmit: 208 static | tx_*: tx_vector_len 32 static;tx_type_add 0 static | max frame: mrp_transmit 208

@@ -1,0 +1,1047 @@
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/build-ON/unit_tests
+Running "main" (102 tests)...
+  "mrp_pdu_suite": 1690 passes in 10ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 10ms.
+  "milan_suite": 430 passes in 7ms.
+  "boundaries_suite": 17156 passes in 78ms.
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> two_listener_values_share_one_message 
+	Expected [first] to [equal] [len]
+		actual value:			[14]
+		expected value:			[33]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> talker_and_listener_messages_follow_attribute_type_order 
+	Expected [first] to [equal] [len]
+		actual value:			[14]
+		expected value:			[95]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> vlan_leaveall_message_carries_the_declared_vectors 
+	Expected [first] to [equal] [len]
+		actual value:			[10]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> a_message_that_fits_exactly_is_not_split 
+	Expected [first] to [equal] [len]
+		actual value:			[14]
+		expected value:			[33]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [first] to [equal] [len]
+		actual value:			[14]
+		expected value:			[1497]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:322: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [frame[5 + 9]] to [equal] [1]
+		actual value:			[125]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[16]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P3-order-first-octet-only/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+  "grouping_suite": 6550 passes, 207 failures in 48ms.
+Completed "main": 26439 passes, 207 failures in 163ms.

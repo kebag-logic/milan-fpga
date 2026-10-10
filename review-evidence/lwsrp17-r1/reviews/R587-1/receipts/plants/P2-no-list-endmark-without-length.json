@@ -1,0 +1,32 @@
+{
+  "plant": "P2-no-list-endmark-without-length",
+  "diff": "diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c\nindex b0d4156..0fdc2a9 100644\n--- a/src/core/mrp_mad.c\n+++ b/src/core/mrp_mad.c\n@@ -1325,8 +1325,10 @@ static uint8_t *tx_open(const struct mrp_app_ops *ops, uint8_t type, uint8_t *me\n /* The AttributeList ends with its EndMark (10.8.2.9). */\n static uint8_t *tx_close(const struct mrp_app_ops *ops, uint8_t *message, uint8_t *end)\n {\n-    end[0] = 0; end[1] = 0;\n-    end += 2;\n+    if (tx_header_len(ops) == 4u) {\n+        end[0] = 0; end[1] = 0;\n+        end += 2;\n+    }\n     if (tx_header_len(ops) == 4u) {\n         size_t list = (size_t)(end - message) - 4u;\n         message[2] = (uint8_t)(list >> 8); message[3] = (uint8_t)list;\n",
+  "OFF": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 111; layout-only: 27; different: 0; problems: 20"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 32
+  },
+  "ON": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 111; layout-only: 27; different: 0; problems: 20"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 32
+  }
+}

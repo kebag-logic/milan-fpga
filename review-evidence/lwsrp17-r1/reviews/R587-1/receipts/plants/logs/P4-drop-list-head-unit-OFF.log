@@ -1,0 +1,1205 @@
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/build-OFF/unit_tests
+Running "main" (102 tests)...
+  "mrp_pdu_suite": 1690 passes in 10ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/transmit_test.c:61: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [event_value] to [equal] [expected[k]]
+		actual value:			[99]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/transmit_test.c:61: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [event_value] to [equal] [expected[k]]
+		actual value:			[99]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/transmit_test.c:61: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [event_value] to [equal] [expected[k]]
+		actual value:			[99]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/transmit_test.c:179: Failure: transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant 
+	Expected [event_value] to [equal] [MRP_ATTR_EVENT_NEW]
+		actual value:			[99]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/transmit_test.c:180: Failure: transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant 
+	Expected [subtype_value] to [equal] [MSRP_LISTENER_DECL_ASKING_FAILED]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/transmit_test.c:181: Failure: transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant 
+	Expected [frame[16]] to [equal] [64]
+		actual value:			[0]
+		expected value:			[64]
+
+  "transmit_suite": 97 passes, 7 failures in 5ms.
+  "integration_suite": 387 passes in 11ms.
+  "milan_suite": 442 passes in 9ms.
+  "boundaries_suite": 17156 passes in 80ms.
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> two_listener_values_share_one_message 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[21]
+		expected value:			[33]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> two_listener_values_share_one_message 
+	Expected [first] to [equal] [len]
+		actual value:			[4]
+		expected value:			[33]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> domain_classes_share_one_message_in_ascending_order 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[16]
+		expected value:			[23]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> domain_classes_share_one_message_in_ascending_order 
+	Expected [first] to [equal] [len]
+		actual value:			[4]
+		expected value:			[23]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> talker_and_listener_messages_follow_attribute_type_order 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[67]
+		expected value:			[95]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> talker_and_listener_messages_follow_attribute_type_order 
+	Expected [first] to [equal] [len]
+		actual value:			[4]
+		expected value:			[95]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> leaveall_flags_every_stream_type_including_empty_ones 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[106]
+		expected value:			[118]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> leaveall_flags_every_stream_type_including_empty_ones 
+	Expected [first] to [equal] [len]
+		actual value:			[79]
+		expected value:			[118]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> vlan_leaveall_message_carries_the_declared_vectors 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[16]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> vlan_leaveall_message_carries_the_declared_vectors 
+	Expected [first] to [equal] [len]
+		actual value:			[13]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> a_message_that_fits_exactly_is_not_split 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[21]
+		expected value:			[33]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> a_message_that_fits_exactly_is_not_split 
+	Expected [first] to [equal] [len]
+		actual value:			[4]
+		expected value:			[33]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> one_octet_short_moves_a_vector_to_a_second_pdu 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[9]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> one_octet_short_moves_a_vector_to_a_second_pdu 
+	Expected [first] to [equal] [len]
+		actual value:			[4]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[1485]
+		expected value:			[1497]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [first] to [equal] [len]
+		actual value:			[4]
+		expected value:			[1497]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:321: Failure: grouping_suite -> an_ethernet_mtu_carries_124_listener_vectors_in_one_message 
+	Expected [graded(a, frame, frame_len, &flagged)] to [equal] [124]
+		actual value:			[123]
+		expected value:			[124]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:351: Failure: grouping_suite -> stream_pdus_stop_at_the_attribute_list_length_reach 
+	Expected [measured] to [equal] [65529]
+		actual value:			[65501]
+		expected value:			[65529]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:353: Failure: grouping_suite -> stream_pdus_stop_at_the_attribute_list_length_reach 
+	Expected [storage[3] << 8 | storage[4]] to [equal] [65522]
+		actual value:			[65494]
+		expected value:			[65522]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:359: Failure: grouping_suite -> stream_pdus_stop_at_the_attribute_list_length_reach 
+	Expected [ordered] to [equal] [2340]
+		actual value:			[0]
+		expected value:			[2340]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:261: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [mrpdu_decode(pdu, len, &profile, &d)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:262: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.pdu_end_mark] to [be true]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:264: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [d.end_marks] to [equal] [d.messages + 1u]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P4-drop-list-head/tree/tests/unit/grouping_test.c:382: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [vectors] to [be greater than] [sent]
+		actual value:			[43]
+		expected to be greater than:	[60]
+
+  "grouping_suite": 5496 passes, 264 failures in 40ms.
+Completed "main": 25388 passes, 271 failures in 161ms.

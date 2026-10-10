@@ -1,0 +1,26 @@
+{
+  "plant": "P8-write-none-values",
+  "diff": "diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c\nindex b0d4156..46a3bc4 100644\n--- a/src/core/mrp_mad.c\n+++ b/src/core/mrp_mad.c\n@@ -1363,7 +1363,7 @@ static uint8_t *tx_message(const struct mrp_app_ops *ops, struct mrp_port_state\n     uint8_t *first = v;\n     for (struct mrp_attr_inst *a = ps->attrs; a; a = a->next) {\n         const struct appl_entry *e = &appl_table[event][a->appl];\n-        if (!a->tx_selected || a->attr_type != type || e->tx == TX_MSG_NONE) {\n+        if (!a->tx_selected || a->attr_type != type) {\n             continue;\n         }\n         v[0] = 0; v[1] = 1;\n",
+  "OFF": {
+    "unit_rc": 0,
+    "failing_tests": [],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 120; layout-only: 12; different: 6; problems: 6"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 48
+  },
+  "ON": {
+    "unit_rc": 0,
+    "failing_tests": [],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 120; layout-only: 12; different: 6; problems: 6"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 48
+  }
+}

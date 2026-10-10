@@ -1,0 +1,46 @@
+{
+  "plant": "P1-split-after-two",
+  "diff": "diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c\nindex b0d4156..2402e52 100644\n--- a/src/core/mrp_mad.c\n+++ b/src/core/mrp_mad.c\n@@ -1380,6 +1380,10 @@ static uint8_t *tx_message(const struct mrp_app_ops *ops, struct mrp_port_state\n             tx_swap(at - size, at, size);\n         }\n         v += size;\n+        if (v - first == 2 * (long)size) {\n+            buf = tx_close(ops, buf, v);\n+            v = first = tx_open(ops, type, buf);\n+        }\n     }\n     return tx_close(ops, buf, v);\n }\n",
+  "OFF": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "domain_classes_share_one_message_in_ascending_order",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "stream_pdus_stop_at_the_attribute_list_length_reach",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 4; different: 9; problems: 18"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 48
+  },
+  "ON": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "domain_classes_share_one_message_in_ascending_order",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "stream_pdus_stop_at_the_attribute_list_length_reach",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 4; different: 9; problems: 18"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 48
+  }
+}

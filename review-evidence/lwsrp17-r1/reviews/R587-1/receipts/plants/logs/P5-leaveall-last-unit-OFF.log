@@ -1,0 +1,247 @@
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/build-OFF/unit_tests
+Running "main" (102 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 11ms.
+  "milan_suite": 442 passes in 7ms.
+  "boundaries_suite": 17156 passes in 83ms.
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> leaveall_flags_every_stream_type_including_empty_ones 
+	Expected [first] to [equal] [len]
+		actual value:			[80]
+		expected value:			[118]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> vlan_leaveall_message_carries_the_declared_vectors 
+	Expected [first] to [equal] [len]
+		actual value:			[3]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[6]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[2]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[6]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:383: Failure: grouping_suite -> every_stream_pdu_keeps_one_ordered_message_per_type 
+	Expected [leavealls] to [be greater than] [1]
+		actual value:			[0]
+		expected to be greater than:	[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[4]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[7]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:383: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [leavealls] to [be greater than] [1]
+		actual value:			[0]
+		expected to be greater than:	[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[145]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[1]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:280: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->leave_all] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:281: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [v->values] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:283: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [memcmp(previous->first_value, v->first_value, v->length)] to [be less than] [0]
+		actual value:			[145]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P5-leaveall-last/tree/tests/unit/grouping_test.c:383: Failure: grouping_suite -> every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type 
+	Expected [leavealls] to [be greater than] [1]
+		actual value:			[0]
+		expected to be greater than:	[1]
+
+  "grouping_suite": 6724 passes, 47 failures in 47ms.
+Completed "main": 26625 passes, 47 failures in 171ms.

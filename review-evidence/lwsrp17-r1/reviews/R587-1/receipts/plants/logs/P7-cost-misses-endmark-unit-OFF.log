@@ -1,0 +1,32 @@
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P7-cost-misses-endmark/build-OFF/unit_tests
+Running "main" (102 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 11ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 17156 passes in 85ms.
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P7-cost-misses-endmark/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> one_octet_short_moves_a_vector_to_a_second_pdu 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[33]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P7-cost-misses-endmark/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> one_octet_short_moves_a_vector_to_a_second_pdu 
+	Expected [first] to [equal] [len]
+		actual value:			[4]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P7-cost-misses-endmark/tree/tests/unit/grouping_test.c:56: Failure: grouping_suite -> one_octet_short_moves_a_vector_to_a_second_pdu 
+	Expected [frame_len] to [equal] [len]
+		actual value:			[33]
+		expected value:			[21]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/P7-cost-misses-endmark/tree/tests/unit/grouping_test.c:61: Failure: grouping_suite -> one_octet_short_moves_a_vector_to_a_second_pdu 
+	Expected [first] to [equal] [len]
+		actual value:			[4]
+		expected value:			[21]
+
+  "grouping_suite": 6607 passes, 4 failures in 47ms.
+Completed "main": 26508 passes, 4 failures in 173ms.

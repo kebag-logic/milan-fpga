@@ -1,0 +1,36 @@
+{
+  "plant": "Q2-rx-ignores-offset",
+  "diff": "diff --git a/src/core/mrp_pdu.c b/src/core/mrp_pdu.c\nindex c321c9b..c5709da 100644\n--- a/src/core/mrp_pdu.c\n+++ b/src/core/mrp_pdu.c\n@@ -192,7 +192,7 @@ static int parse_pass(const uint8_t *pdu, size_t len,\n                 uint8_t e[3];\n                 _Alignas(max_align_t) uint8_t value[64] = {0};\n                 mrp_three_unpack(ev[k / 3u], &e[0], &e[1], &e[2]);\n-                int r = ops->decode_attr(type, k, fv, alen, value);\n+                int r = ops->decode_attr(type, 0, fv, alen, value);\n                 if (r < 0) {\n                     return r; /* The validation pass rejects the complete PDU. */\n                 }\n",
+  "OFF": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "application_errors_reject_the_whole_pdu",
+      "received_values_packed_in_one_vector_register",
+      "stream_vectors_cannot_wrap_identity_or_destination",
+      "vlan_and_mac_vector_ranges_are_atomic"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 1"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 0
+  },
+  "ON": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "application_errors_reject_the_whole_pdu",
+      "received_values_packed_in_one_vector_register",
+      "stream_vectors_cannot_wrap_identity_or_destination",
+      "vlan_and_mac_vector_ranges_are_atomic"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 1"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 0
+  }
+}

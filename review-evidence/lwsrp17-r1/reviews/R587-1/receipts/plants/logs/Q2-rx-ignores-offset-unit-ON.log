@@ -1,0 +1,292 @@
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/build-ON/unit_tests
+Running "main" (102 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 11ms.
+  "milan_suite": 430 passes in 8ms.
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [joins] to [equal] [before]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [joins] to [equal] [before]
+		actual value:			[4]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:95: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [joins] to [equal] [2]
+		actual value:			[6]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[6]
+		expected value:			[4]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:122: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[10]
+		expected value:			[8]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[8]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[14]
+		expected value:			[12]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:122: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[10]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[18]
+		expected value:			[16]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [joins] to [equal] [before]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:74: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:75: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:76: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:77: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [joins] to [equal] [before]
+		actual value:			[6]
+		expected value:			[4]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/review_test.c:78: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+  "boundaries_suite": 17106 passes, 50 failures in 83ms.
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/grouping_test.c:529: Failure: grouping_suite -> received_values_packed_in_one_vector_register 
+	Expected [listeners_seen] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/grouping_test.c:530: Failure: grouping_suite -> received_values_packed_in_one_vector_register 
+	Expected [listener_uids] to [equal] [(1u << 1) | (1u << 2)]
+		actual value:			[2]
+		expected value:			[6]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/grouping_test.c:531: Failure: grouping_suite -> received_values_packed_in_one_vector_register 
+	Expected [domains_seen] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/grouping_test.c:532: Failure: grouping_suite -> received_values_packed_in_one_vector_register 
+	Expected [domain_classes] to [equal] [(1u << 5) | (1u << 6)]
+		actual value:			[32]
+		expected value:			[96]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/grouping_test.c:533: Failure: grouping_suite -> received_values_packed_in_one_vector_register 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [4]
+		actual value:			[2]
+		expected value:			[4]
+
+$REVIEWS/lwsrp17-r587-1-packet/scratch/plants/Q2-rx-ignores-offset/tree/tests/unit/grouping_test.c:539: Failure: grouping_suite -> received_values_packed_in_one_vector_register 
+	Expected [vlans_seen] to [equal] [(1u << 2) | (1u << 3)]
+		actual value:			[4]
+		expected value:			[12]
+
+  "grouping_suite": 6748 passes, 6 failures in 50ms.
+Completed "main": 26587 passes, 56 failures in 173ms.

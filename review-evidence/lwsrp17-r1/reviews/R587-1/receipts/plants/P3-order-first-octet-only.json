@@ -1,0 +1,42 @@
+{
+  "plant": "P3-order-first-octet-only",
+  "diff": "diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c\nindex b0d4156..153f225 100644\n--- a/src/core/mrp_mad.c\n+++ b/src/core/mrp_mad.c\n@@ -1376,7 +1376,7 @@ static uint8_t *tx_message(const struct mrp_app_ops *ops, struct mrp_port_state\n             const uint8_t *bytes = a->attr_val;\n             v[3u + len] = mrp_four_pack(bytes[len], 0, 0, 0);\n         }\n-        for (uint8_t *at = v; at > first && memcmp(at - size + 2, at + 2, len) > 0; at -= size) {\n+        for (uint8_t *at = v; at > first && memcmp(at - size + 2, at + 2, 1) > 0; at -= size) {\n             tx_swap(at - size, at, size);\n         }\n         v += size;\n",
+  "OFF": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 9"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 48
+  },
+  "ON": {
+    "unit_rc": 1,
+    "failing_tests": [
+      "a_message_that_fits_exactly_is_not_split",
+      "an_ethernet_mtu_carries_124_listener_vectors_in_one_message",
+      "every_stream_pdu_keeps_one_ordered_message_per_type",
+      "every_vlan_and_mac_pdu_keeps_one_ordered_message_per_type",
+      "talker_and_listener_messages_follow_attribute_type_order",
+      "two_listener_values_share_one_message",
+      "vlan_leaveall_message_carries_the_declared_vectors"
+    ],
+    "exceptions": [],
+    "equivalence_rc": 1,
+    "equivalence": [
+      "Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 9"
+    ],
+    "fuzz_jobs": 48,
+    "fuzz_failing": 48
+  }
+}

@@ -1,0 +1,24 @@
+P1-split-after-two
+  OFF: unit rc=1 failing=9 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 4; different: 9; problems: 18 fuzz failing=48/48
+  ON: unit rc=1 failing=9 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 4; different: 9; problems: 18 fuzz failing=48/48
+P2-no-list-endmark-without-length
+  OFF: unit rc=1 failing=2 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 111; layout-only: 27; different: 0; problems: 20 fuzz failing=32/48
+  ON: unit rc=1 failing=2 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 111; layout-only: 27; different: 0; problems: 20 fuzz failing=32/48
+P3-order-first-octet-only
+  OFF: unit rc=1 failing=7 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 9 fuzz failing=48/48
+  ON: unit rc=1 failing=7 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 9 fuzz failing=48/48
+P4-drop-list-head
+  OFF: unit rc=1 failing=14 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 6; layout-only: 4; different: 128; problems: 249 fuzz failing=48/48
+  ON: unit rc=1 failing=14 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 6; layout-only: 4; different: 128; problems: 249 fuzz failing=48/48
+P5-leaveall-last
+  OFF: unit rc=1 failing=4 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 3 fuzz failing=48/48
+  ON: unit rc=1 failing=4 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 3 fuzz failing=48/48
+P6-descending-types
+  OFF: unit rc=1 failing=4 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 117; layout-only: 21; different: 0; problems: 11 fuzz failing=32/48
+  ON: unit rc=1 failing=4 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 117; layout-only: 21; different: 0; problems: 11 fuzz failing=32/48
+P7-cost-misses-endmark
+  OFF: unit rc=1 failing=1 exceptions=0 equivalence rc=0 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 0 fuzz failing=24/48
+  ON: unit rc=1 failing=1 exceptions=0 equivalence rc=0 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 125; layout-only: 13; different: 0; problems: 0 fuzz failing=24/48
+P8-write-none-values
+  OFF: unit rc=0 failing=0 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 120; layout-only: 12; different: 6; problems: 6 fuzz failing=48/48
+  ON: unit rc=0 failing=0 exceptions=0 equivalence rc=1 Scenarios: 22; opportunities: 148; PDUs: 138; byte-identical: 120; layout-only: 12; different: 6; problems: 6 fuzz failing=48/48
