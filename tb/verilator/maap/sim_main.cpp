@@ -6,7 +6,7 @@
 // mutants.py plants one defect per #686 item and requires its named check to
 // fail. Item 1 is B.2.1 (DEFEND destination, control_data_length 16), item 2
 // B.3.3 Table B.8 and B.3.4 (strict, random probe and announce intervals,
-// for a station MAC that folds the LFSR seed to zero as well), item 3
+// for a station MAC whose MAC-plus-clock seed is zero as well), item 3
 // B.3.2 Table B.7 notes b and d (ANNOUNCE conflict detection), item 4 Table
 // B.7 ReserveAddress!/probetimer!/probeCount! (four PROBEs, the first at
 // once). #696 also grades the DEFEND requested-range echo (B.3.6.6).
@@ -65,6 +65,10 @@ constexpr int kZeroSeedWalks = 3;
 constexpr int kZeroSeedAnnounces = 4;
 // a walk stops counting PROBEs here (a defect could send them forever)
 constexpr int kProbeLimit = 8;
+// A link outage longer than a whole walk (the at-once PROBE, three probe
+// intervals under 600 ms, the at-once ANNOUNCE), so a walk restarted at
+// the loss would end before the return
+constexpr long kOutageCyc = 4 * kProbeMaxCyc;
 
 namespace {
 
@@ -195,6 +199,7 @@ class MaapHarness {
     void compare_mac_remaining_cells();
     void pending_response_cancelled();
     void port_return_reprobes();
+    void port_loss_is_no_event();
     void supplied_seed_bounds();
     void truncated_pdus_have_no_effect();
     void generator_period_and_seed();
@@ -637,8 +642,8 @@ std::vector<long> MaapHarness::frame_starts(size_t n){
 // ANNOUNCE) start at another tick phase, so counting them would let a draw
 // frozen at one value pass as random through the phase alone.
 void MaapHarness::zero_seed_mac_draws_random_timers(){
-    printf("\n[11] B.3.4: a station MAC that folds the LFSR seed to zero\n"
-           "     (02:00:00:00:AC:E1) still draws random probe and announce intervals\n");
+    printf("\n[11] B.3.4: a station MAC whose seed with clock 0 is zero\n"
+           "     (02:00:00:00:00:00) still draws random probe and announce intervals\n");
     dut->enable_i=0; cyc(5);
     while(dut->m_axis_tvalid) cyc();
     dut->station_mac_i=kZeroSeedMac; dut->seed_valid_i=0;
@@ -753,6 +758,48 @@ void MaapHarness::port_return_reprobes(){
         cyc(kSettleCyc);
         ck("M5 stable operational level does not restart",dut->state_o,2);
     }
+}
+
+// B.3.5.9 makes entering the operational state the event; Table B.3 names
+// none for leaving it, so the walk in progress carries on through an
+// outage. The outage outlasts a whole walk: a restart taken at the loss
+// would finish before the return, so only a restart at the return passes.
+void MaapHarness::port_loss_is_no_event(){
+    bool held=true;
+    for (unsigned state : {1u,2u}) {
+        dut->enable_i=0; dut->port_operational_i=1; cyc(20);
+        seen=frames.size(); dut->enable_i=1;
+        Frame frame;
+        const unsigned nframes=state==1 ? 1 : 5;
+        for (unsigned n=0;n<nframes;++n) held &= next(frame,kProbeBudgetCyc);
+        const uint16_t off=dut->offset_o;
+        const unsigned conflicts=dut->conflicts_o;
+        const size_t before=frames.size();
+        dut->port_operational_i=0;
+        const long loss=now;
+        cyc(kOutageCyc);
+        // Only the rest of the walk in progress, on its own range: three
+        // timer PROBEs and the ANNOUNCE from PROBE, nothing from ANNOUNCE.
+        int probes=0;
+        int announces=0;
+        for (size_t n=before;n<frames.size();++n) {
+            probes += frame_is(frames[n],1);
+            announces += frame_is(frames[n],3);
+            held &= frames[n].start-loss>kAtOnceCyc && frames[n].at(30,2)==off;
+        }
+        held &= probes==(state==1 ? 3 : 0) && announces==(state==1 ? 1 : 0);
+        held &= frames.size()-before==static_cast<size_t>(probes+announces);
+        held &= dut->state_o==2 && dut->offset_o==off && dut->conflicts_o==conflicts;
+        const long event=now;
+        dut->port_operational_i=1; cyc();
+        held &= dut->state_o==1 && !dut->addr_valid_o;
+        seen=frames.size();
+        const Walk restarted=walk("PortOperational",event,dut->offset_o,false);
+        held &= restarted.probes==4 && restarted.announced
+                && restarted.first>=0 && restarted.first<=kAtOnceCyc;
+        held &= dut->conflicts_o==conflicts;
+    }
+    ck("M5 B.3.5.9 link loss is no event; return reprobes",held,1);
 }
 
 void MaapHarness::supplied_seed_bounds(){
@@ -924,6 +971,7 @@ int MaapHarness::run(){
     compare_mac_remaining_cells();
     pending_response_cancelled();
     port_return_reprobes();
+    port_loss_is_no_event();
     supplied_seed_bounds();
     truncated_pdus_have_no_effect();
     generator_period_and_seed();
