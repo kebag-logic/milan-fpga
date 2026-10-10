@@ -1,0 +1,155 @@
+[ok] clean: rc=0
+ROW clean PASS
+[ok] m3_short_period: rc=1
+  named rejection: M3 B.3.6.1 generator period is 2^32-1
+ROW m3_short_period PASS
+[ok] m3_trap_outside_basis: rc=1
+  named rejection: M3 B.3.6.1 generator period is 2^32-1
+ROW m3_trap_outside_basis PASS
+[ok] m3_ignores_clock: rc=1
+  named rejection: M3 B.3.6.1 first enable seeds MAC plus clock
+ROW m3_ignores_clock PASS
+[ok] m3_xors_clock: rc=1
+  named rejection: M3 B.3.6.1 first enable seeds MAC plus clock
+ROW m3_xors_clock PASS
+[ok] m3_reseeds_after_release: rc=1
+  named rejection: M3 Release/Begin retains the generator sequence
+ROW m3_reseeds_after_release PASS
+[ok] m6_overwrite_active_response: rc=1
+  named rejection: M6 occupied response buffer preserves active DEFEND
+ROW m6_overwrite_active_response PASS
+[ok] m6_replace_pending_response: rc=1
+  named rejection: M6 pending response preserves prober and requested range
+ROW m6_replace_pending_response PASS
+[ok] m6_pending_survives_release: rc=1
+  named rejection: M6 pending response cancelled with allocation
+ROW m6_pending_survives_release PASS
+[ok] m6_drop_busy_probe: rc=1
+  named rejection: M6 busy PROBE gets DEFEND after wire is free
+ROW m6_drop_busy_probe PASS
+[ok] m6_pending_source_not_saved: rc=1
+  named rejection: M6 pending response preserves prober and requested range
+ROW m6_pending_source_not_saved PASS
+[ok] m5_ignore_link_return: rc=1
+  named rejection: M5 B.3.5.9 link return revokes and reprobes
+ROW m5_ignore_link_return PASS
+[ok] m5_level_restarts: rc=1
+  named rejection: M5 B.3.5.9 link return restarts PROBE
+ROW m5_level_restarts PASS
+[ok] m5_restart_on_link_loss: rc=1
+  named rejection: M5 B.3.5.9 link loss is no event; return reprobes
+ROW m5_restart_on_link_loss PASS
+[ok] m1_probe_no_compare: rc=1
+  named rejection: M1 rProbe/PROBE lower MAC keeps range
+ROW m1_probe_no_compare PASS
+[ok] m1_defend_no_compare: rc=1
+  named rejection: M1 rDefend/DEFEND lower MAC keeps range
+ROW m1_defend_no_compare PASS
+[ok] m8_early_last_accepted: rc=1
+  named rejection: M8 B.2 truncated PROBE-state input has no effect
+ROW m8_early_last_accepted PASS
+[ok] m8_missing_bytes_accepted: rc=1
+  named rejection: M8 B.2 truncated DEFEND-state input has no effect
+ROW m8_missing_bytes_accepted PASS
+[ok] m7_accept_invalid_seed: rc=1
+  named rejection: M7 Table B.9 invalid supplied range refused
+ROW m7_accept_invalid_seed PASS
+[ok] m7_reject_valid_boundary: rc=1
+  named rejection: M7 Table B.9 valid supplied boundary retained
+ROW m7_reject_valid_boundary PASS
+[ok] m2_own_requested_start: rc=1
+  named rejection: M2 B.3.6.6 requested start echoes PROBE
+ROW m2_own_requested_start PASS
+[ok] m2_own_requested_count: rc=1
+  named rejection: M2 B.3.6.6 requested count echoes all 16 bits
+ROW m2_own_requested_count PASS
+[ok] cdl_28: rc=1
+  named rejection: B.2.1 cdl 16 (Begin! PROBE 1)
+ROW cdl_28 PASS
+[ok] defend_to_multicast: rc=1
+  named rejection: B.2.1 DEFEND DA = PROBE source (above)
+ROW defend_to_multicast PASS
+[ok] defend_destination_not_latched: rc=1
+  named rejection: B.2.1 DEFEND DA latched at send
+ROW defend_destination_not_latched PASS
+[ok] every_frame_to_the_prober: rc=1
+  named rejection: B.2.1 PROBE DA multicast (Begin! 1)
+ROW every_frame_to_the_prober PASS
+[ok] probe_draw_7_bits: rc=1
+  named rejection: B.3.4.2 probe T < 600 ms (campaign)
+ROW probe_draw_7_bits PASS
+[ok] probe_base_500: rc=1
+  named rejection: B.3.4.2 probe T > 500 ms (campaign)
+ROW probe_base_500 PASS
+[ok] announce_base_3s: rc=1
+  named rejection: B.3.4.1 announce T > 30 s
+ROW announce_base_3s PASS
+[ok] announce_draw_11_bits: rc=1
+  named rejection: B.3.4.1 announce T < 32 s
+ROW announce_draw_11_bits PASS
+[ok] announce_not_randomized: rc=1
+  named rejection: B.3.4.1 announce T randomized
+ROW announce_not_randomized PASS
+[ok] zero_seed_freezes_the_probe_draw: rc=1
+  named rejection: B.3.4.2 probe T randomized (zero-seed MAC)
+ROW zero_seed_freezes_the_probe_draw PASS
+[ok] zero_seed_freezes_the_announce_draw: rc=1
+  named rejection: B.3.4.1 announce T randomized (zero-seed MAC)
+ROW zero_seed_freezes_the_announce_draw PASS
+[ok] announce_judged_on_conflict_fields: rc=1
+  named rejection: B.2.7 ANNOUNCE conflict_* is not its range
+ROW announce_judged_on_conflict_fields PASS
+[ok] inclusive_range_end: rc=1
+  named rejection: note b adjacent above: no conflict
+ROW inclusive_range_end PASS
+[ok] inclusive_range_start: rc=1
+  named rejection: note b adjacent below: no conflict
+ROW inclusive_range_start PASS
+[ok] empty_range_conflicts: rc=1
+  named rejection: note b empty range: no conflict
+ROW empty_range_conflicts PASS
+[ok] no_compare_mac: rc=1
+  named rejection: T.B7 note d: lower MAC keeps range
+ROW no_compare_mac PASS
+[ok] compare_mac_while_probing: rc=1
+  named rejection: T.B7 rAnnounce!/PROBE: no compare_MAC
+ROW compare_mac_while_probing PASS
+[ok] compare_mac_unreversed: rc=1
+  named rejection: T.B7 rAnnounce!/DEFEND: re-address
+ROW compare_mac_unreversed PASS
+[ok] three_probes: rc=1
+  named rejection: T.B7 Begin!: four PROBEs before ANNOUNCE
+ROW three_probes PASS
+[ok] first_probe_after_a_timer: rc=1
+  named rejection: T.B7 Begin!: first PROBE at once
+ROW first_probe_after_a_timer PASS
+[ok] restart_probe_after_a_timer: rc=1
+  named rejection: T.B7 Restart!: first PROBE at once
+ROW restart_probe_after_a_timer PASS
+[ok] announce_after_a_timer: rc=1
+  named rejection: T.B7 probeCount!: ANNOUNCE at once (Begin!)
+ROW announce_after_a_timer PASS
+[ok] restart_rewrites_the_frame_on_the_wire: rc=1
+  named rejection: frame on the wire keeps its offset
+ROW restart_rewrites_the_frame_on_the_wire PASS
+[ok] overlap_count_to_our_end: rc=1
+  named rejection: B.2.8 conflict_count = overlap (below)
+ROW overlap_count_to_our_end PASS
+[ok] defend_rewrites_the_frame_on_the_wire: rc=1
+  named rejection: PROBE mid-frame: frame on the wire byte-identical
+ROW defend_rewrites_the_frame_on_the_wire PASS
+[ok] own_empty_range_conflicts: rc=1
+  named rejection: note b: this station's empty range never conflicts
+ROW own_empty_range_conflicts PASS
+[ok] m4_datapath_clean: rc=0
+ROW m4_datapath_clean PASS
+[ok] m4_reset_time_sampling: rc=1
+  named rejection: M4 datapath: programmed MAC changes probe intervals
+ROW m4_reset_time_sampling PASS
+[ok] m5_datapath_ignores_link: rc=1
+  named rejection: M5 datapath: link return starts four fresh PROBEs
+ROW m5_datapath_ignores_link PASS
+[ok] m3_datapath_ignores_clock: rc=1
+  named rejection: M3 datapath: real-time clock changes probe intervals
+ROW m3_datapath_ignores_clock PASS
+== parallel maap mutants: rows: 52   failures: 0 ==
