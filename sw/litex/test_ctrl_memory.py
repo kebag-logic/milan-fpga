@@ -263,6 +263,7 @@ def sim_arms(problems: list[str], need: int = 7 * GRANULE - 100) -> None:
         return out
 
     def run() -> Stim:
+        """Read rom, write and read sram, then try both holes."""
         ram_base = ctrl_memory.RAM.origin // 4
         seen["rom"] = yield from reads(bench.rom.bus, [a for a in edges if a < image_words])
         seen["rom_write"] = yield from access(bench.rom.bus, edges[1], we=1, dat=0xDEAD_BEEF)

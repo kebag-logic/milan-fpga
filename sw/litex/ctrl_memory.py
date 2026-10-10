@@ -127,6 +127,7 @@ class Plan:
     def summary(self) -> dict[str, object]:
         """The plan as the fit evidence and the build log print it."""
         def region(need: int, banks: tuple[int, ...]) -> dict[str, object]:
+            """One region's need, banks and the block RAMs they map to."""
             return {"bytes": need, "banks": list(banks),
                     "RAMB36": sum(b // TILE_BYTES for b in banks),
                     "RAMB18": sum(b == GRANULE_BYTES for b in banks)}
