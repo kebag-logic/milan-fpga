@@ -1,0 +1,16 @@
+fmt-peer-in-0      EQUAL as-found="0205022002006000" final="0205022002006000"
+fmt-dut-in-0       EQUAL as-found="0205022001006000" final="0205022001006000"
+fmt-dut-in-1       EQUAL as-found="041060010000bb80" final="041060010000bb80"
+fmt-dut-out-0      EQUAL as-found="0205022002006000" final="0205022002006000"
+fmt-dut-out-1      EQUAL as-found="041060010000bb80" final="041060010000bb80"
+fmt-peer-out-0     EQUAL as-found="0205022001006000" final="0205022001006000"
+fmt-peer-out-2     EQUAL as-found="041060010000bb80" final="041060010000bb80"
+clk-peer           EQUAL as-found=1 final=1
+clk-dut            EQUAL as-found=0 final=0
+rx-peer-0          EQUAL as-found={"conn_count": 1, "talker": "dut", "talker_uid": 0, "flags": "0x0082"} final={"conn_count": 1, "talker": "dut", "talker_uid": 0, "flags": "0x0082"}
+rx-dut-0           EQUAL as-found=0 final=0
+rx-dut-1           EQUAL as-found=0 final=0
+map-dut-0x000e-0   EQUAL as-found=[[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0]] final=[[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0]]
+map-dut-0x000f-0   EQUAL as-found=[[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0], final=[[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0],
+rx-peer-8          EQUAL as-found={"conn_count": 1, "talker": "dut", "talker_uid": 1, "flags": "0x0082"} final={"conn_count": 1, "talker": "dut", "talker_uid": 1, "flags": "0x0082"}
+rows 15 equal 15

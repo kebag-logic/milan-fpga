@@ -1,0 +1,16 @@
+as found (05:17:01, 05:20:08 reads)                     reads [0, 0]
+setup binds to cycle 1's first set                        12 dups   6.0 frames
+INTERNAL to AAF, before the settle boundary               42 dups  21.0 frames
+INTERNAL to AAF, after the boundary                        0 dups   0.0 frames
+AAF to CRF holds                                           0 dups   0.0 frames
+returns to INTERNAL, 15 s holds                            6 dups   3.0 frames
+INTERNAL between cycles of one run                         6 dups   3.0 frames
+INTERNAL between runs                                     70 dups  35.0 frames
+item 2 last poll to teardown read                          6 dups   3.0 frames
+items 3 and 4 (teardown read to soak pre-bind read)        0 dups   0.0 frames
+across the soak bind (pre-bind to soak-000)                2 dups   1.0 frames
+soak-000 to soak-005                                       0 dups   0.0 frames
+soak-005 to soak-010                                       2 dups   1.0 frames
+soak-010 to soak-120 and final                             0 dups   0.0 frames
+total                                                    146 dups  73.0 frames; final read 146 = 0x92
+soak-010..soak-120 reads constant: True (0x92)

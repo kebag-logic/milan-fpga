@@ -1,0 +1,15 @@
+# Round 3 rerun of every round 2 recompute, 2026-10-10T10:24:06Z
+# packet: review-evidence/608-b14-r1/author/ extracted from archive commit c848925d2e88a98e7f31b663e5dd4f342b765487 (author tree da8818cbd06f40ae65abdf075ebab2e46a95b56f)
+# command: scripts/run_all.sh <packet-author-dir> <out-dir> <raw-root>; rc 0
+identical inputs_check.txt
+identical final_vs_asfound.txt
+identical inventory_rows.txt
+identical slip_ledger.txt
+identical ta_lv_vs_cycles.txt
+identical ta_lv_all.txt (paths relative to the raw root)
+# command: scripts/run_all.sh <packet-author-dir> <out-dir> (no raw root, as a cold reviewer runs it); rc 0
+identical inputs_check.txt
+identical final_vs_asfound.txt
+identical inventory_rows.txt
+identical slip_ledger.txt
+identical ta_lv_vs_cycles.txt
