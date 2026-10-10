@@ -173,6 +173,16 @@ AdpBoundTalkers (23) and D13 to `unit` (26). The ACMP core is guarded by #678's 
 host tests build it with `CTRL_REENTRY_ASSERT`, which reports each refused
 re-entrant call to the test, and a release build only counts it.
 
+Since #697 the cores' own tests are the TSN stack's, from the pinned
+[tsn-c-stack](../../../third_party/tsn-c-stack) submodule, built into the same
+binaries under the same labels: ADP's A0 to A24 (`tests/test_adp.cpp`, beside
+this tree's B1 to F7 in `test_adp.cpp`), the re-entry pairs
+(`tests/test_adp_reentry.cpp`), the ACMP core's (`tests/test_acmp.cpp`) and
+the Annex B core's (`tests/test_maap.cpp` beside the CSR output's in
+`test_maap.cpp`, and `tests/test_maap_debug.cpp`). The stack adds core cases
+of its own: `adp` runs 34 tests and `acmp` 91. A binary none of whose test
+files names its tally takes it from [`fw_gtest_label.cpp`](fw_gtest_label.cpp).
+
 The saved-state store's checks kept their names: a check that ran on both
 flash ports is two tests, `Ports/NvmBoth.<check>/model` and `.../litespi`.
 Their oracle did not move. [`nvm_fixture.py`](../ctrl_nvm/test/nvm_fixture.py)
@@ -196,8 +206,10 @@ planted defect of its own.
 ## Coverage
 
 [`fw_coverage.py`](fw_coverage.py) measures line and branch coverage of the
-firmware's own sources under `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm`:
-not the tests, not the host models, not the host stubs.
+firmware's own sources under `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm`,
+and of the TSN stack's sources and public headers the firmware builds from
+the submodule (`third_party/tsn-c-stack/src` and `include`, #697): not the
+tests, not the stack's examples, not the host models, not the host stubs.
 
 **How.** Each gate's `--coverage DIR` mode builds the firmware and the tests
 at `-O0` with gcc's `--coverage`, leaves the host models and stubs
@@ -231,7 +243,8 @@ Where it rests on a generated constant of the contract, the row says so, and
 the row stops matching (so the gate fails) when the constant changes.
 All sixteen rows meet that standard through their public headers.
 The five `adp.c` rows cite the no-callback rule in
-[`adp.h`](../ctrl/adp/adp.h), enforced by the core guard (#678).
+[`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/adp.h) and the stack's
+[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/docs/PORTING.md#ownership-and-dispatch), enforced by the core guard (#678).
 
 ### Coverage exclusions
 
@@ -275,7 +288,7 @@ them differently would fail the gate, not pass it. `fw_coverage.py
 (a compensating swap and a condition over two lines).
 
 **ADP's port contract forbids synchronous callbacks.**
-[`adp.h`](../ctrl/adp/adp.h) states the rule for every port.
+The stack's [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/docs/PORTING.md#ownership-and-dispatch) states the rule for every port of [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/adp.h).
 The shared guard covers every instance and every public entry.
 It brackets TX, timer, gPTP, link and seed calls.
 Even zero-delay expiries arrive through later event-loop dispatch.
@@ -283,7 +296,7 @@ Debug/test builds assert; release builds ignore and count violations.
 The rule also appears in the other firmware port headers.
 F2 to F5 inherit it for their protocol ports.
 
-[`test_adp_reentry.cpp`](../ctrl/test/test_adp_reentry.cpp) tests both build modes.
+The stack's [`test_adp_reentry.cpp`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/tests/test_adp_reentry.cpp) tests both build modes.
 Its two timer probes preserve DELAY and ADVERTISE timers respectively.
 Deferred expiries still advance both machines after rejected inline expiries.
 Every port is also paired with every public entry.
@@ -296,11 +309,11 @@ The adapter still delivers inputs only from the event loop.
 
 | File | Function | Statement | Uncovered | Why no input reaches it |
 |---|---|---|---|---|
-| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state == ADP_STATE_DOWN) {` | arc 2 of 2 | A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
-| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state != ADP_STATE_DOWN) {` | arc 2 of 2 | A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
-| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {` | arc 4 of 4 | DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
-| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {` | arcs 2, 4 of 4; line `a->stray_expiries++;` | The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
-| `sw/firmware/ctrl/adp/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | arcs 2, 4 of 4; line `a->available_owed = false;` | An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
+| `third_party/tsn-c-stack/src/adp.c` | `adp_link_change` | `if (a->state == ADP_STATE_DOWN) {` | arc 2 of 2 | A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
+| `third_party/tsn-c-stack/src/adp.c` | `adp_link_change` | `if (a->state != ADP_STATE_DOWN) {` | arc 2 of 2 | A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
+| `third_party/tsn-c-stack/src/adp.c` | `adp_timer_expired` | `if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {` | arc 4 of 4 | DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
+| `third_party/tsn-c-stack/src/adp.c` | `adp_timer_expired` | `} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {` | arcs 2, 4 of 4; line `a->stray_expiries++;` | The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
+| `third_party/tsn-c-stack/src/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | arcs 2, 4 of 4; line `a->available_owed = false;` | An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
 | `sw/firmware/ctrl/adp/adp_mbx.c` | `on_poll` | `owed = adp_poll(&m->ifs[k].adp)` | arc 3 of 4 | The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching. |
 | `sw/firmware/ctrl/adp/adp_mbx.c` | `adp_mbx_attach` | `ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)` | arc 2 of 6 | The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4). |
 | `sw/firmware/ctrl/app/ctrl_app.c` | `maap_compose` | `return maap_mbx_init(` | arc 4 of 4 | The MAAP adapter refusing its attach (#665 lane F3 round 6, on lane F2's adapter). `maap_mbx_attach` refuses only a full sink or poll table and a maap channel already bound. The composition reaches it after ADP and ACMP, each holding one sink and one poll of `CTRL_LOOP_MAX_SINKS` and `CTRL_LOOP_MAX_POLLS` (8 each) in the loop it initialised empty, and neither binds the maap channel. Each refusal is tested on the adapter itself (`MaapHost.AttachRefusalsAndTimerWrap`). |

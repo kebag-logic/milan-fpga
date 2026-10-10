@@ -37,6 +37,8 @@ import suite_tally  # noqa: E402
 
 #: The harness every test binary links: main() and the tally listener.
 MAIN_SOURCE = HERE / "fw_gtest_main.cpp"
+#: The tally label of a binary none of whose test files names one (label_object).
+LABEL_SOURCE = HERE / "fw_gtest_label.cpp"
 #: C++20 for the designated initialisers the C tests used; warnings are errors.
 CXX_FLAGS = ("-std=c++20", "-O1", "-g", "-Wall", "-Wextra", "-Werror")
 #: The libraries every binary links, GoogleMock before the GoogleTest it uses.
@@ -158,6 +160,12 @@ def compile_tests(build: Build, includes: Sequence[str], sources: Sequence[Path]
 def main_object(build: Build, out: Path) -> Path:
     """fw_gtest_main.cpp's object, compiled once per run."""
     return compile_tests(build, [f"-I{HERE}"], [MAIN_SOURCE], out)[0]
+
+
+def label_object(build: Build, label: str, out: Path) -> Path:
+    """LABEL_SOURCE's object naming `label`, for a binary whose test files name no tally label (the
+    tsn-c-stack submodule's tests carry none); compiled once per label and run."""
+    return compile_tests(build, [f"-I{HERE}"], [LABEL_SOURCE], out, (f'-DFW_GTEST_LABEL="{label}"',))[0]
 
 
 def link(build: Build, objects: Sequence[Path], exe: Path) -> Path:

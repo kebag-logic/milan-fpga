@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from typing import Callable, TypeVar
 
+from ctrl_mutant import MAAP_C, MAAP_H
+
 T = TypeVar("T")
 Plant = Callable[..., None]
 
@@ -21,12 +23,12 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
     _lifecycle(add)
     _integration(add)
     _table(add)
-    add("allocation-seam-disconnected", "maap/maap.c", "publish(m, m->count, true);",
+    add("allocation-seam-disconnected", MAAP_C, "publish(m, m->count, true);",
         "publish(m, m->count, false);", ("MaapHost.AcquiredRangeFeedsExistingCsrPath", "allocation reaches AAF CSR"))
     _review_regressions(add)
     _generic_table(add)
     # R528-2-S1: preserve the review's escaping defect as a named control.
-    out.append(kind("r2-saved-range-never-consumed", "maap/maap.c", "m->preferred = 0;",
+    out.append(kind("r2-saved-range-never-consumed", MAAP_C, "m->preferred = 0;",
                     "/* saved preference retained */;", "maap", "MaapCore.LinkBounceDrawsAfterSuppliedRange",
                     "link bounce draws after consuming supplied range"))
     return tuple(out)
@@ -34,7 +36,7 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
 
 def _review_regressions(add: Plant) -> None:
     """Standing R528-1 and R529-1 probes and their original escaping defects."""
-    core = "maap/maap.c"
+    core = MAAP_C
     csr = "maap/maap_csr.c"
     # F3 round 6: MAAP attaches before the open, so its interrupt and filter bits
     # are ctrl_loop_open's mask of bound channels; both defects drop MAAP there.
@@ -68,7 +70,7 @@ def _review_regressions(add: Plant) -> None:
 
 def _generic_table(add: Plant) -> None:
     """R528-1-S1: alter production predicates without fixture MAC literals."""
-    core = "maap/maap.c"
+    core = MAAP_C
     for name, old, new, test, words in (
         ("initial-handles-conflict", "else if (m->state != MAAP_INITIAL) {", "else if (true) {",
          "AllStates/MaapCell.TableB7/0", "Table B.7"),
@@ -83,14 +85,17 @@ def _generic_table(add: Plant) -> None:
 
 
 def _wire(add: Plant) -> None:
-    core = "maap/maap.c"
+    core = MAAP_C
     add("down-start-keeps-owner", core, "\t\t} else {\n\t\t\tpublish(m, 0, false);",
         "\t\t} else {\n\t\t\t/* omitted withdrawal */;", ("MaapCore.ReleaseLossAndRetry",
         "starting down withdraws the prior owner"))
     initial = "MaapCore.InitialAndThreeRetransmissions"
-    add("initial-send-absent", core, "request(m, MAAP_MSG_PROBE); // Table B.7", "/* omitted */; // Table B.7",
+    add("initial-send-absent", core,
+        ("\tstart_timer(m, false);\n\trequest(m, MAAP_MSG_PROBE); // IEEE 1722-2016 Table B.7\n"
+         "\tm->state = MAAP_PROBE;\n"),
+        "\tstart_timer(m, false);\n\t ; // IEEE 1722-2016 Table B.7\n\tm->state = MAAP_PROBE;\n",
         (initial, "initial PROBE is immediate"))
-    add("retransmit-count", "maap/maap.h", "#define MAAP_PROBE_RETRANSMITS 3u", "#define MAAP_PROBE_RETRANSMITS 2u",
+    add("retransmit-count", MAAP_H, "#define MAAP_PROBE_RETRANSMITS 3u", "#define MAAP_PROBE_RETRANSMITS 2u",
         (initial, "three retransmissions remain"))
     add("probe-count-not-decremented", core, "m->probe_count--;", "m->probe_count -= 0u;", (initial,
         "retransmission decrements once"))
@@ -103,7 +108,7 @@ def _wire(add: Plant) -> None:
         add("wire-" + name, core, field, replacement, (initial, "B.2 complete PROBE bytes"))
     for symbol, value in (("PROBE_BASE", 500), ("PROBE_VARIATION", 100),
                           ("ANNOUNCE_BASE", 30000), ("ANNOUNCE_VARIATION", 2000)):
-        add("constant-" + symbol.lower(), "maap/maap.h", f"#define MAAP_{symbol}_MS {value}u",
+        add("constant-" + symbol.lower(), MAAP_H, f"#define MAAP_{symbol}_MS {value}u",
             f"#define MAAP_{symbol}_MS {value + 1}u", ("MaapCore.ConstantsStrictTimersAndSeed", ""))
     add("seed-clock-ignored", core, "(uint32_t)m->mac + m->ports->clock(m->ports->ctx)",
         "(uint32_t)m->mac + (m->ports->clock(m->ports->ctx) & 0u)",
@@ -152,11 +157,12 @@ def _wire(add: Plant) -> None:
 
 
 def _lifecycle(add: Plant) -> None:
-    core = "maap/maap.c"
+    core = MAAP_C
     add("range-end-off-by-one", core, "base <= MAAP_POOL_BASE + MAAP_POOL_SIZE - count",
         "base <= MAAP_POOL_BASE + MAAP_POOL_SIZE - count + 1u", ("MaapCore.InitAndPreferredRangeBounds", ""))
-    add("port-up-keeps-claim", core, "restart(m); // Table B.7 PortOperational!",
-        "/* omitted */; // Table B.7 PortOperational!",
+    add("port-up-keeps-claim", core,
+        "\t\t\t} else {\n\t\t\t\trestart(m); // IEEE 1722-2016 Table B.7\n\t\t\t}\n",
+        "\t\t\t} else {\n\t\t\t\t ; // IEEE 1722-2016 Table B.7\n\t\t\t}\n",
         ("MaapCore.ReleaseLossAndRetry", "PortOperational invalidates acquired address"))
     add("release-keeps-enable", core, "m->enabled = false;", "m->enabled = true;",
         ("MaapCore.ReleaseLossAndRetry", "released instance stays idle"))
@@ -181,7 +187,7 @@ def _lifecycle(add: Plant) -> None:
 
 
 def _integration(add: Plant) -> None:
-    core = "maap/maap.c"
+    core = MAAP_C
     adapter = "maap/maap_mbx.c"
     csr = "maap/maap_csr.c"
     add("stream-index-missing", csr, "STRMW_DMLO, STRMW_DMHI, base + k", "STRMW_DMLO, STRMW_DMHI, base",
@@ -225,7 +231,7 @@ def _integration(add: Plant) -> None:
 
 
 def _table(add: Plant) -> None:
-    core = "maap/maap.c"
+    core = MAAP_C
     # Each of the eighteen applied receive/state/priority cells gets its own
     # defect: suppress an action, or create one where the table ignores it.
     for state in range(3):

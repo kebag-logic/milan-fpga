@@ -6,6 +6,9 @@ Runtime archives must be bare-metal ILP32 libraries, never the SDK's glibc.
 Their sizes and hashes are recorded alongside the section and symbol reports.
 The firmware objects are rebuilt with the shared CI-pinned RV32 compiler.
 The ELF is a size fixture; it has no board reset entry or fabric licence port.
+The ADP, ACMP and MAAP cores come from the TSN stack (--stack-source, the
+tsn-c-stack submodule by default), or from a --ctrl-source that predates #697
+and still holds them.
 """
 from __future__ import annotations
 import argparse
@@ -15,7 +18,8 @@ import re
 import struct
 import sys
 from pathlib import Path
-from ctrl_build import CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, Tree, Refusal, run
+from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, STACK, Tree, Refusal, legacy_stack, run,
+                        source)
 from srp_arms import prepared, LWSRP_SOURCES
 from ctrl_arms import lwsrp_pin
 import fw_gtest
@@ -30,12 +34,21 @@ def checked(argv: list[str]) -> str:
     return result.stdout
 
 
+def source_tree(ctrl: Path, stack: Path, out: Path) -> Tree:
+    """The ctrl tree measured and the stack its cores come from: its own, for a tree from before #697."""
+    legacy=legacy_stack(ctrl,out/"legacy-stack")
+    if legacy is not None and stack != STACK.resolve():
+        raise Refusal("a --ctrl-source from before #697 holds its own cores; it takes no --stack-source")
+    return Tree(ctrl,out,out/"reuse",fw_gtest.Build(jobs=4),legacy or stack)
+
+
 def main() -> int:
     """Measure one selected shape and composition."""
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config",type=Path,required=True)
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--ctrl-source",type=Path,default=CTRL)
+    parser.add_argument("--stack-source",type=Path,default=STACK)
     parser.add_argument("--without-srp",action="store_true")
     parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
     parser.add_argument("--libc",type=Path,required=True)
@@ -46,13 +59,13 @@ def main() -> int:
         cc=fw_rv32.compiler()
         if cc is None:
             raise Refusal("the pinned RV32 compiler is required")
-        tree=Tree(args.ctrl_source.resolve(),out,out/"reuse",fw_gtest.Build(jobs=4))
+        tree=source_tree(args.ctrl_source.resolve(),args.stack_source.resolve(),out)
         variant,inc=prepared(tree,args.interfaces,out,args.config.resolve())
         checked([sys.executable,"-B",str(CTRL/"adp/adp_entity.py"),str(args.config),
                  "-o",str(out/"adp_entity_gen.h")])
         flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
         inc += [f"-I{out}",f"-I{NVM_DIR}",*fw_rv32.includes(cc)]
-        sources=[(variant if name.startswith("mbx/") else tree.src)/name for name in PORTABLE]
+        sources=[source(variant if name.startswith("mbx/") else tree.src,tree.stack,name) for name in PORTABLE]
         sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/"ctrl_image.c"]
         libraries=[args.libc.resolve(),args.compiler_runtime.resolve()]
         if not args.without_srp:

@@ -2122,7 +2122,7 @@ RTL_STEP_LISTS = {
     (RTL_FULL, "verilator-shards"): (
         {"uses": "actions/checkout@v4"},
         {"name": "Fetch RTL dependencies",
-         "run": RTL_FETCH_SCRIPT},
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/tsn-c-stack",)},
         {"name": "Record the tree this worker validates",
          "env": TARGET_SHA_STEP_ENV,
          "run": (
@@ -2349,7 +2349,7 @@ RTL_STEP_LISTS = {
     (RTL_FAST, FIRMWARE_UNIT_JOB): (
         {"uses": "actions/checkout@v4"},
         {"name": "Fetch RTL dependencies",
-         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP",)},
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
         {"name": "Install GoogleTest and GoogleMock and print the versions",
          "run": (
              'set -euo pipefail',

@@ -40,13 +40,19 @@ VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
 # the port layer, the ADP slice, the ACMP module and the app, compiled as C11 exactly as the
 # target builds them, plus the host model the same scenario also runs on.
 # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
+# The ADP, ACMP and MAAP cores and the wire layer are the TSN stack's, from the
+# pinned tsn-c-stack submodule (#697), included through its public headers.
 FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
+STACK_DIR := $(abspath $(ROOT)/third_party/tsn-c-stack)
 FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
-            port/shlan_port.c adp/adp.c adp/adp_mbx.c maap/maap.c maap/maap_mbx.c maap/maap_csr.c \
-            acmp/acmp.c acmp/acmp_mbx.c acmp/acmp_nvm.c app/ctrl_app.c host/mbx_model.c)
-FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp maap acmp app) -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
+            port/shlan_port.c adp/adp_mbx.c maap/maap_mbx.c maap/maap_csr.c \
+            acmp/acmp_mbx.c acmp/acmp_nvm.c app/ctrl_app.c host/mbx_model.c) \
+          $(addprefix $(STACK_DIR)/src/,adp.c maap.c acmp.c)
+FW_INC  = $(addprefix -I$(FW_DIR)/,mbx host port loop adp maap acmp app) -I$(STACK_DIR)/include \
+          -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
 # Every header those sources can include, so a header-only change rebuilds them.
-FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
+FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(STACK_DIR)/include/*.h) \
+          $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
 CC     ?= cc
 AR     ?= ar
 

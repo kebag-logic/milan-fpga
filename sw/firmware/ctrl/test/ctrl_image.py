@@ -46,7 +46,10 @@ THE BASE. --base REV measures the firmware of another revision of this
 repository (git archive of sw/firmware, never a checkout) with this tree's
 harness and shapes, and prints the delta. A base whose ctrl_app composes no
 ACMP links the same platform without it, with MAAP through
-ctrl_app_start_maap() where the base has lane F2's (image_main.c).
+ctrl_app_start_maap() where the base has lane F2's (image_main.c). The ADP,
+ACMP and MAAP cores are the TSN stack's (#697): the base's own copies under
+sw/firmware/ctrl for a revision from before they moved, else the tsn-c-stack
+gitlink the base records, read from the submodule's objects.
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_image.py [--shape NAME ...] [--base REV] [--out DIR]
@@ -81,7 +84,8 @@ import ctrl_arms  # noqa: E402
 import fw_rv32  # noqa: E402
 import nvm_bench  # noqa: E402
 import nvm_rv32  # noqa: E402
-from ctrl_build import INCLUDE_DIRS, PORTABLE, RV32_FLAGS, Refusal  # noqa: E402
+from ctrl_build import (INCLUDE_DIRS, PORTABLE, RV32_FLAGS, STACK, STACK_INCLUDE, STACK_PARTS, Refusal,  # noqa: E402
+                        legacy_stack, source)
 
 IMAGE = HERE / "rv32_image"
 #: The shipping shape (Mark II's 1x1, lane F1's self-test shape) and the
@@ -149,10 +153,11 @@ def run(argv: list[str], cwd: Path | None = None) -> str:
     return res.stdout
 
 
-def includes(fw: Path, gen: Path) -> list[str]:
-    """The ctrl tree's include directories, the store's and the shape's generated headers."""
+def includes(fw: Path, gen: Path, stack: Path) -> list[str]:
+    """The ctrl tree's include directories, the stack's public headers, the store's and the shape's generated
+    headers."""
     nvm = fw / "ctrl_nvm"
-    return ([f"-I{fw / 'ctrl' / d}" for d in INCLUDE_DIRS] +
+    return ([f"-I{fw / 'ctrl' / d}" for d in INCLUDE_DIRS] + [f"-I{stack / STACK_INCLUDE}"] +
             [f"-I{gen}", f"-I{nvm}", f"-I{nvm / 'plat'}", f"-I{nvm / 'test/rv32'}"])
 
 
@@ -161,11 +166,13 @@ def object_name(src: Path) -> str:
     return f"{src.parent.name}_{src.stem}.o"
 
 
-def compile_all(cc: str, fw: Path, gen: Path, work: Path, shape_defs: list[str]) -> list[Path]:
-    """Every source of the composition, each with its gate's flags; a ctrl source the tree lacks is not compiled."""
+def compile_all(cc: str, fw: Path, gen: Path, work: Path, shape_defs: list[str], stack: Path) -> list[Path]:
+    """Every source of the composition, each with its gate's flags; a ctrl or stack source the tree lacks is not
+    compiled."""
     runtime_inc = fw_rv32.includes(cc)
-    inc = includes(fw, gen)
-    jobs = [(fw / "ctrl" / s, RV32_FLAGS) for s in CTRL_SOURCES if (fw / "ctrl" / s).is_file()]
+    inc = includes(fw, gen, stack)
+    ctrl = [source(fw / "ctrl", stack, s) for s in CTRL_SOURCES]
+    jobs = [(src, RV32_FLAGS) for src in ctrl if src.is_file()]
     jobs += [(fw / "ctrl_nvm" / s, nvm_rv32.RV32_FLAGS) for s in NVM_SOURCES]
     # the stand-ins' loops must stay loops, never calls to themselves
     jobs += [(IMAGE / "image_main.c", RV32_FLAGS),
@@ -316,7 +323,7 @@ def identity(cc: str) -> str:
     return f"{run([cc, '--version']).splitlines()[0]}; libgcc.a sha256 {digest} (not linked)"
 
 
-def app_parts(cc: str, fw: Path, gen: Path, work: Path) -> dict[str, int]:
+def app_parts(cc: str, fw: Path, gen: Path, work: Path, stack: Path) -> dict[str, int]:
     """sizeof each part of struct ctrl_app, from a probe object that is never linked."""
     probe = work / "app_parts.c"
     probe.write_text('#include "ctrl_app.h"\nstruct ctrl_app size_app;\nstruct ctrl_pool size_pool;\n'
@@ -324,12 +331,12 @@ def app_parts(cc: str, fw: Path, gen: Path, work: Path) -> dict[str, int]:
                      "struct acmp_mbx size_acmp;\n#endif\n#ifdef CTRL_MAAP_MBX_H\nstruct maap_mbx size_maap;\n"
                      "#endif\n", encoding="utf-8")
     obj = work / "app_parts.o"
-    run([cc, *RV32_FLAGS, "-fno-common", *fw_rv32.includes(cc), *includes(fw, gen), "-c", str(probe), "-o",
+    run([cc, *RV32_FLAGS, "-fno-common", *fw_rv32.includes(cc), *includes(fw, gen, stack), "-c", str(probe), "-o",
          str(obj)])
     return {n.removeprefix("size_"): s for n, (_, s) in symbol_sizes(cc.removesuffix("gcc"), obj).items()}
 
 
-def measure(cc: str, fw: Path, shape: str, work: Path) -> Image:
+def measure(cc: str, fw: Path, shape: str, work: Path, stack: Path = STACK) -> Image:
     """Link the composition at one shape and read its figures."""
     config = ROOT / "configs" / f"{shape}.yaml"
     view = ctrl_arms.fabric_view(config)
@@ -342,7 +349,7 @@ def measure(cc: str, fw: Path, shape: str, work: Path) -> Image:
     gen = work / "gen"
     nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
     defs = [f"-DIMAGE_SINKS={image.sinks}u", f"-DIMAGE_SOURCES={image.sources}u"]
-    objs = compile_all(cc, fw, gen, work, defs)
+    objs = compile_all(cc, fw, gen, work, defs, stack)
     tool = cc.removesuffix("gcc")
     helpers = work / object_name(HELPERS)
     findings = helper_findings(tool, helpers)
@@ -360,7 +367,7 @@ def measure(cc: str, fw: Path, shape: str, work: Path) -> Image:
     image.objects = {n: s for n, (t, s) in symbols.items() if t in "bBdD" and s >= OBJECT_MIN}
     image.runtime = sum(symbols[n][1] for n in RUNTIME if n in symbols)
     image.helpers = {n: symbols[n][1] for n in symbol_sizes(tool, helpers) if n in symbols}
-    image.parts = app_parts(cc, fw, gen, work)
+    image.parts = app_parts(cc, fw, gen, work, stack)
     return image
 
 
@@ -392,14 +399,32 @@ def report(head: Image, base: Image | None) -> list[str]:
     return lines
 
 
-def base_tree(rev: str, into: Path) -> Path:
-    """sw/firmware of revision `rev`, read from the repository's objects into `into`."""
-    res = subprocess.run(["git", "-C", str(ROOT), "archive", rev, "sw/firmware"], capture_output=True, check=False)
+def extract(repo: Path, rev: str, paths: tuple[str, ...], into: Path) -> None:
+    """`paths` of revision `rev` of the repository at `repo`, read from its objects into `into`."""
+    res = subprocess.run(["git", "-C", str(repo), "archive", rev, *paths], capture_output=True, check=False)
     if res.returncode != 0:
-        raise Refusal(f"git archive {rev}: {res.stderr.decode(errors='replace').strip()}")
+        raise Refusal(f"git archive {rev} in {repo.name}: {res.stderr.decode(errors='replace').strip()}")
     with tarfile.open(fileobj=io.BytesIO(res.stdout)) as tar:
         tar.extractall(into, filter="data")
-    return into / "sw/firmware"
+
+
+def base_tree(rev: str, into: Path) -> tuple[Path, Path]:
+    """sw/firmware of revision `rev`, read from the repository's objects into `into`, and the stack it builds
+    against: the base's own cores in the stack's layout for a revision from before #697, else the stack at the
+    tsn-c-stack gitlink the revision records, read from the submodule's objects."""
+    extract(ROOT, rev, ("sw/firmware",), into)
+    fw = into / "sw/firmware"
+    legacy = legacy_stack(fw / "ctrl", into / "legacy-stack")
+    if legacy is not None:
+        return fw, legacy
+    entry = run(["git", "-C", str(ROOT), "ls-tree", rev, "--", STACK.relative_to(ROOT).as_posix()]).split()
+    if len(entry) != 4 or entry[0] != "160000":
+        raise Refusal(f"{rev} holds neither the cores nor a tsn-c-stack gitlink")
+    top = run(["git", "-C", str(STACK), "rev-parse", "--show-toplevel"]).strip()
+    if Path(top).resolve() != STACK.resolve():
+        raise Refusal(f"{STACK.relative_to(ROOT)} is not its own checkout: initialise the submodule")
+    extract(STACK, entry[2], STACK_PARTS, into / "tsn-c-stack")
+    return fw, into / "tsn-c-stack"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -417,10 +442,10 @@ def main(argv: list[str] | None = None) -> int:
     with tempfile.TemporaryDirectory(prefix="ctrl-image-") as tmp:
         out = args.out.resolve() if args.out else Path(tmp)
         try:
-            base_fw = base_tree(args.base, out / "base-tree") if args.base else None
+            base_fw, base_stack = base_tree(args.base, out / "base-tree") if args.base else (None, None)
             for shape in args.shape or SHAPES:
-                head = measure(cc, ROOT / "sw/firmware", shape, out / "head" / shape)
-                base = measure(cc, base_fw, shape, out / "base" / shape) if base_fw else None
+                head = measure(cc, ROOT / "sw/firmware", shape, out / "head" / shape, STACK)
+                base = measure(cc, base_fw, shape, out / "base" / shape, base_stack) if base_fw else None
                 print("\n".join(report(head, base)))
         except (Refusal, ValueError) as exc:
             print(f"REFUSED: {exc}")

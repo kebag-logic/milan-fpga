@@ -8,10 +8,17 @@ tree's own output directory, never in the checkout. The tests are GoogleTest
 (sw/firmware/gtest/README.md): always compiled from the checkout's test
 sources against the tree's headers, so a defect planted in a .c file reuses
 every test object and one planted in a header rebuilds the tests that see it.
+
+The ADP, ACMP and MAAP cores and the wire layer are the TSN stack's, from the
+pinned tsn-c-stack submodule (#697): a tree names them, and the stack's own
+core tests, with STACK_PREFIX, and builds them from its stack (the submodule,
+or a copy a defect was planted in). The firmware includes only the stack's
+public headers (its include/), and nothing of the stack includes the firmware.
 """
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -31,13 +38,27 @@ PP_ADP_PKG = PP / "hdl/adp/pp_adp_pkg.sv"
 TB_MBX = ROOT / "tb/verilator/mbx"
 TB_COMMON = ROOT / "tb/common"
 
+#: The TSN stack: the tsn-c-stack submodule at its gitlink (#697).
+STACK = ROOT / "third_party/tsn-c-stack"
+#: A source or test named with this prefix is the stack's, the rest of the name
+#: inside it; every other name is the ctrl tree's.
+STACK_PREFIX = "tsn-c-stack/"
+#: The stack's parts a tree builds from: its sources and its public headers. Its
+#: tests are always the checkout's, as the ctrl tree's are.
+STACK_PARTS = ("src", "include")
+#: The stack's public headers, the only part of it the firmware includes.
+STACK_INCLUDE = "include"
+#: The stack's core tests and their fakes (acmp_fake.hpp), in the checkout.
+STACK_TESTS = STACK / "tests"
+
 #: The firmware every target links: the driver, the loop, the port layer, ADP, ACMP, the app.
+#: The order is the link order of the measured images (ctrl_image.py, ctrl_srp_image.py).
 PORTABLE = ("mbx/mbx.c", "loop/ctrl_loop.c", "port/ctrl_pool.c", "port/ctrl_debug.c", "port/shlan_port.c",
-            "adp/adp.c", "adp/adp_mbx.c", "maap/maap.c", "maap/maap_mbx.c", "maap/maap_csr.c",
-            "acmp/acmp.c", "acmp/acmp_mbx.c", "acmp/acmp_nvm.c", "app/ctrl_app.c")
+            "tsn-c-stack/src/adp.c", "adp/adp_mbx.c", "tsn-c-stack/src/maap.c", "maap/maap_mbx.c",
+            "maap/maap_csr.c", "tsn-c-stack/src/acmp.c", "acmp/acmp_mbx.c", "acmp/acmp_nvm.c", "app/ctrl_app.c")
 #: The host side: the model and mbx_hal.h on it. Test equipment, never measured.
 HOST = ("host/mbx_model.c", "host/mbx_plat_host.c")
-INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "maap", "acmp", "app", "test")
+INCLUDE_DIRS = ("mbx", "host", "port", "loop", "adp", "maap", "acmp", "app", "test")
 #: The saved-state store's state port (nvm_state.h), which acmp_nvm.c serves.
 NVM_DIR = ROOT / "sw/firmware/ctrl_nvm"
 C_FLAGS = ("-std=c11", "-O2", "-DNDEBUG", "-Wall", "-Wextra", "-Werror", "-pedantic")
@@ -62,6 +83,8 @@ class Tree:
     out: Path
     reuse: Path
     build: fw_gtest.Build = field(default_factory=lambda: fw_gtest.Build(jobs=4))
+    #: the stack's root: its src/ and include/ (the submodule, or a planted copy)
+    stack: Path = STACK
 
 
 @dataclass(frozen=True)
@@ -79,8 +102,9 @@ def run(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess
 
 
 def includes(tree: Tree) -> list[str]:
-    """The firmware's include path, from the tree being built, then the harness."""
-    return [f"-I{tree.src / d}" for d in INCLUDE_DIRS] + [f"-I{NVM_DIR}", f"-I{HARNESS}"]
+    """The firmware's include path, from the tree being built and its stack's public headers, then the harness."""
+    return ([f"-I{tree.src / d}" for d in INCLUDE_DIRS] + [f"-I{tree.stack / STACK_INCLUDE}"] +
+            [f"-I{NVM_DIR}", f"-I{HARNESS}"])
 
 
 def compile_c(tree: Tree, sources: list[Path], tag: str, extra: tuple[str, ...] = (),
@@ -98,11 +122,25 @@ def firmware(tree: Tree, names: tuple[str, ...], tag: str) -> list[Path]:
             compile_c(tree, sources(tree, HOST), f"{tag}/host", measured=False))
 
 
+def test_source(name: str) -> Path:
+    """A test source of the checkout: the stack's tests/ for a STACK_PREFIX name, else this test/."""
+    return STACK / name.removeprefix(STACK_PREFIX) if name.startswith(STACK_PREFIX) else HERE / name
+
+
 def compile_tests(tree: Tree, names: tuple[str, ...], tag: str, extra: tuple[str, ...] = ()) -> list[Path]:
-    """The GoogleTest sources `names` (from the checkout's test/) against the tree's headers."""
+    """The GoogleTest sources `names` (from the checkout's test/, or the stack's tests/) against the
+    tree's headers; the stack's test fakes (acmp_fake.hpp) are the checkout's too."""
     try:
-        return fw_gtest.compile_tests(tree.build, [*includes(tree), *extra], [HERE / n for n in names],
-                                      tree.out / tag)
+        return fw_gtest.compile_tests(tree.build, [*includes(tree), f"-I{STACK_TESTS}", *extra],
+                                      [test_source(n) for n in names], tree.out / tag)
+    except fw_gtest.BuildError as exc:
+        raise Refusal(str(exc)) from exc
+
+
+def label(tree: Tree, text: str) -> Path:
+    """The tally label of a binary whose test files name none: the stack's tests carry no FW_TALLY_LABEL."""
+    try:
+        return fw_gtest.label_object(tree.build, text, tree.out / "labels")
     except fw_gtest.BuildError as exc:
         raise Refusal(str(exc)) from exc
 
@@ -122,6 +160,33 @@ def execute(arm: str, exe: Path) -> Outcome:
     return Outcome(arm, 0 if ok else 1, log)
 
 
+def source(src: Path, stack: Path, name: str) -> Path:
+    """One firmware source: the stack's for a STACK_PREFIX name, else the ctrl tree's."""
+    return stack / name.removeprefix(STACK_PREFIX) if name.startswith(STACK_PREFIX) else src / name
+
+
 def sources(tree: Tree, names: tuple[str, ...]) -> list[Path]:
-    """Paths of firmware sources inside the tree."""
-    return [tree.src / n for n in names]
+    """Paths of firmware sources inside the tree and its stack."""
+    return [source(tree.src, tree.stack, n) for n in names]
+
+
+#: Where each stack file lived in sw/firmware/ctrl before #697 moved the cores
+#: into the submodule (the file map of the stack's import record). A tree of an
+#: older revision (ctrl_image.py --base, ctrl_srp_image.py --ctrl-source) still
+#: holds them there.
+LEGACY = {"src/adp.c": "adp/adp.c", "src/acmp.c": "acmp/acmp.c", "src/maap.c": "maap/maap.c",
+          "include/adp.h": "adp/adp.h", "include/acmp.h": "acmp/acmp.h", "include/maap.h": "maap/maap.h",
+          "include/wire.h": "wire/wire.h"}
+
+
+def legacy_stack(ctrl: Path, into: Path) -> Path | None:
+    """For a ctrl tree from before #697, which holds its own cores, a copy of them in the stack's layout
+    under `into`; None for a tree that holds none. An older tree holds fewer (no ACMP before lane F3), and
+    a source the copy lacks is one its tree lacks."""
+    held = {new: old for new, old in LEGACY.items() if (ctrl / old).is_file()}
+    if not held:
+        return None
+    for new, old in held.items():
+        (into / new).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ctrl / old, into / new)
+    return into

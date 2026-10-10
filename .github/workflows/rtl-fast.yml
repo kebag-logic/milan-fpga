@@ -241,7 +241,8 @@ jobs:
   # versions and the compiler and gcov the ratchet is measured with.
   # F4 requires the exact lwSRP submodule and the freestanding RV32 control
   # build after SDK installation, plus the control mutation campaign. The
-  # public dependency is fetched at the reviewed gitlink.
+  # ADP, ACMP and MAAP cores are the tsn-c-stack submodule's (#697). Both
+  # public dependencies are fetched at their reviewed gitlinks.
   # The saved-state and tally mutation campaigns remain additional local gates.
   firmware-unit:
     needs: changes
@@ -251,7 +252,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
 
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |

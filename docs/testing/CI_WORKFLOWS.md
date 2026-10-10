@@ -53,6 +53,7 @@ pull-request update and on every push to `dev`. It produces one stable
   The RV32 self-test plants header, ABI, and runtime-dependency defects.
   These builds report objects and frames, not linked-image bounds.
   F4 initializes the public lwSRP submodule at its exact pin.
+  The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
@@ -181,6 +182,10 @@ worker-result script the same way, and the Yosys aggregate's two twins. The
 worker-result step is the only step that turns a failed or timed-out worker
 red: a killed suite's partial log still tallies and its SHA record still
 verifies, so on both hosted `milan_dp` timeouts only that step failed.
+
+Every Verilator worker also initializes `third_party/tsn-c-stack`: the `mbx`
+suite's co-simulation links the firmware's ADP, ACMP and MAAP cores, which
+come from that submodule (#697), whichever shard owns the suite.
 
 Each suite runs under a per-suite wall clock from the table in
 `scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
@@ -2293,7 +2298,7 @@ syn/yosys/run.sh --mode elaborate --no-structural \
 ```
 
 The bare-metal firmware's host suites run locally as `firmware-unit` runs
-them. F4 fetches the pinned lwSRP submodule and installs the pinned SDK before
+them. F4 fetches the pinned lwSRP and tsn-c-stack submodules and installs the pinned SDK before
 the required RV32 control build and its `--self-test` mutation campaign.
 The saved-state campaign remains a local `--self-test` addition, and the
 tally listener's campaign uses `--mutants`

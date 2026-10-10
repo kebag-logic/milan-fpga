@@ -5,18 +5,22 @@
 
 WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
 compiled for the host exactly as the target compiles it, against the mailbox
-model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
+model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms. The
+ADP, ACMP and MAAP cores and their own tests are the TSN stack's, from the
+pinned tsn-c-stack submodule (#697), built into the same arms:
 
   model    the mailbox suite (tb/verilator/mbx/suite.hpp, the checks the RTL
            passes through both bus adapters) run on the model, so the model
            the other arms rely on answers to the RTL's expectations;
   port     the lwSRP port layer (static pool, debug sink), the mailbox
            driver and the event loop (test_port_loop.cpp);
-  adp      the ADP core over fake ports, the adapter's tag race and every
-           response path's service-latency bound (test_adp.cpp);
+  adp      the ADP core over fake ports (the stack's tests/test_adp.cpp),
+           the adapter's tag race and every response path's service-latency
+           bound (test_adp.cpp);
   reentry_debug, reentry_release
            synchronous callbacks from every port to every entry, on the same
-           instance and another, asserting or counted and ignored respectively;
+           instance and another, asserting or counted and ignored respectively
+           (the stack's tests/test_adp_reentry.cpp);
   unit     the firmware's own seams on GoogleMock: the mailbox window
            (mbx_hal.h) and lwSRP's port layer (shlan_port.h) under the app's
            composition, the driver's contract and refusals, the adapter's
@@ -33,7 +37,8 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            model: the timers on the interface's slot, the ADP channel's tap,
            every path's service cost (the H-ACMP and H-DISC hooks), owed frames
            and the response before its notification, the adp channel's
-           bound-talker table (test_acmp.cpp, test_acmp_mbx.cpp);
+           bound-talker table (the stack's tests/test_acmp.cpp,
+           test_acmp_mbx.cpp);
   acmpif2  test_acmp_mbx.cpp again, the firmware and the model compiled
            against the contract elaborated for two AVB interfaces (written by
            gen_mailbox.py into the build), so the adapter's per-interface
