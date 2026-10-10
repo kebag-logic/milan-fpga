@@ -1,0 +1,403 @@
+publication-census	Set up job	﻿2026-10-10T18:42:49.6790491Z Current runner version: '2.337.0'
+publication-census	Set up job	2026-10-10T18:42:49.6811382Z ##[group]Runner Image Provisioner
+publication-census	Set up job	2026-10-10T18:42:49.6812125Z Hosted Compute Agent
+publication-census	Set up job	2026-10-10T18:42:49.6812630Z Version: 20261002.596
+publication-census	Set up job	2026-10-10T18:42:49.6813143Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+publication-census	Set up job	2026-10-10T18:42:49.6813813Z Build Date: 2026-10-02T22:28:27Z
+publication-census	Set up job	2026-10-10T18:42:49.6814375Z Worker ID: {9a892bdc-a9b4-413d-b86c-22d3ce67cbf1}
+publication-census	Set up job	2026-10-10T18:42:49.6815202Z Region: westus3
+publication-census	Set up job	2026-10-10T18:42:49.6815748Z Cloud: Azure
+publication-census	Set up job	2026-10-10T18:42:49.6816190Z ##[endgroup]
+publication-census	Set up job	2026-10-10T18:42:49.6817385Z ##[group]Operating System
+publication-census	Set up job	2026-10-10T18:42:49.6817905Z Ubuntu
+publication-census	Set up job	2026-10-10T18:42:49.6818316Z 24.04.5
+publication-census	Set up job	2026-10-10T18:42:49.6818815Z LTS
+publication-census	Set up job	2026-10-10T18:42:49.6819248Z ##[endgroup]
+publication-census	Set up job	2026-10-10T18:42:49.6819718Z ##[group]Runner Image
+publication-census	Set up job	2026-10-10T18:42:49.6820250Z Image: ubuntu-24.04
+publication-census	Set up job	2026-10-10T18:42:49.6820720Z Version: 20261004.327.1
+publication-census	Set up job	2026-10-10T18:42:49.6821646Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+publication-census	Set up job	2026-10-10T18:42:49.6823082Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+publication-census	Set up job	2026-10-10T18:42:49.6823897Z ##[endgroup]
+publication-census	Set up job	2026-10-10T18:42:49.6825131Z ##[group]GITHUB_TOKEN Permissions
+publication-census	Set up job	2026-10-10T18:42:49.6826985Z Contents: read
+publication-census	Set up job	2026-10-10T18:42:49.6827503Z Metadata: read
+publication-census	Set up job	2026-10-10T18:42:49.6828063Z Packages: read
+publication-census	Set up job	2026-10-10T18:42:49.6828521Z ##[endgroup]
+publication-census	Set up job	2026-10-10T18:42:49.6830199Z Secret source: Actions
+publication-census	Set up job	2026-10-10T18:42:49.6830958Z Cache mode: write
+publication-census	Set up job	2026-10-10T18:42:49.6831598Z Prepare workflow directory
+publication-census	Set up job	2026-10-10T18:42:49.7137479Z Prepare all required actions
+publication-census	Set up job	2026-10-10T18:42:49.7175856Z Getting action download info
+publication-census	Set up job	2026-10-10T18:42:49.9969247Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+publication-census	Set up job	2026-10-10T18:42:50.0834739Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+publication-census	Set up job	2026-10-10T18:42:50.3220022Z Complete job name: publication-census
+publication-census	Run actions/checkout@v4	﻿2026-10-10T18:42:50.3822507Z ##[group]Run actions/checkout@v4
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3823198Z with:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3823560Z   repository: kebag-logic/milan-fpga
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3826701Z   token: ***
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3827054Z   ssh-strict: true
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3827403Z   ssh-user: git
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3827756Z   persist-credentials: true
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3828154Z   clean: true
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3828508Z   sparse-checkout-cone-mode: true
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3828917Z   fetch-depth: 1
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3829254Z   fetch-tags: false
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3829599Z   show-progress: true
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3829945Z   lfs: false
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3830271Z   submodules: false
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3830618Z   set-safe-directory: true
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3831009Z   allow-unsafe-pr-checkout: false
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3831567Z env:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3831896Z   VERILATOR_VERSION: v5.050
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3832276Z   YOSYS_VERSION: v0.66
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.3832635Z ##[endgroup]
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4630886Z Syncing repository: kebag-logic/milan-fpga
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4633083Z ##[group]Getting Git version info
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4634001Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4635484Z [command]/usr/bin/git version
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4660716Z git version 2.55.0
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4676202Z ##[endgroup]
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4687814Z Temporarily overriding HOME='<home-path>/work/_temp/c7dc6639-fbbe-4239-b93b-3566efa24990' before making global git config changes
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4689674Z Adding repository directory to the temporary git global config as a safe directory
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4691778Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4735117Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4739000Z ##[group]Initializing the repository
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4741987Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4843013Z hint: Using 'master' as the name for the initial branch. This default branch name
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4844359Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4845637Z hint: to use in all of your new repositories, which will suppress this warning,
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4846559Z hint: call:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4847046Z hint:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4847668Z hint: 	git config --global init.defaultBranch <name>
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4848432Z hint:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4849132Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4850312Z hint: 'development'. The just-created branch can be renamed via this command:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4851241Z hint:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4851779Z hint: 	git branch -m <name>
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4852355Z hint:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4853097Z hint: Disable this message with "git config set advice.defaultBranchName false"
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4854641Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4856465Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4895043Z ##[endgroup]
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4896152Z ##[group]Disabling automatic garbage collection
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4897719Z [command]/usr/bin/git config --local gc.auto 0
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4934164Z ##[endgroup]
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4935603Z ##[group]Setting up auth
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4936469Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.4965152Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.5249392Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.5295177Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.5487282Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.5517392Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.5706694Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.5741204Z ##[endgroup]
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.5742208Z ##[group]Fetching the repository
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:50.5749042Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +9ec2e1427f4724e4b759565001fa4e19f237cd06:refs/remotes/pull/704/merge
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7127527Z From https://github.com/kebag-logic/milan-fpga
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7129053Z  * [new ref]         9ec2e1427f4724e4b759565001fa4e19f237cd06 -> pull/704/merge
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7131967Z ##[endgroup]
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7133264Z ##[group]Determining the checkout info
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7134787Z ##[endgroup]
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7138261Z [command]/usr/bin/git sparse-checkout disable
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7180734Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7208912Z ##[group]Checking out the ref
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.7211862Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/704/merge
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8738499Z Note: switching to 'refs/remotes/pull/704/merge'.
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8739407Z 
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8739751Z You are in 'detached HEAD' state. You can look around, make experimental
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8740591Z changes and commit them, and you can discard any commits you make in this
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8741405Z state without impacting any branches by switching back to a branch.
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8741902Z 
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8742289Z If you want to create a new branch to retain commits you create, you may
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8743379Z do so (now or later) by using -c with the switch command. Example:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8743828Z 
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8744024Z   git switch -c <new-branch-name>
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8744345Z 
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8744746Z Or undo this operation with:
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8745076Z 
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8745251Z   git switch -
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8745534Z 
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8745923Z Turn off this advice by setting config variable advice.detachedHead to false
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8746451Z 
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8746997Z HEAD is now at 9ec2e14 Merge 67c1285b3b28b12a3af4f3f3aae6e92befd5febb into f88df731c77ec3d876b74e41b0091c513370afe9
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8749329Z ##[endgroup]
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8789200Z [command]/usr/bin/git log -1 --format=%H
+publication-census	Run actions/checkout@v4	2026-10-10T18:42:52.8811975Z 9ec2e1427f4724e4b759565001fa4e19f237cd06
+publication-census	Fetch RTL dependencies	﻿2026-10-10T18:42:52.9003405Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9004831Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor^[[0m
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9632842Z shell: /usr/bin/bash -e {0}
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9633383Z env:
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9633759Z   VERILATOR_VERSION: v5.050
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9634194Z   YOSYS_VERSION: v0.66
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9634847Z ##[endgroup]
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9971973Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9978524Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:52.9984340Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:53.0006111Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:54.1048086Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:56.1770018Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:57.2082278Z Submodule path 'gptp-processor': checked out '5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d'
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:57.2692627Z Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+publication-census	Fetch RTL dependencies	2026-10-10T18:42:57.2851310Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+publication-census	Cache the pinned Yosys build	﻿2026-10-10T18:42:57.2986184Z ##[group]Run actions/cache@v4
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2986456Z with:
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2986657Z   path: /opt/yosys
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2986872Z   key: yosys-v0.66-Linux
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2987119Z   enableCrossOsArchive: false
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2987361Z   fail-on-cache-miss: false
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2987589Z   lookup-only: false
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2987807Z   save-always: false
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2988009Z env:
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2988203Z   VERILATOR_VERSION: v5.050
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2988455Z   YOSYS_VERSION: v0.66
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.2988684Z ##[endgroup]
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.3833581Z (node:2140) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.3834381Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.5842892Z Cache hit for: yosys-v0.66-Linux
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:57.5928343Z (node:2140) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:58.7842808Z Received 19685025 of 19685025 (100.0%), 19.3 MBs/sec
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:58.7843270Z Cache Size: ~19 MB (19685025 B)
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:58.7863853Z [command]/usr/bin/tar -xf <home-path>/work/_temp/9f64c44f-0e2b-4c3c-abcf-3ac3874955c5/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:58.8729340Z Cache restored successfully
+publication-census	Cache the pinned Yosys build	2026-10-10T18:42:58.8796794Z Cache restored from key: yosys-v0.66-Linux
+publication-census	Install the pinned Yosys and prove the version	﻿2026-10-10T18:42:58.9278177Z ##[group]Run set -euo pipefail
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9278490Z ^[[36;1mset -euo pipefail^[[0m
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9278793Z ^[[36;1msudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/^[[0m
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9279140Z ^[[36;1mtest -x /opt/yosys/bin/yosys-abc^[[0m
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9279436Z ^[[36;1mecho "bundled ABC: $(cat /opt/yosys/ABC_REV)"^[[0m
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9279685Z ^[[36;1myosys -V^[[0m
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9279901Z ^[[36;1myosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"^[[0m
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9337547Z shell: /usr/bin/bash -e {0}
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9337777Z env:
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9337964Z   VERILATOR_VERSION: v5.050
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9338171Z   YOSYS_VERSION: v0.66
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9338354Z ##[endgroup]
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9527774Z bundled ABC: 5d51a5e420f5de493d07bf61109a977248c86ffb
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9554257Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+publication-census	Install the pinned Yosys and prove the version	2026-10-10T18:42:58.9589369Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+publication-census	Install the pinned sv2v release	﻿2026-10-10T18:42:58.9858380Z ##[group]Run set -euo pipefail
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9858657Z ^[[36;1mset -euo pipefail^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9858865Z ^[[36;1mver=v0.0.12^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9859170Z ^[[36;1msha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9859638Z ^[[36;1murl="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9859986Z ^[[36;1mcurl -fsSL "$url" -o /tmp/sv2v.zip^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9860287Z ^[[36;1mecho "${sha256}  /tmp/sv2v.zip" | sha256sum -c -^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9860569Z ^[[36;1munzip -q -o /tmp/sv2v.zip -d /tmp/sv2v^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9860894Z ^[[36;1msudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9861220Z ^[[36;1m  /usr/local/bin/sv2v^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9861429Z ^[[36;1msv2v --version^[[0m
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9915664Z shell: /usr/bin/bash -e {0}
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9915895Z env:
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9916067Z   VERILATOR_VERSION: v5.050
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9916275Z   YOSYS_VERSION: v0.66
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:58.9916487Z ##[endgroup]
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:59.4900893Z /tmp/sv2v.zip: OK
+publication-census	Install the pinned sv2v release	2026-10-10T18:42:59.6608423Z sv2v v0.0.12
+publication-census	Run the publication census in every shape the builder builds	﻿2026-10-10T18:42:59.6772853Z ##[group]Run set -euo pipefail
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:42:59.6773143Z ^[[36;1mset -euo pipefail^[[0m
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:42:59.6773373Z ^[[36;1mpython3 -m pip install --quiet pyyaml^[[0m
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:42:59.6773738Z ^[[36;1mpython3 sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"^[[0m
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:42:59.6829566Z shell: /usr/bin/bash -e {0}
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:42:59.6829781Z env:
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:42:59.6829955Z   VERILATOR_VERSION: v5.050
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:42:59.6830152Z   YOSYS_VERSION: v0.66
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:42:59.6830334Z ##[endgroup]
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:43:01.4541331Z publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3205765Z shape recipe: 62697 cells, 1187 named nets; 39 read(s), 4 unread net(s); the module's defaults
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3207543Z shape endstation_arty_4x4: 134973 cells, 1218 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 TALKER_WIRE_CHANS_P=4
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3209864Z shape endstation_arty_8ch: 166705 cells, 1218 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 TALKER_WIRE_CHANS_P=8
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3211689Z shape endstation_arty_current: 62697 cells, 1187 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_SLOTS_P=0 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=1340080128 PP_RESP_BASE_P=1341124608
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3213869Z shape endstation_ax7101_1x1_tdm8: 66810 cells, 1192 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_MASTER_P=1 AUDIO_IF_RENDER_SLOTS_P=8 AUDIO_IF_SLOTS_P=8 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LOOPBACK_P=1 LPF_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 TALKER_WIRE_CHANS_P=8
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3217172Z shape endstation_ax7101_8x8: 306475 cells, 1237 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=98304000 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=32 DPROBES_P=0 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LPF_P=0 LTAP_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=8 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 TALKER_WIRE_CHANS_P=8
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3218806Z == publication census: 6 shape(s), checks: 234   failures: 0 ==
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3219739Z 25 class-D net(s) from the wrapper cell's ports, 4 unread; 39 read(s) of 21 class-D net(s) in each shape; RESULT: PASS
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:44:46.3220561Z publication census: 6 shape(s) elaborated and classified in 105 s at --jobs 4
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:45:52.6716238Z [ok] planted R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:46:10.5472391Z [ok] planted R583-5 S2: a read inside a generate loop with no iteration at one stream: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_v reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:46:10.5516111Z [ok] planted R583-5 S3: a read inside a generate branch only LOOPBACK_P != 0 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:46:10.5517916Z [ok] planted R582-5 arm B: a read inside if (N_STREAMS > 1) begin ... end: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:46:45.1823630Z [ok] planted R582-5 arm E: a status consumer added to the g_aaf_stream_en loop's gate: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at aaf_packetizer.stream_en_i; chan_map_capture.map_wr_addr_i; chan_map_capture.map_wr_data_i; chan_map_capture.map_wr_en_i; chan_map_render.map_wr_addr_i; chan_map_render.map_wr_data_i; chan_map_render.map_wr_en_i; csr.i_tlk_gate_v; media_clock_restart.streaming_i; pp_shadow.amap_data_i; pp_shadow.amap_edit_data_i; pp_shadow.amap_live_wr_i; talker_diag.streaming_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:47:16.7380521Z [ok] planted a read inside a generate branch only a multi-stream shape's header builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:12.5986156Z [ok] planted a field read that reaches CSR read-back only in the multi-stream shapes: refused (the reads differ between the shapes: pp_aecp_strm_started_w -> acmpl_stopped_v_w reaching csr, wire only in endstation_arty_4x4)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:12.6015069Z [ok] positive control, the tracked sources: 0 finding(s)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:12.6075150Z [ok] negative control, a class-D wire named in a comment: 0 finding(s)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:12.6076072Z [ok] planted an unmapped read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:12.6077440Z [ok] planted an unmapped read in a declaration's initialiser: refused (unmapped read: pp_cd_srp_granted_slope_bps_w -> planted_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:12.6078802Z [ok] planted an unmapped read in an always block's condition: refused (unmapped read: pp_cd_srp_lstn_decl_state_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:12.6080121Z [ok] planted a status read on the wire: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:12.6081738Z [ok] planted a GET_STREAM_INFO read on the wire: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:17.0251237Z [ok] planted the started level dropped from the accept: refused (unmapped read: pp_cd_acmp_bound_w -> acmpl_stopped_v_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:21.4045837Z [ok] planted R582-2: a class-D output wired off the pp_cd_ prefix and read on the wire: refused (unmapped read: probe_dom_chg_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:21.7700865Z [ok] planted R582-2: an alias wire read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_alias_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:32.6075916Z [ok] planted R582-2: a case selector in an always block: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:36.5095938Z [ok] planted R582-2: a case item label in an always block: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:42.1176438Z [ok] planted R582-2: a function body called on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:42.5797950Z [ok] planted R583-2: a plain assign on the wire (its control): refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:52.2255941Z [ok] planted R583-2: a case item label in an always_comb: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:48:57.4167353Z [ok] planted R583-2: a positional port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_pos.a reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:02.5956058Z [ok] planted R583-2: an implicit .name port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_dot.pp_cd_srp_over_limit_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:03.1859323Z [ok] planted R583-2: a function body's return: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:12.9866287Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by a plain assign (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:18.3626090Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by a positional port: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:23.0086393Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by an implicit .name port: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_dot.lwsrp_talker_declared)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:24.0063799Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by a case item label: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:33.5939037Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by a function body's return: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:38.8468812Z [ok] planted R583-3: lwsrp_talker_declared as a register's event control: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:43.3855577Z [ok] planted R583-3: lwsrp_talker_declared on an input port whose name ends in _o: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_o)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:44.6445722Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by a plain assign (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:54.9133855Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by a positional port: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_pos.a)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:49:59.2216095Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by an implicit .name port: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_dot.gsi_tkdcl_w)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:04.2304039Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by a case item label: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:04.9939758Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by a function body's return: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:15.7255885Z [ok] planted R583-3: gsi_tkdcl_w as a register's event control: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:19.8871493Z [ok] planted R583-3: gsi_tkdcl_w on an input port whose name ends in _o: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_o)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:24.5016317Z [ok] planted R582-3 part 2: a positional port naming a status consumer, its output unused: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:25.9554840Z [ok] planted R583-3: a plain assign from the status consumer (its control): refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:36.9370106Z [ok] planted R583-3: a case item label naming the status consumer: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:40.3796152Z [ok] planted R583-3: a function body returning the status consumer: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:44.8374399Z [ok] planted R583-3: the status consumer as a register's event control: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:46.6757815Z [ok] planted R583-3: the status consumer on an input port whose name ends in _o: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_o)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:50:57.6745832Z [ok] planted a relational <= in a case item label: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:00.4345980Z [ok] planted a function's output argument: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:05.3290714Z [ok] planted a task's output argument: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:07.4395943Z [ok] planted a macro call's argument, the macro defined in an included file: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:18.7195039Z [ok] planted the second assignment of a continuous assign list: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:20.9976066Z [ok] planted a read carried to another target of its block: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:25.8496160Z [ok] planted a struct member carrying the status consumer: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:28.0721588Z [ok] planted a status consumer written into a memory and read out of it: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:39.2945252Z [ok] planted a status consumer printed: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at $display$0x55ae3c8deea0:3496$30238.ARGS ($print, which has no output))
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:42.0956096Z [ok] planted a CSR block input outside the read-back face: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at csr.i_tlk_gate_v)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:46.5717302Z [ok] planted a read-back port of another milan_csr cell: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_csr.i_lwsrp_status)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:48.6688722Z [ok] planted a wrapper input outside its answer face: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at pp_shadow.cfg_maap_internal_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:51:59.9116341Z [ok] planted R582-4: lwsrp_talker_declared, always_ff begin, an if-begin block (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:03.1396382Z [ok] planted R582-4 E1: lwsrp_talker_declared, always_ff with no begin after the event control: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:07.3506276Z [ok] planted R582-4 E2: lwsrp_talker_declared, always_ff with no begin, if/else: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:09.3935319Z [ok] planted R582-4 E3: lwsrp_talker_declared, always_comb with no begin, case: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:09.3976148Z [ok] planted R582-4 E4: lwsrp_talker_declared, an event control qualified by iff: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:5678:32: Parse error: unexpected token 'iff' (KW_iff))
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:23.2116132Z [ok] planted R582-4: lwsrp_talker_declared, a plain blocking assignment (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:24.0776816Z [ok] planted R582-4 E5: lwsrp_talker_declared, a compound assignment |=: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:24.0816381Z [ok] planted R582-4: lwsrp_talker_declared, alias with the consumer on the right (its control): refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:5678:3: Parse error: missing expected `endmodule`)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:24.0836165Z [ok] planted R582-4 E6: lwsrp_talker_declared, alias with the consumer on the left: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:5678:3: Parse error: missing expected `endmodule`)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:30.5336048Z [ok] planted R582-4: gsi_tkdcl_w, always_ff begin, an if-begin block (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:32.4565987Z [ok] planted R582-4 E1: gsi_tkdcl_w, always_ff with no begin after the event control: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:44.3735486Z [ok] planted R582-4 E2: gsi_tkdcl_w, always_ff with no begin, if/else: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:44.6126192Z [ok] planted R582-4 E3: gsi_tkdcl_w, always_comb with no begin, case: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:44.6176032Z [ok] planted R582-4 E4: gsi_tkdcl_w, an event control qualified by iff: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:5678:32: Parse error: unexpected token 'iff' (KW_iff))
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:53.3546211Z [ok] planted R582-4: gsi_tkdcl_w, a plain blocking assignment (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:53.7110228Z [ok] planted R582-4 E5: gsi_tkdcl_w, a compound assignment |=: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:53.7156396Z [ok] planted R582-4: gsi_tkdcl_w, alias with the consumer on the right (its control): refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:5678:3: Parse error: missing expected `endmodule`)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:52:53.7158520Z [ok] planted R582-4 E6: gsi_tkdcl_w, alias with the consumer on the left: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:5678:3: Parse error: missing expected `endmodule`)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:07.4156209Z [ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, if/else: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:07.5099628Z [ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, if/else with begin/end branches: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:14.3117251Z [ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, a case's default item: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:14.5734347Z [ok] planted R583-4: lwsrp_talker_declared, an event control nesting parentheses: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:28.2062069Z [ok] planted R583-4: lwsrp_talker_declared, the same if/else inside begin/end (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:28.3156000Z [ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, if/else: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:35.2746339Z [ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, if/else with begin/end branches: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:35.2785632Z [ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, a case's default item: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:48.8796031Z [ok] planted R583-4: gsi_tkdcl_w, an event control nesting parentheses: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:48.9114354Z [ok] planted R583-4: gsi_tkdcl_w, the same if/else inside begin/end (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:56.1019626Z [ok] planted R583-4: a token-paste macro defined in an included file: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:53:56.2315941Z [ok] planted R583-4: the token-paste macro defined in the datapath (its control): refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:04.0840333Z [ok] planted R583-4: a macro in an included file holding a hierarchical reference into the wrapper: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\pp_shadow.srp_over_limit_o' is implicitly declared and `default_nettype is set to none.)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:04.4358180Z [ok] planted R583-4: a hierarchical reference into the wrapper (its control): refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\pp_shadow.srp_over_limit_o' is implicitly declared and `default_nettype is set to none.)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:04.4386249Z [ok] planted R583-4: an escaped name holding // hides a read: refused (the census cannot read it: hdl/milan/milan_datapath.sv:5677: an escaped name holds a comment opener, `\probe//`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:16.4905688Z [ok] planted an escaped name holding // drops a declaration's initialiser without an error: refused (the census cannot read it: hdl/milan/milan_datapath.sv:5677: an escaped name holds a comment opener, `\probe//`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:16.4952842Z [ok] planted an escaped name holding /*: refused (the census cannot read it: hdl/milan/milan_datapath.sv:5677: an escaped name holds a comment opener, `\probe/*`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:24.6716232Z [ok] planted R583-4: escaped names holding a double quote around a read: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:25.9151043Z [ok] planted R583-4: a second driver as the population net's declaration initialiser: refused (pp_cd_srp_over_limit_w is driven by an assignment of the constant 0 besides the wrapper's class-D port srp_over_limit_o: a second driver)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:25.9996285Z [ok] planted R583-4: a second driver as a continuous assign (its control): refused (pp_cd_srp_over_limit_w is driven by an assignment of the constant 0 besides the wrapper's class-D port srp_over_limit_o: a second driver)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:37.1895877Z [ok] planted a class-D port left unconnected: refused (class-D port srp_over_limit_o is not connected)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:45.7969745Z [ok] planted a class-D port the instance omits: refused (class-D port srp_over_limit_o is not connected)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:46.6446114Z [ok] planted a class-D port driving more than one net: refused (class-D port srp_class_a_prio_o drives pp_cd_srp_class_a_prio_w, probe_p_w, not one whole named net)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:54:46.6448348Z [ok] planted a class-D port connected by an implicit .name, no net of its name: refused (the census cannot read it: the front end (sv2v) refused the datapath: sv2v: implicit declaration of "srp_over_limit_o" but default_nettype is none)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:27.4205881Z [ok] planted a class-D output the census does not list: refused (the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list: review it)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:30.5019868Z [ok] planted a class-D output declared beside another, on one line: refused (the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list: review it)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:39.9626033Z [ok] planted a class-D output moved out of the face: refused (CLASS_D_PORTS lists acmp_bound_eid_o, which the wrapper's class-D face does not declare)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:39.9655795Z [ok] planted a wildcard port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_all.pp_cd_srp_over_limit_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:39.9685878Z [ok] planted a hierarchical reference into the CSR block: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\csr.i_lwsrp_status' is implicitly declared and `default_nettype is set to none.)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:39.9736135Z [ok] planted a hierarchical reference through a generate scope: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\g_probe[0].csr.i_lwsrp_status' is implicitly declared and `default_nettype is set to none.)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:48.5425910Z [ok] planted a read written in an included file: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_inc_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:48.5455968Z [ok] planted an include the front end cannot find: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:5677:71: Lexical error: Could not find file "probe_missing.svh", included from "hdl/milan/milan_datapath.sv")
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:53.4796130Z [ok] planted R583-5 R1: a status consumer driven to a new datapath output: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at the datapath output probe_o)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:55:56.3296144Z [ok] planted R583-5 R2: a status consumer ORed into the answer face's change strobe: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the processor wrapper)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:01.5198690Z [ok] planted a field read whose only wire is cut: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: mapped to TALKER_DECL.DECLARED as read on the wire, but it reaches no wire)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:09.3958652Z [ok] planted a second driver of a net outside the population: refused (crft_class_a_w has two drivers, an assignment of an expression, an assignment of the constant 0: the census cannot tell which its readers see)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:14.4495871Z [ok] planted two class-D ports driving one net: refused (class-D ports srp_domain_change_o and srp_over_limit_o drive one net, pp_cd_srp_over_limit_w)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:15.6067664Z [ok] planted the wrapper's cell renamed: refused (the census cannot read it: the datapath holds KL_pp_shadow cell(s) ['probe_shadow']; the census reads one, pp_shadow)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:22.2173012Z [ok] planted the CSR block's cell renamed: refused (the census cannot read it: the datapath holds no milan_csr cell named csr)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:30.5096189Z [ok] planted a class-D output named again in a block comment of the port list: refused (the wrapper's port list declares output srp_active_o 2 times, or never: the census cannot tell its section)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6308146Z [ok] planted the started level's port renamed: refused (the wrapper declares no output aecp_strm_started_o)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6309593Z [ok] planted an sv2v other than the pinned release: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.13` and `Yosys 0.66`: set SV2V and YOSYS to the pinned tools)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6313554Z [ok] planted a Yosys other than the pinned version: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.12` and `Yosys 0.67`: set SV2V and YOSYS to the pinned tools)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6315320Z [ok] planted a field the contract lacks: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: the census names TALKER_DECL.DECLARE, which the publication block does not define)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6316506Z [ok] planted a stale row: refused (stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w into lwsrp_idle_slope)
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6625219Z selftest: 0 of 120 arm(s) failed; 120 arm(s) and their rules' removals in 727 s at --jobs 4
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6626564Z [ok] rule shapes: removed, it lets through every one of its 2 arm(s), e.g. R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6627564Z [ok] rule shape-params: removed, it lets through every one of its 3 arm(s), e.g. R583-5 S2: a read inside a generate loop with no iteration at one stream
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6628287Z [ok] rule shape-header: removed, it lets through every one of its 1 arm(s), e.g. a read inside a generate branch only a multi-stream shape's header builds
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6629410Z [ok] rule same-across-shapes: removed, it lets through every one of its 1 arm(s), e.g. a field read that reaches CSR read-back only in the multi-stream shapes
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6630084Z [ok] rule pins: removed, it lets through every one of its 2 arm(s), e.g. an sv2v other than the pinned release
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6630826Z [ok] rule opener-guard: removed, it lets through every one of its 3 arm(s), e.g. R583-4: an escaped name holding // hides a read
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6631790Z [ok] rule keep-names: removed, it lets through every one of its 1 arm(s), e.g. positive control, the tracked sources
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6632627Z [ok] rule one-wrapper: removed, it lets through every one of its 1 arm(s), e.g. the wrapper's cell renamed
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6633303Z [ok] rule csr-cell: removed, it lets through every one of its 1 arm(s), e.g. the CSR block's cell renamed
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6633821Z [ok] rule face-listed: removed, it lets through every one of its 2 arm(s), e.g. a class-D output the census does not list
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6634805Z [ok] rule face-declared: removed, it lets through every one of its 1 arm(s), e.g. a class-D output moved out of the face
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6635691Z [ok] rule face-placed: removed, it lets through every one of its 1 arm(s), e.g. a class-D output named again in a block comment of the port list
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6636268Z [ok] rule started-port: removed, it lets through every one of its 1 arm(s), e.g. the started level's port renamed
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6637028Z [ok] rule port-connected: removed, it lets through every one of its 2 arm(s), e.g. a class-D port left unconnected
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6637893Z [ok] rule port-one-net: removed, it lets through every one of its 1 arm(s), e.g. a class-D port driving more than one net
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6638638Z [ok] rule ports-distinct: removed, it lets through every one of its 1 arm(s), e.g. two class-D ports driving one net
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6639514Z [ok] rule sole-driver: removed, it lets through every one of its 2 arm(s), e.g. R583-4: a second driver as the population net's declaration initialiser
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6640424Z [ok] rule two-drivers: removed, it lets through every one of its 1 arm(s), e.g. a second driver of a net outside the population
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6641000Z [ok] rule every-input: removed, it lets through every one of its 4 arm(s), e.g. an unmapped read in an always block's condition
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6641812Z [ok] rule memory: removed, it lets through every one of its 1 arm(s), e.g. a status consumer written into a memory and read out of it
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6642429Z [ok] rule output-is-wire: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R1: a status consumer driven to a new datapath output
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6643221Z [ok] rule no-output-end: removed, it lets through every one of its 1 arm(s), e.g. a status consumer printed
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6643755Z [ok] rule terminal-cell: removed, it lets through every one of its 1 arm(s), e.g. a read-back port of another milan_csr cell
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6644315Z [ok] rule csr-readback: removed, it lets through every one of its 1 arm(s), e.g. a CSR block input outside the read-back face
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6645367Z [ok] rule processor-face: removed, it lets through every one of its 1 arm(s), e.g. a wrapper input outside its answer face
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6646065Z [ok] rule unmapped: removed, it lets through every one of its 15 arm(s), e.g. an unmapped read on the wire
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6646717Z [ok] rule unknown-field: removed, it lets through every one of its 1 arm(s), e.g. a field the contract lacks
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6647565Z [ok] rule field-on-wire: removed, it lets through every one of its 1 arm(s), e.g. a field read whose only wire is cut
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6648296Z [ok] rule off-wire: removed, it lets through every one of its 51 arm(s), e.g. a status read on the wire
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6648887Z [ok] rule status-not-processor: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R2: a status consumer ORed into the answer face's change strobe
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6649669Z [ok] rule stale-row: removed, it lets through every one of its 1 arm(s), e.g. a stale row
+publication-census	Run the publication census in every shape the builder builds	2026-10-10T18:56:53.6650000Z mutations: 0 of 31 rule(s) no arm proves
+publication-census	Post Cache the pinned Yosys build	﻿2026-10-10T18:56:53.6903629Z Post job cleanup.
+publication-census	Post Cache the pinned Yosys build	2026-10-10T18:56:53.7808915Z Cache hit occurred on the primary key yosys-v0.66-Linux, not saving cache.
+publication-census	Post Cache the pinned Yosys build	2026-10-10T18:56:53.7810826Z (node:4372) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	Post Cache the pinned Yosys build	2026-10-10T18:56:53.7811413Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	Post Run actions/checkout@v4	﻿2026-10-10T18:56:53.7943599Z Post job cleanup.
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8610405Z [command]/usr/bin/git version
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8644282Z git version 2.55.0
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8674619Z Temporarily overriding HOME='<home-path>/work/_temp/dfcaa7e6-4ee7-4a93-96a8-439b173779f7' before making global git config changes
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8675616Z Adding repository directory to the temporary git global config as a safe directory
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8679533Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8712919Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8742337Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8940133Z Entering 'gptp-processor'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.8982339Z Entering 'protocol-processor'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9019369Z Entering 'third_party/verilog-axis'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9075961Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9104781Z http.https://github.com/.extraheader
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9117353Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9165191Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9415099Z Entering 'gptp-processor'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9432967Z Entering 'protocol-processor'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9479300Z Entering 'third_party/verilog-axis'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9546496Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9590635Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9789304Z Entering 'gptp-processor'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9808008Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9825342Z Entering 'protocol-processor'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9840256Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9856117Z Entering 'third_party/verilog-axis'
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9872305Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9902942Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9935580Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	Post Run actions/checkout@v4	2026-10-10T18:56:53.9964038Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	Complete job	﻿2026-10-10T18:56:54.0128011Z Cleaning up orphan processes
+publication-census	Complete job	2026-10-10T18:56:54.0383345Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
