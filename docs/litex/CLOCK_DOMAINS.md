@@ -217,11 +217,11 @@ Conditional paths exist only when their features are elaborated.
 
 | Path | From → to | Implemented crossing / caveat |
 |---|---|---|
-| Milan CSR transactions | `sys` ↔ `milan` | `milan_axil_cdc`: LiteX `AXILiteClockDomainCrossing` |
+| Milan CSR transactions | `sys` ↔ `milan` | `milan_axil_cdc`: LiteX `AXILiteClockDomainCrossing`, built by `_cross_csr_bus`; W and R payload in block RAM |
 | Descriptor-memory requests and responses | `milan` ↔ `sys` | `descmem_req_cdc`, `descmem_rsp_cdc` |
 | Response and record-image memory channels | `milan` ↔ `sys` | `respmem_*_cdc`, `nvmmem_*_cdc`; separate request, response, write, completion streams |
-| MAC TX stream | `macdp` → `macsys` | `mac_tx_cdc`; reset-extended shadow domains |
-| MAC RX stream | `macsys` → `macdp` | `mac_rx_cdc`; reset-extended shadow domains |
+| MAC TX stream | `macdp` → `macsys` | `mac_tx_cdc`; reset-extended shadow domains; payload in block RAM, framing flags in LUTRAM |
+| MAC RX stream | `macsys` → `macdp` | `mac_rx_cdc`; reset-extended shadow domains; payload in block RAM, framing flags in LUTRAM |
 | MAC core TX/RX streams | `macsys` → `maceth_tx`; `maceth_rx` → `macsys` | LiteEth internal stream FIFOs plus width conversion |
 | CPU peripheral/DMA interfaces | CPU clock ↔ `sys` | Generated CPU wrapper's supported CDC; distinct from dedicated DDR port |
 | CPU dedicated DDR AXI port | CPU clock (`milan`) → `sys` LiteDRAM port | `cross_cpu_memory_ports()`: one LiteX `AXIClockDomainCrossing` per memory bus, added by [#359](https://github.com/kebag-logic/milan-fpga/issues/359)'s fix; before it the port was connected straight and the board stalled when the BIOS returned the DRAM to the controller |
@@ -238,6 +238,29 @@ Conditional paths exist only when their features are elaborated.
 
 `_axis_dp_cdc` supplies the named packet/memory stream crossings.
 Each uses a 16-beat buffered asynchronous FIFO here.
+
+Storage placement moves arrays, never crossings
+([#640](https://github.com/kebag-logic/milan-fpga/issues/640) lane M2):
+
+- `_payload_in_block_ram` splits one crossing's storage array in two.
+- The payload goes to block RAM; `first` and `last` go to LUTRAM.
+- An unread flag is trimmed.
+- A read flag costs one RAM32X1D and one flip-flop.
+- Both arrays share the FIFO's write and read addresses.
+- Each array registers the word it reads, never the address.
+- LiteX's emitter already writes that form for the SoC.
+- migen's emitter writes it only when the port declares it.
+- Undeclared, each array registers the same read address.
+- Synthesis merges those twin registers.
+- With its flags read, an unbuffered payload fell to LUTRAM.
+- Vivado reported Synth 8-6849 for it.
+- The payload now stays in block RAM either way.
+- That holds for buffered and unbuffered crossings alike.
+- Depth, width, latency, domains and resets stay LiteX's.
+- The gray-pointer control and its synchronizers are unchanged.
+- `MilanMAC` applies it to `mac_tx_cdc` and `mac_rx_cdc`.
+- `_cross_csr_bus` applies it to the W and R FIFOs.
+- [`test_retained_cdc_storage.py`](../../sw/litex/test_retained_cdc_storage.py) checks all seven arrays.
 
 LiteEth's internal FIFOs have separate dependency-owned settings.
 

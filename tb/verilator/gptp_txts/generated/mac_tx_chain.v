@@ -697,7 +697,6 @@ reg [4:0] tx_dp_cdc_graycounter1_q_next_binary;
 wire [4:0] tx_dp_cdc_produce_rdomain;
 wire [4:0] tx_dp_cdc_consume_wdomain;
 wire [3:0] tx_dp_cdc_wrport_adr;
-wire [73:0] tx_dp_cdc_wrport_dat_r;
 wire tx_dp_cdc_wrport_we;
 wire [73:0] tx_dp_cdc_wrport_dat_w;
 wire [3:0] tx_dp_cdc_rdport_adr;
@@ -710,6 +709,18 @@ wire [63:0] tx_dp_cdc_fifo_out_payload_data;
 wire [7:0] tx_dp_cdc_fifo_out_payload_keep;
 wire tx_dp_cdc_fifo_out_first;
 wire tx_dp_cdc_fifo_out_last;
+wire [3:0] array_write_memory0_adr;
+wire [71:0] array_write_memory0_dat_r;
+wire array_write_memory0_we;
+wire [71:0] array_write_memory0_dat_w;
+wire [3:0] array_read_memory0_adr;
+wire [71:0] array_read_memory0_dat_r;
+wire [3:0] array_write_memory1_adr;
+wire [1:0] array_write_memory1_dat_r;
+wire array_write_memory1_we;
+wire [1:0] array_write_memory1_dat_w;
+wire [3:0] array_read_memory1_adr;
+wire [1:0] array_read_memory1_dat_r;
 reg txdatapath_liteethmactxlastbe_state = 1'd0;
 reg txdatapath_liteethmactxlastbe_next_state;
 reg txdatapath_liteethmacpaddinginserter_state = 1'd0;
@@ -2156,6 +2167,15 @@ assign tx_dp_cdc_wrport_dat_w = tx_dp_cdc_asyncfifo_din;
 assign tx_dp_cdc_wrport_we = tx_dp_cdc_graycounter0_ce;
 assign tx_dp_cdc_rdport_adr = tx_dp_cdc_graycounter1_q_next_binary[3:0];
 assign tx_dp_cdc_asyncfifo_dout = tx_dp_cdc_rdport_dat_r;
+assign array_write_memory0_adr = tx_dp_cdc_wrport_adr;
+assign array_write_memory0_we = tx_dp_cdc_wrport_we;
+assign array_write_memory0_dat_w = tx_dp_cdc_wrport_dat_w[71:0];
+assign array_read_memory0_adr = tx_dp_cdc_rdport_adr;
+assign array_write_memory1_adr = tx_dp_cdc_wrport_adr;
+assign array_write_memory1_we = tx_dp_cdc_wrport_we;
+assign array_write_memory1_dat_w = tx_dp_cdc_wrport_dat_w[73:72];
+assign array_read_memory1_adr = tx_dp_cdc_rdport_adr;
+assign tx_dp_cdc_rdport_dat_r = {array_read_memory1_dat_r, array_read_memory0_dat_r};
 
 // synthesis translate_off
 reg dummy_d_30;
@@ -2663,21 +2683,37 @@ end
 assign packetfifo_param_fifo_wrport_dat_r = memdat_3;
 assign packetfifo_param_fifo_rdport_dat_r = memdat_4;
 
-reg [73:0] storage_5[0:15];
+(* ram_style = "block" *) reg [71:0] storage_5[0:15];
 reg [3:0] memadr_4;
-reg [3:0] memadr_5;
+reg [71:0] memdat_5;
 always @(posedge macdp_clk) begin
-	if (tx_dp_cdc_wrport_we)
-		storage_5[tx_dp_cdc_wrport_adr] <= tx_dp_cdc_wrport_dat_w;
-	memadr_4 <= tx_dp_cdc_wrport_adr;
+	if (array_write_memory0_we)
+		storage_5[array_write_memory0_adr] <= array_write_memory0_dat_w;
+	memadr_4 <= array_write_memory0_adr;
 end
 
 always @(posedge macsys_clk) begin
-	memadr_5 <= tx_dp_cdc_rdport_adr;
+	memdat_5 <= storage_5[array_read_memory0_adr];
 end
 
-assign tx_dp_cdc_wrport_dat_r = storage_5[memadr_4];
-assign tx_dp_cdc_rdport_dat_r = storage_5[memadr_5];
+assign array_write_memory0_dat_r = storage_5[memadr_4];
+assign array_read_memory0_dat_r = memdat_5;
+
+(* ram_style = "distributed" *) reg [1:0] storage_6[0:15];
+reg [3:0] memadr_5;
+reg [1:0] memdat_6;
+always @(posedge macdp_clk) begin
+	if (array_write_memory1_we)
+		storage_6[array_write_memory1_adr] <= array_write_memory1_dat_w;
+	memadr_5 <= array_write_memory1_adr;
+end
+
+always @(posedge macsys_clk) begin
+	memdat_6 <= storage_6[array_read_memory1_adr];
+end
+
+assign array_write_memory1_dat_r = storage_6[memadr_5];
+assign array_read_memory1_dat_r = memdat_6;
 
 endmodule
 
