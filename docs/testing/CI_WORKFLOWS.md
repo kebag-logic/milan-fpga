@@ -55,12 +55,15 @@ pull-request update and on every push to `dev`. It produces one stable
   F4 initializes the public lwSRP submodule at its exact pin.
   The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
   Its boundary step holds both directions with planted controls.
-  It judges every configuration the firmware's builders compile.
+  It judges each unit as the firmware's builders compile it, read from them: as C, and as C++ where a builder's C++ source reaches it.
+  Its configurations are the builders' modes, every shipped config's shape and generated headers, the image's stream counts and both mailbox contracts.
   The cores include only their own headers and the C library.
   The stack's tests reach nothing of this repository outside the submodule.
   The firmware reaches only the stack's public headers.
   The stack's own boundary gate runs with gcc and clang.
-  Its pin controls refuse a stack off its gitlink or differing from it, in the mailbox bench, the MAAP differential and the AECP tools too.
+  Every Makefile target that builds against the stack has the pin check as a prerequisite.
+  Its pin controls refuse a stack off its gitlink or differing from it, in the MAAP differential and the AECP tools too.
+  Every mailbox bench target that reaches the stack refuses a poisoned one on the pin check.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
@@ -192,9 +195,10 @@ verifies, so on both hosted `milan_dp` timeouts only that step failed.
 
 Every Verilator worker also initializes `third_party/tsn-c-stack`: the `mbx`
 suite's co-simulation links the firmware's ADP, ACMP and MAAP cores, which
-come from that submodule (#697), whichever shard owns the suite. The suite
-runs the shared pin check before building them, so a checkout off the gitlink
-or differing from it is refused, never built.
+come from that submodule (#697), whichever shard owns the suite. Every bench
+target that compiles against the stack has the shared pin check as a
+prerequisite, so a checkout off the gitlink or differing from it is refused,
+never built, whichever target runs.
 
 Each suite runs under a per-suite wall clock from the table in
 `scripts/run_all_suites.sh`. The measured hosted worst case plus a stated

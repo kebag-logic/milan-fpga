@@ -84,17 +84,28 @@ It preprocesses the stack's tests as C++, as the arms compile them.
 They may reach anything of the stack and the host's libraries, and nothing else of this repository.
 It preprocesses every firmware source and header, AECP's included, and every image source, on the host and for RV32.
 The firmware's units are those of every directory here but `host/` and `test/`, and every C source under `test/`.
-Their include path is every firmware directory, the entity generators' headers, and the stack's other directories last.
+Their include path is every firmware directory, a shape's generated headers, and the stack's other directories last.
 A dependency on the stack outside `include/` is refused.
 So is a file under `sw/firmware` named as a stack source or header.
-Every unit is judged in every configuration the firmware builds.
+Every unit is judged as its builders compile it, and nothing about that is listed here or in the gate: [`ctrl_configs.py`](test/ctrl_configs.py) reads it from the builders.
 The builders are found, never listed: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
-Their own `-D` and `-U` flags are the build modes (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches).
+Every unit is judged as C.
+A firmware header that a C++ source a builder names reaches (a test or a bench, every `#include` followed as text) is judged as C++ too, with the arms' test include path.
+The builders' own `-D` and `-U` flags, as one argument or as two, are the build modes (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches).
 A macro name the C implementation reserves is not a mode.
-The compiler reports the macros each unit tests (`-dU`), and the gate tries every combination of their modes.
-A finding names the mode flags of the smallest configuration that reaches it.
+A flag a builder computes at run time is a value.
+The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config.
+A unit that tests any other computed value is refused, since the gate has none of its values.
+Every shipped config (`configs/*.yaml`) is a shape, with the headers the builders' own generators write for it.
+The SRP shape header is force-included, as the SRP builds compile every unit, or left out, as the others do.
+The mailbox contract is the tracked one or the variant its generator writes for every other interface count it admits.
+The compiler reports the macros each unit tests or expands (`-dU`).
+Those that the conditionals and `#include` lines of the files it reads name can decide what it includes.
+The gate tries every combination of their alternatives, until no new one appears.
+A configuration that stops on an `#error` is one no builder compiles, and what it reads is still judged.
+A finding names the smallest configuration that reaches it, beyond the unit's default build.
 It also runs the stack's own boundary gate.
-`--selftest` plants 33 defects, each refused by name, and three passing controls.
+`--selftest` plants 42 defects, each refused by name, and three passing controls.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
 The submodule must be at its gitlink.
@@ -102,11 +113,16 @@ Every file of its sources, headers, tests, examples, scripts and CMake files mus
 The hashes are read from the files, never from the index, so an edit hidden from `git status` is refused too.
 The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP differential in both modes, the mailbox bench ([`tb/verilator/mbx`](../../../tb/verilator/mbx)) and both image fixtures with the submodule as their stack.
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
-Fifteen pin controls follow the boundary controls.
+In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
+[`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
+Twenty pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script or CMake file is refused, and so are an edit hidden by `assume-unchanged`, an added header and another revision.
-The mailbox bench passes the clean clone.
-The bench, both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
+Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
+Every mailbox bench target whose dry run reaches the stack runs for real, in a scratch copy, against a clone whose `wire.h` is poisoned.
+At this head those are `all`, `run-cosim`, `run-if2`, the firmware library and the pin target itself.
+Each refuses on the pin check and never compiles the poisoned header, and the pin target passes the clean clone.
+A planted copy of the bench's Makefile whose `run-if2` lacks the pin prerequisite is refused by name.
 
 Its tests run two ways.
 The gate [below](#the-host-test) builds the stack's own core tests into the

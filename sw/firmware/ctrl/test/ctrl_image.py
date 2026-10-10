@@ -336,19 +336,27 @@ def app_parts(cc: str, fw: Path, gen: Path, work: Path, stack: Path) -> dict[str
     return {n.removeprefix("size_"): s for n, (_, s) in symbol_sizes(cc.removesuffix("gcc"), obj).items()}
 
 
-def measure(cc: str, fw: Path, shape: str, work: Path, stack: Path = STACK) -> Image:
-    """Link the composition at one shape and read its figures."""
-    config = ROOT / "configs" / f"{shape}.yaml"
+def shape_build(config: Path, work: Path) -> tuple[Path, list[str]]:
+    """What the composition is compiled with at one shape: the store's generated headers (its container and the
+    SoC's header), written into work/gen, and the shape's stream counts from its entity model, the -D flags
+    image_main.c reads. The boundary gate (ctrl_boundary.py) judges the image under the same."""
     view = ctrl_arms.fabric_view(config)
-    image = Image(shape, view["listener_stream_sinks"], view["talker_stream_sources"])
-    work.mkdir(parents=True, exist_ok=True)
     try:
         inputs = nvm_bench.shape_inputs(config, work / "shape")
     except nvm_bench.Refusal as exc:
         raise Refusal(str(exc)) from exc
     gen = work / "gen"
     nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
-    defs = [f"-DIMAGE_SINKS={image.sinks}u", f"-DIMAGE_SOURCES={image.sources}u"]
+    return gen, [f"-DIMAGE_SINKS={view['listener_stream_sinks']}u", f"-DIMAGE_SOURCES={view['talker_stream_sources']}u"]
+
+
+def measure(cc: str, fw: Path, shape: str, work: Path, stack: Path = STACK) -> Image:
+    """Link the composition at one shape and read its figures."""
+    config = ROOT / "configs" / f"{shape}.yaml"
+    view = ctrl_arms.fabric_view(config)
+    image = Image(shape, view["listener_stream_sinks"], view["talker_stream_sources"])
+    work.mkdir(parents=True, exist_ok=True)
+    gen, defs = shape_build(config, work)
     objs = compile_all(cc, fw, gen, work, defs, stack)
     tool = cc.removesuffix("gcc")
     helpers = work / object_name(HELPERS)
