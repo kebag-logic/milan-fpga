@@ -109,13 +109,15 @@ ANNOUNCE = DEFEND.
   The 16 offset rows and the 6 probe rows are linearly independent, so the two first draws are independent too.
   Later Begin! events draw the running generator's next low 16 bits; Restart! draws its current low 16 bits.
 - The fold rows serve equally timed stations, whose seeds differ only through the MAC or the clock (B.3.4 NOTE, B.3.6.1).
+  The separation criterion is the one recorded on #696 in [comment 6102832618](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6102832618).
   Two seeds a power of two apart, with any carry, claim first blocks of up to 8 addresses that share no address (Table B.7 note b).
   This holds through the pool fold and the clip; a pair with a zero sum takes the fallback and is outside it.
-  Adjacent MACs, MACs one power of two apart and, at one MAC, clocks one power of two apart are such pairs.
+  Adjacent MACs, MACs 2^i apart with i up to 31 and, at one MAC, clocks one power of two apart are such pairs.
   Such pairs also draw different first probe intervals.
-  Seed bits 16..31 map one-to-one onto the offset word, so MACs differing only in bits 16..31 always draw different words.
+  Seed bits 16..31 map one-to-one onto the offset word, so MACs differing only in bits 16..31 always draw different words; the pool fold can still map two such words onto one block, so their first blocks can coincide or overlap like any pair that is not a power of two apart.
   Two seeds not a power of two apart can still claim overlapping blocks, about 15 times in 65,024, as two independent draws would.
   No 16-bit draw can keep every pair of 2^32 seeds apart.
+  The default MAAP target establishes these properties for every seed from the RTL itself, as the TB entry below describes.
 - `enable_i` falling acts like Release!: back to IDLE at once.
 - `port_operational_i` rising implements PortOperational! (B.3.5.9, Table B.7).
   An enabled active engine immediately revokes validity and re-probes.
@@ -215,8 +217,8 @@ compared ranges with inclusive ends.
   Restoring reset-time sampling fails that check.
   Same-MAC stations enabled at different PHC times also draw different intervals.
   Ignoring the clock fails that integration check.
-  The same stations' first PROBEs carry the first claims: the adjacent MACs' blocks share no address,
-  and the two PHC times give different first offsets.
+  The same stations' first PROBEs carry the first claims, graded as fixed pairs:
+  the fixed adjacent MAC pair's blocks share no address, and the fixed pair of PHC times gives different first offsets.
   Restoring the pre-#696 first draw fails the first check; a first offset that ignores the clock fails the second.
   The unit suite observes the generator's linear transition map and checks its order.
   Short-period, nonlinear-trap, missing-clock, XOR-seed and repeated-seed defects
@@ -250,14 +252,24 @@ compared ranges with inclusive ends.
   with clock 0 is zero (`02:00:00:00:00:00`) must also draw more than one
   distinct probe and announce interval. A link outage longer than a whole
   walk must leave that walk running, and only the return may restart it.
+  A DEFEND answering a PROBE that starts below this station's offset must echo that PROBE's requested start, not the overlap start.
   Equally timed stations reset and enable on the same cycles and differ only in MAC or clock.
   For every carry run of the seed, one pair of seeds a power of two apart must claim first blocks that share no address.
-  That covers adjacent MACs, MACs differing only in bits 16..31 and the other single-power-of-two gaps.
-  R558-6's pairs are included.
-  Clocks one power of two apart must give different first offsets, and the adjacent and bit 16..31 pairs different first probe intervals.
+  Adjacent MACs, MACs 2^i apart with 1 <= i <= 15 and MACs 2^i apart with 16 <= i <= 31 are separate checks.
+  R558-6's four pairs and two clock pairs have their own checks, named as fixed pairs: they pin those pairs at the current fold rows and carry no guarantee of their own.
+  Clocks one power of two apart must give different first offsets. The adjacent pairs, R558-6's pairs and the 16 single-bit pairs in bits 16..31 must give different first probe intervals.
+  The harness's section [13] establishes the criterion for every seed, not a sample.
+  It learns the first offset word and the first probe draw as linear maps of the seed from the RTL's own first Begin!, and confirms both maps on 256 further seeds.
+  It then claims every word of the offset image through the RTL, for each block size from 1 to 8.
+  Every one of the 528 carry runs, against every word and size, must claim disjoint blocks and draw a different first probe interval.
+  Seed bits 16..31 must map one-to-one onto the offset word, and the two first draws must be independent.
+  No fold row, generator tap or pool bound is restated in the suite, so a changed constant is graded as it stands.
   Its `mutants.py` plants at least one defect per #686 item and requires
   the named check to fail. The #696 plants include R558-6's p7 (the pre-#696 first draw), the raw low seed bits as the first offset,
   an offset fold without the seed's high half, a first offset that ignores the clock, and a raw-seed first probe draw.
+  R559-6's q3 and q9 (one bit dropped from offset row 0 or row 6) and its q1 (the probe fold of the unstepped state) pass every sampled pair, and each fails its section [13] check.
+  A probe row that repeats an offset row fails the independence check, and a nonlinear first fold the linearity check.
+  An echo of the overlap start fails the below-offset M2 check.
   The coverage gate is 95 %, like avtp_rxmon.
 
 ## The block ⇄ per-source bridge (`KL_pp_maap_shim`)
