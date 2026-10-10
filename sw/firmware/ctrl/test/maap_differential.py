@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Shared-stimulus MAAP wire differential: the C core and the parent fabric engine (#686)."""
+"""Shared-stimulus MAAP wire differential: the C core and the parent fabric engine (#686).
+
+Both modes first run the shared pin check (ctrl_build.stack_pin) on the stack they build: a tsn-c-stack
+checkout off its gitlink, or differing from it, is refused (exit 2) and never built."""
 from __future__ import annotations
 
 import argparse
@@ -11,18 +14,20 @@ import sys
 import tempfile
 from pathlib import Path
 
-from ctrl_build import CTRL, ROOT, Outcome, Tree, compile_c, execute, sources
+from ctrl_build import (CTRL, ROOT, STACK, STACK_INCLUDE, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, compile_c,
+                        execute, sources, stack_pin)
+from ctrl_mutant import MAAP_C
 import fw_gtest
 
 
-def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
-    """Build the real parent RTL and C core; grade by the shared test tally."""
+def differential(out: Path, ctrl: Path = CTRL, stack: Path = STACK) -> Outcome:
+    """Build the real parent RTL and the stack's C core; grade by the shared test tally."""
     out.mkdir(parents=True, exist_ok=True)
-    tree = Tree(ctrl, out, out / "reuse", fw_gtest.Build(jobs=4))
-    objs = compile_c(tree, sources(tree, ("maap/maap.c",)), "core")
+    tree = Tree(ctrl, out, out / "reuse", fw_gtest.Build(jobs=4), stack)
+    objs = compile_c(tree, sources(tree, (MAAP_C,)), "core")
     objs.append(fw_gtest.main_object(tree.build, out / "harness"))
     flags = ["-std=c++20", "-O1", "-Wall", "-Wextra", "-Werror",
-             f"-I{CTRL / 'maap'}", f"-I{ROOT / 'tb/common'}", f"-I{ROOT / 'sw/firmware/gtest'}"]
+             f"-I{stack / STACK_INCLUDE}", f"-I{ROOT / 'tb/common'}", f"-I{ROOT / 'sw/firmware/gtest'}"]
     exe = out / "differential"
     argv = [os.environ.get("VERILATOR", "verilator"), "--cc", "--exe", "--build", "-j", "8",
             "--top-module", "KL_maap", "-GCLK_FREQ_HZ_P=10000", "-Wno-fatal",
@@ -41,21 +46,21 @@ def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
     return outcome
 
 
-def sensitivity(out: Path) -> int:
-    """Require every differential case to reject its own planted core defect."""
+def sensitivity(out: Path, pinned: Path = STACK) -> int:
+    """Require every differential case to reject its own planted core defect, planted in a copy of `pinned`."""
     from ctrl_mutants import MUTANTS, caught
 
-    cells = [(m.name, "maap/maap.c", m.old, m.new, f"AllStates/DifferentialCell.SharedConflict/{k}")
+    cells = [(m.name, m.path, m.old, m.new, f"AllStates/DifferentialCell.SharedConflict/{k}")
              for k, key in enumerate((0, 1, 2, 6, 7, 8, 12, 13, 14))
              for m in MUTANTS if m.name == f"maap-table-b7-{key}"]
-    cases = [("wire", "maap/maap.c", "f[17] = 16u;", "f[17] = 28u;", "MaapDifferential.ProbeSequenceWireAndCadence"),
-             ("release", "maap/maap.c", "m->state = MAAP_INITIAL;\n\tm->queued = 0;",
+    cases = [("wire", MAAP_C, "f[17] = 16u;", "f[17] = 28u;", "MaapDifferential.ProbeSequenceWireAndCadence"),
+             ("release", MAAP_C, "m->state = MAAP_INITIAL;\n\tm->queued = 0;",
               "m->state = MAAP_DEFEND;\n\tm->queued = 0;", "MaapDifferential.ReleaseAndRetry"), *cells]
     delay = "base + MAAP_SERVICE_MS + 1u + draw(m, variation - 2u * MAAP_SERVICE_MS - 1u)"
     timing = "MaapDifferential.ProbeTimingAndCount"
     # R529-1's 1 ms escape and both strict boundary controls.
     for ms in (1, 500, 600):
-        cases.append((f"probe-{ms}ms", "maap/maap.c", delay,
+        cases.append((f"probe-{ms}ms", MAAP_C, delay,
                       f"announce ? {delay} : {ms}u", timing))
     cases.append(("parent-probe-bound", "test/test_maap_differential.cpp",
                   "kParentProbeMaxMs = 581", "kParentProbeMaxMs = 499", timing))
@@ -65,13 +70,16 @@ def sensitivity(out: Path) -> int:
     escaped = 0
     for name, path, old, new, test in cases:
         copy = out / name / "ctrl"
+        stack = out / name / "tsn-c-stack"
         shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"), dirs_exist_ok=True)
-        source = copy / path
+        for part in STACK_PARTS:
+            shutil.copytree(pinned / part, stack / part, dirs_exist_ok=True)
+        source = stack / path.removeprefix(STACK_PREFIX) if path.startswith(STACK_PREFIX) else copy / path
         original = source.read_text(encoding="utf-8")
         if original.count(old) != 1:
             raise ValueError(f"{name}: differential fixture is not unique")
         source.write_text(original.replace(old, new), encoding="utf-8")
-        outcome = differential(out / name / "build", copy)
+        outcome = differential(out / name / "build", copy, stack)
         ok = caught(test, "", outcome)
         print(f"[{'ok' if ok else 'ESCAPED'}] differential mutant {name}: {test}", flush=True)
         escaped += not ok
@@ -84,14 +92,22 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--keep", type=Path)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--stack", type=Path, default=STACK,
+                        help="the tsn-c-stack checkout to build (default: the submodule), refused unless pinned")
     args = parser.parse_args()
+    stack = args.stack.resolve()
+    try:
+        print(f"tsn-c-stack at {stack_pin(stack)}", flush=True)
+    except Refusal as exc:
+        print(f"REFUSED: {exc}")
+        return 2
     with tempfile.TemporaryDirectory(prefix="maap-diff-") as scratch:
         out = args.keep.resolve() if args.keep else Path(scratch)
         out.mkdir(parents=True, exist_ok=True)
-        outcome = differential(out)
+        outcome = differential(out, stack=stack)
         if outcome.rc != 0:
             return outcome.rc
-        return sensitivity(out / "mutants") if args.self_test else 0
+        return sensitivity(out / "mutants", stack) if args.self_test else 0
 
 
 if __name__ == "__main__":

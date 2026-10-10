@@ -53,6 +53,30 @@ pull-request update and on every push to `dev`. It produces one stable
   The RV32 self-test plants header, ABI, and runtime-dependency defects.
   These builds report objects and frames, not linked-image bounds.
   F4 initializes the public lwSRP submodule at its exact pin.
+  The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
+  Its firmware steps run under one capture (`ctrl_capture.py`): a recording wrapper on `PATH` for every compiler records each invocation and runs the real compiler unchanged.
+  The boundary step runs last, judges that capture, and holds both directions with planted controls.
+  It judges each unit in every configuration the capture recorded its builders compiling: as C, and as C++ where a recorded C++ compile reaches it.
+  Its configurations are every recorded `-D` and `-U` flag, every shipped config's shape and generated headers, the image's stream counts and both mailbox contracts.
+  It refuses a missing or empty capture, and a known builder the capture holds nothing of, by name.
+  It runs the stack's own gate and the image builders under the capture itself.
+  The builders that need Verilator, which this job has none of, are named and left out (`--without verilator`).
+  The cores include only their own headers and the C library.
+  The stack's tests reach nothing of this repository outside the submodule.
+  The firmware reaches only the stack's public headers.
+  The stack's own boundary gate runs with gcc and clang.
+  Every Makefile target that builds against the stack has the pin check as a prerequisite.
+  Its pin controls refuse a stack off its gitlink or differing from it, in the MAAP differential and the AECP tools too.
+  Every mailbox bench target that reaches the stack refuses a poisoned one on the pin check.
+  The boundary step's budget is 5 of the job's 45 minutes, its self-test included.
+  It runs each preprocessing once per run and reuses it wherever it would read the same, so its controls share one prepared base.
+  A control that must be refused stops at its finding, and the stack's own self-test runs beside the controls.
+  A unit's configurations go to four compilers at once, the hosted runner's CPU count.
+  The capture's recorder is compiled C, so it adds a millisecond or two to each of the job's 23,000 compiles.
+  Before the capture, the hosted step took 93 s at `e07b3054` (job 114206016568).
+  With it, on four otherwise idle CPUs of a shared host, the step took 101 to 106 s at `93540c3a`, where `e07b3054`'s took 80 to 82 s on the same CPUs.
+  Scaled to the hosted 93 s, the worst is about 124 s, which leaves 176 s of the 300 s budget, a 59% margin, until a hosted run measures it.
+  The slowest local run, on four CPUs that other jobs were using too, took 215 s and left 85 s.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
@@ -181,6 +205,13 @@ worker-result script the same way, and the Yosys aggregate's two twins. The
 worker-result step is the only step that turns a failed or timed-out worker
 red: a killed suite's partial log still tallies and its SHA record still
 verifies, so on both hosted `milan_dp` timeouts only that step failed.
+
+Every Verilator worker also initializes `third_party/tsn-c-stack`: the `mbx`
+suite's co-simulation links the firmware's ADP, ACMP and MAAP cores, which
+come from that submodule (#697), whichever shard owns the suite. Every bench
+target that compiles against the stack has the shared pin check as a
+prerequisite, so a checkout off the gitlink or differing from it is refused,
+never built, whichever target runs.
 
 Each suite runs under a per-suite wall clock from the table in
 `scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
@@ -1541,14 +1572,14 @@ otherwise complete local head-tree run.
 
 Before any candidate-directed network operation, the runner parses the exact
 committed `.gitmodules` blob and requires the trusted name/path/URL pairs with
-no duplicate or extra configuration. It also requires the matching five
+no duplicate or extra configuration. It also requires the matching six
 gitlink paths. Git disables every transport by default and enables only HTTPS;
 the inactive SSH-only `external` entry must match the trusted manifest but is
 never fetched. Only then, and only after selected workflows pass their static
-sandbox scan, does the temporary checkout initialize the four allowlisted
+sandbox scan, does the temporary checkout initialize the five allowlisted
 public pinned dependencies (`third_party/verilog-axis`, `protocol-processor`,
-`gptp-processor`, and `third_party/lwSRP`). This gives act's checkout copier
-the submodule-path parity that a hosted checkout exposes; each workflow's own submodule update
+`gptp-processor`, `third_party/lwSRP`, and `third_party/tsn-c-stack`). This
+gives act's checkout copier the submodule-path parity that a hosted checkout exposes; each workflow's own submodule update
 remains the authoritative, idempotent check of those pins.
 
 The runner then populates the per-run action cache itself, serially, before
@@ -2293,7 +2324,7 @@ syn/yosys/run.sh --mode elaborate --no-structural \
 ```
 
 The bare-metal firmware's host suites run locally as `firmware-unit` runs
-them. F4 fetches the pinned lwSRP submodule and installs the pinned SDK before
+them. F4 fetches the pinned lwSRP and tsn-c-stack submodules and installs the pinned SDK before
 the required RV32 control build and its `--self-test` mutation campaign.
 The saved-state campaign remains a local `--self-test` addition, and the
 tally listener's campaign uses `--mutants`
@@ -2302,6 +2333,7 @@ tally listener's campaign uses `--mutants`
 ```sh
 python3 sw/firmware/gtest/tally_selftest.py --mutants
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <lwSRP checkout>
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
 python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
 python3 sw/firmware/gtest/fw_coverage.py --selftest
 python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16

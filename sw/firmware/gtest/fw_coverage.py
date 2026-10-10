@@ -4,8 +4,10 @@
 """fw_coverage.py - line and branch coverage of the bare-metal firmware, and the ratchet that refuses a drop.
 
 WHAT IT MEASURES. The firmware's sources under sw/firmware/ctrl and
-sw/firmware/ctrl_nvm (not the tests, not the host models and stubs), as both
-host gates run them: each gate's --coverage mode builds the firmware at -O0
+sw/firmware/ctrl_nvm and the TSN stack's sources and public headers it builds
+from the tsn-c-stack submodule (#697: src/ and include/), never the tests,
+the stack's examples, the host models or the stubs, as both host gates run
+them: each gate's --coverage mode builds the firmware at -O0
 with gcc's --coverage instrumentation, the tests and the host models without
 it, and runs every arm that executes the firmware, every shipped shape of the
 saved-state store included. A failing run refuses the measurement.
@@ -81,7 +83,8 @@ import fw_gtest  # noqa: E402
 README = HERE / ("README" + ".md")
 RATCHET = HERE / "coverage.ratchet"
 #: The firmware this gate measures; under them, these are not firmware.
-MEASURED_ROOTS = ("sw/firmware/ctrl/", "sw/firmware/ctrl_nvm/")
+MEASURED_ROOTS = ("sw/firmware/ctrl/", "sw/firmware/ctrl_nvm/", "third_party/tsn-c-stack/src/",
+                  "third_party/tsn-c-stack/include/")
 NOT_FIRMWARE = ("/test/", "/host/")
 GATES = (("ctrl", ROOT / "sw/firmware/ctrl/test/test_ctrl_firmware.py"),
          ("ctrl_nvm", ROOT / "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py"))

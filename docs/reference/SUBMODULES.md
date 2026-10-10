@@ -24,6 +24,7 @@ Dirty submodules invalidate local evidence.
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `9197193e47a6bb1c45a56d90a18c1784123aba44` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/tsn-c-stack` | `1a9f651cdf7846b8e10ac246a6ef6916960fbb92` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -212,14 +213,15 @@ It does not trust checked-out heads.
 
 ## Initialize safely
 
-Firmware and root gates use these four submodules.
+Firmware and root gates use these five submodules.
 
 ```sh
 git submodule update --init \
   third_party/verilog-axis \
   protocol-processor \
   gptp-processor \
-  third_party/lwSRP
+  third_party/lwSRP \
+  third_party/tsn-c-stack
 ```
 
 lwSRP uses the HTTPS URL recorded in `.gitmodules`.
@@ -232,6 +234,14 @@ The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation an
 
 lwSRP is licensed under Apache-2.0.
 Its pinned `LICENSE` and `NOTICE` retain dependency terms.
+
+tsn-c-stack uses HTTPS and needs no credentials.
+
+It holds the ADP, ACMP and MAAP cores.
+
+The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
+
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/LICENSE).
 
 The unused external import uses SSH.
 
@@ -276,6 +286,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts

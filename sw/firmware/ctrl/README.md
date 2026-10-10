@@ -10,6 +10,8 @@ layer, the loop and the ADP slice; F2 adds the opt-in [MAAP owner](maap/README.m
 F3 the ACMP module, F4 the [SRP adapter](srp/README.md) on pinned lwSRP,
 and F5 the opt-in [AECP owner](aecp/README.md).
 Each protocol has its own core and mailbox adapter.
+The ADP, ACMP and MAAP cores and the wire layer are the
+[TSN stack](#the-tsn-stack-submodule)'s, from a pinned submodule (#697).
 
 `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test`
 is the gate: exit 0 = every arm passed and every planted defect was caught.
@@ -23,7 +25,8 @@ is an integration obligation, not a target-time result established here.
 
 ## Contents
 
-- **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, MAAP, ACMP, the app, the MMIO platform, the host model, the tests.
+- **[Layout](#layout)** -- One directory per layer: driver and HAL, lwSRP's port layer, loop, the ADP, MAAP and ACMP adapters, the app, the MMIO platform, the host model, the tests.
+- **[The TSN stack submodule](#the-tsn-stack-submodule)** -- The cores the firmware builds from tsn-c-stack: what it provides, what it must not depend on, its tests and its licence.
 - **[The ACMP module](#the-acmp-module)** -- The core, its mailbox adapter with the ADP channel's tap, and the binding owner on the saved-state store; per-interface keying, the response before its notification, the adp filter's bound-talker term, TMR_NO_RESP from the accepted send, and the boot order.
 - **[The composition](#the-composition)** -- ADP, ACMP and MAAP in one app: the attach order, the channels the open enables, the timer slots, the refusals and the pass bound.
 - **[The host test](#the-host-test)** -- The sixteen arms and lwSRP's, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
@@ -34,19 +37,135 @@ is an integration obligation, not a target-time result established here.
 
 | Directory | What it holds |
 |---|---|
-| [`wire/`](wire) | the big-endian wire layer every protocol shares |
 | [`mbx/`](mbx) | the generated contract header, the three-function bus port (`mbx_hal.h`), the ring lanes and the driver |
 | [`port/`](port) | lwSRP's port layer: `shlan_malloc`/`calloc`/`free` on the static block pool, `shlan_printf` on the debug sink |
 | [`loop/`](loop) | the event loop: events first, bounded passes, the TICK fan-out in slices, sleep only when nothing is owed, the bring-up order, and the latency bound's assumptions |
-| [`adp/`](adp) | the ADP core (no mailbox), its mailbox adapter with the latency bounds, and `adp_entity.py` |
-| [`maap/`](maap) | the Annex B core, per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
+| [`adp/`](adp) | the ADP mailbox adapter with the latency bounds, and `adp_entity.py` |
+| [`maap/`](maap) | the Annex B core's per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
 | [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
-| [`acmp/`](acmp) | the ACMP core (no mailbox), its mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
+| [`acmp/`](acmp) | the ACMP mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
 | [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking and opt-in application bridge |
 | [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
 | [`test/`](test) | the host tests and their driver |
+
+The cores (ADP, ACMP, MAAP) and the big-endian wire layer every protocol
+shares are the [TSN stack](#the-tsn-stack-submodule)'s, outside this tree.
+
+## The TSN stack submodule
+
+[`third_party/tsn-c-stack`](../../../third_party/tsn-c-stack) is the pinned
+[tsn-c-stack](https://github.com/kebag-logic/tsn-c-stack) repository (#697).
+It provides the portable C11 cores this firmware composes, with their
+core-only unit tests:
+
+| Header | What it is |
+|---|---|
+| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
+| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
+| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/wire.h) | the big-endian wire layer |
+
+The stack depends on nothing in this repository.
+It includes only its own headers and the C library.
+It must never include the mailbox driver or its HAL, the generated register-map contract,
+the MMIO platform, the app, the loop, the AECP core or the measured images.
+This firmware uses it the other way round, through its public headers (`include/`) only.
+AECP is not part of the stack: its core, adapters and application bridge ([`aecp/`](aecp), F5) are this firmware's.
+The adapters, the app, the loop, the HAL and both images compile its `src/*.c` unchanged.
+Its callback and timing obligations are in its
+[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/docs/PORTING.md).
+
+[`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions.
+It preprocesses the stack's sources and headers with this firmware's own host and RV32 flags.
+Every dependency must be a stack public header or a C library header.
+It preprocesses the stack's tests as C++, as the arms compile them.
+They may reach anything of the stack and the host's libraries, and nothing else of this repository.
+It preprocesses every firmware source and header, AECP's included, and every image source, on the host and for RV32.
+The firmware's units are those of every directory here but `host/` and `test/`, and every C source under `test/`.
+Their include path is every firmware directory, a shape's generated headers, and the stack's other directories last.
+A dependency on the stack outside `include/` is refused.
+So is a file under `sw/firmware` named as a stack source or header.
+Every unit is judged as its builders compile it, and nothing about that is listed here or read from a builder's text: it is read from the builders' compiler invocations as they ran.
+[`ctrl_capture.py`](test/ctrl_capture.py) runs a builder with a recording wrapper first on `PATH` for every C and C++ compiler name, for the RV32 compiler (`MILAN_RV32_CC`), and for `CC` and `CXX` where they are set.
+The wrapper's recorder ([`ctrl_shim.py`](test/ctrl_shim.py), compiled into the capture when it starts) records each invocation and then runs the real compiler with the same arguments, so every object, binary and image is what it would be without it.
+It keeps the text of every C++ source, and of every header outside the checkout that a C++ source reaches in a builder's own directories, so a source a builder writes and deletes is still read.
+A C++ source outside the checkout and outside the builder's temporary and working directories that was there before the capture began is an installed tool's own (Verilator's runtime, which its builds compile), and it is not followed.
+The recorder reads that from the file's inode change time against the capture's start marker, so a source a builder writes or copies anywhere is its own.
+Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
+The hosted `firmware-unit` job runs its firmware steps under one capture, and the boundary step judges it (`--capture`).
+Run without one, the gate first runs every known builder under a capture of its own.
+Either way it runs the stack's own gate and the image builders under the capture itself ([`ctrl_runs.py`](test/ctrl_runs.py)).
+`ctrl_srp_image.py` compiles every object there and stops at its link, which needs runtime archives built from sources outside the checkout.
+[`ctrl_configs.py`](test/ctrl_configs.py) lists the known builders that compile (`BUILDERS`).
+A missing or empty capture refuses the gate by name.
+So does a known builder the capture holds no invocation of, and a C++ compile of a source that was no file or of standard input.
+So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
+`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; the hosted job has no Verilator.
+The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
+Each must have compiled in the capture, be a known builder, or be listed in `OUTSIDE` with the reason its compiles are none of the firmware's.
+Every unit is judged as C.
+A firmware unit that a recorded C++ compile reaches is judged as C++ too, with the arms' test include path.
+That compile's source is read as the trees hold it, or as the capture kept it, and every `#include` is followed as text in every branch.
+The build modes are every `-D` and `-U` flag of every recorded invocation, exactly as the compiler was given it, with each value the builds gave it (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches, the arms' interface counts).
+So a mode is judged whatever form its builder writes it in: a literal, an f-string, a joined or formatted string, a split command line, `$(patsubst ...)`, `$(foreach ...)`, `VAR+=-D...` or `$(addprefix -D,...)`.
+A macro name the C implementation reserves is not a mode.
+The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config; a recorded one that no shipped config gives refuses the gate.
+Every shipped config (`configs/*.yaml`) is a shape, with the headers the builders' own generators write for it.
+Those come through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-unit` has it, and refuses without it.
+The SRP shape header is force-included, as the SRP builds compile every unit, or left out, as the others do.
+The mailbox contract is the tracked one or the variant its generator writes for every other interface count it admits.
+The compiler reports the macros each unit tests or expands (`-dU`).
+Those that the conditionals and `#include` lines of the files it reads name can decide what it includes.
+The gate tries every combination of their alternatives, until no new one appears.
+A configuration that stops on an `#error` is one no builder compiles, and what it reads is still judged.
+A finding names the smallest configuration that reaches it, beyond the unit's default build.
+It also runs the stack's own boundary gate, beside the rest.
+It runs each preprocessing once per run and reuses it where it would read the same: the same unit and arguments, every file it read unchanged, and no file added or removed that it could look up by name.
+`--selftest` first judges unplanted copies of both trees, the base every control shares, which must pass.
+A control's planted builder runs through the capture, and what it compiled joins the run's capture for that control.
+One that only compiles a mode runs once, before the base, and its invocations join the base every control shares.
+It then plants 83 defects, each refused by name, and five passing controls.
+Among them is each form a builder can write a mode or a C++ source's name in, and each way the capture can be missing, empty or incomplete.
+A control that must be refused stops at the finding it names.
+
+Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
+The submodule must be at its gitlink.
+Every file of its sources, headers, tests, examples, scripts and CMake files must hash to the gitlink's tree, and no other file may be there.
+The hashes are read from the files, never from the index, so an edit hidden from `git status` is refused too.
+The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP differential in both modes, the mailbox bench ([`tb/verilator/mbx`](../../../tb/verilator/mbx)) and both image fixtures with the submodule as their stack.
+The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
+In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
+[`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
+Twenty pin controls follow the boundary controls.
+A clean clone passes the check.
+An edited source, test, script or CMake file is refused, and so are an edit hidden by `assume-unchanged`, an added header and another revision.
+Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
+Every mailbox bench target whose dry run reaches the stack runs for real, in a scratch copy, against a clone whose `wire.h` is poisoned.
+At this head those are `all`, `run-cosim`, `run-if2`, the firmware library and the pin target itself.
+Each refuses on the pin check and never compiles the poisoned header, and the pin target passes the clean clone.
+A planted copy of the bench's Makefile whose `run-if2` lacks the pin prerequisite is refused by name.
+
+Its tests run two ways.
+The gate [below](#the-host-test) builds the stack's own core tests into the
+`adp`, `reentry_debug`, `reentry_release`, `acmp`, `maap` and `maap_debug` binaries.
+The coverage gate measures the stack's sources, and the campaign plants core defects into a copy of them.
+The stack's own suite runs from the submodule, as its
+[CI](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/.github/workflows/quality.yml)
+runs it, with GoogleTest and GoogleMock 1.14.0:
+
+```sh
+cmake -S third_party/tsn-c-stack -B <build directory> -DCMAKE_BUILD_TYPE=Debug
+cmake --build <build directory> -j16
+ctest --test-dir <build directory> --output-on-failure -j16
+```
+
+The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/LICENSE) (Kebag Logic).
+Its files keep their MIT identifiers inside this platform.
+The platform's own files stay [CERN-OHL-W-2.0](../../../LICENSE).
+lwSRP stays a separate Apache-2.0 component.
+The gitlink is the only record of the stack's revision; moving it is a reviewed change.
 
 ## The ACMP module
 
@@ -55,7 +174,7 @@ machine), in three units, each stating its clauses in its header:
 
 | Unit | What it is |
 |---|---|
-| [`acmp.h`](acmp/acmp.h), [`acmp.c`](acmp/acmp.c) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
 | [`acmp_mbx.h`](acmp/acmp_mbx.h), [`acmp_mbx.c`](acmp/acmp_mbx.c) | the mailbox adapter: the acmp channel, one fabric timer slot per AVB interface armed at the earliest deadline of its sinks, the tap that hands the adp channel's ENTITY_AVAILABLE and ENTITY_DEPARTING to discovery and everything else to ADP, the adp channel's bound-talker table kept equal to the bindings, and the service-latency figures per path |
 | [`acmp_nvm.h`](acmp/acmp_nvm.h), [`acmp_nvm.c`](acmp/acmp_nvm.c) | the binding group on lane F1's state port (`ctrl_nvm/nvm_state.h`), every other group forwarded to the integrator's owners |
 
@@ -195,15 +314,15 @@ hand-rolled checks and the coverage ratchet are described in
 | `model` | `model_suite.cpp` | the mailbox suite's checks, which the RTL passes through both adapters, pass on the model too |
 | `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included, and the own MAC the filter matches with the FILTER_MISMATCH it counts), the loop's order (every interface's own MAC before a channel opens), bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
 | `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the entity's MAC as every interface's own MAC, the contract check field by field, the driver's refusals and bounds, each interface's own MAC block and the FILTER_MISMATCH read, the adapter's slot, interface and loop-room refusals, and the MMIO platform over a host window |
-| `adp` | `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
-| `reentry_debug`, `reentry_release` | `test_adp_reentry.cpp` | Every port/core entry pair, same and cross instance; both inline-expiry regressions. Assertions in debug, counted refusal in release. |
+| `adp` | the stack's `tests/test_adp.cpp`, `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
+| `reentry_debug`, `reentry_release` | the stack's `tests/test_adp_reentry.cpp` | Every port/core entry pair, same and cross instance; both inline-expiry regressions. Assertions in debug, counted refusal in release. |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
-| `acmp` | `test_acmp.cpp`, `test_acmp_mbx.cpp` | the ACMP core over fake ports (every listener command, response, timer and SRP event in every state Table 5.30 gives it, each response field by field; the talker's answers; the lock; responses keyed on the consumer's unique ID; sequence IDs; one timer per interface; owed frames and the response before its notification; the discovery machine cell by cell; the saved record; the no-callback guard), then the adapter on the model: the channel and its filter, the timer slot and the tag rule, the ADP channel's tap, the gPTP pair, the adapter's refusals, every path's service cost (the H-ACMP and H-DISC hooks), an owed response behind a full ring under a HAL that sleeps, full backlogs and the composition, with ADP, ACMP and MAAP composed together ([The composition](#the-composition)) |
+| `acmp` | the stack's `tests/test_acmp.cpp`, `test_acmp_mbx.cpp` | the ACMP core over fake ports (every listener command, response, timer and SRP event in every state Table 5.30 gives it, each response field by field; the talker's answers; the lock; responses keyed on the consumer's unique ID; sequence IDs; one timer per interface; owed frames and the response before its notification; the discovery machine cell by cell; the saved record; the no-callback guard), then the adapter on the model: the channel and its filter, the timer slot and the tag rule, the ADP channel's tap, the gPTP pair, the adapter's refusals, every path's service cost (the H-ACMP and H-DISC hooks), an owed response behind a full ring under a HAL that sleeps, full backlogs and the composition, with ADP, ACMP and MAAP composed together ([The composition](#the-composition)) |
 | `acmpwalk` | `acmp_walk.cpp` | the processor's own ACMP expectations, reused: its F05.3 matrix model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, each difference between the two asserted to be what it is |
 | `acmpnvm` | `test_acmp_nvm.cpp` | the core and its binding owner on lane F1's store over the host flash model, at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, the started flags, an unread slot refusing persistence, a refused record, the roll-back and every other group forwarded, and a D3 roll-back (at the port and at a boot) leaving the bindings applied |
 | `acmpif2` | `test_acmp_mbx.cpp`, `acmp_if2.cpp` | the adapter's tests again with the firmware and the model compiled against the contract elaborated for two AVB interfaces (written into the build by `gen_mailbox.py`): each interface's timer slot, tag, gPTP pair, bound-talker table and every latency path, and the three-way composition |
 | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
-| `maap`, `maap_if2`, `maap_debug` | `test_maap.cpp`, `test_maap_mbx.cpp`, `test_maap_debug.cpp` | Annex B, stream CSR output, H-MAAP at one/two interfaces, and synchronous reentry refusal |
+| `maap`, `maap_if2`, `maap_debug` | the stack's `tests/test_maap.cpp`, `test_maap.cpp`, `test_maap_mbx.cpp`, the stack's `tests/test_maap_debug.cpp` | Annex B, stream CSR output, H-MAAP at one/two interfaces, and synchronous reentry refusal |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
 | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
 
@@ -253,7 +372,8 @@ issue #168.
 
 `--self-test` writes each defect of `ctrl_mutants.py` (with lane F3's
 `acmp_mutants.py` and lane F2's `maap_mutants.py` appended) into a copy of
-this tree and requires the arm it
+this tree, or of the TSN stack's sources and headers for a defect in a core
+(a `tsn-c-stack/` path), and requires the arm it
 names to exit 1 with a `[FAIL]` line naming the
 GoogleTest test and carrying the check's own words; a defect that breaks the
 build, or reddens only other tests, is an escape. The arms: ADP clause defects caught by the walk (one per walked
@@ -298,7 +418,7 @@ three-way pass bound; round 7's: MAAP's source MAC or the filter's own MAC
 keyed by interface (`acmpif2`), and the three-way bound without MAAP's
 share or with MAAP's poll on one interface only; and eight wrong numbers in
 `acmp.h` itself, which the tests
-catch because they spell the standards' values (`acmp_fake.hpp`, `spec`),
+catch because they spell the standards' values (the stack's `tests/acmp_fake.hpp`, `spec`),
 never the header's. They are `acmp_mutants.py`'s table, rounds 2, 4, 6 and 7's
 in `acmp_review_mutants.py`. Round 6 re-plants four defects whose text the
 composition moved, each with its test and words: the pool bound after the
@@ -308,7 +428,8 @@ are dropped where `ctrl_loop_open()` writes them. Lane F2's own defects
 (96, `maap_mutants.py`) grade the `maap`, `maap_if2` and `maap_debug` arms;
 its README lists them. Every test of those
 arms is named by at least one defect, which `unnamed_tests` proves before any is planted, as lane F1's
-store suite does. Some FC filter defects in the host model also name
+store suite does; a test of the stack's may instead be named by the stack's own defect table
+(its `tests/mutations.json`, which its CI plants). Some FC filter defects in the host model also name
 lane F3's own-unicast and FILTER_MISMATCH checks. With
 `--lwsrp` it also requires the pin to refuse a
 scratch clone with one compiled source edited, and the same clone at
@@ -322,12 +443,18 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice 1/6
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture <capture> --without verilator
 ```
+
+The first runs every known builder under a capture of its own first (Verilator from `VERILATOR` or `PATH`).
+The second judges a capture made as the `firmware-unit` job makes it: each of its firmware commands run as `ctrl_capture.py --out <capture> -- <command>` (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
 
 Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the
 `acmpnvm` arm also runs the builder for its shape, as lane F1's gate does).
 RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
 Both firmware gates require RV32 in `firmware-unit`.
+The boundary gate also needs GoogleTest's headers for the stack's tests, and CMake and Clang for the stack's own gate.
 Freestanding declarations avoid the SDK's hosted C headers.
 GCC supplies its own freestanding integer and varargs headers.
 `MILAN_RV32_CC` selects an explicit compiler for local validation.
@@ -335,7 +462,7 @@ See [the harness](../gtest/README.md#rv32-object-builds) for evidence limits.
 The SDK distribution is `ilp32d`; the core uses RV32I/ILP32.
 The CI firmware step also requires the control mutation campaign.
 
-Initialize `third_party/lwSRP` at its recorded gitlink before running the gate.
+Initialize `third_party/lwSRP` and `third_party/tsn-c-stack` at their recorded gitlinks before running the gate.
 An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
 `9197193e47a6bb1c45a56d90a18c1784123aba44`, with every compiled source unchanged.
 Moving either pin requires a reviewed change.
@@ -366,7 +493,8 @@ owners (the lock, the sources, SRP, the notifier, every other saved group,
 the CSR window's two accesses) are stubs; the C runtime the SoC's libbase supplies is linked from byte-loop
 stand-ins, reported apart (64 bytes: `memset` and `memcpy`, the only ones the
 composition reaches); lwSRP's pool is the host tests' 256 bytes in this fixture; `ctrl_srp_image.py` measures the entity-sized pool; the stack is not counted. `--base REV` measures another revision's
-firmware with the same harness.
+firmware with the same harness, with its own copies of the cores for a revision
+from before #697 and tsn-c-stack at its recorded gitlink after.
 
 No library is linked. The pinned SDK's `libgcc.a` is built for its one
 multilib, `rv32imafd` with the `ilp32d` ABI, so it cannot link into a

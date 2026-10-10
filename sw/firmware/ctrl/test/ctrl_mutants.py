@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """ctrl_mutants.py - planted defects the control-plane firmware's host test must catch.
 
-Each mutant is one substitution in a COPY of sw/firmware/ctrl (never the
-checkout), the arm that must catch it, the GoogleTest test that must fail (its
+Each mutant is one substitution in a COPY of sw/firmware/ctrl or of the TSN
+stack's sources and headers (never the checkout or the submodule; a path
+named with ctrl_build.STACK_PREFIX is the stack's), the arm that must catch it, the GoogleTest test that must fail (its
 full name, or the prefix every instance of a parameterised test shares) and a
 fragment of the failing assertion's own words, the name the check had in the
 hand-rolled suite this replaced. A mutant is caught only when that arm fails
@@ -15,6 +16,7 @@ test can see the defect. A mutant may name further (arm, test, words) kills in
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 from pathlib import Path
@@ -23,8 +25,8 @@ import acmp_mutants
 import ctrl_arms
 import fw_gtest
 from maap_mutants import mutants as maap_mutants
-from ctrl_build import CTRL, Outcome, Refusal, Tree
-from ctrl_mutant import Mutant
+from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
+from ctrl_mutant import ADP_C, Mutant
 
 
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
@@ -75,115 +77,131 @@ APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n")
     "\tshlan_port_bind_pool(&app->pool);\n"
 
 MUTANTS = (
-    Mutant("reentry-guard-removed", "adp/adp.c",
+    Mutant("reentry-guard-removed", ADP_C,
            "\tassert(!port_active);\n\tif (port_active) {",
            "\tif (port_active && false) {",
            "reentry_debug", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry asserts",
            (("reentry_debug", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry asserts"),
             ("reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
             ("reentry_release", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry is counted"))),
-    Mutant("reentry-uncounted", "adp/adp.c", "\t\treentry_count++;\n", "",
+    Mutant("reentry-uncounted", ADP_C, "\t\treentry_count++;\n", "",
            "reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
-    Mutant("reentry-not-ignored", "adp/adp.c", "\t\treentry_count++;\n\t\treturn true;",
+    Mutant("reentry-not-ignored", ADP_C, "\t\treentry_count++;\n\t\treturn true;",
            "\t\treentry_count++;\n\t\treturn false;",
            "reentry_release", "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/",
            "callback leaves core state unchanged"),
-    Mutant("departing-keeps-index", "adp/adp.c",
+    Mutant("departing-keeps-index", ADP_C,
            "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
            "\tuint32_t index = a->available_index;\n", "walk", "Table551/AdpWalkCell.Graded/", "available_index"),
     # R497-1-F2's reading, which the ruling on PR #668 (5994972330) rejects.
-    Mutant("departing-sends-zero", "adp/adp.c", "if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {",
+    Mutant("departing-sends-zero", ADP_C, "if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {",
            "if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index & 0u)) {",
            "adp", "AdpCore.A10toA14DepartingIndex", "A10 SHUTDOWN in WAITING"),
     # R497-2-F1: the restart's ENTITY_AVAILABLE takes the owed DEPARTING's place.
-    Mutant("available-replaces-owed-departing", "adp/adp.c",
+    Mutant("available-replaces-owed-departing", ADP_C,
            "\ta->available_owed = true;\n\tif (a->departing_owed != 0u ||",
            "\ta->available_owed = true;\n\ta->departing_owed = 0u;\n\tif (a->departing_owed != 0u ||",
            "adp", "AdpCore.A15OwedDepartingAcrossARestart",
            "A15 with room, the next poll sends the owed ENTITY_DEPARTING first"),
-    Mutant("available-passes-owed-departing", "adp/adp.c",
+    Mutant("available-passes-owed-departing", ADP_C,
            "if (a->departing_owed != 0u || !send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {",
            "if (!send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {", "adp", "AdpCore.A17RoomBackBeforeAPoll",
            "A17 room back and TMR_DELAY expiring before a poll"),
-    Mutant("second-departing-dropped", "adp/adp.c",
-           "\t\ta->departing_owed++;                                    // queued behind the oldest, carrying 0\n",
-           "", "adp", "AdpCore.A16SecondShutdownQueuesItsOwn", "A16 a SHUTDOWN while one is owed queues its own"),
-    Mutant("second-shutdown-overwrites-index", "adp/adp.c",
+    Mutant("second-departing-dropped", ADP_C,
+           "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t\ta->departing_owed++;\n\t} else {\n",
+           "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t} else {\n",
+           "adp", "AdpCore.A16SecondShutdownQueuesItsOwn", "A16 a SHUTDOWN while one is owed queues its own"),
+    Mutant("second-shutdown-overwrites-index", ADP_C,
            "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n",
            "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t\ta->departing_index = index;\n",
            "adp", "AdpCore.A16SecondShutdownQueuesItsOwn",
            "A16 a SHUTDOWN while one is owed queues its own"),
     # R496-3-F2: the legs of the owed-frame rule beyond A15 to A17.
-    Mutant("link-loss-drops-owed-departing", "adp/adp.c",
-           "\t\ta->available_owed = false;                              // an owed DEPARTING stays owed\n",
-           "\t\ta->available_owed = false;\n\t\ta->departing_owed = 0u;\n",
+    Mutant("link-loss-drops-owed-departing", ADP_C,
+           "\t\ta->available_owed = false;\n\t\ta->state = ADP_STATE_DOWN;\n",
+           "\t\ta->available_owed = false;\n\t\ta->departing_owed = 0u;\n\t\ta->state = ADP_STATE_DOWN;\n",
            "adp", "AdpCore.A18LinkLossKeepsTheOwedDeparting",
            "A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING"),
-    Mutant("gm-change-drops-owed-available", "adp/adp.c", "\ta->gm_changed++;\n",
+    Mutant("gm-change-drops-owed-available", ADP_C, "\ta->gm_changed++;\n",
            "\ta->gm_changed++;\n\ta->available_owed = false;\n", "adp", "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
            "A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed"),
-    Mutant("discover-drops-owed-available", "adp/adp.c",
-           "\tif (!a->enabled || a->state != ADP_STATE_WAITING) {             // Table 5.51: ignored\n",
-           "\tif (!a->enabled || a->state != ADP_STATE_WAITING) {\n\t\ta->available_owed = false;\n",
+    Mutant("discover-drops-owed-available", ADP_C,
+           ("\t}\n\tif (!a->enabled || a->state != ADP_STATE_WAITING) {             // Milan v1.2 Table 5.51\n"
+            "\t\treturn;\n"),
+           "\t}\n\tif (!a->enabled || a->state != ADP_STATE_WAITING) {\n\t\ta->available_owed = false;\n\t\treturn;\n",
            "adp", "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
            "A19 so does an ENTITY_DISCOVER"),
-    Mutant("stray-expiry-drops-owed-available", "adp/adp.c", "\t\ta->stray_expiries++;\n\t\treturn;\n",
+    Mutant("stray-expiry-drops-owed-available", ADP_C, "\t\ta->stray_expiries++;\n\t\treturn;\n",
            "\t\ta->stray_expiries++;\n\t\ta->available_owed = false;\n\t\treturn;\n",
            "adp", "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
            "A19 and a stray expiry, which is counted"),
-    Mutant("link-loss-keeps-owed-available", "adp/adp.c",
-           "\t\ta->available_owed = false;                              // an owed DEPARTING stays owed\n", "",
+    Mutant("link-loss-keeps-owed-available", ADP_C,
+           ("\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n"
+            "\t\ta->available_owed = false;\n\t\ta->state = ADP_STATE_DOWN;\n"),
+           ("\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n"
+            "\t\ta->state = ADP_STATE_DOWN;\n"),
            "adp", "AdpCore.A20LinkLossDropsTheOwedAvailable",
            "A20 a link loss drops the owed ENTITY_AVAILABLE at once"),
     # R497-3-F1: the bound on owed DEPARTINGs, and R496-3-F1: the pass it gives.
-    Mutant("departing-queue-unbounded", "adp/adp.c",
+    Mutant("departing-queue-unbounded", ADP_C,
            "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n",
            "\t} else if (a->departing_owed != UINT32_MAX) {\n",
            "adp", "Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/",
            "E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed"),
-    Mutant("coalesced-departing-uncounted", "adp/adp.c", "\t\ta->departing_coalesced++;", "\t\t(void)0;",
+    Mutant("coalesced-departing-uncounted", ADP_C, "\t\ta->departing_coalesced++;", "\t\t(void)0;",
            "adp", "AdpCore.A21DepartingCapacity",
            "A21 the next SHUTDOWN is coalesced into the queued one and counted"),
-    Mutant("coalesce-drops-queued-departing", "adp/adp.c", "\t\ta->departing_coalesced++;",
+    Mutant("coalesce-drops-queued-departing", ADP_C, "\t\ta->departing_coalesced++;",
            "\t\ta->departing_coalesced++;\n\t\ta->departing_owed--;", "adp", "AdpCore.A21DepartingCapacity",
            "A21 the next SHUTDOWN is coalesced into the queued one and counted"),
-    Mutant("coalesce-overwrites-oldest-index", "adp/adp.c", "\t\ta->departing_coalesced++;",
+    Mutant("coalesce-overwrites-oldest-index", ADP_C, "\t\ta->departing_coalesced++;",
            "\t\ta->departing_coalesced++;\n\t\ta->departing_index = index;", "adp", "AdpCore.A21DepartingCapacity",
            "A21 the next SHUTDOWN is coalesced into the queued one and counted"),
-    Mutant("own-discover-discarded", "adp/adp.c", "if (target != 0u && target != a->entity->entity_id) {",
+    Mutant("own-discover-discarded", ADP_C, "if (target != 0u && target != a->entity->entity_id) {",
            "if (target != 0u) {",
            "walk", "Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING",
            "RCV_ADP_DISCOVER(own eid) x WAITING"),
-    Mutant("down-answers-discover", "adp/adp.c", "if (!a->enabled || a->state != ADP_STATE_WAITING) {",
+    Mutant("down-answers-discover", ADP_C, "if (!a->enabled || a->state != ADP_STATE_WAITING) {",
            "if (!a->enabled) {",
            "walk", "Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN", "RCV_ADP_DISCOVER(eid 0) x DOWN"),
-    Mutant("link-down-departs", "adp/adp.c", "\t\ttimer_stop(a);                                          // 5.6.3.5.6",
-           "\t\t(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->available_index);\n\t\ttimer_stop(a); // 5.6.3.5.6",
+    Mutant("link-down-departs", ADP_C,
+           ("\tif (a->state != ADP_STATE_DOWN) {\n"
+            "\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n"
+            "\t\ta->available_owed = false;\n"),
+           ("\tif (a->state != ADP_STATE_DOWN) {\n\t\t(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->available_index);\n"
+            "\t\ttimer_stop(a); // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n\t\ta->available_owed = false;\n"),
            "walk", "Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING", "LINK_DOWN x WAITING: frames committed"),
-    Mutant("gm-change-ignored", "adp/adp.c", "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // 5.6.3.5.7",
-           "\t\t(void)0;", "walk", "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING", "GM_CHANGE x WAITING"),
-    Mutant("delay-ignores-link-down", "adp/adp.c", "\tif (a->state != ADP_STATE_DOWN) {\n\t\ttimer_stop(a);",
+    Mutant("gm-change-ignored", ADP_C,
+           ("\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n"
+            "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.7\n\t}\n"),
+           "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\t(void)0;\n\t}\n",
+           "walk", "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING", "GM_CHANGE x WAITING"),
+    Mutant("delay-ignores-link-down", ADP_C, "\tif (a->state != ADP_STATE_DOWN) {\n\t\ttimer_stop(a);",
            "\tif (a->state == ADP_STATE_WAITING) {\n\t\ttimer_stop(a);",
            "walk", "Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed", "LINK_DOWN x DELAY"),
-    Mutant("shutdown-in-down-departs", "adp/adp.c",
+    Mutant("shutdown-in-down-departs", ADP_C,
            "\tif (a->state == ADP_STATE_DOWN) {\n\t\treturn;\n\t}\n\ttimer_stop(a);",
            "\ttimer_stop(a);", "walk", "Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN", "SHUTDOWN x DOWN"),
-    Mutant("advertise-expiry-skips-delay", "adp/adp.c",
-           "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // 5.6.3.5.5",
-           "\t\ttimer_start(a, ADP_TIMER_DELAY, 0u); // 5.6.3.5.5 broken",
+    Mutant("advertise-expiry-skips-delay", ADP_C,
+           ("\t} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {\n"
+            "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.5\n\t} else {\n"),
+           ("\t} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {\n"
+            "\t\ttimer_start(a, ADP_TIMER_DELAY, 0u); // Milan v1.2 5.6.3.5.5\n\t} else {\n"),
            "walk", "Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING", "TMR_ADVERTISE x WAITING"),
-    Mutant("advertise-period-wrong", "adp/adp.c", "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);",
+    Mutant("advertise-period-wrong", ADP_C, "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);",
            "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS + 1000u);",
            "walk", "Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed", "TMR_DELAY x DELAY(timer armed)"),
-    Mutant("link-up-draws-startup-kind", "adp/adp.c",
-           "\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // 5.6.3.5.3",
-           "\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // 5.6.3.5.3",
+    Mutant("link-up-draws-startup-kind", ADP_C,
+           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
+            "\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
+           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
+            "\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
            "walk", "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN", "LINK_UP x DOWN"),
-    Mutant("draw-kinds-merged", "adp/adp.c", "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS",
+    Mutant("draw-kinds-merged", ADP_C, "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS",
            "ADP_DELAY_MAX_MS", "adp", "AdpCore.A9DrawKinds", "A9 every startup draw"),
-    Mutant("foreign-discover-answered", "adp/adp.c", "if (target != 0u && target != a->entity->entity_id) {",
+    Mutant("foreign-discover-answered", ADP_C, "if (target != 0u && target != a->entity->entity_id) {",
            "if (target == 1u) {", "adp", "AdpCore.A3toA5DiscoverAndDiscard", "A4 a foreign DISCOVER"),
-    Mutant("frame-misses-config-index", "adp/adp.c", "wire_put_be(pdu + 50, a->current_configuration_index, 2);",
+    Mutant("frame-misses-config-index", ADP_C, "wire_put_be(pdu + 50, a->current_configuration_index, 2);",
            "wire_put_be(pdu + 50, 0u, 2);", "walk", "AdpWalk.P11ConfigurationIndexBytes", "P11"),
     Mutant("stale-tag-accepted", "adp/adp_mbx.c", "if (!i->armed || ev->timer_tag != i->tag) {",
            "if (!i->armed) {", "adp", "AdpAdapter.B1StaleTagDiscarded", "B1 an expiry of the arm a GM_CHANGE replaced"),
@@ -244,7 +262,7 @@ MUTANTS = (
     Mutant("lanes-big-endian", "mbx/mbx_wire.h", "\t\tword |= (uint32_t)p[i] << (8u * i);",
            "\t\tword |= (uint32_t)p[i] << (8u * (3u - i));",
            "model", "Suite/MbxModelGroup.PassesOnTheModel/", "F1 frame byte k is ring word"),
-    Mutant("frame-sources-from-sinks", "adp/adp.c", "wire_put_be(pdu + 24, e->talker_stream_sources, 2);",
+    Mutant("frame-sources-from-sinks", ADP_C, "wire_put_be(pdu + 24, e->talker_stream_sources, 2);",
            "wire_put_be(pdu + 24, e->listener_stream_sinks, 2);",
            "entity", "Fabric/EntityField.MatchesTheFabric/talker_stream_sources", "talker_stream_sources"),
     # a heap the host test sees (the block is not the pool's) and the RV32
@@ -293,13 +311,13 @@ MUTANTS = (
     Mutant("rx-binds-no-function", "loop/ctrl_loop.c", "if (ch >= MBX_N_CH || fn == NULL) {",
            "if (ch >= MBX_N_CH) {", "port", "LoopBring.L9TablesRefuseNullAndOverflow",
            "L9 a channel bound to no function is refused"),
-    Mutant("seed-left-at-zero", "adp/adp.c", "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
+    Mutant("seed-left-at-zero", ADP_C, "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
            "0x9E3779B9u;\n", "adp", "AdpCore.A22GeneratorNeverStuckAtZero",
            "A22 an entity id whose words cancel the seed constant"),
-    Mutant("enable-not-idempotent", "adp/adp.c", "\tif (enable == a->enabled) {\n\t\treturn;\n\t}\n", "",
+    Mutant("enable-not-idempotent", ADP_C, "\tif (enable == a->enabled) {\n\t\treturn;\n\t}\n", "",
            "adp", "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
            "A23 an enable while enabled draws and arms nothing"),
-    Mutant("other-subtype-accepted", "adp/adp.c", "\t    frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||\n", "",
+    Mutant("other-subtype-accepted", ADP_C, "\t    frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||\n", "",
            "adp", "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded",
            "A24 a DISCOVER under another EtherType or subtype is discarded"),
     # the unit arm: each seam on GoogleMock's mailbox window or port layer
@@ -452,34 +470,54 @@ MUTANTS = (
 
 #: Lane F3's test sources. Every test in them is named by at least one defect,
 #: which `unnamed_tests` proves before any is planted (the rule lane F1's
-#: store suite proves with nvm_mutants.unnamed_checks).
-NAMED_SOURCES = ("test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp")
+#: store suite proves with nvm_mutants.unnamed_checks). The core's tests are
+#: the stack's (#697).
+NAMED_SOURCES = ("tsn-c-stack/tests/test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp")
+#: The stack's own defect table, which its CI plants against its tests: a test
+#: of the stack's that this table does not name is named by a defect there.
+STACK_TABLE = STACK / "tests/mutations.json"
 
 
-def unnamed_tests(test_dir: Path = Path(__file__).resolve().parent) -> list[str]:
+def stack_named() -> set[str]:
+    """The tests the stack's own defect table names."""
+    try:
+        table = json.loads(STACK_TABLE.read_text(encoding="utf-8"))
+        return {kill["test"] for entry in table for kill in entry["kills"]}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise Refusal(f"the stack's defect table {STACK_TABLE.relative_to(STACK.parents[1])} is unreadable: {exc}")
+
+
+def unnamed_tests() -> list[str]:
     """The tests of NAMED_SOURCES no defect names: a test with no planted
-    defect is unproven. A parameterised test is named through any instance."""
+    defect is unproven. A parameterised test is named through any instance.
+    A test of the stack's may also be named by the stack's own table."""
     named = {t.split("/")[1] if "/" in t else t for m in MUTANTS for _, t, _ in m.kills()}
-    tests = [f"{suite}.{name}" for src in NAMED_SOURCES
-             for suite, name in re.findall(r"^TEST(?:_F|_P)?\((\w+), (\w+)\)", (test_dir / src).read_text(), re.M)]
-    return [t for t in tests if t not in named]
+    theirs = stack_named()
+    tests = [(src, f"{suite}.{name}") for src in NAMED_SOURCES
+             for suite, name in re.findall(r"^TEST(?:_F|_P)?\((\w+), (\w+)\)", test_source(src).read_text(), re.M)]
+    return [t for src, t in tests if t not in named and not (src.startswith(STACK_PREFIX) and t in theirs)]
 
 
 MUTANTS += maap_mutants(Mutant)
 
 
-def plant(m: Mutant, root: Path) -> Path:
-    """A copy of the firmware tree with the mutant written into it."""
+def plant(m: Mutant, root: Path) -> tuple[Path, Path]:
+    """Copies of the firmware tree and of the stack's sources and headers, the
+    mutant written into the one its path names."""
     copy = root / "work" / "ctrl"
-    if copy.exists():
-        shutil.rmtree(copy)
+    stack = root / "work" / "tsn-c-stack"
+    for old in (copy, stack):
+        if old.exists():
+            shutil.rmtree(old)
     shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"))
-    target = copy / m.path
+    for part in STACK_PARTS:
+        shutil.copytree(STACK / part, stack / part)
+    target = stack / m.path.removeprefix(STACK_PREFIX) if m.path.startswith(STACK_PREFIX) else copy / m.path
     text = target.read_text(encoding="utf-8")
     if text.count(m.old) != 1:
         raise Refusal(f"mutant {m.name}: its fixture occurs {text.count(m.old)} times in {m.path}")
     target.write_text(text.replace(m.old, m.new), encoding="utf-8")
-    return copy
+    return copy, stack
 
 
 def names(line: str, test: str, needle: str) -> bool:
@@ -550,13 +588,18 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
     build = fw_gtest.Build(jobs=jobs)
-    unnamed = unnamed_tests()
+    try:
+        unnamed = unnamed_tests()
+    except Refusal as exc:
+        print(f"[ESCAPED] {exc}")
+        return True
     for test in unnamed:
         print(f"[ESCAPED] no defect names the test {test}")
     escaped = 0
     table = sliced(part) if shard is None else MUTANTS[shard[0]::shard[1]]
     for m in table:
-        tree = Tree(plant(m, root), root / "work" / "build", reuse, build)
+        ctrl, stack = plant(m, root)
+        tree = Tree(ctrl, root / "work" / "build", reuse, build, stack)
         missed = []
         fails: list[str] = []
         for arm, test, needle in m.kills():

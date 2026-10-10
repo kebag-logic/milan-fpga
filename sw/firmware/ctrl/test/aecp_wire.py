@@ -10,6 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 import yaml
+from ctrl_build import STACK, STACK_INCLUDE, Refusal, stack_pin
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
@@ -119,7 +120,7 @@ def build(args: argparse.Namespace, bench: Path) -> Path:
     match = re.search(r"^VERILATOR_ROOT = (.+)$", (model / "Vpp_top_wrap.mk").read_text(), re.M)
     if match is None:
         raise ValueError("model include directory missing")
-    inc = [f"-I{ROOT/'sw/firmware/ctrl/aecp'}", f"-I{ROOT/'sw/firmware/ctrl/wire'}", f"-I{output}"]
+    inc = [f"-I{ROOT/'sw/firmware/ctrl/aecp'}", f"-I{args.stack/STACK_INCLUDE}", f"-I{output}"]
     objects = []
     for name in ("aecp", "aecp_commands", "aecp_maps", "aecp_image", "aecp_state"):
         obj = output / (name + ".o")
@@ -147,9 +148,17 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     parser.add_argument("--verilator", required=True)
+    parser.add_argument("--stack", type=Path, default=STACK,
+                        help="the tsn-c-stack checkout whose wire layer the core uses (default: the submodule)")
     args = parser.parse_args()
     args.output = args.output.resolve()
     args.reference = args.reference.resolve()
+    args.stack = args.stack.resolve()
+    try:
+        print(f"tsn-c-stack at {stack_pin(args.stack)}", flush=True)
+    except Refusal as exc:
+        print(f"REFUSED: {exc}")
+        return 2
     args.output.mkdir(parents=True, exist_ok=True)
     fixture(args.output)
     bench = prepare(args.reference, args.output, args.interfaces)

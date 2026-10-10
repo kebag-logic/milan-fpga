@@ -231,6 +231,11 @@ TRUSTED_SUBMODULES = (
         "third_party/lwSRP",
         "https://github.com/kebag-logic/lwSRP.git",
     ),
+    (
+        "third_party/tsn-c-stack",
+        "third_party/tsn-c-stack",
+        "https://github.com/kebag-logic/tsn-c-stack.git",
+    ),
 )
 REQUIRED_SUBMODULES = tuple(
     path for name, path, _url in TRUSTED_SUBMODULES if name != "external"
@@ -10597,8 +10602,9 @@ def selftest_submodule_manifest(tally: SelftestTally, git_fixture: GitFixture) -
          "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git"),
         ("gptp-processor", "gptp-processor", "https://github.com/Mister-M-alt/FPGA-gPTP.git"),
         ("third_party/lwSRP", "third_party/lwSRP", "https://github.com/kebag-logic/lwSRP.git"),
+        ("third_party/tsn-c-stack", "third_party/tsn-c-stack", "https://github.com/kebag-logic/tsn-c-stack.git"),
     )
-    check("the trusted manifest includes exactly the five approved entries", TRUSTED_SUBMODULES == manifest)
+    check("the trusted manifest includes exactly the six approved entries", TRUSTED_SUBMODULES == manifest)
     gitmodules_text = "".join(
         f'[submodule "{name}"]\n\tpath = {path}\n\turl = {url}\n'
         for name, path, url in manifest
@@ -10622,12 +10628,14 @@ def selftest_submodule_manifest(tally: SelftestTally, git_fixture: GitFixture) -
     with mock.patch.object(sys.modules[__name__], "capture", return_value="") as fetched:
         initialize_required_submodules(repo, repo.parent)
     check(
-        "materialization fetches all four public pins including lwSRP and excludes external",
+        "materialization fetches all five public pins including lwSRP and tsn-c-stack and excludes external",
         fetched.call_args.args[0]
         == [*git_prefix(), "-C", str(repo), "submodule", "update", "--init", "--",
-            "third_party/verilog-axis", "protocol-processor", "gptp-processor", "third_party/lwSRP"],
+            "third_party/verilog-axis", "protocol-processor", "gptp-processor", "third_party/lwSRP",
+            "third_party/tsn-c-stack"],
     )
     selftest_lwsrp_manifest(tally, git_fixture, gitmodules_text, trusted_gitlinks)
+    selftest_stack_manifest(tally, git_fixture, gitmodules_text, trusted_gitlinks)
 
     hostile_manifest = gitmodules_text.replace(
         "https://github.com/alexforencich/verilog-axis",
@@ -10689,7 +10697,7 @@ def selftest_lwsrp_manifest(
          gitlinks),
         ("redirects lwSRP", manifest.replace("https://github.com/kebag-logic/lwSRP.git",
                                              "https://127.0.0.1:9/attacker/lwSRP.git"), gitlinks),
-        ("drops lwSRP gitlink", manifest, gitlinks[:-1]),
+        ("drops lwSRP gitlink", manifest, tuple(link for link in gitlinks if link != "third_party/lwSRP")),
         ("adds lwSRP gitlink", manifest, (*gitlinks, "third_party/lwSRP-extra")),
     )
     for label, candidate, candidate_links in variants:
@@ -10721,6 +10729,33 @@ def selftest_lwsrp_manifest(
                 label, lambda: validate_submodule_manifest(repo, commit, candidate_links)
             )
         tally.check(f"{label} control catches candidate-controlled trust", planted.failures == 1)
+
+
+def selftest_stack_manifest(
+    tally: SelftestTally, git_fixture: GitFixture, manifest: str, gitlinks: tuple[str, ...]
+) -> None:
+    """Arms: a tsn-c-stack omission, redirection or extra gitlink fails before materialization (#697)."""
+    repo = git_fixture.repo
+    test_git = git_fixture.test_git
+    stanza = ('[submodule "third_party/tsn-c-stack"]\n\tpath = third_party/tsn-c-stack\n'
+              '\turl = https://github.com/kebag-logic/tsn-c-stack.git\n')
+    variants = (
+        ("drops tsn-c-stack", manifest.replace(stanza, ""), gitlinks),
+        ("redirects tsn-c-stack", manifest.replace("https://github.com/kebag-logic/tsn-c-stack.git",
+                                                   "https://127.0.0.1:9/attacker/tsn-c-stack.git"), gitlinks),
+        ("drops tsn-c-stack gitlink", manifest,
+         tuple(link for link in gitlinks if link != "third_party/tsn-c-stack")),
+        ("adds tsn-c-stack gitlink", manifest, (*gitlinks, "third_party/tsn-c-stack-extra")),
+    )
+    for label, candidate, candidate_links in variants:
+        (repo / ".gitmodules").write_text(candidate, encoding="utf-8")
+        test_git("add", ".gitmodules")
+        test_git("commit", "--quiet", "--allow-empty", "-m", label)
+        commit = test_git("rev-parse", "HEAD")
+        tally.refused(
+            f"candidate that {label} is refused before fetch",
+            lambda: validate_submodule_manifest(repo, commit, candidate_links),
+        )
 
 
 def selftest_sandbox_policy(tally: SelftestTally, repo: pathlib.Path) -> None:

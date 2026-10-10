@@ -13,7 +13,11 @@
    and on the host model, one scenario, compared frame by frame; the
    firmware library is rebuilt when any firmware source or header changes,
    and the binary relinked whenever the library is newer, so a firmware-only
-   change never runs a stale binary;
+   change never runs a stale binary; the shared pin check (`make
+   stack-pin`) is a prerequisite of every target that compiles against
+   `third_party/tsn-c-stack` (the firmware library, `run-cosim` and
+   `run-if2`), so whichever runs alone refuses a checkout off its gitlink or
+   differing from it before building it;
 4. `run-if2`: the same checks on the contract elaborated for two AVB
    interfaces (`gen_mailbox.py --variant-interfaces 2`, written into
    `obj_if2/gen`, never the tree), through both adapters and on the host

@@ -125,7 +125,9 @@ feeds the same commands to that model and the portable core, and independently
 grades the resulting bytes. The single-interface reference is the pinned
 `2ad2f845dd583f8310075fa2380cb60a04fd091a`; the two-interface reference is
 the merged #69 revision `c9f74b6866a63dd3c0e4534724bfc07a86ad142b`.
-Both source inventories are content-pinned. The wrapper's name capacity follows
+Both source inventories are content-pinned. The core is built with the
+[TSN stack](../README.md#the-tsn-stack-submodule)'s wire layer, whose pin check
+runs first (`--stack`, the submodule by default). The wrapper's name capacity follows
 the generated shape. Only the bench's external observation/format/map providers
 are adapted to that shape. A generated verification-only second sampling rate
 exercises a real rate change. No product configuration or RTL is edited.

@@ -40,17 +40,28 @@ VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
 # the port layer, the ADP slice, the ACMP module and the app, compiled as C11 exactly as the
 # target builds them, plus the host model the same scenario also runs on.
 # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
+# The ADP, ACMP and MAAP cores and the wire layer are the TSN stack's, from the
+# pinned tsn-c-stack submodule (#697), included through its public headers. The
+# shared pin check (stack-pin) is a prerequisite of every target whose recipe
+# compiles against the stack (the firmware library, the co-simulation and
+# run-if2's host model), so whichever target runs alone, a stack off its gitlink
+# or differing from it is refused and never built. ctrl_pin.py finds those
+# targets in make's own dry run and refuses one without it.
 FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
+STACK_DIR := $(abspath $(ROOT)/third_party/tsn-c-stack)
 FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
-            port/shlan_port.c adp/adp.c adp/adp_mbx.c maap/maap.c maap/maap_mbx.c maap/maap_csr.c \
-            acmp/acmp.c acmp/acmp_mbx.c acmp/acmp_nvm.c app/ctrl_app.c host/mbx_model.c)
-FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp maap acmp app) -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
+            port/shlan_port.c adp/adp_mbx.c maap/maap_mbx.c maap/maap_csr.c \
+            acmp/acmp_mbx.c acmp/acmp_nvm.c app/ctrl_app.c host/mbx_model.c) \
+          $(addprefix $(STACK_DIR)/src/,adp.c maap.c acmp.c)
+FW_INC  = $(addprefix -I$(FW_DIR)/,mbx host port loop adp maap acmp app) -I$(STACK_DIR)/include \
+          -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
 # Every header those sources can include, so a header-only change rebuilds them.
-FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
+FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(STACK_DIR)/include/*.h) \
+          $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
 CC     ?= cc
 AR     ?= ar
 
-.PHONY: all run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags clean
+.PHONY: all run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags stack-pin clean
 all: run-wb run-axil run-cosim run-if2 mutants-quick
 
 run-wb:
@@ -63,7 +74,12 @@ run-axil:
 	@echo "======================================================================"
 	./obj_axil/Vmbx_axil 1
 
-obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR)
+# Phony, so it runs even when the library is current: a stack changed in a file
+# the library does not depend on is refused all the same.
+stack-pin:
+	python3 -B $(FW_DIR)/test/ctrl_build.py --stack-pin $(STACK_DIR)
+
+obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR) | stack-pin
 	@mkdir -p obj_fw
 	rm -f obj_fw/*.o obj_fw/libctrlfw.a
 	cd obj_fw && $(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(FW_INC) -c $(FW_SRC)
@@ -72,7 +88,7 @@ obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR)
 # Verilator's own build relinks Vmbx_cosim only when one of its objects
 # changed, and the firmware library is not one of them: the binary goes
 # whenever the library is newer, so a firmware-only change is never run stale.
-run-cosim: obj_fw/libctrlfw.a
+run-cosim: obj_fw/libctrlfw.a | stack-pin
 	if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \
 	  rm -f obj_cosim/Vmbx_cosim; fi
 	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_cosim $(RTL) cosim_main.cpp \
@@ -96,7 +112,7 @@ CXX ?= c++
 if2-gen:
 	python3 -B $(ROOT)/sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out $(IF2_GEN)
 
-run-if2: if2-gen
+run-if2: if2-gen | stack-pin
 	$(VERILATOR) $(IF2_VFLAGS) -GHOST_P=0 --Mdir $(IF2)/obj_wb $(IF2_RTL) sim_main.cpp -o Vmbx_wb
 	$(VERILATOR) $(IF2_VFLAGS) -GHOST_P=1 --Mdir $(IF2)/obj_axil $(IF2_RTL) sim_main.cpp -o Vmbx_axil
 	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I$(IF2_GEN) $(FW_INC) \
