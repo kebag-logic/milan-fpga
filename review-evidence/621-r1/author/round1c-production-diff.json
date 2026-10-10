@@ -1,0 +1,48 @@
+{
+  "parent_head": "034e2e30f225f3fcd755cac8ad01c60dda5b366a",
+  "donor_head": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+  "case": {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "cpu_hz": 50000000,
+    "sys_hz": 100000000,
+    "traffic": "on",
+    "mutation": "none",
+    "requested_captures": 16
+  },
+  "captured_rows": 4,
+  "status": "STOP: production value invariant failed; campaign cancelled",
+  "receipt_sha256": "ed871bdd09bde7ebde1ae021cd647e3cad354d3f8682c5b7308cda91e4cbd72a",
+  "capture_log_sha256": "abe36f674fc12758dc6c407477a3043d182d53338ff6584fea31b0026069412d",
+  "changed_rows": [
+    {
+      "index": 2,
+      "before": {
+        "index": 2,
+        "ok": 1,
+        "sys_cycles": 396442,
+        "raw": 3290,
+        "records": 54,
+        "mismatches": 0,
+        "open": 0,
+        "requests": 24691,
+        "responses": 26,
+        "reads": 1006
+      },
+      "after": {
+        "index": 2,
+        "ok": 1,
+        "sys_cycles": 396442,
+        "raw": 3290,
+        "records": 54,
+        "mismatches": 0,
+        "open": 0,
+        "requests": 24690,
+        "responses": 26,
+        "reads": 1006
+      },
+      "changed_fields": [
+        "requests"
+      ]
+    }
+  ]
+}

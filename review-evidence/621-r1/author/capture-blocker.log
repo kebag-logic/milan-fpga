@@ -1,0 +1,18 @@
+Candidate: 72848a76c67611bf7abe8b5e480a80f1b517626c
+Donor: 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9
+Case: endstation_ax7101_8x8, CPU 50000000 Hz, system 100000000 Hz, traffic on, byte-only, two captures
+Driver return code: 1
+Timing limit: 24.5 ms
+CAPTURE index=0 ok=1 sys_cycles=2543094 raw=13210 records=164 mismatches=0 open=0 requests=158856 responses=157 reads=6123
+CAPTURE index=1 ok=1 sys_cycles=2542688 raw=13210 records=164 mismatches=0 open=0 requests=158832 responses=156 reads=6104
+CAPTURE_DONE== nvm_capture_cpu: checks: 3   failures: 0 ==
+Driver error: worst measured copy exceeds half the 49 ms hold floor
+Source: tb/verilator/nvm_capture_cpu/run.py:79
+
+Base comparison: 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+Base donor: 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+Driver return code: 1
+CAPTURE index=0 ok=1 sys_cycles=2543094 raw=13210 records=164 mismatches=0 open=0 requests=158856 responses=157 reads=6123
+CAPTURE index=1 ok=1 sys_cycles=2542688 raw=13210 records=164 mismatches=0 open=0 requests=158832 responses=156 reads=6104
+Driver error: worst measured copy exceeds half the 49 ms hold floor
+Both native simulations completed with three checks, zero failures. Both drivers rejected the duration.
