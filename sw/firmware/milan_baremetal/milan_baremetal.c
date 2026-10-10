@@ -471,8 +471,14 @@ static uint64_t nvm_dirty_since;
  * back as they were judged (bit 0 A, bit 1 B). Their authority is unknown,
  * so the writer is HELD until reset (#671). */
 static unsigned int nvm_unread;
+/* The writer is HELD: it went live with a slot UNREAD (nvm_go_live()). A
+ * retire path may leave a slot unread too, but the retire is then the cause
+ * the console names. */
+static int nvm_held;
 /* Boot reads whose bytes differed from every earlier read of the slot, and
- * re-stages that did not read back as judged. */
+ * re-stages that did not read back as judged. A floor: a refused read that a
+ * later read of the slot outvotes with VD_OK is not counted, as in
+ * sw/firmware/ctrl_nvm. */
 static unsigned int nvm_read_faults;
 
 /*
@@ -1578,6 +1584,7 @@ static void nvm_go_live(void)
 		return;
 	}
 	nvm_retired = 1;
+	nvm_held = 1;
 	printf("Milan NVM: slot %s gave no standing verdict in %u reads; its authority is unknown, so the writer is HELD until reset and nothing is persisted.\n",
 	       nvm_unread_name(), NVM_READ_TRIES);
 }
@@ -1931,7 +1938,7 @@ static void nvm_print_status(void)
 	       nvm_slot_letter(nvm_auth_slot), (unsigned long)nvm_seq,
 	       (unsigned int)NVM_N_REC, (unsigned int)NVM_IMG_LEN,
 	       (unsigned int)MILAN_NVM_LIVE_BASE,
-	       nvm_ready ? "writer live" : (nvm_unread ? "writer HELD, a slot unread at boot" :
+	       nvm_ready ? "writer live" : (nvm_held ? "writer HELD, a slot unread at boot" :
 				    (nvm_retired ? "writer retired" : "writer disabled")));
 	printf("NVM: PP_NVM_STAT=%08lx backed=%lu dirty=%lu stale=%lu valid=%lu commit_busy=%lu dev_busy=%lu pend=%lu unres=%lu load_pend=%lu load_acc=%lu reload_ref=%lu verdict=%s; commits ok=%u failed=%u captures refused=%u acks refused=%u last=%s\n",
 	       (unsigned long)stat,
@@ -1969,7 +1976,7 @@ static void milan_nvm_handler(int nb_params, char **params)
 		return;
 	}
 	if (nb_params == 1 && nvm_arg_is(params[0], "commit")) {
-		if (!nvm_ready && nvm_unread)
+		if (nvm_held)
 			printf("NVM: refused; slot %s gave no standing verdict at boot, the writer is HELD until reset.\n",
 			       nvm_unread_name());
 		else if (!nvm_ready)
