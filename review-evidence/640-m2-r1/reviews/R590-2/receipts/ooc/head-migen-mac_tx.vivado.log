@@ -1,0 +1,282 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sat Oct 10 17:06:51 2026
+# Process ID         : 880903
+# Current directory  : <data>/reviews/640-m2-r590-2-packet/scratch/vivado
+# Command line       : vivado -mode batch -nojournal -log <data>/reviews/640-m2-r590-2-packet/receipts/ooc/head-migen-mac_tx.vivado.log -source <data>/reviews/640-m2-r590-2-packet/scripts/ooc_bench.tcl -tclargs <data>/reviews/640-m2-r590-2-packet/scratch/emit/head-migen-mac_tx.v <data>/reviews/640-m2-r590-2-packet/receipts/ooc head-migen-mac_tx
+# Log file           : <data>/reviews/640-m2-r590-2-packet/receipts/ooc/head-migen-mac_tx.vivado.log
+# Journal file       : 
+# Running On         : <host>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.346 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 75885 MB
+#-----------------------------------------------------------
+Sourcing tcl script '<home>/.Xilinx/Vivado/Vivado_init.tcl'
+source <data>/reviews/640-m2-r590-2-packet/scripts/ooc_bench.tcl
+# set bench [lindex $argv 0]
+# set out   [lindex $argv 1]
+# set tag   [lindex $argv 2]
+# read_verilog $bench
+# synth_design -top bench -part xc7a100tfgg484-2 -mode out_of_context -directive AreaOptimized_high
+Command: synth_design -top bench -part xc7a100tfgg484-2 -mode out_of_context -directive AreaOptimized_high
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 883166
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2205.199 ; gain = 222.703 ; free physical = 6324 ; free virtual = 70251
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'bench' [<data>/reviews/640-m2-r590-2-packet/scratch/emit/head-migen-mac_tx.v:2]
+INFO: [Synth 8-6155] done synthesizing module 'bench' (0#1) [<data>/reviews/640-m2-r590-2-packet/scratch/emit/head-migen-mac_tx.v:2]
+WARNING: [Synth 8-6014] Unused sequential element memadr_reg was removed.  [<data>/reviews/640-m2-r590-2-packet/scratch/emit/head-migen-mac_tx.v:356]
+WARNING: [Synth 8-6014] Unused sequential element memadr_1_reg was removed.  [<data>/reviews/640-m2-r590-2-packet/scratch/emit/head-migen-mac_tx.v:372]
+WARNING: [Synth 8-6014] Unused sequential element memadr_2_reg was removed.  [<data>/reviews/640-m2-r590-2-packet/scratch/emit/head-migen-mac_tx.v:388]
+WARNING: [Synth 8-7129] Port sys_clk in module bench is either unconnected or has no load
+WARNING: [Synth 8-7129] Port sys_rst in module bench is either unconnected or has no load
+WARNING: [Synth 8-7129] Port milan_clk in module bench is either unconnected or has no load
+WARNING: [Synth 8-7129] Port milan_rst in module bench is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2288.168 ; gain = 305.672 ; free physical = 6135 ; free virtual = 70067
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2305.980 ; gain = 323.484 ; free physical = 6068 ; free virtual = 70000
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2305.980 ; gain = 323.484 ; free physical = 6066 ; free virtual = 69999
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 2314.887 ; gain = 332.391 ; free physical = 6334 ; free virtual = 70268
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input    5 Bit       Adders := 8     
++---XORs : 
+	   2 Input      5 Bit         XORs := 4     
++---Registers : 
+	               74 Bit    Registers := 2     
+	               72 Bit    Registers := 1     
+	                5 Bit    Registers := 16    
+	                2 Bit    Registers := 1     
+	                1 Bit    Registers := 2     
++---RAMs : 
+	               1K Bit	(16 X 72 bit)          RAMs := 1     
+	               1K Bit	(16 X 74 bit)          RAMs := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7129] Port sys_clk in module bench is either unconnected or has no load
+WARNING: [Synth 8-7129] Port sys_rst in module bench is either unconnected or has no load
+WARNING: [Synth 8-7129] Port milan_clk in module bench is either unconnected or has no load
+WARNING: [Synth 8-7129] Port milan_rst in module bench is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2469.871 ; gain = 487.375 ; free physical = 7323 ; free virtual = 71251
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name | RTL Object    | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|bench       | storage_reg   | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|bench       | storage_2_reg | 16 x 74(NO_CHANGE)     | W |   | 16 x 74(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
++------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++------------+---------------+----------------+----------------------+---------------+
+|Module Name | RTL Object    | Inference      | Size (Depth x Width) | Primitives    | 
++------------+---------------+----------------+----------------------+---------------+
+|bench       | storage_1_reg | User Attribute | 16 x 2               | RAM16X1D x 2  | 
++------------+---------------+----------------+----------------------+---------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2469.871 ; gain = 487.375 ; free physical = 7311 ; free virtual = 71239
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name | RTL Object    | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|bench       | storage_reg   | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|bench       | storage_2_reg | 16 x 74(NO_CHANGE)     | W |   | 16 x 74(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
++------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++------------+---------------+----------------+----------------------+---------------+
+|Module Name | RTL Object    | Inference      | Size (Depth x Width) | Primitives    | 
++------------+---------------+----------------+----------------------+---------------+
+|bench       | storage_1_reg | User Attribute | 16 x 2               | RAM16X1D x 2  | 
++------------+---------------+----------------+----------------------+---------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance storage_2_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance storage_2_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2469.871 ; gain = 487.375 ; free physical = 7317 ; free virtual = 71245
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2660.684 ; gain = 678.188 ; free physical = 7163 ; free virtual = 71099
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2660.684 ; gain = 678.188 ; free physical = 7163 ; free virtual = 71099
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2660.684 ; gain = 678.188 ; free physical = 7161 ; free virtual = 71096
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2660.684 ; gain = 678.188 ; free physical = 7159 ; free virtual = 71095
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.652 ; gain = 681.156 ; free physical = 7140 ; free virtual = 71076
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.652 ; gain = 681.156 ; free physical = 7125 ; free virtual = 71060
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |LUT2     |     6|
+|2     |LUT3     |    12|
+|3     |LUT4     |    11|
+|4     |LUT5     |    11|
+|5     |LUT6     |    12|
+|6     |RAM16X1D |     2|
+|7     |RAMB18E1 |     1|
+|8     |RAMB36E1 |     2|
+|9     |FDRE     |    86|
++------+---------+------+
+
+Report Instance Areas: 
++------+---------+-------+------+
+|      |Instance |Module |Cells |
++------+---------+-------+------+
+|1     |top      |       |   143|
++------+---------+-------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.652 ; gain = 681.156 ; free physical = 7125 ; free virtual = 71060
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 11 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.652 ; gain = 681.156 ; free physical = 7096 ; free virtual = 71032
+Synthesis Optimization Complete : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.660 ; gain = 681.156 ; free physical = 7095 ; free virtual = 71031
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2674.559 ; gain = 0.000 ; free physical = 7254 ; free virtual = 71190
+INFO: [Netlist 29-17] Analyzing 5 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 2 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3010.234 ; gain = 0.000 ; free physical = 7570 ; free virtual = 71507
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 2 instances were transformed.
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+
+Synth Design complete | Checksum: 69f3cf42
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+17 Infos, 11 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:18 ; elapsed = 00:00:16 . Memory (MB): peak = 3013.203 ; gain = 1030.707 ; free physical = 7610 ; free virtual = 71549
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2231.503; main = 2231.503; forked = 352.154
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3502.293; main = 3013.207; forked = 1032.418
+# report_utilization -file $out/$tag.util.rpt
+# set f [open $out/$tag.cells.txt w]
+# foreach c [lsort [get_cells -hier -filter {PRIMITIVE_GROUP == BLOCKRAM || PRIMITIVE_GROUP == DMEM}]] {
+#   puts $f "[get_property REF_NAME $c] $c"
+# }
+# close $f
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 10 17:07:12 2026...

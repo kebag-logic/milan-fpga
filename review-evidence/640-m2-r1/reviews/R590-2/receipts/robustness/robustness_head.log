@@ -1,0 +1,10 @@
+  [ok  ] R1 MilanMAC(milan_cd='sys') elaborates with no MAC crossing
+  [ok  ] R2 _cross_csr_bus(..., 'sys') returns the CPU bus and adds no crossing
+  [ok  ] R3 a second _payload_in_block_ram is refused (the async FIFO must hold exactly one storage array)
+  [ok  ] R4 a same-domain crossing is refused (a crossing must hold exactly one stream.AsyncFIFO)
+  [ok  ] R5 a param-carrying crossing splits as payload+params / flags: [(2, ['distributed']), (37, ['block'])]
+  [ok  ] R6 a with_common_rst crossing is accepted (None)
+  [ok  ] R7 a module with no AsyncFIFO is refused (a crossing must hold exactly one stream.AsyncFIFO)
+  [ok  ] R8 the stock array and its ports are removed; the split arrays have no init
+  emitted benches to <data>/reviews/640-m2-r590-2-packet/scratch/emit
+robustness: 0 failure(s)

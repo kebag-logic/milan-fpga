@@ -1,0 +1,315 @@
+[
+ {
+  "probe": "cat-order-swapped",
+  "rc": 1,
+  "failed": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected": {
+   "mac_tx": "lockstep",
+   "mac_rx": "lockstep",
+   "csr_w": "lockstep",
+   "csr_r": "lockstep"
+  },
+  "caught": true,
+  "description": "read word reassembled with flags below the payload"
+ },
+ {
+  "probe": "split-write-enable-always",
+  "rc": 1,
+  "failed": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected": null,
+  "caught": true,
+  "description": "both split arrays written every write-domain cycle"
+ },
+ {
+  "probe": "csr-aw-instead-of-w",
+  "rc": 1,
+  "failed": [
+   "csr_ar blockram",
+   "csr_ar storage",
+   "csr_aw blockram",
+   "csr_aw storage",
+   "csr_b blockram",
+   "csr_b storage",
+   "csr_r blockram",
+   "csr_r storage",
+   "csr_w blockram",
+   "csr_w storage"
+  ],
+  "expected": {
+   "csr_w": "storage",
+   "csr_aw": "storage"
+  },
+  "caught": true,
+  "description": "the CSR helper places AW instead of W"
+ },
+ {
+  "probe": "ram-style-dropped",
+  "rc": 1,
+  "failed": [
+   "csr_ar blockram",
+   "csr_ar storage",
+   "csr_aw blockram",
+   "csr_aw storage",
+   "csr_b blockram",
+   "csr_b storage",
+   "csr_r blockram",
+   "csr_r storage",
+   "csr_w blockram",
+   "csr_w storage",
+   "mac_rx blockram",
+   "mac_rx storage",
+   "mac_tx blockram",
+   "mac_tx storage"
+  ],
+  "expected": {
+   "mac_tx": "storage",
+   "csr_w": "storage"
+  },
+  "caught": true,
+  "description": "no ram_style attribute on either split array"
+ },
+ {
+  "probe": "ram-styles-swapped",
+  "rc": 1,
+  "failed": [
+   "csr_ar blockram",
+   "csr_ar storage",
+   "csr_aw blockram",
+   "csr_aw storage",
+   "csr_b blockram",
+   "csr_b storage",
+   "csr_r blockram",
+   "csr_r storage",
+   "csr_w blockram",
+   "csr_w storage",
+   "mac_rx blockram",
+   "mac_rx storage",
+   "mac_tx blockram",
+   "mac_tx storage"
+  ],
+  "expected": {
+   "mac_tx": "storage",
+   "mac_rx": "storage",
+   "csr_w": "storage",
+   "csr_r": "storage"
+  },
+  "caught": true,
+  "description": "payload tagged distributed, flags tagged block"
+ },
+ {
+  "probe": "payload-slice-shifted",
+  "rc": 1,
+  "failed": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected": {
+   "mac_tx": "lockstep",
+   "mac_rx": "lockstep",
+   "csr_w": "lockstep",
+   "csr_r": "lockstep"
+  },
+  "caught": true,
+  "description": "split arrays store the write word one bit off"
+ },
+ {
+  "probe": "read-address-from-write-side",
+  "rc": 1,
+  "failed": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected": {
+   "mac_tx": "lockstep",
+   "mac_rx": "lockstep",
+   "csr_w": "lockstep",
+   "csr_r": "lockstep"
+  },
+  "caught": true,
+  "description": "split arrays read at the write pointer"
+ },
+ {
+  "probe": "flags-async-read",
+  "rc": 1,
+  "failed": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected": {
+   "mac_tx": "lockstep",
+   "mac_rx": "lockstep",
+   "csr_w": "lockstep",
+   "csr_r": "lockstep"
+  },
+  "caught": true,
+  "description": "framing flags read one cycle earlier than the payload"
+ },
+ {
+  "probe": "mac-rx-call-removed",
+  "rc": 1,
+  "failed": [
+   "mac_rx blockram",
+   "mac_rx storage"
+  ],
+  "expected": {
+   "mac_rx": "storage"
+  },
+  "caught": true,
+  "description": "MilanMAC places only mac_tx_cdc"
+ },
+ {
+  "probe": "split-depth-doubled",
+  "rc": 1,
+  "failed": [
+   "csr_ar blockram",
+   "csr_ar storage",
+   "csr_aw blockram",
+   "csr_aw storage",
+   "csr_b blockram",
+   "csr_b storage",
+   "csr_r blockram",
+   "csr_r storage",
+   "csr_w blockram",
+   "csr_w storage",
+   "mac_rx blockram",
+   "mac_rx storage",
+   "mac_tx blockram",
+   "mac_tx storage"
+  ],
+  "expected": {
+   "mac_tx": "storage",
+   "mac_rx": "storage",
+   "csr_w": "storage",
+   "csr_r": "storage"
+  },
+  "caught": true,
+  "description": "split arrays twice the pointer range (function-neutral, area-wasting)"
+ },
+ {
+  "probe": "split-write-in-read-domain",
+  "rc": 1,
+  "failed": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected": {
+   "mac_tx": "lockstep",
+   "mac_rx": "lockstep",
+   "csr_w": "lockstep",
+   "csr_r": "lockstep"
+  },
+  "caught": true,
+  "description": "split arrays written in the read clock"
+ },
+ {
+  "probe": "csr-r-not-placed",
+  "rc": 1,
+  "failed": [
+   "csr_ar blockram",
+   "csr_ar storage",
+   "csr_aw blockram",
+   "csr_aw storage",
+   "csr_b blockram",
+   "csr_b storage",
+   "csr_r blockram",
+   "csr_r storage",
+   "csr_w blockram",
+   "csr_w storage"
+  ],
+  "expected": {
+   "csr_r": "storage"
+  },
+  "caught": true,
+  "description": "the CSR helper leaves R stock"
+ }
+]
