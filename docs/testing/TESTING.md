@@ -678,6 +678,22 @@ every channel exactly between a 50 MHz-shaped source and a 100 MHz-shaped
 sink, while the pre-#359 direct connection across the same clocks loses or
 duplicates beats.
 
+`test_retained_cdc_storage.py` (#640 lane M2) covers the seven retained SoC
+crossing arrays: both MAC crossings and the five CSR channel FIFOs, built by
+`milan_soc` with their RAM-friendly storage. The MAC crossings come from a
+`MilanMAC` itself. Each runs beside a stock LiteX crossing of the documented
+depth, on the same stimulus, at two clock ratios, in the read form the SoC's
+Verilog gives it. Every handshake and valid beat must match on every edge.
+The checks also grade order, capacity, a reset with beats in flight, and the
+storage split. With every framing flag read, the Verilog that migen's and
+LiteX's emitters write must read each block-RAM array through a register of
+its own, the condition for Vivado to keep it in block RAM.
+Seven controls each plant one defect into a scratch copy of `milan_soc.py`:
+a half-depth array, an 8-beat crossing, a one-sided MAC reset, a CSR crossing
+in the MAC reinit domain, a read port one entry ahead, `MilanMAC` without its
+storage call, and arrays that register their read address. Each must fail its
+named check.
+
 An access that is never acknowledged must not wedge either bridge or the shared
 bus.
 

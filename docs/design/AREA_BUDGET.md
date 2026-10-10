@@ -194,6 +194,10 @@ These figures are estimates of the complete qualified default image:
 | M10 shared gPTP/AECP engine | 0 | 31,667 | 1,200 estimated only with a separate retained AECP engine |
 | M9 closure and re-record | No assumed saving | Measured at closure | <= 38,040 LUT and timing met |
 
+M2 has measured its lane: 34 LUTs post-synthesis, 128 routed, no block-RAM growth.
+The [plan ledger](MARK_II_AREA_PLAN.md#m2-intermediate-measurement) gives both routes and why 34 is the reproducible figure.
+This table keeps its planning estimates until the week-4 re-measure.
+
 The split estimate includes the measured 3,102-LUT mailbox skeleton.
 It also reserves 1,000 LUTs for remaining fabric integration.
 Its 11,500-16,000 range includes mapping and integration uncertainty.
@@ -266,8 +270,8 @@ They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and `ctl
 The plan names their exact [scopes and counts](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): eleven tiles altogether.
 These credits require full removal and debiting every replacement store.
 D2 still requires equivalent diagnostics.
-If more capacity is needed, defer M2's two-tile MAC/CSR FIFO conversion.
-Defer new M6/M7 RAM conversions next; reprice every lost LUT saving.
+M2's measured MAC/CSR FIFO conversion adds no tile, so deferring it frees none.
+If more capacity is needed, defer new M6/M7 RAM conversions; reprice every lost LUT saving.
 Keep existing functionality, capacities and the 10 percent reserve.
 Further unmet demand needs a manager ruling commissioning redesign.
 Partial placement cannot claim retained AECP or wrapper storage as released.

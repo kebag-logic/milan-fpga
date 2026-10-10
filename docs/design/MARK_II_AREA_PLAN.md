@@ -451,6 +451,7 @@ Unqualified functions remain all-fabric until their acceptance passes.
 
 M2 covers retained SoC FIFOs, identified below after D4.
 **Saving:** 200 LUTs (100-400), reduced from the original 800.
+M2 measured 34 LUTs post-synthesis and no extra tile ([M2 intermediate measurement](#m2-intermediate-measurement)).
 The old inventory included processor tables removed by L2.
 gPTP belongs to M7; media context tables belong to M6.
 The historical RAM census motivates this target.
@@ -668,6 +669,37 @@ Media controls, counters and saved-state ownership must remain connected.
 Then repeat this prerequisite check and route the selected image.
 That route must replace this missing measurement with actual figures.
 
+### M2 intermediate measurement
+
+[Lane M2](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6095827337) changes the storage of the [L3](#l3-ram-friendly-retained-tables) crossings.
+Each MAC crossing keeps its 72-bit payload in one RAMB36.
+Its `first` and `last` flags move to LUTRAM, freeing a RAMB18.
+The CSR W and R FIFOs take those two RAMB18s.
+AW and AR stay in LUTRAM; B's storage was already trimmed.
+Depths, widths, read latency, clock domains and resets are unchanged.
+
+Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrated-measurements) with the gate's flow identity:
+
+| Measurement | LUT | FF | Slices | RAMB36 / RAMB18 | WNS / WHS, ns |
+|---|---:|---:|---:|---:|---|
+| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+| M2 route at `4177835c` | 50,139 | 54,354 | 15,771 | 74 / 27 | +0.306 / +0.019 |
+| Routed delta | -128 | -59 | -8 | 0 / 0 | +0.007 / -0.012 |
+| Post-synthesis delta, same runs | -34 | -61 | - | 0 / 0 | - |
+
+The base route equals the `route-1x1` record in every gated figure.
+Against that record, the M2 route passes with no failing endpoint.
+The changed arrays account for 44 LUTRAM sites: eleven RAM32M fewer.
+Post-synthesis, the netlist also gains 10 logic LUTs in the CPU's AXI-Lite bridge.
+The other routed logic movement lies in untouched blocks, mostly the wrapper.
+That movement is not a reproducible saving.
+
+The reproducible saving is 34 LUTs, below the 200 (100-400) estimate.
+The changed arrays' whole LUTRAM footprint was 72 sites.
+M2 adds no block-RAM tile; its +2 ledger allowance is unused.
+The cumulative tables keep the planning figure until the week-4 re-measure.
+The gate record stays unchanged under D7.
+
 ### Default split saving basis
 
 All savings below are estimates of the integrated 1x1 image.
@@ -824,9 +856,9 @@ The measured mailbox already supplies its own queues and timers.
 Do not credit its storage or these released stores twice.
 At 56 firmware tiles, the conditional total becomes 115.5 tiles.
 It leaves six below the ceiling, before other unpriced debits.
-Beyond that allowance, defer M2's two-tile MAC/CSR FIFO conversion first.
-Keep its existing storage and reprice the associated LUT saving.
-Defer new M6/M7 block-RAM conversions next, with the same repricing.
+M2's measured MAC/CSR FIFO conversion adds no tile, so deferring it frees none.
+Beyond that allowance, defer new M6/M7 block-RAM conversions first.
+Keep their existing storage and reprice the associated LUT savings.
 No media buffer, diagnostic function or protocol capacity is pruned.
 If these trades still exceed 121.5, the manager must commission further redesign.
 
