@@ -1,0 +1,29 @@
+## differential --self-test summary (full log kept unpublished; sha256 and size below)
+  parent PROBE intervals over 1024 MAC/phase pairs: 5173..5810 cycles
+== MAAP core and parent wire differential: checks: 12   failures: 0 ==
+RESULT: PASS
+  parent PROBE intervals over 1024 MAC/phase pairs: 5173..5810 cycles
+== MAAP core and parent wire differential: checks: 12   failures: 7 ==
+RESULT: FAIL
+[ok] differential mutant wire: MaapDifferential.ProbeSequenceWireAndCadence
+  parent PROBE intervals over 1024 MAC/phase pairs: 5173..5810 cycles
+[ok] differential mutant wire: MaapDifferential.ProbeSequenceWireAndCadence
+[ok] differential mutant release: MaapDifferential.ReleaseAndRetry
+[ok] differential mutant maap-table-b7-0: AllStates/DifferentialCell.SharedConflict/0
+[ok] differential mutant maap-table-b7-1: AllStates/DifferentialCell.SharedConflict/1
+[ok] differential mutant maap-table-b7-2: AllStates/DifferentialCell.SharedConflict/2
+[ok] differential mutant maap-table-b7-6: AllStates/DifferentialCell.SharedConflict/3
+[ok] differential mutant maap-table-b7-7: AllStates/DifferentialCell.SharedConflict/4
+[ok] differential mutant maap-table-b7-8: AllStates/DifferentialCell.SharedConflict/5
+[ok] differential mutant maap-table-b7-12: AllStates/DifferentialCell.SharedConflict/6
+[ok] differential mutant maap-table-b7-13: AllStates/DifferentialCell.SharedConflict/7
+[ok] differential mutant maap-table-b7-14: AllStates/DifferentialCell.SharedConflict/8
+[ok] differential mutant probe-1ms: MaapDifferential.ProbeTimingAndCount
+[ok] differential mutant probe-500ms: MaapDifferential.ProbeTimingAndCount
+[ok] differential mutant probe-600ms: MaapDifferential.ProbeTimingAndCount
+[ok] differential mutant parent-probe-bound: MaapDifferential.ProbeTimingAndCount
+[ok] differential mutant parent-probe-count: MaapDifferential.ProbeTimingAndCount
+[ok] differential mutant parent-ignores-mac: MaapDifferential.ProbeTimingAndCount
+differential mutants: 17/17 caught
+rc=0
+full log: 14191064 bytes sha256 415975aa24962fbc57fbf91001388e7b4d75f6c696338df5b4d2b45ce3f51d41
