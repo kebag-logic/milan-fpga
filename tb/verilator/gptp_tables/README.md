@@ -33,9 +33,13 @@ launch records, and warm resets in the middle of traffic.
 `mutants.py` plants three defects in each table: a wrong depth, a wrong read
 latency and an index alias. It edits private copies of the inputs `make
 print-inputs` names, with the slice suite's input copier, and requires each
-table's own named lockstep check to fail. A transmit FIFO deeper than intended
-is not one of them: admission bounds that FIFO to a few frames, so only a
-shallower one is observable, and the resource gate prices a deeper one.
+table's own named lockstep check to fail. Each wrong depth is one the table's
+reachable use exposes. The tap FIFO is halved and the bank and timer lose their
+upper half. The transmit FIFO keeps 16 of its 256 beats: admission bounds it to
+a few frames, so only a shallower FIFO is observable, and the resource gate
+prices a deeper one. The ledger and result queue are one entry short, because
+the engine keeps only a few entries outstanding and a power-of-two-short table
+would alias harmlessly.
 
 ```sh
 git submodule update --init third_party/verilog-axis gptp-processor   # once

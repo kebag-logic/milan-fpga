@@ -406,14 +406,15 @@ module gptp_tables_wrap #(
     end
   end : ref_ledger
 
-  //! the ledger is read at its head while it holds an entry: the tag check,
-  //! the measurement verdict and the fields the result queue copies
+  //! the ledger is read at its head while it holds an entry, through its
+  //! one read port: the tag check, the measurement verdict and the fields
+  //! the result queue copies all take these three wires
   logic led_on_w, led_bad_cyc_w;
   assign led_on_w = run_w && (rl_n_w != 5'd0);
   assign led_bad_cyc_w = led_on_w && (
-      (u_bench.u_shadow.u_txret.led_type_r[rl_head_w] != rl_type_r[rl_head_w]) ||
-      (u_bench.u_shadow.u_txret.led_seq_r [rl_head_w] != rl_seq_r [rl_head_w]) ||
-      (u_bench.u_shadow.u_txret.led_tag_r [rl_head_w] != rl_tag_r [rl_head_w]));
+      (u_bench.u_shadow.u_txret.led_head_type_w != rl_type_r[rl_head_w]) ||
+      (u_bench.u_shadow.u_txret.led_head_seq_w  != rl_seq_r [rl_head_w]) ||
+      (u_bench.u_shadow.u_txret.led_head_tag_w  != rl_tag_r [rl_head_w]));
 
   //! the engine takes the queue head only on an accepted valid/ready beat,
   //! so the head is graded whenever it is offered

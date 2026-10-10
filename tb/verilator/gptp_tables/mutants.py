@@ -100,13 +100,16 @@ MUTATIONS = [
      "  assign bank_raddr_w = {1'b0, st_addr_w[4:0]};",
      BANK),
     # ---- the egress ledger's RAM fields ------------------------------------
+    #: The engine's per-class claims keep a few entries outstanding, so a
+    #: power-of-two short table aliases harmlessly; one entry short of the
+    #: index range is lost the first time the head reaches it.
     ("ledger_wrong_depth", RET,
      "logic  [3:0] led_type_r [0:TXTS_CAP_N_P-1];\n"
      "  (* ram_style = \"distributed\" *) logic [15:0] led_seq_r  [0:TXTS_CAP_N_P-1];\n"
      "  (* ram_style = \"distributed\" *) logic        led_tag_r  [0:TXTS_CAP_N_P-1];",
-     "logic  [3:0] led_type_r [0:TXTS_CAP_N_P/2-1];\n"
-     "  (* ram_style = \"distributed\" *) logic [15:0] led_seq_r  [0:TXTS_CAP_N_P/2-1];\n"
-     "  (* ram_style = \"distributed\" *) logic        led_tag_r  [0:TXTS_CAP_N_P/2-1];",
+     "logic  [3:0] led_type_r [0:TXTS_CAP_N_P-2];\n"
+     "  (* ram_style = \"distributed\" *) logic [15:0] led_seq_r  [0:TXTS_CAP_N_P-2];\n"
+     "  (* ram_style = \"distributed\" *) logic        led_tag_r  [0:TXTS_CAP_N_P-2];",
      LED),
     ("ledger_wrong_read_latency", RET,
      "  assign led_head_type_w = led_type_r[led_head_r];\n"
@@ -127,9 +130,10 @@ MUTATIONS = [
      "  assign led_head_tag_w  = led_tag_r [{1'b0, led_head_r[PTR_W_C-2:0]}];",
      LED),
     # ---- the egress result queue -------------------------------------------
+    #: the queue holds a result or two at a time: one entry short, as above
     ("results_wrong_depth", RET,
      "logic [63:0] res_ns_r   [0:TXTS_CAP_N_P-1];",
-     "logic [63:0] res_ns_r   [0:TXTS_CAP_N_P/2-1];",
+     "logic [63:0] res_ns_r   [0:TXTS_CAP_N_P-2];",
      RES),
     ("results_wrong_read_latency", RET,
      "  assign txts_ns_o    = res_ns_r  [res_head_r];",
