@@ -52,6 +52,16 @@ def check_inputs(actual: dict, measured: dict) -> None:
                            f'current={actual}, measured-for={measured}')
 
 
+def production_spec(arm: dict, census: dict) -> dict:
+    """Every receipt arm is a production point, whatever else the arm carries.
+
+    Only the named scenario fields reach the grader. The census comes from the
+    generated shape, and the production timing bound always applies.
+    """
+    keys = ('shape', 'captures', 'sys_hz', 'cpu_hz', 'configured_cpu_hz', 'phase', 'traffic')
+    return dict({key: arm[key] for key in keys}, **census, mutation='none')
+
+
 def check_receipt(receipt: dict, actual: dict) -> None:
     """Regrade every recorded capture and recompute each published maximum."""
     check_inputs(actual, receipt['measured_for'])
@@ -78,7 +88,7 @@ def check_receipt(receipt: dict, actual: dict) -> None:
                for row in arm['rows']):
             raise RuntimeError('receipt rows differ from the generated census')
         census = dict(raw_bytes=source['raw_bytes'], records=source['records'])
-        summary = capture.grade_rows(arm['rows'], dict(arm, **census))
+        summary = capture.grade_rows(arm['rows'], production_spec(arm, census))
         for key, value in summary.items():
             if arm[key] != value:
                 raise RuntimeError(f'receipt summary differs from rows: {key}')
@@ -118,6 +128,37 @@ def timing_controls(census: dict) -> None:
         raise RuntimeError('OFF timing limit was ignored')
 
 
+def opt_out_control(receipt: dict, actual: dict) -> None:
+    """An arm naming a control must not escape the production bound.
+
+    The plant is one capture a single tick over half the floor, in an arm that
+    also claims the byte-only control. Its summaries and the published maxima
+    are recomputed to match, so the bound is the only reason left to refuse.
+    """
+    planted = deepcopy(receipt)
+    arm = planted['measurements'][0]
+    arm['mutation'] = 'byte-only'
+    arm['rows'][0]['sys_cycles'] = recipe.HOLD_FLOOR_MS * arm['sys_hz'] // 2000 + 1
+    source = actual[arm['shape']]
+    arm.update(capture.grade_rows(arm['rows'], dict(arm, raw_bytes=source['raw_bytes'],
+                                                    records=source['records'])))
+    arms = planted['measurements']
+    planted['maxima'] = []
+    for shape, clock in sorted({(item['shape'], item['cpu_hz']) for item in arms}):
+        worst = capture.maximum_ms([item for item in arms
+                                    if (item['shape'], item['cpu_hz']) == (shape, clock)])
+        planted['maxima'].append(dict(shape=shape, cpu_hz=clock, maximum_ms=worst,
+                                      margin=recipe.HOLD_FLOOR_MS / worst))
+    try:
+        check_receipt(planted, actual)
+    except RuntimeError as exc:
+        if 'half the 49 ms' not in str(exc):
+            raise
+    else:
+        raise RuntimeError('receipt arm escaped the production timing bound')
+    print('CONTROL receipt-opt-out: production bound applied despite a control field')
+
+
 def selftest(actual: dict) -> None:
     """Named controls alter each live input before the real comparison."""
     for name, field in (('bytes', 'raw_bytes'), ('records', 'records'),
@@ -150,10 +191,16 @@ def ignore_off_timing(arms: list[dict]) -> float:
                for arm in arms if arm['traffic'] == 'on' for row in arm['rows'])
 
 
+def opted_out_spec(arm: dict, census: dict) -> dict:
+    """Deliberately unguarded spec, exercised only as a failing control."""
+    return dict(arm, **census)
+
+
 def main() -> int:
     """Run input and grading controls before checking the measured receipt."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--mutation', choices=['bytes', 'records', 'clock', 'ignore-off-timing'])
+    parser.add_argument('--mutation', choices=['bytes', 'records', 'clock', 'ignore-off-timing',
+                                               'receipt-opt-out'])
     args = parser.parse_args()
     try:
         actual = current_inputs()
@@ -161,10 +208,14 @@ def main() -> int:
         if args.mutation == 'ignore-off-timing':
             with patch.object(capture, 'maximum_ms', side_effect=ignore_off_timing):
                 timing_controls(actual[recipe.SHAPES[0]])
-        elif args.mutation:
+        receipt = json.loads((HARNESS / 'measurements.json').read_text())
+        if args.mutation == 'receipt-opt-out':
+            with patch.object(sys.modules[__name__], 'production_spec', side_effect=opted_out_spec):
+                opt_out_control(receipt, actual)
+        opt_out_control(receipt, actual)
+        if args.mutation in ('bytes', 'records', 'clock'):
             field = {'bytes': 'raw_bytes', 'records': 'records', 'clock': 'cpu_hz'}[args.mutation]
             actual[recipe.SHAPES[0]][field] += 1
-        receipt = json.loads((HARNESS / 'measurements.json').read_text())
         check_receipt(receipt, actual)
     except (RuntimeError, KeyError, ValueError) as exc:
         print(f'FAIL: {exc}', file=sys.stderr)

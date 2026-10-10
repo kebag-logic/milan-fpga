@@ -1704,6 +1704,7 @@ Named controls alter bytes, records and clocks independently.
 A slower OFF fixture must determine the published maximum.
 A planted grader ignoring OFF timing fails that fixture.
 The OFF timing limit checks equality and one extra tick.
+A receipt arm that names a control is still graded against the production bound.
 Both simulation controls also detect missing copying and missing traffic.
 
 Measurements retire the six-instructions-per-byte and fifty-instructions-per-record estimates.
