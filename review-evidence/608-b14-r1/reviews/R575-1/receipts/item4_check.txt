@@ -1,0 +1,6 @@
+doc rows 100 csv cycles 100 first-ten rows 1000
+step histogram {124999: 66, 125000: 26, 125019: 6, 125020: 2}
+first-ten tv/tu {('1', '0'): 1000} cycles 100
+first step from raw headers {124999: 66, 125000: 26, 125019: 6, 125020: 2} seq discontinuities in first ten 0
+polls after bind 800 polls with EARLY/LATE>0 0 starts OK 100
+mismatches []

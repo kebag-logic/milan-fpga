@@ -1,0 +1,53 @@
+capture receipts 363 rc {130: 242, 0: 121} kernel drop values {0: 363}
+by filter Counter({'plain.pcap': 121, 'vlan.pcap': 121, 'control.pcap': 121})
+ledger rows 121 verdicts Counter({'CLEAN': 121}) last elapsed 7200.535
+poll interval min/max 59.144 61.185
+console files 26
+summary console reads 26
+MAC_STATUS {('0000000d',): 26}
+RMON 0x200..0x230 {('00000000', '000001b8', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000'): 26}
+MAAP {('00000201', '0000dd85', '00000006'): 26}
+sync/gm {('110', True): 26}
+  slip/render ('prebind', '06:22:38', ['0000008e', '00000000', '000a0100'])
+  slip/render ('soak-000', '06:23:23', ['00000090', '00000000', '000a020e'])
+  slip/render ('soak-005', '06:28:23', ['00000090', '00000000', '000a0209'])
+  slip/render ('soak-010', '06:33:23', ['00000092', '00000000', '000a020c'])
+  slip/render ('soak-015', '06:38:23', ['00000092', '00000000', '000a020e'])
+  slip/render ('soak-020', '06:43:23', ['00000092', '00000000', '000a020d'])
+  slip/render ('soak-025', '06:48:23', ['00000092', '00000000', '000a020d'])
+  slip/render ('soak-030', '06:53:23', ['00000092', '00000000', '000a020e'])
+  slip/render ('soak-035', '06:58:23', ['00000092', '00000000', '000a020e'])
+  slip/render ('soak-040', '07:03:23', ['00000092', '00000000', '000a020b'])
+  slip/render ('soak-045', '07:08:23', ['00000092', '00000000', '000a020c'])
+  slip/render ('soak-050', '07:13:23', ['00000092', '00000000', '000a0209'])
+  slip/render ('soak-055', '07:18:23', ['00000092', '00000000', '000a020b'])
+  slip/render ('soak-060', '07:23:23', ['00000092', '00000000', '000a020d'])
+  slip/render ('soak-065', '07:28:23', ['00000092', '00000000', '000a020b'])
+  slip/render ('soak-070', '07:33:23', ['00000092', '00000000', '000a020a'])
+  slip/render ('soak-075', '07:38:23', ['00000092', '00000000', '000a020d'])
+  slip/render ('soak-080', '07:43:23', ['00000092', '00000000', '000a020a'])
+  slip/render ('soak-085', '07:48:23', ['00000092', '00000000', '000a0209'])
+  slip/render ('soak-090', '07:53:23', ['00000092', '00000000', '000a0209'])
+  slip/render ('soak-095', '07:58:23', ['00000092', '00000000', '000a0209'])
+  slip/render ('soak-100', '08:03:23', ['00000092', '00000000', '000a020c'])
+  slip/render ('soak-105', '08:08:23', ['00000092', '00000000', '000a020c'])
+  slip/render ('soak-110', '08:13:23', ['00000092', '00000000', '000a020b'])
+  slip/render ('soak-115', '08:18:23', ['00000092', '00000000', '000a020b'])
+  slip/render ('soak-120', '08:23:23', ['00000092', '00000000', '000a020d'])
+  dut|9|0 nonzero deltas {} 
+  dut|36|0 nonzero deltas {} 
+  dut|5|0 nonzero deltas {'TIMESTAMP_VALID': 57599252, 'FRAMES_RX': 57599387} 
+  dut|5|1 nonzero deltas {'FRAMES_RX': 7200} 
+  dut|6|0 nonzero deltas {'FRAMES_TX': 7200} 
+  dut|6|1 nonzero deltas {'FRAMES_TX': 7200} 
+  peer|5|0 nonzero deltas {'TIMESTAMP_VALID': 57599253, 'FRAMES_RX': 57599253} 
+  peer|5|8 nonzero deltas {'TIMESTAMP_VALID': 3599953, 'FRAMES_RX': 3599953} 
+keys ['t0_utc', 'polls', 'last_elapsed_s', 'chunks', 'polls_with_errors', 'timing_polls', 'console_polls', 'console_rc_nonzero', 'hive_rule_increments', 'timing_reads', 'timing_changes', 'captures', 'capture_statistics', 'capture_bytes', 'capture_files', 'capture_remote_hash_matches']
+t0_utc 2026-10-10T06:23:22
+polls 121
+last_elapsed_s 7200.535
+chunks 17
+polls_with_errors 0
+timing_reads 25
+timing_changes 0
+hive_rule_increments 0

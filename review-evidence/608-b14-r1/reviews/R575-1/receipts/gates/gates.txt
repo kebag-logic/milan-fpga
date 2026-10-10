@@ -1,0 +1,10 @@
+docs_check rc=0
+check_doc_style rc=0
+gen_toc_check rc=0
+gen_toc_anchors rc=0
+check_em_dash rc=0
+check_doc_paths rc=0
+baremetal_check rc=2
+diff_check rc=0
+baremetal_check(system python with yaml) rc=0
+note: the first baremetal_check rc=2 ran under the documentation venv without pyyaml (environment); the re-run with the system interpreter (pyyaml 6.0.3) is rc=0

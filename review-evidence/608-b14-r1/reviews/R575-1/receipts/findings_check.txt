@@ -1,0 +1,39 @@
+== F1: DUT Talker Advertise Lv timing in cycles 2 and 42
+doc: [(190, "- 2 cycles (2 and 42) show the DUT withdrawing its Talker Advertise (`Lv`) 0.104 and 0.328 s after the bridge's `Lv`.")]
+  cycle 2: DISCONNECT_RX response 2.736898, bridge Lv 2.745782, DUT TA Lv 2.840873 -> after bridge Lv 0.0951 s, after response 0.1040 s
+  cycle 42: DISCONNECT_RX response 2.972408, bridge Lv 2.981647, DUT TA Lv 3.300089 -> after bridge Lv 0.3184 s, after response 0.3277 s
+== F2: soak capture-loss bursts per stream
+doc: [(460, '- Three captures each lose a burst within 45 ms of their first frame, on all four streams at once: 9 to 12 AAF PDUs and 1 CRF PDU.')]
+   capture prev port subtype stream missing recovered_from_previous_capture gap_ms
+   002 001 2 0x2 0000 11 all 1.501
+   002 001 3 0x2 0000 12 all 1.625
+   002 001 2 0x4 4000 1 all 4.0
+   002 001 3 0x4 0001 1 all 4.0
+   035 034 2 0x2 0000 12 all 1.624
+   035 034 3 0x2 0000 12 all 1.625
+   035 034 2 0x4 4000 1 all 3.998
+   042 041 2 0x2 0000 9 all 1.25
+   042 041 3 0x2 0000 10 all 1.375
+   042 041 2 0x4 4000 1 all 4.001
+   042 041 3 0x4 0001 1 all 4.0
+== F3: SLIP_LB around the soak binds (console 0x8D4, little-endian word)
+doc: [(477, '- **One loopback slip at INTERNAL.** `SLIP_LB` stepped by one frame between 06:28:23 and 06:33:23, 5 to 10 minutes into the soak.')]
+  soak/console-prebind.txt     2026-10-10T06:22:39.057948Z SLIP_LB dups 0x8e
+  soak/console-soak-000.txt    2026-10-10T06:23:23.211379Z SLIP_LB dups 0x90
+  soak/console-soak-005.txt    2026-10-10T06:28:23.212191Z SLIP_LB dups 0x90
+  soak/console-soak-010.txt    2026-10-10T06:33:23.213790Z SLIP_LB dups 0x92
+  bind peer-out-0 -> dut-in-0 at epoch 1791613359.507
+  bind peer-out-2 -> dut-in-1 at epoch 1791613360.720
+  soak t0 epoch (soak-coverage.txt): 1791613402.708542
+== F4: RMON lanes and STATS_CAP
+doc: [(494, '- The RMON lanes hold the FCS, preamble or alignment and receive-drop counts ([REGISTER_MAP.md](../reference/REGISTER_MAP.md#0x200-----statistics-rmon--req-mac-04)).')]
+  lane 0 0x210 TX_ERROR_UNDERFLOW   STATS_CAP bit 0
+  lane 1 0x214 TX_FIFO_OVERFLOW     STATS_CAP bit 0
+  lane 2 0x218 TX_FIFO_BAD_FRAME    STATS_CAP bit 0
+  lane 3 0x21c TX_FIFO_GOOD_FRAME   STATS_CAP bit 1
+  lane 4 0x220 RX_ERROR_BAD_FRAME   STATS_CAP bit 1
+  lane 5 0x224 RX_ERROR_BAD_FCS     STATS_CAP bit 1
+  lane 6 0x228 RX_FIFO_OVERFLOW     STATS_CAP bit 0
+  lane 7 0x22c RX_FIFO_BAD_FRAME    STATS_CAP bit 1
+  lane 8 0x230 RX_FIFO_GOOD_FRAME   STATS_CAP bit 1
+  REGISTER_MAP: [(507, '| `RX_FIFO_OVERFLOW` | none — MAC-internal, not exposed | ❌ |'), (533, '| `0x228` | `STAT_RX_FIFO_OVERFLOW` | RO | `0` | RX FIFO overflow — no source, see `STATS_CAP` |')]

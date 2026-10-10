@@ -1,0 +1,17 @@
+doc table rows 101
+graded n 100
+lv after response ms min/median/max 8.35 8.88 95.701
+lv > 20 ms [(26, 84.5), (56, 95.7), (97, 57.5)]
+last PDU minus Lv ms min/max -1.993 -0.004
+restart ms min/median/max 10.4 11.97 125.9
+sorted restarts top 4 [18.0, 62.2, 105.7, 125.9]
+LeaveAll MRPDUs bridge/DUT 97 0
+capture span total s 894.005
+START/STOP deltas {(1, 1): 100}
+DUT TA Lv in hold (cycle, s after bridge Lv, s after DISCONNECT_RX response) [(2, [0.0951], 0.104), (42, [0.3184], 0.3277)]
+LeaveAll (any party) before Lv inside capture 0 []
+profile 86 (('DUT', 'Domain', 'JoinIn'), ('DUT', 'Listener', 'JoinMt'), ('DUT', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'Listener', 'Lv')) 
+profile 11 (('DUT', 'Domain', 'JoinIn'), ('DUT', 'Listener', 'JoinMt'), ('DUT', 'Listener', 'Mt'), ('DUT', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'Domain', 'JoinMt'), ('bridge', 'Domain', 'LeaveAll'), ('bridge', 'Listener', 'JoinMt'), ('bridge', 'Listener', 'LeaveAll'), ('bridge', 'Listener', 'Lv'), ('bridge', 'Listener', 'Mt'), ('bridge', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'TalkerAdvertise', 'LeaveAll'), ('bridge', 'TalkerAdvertise', 'Mt'), ('bridge', 'TalkerFailed', 'LeaveAll')) [79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89]
+profile 2 (('DUT', 'Domain', 'JoinIn'), ('DUT', 'Listener', 'JoinMt'), ('DUT', 'TalkerAdvertise', 'JoinMt'), ('DUT', 'TalkerAdvertise', 'Lv'), ('bridge', 'Listener', 'Lv'), ('bridge', 'TalkerAdvertise', 'Mt')) [2, 42]
+profile 1 (('DUT', 'Domain', 'JoinIn'), ('DUT', 'Listener', 'JoinMt'), ('DUT', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'Domain', 'JoinMt'), ('bridge', 'Domain', 'LeaveAll'), ('bridge', 'Listener', 'JoinMt'), ('bridge', 'Listener', 'LeaveAll'), ('bridge', 'Listener', 'Lv'), ('bridge', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'TalkerAdvertise', 'LeaveAll'), ('bridge', 'TalkerFailed', 'LeaveAll')) [78]
+mismatches []
