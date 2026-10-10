@@ -265,7 +265,7 @@ class MaapHarness {
     void first_claims_of_equally_timed_stations();
     uint16_t seeded_first_offset(uint32_t seed, uint8_t count);
     long seeded_first_probe_draw(uint32_t seed);
-    static bool insert_image(ImageBasis& basis, SeedImage image, uint32_t& kernel);
+    static bool insert_image(ImageBasis& basis, SeedImage image, uint32_t& null_seed);
     static int image_rank(const SeedMap& map, unsigned first, unsigned last);
     void first_draws_for_every_seed();
     using GeneratorMap = std::array<uint32_t, 32>;
@@ -1157,23 +1157,23 @@ long MaapHarness::seeded_first_probe_draw(uint32_t seed){
 }
 
 // Reduce `image` against the basis. A new pivot extends the image; a value
-// that reduces to zero leaves its seed in the map's kernel.
-bool MaapHarness::insert_image(ImageBasis& basis, SeedImage image, uint32_t& kernel){
+// that reduces to zero leaves its seed in the map's null space.
+bool MaapHarness::insert_image(ImageBasis& basis, SeedImage image, uint32_t& null_seed){
     for (int bit=31;bit>=0;--bit) {
         if (!((image.value>>bit)&1)) continue;
         if (!basis[bit].value) { basis[bit]=image; return true; }
         image.value^=basis[bit].value;
         image.seed^=basis[bit].seed;
     }
-    kernel=image.seed;
+    null_seed=image.seed;
     return false;
 }
 
 int MaapHarness::image_rank(const SeedMap& map, unsigned first, unsigned last){
     ImageBasis basis{};
-    uint32_t kernel=0;
+    uint32_t null_seed=0;
     int rank=0;
-    for (unsigned k=first;k<=last;++k) rank+=insert_image(basis,{map[k],uint32_t{1}<<k},kernel);
+    for (unsigned k=first;k<=last;++k) rank+=insert_image(basis,{map[k],uint32_t{1}<<k},null_seed);
     return rank;
 }
 
@@ -1199,21 +1199,21 @@ void MaapHarness::first_draws_for_every_seed(){
         return seeded_first_probe_draw(seed); });
 
     // Every word of the offset image, each steered by a seed the RTL maps onto
-    // it. Adding a kernel seed keeps every steered seed nonzero.
+    // it. Adding a null-space seed keeps every steered seed nonzero.
     ImageBasis basis{};
-    uint32_t kernel=0;
+    uint32_t null_seed=0;
     for (unsigned k=0;k<offset_map.size();++k) {
         uint32_t dependent=0;
-        if (!insert_image(basis,{offset_map[k],uint32_t{1}<<k},dependent) && !kernel)
-            kernel=dependent;
+        if (!insert_image(basis,{offset_map[k],uint32_t{1}<<k},dependent) && !null_seed)
+            null_seed=dependent;
     }
     std::vector<SeedImage> pivots;
     for (const auto& entry : basis) if (entry.value) pivots.push_back(entry);
-    linear&=kernel!=0;
+    linear&=null_seed!=0;
     // claims[count-1][word]: the offset the RTL claims, -1 outside the image
     std::vector<std::vector<int32_t>> claims(kCount, std::vector<int32_t>(1u<<16,-1));
     for (uint32_t m=0;linear && m<(uint32_t{1}<<pivots.size());++m) {
-        SeedImage word{0,kernel};
+        SeedImage word{0,null_seed};
         for (unsigned p=0;p<pivots.size();++p)
             if ((m>>p)&1) { word.value^=pivots[p].value; word.seed^=pivots[p].seed; }
         for (unsigned count=1;count<=kCount;++count)

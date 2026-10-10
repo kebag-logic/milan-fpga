@@ -71,8 +71,8 @@ MUTANTS = (
      "M4 B.3.6.1 MACs 2^i apart (16 <= i <= 31) claim disjoint first blocks"),
     ("m4_first_interval_raw_seed_bits", "M4", PROBE_DRAW, "{10'd0, lfsr_r[5:0]}",
      "M4 B.3.4 MACs 2^i apart draw different first probe intervals"),
-    # Fold-constant and structure defects that every sampled pair survives
-    # (R559-6's q3, q9 and q1); section [13] must see each for every seed.
+    # Defects that every sampled first-draw pair survives (R559-6's q3, q9 and
+    # q1, and a nonlinear first fold); section [13] must see each for every seed.
     ("m4_offset_row0_bit_drop", "M4", "32'h1040_0000, 32'h0000_0081",
      "32'h1040_0000, 32'h0000_0080",
      "M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word"),
@@ -80,12 +80,13 @@ MUTANTS = (
      "M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8"),
     ("m4_probe_fold_unstepped", "M4", PROBE_DRAW, "{10'd0, probe_fold(lfsr_r)}",
      "M4 B.3.4 every seed pair 2^i apart draws different first probe intervals"),
-    ("m4_probe_row_repeats_offset_row", "M4", "32'h0000_0409, 32'h2420_0880",
-     "32'h0000_0409, 32'h0000_0081",
-     "M4 B.3.6.1 first offset word and first probe draw are independent"),
     ("m4_first_offset_nonlinear", "M4", FIRST_FOLD,
      "offset_fold(seed_next_w) ^ {15'd0, &seed_next_w[1:0]}, count_i)",
      "M4 first-draw maps learned from the RTL are linear in the seed"),
+    # A probe row that repeats an offset row ties the two first draws together.
+    ("m4_probe_row_repeats_offset_row", "M4", "32'h0000_0409, 32'h2420_0880",
+     "32'h0000_0409, 32'h0000_0081",
+     "M4 B.3.6.1 first offset word and first probe draw are independent"),
     ("m6_overwrite_active_response", "M6",
      "&& !(tx_busy_r && tx_msg_r == MSG_DEFEND_C)", "",
      "M6 occupied response buffer preserves active DEFEND"),
