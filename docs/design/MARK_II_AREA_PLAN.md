@@ -557,6 +557,7 @@ No M2 table credit overlaps these arrays.
 
 M7 moves eligible gPTP tables into block RAM or narrows indices.
 **Saving:** 500 LUTs (300-700), based on 464 historical LUTRAM LUTs.
+M7 measured 107-253 LUTs and one freed tile ([M7 intermediate measurement](#m7-intermediate-measurement)).
 Dual-read operand files remain where required.
 M10 shares gPTP and AECP execution only in retained-fabric AECP builds.
 Its estimated 1,200 LUTs (900-1,500) has zero default-image credit.
@@ -667,6 +668,53 @@ It must select F0-F4 firmware and remove the corresponding engines.
 Media controls, counters and saved-state ownership must remain connected.
 Then repeat this prerequisite check and route the selected image.
 That route must replace this missing measurement with actual figures.
+
+### M7 intermediate measurement
+
+[Lane M7](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6097272538) changes the storage of five fabric gPTP plane tables.
+Their function, widths, depths and read latency are unchanged.
+
+| Table | Before | After, routed |
+|---|---|---|
+| Tap frame FIFO, 256 beats | 74 bits with eight `tkeep` bits: RAMB36 + RAMB18 | 69 bits with the highest lane: one RAMB36 |
+| Transmit frame FIFO, 256 beats | 73 bits with eight `tkeep` bits: RAMB36 + RAMB18 | 69 bits with the lane count: one RAMB36 |
+| Egress ledger type, sequence and tag, 8 x 21 | Flip-flops read through LUT multiplexers | 4 RAM32M + 1 RAM32X1D, one read port at the head |
+| Egress result queue, 8 x 89 | Flip-flops read through LUT multiplexers | 16 RAM32M + 1 RAM32X1D, read at the head |
+| Engine timer deadlines, 8 x 32 | Flip-flops read through a LUT multiplexer | 5 RAM32M + 2 RAM32X1D, read at the sweep slot |
+
+The engine's message bank stays in distributed RAM.
+A block-RAM bank on the two freed RAMB18 was routed first, at `ba350298`.
+Its read result must merge with the state port's register.
+That merge fans out into three micro-CPU consumers.
+Placed, the engine level gained 165 logic LUTs for 86 LUTRAM sites freed.
+The remaining tables read two ports at once, write two at once, or read in parallel.
+
+Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrated-measurements) with the gate's flow identity:
+
+| Measurement | LUT | FF | Slices | RAMB36 / RAMB18 | WNS / WHS, ns |
+|---|---:|---:|---:|---:|---|
+| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+| Block-RAM bank route at `ba350298` | 50,339 | 53,156 | 15,775 | 74 / 27 | +0.091 / +0.014 |
+| M7 route at `49e1ce48` | 49,898 | 53,220 | 15,773 | 74 / 25 | +0.122 / +0.019 |
+| Routed delta, M7 against base | -369 | -1,193 | -6 | 0 / -2 | -0.177 / -0.012 |
+
+The base route equals the `route-1x1` record in every gated figure.
+Against that record, the M7 route passes with no failing endpoint.
+Its worst setup path lies in the SoC's write buffer, outside the plane.
+
+| Scope | Routed LUT delta | Post-synthesis LUT delta | Out of context |
+|---|---:|---:|---:|
+| gPTP plane | -229 | -253 | -107 |
+| Untouched processor wrapper | -414 | -449 | - |
+| Rest of the image | +274 | +358 | - |
+
+The untouched blocks move more than the plane does.
+So the image delta is mapping movement, not a reproducible saving.
+The plane figures range from 107 to 253 LUTs.
+Against the 500 (300-700) estimate, the saving is below range.
+The reproducible gains are 1,149 plane FFs and one block-RAM tile.
+The cumulative tables keep the planning figure until the week-4 re-measure.
+The gate record stays unchanged under D7.
 
 ### Default split saving basis
 
@@ -798,8 +846,10 @@ Before the conditional release, the estimate leaves one tile below 121.5.
 After it, 109.5 tiles leaves twelve below that ceiling.
 Both leave the separate 13.5-tile reserve untouched.
 Neither number proves integrated fit.
-Unpriced M6/M7 RAM conversions and integration buffers consume that allowance.
+Unpriced M6 RAM conversions and integration buffers consume that allowance.
 Each lane must debit them before accepting its LUT saving.
+M7's measured route frees one tile instead: 74 RAMB36 and 25 RAMB18.
+The table above keeps the recorded 87.5 tiles until M9 re-records.
 Without the estimated CPU-memory reuse, those totals become 139 and 128.
 Both exceed the ceiling; reuse is a prerequisite, not free headroom.
 
