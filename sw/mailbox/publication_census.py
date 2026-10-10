@@ -39,20 +39,42 @@ an instance a population read reaches. A file the datapath includes must not
 name a population wire, and an include the census cannot find under ``hdl/``
 or ``configs/`` fails.
 
-THE READS. The datapath is cut into statements. A read is an occurrence of a
-population wire in a statement's right-hand side, in an index of its target,
-in the parentheses of an ``if``, ``case`` or ``for`` that controls it (inside
-an ``always`` block, every target of the block), or in a named module port
-connection. Declarations with an initialiser (``wire x = ...``) are
-statements like any other. A read is keyed by the wire and its consumer: the
-signal the statement drives, or ``instance.port``.
+THE READS. The datapath is cut into statements, and a statement into its
+assignments (a comma outside brackets after the first '=' starts the next of a
+list, ``assign a = x, b = y``). A read is an occurrence of a name in an
+assignment's right-hand side, in an index of its target, in the parentheses
+of an ``if``, ``case``, ``for`` or ``while`` that controls it, or in a named
+module port connection, whatever the port is called. Declarations with an
+initialiser (``wire x = ...``) are assignments like any other. A read of a
+population wire is keyed by the wire and its consumer: the signal its
+assignment drives, or ``instance.port``.
 
-THE CONE. From each consumer the check follows every statement that reads it,
-transitively, to a terminal: a port of the CSR block (``milan_csr``, read-back
-status), a port of the processor wrapper itself (its GET_STREAM_INFO answer
-face), or anything else, which is the wire: another module's port or a module
-output. Always blocks are followed as a whole, so the cone over-approximates:
-a path it cannot rule out counts as reaching the wire.
+THE CONE fails closed at every node, as the occurrences do at the first hop:
+any occurrence is an edge (#665, comment 6095903333). A read leads to every
+signal its statement can drive: the targets of its assignment, every target
+of the procedural block (``always``, ``initial``, ``final``) it lies in, or
+its ``instance.port``. From each signal reached, every non-comment occurrence
+of its name in the datapath is one of:
+
+  its declaration     a name a net or variable declaration declares
+  a place driving it  the target of an assignment
+  a read              which leads on to every signal its statement can drive
+
+and any other occurrence counts as reaching the wire: a positional or implicit
+``.name`` port, a case item label, an event control, a member or hierarchical
+name, anything inside a function, task, property or sequence declaration (a
+``return`` among them), a read inside the arguments of a call to a function,
+task, system function or macro (the census does not follow a value through
+what it cannot see), and any form not listed here. A signal that a file the
+datapath includes names counts as reaching the wire too. Only two terminals
+stop the cone, each named by instance and port, never by a port's name:
+
+  csr        a port of the ``milan_csr`` instance that ``CSR_READBACK`` names
+  processor  a port of the ``KL_pp_shadow`` instance that ``PROCESSOR_FACE``
+             names, its GET_STREAM_INFO and GET_AVB_INFO answer face
+
+Every other port of every instance, those two included, and a module output
+are the wire. So a path the census cannot rule out reaches the wire.
 
 THE CENSUS. ``CENSUS`` names every read once:
 
@@ -69,9 +91,10 @@ THE CENSUS. ``CENSUS`` names every read once:
              platform's stream and avb ports, none from the block
 
 and fails on a read the census does not name, a row no read matches, a status
-or processor read whose cone reaches the wire or a port the lists do not name,
-a field read whose cone does not reach the wire, and a field the contract does
-not define.
+or processor read whose cone reaches the wire (any port the two lists do not
+name among it), a status read whose cone reaches the processor wrapper, a field
+read whose cone does not reach the wire, and a field the contract does not
+define.
 
     python3 sw/mailbox/publication_census.py --check
     python3 sw/mailbox/publication_census.py --list
@@ -80,18 +103,24 @@ not define.
 ``--selftest`` plants each defect of ``PLANTS`` into copies of the datapath,
 the wrapper or an included file: the reviewers' escaping reads (a wire renamed
 off the class-D prefix, a case item label, positional and implicit ``.name``
-ports, a function's return) and the forms already refused, every wrong
-connection of the wrapper's class-D face, each outright refusal, and the
-census's own defects (an unmapped read, a status or processor read on the
-wire, a field the contract lacks, a stale row). Each must be refused by its
-own words; the tracked sources, and a copy whose only change is a comment
-naming a class-D wire, must pass.
+ports, a function's return) and the forms already refused; the reviewers'
+escaping cone hops from a status consumer and a processor consumer (a
+positional and an implicit ``.name`` port, a case item label, a function's
+return, an event control, an input port named like an output), each with its
+plain-assign control, and further hops (a relational ``<=`` in a case label,
+a function's and a task's output argument, a macro's argument, the second
+assignment of a list, another target of the block, a member, a CSR or wrapper
+port outside its face); every wrong connection of the wrapper's class-D face,
+each outright refusal, and the census's own defects (an unmapped read, a
+status or processor read on the wire, a field the contract lacks, a stale
+row). Each must be refused by its own words, a cone hop by its read's row and
+the occurrence that reaches the wire; the tracked sources, and a copy whose
+only change is a comment naming a class-D wire, must pass.
 """
 
 from __future__ import annotations
 
 import argparse
-import bisect
 import re
 import sys
 from collections import defaultdict
@@ -103,6 +132,11 @@ sys.path.insert(0, str(HERE))
 
 import mailbox_model  # noqa: E402
 from census_plants import PLANTS, apply  # noqa: E402
+# the reader; DECL, always_blocks, lead_of and lvalues are the census's API
+# too, which the reviewers' probes of #665 call
+from census_netlist import (  # noqa: E402
+    DECL, TOKEN, CensusError, Netlist, always_blocks, assignment, close_of, declarations, lead_of, lvalues,
+    netlist, strip_comments, top_level)
 
 REPO = HERE.parent.parent
 DATAPATH = REPO / "hdl/milan/milan_datapath.sv"
@@ -208,22 +242,6 @@ CSR_READBACK = frozenset({
 #: data, the wait it holds, and the change strobes behind its notifications.
 PROCESSOR_FACE = frozenset({"gsi_data_i", "gsi_wait_i", "gsi_avb_chg_i", "gsi_asp_chg_i"})
 
-KEYWORDS = frozenset("""
-    assign wire logic reg begin end else if for case casez casex unique unique0 priority endcase default
-    always always_comb always_ff always_latch posedge negedge or and generate endgenerate genvar localparam
-    parameter input output inout signed unsigned int integer automatic function endfunction return initial
-    typedef struct packed enum foreach while do module endmodule import export bit byte shortint longint
-    string var const static""".split())
-IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_$]*(?:\.[A-Za-z_][A-Za-z0-9_$]*)*")
-#: What may stand before a statement's own text: block keywords and labels, and preprocessor directive lines.
-LEAD = re.compile(r"\s*(?:(?:begin|end|endcase|endfunction|endtask|endgenerate|else|generate)\b(?:\s*:\s*\w+)?"
-                  r"|`\w+[^\n]*)")
-LEAD_COND = re.compile(r"\s*(if|for)\s*\(")
-INST_TYPE = re.compile(r"\s*([A-Za-z_]\w*)\s*(#\s*\()?")
-INST_NAME = re.compile(r"\s*([A-Za-z_]\w*)\s*\(")
-CONTROL = re.compile(r"\b(if|case|casez|casex|for|while)\s*\(")
-OUTPUT_DECL = re.compile(r"\boutput\s+(?:wire\s+|logic\s+|reg\s+)?(?:signed\s+)?(?:\[[^\]]*\]\s*)*(\w+)")
-DECL = re.compile(r"\s*(?:wire|logic|reg|var|tri|uwire)\b(?:\s+(?:logic|reg|wire)\b)?(?:\s+(?:signed|unsigned)\b)?")
 #: A section heading of the wrapper's port list, `//! ---- title ----`.
 SECTION = re.compile(r"^[ \t]*//!?[ \t]*-{4}[ \t]*(.*?)[ \t]*-{4,}[ \t]*$", re.M)
 PORT_DIRECTION = re.compile(r"\s*(input|output|inout)\b")
@@ -236,279 +254,17 @@ SCOPE = r"[A-Za-z_][\w$]*(?:\s*\[[^\][]*\])*"
 HIERARCHICAL = re.compile(rf"(?<![\w$.]){SCOPE}(?:\s*\.\s*{SCOPE})+")
 
 
-class CensusError(ValueError):
-    """The datapath could not be read the way the census reads it."""
-
-
-def strip_comments(text: str) -> str:
-    """The text with comments and string bodies blanked, its length and newlines kept."""
-    out: list[str] = []
-    i, n = 0, len(text)
-    while i < n:
-        if text.startswith("//", i):
-            j = text.find("\n", i)
-            j = n if j < 0 else j
-            out.append(" " * (j - i))
-        elif text.startswith("/*", i):
-            j = text.find("*/", i + 2)
-            j = n if j < 0 else j + 2
-            out.append("".join(c if c == "\n" else " " for c in text[i:j]))
-        elif text[i] == '"':
-            j = i + 1
-            while j < n and text[j] != '"':
-                j += 2 if text[j] == "\\" else 1
-            j = min(n, j + 1)
-            out.append('"' + " " * max(0, j - i - 2) + ('"' if j - i >= 2 else ""))
-        else:
-            j = i + 1
-            out.append(text[i])
-        i = j
-    return "".join(out)
-
-
-def close_of(text: str, i: int) -> int:
-    """The index just past the bracket group that opens at text[i]."""
-    depth = 0
-    for j in range(i, len(text)):
-        if text[j] in "([{":
-            depth += 1
-        elif text[j] in ")]}":
-            depth -= 1
-            if depth == 0:
-                return j + 1
-    raise CensusError(f"an unbalanced bracket group opens at offset {i}")
-
-
-def statements(code: str) -> list[tuple[int, int]]:
-    """(start, end) of every statement: text up to a ';' outside brackets."""
-    out, depth, start = [], 0, 0
-    for i, c in enumerate(code):
-        if c in "([{":
-            depth += 1
-        elif c in ")]}":
-            depth -= 1
-        elif c == ";" and depth == 0:
-            out.append((start, i))
-            start = i + 1
-    if depth:
-        raise CensusError("the datapath's brackets do not balance")
-    return out
-
-
-def top_level(text: str) -> list[tuple[int, int]]:
-    """(start, end) of each comma-separated item of text, split outside brackets."""
-    out, depth, start = [], 0, 0
-    for i, c in enumerate(text + ","):
-        if c in "([{":
-            depth += 1
-        elif c in ")]}":
-            depth -= 1
-        elif c == "," and depth == 0:
-            out.append((start, i))
-            start = i + 1
-    return out
-
-
-def lead_of(text: str) -> int:
-    """Where a statement's own text starts: past block keywords, labels,
-    directive lines and the conditions of a generate if or for."""
-    at = 0
-    while True:
-        m = LEAD.match(text, at)
-        if m:
-            at = m.end()
-            continue
-        m = LEAD_COND.match(text, at)
-        if m:
-            at = close_of(text, m.end() - 1)
-            continue
-        return at
-
-
-def assignment(text: str) -> tuple[int, int] | None:
-    """(offset, length) of a statement's '=' or '<=' outside brackets."""
-    depth = 0
-    for i, c in enumerate(text):
-        if c in "([{":
-            depth += 1
-        elif c in ")]}":
-            depth -= 1
-        elif depth == 0 and c == "=":
-            prev = text[i - 1] if i else " "
-            if text[i + 1:i + 2] == "=" or prev in "=!>":
-                continue
-            if prev == "<":
-                if text[i - 2:i - 1] == "<":
-                    continue
-                return i - 1, 2
-            return i, 1
-    return None
-
-
-def lvalues(lhs: str) -> tuple[list[str], int]:
-    """The signals a left-hand side drives, and where they start in it."""
-    k = len(lhs.rstrip())
-    while k and lhs[k - 1] == "]":
-        depth, m = 0, k - 1
-        while m >= 0:
-            depth += {"]": 1, "[": -1}.get(lhs[m], 0)
-            if depth == 0:
-                break
-            m -= 1
-        k = len(lhs[:m].rstrip())
-    if k and lhs[k - 1] == "}":
-        m = lhs.rfind("{", 0, k)
-        return [t for t in IDENT.findall(lhs[m:k]) if t not in KEYWORDS], m
-    m = k
-    while m and (lhs[m - 1].isalnum() or lhs[m - 1] in "_$."):
-        m -= 1
-    name = lhs[m:k]
-    return ([name] if name and name not in KEYWORDS else []), m
-
-
-def reads(text: str, base: int) -> list[tuple[int, str]]:
-    """Every signal named in text, at its absolute offset; literals' base
-    letters and system names are not signals, and a.b reads a."""
-    out = []
-    for m in IDENT.finditer(text):
-        name = m.group()
-        before = text[m.start() - 1] if m.start() else " "
-        if name in KEYWORDS or before in "'$`":
-            continue
-        out.append((base + m.start(), name.split(".")[0]))
-    return out
-
-
-@dataclass
-class Netlist:
-    """The datapath as statements: who reads what, and where it ends."""
-
-    code: str
-    stmts: list[tuple[int, int]]
-    edges: dict[str, set[str]]
-    reads_at: list[tuple[int, str, str]]
-    instances: dict[str, set[str]]
-    bodies: dict[str, tuple[int, str]]
-    outputs: set[str]
-    newlines: list[int]
-
-    def line(self, pos: int) -> int:
-        """The 1-based source line of a character offset."""
-        return bisect.bisect_right(self.newlines, pos)
-
-    def text_at(self, pos: int) -> str:
-        """The source line holding a character offset, its comments blanked."""
-        n = self.line(pos)
-        end = self.newlines[n] - 1 if n < len(self.newlines) else len(self.code)
-        return " ".join(self.code[self.newlines[n - 1]:end].split())[:100]
-
-
-def always_blocks(code: str, stmts: list[tuple[int, int]]) -> list[tuple[int, int]]:
-    """The extent of every always block: its begin to the matching end, or one statement."""
-    toks = [(m.start(), m.group()) for m in re.finditer(r"\b(begin|end|always_comb|always_ff|always_latch|always)\b",
-                                                         code)]
-    out, i = [], 0
-    while i < len(toks):
-        pos, word = toks[i]
-        if word.startswith("always"):
-            ev = re.match(r"\s*(@\s*(\([^)]*\)|\*))?\s*", code[pos + len(word):])
-            body = pos + len(word) + ev.end()
-            if code.startswith("begin", body):
-                depth, j = 0, i + 1
-                while j < len(toks):
-                    depth += {"begin": 1, "end": -1}.get(toks[j][1], 0)
-                    if depth == 0:
-                        break
-                    j += 1
-                out.append((pos, toks[j][0] + 3))
-                i = j
-            else:
-                out.append((pos, next(e for s, e in stmts if e > body)))
-        i += 1
-    return out
-
-
-def netlist(text: str) -> Netlist:
-    """Read the datapath into statements, instances and read edges."""
-    code = strip_comments(text)
-    stmts = statements(code)
-    blocks = always_blocks(code, stmts)
-    edges: dict[str, set[str]] = defaultdict(set)
-    reads_at: list[tuple[int, str, str]] = []
-    instances: dict[str, set[str]] = defaultdict(set)
-    bodies: dict[str, tuple[int, str]] = {}
-    block_targets: dict[tuple[int, int], set[str]] = defaultdict(set)
-    block_ctrl: dict[tuple[int, int], list[tuple[int, str]]] = defaultdict(list)
-
-    def read(pos: int, name: str, consumer: str) -> None:
-        """Record that `consumer` reads `name` at offset `pos`."""
-        reads_at.append((pos, name, consumer))
-        edges[name].add(consumer)
-
-    for s, e in stmts:
-        text_s = code[s:e]
-        op = assignment(text_s)
-        if op is None:
-            off = s + lead_of(text_s)
-            lead = code[off:e]
-            m = INST_TYPE.match(lead)
-            if not m or m.group(1) in KEYWORDS:
-                continue
-            j = close_of(lead, m.end() - 1) if m.group(2) else m.end()
-            n = INST_NAME.match(lead, j)
-            if not n or n.group(1) in KEYWORDS:
-                continue
-            inst = n.group(1)
-            instances[inst].add(m.group(1))
-            open_at = n.end() - 1
-            body = lead[open_at + 1:close_of(lead, open_at) - 1]
-            bodies[inst] = (off + open_at + 1, body)
-            for c in re.finditer(r"\.\s*(\w+)\s*\(", body):
-                port = c.group(1)
-                if port.endswith("_o") or port.startswith("o_"):
-                    continue              # an output: the instance drives it
-                a = c.end() - 1
-                for pos, name in reads(body[a + 1:close_of(body, a) - 1], off + open_at + 1 + a + 1):
-                    read(pos, name, f"{inst}.{port}")
-            continue
-        at, width = op
-        lhs = text_s[:at]
-        targets, start = lvalues(lhs)
-        blk = next((b for b in blocks if b[0] <= s + at < b[1]), None)
-        for t in targets:
-            for pos, name in reads(text_s[at + width:], s + at + width):
-                read(pos, name, t)
-            for pos, name in reads(lhs[start:], s + start):
-                if name not in targets:
-                    read(pos, name, t)
-            if blk:
-                block_targets[blk].add(t)
-        ctrl = []
-        for c in CONTROL.finditer(lhs[:start]):
-            a = c.end() - 1
-            ctrl += reads(lhs[a + 1:close_of(lhs, a) - 1], s + a + 1)
-        if blk:
-            block_ctrl[blk] += ctrl
-        else:
-            for t in targets:
-                for pos, name in ctrl:
-                    read(pos, name, t)
-    for blk, ctrl in block_ctrl.items():
-        for t in block_targets[blk]:
-            for pos, name in ctrl:
-                read(pos, name, t)
-    newlines = [0] + [m.end() for m in re.finditer("\n", code)]
-    return Netlist(code, stmts, edges, reads_at, instances, bodies, set(OUTPUT_DECL.findall(code)), newlines)
-
-
 def terminal(net: Netlist, node: str) -> tuple[str, str] | None:
-    """(class, name) when node ends a cone: a CSR port, a wrapper port, the wire."""
+    """(class, name) when node ends a cone. Only the two named faces stop it:
+    a port of the CSR block that CSR_READBACK names, a port of the processor
+    wrapper that PROCESSOR_FACE names. Any other instance's port, any other
+    port of those two, and a module output are the wire."""
     if "." in node:
         inst, port = node.split(".", 1)
         kinds = net.instances.get(inst, set())
-        if kinds == {CSR}:
+        if kinds == {CSR} and port in CSR_READBACK:
             return "csr", port
-        if kinds == {WRAPPER}:
+        if kinds == {WRAPPER} and port in PROCESSOR_FACE:
             return "processor", port
         return "wire", node
     if node in net.outputs:
@@ -516,8 +272,29 @@ def terminal(net: Netlist, node: str) -> tuple[str, str] | None:
     return None
 
 
-def cone(net: Netlist, start: str) -> set[tuple[str, str]]:
-    """Every terminal a consumer reaches."""
+def unclassified(net: Netlist, pos: int, node: str) -> tuple[str, str]:
+    """The wire end an occurrence the census cannot classify counts as."""
+    return "wire", f"`{net.text_at(pos)}` (line {net.line(pos)}), an occurrence of {node} it cannot classify"
+
+
+def reach(net: Netlist, at: set[int], included: frozenset[str] = frozenset()) -> set[tuple[str, str]]:
+    """Every terminal the reads of one (wire, consumer) reach: the cone of
+    everything each read's statement or block drives. A read the census
+    follows no further (one inside a function or task) is the wire."""
+    out: set[tuple[str, str]] = set()
+    for pos in sorted(at):
+        if pos not in net.drives:
+            out.add(unclassified(net, pos, net.code[pos:TOKEN.match(net.code, pos).end()]))
+        for consumer in net.drives.get(pos, ()):
+            out |= cone(net, consumer, included)
+    return out
+
+
+def cone(net: Netlist, start: str, included: frozenset[str] = frozenset()) -> set[tuple[str, str]]:
+    """Every terminal a consumer reaches, failing closed: every occurrence of
+    every node it visits is that node's declaration, a place that drives it,
+    or a read, which leads on to everything its statement or block drives;
+    any other occurrence, and a node an included file names, is the wire."""
     seen, stack, out = set(), [start], set()
     while stack:
         node = stack.pop()
@@ -528,7 +305,18 @@ def cone(net: Netlist, start: str) -> set[tuple[str, str]]:
         if end:
             out.add(end)
             continue
-        stack.extend(net.edges.get(node, ()))
+        if node in included:
+            out.add(("wire", f"an included file, which names {node}"))
+        for pos in net.tokens.get(node, ()):
+            if net.in_sub(pos):
+                out.add(unclassified(net, pos, node))
+                continue
+            if pos in net.targets_at or pos in net.declared_at:
+                continue
+            if pos in net.drives:
+                stack.extend(net.drives[pos])
+            else:
+                out.add(unclassified(net, pos, node))
     return out
 
 
@@ -636,26 +424,6 @@ def population(net: Netlist, wrapper: str) -> tuple[dict[str, tuple[str, int]], 
     return pop, out
 
 
-def declarations(net: Netlist, names: set[str]) -> dict[str, list[int]]:
-    """Every offset at which a wire or variable declaration declares one of names."""
-    out: dict[str, list[int]] = defaultdict(list)
-    for s, e in net.stmts:
-        text = net.code[s:e]
-        m = DECL.match(text, lead_of(text))
-        if not m:
-            continue
-        rest = text[m.end():]
-        i = len(rest) - len(rest.lstrip())
-        while rest.startswith("[", i):
-            i = close_of(rest, i)
-            i += len(rest[i:]) - len(rest[i:].lstrip())
-        for a, b in top_level(rest[i:]):
-            n = re.match(r"\s*([A-Za-z_]\w*)", rest[i + a:i + b])
-            if n and n.group(1) in names:
-                out[n.group(1)].append(s + m.end() + i + a + n.start(1))
-    return out
-
-
 def includes(text: str, code: str) -> list[str]:
     """The path of every `include in text (code: text, its comments blanked); '' for one naming no quoted path."""
     out = []
@@ -672,7 +440,7 @@ def outright(net: Netlist, pop: dict[str, tuple[str, int]], found: list[Read]) -
             f"cannot see" for m in re.finditer("``", net.code)]
     watched = {i for i, kinds in net.instances.items() if kinds & {WRAPPER, CSR}}
     watched |= {c.split(".")[0] for _, name, c in net.reads_at if name in pop and "." in c}
-    watched |= {n.split(".")[0] for r in found for k, n in r.ends if k == "wire" and "." in n}
+    watched |= {n.split(".")[0] for r in found for k, n in r.ends if k == "wire" and re.fullmatch(r"\w+\.\w+", n)}
     for m in HIERARCHICAL.finditer(net.code):
         scopes = re.findall(r"[A-Za-z_][\w$]*", re.sub(r"\[[^\]]*\]", "", m.group()))[:-1]
         out += [f"a hierarchical reference into {s} at line {net.line(m.start())} reads it without naming the "
@@ -686,17 +454,20 @@ def survey(src: Sources) -> Survey:
     if not any(kinds == {CSR} for kinds in net.instances.values()):
         raise CensusError(f"the datapath instantiates no {CSR}")
     pop, problems = population(net, src.wrapper)
-    lines: dict[tuple[str, str], set[int]] = defaultdict(set)
+    connected = {at for _, at in pop.values()}
+    included = frozenset(n for copies in src.included.values() for _, text in copies
+                         for n in TOKEN.findall(strip_comments(text)))
+    at_: dict[tuple[str, str], set[int]] = defaultdict(set)
     read_at: set[int] = set()
     for pos, name, consumer in net.reads_at:
-        if name in pop:
-            lines[(name, consumer)].add(net.line(pos))
+        if name in pop and pos not in connected:
+            at_[(name, consumer)].add(pos)
             read_at.add(pos)
-    found = [Read(w, c, tuple(sorted(ln)), frozenset(cone(net, c))) for (w, c), ln in sorted(lines.items())]
+    found = [Read(w, c, tuple(sorted({net.line(p) for p in at})), frozenset(reach(net, at, included)))
+             for (w, c), at in sorted(at_.items())]
     declared = declarations(net, set(pop))
     problems += [f"{w} is declared {len(declared.get(w, []))} times; the census accounts for one declaration"
                  for w in sorted(pop) if len(declared.get(w, [])) != 1]
-    connected = {at for _, at in pop.values()}
     tally = {"declaration": 0, "connection": 0, "read": 0}
     if pop:
         names = re.compile(r"(?<![A-Za-z0-9_$])(" + "|".join(map(re.escape, sorted(pop, key=len, reverse=True)))
@@ -743,18 +514,13 @@ def findings(src: Sources, table: dict[tuple[str, str], Row], known: set[str]) -
         if row.kind == "field" and "wire" not in kinds:
             out.append(f"{where}: mapped to {row.field} as read on the wire, but it reaches no wire")
         if row.kind in ("status", "processor"):
+            # what keeps the read off the wire: only the ports terminal()
+            # names, the CSR read-back face and the wrapper's answer face
             wires = sorted(n for k, n in r.ends if k == "wire")
             if wires:
-                out.append(f"{where}: counted as {row.kind}, but it reaches the wire at {', '.join(wires[:4])}")
+                out.append(f"{where}: counted as {row.kind}, but it reaches the wire at {'; '.join(wires)}")
             if row.kind == "status" and "processor" in kinds:
                 out.append(f"{where}: counted as status, but it reaches the processor wrapper")
-            # what keeps the read off the wire: only ports reviewed as read-back
-            # or as the wrapper's answer face
-            for k, port in sorted(r.ends):
-                if k == "csr" and port not in CSR_READBACK:
-                    out.append(f"{where}: reaches CSR port {port}, which CSR_READBACK does not name")
-                if k == "processor" and port not in PROCESSOR_FACE:
-                    out.append(f"{where}: reaches wrapper port {port}, which PROCESSOR_FACE does not name")
     seen = {(r.wire, r.consumer) for r in sv.reads}
     out += [f"stale row: the datapath no longer reads {w} into {c}" for w, c in table if (w, c) not in seen]
     return out, sv
@@ -799,7 +565,8 @@ def selftest(src: Sources, known: set[str]) -> int:
             got, _ = findings(planted, table, known)
         except CensusError as exc:
             got = [f"the census cannot read it: {exc}"]
-        hit = [f for f in got if word in f]
+        words = (word,) if isinstance(word, str) else word
+        hit = [f for f in got if all(w in f for w in words)]
         print(f"[{'ok' if hit else 'BAD'}] planted {what}: " + (f"refused ({hit[0]})" if hit else "accepted"))
         failed += not hit
     print(f"selftest: {failed} of {len(arms) + 2} arm(s) failed")
