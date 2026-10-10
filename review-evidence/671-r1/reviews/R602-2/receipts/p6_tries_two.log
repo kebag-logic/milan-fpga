@@ -1,0 +1,10 @@
+p6_tries_two: planted
+disabled-writer endstation_arty_4x4 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_arty_4x4 identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_arty_4x4: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_arty_4x4          records= 88 image= 4808 B 4 finding(s)
+FINDING: endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:2:1: one faulty read held the writer; the bound must resolve it
+FINDING: endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:3:1: one faulty read held the writer; the bound must resolve it
+FINDING: endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:1:1: one faulty read held the writer; the bound must resolve it
+FINDING: endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:2:1: one faulty read held the writer; the bound must resolve it

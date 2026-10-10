@@ -1,0 +1,10 @@
+p5_blank_on_one_read: planted
+disabled-writer endstation_arty_4x4 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_arty_4x4 identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_arty_4x4: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_arty_4x4          records= 88 image= 4808 B 4 finding(s)
+FINDING: endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:1:1: slot A was taken as VD_BLANK on reads that returned different bytes: Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK)
+FINDING: endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:1:1: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+FINDING: endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-ff b:2:1: slot B was taken as VD_BLANK on reads that returned different bytes: Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK)
+FINDING: endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-ff b:2:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
