@@ -182,7 +182,8 @@ WRITER_STATICS = {"nvm_started": "0", "nvm_ready": "0", "nvm_retired": "0", "nvm
                   "nvm_auth_slot": "NVM_SLOT_NONE", "nvm_verdict_a": "0",
                   "nvm_verdict_b": "0", "nvm_last_verdict": "0", "nvm_commits_ok": "0",
                   "nvm_commits_failed": "0", "nvm_captures_refused": "0",
-                  "nvm_acks_refused": "0", "nvm_hb_last": "0", "nvm_dirty_since": "0"}
+                  "nvm_acks_refused": "0", "nvm_hb_last": "0", "nvm_dirty_since": "0",
+                  "nvm_unread": "0", "nvm_read_faults": "0"}
 
 
 def host_restart(text: str) -> str:

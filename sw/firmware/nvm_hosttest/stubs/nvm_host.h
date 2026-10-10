@@ -18,6 +18,9 @@ extern uint8_t nvm_host_ddr[NVM_HOST_DDR_BYTES];
 /* Called on every Milan CSR access the firmware forms; settles the stores
  * made since the previous access and recomposes the read-only words. */
 uintptr_t nvm_host_csr_base(void);
+/* The QSPI mapping's base, evaluated once per read the firmware opens: the
+ * real flash, or a view holding a planted read fault (#671). */
+uintptr_t nvm_host_flash_base(void);
 /* The firmware's cdelay(): advances model time by `cycles` at 100 MHz. */
 void nvm_host_tick(int cycles);
 

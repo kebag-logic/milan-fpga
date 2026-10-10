@@ -42,14 +42,26 @@ WHAT IT GRADES, per shipped shape, all on bytes:
  10. `milan_nvm wipe` erases both slots;
  11. an open record beside an unaligned closed predecessor keeps its staged
      bytes while the predecessor's change commits byte-identically;
- 12. rejected shape/identity startup never heartbeats under console input.
+ 12. rejected shape/identity startup never heartbeats under console input;
+ 13. a boot read fault leaves the authority unknown (#671): a slot read
+     whose bytes are wrong, walked over every boot read of either slot with
+     the valid slot in A and in B at sequence 1, 0x5A5A5, 0x80000000 and
+     0xFFFFFFFF, is followed by a change, its commit and a clean reboot, and
+     the change survives or the writer was HELD, persisted nothing and said
+     so; one faulty read never holds, a fault lasting the whole boot always
+     does, and no boot opens more reads than the bound;
+ 14. a cleanly read but refused slot names no generation: with no slot
+     accepted, the first commit is at sequence 1.
 
-NEGATIVE CONTROLS. `--self-test` plants five writer defects into a copy of
+NEGATIVE CONTROLS. `--self-test` plants nine writer defects into a copy of
 the firmware, one at a time, and requires the suite to redden on each: the
 ascending-id check removed, the heartbeat dropped from the erase poll loop,
 the read-back verify skipped, the erased-record rule accepting a header
-alone, and a word copy crossing into an open neighbour. A control that stays
-green is reported as the finding it is.
+alone, a word copy crossing into an open neighbour, and four #671 defects,
+each caught by its own named finding: the hold removed (the restart at
+sequence 0), the read retry unbounded, a generation taken from a refused
+slot, and two reads compared by verdict instead of by bytes. A control that
+stays green is reported as the finding it is.
 
 Usage:
     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
@@ -130,6 +142,45 @@ MUTATIONS = {
         "\t\t\t\treturn VD_REC;\n",
         ""),
 }
+
+#: the #671 defects: label -> (every (text, replacement) pair the plant
+#: makes, each text occurring exactly once, and the words of the finding
+#: that must catch it)
+READ_FAULT_MUTATIONS = {
+    # an unread slot no longer holds the writer: the restart at sequence 0
+    "restart_at_zero": (
+        (("\tif (!nvm_unread) {\n\t\tnvm_ready = 1;",
+          "\tif (1) {\n\t\tnvm_ready = 1;"),),
+        "was lost on the clean reboot"),
+    "unbounded_retry": (
+        (("\tfor (n = 0; n < NVM_READ_TRIES; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
+          "\t\tif (rd.vd == VD_OK ||",
+          "\tfor (n = 0; ; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
+          "\t\tif (rd.vd == VD_OK ||"),),
+        "over the bound"),
+    "generation_from_refused_slot": (
+        (("\tif (rd.vd == VD_OK)\n\t\trd.seq = nvm_seq_of(NVM_STG);\n\telse\n",
+          "\trd.seq = nvm_seq_of(NVM_STG);\n\tif (rd.vd != VD_OK)\n"),
+         ("\t\tnvm_seq = 0;\n", "\t\tnvm_seq = (seq_a > seq_b) ? seq_a : seq_b;\n")),
+        "generation was taken from a refused slot"),
+    # R501-3's probe on #665: two refusals alike by verdict, not by bytes
+    "verdict_only_agreement": (
+        (("\treturn a.vd == b.vd && a.digest == b.digest && a.bytes == b.bytes;",
+          "\treturn a.vd == b.vd;"),),
+        "was lost on the clean reboot"),
+}
+
+#: check 13: the sequences the ticket names (1, far above 1, the int32
+#: half-range and the wrap value), and the fault windows (the first SKIP reads
+#: from power-on clean, the next COUNT faulty) that walk a fault over every
+#: boot read of both slots, plus one window that lasts the whole boot
+FAULT_SEQS = (1, 0x5A5A5, 0x8000_0000, 0xFFFF_FFFF)
+FAULT_WINDOWS = tuple((skip, count) for skip in range(6) for count in (1, 2, 3)) + ((0, 64),)
+#: the firmware's NVM_READ_TRIES, and the most reads a boot may open: the AEM
+#: image, then NVM_READ_TRIES judgements and as many re-stages of each slot
+READ_TRIES = 3
+BOOT_READ_BOUND = 1 + 4 * READ_TRIES
+HELD_LINE = "the writer is HELD until reset"
 
 
 @dataclass
@@ -573,15 +624,168 @@ def grade_partial_ownership(bench: Bench) -> list[str]:
     return findings
 
 
-GRADES = (grade_blank_boot, grade_restore_change_commit, grade_ab_rule,
-          grade_parity, grade_failures, grade_liveness,
-          grade_snapshot_contract, grade_partial_ownership)
+def fault_cases(bench: Bench) -> list[tuple[str, str, int, tuple[str, str], int, int]]:
+    """Check 13's cases: (valid slot, faulted slot, sequence, fault option,
+    count, skip). The valid slot is faulted at every sequence and window, by
+    one byte of its header or of its sequence word, each faulty read wrong in
+    a different way; the blank slot is faulted at one sequence; and one
+    all-0xFF read is walked over the boot."""
+    cases = []
+    for valid in "ab":
+        blank = "b" if valid == "a" else "a"
+        for seq in FAULT_SEQS:
+            for skip, count in FAULT_WINDOWS:
+                byte, base = (0x0B, 0x80) if (skip + count) % 2 else (0, 8)
+                cases.append((valid, valid, seq,
+                              ("--read-fault", f"{valid}:{byte}:{skip}:{count}:{base}"),
+                              count, skip))
+        for skip, count in FAULT_WINDOWS:
+            cases.append((valid, blank, 0x5A5A5,
+                          ("--read-fault", f"{blank}:0:{skip}:{count}"), count, skip))
+        for skip in range(6):
+            cases.append((valid, valid, 0x5A5A5, ("--read-ff", f"{valid}:{skip}:1"), 1, skip))
+    return cases
 
 
-def grade(bench: Bench) -> list[str]:
-    """Every check for one shape."""
+def grade_read_faults(bench: Bench) -> list[str]:
+    """Check 13 (#671): a boot read fault leaves the authority unknown.
+
+    The shipping writer reads a slot through the memory-mapped window, which
+    always returns bytes, so a media fault can only return wrong ones. Each
+    case boots with one slot holding a valid container and the other blank,
+    plants a read fault, makes a real change and lets the debounce commit it,
+    then boots again clean. Either the change survives that reboot, or the
+    faulty boot HELD the writer: it erased, programmed and acknowledged
+    nothing, did not claim backing, named the hold, and the clean reboot
+    restores the saved value. A held case then runs on: a change, its commit
+    and another clean reboot, which must restore that change.
+    """
+    f = []
+    rid = max(bench.frames)
+    off = KLJ2_HDR + bench.offsets()[rid]
+    plen = len(bench.frames[rid]) - REC_HDR
+    saved = bench.frames[rid][REC_HDR:]
+    new1 = frame_record(rid, bytes((0x40 + j) & 0xFF for j in range(plen)), bench.donor.layout)
+    new2 = frame_record(rid, bytes((0x21 + j) & 0xFF for j in range(plen)), bench.donor.layout)
+    key = ("NAME", rid - 0x80)
+    blank = b"\xff" * SLOT
+    w = bench.work
+
+    def restored(path: Path) -> bytes | None:
+        """The changed record's payload in the window a boot loaded."""
+        vd, applied = klj2_decode(path.read_bytes()[:bench.img_len], bench.donor,
+                                  bench.ident, bench.expect)
+        return applied.get(key) if vd == VD_OK else None
+
+    for valid, target, seq, fault, count, skip in fault_cases(bench):
+        name = (f"slot {valid.upper()} valid at seq {seq:#x}, {fault[0]} {fault[1]}")
+        golden = bench.assemble(bench.frames, seq)
+        a, b = (golden, blank) if valid == "a" else (blank, golden)
+        out, s, _ = run(bench, "--slot-a", slot_file(bench, "rf_a.bin", a),
+                        "--slot-b", slot_file(bench, "rf_b.bin", b), *fault, "--boot",
+                        "--change", f"{off}:{new1.hex()}", "--idle-ms", "1500",
+                        "--dump-slot-a", str(w / "rf_a1.bin"),
+                        "--dump-slot-b", str(w / "rf_b1.bin"))
+        if s.get("boot_reads", 0) > BOOT_READ_BOUND:
+            f.append(f"{name}: the boot read the flash {s.get('boot_reads')} times, "
+                     f"over the bound of {BOOT_READ_BOUND}")
+            continue
+        held = HELD_LINE in out
+        if count == 1 and held:
+            f.append(f"{name}: one faulty read held the writer; the bound must resolve it")
+        if (skip, count) == (0, 64) and target == valid and not held:
+            f.append(f"{name}: a slot no read returned twice did not hold the writer")
+        if held:
+            _check(f, s.get("erases") == 0 and s.get("programs") == 0 and
+                   s.get("starts") == 0 and s.get("acks") == 0 and s.get("backed") == 0
+                   and s.get("dirty") == 1 and s.get("hb") == 0,
+                   f"{name}: the held writer persisted something or claimed backing: {s}")
+            _check(f, "unread=0." not in out, f"{name}: the boot line did not name the unread slot")
+        else:
+            _check(f, s.get("acks") == 1 and s.get("dirty") == 0,
+                   f"{name}: the change was neither committed nor refused: {s}")
+        tail = ("--change", f"{off}:{new2.hex()}", "--idle-ms", "1500",
+                "--dump-slot-a", str(w / "rf_a2.bin"), "--dump-slot-b", str(w / "rf_b2.bin")) \
+            if held else ()
+        out2, s2, boot2 = run(bench, "--slot-a", str(w / "rf_a1.bin"),
+                              "--slot-b", str(w / "rf_b1.bin"), "--boot",
+                              "--dump-ddr", str(w / "rf_ddr1.bin"), *tail)
+        _check(f, boot2 is not None and HELD_LINE not in out2 and boot2.group(5) != "-",
+               f"{name}: the clean reboot did not offer a slot: {boot2 and boot2.group(0)}")
+        got = restored(w / "rf_ddr1.bin")
+        if held:
+            _check(f, got == saved,
+                   f"{name}: the held boot changed the saved state: the clean reboot restored "
+                   f"{got and got[:4].hex()}, want the saved {saved[:4].hex()}")
+            _check(f, s2.get("acks") == 1, f"{name}: the writer did not recover on the clean reboot: {s2}")
+            run(bench, "--slot-a", str(w / "rf_a2.bin"), "--slot-b", str(w / "rf_b2.bin"),
+                "--boot", "--dump-ddr", str(w / "rf_ddr2.bin"))
+            got = restored(w / "rf_ddr2.bin")
+            _check(f, got == new2[REC_HDR:],
+                   f"{name}: the change committed after the recovery was lost on the clean reboot")
+        else:
+            _check(f, got == new1[REC_HDR:],
+                   f"{name}: the change committed after the faulty boot was lost on the clean reboot: "
+                   f"it restored {got and got[:4].hex()}, want {new1[REC_HDR:REC_HDR + 4].hex()}")
+    # the hold is reported on the console, and the console's commit refused
+    golden = bench.assemble(bench.frames, 0x5A5A5)
+    out, s, _ = run(bench, "--slot-a", slot_file(bench, "rf_a.bin", golden),
+                    "--slot-b", slot_file(bench, "rf_b.bin", blank),
+                    "--read-fault", "a:0:0:64", "--boot", "--uart", "milan_nvm commit",
+                    "--uart", "milan_nvm", "--idle-ms", "3000")
+    _check(f, "refused; slot A gave no standing verdict at boot" in out and
+           "writer HELD" in out and "unread=1." in out and s.get("erases") == 0 and
+           s.get("acks") == 0 and s.get("backed") == 0,
+           f"the held writer did not refuse the console's commit and report the hold: {s}")
+    return f
+
+
+def grade_refused_generation(bench: Bench) -> list[str]:
+    """Check 14 (#671): a slot whose bytes read cleanly but fail validation is
+    not authoritative and names no generation. With the other slot blank, no
+    slot is accepted, and the first commit after a change is at sequence 1,
+    whatever the refused slot's header says."""
+    f = []
+    golden = bench.assemble(bench.frames, 0x5A5A5)
+    foreign = reseal(golden[:20] + struct.pack("<I", 0xDEAD_0001) + golden[24:])
+    torn = golden[:KLJ2_HDR + 1] + bytes([golden[KLJ2_HDR + 1] ^ 1]) + golden[KLJ2_HDR + 2:]
+    rid = max(bench.frames)
+    new = frame_record(rid, bytes((0x40 + j) & 0xFF for j in range(len(bench.frames[rid]) - REC_HDR)),
+                       bench.donor.layout)
+    blank = b"\xff" * SLOT
+    for label, refused in (("foreign entity", foreign), ("bad CRC", torn)):
+        for where in "ab":
+            a, b = (refused, blank) if where == "a" else (blank, refused)
+            name = f"slot {where.upper()} refused ({label})"
+            out, s, boot = run(bench, "--slot-a", slot_file(bench, "rg_a.bin", a),
+                               "--slot-b", slot_file(bench, "rg_b.bin", b), "--boot",
+                               "--change", f"{KLJ2_HDR + bench.offsets()[rid]}:{new.hex()}",
+                               "--idle-ms", "1500", "--dump-slot-a", str(bench.work / "rg_a1.bin"))
+            seq_seen = boot and boot.group(2 if where == "a" else 4)
+            _check(f, boot is not None and boot.group(5) == "-" and seq_seen == "0",
+                   f"{name}: a generation was taken from a refused slot: the boot line "
+                   f"reports {boot and boot.group(0)}")
+            got = (bench.work / "rg_a1.bin").read_bytes()[:bench.img_len]
+            committed = struct.unpack_from("<I", got, 8)[0]
+            _check(f, s.get("acks") == 1 and bench.verdict(got) == VD_OK and committed == 1,
+                   f"{name}: a generation was taken from a refused slot: the first commit "
+                   f"is at seq {committed:#x}, want 1: {s}")
+    return f
+
+
+#: checks 1 to 12, which the first five planted defects are graded by
+WRITER_GRADES = (grade_blank_boot, grade_restore_change_commit, grade_ab_rule,
+                 grade_parity, grade_failures, grade_liveness,
+                 grade_snapshot_contract, grade_partial_ownership)
+#: checks 13 and 14 (#671), which the read-fault defects are graded by
+READ_FAULT_GRADES = (grade_read_faults, grade_refused_generation)
+GRADES = WRITER_GRADES + READ_FAULT_GRADES
+
+
+def grade(bench: Bench, grades: tuple = GRADES) -> list[str]:
+    """Every check in `grades` for one shape."""
     findings = []
-    for g in GRADES:
+    for g in grades:
         findings += [f"{bench.cfg.stem}: {x}" for x in g(bench)]
     return findings
 
@@ -596,7 +800,7 @@ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
         sub = work / label
         sub.mkdir(parents=True)
         bench = make_bench(cfg, sub, firmware_text.replace(old, new))
-        got = grade(bench)
+        got = grade(bench, WRITER_GRADES)
         if label == "edge_cross" and not any("open record changed across unaligned" in item for item in got):
             findings.append("self-test: edge_cross missed its named partial ownership assertion")
         if not got:
@@ -604,6 +808,24 @@ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
         else:
             print(f"  self-test OK: {label:<22} caught by {len(got)} finding(s); "
                   f"first: {got[0]}")
+    for label, (pairs, words) in READ_FAULT_MUTATIONS.items():
+        planted = firmware_text
+        for old, new in pairs:
+            if planted.count(old) != 1:
+                findings.append(f"self-test: the {label} plant no longer matches the firmware")
+                break
+            planted = planted.replace(old, new)
+        else:
+            sub = work / label
+            sub.mkdir(parents=True)
+            got = grade(make_bench(cfg, sub, planted), READ_FAULT_GRADES)
+            named = [item for item in got if words in item]
+            if not named:
+                findings.append(f"self-test: the {label} defect was NOT caught by a finding "
+                                f"naming {words!r} ({len(got)} other finding(s))")
+            else:
+                print(f"  self-test OK: {label:<28} caught by {len(named)} named finding(s); "
+                      f"first: {named[0]}")
     return findings
 
 
