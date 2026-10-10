@@ -1,0 +1,97 @@
+{
+ "partA": {
+  "A1 exact copy": {
+   "verdict": "SAMPLE-EXACT",
+   "matches_of_first_window": 1,
+   "compared_equal": 480000,
+   "frames_differing": 0,
+   "slips": [],
+   "mcasp_frames": 480000
+  },
+  "A2 one frame dropped": {
+   "verdict": "DIFFERENT",
+   "matches_of_first_window": 1,
+   "compared_equal": 480000,
+   "frames_differing": 0,
+   "slips": [
+    {
+     "recording_frame": 200000,
+     "step": 1
+    }
+   ],
+   "mcasp_frames": 480000
+  },
+  "A3 one frame repeated": {
+   "verdict": "DIFFERENT",
+   "matches_of_first_window": 1,
+   "compared_equal": 480000,
+   "frames_differing": 0,
+   "slips": [
+    {
+     "recording_frame": 250000,
+     "step": -1
+    }
+   ],
+   "mcasp_frames": 480000
+  },
+  "A4 one sample +1 LSB": {
+   "verdict": "DIFFERENT",
+   "matches_of_first_window": 1,
+   "compared_equal": 479999,
+   "frames_differing": 1,
+   "slips": [],
+   "mcasp_frames": 480000
+  },
+  "A5 another stretch": {
+   "verdict": "SAMPLE-EXACT",
+   "matches_of_first_window": 1,
+   "compared_equal": 480000,
+   "frames_differing": 0,
+   "slips": [],
+   "mcasp_frames": 480000
+  },
+  "A6 channel 0 offset by +256 LSB": {
+   "verdict": "SAMPLE-EXACT",
+   "matches_of_first_window": 1,
+   "compared_equal": 480000,
+   "frames_differing": 0,
+   "slips": [],
+   "mcasp_frames": 480000
+  },
+  "A7 recording runs 180,000 frames past the stream end": {
+   "verdict": "SAMPLE-EXACT",
+   "matches_of_first_window": 1,
+   "compared_equal": 300000,
+   "frames_differing": 0,
+   "slips": [],
+   "mcasp_frames": 480000
+  },
+  "A8 key injective on [-128,127] per channel": true
+ },
+ "partB": {
+  "floor only": {
+   "rms_dbfs": -141.1,
+   "share_997": 0.00038
+  },
+  "tone -120 dBFS": {
+   "rms_dbfs": -119.93,
+   "share_997": 0.995299,
+   "tone_flagged": false
+  },
+  "tone -140 dBFS": {
+   "rms_dbfs": -137.44,
+   "share_997": 0.682916,
+   "tone_flagged": false
+  },
+  "tone -150 dBFS": {
+   "rms_dbfs": -141.1,
+   "share_997": 0.00038,
+   "tone_flagged": false
+  },
+  "tone -160 dBFS": {
+   "rms_dbfs": -141.1,
+   "share_997": 0.00038,
+   "tone_flagged": false
+  }
+ }
+}

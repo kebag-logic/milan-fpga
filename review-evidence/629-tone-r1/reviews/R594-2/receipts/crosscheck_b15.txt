@@ -1,0 +1,45 @@
+OK  pts1 (a) PDUs 191843 [191843]
+OK  pts1 (a) 0 gaps, 0 tv clear, 0 mr toggles, 0 bad length
+OK  pts1 (a) every PDU INT_32BIT nsr=5 cpf=4 depth=32 sdl=96
+OK  pts1 (a) levels -141.09/-141.10/-141.48/-141.4x [[-141.09, -141.1, -141.48, -141.49]]
+OK  pts1 (a) shares all < 0.1 %, verdict TONE ABSENT
+OK  pts1 (a) low byte always zero
+OK  pts1 (b) PDUs 191842 [191842]
+OK  pts1 (b) 0 gaps, 0 tv clear, 0 mr toggles, 0 bad length
+OK  pts1 (b) every PDU INT_32BIT nsr=5 cpf=4 depth=32 sdl=96
+OK  pts1 (b) levels -141.09/-141.10/-141.48/-141.4x [[-141.09, -141.1, -141.48, -141.49]]
+OK  pts1 (b) shares all < 0.1 %, verdict TONE ABSENT
+OK  pts1 (b) low byte always zero
+OK  pts1 (c) 480,000 frames, ch4-7 all zero, ch0-3 ranges within -2..0
+OK  pts1 align SAMPLE-EXACT 480,000/480,000, one match, no slip, covered [0,480000]
+OK  pts2 (a) PDUs 191639 [191639]
+OK  pts2 (a) 0 gaps, 0 tv clear, 0 mr toggles, 0 bad length
+OK  pts2 (a) every PDU INT_32BIT nsr=5 cpf=4 depth=32 sdl=96
+OK  pts2 (a) levels -141.09/-141.10/-141.48/-141.4x [[-141.09, -141.1, -141.48, -141.48]]
+OK  pts2 (a) shares all < 0.1 %, verdict TONE ABSENT
+OK  pts2 (a) low byte always zero
+OK  pts2 (b) PDUs 191637 [191637]
+OK  pts2 (b) 0 gaps, 0 tv clear, 0 mr toggles, 0 bad length
+OK  pts2 (b) every PDU INT_32BIT nsr=5 cpf=4 depth=32 sdl=96
+OK  pts2 (b) levels -141.09/-141.10/-141.48/-141.4x [[-141.09, -141.1, -141.48, -141.48]]
+OK  pts2 (b) shares all < 0.1 %, verdict TONE ABSENT
+OK  pts2 (b) low byte always zero
+OK  pts2 (c) 480,000 frames, ch4-7 all zero, ch0-3 ranges within -2..0
+OK  pts2 align SAMPLE-EXACT 480,000/480,000, one match, no slip, covered [0,480000]
+OK  control ctl-peer-tap-dut-talker.json tone_997: -1.00 dBFS, SNR 146.07, 15 of 23 blocks at floor [({'level_dbfs': -1.0, 'f_hz': 997.0, 'ppm': -0.0, 'thdn_db': -146.0647, 'snr_db': 146.0671}, 15)]
+OK  control ctl-peer-tap-dut-talker.json tone_9973: -1.00 dBFS, SNR 145.99, 15 of 23 blocks at floor [({'level_dbfs': -1.0, 'f_hz': 9973.0, 'ppm': -0.0, 'thdn_db': -145.9933, 'snr_db': 145.9933}, 15)]
+OK  control ctl-dut-tap-dut-talker.json tone_997: -1.00 dBFS, SNR 146.07, 15 of 23 blocks at floor [({'level_dbfs': -1.0, 'f_hz': 997.0, 'ppm': 0.0, 'thdn_db': -146.0647, 'snr_db': 146.0671}, 15)]
+OK  control ctl-dut-tap-dut-talker.json tone_9973: -1.00 dBFS, SNR 145.99, 15 of 23 blocks at floor [({'level_dbfs': -1.0, 'f_hz': 9973.0, 'ppm': -0.0, 'thdn_db': -145.9933, 'snr_db': 145.9933}, 15)]
+OK  control extcap tone_997: 13 of 16 blocks at floor [13]
+OK  control extcap tone_9973: 13 of 16 blocks at floor [13]
+OK  census 45 of 46
+OK  propagation delay 381 -> 387 ns [['0000017d', '00000183']]
+OK  NVM start image seq 272, commits 38
+OK  NVM end image seq 276, commits 42, pend=0, VD_OK
+OK  SLIP_LB dups 146 -> 152 [[146, 152]]
+OK  FRAMES_RX +191,998 (pts1) and +199,998 (pts2) [[22063, 214061, 17584, 217582]]
+OK  peer survey: 20 NO_SUCH_DESCRIPTOR, all type 0x0010 in configuration 1 [20]
+OK  outage about 63 s by board uptime [63.5]
+OK  first restart printed LEG_PRESENT_NOT_STARTED at 13:27:55 UTC
+BAD: 0
+rc=0
