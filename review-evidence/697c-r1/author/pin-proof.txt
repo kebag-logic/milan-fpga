@@ -1,0 +1,23 @@
+# tsn-c-stack pin proof
+# milan-fpga copies at dev 8b61b70902f3ebf118e56967277e2686731081bd against tsn-c-stack commits.
+# Tool: clang raw lexer (clang -cc1 -dump-raw-tokens), comments and whitespace dropped, (kind, spelling, line) compared.
+
+## pin 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+SAME 1736 / 1736 tokens: sw/firmware/ctrl/adp/adp.c vs third_party/tsn-c-stack/src/adp.c
+SAME 497 / 497 tokens: sw/firmware/ctrl/adp/adp.h vs third_party/tsn-c-stack/include/adp.h
+SAME 7586 / 7586 tokens: sw/firmware/ctrl/acmp/acmp.c vs third_party/tsn-c-stack/src/acmp.c
+SAME 1137 / 1137 tokens: sw/firmware/ctrl/acmp/acmp.h vs third_party/tsn-c-stack/include/acmp.h
+SAME 2064 / 2064 tokens: sw/firmware/ctrl/maap/maap.c vs third_party/tsn-c-stack/src/maap.c
+SAME 394 / 394 tokens: sw/firmware/ctrl/maap/maap.h vs third_party/tsn-c-stack/include/maap.h
+SAME 202 / 202 tokens: sw/firmware/ctrl/wire/wire.h vs third_party/tsn-c-stack/include/wire.h
+rc=0
+
+## next main commit 51870377c5012766a8ea1d9798e3c499ca1060a3
+DIFFERENT 1736 / 1762 tokens: sw/firmware/ctrl/adp/adp.c vs tsn-c-stack/src/adp.c
+SAME 7586 / 7586 tokens: sw/firmware/ctrl/acmp/acmp.c vs tsn-c-stack/src/acmp.c
+SAME 2064 / 2064 tokens: sw/firmware/ctrl/maap/maap.c vs tsn-c-stack/src/maap.c
+
+## next main commit 98dc9e3076714bebe113982ee18c3c1c496cf3c9
+DIFFERENT 1736 / 1762 tokens: sw/firmware/ctrl/adp/adp.c vs tsn-c-stack/src/adp.c
+SAME 7586 / 7586 tokens: sw/firmware/ctrl/acmp/acmp.c vs tsn-c-stack/src/acmp.c
+SAME 2064 / 2064 tokens: sw/firmware/ctrl/maap/maap.c vs tsn-c-stack/src/maap.c
