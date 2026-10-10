@@ -3,10 +3,12 @@
 #
 # Verilator verification of the packet-mailbox fabric skeleton (KL_mbx and
 # its leaves, #665 lane F0), through BOTH bus adapters.
-#   make           - the publication census (every read of the processor's
-#                    class-D outputs in milan_datapath.sv mapped to a block
-#                    field or a ruled exclusion, and its planted defects
-#                    refused), then
+#   make           - the publication census (every occurrence of a wire the
+#                    processor wrapper's class-D ports drive, in
+#                    milan_datapath.sv, accounted for: its declaration, the
+#                    wrapper's connection, or a read mapped to a block field or
+#                    a ruled exclusion; any other occurrence fails, and its
+#                    planted defects are refused), then
 #                    the RTL checks through KL_mbx_wb, then through KL_mbx_axil,
 #                    then the firmware co-simulation over the real RTL, then the
 #                    same checks on a two-interface variant of the contract
@@ -57,11 +59,13 @@ AR     ?= ar
 .PHONY: all census run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags clean
 all: census run-wb run-axil run-cosim run-if2 mutants-quick
 
-# The publication census (#665, comment 6092086337): the block must carry
-# every value the split datapath consumes, so the datapath's reads are counted
-# from the source, never from a list. It reads the datapath as text and
-# simulates none of it.
+# The publication census (#665, comments 6092086337 and 6094461419): the block
+# must carry every value the split datapath consumes, so the datapath's reads
+# are counted from the source, never from a list, and an occurrence the census
+# cannot account for fails. It reads the datapath, the processor wrapper's port
+# list and the files the datapath includes as text, and simulates none of them.
 # traceability-text-input: milan_datapath.sv
+# traceability-text-input: KL_pp_shadow.sv
 census:
 	python3 -B $(ROOT)/sw/mailbox/publication_census.py --check --selftest
 

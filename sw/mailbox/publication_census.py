@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""publication_census.py - every read of the processor's class-D outputs, mapped.
+"""publication_census.py - every occurrence of the processor's class-D wires, accounted for.
 
 THE QUESTION. In the split placement the fabric datapath no longer has the
 protocol processor: the firmware owns ADP, ACMP, MAAP and SRP and writes what
@@ -9,21 +9,43 @@ the datapath consumes into the mailbox's publication block (#665, ruling
 6088423771, decision 2 (a)). Which values the block must carry is decided by
 what ``hdl/milan/milan_datapath.sv`` reads, and a list copied by hand missed
 two of them (#665, comment 6092086337). This check derives the list from the
-datapath every time and fails when a read is not accounted for.
+datapath every time and fails closed: an occurrence it cannot account for
+fails, whatever its form (#665, comment 6094461419).
 
-THE POPULATION. Every ``pp_cd_*_w`` wire, which the processor wrapper
-(``KL_pp_shadow``) drives from its class-D face, and ``pp_aecp_strm_started_w``,
-each sink's started level, which the ruling of comment 6092086337 adds: the
-wrapper drives it from the ACMP binding record, and the listener accept reads
-it.
+THE POPULATION comes from the processor wrapper's instance, never from a
+name. ``CLASS_D_PORTS`` lists the class-D face of ``KL_pp_shadow`` and must
+equal the outputs the wrapper's own class-D sections declare, so a port added
+to, renamed in or moved out of that face fails until it is reviewed here.
+``aecp_strm_started_o``, each sink's started level, joins them by the ruling
+of comment 6092086337. The datapath's one ``KL_pp_shadow`` instance must
+connect each of these ports by name, once, to a bare wire, and that wire joins
+the population whatever it is called. A port left unconnected, connected to an
+expression, or connected positionally or by an implicit ``.name`` fails.
+
+THE OCCURRENCES. Comments and strings are blanked first. Every remaining
+occurrence of a population wire in the datapath must be exactly one of:
+
+  its declaration     the name one ``wire`` or ``logic`` declaration declares
+  its connection      the wrapper's class-D output connection above
+  a read              a read (below), which ``CENSUS`` must then map
+
+Any other occurrence fails: a case item label, a positional or implicit
+``.name`` port connection, a function or task body, a second driver, and any
+form not listed here. A form the parser does not understand is therefore
+refused, never skipped. Three forms read a value without naming its wire, and
+each fails wherever it appears: a wildcard ``.*`` port connection, a macro
+token paste, and a hierarchical reference into the wrapper, the CSR block or
+an instance a population read reaches. A file the datapath includes must not
+name a population wire, and an include the census cannot find under ``hdl/``
+or ``configs/`` fails.
 
 THE READS. The datapath is cut into statements. A read is an occurrence of a
 population wire in a statement's right-hand side, in an index of its target,
-in the condition of an ``if``, ``case`` or ``for`` that controls it (inside an
-``always`` block, every target of the block), or in a module instance's port
-connection. Declarations with an initialiser (``wire x = ...``) are statements
-like any other. Comments and strings are blanked first. A read is keyed by the
-wire and its consumer: the signal the statement drives, or ``instance.port``.
+in the parentheses of an ``if``, ``case`` or ``for`` that controls it (inside
+an ``always`` block, every target of the block), or in a named module port
+connection. Declarations with an initialiser (``wire x = ...``) are
+statements like any other. A read is keyed by the wire and its consumer: the
+signal the statement drives, or ``instance.port``.
 
 THE CONE. From each consumer the check follows every statement that reads it,
 transitively, to a terminal: a port of the CSR block (``milan_csr``, read-back
@@ -51,11 +73,15 @@ not define.
     python3 sw/mailbox/publication_census.py --list
     python3 sw/mailbox/publication_census.py --selftest
 
-``--selftest`` plants an unmapped read into copies of the datapath (on the
-wire, in a declaration's initialiser, in an always block's condition), points
-a status and a processor read at the wire, names a field the contract lacks
-and adds a stale row, and requires each to be refused; the tracked datapath,
-and a copy whose only change is a comment naming a class-D wire, must pass.
+``--selftest`` plants each defect of ``PLANTS`` into copies of the datapath,
+the wrapper or an included file: the reviewers' escaping reads (a wire renamed
+off the class-D prefix, a case item label, positional and implicit ``.name``
+ports, a function's return) and the forms already refused, every wrong
+connection of the wrapper's class-D face, each outright refusal, and the
+census's own defects (an unmapped read, a status or processor read on the
+wire, a field the contract lacks, a stale row). Each must be refused by its
+own words; the tracked sources, and a copy whose only change is a comment
+naming a class-D wire, must pass.
 """
 
 from __future__ import annotations
@@ -65,22 +91,35 @@ import bisect
 import re
 import sys
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import mailbox_model  # noqa: E402
+from census_plants import PLANTS, apply  # noqa: E402
 
 REPO = HERE.parent.parent
 DATAPATH = REPO / "hdl/milan/milan_datapath.sv"
+WRAPPER_SV = REPO / "hdl/milan/KL_pp_shadow.sv"
+#: Where an included file is looked for: every build's include directories lie under these.
+INCLUDE_ROOTS = (REPO / "hdl", REPO / "configs")
 
-#: The wrapper's class-D wires, and the started level the ruling adds.
-POPULATION = re.compile(r"\bpp_cd_\w+_w\b")
-STARTED = "pp_aecp_strm_started_w"
 WRAPPER = "KL_pp_shadow"
 CSR = "milan_csr"
+#: The wrapper's class-D face: each a 1:1 pass-through of protocol_processor_top's own output.
+CLASS_D_PORTS = frozenset({
+    "srp_class_a_prio_o", "srp_class_a_vid_o", "srp_domain_adopted_o", "srp_domain_change_o",
+    "srp_tk_decl_state_o", "srp_lstn_reg_state_o", "srp_active_o", "srp_sr_admitted_o",
+    "srp_granted_slope_bps_o", "srp_src_fail_code_o", "srp_src_fail_bridge_o", "srp_sum_slope_bps_o",
+    "srp_over_limit_o", "srp_tk_reg_state_o", "srp_lstn_decl_state_o", "srp_acc_latency_o",
+    "srp_snk_fail_code_o", "acmp_declaring_o", "acmp_bound_o", "acmp_bound_eid_o", "acmp_bound_sid_o",
+    "acmp_bound_dmac_o", "acmp_bound_vlan_o", "adp_next_avail_index_o",
+})
+#: Each sink's started level, which the ruling of comment 6092086337 adds, and the wire the rows name it by.
+STARTED_PORT = "aecp_strm_started_o"
+STARTED = "pp_aecp_strm_started_w"
 
 
 @dataclass(frozen=True)
@@ -172,12 +211,25 @@ KEYWORDS = frozenset("""
     typedef struct packed enum foreach while do module endmodule import export bit byte shortint longint
     string var const static""".split())
 IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_$]*(?:\.[A-Za-z_][A-Za-z0-9_$]*)*")
-LEAD = re.compile(r"\s*(begin|end|else|generate|endgenerate)\b(\s*:\s*\w+)?")
+#: What may stand before a statement's own text: block keywords and labels, and preprocessor directive lines.
+LEAD = re.compile(r"\s*(?:(?:begin|end|endcase|endfunction|endtask|endgenerate|else|generate)\b(?:\s*:\s*\w+)?"
+                  r"|`\w+[^\n]*)")
 LEAD_COND = re.compile(r"\s*(if|for)\s*\(")
 INST_TYPE = re.compile(r"\s*([A-Za-z_]\w*)\s*(#\s*\()?")
 INST_NAME = re.compile(r"\s*([A-Za-z_]\w*)\s*\(")
 CONTROL = re.compile(r"\b(if|case|casez|casex|for|while)\s*\(")
 OUTPUT_DECL = re.compile(r"\boutput\s+(?:wire\s+|logic\s+|reg\s+)?(?:signed\s+)?(?:\[[^\]]*\]\s*)*(\w+)")
+DECL = re.compile(r"\s*(?:wire|logic|reg|var|tri|uwire)\b(?:\s+(?:logic|reg|wire)\b)?(?:\s+(?:signed|unsigned)\b)?")
+#: A section heading of the wrapper's port list, `//! ---- title ----`.
+SECTION = re.compile(r"^[ \t]*//!?[ \t]*-{4}[ \t]*(.*?)[ \t]*-{4,}[ \t]*$", re.M)
+PORT_DIRECTION = re.compile(r"\s*(input|output|inout)\b")
+PORT_WORDS = frozenset("input output inout wire logic reg var tri uwire signed unsigned".split())
+NAMED_PORT = re.compile(r"\s*\.\s*(\w+)\s*\(")
+WILDCARD = re.compile(r"[(,]\s*\.\s*\*\s*(?=[,)])")
+INCLUDE = re.compile(r"`include\b\s*(\")?")
+#: A dotted path, each scope optionally indexed (a generate scope, an instance array).
+SCOPE = r"[A-Za-z_][\w$]*(?:\s*\[[^\][]*\])*"
+HIERARCHICAL = re.compile(rf"(?<![\w$.]){SCOPE}(?:\s*\.\s*{SCOPE})+")
 
 
 class CensusError(ValueError):
@@ -185,7 +237,7 @@ class CensusError(ValueError):
 
 
 def strip_comments(text: str) -> str:
-    """The text with comments and string bodies blanked, newlines kept."""
+    """The text with comments and string bodies blanked, its length and newlines kept."""
     out: list[str] = []
     i, n = 0, len(text)
     while i < n:
@@ -237,6 +289,36 @@ def statements(code: str) -> list[tuple[int, int]]:
     if depth:
         raise CensusError("the datapath's brackets do not balance")
     return out
+
+
+def top_level(text: str) -> list[tuple[int, int]]:
+    """(start, end) of each comma-separated item of text, split outside brackets."""
+    out, depth, start = [], 0, 0
+    for i, c in enumerate(text + ","):
+        if c in "([{":
+            depth += 1
+        elif c in ")]}":
+            depth -= 1
+        elif c == "," and depth == 0:
+            out.append((start, i))
+            start = i + 1
+    return out
+
+
+def lead_of(text: str) -> int:
+    """Where a statement's own text starts: past block keywords, labels,
+    directive lines and the conditions of a generate if or for."""
+    at = 0
+    while True:
+        m = LEAD.match(text, at)
+        if m:
+            at = m.end()
+            continue
+        m = LEAD_COND.match(text, at)
+        if m:
+            at = close_of(text, m.end() - 1)
+            continue
+        return at
 
 
 def assignment(text: str) -> tuple[int, int] | None:
@@ -298,15 +380,23 @@ class Netlist:
     """The datapath as statements: who reads what, and where it ends."""
 
     code: str
+    stmts: list[tuple[int, int]]
     edges: dict[str, set[str]]
     reads_at: list[tuple[int, str, str]]
     instances: dict[str, set[str]]
+    bodies: dict[str, tuple[int, str]]
     outputs: set[str]
     newlines: list[int]
 
     def line(self, pos: int) -> int:
         """The 1-based source line of a character offset."""
         return bisect.bisect_right(self.newlines, pos)
+
+    def text_at(self, pos: int) -> str:
+        """The source line holding a character offset, its comments blanked."""
+        n = self.line(pos)
+        end = self.newlines[n] - 1 if n < len(self.newlines) else len(self.code)
+        return " ".join(self.code[self.newlines[n - 1]:end].split())[:100]
 
 
 def always_blocks(code: str, stmts: list[tuple[int, int]]) -> list[tuple[int, int]]:
@@ -342,6 +432,7 @@ def netlist(text: str) -> Netlist:
     edges: dict[str, set[str]] = defaultdict(set)
     reads_at: list[tuple[int, str, str]] = []
     instances: dict[str, set[str]] = defaultdict(set)
+    bodies: dict[str, tuple[int, str]] = {}
     block_targets: dict[tuple[int, int], set[str]] = defaultdict(set)
     block_ctrl: dict[tuple[int, int], list[tuple[int, str]]] = defaultdict(list)
 
@@ -354,18 +445,8 @@ def netlist(text: str) -> Netlist:
         text_s = code[s:e]
         op = assignment(text_s)
         if op is None:
-            lead = text_s
-            while True:
-                m = LEAD.match(lead)
-                if m:
-                    lead = lead[m.end():]
-                    continue
-                m = LEAD_COND.match(lead)
-                if m:
-                    lead = lead[close_of(lead, m.end() - 1):]
-                    continue
-                break
-            off = s + len(text_s) - len(lead)
+            off = s + lead_of(text_s)
+            lead = code[off:e]
             m = INST_TYPE.match(lead)
             if not m or m.group(1) in KEYWORDS:
                 continue
@@ -377,6 +458,7 @@ def netlist(text: str) -> Netlist:
             instances[inst].add(m.group(1))
             open_at = n.end() - 1
             body = lead[open_at + 1:close_of(lead, open_at) - 1]
+            bodies[inst] = (off + open_at + 1, body)
             for c in re.finditer(r"\.\s*(\w+)\s*\(", body):
                 port = c.group(1)
                 if port.endswith("_o") or port.startswith("o_"):
@@ -412,7 +494,7 @@ def netlist(text: str) -> Netlist:
             for pos, name in ctrl:
                 read(pos, name, t)
     newlines = [0] + [m.end() for m in re.finditer("\n", code)]
-    return Netlist(code, edges, reads_at, instances, set(OUTPUT_DECL.findall(code)), newlines)
+    return Netlist(code, stmts, edges, reads_at, instances, bodies, set(OUTPUT_DECL.findall(code)), newlines)
 
 
 def terminal(net: Netlist, node: str) -> tuple[str, str] | None:
@@ -447,6 +529,15 @@ def cone(net: Netlist, start: str) -> set[tuple[str, str]]:
 
 
 @dataclass(frozen=True)
+class Sources:
+    """What the census reads: the datapath, the wrapper, and every copy of each file the datapath includes."""
+
+    datapath: str
+    wrapper: str
+    included: dict[str, tuple[tuple[str, str], ...]]
+
+
+@dataclass(frozen=True)
 class Read:
     """One (wire, consumer) read: its lines and its cone."""
 
@@ -456,19 +547,174 @@ class Read:
     ends: frozenset[tuple[str, str]]
 
 
-def census(text: str) -> tuple[list[Read], Netlist]:
-    """Every read of a population wire in the datapath, with its cone."""
-    net = netlist(text)
-    if not any(kinds == {WRAPPER} for kinds in net.instances.values()):
-        raise CensusError(f"the datapath instantiates no {WRAPPER}: nothing drives the class-D wires")
+@dataclass
+class Survey:
+    """One reading of the sources: the population, its reads, the tally of its
+    occurrences, and every way the sources break the census's rules."""
+
+    population: dict[str, tuple[str, int]]
+    reads: list[Read]
+    tally: dict[str, int]
+    problems: list[str]
+
+
+def class_d_face(wrapper: str) -> tuple[set[str], set[str]]:
+    """(the outputs the wrapper's class-D sections declare, every output it declares)."""
+    code = strip_comments(wrapper)
+    m = re.search(rf"\bmodule\s+{WRAPPER}\b", code)
+    if not m:
+        raise CensusError(f"the wrapper source declares no module {WRAPPER}")
+    i = code.index("(", m.end())
+    if code[m.end():i].strip() == "#":
+        i = code.index("(", close_of(code, i))
+    end = close_of(code, i)
+    marks = [(i + s.start(), s.group(1)) for s in SECTION.finditer(wrapper[i:end])]
+    direction, face, outputs = "", set(), set()
+    for a, b in top_level(code[i + 1:end - 1]):
+        item = code[i + 1 + a:i + 1 + b]
+        cut = assignment(item)
+        item = item[:cut[0]] if cut else item          # a port's default value is no name
+        d = PORT_DIRECTION.match(item)
+        direction = d.group(1) if d else direction    # ANSI: a bare name keeps the last direction
+        bare = re.sub(r"\[[^\]]*\]", lambda x: " " * len(x.group()), item)
+        names = [n for n in re.finditer(r"[A-Za-z_]\w*", bare) if n.group() not in PORT_WORDS]
+        if direction != "output" or not names:
+            continue
+        outputs.add(names[-1].group())
+        at = i + 1 + a + names[-1].start()
+        if max((m for m in marks if m[0] < at), default=(0, ""))[1].startswith("class-D"):
+            face.add(names[-1].group())
+    if not face:
+        raise CensusError(f"{WRAPPER} declares no output under a class-D section of its port list")
+    return face, outputs
+
+
+def population(net: Netlist, wrapper: str) -> tuple[dict[str, tuple[str, int]], list[str]]:
+    """wire -> (its class-D port, the offset of the wrapper's connection), and
+    every way the wrapper's face or its instance breaks the rules."""
+    face, outputs = class_d_face(wrapper)
+    out = [f"the wrapper declares class-D output {p}, which CLASS_D_PORTS does not list: review it"
+           for p in sorted(face - CLASS_D_PORTS)]
+    out += [f"CLASS_D_PORTS lists {p}, which the wrapper's class-D face does not declare"
+            for p in sorted(CLASS_D_PORTS - face)]
+    if STARTED_PORT not in outputs:
+        out.append(f"the wrapper declares no output {STARTED_PORT}")
+    shadows = [i for i, kinds in net.instances.items() if kinds == {WRAPPER}]
+    if len(shadows) != 1:
+        raise CensusError(f"the datapath instantiates {WRAPPER} {len(shadows)} times; the census reads one")
+    base, body = net.bodies[shadows[0]]
+    named: dict[str, list[tuple[int, str]]] = defaultdict(list)
+    for s, e in top_level(body):
+        m = NAMED_PORT.match(body, s)
+        close = close_of(body, m.end() - 1) if m and m.end() <= e else e + 1
+        if close <= e and not body[close:e].strip():        # the item is .port(expr) and nothing else
+            named[m.group(1)].append((m.end(), body[m.end():close - 1]))
+        elif body[s:e].strip():
+            out.append(f"the wrapper instance connects `{' '.join(body[s:e].split())}`, which is not a named "
+                       f"port connection: the census cannot tell which port it drives")
+    pop: dict[str, tuple[str, int]] = {}
+    for port in sorted(face | CLASS_D_PORTS | {STARTED_PORT}):
+        conns = named.get(port, [])
+        if len(conns) != 1:
+            out.append(f"class-D port {port} is not connected" if not conns else
+                       f"class-D port {port} is connected {len(conns)} times")
+            continue
+        at, expr = conns[0]
+        m = re.fullmatch(r"\s*([A-Za-z_]\w*)\s*", expr)
+        if not expr.strip():
+            out.append(f"class-D port {port} is left unconnected")
+        elif not m:
+            out.append(f"class-D port {port} is connected to an expression, `{' '.join(expr.split())}`, not a wire")
+        elif m.group(1) in pop:
+            out.append(f"class-D ports {pop[m.group(1)][0]} and {port} drive one wire, {m.group(1)}")
+        else:
+            pop[m.group(1)] = (port, base + at + m.start(1))
+    return pop, out
+
+
+def declarations(net: Netlist, names: set[str]) -> dict[str, list[int]]:
+    """Every offset at which a wire or variable declaration declares one of names."""
+    out: dict[str, list[int]] = defaultdict(list)
+    for s, e in net.stmts:
+        text = net.code[s:e]
+        m = DECL.match(text, lead_of(text))
+        if not m:
+            continue
+        rest = text[m.end():]
+        i = len(rest) - len(rest.lstrip())
+        while rest.startswith("[", i):
+            i = close_of(rest, i)
+            i += len(rest[i:]) - len(rest[i:].lstrip())
+        for a, b in top_level(rest[i:]):
+            n = re.match(r"\s*([A-Za-z_]\w*)", rest[i + a:i + b])
+            if n and n.group(1) in names:
+                out[n.group(1)].append(s + m.end() + i + a + n.start(1))
+    return out
+
+
+def includes(text: str, code: str) -> list[str]:
+    """The path of every `include in text (code: text, its comments blanked); '' for one naming no quoted path."""
+    out = []
+    for m in INCLUDE.finditer(code):
+        out.append(text[m.end():text.index('"', m.end())] if m.group(1) else "")
+    return out
+
+
+def outright(net: Netlist, pop: dict[str, tuple[str, int]], found: list[Read]) -> list[str]:
+    """The forms that read a value without naming its wire, each refused wherever it appears."""
+    out = [f"a wildcard port connection (.*) at line {net.line(m.start())} connects every same-named signal "
+           f"without naming it: name each port" for m in WILDCARD.finditer(net.code)]
+    out += [f"a macro token paste (``) at line {net.line(m.start())} can build a class-D wire's name the census "
+            f"cannot see" for m in re.finditer("``", net.code)]
+    watched = {i for i, kinds in net.instances.items() if kinds & {WRAPPER, CSR}}
+    watched |= {c.split(".")[0] for _, name, c in net.reads_at if name in pop and "." in c}
+    watched |= {n.split(".")[0] for r in found for k, n in r.ends if k == "wire" and "." in n}
+    for m in HIERARCHICAL.finditer(net.code):
+        scopes = re.findall(r"[A-Za-z_][\w$]*", re.sub(r"\[[^\]]*\]", "", m.group()))[:-1]
+        out += [f"a hierarchical reference into {s} at line {net.line(m.start())} reads it without naming the "
+                f"wire: `{net.text_at(m.start())}`" for s in scopes if s in watched][:1]
+    return out
+
+
+def survey(src: Sources) -> Survey:
+    """The population, its reads and cones, and every occurrence accounted for."""
+    net = netlist(src.datapath)
     if not any(kinds == {CSR} for kinds in net.instances.values()):
         raise CensusError(f"the datapath instantiates no {CSR}")
-    population = set(POPULATION.findall(net.code)) | {STARTED}
+    pop, problems = population(net, src.wrapper)
     lines: dict[tuple[str, str], set[int]] = defaultdict(set)
+    read_at: set[int] = set()
     for pos, name, consumer in net.reads_at:
-        if name in population:
+        if name in pop:
             lines[(name, consumer)].add(net.line(pos))
-    return [Read(w, c, tuple(sorted(ln)), frozenset(cone(net, c))) for (w, c), ln in sorted(lines.items())], net
+            read_at.add(pos)
+    found = [Read(w, c, tuple(sorted(ln)), frozenset(cone(net, c))) for (w, c), ln in sorted(lines.items())]
+    declared = declarations(net, set(pop))
+    problems += [f"{w} is declared {len(declared.get(w, []))} times; the census accounts for one declaration"
+                 for w in sorted(pop) if len(declared.get(w, [])) != 1]
+    connected = {at for _, at in pop.values()}
+    tally = {"declaration": 0, "connection": 0, "read": 0}
+    if pop:
+        names = re.compile(r"(?<![A-Za-z0-9_$])(" + "|".join(map(re.escape, sorted(pop, key=len, reverse=True)))
+                           + r")(?![A-Za-z0-9_$])")
+        for m in names.finditer(net.code):
+            kind = ("declaration" if m.start() in declared.get(m.group(1), ()) else
+                    "connection" if m.start() in connected else "read" if m.start() in read_at else None)
+            if kind:
+                tally[kind] += 1
+            else:
+                problems.append(f"unaccounted occurrence of {m.group(1)} at `{net.text_at(m.start())}` (line "
+                                f"{net.line(m.start())}): not its declaration, the wrapper's connection or a read")
+        for rel in includes(src.datapath, net.code):
+            copies = src.included.get(rel, ())
+            if not copies:
+                problems.append(f"the datapath includes {rel or 'a file'}, which the census cannot find under hdl/ "
+                                f"or configs/: it cannot see what that file reads")
+            for path, text in copies:
+                problems += [f"{path}: an included file names class-D wire {w}"
+                             for w in sorted(set(names.findall(strip_comments(text))))]
+    problems += outright(net, pop, found)
+    return Survey(pop, found, tally, problems)
 
 
 def fields(contract: mailbox_model.Contract) -> set[str]:
@@ -476,11 +722,11 @@ def fields(contract: mailbox_model.Contract) -> set[str]:
     return {f"{r.name}.{f.name}" for r in contract.pub_registers + contract.pub_sink_registers for f in r.fields}
 
 
-def findings(text: str, table: dict[tuple[str, str], Row], known: set[str]) -> tuple[list[str], list[Read]]:
-    """Every way the datapath and the census disagree."""
-    found, net = census(text)
-    out = []
-    for r in found:
+def findings(src: Sources, table: dict[tuple[str, str], Row], known: set[str]) -> tuple[list[str], Survey]:
+    """Every way the sources and the census disagree."""
+    sv = survey(src)
+    out = list(sv.problems)
+    for r in sv.reads:
         row = table.get((r.wire, r.consumer))
         where = f"{r.wire} -> {r.consumer} (line {', '.join(map(str, r.lines))})"
         kinds = {k for k, _ in r.ends}
@@ -505,96 +751,78 @@ def findings(text: str, table: dict[tuple[str, str], Row], known: set[str]) -> t
                     out.append(f"{where}: reaches CSR port {port}, which CSR_READBACK does not name")
                 if k == "processor" and port not in PROCESSOR_FACE:
                     out.append(f"{where}: reaches wrapper port {port}, which PROCESSOR_FACE does not name")
-    seen = {(r.wire, r.consumer) for r in found}
+    seen = {(r.wire, r.consumer) for r in sv.reads}
     out += [f"stale row: the datapath no longer reads {w} into {c}" for w, c in table if (w, c) not in seen]
-    return out, found
+    return out, sv
 
 
-#: (planted defect, old, new, a word the finding must carry): each applied to
-#: a copy of the datapath, each old text occurring once.
-DATAPATH_PLANTS = (
-    ("an unmapped read on the wire",
-     "(|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);",
-     "(|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]) & ~pp_cd_srp_over_limit_w;",
-     "unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w"),
-    ("an unmapped read in a declaration's initialiser",
-     "  wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &",
-     "  wire planted_w = |pp_cd_srp_granted_slope_bps_w;\n"
-     "  wire crft_class_a_w = planted_w & (ACMP_SRC_C > N_STREAMS) &",
-     "unmapped read: pp_cd_srp_granted_slope_bps_w -> planted_w"),
-    ("an unmapped read in an always block's condition",
-     "    crft_stat_c[4]     = 1'b0;",
-     "    crft_stat_c[4]     = 1'b0;\n    if (pp_cd_srp_lstn_decl_state_w[0]) crft_stat_c[4] = 1'b1;",
-     "unmapped read: pp_cd_srp_lstn_decl_state_w -> crft_stat_c"),
-    ("a status read on the wire",
-     "    .vlan_en_i  (crft_class_a_w),",
-     "    .vlan_en_i  (lwsrp_talker_declared),",
-     "counted as status, but it reaches the wire"),
-    ("a GET_STREAM_INFO read on the wire",
-     "    .vlan_en_i  (crft_class_a_w),",
-     "    .vlan_en_i  (gsi_tkdcl_w[0]),",
-     "counted as processor, but it reaches the wire"),
-    ("the started level dropped from the accept",
-     "  wire [ACMP_SINKS_C-1:0] acmpl_stopped_v_w = acmpl_bound_v_w\n"
-     "                                              & ~pp_aecp_strm_started_w;",
-     "  wire [ACMP_SINKS_C-1:0] acmpl_stopped_v_w = acmpl_bound_v_w\n"
-     "                                              & ~pp_cd_acmp_bound_w;",
-     "unmapped read: pp_cd_acmp_bound_w -> acmpl_stopped_v_w"),
-)
+def load(datapath: Path, wrapper: Path) -> Sources:
+    """The sources as tracked: each included file found under INCLUDE_ROOTS, every copy of it."""
+    text = datapath.read_text(encoding="utf-8")
+    found = {}
+    for rel in includes(text, strip_comments(text)):
+        hits = [p for root in INCLUDE_ROOTS for p in sorted(root.rglob(Path(rel).name))
+                if rel and p.as_posix().endswith("/" + rel)]
+        found[rel] = tuple((p.relative_to(REPO).as_posix(), p.read_text(encoding="utf-8")) for p in hits)
+    return Sources(text, wrapper.read_text(encoding="utf-8"), found)
 
 
-def selftest(text: str, known: set[str]) -> int:
-    """Each plant refused, the controls clean; the number of failed arms."""
+def selftest(src: Sources, known: set[str]) -> int:
+    """Each plant refused by its own words, the controls clean; the number of failed arms."""
     failed = 0
-    clean, _ = findings(text, CENSUS, known)
-    print(f"[{'ok' if not clean else 'BAD'}] positive control, the tracked datapath: {len(clean)} finding(s)")
+    clean, _ = findings(src, CENSUS, known)
+    print(f"[{'ok' if not clean else 'BAD'}] positive control, the tracked sources: {len(clean)} finding(s)")
     failed += bool(clean)
-    note = text.replace("  wire crft_class_a_w =", "  // pp_cd_srp_over_limit_w is not read here\n"
-                        "  wire crft_class_a_w =", 1)
+    note = replace(src, datapath=src.datapath.replace(
+        "  wire crft_class_a_w =", "  // pp_cd_srp_over_limit_w is not read here\n  wire crft_class_a_w =", 1))
     quiet, _ = findings(note, CENSUS, known)
     print(f"[{'ok' if not quiet else 'BAD'}] negative control, a class-D wire named in a comment: "
           f"{len(quiet)} finding(s)")
     failed += bool(quiet)
-    arms = [(what, text.replace(old, new), CENSUS, word, text.count(old))
-            for what, old, new, word in DATAPATH_PLANTS]
+    arms = [(p.what, apply(src, p), CENSUS, p.word) for p in PLANTS]
     key = ("pp_cd_srp_tk_decl_state_w", "crft_class_a_w")
-    renamed = dict(CENSUS)
-    renamed[key] = Row("field", "TALKER_DECL.DECLARE", CENSUS[key].why)
-    arms.append(("a field the contract lacks", text, renamed, "which the publication block does not define", 1))
-    stale = dict(CENSUS)
-    stale[("pp_cd_srp_granted_slope_bps_w", "lwsrp_idle_slope")] = Row("status", "", "planted")
-    arms.append(("a stale row", text, stale, "stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w",
-                 1))
-    for what, planted, table, word, sites in arms:
-        if sites != 1:
-            print(f"[BAD] planted {what}: its fixture occurs {sites} times in the datapath")
+    arms.append(("a field the contract lacks", src, {**CENSUS, key: Row("field", "TALKER_DECL.DECLARE", "")},
+                 "which the publication block does not define"))
+    arms.append(("a stale row", src, {**CENSUS, ("pp_cd_srp_granted_slope_bps_w", "lwsrp_idle_slope"):
+                                      Row("status", "", "planted")},
+                 "stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w"))
+    for what, planted, table, word in arms:
+        if isinstance(planted, str):
+            print(f"[BAD] planted {what}: {planted}")
             failed += 1
             continue
-        got, _ = findings(planted, table, known)
+        try:
+            got, _ = findings(planted, table, known)
+        except CensusError as exc:
+            got = [f"the census cannot read it: {exc}"]
         hit = [f for f in got if word in f]
         print(f"[{'ok' if hit else 'BAD'}] planted {what}: " + (f"refused ({hit[0]})" if hit else "accepted"))
         failed += not hit
-    print(f"selftest: {failed} arm(s) failed")
+    print(f"selftest: {failed} of {len(arms) + 2} arm(s) failed")
     return failed
 
 
 def main(argv: list[str] | None = None) -> int:
     """--check, --list and --selftest over the datapath; the exit status."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
-    ap.add_argument("--check", action="store_true", help="fail on any read the census does not account for")
-    ap.add_argument("--list", action="store_true", help="print every read, its cone and its row")
+    ap.add_argument("--check", action="store_true", help="fail on any occurrence the census does not account for")
+    ap.add_argument("--list", action="store_true", help="print the population, and every read, its cone and its row")
     ap.add_argument("--selftest", action="store_true", help="prove the check refuses each planted defect")
     ap.add_argument("--datapath", type=Path, default=DATAPATH, help="the datapath to read")
+    ap.add_argument("--wrapper", type=Path, default=WRAPPER_SV,
+                    help="the processor wrapper whose class-D face it reads")
     args = ap.parse_args(argv)
     if not (args.check or args.list or args.selftest):
         ap.error("name --check, --list or --selftest")
-    text = args.datapath.read_text(encoding="utf-8")
     known = fields(mailbox_model.load())
     rc = 0
     try:
-        out, found = findings(text, CENSUS, known)
+        src = load(args.datapath, args.wrapper)
+        out, sv = findings(src, CENSUS, known)
         if args.list:
-            for r in found:
+            for wire, (port, _) in sorted(sv.population.items(), key=lambda kv: kv[1][0]):
+                print(f"{port:26} -> {wire}")
+            for r in sv.reads:
                 row = CENSUS.get((r.wire, r.consumer))
                 ends = ", ".join(sorted({k for k, _ in r.ends}))
                 print(f"{r.wire:30} -> {r.consumer:24} lines {','.join(map(str, r.lines)):12} reaches {ends:22} "
@@ -602,12 +830,14 @@ def main(argv: list[str] | None = None) -> int:
         if args.check:
             for f in out:
                 print(f"[FAIL] {f}")
-            wires = len({r.wire for r in found})
-            print(f"== publication census: checks: {len(found)}   failures: {len(out)} ==")
-            print(f"{len(found)} read(s) of {wires} class-D wire(s); RESULT: {'PASS' if not out else 'FAIL'}")
+            wires = len({r.wire for r in sv.reads})
+            print(f"== publication census: checks: {len(sv.reads)}   failures: {len(out)} ==")
+            print(f"{len(sv.population)} class-D wire(s) from the wrapper's ports; occurrences accounted: "
+                  + ", ".join(f"{n} {k}(s)" for k, n in sv.tally.items()))
+            print(f"{len(sv.reads)} read(s) of {wires} class-D wire(s); RESULT: {'PASS' if not out else 'FAIL'}")
             rc |= bool(out)
         if args.selftest:
-            rc |= bool(selftest(text, known))
+            rc |= bool(selftest(src, known))
     except CensusError as exc:
         print(f"[FAIL] the census cannot read {args.datapath}: {exc}")
         return 2
