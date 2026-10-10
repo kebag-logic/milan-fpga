@@ -760,35 +760,33 @@ SRP takes the shared tick, leaving ADP, ACMP and MAAP's timer slots disjoint.
 
 The `acmpwalk` arm runs the processor's own expectations against the
 firmware: its F05.3 model of Table 5.30 in lock step (88 cells), its Table
-5.54 transcription (33 cells) and its talker suite's F05.11 constants. The
-first three differences below (LD1 to LD3) are asserted field for field
-against that model and transcription, each with the clause the firmware
-follows. The fourth (TD1) is asserted on the firmware's half only: the talker
-arm reuses constants, not a model, and the processor's suite has no
-unknown-source DISCONNECT_TX check, so its half is read from source, not
-walked.
+5.54 transcription (33 cells) and its talker suite's F05.11 constants.
 
-- UNBIND_RX_RESPONSE's talker fields: the processor echoes them; Milan v1.2
-  Table 5.36 gives 0.
-- The ACMP status after a TMR_RETRY with the talker discovered: the
-  processor zeroes it; 5.5.3.5.30 step 2 sets none.
-- The lock's refusal: the processor sends 13, TALKER_MISBEHAVING in IEEE
-  1722.1-2021 Table 8-3; the firmware sends 16, CONTROLLER_NOT_AUTHORIZED
-  (`pp_acmp_pkg.sv:123` in the submodule).
-- DISCONNECT_TX for a source that does not exist: the processor answers
-  SUCCESS (`KL_acmp_talker.sv:1301-1306`, read from source: the DISCONNECT_TX
-  arm answers SUCCESS without reading `uid_valid_w`); the firmware answers
-  TALKER_UNKNOWN_ID (5.5.4.2 step 1, Table 5.44). Milan v1.2 5.5.2.7 says
-  that DISCONNECT_TX "always returns SUCCESS without modifying the state of
-  the Talker", which is the processor's answer. 5.5.4.2 governs: 5.5.2.7 is
-  an overview that ends "The complete specification of the talker's behavior
-  is defined in Section 5.5.4", and 5.5.4.2 is the "shall" procedure, which
-  validates the source first. SUCCESS without a state change applies to a
-  valid source (the ruling on #665, comment 6030067436).
-
-Each is the processor's to fix; F3 changes nothing in the submodule. They are
+None remains. Up to processor `2ad2f845` the walk asserted four differences,
 filed as processor issue
-[#168](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168).
+[#168](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168),
+and normalised the first two before comparing. Processor `2cbed0a9`, adopted
+by [#708](https://github.com/kebag-logic/milan-fpga/issues/708), answers as
+the firmware does, so frames and records are compared raw. Each former
+difference is now a check that fails if the processor's old answer returns:
+
+- LD1, UNBIND_RX_RESPONSE's talker fields: 0 in both frames (Milan v1.2
+  Table 5.36); an echo of the command's fields fails it.
+- LD2, the ACMP status after a TMR_RETRY with the talker discovered: both
+  keep the status the retry was for, since 5.5.3.5.30 step 2 sets none; a
+  zeroed status fails it.
+- LD3, the lock's refusal: both send 16, CONTROLLER_NOT_AUTHORIZED in IEEE
+  1722.1-2021 Table 8-3, byte for byte; the former 13, TALKER_MISBEHAVING,
+  fails it.
+- TD1, DISCONNECT_TX for a source that does not exist: the firmware answers
+  TALKER_UNKNOWN_ID (5.5.4.2 step 1, Table 5.44), graded on the firmware's
+  half because the talker arm reuses constants, not a model. The processor's
+  own talker suite now grades its half the same way. Milan v1.2 5.5.2.7
+  summarises DISCONNECT_TX as succeeding without changing the talker's
+  state. 5.5.4.2 governs: 5.5.2.7 is an overview that defers to 5.5.4 for the
+  complete behavior, and 5.5.4.2 is the normative procedure, which validates
+  the source first. SUCCESS without a state change applies to a valid source
+  (the ruling on #665, comment 6030067436).
 
 ## Verification
 
@@ -804,7 +802,7 @@ filed as processor issue
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
-| the processor's ACMP expectations, reused | its F05.3 model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, cut from the pinned submodule at build time; four differences asserted ([above](#differences-from-the-processor)) |
+| the processor's ACMP expectations, reused | its F05.3 model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, cut from the pinned submodule at build time; frames and records compared raw, the four former differences each a check that fails if it returns ([above](#differences-from-the-processor)) |
 | the binding owner on lane F1's store | on the host flash model at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, an unread slot refusing persistence, a refused record and the roll-back |
 | planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; five of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
 
