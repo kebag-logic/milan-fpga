@@ -198,7 +198,10 @@
                     from the byte-serial MAC), so the skid cannot
                     sustainably overflow; if a harness drives faster anyway
                     the NEWEST commit is refused and counted on
-                    lb_skip_cnt_o.
+                    lb_skip_cnt_o. A skid entry is a commit DESCRIPTOR (its
+                    form and beat slot): both commits of a beat are
+                    arrangements of that beat's {stash-or-0, smp0, smp1},
+                    which a 4-slot beat bank holds once (#640 M6).
                   * POP: each media tick runs a PRE-WALK of LB_PAIRS_C + 1
                     cycles before the slot walk, popping exactly one event
                     per non-empty pair into the lb_hold_r bank; the slot walk
@@ -726,8 +729,14 @@ module KL_chan_map_capture #(
   //! event of its own (mono / odd channel count)
   wire cm0_v_w    = lb_w0_w && (lb_ch0_w[0] || lb_last0_w);
   wire [23:0] cm0_l_w = stash_vld_r ? stash_val_r : 24'd0;
-  wire [47:0] cm0_data_w = lb_ch0_w[0] ? {cm0_l_w, lb_smp0_w}
-                                       : {lb_smp0_w, 24'd0};
+  //! commit FORMS: every commit word is one of four arrangements of the
+  //! beat's own {stash-or-0, smp0, smp1} - the skid keeps the form, not the
+  //! word (see the beat bank below)
+  localparam logic [1:0] CF_STASH_SMP0_C = 2'd0,   //! {cm0_l, smp0}: odd ch0
+                         CF_SMP0_ZERO_C  = 2'd1,   //! {smp0, 0}: even final ch0
+                         CF_SMP0_SMP1_C  = 2'd2,   //! {smp0, smp1}: aligned pair
+                         CF_SMP1_ZERO_C  = 2'd3;   //! {smp1, 0}: lone even ch1
+  wire [1:0] cm0_form_w = lb_ch0_w[0] ? CF_STASH_SMP0_C : CF_SMP0_ZERO_C;
   wire [LBPW_C-1:0] cm0_addr_w = lb_a0_w;
   //! smp1: consumed by smp0 into one aligned {smp0, smp1} commit, or an
   //! {L, 0} event of its own, or it opens the stash (force-committed {L, 0}
@@ -736,8 +745,7 @@ module KL_chan_map_capture #(
   wire cm1_solo_v_w = !lb_pair01_w && lb_w1_w && !lb_ch1_w[0]
                       && (lb_last1_w || lb_tlast_i);
   wire cm1_v_w    = lb_pair01_w || cm1_solo_v_w;
-  wire [47:0] cm1_data_w = lb_pair01_w ? {lb_smp0_w, lb_smp1_w}
-                                       : {lb_smp1_w, 24'd0};
+  wire [1:0] cm1_form_w = lb_pair01_w ? CF_SMP0_SMP1_C : CF_SMP1_ZERO_C;
   wire [LBPW_C-1:0] cm1_addr_w = lb_pair01_w ? lb_a0_w : lb_a1_w;
   wire stash_open_w = !lb_pair01_w && lb_w1_w && !lb_ch1_w[0]
                       && !lb_last1_w && !lb_tlast_i;
@@ -815,19 +823,45 @@ module KL_chan_map_capture #(
   logic [LB_DROPW_C-1:0] act_drop_r [N_LB_STREAMS_P]; //! this walk: same drop for every pair
 
   //! ---- skid (flop FIFO; entries also carry the stream for flush kills) --
-  logic [47:0]       skid_data_r [LB_SKID_C];
+  //! #640 M6: an entry is a commit DESCRIPTOR - its form and the beat-bank
+  //! slot of the beat it came from - not the 48-bit word. The two commits a
+  //! beat can make are both arrangements of that beat's {stash-or-0, smp0,
+  //! smp1}, so the beat is written ONCE, into a LB_SKID_C-slot LUT-RAM bank
+  //! (one write port), and the drain rebuilds the head commit's word from
+  //! it. Capacity, order, refusal and flush-kill laws are the skid's own:
+  //! only the payload field changed form.
+  logic [1:0]        skid_form_r [LB_SKID_C];
+  logic [1:0]        skid_beat_r [LB_SKID_C];
   logic [LBPW_C-1:0] skid_addr_r [LB_SKID_C];
   logic [3:0]        skid_strm_r [LB_SKID_C];
   logic [LB_SKID_C-1:0] skid_v_r;
   logic [1:0]        skid_wp_r, skid_rp_r;
   logic [2:0]        skid_cnt_r;
+  //! the beat bank: {stash-or-0, smp0, smp1} of each beat with a commit in
+  //! the skid. No reset: a slot is read only through a descriptor written
+  //! with it. Live commits form a FIFO suffix, so their beats are the
+  //! newest few written; a beat is admitted only when its commits fit, so
+  //! at most LB_SKID_C - 1 older beats are live and the slot it takes is
+  //! never one a live descriptor names (the head being drained that same
+  //! cycle is read before the edge that overwrites it).
+  logic [71:0]       beat_bank_r [LB_SKID_C];
+  logic [1:0]        beat_wp_r;
 
   //! drain one entry per cycle whenever the skid holds any; a head entry
   //! killed by a flush is skipped (advances, writes nothing)
   wire skid_drain_w = (skid_cnt_r != 3'd0);
   wire push_ram_w   = skid_drain_w && skid_v_r[skid_rp_r];
   wire [LBPW_C-1:0] push_pair_w = skid_addr_r[skid_rp_r];
-  wire [47:0]       push_data_w = skid_data_r[skid_rp_r];
+  wire [71:0]       head_beat_w = beat_bank_r[skid_beat_r[skid_rp_r]];
+  logic [47:0]      push_data_w;
+  always_comb begin : head_commit_word
+    unique case (skid_form_r[skid_rp_r])
+      CF_STASH_SMP0_C : push_data_w = {head_beat_w[71:48], head_beat_w[47:24]};
+      CF_SMP0_ZERO_C  : push_data_w = {head_beat_w[47:24], 24'd0};
+      CF_SMP0_SMP1_C  : push_data_w = {head_beat_w[47:24], head_beat_w[23:0]};
+      default         : push_data_w = {head_beat_w[23:0],  24'd0};
+    endcase
+  end : head_commit_word
 
   //! enqueue admission: up to 2 commits per beat, drop the NEWEST (counted)
   //! if a harness outruns the >= 8-cycle wire beat spacing; a same-cycle
@@ -842,7 +876,7 @@ module KL_chan_map_capture #(
   wire skid_ovf1_w = cm1_v_w && !beat_flush_w && !skid_acc1_w;
   //! slot 0 of the enqueue carries cm0 when present, else cm1
   wire enq0_v_w = cm0_v_w ? skid_acc0_w : skid_acc1_w;
-  wire [47:0]       enq0_data_w = cm0_v_w ? cm0_data_w : cm1_data_w;
+  wire [1:0]        enq0_form_w = cm0_v_w ? cm0_form_w : cm1_form_w;
   wire [LBPW_C-1:0] enq0_addr_w = cm0_v_w ? cm0_addr_w : cm1_addr_w;
   wire enq1_v_w = cm0_v_w && skid_acc1_w;
   wire [1:0] skid_wp0_w = skid_wp_r;
@@ -968,6 +1002,11 @@ module KL_chan_map_capture #(
   wire [16:0] skip_sum_w = 17'(lb_skip_cnt_o) + 17'(skip_inc_w);
   wire [16:0] dup_sum_w  = 17'(lb_dup_cnt_o) + 17'(pop_dup_w);
 
+  //! the beat bank's one write port
+  always_ff @(posedge clk_i) begin : beat_bank_write
+    if (enq0_v_w) beat_bank_r[beat_wp_r] <= {cm0_l_w, lb_smp0_w, lb_smp1_w};
+  end : beat_bank_write
+
   //! pop data-return pipeline (registered array read = BRAM-shaped)
   logic [47:0]       q_rdata_r;
   logic              pop_ret_v_r;
@@ -993,6 +1032,15 @@ module KL_chan_map_capture #(
       rc_arm_r       <= '0;
       rc_dec_r       <= '0;
       skid_v_r       <= '0;
+      //! functionally invisible (a descriptor is read only once written):
+      //! with the loopback feed tied off, these never-written arrays send
+      //! Verilator 5.050's gate optimiser into an internal error
+      //! (V3Gate.cpp:986) unless they take a reset
+      for (int k = 0; k < int'(LB_SKID_C); k++) begin
+        skid_form_r[k] <= '0;
+        skid_beat_r[k] <= '0;
+      end
+      beat_wp_r      <= 2'd0;
       skid_wp_r      <= 2'd0;
       skid_rp_r      <= 2'd0;
       skid_cnt_r     <= 3'd0;
@@ -1004,13 +1052,18 @@ module KL_chan_map_capture #(
     end
     else begin
       //! ---- skid enqueue (up to 2) / drain (1) --------------------------
+      //! a beat with an admitted commit takes the next bank slot (enq1
+      //! implies enq0: two commits need two free entries, one needs one)
       if (enq0_v_w) begin
-        skid_data_r[skid_wp0_w] <= enq0_data_w;
+        skid_form_r[skid_wp0_w] <= enq0_form_w;
+        skid_beat_r[skid_wp0_w] <= beat_wp_r;
         skid_addr_r[skid_wp0_w] <= enq0_addr_w;
         skid_strm_r[skid_wp0_w] <= lb_tuser_i;
+        beat_wp_r               <= beat_wp_r + 2'd1;
       end
       if (enq1_v_w) begin
-        skid_data_r[skid_wp1_w] <= cm1_data_w;
+        skid_form_r[skid_wp1_w] <= cm1_form_w;
+        skid_beat_r[skid_wp1_w] <= beat_wp_r;
         skid_addr_r[skid_wp1_w] <= cm1_addr_w;
         skid_strm_r[skid_wp1_w] <= lb_tuser_i;
       end
