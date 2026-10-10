@@ -1,0 +1,11 @@
+--- $REVIEWS/r572-2-pp170/hdl/aecp/KL_aecp_desc_store.sv	2026-10-10 04:19:27.923845274 +0200
++++ hdl/aecp/KL_aecp_desc_store.sv	2026-10-10 04:25:44.637069205 +0200
+@@ -579,7 +579,7 @@
+              || (hdr_n_config_r == 16'd0)
+              || (32'(hdr_n_entries_r) > 32'(IDX_ENTRIES_P)))
+                                                      hdr_fault_w = FAULT_NIDX_C;
+-    else if (32'(hdr_n_names_r) > 32'(NAME_ENTRIES_P))
++    else if (32'(hdr_n_names_r) >= 32'(NAME_ENTRIES_P))
+                                                      hdr_fault_w = FAULT_NNAME_C;
+     else if ((hdr_desc_max_r == 16'd0)
+              || (32'(hdr_desc_max_r) > 32'(LINE_BYTES_P)))

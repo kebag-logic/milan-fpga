@@ -1,0 +1,11 @@
+--- $REVIEWS/r572-2-pp170/hdl/aecp/KL_aecp_nvm_writer.sv	2026-10-10 04:19:27.925000000 +0200
++++ hdl/aecp/KL_aecp_nvm_writer.sv	2026-10-10 04:25:44.635149573 +0200
+@@ -851,7 +851,7 @@
+           end
+         end
+         W_NEXT: begin
+-          if (rec_r == RW_C'(N_REC_C - 1)) begin
++          if (rec_r == RW_C'(N_REC_C - 2)) begin
+             rec_r <= '0;
+             if (pass_r) begin
+               done_r <= 1'b1;             // COMPLETE: every record agreed

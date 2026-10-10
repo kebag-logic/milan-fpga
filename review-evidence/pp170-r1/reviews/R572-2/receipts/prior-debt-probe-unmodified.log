@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "$REVIEWS/pp170-r572-2-packet/scratch/prior/debt_probe.py", line 129, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/pp170-r572-2-packet/scratch/prior/debt_probe.py", line 123, in main
+    res = dict(pool.map(lambda a: one(args, *a), (("golden", False), ("rollback_ignores_debt", True))))
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$REVIEWS/pp170-r572-2-packet/scratch/prior/debt_probe.py", line 123, in <lambda>
+    res = dict(pool.map(lambda a: one(args, *a), (("golden", False), ("rollback_ignores_debt", True))))
+                                  ~~~^^^^^^^^^^
+  File "$REVIEWS/pp170-r572-2-packet/scratch/prior/debt_probe.py", line 96, in one
+    binary = harness.build(tree, work, args.verilator)
+TypeError: build() missing 1 required positional argument: 'line'

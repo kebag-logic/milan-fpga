@@ -1,0 +1,35 @@
+IDENTICAL hdl base=4d21ab6512ec2293cec6f43ff9456784c7f6c642 r1=4d21ab6512ec2293cec6f43ff9456784c7f6c642 head=4d21ab6512ec2293cec6f43ff9456784c7f6c642
+IDENTICAL syn base=a5e560a610a05d27d0c184285253d1763a1ec3de r1=a5e560a610a05d27d0c184285253d1763a1ec3de head=a5e560a610a05d27d0c184285253d1763a1ec3de
+IDENTICAL scripts base=316cdbc84b54f7cf2172e272594f1ec2aa88686a r1=316cdbc84b54f7cf2172e272594f1ec2aa88686a head=316cdbc84b54f7cf2172e272594f1ec2aa88686a
+IDENTICAL .github base=33d4660d22440c425597020421eaa9cef48cbf85 r1=33d4660d22440c425597020421eaa9cef48cbf85 head=33d4660d22440c425597020421eaa9cef48cbf85
+IDENTICAL tb/pp_top base=4c9d4c4982dba2b8eb0c04bf37aacad01735fed6 r1=4c9d4c4982dba2b8eb0c04bf37aacad01735fed6 head=4c9d4c4982dba2b8eb0c04bf37aacad01735fed6
+IDENTICAL tb/common base=118f445418721637006d9c3c6f8cb943f5073953 r1=118f445418721637006d9c3c6f8cb943f5073953 head=118f445418721637006d9c3c6f8cb943f5073953
+IDENTICAL Makefile base=ebfd881bb8d2cf7f8cb3881d6bea30589cbc54cb r1=ebfd881bb8d2cf7f8cb3881d6bea30589cbc54cb head=ebfd881bb8d2cf7f8cb3881d6bea30589cbc54cb
+IDENTICAL docs/guides base=33a691d3ed086839d93a23ab9131790e4a6e9a88 r1=33a691d3ed086839d93a23ab9131790e4a6e9a88 head=33a691d3ed086839d93a23ab9131790e4a6e9a88
+IDENTICAL docs/diagrams base=786715b4de60b67c5c9034fa84272457f4ac1144 r1=786715b4de60b67c5c9034fa84272457f4ac1144 head=786715b4de60b67c5c9034fa84272457f4ac1144
+IDENTICAL docs/traceability base=e160a14dfa60fbb5cf5cc24d82f28692d3d8784e r1=e160a14dfa60fbb5cf5cc24d82f28692d3d8784e head=e160a14dfa60fbb5cf5cc24d82f28692d3d8784e
+IDENTICAL docs/architecture/01_overview.md base=3f050819cda6ffbdfdd3ac6eba3bf80c7cd93b98 r1=3f050819cda6ffbdfdd3ac6eba3bf80c7cd93b98 head=3f050819cda6ffbdfdd3ac6eba3bf80c7cd93b98
+IDENTICAL docs/architecture/02_interfaces.md base=dc79b2a61e513c9c5f88f1fd23c4548c9abff521 r1=dc79b2a61e513c9c5f88f1fd23c4548c9abff521 head=dc79b2a61e513c9c5f88f1fd23c4548c9abff521
+IDENTICAL docs/architecture/07_memory_maps.md base=a16b87cf1c4cc879ca00a349ea8a939d834779e6 r1=a16b87cf1c4cc879ca00a349ea8a939d834779e6 head=a16b87cf1c4cc879ca00a349ea8a939d834779e6
+--- changed paths base..head
+M	docs/architecture/09_verification.md
+A	tb/name_state/Makefile
+A	tb/name_state/README.md
+A	tb/name_state/fixture.py
+A	tb/name_state/mutants.py
+A	tb/name_state/run.py
+A	tb/name_state/sim_main.cpp
+--- changed paths r1..head
+M	docs/architecture/09_verification.md
+M	tb/name_state/README.md
+M	tb/name_state/mutants.py
+M	tb/name_state/run.py
+M	tb/name_state/sim_main.cpp
+--- commits r1..head
+89464a9b2dbcc6ef2f8beb10a1cb3ee942ef2e54 Document how the generated parent images are produced
+ee8a71db5377bc895e04ad33ad77fffc0f53fddd Refuse an existing name mutation output directory
+d0e36f8dd8dffb9488b24ed42e5d051751ee8a48 Register the name suite in the saved-state verification section
+e9e222d32f29408d5b90fc585cb16b4685001105 Grade descriptor debt protection on the saved names
+33fe164edeae52d84aadc00b7222ecd0439dc5ab Run the name suite at each population's bound name capacity
+--- head DESC_NAME_ENTRIES_P default
+89464a9b2dbcc6ef2f8beb10a1cb3ee942ef2e54:hdl/top/protocol_processor_top.sv:155:    parameter int unsigned DESC_NAME_ENTRIES_P = 32,

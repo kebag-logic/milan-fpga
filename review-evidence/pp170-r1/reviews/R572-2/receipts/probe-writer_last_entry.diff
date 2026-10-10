@@ -1,0 +1,11 @@
+--- $REVIEWS/r572-2-pp170/hdl/aecp/KL_aecp_nvm_writer.sv	2026-10-10 04:19:27.925000000 +0200
++++ hdl/aecp/KL_aecp_nvm_writer.sv	2026-10-10 04:25:44.635149573 +0200
+@@ -1003,7 +1003,7 @@
+         && (32'(chg_idx_i) < sel_cnt_f(chg_sel_i[2:0]))) begin
+       set_w[sel_off_f(chg_sel_i[2:0]) + 32'(chg_idx_i)] = 1'b1;
+     end
+-    if (nchg_i && (32'(nchg_ord_i) < N_NAME_P)) begin
++    if (nchg_i && (32'(nchg_ord_i) < N_NAME_P - 1)) begin
+       set_w[OFF_NAME_C + 32'(nchg_ord_i)] = 1'b1;
+     end
+   end
