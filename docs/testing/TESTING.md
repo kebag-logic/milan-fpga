@@ -678,6 +678,15 @@ every channel exactly between a 50 MHz-shaped source and a 100 MHz-shaped
 sink, while the pre-#359 direct connection across the same clocks loses or
 duplicates beats.
 
+`test_ctrl_memory.py` (#640 M8a) grades the split placement's firmware
+memory: [`ctrl_memory.py`](../../sw/litex/ctrl_memory.py)'s bank plan and its
+named refusals, the three planted controls (an allocation over budget, a
+memory-map overlap, a staging buffer of another shape), the real
+`milan_soc.CtrlMemory` in simulation with its planted defects, and a probe
+linked by [`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld). The
+link arm needs an RV32 compiler (`sw/firmware/gtest/fw_rv32.py` finds the
+pinned SDK); without one the member declares a skip.
+
 An access that is never acknowledged must not wedge either bridge or the shared
 bus.
 

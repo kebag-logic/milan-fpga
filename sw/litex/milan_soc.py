@@ -41,6 +41,7 @@ import runpy
 from pathlib import Path
 
 from boot_policy import fabric_constants
+import ctrl_memory
 from gptp_owner_contract import GPTP_OWNER_CODES
 from qspi_owner_transition import aem_image_binding, bitstream_binding
 
@@ -2570,6 +2571,59 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
         print("[milan] --ctrl-mailbox: the CPU has no interrupt controller; firmware polls the mailbox")
 
 
+# ---- #640 M8a: the split placement's control-firmware memory -------------------------------------
+# Under --ctrl-mailbox the control firmware owns the reset entry and runs from
+# block RAM; MilanSoC builds no BIOS ROM or SRAM. sw/litex/ctrl_memory.py is the
+# map, the bank plan and the checks; only the hookup lives here.
+class CtrlMemory(LiteXModule):
+    """One firmware region: the image's banks, largest first, each LiteX's own wishbone.SRAM.
+
+    A bank is a power of two of RAMB18 granules, so it maps to whole block
+    RAMs with no rounding and the region wastes less than one granule. An
+    address of the region past the last bank answers err at once instead of
+    aliasing a bank.
+    """
+
+    def __init__(self, region: ctrl_memory.Region, banks: tuple[int, ...],
+                 words: list[int] | None) -> None:
+        """`words` initialises a read-only region; None builds a writable one."""
+        from litex.soc.interconnect import wishbone
+        self.bus = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+        low = (region.size - 1).bit_length() - 2      # word-address bits the region decodes
+        slaves, first = [], 0
+        for n, size in enumerate(banks):
+            depth = size // 4
+            bank = wishbone.SRAM(size, read_only=words is not None, name=f"{region.name}_bank{n}",
+                                 init=None if words is None else words[first:first + depth])
+            setattr(self, f"bank{n}", bank)
+            shift = depth.bit_length() - 1
+            slaves.append((lambda a, s=shift, f=first: a[s:low] == f >> s, bank.bus))
+            first += depth
+        hole = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+        self.sync += hole.err.eq(hole.cyc & hole.stb & ~hole.err)
+        slaves.append((lambda a: a[:low] >= first, hole))
+        self.decoder = wishbone.Decoder(self.bus, slaves)
+
+
+def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
+    """Build rom and sram from the linked control firmware; rom's first word is the reset entry."""
+    if (soc.cpu.reset_address, soc.mem_map["sram"]) != (ctrl_memory.ROM.origin, ctrl_memory.RAM.origin):
+        raise ctrl_memory.Refusal("reset entry", f"the CPU resets to 0x{soc.cpu.reset_address:08x} "
+                                  f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
+                                  f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
+    soc.ctrl_image = ctrl_memory.read_elf(firmware)
+    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
+    for region, banks, words, mode in (
+            (ctrl_memory.ROM, soc.ctrl_plan.rom_banks, ctrl_memory.rom_words(soc.ctrl_image), "rx"),
+            (ctrl_memory.RAM, soc.ctrl_plan.ram_banks, None, "rwx")):
+        soc.add_module(name=region.name, module=CtrlMemory(region, banks, words))
+        soc.bus.add_slave(region.name, getattr(soc, region.name).bus,
+                          region=SoCRegion(origin=region.origin, size=region.size, mode=mode))
+    # LiteX's own flag for "rom already holds its contents": the Builder builds no BIOS.
+    soc.integrated_rom_initialized = True
+    print(f"[milan] --ctrl-firmware {firmware}: {json.dumps(soc.ctrl_plan.summary())}")
+
+
 def _parse_l2_bytes(token: str) -> Decimal:
     """Preserve fractional CLI tokens until whole-byte validation."""
     try:
@@ -2617,7 +2671,7 @@ class MilanSoC(SoCCore):
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  render_lpf=True, optional_blocks=None,
-                 entity_gen_dir=None, ctrl_mailbox=False, **kwargs):
+                 entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
             raise ValueError("unsupported software profile")
@@ -2714,9 +2768,17 @@ class MilanSoC(SoCCore):
             kwargs["cpu_type"]    = "naxriscv"
             kwargs["cpu_variant"] = "standard"
             kwargs["cpu_count"]   = cpu_count
-        # BIOS ROM is always integrated. Main RAM is external LiteDRAM when
+        # BIOS ROM is integrated in the all-fabric placement. Under
+        # --ctrl-mailbox the control firmware owns the reset entry instead, in
+        # its own block RAM (add_ctrl_memory, #640 M8a), and neither the BIOS
+        # ROM nor its SRAM is built. Main RAM is external LiteDRAM when
         # requested, otherwise integrated SRAM. Do not add integrated
         # main RAM when DRAM provides it.
+        if ctrl_mailbox:
+            if ctrl_firmware is None:
+                raise ValueError("--ctrl-mailbox needs --ctrl-firmware: the split placement "
+                                 "runs no BIOS, so its block RAM is sized from the firmware")
+            kwargs.update(integrated_rom_size=0, integrated_sram_size=0)
         kwargs.setdefault("integrated_rom_size", 0x20000)   # BIOS lives here; reset vector
         if not with_dram:
             kwargs.setdefault("integrated_main_ram_size", main_ram_size)
@@ -2743,6 +2805,8 @@ class MilanSoC(SoCCore):
                          ident=(f"Milan TSN SoC - {_cpu_human} RV{xlen} "
                                 f"{cpu_count}-core {software_profile}"),
                          **kwargs)
+        if ctrl_mailbox:
+            add_ctrl_memory(self, Path(ctrl_firmware))
         # Compiled into soc.h so layout_from_soch.py can reconstruct the exact
         # ownership state for sweep artifacts without consulting a launcher or
         # mutable launch state. Encoding: 0=none, 1=fabric.
@@ -3614,7 +3678,14 @@ def main() -> None:
                          "firmware (sw/mailbox/mailbox.yaml: KL_mbx behind KL_mbx_wb at "
                          "0x9010_0000, its CSR bank and one interrupt). Its datapath side "
                          "is held idle in F0. Default off => no source, no instance, no "
-                         "region: the top .v and source list are byte-identical.")
+                         "region: the top .v and source list are byte-identical. "
+                         "Needs --ctrl-firmware (#640 M8a).")
+    ap.add_argument("--ctrl-firmware", type=Path, default=None,
+                    help="#640 M8a: the split placement's control firmware, an ELF linked by "
+                         "sw/firmware/ctrl/plat/ctrl_split.ld. Under --ctrl-mailbox it owns the "
+                         "reset entry: no BIOS ROM or SRAM is built, and its image sizes and "
+                         "initialises the block RAM of the rom and sram regions "
+                         "(sw/litex/ctrl_memory.py). Refused without --ctrl-mailbox.")
     ap.add_argument("--loopback-lane", action="store_true",
                     help="task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK "
                          "bucket (SRC_LOOP = 5) to the depacketizer payload clone, so a "
@@ -3813,6 +3884,9 @@ def main() -> None:
         ap.error(f"baremetal clock: effective --milan-clk-freq must be {BAREMETAL_CLK_HZ} Hz "
                  "(docs/integration/BAREMETAL_FIRMWARE.md build contract); "
                  "without a Milan clock domain, --sys-clk-freq supplies that clock")
+    if args.ctrl_mailbox != (args.ctrl_firmware is not None):
+        ap.error("--ctrl-mailbox and --ctrl-firmware go together: the split placement's "
+                 "firmware owns the reset entry and sizes its own block RAM (#640 M8a)")
     if args.fabric_gptp is None:
         args.fabric_gptp = not args.no_milan
     if args.fabric_gptp and args.no_milan:
@@ -3950,6 +4024,7 @@ def main() -> None:
                    },
                    entity_gen_dir=args.entity_gen_dir,
                    ctrl_mailbox=args.ctrl_mailbox,
+                   ctrl_firmware=args.ctrl_firmware,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),
@@ -3987,7 +4062,8 @@ def main() -> None:
         soc.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_nets sys_rst]")
         soc.platform.add_platform_command("set_multicycle_path 1 -hold  -through [get_nets sys_rst]")
     builder = Builder(soc, **builder_argdict(args))
-    if args.software_profile == "baremetal":
+    # The split placement builds no BIOS, so the shipping firmware has nothing to link into.
+    if args.software_profile == "baremetal" and not args.ctrl_mailbox:
         fw_dir = str(REPO_ROOT / "sw" / "firmware" / "milan_baremetal")
         builder.add_software_package("libmilan_baremetal", fw_dir)
         builder.add_software_library("libmilan_baremetal", always_link=True)
@@ -4107,6 +4183,11 @@ def main() -> None:
         _nvm_donor = NvmDonor(base=binding_base(), layout=layout_version())
         for _name, _value in firmware_constants(_nvm_shape, _nvm_donor).items():
             soc.add_constant(_name, _value)
+        if args.ctrl_mailbox:
+            # #640 M8a: the split firmware stages this shape's container.
+            ctrl_memory.check_stage(soc.ctrl_image,
+                                    ctrl_memory.stage_bytes(_nvm_shape, _nvm_donor),
+                                    Path(args.entity_gen_dir).name)
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
     if args.build:
         # Every launcher and shipping board passes here. A successful vendor
