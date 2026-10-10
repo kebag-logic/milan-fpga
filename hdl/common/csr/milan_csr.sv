@@ -1070,8 +1070,12 @@ module milan_csr #(
   //! consumer in this tree waits on rvalid, and no read has a side effect
   //! keyed to the old timing.
   logic         rd_pend2;                //! staged-mux -> r_data stage
-  logic [31:0]  live_mux_q, strm_mux_q, shadow_qq;
-  logic         live_hit_q, strm_hit_q, rd_in_window_q;
+  //! Stage-1 words (lane M5 of #640). The live tree, which takes the 0x800
+  //! window's word as one more range, lands in live_mux_q and reads 0 where
+  //! it claims nothing. The shadow word lands in the block RAM's own output
+  //! register, zeroed there unless the shadow serves the read. Stage 2 is
+  //! then an OR, not a select, and needs no hit flags.
+  logic [31:0]  live_mux_q, shadow_qq;
   logic [31:0]  r_data;                  //! Registered read data
   logic [ADDR_WIDTH-1:0] rd_addr_q;      //! Latched read address (decode stage)
   logic         sweep_busy;              //! defaults -> shadow copy after reset
@@ -1448,8 +1452,18 @@ module milan_csr #(
   logic [3:0]  rest_idx_r;
   logic [15:0] rest_flags_r;
   //! SNAP shadow: the ONE permitted window shadow ([M-5.4.2.25] coherent
-  //! counter block): [0] STATE, [1..10] CNT0..9, [11] PDUS
+  //! counter block): [0] STATE, [1..10] CNT0..9, [11] PDUS.
+  //! The ten CNT words hold the RAW word their source answered (lane M5 of
+  //! #640): a per-word kind, written in the same cycle as its word, says
+  //! whether the window serves that word, a zero or POISON. A CNT word is
+  //! therefore loaded straight from its one source, never through a per-bit
+  //! select of constants, and the read applies the kind once, to the one
+  //! word it serves.
   logic [31:0] snap_shadow_r [0:11];
+  localparam logic [1:0] SK_ZERO_C   = 2'd0;  //! reads 0 (reset, out-of-range SNAP)
+  localparam logic [1:0] SK_RAW_C    = 2'd1;  //! reads the stored word
+  localparam logic [1:0] SK_POISON_C = 2'd2;  //! reads 0xDEADDEAD (talker: no Table 7-157 block)
+  logic [1:0]  snap_kind_r [1:10];
   //! snap_busy_r is declared with the early block above wr_fire (#193)
   logic [2:0]  snap_st_r;                //! 0 idle,1 done-pulse,2 wait-free,3 arm,4 fetch
   logic        snap_dir_r;
@@ -2270,6 +2284,10 @@ module milan_csr #(
   //  plain-RW config register reads from the shadow BRAM.
   // ==========================================================================
   logic [31:0] live_mux;
+  //! the 0x800 window's word and claim (strm_read_mux below drives them),
+  //! declared here ahead of read_mux, their first reader (#193)
+  logic [31:0] strm_mux;
+  logic        strm_hit;
   //! Reset-epoch canary (documented with epoch_cnt below, which drives it):
   //! a flop WITHOUT a reset clause, bitstream-initialised. Declared here
   //! ahead of read_mux, its first reader (#193).
@@ -2463,6 +2481,11 @@ module milan_csr #(
         else if (rd_addr_q >= A_CHMAP_CTRL &&
                  rd_addr_q <  A_CHMAP_CTRL + 16'h40)
           live_mux = 32'h0;               //! reserved chmap words read 0 (never shadow)
+        else if (strm_hit)
+          //! the 0x800 window (0x800-0x86F) is ONE range of this tree: its
+          //! own tree (strm_read_mux) selects the word, and this leaf lands
+          //! it in the same stage-1 register (lane M5 of #640)
+          live_mux = strm_mux;
         else
           live_hit = 1'b0;                //! -> shadow (or 0 above the window)
       end
@@ -2490,14 +2513,13 @@ module milan_csr #(
   //! stream_id derivation {mac, uid = 0} the fabric uses everywhere
   wire [47:0] mac_wire_w = {mac_alo[7:0], mac_alo[15:8], mac_alo[23:16],
                             mac_alo[31:24], mac_ahi[7:0], mac_ahi[15:8]};
-  logic [31:0] strm_mux;
+  //! (strm_mux and strm_hit are declared with live_mux, above read_mux)
   //! listener idx 0 addresses the DEDICATED sink-0 row when this build has
   //! one (SRP_LSN0_ROW_P != 0) - the row-0 legacy pair keeps the talker-0
   //! side, so talker-dir idx 0 stays excluded (flat CSRs serve it).
   //! Declared here ahead of strm_read_mux, its first reader (#193); the
   //! lwSRP ctx master that consumes it alongside is further down.
   wire       srp_idx0_ls_w = strm_lsn0_r && (SRP_LSN0_ROW_P != 0);
-  logic        strm_hit;
   always_comb begin : strm_read_mux
     logic [ADDR_WIDTH-1:0] coff;         //! CNT word offset
     coff     = rd_addr_q - A_STRMW_CNT0;
@@ -2562,7 +2584,12 @@ module milan_csr #(
               : 32'hDEAD_DEAD;
         default:
           if (rd_addr_q >= A_STRMW_CNT0 && rd_addr_q < A_STRMW_CNT_END)
-            strm_mux = snap_shadow_r[1 + 32'(coff[5:2])];
+            //! the stored word with its kind applied (see snap_kind_r)
+            unique case (snap_kind_r[1 + 32'(coff[5:2])])
+              SK_RAW_C:    strm_mux = snap_shadow_r[1 + 32'(coff[5:2])];
+              SK_POISON_C: strm_mux = 32'hDEAD_DEAD;
+              default:     strm_mux = 32'h0;
+            endcase
           else if (rd_addr_q == ADDR_WIDTH'('h86C))
             strm_mux = 32'hDEAD_DEAD;    //! window hole: POISON, not zero
       endcase
@@ -2597,28 +2624,34 @@ module milan_csr #(
                       //! chmap 0x900-0x93F window (else the 0x8F8 dead-read trap)
                       (rd_addr_q >= A_CHMAP_CTRL &&
                        rd_addr_q <  A_CHMAP_CTRL + 16'h40);
+  //! Stage 1 of the shadow word (lane M5 of #640): the block RAM's output
+  //! register, zeroed unless the shadow serves this read - rd_in_window
+  //! holds and no live arm, range or the window claims it. That was the old
+  //! four-way select's shadow arm; the reset is synchronous, so the RAM
+  //! absorbs it.
+  wire shadow_rd_w = rd_in_window && !live_hit;
+  always_ff @(posedge aclk) begin : shadow_out_reg
+    if (!aresetn || (rd_pend && !shadow_rd_w))
+      shadow_qq <= 32'h0;
+    else if (rd_pend)
+      shadow_qq <= shadow_q;
+  end : shadow_out_reg
+
   always_ff @(posedge aclk) begin : read_data_reg
     if (!aresetn) begin
-      r_data <= 32'h0;
-      live_mux_q <= 32'h0; strm_mux_q <= 32'h0; shadow_qq <= 32'h0;
-      live_hit_q <= 1'b0;  strm_hit_q <= 1'b0;  rd_in_window_q <= 1'b0;
+      r_data     <= 32'h0;
+      live_mux_q <= 32'h0;
     end else begin
-      //! stage 1: the wide case trees terminate HERE (their whole cost)
-      if (rd_pend) begin
-        live_mux_q     <= live_mux;
-        live_hit_q     <= live_hit;
-        strm_mux_q     <= strm_mux;
-        strm_hit_q     <= strm_hit;
-        rd_in_window_q <= rd_in_window;
-        shadow_qq      <= shadow_q;
-      end
-      //! stage 2: a four-way select of registered words - shallow by
-      //! construction, whatever the register map grows to
+      //! stage 1: the wide case trees terminate HERE (their whole cost).
+      //! live_mux reads 0 wherever live_hit is 0, and a live arm never
+      //! claims an address rd_in_window excludes, so the old select's
+      //! !rd_in_window arm never hid a live word.
+      if (rd_pend)
+        live_mux_q <= live_mux;
+      //! stage 2: an OR of two registered words, at most one of them
+      //! nonzero - shallow by construction, whatever the map grows to
       if (rd_pend2)
-        r_data <= strm_hit_q      ? strm_mux_q
-                : !rd_in_window_q ? 32'h0
-                : live_hit_q      ? live_mux_q
-                : shadow_qq;
+        r_data <= live_mux_q | shadow_qq;
       else if (rds_done_w)
         r_data <= rds_dir_r ? i_tctx_rd_data : i_lctx_rd_data;
     end
@@ -2888,6 +2921,7 @@ module milan_csr #(
       snap_wi_r   <= 4'd0; snap_cyc_r <= 2'd0; snap_word_r <= 5'd0;
       snap_req_r  <= 1'b0; snap_rden_r <= 1'b0; snap_m8_r <= 32'h0;
       for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h0;
+      for (int w = 1; w < 11; w++) snap_kind_r[w] <= SK_ZERO_C;
     end else begin
       unique case (snap_st_r)
         SN_IDLE_C: if (snap_go_w) begin
@@ -2895,27 +2929,32 @@ module milan_csr #(
           snap_dir_r  <= strm_dir_r;
           snap_idx_r  <= strm_idx_r;
           if (!win_in_range_w) begin     //! out-of-range: shadow zeros
-            for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h0;
+            snap_shadow_r[0]  <= 32'h0;
+            snap_shadow_r[11] <= 32'h0;
+            for (int w = 1; w < 11; w++) snap_kind_r[w] <= SK_ZERO_C;
             snap_st_r <= SN_DONE_C;
           end else if (strm_idx_r == 4'd0) begin
             //! index 0 = flat hard alias, Table 7-157 offset order. STATE
             //! is still assembled from the flat status registers; the ten
             //! CNT words come from the monitor's full-width counters
             //! (i_avtprx_cnt10) - see the port doc.
+            //! CNT0..9 = the FULL 32-bit counters (2026-07-26). They used
+            //! to be re-derived from the packed 0x6B8/0x6C0 views, so the
+            //! window inherited their 8/16-bit truncation and there was NO
+            //! full-width path anywhere - the flat views' documented
+            //! "read the window for the real number" was not true. MEDIA_
+            //! RESET / LATE / EARLY_TIMESTAMP were hard 0 here while the
+            //! monitor had been counting them all along.
+            //! Both directions latch them in this one cycle; the talker's
+            //! kind below is what makes them read POISON.
+            for (int w = 0; w < 10; w++)
+              snap_shadow_r[1+w] <= i_avtprx_cnt10[w*32 +: 32];
             if (!strm_dir_r) begin
               snap_shadow_r[0]  <= {4'd0, i_lwsrp_status[8:0], 8'd0,
                                     i_avtprx_stat[0],
                                     i_acmpl_state[12:8], i_acmpl_state[14:13],
                                     i_acmpl_state[2:0]};
-              //! CNT0..9 = the FULL 32-bit counters (2026-07-26). They used
-              //! to be re-derived from the packed 0x6B8/0x6C0 views, so the
-              //! window inherited their 8/16-bit truncation and there was NO
-              //! full-width path anywhere - the flat views' documented
-              //! "read the window for the real number" was not true. MEDIA_
-              //! RESET / LATE / EARLY_TIMESTAMP were hard 0 here while the
-              //! monitor had been counting them all along.
-              for (int w = 0; w < 10; w++)
-                snap_shadow_r[1+w] <= i_avtprx_cnt10[w*32 +: 32];
+              for (int w = 1; w < 11; w++) snap_kind_r[w] <= SK_RAW_C;
               snap_shadow_r[11] <= i_pcmrx_cnt;                   // = 0x6C4
             end else begin
               snap_shadow_r[0] <= {4'd0, i_lwsrp_status[8:0], 15'd0,
@@ -2924,7 +2963,7 @@ module milan_csr #(
               //! talker CNT words don't exist (no Table 7-157 block):
               //! POISON, not zero, so software can discriminate
               //! "not-backed-here" from a true zero count (2026-07-26)
-              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'hDEAD_DEAD;
+              for (int w = 1; w < 11; w++) snap_kind_r[w] <= SK_POISON_C;
               snap_shadow_r[11] <= i_aaf_frames;                  // = 0x660
             end
             snap_st_r <= SN_DONE_C;
@@ -2932,7 +2971,7 @@ module milan_csr #(
             //! talker contexts have no Table 7-157 block: pre-POISON CNT
             //! (0xDEADDEAD = not-backed-at-this-index, 2026-07-26 rule)
             if (strm_dir_r)
-              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'hDEAD_DEAD;
+              for (int w = 1; w < 11; w++) snap_kind_r[w] <= SK_POISON_C;
             snap_st_r <= SN_WAIT_C;
           end
         end
@@ -2982,7 +3021,13 @@ module milan_csr #(
                                       acmp_fresh_r ? acmp_probing_q_r : 2'd0,
                                       acmp_fresh_r ? acmp_state_q_r   : 3'd0};
               end
-              default: snap_shadow_r[snap_wi_r] <= i_lctx_rd_data;
+              //! a listener burst runs only for an extra context, which a
+              //! one-listener build cannot select: there a CNT word has
+              //! the one source above (lane M5 of #640)
+              default: if (N_LISTENERS_P > 1) begin
+                snap_shadow_r[snap_wi_r] <= i_lctx_rd_data;
+                snap_kind_r[snap_wi_r]   <= SK_RAW_C;
+              end
             endcase
             if (snap_wi_r == 4'd11) begin
               snap_rden_r <= 1'b0; snap_req_r <= 1'b0;
