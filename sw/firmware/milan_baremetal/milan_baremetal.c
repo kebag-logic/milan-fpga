@@ -467,13 +467,13 @@ static unsigned int nvm_captures_refused;
 static unsigned int nvm_acks_refused;
 static uint64_t nvm_hb_last;
 static uint64_t nvm_dirty_since;
-/* Slots this boot never read the same bytes from twice, or that never read
- * back as they were judged (bit 0 A, bit 1 B). Their authority is unknown,
- * so the writer is HELD until reset (#671). */
+/* Slots that gave no standing verdict this boot, or that were picked and
+ * never read back as they were judged (bit 0 A, bit 1 B). Their authority is
+ * unknown, so a writer that would go live is HELD until reset instead (#671). */
 static unsigned int nvm_unread;
-/* The writer is HELD: it went live with a slot UNREAD (nvm_go_live()). A
- * retire path may leave a slot unread too, but the retire is then the cause
- * the console names. */
+/* The writer is HELD (nvm_go_live()): it would have gone live with a slot
+ * UNREAD. A boot that retires the writer for another cause may leave a slot
+ * unread too, and the console then names that cause, not the slot. */
 static int nvm_held;
 /* Boot reads whose bytes differed from every earlier read of the slot, and
  * re-stages that did not read back as judged. A floor: a refused read that a
@@ -1573,9 +1573,10 @@ static const char *nvm_unread_name(void)
  * authority is unknown, it may hold a newer container than any slot that was
  * read, and a commit could restart the sequence below one a later clean boot
  * prefers. Then the writer is HELD until reset, as a retired writer is: it
- * captures, erases and writes nothing, the console's commit is refused, and
- * it stops answering the liveness deadline, so nvm_backed never claims the
- * changes it will not keep. The next reset reads every slot again.
+ * captures, erases and writes nothing of its own (the operator's explicit
+ * `milan_nvm wipe` still erases both slots), the console's commit is
+ * refused, and it stops answering the liveness deadline, so nvm_backed never
+ * claims the changes it will not keep. The next reset reads every slot again.
  */
 static void nvm_go_live(void)
 {
