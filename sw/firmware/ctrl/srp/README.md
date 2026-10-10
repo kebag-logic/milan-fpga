@@ -338,7 +338,10 @@ each interface's publication block of the mailbox (lane F-INT; the
 
 The tests read the block as the fabric held it at each SRP record's commit, so
 an MRPDU that left before its Domain, slope or declarations were published
-fails a named test.
+fails a named test, a Domain adoption's included. A named test refuses each
+allocation of a link restart's re-creation in turn, a source's join among
+them, so a creation that fails part way and still shows a declaration fails
+it too.
 
 ## Processor comparison
 
