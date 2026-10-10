@@ -1,0 +1,108 @@
+# head 42399611fc2217014024f03f4ba0365fb072688c
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:28-36
+                  UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP and
+                  FRAMES_RX are OBSERVATION-INTERVAL counters ("incremented
+                  at the end of every observation interval during which
+                  ..."), interval <= 1 s. A per-PDU verdict only SETS a
+                  per-stream seen flag; the interval tick pends the stream
+                  and the walker commits +1 per flagged counter through the
+                  normal serial RMW walk. N frame events inside one
+                  interval therefore move each counter by AT MOST ONE -
+                  the per-frame reading is IEEE 1722.1-2021 Table 7-153's,
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:318-325
+  //! USER 2026-08-05 FRAMES_RX law: count FRAMES, publish COALESCED at the
+  //! interval commit - the visible counter advances by the interval's frame
+  //! total (~8000/s at class A) instead of Table 5.6's +1-per-interval. Both
+  //! readings are Milan-legal (the interval is implementation-specific,
+  //! <= 1 s); this one matches the ecosystem/peer and restores 1722.1's
+  //! TV+TNV == FRAMES_RX identity. Saturating 16-bit/stream (8000/s legit).
+  logic [15:0] frx_acc_r [N_LISTENERS_P];
+  logic [15:0] frx_add_r;
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:627-630
+          //! FRAMES_RX commits the interval's FRAME TOTAL (coalesced law,
+          //! USER 2026-08-05); every other Table 5.6 counter keeps +1
+          eng_wdata_w = ram_q_r + ((5'(inc_next_w) == 5'(C_FRX_C))
+                                   ? 32'(frx_add_r) : 32'd1);
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:1150-1164
+        begin
+          iv_seen_r[s] <= iv_set_w[s];
+          iv_pend_r[s] <= 1'b0;
+          frx_acc_r[s] <= {15'd0, iv_set_w[s][C_FRX_C]};
+        end
+        else begin
+          if (iv_go_w && (32'(iv_s_w) == s)) begin
+            iv_seen_r[s] <= iv_set_w[s];
+            frx_acc_r[s] <= {15'd0, iv_set_w[s][C_FRX_C]};
+          end
+          else begin
+            iv_seen_r[s] <= iv_seen_r[s] | iv_set_w[s];
+            if (iv_set_w[s][C_FRX_C] && (frx_acc_r[s] != 16'hFFFF))
+              frx_acc_r[s] <= frx_acc_r[s] + 16'd1;
+          end
+== hdl/ieee1722/crf/KL_crf_rx.sv:233-233
+  output logic [31:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU
+== hdl/ieee1722/crf/KL_crf_rx.sv:484-486
+      if (iv_tick_r) begin
+        if (iv_frx_r || w_acc)
+          pdu_count_o <= pdu_count_o + 32'd1;
+== hdl/milan/milan_datapath.sv:1756-1756
+  localparam int CRF_SNK_IDX_C = (ACMP_SINKS_C > N_STREAMS) ? N_STREAMS : 0;
+== hdl/milan/milan_datapath.sv:3686-3688
+  wire ctr_crf_w = (ACMP_SINKS_C > N_STREAMS)
+                && (ctrq_type_r == DESC_STREAM_INPUT_C)
+                && (32'(ctrq_index_r) == CRF_SNK_IDX_C);
+== hdl/milan/milan_datapath.sv:3701-3701
+      6'd11   : ctr_crf_blk_w = crf_pducnt_w;    // @44  FRAMES_RX
+== hdl/milan/milan_datapath.sv:5890-5890
+    .pdu_count_o (crf_pducnt_w),
+== hdl/milan/milan_datapath.sv:6272-6272
+  KL_avtp_rx_monitor_ctx #(
+== hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:32-39
+                * MEDIA_RESET / TIMESTAMP_UNCERTAIN / FRAMES_TX are
+                  OBSERVATION-INTERVAL counts ("incremented at the end of
+                  every observation interval during which ..."), interval
+                  <= 1 s, and all three "reset to 0 each time the Talker
+                  starts streaming". FRAMES_TX therefore advances at 1/s
+                  while streaming - NOT at the frame rate; a controller
+                  reading the raw frame total where the clause defines an
+                  interval count reads a number 8000x off.
+== tests/features/counters_contract_milan.feature:194-201
+  @class:invariant @clause:Milan-Table-5.6 @regression
+  Scenario: under the Milan interval reading the same identity does NOT hold, and that is not a defect
+    # 8000 frames in one second with FRAMES_RX ticking once is the interval
+    # counter Milan Table 5.6 describes. A checker that fails here is asserting
+    # 1722.1 against a Milan device.
+    Given TIMESTAMP_VALID 8000 TIMESTAMP_NOT_VALID 0 FRAMES_RX 1
+    Then the tv-tnv verdict is INFO
+    And the reading in force is "milan-interval"
+== tests/features/counters_contract_milan.feature:393-408
+  @class:law @clause:Milan-Table-5.6
+  Scenario Outline: a single counter is graded against its own law, with the clause named
+    Given <counter> advanced by <delta> over <window> seconds with the stream flowing
+    Then the semantics verdict is <verdict> and the reading is <reading>
+
+    Examples: the silicon shape - a bound sink at class A, mask 0xFFF
+      | counter         | delta  | window | verdict | reading   |
+      | FRAMES_RX       | 30     | 30     | PASS    | interval  |
+      | TIMESTAMP_VALID | 240060 | 30     | PASS    | per-frame |
+      | MEDIA_LOCKED    | 1      | 30     | PASS    | per-event |
+
+    Examples: the two directions of getting the law wrong
+      | counter         | delta  | window | verdict | reading    |
+      | TIMESTAMP_VALID | 30     | 30     | FAIL    | interval   |
+      | FRAMES_RX       | 15     | 30     | FAIL    | neither    |
+      | FRAMES_RX       | 240060 | 30     | INFO    | per-frame  |
+== docs/reference/REGISTER_MAP.md:482-484
+`STATS_CAP` bit *n* = 1 says lane *n* at `0x210 + 4n` is real. Bit *n* = 0 says
+it is structurally silent, and a UI must render it "not supported", never
+"0 errors". This is the register that would have made the 2026-07-22 defect
+== soak/summary.json FRAMES deltas (archive c848925d)
+dut|5|0 FRAMES_RX 57599387
+dut|5|0 TIMESTAMP_VALID 57599252
+dut|5|1 FRAMES_RX 7200
+dut|6|0 FRAMES_TX 7200
+dut|6|1 FRAMES_TX 7200
+peer|5|0 FRAMES_RX 57599253
+peer|5|0 TIMESTAMP_VALID 57599253
+peer|5|8 FRAMES_RX 3599953
+peer|5|8 TIMESTAMP_VALID 3599953

@@ -1,0 +1,38 @@
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python -I scripts/docs_check.py
+docs_check: 0 finding(s) across 201 md files + 1209 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python -I scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python -I scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (six); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python -I scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (six); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python -I scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (six); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python -I scripts/check_doc_paths.py
+doc path gate: OK (954 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python -I scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 1207 tracked first-party file(s))
+rc=0
+$ git diff --check 5603c353137e90c1fa95429f6d00ef7a2298d9ee HEAD
+rc=0
+$ git diff --check d981b1cc5 HEAD
+rc=0
+# re-run of the three renderer gates without -I (the pinned venv resolves its 'six' dependency from the user site, which -I hides)
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check
+TOC gate: OK (141 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --verify-anchors
+anchor check: 423 existing cross-page fragment links reproduced
+rc=0
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+check_em_dash: 0 finding(s) over 704 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5603c353..HEAD]
+rc=0
+$ $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base d981b1cc5
+check_em_dash: 0 finding(s) over 27 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d981b1cc..HEAD]
+rc=0

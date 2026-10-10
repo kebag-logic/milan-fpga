@@ -1,0 +1,199 @@
+== NxN RX stack harness (N=4, NXN P1/P2/P3 + Table 5.6 IV) ==
+
+[G1] P2 golden: unbound frame counts nothing
+  [ ok ] frames_rx 0                                    = 0
+  [ ok ] not locked                                     = 0
+
+[G2] P2 golden: bind resets and arms (Milan Table 5.6)
+  [ ok ] counters clear after bind                      = 0
+
+[G3] P2 golden: first valid PDU locks, seq seeded
+  [ ok ] MEDIA_LOCKED 1 (event counter: immediate)      = 1
+  [ ok ] locked level                                   = 1
+  [ ok ] FRAMES_RX still 0 before the interval closes   = 0
+  [ ok ] FRAMES_RX 1 after the interval closes          = 1
+  [ ok ] last_ts captured                               = 1
+  [ ok ] wire_chans follows the wire                    = 8
+
+[G4] P2 golden: settle absorbs a step, then mismatch counts
+  [ ok ] no mismatch through settle                     = 0
+  [ ok ] STREAM_INTERRUPTED 0 (lost=1)                  = 0
+  [ ok ] SEQ_NUM_MISMATCH 1 (interval commit)           = 1
+  [ ok ] STREAM_INTERRUPTED 1 (event, pre-tick)         = 1
+  [ ok ] SEQ_NUM_MISMATCH 2 (second interval)           = 2
+
+[G5] P2 golden: tu + format compare (counts nothing else)
+  [ ok ] TIMESTAMP_UNCERTAIN 1                          = 1
+  [ ok ] UNSUPPORTED_FORMAT 1 for a 2-reject interval   = 1
+  [ ok ] FRAMES_RX unchanged by rejects                 = 13
+  [ ok ] no mismatch across bad-format PDUs             = 2
+
+[G6] P2 golden: 100 ms silence unlocks (ms-grid watchdog)
+  [ ok ] MEDIA_UNLOCKED 1                               = 1
+  [ ok ] unlocked level                                 = 0
+  [ ok ] relock: MEDIA_LOCKED 2                         = 2
+
+[G7] P2 golden: unbind keeps, rebind resets
+  [ ok ] unbind does NOT reset                          = 2
+  [ ok ] rebind resets MEDIA_LOCKED                     = 0
+  [ ok ] rebind resets FRAMES_RX                        = 0
+  [ ok ] rebind drops lock                              = 0
+  [ ok ] pre-bind pending flag wiped, not committed     = 0
+
+[G8] P2 golden: LATE/EARLY/MEDIA_RESET at stream 0
+  [ ok ] LATE counted                                   = 1
+  [ ok ] EARLY counted                                  = 1
+  [ ok ] MEDIA_RESET counted                            = 1
+  [ ok ] MEDIA_RESET counts the return toggle too       = 2
+
+[T1] P1: stream-0 payload reaches fabric render byte-exact
+  [ ok ] render payload 64 bytes                        = 64
+  [ ok ] render tlast                                   = 1
+  [ ok ] render payload byte-exact                      = 1
+  [ ok ] render selector = stream 0                     = 0
+  [ ok ] accept idx = 0                                 = 0
+
+[I1] P2 isolation: arm stream 1 (table + LCTX FMT), s0 noise
+  [ ok ] s0 events landed (FRX +2 frames, coalesced)    = 8
+  [ ok ] s1 LCTX FRX still 0                            = 0
+  [ ok ] s1 LCTX SEQ_MM still 0                         = 0
+  [ ok ] s1 LCTX TU still 0                             = 0
+  [ ok ] s1 LCTX UNSUP still 0                          = 0
+  [ ok ] s1 LCTX MEDIA_LOCKED still 0                   = 0
+
+[I2] P2 isolation: stream-1 PDUs count in s1's LCTX only
+  [ ok ] s1 LCTX FRX = 2 (2 PDUs, coalesced law)        = 2
+  [ ok ] s1 LCTX MEDIA_LOCKED = 1                       = 1
+  [ ok ] s1 LCTX TU = 1                                 = 1
+  [ ok ] s1 LCTX DEPKT pdus = 2 (NULL discards post-depkt) = 2
+  [ ok ] s0 legacy FRX untouched                        = 8
+  [ ok ] s0 legacy ML untouched                         = 1
+  [ ok ] s1 w8 wire_chans = 8                           = 8
+
+[R1] P3: s1 NULL by default - monitor counts, no render
+  [ ok ] NULL route: no render bytes                    = 0
+  [ ok ] NULL route: s1 LCTX FRX advanced               = 3
+
+[R2] P3: reserved route bit is inert, render stays s0
+  [ ok ] retired bit emitted no s1 render PDU           = 1
+  [ ok ] render tap PDU was s0                          = 0
+  [ ok ] s1 DEPKT pdus accumulated (2 initial + 1 NULL + 1 retired) = 4
+
+[R3] P3: RENDER-lowest-wins + render switch
+  [ ok ] lowest-indexed RENDER wins (sel=0)             = 0
+  [ ok ] render_sel moves to 1                          = 1
+  [ ok ] render tap follows s1                          = 1
+  [ ok ] wire_chans follows the RENDER stream           = 2
+
+[E1] P1 eviction: unbind + retarget s1's table entry
+  [ ok ] s1 CNT reset on rebind                         = 0
+  [ ok ] evicted sid does not count                     = 0
+  [ ok ] new sid counts                                 = 1
+
+[M13] TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (Milan 1.3 5.3.8.10;
+      1722.1-2021 Table 7-157 per-frame tv tallies, appended
+      LCTX words 26/27; per-frame BY DEFINITION - the TV+TNV ==
+      FRAMES_RX identity belongs to 1722.1's per-frame reading
+      and deliberately breaks against Milan interval FRAMES_RX)
+  [ ok ] [M13a] TV follows the [E1] frame               = 1
+  [ ok ] [M13b] TNV still 0                             = 0
+  [ ok ] [M13c] tv=0 PDU -> TNV=1 (per-frame: immediate) = 1
+  [ ok ] [M13d] TV holds                                = 1
+  [ ok ] [M13e] TV+TNV = accepted frames (3)            = 3
+  [ ok ] [M13e2] FRAMES_RX equals the tallies (coalesced law) = 3
+  [ ok ] [M13f] unsupported-format PDU counts neither tally = 3
+  [ ok ] [M13g] bind-zero walk clears TV (w26)          = 0
+  [ ok ] [M13h] bind-zero walk clears TNV (w27)         = 0
+
+[IV] Table 5.6 observation-interval semantics (stream 2)
+  [ ok ] [IV0] settle-drain committed (FRX = 9 frames, coalesced) = 9
+
+[IV1] FRAMES_RX: 6 PDUs, one interval -> +1 (was +6)
+  [ ok ] [IV1a] uncommitted before the tick             = 9
+  [ ok ] [IV1b] FRAMES_RX += the burst's 6 frames (coalesced) = 15
+
+[IV2] SEQ_NUM_MISMATCH vs STREAM_INTERRUPTED: 3 gaps, one
+      interval -> SM +1 (was +3) while SI +3 (per-event)
+  [ ok ] [IV2a] SI = 3 immediately (Table 5.6: 'each time') = 3
+  [ ok ] [IV2b] SM uncommitted before the tick          = 0
+  [ ok ] [IV2c] SM +1 for 3 gaps in one interval        = 1
+  [ ok ] [IV2d] SI still 3 (no interval inflation)      = 3
+
+[IV3] TIMESTAMP_UNCERTAIN: 4 tu PDUs, one interval -> +1
+  [ ok ] [IV3] TU +1 for 4 tu frames                    = 1
+
+[IV4] UNSUPPORTED_FORMAT: 5 rejects, one interval -> +1
+  [ ok ] [IV4a] UF +1 for 5 rejects                     = 1
+  [ ok ] [IV4b] rejects never advance FRAMES_RX         = 22
+
+[IV5] one event per interval, two intervals -> +2 (still a
+      counter, not a one-shot)
+  [ ok ] [IV5] TU +2 across two intervals               = 3
+
+[IV6] MEDIA_RESET: 2 mr toggles, one interval -> +1 (was +2)
+  [ ok ] [IV6a] uncommitted before the tick             = 0
+  [ ok ] [IV6b] MEDIA_RESET +1 for 2 toggles in one interval = 1
+  [ ok ] [IV6c] 6 HELD-mr frames tick nothing           = 1
+
+[IV8] LATE_TIMESTAMP / EARLY_TIMESTAMP: the last two Table 5.6
+      interval counters. Both are 'incremented at the end of every
+      observation interval during which a Stream Data AVTPDU has
+      been received with an AVTP timestamp field that was in the
+      past / too far in the future to process', so a BURST inside
+      one interval is +1 - the same law as FRX/SM/TU/UF/MR.
+  [ ok ] [IV8a] LATE uncommitted before the tick        = 0
+  [ ok ] [IV8b] LATE +1 for a 5-PDU burst               = 1
+  [ ok ] [IV8c] EARLY untouched by LATE PDUs            = 0
+  [ ok ] [IV8d] LATE +2 across two intervals            = 3
+  [ ok ] [IV8e] EARLY +1 for a 4-PDU burst              = 1
+  [ ok ] [IV8f] LATE untouched by EARLY PDUs            = 3
+  [ ok ] [IV8g] on-time PDUs move neither               = 4
+
+[IV9] MEDIA_LOCKED / MEDIA_UNLOCKED are PER-EVENT ('incremented
+      each time ...'), and Table 5.6's lock invariant holds across
+      lock / silence-unlock / rebind churn: either ML=MU (not
+      synchronized) or ML=MU+1 (synchronized).
+  [ ok ] [IV9a] bind zeroes both                        = 0
+  [ ok ] [IV9b] MEDIA_LOCKED is immediate (per-event)   = 1
+  [ ok ] [IV9c] synchronized => ML = MU+1               = 1
+  [ ok ] [IV9d] MEDIA_UNLOCKED is immediate (per-event) = 1
+  [ ok ] [IV9e] not synchronized => ML = MU             = 1
+  [ ok ] [IV9b] MEDIA_LOCKED is immediate (per-event)   = 2
+  [ ok ] [IV9c] synchronized => ML = MU+1               = 1
+  [ ok ] [IV9d] MEDIA_UNLOCKED is immediate (per-event) = 2
+  [ ok ] [IV9e] not synchronized => ML = MU             = 1
+  [ ok ] [IV9b] MEDIA_LOCKED is immediate (per-event)   = 3
+  [ ok ] [IV9c] synchronized => ML = MU+1               = 1
+  [ ok ] [IV9d] MEDIA_UNLOCKED is immediate (per-event) = 3
+  [ ok ] [IV9e] not synchronized => ML = MU             = 1
+  [ ok ] [IV9f] rebind never strands MU above ML (24 phases) = -1
+      (worst illegal-pair run seen: 1 cyc, limit 128)
+  [ ok ] [IV9g] the 'at any time' invariant never breached for good = 0
+
+[IV7] back-to-back PDUs across EVERY interval-drain phase: the
+      commit verdict must beat each frame's tlast (walker yield;
+      the 8x8 stress case lost 1 of 2 accepted frames without it)
+  [ ok ] [IV7] no accept verdict missed across 40 drain phases = 0
+
+[DV] gh #60 F2+F4: per-context dirty vector; TV silent, TNV
+     armed. The old port was a stream-0 SCALAR that pulsed on
+     EVERY accepted PDU - a healthy stream pushed GET_COUNTERS
+     1/s forever off its own TV tally. Option (c): TV joins the
+     FRAMES_RX exclusion (task-21 narrowing), TNV stays an
+     anomaly, and every context owns its own bit.
+  [ ok ] [DV1] s1's lock pulses bit 1 exactly once      = 1
+  [ ok ] [DV1] and no other bit                         = 0
+  [ ok ] [DV1b] s2's lock pulses bit 2 exactly once     = 1
+  [ ok ] [DV1b] and no other bit                        = 0
+  [ ok ] [DV2] healthy tv=1 streaming is SILENT on every bit = 0
+  [ ok ] [DV3] a tv=0 PDU pulses s2's bit at the accept = 1
+  [ ok ] [DV3] no cross-context leak                    = 0
+  [ ok ] [DV4] no pulse before the interval commit      = 0
+  [ ok ] [DV4b] the TU interval commit pulses s1's bit  = 1
+  [ ok ] [DV4c] s2's healthy interval stays silent      = 0
+  [ ok ] [DV5] s0's lock event pulses bit 0             = 1
+  [ ok ] [DV5b] healthy s0 tv=1 traffic is SILENT (the flipped law) = 0
+
+======================================================================
+NxN RX stack: 118 checks, 0 failures
+RESULT: PASS

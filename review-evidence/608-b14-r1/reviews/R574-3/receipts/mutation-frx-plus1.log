@@ -1,0 +1,12 @@
+build rc=0
+run rc=1
+  [FAIL] s0 events landed (FRX +2 frames, coalesced)    got=6 exp=7
+  [FAIL] s1 LCTX FRX = 2 (2 PDUs, coalesced law)        got=1 exp=2
+  [FAIL] NULL route: s1 LCTX FRX advanced               got=2 exp=3
+  [FAIL] [M13e2] FRAMES_RX equals the tallies (coalesced law) got=2 exp=3
+  [FAIL] [IV0] settle-drain committed (FRX = 9 frames, coalesced) got=1 exp=9
+  [FAIL] [IV1b] FRAMES_RX += the burst's 6 frames (coalesced) got=2 exp=7
+RESULT: FAIL
+======================================================================
+NxN RX stack: 118 checks, 6 failures
+RESULT: FAIL

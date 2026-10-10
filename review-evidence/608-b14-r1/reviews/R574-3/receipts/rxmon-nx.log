@@ -1,0 +1,30 @@
+# verilator: Verilator 5.050 2026-07-01 rev v5.050; wrapper sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+# head: 42399611fc2217014024f03f4ba0365fb072688c
+# verilog-axis: 48ff7a7e2ef782cf778d47910cf85835c64b1bce (the head's gitlink), fetched to scratch
+# command: tb/verilator/avtp_rxmon Makefile NXFLAGS/NXSRCS, --Mdir in scratch, -j 16
+build rc=0
+run rc=0
+  [ ok ] frames_rx 0                                    = 0
+  [ ok ] FRAMES_RX still 0 before the interval closes   = 0
+  [ ok ] FRAMES_RX 1 after the interval closes          = 1
+  [ ok ] FRAMES_RX unchanged by rejects                 = 13
+  [ ok ] rebind resets FRAMES_RX                        = 0
+  [ ok ] s0 events landed (FRX +2 frames, coalesced)    = 8
+  [ ok ] s1 LCTX FRX still 0                            = 0
+  [ ok ] s1 LCTX FRX = 2 (2 PDUs, coalesced law)        = 2
+  [ ok ] s0 legacy FRX untouched                        = 8
+  [ ok ] NULL route: s1 LCTX FRX advanced               = 3
+      FRAMES_RX identity belongs to 1722.1's per-frame reading
+      and deliberately breaks against Milan interval FRAMES_RX)
+  [ ok ] [M13e2] FRAMES_RX equals the tallies (coalesced law) = 3
+  [ ok ] [IV0] settle-drain committed (FRX = 9 frames, coalesced) = 9
+[IV1] FRAMES_RX: 6 PDUs, one interval -> +1 (was +6)
+  [ ok ] [IV1b] FRAMES_RX += the burst's 6 frames (coalesced) = 15
+  [ ok ] [IV4b] rejects never advance FRAMES_RX         = 22
+      one interval is +1 - the same law as FRX/SM/TU/UF/MR.
+     FRAMES_RX exclusion (task-21 narrowing), TNV stays an
+# tail
+
+======================================================================
+NxN RX stack: 118 checks, 0 failures
+RESULT: PASS
