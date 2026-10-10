@@ -1,0 +1,11 @@
+ESCAPED WIRE-all rc=2 poisoned-header=no : no pin verdict
+REFUSED WIRE-all-j16 rc=2 poisoned-header=no : REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+REFUSED WIRE-all-keep-going rc=2 poisoned-header=no : REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+REFUSED WIRE-run-if2-j16 rc=2 poisoned-header=no : REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+REFUSED WIRE-run-cosim rc=2 poisoned-header=no : REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+REFUSED WIRE-libctrlfw rc=2 poisoned-header=no : REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+REFUSED HIDDEN-WIRE-run-if2 rc=2 poisoned-header=no : REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+clean library built: rc=0
+REFUSED STALE-LIB-tests-edit-run-cosim rc=2 poisoned-header=no : REFUSED: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+REFUSED STALE-LIB-tests-edit-libctrlfw rc=2 poisoned-header=no : REFUSED: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+restored: 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 status='' bench-untracked=0

@@ -1,0 +1,3 @@
+# Every builder line (ctrl_configs.builder_texts at d1b22e80) writing a -D/-U flag in a form other than a literal or an f-string:
+# a Python "-D"/"-U" + expression, a %- or .format()-built flag, a bare "-D"/"-U" closing a call, a Makefile -D$(...) or $(addprefix -D,...).
+# Result: no line matches (searched by the probe in REPORT.md section R585-3-S1).

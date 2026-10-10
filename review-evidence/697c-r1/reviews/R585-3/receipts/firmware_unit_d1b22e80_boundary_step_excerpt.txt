@@ -1,0 +1,78 @@
+2026-10-10T09:10:09.5153480Z test_ctrl_firmware: PASS
+2026-10-10T09:10:09.5427460Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+2026-10-10T09:10:09.5428108Z python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+2026-10-10T09:10:09.5489723Z shell: /usr/bin/bash -e {0}
+2026-10-10T09:10:09.5489983Z env:
+2026-10-10T09:10:09.5490188Z   VERILATOR_VERSION: v5.050
+2026-10-10T09:10:09.5490437Z   YOSYS_VERSION: v0.66
+2026-10-10T09:10:09.5490665Z ##[endgroup]
+2026-10-10T09:10:14.1225647Z build modes read from the builders: ADP_TEST_COVERAGE (-DADP_TEST_COVERAGE); ADP_TEST_RELEASE (-DADP_TEST_RELEASE); AECP_TEST_APP (-DAECP_TEST_APP); AECP_TEST_MAILBOX (-DA
+2026-10-10T09:10:14.1233383Z shapes, the shipped configs: endstation_arty_4x4, endstation_arty_8ch, endstation_arty_current, endstation_ax7101_1x1_tdm8, endstation_ax7101_8x8 (default endstation_ax710
+2026-10-10T09:10:14.1238478Z values the builders compute, which no judged unit may test: AECP_TEST_INTERFACES (sw/firmware/ctrl/test/aecp_arms.py); AECP_WIRE_INTERFACES (sw/firmware/ctrl/test/aecp_wir
+2026-10-10T09:10:14.1243528Z tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+2026-10-10T09:10:31.1628267Z [ok] boundary control stack source includes the mailbox HAL: host: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+2026-10-10T09:10:47.1432381Z [ok] boundary control stack source includes the register-map contract: host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+2026-10-10T09:11:03.4094863Z [ok] boundary control stack source includes the composition: host: the stack's src/maap.c includes sw/firmware/ctrl/app/ctrl_app.h
+2026-10-10T09:11:19.2120897Z [ok] boundary control stack source includes the store's port: host: the stack's src/maap.c includes sw/firmware/ctrl_nvm/nvm_state.h
+2026-10-10T09:11:34.9464917Z [ok] boundary control stack source includes the loop through a macro: host: the stack's src/adp.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+2026-10-10T09:11:50.7057142Z [ok] boundary control stack public header includes the platform's header: host: the stack's include/wire.h includes sw/firmware/ctrl/port/ctrl_debug.h
+2026-10-10T09:12:06.4660183Z [ok] boundary control stack source includes a header nobody supplies: host: the stack's src/adp.c does not preprocess with the firmware's flags: image_layout.h: No such fi
+2026-10-10T09:12:22.2318747Z [ok] boundary control stack source includes an OS header: host: the stack's src/adp.c includes /usr/include/unistd.h
+2026-10-10T09:12:38.2533714Z [ok] boundary control firmware reaches a stack example's header: firmware: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+2026-10-10T09:13:00.2227647Z [ok] boundary control firmware header reaches a stack source by a relative path: firmware: app/ctrl_app.c includes tsn-c-stack/src/maap.c, not one of the stack's public he
+2026-10-10T09:13:16.0177717Z [ok] boundary control image source reaches a stack test's header: firmware: test/rv32_image/image_main.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's p
+2026-10-10T09:13:31.6701620Z [ok] boundary control a copy of the stack's wire.h in the firmware: firmware: ctrl/mbx/wire.h has the name of the stack's wire.h
+2026-10-10T09:13:47.4488001Z [ok] boundary control a copy of the stack's adp.c in the firmware: firmware: ctrl/adp/adp.c has the name of the stack's adp.c
+2026-10-10T09:14:03.3430112Z [ok] boundary control stack source includes the mailbox HAL under the re-entry assertion: host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mb
+2026-10-10T09:14:19.1667833Z [ok] boundary control stack source includes the platform's header in a debug build: host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h
+2026-10-10T09:14:35.1497570Z [ok] boundary control stack source includes the contract in a debug build with the re-entry assertion: host [-DCTRL_REENTRY_ASSERT -UNDEBUG]: the stack's src/maap.c includ
+2026-10-10T09:14:51.0208522Z [ok] boundary control firmware adapter reaches a stack test's fake under the re-entry assertion: firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tes
+2026-10-10T09:15:06.7411334Z [ok] boundary control firmware adapter reaches the stack's test fake by its checkout path under the re-entry assertion: firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c i
+2026-10-10T09:15:22.5197210Z [ok] boundary control firmware tests a mode by its value: firmware [-DCTRL_REENTRY_ASSERT]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public 
+2026-10-10T09:15:38.2248583Z [ok] boundary control the SRP image's composition reaches a stack source: firmware [-DCTRL_IMAGE_SRP]: test/ctrl_image.c includes tsn-c-stack/src/acmp.c, not one of the st
+2026-10-10T09:15:54.2094205Z [ok] boundary control a stack test includes the mailbox HAL: tests: the stack's tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h
+2026-10-10T09:16:09.7490696Z [ok] boundary control a stack test includes the firmware's harness: tests: the stack's tests/test_adp.cpp includes sw/firmware/gtest/fw_gtest.hpp
+2026-10-10T09:16:25.3658265Z [ok] boundary control a stack test includes the platform's pool in its release build: tests [-DADP_TEST_RELEASE]: the stack's tests/test_adp_reentry.cpp includes sw/firmwa
+2026-10-10T09:16:40.9652078Z [ok] boundary control a stack public header includes the mailbox HAL for C++ only: tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h
+2026-10-10T09:16:57.2588330Z [ok] boundary control a mode an arm writes is explored without being named here: host [-DCTRL_PLANTED_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+2026-10-10T09:17:13.8897548Z [ok] boundary control a mode an AECP arm writes is explored without being named here: host [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.
+2026-10-10T09:17:30.4680333Z [ok] boundary control a mode written in a new builder nobody lists is explored: host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_l
+2026-10-10T09:17:46.3499731Z [ok] boundary control stack source includes the AECP core's header: host: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h
+2026-10-10T09:18:02.4807899Z [ok] boundary control a stack test includes the AECP adapter: tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/aecp/aecp_mbx.h
+2026-10-10T09:18:18.2948700Z [ok] boundary control the AECP core reaches a stack source: firmware: aecp/aecp.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+2026-10-10T09:18:34.0975577Z [ok] boundary control the AECP application bridge reaches a stack example's header: firmware: app/ctrl_app_aecp.c includes tsn-c-stack/examples/adp_port.h, not one of the 
+2026-10-10T09:18:53.5244687Z [ok] boundary control the AECP image's SRP composition reaches a stack source: firmware [-DCTRL_IMAGE_SRP]: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c, not one
+2026-10-10T09:19:09.6516526Z [ok] boundary control a copy of the stack's acmp.h in the AECP directory: firmware: ctrl/aecp/acmp.h has the name of the stack's acmp.h
+2026-10-10T09:19:25.4195298Z [ok] boundary control the image reaches a stack example's header under a shape's stream count: firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c
+2026-10-10T09:19:41.7234326Z [ok] boundary control a firmware header reaches a stack test's fake in C++ only: firmware c++: acmp/acmp_mbx.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the sta
+2026-10-10T09:19:57.8451322Z [ok] boundary control the AECP image reaches a stack source at a shape its generated header gives many maps: firmware [shape=endstation_ax7101_8x8]: test/ctrl_aecp_image.c
+2026-10-10T09:20:14.0553777Z [ok] boundary control an adapter reaches a stack source where the SRP shape header is force-included: firmware [-include srp_entity_gen.h]: maap/maap_mbx.c includes tsn-c-
+2026-10-10T09:20:30.2351306Z [ok] boundary control an adapter reaches a stack source on the two-interface contract: firmware [interfaces=2]: adp/adp_mbx.c includes tsn-c-stack/src/adp.c, not one of th
+2026-10-10T09:20:46.4014313Z [ok] boundary control an adapter reaches a stack source where a build leaves lwSRP's profile undefined: firmware: acmp/acmp_mbx.c includes tsn-c-stack/src/acmp.c, not one 
+2026-10-10T09:21:02.4027338Z [ok] boundary control the AECP core tests a value only its arms compute: firmware [-DAECP_TEST_INTERFACES]: aecp/aecp.c tests AECP_TEST_INTERFACES, a value sw/firmware/ctr
+2026-10-10T09:21:19.1481412Z [ok] boundary control a mode an arm writes as two arguments is explored: host [-DCTRL_SPLIT_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+2026-10-10T09:21:35.8124623Z [ok] boundary control a mode a new Makefile writes as two words is explored: host [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+2026-10-10T09:21:51.5684357Z [ok] boundary control pass: the firmware includes a public header: passes
+2026-10-10T09:22:07.4898369Z [ok] boundary control pass: the stack includes only its own header and the C library: passes
+2026-10-10T09:22:23.3824902Z [ok] boundary control pass: a stack test reaches the stack's example: passes
+2026-10-10T09:22:23.5323896Z [ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+2026-10-10T09:22:23.5724066Z [ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+2026-10-10T09:22:23.6123837Z [ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+2026-10-10T09:22:23.6526782Z [ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+2026-10-10T09:22:23.6932837Z [ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 1a9f651c: CMakeLists.txt
+2026-10-10T09:22:23.7407842Z [ok] tsn-c-stack pin control, an edit hidden from git status (assume-unchanged): tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+2026-10-10T09:22:23.7812836Z [ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 1a9f651c: include/stdint.h
+2026-10-10T09:22:23.8216499Z [ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fb
+2026-10-10T09:22:23.9285670Z [ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+2026-10-10T09:22:24.0351958Z [ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+2026-10-10T09:22:24.1405756Z [ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+2026-10-10T09:22:24.2517766Z [ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+2026-10-10T09:22:24.3767490Z [ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+2026-10-10T09:22:24.4906957Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+2026-10-10T09:22:24.6102432Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-cosim, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include
+2026-10-10T09:22:24.7294148Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make obj_fw/libctrlfw.a, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c
+2026-10-10T09:22:24.8464344Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include
+2026-10-10T09:22:25.0198545Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.
+2026-10-10T09:22:25.2703787Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-if2, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/w
+2026-10-10T09:22:25.3375516Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile planted with run-if2 unpinned: Makefile: run-if2 builds against tsn-c-stack without the pin check (stack-pin) as a 
+2026-10-10T09:22:39.6656143Z ##[error]The operation was canceled.

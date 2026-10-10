@@ -1,0 +1,4 @@
+CAUGHT s1-image-sinks-example (rv32=yes): firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+CAUGHT s2-image-sources-src (rv32=yes): firmware [-DIMAGE_SINKS=9u -DIMAGE_SOURCES=9u]: test/rv32_image/image_main.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+CAUGHT c1-cplusplus-header-example (rv32=yes): firmware c++: maap/maap_mbx.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+CAUGHT c2-cplusplus-header-test-fake (rv32=yes): firmware c++: loop/ctrl_loop.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers

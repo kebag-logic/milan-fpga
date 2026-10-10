@@ -1,0 +1,16 @@
+# git diff --name-status 386b8e69..d1b22e80
+M	.github/workflows/rtl-fast.yml
+M	docs/testing/CI_WORKFLOWS.md
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/test/ctrl_boundary.py
+A	sw/firmware/ctrl/test/ctrl_configs.py
+M	sw/firmware/ctrl/test/ctrl_image.py
+A	sw/firmware/ctrl/test/ctrl_pin.py
+M	tb/verilator/mbx/Makefile
+M	tb/verilator/mbx/README.md
+# HDL/syn/constraints/SV in the delta (expect empty):
+# firmware sources, headers, tests, mutation tables, coverage ratchet in the delta (expect empty):
+# commits
+d1b22e804158cbcb33fa12116d60e982f9a4c55b Refuse the TSN stack boundary gate by name when the end-station builder cannot load a shape
+36699f6c9ceb0d9ebc787874bfa60e0782bcd07a Judge each unit at the TSN stack boundary as its builders compile it, and run every bench target that reaches the stack against a poisoned one
+76c0e27c3c69aeb775d854daf1b8819d5015e869 Make the pin check a prerequisite of every mailbox bench target that compiles against the TSN stack

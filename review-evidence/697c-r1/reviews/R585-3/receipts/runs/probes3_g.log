@@ -1,0 +1,4 @@
+CAUGHT g1-cplusplus-and-mode (rv32=yes): firmware c++ [-DCTRL_REENTRY_ASSERT]: port/ctrl_pool.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+CAUGHT g2-cplusplus-and-shape (rv32=yes): firmware c++ [shape=endstation_ax7101_8x8]: aecp/aecp_image.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+CAUGHT g3-riscv-only-stack-src (rv32=yes): rv32: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT g4-freestanding-only-fw (rv32=yes): firmware rv32: mbx/mbx.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers

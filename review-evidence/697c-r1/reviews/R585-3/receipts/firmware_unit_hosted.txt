@@ -1,0 +1,35 @@
+job 114137888898 https://github.com/kebag-logic/milan-fpga/actions/runs/38026314581/job/114137888898 head 386b8e69e6f2fd0233e7a432e75c9d877c583a7b completed/success 2026-10-10T05:05:57Z -> 2026-10-10T05:31:47Z
+  step 1 Set up job: success 2026-10-10T05:05:58Z -> 2026-10-10T05:05:59Z
+  step 2 Run actions/checkout@v4: success 2026-10-10T05:05:59Z -> 2026-10-10T05:06:00Z
+  step 3 Fetch RTL dependencies: success 2026-10-10T05:06:00Z -> 2026-10-10T05:06:06Z
+  step 4 Install GoogleTest and GoogleMock and print the versions: success 2026-10-10T05:06:06Z -> 2026-10-10T05:06:14Z
+  step 5 Prove the tally reads a failing and a crashing test as failures: success 2026-10-10T05:06:14Z -> 2026-10-10T05:06:17Z
+  step 6 Cache the pinned RV32 SDK: success 2026-10-10T05:06:17Z -> 2026-10-10T05:06:19Z
+  step 7 Install and verify the pinned RV32 SDK: success 2026-10-10T05:06:19Z -> 2026-10-10T05:06:21Z
+  step 8 Run the control-plane firmware suites and RV32 builds: success 2026-10-10T05:06:21Z -> 2026-10-10T05:25:25Z
+  step 9 Hold the TSN stack boundary in both directions: success 2026-10-10T05:25:25Z -> 2026-10-10T05:28:16Z
+  step 10 Run the saved-state store suites and its RV32 build: success 2026-10-10T05:28:16Z -> 2026-10-10T05:29:17Z
+  step 11 Hold the firmware coverage ratchet: success 2026-10-10T05:29:17Z -> 2026-10-10T05:31:45Z
+  step 21 Post Cache the pinned RV32 SDK: success 2026-10-10T05:31:45Z -> 2026-10-10T05:31:45Z
+  step 22 Post Run actions/checkout@v4: success 2026-10-10T05:31:45Z -> 2026-10-10T05:31:45Z
+  step 23 Complete job: success 2026-10-10T05:31:45Z -> 2026-10-10T05:31:45Z
+job 114173809799 https://github.com/kebag-logic/milan-fpga/actions/runs/38038455090/job/114173809799 head d1b22e804158cbcb33fa12116d60e982f9a4c55b completed/cancelled 2026-10-10T08:37:26Z -> 2026-10-10T09:22:42Z
+  step 1 Set up job: success 2026-10-10T08:37:28Z -> 2026-10-10T08:37:28Z
+  step 2 Run actions/checkout@v4: success 2026-10-10T08:37:28Z -> 2026-10-10T08:37:30Z
+  step 3 Fetch RTL dependencies: success 2026-10-10T08:37:30Z -> 2026-10-10T08:37:34Z
+  step 4 Install GoogleTest and GoogleMock and print the versions: success 2026-10-10T08:37:34Z -> 2026-10-10T08:37:47Z
+  step 5 Prove the tally reads a failing and a crashing test as failures: success 2026-10-10T08:37:47Z -> 2026-10-10T08:37:50Z
+  step 6 Cache the pinned RV32 SDK: success 2026-10-10T08:37:50Z -> 2026-10-10T08:37:55Z
+  step 7 Install and verify the pinned RV32 SDK: success 2026-10-10T08:37:55Z -> 2026-10-10T08:37:57Z
+  step 8 Run the control-plane firmware suites and RV32 builds: success 2026-10-10T08:37:57Z -> 2026-10-10T09:10:09Z
+  step 9 Hold the TSN stack boundary in both directions: cancelled 2026-10-10T09:10:09Z -> 2026-10-10T09:22:39Z
+  step 10 Run the saved-state store suites and its RV32 build: skipped 2026-10-10T09:22:39Z -> 2026-10-10T09:22:39Z
+  step 11 Hold the firmware coverage ratchet: skipped 2026-10-10T09:22:39Z -> 2026-10-10T09:22:39Z
+  step 21 Post Cache the pinned RV32 SDK: skipped 2026-10-10T09:22:39Z -> 2026-10-10T09:22:39Z
+  step 22 Post Run actions/checkout@v4: success 2026-10-10T09:22:39Z -> 2026-10-10T09:22:40Z
+  step 23 Complete job: success 2026-10-10T09:22:40Z -> 2026-10-10T09:22:40Z
+  annotation: The job has exceeded the maximum execution time of 45m0s
+  annotation: The operation was canceled.
+3132:2026-10-10T09:10:31.1628267Z [ok] boundary control stack source includes the mailbox HAL: host: the stack's src/adp
+3196:2026-10-10T09:22:25.3375516Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile planted with run-if2 unpinned:
+3197:2026-10-10T09:22:39.6656143Z ##[error]The operation was canceled.

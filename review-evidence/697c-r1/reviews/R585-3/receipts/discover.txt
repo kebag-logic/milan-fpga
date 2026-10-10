@@ -1,0 +1,112 @@
+MODES 18
+   ADP_TEST_COVERAGE ('-DADP_TEST_COVERAGE',)
+   ADP_TEST_RELEASE ('-DADP_TEST_RELEASE',)
+   AECP_TEST_APP ('-DAECP_TEST_APP',)
+   AECP_TEST_MAILBOX ('-DAECP_TEST_MAILBOX',)
+   AECP_TEST_NVM ('-DAECP_TEST_NVM',)
+   CTRL_APP_TEST_SRP ('-DCTRL_APP_TEST_SRP',)
+   CTRL_IMAGE_SRP ('-DCTRL_IMAGE_SRP',)
+   CTRL_MBX_BASE ('-DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window)', '-DCTRL_MBX_BASE=0x80000000u')
+   CTRL_MBX_WFI ('-DCTRL_MBX_WFI=ctrl_test_wfi',)
+   CTRL_REENTRY_ASSERT ('-DCTRL_REENTRY_ASSERT',)
+   LWSRP_MILAN ('-DLWSRP_MILAN=1',)
+   NDEBUG ('-UNDEBUG', '-DNDEBUG')
+   NVM_DOCTORED_MAPIN ('-DNVM_DOCTORED_MAPIN',)
+   NVM_DOCTORED_NONAME ('-DNVM_DOCTORED_NONAME',)
+   PP_TOP_IF2 ('-DPP_TOP_IF2',)
+   PP_TOP_TIM_DEFAULTS ('-DPP_TOP_TIM_DEFAULTS',)
+   mrp_transmit ('-Dmrp_transmit=srp_test_transmit_real',)
+   shlan_calloc ('-Dshlan_calloc=srp_test_calloc',)
+COMPUTED {'AECP_TEST_INTERFACES': 'sw/firmware/ctrl/test/aecp_arms.py', 'AECP_WIRE_INTERFACES': 'sw/firmware/ctrl/test/aecp_wire.py', 'FW_GTEST_LABEL': 'sw/firmware/gtest/fw_gtest.py', 'IMAGE_SINKS': 'sw/firmware/ctrl/test/ctrl_image.py', 'IMAGE_SOURCES': 'sw/firmware/ctrl/test/ctrl_image.py', 'NVM_TALLY_SHAPE': 'sw/firmware/ctrl_nvm/test/nvm_bench.py', 'PP_ENTITY_CAPS': 'sw/firmware/ctrl/test/ctrl_arms.py', 'SRP_EXPECT_SINKS': 'sw/firmware/ctrl/test/srp_arms.py', 'SRP_EXPECT_SOURCES': 'sw/firmware/ctrl/test/srp_arms.py'}
+BUILDERS
+   docs/diagrams/submodule_boundaries.gen.py
+   scripts/ci_events.py
+   scripts/ci_scope.py
+   sw/firmware/ctrl/adp/adp_entity.py
+   sw/firmware/ctrl/test/aecp_arms.py
+   sw/firmware/ctrl/test/aecp_mutants.py
+   sw/firmware/ctrl/test/aecp_wire.py
+   sw/firmware/ctrl/test/ctrl_arms.py
+   sw/firmware/ctrl/test/ctrl_build.py
+   sw/firmware/ctrl/test/ctrl_image.py
+   sw/firmware/ctrl/test/ctrl_image_runtime.py
+   sw/firmware/ctrl/test/ctrl_image_selftest.py
+   sw/firmware/ctrl/test/ctrl_mutant.py
+   sw/firmware/ctrl/test/ctrl_mutants.py
+   sw/firmware/ctrl/test/ctrl_reuse.py
+   sw/firmware/ctrl/test/ctrl_srp_image.py
+   sw/firmware/ctrl/test/maap_differential.py
+   sw/firmware/ctrl/test/srp_arms.py
+   sw/firmware/ctrl/test/srp_mutants.py
+   sw/firmware/ctrl/test/srp_reuse.py
+   sw/firmware/ctrl/test/test_ctrl_firmware.py
+   sw/firmware/ctrl_nvm/test/nvm_bench.py
+   sw/firmware/ctrl_nvm/test/nvm_mutants.py
+   sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+   sw/firmware/gtest/fw_coverage.py
+   sw/firmware/gtest/fw_coverage_selftest.py
+   sw/firmware/gtest/fw_gtest.py
+   sw/firmware/gtest/fw_rv32_selftest.py
+   sw/mailbox/gen_mailbox.py
+   sw/mailbox/mailbox_emit.py
+   tb/verilator/mbx/Makefile
+   tb/verilator/mbx/mutants.py
+CXX_SOURCES 55
+   protocol-processor/tb/acmp_listener/sim_main.cpp
+   protocol-processor/tb/acmp_talker/sim_main.cpp
+   protocol-processor/tb/adp_engine/sim_main.cpp
+   protocol-processor/tb/srp_stream_fsms/sim_main.cpp
+   protocol-processor/tb/srp_top/sim_main.cpp
+   sw/firmware/ctrl/test/acmp_if2.cpp
+   sw/firmware/ctrl/test/acmp_walk.cpp
+   sw/firmware/ctrl/test/adp_walk.cpp
+   sw/firmware/ctrl/test/aecp_wire.cpp
+   sw/firmware/ctrl/test/entity_fields.cpp
+   sw/firmware/ctrl/test/lwsrp_port.cpp
+   sw/firmware/ctrl/test/mock_mbx_hal.cpp
+   sw/firmware/ctrl/test/mock_shlan_port.cpp
+   sw/firmware/ctrl/test/model_suite.cpp
+   sw/firmware/ctrl/test/srp_app.cpp
+   sw/firmware/ctrl/test/srp_debug.cpp
+   sw/firmware/ctrl/test/srp_latency.cpp
+   sw/firmware/ctrl/test/srp_mbx.cpp
+   sw/firmware/ctrl/test/srp_rx_retry.cpp
+   sw/firmware/ctrl/test/srp_shape.cpp
+   sw/firmware/ctrl/test/srp_walk.cpp
+   sw/firmware/ctrl/test/test_acmp_mbx.cpp
+   sw/firmware/ctrl/test/test_acmp_nvm.cpp
+   sw/firmware/ctrl/test/test_adp.cpp
+   sw/firmware/ctrl/test/test_aecp.cpp
+   sw/firmware/ctrl/test/test_aecp_debug.cpp
+   sw/firmware/ctrl/test/test_aecp_image.cpp
+   sw/firmware/ctrl/test/test_maap.cpp
+   sw/firmware/ctrl/test/test_maap_mbx.cpp
+   sw/firmware/ctrl/test/test_mmio.cpp
+   sw/firmware/ctrl/test/test_port_loop.cpp
+   sw/firmware/ctrl/test/test_unit_driver.cpp
+   sw/firmware/ctrl/test/test_unit_seams.cpp
+   sw/firmware/ctrl_nvm/test/mock_litespi_csr.cpp
+   sw/firmware/ctrl_nvm/test/nvm_rig.cpp
+   sw/firmware/ctrl_nvm/test/nvm_suite.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_boot.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_flashmock.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_litespi.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_more.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_shapes.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_vector.cpp
+   sw/firmware/ctrl_nvm/test/test_nvm_write.cpp
+   sw/firmware/gtest/fw_gtest_label.cpp
+   sw/firmware/gtest/fw_gtest_main.cpp
+   tb/verilator/mbx/cosim_main.cpp
+   tb/verilator/mbx/model_main.cpp
+   tb/verilator/mbx/sim_main.cpp
+   third_party/tsn-c-stack/tests/test_acmp.cpp
+   third_party/tsn-c-stack/tests/test_adp.cpp
+   third_party/tsn-c-stack/tests/test_adp_reentry.cpp
+   third_party/tsn-c-stack/tests/test_maap.cpp
+   third_party/tsn-c-stack/tests/test_maap_debug.cpp
+TRACKED .cpp under sw/firmware and tb/verilator/mbx NOT named by a builder:
+   sw/firmware/ctrl/test/test_maap_differential.cpp
+   sw/firmware/gtest/tally_cases.cpp

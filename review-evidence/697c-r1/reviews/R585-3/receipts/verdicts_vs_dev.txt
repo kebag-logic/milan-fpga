@@ -1,0 +1,32 @@
+dev verdict names: 774 lines: 843  head: 774 843
+non-ok at dev: []
+non-ok at head: []
+only at dev: 0 []
+only at head: 0 []
+different verdicts: 0 []
+-- dev summary
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    first: [FAIL] AdpCore.A23RepeatedEnableOrDisableChangesNothing: A23 an enable while enabled draws and arms nothing
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+mutants: 471 of 471 caught
+test_ctrl_firmware: PASS
+-- head summary
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    first: [FAIL] AdpCore.A23RepeatedEnableOrDisableChangesNothing: A23 an enable while enabled draws and arms nothing
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+mutants: 471 of 471 caught
+test_ctrl_firmware: PASS
