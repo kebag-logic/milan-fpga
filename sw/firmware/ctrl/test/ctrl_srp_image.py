@@ -30,17 +30,52 @@ def checked(argv: list[str]) -> str:
     return result.stdout
 
 
-def main() -> int:
-    """Measure one selected shape and composition."""
+def aecp_inputs(tree: Tree, config: Path, out: Path) -> tuple[list[str], list[Path]]:
+    """Add the generated AECP model and the existing saved-state owner."""
+    sys.path.insert(0,str(NVM_DIR/"test"))
+    import nvm_bench
+    from aecp_arms import AECP_SOURCES
+    shape=nvm_bench.shape_inputs(config,out/"nvm-shape")
+    header=nvm_bench.shape_header(shape.shape,shape.donor,shape.ident)
+    nvm_bench.write_headers(out/"gen",header,shape.clock_hz)
+    checked([sys.executable,"-B",str(CTRL/"aecp/aecp_entity.py"),str(config),
+             "-o",str(out/"aecp_entity_gen.h")])
+    inc=[f"-I{tree.src/'aecp'}",f"-I{out/'gen'}",f"-I{NVM_DIR/'plat'}",f"-I{NVM_DIR/'test/rv32'}"]
+    sources=[tree.src/"aecp"/s for s in (*AECP_SOURCES,"aecp_mbx.c","aecp_nvm.c")]
+    sources += [tree.src/"app/ctrl_app_aecp.c",*[NVM_DIR/s for s in
+                ("nvm_klj2.c","nvm_store.c","plat/nvm_flash_litespi.c")]]
+    return inc,sources
+
+
+def verify_abi(cc: str, elf: Path) -> None:
+    """Verify the final ELF, including all linked runtime objects."""
+    data=elf.read_bytes()
+    attributes=checked([cc.removesuffix("gcc")+"readelf","-A",str(elf)])
+    arches=re.findall(r'Tag_RISCV_arch: "([^"]+)"',attributes)
+    if (data[:7] != b"\x7fELF\x01\x01\x01" or
+            struct.unpack_from("<HH",data,16) != (2,243) or
+            struct.unpack_from("<I",data,36)[0] != 0 or
+            len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+",arches[0])):
+        raise Refusal("linked image must be RV32I ILP32, including runtime code")
+
+
+def arguments() -> argparse.Namespace:
+    """Parse the shape, composition and isolated runtime inputs."""
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config",type=Path,required=True)
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--ctrl-source",type=Path,default=CTRL)
     parser.add_argument("--without-srp",action="store_true")
+    parser.add_argument("--with-aecp",action="store_true")
     parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
     parser.add_argument("--libc",type=Path,required=True)
     parser.add_argument("--compiler-runtime",type=Path,required=True)
-    args=parser.parse_args()
+    return parser.parse_args()
+
+
+def main() -> int:
+    """Measure one selected shape and composition."""
+    args=arguments()
     out=args.output.resolve(); out.mkdir(parents=True,exist_ok=True)
     try:
         cc=fw_rv32.compiler()
@@ -53,7 +88,13 @@ def main() -> int:
         flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
         inc += [f"-I{out}",f"-I{NVM_DIR}",*fw_rv32.includes(cc)]
         sources=[(variant if name.startswith("mbx/") else tree.src)/name for name in PORTABLE]
-        sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/"ctrl_image.c"]
+        sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/("ctrl_aecp_image.c" if args.with_aecp else "ctrl_image.c")]
+        if args.with_aecp:
+            if args.without_srp:
+                raise Refusal("AECP sizing requires the complete SRP composition")
+            extra_inc, extra_sources = aecp_inputs(tree,args.config,out)
+            inc += extra_inc
+            sources += extra_sources
         libraries=[args.libc.resolve(),args.compiler_runtime.resolve()]
         if not args.without_srp:
             lw=ROOT/"third_party/lwSRP"; lwsrp_pin(lw)
@@ -76,14 +117,7 @@ def main() -> int:
                  "-T",str(HERE/"ctrl_image.ld"),*ldflags,*map(str,objects),
                  "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
         nm=cc.removesuffix("gcc")+"nm"
-        data=elf.read_bytes()
-        attributes=checked([cc.removesuffix("gcc")+"readelf","-A",str(elf)])
-        arches=re.findall(r'Tag_RISCV_arch: "([^"]+)"',attributes)
-        if (data[:7] != b"\x7fELF\x01\x01\x01" or
-                struct.unpack_from("<HH",data,16) != (2,243) or
-                struct.unpack_from("<I",data,36)[0] != 0 or
-                len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+",arches[0])):
-            raise Refusal("linked image must be RV32I ILP32, including runtime code")
+        verify_abi(cc,elf)
         symbols=checked([nm,"-S",str(elf)])
         if checked([nm,"-u",str(elf)]).strip():
             raise Refusal("linked runtime has unresolved symbols")
@@ -96,6 +130,13 @@ def main() -> int:
             required |= {"ctrl_app_start_maap","ctrl_app_attach_srp","maap_rx","maap_poll",
                          "acmp_rx","acmp_poll","image_acmp","srp_mbx_init","srp_mbx_attach","srp_mbx_bind","mrp_rx",
                          "mrp_transmit","image_srp","image_sources"}
+        if args.with_aecp:
+            required -= {"ctrl_app_start","ctrl_app_start_maap"}
+            required |= {"ctrl_app_compose","ctrl_app_open","ctrl_app_compose_aecp","ctrl_app_open_aecp",
+                         "aecp_rx","aecp_poll","aecp_map_restore","aecp_restore_defaults","aecp_restore_settle",
+                         "aecp_value_restore","aecp_value_latch","aecp_nvm_poll","acmp_nvm_init",
+                         "nvm_store_boot","nvm_store_service","image_aecp","image_descriptors",
+                         "image_values","image_events","image_maps","image_map_pools","image_map_scratch"}
         if required-names:
             raise Refusal(f"composition discarded required code/storage: {sorted(required-names)}")
         size=checked([cc.removesuffix("gcc")+"size","-A",str(elf)])
@@ -114,7 +155,7 @@ def main() -> int:
         for path in [*libraries,elf,mapfile]:
             records.append({"name":path.name,"size":path.stat().st_size,
                             "sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
-        report={"shape":args.config.stem,"interfaces":args.interfaces,"srp":not args.without_srp,
+        report={"shape":args.config.stem,"interfaces":args.interfaces,"srp":not args.without_srp,"aecp":args.with_aecp,
                 "sections":sections,"static_storage":storage,"artifacts":records,
                 "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack")),
                 "ram_span":addresses["__image_end"]-addresses["__image_start"]}

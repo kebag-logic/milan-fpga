@@ -37,6 +37,7 @@ subject - a mutation caught by an unrelated check is not evidence.
 
 import re
 import shutil
+import subprocess
 import tempfile
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -398,6 +399,45 @@ def _prove_classified_frozen_form(original: str, stale: Path) -> None:
             handle.write(original)
 
 
+def _prove_stopped_parse(original: str, stale: Path) -> None:
+    """A partial database cannot verify a consumer, even after a rule."""
+    import shape_consumer_inventory as inventory
+
+    name = _repo_spelling(stale)
+    try:
+        for prefix in ("", "fixture: missing-generated-input\n"):
+            text = prefix + "$(error planted stopped parse)\n" + original
+            stale.write_text(text, encoding="utf-8")
+            expect_fail("a stopped make parse leaves a partial database",
+                        lambda: gate.ck("I complete database required",
+                                        inventory.dangling_consumers(
+                                            name, text, set(gate.tracked_files())), []),
+                        (name, "make database unreadable"))
+        stale.write_text("fixture: missing-generated-input\n" + original,
+                         encoding="utf-8")
+        ok, prereqs = inventory.shape_prereqs_from_database(stale.parent, stale.name)
+        gate.ck("I missing build products do not stop database parsing", ok, True)
+        gate.ck("I complete database retains frozen shape prerequisites",
+                "../../../hdl/common/gen/adp_shape_defaults.svh" in prereqs, True)
+    finally:
+        stale.write_text(original, encoding="utf-8")
+
+
+def _prove_nested_make_status() -> None:
+    """A failed nested source derivation must stop the real consumer parse."""
+    suite = gate.ROOT / "tb/verilator/pp_shadow"
+    command = ["make", "-s", "--no-print-directory", "-C", str(suite),
+               "--eval", ".PHONY: shape-nested-probe",
+               "--eval", "shape-nested-probe:;", "shape-nested-probe"]
+    clean = subprocess.run(command, capture_output=True, text=True, check=False)
+    gate.ck("I pp_shadow accepts its real nested derivation", clean.returncode, 0)
+    failed = subprocess.run([*command, "MAKE=false"], capture_output=True,
+                            text=True, check=False)
+    gate.ck("I pp_shadow refuses a failed nested derivation",
+            failed.returncode != 0 and "../milan_dp print-srcs failed" in failed.stderr,
+            True)
+
+
 def _prove_make_filenames(original: str, stale: Path) -> None:
     """Make consumers are recognised by GNU Make's own filename rules.
 
@@ -722,6 +762,8 @@ def self_test() -> None:
     _prove_unresolvable_make(original, stale)
     _prove_frozen_expansion(original, stale)
     _prove_classified_frozen_form(original, stale)
+    _prove_stopped_parse(original, stale)
+    _prove_nested_make_status()
     _prove_make_filenames(original, stale)
     src_cfg = gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"
     _prove_unit_counts(builder, src_cfg)

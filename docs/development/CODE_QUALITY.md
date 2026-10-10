@@ -1249,23 +1249,23 @@ the 48-bit destination address in one beat, it must be a whole number of bytes
 so `tkeep` can describe it, the TCAM must have at least one entry, and an
 action must be wide enough to distinguish two matches.
 
-**Where the contract is enforced, and where it is not.** Verilator refuses
-the build whenever `USERERROR` is fatal: its default with no `-Wno-fatal`, or
-`-Werror-USERERROR`. Every suite that builds the shield carries the latter —
-`tb/verilator/rx_filter`, `milan_dp` and `tcam_csr` — because
-`-Wno-fatal` on its own demotes a `$error` to a warning, and review built
-`-GTDATA_WIDTH=52` in the rx_filter suite with rc 0 before the flag was added
-there. Vivado refuses it at elaboration. It is **not** enforced on the
-sv2v → Yosys path that `syn/yosys/run.sh` and `syn/yosys/ooc.sh` use: sv2v
-lowers a module-scope `$error` to an `initial $display`, which Yosys ignores,
-so `OOC_CHPARAM="TDATA_WIDTH=52" syn/yosys/ooc.sh rx_mac_filter` synthesises
-the illegal shape and reports PASS. Yosys's own `read_verilog -sv` does honour
-the `$error`, so a Yosys-side check would take the shape
-`protocol-processor/tb/timer_map/shape_elab.sh` already has for the
-processor top: elaborate each illegal shape and require the guard's own
-message, fed the original SystemVerilog rather than sv2v's output. That check
-is not in this change; this paragraph is here so nobody reads the Yosys gate's
-PASS as the contract having run.
+**Where the contract is enforced.** Verilator refuses fatal `USERERROR` diagnostics.
+They are fatal by default without `-Wno-fatal`.
+With that flag, `-Werror-USERERROR` restores refusal.
+The `rx_filter`, `milan_dp` and `tcam_csr` suites require it.
+Vivado refuses active guards at elaboration.
+
+Both `syn/yosys/run.sh` and `syn/yosys/ooc.sh` refuse active guards (#651).
+The pinned sv2v 0.0.12 preserves native `$error` tasks.
+Yosys honours those tasks directly.
+sv2v 0.0.13 instead emits `initial $display` diagnostics.
+`syn/yosys/enforce_elaboration.py` restores those converted diagnostics as `$error` tasks.
+Yosys 0.66 refuses the restored procedural tasks.
+Inactive generate branches remain legal.
+`OOC_CHPARAM="TDATA_WIDTH=52" syn/yosys/ooc.sh rx_mac_filter` now fails.
+The legal `TDATA_WIDTH=64` control passes.
+`syn/yosys/guard_selftest.py` tests both flows and converted error/fatal forms.
+The processor's separate `protocol-processor/tb/timer_map/shape_elab.sh` checks original SystemVerilog.
 
 **The contract is graded by mutation, permanently, and by its own
 diagnostic.** `make negative` in `tb/verilator/rx_filter` elaborates four

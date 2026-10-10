@@ -83,12 +83,12 @@ DP         = ../milan_dp
 # nothing.
 TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
 DP_SRC    ?= $(RTL_DIR)/milan/milan_datapath.sv
-SRCS := $(shell $(MAKE) -s -C $(DP) print-srcs \
+SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs \
                 TDMRM_SRC='$(TDMRM_SRC)' DP_SRC='$(DP_SRC)')
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-srcs failed; the datapath source list could not be derived)
 endif
-DP_VFLAGS := $(shell $(MAKE) -s -C $(DP) print-dp-vflags)
+DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-dp-vflags failed; the elaboration flag set could not be derived)
 endif

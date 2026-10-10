@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Gate: the control-plane firmware of #665 lanes F0 to F4, built and run on the host.
+"""Gate: the control-plane firmware of #665 lanes F0 to F5, built and run on the host.
 
 WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
 compiled for the host exactly as the target compiles it, against the mailbox
@@ -69,7 +69,10 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
            decoder and transmit-opportunity comparator the placement switch
            compares the two placements' SRP frames with (#665, ruling
-           6088423771), its controls and every planted defect caught.
+           6088423771), its controls and every planted defect caught;
+  aecp     the complete command, notification and saved-state owner, composed
+           with ACMP and SRP at one and two interfaces; every generated AEM
+           image, mailbox completion ordering, latency and debug guards.
 
 Every arm but rv32, srpcmp and entity's header generation is a GoogleTest
 binary (sw/firmware/gtest/README.md), graded by the tally it prints.
@@ -110,6 +113,8 @@ import ctrl_arms  # noqa: E402
 import ctrl_mutants  # noqa: E402
 import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
+import aecp_arms  # noqa: E402
+import aecp_mutants  # noqa: E402
 import fw_gtest  # noqa: E402
 from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
@@ -131,6 +136,7 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
             for suite in ("srp_mbx.cpp", "srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
                           "srp_latency.cpp", "srp_walk.cpp"):
                 outcomes.append(srp_arms.arm_srp(tree, lwsrp.resolve(), i, test=suite))
+        outcomes.extend(aecp_arms.all_arms(tree))
     except Refusal as exc:
         print(f"REFUSED: {exc}")
         return 2
@@ -193,12 +199,15 @@ def main(argv: list[str] | None = None) -> int:
                           "srp_latency.cpp", "srp_walk.cpp"):
                         outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
                 outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+            outcomes.extend(aecp_arms.all_arms(tree))
         except Refusal as exc:
             print(f"REFUSED: {exc}")
             return 2
         failed = ctrl_arms.report(outcomes)
         if args.self_test and not failed:
             failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice, args.mutation_shard)
+            aecp_shard = args.mutation_shard or (args.slice[0] - 1, args.slice[1])
+            failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
             if args.lwsrp is not None:
                 failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
                 complete_srp_table = srp_mutants.DEFECTS
