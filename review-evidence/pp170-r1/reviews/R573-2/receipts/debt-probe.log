@@ -1,0 +1,18 @@
+== intact population 1 at 39 entries rc=0
+PROBE N9 entries_differing=0 gets_differing=0 of 39; entity_ok=1; done=21448 closed=-1 rb=1 cause=6 owed=11921 img_valid=1
+4 checks: 4 PASS, 0 FAIL
+== intact population 8 at 107 entries rc=0
+PROBE N9 entries_differing=0 gets_differing=0 of 107; entity_ok=1; done=28652 closed=-1 rb=1 cause=6 owed=11921 img_valid=1
+4 checks: 4 PASS, 0 FAIL
+== rollback_ignores_debt population 1 at 39 entries rc=1
+PROBE N9 entries_differing=0 gets_differing=39 of 39; entity_ok=0; done=-1 closed=16964 rb=0 cause=6 owed=2 img_valid=1
+FAIL: N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 16964 rolled back 0)
+FAIL: N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names
+FAIL: N9 debt SET: a later SET_NAME of the last ordinal is saved and read back
+4 checks: 1 PASS, 3 FAIL
+== rollback_ignores_debt population 8 at 107 entries rc=1
+PROBE N9 entries_differing=0 gets_differing=107 of 107; entity_ok=0; done=-1 closed=23592 rb=0 cause=6 owed=2 img_valid=1
+FAIL: N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 23592 rolled back 0)
+FAIL: N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names
+FAIL: N9 debt SET: a later SET_NAME of the last ordinal is saved and read back
+4 checks: 1 PASS, 3 FAIL

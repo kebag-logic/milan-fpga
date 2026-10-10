@@ -1,0 +1,568 @@
+[
+  {
+    "name": "R_golden",
+    "rc": 0,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "173",
+        "0"
+      ],
+      [
+        "445",
+        "445",
+        "0"
+      ],
+      [
+        "173",
+        "173",
+        "0"
+      ],
+      [
+        "445",
+        "445",
+        "0"
+      ],
+      [
+        "1236",
+        "1236",
+        "0"
+      ]
+    ],
+    "required": [],
+    "matching": {},
+    "n_fail": 0,
+    "first_fails": [],
+    "verdict": "PASS"
+  },
+  {
+    "name": "R_trigger_odd_dropped",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "133",
+        "40"
+      ],
+      [
+        "445",
+        "337",
+        "108"
+      ],
+      [
+        "173",
+        "133",
+        "40"
+      ],
+      [
+        "445",
+        "337",
+        "108"
+      ],
+      [
+        "1236",
+        "940",
+        "296"
+      ]
+    ],
+    "required": [
+      "N3 saved ordinal 1(?!\\d)"
+    ],
+    "matching": {
+      "N3 saved ordinal 1(?!\\d)": [
+        "N3 saved ordinal 1",
+        "N3 saved ordinal 1",
+        "N3 saved ordinal 1",
+        "N3 saved ordinal 1"
+      ]
+    },
+    "n_fail": 296,
+    "first_fails": [
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 7",
+      "N3 saved ordinal 9",
+      "N3 saved ordinal 11",
+      "N3 saved ordinal 13",
+      "N3 saved ordinal 15"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_record_id_neighbour",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "90",
+        "83"
+      ],
+      [
+        "445",
+        "226",
+        "219"
+      ],
+      [
+        "173",
+        "90",
+        "83"
+      ],
+      [
+        "445",
+        "226",
+        "219"
+      ],
+      [
+        "1236",
+        "632",
+        "604"
+      ]
+    ],
+    "required": [
+      "N3 saved ordinal \\d+"
+    ],
+    "matching": {
+      "N3 saved ordinal \\d+": [
+        "N3 saved ordinal 0",
+        "N3 saved ordinal 1",
+        "N3 saved ordinal 2",
+        "N3 saved ordinal 3"
+      ]
+    },
+    "n_fail": 604,
+    "first_fails": [
+      "N3 saved ordinal 0",
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 2",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 4",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 6",
+      "N3 saved ordinal 7"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_empty_replay_skipped",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "166",
+        "7"
+      ],
+      [
+        "445",
+        "430",
+        "15"
+      ],
+      [
+        "173",
+        "166",
+        "7"
+      ],
+      [
+        "445",
+        "430",
+        "15"
+      ],
+      [
+        "1236",
+        "1192",
+        "44"
+      ]
+    ],
+    "required": [
+      "N5 restored ordinal 2(?!\\d)"
+    ],
+    "matching": {
+      "N5 restored ordinal 2(?!\\d)": [
+        "N5 restored ordinal 2",
+        "N5 restored ordinal 2",
+        "N5 restored ordinal 2",
+        "N5 restored ordinal 2"
+      ]
+    },
+    "n_fail": 44,
+    "first_fails": [
+      "N5 restored ordinal 2",
+      "N5 restored ordinal 9",
+      "N5 restored ordinal 16",
+      "N5 restored ordinal 23",
+      "N5 restored ordinal 30",
+      "N5 restored ordinal 37",
+      "N8 CONTROL name restored while its IDENTIFY value resets to zero",
+      "N5 restored ordinal 2"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_pending_clears_higher",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "99",
+        "74"
+      ],
+      [
+        "445",
+        "245",
+        "200"
+      ],
+      [
+        "173",
+        "99",
+        "74"
+      ],
+      [
+        "445",
+        "245",
+        "200"
+      ],
+      [
+        "1236",
+        "688",
+        "548"
+      ]
+    ],
+    "required": [
+      "N6 pending:"
+    ],
+    "matching": {
+      "N6 pending:": [
+        "N6 pending: first and last saved name values survive separate completion",
+        "N6 pending: first and last saved name values survive separate completion",
+        "N6 pending: first and last saved name values survive separate completion",
+        "N6 pending: first and last saved name values survive separate completion"
+      ]
+    },
+    "n_fail": 548,
+    "first_fails": [
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 2",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 4",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 6",
+      "N3 saved ordinal 7",
+      "N3 saved ordinal 8"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_replay_skips_locate_wait",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "172",
+        "1"
+      ],
+      [
+        "445",
+        "444",
+        "1"
+      ],
+      [
+        "173",
+        "172",
+        "1"
+      ],
+      [
+        "445",
+        "444",
+        "1"
+      ],
+      [
+        "1236",
+        "1232",
+        "4"
+      ]
+    ],
+    "required": [
+      "D3N7:"
+    ],
+    "matching": {
+      "D3N7:": []
+    },
+    "n_fail": 4,
+    "first_fails": [
+      "N4 every name reset to image default before replay",
+      "N4 every name reset to image default before replay",
+      "N4 every name reset to image default before replay",
+      "N4 every name reset to image default before replay"
+    ],
+    "verdict": "SURVIVED"
+  },
+  {
+    "name": "R_latch_lane_alias",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "103",
+        "70"
+      ],
+      [
+        "445",
+        "256",
+        "189"
+      ],
+      [
+        "173",
+        "103",
+        "70"
+      ],
+      [
+        "445",
+        "256",
+        "189"
+      ],
+      [
+        "1236",
+        "718",
+        "518"
+      ]
+    ],
+    "required": [
+      "N3 saved ordinal \\d+"
+    ],
+    "matching": {
+      "N3 saved ordinal \\d+": [
+        "N3 saved ordinal 0",
+        "N3 saved ordinal 1",
+        "N3 saved ordinal 3",
+        "N3 saved ordinal 4"
+      ]
+    },
+    "n_fail": 518,
+    "first_fails": [
+      "N3 saved ordinal 0",
+      "N3 saved ordinal 1",
+      "N3 saved ordinal 3",
+      "N3 saved ordinal 4",
+      "N3 saved ordinal 5",
+      "N3 saved ordinal 6",
+      "N3 saved ordinal 7",
+      "N3 saved ordinal 8"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_name_walk_one_short",
+    "rc": 0,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "173",
+        "0"
+      ],
+      [
+        "445",
+        "445",
+        "0"
+      ],
+      [
+        "173",
+        "173",
+        "0"
+      ],
+      [
+        "445",
+        "445",
+        "0"
+      ],
+      [
+        "1236",
+        "1236",
+        "0"
+      ]
+    ],
+    "required": [
+      "N[35] \\w+ ordinal 38(?!\\d)",
+      "N[35] \\w+ ordinal 106(?!\\d)"
+    ],
+    "matching": {
+      "N[35] \\w+ ordinal 38(?!\\d)": [],
+      "N[35] \\w+ ordinal 106(?!\\d)": []
+    },
+    "n_fail": 0,
+    "first_fails": [],
+    "verdict": "SURVIVED"
+  },
+  {
+    "name": "R_debt_unwired",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "170",
+        "3"
+      ],
+      [
+        "445",
+        "442",
+        "3"
+      ],
+      [
+        "173",
+        "170",
+        "3"
+      ],
+      [
+        "445",
+        "442",
+        "3"
+      ],
+      [
+        "1236",
+        "1224",
+        "12"
+      ]
+    ],
+    "required": [
+      "N9 debt names:"
+    ],
+    "matching": {
+      "N9 debt names:": [
+        "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 16964 rolled back 0)",
+        "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 23592 rolled back 0)",
+        "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 18210 rolled back 0)",
+        "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 23886 rolled back 0)"
+      ]
+    },
+    "n_fail": 12,
+    "first_fails": [
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 16964 rolled back 0)",
+      "N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names",
+      "N9 debt SET: a later SET_NAME of the last ordinal is saved and read back",
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 23592 rolled back 0)",
+      "N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names",
+      "N9 debt SET: a later SET_NAME of the last ordinal is saved and read back",
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 18210 rolled back 0)",
+      "N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names"
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "name": "R_guard_first_beat",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "170",
+        "3"
+      ],
+      [
+        "445",
+        "442",
+        "3"
+      ],
+      [
+        "173",
+        "170",
+        "3"
+      ],
+      [
+        "445",
+        "442",
+        "3"
+      ],
+      [
+        "1236",
+        "1224",
+        "12"
+      ]
+    ],
+    "required": [
+      "N9 debt names:"
+    ],
+    "matching": {
+      "N9 debt names:": [
+        "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 20767 rolled back 0)",
+        "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 27899 rolled back 0)",
+        "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 22013 rolled back 0)",
+        "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 28193 rolled back 0)"
+      ]
+    },
+    "n_fail": 12,
+    "first_fails": [
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 20767 rolled back 0)",
+      "N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names",
+      "N9 debt SET: a later SET_NAME of the last ordinal is saved and read back",
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 27899 rolled back 0)",
+      "N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names",
+      "N9 debt SET: a later SET_NAME of the last ordinal is saved and read back",
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 22013 rolled back 0)",
+      "N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names"
+    ],
+    "verdict": "INFO_KILLED"
+  },
+  {
+    "name": "R_n9_no_late_burst",
+    "rc": 1,
+    "completed": true,
+    "tallies": [
+      [
+        "173",
+        "170",
+        "3"
+      ],
+      [
+        "445",
+        "442",
+        "3"
+      ],
+      [
+        "173",
+        "170",
+        "3"
+      ],
+      [
+        "445",
+        "442",
+        "3"
+      ],
+      [
+        "1236",
+        "1224",
+        "12"
+      ]
+    ],
+    "required": [
+      "N9 debt: the late AUDIO_UNIT burst"
+    ],
+    "matching": {
+      "N9 debt: the late AUDIO_UNIT burst": [
+        "N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)",
+        "N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)",
+        "N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)",
+        "N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)"
+      ]
+    },
+    "n_fail": 12,
+    "first_fails": [
+      "N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)",
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done 10044 closed -1 rolled back 0)",
+      "N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names",
+      "N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)",
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done 23540 closed -1 rolled back 0)",
+      "N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names",
+      "N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)",
+      "N9 debt names: every entry and GET_NAME at its image default after the roll-back (done 12536 closed -1 rolled back 0)"
+    ],
+    "verdict": "KILLED"
+  }
+]

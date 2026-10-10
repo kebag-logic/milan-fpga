@@ -1,0 +1,33 @@
+path base_tree head_tree identical
+hdl 4d21ab6512ec2293cec6f43ff9456784c7f6c642 4d21ab6512ec2293cec6f43ff9456784c7f6c642 YES
+syn a5e560a610a05d27d0c184285253d1763a1ec3de a5e560a610a05d27d0c184285253d1763a1ec3de YES
+scripts 316cdbc84b54f7cf2172e272594f1ec2aa88686a 316cdbc84b54f7cf2172e272594f1ec2aa88686a YES
+tb/pp_top 4c9d4c4982dba2b8eb0c04bf37aacad01735fed6 4c9d4c4982dba2b8eb0c04bf37aacad01735fed6 YES
+tb/common 118f445418721637006d9c3c6f8cb943f5073953 118f445418721637006d9c3c6f8cb943f5073953 YES
+tb/acmp_nvm 6178d41c2efe798177eb9f46f33a8d7795987248 6178d41c2efe798177eb9f46f33a8d7795987248 YES
+.github 33d4660d22440c425597020421eaa9cef48cbf85 33d4660d22440c425597020421eaa9cef48cbf85 YES
+Makefile ebfd881bb8d2cf7f8cb3881d6bea30589cbc54cb ebfd881bb8d2cf7f8cb3881d6bea30589cbc54cb YES
+
+changed paths base..head:
+M	docs/architecture/09_verification.md
+A	tb/name_state/Makefile
+A	tb/name_state/README.md
+A	tb/name_state/fixture.py
+A	tb/name_state/mutants.py
+A	tb/name_state/run.py
+A	tb/name_state/sim_main.cpp
+
+round-2 delta c3864686..head:
+M	docs/architecture/09_verification.md
+M	tb/name_state/README.md
+M	tb/name_state/mutants.py
+M	tb/name_state/run.py
+M	tb/name_state/sim_main.cpp
+
+89464a9b2dbcc6ef2f8beb10a1cb3ee942ef2e54 ee8a71db5377bc895e04ad33ad77fffc0f53fddd Document how the generated parent images are produced
+ee8a71db5377bc895e04ad33ad77fffc0f53fddd d0e36f8dd8dffb9488b24ed42e5d051751ee8a48 Refuse an existing name mutation output directory
+d0e36f8dd8dffb9488b24ed42e5d051751ee8a48 e9e222d32f29408d5b90fc585cb16b4685001105 Register the name suite in the saved-state verification section
+e9e222d32f29408d5b90fc585cb16b4685001105 33fe164edeae52d84aadc00b7222ecd0439dc5ab Grade descriptor debt protection on the saved names
+33fe164edeae52d84aadc00b7222ecd0439dc5ab c3864686c0b254bd2d7b7f733078ec302fb9be62 Run the name suite at each population's bound name capacity
+c3864686c0b254bd2d7b7f733078ec302fb9be62 340e53ca19fb0c05fe216c19871ae0195c5cb076 Keep the default name mutation output outside the source tree
+340e53ca19fb0c05fe216c19871ae0195c5cb076 09e357fb4bf3d35c8a9deba9a787e13f74d08c83 Cover every generated saved-name ordinal and failure control

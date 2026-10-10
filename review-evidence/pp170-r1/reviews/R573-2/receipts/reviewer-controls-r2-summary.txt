@@ -1,0 +1,25 @@
+R_golden PASS rc 0 completed True nfail 0
+R_trigger_odd_dropped KILLED rc 1 completed True nfail 296
+   req N3 saved ordinal 1(?!\d) -> ['N3 saved ordinal 1', 'N3 saved ordinal 1']
+R_record_id_neighbour KILLED rc 1 completed True nfail 604
+   req N3 saved ordinal \d+ -> ['N3 saved ordinal 0', 'N3 saved ordinal 1']
+R_empty_replay_skipped KILLED rc 1 completed True nfail 44
+   req N5 restored ordinal 2(?!\d) -> ['N5 restored ordinal 2', 'N5 restored ordinal 2']
+R_pending_clears_higher KILLED rc 1 completed True nfail 548
+   req N6 pending: -> ['N6 pending: first and last saved name values survive separate completion', 'N6 pending: first and last saved name values survive separate completion']
+R_replay_skips_locate_wait SURVIVED rc 1 completed True nfail 4
+   req D3N7: -> []
+   first_fails ['N4 every name reset to image default before replay', 'N4 every name reset to image default before replay', 'N4 every name reset to image default before replay', 'N4 every name reset to image default before replay']
+R_latch_lane_alias KILLED rc 1 completed True nfail 518
+   req N3 saved ordinal \d+ -> ['N3 saved ordinal 0', 'N3 saved ordinal 1']
+R_name_walk_one_short SURVIVED rc 0 completed True nfail 0
+   req N[35] \w+ ordinal 38(?!\d) -> []
+   req N[35] \w+ ordinal 106(?!\d) -> []
+   first_fails []
+R_debt_unwired KILLED rc 1 completed True nfail 12
+   req N9 debt names: -> ['N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 16964 rolled back 0)', 'N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 23592 rolled back 0)']
+R_guard_first_beat INFO_KILLED rc 1 completed True nfail 12
+   req N9 debt names: -> ['N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 20767 rolled back 0)', 'N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 27899 rolled back 0)']
+   first_fails ['N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 20767 rolled back 0)', 'N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names', 'N9 debt SET: a later SET_NAME of the last ordinal is saved and read back', 'N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 27899 rolled back 0)', 'N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names', 'N9 debt SET: a later SET_NAME of the last ordinal is saved and read back', 'N9 debt names: every entry and GET_NAME at its image default after the roll-back (done -1 closed 22013 rolled back 0)', 'N9 debt entity: READ_DESCRIPTOR serves both image ENTITY names']
+R_n9_no_late_burst KILLED rc 1 completed True nfail 12
+   req N9 debt: the late AUDIO_UNIT burst -> ['N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)', 'N9 debt: the late AUDIO_UNIT burst aborts pass 1 (cause 0) and is owed as the roll-back starts, 0 cycles of it (premise)']
