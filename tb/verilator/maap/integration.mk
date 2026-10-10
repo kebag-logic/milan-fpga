@@ -5,11 +5,14 @@ VERILATOR ?= verilator
 VERILATOR_JOBS ?= 2
 DP_MDIR ?= obj_integration
 MAAP_RTL ?= ../../../hdl/ieee1722/maap/KL_maap.sv
-DP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-srcs)
+DP_SRCS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
 ifneq ($(.SHELLSTATUS),0)
 $(error datapath source derivation failed)
 endif
-DP_FLAGS := $(shell $(MAKE) -s -C ../milan_dp print-dp-vflags)
+ifneq ($(filter-out $(wildcard $(DP_SRCS)),$(DP_SRCS)),)
+$(error datapath source list names non-files: $(firstword $(filter-out $(wildcard $(DP_SRCS)),$(DP_SRCS))))
+endif
+DP_FLAGS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-dp-vflags)
 ifneq ($(.SHELLSTATUS),0)
 $(error datapath flag derivation failed)
 endif
