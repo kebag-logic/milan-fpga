@@ -158,7 +158,34 @@ struct flash_model {
 	uint64_t erase_ns;
 };
 
+/* A planted read fault (#671). The firmware reads a slot through the
+ * memory-mapped window, a pointer load that always returns bytes, so a media
+ * fault can only return wrong bytes. Every read the firmware opens through
+ * the mapping (one evaluation of SPIFLASH_BASE) is counted from power-on:
+ * the first SKIP are clean, the next COUNT are answered from a view whose
+ * bytes of one slot are wrong, and the rest are clean again. A fault either
+ * XORs one byte of the slot with a different value on every faulty read
+ * (BASE, BASE + 1, ... over 1 to 255, so no two faulty reads agree), or reads
+ * every byte of the slot as 0xFF, the same on every faulty read. */
+struct read_fault {
+	int armed;
+	uint32_t slot;          /* the slot's flash offset */
+	uint32_t off;           /* the byte inside it, in XOR mode */
+	int all_ff;
+	unsigned int skip;
+	unsigned int count;
+	unsigned int base;
+	unsigned int hits;      /* reads answered from the faulty view */
+};
+/* A firmware that never stops reading is ended here, with its summary. */
+#define READ_STORM 1000000u
+
 static uint64_t now_ns;
+static struct read_fault rf;
+static uint8_t flash_view[NVM_HOST_FLASH_BYTES];
+static int view_loaded;
+static unsigned int reads;
+static unsigned int boot_reads;
 static uint32_t csr[CSR_WORDS];
 static uint32_t shadow[CSR_WORDS];
 static uint32_t pp_ctrl;
@@ -480,6 +507,66 @@ void nvm_host_tick(int cycles)
 	settle();
 }
 
+static void summary(void);
+
+uintptr_t nvm_host_flash_base(void)
+{
+	unsigned int k = reads++;
+
+	if (reads > READ_STORM) {
+		printf("HOST read storm: %u reads through the mapping\n", reads);
+		summary();
+		exit(0);
+	}
+	if (!rf.armed || k < rf.skip || k - rf.skip >= rf.count)
+		return (uintptr_t)nvm_host_flash;
+	/* only the journal is ever programmed or erased */
+	if (!view_loaded)
+		memcpy(flash_view, nvm_host_flash, sizeof(flash_view));
+	else
+		memcpy(flash_view + NVM_HOST_JOURNAL_OFFSET,
+		       nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x20000u);
+	view_loaded = 1;
+	if (rf.all_ff)
+		memset(flash_view + rf.slot, 0xff, 0x10000u);
+	else
+		flash_view[rf.slot + rf.off] ^=
+			(uint8_t)((rf.base - 1u + (k - rf.skip)) % 255u + 1u);
+	rf.hits++;
+	return (uintptr_t)flash_view;
+}
+
+/* --read-fault SLOT:OFF:SKIP:COUNT[:BASE] and --read-ff SLOT:SKIP:COUNT */
+static void arm_read_fault(const char *spec, int all_ff)
+{
+	unsigned long v[4] = {0};
+	unsigned int n = 0;
+	const char *p = spec + 1;
+	char *end = NULL;
+
+	v[3] = 8;    /* the first faulty read's XOR, unless BASE is given */
+	if ((spec[0] != 'a' && spec[0] != 'b') || spec[1] != ':') {
+		fprintf(stderr, "HOST: a read fault names slot a or b\n");
+		exit(2);
+	}
+	while (*p == ':' && n < 4u) {
+		v[n++] = strtoul(p + 1, &end, 0);
+		p = end;
+	}
+	if (*p != '\0' || n < (all_ff ? 2u : 3u) ||
+	    (!all_ff && (v[0] >= 0x10000u || v[3] < 1u || v[3] > 255u))) {
+		fprintf(stderr, "HOST: bad read fault %s\n", spec);
+		exit(2);
+	}
+	rf.armed = 1;
+	rf.slot = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0x10000u : 0u);
+	rf.all_ff = all_ff;
+	rf.off = all_ff ? 0u : (uint32_t)v[0];
+	rf.skip = (unsigned int)(all_ff ? v[0] : v[1]);
+	rf.count = (unsigned int)(all_ff ? v[1] : v[2]);
+	rf.base = all_ff ? 8u : (unsigned int)v[3];
+}
+
 /* ---- the LiteSPI command master and the N25Q behind it ----------------- */
 /* TX always ready; RX ready exactly while an unread response byte waits,
  * which is what lets the firmware's FIFO drain loop terminate. */
@@ -679,15 +766,16 @@ static void summary(void)
 	       "backed=%d dirty=%d stale=%d valid=%d verdict=%u blank=%d fail=%d done=%d "
 	       "seq=%u base_ok=%d img_len=%u losses=%u arms=%u reloads=%u "
 	       "ld_acc=%d ld_pend=%d rl_ref=%d unres=%d ack_ref=%d arm_ref=%d "
-	       "cap_id=%u walks=%u enable_first=%d closed=%d now_ms=%llu\n",
+	       "cap_id=%u walks=%u enable_first=%d closed=%d reads=%u boot_reads=%u "
+	       "faulty_reads=%u now_ms=%llu\n",
 	       be.hb_count, be.ack_count, be.start_count, fl.erases, fl.programs,
 	       (unsigned long long)(be.max_hb_gap_ns / 1000000ull), fl.pagewrap,
 	       be.backed, be.dirty, be.stale, be.img_valid, be.verdict, walk.blank,
 	       walk.fail, walk.done, be.words[2], be.base_ok, be.words[1], be.losses,
 	       be.arm_count, be.reload_count, be.ld_acc, be.ld_pend, be.rl_ref,
 	       be.unres, be.ack_ref, be.arm_ref, be.cap_id,
-	       walk.starts, walk.enable_first, walk.closed,
-	       (unsigned long long)(now_ns / 1000000ull));
+	       walk.starts, walk.enable_first, walk.closed, reads, boot_reads,
+	       rf.hits, (unsigned long long)(now_ns / 1000000ull));
 }
 
 static void boot(void)
@@ -697,6 +785,7 @@ static void boot(void)
 	recompose();
 	nvm_host_init_milan_init();
 	settle();
+	boot_reads = reads;
 	printf("HOST booted\n");
 }
 
@@ -725,6 +814,10 @@ int main(int argc, char **argv)
 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x10000u);
 		else if (strcmp(a, "--slot-b") == 0 && v)
 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET + 0x10000u, 0x10000u);
+		else if (strcmp(a, "--read-fault") == 0 && v)
+			arm_read_fault(v, 0);
+		else if (strcmp(a, "--read-ff") == 0 && v)
+			arm_read_fault(v, 1);
 		else if (strcmp(a, "--erase-ms") == 0 && v)
 			fl.erase_ns = MS(strtoul(v, NULL, 0));
 		else if (strcmp(a, "--walk-closed") == 0) {

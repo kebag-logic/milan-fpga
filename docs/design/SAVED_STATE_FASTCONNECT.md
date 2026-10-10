@@ -778,6 +778,26 @@ The [#665 tie decision](https://github.com/kebag-logic/milan-fpga/issues/665#iss
 The shipping writer, and every saved state already on a device, use A.
 The writers never write equal sequences, so a tie arises only after a fault.
 
+**A slot that could not be read is not a slot that failed section 6.2.**
+That is the [#665 decision 2](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153),
+which [#671](https://github.com/kebag-logic/milan-fpga/issues/671) applies to the shipping writer.
+Take A valid at sequence s > 1, B blank, and a transient fault on the boot read of A.
+If A is then taken as refused, the next commit lands in B at sequence 1.
+The next clean boot prefers A at s, and that commit is lost.
+So a slot refused by a media read fault leaves the authority unknown.
+The read is retried within a bound.
+Until every slot has been read without a media fault, nothing is persisted, and the status says so.
+A slot whose bytes read cleanly but fail section 6.2 is not authoritative.
+No sequence is ever taken from bytes that were not validated.
+Both writers read a slot through the memory-mapped QSPI window, which always returns bytes.
+So a media fault shows only as two reads of one slot that return different bytes.
+A refusal or a blank verdict stands only when two of at most three reads return the same bytes.
+The picked slot is read again and must pass under the sequence it was picked by.
+The bare-metal store's [Boot section](../../sw/firmware/ctrl_nvm/README.md#boot) states the rule.
+The shipping writer's is in the [firmware page](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
+A fault that returns the same wrong bytes twice cannot be told from a refusal of those bytes.
+That limit is stated in both suites.
+
 At every instant of the write sequence at least one slot holds a complete image
 whose CRC closes. Power can be removed at any point. This is the guarantee the
 port alone cannot give, and it is why the promotion lives above the port rather

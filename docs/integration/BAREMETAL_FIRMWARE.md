@@ -2012,12 +2012,37 @@ had no bound at all and has one now: it must outlast a heartbeat period, or
 the firmware's claim that it heartbeats while it waits says nothing.
 
 **Boot.** `nvm_boot()` runs after the fabric is configured and before the
-entity model is loaded. It reads both slots through the QSPI mapping and applies
-the section 6.2 acceptance order to each, rule for rule as
-`scripts/nvm_klj2.py` does, including the erased-record rule of section 6.1.
-The newer accepted slot (a wrap-safe signed compare of `SEQ`) is copied into
-the window byte for byte; when neither is accepted the firmware stages an
-all-erased container at sequence 0 and reports the failing slot's verdict.
+entity model is loaded. It reads each slot through the QSPI mapping into the
+private stage in one read and applies the section 6.2 acceptance order there,
+rule for rule as `scripts/nvm_klj2.py` does, including the erased-record rule
+of section 6.1, so the CRC, the records and the sequence come from the same
+bytes. The memory-mapped read always returns bytes, so a media fault shows
+only as two reads of one slot that return different bytes
+([#671](https://github.com/kebag-logic/milan-fpga/issues/671), the rule of
+[`ctrl_nvm`](../../sw/firmware/ctrl_nvm/README.md#boot), Boot items 3 and
+9). An OK verdict stands on one read; any other, blank included, stands only
+when two of at most three reads (`NVM_READ_TRIES`) return the same bytes, by
+verdict, length and a CRC-32 digest. A slot with no standing verdict is
+UNREAD: `VD_LEN` (rule 4), no sequence taken from it, and its bit in the boot
+line's `unread=` field. The newer accepted slot (a wrap-safe signed compare
+of `SEQ`, A on a tie) is read into the stage again, at most three times,
+judged again and accepted only under the sequence it was picked by; one that
+never reads back so is UNREAD and the other is offered. The window is filled
+from the stage, never from a fresh read. When neither is accepted the
+firmware stages an all-erased container at sequence 0 and reports the
+failing slot's verdict: no generation is taken from a refused slot. **An
+UNREAD slot holds the writer until reset.** Its authority is unknown: it may
+hold a newer container than any slot that was read, and a commit could
+restart the sequence below one a later clean boot prefers. The window is
+still loaded with what was accepted and the walk still runs, but the held
+writer captures, erases and writes nothing, refuses `milan_nvm commit`, and
+answers no liveness deadline, so `nvm_backed` reads 0, as for a retired
+writer. The boot line and `milan_nvm` name the hold. The next reset reads
+every slot again. A boot opens at most twelve container reads, three
+judgements and three re-stages per slot. A clean boot with both slots valid
+opens three. Before this rule it walked each valid slot twice through the
+mapping, once for the CRC and once for the records, and copied the chosen
+one a third time into the window.
 It then programs the backing store through `PP_NVM_SEL`/`PP_NVM_DATA`: the
 record area's base and length, the per-port channel-map tables (framed length
 and running prefix, direction distinct), the sequence, and the verdict with
@@ -2123,8 +2148,11 @@ model of the CSR face, the flash and the clock, and grades it per shipped
 shape: the staged and committed containers equal the Python encoder's byte for
 byte, the verdict the firmware prints for every section 6.2 refusal equals
 `klj2_decode`'s for the same bytes, the A/B rule, the debounce, the three
-transaction failures and the heartbeat through a 3 s erase; `--self-test`
-plants five writer defects and requires each to be caught. A partial ownership fixture protects an open record beside an unaligned edge.
+transaction failures and the heartbeat through a 3 s erase, and the read
+faults of #671 walked over every boot read of both slots at the sequence
+boundaries, each followed by a change, its commit and a clean reboot;
+`--self-test` plants nine writer defects and requires each to be caught,
+the four #671 ones by a finding of their own. A partial ownership fixture protects an open record beside an unaligned edge.
 The edge-crossing word-copy control must fail that fixture.
 What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the
