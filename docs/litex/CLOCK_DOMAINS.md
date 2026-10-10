@@ -244,7 +244,18 @@ Storage placement moves arrays, never crossings
 
 - `_payload_in_block_ram` splits one crossing's storage array in two.
 - The payload goes to block RAM; `first` and `last` go to LUTRAM.
+- An unread flag is trimmed.
+- A read flag costs one RAM32X1D and one flip-flop.
 - Both arrays share the FIFO's write and read addresses.
+- Each array registers the word it reads, never the address.
+- LiteX's emitter already writes that form for the SoC.
+- migen's emitter writes it only when the port declares it.
+- Undeclared, each array registers the same read address.
+- Synthesis merges those twin registers.
+- With its flags read, an unbuffered payload fell to LUTRAM.
+- Vivado reported Synth 8-6849 for it.
+- The payload now stays in block RAM either way.
+- That holds for buffered and unbuffered crossings alike.
 - Depth, width, latency, domains and resets stay LiteX's.
 - The gray-pointer control and its synchronizers are unchanged.
 - `MilanMAC` applies it to `mac_tx_cdc` and `mac_rx_cdc`.

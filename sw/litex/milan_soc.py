@@ -1453,7 +1453,7 @@ def _payload_in_block_ram(crossing):
     flags are read falls back to LUTRAM (Vivado Synth 8-6849, #640 R591-1).
     With the word registered, the payload is in block RAM whether or not the
     flags are read, buffered or not, under either emitter. A framing flag
-    nobody reads is trimmed; one that is read costs one LUTRAM column and its
+    nobody reads is trimmed; one that is read costs one RAM32X1D and its
     one-bit read register."""
     core, storage = _crossing_storage(crossing)
     description = crossing.sink.description
