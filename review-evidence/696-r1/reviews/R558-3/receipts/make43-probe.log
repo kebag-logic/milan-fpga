@@ -1,0 +1,59 @@
+head=b9b389611304850ea435b2056887568afe5e6bf4 make=GNU Make 4.3 at $REVIEWS/696-r558-3-packet/scratch/make43/make
+== head plain rc=0
+SRCS-WORDS=114 NONFILE=[]
+== head w rc=0
+SRCS-WORDS=114 NONFILE=[]
+== head j8 rc=0
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+SRCS-WORDS=114 NONFILE=[]
+== head w+j8 rc=2
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+$REVIEWS/696-r558-3-packet/scratch/m43/head.mk:13: *** datapath source list names non-files: make[1]:.  Stop.
+== noguard plain rc=0
+SRCS-WORDS=114 NONFILE=[]
+== noguard w rc=0
+SRCS-WORDS=114 NONFILE=[]
+== noguard j8 rc=0
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+SRCS-WORDS=114 NONFILE=[]
+== noguard w+j8 rc=0
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+SRCS-WORDS=122 NONFILE=[make[1]: Entering directory '$REVIEWS/r558-3-696/tb/verilator/maap' make[1]: Leaving directory '$REVIEWS/r558-3-696/tb/verilator/milan_dp']
+== sibling plain rc=0
+SRCS-WORDS=114 NONFILE=[]
+== sibling w rc=0
+SRCS-WORDS=114 NONFILE=[]
+== sibling j8 rc=0
+SRCS-WORDS=114 NONFILE=[]
+== sibling w+j8 rc=0
+SRCS-WORDS=114 NONFILE=[]
+
+#### contrast: same probe with the host GNU make
+head=b9b389611304850ea435b2056887568afe5e6bf4 make=GNU Make 4.4.1 at /usr/bin/make
+== head plain rc=0
+SRCS-WORDS=114 NONFILE=[]
+== head w rc=0
+SRCS-WORDS=114 NONFILE=[]
+== head j8 rc=0
+SRCS-WORDS=114 NONFILE=[]
+== head w+j8 rc=0
+SRCS-WORDS=114 NONFILE=[]
+== noguard plain rc=0
+SRCS-WORDS=114 NONFILE=[]
+== noguard w rc=0
+SRCS-WORDS=114 NONFILE=[]
+== noguard j8 rc=0
+SRCS-WORDS=114 NONFILE=[]
+== noguard w+j8 rc=0
+SRCS-WORDS=114 NONFILE=[]
+== sibling plain rc=0
+SRCS-WORDS=114 NONFILE=[]
+== sibling w rc=0
+SRCS-WORDS=114 NONFILE=[]
+== sibling j8 rc=0
+SRCS-WORDS=114 NONFILE=[]
+== sibling w+j8 rc=0
+SRCS-WORDS=114 NONFILE=[]
