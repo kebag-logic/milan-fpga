@@ -1,0 +1,7 @@
+[as expected] control: unmodified: rc=0 ACCEPTED :: 39 read(s) of 21 class-D wire(s); RESULT: PASS
+[as expected] alias wire read on the wire: rc=1 REFUSED :: [FAIL] unmapped read: pp_cd_srp_over_limit_w -> probe_alias_w (line 5677) reaches the wire; name its block field or its ruled exclusion
+[as expected] case selector read in always block: rc=1 REFUSED :: [FAIL] unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c (line 5719) reaches csr; name its block field or its ruled exclusion
+[UNEXPECTED] case item label read in always block: rc=0 ACCEPTED :: 39 read(s) of 21 class-D wire(s); RESULT: PASS
+[as expected] function body read, called on the wire: rc=1 REFUSED :: [FAIL] unmapped read: pp_cd_srp_over_limit_w -> probe_f (line 5678) reaches the wire; name its block field or its ruled exclusion
+[UNEXPECTED] wrapper output renamed off the pp_cd_ prefix, read on the wire: rc=0 ACCEPTED :: 39 read(s) of 21 class-D wire(s); RESULT: PASS
+probes: 6, unexpected: 2
