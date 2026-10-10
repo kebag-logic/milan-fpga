@@ -365,7 +365,7 @@ F0-F4 firmware exists, but parent datapath integration is missing.
 The mailbox remains idle and the wrapper remains unconditional.
 Therefore no selected route or new area figure is reported.
 LUT, FF, slices, RAMB36/RAMB18 and timing are **not measured**.
-The accepted 50,267-LUT route remains the comparison record.
+At base `7c1b52be` the comparison record was #645's 50,267-LUT route; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,230-LUT route has since replaced it.
 Its 74 RAMB36 plus 27 RAMB18 still total 87.5 tiles.
 Those stored figures are not this lane's measurement.
 

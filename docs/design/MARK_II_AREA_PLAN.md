@@ -650,8 +650,8 @@ Firmware presence therefore earns no engine-removal credit.
 | M0s step 1, F0-F4 with fabric AECP | Not measured | Not measured | Not measured | STOP: parent integration must connect the datapath |
 
 No route was started; no new resource figure is claimed.
-The last accepted gate record remains unchanged.
-Its 50,267 LUTs and 74/27 RAM primitives remain comparison anchors.
+At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives.
+[#696](https://github.com/kebag-logic/milan-fpga/issues/696) has since re-recorded it at 50,230 LUTs with 74/27 unchanged; that record is the comparison anchor, and the ledger keeps the baseline figures.
 These are stored figures, not measurements of this lane.
 The partial memory ledger still requires actual allocation and reconciliation.
 Neither the 50-tile firmware estimate nor complete-wrapper reclamation proves fit.
