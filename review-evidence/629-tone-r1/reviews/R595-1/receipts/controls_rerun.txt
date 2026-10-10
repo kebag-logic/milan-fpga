@@ -1,0 +1,13 @@
+R595-1 re-run of the lane B15 tool controls, offline, numpy 2.5.3, Python 3.14.7, scratch copies of the published tools
+(review-evidence/629-tone-r1/author/tools at 06148614c910d3986991dd130f95d073b4bbe491), outputs compared with cmp
+against review-evidence/629-tone-r1/author/controls/.
+b6_thdn.py controls      rc=0  BYTE-EQUAL controls.json     sha256 7bbefc71fb3c9303a8f1cb843bfcd13dafe55c1f3e1a968e6a3b3cee2350530e
+b9_thdn.py controls      rc=0  BYTE-EQUAL b9-controls.json  sha256 728a4f0ec2393b16a127ac8009a5038da67f93e5412209faf9bb1771d66575aa
+tone_points_b15.py control, as published: rc=1, ValueError in bytes.fromhex("<peer-eid>"): the author's own redaction placeholder
+tone_points_b15.py control, the two placeholders replaced by neutral ids (scripts/prepare_tools.sh): rc=0  BYTE-EQUAL b15-tap-controls.json
+align_b15.py control: not re-run on its own stimulus (pts1's tap-dut.pcap is a raw file kept on the bench host);
+  run instead on a synthetic floor of pts1's length and shape: 5 of 5 PASS (receipts/probes_r595.jsonl, probe A1)
+7bbefc71fb3c9303a8f1cb843bfcd13dafe55c1f3e1a968e6a3b3cee2350530e  scratch/probe/out/controls.json
+728a4f0ec2393b16a127ac8009a5038da67f93e5412209faf9bb1771d66575aa  scratch/probe/out/b9-controls.json
+f69bf5cf4002cd0059c938bfa6bac76ce4a398bae223918facd34a2f290e7b7c  scratch/probe/out/b15-tap-controls.json
+f69bf5cf4002cd0059c938bfa6bac76ce4a398bae223918facd34a2f290e7b7c  scratch/evx/review-evidence/629-tone-r1/author/controls/b15-tap-controls.json

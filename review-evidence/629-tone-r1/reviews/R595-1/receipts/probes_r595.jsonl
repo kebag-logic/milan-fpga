@@ -1,0 +1,25 @@
+{"probe": "A0 synthetic floor decodes exactly", "expect": "equal, 0 gaps", "got": {"equal": true, "gaps": 0}, "result": "AS EXPECTED"}
+{"controls": [{"control": "exact copy", "verdict": "SAMPLE-EXACT", "slips": [], "frames_differing": 0, "result": "PASS"}, {"control": "one frame dropped at 200,000 (expected at 200000)", "verdict": "DIFFERENT", "slips": [{"recording_frame": 200000, "step": 1}], "frames_differing": 0, "result": "PASS"}, {"control": "one frame repeated at 250,000 (expected at 250000)", "verdict": "DIFFERENT", "slips": [{"recording_frame": 250000, "step": -1}], "frames_differing": 0, "result": "PASS"}, {"control": "one sample changed by 1 LSB at 300,000", "verdict": "DIFFERENT", "slips": [], "frames_differing": 1, "result": "PASS"}, {"control": "another stretch, channel 0 negated", "verdict": "NO MATCH", "slips": null, "frames_differing": null, "result": "PASS"}], "all_pass": true, "stream_frames": 1151052}
+{"probe": "A1 align_b15 planted controls on a synthetic floor", "expect": "5 of 5 PASS (rc 0)", "got": 0, "result": "AS EXPECTED"}
+{"probe": "A2 exact slice", "expect": "SAMPLE-EXACT, 480,000 equal", "got": ["SAMPLE-EXACT", 480000, 1], "result": "AS EXPECTED"}
+{"probe": "A3 one sample +256 LSB (outside the key's 8-bit lane)", "expect": "missed: the frame key keeps 8 bits per channel", "got": ["SAMPLE-EXACT", 0], "result": "AS EXPECTED"}
+{"probe": "A4 one sample +1 LSB", "expect": "DIFFERENT, 1 differing frame", "got": ["DIFFERENT", 1], "result": "AS EXPECTED"}
+{"probe": "A5 channels 2 and 3 swapped", "expect": "not SAMPLE-EXACT", "got": "NO MATCH", "result": "AS EXPECTED"}
+{"probe": "A6 channels 0 and 1 swapped", "expect": "not SAMPLE-EXACT", "got": "NO MATCH", "result": "AS EXPECTED"}
+{"probe": "A7 recording runs past the end of the stream", "expect": "not SAMPLE-EXACT, or fewer than 480,000 compared", "got": ["SAMPLE-EXACT", 300000, [0, 300000]], "result": "AS EXPECTED"}
+{"probe": "A8 a 50-frame held value", "expect": "DIFFERENT", "got": ["DIFFERENT", 47, []], "result": "AS EXPECTED"}
+{"probe": "A9 recorded (b) and (c) ranges inside the key's lossless lane", "expect": "-2..+1 within -128..127", "got": [-2, 1], "result": "AS EXPECTED"}
+{"probe": "T1 the recorded-shape floor alone", "expect": "TONE ABSENT, shares ~0.0004 (10 Hz of 24 kHz)", "got": ["TONE ABSENT", 0.00039, 0.000445], "result": "AS EXPECTED"}
+{"probe": "T2 two tones at -20.0 dBFS RMS over the floor", "expect": "TONE PRESENT by the -40 dBFS level rule; share on 0/1", "got": ["TONE PRESENT", 1.0, 1.0, -20.0], "result": "AS EXPECTED"}
+{"probe": "T2 two tones at -38.5 dBFS RMS over the floor", "expect": "TONE PRESENT by the -40 dBFS level rule; share on 0/1", "got": ["TONE PRESENT", 1.0, 1.0, -38.5], "result": "AS EXPECTED"}
+{"probe": "T2 two tones at -45.0 dBFS RMS over the floor", "expect": "TONE ABSENT by the -40 dBFS level rule; share on 0/1", "got": ["TONE ABSENT", 1.0, 1.0, -45.0], "result": "AS EXPECTED"}
+{"probe": "T2 two tones at -100.0 dBFS RMS over the floor", "expect": "TONE ABSENT by the -40 dBFS level rule; share on 0/1", "got": ["TONE ABSENT", 0.999924, 0.999938, -100.0], "result": "AS EXPECTED"}
+{"probe": "L1 regenerated lane B6 loop", "expect": "SHA-256 566d3dfa... and 1,536,000 bytes", "got": ["566d3dfae6eb60a6", 1536000], "result": "AS EXPECTED"}
+{"probe": "L2 the loop's own floor", "expect": "ch0 -1.00 dBFS 997 Hz SNR 146.0671 THD+N -146.0647; ch1 SNR 145.9933 THD+N -145.9933", "got": [[-1.0, 997.0, 146.0671, -146.0647], [-1.0, 9973.0, 145.9933, -145.9933]], "result": "AS EXPECTED"}
+{"probe": "L3 any one-second window of the loop (a rotation)", "expect": "the same THD+N to 4 decimals", "got": -146.0647, "result": "AS EXPECTED"}
+{"probe": "L4 one sample off by 1 LSB in a block", "expect": "THD+N moves at or above the 4th decimal", "got": [-146.063, 0.0017], "result": "AS EXPECTED"}
+{"probe": "L4 one sample off by 2 LSB in a block", "expect": "THD+N moves at or above the 4th decimal", "got": [-146.0592, 0.0055], "result": "AS EXPECTED"}
+{"probe": "L4 one sample off by 8 LSB in a block", "expect": "THD+N moves at or above the 4th decimal", "got": [-145.9909, 0.0738], "result": "AS EXPECTED"}
+{"probe": "L5 one frame dropped in a block", "expect": "THD+N far above the floor", "got": -29.73, "result": "AS EXPECTED"}
+{"all_as_expected": true}
+rc=0

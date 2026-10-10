@@ -1,0 +1,79 @@
+PASS pts1 (a) verdict TONE ABSENT :: TONE ABSENT
+PASS pts1 (a) levels '-141.09 / -141.10 / -141.48 / -141.49' on the page
+PASS pts1 (a) every share below 0.06 % :: [0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+PASS pts1 (a) low byte zero
+PASS pts1 (b) verdict TONE ABSENT :: TONE ABSENT
+PASS pts1 (b) levels '-141.09 / -141.10 / -141.48 / -141.49' on the page
+PASS pts1 (b) every share below 0.06 % :: [0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+PASS pts1 (b) low byte zero
+PASS pts1 (c) verdict TONE ABSENT :: TONE ABSENT
+PASS pts1 (c) levels '-141.09 / -141.10 / -141.48 / -141.49' on the page
+PASS pts1 (c) every share below 0.06 % :: [0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.03, 0.04]
+PASS pts1 (c) low byte zero
+PASS pts1 (a) PDU row on the page :: | `pts1` | (a) | 191,843 | 0 | 0 | 0 |
+PASS pts1 (a) one format, cpf 4, sdl 96
+PASS pts1 (a) hash on the page
+PASS pts1 (b) PDU row on the page :: | `pts1` | (b) | 191,842 | 0 | 0 | 0 |
+PASS pts1 (b) one format, cpf 4, sdl 96
+PASS pts1 (b) hash on the page
+PASS pts1 (c) hash on the page
+PASS pts1 (c) channels 4-7 every word zero
+PASS pts1 alignment row on the page :: | `pts1` | 1 | 480,000 | 480,000 | 0 | 0 | SAMPLE-EXACT |
+PASS pts1 alignment covers the whole recording
+PASS pts1 (b),(c) values inside the align key's lossless lane :: [(-2, 1), (-2, 0), (-1, 0), (-1, 0), (-2, 0), (-2, 0), (-1, 0), (-1, 0)]
+PASS pts2 (a) verdict TONE ABSENT :: TONE ABSENT
+PASS pts2 (a) levels '-141.09 / -141.10 / -141.48 / -141.48' on the page
+PASS pts2 (a) every share below 0.06 % :: [0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+PASS pts2 (a) low byte zero
+PASS pts2 (b) verdict TONE ABSENT :: TONE ABSENT
+PASS pts2 (b) levels '-141.09 / -141.10 / -141.48 / -141.48' on the page
+PASS pts2 (b) every share below 0.06 % :: [0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+PASS pts2 (b) low byte zero
+PASS pts2 (c) verdict TONE ABSENT :: TONE ABSENT
+PASS pts2 (c) levels '-141.09 / -141.10 / -141.48 / -141.48' on the page
+PASS pts2 (c) every share below 0.06 % :: [0.04, 0.04, 0.04, 0.05, 0.03, 0.04, 0.04, 0.05]
+PASS pts2 (c) low byte zero
+PASS pts2 (a) PDU row on the page :: | `pts2` | (a) | 191,639 | 0 | 0 | 0 |
+PASS pts2 (a) one format, cpf 4, sdl 96
+PASS pts2 (a) hash on the page
+PASS pts2 (b) PDU row on the page :: | `pts2` | (b) | 191,637 | 0 | 0 | 0 |
+PASS pts2 (b) one format, cpf 4, sdl 96
+PASS pts2 (b) hash on the page
+PASS pts2 (c) hash on the page
+PASS pts2 (c) channels 4-7 every word zero
+PASS pts2 alignment row on the page :: | `pts2` | 1 | 480,000 | 480,000 | 0 | 0 | SAMPLE-EXACT |
+PASS pts2 alignment covers the whole recording
+PASS pts2 (b),(c) values inside the align key's lossless lane :: [(-2, 1), (-2, 0), (-1, 0), (-1, 0), (-2, 0), (-2, 0), (-1, 0), (-1, 0)]
+PASS control peer: TONE PRESENT
+PASS control peer: medians -1.00 dBFS, exact frequency :: [{"level_dbfs": -1.0, "f_hz": 997.0, "ppm": -0.0, "thdn_db": -146.0647, "snr_db": 146.0671}, {"level_dbfs": -1.0, "f_hz": 9973.0, "ppm": -0.0, "thdn_db": -145.9933, "snr_db": 145.9933}]
+PASS control peer: blocks at floor '15 of 23' on the page
+PASS control dut: TONE PRESENT
+PASS control dut: medians -1.00 dBFS, exact frequency :: [{"level_dbfs": -1.0, "f_hz": 997.0, "ppm": 0.0, "thdn_db": -146.0647, "snr_db": 146.0671}, {"level_dbfs": -1.0, "f_hz": 9973.0, "ppm": -0.0, "thdn_db": -145.9933, "snr_db": 145.9933}]
+PASS control dut: blocks at floor '15 of 23' on the page
+PASS control ext: TONE PRESENT
+PASS control ext: medians -1.00 dBFS, exact frequency :: [{"level_dbfs": -1.0, "f_hz": 997.0, "ppm": 0.0, "thdn_db": -146.0648, "snr_db": 146.0672}, {"level_dbfs": -1.0, "f_hz": 9973.0, "ppm": 0.0, "thdn_db": -145.9933, "snr_db": 145.9933}]
+PASS control ext: blocks at floor '13 of 16' on the page
+PASS raw hash b15-tapprobe-peer.pcap on the page
+PASS raw size b15-tapprobe-peer.pcap on the page
+PASS raw hash b15-tapprobe-dut.pcap on the page
+PASS raw size b15-tapprobe-dut.pcap on the page
+PASS raw hash pts1/extcap.raw on the page
+PASS raw hash pts1/mcasp-all.raw on the page
+PASS raw size pts1/mcasp-all.raw on the page
+PASS raw hash pts1/tap-dut.pcap on the page
+PASS raw size pts1/tap-dut.pcap on the page
+PASS raw hash pts1/tap-peer.pcap on the page
+PASS raw size pts1/tap-peer.pcap on the page
+PASS raw hash pts2/b6-loop.raw on the page
+PASS raw size pts2/b6-loop.raw on the page
+PASS raw hash pts2/extcap.raw on the page
+PASS raw hash pts2/mcasp-all.raw on the page
+PASS raw size pts2/mcasp-all.raw on the page
+PASS raw hash pts2/tap-dut.pcap on the page
+PASS raw size pts2/tap-dut.pcap on the page
+PASS raw hash pts2/tap-peer.pcap on the page
+PASS raw size pts2/tap-peer.pcap on the page
+PASS census 45 of 46 equal :: {"same": 45, "compared": 46}
+PASS census: the one difference is GET_AVB_INFO (propagation delay 0x17d -> 0x183)
+FAILS 0
+rc=0

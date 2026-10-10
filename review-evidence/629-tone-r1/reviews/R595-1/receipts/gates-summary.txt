@@ -1,0 +1,10 @@
+rc=0 docs_check: <pinned-md-venv>/bin/python scripts/docs_check.py
+rc=0 doc_style: <pinned-md-venv>/bin/python scripts/check_doc_style.py
+rc=0 gen_toc_check: <pinned-md-venv>/bin/python scripts/gen_toc.py --check
+rc=0 gen_toc_anchors: <pinned-md-venv>/bin/python scripts/gen_toc.py --verify-anchors
+rc=0 em_dash: <pinned-md-venv>/bin/python scripts/check_em_dash.py --base e8454e2751d05b02ee8e5a571857589ab358ab86
+rc=0 doc_paths: <pinned-md-venv>/bin/python scripts/check_doc_paths.py
+rc=0 diff_check: git diff --check e8454e2751d05b02ee8e5a571857589ab358ab86 HEAD
+rc=0 ci_scope: python3 -I scripts/ci_scope.py --selftest
+rc=0 baremetal: python3 -I scripts/check_baremetal_only.py --check
+rc=0 feature_status: python3 -I scripts/check_feature_status.py --self-test
