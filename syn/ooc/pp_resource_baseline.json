@@ -24,30 +24,30 @@
      ],
      "standalone_clock_ns": []
     },
-    "inputs_sha256": "a657424864b80a757be6e87cfee55730474d6a60e6d346c27edd3892446e4fab",
+    "inputs_sha256": "29b603ffb306c3cdc07e7dd2bdb35091dd8a30b22ad6402f4b8a8d48528d8e1a",
     "figures": {
-     "LUT": 50230,
-     "FF": 54308,
-     "SLICE": 15823,
+     "LUT": 50013,
+     "FF": 54306,
+     "SLICE": 15753,
      "BRAM_TILE": 87.5,
      "RAMB36": 74,
      "RAMB18": 27,
      "DSP": 14,
-     "WNS_ns": 0.114,
-     "WHS_ns": 0.036,
+     "WNS_ns": 0.233,
+     "WHS_ns": 0.017,
      "CARRY4": 3397
     },
     "scopes": {
      "wrapper": {
-      "LUT": 22873,
-      "FF": 18786,
+      "LUT": 22993,
+      "FF": 18780,
       "RAMB36": 16,
       "RAMB18": 3,
       "DSP": 8,
       "CARRY4": 1443
      },
      "ctl_fifo": {
-      "LUT": 72,
+      "LUT": 69,
       "FF": 33,
       "RAMB36": 1,
       "RAMB18": 1,
@@ -55,7 +55,7 @@
       "CARRY4": 3
      },
      "u_nvm": {
-      "LUT": 488,
+      "LUT": 487,
       "FF": 476,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -63,15 +63,15 @@
       "CARRY4": 47
      },
      "u_pp": {
-      "LUT": 22318,
-      "FF": 17956,
+      "LUT": 22442,
+      "FF": 17950,
       "RAMB36": 15,
       "RAMB18": 2,
       "DSP": 4,
       "CARRY4": 1387
      },
      "u_pp/g_rx_pool[0].u_rx_slots": {
-      "LUT": 38,
+      "LUT": 37,
       "FF": 38,
       "RAMB36": 1,
       "RAMB18": 0,
@@ -111,7 +111,7 @@
       "CARRY4": 3
      },
      "u_pp/u_adp": {
-      "LUT": 384,
+      "LUT": 386,
       "FF": 471,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -119,7 +119,7 @@
       "CARRY4": 32
      },
      "u_pp/u_aecp": {
-      "LUT": 7733,
+      "LUT": 7874,
       "FF": 3596,
       "RAMB36": 6,
       "RAMB18": 0,
@@ -127,7 +127,7 @@
       "CARRY4": 463
      },
      "u_pp/u_aecp/u_d3": {
-      "LUT": 1871,
+      "LUT": 1817,
       "FF": 582,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -135,7 +135,7 @@
       "CARRY4": 103
      },
      "u_pp/u_aecp/u_dyn": {
-      "LUT": 1054,
+      "LUT": 1289,
       "FF": 467,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -143,7 +143,7 @@
       "CARRY4": 60
      },
      "u_pp/u_aecp/u_resp": {
-      "LUT": 339,
+      "LUT": 338,
       "FF": 260,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -151,7 +151,7 @@
       "CARRY4": 16
      },
      "u_pp/u_aecp/u_store": {
-      "LUT": 979,
+      "LUT": 980,
       "FF": 694,
       "RAMB36": 2,
       "RAMB18": 0,
@@ -159,7 +159,7 @@
       "CARRY4": 106
      },
      "u_pp/u_aecp/u_ucpu": {
-      "LUT": 1763,
+      "LUT": 1720,
       "FF": 495,
       "RAMB36": 3,
       "RAMB18": 0,
@@ -167,7 +167,7 @@
       "CARRY4": 72
      },
      "u_pp/u_ca_builder": {
-      "LUT": 113,
+      "LUT": 112,
       "FF": 152,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -183,7 +183,7 @@
       "CARRY4": 0
      },
      "u_pp/u_dispatch": {
-      "LUT": 666,
+      "LUT": 670,
       "FF": 635,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -207,7 +207,7 @@
       "CARRY4": 0
      },
      "u_pp/u_dispatch/u_aecp_q": {
-      "LUT": 322,
+      "LUT": 326,
       "FF": 287,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -223,7 +223,7 @@
       "CARRY4": 0
      },
      "u_pp/u_event_router": {
-      "LUT": 222,
+      "LUT": 236,
       "FF": 51,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -231,7 +231,7 @@
       "CARRY4": 0
      },
      "u_pp/u_listener": {
-      "LUT": 1451,
+      "LUT": 1452,
       "FF": 1054,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -263,8 +263,8 @@
       "CARRY4": 6
      },
      "u_pp/u_notify": {
-      "LUT": 2199,
-      "FF": 1288,
+      "LUT": 2210,
+      "FF": 1292,
       "RAMB36": 0,
       "RAMB18": 0,
       "DSP": 0,
@@ -287,7 +287,7 @@
       "CARRY4": 73
      },
      "u_pp/u_nvm_shadow": {
-      "LUT": 791,
+      "LUT": 792,
       "FF": 1118,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -295,7 +295,7 @@
       "CARRY4": 51
      },
      "u_pp/u_originator": {
-      "LUT": 688,
+      "LUT": 684,
       "FF": 885,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -303,7 +303,7 @@
       "CARRY4": 53
      },
      "u_pp/u_prng": {
-      "LUT": 140,
+      "LUT": 137,
       "FF": 150,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -319,7 +319,7 @@
       "CARRY4": 0
      },
      "u_pp/u_rx_validator": {
-      "LUT": 496,
+      "LUT": 498,
       "FF": 751,
       "RAMB36": 0,
       "RAMB18": 1,
@@ -327,7 +327,7 @@
       "CARRY4": 35
      },
      "u_pp/u_scoreboard": {
-      "LUT": 139,
+      "LUT": 145,
       "FF": 169,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -343,15 +343,15 @@
       "CARRY4": 0
      },
      "u_pp/u_srp": {
-      "LUT": 3639,
-      "FF": 3838,
+      "LUT": 3638,
+      "FF": 3828,
       "RAMB36": 0,
       "RAMB18": 1,
       "DSP": 2,
       "CARRY4": 237
      },
      "u_pp/u_srp/u_admission": {
-      "LUT": 244,
+      "LUT": 245,
       "FF": 143,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -359,7 +359,7 @@
       "CARRY4": 16
      },
      "u_pp/u_srp/u_decoder": {
-      "LUT": 580,
+      "LUT": 579,
       "FF": 630,
       "RAMB36": 0,
       "RAMB18": 1,
@@ -375,15 +375,15 @@
       "CARRY4": 0
      },
      "u_pp/u_srp/u_encoder": {
-      "LUT": 1355,
-      "FF": 1061,
+      "LUT": 1351,
+      "FF": 1053,
       "RAMB36": 0,
       "RAMB18": 0,
       "DSP": 0,
       "CARRY4": 102
      },
      "u_pp/u_srp/u_listener": {
-      "LUT": 493,
+      "LUT": 485,
       "FF": 667,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -391,15 +391,15 @@
       "CARRY4": 35
      },
      "u_pp/u_srp/u_talker": {
-      "LUT": 460,
-      "FF": 604,
+      "LUT": 472,
+      "FF": 602,
       "RAMB36": 0,
       "RAMB18": 0,
       "DSP": 0,
       "CARRY4": 24
      },
      "u_pp/u_srp/u_vlan": {
-      "LUT": 241,
+      "LUT": 236,
       "FF": 126,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -407,7 +407,7 @@
       "CARRY4": 9
      },
      "u_pp/u_talker": {
-      "LUT": 664,
+      "LUT": 624,
       "FF": 517,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -448,7 +448,7 @@
      }
     }
    },
-   "measured": "2026-10-10, issue #696: RTL inputs at 0df486370990fddf9b60096be2f2371150692a10, the merge of dev 8b61b70902f3ebf118e56967277e2686731081bd into 39571196045ddcc881f9ad0957742537175441d6, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap Annex B corrections. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #645/#647 record at a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+   "measured": "2026-10-10, issue #696 first draw: RTL inputs at lane head bee1b0d712773de799e50f8d9cfc7a02263651f4, which merges dev e8454e2751d05b02ee8e5a571857589ab358ab86 (merge commit 941ba7463ebfc4fb961db78842ce5012e4f96928), processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap first-draw folds, the only input that differs from the preceding record. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #696 record at 0df486370990fddf9b60096be2f2371150692a10; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 500,
     "FF": 600,
@@ -485,7 +485,7 @@
       "20.000"
      ]
     },
-    "inputs_sha256": "80fe5d9017b819d9c13b08f5529be7f26fde2bfb414607c4e3c270b915223d09",
+    "inputs_sha256": "b2a2e9dfe56b79bfc6748f34dcca5808e1b229fffcdd0ac079685f4b95c0ca15",
     "figures": {
      "LUT": 23179,
      "FF": 19779,
@@ -916,7 +916,7 @@
      }
     }
    },
-   "measured": "2026-10-10, issue #696: RTL inputs at 0df486370990fddf9b60096be2f2371150692a10, the merge of dev 8b61b70902f3ebf118e56967277e2686731081bd into 39571196045ddcc881f9ad0957742537175441d6, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap Annex B corrections. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #645/#647 record at a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+   "measured": "2026-10-10, issue #696 first draw: RTL inputs at lane head bee1b0d712773de799e50f8d9cfc7a02263651f4, which merges dev e8454e2751d05b02ee8e5a571857589ab358ab86 (merge commit 941ba7463ebfc4fb961db78842ce5012e4f96928), processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap first-draw folds, the only input that differs from the preceding record. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #696 record at 0df486370990fddf9b60096be2f2371150692a10; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 250,
     "FF": 250,
@@ -943,7 +943,7 @@
       "20.000"
      ]
     },
-    "inputs_sha256": "cf62186b9d52d5876c8dffa92d46432c428236f1a5396ddb65cd45cc6195a4c4",
+    "inputs_sha256": "3b3ed3f9fa6242804f65d9009b59f112deea3d05d6206796e5ba1da9b97391a3",
     "figures": {
      "LUT": 30135,
      "FF": 27380,
@@ -1374,7 +1374,7 @@
      }
     }
    },
-   "measured": "2026-10-10, issue #696: RTL inputs at 0df486370990fddf9b60096be2f2371150692a10, the merge of dev 8b61b70902f3ebf118e56967277e2686731081bd into 39571196045ddcc881f9ad0957742537175441d6, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap Annex B corrections. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #645/#647 record at a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+   "measured": "2026-10-10, issue #696 first draw: RTL inputs at lane head bee1b0d712773de799e50f8d9cfc7a02263651f4, which merges dev e8454e2751d05b02ee8e5a571857589ab358ab86 (merge commit 941ba7463ebfc4fb961db78842ce5012e4f96928), processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap first-draw folds, the only input that differs from the preceding record. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #696 record at 0df486370990fddf9b60096be2f2371150692a10; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 316,
     "FF": 339,
