@@ -1,0 +1,7 @@
+base e8454e2751d05b02ee8e5a571857589ab358ab86 on endstation_ax7101_1x1_tdm8: 645 finding(s), 124 naming 'was lost on the clean reboot'
+  slot A valid at seq 0x1, --read-fault a:0:0:2:8: slot A was taken as VD_MAGIC on reads that returned different bytes: Milan NVM: slot A VD_MAGIC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_MAGIC)
+  slot A valid at seq 0x1, --read-fault a:0:0:2:8: 53 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+  slot A valid at seq 0x1, --read-fault a:1686:0:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  slot A valid at seq 0x1, --read-fault a:0:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+  slot A valid at seq 0x1, --read-fault a:1686:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+  slot A valid at seq 0x1, --read-fault a:11:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored f2031425, want 40414243

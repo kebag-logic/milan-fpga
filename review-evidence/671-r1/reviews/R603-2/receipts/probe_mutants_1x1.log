@@ -1,0 +1,9 @@
+p_reattach_goes_live     endstation_ax7101_1x1_tdm8   SURVIVED
+p_cold_goes_live         endstation_ax7101_1x1_tdm8   CAUGHT (2 finding(s)); first: slot A valid at seq 0x1, --read-fault a:0:1:3:8: 53 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+host build failed: gcc -std=gnu11 -O1 -g -Wall -Wextra -Werror -I/tmp/r603probe.jpdc5bap/endstation_ax7101_1x1_tdm8/p_no_second_agreement -I$REVIEWS/671-r603-2-packet/scratch/head/sw/firmware/nvm_hosttest/stubs -Wno-format -c /tmp/r603probe.jpdc5bap/endstation_ax7101_1x1_tdm8/p_no_second_agreement/milan_baremetal.c -o /tmp/r603probe.jpdc5bap/endstation_ax7101_1x1_tdm8/p_no_second_agreement/fw.o
+/tmp/r603probe.jpdc5bap/endstation_ax7101_1x1_tdm8/p_no_second_agreement/milan_baremetal.c: In function ‘nvm_judge_slot’:
+/tmp/r603probe.jpdc5bap/endstation_ax7101_1x1_tdm8/p_no_second_agreement/milan_baremetal.c:784:25: error: variable ‘second’ set but not used [-Werror=unused-but-set-variable=]
+  784 |         struct nvm_read second = first;
+      |                         ^~~~~~
+cc1: all warnings being treated as errors
+

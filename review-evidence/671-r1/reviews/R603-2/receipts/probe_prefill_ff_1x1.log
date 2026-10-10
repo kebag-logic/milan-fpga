@@ -1,0 +1,6 @@
+--- control: faulty_reads=0 acks=1; ['Milan NVM: commit (dirty) seq 370086 -> slot B, 3336 B, capture 1 acknowledged.']
+    clean reboot: Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370086; offered B seq 370086 (VD_OK)
+    changed record ('NAME', 38): kept; open record ('NAME', 37): saved 6f8091a2b3c4d5e6, restored 6f8091a2b3c4d5e6
+--- prefill_ff: faulty_reads=3336 acks=1; ['Milan NVM: commit (dirty) seq 370086 -> slot B, 3336 B, capture 1 acknowledged.']
+    clean reboot: Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370086; offered B seq 370086 (VD_OK)
+    changed record ('NAME', 38): kept; open record ('NAME', 37): saved 6f8091a2b3c4d5e6, restored nothing (erased record)

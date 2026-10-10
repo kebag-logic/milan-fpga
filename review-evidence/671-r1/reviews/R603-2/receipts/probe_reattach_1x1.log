@@ -1,0 +1,46 @@
+shape endstation_ax7101_1x1_tdm8; slot A blank, slot B valid at 0x5a5a5; change at image offset 3258
+--- head/fault: restart transcript
+    Milan NVM: slot B gave no standing verdict in 3 reads; its authority is unknown, so the writer is HELD until reset and nothing is persisted.
+    Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+    Milan NVM: slot A VD_BLANK seq 0, slot B VD_LEN seq 0; offered - seq 0 (VD_LEN), 3336 B at 0xf7e960e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=2 unread=2.
+    HOST restarted
+    HOST change 72 B at image offset 3258
+    HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=0 dirty=1 stale=1 valid=1 verdict=3 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=3292 losses=1 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=10 boot_reads=5 faulty_reads=5 now_ms=3115
+    after the restart: held=True erases=0 programs=0 acks=0 backed=0 dirty=1; slot A now not a valid container
+    clean reboot: Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK)
+    the change was LOST the clean reboot
+    EXPECTATION MET for head/fault
+--- head/control: restart transcript
+    Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+    Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 3336 B at 0x3f8fa0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=0 unread=0.
+    HOST restarted
+    HOST change 72 B at image offset 3258
+    Milan NVM: commit (dirty) seq 370086 -> slot A, 3336 B, capture 1 acknowledged.
+    HOST hb=13 acks=1 starts=1 erases=1 programs=14 max_hb_gap_ms=250 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370086 base_ok=1 img_len=3292 losses=0 arms=1 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=1 walks=1 enable_first=0 closed=0 reads=3349 boot_reads=5 faulty_reads=0 now_ms=3115
+    after the restart: held=False erases=1 programs=14 acks=1 backed=1 dirty=0; slot A now seq 0x5a5a6
+    clean reboot: Milan NVM: slot A VD_OK seq 370086, slot B VD_OK seq 370085; offered A seq 370086 (VD_OK)
+    the change SURVIVED the clean reboot
+    EXPECTATION MET for head/control
+--- p_reattach_goes_live/fault: restart transcript
+    Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+    Milan NVM: slot A VD_BLANK seq 0, slot B VD_LEN seq 0; offered - seq 0 (VD_LEN), 3336 B at 0x132890e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=2 unread=2.
+    HOST restarted
+    HOST change 72 B at image offset 3258
+    Milan NVM: commit (dirty) seq 1 -> slot A, 3336 B, capture 1 acknowledged.
+    HOST hb=13 acks=1 starts=1 erases=1 programs=14 max_hb_gap_ms=250 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=3292 losses=0 arms=1 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=1 walks=1 enable_first=0 closed=0 reads=14 boot_reads=5 faulty_reads=5 now_ms=3115
+    after the restart: held=False erases=1 programs=14 acks=1 backed=1 dirty=0; slot A now seq 0x1
+    clean reboot: Milan NVM: slot A VD_OK seq 1, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK)
+    the change was LOST the clean reboot
+    EXPECTATION MET for p_reattach_goes_live/fault
+--- p_reattach_goes_live/control: restart transcript
+    Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+    Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 3336 B at 0xe72dd0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=0 unread=0.
+    HOST restarted
+    HOST change 72 B at image offset 3258
+    Milan NVM: commit (dirty) seq 370086 -> slot A, 3336 B, capture 1 acknowledged.
+    HOST hb=13 acks=1 starts=1 erases=1 programs=14 max_hb_gap_ms=250 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370086 base_ok=1 img_len=3292 losses=0 arms=1 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=1 walks=1 enable_first=0 closed=0 reads=3349 boot_reads=5 faulty_reads=0 now_ms=3115
+    after the restart: held=False erases=1 programs=14 acks=1 backed=1 dirty=0; slot A now seq 0x5a5a6
+    clean reboot: Milan NVM: slot A VD_OK seq 370086, slot B VD_OK seq 370085; offered A seq 370086 (VD_OK)
+    the change SURVIVED the clean reboot
+    EXPECTATION MET for p_reattach_goes_live/control
+probe_reattach: every expectation met
