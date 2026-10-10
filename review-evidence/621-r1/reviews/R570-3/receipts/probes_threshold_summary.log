@@ -1,0 +1,17 @@
+== t3-third-loss rc=1
+LOSS cycle=385600103 delay=500 since_step_ns=3999855000 unanswered=3
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=3
+  [FAIL] asCapable falls at the fourth unanswered request after a crossing exchange got=3 exp=4
+LOSS cycle=457600103 delay=500 since_step_ns=2999855000 unanswered=2
+ARM unanswered crossing drops=1 unanswered=5 unanswered_at_drop=2
+  [FAIL] asCapable falls at the third unanswered request after an unanswered crossing request got=2 exp=3
+== phc_step: checks: 62   failures: 2 ==
+== t5-fifth-loss rc=1
+  [FAIL] missing peer still clears asCapable      got=4 exp=0
+ARM liveness drops=0 unanswered=5 unanswered_at_drop=0
+  [FAIL] liveness: asCapable falls once while the peer is silent got=0 exp=1
+  [FAIL] asCapable falls at the fourth unanswered request after a crossing exchange got=0 exp=4
+LOSS cycle=473600103 delay=500 since_step_ns=4999855000 unanswered=4
+ARM unanswered crossing drops=1 unanswered=5 unanswered_at_drop=4
+  [FAIL] asCapable falls at the third unanswered request after an unanswered crossing request got=4 exp=3
+== phc_step: checks: 62   failures: 4 ==

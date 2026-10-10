@@ -1,0 +1,13 @@
+rc=0 scripts/check_doc_style.py
+rc=2 scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+rc=2 scripts/check_em_dash.py --base d96b4a8471028d3dfd370ce61dbe05ca9957320a
+rc=0 scripts/check_cpp_idiom.py
+rc=0 scripts/check_py_idiom.py
+rc=0 scripts/check_doc_paths.py
+rc=0 scripts/measure_test_evidence.py --check
+rc=0 scripts/check_gptp_docs.py --with-submodule
+rc=0 scripts/check_nvm_capture.py
+diff-check rc=0
+base 5603c353137e90c1fa95429f6d00ef7a2298d9ee added-md-lines-with-U+2014: 0
+base d96b4a8471028d3dfd370ce61dbe05ca9957320a added-md-lines-with-U+2014: 0
+rc=0 scripts/measure_test_evidence.py --selftest

@@ -1,0 +1,37 @@
+build h0 rc=0
+build h1 rc=0
+== generate clean rc=0
+gptp_ucode.hex: 1024 words, 1016 real (99.2%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 PDEPOCH@59 SRTO@187 FUTO@249 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+== generate g1-romroom rc=1
+  File "<PACKET>/scratch/probe/g1-romroom/generate.py", line 2109, in build
+    raise AssertionError(f"leg {name} ({sz} words) does not fit")
+AssertionError: leg BECGATE (9 words) does not fit
+== generate g2-credit-at-step rc=0
+gptp_ucode.hex: 1024 words, 982 real (95.9%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@898 ANNTX@385 PDPOST@29 PDPAIR@616 PDEPOCH@10 SRTO@59 FUTO@187 SERVO@976 SLEW@159 SVRATE@955 RESUME@993 PDREQ@839 TXLOST@677 TXT1OK@0
+== run g2-credit-at-step with head rc=1
+LOSS cycle=393600082 delay=500 since_step_ns=4999855000 unanswered=4
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=4
+LOSS cycle=473600082 delay=500 since_step_ns=4999855000 unanswered=4
+ARM unanswered crossing drops=1 unanswered=5 unanswered_at_drop=4
+  [FAIL] asCapable falls at the third unanswered request after an unanswered crossing request got=4 exp=3
+== phc_step: checks: 62   failures: 1 ==
+== run clean with h0 rc=0
+LOSS cycle=393600103 delay=500 since_step_ns=4999855000 unanswered=4
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=4
+DIAG liveness probe_request=353600205 probe_stamp=353600273 step=353601263 probe_response=353606613 fu=353607113
+LOSS cycle=465600103 delay=500 since_step_ns=3999855000 unanswered=3
+ARM unanswered crossing drops=1 unanswered=5 unanswered_at_drop=3
+DIAG unanswered crossing probe_request=433600205 probe_stamp=433600273 step=433601263 probe_response=0 fu=0
+== phc_step: checks: 62   failures: 0 ==
+== run clean with h1 rc=1
+LOSS cycle=393600103 delay=500 since_step_ns=4999855000 unanswered=4
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=4
+DIAG liveness probe_request=353600205 probe_stamp=353600273 step=353601263 probe_response=353606613 fu=353607113
+LOSS cycle=473600103 delay=500 since_step_ns=4999855000 unanswered=4
+ARM unanswered crossing drops=1 unanswered=5 unanswered_at_drop=4
+DIAG unanswered crossing probe_request=433600205 probe_stamp=433600273 step=433601263 probe_response=433606613 fu=433607113
+  [FAIL] unanswered crossing: crossing exchange never completes
+  [FAIL] asCapable falls at the third unanswered request after an unanswered crossing request got=4 exp=3
+== phc_step: checks: 62   failures: 2 ==
