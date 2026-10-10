@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import importlib.util as u; s=u.spec_from_file_location('run','run_nobound.py'); m=u.module_from_spec(s); s.loader.exec_module(m); m.byte_only_controls(); print('plant nobound ESCAPED')
+                                                                                                                                       ~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/621-r571-1-packet/scratch/capture-plant/run_nobound.py", line 126, in byte_only_controls
+    raise RuntimeError('production timing bound was ignored')
+RuntimeError: production timing bound was ignored

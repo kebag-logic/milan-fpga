@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import importlib.util as u; s=u.spec_from_file_location('run','run_revert.py'); m=u.module_from_spec(s); s.loader.exec_module(m); m.byte_only_controls(); print('plant revert ESCAPED')
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/621-r571-1-packet/scratch/capture-plant/run_revert.py", line 118, in byte_only_controls
+    grade_byte_only(grade_rows([row], spec), baseline)
+                    ~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/621-r571-1-packet/scratch/capture-plant/run_revert.py", line 79, in grade_rows
+    raise RuntimeError('worst measured copy exceeds half the 49 ms hold floor')
+RuntimeError: worst measured copy exceeds half the 49 ms hold floor
