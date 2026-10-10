@@ -473,7 +473,8 @@ MUTANTS += maap_mutants(Mutant)
 #: rules are planted too. Each is killed by a test that names it.
 PUB_SINK_FIRST_WRITE = ("\tmbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);\n"
                         "\tif (stream_id != 0u) {")
-PUB_SINK_ENTRY = "bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream_id)\n{\n"
+PUB_SINK_ENTRY = ("bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, "
+                  "uint64_t stream_id)\n{\n")
 PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool started, "
                      "bool sid_valid)\n{\n")
 PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
