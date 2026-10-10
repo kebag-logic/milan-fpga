@@ -1,0 +1,24 @@
+[CAUGHT] R585-1 escaped: include in the stack's CTRL_REENTRY_ASSERT region: rc 1 
+      [FAIL] host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+      [FAIL] rv32 [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[CAUGHT] R585-1 escaped: adapter reaches tests/acmp_fake.hpp by its search-path name: rc 1 
+      [FAIL] firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+      [FAIL] firmware rv32 [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[CAUGHT] R585-1 escaped: #ifndef NDEBUG include in a stack source: rc 1 
+      [FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+      [FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h
+      [FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+[CAUGHT] R584-1-S2: a stack test includes the mailbox HAL: rc 1 
+      [FAIL] tests: the stack's tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h
+[CAUGHT] new: a stack test header includes the register-map contract: rc 1 
+      [FAIL] tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_contract.h
+      [FAIL] tests: the stack's tests/acmp_fake.hpp includes sw/firmware/ctrl/mbx/mbx_contract.h
+[CAUGHT] new: RV32-only include in a stack source: rc 1 
+      [FAIL] rv32: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[CAUGHT] new: RV32-only firmware reach into a stack source: rc 1 
+      [FAIL] firmware rv32: adp/adp_mbx.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers
+[CAUGHT] new: AECP saved-state mode reaches a stack source: rc 1 
+      [FAIL] firmware [-DAECP_TEST_NVM]: aecp/aecp_nvm.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+      [FAIL] firmware rv32 [-DAECP_TEST_NVM]: aecp/aecp_nvm.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[GAP-ESCAPED] gap: include under a shape value the image builder computes (IMAGE_SINKS > 1): rc 0 
+[GAP-ESCAPED] gap: a mode a builder writes as two tokens: rc 0 

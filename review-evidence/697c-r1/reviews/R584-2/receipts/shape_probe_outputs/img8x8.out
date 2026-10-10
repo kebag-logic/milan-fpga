@@ -1,0 +1,5 @@
+compiler: <rv32-sdk>/host/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0; libgcc.a sha256 faef00acffa378a84c98c04cb6e548ed3881d7f90048f998f2efaf02c5cb280a (not linked)
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+REFUSED: riscv32-linux-gcc failed: <packet>/scratch/shapeprobe/sw/firmware/ctrl/test/rv32_image/image_main.c:32:2: error: #error PROBE-REACHED: the 8x8 image compiled the stack example header
+   32 | #error PROBE-REACHED: the 8x8 image compiled the stack example header
+      |  ^~~~~

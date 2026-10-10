@@ -1,0 +1,36 @@
+build modes read from the builders: ADP_TEST_COVERAGE (-DADP_TEST_COVERAGE); ADP_TEST_RELEASE (-DADP_TEST_RELEASE); AECP_TEST_APP (-DAECP_TEST_APP); AECP_TEST_MAILBOX (-DAECP_TEST_MAILBOX); AECP_TEST_NVM (-DAECP_TEST_NVM); CTRL_APP_TEST_SRP (-DCTRL_APP_TEST_SRP); CTRL_IMAGE_SRP (-DCTRL_IMAGE_SRP); CTRL_MBX_BASE (-DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window) -DCTRL_MBX_BASE=0x80000000u); CTRL_MBX_WFI (-DCTRL_MBX_WFI=ctrl_test_wfi); CTRL_REENTRY_ASSERT (-DCTRL_REENTRY_ASSERT); LWSRP_MILAN (-DLWSRP_MILAN=1); NDEBUG (-UNDEBUG -DNDEBUG); NVM_DOCTORED_MAPIN (-DNVM_DOCTORED_MAPIN); NVM_DOCTORED_NONAME (-DNVM_DOCTORED_NONAME); PP_TOP_IF2 (-DPP_TOP_IF2); PP_TOP_TIM_DEFAULTS (-DPP_TOP_TIM_DEFAULTS); mrp_transmit (-Dmrp_transmit=srp_test_transmit_real); shlan_calloc (-Dshlan_calloc=srp_test_calloc)
+tsn-c-stack at d8283d0821881fdaf1ac3bc064c0fcbf5e964ab4
+    gcc: compiler boundary examination failed
+    [ 25%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+    [ 50%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+    [ 75%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+    <packet>/scratch/bprobes/p02/third_party/tsn-c-stack/src/maap.c:8:10: fatal error: ctrl_loop.h: No such file or directory
+        8 | #include "ctrl_loop.h"
+          |          ^~~~~~~~~~~~~
+    compilation terminated.
+    make[2]: *** [CMakeFiles/tsn.dir/build.make:107: CMakeFiles/tsn.dir/src/maap.c.o] Error 1
+    make[2]: *** Waiting for unfinished jobs....
+    make[1]: *** [CMakeFiles/Makefile2:87: CMakeFiles/tsn.dir/all] Error 2
+    make: *** [Makefile:91: all] Error 2
+    
+    clang: compiler boundary examination failed
+    [ 25%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+    [ 50%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+    [ 75%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+    <packet>/scratch/bprobes/p02/third_party/tsn-c-stack/src/maap.c:8:10: fatal error: 'ctrl_loop.h' file not found
+        8 | #include "ctrl_loop.h"
+          |          ^~~~~~~~~~~~~
+    1 error generated.
+    make[2]: *** [CMakeFiles/tsn.dir/build.make:107: CMakeFiles/tsn.dir/src/maap.c.o] Error 1
+    make[2]: *** Waiting for unfinished jobs....
+    make[1]: *** [CMakeFiles/Makefile2:87: CMakeFiles/tsn.dir/all] Error 2
+    make: *** [Makefile:91: all] Error 2
+  [FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+  [FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h
+  [FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+  [FAIL] rv32 [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+  [FAIL] rv32 [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h
+  [FAIL] rv32 [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+  [FAIL] the stack's own gate third_party/tsn-c-stack/scripts/check_boundary.py refused: exit 1
+ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 7 finding(s)
+ctrl_boundary: FAIL

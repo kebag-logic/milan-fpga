@@ -1,0 +1,66 @@
+wrote <packet>/scratch/images2/dev/aecp-endstation_arty_4x4-if2/keep/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/images2/dev/aecp-endstation_arty_4x4-if2/keep/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/images2/dev/aecp-endstation_arty_4x4-if2/keep/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_arty_4x4",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 83252,
+    ".rodata": 15342,
+    ".data": 112,
+    ".bss": 65516,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 16,
+    "image_app": 9640,
+    "image_arena": 31936,
+    "image_binding": 40,
+    "image_descriptors": 1088,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 1360,
+    "image_latency": 20,
+    "image_licences": 10,
+    "image_map_pools": 112,
+    "image_maps": 128,
+    "image_map_scratch": 32,
+    "image_model": 12,
+    "image_names": 660,
+    "image_sources": 320,
+    "image_srp": 5384,
+    "image_state": 84,
+    "image_values": 6601
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 2654,
+      "sha256": "8769e3c691d28393d67e8b20607fc0f793e2b23933093bfcc24f1be65e47b501"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 10868,
+      "sha256": "fc76c70238ee9529e27ac19ac21d1cb37759c163799a781d538bf69b6427702e"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 124832,
+      "sha256": "f3fc251164d8ecd654b5fc800041b8421cc41e249904bd1ffae6dafd19b50b86"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 145115,
+      "sha256": "f107f7b8274921e4d27049d7daa72f3a1bf982a6b7d6c680205a72a50c9b2cfc"
+    }
+  ],
+  "ram_sections": 172414,
+  "ram_span": 172432
+}

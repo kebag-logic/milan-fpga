@@ -1,0 +1,15 @@
+scripts/ci_events.py 546 CONST 'cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF'
+sw/firmware/ctrl/test/aecp_arms.py 63 FSTR f'-DAECP_TEST_INTERFACES={interfaces}'
+sw/firmware/ctrl/test/aecp_wire.py 134 FSTR f'-DAECP_WIRE_INTERFACES={args.interfaces}'
+sw/firmware/ctrl/test/ctrl_arms.py 218 FSTR f'-DPP_ENTITY_CAPS=0x{entity_caps():X}u'
+sw/firmware/ctrl/test/ctrl_image.py 4 CONST "ctrl_image.py - the composed ctrl_app linked for RV32I, and its sizes (#665 acceptance addition 6030870481).\n\nWHAT IT MEASURES. For each shape (a s
+sw/firmware/ctrl/test/ctrl_image.py 351 FSTR f'-DIMAGE_SINKS={image.sinks}u'
+sw/firmware/ctrl/test/ctrl_image.py 351 FSTR f'-DIMAGE_SOURCES={image.sources}u'
+sw/firmware/ctrl/test/srp_arms.py 57 FSTR f"-DSRP_EXPECT_SOURCES={expected['talker_stream_sources']}"
+sw/firmware/ctrl/test/srp_arms.py 58 FSTR f"-DSRP_EXPECT_SINKS={expected['listener_stream_sinks']}"
+sw/firmware/ctrl_nvm/test/nvm_bench.py 200 FSTR f'-DNVM_TALLY_SHAPE="{inputs.cfg.stem}"'
+sw/firmware/gtest/fw_gtest.py 168 FSTR f'-DFW_GTEST_LABEL="{label}"'
+tb/verilator/mbx/Makefile 32 # -Werror-USERERROR: an elaboration $error is a failed build, never a warning.
+tb/verilator/mbx/Makefile 33 # -Werror-PINMISSING / -Werror-UNDRIVEN: a dropped binding is refused by name.
+tb/verilator/mbx/Makefile 35 -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN \
+tb/verilator/mbx/Makefile 36 -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \

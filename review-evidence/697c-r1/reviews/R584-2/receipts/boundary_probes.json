@@ -1,0 +1,168 @@
+[
+  {
+    "probe": "R585-1 escaped: include in the stack's CTRL_REENTRY_ASSERT region",
+    "side": "stack",
+    "file": "src/acmp.c",
+    "needle": "host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "rc": 1,
+    "pin": "tsn-c-stack at 76b15210fd6d21915ee2057bee48f43e9fdb8484",
+    "verdict": "CAUGHT",
+    "findings": [
+      "[FAIL] host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+      "[FAIL] rv32 [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"
+    ],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 2 finding(s)",
+      "ctrl_boundary: FAIL"
+    ]
+  },
+  {
+    "probe": "R585-1 escaped: adapter reaches tests/acmp_fake.hpp by its search-path name",
+    "side": "ctrl",
+    "file": "acmp/acmp_mbx.c",
+    "needle": "acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp",
+    "rc": 1,
+    "pin": "tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92",
+    "verdict": "CAUGHT",
+    "findings": [
+      "[FAIL] firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers",
+      "[FAIL] firmware rv32 [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers"
+    ],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 2 finding(s)",
+      "ctrl_boundary: FAIL"
+    ]
+  },
+  {
+    "probe": "R585-1 escaped: #ifndef NDEBUG include in a stack source",
+    "side": "stack",
+    "file": "src/maap.c",
+    "needle": "host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "rc": 1,
+    "pin": "tsn-c-stack at d8283d0821881fdaf1ac3bc064c0fcbf5e964ab4",
+    "verdict": "CAUGHT",
+    "findings": [
+      "[FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+      "[FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h",
+      "[FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+      "[FAIL] rv32 [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+      "[FAIL] rv32 [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h",
+      "[FAIL] rv32 [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+      "[FAIL] the stack's own gate third_party/tsn-c-stack/scripts/check_boundary.py refused: exit 1"
+    ],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 7 finding(s)",
+      "ctrl_boundary: FAIL"
+    ]
+  },
+  {
+    "probe": "R584-1-S2: a stack test includes the mailbox HAL",
+    "side": "stack",
+    "file": "tests/test_maap_debug.cpp",
+    "needle": "tests: the stack's tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "rc": 1,
+    "pin": "tsn-c-stack at 479b1c8ff1a456b6bb784aa749ec76a025a08e03",
+    "verdict": "CAUGHT",
+    "findings": [
+      "[FAIL] tests: the stack's tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h"
+    ],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 1 finding(s)",
+      "ctrl_boundary: FAIL"
+    ]
+  },
+  {
+    "probe": "new: a stack test header includes the register-map contract",
+    "side": "stack",
+    "file": "tests/acmp_fake.hpp",
+    "needle": "includes sw/firmware/ctrl/mbx/mbx_contract.h",
+    "rc": 1,
+    "pin": "tsn-c-stack at 71e0de73bd81e3167c757ad7b18b66d513194bed",
+    "verdict": "CAUGHT",
+    "findings": [
+      "[FAIL] tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_contract.h",
+      "[FAIL] tests: the stack's tests/acmp_fake.hpp includes sw/firmware/ctrl/mbx/mbx_contract.h"
+    ],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 2 finding(s)",
+      "ctrl_boundary: FAIL"
+    ]
+  },
+  {
+    "probe": "new: RV32-only include in a stack source",
+    "side": "stack",
+    "file": "src/adp.c",
+    "needle": "rv32: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "rc": 1,
+    "pin": "tsn-c-stack at 928d2b14fc81eadcc269660a98db624b55cd42ea",
+    "verdict": "CAUGHT",
+    "findings": [
+      "[FAIL] rv32: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"
+    ],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 1 finding(s)",
+      "ctrl_boundary: FAIL"
+    ]
+  },
+  {
+    "probe": "new: RV32-only firmware reach into a stack source",
+    "side": "ctrl",
+    "file": "adp/adp_mbx.c",
+    "needle": "firmware rv32: adp/adp_mbx.c includes tsn-c-stack/src/adp.c",
+    "rc": 1,
+    "pin": "tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92",
+    "verdict": "CAUGHT",
+    "findings": [
+      "[FAIL] firmware rv32: adp/adp_mbx.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers"
+    ],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (377 preprocessings); 1 finding(s)",
+      "ctrl_boundary: FAIL"
+    ]
+  },
+  {
+    "probe": "new: AECP saved-state mode reaches a stack source",
+    "side": "ctrl",
+    "file": "aecp/aecp_nvm.c",
+    "needle": "aecp/aecp_nvm.c includes tsn-c-stack/src/maap.c",
+    "rc": 1,
+    "pin": "tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92",
+    "verdict": "CAUGHT",
+    "findings": [
+      "[FAIL] firmware [-DAECP_TEST_NVM]: aecp/aecp_nvm.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+      "[FAIL] firmware rv32 [-DAECP_TEST_NVM]: aecp/aecp_nvm.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers"
+    ],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (388 preprocessings); 2 finding(s)",
+      "ctrl_boundary: FAIL"
+    ]
+  },
+  {
+    "probe": "gap: include under a shape value the image builder computes (IMAGE_SINKS > 1)",
+    "side": "ctrl",
+    "file": "test/rv32_image/image_main.c",
+    "needle": null,
+    "rc": 0,
+    "pin": "tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92",
+    "verdict": "GAP-ESCAPED",
+    "findings": [],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 0 finding(s)",
+      "ctrl_boundary: PASS"
+    ]
+  },
+  {
+    "probe": "gap: a mode a builder writes as two tokens",
+    "side": "stack",
+    "file": "src/maap.c",
+    "needle": null,
+    "rc": 0,
+    "pin": "tsn-c-stack at fa071a4c3f632e7a1ed639a2c1c1f1cf3248a83d",
+    "verdict": "GAP-ESCAPED",
+    "findings": [],
+    "summary": [
+      "ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 0 finding(s)",
+      "ctrl_boundary: PASS"
+    ]
+  }
+]

@@ -1,0 +1,539 @@
+﻿2026-10-10T05:05:58.5344573Z Current runner version: '2.337.0'
+2026-10-10T05:05:58.5365644Z ##[group]Runner Image Provisioner
+2026-10-10T05:05:58.5366371Z Hosted Compute Agent
+2026-10-10T05:05:58.5366922Z Version: 20261002.596
+2026-10-10T05:05:58.5367454Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-10T05:05:58.5368191Z Build Date: 2026-10-02T22:28:27Z
+2026-10-10T05:05:58.5368857Z Worker ID: {cd9afba2-542d-4263-9383-f0d665327036}
+2026-10-10T05:05:58.5369447Z Region: westus
+2026-10-10T05:05:58.5369922Z Cloud: Azure
+2026-10-10T05:05:58.5370381Z ##[endgroup]
+2026-10-10T05:05:58.5371512Z ##[group]Operating System
+2026-10-10T05:05:58.5372082Z Ubuntu
+2026-10-10T05:05:58.5372515Z 24.04.5
+2026-10-10T05:05:58.5372926Z LTS
+2026-10-10T05:05:58.5373409Z ##[endgroup]
+2026-10-10T05:05:58.5373882Z ##[group]Runner Image
+2026-10-10T05:05:58.5374480Z Image: ubuntu-24.04
+2026-10-10T05:05:58.5374945Z Version: 20261004.327.1
+2026-10-10T05:05:58.5376021Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-10T05:05:58.5377327Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-10T05:05:58.5378298Z ##[endgroup]
+2026-10-10T05:05:58.5379243Z ##[group]GITHUB_TOKEN Permissions
+2026-10-10T05:05:58.5381105Z Contents: read
+2026-10-10T05:05:58.5381597Z Metadata: read
+2026-10-10T05:05:58.5382079Z Packages: read
+2026-10-10T05:05:58.5382593Z ##[endgroup]
+2026-10-10T05:05:58.5384306Z Secret source: Actions
+2026-10-10T05:05:58.5385136Z Cache mode: write
+2026-10-10T05:05:58.5385724Z Prepare workflow directory
+2026-10-10T05:05:58.5718562Z Prepare all required actions
+2026-10-10T05:05:58.5759323Z Getting action download info
+2026-10-10T05:05:58.9145649Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-10T05:05:59.2173393Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-10-10T05:05:59.7597985Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-10T05:06:00.7801670Z Complete job name: Verilator shard 1/5
+2026-10-10T05:06:00.8710575Z ##[group]Run actions/checkout@v4
+2026-10-10T05:06:00.8711698Z with:
+2026-10-10T05:06:00.8712387Z   repository: kebag-logic/milan-fpga
+2026-10-10T05:06:00.8719693Z   token: ***
+2026-10-10T05:06:00.8720379Z   ssh-strict: true
+2026-10-10T05:06:00.8721074Z   ssh-user: git
+2026-10-10T05:06:00.8721779Z   persist-credentials: true
+2026-10-10T05:06:00.8723037Z   clean: true
+2026-10-10T05:06:00.8724046Z   sparse-checkout-cone-mode: true
+2026-10-10T05:06:00.8725067Z   fetch-depth: 1
+2026-10-10T05:06:00.8725751Z   fetch-tags: false
+2026-10-10T05:06:00.8726465Z   show-progress: true
+2026-10-10T05:06:00.8727180Z   lfs: false
+2026-10-10T05:06:00.8728040Z   submodules: false
+2026-10-10T05:06:00.8728766Z   set-safe-directory: true
+2026-10-10T05:06:00.8729571Z   allow-unsafe-pr-checkout: false
+2026-10-10T05:06:00.8730700Z env:
+2026-10-10T05:06:00.8731349Z   VERILATOR_VERSION: v5.050
+2026-10-10T05:06:00.8732151Z   YOSYS_VERSION: v0.66
+2026-10-10T05:06:00.8733035Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T05:06:00.8734009Z ##[endgroup]
+2026-10-10T05:06:00.9634931Z Syncing repository: kebag-logic/milan-fpga
+2026-10-10T05:06:00.9639736Z ##[group]Getting Git version info
+2026-10-10T05:06:00.9641631Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-10T05:06:00.9643625Z [command]/usr/bin/git version
+2026-10-10T05:06:00.9644761Z git version 2.55.0
+2026-10-10T05:06:00.9649728Z ##[endgroup]
+2026-10-10T05:06:00.9665414Z Temporarily overriding HOME='<home-path>/work/_temp/739c6908-3750-49b8-948b-d73b23bd34dc' before making global git config changes
+2026-10-10T05:06:00.9669427Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T05:06:00.9672449Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-10T05:06:00.9717886Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-10T05:06:00.9721631Z ##[group]Initializing the repository
+2026-10-10T05:06:00.9725678Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-10-10T05:06:00.9822635Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-10T05:06:00.9831735Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-10T05:06:00.9834206Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-10T05:06:00.9835984Z hint: call:
+2026-10-10T05:06:00.9837578Z hint:
+2026-10-10T05:06:00.9839303Z hint: 	git config --global init.defaultBranch <name>
+2026-10-10T05:06:00.9841190Z hint:
+2026-10-10T05:06:00.9842957Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-10T05:06:00.9845643Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-10T05:06:00.9847894Z hint:
+2026-10-10T05:06:00.9849336Z hint: 	git branch -m <name>
+2026-10-10T05:06:00.9851086Z hint:
+2026-10-10T05:06:00.9852733Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-10T05:06:00.9854941Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-10-10T05:06:00.9858268Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-10-10T05:06:00.9876648Z ##[endgroup]
+2026-10-10T05:06:00.9878051Z ##[group]Disabling automatic garbage collection
+2026-10-10T05:06:00.9880204Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-10T05:06:00.9910678Z ##[endgroup]
+2026-10-10T05:06:00.9911824Z ##[group]Setting up auth
+2026-10-10T05:06:00.9917136Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T05:06:00.9948721Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-10T05:06:01.0234980Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T05:06:01.0274099Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-10T05:06:01.0477202Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T05:06:01.0510712Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-10T05:06:01.0700710Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-10T05:06:01.0735810Z ##[endgroup]
+2026-10-10T05:06:01.0737561Z ##[group]Fetching the repository
+2026-10-10T05:06:01.0745687Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a7ba420a07d418c2dceaf6ba39d7dec598de61bd:refs/remotes/pull/705/merge
+2026-10-10T05:06:02.7814774Z From https://github.com/kebag-logic/milan-fpga
+2026-10-10T05:06:02.7815284Z  * [new ref]         a7ba420a07d418c2dceaf6ba39d7dec598de61bd -> pull/705/merge
+2026-10-10T05:06:02.7828776Z ##[endgroup]
+2026-10-10T05:06:02.7829383Z ##[group]Determining the checkout info
+2026-10-10T05:06:02.7829928Z ##[endgroup]
+2026-10-10T05:06:02.7831093Z [command]/usr/bin/git sparse-checkout disable
+2026-10-10T05:06:02.7883494Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-10T05:06:02.7911598Z ##[group]Checking out the ref
+2026-10-10T05:06:02.7915088Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/705/merge
+2026-10-10T05:06:02.9442457Z Note: switching to 'refs/remotes/pull/705/merge'.
+2026-10-10T05:06:02.9442809Z 
+2026-10-10T05:06:02.9443058Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-10T05:06:02.9443457Z changes and commit them, and you can discard any commits you make in this
+2026-10-10T05:06:02.9444071Z state without impacting any branches by switching back to a branch.
+2026-10-10T05:06:02.9444312Z 
+2026-10-10T05:06:02.9444504Z If you want to create a new branch to retain commits you create, you may
+2026-10-10T05:06:02.9444885Z do so (now or later) by using -c with the switch command. Example:
+2026-10-10T05:06:02.9445100Z 
+2026-10-10T05:06:02.9445199Z   git switch -c <new-branch-name>
+2026-10-10T05:06:02.9445336Z 
+2026-10-10T05:06:02.9445429Z Or undo this operation with:
+2026-10-10T05:06:02.9445557Z 
+2026-10-10T05:06:02.9445637Z   git switch -
+2026-10-10T05:06:02.9445826Z 
+2026-10-10T05:06:02.9445997Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-10T05:06:02.9446237Z 
+2026-10-10T05:06:02.9446509Z HEAD is now at a7ba420 Merge 386b8e69e6f2fd0233e7a432e75c9d877c583a7b into 554e61d299ef7ddb5aca6fb9ce0e6a6cd076d8cb
+2026-10-10T05:06:02.9459318Z ##[endgroup]
+2026-10-10T05:06:02.9501725Z [command]/usr/bin/git log -1 --format=%H
+2026-10-10T05:06:02.9528558Z a7ba420a07d418c2dceaf6ba39d7dec598de61bd
+2026-10-10T05:06:02.9714105Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+2026-10-10T05:06:02.9714874Z git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+2026-10-10T05:06:02.9916266Z shell: /usr/bin/bash -e {0}
+2026-10-10T05:06:02.9916521Z env:
+2026-10-10T05:06:02.9916707Z   VERILATOR_VERSION: v5.050
+2026-10-10T05:06:02.9916923Z   YOSYS_VERSION: v0.66
+2026-10-10T05:06:02.9917144Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T05:06:02.9917442Z ##[endgroup]
+2026-10-10T05:06:03.0191070Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-10-10T05:06:03.0196203Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-10-10T05:06:03.0202251Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+2026-10-10T05:06:03.0208256Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-10-10T05:06:03.0230082Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-10-10T05:06:03.6402258Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-10-10T05:06:05.0703150Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+2026-10-10T05:06:05.7756419Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-10-10T05:06:06.3683787Z Submodule path 'gptp-processor': checked out '5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d'
+2026-10-10T05:06:06.4301714Z Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+2026-10-10T05:06:06.4447992Z Submodule path 'third_party/tsn-c-stack': checked out '1a9f651cdf7846b8e10ac246a6ef6916960fbb92'
+2026-10-10T05:06:06.4609507Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-10-10T05:06:06.4651990Z ##[group]Run set -euo pipefail
+2026-10-10T05:06:06.4652245Z set -euo pipefail
+2026-10-10T05:06:06.4652448Z head="$(git rev-parse HEAD)"
+2026-10-10T05:06:06.4652736Z if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+2026-10-10T05:06:06.4653173Z   echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+2026-10-10T05:06:06.4653522Z   exit 1
+2026-10-10T05:06:06.4653680Z fi
+2026-10-10T05:06:06.4653861Z mkdir -p "$RUNNER_TEMP/suite-logs"
+2026-10-10T05:06:06.4654163Z printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"
+2026-10-10T05:06:06.4654455Z echo "target_sha=$GITHUB_SHA"
+2026-10-10T05:06:06.4709402Z shell: /usr/bin/bash -e {0}
+2026-10-10T05:06:06.4709771Z env:
+2026-10-10T05:06:06.4709937Z   VERILATOR_VERSION: v5.050
+2026-10-10T05:06:06.4710126Z   YOSYS_VERSION: v0.66
+2026-10-10T05:06:06.4710392Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T05:06:06.4710669Z   TARGET_SHA: a7ba420a07d418c2dceaf6ba39d7dec598de61bd
+2026-10-10T05:06:06.4710898Z ##[endgroup]
+2026-10-10T05:06:06.4804990Z target_sha=a7ba420a07d418c2dceaf6ba39d7dec598de61bd
+2026-10-10T05:06:06.4876261Z ##[group]Run actions/cache@v4
+2026-10-10T05:06:06.4876475Z with:
+2026-10-10T05:06:06.4876649Z   path: /opt/verilator
+2026-10-10T05:06:06.4876834Z   key: verilator-v5.050-Linux
+2026-10-10T05:06:06.4877037Z   enableCrossOsArchive: false
+2026-10-10T05:06:06.4877234Z   fail-on-cache-miss: false
+2026-10-10T05:06:06.4877429Z   lookup-only: false
+2026-10-10T05:06:06.4877596Z   save-always: false
+2026-10-10T05:06:06.4877947Z env:
+2026-10-10T05:06:06.4878100Z   VERILATOR_VERSION: v5.050
+2026-10-10T05:06:06.4878283Z   YOSYS_VERSION: v0.66
+2026-10-10T05:06:06.4878512Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T05:06:06.4878752Z ##[endgroup]
+2026-10-10T05:06:06.5720729Z (node:2193) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-10T05:06:06.5721329Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-10T05:06:06.8519265Z Cache hit for: verilator-v5.050-Linux
+2026-10-10T05:06:06.8632052Z (node:2193) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-10T05:06:08.1483008Z Received 8388608 of 92153557 (9.1%), 8.0 MBs/sec
+2026-10-10T05:06:08.8453488Z Received 92153557 of 92153557 (100.0%), 51.8 MBs/sec
+2026-10-10T05:06:08.8455906Z Cache Size: ~88 MB (92153557 B)
+2026-10-10T05:06:08.8488363Z [command]/usr/bin/tar -xf <home-path>/work/_temp/6bd4bac3-8b17-4316-9634-9ac81a1aa3fc/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-10-10T05:06:09.0351139Z Cache restored successfully
+2026-10-10T05:06:09.0450030Z Cache restored from key: verilator-v5.050-Linux
+2026-10-10T05:06:09.0589730Z ##[group]Run echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+2026-10-10T05:06:09.0590076Z echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+2026-10-10T05:06:09.0590363Z /opt/verilator/bin/verilator --version
+2026-10-10T05:06:09.0590714Z /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+2026-10-10T05:06:09.0646564Z shell: /usr/bin/bash -e {0}
+2026-10-10T05:06:09.0646776Z env:
+2026-10-10T05:06:09.0646948Z   VERILATOR_VERSION: v5.050
+2026-10-10T05:06:09.0647146Z   YOSYS_VERSION: v0.66
+2026-10-10T05:06:09.0647362Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T05:06:09.0647615Z ##[endgroup]
+2026-10-10T05:06:09.1414975Z Verilator 5.050 2026-07-01 rev v5.050
+2026-10-10T05:06:09.1855314Z Verilator 5.050 2026-07-01 rev v5.050
+2026-10-10T05:06:09.1909767Z ##[group]Run set -euo pipefail
+2026-10-10T05:06:09.1910057Z set -euo pipefail
+2026-10-10T05:06:09.1910314Z python3 scripts/suite_shards.py --selftest
+2026-10-10T05:06:09.1910647Z scripts/run_all_suites.sh --shard "$SHARD/$SHARDS" --list \
+2026-10-10T05:06:09.1910947Z   > "$RUNNER_TEMP/owned-suites"
+2026-10-10T05:06:09.1911175Z echo "Shard $SHARD owns:"
+2026-10-10T05:06:09.1911425Z sed 's/^/  /' "$RUNNER_TEMP/owned-suites"
+2026-10-10T05:06:09.1911670Z case "$SHARD" in
+2026-10-10T05:06:09.1911911Z   1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
+2026-10-10T05:06:09.1912232Z   3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
+2026-10-10T05:06:09.1912564Z   4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
+2026-10-10T05:06:09.1912824Z esac
+2026-10-10T05:06:09.1969654Z shell: /usr/bin/bash -e {0}
+2026-10-10T05:06:09.1969862Z env:
+2026-10-10T05:06:09.1970220Z   VERILATOR_VERSION: v5.050
+2026-10-10T05:06:09.1970425Z   YOSYS_VERSION: v0.66
+2026-10-10T05:06:09.1970650Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T05:06:09.1970904Z   SHARD: 1
+2026-10-10T05:06:09.1971062Z   SHARDS: 5
+2026-10-10T05:06:09.1971218Z ##[endgroup]
+2026-10-10T05:06:09.2316492Z   ok    1 shard(s): complete=True disjoint=True deterministic=True
+2026-10-10T05:06:09.2316894Z   ok    2 shard(s): complete=True disjoint=True deterministic=True
+2026-10-10T05:06:09.2317220Z   ok    4 shard(s): complete=True disjoint=True deterministic=True
+2026-10-10T05:06:09.2317514Z   ok    5 shard(s): complete=True disjoint=True deterministic=True
+2026-10-10T05:06:09.2318011Z   ok    7 shard(s): complete=True disjoint=True deterministic=True
+2026-10-10T05:06:09.2318315Z   ok   23 shard(s): complete=True disjoint=True deterministic=True
+2026-10-10T05:06:09.2318625Z   ok    2 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-10-10T05:06:09.2318967Z   ok    4 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-10-10T05:06:09.2319311Z   ok    5 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-10-10T05:06:09.2319627Z   ok    7 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-10-10T05:06:09.2319940Z   ok   23 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-10-10T05:06:09.2320396Z   ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+2026-10-10T05:06:09.2321035Z   ok   five-worker runtime landmarks: {'milan_dp': 4, 'pp_shadow': 1, 'mmcm_servo': 2, 'tsn_fuzz': 1, 'chmap_capture': 3}
+2026-10-10T05:06:09.2321585Z   ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+2026-10-10T05:06:09.2321937Z   ok   reject ''
+2026-10-10T05:06:09.2322097Z   ok   reject '1'
+2026-10-10T05:06:09.2322262Z   ok   reject '-1/4'
+2026-10-10T05:06:09.2322435Z   ok   reject '01/4'
+2026-10-10T05:06:09.2322599Z   ok   reject '4/4'
+2026-10-10T05:06:09.2322772Z   ok   reject '5/4'
+2026-10-10T05:06:09.2322930Z   ok   reject '0/0'
+2026-10-10T05:06:09.2323094Z   ok   reject 'a/4'
+2026-10-10T05:06:09.2323261Z selftest: PASS
+2026-10-10T05:06:09.3230343Z Shard 1 owns:
+2026-10-10T05:06:09.3242108Z   aaf_latency_taps
+2026-10-10T05:06:09.3242390Z   avtp_rxmon
+2026-10-10T05:06:09.3242637Z   capture_coherence
+2026-10-10T05:06:09.3242885Z   cbs
+2026-10-10T05:06:09.3243093Z   cdc
+2026-10-10T05:06:09.3243326Z   clkvalid
+2026-10-10T05:06:09.3243486Z   controller_rate
+2026-10-10T05:06:09.3243656Z   crf_rx
+2026-10-10T05:06:09.3243799Z   datapath
+2026-10-10T05:06:09.3243958Z   fw_service_budget
+2026-10-10T05:06:09.3244140Z   gptp_plane
+2026-10-10T05:06:09.3244301Z   gptp_shadow
+2026-10-10T05:06:09.3244463Z   lat_history_ring
+2026-10-10T05:06:09.3244625Z   maap
+2026-10-10T05:06:09.3244775Z   mac_rmon
+2026-10-10T05:06:09.3244928Z   media_nco
+2026-10-10T05:06:09.3245090Z   mmcm_servo_autorepair
+2026-10-10T05:06:09.3245281Z   nvm_cosim
+2026-10-10T05:06:09.3245818Z   pair_fill
+2026-10-10T05:06:09.3246193Z   pcmlpf
+2026-10-10T05:06:09.3246390Z   pp_shadow
+2026-10-10T05:06:09.3246542Z   tcam_csr
+2026-10-10T05:06:09.3246698Z   tsn_fuzz
+2026-10-10T05:06:09.3253659Z tsn_fuzz
+2026-10-10T05:06:09.3313016Z ##[group]Run set -euo pipefail
+2026-10-10T05:06:09.3313292Z set -euo pipefail
+2026-10-10T05:06:09.3313514Z git clone --filter=blob:none \
+2026-10-10T05:06:09.3313876Z   https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"
+2026-10-10T05:06:09.3314252Z git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"
+2026-10-10T05:06:09.3314560Z git -C "$RUNNER_TEMP/tsn-gen" submodule update \
+2026-10-10T05:06:09.3314857Z   --init --depth 1 --recursive external/rapidyaml
+2026-10-10T05:06:09.3315195Z cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" \
+2026-10-10T05:06:09.3315566Z   -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF
+2026-10-10T05:06:09.3316016Z cmake --build "$RUNNER_TEMP/tsn-gen/build" \
+2026-10-10T05:06:09.3316297Z   --target packet_gen --parallel
+2026-10-10T05:06:09.3316627Z test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"
+2026-10-10T05:06:09.3316963Z echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"
+2026-10-10T05:06:09.3371909Z shell: /usr/bin/bash -e {0}
+2026-10-10T05:06:09.3372122Z env:
+2026-10-10T05:06:09.3372293Z   VERILATOR_VERSION: v5.050
+2026-10-10T05:06:09.3372488Z   YOSYS_VERSION: v0.66
+2026-10-10T05:06:09.3372706Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T05:06:09.3372960Z ##[endgroup]
+2026-10-10T05:06:09.3450705Z Cloning into '<home-path>/work/_temp/tsn-gen'...
+2026-10-10T05:06:10.6865253Z Note: switching to 'deca300c9eb4863fa13383b45ba6cb6fd0828671'.
+2026-10-10T05:06:10.6865622Z 
+2026-10-10T05:06:10.6865859Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-10T05:06:10.6866254Z changes and commit them, and you can discard any commits you make in this
+2026-10-10T05:06:10.6866658Z state without impacting any branches by switching back to a branch.
+2026-10-10T05:06:10.6866879Z 
+2026-10-10T05:06:10.6867041Z If you want to create a new branch to retain commits you create, you may
+2026-10-10T05:06:10.6867388Z do so (now or later) by using -c with the switch command. Example:
+2026-10-10T05:06:10.6867585Z 
+2026-10-10T05:06:10.6867870Z   git switch -c <new-branch-name>
+2026-10-10T05:06:10.6868015Z 
+2026-10-10T05:06:10.6868096Z Or undo this operation with:
+2026-10-10T05:06:10.6868230Z 
+2026-10-10T05:06:10.6868306Z   git switch -
+2026-10-10T05:06:10.6868402Z 
+2026-10-10T05:06:10.6868582Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-10T05:06:10.6868824Z 
+2026-10-10T05:06:10.6869048Z HEAD is now at deca300 Merge pull request #13 from kebag-logic/12-strict-media-ptp-tx-flags
+2026-10-10T05:06:10.7045159Z Submodule 'external/rapidyaml' (https://github.com/biojppm/rapidyaml.git) registered for path 'external/rapidyaml'
+2026-10-10T05:06:10.7065942Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml'...
+2026-10-10T05:06:12.9081993Z From https://github.com/biojppm/rapidyaml
+2026-10-10T05:06:12.9082598Z  * branch            e65999dc4d65368e1b3eb770e28d775885b0f525 -> FETCH_HEAD
+2026-10-10T05:06:13.0116949Z Submodule path 'external/rapidyaml': checked out 'e65999dc4d65368e1b3eb770e28d775885b0f525'
+2026-10-10T05:06:13.0139468Z Submodule 'extern/c4core' (https://github.com/biojppm/c4core) registered for path 'external/rapidyaml/ext/c4core'
+2026-10-10T05:06:13.0168542Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core'...
+2026-10-10T05:06:14.8177978Z From https://github.com/biojppm/c4core
+2026-10-10T05:06:14.8178519Z  * branch            6c876ec05a4387c25068cdbd58724828dad1d217 -> FETCH_HEAD
+2026-10-10T05:06:14.8656938Z Submodule path 'external/rapidyaml/ext/c4core': checked out '6c876ec05a4387c25068cdbd58724828dad1d217'
+2026-10-10T05:06:14.8676563Z Submodule 'cmake' (https://github.com/biojppm/cmake) registered for path 'external/rapidyaml/ext/c4core/cmake'
+2026-10-10T05:06:14.8686663Z Submodule 'extern/debugbreak' (https://github.com/biojppm/debugbreak) registered for path 'external/rapidyaml/ext/c4core/src/c4/ext/debugbreak'
+2026-10-10T05:06:14.8729652Z Submodule 'src/c4/ext/fast_float' (https://github.com/fastfloat/fast_float) registered for path 'external/rapidyaml/ext/c4core/src/c4/ext/fast_float'
+2026-10-10T05:06:14.8737070Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core/cmake'...
+2026-10-10T05:06:15.3500169Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core/src/c4/ext/debugbreak'...
+2026-10-10T05:06:15.7165776Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core/src/c4/ext/fast_float'...
+2026-10-10T05:06:17.3472424Z From https://github.com/biojppm/cmake
+2026-10-10T05:06:17.3473104Z  * branch            b8e95acb1bdd564e47ac57d903a483604d90cbfa -> FETCH_HEAD
+2026-10-10T05:06:17.4241714Z Submodule path 'external/rapidyaml/ext/c4core/cmake': checked out 'b8e95acb1bdd564e47ac57d903a483604d90cbfa'
+2026-10-10T05:06:17.6401381Z Submodule path 'external/rapidyaml/ext/c4core/src/c4/ext/debugbreak': checked out '328e4abca3384cbd0a69e70f263cc7b2794bff09'
+2026-10-10T05:06:18.9039011Z From https://github.com/fastfloat/fast_float
+2026-10-10T05:06:18.9039412Z  * branch            d28a3320c2de0963b6e469b8ca3bbc36496de684 -> FETCH_HEAD
+2026-10-10T05:06:18.9144488Z Submodule path 'external/rapidyaml/ext/c4core/src/c4/ext/fast_float': checked out 'd28a3320c2de0963b6e469b8ca3bbc36496de684'
+2026-10-10T05:06:21.3501350Z -- The CXX compiler identification is GNU 13.3.0
+2026-10-10T05:06:21.4480373Z -- Detecting CXX compiler ABI info
+2026-10-10T05:06:21.7106528Z -- Detecting CXX compiler ABI info - done
+2026-10-10T05:06:21.7242388Z -- Check for working CXX compiler: /usr/bin/c++ - skipped
+2026-10-10T05:06:21.7285261Z -- Detecting CXX compile features
+2026-10-10T05:06:21.7345731Z -- Detecting CXX compile features - done
+2026-10-10T05:06:21.9343429Z -- ryml: using C++ standard: C++17
+2026-10-10T05:06:21.9365565Z -- ryml: importing subproject c4core (SUBDIRECTORY)... <home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core
+2026-10-10T05:06:21.9408494Z -- c4core: using C++ standard: C++17
+2026-10-10T05:06:21.9568613Z CMake Warning (dev) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2694 (install):
+2026-10-10T05:06:21.9569144Z   Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+2026-10-10T05:06:21.9569573Z   "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+2026-10-10T05:06:21.9569915Z   command to set the policy and suppress this warning.
+2026-10-10T05:06:21.9570186Z Call Stack (most recent call first):
+2026-10-10T05:06:21.9570510Z   external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+2026-10-10T05:06:21.9570908Z   external/rapidyaml/ext/c4core/CMakeLists.txt:112 (c4_install_exports)
+2026-10-10T05:06:21.9571293Z This warning is for project developers.  Use -Wno-dev to suppress it.
+2026-10-10T05:06:21.9571548Z 
+2026-10-10T05:06:21.9659763Z CMake Warning (dev) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2746 (install):
+2026-10-10T05:06:21.9660500Z   Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+2026-10-10T05:06:21.9660962Z   "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+2026-10-10T05:06:21.9661315Z   command to set the policy and suppress this warning.
+2026-10-10T05:06:21.9661574Z Call Stack (most recent call first):
+2026-10-10T05:06:21.9661895Z   external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+2026-10-10T05:06:21.9662290Z   external/rapidyaml/ext/c4core/CMakeLists.txt:112 (c4_install_exports)
+2026-10-10T05:06:21.9662654Z This warning is for project developers.  Use -Wno-dev to suppress it.
+2026-10-10T05:06:21.9662865Z 
+2026-10-10T05:06:21.9713077Z -- ryml: -----> target ryml PUBLIC incorporating lib c4core
+2026-10-10T05:06:21.9798472Z CMake Warning (dev) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2694 (install):
+2026-10-10T05:06:21.9799309Z   Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+2026-10-10T05:06:21.9800311Z   "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+2026-10-10T05:06:21.9800919Z   command to set the policy and suppress this warning.
+2026-10-10T05:06:21.9801361Z Call Stack (most recent call first):
+2026-10-10T05:06:21.9801894Z   external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+2026-10-10T05:06:21.9802509Z   external/rapidyaml/CMakeLists.txt:118 (c4_install_exports)
+2026-10-10T05:06:21.9803049Z This warning is for project developers.  Use -Wno-dev to suppress it.
+2026-10-10T05:06:21.9803392Z 
+2026-10-10T05:06:21.9809945Z CMake Warning (dev) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2746 (install):
+2026-10-10T05:06:21.9810663Z   Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+2026-10-10T05:06:21.9811518Z   "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+2026-10-10T05:06:21.9812060Z   command to set the policy and suppress this warning.
+2026-10-10T05:06:21.9812474Z Call Stack (most recent call first):
+2026-10-10T05:06:21.9812997Z   external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+2026-10-10T05:06:21.9813601Z   external/rapidyaml/CMakeLists.txt:118 (c4_install_exports)
+2026-10-10T05:06:21.9814134Z This warning is for project developers.  Use -Wno-dev to suppress it.
+2026-10-10T05:06:21.9814463Z 
+2026-10-10T05:06:22.0038958Z -- Configuring done (2.1s)
+2026-10-10T05:06:22.1229372Z -- Generating done (0.1s)
+2026-10-10T05:06:22.1700155Z -- Build files have been written to: <home-path>/work/_temp/tsn-gen/build
+2026-10-10T05:06:22.3326162Z [  2%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/common.cpp.o
+2026-10-10T05:06:22.3327265Z [  4%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/node.cpp.o
+2026-10-10T05:06:22.3338142Z [  6%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/node_type.cpp.o
+2026-10-10T05:06:22.3340613Z [  8%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/parse.cpp.o
+2026-10-10T05:06:22.3359587Z [ 10%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/preprocess.cpp.o
+2026-10-10T05:06:22.3438794Z [ 12%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/reference_resolver.cpp.o
+2026-10-10T05:06:22.3440050Z [ 14%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/tree.cpp.o
+2026-10-10T05:06:22.3441694Z [ 18%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/version.cpp.o
+2026-10-10T05:06:22.3444704Z [ 18%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/tag.cpp.o
+2026-10-10T05:06:22.3527345Z [ 20%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/base64.cpp.o
+2026-10-10T05:06:22.3549217Z [ 22%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/char_traits.cpp.o
+2026-10-10T05:06:22.3551077Z [ 25%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/error.cpp.o
+2026-10-10T05:06:22.3585900Z [ 27%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/memory_resource.cpp.o
+2026-10-10T05:06:22.3628656Z [ 29%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/language.cpp.o
+2026-10-10T05:06:22.3648139Z [ 31%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/format.cpp.o
+2026-10-10T05:06:22.3669174Z [ 33%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/memory_util.cpp.o
+2026-10-10T05:06:22.3866806Z [ 35%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/version.cpp.o
+2026-10-10T05:06:22.3898807Z [ 37%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/utf.cpp.o
+2026-10-10T05:06:30.6078641Z [ 39%] Linking CXX static library libryml.a
+2026-10-10T05:06:37.6641085Z [ 39%] Built target ryml
+2026-10-10T05:06:37.6739251Z [ 41%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/log.cpp.o
+2026-10-10T05:06:37.6744798Z [ 43%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/validator.cpp.o
+2026-10-10T05:06:37.6745828Z [ 45%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/protocol_parser.cpp.o
+2026-10-10T05:06:37.6778501Z [ 50%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/protocol.cpp.o
+2026-10-10T05:06:37.6779146Z [ 52%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/stack.cpp.o
+2026-10-10T05:06:37.6779817Z [ 56%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_if_impl.cpp.o
+2026-10-10T05:06:37.6780587Z [ 56%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/logic_registry.cpp.o
+2026-10-10T05:06:37.6781528Z [ 58%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/stack_builder.cpp.o
+2026-10-10T05:06:37.6782590Z [ 60%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_var_impl.cpp.o
+2026-10-10T05:06:37.6783753Z [ 62%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_impl.cpp.o
+2026-10-10T05:06:37.6784773Z [ 62%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_service_impl.cpp.o
+2026-10-10T05:06:42.8704123Z [ 64%] Linking CXX shared library libprotocol_parser.so
+2026-10-10T05:06:42.9700861Z [ 64%] Built target protocol_parser
+2026-10-10T05:06:42.9767571Z [ 66%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/ethernet_frame_logic.cpp.o
+2026-10-10T05:06:42.9768898Z [ 70%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/avtp_control_logic.cpp.o
+2026-10-10T05:06:42.9771007Z [ 70%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/packet_builder.cpp.o
+2026-10-10T05:06:42.9772013Z [ 72%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/aecp_aem_logic.cpp.o
+2026-10-10T05:06:42.9808600Z [ 75%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/packet_decoder.cpp.o
+2026-10-10T05:06:42.9880805Z [ 77%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/pcap_sender.cpp.o
+2026-10-10T05:06:43.0028950Z [ 81%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/raw_socket_sender.cpp.o
+2026-10-10T05:06:43.0088829Z [ 81%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/raw_socket_receiver.cpp.o
+2026-10-10T05:06:43.0208855Z [ 83%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/verilator_receiver.cpp.o
+2026-10-10T05:06:43.0298782Z [ 85%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/verilator_sender.cpp.o
+2026-10-10T05:06:43.0418887Z [ 89%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/traffic_generator.cpp.o
+2026-10-10T05:06:43.0538784Z [ 91%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/session.cpp.o
+2026-10-10T05:06:43.0658851Z [ 91%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/pcap_receiver.cpp.o
+2026-10-10T05:06:44.3418721Z [ 93%] Linking CXX shared library libprotocol_logic.so
+2026-10-10T05:06:44.7308699Z [ 93%] Built target protocol_logic
+2026-10-10T05:06:46.3788699Z [ 95%] Linking CXX shared library libtraffic_gen.so
+2026-10-10T05:06:46.4599049Z [ 95%] Built target traffic_gen
+2026-10-10T05:06:46.4658540Z [ 97%] Building CXX object traffic-gen/CMakeFiles/packet_gen.dir/tools/packet_gen_main.cpp.o
+2026-10-10T05:06:47.9206611Z [100%] Linking CXX executable packet_gen
+2026-10-10T05:06:47.9665686Z [100%] Built target packet_gen
+2026-10-10T05:06:47.9795995Z ##[group]Run scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-10-10T05:06:47.9796390Z scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-10-10T05:06:47.9796690Z   --shard "1/5"
+2026-10-10T05:06:47.9852719Z shell: /usr/bin/bash -e {0}
+2026-10-10T05:06:47.9852934Z env:
+2026-10-10T05:06:47.9853105Z   VERILATOR_VERSION: v5.050
+2026-10-10T05:06:47.9853306Z   YOSYS_VERSION: v0.66
+2026-10-10T05:06:47.9853526Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T05:06:47.9853826Z   TSN_GEN_ROOT: <home-path>/work/_temp/tsn-gen
+2026-10-10T05:06:47.9854066Z ##[endgroup]
+2026-10-10T05:07:55.7958678Z shard: 1/5   selected suites: 23
+2026-10-10T05:08:00.1208351Z PASS     aaf_latency_taps
+2026-10-10T05:08:09.0796414Z PASS     avtp_rxmon
+2026-10-10T05:26:42.0574576Z PASS     capture_coherence
+2026-10-10T05:26:46.1409052Z PASS     cbs
+2026-10-10T05:26:50.1429720Z PASS     cdc
+2026-10-10T05:27:02.0920806Z PASS     clkvalid
+2026-10-10T05:27:08.0625836Z PASS     controller_rate
+2026-10-10T05:36:47.6980488Z PASS     crf_rx
+2026-10-10T05:36:52.1776971Z PASS     datapath
+2026-10-10T05:36:53.5810977Z PASS     fw_service_budget
+2026-10-10T05:37:00.2561040Z PASS     gptp_plane
+2026-10-10T05:41:32.1201139Z PASS     gptp_shadow
+2026-10-10T05:41:36.3974105Z PASS     lat_history_ring
+2026-10-10T05:44:04.3486352Z PASS     maap
+2026-10-10T05:44:12.8350036Z PASS     mac_rmon
+2026-10-10T05:44:25.9777584Z PASS     media_nco
+2026-10-10T05:44:30.6403005Z PASS     mmcm_servo_autorepair
+2026-10-10T05:53:54.2021169Z PASS     nvm_cosim
+2026-10-10T05:53:58.3967809Z PASS     pair_fill
+2026-10-10T05:54:02.5417036Z PASS     pcmlpf
+2026-10-10T06:07:11.0850971Z PASS     pp_shadow
+2026-10-10T06:07:15.2324553Z PASS     tcam_csr
+2026-10-10T06:07:57.8605406Z PASS     tsn_fuzz
+2026-10-10T06:07:57.8605701Z ----------------------------------------------------------------
+2026-10-10T06:07:57.8606017Z suites: 23   passed: 23   failed: 0   timed out: 0
+2026-10-10T06:07:58.0339235Z checks: 197678   in-suite failures: 0
+2026-10-10T06:07:58.0385552Z logs: <home-path>/work/_temp/suite-logs
+2026-10-10T06:07:58.0710057Z ##[group]Run actions/upload-artifact@v4
+2026-10-10T06:07:58.0710289Z with:
+2026-10-10T06:07:58.0710458Z   name: suite-logs-1
+2026-10-10T06:07:58.0710655Z   path: <home-path>/work/_temp/suite-logs
+2026-10-10T06:07:58.0710891Z   if-no-files-found: error
+2026-10-10T06:07:58.0711087Z   retention-days: 3
+2026-10-10T06:07:58.0711266Z   compression-level: 6
+2026-10-10T06:07:58.0711464Z   overwrite: false
+2026-10-10T06:07:58.0711646Z   include-hidden-files: false
+2026-10-10T06:07:58.0711844Z env:
+2026-10-10T06:07:58.0712005Z   VERILATOR_VERSION: v5.050
+2026-10-10T06:07:58.0712203Z   YOSYS_VERSION: v0.66
+2026-10-10T06:07:58.0712459Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-10T06:07:58.0712730Z   TSN_GEN_ROOT: <home-path>/work/_temp/tsn-gen
+2026-10-10T06:07:58.0712956Z ##[endgroup]
+2026-10-10T06:07:58.2016914Z (node:33881) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-10T06:07:58.2017838Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-10T06:07:58.2104863Z With the provided path, there will be 32 files uploaded
+2026-10-10T06:07:58.2105482Z Artifact name is valid!
+2026-10-10T06:07:58.2105784Z Root directory input is valid!
+2026-10-10T06:07:58.5792526Z Beginning upload of artifact content to blob storage
+2026-10-10T06:07:58.6320078Z (node:33881) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-10T06:07:59.0718075Z Uploaded bytes 149876
+2026-10-10T06:07:59.1449179Z Finished uploading artifact content to blob storage!
+2026-10-10T06:07:59.1449897Z SHA256 digest of uploaded artifact zip is d387d3129f6e9b667ebda3fc244f090cf2947987697cc65fed53caac16cc589a
+2026-10-10T06:07:59.1451537Z Finalizing artifact upload
+2026-10-10T06:07:59.4012326Z Artifact suite-logs-1.zip successfully finalized. Artifact ID 11662026465
+2026-10-10T06:07:59.4013116Z Artifact suite-logs-1 has been successfully uploaded! Final size is 149876 bytes. Artifact ID is 11662026465
+2026-10-10T06:07:59.4018534Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/38026314601/artifacts/11662026465
+2026-10-10T06:07:59.4175478Z Post job cleanup.
+2026-10-10T06:07:59.5103034Z Cache hit occurred on the primary key verilator-v5.050-Linux, not saving cache.
+2026-10-10T06:07:59.5104320Z (node:33893) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-10T06:07:59.5105142Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-10T06:07:59.5209956Z Post job cleanup.
+2026-10-10T06:07:59.5889522Z [command]/usr/bin/git version
+2026-10-10T06:07:59.5920272Z git version 2.55.0
+2026-10-10T06:07:59.5952921Z Temporarily overriding HOME='<home-path>/work/_temp/bb9a9698-a561-40cd-9a31-feb59272b46a' before making global git config changes
+2026-10-10T06:07:59.5953948Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T06:07:59.5957599Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-10T06:07:59.5990643Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T06:07:59.6018161Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-10T06:07:59.6235074Z Entering 'gptp-processor'
+2026-10-10T06:07:59.6282884Z Entering 'protocol-processor'
+2026-10-10T06:07:59.6368780Z Entering 'third_party/tsn-c-stack'
+2026-10-10T06:07:59.6418527Z Entering 'third_party/verilog-axis'
+2026-10-10T06:07:59.6499140Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T06:07:59.6499915Z http.https://github.com/.extraheader
+2026-10-10T06:07:59.6540093Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-10T06:07:59.6560107Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-10T06:07:59.6792129Z Entering 'gptp-processor'
+2026-10-10T06:07:59.6831728Z Entering 'protocol-processor'
+2026-10-10T06:07:59.6868105Z Entering 'third_party/tsn-c-stack'
+2026-10-10T06:07:59.6904608Z Entering 'third_party/verilog-axis'
+2026-10-10T06:07:59.6958223Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T06:07:59.6992938Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-10T06:07:59.7179569Z Entering 'gptp-processor'
+2026-10-10T06:07:59.7195929Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-10-10T06:07:59.7211426Z Entering 'protocol-processor'
+2026-10-10T06:07:59.7227473Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-10-10T06:07:59.7243434Z Entering 'third_party/tsn-c-stack'
+2026-10-10T06:07:59.7260160Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+2026-10-10T06:07:59.7275263Z Entering 'third_party/verilog-axis'
+2026-10-10T06:07:59.7291299Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-10-10T06:07:59.7321529Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T06:07:59.7351888Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T06:07:59.7378919Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T06:07:59.7405519Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T06:07:59.7557328Z Cleaning up orphan processes
+2026-10-10T06:07:59.7829474Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

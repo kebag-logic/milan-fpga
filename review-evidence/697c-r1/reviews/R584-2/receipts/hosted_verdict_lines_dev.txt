@@ -1,0 +1,892 @@
+[ok] a branch of f no longer taken: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a build with fewer arcs on a line covers none of the longer build's: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a crash on SIGBUS: exit -7, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGFPE: exit -8, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGILL: exit -4, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGSEGV: exit -11, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a disabled suite: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+[ok] a disabled test: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+[ok] a disabled test, GTEST_ALSO_RUN_DISABLED_TESTS=1 in the environment: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+[ok] admission-ceiling-ignored: AdmissionUsesBandwidthAndEthernetMinimum / admitted[0]
+[ok] a failing assertion: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a failure in a suite's set-up: exit 1, tally 1/2, its tallies report 2 failure(s) across 1 checks
+[ok] a failure in a suite's tear-down: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a failure in the global environment: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a line of f no longer run: sw/firmware/ctrl/x.c: lines 6/7 fell below the recorded 7/7
+[ok] a measured file the ratchet does not record: sw/firmware/ctrl/x.c: measured, but the ratchet does not record it
+[ok] an abort: exit -6, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] an exception edge is not a branch: no finding
+[ok] an exclusion gone stale: the arc it names is covered now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion gone stale: the line it names runs now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion naming a line no line from the statement on holds: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no line from the statement's on holds `return 8;`
+[ok] an exclusion naming no function measured: exclusion sw/firmware/ctrl/x.c h(): `if (a == 7)`: no such function in the measurement
+[ok] an exclusion that names less than is uncovered: exclusion sw/firmware/ctrl/x.c g(): line 10 is unexecuted, and no row names it
+[ok] an exclusion whose items cannot be read: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: cannot read 'one arc'
+[ok] an exclusion whose statement has another number of arcs: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: the statement (lines 9-9) has 2 arcs, the row says 3
+[ok] an exclusion whose statement is not in its function: exclusion sw/firmware/ctrl/x.c g(): `if (a == 8)`: the statement occurs 0 times in the function, not once
+[ok] an exclusion whose statement is not one statement: exclusion sw/firmware/ctrl/x.c g(): `return`: the statement occurs 2 times in the function, not once
+[ok] an exclusion with no reason: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no reason given
+[ok] an uncaught exception: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a passing test (the control): exit 0, tally 1/0, 1 tests, 0 failures
+[ok] app-expired-start-applies: App.ExpiredAndMissingStartRequestsCannotApplyLate
+[ok] app-failure-flags-lost: App.InputInfoReflectsAcmpSettlementAndFailures
+[ok] applicant-inherited-across-streams: ReboundStreamCannotInheritAnotherStreamsReady / ready
+[ok] app-notice-overtakes-unbind: App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+[ok] app-poll-space-short: App.CompositionRefusalsLeaveExistingBindingsIntact
+[ok] app-start-inverted: App.DeferredStartAndLockUseTheRealAcmpOwner
+[ok] app-unbound-start-refused: App.UnboundStartAndStopAreSuccessfulNoOps
+[ok] app-write-owner-lost: App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner
+[ok] a recorded file nothing measured: sw/firmware/ctrl/x.c: recorded in the ratchet, but nothing measured it
+[ok] arm acmp
+[ok] arm acmpif2
+[ok] arm acmpnvm
+[ok] arm acmpwalk
+[ok] arm adp
+[ok] arm aecp-core-endstation_ax7101_1x1_tdm8-if1
+[ok] arm aecp-image-endstation_arty_4x4
+[ok] arm aecp-image-endstation_arty_8ch
+[ok] arm aecp-image-endstation_arty_current
+[ok] arm aecp-image-endstation_ax7101_1x1_tdm8
+[ok] arm aecp-image-endstation_ax7101_8x8
+[ok] arm aecp-image-endstation_ax7101_8x8
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if1
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if2
+[ok] arm entity
+[ok] arm lwsrp
+[ok] arm maap
+[ok] arm maap_debug
+[ok] arm maap_if2
+[ok] arm model
+[ok] arm port
+[ok] arm reentry_debug
+[ok] arm reentry_release
+[ok] arm rv32
+[ok] arm srp-debug-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-debug-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-rv32-if1-endstation_arty_4x4
+[ok] arm srp-rv32-if1-endstation_arty_8ch
+[ok] arm srp-rv32-if1-endstation_arty_current
+[ok] arm srp-rv32-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-rv32-if1-endstation_ax7101_8x8
+[ok] arm srp-rv32-if2-endstation_arty_4x4
+[ok] arm srp-rv32-if2-endstation_arty_8ch
+[ok] arm srp-rv32-if2-endstation_arty_current
+[ok] arm srp-rv32-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-rv32-if2-endstation_ax7101_8x8
+[ok] arm srp-srp_app-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_app-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_shape-if1-endstation_arty_4x4
+[ok] arm srp-srp_shape-if1-endstation_arty_8ch
+[ok] arm srp-srp_shape-if1-endstation_arty_current
+[ok] arm srp-srp_shape-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_shape-if1-endstation_ax7101_8x8
+[ok] arm srp-srp_shape-if2-endstation_arty_4x4
+[ok] arm srp-srp_shape-if2-endstation_arty_8ch
+[ok] arm srp-srp_shape-if2-endstation_arty_current
+[ok] arm srp-srp_shape-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_shape-if2-endstation_ax7101_8x8
+[ok] arm srp-srp_walk-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8
+[ok] arm unit
+[ok] arm walk
+[ok] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+[ok] a skipped test: exit 0, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a test, a host model and a source outside the tree are not measured: no finding
+[ok] attach-ignores-current-link: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link
+[ok] attach-nonatomic: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / srp_mbx_attach
+[ok] backlogged-old-prefix-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / mock function call
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-invalid-retries: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+[ok] binding-invalid-retries: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+[ok] binding-invalid-upper-bound: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+[ok] binding-invalid-upper-bound: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+[ok] binding-park-keeps-old: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+[ok] binding-park-keeps-old: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+[ok] binding-park-never-clears: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+[ok] binding-park-never-clears: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+[ok] bind-overtakes-retained-receive: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / srp_mbx_bind
+[ok] boot-clip-boundary: Core.RestoreMapWholeSetClipAndDefaults:Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+[ok] boot-map-capacity-ignored: Core.BootMapFaultsCannotPartlyReplaceTheSet
+[ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+[ok] clock-reserved-halfword-omitted: Core.ChangedScalarValuesAndDamagedLists
+[ok] completion-cookie-ignored: Core.NotificationBackpressureAndLatestCompletion
+[ok] composition-attach-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.n_ticks
+[ok] composition-refusal-ignored: SrpApp.AttachRefusalPreservesExistingComposition / ctrl_app_attach_srp
+[ok] composition-srp-irq-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / model.irq_enable
+[ok] composition-srp-tick-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.stats.ticks
+[ok] consecutive-rebind-loses-applicant: ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation / left
+[ok] counter-last-word: Core.ObservationsHaveFullWireForms
+[ok] counter-spacing-short: Core.CounterNoticesCoalesceAndWaitForEligibility:Mailbox.OutputTailStartsCounterSpacingAfterAStall
+[ok] counter-timer-during-output: Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+[ok] cross-instance-guard-removed: Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+[ok] ctrl coverage run
+[ok] ctrl_nvm coverage run
+[ok] debug-guard-silent: AecpDebug.EveryInputRejectsSynchronousPortDelivery
+[ok] default-is-not-override: Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet
+[ok] delayed-in-listener: InListenerWithdrawalRevokesLicenceImmediately / adapter.ifs[i].active[0]
+[ok] delayed-in-talker: InTalkerWithdrawalImmediatelyWithdrawsListener / declared
+[ok] descriptor-configuration-ignored: Core.MetadataConfigurationKeysAndRepeatedOverrides
+[ok] descriptor-last-byte: Core.EveryDescriptorAndReadFailures
+[ok] destroy-keeps-retained-receive: SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization / adapter.pending_rx.len
+[ok] domain-refusal-lost: DomainExhaustionPreservesOldDeclarationUntilRetry / domain.vid
+[ok] downlink-receive-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / adapter.ifs[i].registered[0]
+[ok] duplicate-tick-owner: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+[ok] dynamic-overflow-kept: Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords
+[ok] dynamic-unknown-status: Core.DynamicInfoWhitelistAndIndependentResults
+[ok] empty-map-no-page: Core.MapTopologyFailuresAndEmptyPartitions:Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+[ok] entity-available-index-static: Core.EntityAvailableIndexUsesTheIngressObservation:App.EntityReadSeesTheRealAdpAdvertisementCount
+[ok] event-reentry-unguarded: EventReentryAndSinkCapacityAreGuarded / adapter.reentries
+[ok] _exit(0) inside a test: exit 0, no tally, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+[ok] exit(0) inside a test: exit 0, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] extra-name-accepted: Core.NameRefusalsAndNoOp
+[ok] failed-init-leaks: ExhaustionDuringEachStartupStageReleasesEveryBlock / ctrl_pool_in_use
+[ok] failed-interface-starves-peer: RecreateAllocationFailureIsCountedAndRetried / other_sent
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-advertise-missing: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+[ok] feedback-advertise-missing: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+[ok] feedback-expiry-lost: SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive
+[ok] feedback-expiry-lost: SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive
+[ok] feedback-failed-as-advertise: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+[ok] feedback-failed-as-advertise: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-failed-indication-as-advertise: SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes
+[ok] feedback-failed-indication-as-advertise: SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes
+[ok] feedback-first-registration-lost: SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes
+[ok] feedback-first-registration-lost: SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] feedback-interface-suppressed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+[ok] feedback-interface-suppressed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-kind-advertise-lost: SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-kind-advertise-lost: SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-kind-failed-lost: SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-kind-failed-lost: SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-kind-order-lost: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+[ok] feedback-kind-order-lost: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+[ok] feedback-leave-clears-advertise-only: SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-leave-clears-advertise-only: SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-repeated: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+[ok] feedback-repeated: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+[ok] feedback-sink-crossed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+[ok] feedback-sink-crossed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+[ok] feedback-supersession-lost: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+[ok] feedback-supersession-lost: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+[ok] feedback-withdrawal-missing: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+[ok] feedback-withdrawal-missing: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+[ok] final-unbind-withdraws-domain-vid: FinalDomainVidUnbindKeepsSrClassMembership / d.event
+[ok] foreign-domain-stored: DomainFilterAndDuplicateDoNotGrowDeclarations / ctrl_pool_in_use
+[ok] foreign-lock-ignored: Core.ConfigurationAndLockedSetRefusals
+[ok] foreign-vlan-stored: MvrpAcceptsOnlyCurrentDomainVid / ctrl_pool_in_use
+[ok] four-way-acmp-enable-lost: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others
+[ok] four-way-acmp-enable-lost: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others
+[ok] four-way-bound-drops-srp: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] four-way-bound-drops-srp: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] four-way-bound-duplicates-events: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] four-way-bound-duplicates-events: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] four-way-srp-irq-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-srp-irq-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-srp-wake-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone
+[ok] four-way-srp-wake-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone
+[ok] four-way-unbound-irq-enabled: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-unbound-irq-enabled: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] framing-version-ignored: Core.FramingRejectsInvalidIdentityAndTruncation
+[ok] future-receive-refused: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+[ok] gcc: a compensating swap, refused with the function's totals unchanged: exclusion sw/firmware/ctrl/swap.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] gcc: a compensating swap, the control measurement: no finding
+[ok] gcc: a condition over two lines, its other operand uncovered instead: exclusion sw/firmware/ctrl/two_lines.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]
+[ok] gcc: a condition over two lines, the control measurement: no finding
+[ok] gcc and gcov on this host read as planted: no finding
+[ok] group-name-offset: Core.GroupNameDoesNotOverwriteFirmwareVersion:Core.NamesAndDescriptorOverlay:Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[ok] hdcp-data-length-echo: Core.NonAemMessageTypesFollowTheirOwnContracts
+[ok] identify-one-accepted: Core.IdentifyCurrentValueAndRefusals
+[ok] identify-refusal-body-lost: Core.UnsupportedAndAcquire
+[ok] ignore-link: InterfaceStateDoesNotCross / adapter.ifs[i].active[0]
+[ok] ignore-peer-domain: DomainUsesPeerPriorityAndVlan / domain.priority
+[ok] image-byte-corrupted: Image.EveryDescriptor
+[ok] image-crc-ignored: Image.RejectHeader
+[ok] image-type-ignored: Image.RejectDirectory
+[ok] invalid-suffix-uncounted: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.malformed
+[ok] invalid-vid: InvalidBindingsAndDuplicateBindingsPreserveState / srp_mbx_bind
+[ok] joining-binding-loses-applicant: JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves / d.event
+[ok] last-ineligible-vid-leaks: LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder / vlan_left
+[ok] latency-budget-relaxed: Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin
+[ok] latency-domain-unserviced: SrpLatency.ReceiveStateMalformedDomainAndListenerPaths / domain.vid
+[ok] latency-leave-origin: SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call
+[ok] latency-missing-startup: SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size()
+[ok] latency-relaxed-budget: SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails / service_limit
+[ok] latency-response-missing: Latency.EveryCommandAndRefusalUsesOneArrivalBudget
+[ok] latency-sign-accepted: Core.StreamInfoDirectionFlagsAndLatency
+[ok] licence-before-vlan: ListenerBeforeVlanCommitCannotStartTalker / joined
+[ok] link-level-loss-ignored: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] listener-refusal-lost: SinkDeclarationExhaustionRetriesWithoutLosingBinding / declared
+[ok] lock-long: Core.LockQueriesAndExpiry
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 9197193e: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 3626f1eaca76cb0ad3e4ea4335fe34e9eb5738f2 is not the pinned 9197193e47a6bb1c45a56d90a18c1784123aba44 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+[ok] mailbox-full-completions-overwritten: Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse
+[ok] mailbox-interface-crossed: Mailbox.EveryInterfaceAndObservationPort
+[ok] mailbox-stale-tag-accepted: Mailbox.TimerIdentityAndAttachRefusals
+[ok] malformed-uncounted: InvalidFramesHaveNoReservationSideEffects / adapter.malformed
+[ok] map-capacity-ignored: Core.MapsAreAtomicAndPaginated
+[ok] map-cluster-channel-ignored: Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[ok] milan-rapid-leave-leaks-to-mvrp: MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline / registered()
+[ok] missing-port-accepted: MissingBootDependenciesRefuseBeforeAttachment / srp_mbx_init
+[ok] mutant acmp-admit-ignores-another-talker (acmp, acmp)
+[ok] mutant acmp-admit-never-called (acmp, acmp, acmp)
+[ok] mutant acmp-admit-on-every-entry (acmp, acmp)
+[ok] mutant acmp-admit-on-interface-0 (acmp, acmpif2)
+[ok] mutant acmp-admit-port-unflagged (acmp)
+[ok] mutant acmp-adp-discover-taken (acmp)
+[ok] mutant acmp-adp-ethertype-unchecked (acmp)
+[ok] mutant acmp-adp-ring-bound-understated (acmp)
+[ok] mutant acmp-adp-short-frame-taken (acmp)
+[ok] mutant acmp-adp-subtype-unchecked (acmp)
+[ok] mutant acmp-adp-version-unchecked (acmp, acmp)
+[ok] mutant acmp-aging-samples-the-grandmaster (acmp)
+[ok] mutant acmp-attach-before-adp (acmp)
+[ok] mutant acmp-attach-ignores-poll-room (acmp)
+[ok] mutant acmp-attach-ignores-sink-room (acmp)
+[ok] mutant acmp-available-reads-the-clock-twice (acmp)
+[ok] mutant acmp-backlog-understated (acmp, acmp)
+[ok] mutant acmp-bind-change-before-response (acmp)
+[ok] mutant acmp-bind-count-0 (acmp, acmpwalk)
+[ok] mutant acmp-bind-new-keeps-srp (acmp, acmpwalk)
+[ok] mutant acmp-bind-reads-the-clock-twice (acmp)
+[ok] mutant acmp-bind-response-always-streaming-wait (acmp)
+[ok] mutant acmp-bind-same-talker-is-the-same-source (acmp)
+[ok] mutant acmp-bind-starts-no-discovery (acmp, acmpwalk)
+[ok] mutant acmp-changed-port-unflagged (acmp)
+[ok] mutant acmp-change-not-held-for-its-response (acmp, acmp)
+[ok] mutant acmp-clock-port-unflagged (acmp)
+[ok] mutant acmp-delay-deadline-saturates (acmp)
+[ok] mutant acmp-delay-reads-the-clock-again (acmp)
+[ok] mutant acmp-delay-resends-the-old-probe (acmp, acmpwalk)
+[ok] mutant acmp-delay-up-to-4s (acmp)
+[ok] mutant acmp-departing-interface-unchecked (acmp, acmpwalk)
+[ok] mutant acmp-departing-keeps-aging (acmp, acmpwalk)
+[ok] mutant acmp-departing-samples-the-grandmaster (acmp)
+[ok] mutant acmp-departing-taken-undiscovered (acmp)
+[ok] mutant acmp-disconnect-always-succeeds (acmp, acmpwalk)
+[ok] mutant acmp-discovered-interface-unchecked (acmp, acmpwalk)
+[ok] mutant acmp-discovered-probing-stays-passive (acmp)
+[ok] mutant acmp-discovery-notifies (acmp, acmpwalk)
+[ok] mutant acmp-discovery-on-every-interface (acmp)
+[ok] mutant acmp-discovery-on-unbound-sinks (acmp)
+[ok] mutant acmp-discovery-reads-no-domain (acmp, acmpwalk)
+[ok] mutant acmp-discovery-reads-no-grandmaster (acmp, acmpwalk)
+[ok] mutant acmp-discovery-takes-the-first-sink (acmp)
+[ok] mutant acmp-domain-not-sampled (acmp)
+[ok] mutant acmp-due-unsigned (acmp, acmp)
+[ok] mutant acmp-duplicate-takes-a-new-sequence-id (acmp, acmpwalk)
+[ok] mutant acmp-earliest-unsigned (acmp)
+[ok] mutant acmp-every-listener-is-this-one (acmp)
+[ok] mutant acmp-every-talker-is-this-one (acmp)
+[ok] mutant acmp-expiry-due-at-its-first-read (acmp)
+[ok] mutant acmp-expiry-not-consumed (acmp)
+[ok] mutant acmp-expiry-reads-the-clock-twice (acmp)
+[ok] mutant acmp-expiry-takes-every-interface (acmp)
+[ok] mutant acmp-expiry-to-interface-0 (acmpif2)
+[ok] mutant acmp-failure-retries-at-200ms (acmp, acmpwalk)
+[ok] mutant acmp-failure-status-dropped (acmp, acmpwalk)
+[ok] mutant acmp-first-owed-releases-every-change (acmp)
+[ok] mutant acmp-frames-on-the-adp-channel (acmp)
+[ok] mutant acmp-frames-to-the-own-mac (acmp, acmp)
+[ok] mutant acmp-full-queue-acts (acmp)
+[ok] mutant acmp-getrx-count-unbound (acmp, acmpwalk)
+[ok] mutant acmp-getrx-no-fast-connect (acmp, acmpwalk)
+[ok] mutant acmp-getrx-no-registering-failed (acmp)
+[ok] mutant acmp-get-rx-state-locked (acmp)
+[ok] mutant acmp-get-rx-state-reads-the-clock (acmp)
+[ok] mutant acmp-get-tx-connection-supported (acmp, acmpwalk)
+[ok] mutant acmp-get-tx-state-echoes-the-listener (acmp, acmpwalk)
+[ok] mutant acmp-get-tx-state-registering-failed-0 (acmp, acmpwalk)
+[ok] mutant acmp-get-tx-state-unheld-mac (acmp)
+[ok] mutant acmp-gptp-of-interface-0 (acmpif2)
+[ok] mutant acmp-gptp-port-unflagged (acmp)
+[ok] mutant acmp-grandmaster-read-twice (acmp, acmp)
+[ok] mutant acmp-grandmaster-sampled-for-the-refresh (acmp)
+[ok] mutant acmp-grandmaster-sampled-per-sink (acmp)
+[ok] mutant acmp-guard-controller-dropped (acmp, acmpwalk)
+[ok] mutant acmp-guard-reads-the-binding (acmp)
+[ok] mutant acmp-guard-sequence-id-dropped (acmp, acmpwalk)
+[ok] mutant acmp-guard-talker-dropped (acmp, acmpwalk)
+[ok] mutant acmp-guard-unique-id-dropped (acmp, acmpwalk)
+[ok] mutant acmp-header-cdl-84 (acmp)
+[ok] mutant acmp-header-listener-unknown-is-2 (acmp)
+[ok] mutant acmp-header-no-resp-2s (acmp, acmpwalk)
+[ok] mutant acmp-header-no-tk-5s (acmp)
+[ok] mutant acmp-header-registering-failed-bit (acmp)
+[ok] mutant acmp-header-retry-2s (acmp, acmpwalk)
+[ok] mutant acmp-header-valid-time-in-seconds (acmp)
+[ok] mutant acmp-header-version-1 (acmp)
+[ok] mutant acmp-held-timer-armed (acmp)
+[ok] mutant acmp-held-timer-expires (acmp)
+[ok] mutant acmp-init-no-interface (acmp)
+[ok] mutant acmp-init-reads-the-seed (acmp, acmp)
+[ok] mutant acmp-init-sink-interface (acmp)
+[ok] mutant acmp-init-source-interface (acmp)
+[ok] mutant acmp-init-too-many-sinks (acmp)
+[ok] mutant acmp-init-too-many-sources (acmp)
+[ok] mutant acmp-interfaces-past-the-mailbox (acmp)
+[ok] mutant acmp-kind-any-state (acmp)
+[ok] mutant acmp-kind-lost (acmp)
+[ok] mutant acmp-lock-ignored (acmp)
+[ok] mutant acmp-lock-port-unflagged (acmp)
+[ok] mutant acmp-lock-refuses-the-holder (acmp)
+[ok] mutant acmp-longer-pdu-refused (acmp)
+[ok] mutant acmp-longer-record-applied (acmp)
+[ok] mutant acmp-lost-probe-held (acmp)
+[ok] mutant acmp-lost-probe-uncounted (acmp)
+[ok] mutant acmp-mbx-admit-always-bound (acmp, acmp)
+[ok] mutant acmp-mbx-admit-on-entry-0 (acmp)
+[ok] mutant acmp-new-bind-never-started (acmp)
+[ok] mutant acmp-no-adp-deadline-saturates (acmp)
+[ok] mutant acmp-no-adp-due-unsigned (acmp)
+[ok] mutant acmp-no-aging (acmp, acmpwalk)
+[ok] mutant acmp-no-duplicate (acmp, acmpwalk)
+[ok] mutant acmp-no-resp-2s (acmp, acmp)
+[ok] mutant acmp-no-resp-deadline-saturates (acmp)
+[ok] mutant acmp-no-tap (acmp, acmp)
+[ok] mutant acmp-not-authorized-is-13 (acmp, acmpwalk)
+[ok] mutant acmp-nothing-persisted (acmp, acmpnvm)
+[ok] mutant acmp-no-tk-1s (acmp, acmpwalk)
+[ok] mutant acmp-no-tk-deadline-saturates (acmp)
+[ok] mutant acmp-no-tk-keeps-srp (acmp, acmpwalk)
+[ok] mutant acmp-no-tk-samples-the-grandmaster (acmp)
+[ok] mutant acmp-nvm-bindings-latched-by-the-others (acmpnvm)
+[ok] mutant acmp-nvm-bindings-to-the-others (acmpnvm)
+[ok] mutant acmp-nvm-d3-rollback-drops-bindings (acmpnvm, acmpnvm)
+[ok] mutant acmp-nvm-d3-roll-back-kept (acmpnvm)
+[ok] mutant acmp-nvm-latch-length-unchecked (acmpnvm)
+[ok] mutant acmp-nvm-model-always-ready (acmpnvm)
+[ok] mutant acmp-nvm-refusal-applied (acmpnvm, acmpnvm)
+[ok] mutant acmp-nvm-release-dropped (acmpnvm)
+[ok] mutant acmp-nvm-settle-dropped (acmpnvm)
+[ok] mutant acmp-one-slot-for-all-interfaces (acmpif2)
+[ok] mutant acmp-open-does-nothing (acmp, acmp)
+[ok] mutant acmp-open-unguarded (acmp)
+[ok] mutant acmp-owed-probe-names-the-next-sink (acmp)
+[ok] mutant acmp-owed-probe-never-starts (acmp, acmp)
+[ok] mutant acmp-owed-probe-no-resp-2s (acmp)
+[ok] mutant acmp-owed-probe-sequence-unchecked (acmp)
+[ok] mutant acmp-owed-probe-timer-runs (acmp, acmp, acmp)
+[ok] mutant acmp-owed-probe-unnamed (acmp)
+[ok] mutant acmp-pass-bound-understated (acmp)
+[ok] mutant acmp-persist-port-unflagged (acmp)
+[ok] mutant acmp-poll-drains-everything (acmp, acmp)
+[ok] mutant acmp-poll-newest-first (acmp, acmp)
+[ok] mutant acmp-poll-owes-nothing (acmp)
+[ok] mutant acmp-probe-before-response (acmp)
+[ok] mutant acmp-probe-response-reads-the-clock-twice (acmp)
+[ok] mutant acmp-probe-timer-before-its-send (acmp, acmp)
+[ok] mutant acmp-probe-tx-any-interface (acmp, acmpwalk)
+[ok] mutant acmp-probe-tx-echoes-every-flag (acmpwalk)
+[ok] mutant acmp-probe-tx-no-destination-mac-check (acmp, acmpwalk)
+[ok] mutant acmp-probe-tx-reports-asking-failed (acmp)
+[ok] mutant acmp-probe-without-fast-connect (acmp, acmpwalk)
+[ok] mutant acmp-probing-status-not-notified (acmpwalk)
+[ok] mutant acmp-rebind-not-persisted (acmpnvm, acmp)
+[ok] mutant acmp-rebind-same-keeps-the-controller (acmp)
+[ok] mutant acmp-rebind-same-reprobes (acmp, acmpwalk)
+[ok] mutant acmp-record-flag-defines-swapped (acmp)
+[ok] mutant acmp-record-flags-swapped (acmpnvm)
+[ok] mutant acmp-record-unique-id-little-endian (acmp)
+[ok] mutant acmp-record-valid-bit-moved (acmp)
+[ok] mutant acmp-reentry-unguarded (acmp, acmp)
+[ok] mutant acmp-reentry-untrapped (acmp)
+[ok] mutant acmp-refresh-notes-no-index (acmp, acmpwalk)
+[ok] mutant acmp-registered-anywhere (acmp, acmpwalk)
+[ok] mutant acmp-registered-keeps-no-tk (acmp, acmpwalk)
+[ok] mutant acmp-registered-kind-dropped (acmp, acmpwalk)
+[ok] mutant acmp-reprobe-ignores-discovery (acmp, acmp, acmpwalk)
+[ok] mutant acmp-reset-forgets-the-admitted (acmp)
+[ok] mutant acmp-response-keyed-on-the-source (acmp)
+[ok] mutant acmp-response-passes-an-owed-frame (acmp)
+[ok] mutant acmp-responses-taken-outside-probing (acmp, acmpwalk)
+[ok] mutant acmp-restart-mismatch-keeps-aging (acmp, acmpwalk)
+[ok] mutant acmp-restart-on-a-smaller-index-only (acmp)
+[ok] mutant acmp-restart-raises-no-discovered (acmp, acmpwalk)
+[ok] mutant acmp-restore-announced (acmpnvm)
+[ok] mutant acmp-restore-lands-in-prb-w-resp (acmp, acmpnvm)
+[ok] mutant acmp-restore-starts-no-discovery (acmp, acmpnvm)
+[ok] mutant acmp-restore-unique-id-little-endian (acmp)
+[ok] mutant acmp-retry-deadline-saturates (acmp)
+[ok] mutant acmp-retry-ignores-discovery (acmp, acmpwalk)
+[ok] mutant acmp-retry-samples-the-grandmaster (acmp)
+[ok] mutant acmp-retry-zeroes-the-status (acmp, acmpwalk)
+[ok] mutant acmp-rng-left-at-0 (acmp)
+[ok] mutant acmp-roll-back-keeps-the-bindings (acmp, acmpnvm)
+[ok] mutant acmp-second-no-resp-samples-the-grandmaster (acmp)
+[ok] mutant acmp-second-timeout-keeps-status-0 (acmp, acmp, acmpwalk)
+[ok] mutant acmp-seed-at-every-draw (acmp)
+[ok] mutant acmp-seed-port-unflagged (acmp)
+[ok] mutant acmp-send-port-unflagged (acmp)
+[ok] mutant acmp-sequence-id-never-advances (acmp, acmp)
+[ok] mutant acmp-sequence-id-per-sink (acmp, acmpwalk)
+[ok] mutant acmp-settle-starts-no-srp (acmp, acmpwalk)
+[ok] mutant acmp-settle-swaps-stream-fields (acmp, acmpwalk)
+[ok] mutant acmp-short-pdu-read (acmp)
+[ok] mutant acmp-slot-narrowed-first (acmp)
+[ok] mutant acmp-slots-one-short (acmp)
+[ok] mutant acmp-slots-past-the-bank (acmp)
+[ok] mutant acmp-slot-sum-wraps (acmp)
+[ok] mutant acmp-smallest-record-overstated (acmp)
+[ok] mutant acmp-source-port-unflagged (acmp)
+[ok] mutant acmp-srp-port-unflagged (acmp)
+[ok] mutant acmp-stale-tag-taken (acmp)
+[ok] mutant acmp-started-not-saved (acmp, acmpnvm)
+[ok] mutant acmp-status-not-notified (acmp)
+[ok] mutant acmp-stop-keeps-the-arm (acmp)
+[ok] mutant acmp-stop-keeps-the-hold (acmp)
+[ok] mutant acmp-streaming-wait-ignored (acmp)
+[ok] mutant acmp-sw-read-from-fast-connect (acmp)
+[ok] mutant acmp-tag-reused (acmp)
+[ok] mutant acmp-taken-probe-timer-from-the-entry-clock (acmp)
+[ok] mutant acmp-talker-reads-the-clock (acmp)
+[ok] mutant acmp-tap-drops-the-rest (acmp)
+[ok] mutant acmp-tap-takes-discover (acmp)
+[ok] mutant acmp-timer-at-the-latest-deadline (acmp)
+[ok] mutant acmp-timer-deadline-taken-as-a-delay (acmp)
+[ok] mutant acmp-timer-never-stopped (acmp, acmp)
+[ok] mutant acmp-timer-on-the-next-slot (acmp)
+[ok] mutant acmp-timer-port-called-every-time (acmp)
+[ok] mutant acmp-timer-port-unflagged (acmp)
+[ok] mutant acmp-unbind-change-before-response (acmp)
+[ok] mutant acmp-unbind-echoes-the-talker (acmp, acmpwalk)
+[ok] mutant acmp-unbind-keeps-discovery (acmp, acmpwalk)
+[ok] mutant acmp-unbind-keeps-srp (acmp, acmpwalk)
+[ok] mutant acmp-unbind-not-persisted (acmpnvm, acmpwalk)
+[ok] mutant acmp-unbind-reads-the-clock (acmp)
+[ok] mutant acmp-unbind-srp-after-response (acmp)
+[ok] mutant acmp-unbound-record-not-zero (acmp)
+[ok] mutant acmp-unknown-sink-silent (acmp)
+[ok] mutant acmp-unknown-source-answered (acmp, acmpwalk)
+[ok] mutant acmp-unregistered-anywhere (acmp, acmpwalk)
+[ok] mutant acmp-unregistered-keeps-srp (acmp, acmpwalk)
+[ok] mutant acmp-valid-time-in-seconds (acmp, acmpwalk)
+[ok] mutant acmp-version-bits-misread (acmp)
+[ok] mutant acmp-version-unchecked (acmp, acmp)
+[ok] mutant acmp-view-without-registering-failed (acmp)
+[ok] mutant acmp-vlan-masked (acmp)
+[ok] mutant acmp-zero-delay-waits (acmp)
+[ok] mutant advertise-expiry-skips-delay (walk)
+[ok] mutant advertise-period-wrong (walk)
+[ok] mutant app-acmp-before-adp (acmp)
+[ok] mutant app-acmp-never-composed (acmp)
+[ok] mutant app-acmp-never-opened (acmp, acmp)
+[ok] mutant app-acmp-refusal-ignored (acmp, acmp)
+[ok] mutant app-binds-pool-after-the-mailbox (unit)
+[ok] mutant app-maap-attached-after-open (acmp, maap)
+[ok] mutant app-maap-before-acmp (acmp, acmp)
+[ok] mutant app-maap-channel-unbound (acmp, acmp)
+[ok] mutant app-maap-entry-drops-preferred (maap)
+[ok] mutant app-maap-entry-takes-no-port (acmp, maap)
+[ok] mutant app-maap-last-range-refused (acmp)
+[ok] mutant app-maap-mac-per-interface (acmpif2)
+[ok] mutant app-maap-never-started (acmp, maap)
+[ok] mutant app-maap-preferred-unchecked (acmp, maap)
+[ok] mutant app-maap-range-past-the-pool (acmp)
+[ok] mutant app-maap-refusal-ignored (acmp)
+[ok] mutant app-maap-slots-overlap-acmp (acmp)
+[ok] mutant app-maap-slots-overlap-adp (maap, acmp)
+[ok] mutant app-maap-started-in-compose (acmp)
+[ok] mutant app-own-mac-not-the-entity-mac (unit, acmp)
+[ok] mutant app-own-mac-per-interface (acmpif2)
+[ok] mutant app-starts-on-an-uncarved-pool (unit)
+[ok] mutant app-three-way-bound-drops-maap (acmp, acmpif2)
+[ok] mutant app-three-way-bound-one-maap-poll (acmpif2)
+[ok] mutant app-three-way-pass-overrun (acmp)
+[ok] mutant attach-ignores-poll-room (unit)
+[ok] mutant available-passes-owed-departing (adp)
+[ok] mutant available-replaces-owed-departing (adp)
+[ok] mutant calloc-overflow-unchecked (port)
+[ok] mutant carried-ticks-overwritten (port)
+[ok] mutant coalesced-departing-uncounted (adp)
+[ok] mutant coalesce-drops-queued-departing (adp)
+[ok] mutant coalesce-overwrites-oldest-index (adp)
+[ok] mutant debug-truncation-uncounted (port)
+[ok] mutant delay-ignores-link-down (walk)
+[ok] mutant departing-keeps-index (walk)
+[ok] mutant departing-queue-unbounded (adp)
+[ok] mutant departing-sends-zero (adp)
+[ok] mutant discover-drops-owed-available (adp)
+[ok] mutant down-answers-discover (walk)
+[ok] mutant draw-kinds-merged (adp)
+[ok] mutant enable-not-idempotent (adp)
+[ok] mutant encoding-failure-swallowed (port)
+[ok] mutant events-halved (adp, acmp)
+[ok] mutant evt-words-unchecked (unit)
+[ok] mutant filter-opened-before-eid (port)
+[ok] mutant foreign-discover-answered (adp)
+[ok] mutant foreign-frame-uncounted (unit)
+[ok] mutant foreign-free-uncounted (port)
+[ok] mutant frame-misses-config-index (walk)
+[ok] mutant frame-sources-from-sinks (entity)
+[ok] mutant gm-change-drops-owed-available (adp)
+[ok] mutant gm-change-ignored (walk)
+[ok] mutant lanes-big-endian (model)
+[ok] mutant latency-extra-read (adp)
+[ok] mutant link-down-departs (walk)
+[ok] mutant link-loss-drops-owed-departing (adp)
+[ok] mutant link-loss-keeps-owed-available (adp)
+[ok] mutant link-up-draws-startup-kind (walk)
+[ok] mutant maap-adjacent-overlaps (maap)
+[ok] mutant maap-allocation-before-commit (maap)
+[ok] mutant maap-allocation-seam-disconnected (maap)
+[ok] mutant maap-app-channel-closed (maap)
+[ok] mutant maap-app-missing-rx-interrupt (maap)
+[ok] mutant maap-base-shifted (unit)
+[ok] mutant maap-begin-down-forgets-range (maap)
+[ok] mutant maap-biased-random-bucket (maap)
+[ok] mutant maap-callback-work-overrun (maap)
+[ok] mutant maap-compare-mac-lsb-only (maap)
+[ok] mutant maap-constant-announce_base (maap)
+[ok] mutant maap-constant-announce_variation (maap)
+[ok] mutant maap-constant-probe_base (maap)
+[ok] mutant maap-constant-probe_variation (maap)
+[ok] mutant maap-count-mismatch-accepted (maap)
+[ok] mutant maap-crf-index-wrong (maap)
+[ok] mutant maap-csr-enable-before-programming (maap)
+[ok] mutant maap-csr-select-listener (maap)
+[ok] mutant maap-debug-no-assert (maap_debug)
+[ok] mutant maap-defend-checks-request (maap)
+[ok] mutant maap-defend-echo-own-range (maap)
+[ok] mutant maap-defend-multicast (maap)
+[ok] mutant maap-down-start-keeps-owner (maap)
+[ok] mutant maap-expiry-forgotten-on-stall (maap)
+[ok] mutant maap-fabric-owner-kept (maap)
+[ok] mutant maap-filter-destination-ignored (maap)
+[ok] mutant maap-foreign-not-counted (maap)
+[ok] mutant maap-future-version-refused (maap)
+[ok] mutant maap-generic-equal-mac-wins (maap)
+[ok] mutant maap-generic-initial-handles-conflict (maap)
+[ok] mutant maap-generic-probe-defend-uses-priority (maap)
+[ok] mutant maap-generic-probe-state-defends (maap)
+[ok] mutant maap-half-attach (maap)
+[ok] mutant maap-ignored-input-late (maap)
+[ok] mutant maap-initial-send-absent (maap)
+[ok] mutant maap-interface-zero (maap_if2)
+[ok] mutant maap-intersection-too-long (maap)
+[ok] mutant maap-late-service (maap)
+[ok] mutant maap-loss-keeps-crf (maap)
+[ok] mutant maap-malformed-cdl-current (maap)
+[ok] mutant maap-malformed-cdl-short (maap)
+[ok] mutant maap-malformed-cdl-truncated (maap)
+[ok] mutant maap-malformed-destination (maap)
+[ok] mutant maap-malformed-ethertype (maap)
+[ok] mutant maap-malformed-own-probe (maap)
+[ok] mutant maap-malformed-reserved-high (maap)
+[ok] mutant maap-malformed-reserved-zero (maap)
+[ok] mutant maap-malformed-source-group (maap)
+[ok] mutant maap-malformed-source-zero (maap)
+[ok] mutant maap-malformed-subtype (maap)
+[ok] mutant maap-malformed-version (maap)
+[ok] mutant maap-no-range-filter (maap)
+[ok] mutant maap-numeric-mac-priority (maap)
+[ok] mutant maap-overflow-uncounted (maap)
+[ok] mutant maap-poll-first-interface-only (maap_if2)
+[ok] mutant maap-poll-unbounded (maap)
+[ok] mutant maap-port-up-keeps-claim (maap)
+[ok] mutant maap-probe-announce-reordered (maap)
+[ok] mutant maap-probe-count-not-decremented (maap)
+[ok] mutant maap-range-end-off-by-one (maap)
+[ok] mutant maap-reentry-not-counted (maap)
+[ok] mutant maap-release-keeps-enable (maap)
+[ok] mutant maap-release-leaves-output (maap)
+[ok] mutant maap-restart-reuses-range (maap)
+[ok] mutant maap-retransmit-count (maap)
+[ok] mutant maap-reverse-five-octets (maap)
+[ok] mutant maap-seed-clock-ignored (maap)
+[ok] mutant maap-selection-not-restored (maap)
+[ok] mutant maap-stall-unqueued (maap)
+[ok] mutant maap-stream-index-missing (maap)
+[ok] mutant maap-table-b7-0 (maap)
+[ok] mutant maap-table-b7-10 (maap)
+[ok] mutant maap-table-b7-11 (maap)
+[ok] mutant maap-table-b7-12 (maap)
+[ok] mutant maap-table-b7-13 (maap)
+[ok] mutant maap-table-b7-14 (maap)
+[ok] mutant maap-table-b7-15 (maap)
+[ok] mutant maap-table-b7-16 (maap)
+[ok] mutant maap-table-b7-17 (maap)
+[ok] mutant maap-table-b7-1 (maap)
+[ok] mutant maap-table-b7-2 (maap)
+[ok] mutant maap-table-b7-3 (maap)
+[ok] mutant maap-table-b7-4 (maap)
+[ok] mutant maap-table-b7-5 (maap)
+[ok] mutant maap-table-b7-6 (maap)
+[ok] mutant maap-table-b7-7 (maap)
+[ok] mutant maap-table-b7-8 (maap)
+[ok] mutant maap-table-b7-9 (maap)
+[ok] mutant maap-timer-tag-ignored (maap)
+[ok] mutant maap-valid-minimum-refused (maap)
+[ok] mutant maap-wire-length (maap)
+[ok] mutant maap-wire-padding (maap)
+[ok] mutant maap-wire-source (maap)
+[ok] mutant maap-wire-version (maap)
+[ok] mutant maap-zero-count-conflicts (maap)
+[ok] mutant maap-zero-seed-sticks (maap)
+[ok] mutant major-unchecked (unit, unit)
+[ok] mutant mbx-bound-enabled-before-the-identity (unit)
+[ok] mutant mbx-bound-entry-stride-ignored (unit, acmp)
+[ok] mutant mbx-bound-entry-unguarded (unit)
+[ok] mutant mbx-bound-halves-swapped (unit, acmp)
+[ok] mutant mbx-bound-unguarded (unit)
+[ok] mutant mbx-bound-withdraw-writes-nothing (unit, acmp)
+[ok] mutant mismatch-read-from-bus-err (unit, port)
+[ok] mutant mmio-offset-as-index (unit)
+[ok] mutant model-aecp-command-only (model)
+[ok] mutant model-bound-enable-ignored (model)
+[ok] mutant model-bound-en-reads-the-eid (model)
+[ok] mutant model-bound-entry-decoded-as-0 (model)
+[ok] mutant model-bound-low-word-only (model)
+[ok] mutant model-bound-table-of-interface-0 (model)
+[ok] mutant model-bound-term-any-type (model)
+[ok] mutant model-bound-term-misses (model)
+[ok] mutant model-defend-any-unicast (model)
+[ok] mutant model-ethertype-ignored (model)
+[ok] mutant model-event-ring-a-record-short (acmp)
+[ok] mutant model-gm-hi-live (model)
+[ok] mutant model-mismatch-counts-identity-refusals (model)
+[ok] mutant model-mismatch-never-counted (model, acmp)
+[ok] mutant model-mismatch-sets-no-err (model)
+[ok] mutant model-msg-type-off-by-one (model)
+[ok] mutant model-msg-type-refusal-uncounted (model)
+[ok] mutant model-multicast-dst-ignored (model)
+[ok] mutant model-own-any-unicast (model, acmp)
+[ok] mutant model-own-mac-hi-dropped (model)
+[ok] mutant model-own-mac-of-interface-0 (model)
+[ok] mutant model-rate-unlimited (model)
+[ok] mutant model-round-robin (model)
+[ok] mutant model-subtype-ignored (model)
+[ok] mutant model-tag-stripped (model)
+[ok] mutant model-tpid-matches-a-tuple (model)
+[ok] mutant model-tuple-msg-type-ignored (model)
+[ok] mutant other-subtype-accepted (adp)
+[ok] mutant owed-ticks-let-it-sleep (port)
+[ok] mutant own-discover-discarded (walk)
+[ok] mutant own-mac-after-the-channels-open (port)
+[ok] mutant own-mac-halves-swapped (unit, port)
+[ok] mutant own-mac-unguarded (unit)
+[ok] mutant poll-owes-nothing (adp)
+[ok] mutant pool-cut-list-refuses-outright (port)
+[ok] mutant pool-double-free-accepted (port)
+[ok] mutant pool-falls-back-to-heap (port, rv32)
+[ok] mutant pool-follows-a-cut-free-list (port)
+[ok] mutant pool-free-leaks (port)
+[ok] mutant port-pool-unreported (port)
+[ok] mutant r2-saved-range-never-consumed (maap)
+[ok] mutant reentry-guard-removed (reentry_debug, reentry_debug, reentry_release, reentry_release)
+[ok] mutant reentry-not-ignored (reentry_release)
+[ok] mutant reentry-uncounted (reentry_release)
+[ok] mutant rx-before-events (adp)
+[ok] mutant rx-binds-no-function (port)
+[ok] mutant rx-no-resync (port, unit)
+[ok] mutant rx-one-record-per-pass (acmp, acmp)
+[ok] mutant rx-pass-unbounded (port)
+[ok] mutant second-departing-dropped (adp)
+[ok] mutant second-shutdown-overwrites-index (adp)
+[ok] mutant seed-left-at-zero (adp)
+[ok] mutant seq-not-stamped (port)
+[ok] mutant shutdown-in-down-departs (walk)
+[ok] mutant slots-past-the-bank (unit)
+[ok] mutant stale-tag-accepted (adp)
+[ok] mutant step-waits-twice (unit)
+[ok] mutant stray-expiry-drops-owed-available (adp)
+[ok] mutant tick-count-ignored (port)
+[ok] mutant tick-slice-unbounded (port)
+[ok] mutant tx-negative-fill (unit)
+[ok] mutant tx-overfills (port)
+[ok] mutant unknown-event-decoded-as-tick (unit)
+[ok] mutant wait-without-wfi (unit)
+[ok] mutant whole-field-loses-its-top-bit (unit)
+[ok] mutant zero-byte-class-accepted (port)
+[ok] mutant zero-size-refusal-uncounted (port)
+[ok] mvrp-receive-retry-removed: SrpRetry.RetainedMvrpUsesItsOriginalParticipant / adapter.received
+[ok] ninety-percent-ceiling: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] no-interface-accepted: Core.InitRefusalsAndClosedService
+[ok] nosub-applies-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[ok] nosub-bypasses-input-refusal: Core.S2_NoSubcommandSetOnInputIsNotSupported
+[ok] nosub-bypasses-running-only: Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+[ok] nosub-notifies-change: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState
+[ok] nosub-reports-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[ok] no test selected: exit 0, tally 0/0, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+[ok] nvm-hole-accepted: Nvm.WholeMapFramingAndEmptySetAreDistinct
+[ok] nvm-latency-dirty-lost: Nvm.AcceptedStateSurvivesTheRealStorePowerCycle:Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+[ok] nvm-partial-latch-writes: Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+[ok] old-prefix-accepted: LinkEventsDiscardOnlyTheirPublishedReceivePrefix / mock function call
+[ok] other-link-cancels-owed: LinkLossCancelsItsOwedFrameOnly / adapter.owed_len
+[ok] output-owner-crossed: Core.OutputMappingsHaveOneGlobalOwner
+[ok] owed-response-discarded: Core.BackpressureOrdersResponseBeforeNotice
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+[ok] partial-receive-retry-removed: SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop / domain.vid
+[ok] path-failure-success: Core.ObservationRefusals
+[ok] peer-reset-cancels-retained-receive: SrpRetry.OtherInterfaceResetPreservesRetainedPayload / adapter.pending_rx.len
+[ok] preamble-ifg-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] probe-sequence-ignored: Core.ProbeIdentityAndSequenceMustBothMatch
+[ok] probe-status-matters: Core.ProbeRepliesResetOnlyTheirOwnInterface
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+[ok] ready-before-vlan: SinkMembershipCommitsBeforeReadyAtStartup / joined
+[ok] readyfailed-callback-stop: ReadyToReadyFailedNeverGlitchesAnActiveLicence / mock function call
+[ok] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+[ok] rebind-loses-shared-applicant: SharedRebindKeepsOnlyTheRemainingEligibleRequest / left
+[ok] receive-deadline-not-modular: SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard / adapter.rx_discarded
+[ok] receive-debug-guard: SynchronousReceiveFromOutputAsserts / failed to die
+[ok] receive-discard-as-success: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+[ok] receive-discard-malformed: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.malformed
+[ok] receive-discard-uncounted: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-expiry-precedes-recovery: SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord / adapter.received
+[ok] receive-first-refusal-never-expires: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-flood-unbounded: SrpRetry.DomainFloodCannotDelayLaterRapidLeave / adapter.pending_rx.len
+[ok] receive-overtakes-retained: SrpRetry.LaterRecordsCannotOvertakeRetainedInterface / loop.stats.rx_records
+[ok] receive-queue-renews-deadline: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-record-lost: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.pending_rx.len
+[ok] receive-recreate-never-expires: SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline / adapter.rx_discarded
+[ok] receive-refusal-malformed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.malformed
+[ok] receive-retention-late: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-retention-short: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-retention-unbounded: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len
+[ok] receive-retry-passes-backlog: SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs / adapter.received
+[ok] receive-retry-passes-owed: SrpRetry.RetainedReceiveWaitsForOwedTransmit / adapter.pending_rx.len
+[ok] receive-retry-removed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.received
+[ok] recovery-latency-retry-removed: SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget / adapter.ifs[0].active[0]
+[ok] recreated-receive-retry-removed: SrpRetry.FailedParticipantRecreationRetainsFreshReceive / adapter.received
+[ok] reentry-uncounted: Core.ReentrantPortsCannotMutateState
+[ok] reentry-uncounted: ReentryFromOutputIsRefusedAndCounted / adapter.reentries
+[ok] registry-no-retry: Core.RegistryCapacityInterfaceKeysAndLiveness
+[ok] reset-keeps-owed-domain: RefusedPeerDomainDoesNotSurviveLinkRestart / domain.vid
+[ok] reset-keeps-retained-receive: SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords / adapter.received
+[ok] reset-keeps-sink-vlan: SinkVlanRedeclaredBeforeReadyAfterLinkRestart / vlan
+[ok] reset-leaks-owned-participants: ExhaustedPoolStillReusesOwnedBlocksOnLinkReset / adapter.refused
+[ok] reset-skips-recreate: RecreateAllocationFailureIsCountedAndRetried / adapter.ifs[0].msrp
+[ok] restore-forgets-override: Core.RestoreValuesValidateAndRollbackWithoutLiveEvents:Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+[ok] retry-timer-lost: Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+[ok] root-configuration-refused: Core.RootDescriptorConfigurationIsIgnored
+[ok] rx-overtakes-expiry: ExpiryBacklogPrecedesSamePassReceive / adapter.stops
+[ok] rx-overtakes-owed: RefusedMailboxRetainsOwedFrameAndDefersInput / adapter.received
+[ok] saved-latency-wrong-type: Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+[ok] scalar-refusal-reports-request: Core.ScalarGetSetAndCurrentValueRefusals
+[ok] shape-last-output-missing: EveryGeneratedOutputIsDeclaredAndEverySinkFits / outputs
+[ok] shared-identity-overwritten: SharedIdentityReconcilesBothBindingOrdersOnTheWire / last
+[ok] shared-ready-uses-first-vlan: SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+[ok] short-link-interruption-ignored: AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority
+[ok] sink-da-ignored: WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt / declared
+[ok] sink-vlan-refusal-lost: SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent / vlan_requested
+[ok] srp-bound-event: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+[ok] srp-bound-event: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+[ok] srp-bound-pass: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound
+[ok] srp-bound-pass: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound
+[ok] srp-bound-poll: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+[ok] srp-bound-poll: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+[ok] srp-bound-poll-transmit: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP transmitting poll bound
+[ok] srp-bound-poll-transmit: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP transmitting poll bound
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] srp-bound-rx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound
+[ok] srp-bound-rx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound
+[ok] srp-bound-tx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound
+[ok] srp-bound-tx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] srp-send-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record accesses
+[ok] srp-send-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record accesses
+[ok] srp-term-event-record: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+[ok] srp-term-event-record: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+[ok] srp-term-fixed: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-fixed: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-interface-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-interface-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-pass-poll: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-term-pass-poll: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-term-rx-count: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+[ok] srp-term-rx-count: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+[ok] srp-term-send-cost: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+[ok] srp-term-send-cost: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+[ok] srp-term-transmit-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll transmit count is funded independently
+[ok] srp-term-transmit-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll transmit count is funded independently
+[ok] startup-vid: StartupDeclaresTalkersDomainAndVlan / d.value
+[ok] start-wait-ten-ms: Core.StartIsDeferredAndHasFailureDeadline:Latency.DeferredFailureAndTimerPathsUseTheirDueTime
+[ok] static-map-orphan-accepted: Core.StaticMapsPreventOrphaningFormats
+[ok] stream-info-flags-echo: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[ok] stream-info-noop-refused: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[ok] stream-info-request-echo: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[ok] stream-interface-bound-ignored: Core.DescriptorAndObservationBoundaryFailures
+[ok] system-id-write-lost: Core.MilanVendorCommandsAndRefusals
+[ok] tag-overhead-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] the control: the only gap excluded, at its record: no finding
+[ok] the record is a floor: a measurement over it passes: no finding
+[ok] the uncovered arc and line moved to another statement, the function's totals unchanged: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] the uncovered arc moved to the statement's other arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [2] of the statement's 2 are uncovered, the row names [1]
+[ok] tick-debug-guard: SynchronousTickFromOutputAsserts / failed to die
+[ok] two builds of one source merge to the union: no finding
+[ok] two exclusions naming one arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: names an arc or a line another row of the function names
+[ok] unavailable-head-blocks-notices: Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+[ok] unavailable-retry-spins: Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+[ok] unbind-shared-listener: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+[ok] unknown-body-lost: Core.UnsupportedAndAcquire
+[ok] unsupported-events-queued: Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded
+[ok] walk-domain-ignored: SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA / domain.vid
+[ok] walk-leave-shortened: SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call
+[ok] walk-malformed-uncounted: SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput / adapter.malformed
+[ok] walk-match-da-ignored: SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal / declared
+[ok] walk-startup-is-join: SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire / d.event
+[ok] withdraw-bound-domain: BoundOldDomainVlanSurvivesDomainChange / d.event
+[ok] withdraw-same-domain: PriorityOnlyDomainChangeKeepsVlanMembership / d.event

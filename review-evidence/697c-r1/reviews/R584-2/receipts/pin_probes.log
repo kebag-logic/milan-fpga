@@ -1,0 +1,58 @@
+pin 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+S0 pristine | stack-pin-cli | rc=0 | tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+before S1: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+S1-modified-src | stack-pin-cli | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | make-stack-pin | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | make-libctrlfw | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | maap-diff | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | maap-diff-self | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | aecp-arms | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | aecp-mutants | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | aecp-wire | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | ctrl-image | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | fw-gate | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S1-modified-src | boundary | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+S2 git status --porcelain: []
+S2-assume-unchanged | stack-pin-cli | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | make-stack-pin | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | make-libctrlfw | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | maap-diff | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | maap-diff-self | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | aecp-arms | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | aecp-mutants | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | aecp-wire | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | ctrl-image | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | fw-gate | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S2-assume-unchanged | boundary | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+S3 git status --porcelain: []
+S3-skip-worktree | stack-pin-cli | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | make-stack-pin | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | make-libctrlfw | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | maap-diff | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | maap-diff-self | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | aecp-arms | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | aecp-mutants | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | aecp-wire | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | ctrl-image | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | fw-gate | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+S3-skip-worktree | boundary | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+before S4: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+S4-untracked-header | stack-pin-cli | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | make-stack-pin | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | make-libctrlfw | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | maap-diff | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | maap-diff-self | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | aecp-arms | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | aecp-mutants | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | aecp-wire | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | ctrl-image | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | fw-gate | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S4-untracked-header | boundary | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/extra.h
+S5 script edited | stack-pin-cli | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+S5 script edited | boundary | rc=2 | REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+S6 wire.h poisoned | make run-if2 (alone) | rc=2 |    46 | #error PIN-PROBE: the stack header was compiled without the pin check
+      -c <packet>/scratch/pinprobe/sw/firmware/ctrl/host/mbx_model.c -o obj_if2/mbx_model.o
+                     from <packet>/scratch/pinprobe/sw/firmware/ctrl/host/mbx_model.c:31:
+    <packet>/scratch/pinprobe/third_party/tsn-c-stack/include/wire.h:46:2: error: #error PIN-PROBE: the stack header was compiled without the pin check
+restored: submodule HEAD 1a9f651cdf7846b8e10ac246a6ef6916960fbb92, status [], flagged []
+restored pin: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92

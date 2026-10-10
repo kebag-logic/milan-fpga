@@ -1,0 +1,68 @@
+build modes read from the builders: ADP_TEST_COVERAGE (-DADP_TEST_COVERAGE); ADP_TEST_RELEASE (-DADP_TEST_RELEASE); AECP_TEST_APP (-DAECP_TEST_APP); AECP_TEST_MAILBOX (-DAECP_TEST_MAILBOX); AECP_TEST_NVM (-DAECP_TEST_NVM); CTRL_APP_TEST_SRP (-DCTRL_APP_TEST_SRP); CTRL_IMAGE_SRP (-DCTRL_IMAGE_SRP); CTRL_MBX_BASE (-DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window) -DCTRL_MBX_BASE=0x80000000u); CTRL_MBX_WFI (-DCTRL_MBX_WFI=ctrl_test_wfi); CTRL_REENTRY_ASSERT (-DCTRL_REENTRY_ASSERT); LWSRP_MILAN (-DLWSRP_MILAN=1); NDEBUG (-UNDEBUG -DNDEBUG); NVM_DOCTORED_MAPIN (-DNVM_DOCTORED_MAPIN); NVM_DOCTORED_NONAME (-DNVM_DOCTORED_NONAME); PP_TOP_IF2 (-DPP_TOP_IF2); PP_TOP_TIM_DEFAULTS (-DPP_TOP_TIM_DEFAULTS); mrp_transmit (-Dmrp_transmit=srp_test_transmit_real); shlan_calloc (-Dshlan_calloc=srp_test_calloc)
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] boundary control stack source includes the mailbox HAL: host: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control stack source includes the register-map contract: host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+[ok] boundary control stack source includes the composition: host: the stack's src/maap.c includes sw/firmware/ctrl/app/ctrl_app.h
+[ok] boundary control stack source includes the store's port: host: the stack's src/maap.c includes sw/firmware/ctrl_nvm/nvm_state.h
+[ok] boundary control stack source includes the loop through a macro: host: the stack's src/adp.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+[ok] boundary control stack public header includes the platform's header: host: the stack's include/wire.h includes sw/firmware/ctrl/port/ctrl_debug.h
+[ok] boundary control stack source includes a header nobody supplies: host: the stack's src/adp.c does not preprocess with the firmware's flags: image_layout.h: No such file or directory
+[ok] boundary control stack source includes an OS header: host: the stack's src/adp.c includes /usr/include/bits/confname.h
+[ok] boundary control firmware reaches a stack example's header: firmware: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ok] boundary control firmware header reaches a stack source by a relative path: firmware: app/ctrl_app.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[ok] boundary control image source reaches a stack test's header: firmware: test/rv32_image/image_main.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control a copy of the stack's wire.h in the firmware: firmware: ctrl/mbx/wire.h has the name of the stack's wire.h
+[ok] boundary control a copy of the stack's adp.c in the firmware: firmware: ctrl/adp/adp.c has the name of the stack's adp.c
+[ok] boundary control stack source includes the mailbox HAL under the re-entry assertion: host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control stack source includes the platform's header in a debug build: host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h
+[ok] boundary control stack source includes the contract in a debug build with the re-entry assertion: host [-DCTRL_REENTRY_ASSERT -UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+[ok] boundary control firmware adapter reaches a stack test's fake under the re-entry assertion: firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control firmware adapter reaches the stack's test fake by its checkout path under the re-entry assertion: firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes third_party/tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control firmware tests a mode by its value: firmware [-DCTRL_REENTRY_ASSERT]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[ok] boundary control the SRP image's composition reaches a stack source: firmware [-DCTRL_IMAGE_SRP]: test/ctrl_image.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+[ok] boundary control a stack test includes the mailbox HAL: tests: the stack's tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a stack test includes the firmware's harness: tests: the stack's tests/test_adp.cpp includes sw/firmware/gtest/fw_gtest.hpp
+[ok] boundary control a stack test includes the platform's pool in its release build: tests [-DADP_TEST_RELEASE]: the stack's tests/test_adp_reentry.cpp includes sw/firmware/ctrl/port/ctrl_pool.h
+[ok] boundary control a stack public header includes the mailbox HAL for C++ only: tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a mode an arm writes is explored without being named here: host [-DCTRL_PLANTED_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a mode an AECP arm writes is explored without being named here: host [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a mode written in a new builder nobody lists is explored: host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+[ok] boundary control stack source includes the AECP core's header: host: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h
+[ok] boundary control a stack test includes the AECP adapter: tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/aecp/aecp_mbx.h
+[ok] boundary control the AECP core reaches a stack source: firmware: aecp/aecp.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+[ok] boundary control the AECP application bridge reaches a stack example's header: firmware: app/ctrl_app_aecp.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ok] boundary control the AECP image's SRP composition reaches a stack source: firmware [-DCTRL_IMAGE_SRP]: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[ok] boundary control a copy of the stack's acmp.h in the AECP directory: firmware: ctrl/aecp/acmp.h has the name of the stack's acmp.h
+[ok] boundary control pass: the firmware includes a public header: passes
+[ok] boundary control pass: the stack includes only its own header and the C library: passes
+[ok] boundary control pass: a stack test reaches the stack's example: passes
+[ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+[ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 1a9f651c: CMakeLists.txt
+[ok] tsn-c-stack pin control, an edit hidden from git status (assume-unchanged): tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 1a9f651c: include/stdint.h
+[ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, the mailbox bench, the pinned clone: exit 0: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, the mailbox bench, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+    boundary control owned-and-standard: compiles; passes
+    boundary control standard-digraph: compiles; passes
+    boundary control outside-hash: compiles; refused
+    boundary control outside-digraph: compiles; refused
+    boundary control outside-trigraph: compiles; refused
+    boundary control outside-relative: compiles; refused
+    boundary control outside-spliced: compiles; refused
+    boundary control outside-macro: compiles; refused
+    boundary control heap-direct: compiles; refused
+    boundary control heap-macro: compiles; refused
+    boundary control heap-pointer: compiles; refused
+    boundary control os-symbol: compiles; refused
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 0 finding(s), 36 boundary and 15 pin controls, 0 misbehaved
+ctrl_boundary: PASS

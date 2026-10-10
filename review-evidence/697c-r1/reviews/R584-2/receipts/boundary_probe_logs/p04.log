@@ -1,0 +1,7 @@
+build modes read from the builders: ADP_TEST_COVERAGE (-DADP_TEST_COVERAGE); ADP_TEST_RELEASE (-DADP_TEST_RELEASE); AECP_TEST_APP (-DAECP_TEST_APP); AECP_TEST_MAILBOX (-DAECP_TEST_MAILBOX); AECP_TEST_NVM (-DAECP_TEST_NVM); CTRL_APP_TEST_SRP (-DCTRL_APP_TEST_SRP); CTRL_IMAGE_SRP (-DCTRL_IMAGE_SRP); CTRL_MBX_BASE (-DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window) -DCTRL_MBX_BASE=0x80000000u); CTRL_MBX_WFI (-DCTRL_MBX_WFI=ctrl_test_wfi); CTRL_REENTRY_ASSERT (-DCTRL_REENTRY_ASSERT); LWSRP_MILAN (-DLWSRP_MILAN=1); NDEBUG (-UNDEBUG -DNDEBUG); NVM_DOCTORED_MAPIN (-DNVM_DOCTORED_MAPIN); NVM_DOCTORED_NONAME (-DNVM_DOCTORED_NONAME); PP_TOP_IF2 (-DPP_TOP_IF2); PP_TOP_TIM_DEFAULTS (-DPP_TOP_TIM_DEFAULTS); mrp_transmit (-Dmrp_transmit=srp_test_transmit_real); shlan_calloc (-Dshlan_calloc=srp_test_calloc)
+tsn-c-stack at 71e0de73bd81e3167c757ad7b18b66d513194bed
+    boundary: compiler dependencies and object symbols pass
+  [FAIL] tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_contract.h
+  [FAIL] tests: the stack's tests/acmp_fake.hpp includes sw/firmware/ctrl/mbx/mbx_contract.h
+ctrl_boundary: 51 firmware units and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes (376 preprocessings); 2 finding(s)
+ctrl_boundary: FAIL

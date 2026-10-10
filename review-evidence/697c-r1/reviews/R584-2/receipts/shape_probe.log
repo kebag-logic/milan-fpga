@@ -1,0 +1,6 @@
+ sw/firmware/ctrl/test/rv32_image/image_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+boundary rc=0: ctrl_boundary: PASS
+ctrl_image 1x1 rc=2: REFUSED: riscv32-linux-gcc failed: <packet>/scratch/shapeprobe/sw/firmware/ctrl/test/rv32_image/image_main.c:32:2: error: #error PROBE-REACHED: the 8x8 image compiled the stack example header
+ctrl_image 8x8 rc=2: REFUSED: riscv32-linux-gcc failed: <packet>/scratch/shapeprobe/sw/firmware/ctrl/test/rv32_image/image_main.c:32:2: error: #error PROBE-REACHED: the 8x8 image compiled the stack example header
+(no adp_port.h mention: the include resolved, then #error fired)
