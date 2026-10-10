@@ -256,7 +256,7 @@ compared ranges with inclusive ends.
   Equally timed stations reset and enable on the same cycles and differ only in MAC or clock.
   For every carry run of the seed, one pair of seeds a power of two apart must claim first blocks that share no address.
   Adjacent MACs, MACs 2^i apart with 1 <= i <= 15 and MACs 2^i apart with 16 <= i <= 31 are separate checks.
-  R558-6's four pairs and two clock pairs have their own checks, named as fixed pairs: they pin those pairs at the current fold rows and carry no guarantee of their own.
+  R558-6's four MAC pairs and two fixed clock pairs have their own checks, named as fixed pairs: they pin those pairs at the current fold rows and carry no guarantee of their own.
   Clocks one power of two apart must give different first offsets. The adjacent pairs, R558-6's pairs and the 16 single-bit pairs in bits 16..31 must give different first probe intervals.
   The harness's section [13] establishes the criterion for every seed, not a sample.
   It learns the first offset word and the first probe draw as linear maps of the seed from the RTL's own first Begin!, and confirms both maps on 256 further seeds.
@@ -267,8 +267,8 @@ compared ranges with inclusive ends.
   Its `mutants.py` plants at least one defect per #686 item and requires
   the named check to fail. The #696 plants include R558-6's p7 (the pre-#696 first draw), the raw low seed bits as the first offset,
   an offset fold without the seed's high half, a first offset that ignores the clock, and a raw-seed first probe draw.
-  R559-6's q3 and q9 (one bit dropped from offset row 0 or row 6) and its q1 (the probe fold of the unstepped state) pass every sampled pair, and each fails its section [13] check.
-  A probe row that repeats an offset row fails the independence check, and a nonlinear first fold the linearity check.
+  R559-6's q3 and q9 (one bit dropped from offset row 0 or row 6), its q1 (the probe fold of the unstepped state) and a nonlinear first fold pass every sampled pair, and each fails its section [13] check.
+  A probe row that repeats an offset row fails the independence check.
   An echo of the overlap start fails the below-offset M2 check.
   The coverage gate is 95 %, like avtp_rxmon.
 
