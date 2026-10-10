@@ -1,0 +1,30 @@
+configure: rc=0
+baseline-build: rc=0
+baseline-check: rc=0
+baseline-scenarios: rc=0
+scenario-disable-dispatch-build: rc=0
+scenario-disable-dispatch: rc=1
+KILLED scenario-disable-dispatch
+scenario-disable-mapping-build: rc=0
+scenario-disable-mapping: rc=1
+KILLED scenario-disable-mapping
+scenario-disable-port-build: rc=0
+scenario-disable-port: rc=1
+KILLED scenario-disable-port
+scenario-enable-dispatch-build: rc=0
+scenario-enable-dispatch: rc=1
+KILLED scenario-enable-dispatch
+scenario-connect-noop-build: rc=0
+scenario-connect-noop: rc=1
+KILLED scenario-connect-noop
+scenario-connect-dispatch-build: rc=0
+scenario-connect-dispatch: rc=1
+KILLED scenario-connect-dispatch
+scenario-disconnect-dispatch-build: rc=0
+scenario-disconnect-dispatch: rc=1
+KILLED scenario-disconnect-dispatch
+restored-build: rc=0
+restored-check: rc=0
+restored-scenarios: rc=0
+Reversals: 7; failures: 0
+rc=0

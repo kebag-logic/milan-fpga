@@ -1,0 +1,12 @@
+# python 3.12 compile check
+compile ok tests/features/environment.py 3.12.13
+compile ok tests/features/steps/switch_steps.py 3.12.13
+compile ok tests/check_reversals.py 3.12.13
+# privacy scan of added lines and PR body
+scan rc=1 (1 = no match)
+# commit subject/body/trailer check
+a8fe0849f37a0908bc899754c2644cf30a54b67f body_lines=
+95a1793754a6babcaa0b7a81e157643ef319bb1f body_lines=
+50e8189a6c8112aa7556119eea1cb3fa0df53fdf body_lines=
+090252cc26f4012f1f00e6369563191e7c7986ca body_lines=
+      4 hackerman-kl <hackerman-kl@kebag-logic.com>

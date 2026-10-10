@@ -1,0 +1,31 @@
+# parent consumer static check
+parent dev: f88df731c77ec3d876b74e41b0091c513370afe9
+parent gitlink third_party/lwSRP: 160000 commit 9197193e47a6bb1c45a56d90a18c1784123aba44	third_party/lwSRP
+scratch index gitlink after update: 160000 a8fe0849f37a0908bc899754c2644cf30a54b67f 0	third_party/lwSRP
+scratch cached diff vs dev:
+ third_party/lwSRP | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+parent harness consumes LWSRP_TREE / sources:
+354:LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c", "src/modules/mvrp.c")
+362:LWSRP_REV = "9197193e47a6bb1c45a56d90a18c1784123aba44"
+364:LWSRP_TREE = "src"
+lwSRP src tree base 08ee86e8: 43e91d8e40cabc1dd5856ec9a0d3ca692a96afab
+lwSRP src tree head a8fe0849: 43e91d8e40cabc1dd5856ec9a0d3ca692a96afab
+lwSRP CMakeLists base/head: 985e5dbaf015901ba0d5af49a0e5a72232c1dd32 985e5dbaf015901ba0d5af49a0e5a72232c1dd32
+changed paths base..head:
+doc/manager.md
+doc/tester.md
+tests/check_reversals.py
+tests/features/environment.py
+tests/features/steps/switch_steps.py
+diff limited to src zephyr Kconfig.zephyr CMakeLists.txt tests/unit switch.feature switch_bindings.c (expect empty):
+end
+host objects of parent-consumed sources (base vs head):
+b8861b8fea1cbe41fcf692cfd2d79a666a2df310db6aaf0347ab476ed9f416ed  base/mrp_mad.o
+bf01c68de00a84d7b0996a71031b7c7e0d5fa310ac95b17a0bfdab95238a908c  base/mrp_pdu.o
+0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9  base/mvrp.o
+b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877  base/timer.o
+b8861b8fea1cbe41fcf692cfd2d79a666a2df310db6aaf0347ab476ed9f416ed  headsrc/mrp_mad.o
+bf01c68de00a84d7b0996a71031b7c7e0d5fa310ac95b17a0bfdab95238a908c  headsrc/mrp_pdu.o
+0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9  headsrc/mvrp.o
+b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877  headsrc/timer.o
