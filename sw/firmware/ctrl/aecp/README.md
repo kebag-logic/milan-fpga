@@ -139,6 +139,17 @@ python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference "$PROCESSOR_69_REFEREN
   --interfaces 2 --output "$F5_SCRATCH/wire-two" --verilator "$PINNED_VERILATOR"
 ```
 
+`--every` runs both, each against its pinned revision, whose tree it takes
+from the `protocol-processor` submodule's own objects without changing the
+submodule; a revision the submodule does not hold is refused by name. The
+[TSN stack boundary](../README.md#the-tsn-stack-submodule) runs it this way,
+so it judges what both configurations compile:
+
+```sh
+python3 -B sw/firmware/ctrl/test/aecp_wire.py --every --output "$F5_SCRATCH/wire" \
+  --verilator "$PINNED_VERILATOR"
+```
+
 Each ingress grades every generated descriptor, the implemented command set and
 every mandatory notification type, including lock expiry, controller departure
 and START/STOP. The two-interface case also registers the same controller on both

@@ -29,12 +29,13 @@ def differential(out: Path, ctrl: Path = CTRL, stack: Path = STACK) -> Outcome:
     flags = ["-std=c++20", "-O1", "-Wall", "-Wextra", "-Werror",
              f"-I{stack / STACK_INCLUDE}", f"-I{ROOT / 'tb/common'}", f"-I{ROOT / 'sw/firmware/gtest'}"]
     exe = out / "differential"
+    # Verilator links its object and -LDFLAGS arguments in command-line order: the objects come first, so a
+    # static GoogleTest (the hosted runner's) resolves what they use
     argv = [os.environ.get("VERILATOR", "verilator"), "--cc", "--exe", "--build", "-j", "8",
             "--top-module", "KL_maap", "-GCLK_FREQ_HZ_P=10000", "-Wno-fatal",
-            "--Mdir", str(out / "fabric"), "-CFLAGS", " ".join(flags),
+            "--Mdir", str(out / "fabric"), "-CFLAGS", " ".join(flags), *map(str, objs),
             "-LDFLAGS", " ".join(fw_gtest.TEST_LIBS), "-o", str(exe),
-            str(ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp"),
-            *map(str, objs)]
+            str(ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp")]
     result = fw_gtest.run(argv, timeout=570)
     (out / "build.log").write_text(result.stdout + result.stderr, encoding="utf-8")
     if result.returncode != 0:

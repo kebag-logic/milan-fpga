@@ -1,19 +1,29 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Build wire observations against an unchanged, explicitly selected processor tree."""
+"""Build wire observations against an unchanged, explicitly selected processor tree.
+
+--every compares every configuration REFERENCE lists, each against its pinned
+processor revision, whose tree is taken from the processor submodule's own
+objects (git archive; the submodule is read, never changed); a revision the
+submodule does not hold is refused by name."""
 from __future__ import annotations
 import argparse
 import hashlib
+import io
 import json
 import re
 import shutil
 import subprocess
 import sys
+import tarfile
 from pathlib import Path
 import yaml
 from ctrl_build import STACK, STACK_INCLUDE, Refusal, stack_pin
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
+#: The processor checkout whose objects hold every revision REFERENCE pins.
+PROCESSOR = ROOT / "protocol-processor"
+#: Each interface count's processor revision and the digest of its HDL and bench sources.
 REFERENCE = {
     1: ("2ad2f845dd583f8310075fa2380cb60a04fd091a", "289fcd1ac47f29b5926e6655954ec4ad1bfe660fe2d2af45fc0fe2eaaadef0fc"),
     2: ("c9f74b6866a63dd3c0e4534724bfc07a86ad142b", "6cd79f9f8be863cc27b2af684dbe3981c5502983a0ba9a10cd305e21f940cc7e"),
@@ -141,24 +151,25 @@ def build(args: argparse.Namespace, bench: Path) -> Path:
     return executable
 
 
-def main() -> int:
-    """Require successful build and observations on every configured ingress."""
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--reference", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
-    parser.add_argument("--verilator", required=True)
-    parser.add_argument("--stack", type=Path, default=STACK,
-                        help="the tsn-c-stack checkout whose wire layer the core uses (default: the submodule)")
-    args = parser.parse_args()
-    args.output = args.output.resolve()
-    args.reference = args.reference.resolve()
-    args.stack = args.stack.resolve()
-    try:
-        print(f"tsn-c-stack at {stack_pin(args.stack)}", flush=True)
-    except Refusal as exc:
-        print(f"REFUSED: {exc}")
-        return 2
+def reference(interfaces: int, output: Path) -> Path:
+    """REFERENCE's revision for this interface count, its tree taken from the processor submodule's objects into
+    `output`; a revision the submodule does not hold is refused by name."""
+    revision = REFERENCE[interfaces][0]
+    res = subprocess.run(["git", "-C", str(PROCESSOR), "archive", "--format=tar", revision], capture_output=True,
+                         check=False)
+    if res.returncode:
+        raise Refusal(f"{PROCESSOR.relative_to(ROOT)} holds no commit {revision}, the {interfaces}-interface "
+                      f"reference: {res.stderr.decode('utf-8', 'replace').strip()}")
+    tree = output / "reference-tree"
+    shutil.rmtree(tree, ignore_errors=True)
+    tree.mkdir(parents=True)
+    with tarfile.open(fileobj=io.BytesIO(res.stdout)) as archive:
+        archive.extractall(tree, filter="data")
+    return tree
+
+
+def compare(args: argparse.Namespace) -> None:
+    """One configuration: the fixture, the reference bench, the build, and every ingress checked."""
     args.output.mkdir(parents=True, exist_ok=True)
     fixture(args.output)
     bench = prepare(args.reference, args.output, args.interfaces)
@@ -172,7 +183,38 @@ def main() -> int:
     (args.output / "verdict.json").write_text(json.dumps(reports, indent=2) + "\n")
     print(f"wire comparison PASS: {args.interfaces} ingress paths, "
           f"{sum(r['observations'] for r in reports)} observations; "
-          f"{[r['planted_controls'] for r in reports]} oracle controls by ingress")
+          f"{[r['planted_controls'] for r in reports]} oracle controls by ingress", flush=True)
+
+
+def main() -> int:
+    """Require successful build and observations on every configured ingress: of the reference given, or, with
+    --every, of each configuration REFERENCE lists (under <output>/if<interfaces>)."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--reference", type=Path)
+    parser.add_argument("--every", action="store_true",
+                        help="compare every configuration REFERENCE lists, each against its pinned revision")
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--verilator", required=True)
+    parser.add_argument("--stack", type=Path, default=STACK,
+                        help="the tsn-c-stack checkout whose wire layer the core uses (default: the submodule)")
+    args = parser.parse_args()
+    if args.every == (args.reference is not None):
+        parser.error("give either --reference (and --interfaces) or --every")
+    args.output = args.output.resolve()
+    args.stack = args.stack.resolve()
+    try:
+        print(f"tsn-c-stack at {stack_pin(args.stack)}", flush=True)
+        if not args.every:
+            compare(argparse.Namespace(**{**vars(args), "reference": args.reference.resolve()}))
+            return 0
+        for interfaces in sorted(REFERENCE):
+            out = args.output / f"if{interfaces}"
+            compare(argparse.Namespace(**{**vars(args), "interfaces": interfaces, "output": out,
+                                          "reference": reference(interfaces, out)}))
+    except Refusal as exc:
+        print(f"REFUSED: {exc}")
+        return 2
     return 0
 
 
