@@ -1,0 +1,13 @@
+unmutated census: 102 arm(s) incl. 2 controls, 0 BAD []
+[KILLED] terminal by port name, not by cell: 1 arm(s) turn BAD - a read-back port of another milan_csr cell
+[KILLED] any wrapper input is the answer face: 1 arm(s) turn BAD - a wrapper input outside its answer face
+[SURVIVED] a datapath output is not the wire: 0 arm(s) turn BAD
+[KILLED] a memory's write does not lead to its reads: 1 arm(s) turn BAD - a status consumer written into a memory and read out of it
+[KILLED] a cell with no output ends the path silently: 1 arm(s) turn BAD - a status consumer printed
+[KILLED] a mux select and a flop clock lead nowhere: 27 arm(s) turn BAD - an unmapped read in an always block's condition; R582-2: a case selector in an always block; R582-2: a case item label in an always block; R583-2: a case item label in an always_comb
+[SURVIVED] a status read reaching the wrapper is not refused: 0 arm(s) turn BAD
+[SURVIVED] a field read reaching no wire is not refused: 0 arm(s) turn BAD
+[SURVIVED] no check for a bit with two drivers: 0 arm(s) turn BAD
+[KILLED] no check for a second driver of a population net: 2 arm(s) turn BAD - R583-4: a second driver as the population net's declaration initialiser; R583-4: a second driver as a continuous assign (its control)
+[SURVIVED] the cone drops datapath outputs: 0 arm(s) turn BAD
+census_mutations: 5 of 11 mutation(s) survived the self-test's arms

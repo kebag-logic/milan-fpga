@@ -1,0 +1,11 @@
+[ACCEPTED] S1 a read inside a generate branch taken only when N_STREAMS > 1 (the 4x4, 8ch and 8x8 shapes) (expect ACCEPTED (gap))
+[REFUSED] S1c control: the same branch taken when N_STREAMS >= 1 (expect REFUSED)
+    unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion
+[ACCEPTED] S2 a read inside a generate loop with no iteration at N_STREAMS = 1 (expect ACCEPTED (gap))
+[ACCEPTED] S3 a read gated by LOOPBACK_P (the loopback-lane shapes) (expect ACCEPTED (gap))
+[REFUSED] S4 control: the same read masked by a constant expression of the shape, not a generate branch (expect REFUSED)
+    unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion
+[REFUSED] R1 a status consumer driven to a new datapath output port (expect REFUSED)
+    pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at the datapath output probe_o
+[REFUSED] R2 a status consumer into the wrapper's answer face (gsi_avb_chg_i) (expect REFUSED)
+    pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the processor wrapper

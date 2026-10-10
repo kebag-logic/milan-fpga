@@ -1,0 +1,13 @@
+== shape: default (arty_current, the census's own)  params={}
+   reads: 39; census findings: 0; netlist: 62697 cells, 1187 named nets
+== shape: arty_4x4 (sweep_opts_arty.sh)  params={'N_STREAMS': 4, 'AUDIO_IF_SLOTS_P': 8, 'AUDIO_IF_MASTER_P': 1, 'TALKER_WIRE_CHANS_P': 4}
+   reads: 39; census findings: 0; netlist: 134974 cells, 1211 named nets
+== shape: ax7101_1x1_tdm8 (sweep_opts_ax7101.sh)  params={'N_STREAMS': 1, 'AUDIO_IF_SLOTS_P': 8, 'AUDIO_IF_MASTER_P': 1, 'AUDIO_IF_RENDER_SLOTS_P': 8, 'TALKER_WIRE_CHANS_P': 8, 'LOOPBACK_P': 1, 'I2SPB_P': 0, 'LPF_P': 0, 'GPTP_INGRESS_LAT_NS_P': 656, 'GPTP_EGRESS_LAT_NS_P': 219}
+   reads: 39; census findings: 0; netlist: 66810 cells, 1192 named nets
+== shape: 8 streams, loopback lane (ax7101_8x8 header)  params={'N_STREAMS': 8, 'AUDIO_IF_SLOTS_P': 8, 'AUDIO_IF_MASTER_P': 1, 'TALKER_WIRE_CHANS_P': 8, 'LOOPBACK_P': 1}
+   reads: 39; census findings: 0; netlist: 306644 cells, 1243 named nets
+== shape: 2 streams (arty_current header)  params={'N_STREAMS': 2}
+   census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-
+== shape: every optional block pruned, gPTP plane off  params={'GPTP_PLANE_EN_P': 0, 'MCSERVO_P': 0, 'LTAP_P': 0, 'MAAP_P': 0, 'I2SPB_P': 0, 'RXFILT_P': 0, 'LPF_P': 0, 'DPROBES_P': 0}
+   reads: 39; census findings: 0; netlist: 63880 cells, 1175 named nets
+census_shapes: 0 shape(s) with census findings

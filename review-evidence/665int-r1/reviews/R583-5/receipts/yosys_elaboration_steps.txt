@@ -1,0 +1,16 @@
+1 Set up job | success | 2026-10-10T14:22:55Z -> 2026-10-10T14:22:56Z
+2 Run actions/checkout@v4 | success | 2026-10-10T14:22:56Z -> 2026-10-10T14:22:57Z
+3 Fetch RTL dependencies | success | 2026-10-10T14:22:57Z -> 2026-10-10T14:22:59Z
+4 Cache the pinned Yosys build | success | 2026-10-10T14:22:59Z -> 2026-10-10T14:22:59Z
+5 Build Yosys from source on cache miss | skipped | 2026-10-10T14:22:59Z -> 2026-10-10T14:22:59Z
+6 Install the pinned Yosys and prove the version | success | 2026-10-10T14:22:59Z -> 2026-10-10T14:22:59Z
+7 Install the pinned sv2v release | success | 2026-10-10T14:22:59Z -> 2026-10-10T14:22:59Z
+8 Elaborate the integration-heavy tops | success | 2026-10-10T14:22:59Z -> 2026-10-10T14:25:45Z
+9 Run the publication census on the elaborated datapath | success | 2026-10-10T14:25:45Z -> 2026-10-10T14:35:53Z
+10 Prove the OOC read sets come from run.sh and refuse a bad one | success | 2026-10-10T14:35:53Z -> 2026-10-10T14:45:34Z
+11 Prove ooc.sh generates the ROMs and fails on a failed top | success | 2026-10-10T14:45:34Z -> 2026-10-10T14:46:02Z
+12 Prove both synthesis flows refuse active elaboration guards | success | 2026-10-10T14:46:02Z -> 2026-10-10T14:46:36Z
+13 Prove the result cache refuses a planted entry | success | 2026-10-10T14:46:36Z -> 2026-10-10T14:47:29Z
+25 Post Cache the pinned Yosys build | success | 2026-10-10T14:47:29Z -> 2026-10-10T14:47:29Z
+26 Post Run actions/checkout@v4 | success | 2026-10-10T14:47:29Z -> 2026-10-10T14:47:29Z
+27 Complete job | success | 2026-10-10T14:47:29Z -> 2026-10-10T14:47:29Z

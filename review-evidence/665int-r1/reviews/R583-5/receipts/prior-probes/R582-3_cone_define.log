@@ -1,0 +1,23 @@
+control: tracked head -> 0 finding(s)
+[REFUSED] status consumer lwsrp_talker_declared routed to vlan_en_i by plain assign (control): pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i
+[REFUSED] status consumer lwsrp_talker_declared routed to vlan_en_i by positional port: pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a
+[REFUSED] status consumer lwsrp_talker_declared routed to vlan_en_i by implicit .name port: pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_dot.lwsrp_talker_declared
+[REFUSED] status consumer lwsrp_talker_declared routed to vlan_en_i by case item label: pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i
+[REFUSED] status consumer lwsrp_talker_declared routed to vlan_en_i by function body return: pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i
+[REFUSED] processor consumer gsi_tkdcl_w routed to vlan_en_i by plain assign (control): pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i
+[REFUSED] processor consumer gsi_tkdcl_w routed to vlan_en_i by positional port: pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_pos.a
+[REFUSED] processor consumer gsi_tkdcl_w routed to vlan_en_i by implicit .name port: pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_dot.gsi_tkdcl_w
+[REFUSED] processor consumer gsi_tkdcl_w routed to vlan_en_i by case item label: pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i
+[REFUSED] processor consumer gsi_tkdcl_w routed to vlan_en_i by function body return: pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i
+part 1: 0 escaping arm(s) (controls excluded)
+Traceback (most recent call last):
+  File "$REVIEWS/665int-r583-5-packet/scripts/run_prior_probes.py", line 38, in <module>
+    runpy.run_path(str(probe), run_name="__main__")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "$REVIEWS/665int-r583-5-packet/scratch/probes-dl/R582-3_census_cone_probe.py", line 70, in <module>
+    net = pc.netlist(src.datapath)
+          ^^^^^^^^^^
+AttributeError: module 'publication_census' has no attribute 'netlist'. Did you mean: 'Netlist'?

@@ -1,0 +1,92 @@
+publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+acmp_bound_dmac_o          -> pp_cd_acmp_bound_dmac_w
+acmp_bound_eid_o           -> pp_cd_acmp_bound_eid_w   (unread)
+acmp_bound_o               -> pp_cd_acmp_bound_w
+acmp_bound_sid_o           -> pp_cd_acmp_bound_sid_w
+acmp_bound_vlan_o          -> pp_cd_acmp_bound_vlan_w
+acmp_declaring_o           -> pp_cd_acmp_declaring_w
+adp_next_avail_index_o     -> pp_cd_adp_avail_index_w
+aecp_strm_started_o        -> pp_aecp_strm_started_w
+srp_acc_latency_o          -> pp_cd_srp_acc_latency_w
+srp_active_o               -> pp_cd_srp_active_w
+srp_class_a_prio_o         -> pp_cd_srp_class_a_prio_w
+srp_class_a_vid_o          -> pp_cd_srp_class_a_vid_w
+srp_domain_adopted_o       -> pp_cd_srp_domain_adopted_w
+srp_domain_change_o        -> pp_cd_srp_domain_change_w   (unread)
+srp_granted_slope_bps_o    -> pp_cd_srp_granted_slope_bps_w   (unread)
+srp_lstn_decl_state_o      -> pp_cd_srp_lstn_decl_state_w   (unread)
+srp_lstn_reg_state_o       -> pp_cd_srp_lstn_reg_state_w
+srp_over_limit_o           -> pp_cd_srp_over_limit_w
+srp_snk_fail_code_o        -> pp_cd_srp_snk_fail_code_w
+srp_sr_admitted_o          -> pp_cd_srp_sr_admitted_w
+srp_src_fail_bridge_o      -> pp_cd_srp_src_fail_bridge_w
+srp_src_fail_code_o        -> pp_cd_srp_src_fail_code_w
+srp_sum_slope_bps_o        -> pp_cd_srp_sum_slope_bps_w
+srp_tk_decl_state_o        -> pp_cd_srp_tk_decl_state_w
+srp_tk_reg_state_o         -> pp_cd_srp_tk_reg_state_w
+pp_aecp_strm_started_w         -> acmpl_stopped_v_w        reaches wire                   field BINDING.STARTED
+pp_aecp_strm_started_w         -> gsi_flags_w              reaches processor              processor 
+pp_cd_acmp_bound_dmac_w        -> gsi_ans_raw_w            reaches processor              processor 
+pp_cd_acmp_bound_sid_w         -> acmpl_sid_v_w            reaches wire                   field SID_LO.SID
+pp_cd_acmp_bound_sid_w         -> gsi_sid_w                reaches processor              processor 
+pp_cd_acmp_bound_vlan_w        -> acmpl_vlan_w             reaches csr                    status 
+pp_cd_acmp_bound_vlan_w        -> gsi_ans_raw_w            reaches processor              processor 
+pp_cd_acmp_bound_w             -> acmpl_bound_v_w          reaches csr, wire              field BINDING.BOUND
+pp_cd_acmp_bound_w             -> gsi_bnd_w                reaches processor              processor 
+pp_cd_acmp_declaring_w         -> acmp_talker_active_v     reaches processor, wire        field DA_GATE.OPEN
+pp_cd_acmp_declaring_w         -> gsi_decl_w               reaches processor              processor 
+pp_cd_adp_avail_index_w        -> adp_available_index      reaches csr                    status 
+pp_cd_srp_acc_latency_w        -> gsi_ans_raw_w            reaches processor              processor 
+pp_cd_srp_active_w             -> lwsrp_res_active         reaches csr                    status 
+pp_cd_srp_active_w             -> lwsrp_stream_gate        reaches csr, processor, wire   field LICENCE.ACTIVE
+pp_cd_srp_class_a_prio_w       -> gsi_prio_snap_r          reaches processor              processor 
+pp_cd_srp_class_a_prio_w       -> lwsrp_op_prio            reaches csr, wire              field SR_DOMAIN.PRIORITY
+pp_cd_srp_class_a_vid_w        -> gsi_ans_raw_w            reaches processor              processor 
+pp_cd_srp_class_a_vid_w        -> gsi_vid_snap_r           reaches processor              processor 
+pp_cd_srp_class_a_vid_w        -> lwsrp_op_vid             reaches csr, wire              field SR_DOMAIN.VID
+pp_cd_srp_domain_adopted_w     -> lwsrp_adopt_valid        reaches csr, wire              field SR_DOMAIN.ADOPTED
+pp_cd_srp_domain_adopted_w     -> lwsrp_domain_ok          reaches csr                    status 
+pp_cd_srp_lstn_reg_state_w     -> gsi_lreg_w               reaches processor              processor 
+pp_cd_srp_lstn_reg_state_w     -> lwsrp_lstn_reg0_w        reaches csr                    status 
+pp_cd_srp_over_limit_w         -> lwsrp_over_limit         reaches csr                    status 
+pp_cd_srp_snk_fail_code_w      -> lwsrp_ta_fail_code       reaches csr                    status 
+pp_cd_srp_snk_fail_code_w      -> lwsrp_ta_failed          reaches csr                    status 
+pp_cd_srp_sr_admitted_w        -> lwsrp_slope_en           reaches csr                    status 
+pp_cd_srp_sr_admitted_w        -> lwsrp_stream_gate        reaches csr, processor, wire   field LICENCE.ACTIVE
+pp_cd_srp_src_fail_bridge_w    -> gsi_ans_raw_w            reaches processor              processor 
+pp_cd_srp_src_fail_code_w      -> gsi_ans_raw_w            reaches processor              processor 
+pp_cd_srp_src_fail_code_w      -> lwsrp_tfail_code         reaches csr                    status 
+pp_cd_srp_src_fail_code_w      -> lwsrp_tfail_valid        reaches csr                    status 
+pp_cd_srp_sum_slope_bps_w      -> lwsrp_idle_slope         reaches csr                    status IDLE_SLOPE.BPS
+pp_cd_srp_tk_decl_state_w      -> crft_class_a_w           reaches csr, wire              field TALKER_DECL.DECLARED
+pp_cd_srp_tk_decl_state_w      -> gsi_tkdcl_w              reaches processor              processor 
+pp_cd_srp_tk_decl_state_w      -> lwsrp_talker_declared    reaches csr                    status 
+pp_cd_srp_tk_reg_state_w       -> gsi_tkreg_w              reaches processor              processor 
+pp_cd_srp_tk_reg_state_w       -> lwsrp_ta_registered      reaches csr                    status 
+== publication census: checks: 39   failures: 0 ==
+25 class-D net(s) from the wrapper cell's ports, 4 unread; netlist: 62697 cells, 1187 named nets
+39 read(s) of 21 class-D net(s); RESULT: PASS
+publication census: elaborated and classified in 35 s
+	Command being timed: "python3 -B sw/mailbox/publication_census.py --check --list"
+	User time (seconds): 37.66
+	System time (seconds): 2.22
+	Percent of CPU this job got: 113%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:35.06
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1175228
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 458487
+	Voluntary context switches: 14248
+	Involuntary context switches: 23441
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 66512
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
