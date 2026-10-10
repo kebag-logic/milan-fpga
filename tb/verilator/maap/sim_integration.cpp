@@ -150,11 +150,12 @@ int main(int argc, char** argv) {
                 different ? "ok" : "FAIL");
     std::printf("[%s] M5 datapath: link return starts four fresh PROBEs\n",
                 link_ok ? "ok" : "FAIL");
-    // MACs 02:00:00:00:00:01 and :02 are adjacent: their 8-address first
-    // blocks must share no address (Table B.7 note b).
+    // The fixed adjacent pair 02:00:00:00:00:01 and :02: their 8-address
+    // first blocks must share no address (Table B.7 note b). The unit suite
+    // establishes this for every seed pair 2^i apart.
     const bool blocks_apart = offsets[0] >= 0 && offsets[1] >= 0
         && (offsets[0] >= offsets[1] + 8 || offsets[1] >= offsets[0] + 8);
-    std::printf("[%s] M4 datapath: adjacent MACs claim disjoint first blocks\n",
+    std::printf("[%s] M4 datapath: fixed adjacent MAC pair claims disjoint first blocks\n",
                 blocks_apart ? "ok" : "FAIL");
     // Delay by whole scaled milliseconds: the timer divider phase stays
     // identical, while the real PHC advances before the first enable.
@@ -178,9 +179,11 @@ int main(int argc, char** argv) {
         for (unsigned value : trial) clock_ok &= value>5000 && value<6000;
     std::printf("[%s] M3 datapath: real-time clock changes probe intervals\n",
                 clock_ok ? "ok" : "FAIL");
+    // A fixed pair of PHC times: one MAC enabled 1,000 and 2,000 cycles after
+    // programming. It pins this pair; the unit suite grades clocks 2^k apart.
     const bool clock_offset_ok = clock_offsets[0] >= 0 && clock_offsets[1] >= 0
         && clock_offsets[0] != clock_offsets[1];
-    std::printf("[%s] M3 datapath: real-time clock changes the first offset\n",
+    std::printf("[%s] M3 datapath: fixed PHC time pair claims different first offsets\n",
                 clock_offset_ok ? "ok" : "FAIL");
     const unsigned failures=(!different)+(!link_ok)+(!blocks_apart)+(!clock_ok)+(!clock_offset_ok);
     std::printf("MAAP integration: 5 checks, %u failures\n", failures);

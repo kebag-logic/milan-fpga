@@ -10,7 +10,9 @@
 // B.3.2 Table B.7 notes b and d (ANNOUNCE conflict detection), item 4 Table
 // B.7 ReserveAddress!/probetimer!/probeCount! (four PROBEs, the first at
 // once). #696 also grades the DEFEND requested-range echo (B.3.6.6) and the
-// first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1).
+// first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1): on
+// the wire for sampled pairs, and for every seed through first-draw maps
+// learned from the RTL.
 // Scaled clock: CLK_FREQ_HZ_P=10000 -> 1 ms = 10 cycles.
 #include "VKL_maap.h"
 #include "VKL_maap___024root.h"
@@ -23,6 +25,7 @@
 #include <array>
 #include <cstdio>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <set>
 #include <vector>
@@ -58,6 +61,11 @@ constexpr uint64_t kPeerAbove = 0x66778899AABBULL;
 constexpr uint64_t kPeerBelow = 0x66778899AA00ULL;
 // A unicast MAC whose low 32 bits sum with clock zero to the fixed point.
 constexpr uint64_t kZeroSeedMac = 0x020000000000ULL;
+// The unicast prefix of the first-claim stations; their low 32 bits carry the seed.
+constexpr uint64_t kMacBase = 0x020000000000ULL;
+// first-draw linearity samples, and the tries to find an unambiguous pair
+constexpr int kLinearitySamples = 256;
+constexpr int kColumnTries = 64;
 // timing campaign size: walks restarted by disable/enable
 constexpr int kTimingWalks = 150;
 constexpr int kAnnounceSamples = 24;
@@ -102,6 +110,38 @@ struct StationPair {
     uint32_t clock_a;
     uint32_t clock_b;
 };
+
+//! A first-draw value and a seed the RTL maps onto it.
+struct SeedImage {
+    uint32_t value = 0;
+    uint32_t seed = 0;
+};
+//! Row-echelon basis of a learned map's image: entry b has top bit b.
+using ImageBasis = std::array<SeedImage, 32>;
+//! A learned GF(2)-linear map of the seed: column k is the image of bit k.
+using SeedMap = std::array<uint32_t, 32>;
+
+//! Learn a linear map of the seed from the RTL: column k is the XOR of two
+//! observations whose seeds differ in bit k only. `observe` returns -1 where
+//! it cannot tell the value; a zero seed (the fallback) is never observed.
+template <typename Observe>
+bool learn_seed_map(SeedMap& map, uint32_t sample, Observe observe) {
+    for (unsigned k=0;k<map.size();++k) {
+        bool found=false;
+        for (int t=0;t<kColumnTries && !found;++t) {
+            sample=sample*1664525u+1013904223u;
+            const uint32_t other=sample^(uint32_t{1}<<k);
+            if (!sample || !other) continue;
+            const long a=observe(sample);
+            const long b=observe(other);
+            if (a<0 || b<0) continue;
+            map[k]=static_cast<uint32_t>(a^b);
+            found=true;
+        }
+        if (!found) return false;
+    }
+    return true;
+}
 
 //! What one ReserveAddress! walk put on the wire.
 struct Walk {
@@ -223,6 +263,11 @@ class MaapHarness {
     bool claims_differ(const std::vector<StationPair>& pairs);
     bool intervals_differ(const std::vector<StationPair>& pairs);
     void first_claims_of_equally_timed_stations();
+    uint16_t seeded_first_offset(uint32_t seed, uint8_t count);
+    long seeded_first_probe_draw(uint32_t seed);
+    static bool insert_image(ImageBasis& basis, SeedImage image, uint32_t& kernel);
+    static int image_rank(const SeedMap& map, unsigned first, unsigned last);
+    void first_draws_for_every_seed();
     using GeneratorMap = std::array<uint32_t, 32>;
     static uint32_t apply_generator_map(const GeneratorMap& map, uint32_t state);
     static uint32_t jump_generator(GeneratorMap map, uint32_t state, uint64_t steps);
@@ -389,6 +434,10 @@ void MaapHarness::defend_to_the_prober(uint16_t off0){
     inject(1, kPeerBelow, off0-4, 8, 0, 0);       // overlaps [off0, off0+4)
     next(f, kDefendBudgetCyc);
     check_defend(f, "below", kPeerBelow, off0, 4);
+    // The only fixture whose PROBE starts below ours: the echo and the
+    // overlap start differ here, and anywhere else they coincide.
+    ck("M2 B.3.6.6 requested start echoes a PROBE starting below ours", f.at(26,6),
+       static_cast<long>(0x91E0F0000000ULL | static_cast<uint16_t>(off0-4)));
 
     printf("\n[4c] DEFEND held by backpressure; a later PDU must not redirect it\n");
     constexpr uint64_t kProber = 0x0A0B0C0D0E0FULL;
@@ -1035,18 +1084,21 @@ bool MaapHarness::intervals_differ(const std::vector<StationPair>& pairs){
 // separate the first claims of equally timed stations. For every carry run
 // i..j of the seed, one pair of seeds 2^i apart whose sum flips exactly bits
 // i..j; each pair has its own common clock, and the MACs carry the rest of
-// the seeds. i = 0 gives adjacent MACs, i >= 16 MACs that differ only in
-// bits 16..31. The fixed pairs are R558-6's.
+// the seeds. i = 0 gives adjacent MACs, 16 <= i <= 31 MACs that differ only
+// in bits 16..31. These sample the criterion of #696 comment 6102832618;
+// section [13] establishes it for every seed. The fixed pairs are R558-6's
+// and two clock pairs: they pin those pairs at these fold constants, and
+// pairs that are not a power of two apart carry no separation guarantee.
 void MaapHarness::first_claims_of_equally_timed_stations(){
     printf("\n[12] #696 M4: first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1)\n");
-    constexpr uint64_t kMacBase=0x020000000000ULL;
-    std::vector<StationPair> adjacent{{0x020000000001ULL,0x020000000002ULL,0,0}};
-    std::vector<StationPair> high{{0x020000000001ULL,0x020000010001ULL,0,0},
-                                  {0x0200000a1234ULL,0x0200005b1234ULL,7,7},
-                                  {0x020011001234ULL,0x020022001234ULL,0,0}};
+    const std::vector<StationPair> fixed{{0x020000000001ULL,0x020000000002ULL,0,0},
+                                   {0x020000000001ULL,0x020000010001ULL,0,0},
+                                   {0x0200000a1234ULL,0x0200005b1234ULL,7,7},
+                                   {0x020011001234ULL,0x020022001234ULL,0,0}};
+    std::vector<StationPair> adjacent;
+    std::vector<StationPair> high;
     std::vector<StationPair> low;
-    std::vector<StationPair> timers(high);
-    timers.push_back(adjacent.front());
+    std::vector<StationPair> timers;
     uint32_t sample=0x2545f491u;
     for(unsigned i=0;i<32;++i)
         for(unsigned j=i;j<32;++j){
@@ -1065,15 +1117,162 @@ void MaapHarness::first_claims_of_equally_timed_stations(){
         sample=sample*1664525u+1013904223u;
         clocks.push_back({kStationMac,kStationMac,sample,sample+(uint32_t{1}<<k)});
     }
-    clocks.push_back({kStationMac,kStationMac,0,17});
-    clocks.push_back({kStationMac,kStationMac,0x01020304u,0xffff1234u});
-    printf("  [i]    %zu adjacent, %zu bits 16..31, %zu 2^i (1..15), %zu clock, %zu interval pairs\n",
-           adjacent.size(),high.size(),low.size(),clocks.size(),timers.size());
+    const std::vector<StationPair> fixed_clocks{{kStationMac,kStationMac,0,17},
+                                                {kStationMac,kStationMac,0x01020304u,0xffff1234u}};
+    printf("  [i]    2^i apart: %zu adjacent, %zu with i 16..31, %zu with i 1..15, %zu clock,"
+           " %zu interval pairs; fixed: %zu MAC, %zu clock pairs\n",
+           adjacent.size(),high.size(),low.size(),clocks.size(),timers.size(),
+           fixed.size(),fixed_clocks.size());
     ck("M4 B.3.6.1 adjacent MACs claim disjoint first blocks",claims_disjoint(adjacent),1);
-    ck("M4 B.3.6.1 MACs differing in bits 16..31 claim disjoint first blocks",claims_disjoint(high),1);
-    ck("M4 B.3.6.1 MACs 2^i apart claim disjoint first blocks",claims_disjoint(low),1);
-    ck("M3 B.3.6.1 different clocks claim different first offsets",claims_differ(clocks),1);
-    ck("M4 B.3.4 first probe interval differs across MACs",intervals_differ(timers),1);
+    ck("M4 B.3.6.1 MACs 2^i apart (16 <= i <= 31) claim disjoint first blocks",
+       claims_disjoint(high),1);
+    ck("M4 B.3.6.1 MACs 2^i apart (1 <= i <= 15) claim disjoint first blocks",
+       claims_disjoint(low),1);
+    ck("M4 B.3.6.1 R558-6's fixed MAC pairs claim disjoint first blocks",claims_disjoint(fixed),1);
+    ck("M3 B.3.6.1 clocks 2^k apart claim different first offsets",claims_differ(clocks),1);
+    ck("M3 B.3.6.1 fixed clock pairs claim different first offsets",claims_differ(fixed_clocks),1);
+    ck("M4 B.3.4 MACs 2^i apart draw different first probe intervals",intervals_differ(timers),1);
+    ck("M4 B.3.4 R558-6's fixed MAC pairs draw different first probe intervals",
+       intervals_differ(fixed),1);
+}
+
+// One station's first Begin! from reset, as the RTL draws it: the seed is
+// the MAC's low word at clock 0, and enable follows reset by one cycle. The
+// claim is made at that edge; with tready low nothing reaches the wire.
+uint16_t MaapHarness::seeded_first_offset(uint32_t seed, uint8_t count){
+    dut->enable_i=0; dut->rst_n=0; dut->m_axis_tready=0; cyc();
+    dut->station_mac_i=kMacBase|seed; dut->realtime_ns_i=0;
+    dut->count_i=count; dut->seed_valid_i=0; dut->port_operational_i=1;
+    dut->rst_n=1; dut->enable_i=1; cyc();
+    return dut->offset_o;
+}
+
+// The same station's first probe draw: the probe timer its first PROBE loads
+// on the next cycle, less the RTL's own PROBE_MIN_MS_C.
+long MaapHarness::seeded_first_probe_draw(uint32_t seed){
+    seeded_first_offset(seed, kCount);
+    cyc();
+    return static_cast<long>(dut->rootp->KL_maap__DOT__timer_ms_r)
+           - static_cast<long>(VKL_maap___024root::KL_maap__DOT__PROBE_MIN_MS_C);
+}
+
+// Reduce `image` against the basis. A new pivot extends the image; a value
+// that reduces to zero leaves its seed in the map's kernel.
+bool MaapHarness::insert_image(ImageBasis& basis, SeedImage image, uint32_t& kernel){
+    for (int bit=31;bit>=0;--bit) {
+        if (!((image.value>>bit)&1)) continue;
+        if (!basis[bit].value) { basis[bit]=image; return true; }
+        image.value^=basis[bit].value;
+        image.seed^=basis[bit].seed;
+    }
+    kernel=image.seed;
+    return false;
+}
+
+int MaapHarness::image_rank(const SeedMap& map, unsigned first, unsigned last){
+    ImageBasis basis{};
+    uint32_t kernel=0;
+    int rank=0;
+    for (unsigned k=first;k<=last;++k) rank+=insert_image(basis,{map[k],uint32_t{1}<<k},kernel);
+    return rank;
+}
+
+// #696 M4: the criterion of comment 6102832618 for every seed, not a sample.
+// The first offset word and the first probe draw are GF(2)-linear in the seed
+// (one generator step, then parity folds), so the suite learns both maps from
+// the RTL's own first Begin! and checks them on fresh seeds. Seeds s and
+// s + 2^i differ by one carry run i..j, so their words differ by that run's
+// image whatever s is: every run meets every word of the image, and each
+// word's claim for counts 1..8 is the offset the RTL claims for it. No fold
+// row, generator tap or pool bound is restated here.
+void MaapHarness::first_draws_for_every_seed(){
+    printf("\n[13] #696 M4: first draws for every seed, learned from the RTL (B.3.4, B.3.6.1)\n");
+    // With count 0 the clip never acts, and the pool fold puts every word
+    // above the pool below this bound, so an offset at or above it is the word.
+    constexpr long kUnfolded=0x10000L-VKL_maap___024root::KL_maap__DOT__POOL_SIZE_C;
+    SeedMap offset_map{};
+    SeedMap probe_map{};
+    bool linear=learn_seed_map(offset_map,0x7f4a7c15u,[this](uint32_t seed){
+        const long offset=seeded_first_offset(seed,0);
+        return offset>=kUnfolded ? offset : -1L; });
+    linear&=learn_seed_map(probe_map,0x2b992ddfu,[this](uint32_t seed){
+        return seeded_first_probe_draw(seed); });
+
+    // Every word of the offset image, each steered by a seed the RTL maps onto
+    // it. Adding a kernel seed keeps every steered seed nonzero.
+    ImageBasis basis{};
+    uint32_t kernel=0;
+    for (unsigned k=0;k<offset_map.size();++k) {
+        uint32_t dependent=0;
+        if (!insert_image(basis,{offset_map[k],uint32_t{1}<<k},dependent) && !kernel)
+            kernel=dependent;
+    }
+    std::vector<SeedImage> pivots;
+    for (const auto& entry : basis) if (entry.value) pivots.push_back(entry);
+    linear&=kernel!=0;
+    // claims[count-1][word]: the offset the RTL claims, -1 outside the image
+    std::vector<std::vector<int32_t>> claims(kCount, std::vector<int32_t>(1u<<16,-1));
+    for (uint32_t m=0;linear && m<(uint32_t{1}<<pivots.size());++m) {
+        SeedImage word{0,kernel};
+        for (unsigned p=0;p<pivots.size();++p)
+            if ((m>>p)&1) { word.value^=pivots[p].value; word.seed^=pivots[p].seed; }
+        for (unsigned count=1;count<=kCount;++count)
+            claims[count-1][word.value]=seeded_first_offset(word.seed,static_cast<uint8_t>(count));
+    }
+    uint32_t sample=0x6c8e9cf5u;
+    for (int n=0;linear && n<kLinearitySamples;++n) {
+        sample=sample*1664525u+1013904223u;
+        if (!sample) continue;
+        const unsigned count=1+static_cast<unsigned>(n)%kCount;
+        linear&=seeded_first_offset(sample,static_cast<uint8_t>(count))
+                ==claims[count-1][apply_generator_map(offset_map,sample)];
+        linear&=seeded_first_probe_draw(sample)
+                ==static_cast<long>(apply_generator_map(probe_map,sample));
+    }
+    dut->m_axis_tready=1;
+    ck("M4 first-draw maps learned from the RTL are linear in the seed",linear,1);
+
+    bool disjoint=linear;
+    bool probes_differ=linear;
+    long spare=1L<<16;
+    for (unsigned i=0;linear && i<32;++i)
+        for (unsigned j=i;j<32;++j) {
+            const uint32_t run=static_cast<uint32_t>((uint64_t{1}<<(j+1))-(uint64_t{1}<<i));
+            const uint32_t delta=apply_generator_map(offset_map,run);
+            if (!apply_generator_map(probe_map,run)) {
+                if (probes_differ) printf("  [i]    carry run %u..%u: equal first probe draws\n",i,j);
+                probes_differ=false;
+            }
+            for (unsigned count=1;count<=kCount;++count) {
+                const auto& claim=claims[count-1];
+                for (uint32_t w=0;w<claim.size();++w) {
+                    if (claim[w]<0) continue;
+                    // delta lies in the image, so claim[w^delta] is known
+                    const long other=claim[w^delta];
+                    const long gap=other<0 ? -1 : std::labs(claim[w]-other);
+                    if (gap<static_cast<long>(count) && disjoint)
+                        printf("  [i]    carry run %u..%u, count %u: words 0x%04x / 0x%04x"
+                               " claim 0x%04x / 0x%04lx\n",i,j,count,w,w^delta,
+                               static_cast<unsigned>(claim[w]),static_cast<unsigned long>(other));
+                    disjoint&=gap>=static_cast<long>(count);
+                    spare=std::min(spare,gap-static_cast<long>(count));
+                }
+            }
+        }
+    SeedMap both{};
+    for (unsigned k=0;k<both.size();++k) both[k]=offset_map[k]|(probe_map[k]<<16);
+    if (linear)
+        printf("  [i]    offset image %zu bits, probe image %d bits; %zu words x %d counts claimed;"
+               " 528 carry runs; least spare addresses %ld\n",
+               pivots.size(),image_rank(probe_map,0,31),size_t{1}<<pivots.size(),kCount,spare);
+    else
+        printf("  [i]    the maps are not linear, so no claim below is established\n");
+    ck("M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8",disjoint,1);
+    ck("M4 B.3.4 every seed pair 2^i apart draws different first probe intervals",probes_differ,1);
+    ck("M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word",
+       linear && image_rank(offset_map,16,31)==16,1);
+    ck("M4 B.3.6.1 first offset word and first probe draw are independent",
+       linear && image_rank(both,0,31)==22,1);
 }
 
 int MaapHarness::run(){
@@ -1099,6 +1298,7 @@ int MaapHarness::run(){
     truncated_pdus_have_no_effect();
     generator_period_and_seed();
     first_claims_of_equally_timed_stations();
+    first_draws_for_every_seed();
 
     printf("\n======================================================================\n");
     printf("KL_maap: %ld checks, %ld failures\n", checks, fails);
