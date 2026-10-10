@@ -1,41 +1,47 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # mbx: the packet-mailbox fabric skeleton, through both bus adapters
 
-`make` builds and runs five things, exit 0 = all green:
+`make` builds and runs four things, exit 0 = all green:
 
-1. `census`: [`publication_census.py`](../../../sw/mailbox/publication_census.py)
-   takes the class-D wires from the processor wrapper's instance in
-   `milan_datapath.sv`: the wires its class-D ports (checked against the
-   wrapper's own declaration) and its started level connect to. It fails
-   closed. Every occurrence of one of those wires must be its declaration,
-   the wrapper's connection, or a read the census follows and maps to a
-   block field or a ruled exclusion. Any other occurrence fails, and so do a
-   wildcard connection, a macro token paste and a hierarchical reference
-   into the wrapper, the CSR block or an instance a read reaches. The cone a
-   read is followed through fails closed at every node: every occurrence of
-   every signal it reaches is a declaration, a target, or a read that leads
-   on to all its statement or block drives, and any other occurrence is the
-   wire. Only the CSR read-back ports and the wrapper's GET_STREAM_INFO face,
-   named by instance and port, stop it. Its self-test plants 62 defects,
-   among them every escaping form and cone hop the reviews found, and
-   requires each refused by its own words (#665, comments 6092086337,
-   6094461419 and 6095903333);
-2. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
+1. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
    `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus), then the bound-talker
    table's timing checks, which need a stream that can stall;
-3. `run-axil`: the same checks on `KL_mbx` behind `KL_mbx_axil` (AXI4-Lite,
+2. `run-axil`: the same checks on `KL_mbx` behind `KL_mbx_axil` (AXI4-Lite,
    a hard core's bus), then the adapter's own handshake checks
    ([`axil_checks.hpp`](axil_checks.hpp));
-4. `run-cosim`: the control-plane firmware (ADP and ACMP) run on the RTL
+3. `run-cosim`: the control-plane firmware (ADP and ACMP) run on the RTL
    and on the host model, one scenario, compared frame by frame; the
    firmware library is rebuilt when any firmware source or header changes,
    and the binary relinked whenever the library is newer, so a firmware-only
    change never runs a stale binary;
-5. `run-if2`: the same checks on the contract elaborated for two AVB
+4. `run-if2`: the same checks on the contract elaborated for two AVB
    interfaces (`gen_mailbox.py --variant-interfaces 2`, written into
    `obj_if2/gen`, never the tree), through both adapters and on the host
    model ([`model_main.cpp`](model_main.cpp)), so the own-MAC and
    bound-talker checks run on two real interfaces.
+
+`make census` runs [`publication_census.py`](../../../sw/mailbox/publication_census.py)
+`--check --selftest` (#665, comments 6092086337, 6094461419 and 6097292237).
+It elaborates `milan_datapath.sv` with the recipe, the sv2v and the Yosys of
+CI's elaboration gate ([`census_elab.py`](../../../sw/mailbox/census_elab.py)),
+every other module a blackbox cell, and reads the netlist, never the text,
+so the form a read is written in does not matter. Its population is the nets
+the processor wrapper cell's class-D ports (checked against the wrapper's own
+class-D sections) and its started level drive, each with that port as its only
+driver. From each net it follows every cell to the first named net, the
+read's consumer, and from there every cell and net onward. Only the CSR cell's
+read-back inputs and the wrapper cell's GET_STREAM_INFO face, each named by
+cell and port, stop it; every other input, every datapath output and a cell
+with no output are the wire. Each read must map to a block field or a ruled
+exclusion, and a status or answer-face read must stay off the wire. Its
+self-test elaborates a planted copy for each of 98 defects, among them every
+escaping probe of the reviews, and plants two in its table; each must be
+refused by its own words. It needs sv2v and Yosys on `PATH` (or named by
+`SV2V=` and `YOSYS=`) at the versions
+[syn/yosys/README.md](../../../syn/yosys/README.md#tooling) pins, which is
+why `make` does not run it and CI runs it in `rtl-fast`'s
+`yosys-elaboration` job; `CENSUS_JOBS=` sets how many copies elaborate at
+once (2).
 
 `make mutants` runs [`mutants.py`](mutants.py), every planted RTL defect in
 its table; the default `make` runs six of them (one per leaf, one in the
@@ -50,7 +56,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model; the AXI4-Lite build adds the handshake rules.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
 - **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; six run in the default make.
-- **[Run](#run)** -- The two make targets.
+- **[Run](#run)** -- The make targets.
 
 ## The top and the bench
 
@@ -309,6 +315,7 @@ are in `ctrl_mutants.py`'s table:
 make -C tb/verilator/mbx
 make -C tb/verilator/mbx run-if2
 make -C tb/verilator/mbx mutants
+make -C tb/verilator/mbx census
 ```
 
 The pinned Verilator is the repository's (5.050); `VERILATOR=` selects

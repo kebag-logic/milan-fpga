@@ -833,82 +833,93 @@ answers GET_STREAM_INFO (the ruling).
 The list is not kept by hand. The first version copied one from a review
 comment, and it missed the started level and the Talker declarations (the
 round-3 ruling on [#665 (6092086337)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6092086337)).
-[`publication_census.py`](../../sw/mailbox/publication_census.py) reads
-`milan_datapath.sv` on every run of the mailbox suite's `make`, and it fails
-closed (the round-4 assignment on
+[`publication_census.py`](../../sw/mailbox/publication_census.py) derives it
+from `milan_datapath.sv` as an elaborator builds it, never from its text (the
+round-6 assignment on
+[#665 (6097292237)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6097292237)),
+and it fails closed (the round-4 assignment on
 [#665 (6094461419)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6094461419)).
 
-The census takes its population from the processor wrapper's instance, not
-from a wire name. It lists the class-D outputs of `KL_pp_shadow`, and that
-list must equal the outputs the wrapper's own class-D sections declare
-(`hdl/milan/KL_pp_shadow.sv`). The started level, `aecp_strm_started_o`,
-joins them by the round-3 ruling. The datapath's one `KL_pp_shadow` instance
-must connect each of these ports by name, once, to a bare wire, and that wire
-joins the population whatever it is called. Each of these fails:
+[`census_elab.py`](../../sw/mailbox/census_elab.py) elaborates the datapath
+in the all-fabric shape with the recipe of CI's Yosys gate, which
+`syn/yosys/run.sh --emit milan_datapath` prints: its defines, its include
+directories (the shape's header among them) and its sources. sv2v lowers the
+SystemVerilog and Yosys elaborates the result, both at the versions CI pins
+(Yosys `v0.66`, sv2v `v0.0.12`). The hierarchy is kept. Every module but the
+datapath is read as a blackbox, so the processor wrapper, the CSR block and
+every other instance stay cells whose ports have directions, and
+`hierarchy -check` refuses an unknown module or port. The passes `proc` runs,
+in its order, turn every process into cells, with two changes that keep a
+read under the name the source gave it:
+
+- `insbuf` turns every connection into a buffer cell before `proc_prune`,
+  before `proc_dff` and after the last pass, because those two passes
+  otherwise rename a read to its net's driver;
+- proc's closing `opt_expr` is not run, because it folds away a read that a
+  constant of this shape masks (the CRF talker's C-TAG enable is one), and
+  the census keeps every cell the elaborator produced.
+
+Yosys writes the netlist as JSON: every cell with its type, its ports'
+directions and the bits each port connects, and every net's name. With no
+connection left, each bit has one name, and the census checks that.
+
+The census reads only that netlist, so the way a read is written does not
+matter. A procedural block with or without `begin`, an `if`, a `case`, a
+compound assignment, an event control, a function or a task, a port
+connected by name, by position, by `.name` or by `.*`, a macro from any file,
+a struct member and an escaped name all elaborate to the cells they mean.
+What the front end or the elaborator refuses, the census refuses:
+
+- an `alias` and an `iff` event qualifier, which sv2v does not parse;
+- a hierarchical reference, which the datapath's `default_nettype none`
+  makes an undeclared name;
+- an undefined module, port or macro, and an include the front end cannot
+  find.
+
+One form is refused before elaboration. sv2v reads `//` or `/*` inside an
+escaped name as a comment and can drop a read without an error, so no file
+the front end can read may hold an escaped name containing either.
+
+The population is the set of nets the processor wrapper cell's class-D
+output ports drive. The census lists the class-D outputs of `KL_pp_shadow`,
+and that list must equal the outputs the wrapper declares under its class-D
+section headings (`hdl/milan/KL_pp_shadow.sv`): the elaborated wrapper names
+every output, and its port list places each under a heading. The started
+level, `aecp_strm_started_o`, joins them by the round-3 ruling. The datapath
+must hold one `KL_pp_shadow` cell, named `pp_shadow`, and each of these
+fails:
 
 - a class-D port left unconnected or omitted;
-- a class-D port connected to an expression;
-- a positional or implicit `.name` connection on the wrapper;
+- a class-D port that drives part of a net, or more than one net;
+- two class-D ports that drive one net;
+- a second driver of a population net: an `assign`, a declaration's
+  initialiser or another cell's output;
 - a class-D output the list does not name, or a listed one the wrapper's
   class-D sections no longer declare.
 
-Comments and strings are blanked first. Every remaining occurrence of a
-population wire in the datapath must then be exactly one of these:
+No bit of the datapath may have two drivers at all.
 
-- its one declaration;
-- the wrapper's own output connection;
-- a read the census classifies.
+A read is where a population net's value first lands in a named net. From
+the net's bits the census follows every cell they enter (the buffer of an
+assignment, an operator, a multiplexer, a flop, a latch) to the bits that
+cell drives, until it reaches a net with a name from the source. That net is
+the read's consumer. When an instance's input comes first, the consumer is
+that `instance.port`.
 
-Any other occurrence fails, whatever its syntactic form. That covers a case
-item label, a positional or implicit `.name` port connection, a function or
-task body, a second driver, and any form not yet written. A form the parser
-does not understand is therefore refused, never skipped. Three forms read a
-value without naming its wire, and each fails wherever it appears:
+A read's cone decides its kind. The cone is everything the consumer's bits
+reach, through every cell and every named net. A cell leads from each of its
+input bits to all of its output bits, so no cell's function is trusted to
+drop a dependency, and a memory's write leads to its reads. Only two
+terminals end a cone, each named by cell and port, never by a port's name:
 
-- a wildcard `.*` port connection;
-- a macro token paste;
-- a hierarchical reference into the wrapper, the CSR block or an instance a
-  population read reaches.
-
-A file the datapath includes must not name a population wire, and an include
-the census cannot find under `hdl/` or `configs/` fails.
-
-A statement is cut into its assignments first: a comma outside brackets after
-the first `=` starts the next one of a list (`assign a = x, b = y`). A read is
-an occurrence in an assignment's right-hand side, an index of its target, a
-declaration's initialiser, the parentheses of an `if`, `case`, `for` or
-`while` that controls it, or a named port connection, whatever the port is
-called.
-
-A read's cone decides its kind, and the cone fails closed at every node, as
-the occurrences do at the first hop: any occurrence is an edge (the round-5
-assignment on
-[#665 (6095903333)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6095903333)).
-A read leads to every signal its statement can drive: its assignment's
-targets, every target of the procedural block (`always`, `initial`, `final`)
-it lies in, or the instance port it connects to. From each signal reached,
-every occurrence of its name in the datapath must be one of these:
-
-- its declaration;
-- an assignment's target, which drives it;
-- a read, which leads on to every signal its own statement can drive.
-
-Any other occurrence counts as reaching the wire, whatever its form. That
-covers a positional or implicit `.name` port, a case item label, an event
-control, a member or hierarchical name, anything inside a function, task,
-property or sequence declaration (a `return` among them), a read inside the
-arguments of a call to a function, task, system function or macro, and any
-form not yet written. A signal that a file the datapath includes names counts
-as reaching the wire too. Only two terminals stop the cone, each named by
-instance and port, never by a port's name:
-
-- a port of the `milan_csr` instance that the census's `CSR_READBACK` lists,
+- an input of the CSR cell `csr` that the census's `CSR_READBACK` lists,
   read back as status;
-- a port of the `KL_pp_shadow` instance that its `PROCESSOR_FACE` lists, the
-  wrapper's GET_STREAM_INFO and GET_AVB_INFO answer face.
+- an input of the wrapper cell `pp_shadow` that its `PROCESSOR_FACE` lists,
+  the wrapper's GET_STREAM_INFO and GET_AVB_INFO answer face.
 
-Every other port of every instance, those two included, and a module output
-are the wire. Each read must then be one of three kinds:
+Every other input of every cell, those two included, every datapath output,
+and a cell with no output (a print or an assertion) are the wire. Each read
+must then be one of three kinds:
 
 - read on the wire, and carried by the block field the census names, which
   the contract must define;
@@ -923,20 +934,31 @@ are the wire. Each read must then be one of three kinds:
   STREAM_OUTPUT's fields, MSRP latency and failure, and the Domain's
   priority and VLAN. None reads the block.
 
-A read the census does not map fails the suite, and so does a status or
-answer-face read whose cone reaches the wire, and a status read whose cone
-reaches the wrapper. At this head the 25 population wires occur 89 times: 25
-declarations, 25 wrapper connections and 39 reads. Of the 39 reads, 10 are on
-the wire and map to the block, 14 are CSR status, and 15 are the answer face.
-The census's self-test plants 62 defects and requires each refused by its own
-words, a cone hop by its read's row and the occurrence that reaches the wire.
-They include every form the round-3 reviews found escaping: a class-D output
-wired under another name, a case item label, positional and implicit `.name`
-ports, and a function's return. They include every cone hop the reviews of
-the round-4 head found escaping, from a status consumer and from an
-answer-face consumer: positional and implicit `.name` ports, a case item
-label, a function's return, an event control and an input port named like an
-output, each beside its plain-assign control.
+A read the census does not map fails, and so does a row no read matches, a
+status or answer-face read whose cone reaches the wire, and a status read
+whose cone reaches the wrapper. At this head the 25 population nets have 39
+reads, and four nets are unread. Of the 39 reads, 10 are on the wire and map
+to the block, 14 are CSR status, and 15 are the answer face: the same reads
+and kinds the text census counted before.
+
+The census's self-test elaborates a planted copy for each of 98 defects, plants
+two more in its table, and requires each refused by its own words: a cone
+plant by its read's row and the port it reaches, a refused form by the tool's
+words. They include every probe the reviews of rounds 2 to 5 found escaping,
+each beside its plain-assign control:
+
+- a class-D output wired under another name;
+- a case item label, ports by position and by `.name`, a function's return
+  and an event control;
+- an input port named like an output;
+- a procedural block with no outer `begin`, an event control nesting
+  parentheses, an `iff` qualifier, a compound assignment and an `alias`;
+- a macro defined in an included file, escaped names, and a declaration's
+  initialiser as a second driver.
+
+A wildcard `.*` connection, a memory, a print and the CSR or wrapper ports
+outside their faces are planted too. The census runs in `rtl-fast`'s `yosys-elaboration` job with
+that job's Yosys and sv2v, and by `make census` in the mailbox bench.
 
 The idle slope's one read is status, for LWSRP_SLOPE: no shaper consumes it,
 and the block carries it as ruled. The census covers the class-D face and the
@@ -1012,7 +1034,8 @@ on the host model.
 
 | Evidence | What it shows |
 |---|---|
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the publication census first (above), then 402 checks through the Wishbone adapter and the same 402 through the AXI4-Lite adapter (404 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
+| the publication census (above), `rtl-fast`'s `yosys-elaboration` job and `make census` | the 39 reads of the 25 class-D nets, classified from the elaborated netlist, and its 100 plants, each refused by its own words |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 402 checks through the Wishbone adapter and the same 402 through the AXI4-Lite adapter (404 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
