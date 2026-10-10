@@ -1,0 +1,11 @@
+both_edges rc=1 named_check_failed=yes
+      [FAIL] M5 B.3.5.9 link return restarts PROBE        got=0 exp=1
+      [FAIL] M5 B.3.5.9 link return revokes and reprobes  got=0 exp=1
+      [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+timers_freeze_on_loss rc=1 named_check_failed=yes
+      [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+loss_releases rc=1 named_check_failed=yes
+      [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+tx_gated_on_loss rc=1 named_check_failed=yes
+      [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+probes escaped or broken: 0
