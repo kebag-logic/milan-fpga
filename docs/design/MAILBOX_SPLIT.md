@@ -1098,27 +1098,29 @@ answer multiplexer the rings use, from a register, saved 15 LUTs for 34
 flip-flops in an earlier version and was not kept.
 
 The publication block (lane F-INT, contract 2.2,
-[above](#the-publication-block)) was measured with the same recipe on
-2026-10-09, beside its base `7c1b52be`, whose figures repeated round 3's
-column above exactly:
+[above](#the-publication-block)) was measured with the same recipe beside its
+base `7c1b52be`, whose figures repeated round 3's column above exactly: first
+on 2026-10-09, then again on 2026-10-10 once it carried the started levels
+and the Talker declarations:
 
-| Block | LUT before | LUT after | FF before | FF after |
-|---|---:|---:|---:|---:|
-| `KL_mbx_rx` | 1,481 | 1,520 | 1,155 | 1,155 |
-| `KL_mbx` registers, decode, read mux | 294 | 647 | 532 | 1,668 |
-| `KL_mbx_evt` | 702 | 669 | 978 | 978 |
-| `KL_mbx_tx` | 488 | 493 | 280 | 280 |
-| `KL_mbx_wb` | 122 | 203 | 1 | 1 |
-| **Total** | **3,102** | **3,548** | **2,946** | **4,082** |
+| Block | LUT before | LUT first | LUT now | FF before | FF first | FF now |
+|---|---:|---:|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,481 | 1,520 | 1,516 | 1,155 | 1,155 | 1,155 |
+| `KL_mbx` registers, decode, read mux | 294 | 647 | 665 | 532 | 1,668 | 1,700 |
+| `KL_mbx_evt` | 702 | 669 | 666 | 978 | 978 | 978 |
+| `KL_mbx_tx` | 488 | 493 | 507 | 280 | 280 | 280 |
+| `KL_mbx_wb` | 122 | 203 | 211 | 1 | 1 | 1 |
+| **Total** | **3,102** | **3,548** | **3,585** | **2,946** | **4,082** | **4,114** |
 
-It costs 446 LUT and 1,136 FF. The flip-flops are the block's storage at one
-interface, exactly: `DA_GATE` and `LICENCE` (16 each), `IDLE_SLOPE` (32),
-`SR_DOMAIN`'s VID, PRIORITY and ADOPTED (16), and sixteen sink entries of
-`SID_LO`, `SID_HI`, `BOUND` and `SID_VALID` (66 each, 1,056). The LUTs are the
-decode and the read-back of seven registers over sixteen entries; Vivado
-combines them across the hierarchy, so the `KL_mbx_wb` row grows and the rows
-of unchanged blocks move. The block RAM is unchanged, with no DSP. WNS is
-+0.329 ns at 10 ns (+0.402 ns before), with all 7,449 nets routed. The bench
+It now costs 483 LUT and 1,168 FF. The flip-flops are the block's storage at
+one interface, exactly: `DA_GATE`, `LICENCE` and `TALKER_DECL` (16 each),
+`IDLE_SLOPE` (32), `SR_DOMAIN`'s VID, PRIORITY and ADOPTED (16), and sixteen
+sink entries of `SID_LO`, `SID_HI`, `BOUND`, `SID_VALID` and `STARTED` (67
+each, 1,072). The LUTs are the decode and the read-back of eight registers
+over sixteen entries; Vivado combines them across the hierarchy, so the
+`KL_mbx_wb` row grows and the rows of unchanged blocks move. The block RAM is
+unchanged, with no DSP. WNS is +0.151 ns at 10 ns (+0.329 ns at the first
+measurement, +0.402 ns before), with all 7,568 nets routed. The bench
 top exports every `pub_*_o` port; the switch-on SoC leaves them unread, but
 the registers stay for their read-back. This is the block's own recipe: the
 whole-image M0s measurement of #640 needs the split image, which the
