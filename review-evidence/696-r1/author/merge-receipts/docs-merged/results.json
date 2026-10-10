@@ -1,0 +1,1027 @@
+{
+  "head": "0df486370990fddf9b60096be2f2371150692a10",
+  "em_dash_base": "8b61b70902f3ebf118e56967277e2686731081bd",
+  "rows": [
+    {
+      "name": "hdl-reference-selftest",
+      "argv": [
+        "<scratch>/venv-hdl/bin/python3",
+        "scripts/gen_hdl_reference.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.3
+    },
+    {
+      "name": "hdl-reference",
+      "argv": [
+        "<scratch>/venv-hdl/bin/python3",
+        "scripts/gen_hdl_reference.py",
+        "--output",
+        "<gate-tree>-merged/hdl-reference"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 2.1
+    },
+    {
+      "name": "docs-check",
+      "argv": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 6.7
+    },
+    {
+      "name": "em-dash",
+      "argv": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "8b61b70902f3ebf118e56967277e2686731081bd"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 3.9
+    },
+    {
+      "name": "em-dash-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 3.3
+    },
+    {
+      "name": "doc-style",
+      "argv": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "doc-style-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.0
+    },
+    {
+      "name": "gptp-docs",
+      "argv": [
+        "python3",
+        "scripts/check_gptp_docs.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "gptp-docs-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "doc-map",
+      "argv": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "doc-map-selftest",
+      "argv": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.5
+    },
+    {
+      "name": "timesync-chain",
+      "argv": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "timesync-chain-selftest",
+      "argv": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "solution-docs",
+      "argv": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "solution-docs-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_solution_docs.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 2.6
+    },
+    {
+      "name": "submodule-boundaries",
+      "argv": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "submodule-boundaries-selftest",
+      "argv": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.5
+    },
+    {
+      "name": "submodule-docs",
+      "argv": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.5
+    },
+    {
+      "name": "submodule-docs-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_submodule_docs.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "wavedrom-selftest",
+      "argv": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "wavedrom-axis",
+      "argv": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_axis_backpressure.json",
+        "--background=white",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.3
+    },
+    {
+      "name": "wavedrom-cdc",
+      "argv": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_cdc_handshake.json",
+        "--background=white",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.3
+    },
+    {
+      "name": "wavedrom-pdelay",
+      "argv": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_gptp_pdelay.json",
+        "--background=white",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.3
+    },
+    {
+      "name": "diagram-pngs",
+      "argv": [
+        "python3",
+        "scripts/check_diagram_pngs.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.3
+    },
+    {
+      "name": "diagram-pngs-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_diagram_pngs.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 6.8
+    },
+    {
+      "name": "feature-status",
+      "argv": [
+        "python3",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.9
+    },
+    {
+      "name": "module-matrix",
+      "argv": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.2
+    },
+    {
+      "name": "gptp-docs-submodule",
+      "argv": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--with-submodule"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "gptp-processor-docs",
+      "argv": [
+        "make",
+        "-C",
+        "gptp-processor",
+        "docs"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.7
+    },
+    {
+      "name": "control-flow-selftest",
+      "argv": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "cohesion-selftest",
+      "argv": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "baremetal",
+      "argv": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 20.5
+    },
+    {
+      "name": "baremetal-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 7.5
+    },
+    {
+      "name": "rv32-sdk-selftest",
+      "argv": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.2
+    },
+    {
+      "name": "rv32-sdk-verify",
+      "argv": [
+        "python3",
+        "scripts/ci_rv32_sdk.py",
+        "--destination",
+        "<sdk>",
+        "--verify-only"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.4
+    },
+    {
+      "name": "firmware-compiler-selftest",
+      "argv": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 2.0
+    },
+    {
+      "name": "firmware-compiler-absent",
+      "argv": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--absent",
+        "--audit",
+        "<gate-tree>-merged/rv32-absent.jsonl"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 632.8
+    },
+    {
+      "name": "builder",
+      "argv": [
+        "python3",
+        "sw/builder/test_builder.py",
+        "--require-rv32"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1272.4
+    },
+    {
+      "name": "nvm-record-space",
+      "argv": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 2.3
+    },
+    {
+      "name": "nvm-record-space-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_nvm_record_space.py",
+        "--self-test"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 43.7
+    },
+    {
+      "name": "nvm-capture",
+      "argv": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.9
+    },
+    {
+      "name": "nvm-firmware-selftest",
+      "argv": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 80.2
+    },
+    {
+      "name": "soc-sources",
+      "argv": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "soc-sources-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_soc_sources.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "iob-pack-selftest",
+      "argv": [
+        "python3",
+        "sw/litex/iob_pack_selftest.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 2.3
+    },
+    {
+      "name": "rtl-source-lists",
+      "argv": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.6
+    },
+    {
+      "name": "rtl-source-lists-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_rtl_source_lists.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 3.0
+    },
+    {
+      "name": "naming",
+      "argv": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.5
+    },
+    {
+      "name": "naming-selftest",
+      "argv": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.5
+    },
+    {
+      "name": "ports",
+      "argv": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 2.7
+    },
+    {
+      "name": "ports-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_port_contracts.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 3.0
+    },
+    {
+      "name": "fail-fast",
+      "argv": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.7
+    },
+    {
+      "name": "fail-fast-selftest",
+      "argv": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.8
+    },
+    {
+      "name": "todo-ownership",
+      "argv": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.9
+    },
+    {
+      "name": "todo-ownership-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_todo_ownership.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.8
+    },
+    {
+      "name": "test-evidence",
+      "argv": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 6.8
+    },
+    {
+      "name": "test-evidence-selftest",
+      "argv": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 6.7
+    },
+    {
+      "name": "hygiene",
+      "argv": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "hygiene-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "sv-idiom",
+      "argv": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "sv-idiom-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_sv_idiom.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "cpp-idiom",
+      "argv": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.6
+    },
+    {
+      "name": "cpp-idiom-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_cpp_idiom.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 1.8
+    },
+    {
+      "name": "py-idiom",
+      "argv": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 4.0
+    },
+    {
+      "name": "py-idiom-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_py_idiom.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 4.0
+    },
+    {
+      "name": "sh-idiom",
+      "argv": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "sh-idiom-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_sh_idiom.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "ci-events",
+      "argv": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "ci-events-selftest",
+      "argv": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 16.8
+    },
+    {
+      "name": "doc-paths",
+      "argv": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "archive",
+      "argv": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "archive-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_archive.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.0
+    },
+    {
+      "name": "toc-selftest",
+      "argv": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.8
+    },
+    {
+      "name": "toc-anchors",
+      "argv": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 3.4
+    },
+    {
+      "name": "toc",
+      "argv": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 4.6
+    },
+    {
+      "name": "aem-store-selftest",
+      "argv": [
+        "python3",
+        "avdecc/gen_aem_store.py",
+        "--self-test"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "sweep-shape-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 15.3
+    },
+    {
+      "name": "deploy-shape-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_deploy_shape.py",
+        "--self-test"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "entity-shape-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_entity_shape.py",
+        "--self-test"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 59.6
+    },
+    {
+      "name": "wire-accountability-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_wire_accountability.py",
+        "--self-test"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.3
+    },
+    {
+      "name": "pp-srcs",
+      "argv": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "ooc-dp-srcs-selftest",
+      "argv": [
+        "python3",
+        "syn/ooc/dp_srcs.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 14.0
+    },
+    {
+      "name": "ooc-tcl-selftest",
+      "argv": [
+        "python3",
+        "syn/ooc/ooc_tcl_selftest.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 456.7
+    },
+    {
+      "name": "recipe-selftest",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_baseline.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "recipe-mutants",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_baseline_mutants.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 2.9
+    },
+    {
+      "name": "recipe-reports-selftest",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_baseline_reports_selftest.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.0
+    },
+    {
+      "name": "resource-gate-selftest",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "--selftest"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 2.1
+    },
+    {
+      "name": "resource-gate-mutants",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate_mutants.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 5.9
+    },
+    {
+      "name": "resource-check-baseline",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check-baseline"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "yosys-ooc-selftest",
+      "argv": [
+        "python3",
+        "syn/yosys/ooc_selftest.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 38.0
+    },
+    {
+      "name": "yosys-guard-selftest",
+      "argv": [
+        "python3",
+        "syn/yosys/guard_selftest.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 35.7
+    },
+    {
+      "name": "yosys-cache-selftest",
+      "argv": [
+        "python3",
+        "syn/yosys/cache_selftest.py"
+      ],
+      "cwd": "<gate-tree>",
+      "rc": 0,
+      "seconds": 68.4
+    },
+    {
+      "name": "nogit-docs-check",
+      "argv": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "<gate-tree>-merged/nogit",
+      "rc": 0,
+      "seconds": 6.3
+    },
+    {
+      "name": "nogit-feature-status",
+      "argv": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "cwd": "<gate-tree>-merged/nogit",
+      "rc": 0,
+      "seconds": 1.1
+    }
+  ],
+  "tree_status": "",
+  "gptp_processor_status": ""
+}

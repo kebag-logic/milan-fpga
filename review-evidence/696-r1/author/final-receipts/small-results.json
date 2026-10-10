@@ -1,0 +1,41 @@
+[
+  {
+    "name": "lint",
+    "argv": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check",
+      "--jobs",
+      "2"
+    ],
+    "rc": 0,
+    "head": "963ad3b8e0ec8f119c2853b571b9ba0441805ffa",
+    "seconds": 29.8
+  },
+  {
+    "name": "behave",
+    "argv": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "rc": 0,
+    "head": "963ad3b8e0ec8f119c2853b571b9ba0441805ffa",
+    "seconds": 1.9
+  },
+  {
+    "name": "maap-coverage",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "coverage",
+      "COV_MDIR=<scratch>/maap-coverage-build"
+    ],
+    "rc": 0,
+    "head": "963ad3b8e0ec8f119c2853b571b9ba0441805ffa",
+    "seconds": 7.8
+  }
+]

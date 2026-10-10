@@ -1,0 +1,153 @@
+{
+  "head": "39571196045ddcc881f9ad0957742537175441d6",
+  "before": {
+    "ax7101": "0139bba7878ea28c6b497fd6f2bd61b4bd73f0073dd5112943e8c3c9e0c759df",
+    "ax8x8": "c055a7e4ddcda94b811ee3ca769ff23c03f698ea9efe28a6ac410fd773c12c97"
+  },
+  "after": {
+    "ax7101": "0139bba7878ea28c6b497fd6f2bd61b4bd73f0073dd5112943e8c3c9e0c759df",
+    "ax8x8": "c055a7e4ddcda94b811ee3ca769ff23c03f698ea9efe28a6ac410fd773c12c97"
+  },
+  "rows": [
+    {
+      "name": "route",
+      "argv": [
+        "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "baseline_integrated.tcl",
+        "-nojournal",
+        "-log",
+        "baseline.log"
+      ],
+      "cwd": "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax7101/gateware",
+      "rc": 0,
+      "seconds": 2915.4
+    },
+    {
+      "name": "check-before-route-1x1",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax7101/gateware",
+        "--endpoint",
+        "route-1x1"
+      ],
+      "cwd": "$LANES/696-maap-annexb",
+      "rc": 1,
+      "seconds": 0.2
+    },
+    {
+      "name": "rtl-8x8",
+      "argv": [
+        "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "rtl.tcl",
+        "-nojournal",
+        "-log",
+        "baseline.log"
+      ],
+      "cwd": "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax8x8-rtl",
+      "rc": 0,
+      "seconds": 74.5
+    },
+    {
+      "name": "ax7101-prepare-ooc",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_baseline.py",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax7101/gateware",
+        "--single-thread-synthesis",
+        "--integrated-clock",
+        "--output",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax7101-ooc",
+        "--integrated-log",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax7101/gateware/baseline.log"
+      ],
+      "cwd": "$LANES/696-maap-annexb",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "ax7101-ooc",
+      "argv": [
+        "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "baseline_ooc.tcl",
+        "-nojournal",
+        "-log",
+        "baseline.log"
+      ],
+      "cwd": "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax7101-ooc",
+      "rc": 0,
+      "seconds": 1402.8
+    },
+    {
+      "name": "check-before-ooc-1x1",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax7101-ooc",
+        "--endpoint",
+        "ooc-1x1"
+      ],
+      "cwd": "$LANES/696-maap-annexb",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "ax8x8-prepare-ooc",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_baseline.py",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax8x8/gateware",
+        "--single-thread-synthesis",
+        "--integrated-clock",
+        "--output",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax8x8-ooc",
+        "--integrated-log",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax8x8-rtl/baseline.log"
+      ],
+      "cwd": "$LANES/696-maap-annexb",
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "ax8x8-ooc",
+      "argv": [
+        "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "baseline_ooc.tcl",
+        "-nojournal",
+        "-log",
+        "baseline.log"
+      ],
+      "cwd": "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax8x8-ooc",
+      "rc": 0,
+      "seconds": 2543.6
+    },
+    {
+      "name": "check-before-ooc-8x8",
+      "argv": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check",
+        "$VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax8x8-ooc",
+        "--endpoint",
+        "ooc-8x8"
+      ],
+      "cwd": "$LANES/696-maap-annexb",
+      "rc": 0,
+      "seconds": 0.1
+    }
+  ]
+}

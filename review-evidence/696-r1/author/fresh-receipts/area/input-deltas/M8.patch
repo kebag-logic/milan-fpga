@@ -1,0 +1,39 @@
+--- KL_maap.sv
++++ KL_maap.sv
+@@ -186,6 +186,10 @@
+   logic [15:0]  rx_start_r;              //! range offset
+   logic [15:0]  rx_cnt_r;                //! range count
+   logic         rx_done_p;               //! pulse: full PDU parsed
++  logic         rx_bytes_valid_r;        //! every required earlier byte present
++  wire [7:0] rx_required_keep_w = (rbeat_r < 3'd5) ? 8'hFF
++                                   : (rbeat_r == 3'd5) ? 8'h03 : 8'h00;
++  wire rx_beat_complete_w = ((rx_tkeep_i & rx_required_keep_w) == rx_required_keep_w);
+ 
+   //! byte lane accessor (little lane order: lane j = wire byte 8b+j)
+   function automatic [7:0] lane(input [63:0] w, input [2:0] j);
+@@ -314,6 +318,7 @@
+       rx_start_r   <= '0;
+       rx_cnt_r     <= '0;
+       rx_done_p    <= 1'b0;
++      rx_bytes_valid_r <= 1'b0;
+     end
+     else begin
+       rx_done_p <= 1'b0;
+@@ -341,6 +346,7 @@
+ 
+       // ---- RX monitor tap parse ------------------------------------------
+       if (in_acc_w) begin
++        rx_bytes_valid_r <= rx_beat_complete_w && ((rbeat_r == '0) || rx_bytes_valid_r);
+         rbeat_r <= (rbeat_r == 3'd7) ? 3'd7 : rbeat_r + 3'd1;
+         if (rbeat_r == 3'd0)
+           rx_src_r[47:32] <= {lane(rx_tdata_i, 3'd6), lane(rx_tdata_i, 3'd7)};
+@@ -362,7 +368,8 @@
+           rx_cnt_r <= {lane(rx_tdata_i, 3'd0), lane(rx_tdata_i, 3'd1)};
+         if (rx_tlast_i) begin
+           rbeat_r   <= '0;
+-          rx_done_p <= is_maap_r && (rbeat_r >= 3'd5) && enable_i;
++          rx_done_p <= is_maap_r && (rbeat_r >= 3'd5) && enable_i
++                       && rx_bytes_valid_r && rx_beat_complete_w;
+           is_maap_r <= 1'b0;
+         end
+       end

@@ -1,0 +1,53 @@
+[
+  {
+    "name": "unit",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "run",
+      "MDIR=<scratch>/m3-focus/unit-build"
+    ],
+    "rc": 0,
+    "seconds": 8.7,
+    "starting_head": "c1bc77f4c6e83933065b7dd430c2c56d94b7a7ba",
+    "input_patch_sha256": "0dcf1bb04e3fe3f0c5e9fde5c1d4ef2608ad2d8adb4606324fe00382116e1d12"
+  },
+  {
+    "name": "integration-build",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "integration-build",
+      "DP_MDIR=<scratch>/m3-focus/integration-build"
+    ],
+    "rc": 0,
+    "seconds": 34.1,
+    "starting_head": "c1bc77f4c6e83933065b7dd430c2c56d94b7a7ba",
+    "input_patch_sha256": "0dcf1bb04e3fe3f0c5e9fde5c1d4ef2608ad2d8adb4606324fe00382116e1d12"
+  },
+  {
+    "name": "integration",
+    "argv": [
+      "<scratch>/m3-focus/integration-build/maap_integration"
+    ],
+    "rc": 0,
+    "seconds": 0.4,
+    "starting_head": "c1bc77f4c6e83933065b7dd430c2c56d94b7a7ba",
+    "input_patch_sha256": "0dcf1bb04e3fe3f0c5e9fde5c1d4ef2608ad2d8adb4606324fe00382116e1d12"
+  },
+  {
+    "name": "mutants",
+    "argv": [
+      "python3",
+      "tb/verilator/maap/mutants.py"
+    ],
+    "rc": 0,
+    "seconds": 531.9,
+    "starting_head": "c1bc77f4c6e83933065b7dd430c2c56d94b7a7ba",
+    "input_patch_sha256": "0dcf1bb04e3fe3f0c5e9fde5c1d4ef2608ad2d8adb4606324fe00382116e1d12"
+  }
+]

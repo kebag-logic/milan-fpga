@@ -1,0 +1,25 @@
+endpoint route-1x1: $VALIDATION_STORAGE/696-a570/resume-differential/shipping/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              50391       50302       -89  ok, below the baseline
+FF               54263       54329        66  ok
+SLICE            15788       15769       -19  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.241       0.029    -0.212  REGRESSION: below the floor 0.03
+WHS_ns           0.029       0.015    -0.014  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp/u_aecp/u_dyn: LUT +41, FF +0
+  u_pp/u_aecp/u_d3: LUT -36, FF +0
+  u_pp/u_srp/u_listener: LUT +26, FF +0
+  u_pp/u_srp: LUT +17, FF -1
+  u_pp/u_aecp/u_ucpu: LUT -14, FF +0
+  u_pp: LUT +9, FF +4
+  u_pp/u_listener: LUT +8, FF +0
+  u_pp/u_srp/u_admission: LUT -8, FF +0
+  u_pp/u_srp/u_domain: LUT +6, FF -1
+  u_pp/u_srp/u_talker: LUT -7, FF +0
+  u_pp/u_event_router: LUT -5, FF +0
+  u_pp/u_notify: LUT +0, FF +5
+RESULT: MATERIAL REGRESSION

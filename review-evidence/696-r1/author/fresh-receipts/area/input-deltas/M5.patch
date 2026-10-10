@@ -1,0 +1,61 @@
+--- KL_maap.sv
++++ KL_maap.sv
+@@ -42,8 +42,7 @@
+ 
+                 Deviations (documented in MAAP_FABRIC.md, outside #686's
+                 items): a 16-bit
+-                station-MAC-seeded LFSR draws the offset (B.3.6.1); no
+-                PortOperational! input; RX parse is untagged-only (a tagged
++                station-MAC-seeded LFSR draws the offset (B.3.6.1); RX parse is untagged-only (a tagged
+                 MAAP PDU is ignored); a PROBE parsed while a frame is on
+                 the wire is not defended; supplied seeds are validated against Table B.9.
+ 
+@@ -78,6 +77,7 @@
+   input  wire         rst_n,             //! Active-low synchronous reset
+ 
+   input  wire         enable_i,          //! CSR MAAP_CTRL.en (0 = engine idle)
++  input  wire         port_operational_i, //! axis-clock link level; rising re-probes
+   input  wire [7:0]   count_i,           //! block size to claim (reference: 8)
+   input  wire [47:0]  station_mac_i,     //! source MAC ([47:40] = first wire byte)
+   input  wire [15:0]  seed_offset_i,     //! provisioning: preferred offset
+@@ -152,6 +152,8 @@
+   logic [2:0]   probe_left_r;            //! PROBEs still to send, 4..1
+   logic [15:0]  timer_ms_r;              //! counts down to the next TX event
+   logic         seed_used_r;
++  logic         port_operational_r;
++  wire port_operational_p = port_operational_i && !port_operational_r;
+   assign offset_o = offset_r;
+   assign addr_o   = {POOL_BASE_HI_C, offset_r};
+   assign addr_valid_o = (state_r == ANNOUNCE_S);
+@@ -301,6 +303,7 @@
+       lfsr_r       <= 16'hACE1;
+       rng_seeded_r <= 1'b0;
+       seed_used_r  <= 1'b0;
++      port_operational_r <= 1'b0;
+       conflicts_o  <= '0;
+       defends_o    <= '0;
+       tx_busy_r    <= 1'b0;
+@@ -323,6 +326,7 @@
+     end
+     else begin
+       rx_done_p <= 1'b0;
++      port_operational_r <= port_operational_i;
+ 
+       //! free-running entropy + ms tick
+       lfsr_r    <= lfsr_next_w;
+@@ -393,12 +397,13 @@
+ 
+         PROBE_S, ANNOUNCE_S : begin
+           if (!enable_i) state_r <= IDLE_S;
+-          else if (restart_w) begin             //! Restart! -> ReserveAddress!
++          else if (restart_w || port_operational_p) begin //! Table B.7 restart
+             offset_r     <= rand_offset(lfsr_r, count_i);
+             probe_left_r <= 3'(PROBE_SENDS_C);
+             timer_ms_r   <= '0;                 //! sProbe at once
+             state_r      <= PROBE_S;
+-            conflicts_o  <= (&conflicts_o) ? conflicts_o : conflicts_o + 8'd1;
++            if (restart_w)
++              conflicts_o  <= (&conflicts_o) ? conflicts_o : conflicts_o + 8'd1;
+           end
+           else if (defend_w) begin              //! sDefend the overlap
+             tx_msg_r        <= MSG_DEFEND_C;

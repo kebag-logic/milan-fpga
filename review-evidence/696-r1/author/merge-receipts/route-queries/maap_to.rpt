@@ -1,0 +1,338 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sat Oct 10 03:05:30 2026
+| Host         : <redacted>
+| Command      : report_timing -to [get_cells -hierarchical -filter {IS_SEQUENTIAL && NAME =~ "*g_maap.maap_engine/*"}] -max_paths 3 -nworst 1 -delay_type max -file maap_to.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             4.037ns  (required time - arrival time)
+  Source:                 milan_datapath/ts_counter/acc_reg[31]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/g_maap.maap_engine/offset_r_reg[12]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        15.727ns  (logic 3.333ns (21.192%)  route 12.394ns (78.808%))
+  Logic Levels:           18  (CARRY4=7 LUT2=2 LUT3=1 LUT4=3 LUT5=3 LUT6=2)
+  Clock Path Skew:        -0.202ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.760ns = ( 26.760 - 20.000 ) 
+    Source Clock Delay      (SCD):    7.274ns
+    Clock Pessimism Removal (CPR):    0.312ns
+  Clock Uncertainty:      0.063ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.104ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG_1/O
+                         net (fo=52384, routed)       1.604     7.274    milan_datapath/ts_counter/out
+    SLICE_X6Y158         FDRE                                         r  milan_datapath/ts_counter/acc_reg[31]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X6Y158         FDRE (Prop_fdre_C_Q)         0.398     7.672 r  milan_datapath/ts_counter/acc_reg[31]/Q
+                         net (fo=20, routed)          5.889    13.562    milan_datapath/csr/timestamp_out[7]
+    SLICE_X25Y26         LUT2 (Prop_lut2_I1_O)        0.232    13.794 r  milan_datapath/csr/lfsr_r[7]_i_3/O
+                         net (fo=1, routed)           0.000    13.794    milan_datapath/csr/lfsr_r[7]_i_3_n_0
+    SLICE_X25Y26         CARRY4 (Prop_carry4_S[3]_CO[3])
+                                                      0.332    14.126 r  milan_datapath/csr/lfsr_r_reg[7]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.126    milan_datapath/csr/lfsr_r_reg[7]_i_2_n_0
+    SLICE_X25Y27         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.224 r  milan_datapath/csr/lfsr_r_reg[11]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.224    milan_datapath/csr/lfsr_r_reg[11]_i_2_n_0
+    SLICE_X25Y28         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.322 r  milan_datapath/csr/lfsr_r_reg[15]_i_3/CO[3]
+                         net (fo=1, routed)           0.000    14.322    milan_datapath/csr/lfsr_r_reg[15]_i_3_n_0
+    SLICE_X25Y29         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.420 r  milan_datapath/csr/lfsr_r_reg[19]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.420    milan_datapath/csr/lfsr_r_reg[19]_i_2_n_0
+    SLICE_X25Y30         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.518 r  milan_datapath/csr/lfsr_r_reg[23]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.518    milan_datapath/csr/lfsr_r_reg[23]_i_2_n_0
+    SLICE_X25Y31         CARRY4 (Prop_carry4_CI_O[0])
+                                                      0.180    14.698 f  milan_datapath/csr/lfsr_r_reg[27]_i_2/O[0]
+                         net (fo=2, routed)           0.909    15.607    milan_datapath/csr/g_maap.maap_engine/mac_seed_w[24]
+    SLICE_X24Y25         LUT4 (Prop_lut4_I3_O)        0.249    15.856 r  milan_datapath/csr/lfsr_r[15]_i_14/O
+                         net (fo=1, routed)           0.459    16.315    milan_datapath/csr/lfsr_r[15]_i_14_n_0
+    SLICE_X26Y25         LUT5 (Prop_lut5_I4_O)        0.105    16.420 r  milan_datapath/csr/lfsr_r[15]_i_6/O
+                         net (fo=1, routed)           0.360    16.780    milan_datapath/csr/lfsr_r[15]_i_6_n_0
+    SLICE_X25Y24         LUT4 (Prop_lut4_I2_O)        0.105    16.885 r  milan_datapath/csr/lfsr_r[15]_i_2/O
+                         net (fo=18, routed)          0.804    17.689    milan_datapath/csr/lfsr_r[15]_i_2_n_0
+    SLICE_X23Y19         LUT4 (Prop_lut4_I0_O)        0.108    17.797 r  milan_datapath/csr/offset_r[15]_i_17/O
+                         net (fo=3, routed)           0.807    18.604    milan_datapath/csr/offset_r[15]_i_17_n_0
+    SLICE_X25Y22         LUT5 (Prop_lut5_I4_O)        0.267    18.871 r  milan_datapath/csr/offset_r[15]_i_7/O
+                         net (fo=11, routed)          0.530    19.400    milan_datapath/csr/offset_r[15]_i_7_n_0
+    SLICE_X24Y23         LUT5 (Prop_lut5_I4_O)        0.105    19.505 r  milan_datapath/csr/offset_r[8]_i_3/O
+                         net (fo=3, routed)           0.672    20.177    milan_datapath/csr/lfsr_r_reg[7]
+    SLICE_X24Y22         LUT3 (Prop_lut3_I0_O)        0.105    20.282 r  milan_datapath/csr/offset_r[9]_i_13/O
+                         net (fo=1, routed)           0.000    20.282    milan_datapath/csr/offset_r[9]_i_13_n_0
+    SLICE_X24Y22         CARRY4 (Prop_carry4_S[0]_CO[3])
+                                                      0.440    20.722 r  milan_datapath/csr/offset_r_reg[9]_i_6/CO[3]
+                         net (fo=3, routed)           0.873    21.595    milan_datapath/csr/CO[0]
+    SLICE_X23Y17         LUT2 (Prop_lut2_I0_O)        0.105    21.700 r  milan_datapath/csr/offset_r[15]_i_13/O
+                         net (fo=8, routed)           0.736    22.436    milan_datapath/g_maap.maap_engine/offset_r_reg[10]_0
+    SLICE_X22Y21         LUT6 (Prop_lut6_I4_O)        0.105    22.541 r  milan_datapath/g_maap.maap_engine/offset_r[12]_i_2/O
+                         net (fo=1, routed)           0.355    22.897    milan_datapath/csr/offset_r_reg[12]
+    SLICE_X22Y22         LUT6 (Prop_lut6_I1_O)        0.105    23.002 r  milan_datapath/csr/offset_r[12]_i_1/O
+                         net (fo=1, routed)           0.000    23.002    milan_datapath/g_maap.maap_engine/offset_r_reg[15]_3[11]
+    SLICE_X22Y22         FDRE                                         r  milan_datapath/g_maap.maap_engine/offset_r_reg[12]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                     20.000    20.000 r  <hidden>
+    R4                                                0.000    20.000 r  clk200_p
+                         net (fo=0)                   0.000    20.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    20.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    22.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    22.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    23.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.073    23.911 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.371    25.281    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    25.358 r  BUFG_1/O
+                         net (fo=52384, routed)       1.402    26.760    milan_datapath/g_maap.maap_engine/out
+    SLICE_X22Y22         FDRE                                         r  milan_datapath/g_maap.maap_engine/offset_r_reg[12]/C
+                         clock pessimism              0.312    27.072    <hidden>
+                         clock uncertainty           -0.063    27.009    <hidden>
+    SLICE_X22Y22         FDRE (Setup_fdre_C_D)        0.030    27.039    milan_datapath/g_maap.maap_engine/offset_r_reg[12]
+  -------------------------------------------------------------------
+                         required time                         27.039    <hidden>
+                         arrival time                         -23.002    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.037    <hidden>
+
+Slack (MET) :             4.045ns  (required time - arrival time)
+  Source:                 milan_datapath/ts_counter/acc_reg[31]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/g_maap.maap_engine/offset_r_reg[7]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        15.725ns  (logic 3.333ns (21.196%)  route 12.392ns (78.804%))
+  Logic Levels:           18  (CARRY4=7 LUT2=1 LUT3=1 LUT4=3 LUT5=6)
+  Clock Path Skew:        -0.200ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.762ns = ( 26.762 - 20.000 ) 
+    Source Clock Delay      (SCD):    7.274ns
+    Clock Pessimism Removal (CPR):    0.312ns
+  Clock Uncertainty:      0.063ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.104ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG_1/O
+                         net (fo=52384, routed)       1.604     7.274    milan_datapath/ts_counter/out
+    SLICE_X6Y158         FDRE                                         r  milan_datapath/ts_counter/acc_reg[31]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X6Y158         FDRE (Prop_fdre_C_Q)         0.398     7.672 r  milan_datapath/ts_counter/acc_reg[31]/Q
+                         net (fo=20, routed)          5.889    13.562    milan_datapath/csr/timestamp_out[7]
+    SLICE_X25Y26         LUT2 (Prop_lut2_I1_O)        0.232    13.794 r  milan_datapath/csr/lfsr_r[7]_i_3/O
+                         net (fo=1, routed)           0.000    13.794    milan_datapath/csr/lfsr_r[7]_i_3_n_0
+    SLICE_X25Y26         CARRY4 (Prop_carry4_S[3]_CO[3])
+                                                      0.332    14.126 r  milan_datapath/csr/lfsr_r_reg[7]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.126    milan_datapath/csr/lfsr_r_reg[7]_i_2_n_0
+    SLICE_X25Y27         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.224 r  milan_datapath/csr/lfsr_r_reg[11]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.224    milan_datapath/csr/lfsr_r_reg[11]_i_2_n_0
+    SLICE_X25Y28         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.322 r  milan_datapath/csr/lfsr_r_reg[15]_i_3/CO[3]
+                         net (fo=1, routed)           0.000    14.322    milan_datapath/csr/lfsr_r_reg[15]_i_3_n_0
+    SLICE_X25Y29         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.420 r  milan_datapath/csr/lfsr_r_reg[19]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.420    milan_datapath/csr/lfsr_r_reg[19]_i_2_n_0
+    SLICE_X25Y30         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.518 r  milan_datapath/csr/lfsr_r_reg[23]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.518    milan_datapath/csr/lfsr_r_reg[23]_i_2_n_0
+    SLICE_X25Y31         CARRY4 (Prop_carry4_CI_O[0])
+                                                      0.180    14.698 f  milan_datapath/csr/lfsr_r_reg[27]_i_2/O[0]
+                         net (fo=2, routed)           0.909    15.607    milan_datapath/csr/g_maap.maap_engine/mac_seed_w[24]
+    SLICE_X24Y25         LUT4 (Prop_lut4_I3_O)        0.249    15.856 r  milan_datapath/csr/lfsr_r[15]_i_14/O
+                         net (fo=1, routed)           0.459    16.315    milan_datapath/csr/lfsr_r[15]_i_14_n_0
+    SLICE_X26Y25         LUT5 (Prop_lut5_I4_O)        0.105    16.420 r  milan_datapath/csr/lfsr_r[15]_i_6/O
+                         net (fo=1, routed)           0.360    16.780    milan_datapath/csr/lfsr_r[15]_i_6_n_0
+    SLICE_X25Y24         LUT4 (Prop_lut4_I2_O)        0.105    16.885 r  milan_datapath/csr/lfsr_r[15]_i_2/O
+                         net (fo=18, routed)          0.804    17.689    milan_datapath/csr/lfsr_r[15]_i_2_n_0
+    SLICE_X23Y19         LUT4 (Prop_lut4_I0_O)        0.108    17.797 r  milan_datapath/csr/offset_r[15]_i_17/O
+                         net (fo=3, routed)           0.807    18.604    milan_datapath/csr/offset_r[15]_i_17_n_0
+    SLICE_X25Y22         LUT5 (Prop_lut5_I4_O)        0.267    18.871 r  milan_datapath/csr/offset_r[15]_i_7/O
+                         net (fo=11, routed)          0.530    19.400    milan_datapath/csr/offset_r[15]_i_7_n_0
+    SLICE_X24Y23         LUT5 (Prop_lut5_I4_O)        0.105    19.505 r  milan_datapath/csr/offset_r[8]_i_3/O
+                         net (fo=3, routed)           0.672    20.177    milan_datapath/csr/lfsr_r_reg[7]
+    SLICE_X24Y22         LUT3 (Prop_lut3_I0_O)        0.105    20.282 r  milan_datapath/csr/offset_r[9]_i_13/O
+                         net (fo=1, routed)           0.000    20.282    milan_datapath/csr/offset_r[9]_i_13_n_0
+    SLICE_X24Y22         CARRY4 (Prop_carry4_S[0]_CO[3])
+                                                      0.440    20.722 r  milan_datapath/csr/offset_r_reg[9]_i_6/CO[3]
+                         net (fo=3, routed)           1.068    21.790    milan_datapath/g_maap.maap_engine/offset_r_reg[2]_1[0]
+    SLICE_X23Y18         LUT5 (Prop_lut5_I1_O)        0.105    21.895 r  milan_datapath/g_maap.maap_engine/offset_r[9]_i_2/O
+                         net (fo=10, routed)          0.497    22.393    milan_datapath/csr/offset_r_reg[2]
+    SLICE_X24Y19         LUT5 (Prop_lut5_I4_O)        0.105    22.498 r  milan_datapath/csr/offset_r[7]_i_2/O
+                         net (fo=1, routed)           0.396    22.894    milan_datapath/csr/offset_r[7]_i_2_n_0
+    SLICE_X25Y19         LUT5 (Prop_lut5_I0_O)        0.105    22.999 r  milan_datapath/csr/offset_r[7]_i_1/O
+                         net (fo=1, routed)           0.000    22.999    milan_datapath/g_maap.maap_engine/offset_r_reg[15]_3[7]
+    SLICE_X25Y19         FDRE                                         r  milan_datapath/g_maap.maap_engine/offset_r_reg[7]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                     20.000    20.000 r  <hidden>
+    R4                                                0.000    20.000 r  clk200_p
+                         net (fo=0)                   0.000    20.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    20.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    22.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    22.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    23.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.073    23.911 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.371    25.281    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    25.358 r  BUFG_1/O
+                         net (fo=52384, routed)       1.404    26.762    milan_datapath/g_maap.maap_engine/out
+    SLICE_X25Y19         FDRE                                         r  milan_datapath/g_maap.maap_engine/offset_r_reg[7]/C
+                         clock pessimism              0.312    27.074    <hidden>
+                         clock uncertainty           -0.063    27.011    <hidden>
+    SLICE_X25Y19         FDRE (Setup_fdre_C_D)        0.033    27.044    milan_datapath/g_maap.maap_engine/offset_r_reg[7]
+  -------------------------------------------------------------------
+                         required time                         27.044    <hidden>
+                         arrival time                         -22.999    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.045    <hidden>
+
+Slack (MET) :             4.154ns  (required time - arrival time)
+  Source:                 milan_datapath/ts_counter/acc_reg[31]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/g_maap.maap_engine/offset_r_reg[8]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        15.612ns  (logic 3.333ns (21.349%)  route 12.279ns (78.651%))
+  Logic Levels:           18  (CARRY4=7 LUT2=1 LUT3=2 LUT4=3 LUT5=4 LUT6=1)
+  Clock Path Skew:        -0.203ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.759ns = ( 26.759 - 20.000 ) 
+    Source Clock Delay      (SCD):    7.274ns
+    Clock Pessimism Removal (CPR):    0.312ns
+  Clock Uncertainty:      0.063ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.104ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG_1/O
+                         net (fo=52384, routed)       1.604     7.274    milan_datapath/ts_counter/out
+    SLICE_X6Y158         FDRE                                         r  milan_datapath/ts_counter/acc_reg[31]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X6Y158         FDRE (Prop_fdre_C_Q)         0.398     7.672 r  milan_datapath/ts_counter/acc_reg[31]/Q
+                         net (fo=20, routed)          5.889    13.562    milan_datapath/csr/timestamp_out[7]
+    SLICE_X25Y26         LUT2 (Prop_lut2_I1_O)        0.232    13.794 r  milan_datapath/csr/lfsr_r[7]_i_3/O
+                         net (fo=1, routed)           0.000    13.794    milan_datapath/csr/lfsr_r[7]_i_3_n_0
+    SLICE_X25Y26         CARRY4 (Prop_carry4_S[3]_CO[3])
+                                                      0.332    14.126 r  milan_datapath/csr/lfsr_r_reg[7]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.126    milan_datapath/csr/lfsr_r_reg[7]_i_2_n_0
+    SLICE_X25Y27         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.224 r  milan_datapath/csr/lfsr_r_reg[11]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.224    milan_datapath/csr/lfsr_r_reg[11]_i_2_n_0
+    SLICE_X25Y28         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.322 r  milan_datapath/csr/lfsr_r_reg[15]_i_3/CO[3]
+                         net (fo=1, routed)           0.000    14.322    milan_datapath/csr/lfsr_r_reg[15]_i_3_n_0
+    SLICE_X25Y29         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.420 r  milan_datapath/csr/lfsr_r_reg[19]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.420    milan_datapath/csr/lfsr_r_reg[19]_i_2_n_0
+    SLICE_X25Y30         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    14.518 r  milan_datapath/csr/lfsr_r_reg[23]_i_2/CO[3]
+                         net (fo=1, routed)           0.000    14.518    milan_datapath/csr/lfsr_r_reg[23]_i_2_n_0
+    SLICE_X25Y31         CARRY4 (Prop_carry4_CI_O[0])
+                                                      0.180    14.698 f  milan_datapath/csr/lfsr_r_reg[27]_i_2/O[0]
+                         net (fo=2, routed)           0.909    15.607    milan_datapath/csr/g_maap.maap_engine/mac_seed_w[24]
+    SLICE_X24Y25         LUT4 (Prop_lut4_I3_O)        0.249    15.856 r  milan_datapath/csr/lfsr_r[15]_i_14/O
+                         net (fo=1, routed)           0.459    16.315    milan_datapath/csr/lfsr_r[15]_i_14_n_0
+    SLICE_X26Y25         LUT5 (Prop_lut5_I4_O)        0.105    16.420 r  milan_datapath/csr/lfsr_r[15]_i_6/O
+                         net (fo=1, routed)           0.360    16.780    milan_datapath/csr/lfsr_r[15]_i_6_n_0
+    SLICE_X25Y24         LUT4 (Prop_lut4_I2_O)        0.105    16.885 r  milan_datapath/csr/lfsr_r[15]_i_2/O
+                         net (fo=18, routed)          0.804    17.689    milan_datapath/csr/lfsr_r[15]_i_2_n_0
+    SLICE_X23Y19         LUT4 (Prop_lut4_I0_O)        0.108    17.797 r  milan_datapath/csr/offset_r[15]_i_17/O
+                         net (fo=3, routed)           0.807    18.604    milan_datapath/csr/offset_r[15]_i_17_n_0
+    SLICE_X25Y22         LUT5 (Prop_lut5_I4_O)        0.267    18.871 r  milan_datapath/csr/offset_r[15]_i_7/O
+                         net (fo=11, routed)          0.530    19.400    milan_datapath/csr/offset_r[15]_i_7_n_0
+    SLICE_X24Y23         LUT5 (Prop_lut5_I4_O)        0.105    19.505 r  milan_datapath/csr/offset_r[8]_i_3/O
+                         net (fo=3, routed)           0.672    20.177    milan_datapath/csr/lfsr_r_reg[7]
+    SLICE_X24Y22         LUT3 (Prop_lut3_I0_O)        0.105    20.282 r  milan_datapath/csr/offset_r[9]_i_13/O
+                         net (fo=1, routed)           0.000    20.282    milan_datapath/csr/offset_r[9]_i_13_n_0
+    SLICE_X24Y22         CARRY4 (Prop_carry4_S[0]_CO[3])
+                                                      0.440    20.722 f  milan_datapath/csr/offset_r_reg[9]_i_6/CO[3]
+                         net (fo=3, routed)           0.899    21.621    milan_datapath/csr/CO[0]
+    SLICE_X23Y17         LUT3 (Prop_lut3_I2_O)        0.105    21.726 r  milan_datapath/csr/offset_r[4]_i_2/O
+                         net (fo=8, routed)           0.635    22.361    milan_datapath/g_maap.maap_engine/offset_r_reg[9]_1
+    SLICE_X24Y20         LUT6 (Prop_lut6_I5_O)        0.105    22.466 r  milan_datapath/g_maap.maap_engine/offset_r[8]_i_2/O
+                         net (fo=1, routed)           0.315    22.781    milan_datapath/csr/offset_r_reg[8]
+    SLICE_X25Y21         LUT5 (Prop_lut5_I4_O)        0.105    22.886 r  milan_datapath/csr/offset_r[8]_i_1/O
+                         net (fo=1, routed)           0.000    22.886    milan_datapath/g_maap.maap_engine/offset_r_reg[15]_3[8]
+    SLICE_X25Y21         FDRE                                         r  milan_datapath/g_maap.maap_engine/offset_r_reg[8]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                     20.000    20.000 r  <hidden>
+    R4                                                0.000    20.000 r  clk200_p
+                         net (fo=0)                   0.000    20.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    20.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    22.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    22.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    23.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.073    23.911 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.371    25.281    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    25.358 r  BUFG_1/O
+                         net (fo=52384, routed)       1.401    26.759    milan_datapath/g_maap.maap_engine/out
+    SLICE_X25Y21         FDRE                                         r  milan_datapath/g_maap.maap_engine/offset_r_reg[8]/C
+                         clock pessimism              0.312    27.071    <hidden>
+                         clock uncertainty           -0.063    27.008    <hidden>
+    SLICE_X25Y21         FDRE (Setup_fdre_C_D)        0.032    27.040    milan_datapath/g_maap.maap_engine/offset_r_reg[8]
+  -------------------------------------------------------------------
+                         required time                         27.040    <hidden>
+                         arrival time                         -22.886    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.154    <hidden>
+
+
+
+
