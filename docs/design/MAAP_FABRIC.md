@@ -95,11 +95,27 @@ ANNOUNCE = DEFEND.
   from a centred sub-range: 518 + 0..63 ms for the probe timer (17 ms of
   margin at each end) and 30488 + 0..1023 ms for the announce timer (487 ms).
   Both draws come from a free-running 32-bit LFSR with period 2^32 - 1.
+  The probe draw is the 6-bit parity fold `PROBE_FOLD_C` of the generator's next state.
+  The announce draw is the generator's low 10 bits.
   First enable samples the low 32 bits of the sum of the programmed MAC
-  and the local real-time clock (#696 M4/M3, B.3.6.1).
+  and the local real-time clock (#696 M4/M3, B.3.6.1) and loads that seed into the generator.
   Reset initializes a constant and clears the seed-sampled flag.
   Later Release!/Begin! events preserve the running sequence.
   A zero sum takes a nonzero constant to avoid the all-zero fixed point.
+- The first Begin! after reset draws from the generator one step past the seed, as the firmware core does (#696 M4).
+  Its offset word folds all 32 bits of that stepped seed: bit i is the parity of the stepped seed under row i of `OFFSET_FOLD_C`.
+  The pool mapping then subtracts `0xFE00` from a word at or above it and clips the block to end inside the pool.
+  The first PROBE goes on the next cycle, and its probe timer draws the probe fold of the same stepped seed.
+  The 16 offset rows and the 6 probe rows are linearly independent, so the two first draws are independent too.
+  Later Begin! events draw the running generator's next low 16 bits; Restart! draws its current low 16 bits.
+- The fold rows serve equally timed stations, whose seeds differ only through the MAC or the clock (B.3.4 NOTE, B.3.6.1).
+  Two seeds a power of two apart, with any carry, claim first blocks of up to 8 addresses that share no address (Table B.7 note b).
+  This holds through the pool fold and the clip; a pair with a zero sum takes the fallback and is outside it.
+  Adjacent MACs, MACs one power of two apart and, at one MAC, clocks one power of two apart are such pairs.
+  Such pairs also draw different first probe intervals.
+  Seed bits 16..31 map one-to-one onto the offset word, so MACs differing only in bits 16..31 always draw different words.
+  Two seeds not a power of two apart can still claim overlapping blocks, about 15 times in 65,024, as two independent draws would.
+  No 16-bit draw can keep every pair of 2^32 seeds apart.
 - `enable_i` falling acts like Release!: back to IDLE at once.
 - `port_operational_i` rising implements PortOperational! (B.3.5.9, Table B.7).
   An enabled active engine immediately revokes validity and re-probes.
@@ -138,7 +154,7 @@ happens on a later cycle.
 capacity and M8 counting, and any further change needs its own decision.
 
 - B.3.6.1 requires uniform address selection.
-  Folding and clipping the generator's low 16 bits into the pool remains biased.
+  Folding and clipping the 16-bit draw into the pool remains biased.
   M3 now supplies the 2^32 - 1 period and MAC-plus-clock seed.
   At the M3 step (lane head `39571196`, before the dev merge), the 1x1 recipe measures `g_maap.maap_engine` at 441 LUT / 340 FF.
   Against `6aa25dec` (439 LUT / 280 FF), growth is +2 LUT / +60 FF.
@@ -196,6 +212,9 @@ compared ranges with inclusive ends.
   Restoring reset-time sampling fails that check.
   Same-MAC stations enabled at different PHC times also draw different intervals.
   Ignoring the clock fails that integration check.
+  The same stations' first PROBEs carry the first claims: the adjacent MACs' blocks share no address,
+  and the two PHC times give different first offsets.
+  Restoring the pre-#696 first draw fails the first check; a first offset that ignores the clock fails the second.
   The unit suite observes the generator's linear transition map and checks its order.
   Short-period, nonlinear-trap, missing-clock, XOR-seed and repeated-seed defects
   fail the named M3 checks.
@@ -228,8 +247,15 @@ compared ranges with inclusive ends.
   with clock 0 is zero (`02:00:00:00:00:00`) must also draw more than one
   distinct probe and announce interval. A link outage longer than a whole
   walk must leave that walk running, and only the return may restart it.
+  Equally timed stations reset and enable on the same cycles and differ only in MAC or clock.
+  For every carry run of the seed, one pair of seeds a power of two apart must claim first blocks that share no address.
+  That covers adjacent MACs, MACs differing only in bits 16..31 and the other single-power-of-two gaps.
+  R558-6's pairs are included.
+  Clocks one power of two apart must give different first offsets, and the adjacent and bit 16..31 pairs different first probe intervals.
   Its `mutants.py` plants at least one defect per #686 item and requires
-  the named check to fail. The coverage gate is 95 %, like avtp_rxmon.
+  the named check to fail. The #696 plants include R558-6's p7 (the pre-#696 first draw), the raw low seed bits as the first offset,
+  an offset fold without the seed's high half, a first offset that ignores the clock, and a raw-seed first probe draw.
+  The coverage gate is 95 %, like avtp_rxmon.
 
 ## The block ⇄ per-source bridge (`KL_pp_maap_shim`)
 
