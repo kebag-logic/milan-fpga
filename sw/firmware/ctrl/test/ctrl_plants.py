@@ -25,11 +25,11 @@ class Plant:
     from one reaches the other (a "+" file is written whole as a new file; no file, none), with `extra` edits
     of the same kind in the same copy; refused by a finding (or a refusal) holding `needle`, or passing when
     `needle` is "". `run` is a planted builder's text, a Makefile when `make` (run as `make -f`) and Python
-    otherwise, run through the capture with `beside` written next to it; one that only compiles a mode
-    (`shared`) runs once, before the base, and what it compiled joins the base every control shares, which must
-    still pass. `texts` are builder texts the checkout is read as holding (a path from the gate's directory, and
-    its text), never run; `alter` changes the capture the control is judged against: "missing", "empty", or
-    "drop " and a builder whose invocations it loses."""
+    otherwise, run through the capture with `beside` written under its directory before the capture began; one
+    that only compiles a mode (`shared`) runs once, before the base, and what it compiled joins the base every
+    control shares, which must still pass. `texts` are builder texts the checkout is read as holding (a path
+    from the gate's directory, and its text), never run; `alter` changes the capture the control is judged
+    against: "missing", "empty", or "drop " and a builder whose invocations it loses."""
 
     name: str
     side: str
@@ -51,6 +51,14 @@ PY = ('import os, subprocess\nCTRL, STACK, WORK = os.environ["PLANT_CTRL"], os.e
       'os.environ["PLANT_WORK"]\n\n\ndef cc(*words, shell=False):\n'
       '    subprocess.run(words[0] if shell else list(words), cwd=WORK, shell=shell, check=False,\n'
       '                   capture_output=True)\n\n\n')
+#: A planted builder's C++ compile from directories of its own, its temporary directory and its working directory
+#: holding neither the source nor the tool directory beside it: only the source's inode time says whose it is.
+APART = ('def apart(source):\n    for name in ("tmp", "build"):\n        os.makedirs(os.path.join(WORK, name), '
+         'exist_ok=True)\n    subprocess.run(["c++", "-fsyntax-only", "-I" + CTRL + "/adp", source], '
+         'cwd=os.path.join(WORK, "build"),\n                   env={**os.environ, "TMPDIR": os.path.join(WORK, '
+         '"tmp")}, check=False, capture_output=True)\n\n\n')
+#: A C++ source whose include a macro computes, which text cannot follow.
+COMPUTED = '#define H "adp_mbx.h"\n#include H\n'
 #: The firmware adapter a mode's control reaches a stack example's header from, under that mode.
 ANCHOR = '#include "adp_mbx.h"\n'
 #: The C++ source a computed-name control compiles, in the ctrl tree's copy, and the header it reaches.
@@ -315,6 +323,11 @@ PLANTS = (
           run=PY + 'from pathlib import Path\n'
                    'Path(WORK, "planted.cpp").write_text(\'#define H "adp_mbx.h"\\n#include H\\n\')\n'
                    'cc("c++", "-fsyntax-only", "-I" + CTRL + "/adp", "planted.cpp")\n'),
+    Plant("a builder copies a C++ source whose include a macro computes out of its own directories", "ctrl", "",
+          "", "", "includes H, which text cannot follow", beside=(("template.cpp", COMPUTED),),
+          run=PY + APART + 'import shutil\nos.utime(os.path.join(WORK, "template.cpp"), (946684800, 946684800))\n'
+                   'os.makedirs(os.path.join(WORK, "out"))\nshutil.copy2(os.path.join(WORK, "template.cpp"), '
+                   'os.path.join(WORK, "out", "sim.cpp"))\napart(os.path.join(WORK, "out", "sim.cpp"))\n'),
     Plant("a builder compiles a C++ source that is no file", "ctrl", "", "", "",
           "compiled C++ from ", run=PY + 'cc("c++", "-fsyntax-only", "planted_r5_absent.cpp")\n'),
     Plant("a builder compiles C++ from its standard input", "ctrl", "", "", "",
@@ -355,6 +368,9 @@ PLANTS = (
           "#include \"maap.h\"\n", "#include \"maap.h\"\n#include \"adp_port.h\"\n", ""),
     Plant("pass: a builder compiles a mode no unit tests", "ctrl", "", "", "", "",
           run=PY + 'cc("cc", "-DCTRL_R5_UNTESTED", "-c", "planted.c", "-o", "planted.o")\n', shared=True),
+    Plant("pass: a builder compiles an installed tool's C++ source whose include a macro computes", "ctrl", "", "",
+          "", "", beside=(("tool/runtime.cpp", COMPUTED),),
+          run=PY + APART + 'apart(os.path.join(WORK, "tool", "runtime.cpp"))\n'),
 )
 
 

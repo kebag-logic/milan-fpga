@@ -143,6 +143,7 @@ import stat
 import sys
 import tempfile
 import threading
+import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed, wait
 from dataclasses import dataclass, field, replace
@@ -845,14 +846,18 @@ def planted(plant: Plant, work: Path) -> Trees:
 
 
 def planted_run(plant: Plant, trees: Trees, work: Path, capture: Path) -> list[dict]:
-    """A plant's builder, run through `capture` in a directory of its own beside the copies; a planted Makefile's
-    compilers named by a path, as bypass records (ctrl_pin.named_compilers)."""
+    """A plant's builder, run through `capture` in a directory of its own beside the copies, its files beside it
+    there before the capture began (a tick of the file clock earlier); a planted Makefile's compilers named by a
+    path, as bypass records (ctrl_pin.named_compilers)."""
     where = (work / "builder").resolve()
     shutil.rmtree(where, ignore_errors=True)
     where.mkdir(parents=True)
     (where / "planted.c").write_text("", encoding="utf-8")
     for name, text in plant.beside:
+        (where / name).parent.mkdir(parents=True, exist_ok=True)
         (where / name).write_text(text, encoding="utf-8")
+    if plant.beside:
+        time.sleep(0.05)
     builder = where / ("planted.mk" if plant.make else "planted_builder.py")
     builder.write_text(plant.run, encoding="utf-8")
     argv = ["make", "-f", str(builder), "planted"] if plant.make else [sys.executable, str(builder)]

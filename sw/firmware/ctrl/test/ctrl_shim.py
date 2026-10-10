@@ -24,10 +24,13 @@ header outside the checkout a C++ source reaches in a builder's own
 directories (the temporary directory, the compile's, the source's) by its
 #include lines read as text in every branch, is kept under <capture>/text/ by
 its SHA-256, so a source a builder writes and deletes is still read. A C++
-source outside the checkout and outside the builder's temporary and working
-directories is an installed tool's own (Verilator's runtime, which its builds
-compile): its digest is recorded as "installed", and nothing of it is kept or
-followed. It is C so that a compile costs the capture about a millisecond.
+source outside the checkout, the temporary directory and the compile's that
+was there before the capture began (its inode changed earlier than the
+capture's start marker's, CTRL_CAPTURE_START) is an installed tool's own
+(Verilator's runtime, which its builds compile): its digest is recorded as
+"installed", and nothing of it is kept or followed. A file a builder writes or
+copies anywhere is its own. It is C so that a compile costs the capture about
+a millisecond.
 
 A record that cannot be written stops the compile (exit 2, the reason on
 standard error): a capture never misses an invocation silently.
@@ -372,11 +375,19 @@ static const char *language(const char *given, const char *arg, int cxx)
 
 static int outside_root(const char *path, const char *root) { return !under(path, root); }
 
-/* Whether a file is the builder's: in the checkout, or in the builder's temporary or working directory. A file
- * anywhere else is an installed tool's own (a runtime the tool compiles into the build). */
-static int own(const char *path, const char *root, const char *temp, const char *here)
+/* Whether a file is the builder's: in the checkout, the builder's temporary directory or the compile's working
+ * directory, or written (or copied) since the capture began, its inode changed no earlier than the capture's start
+ * marker's (`start`, CTRL_CAPTURE_START). Only a file elsewhere that was there before is an installed tool's own (a
+ * runtime the tool compiles into the build). */
+static int own(const char *path, const char *root, const char *temp, const char *here, const struct stat *start)
 {
-    return under(path, root) || under(path, temp) || under(path, here);
+    struct stat st;
+    if (under(path, root) || under(path, temp) || under(path, here))
+        return 1;
+    if (start == NULL || stat(path, &st) != 0)
+        return 1;
+    return st.st_ctim.tv_sec > start->st_ctim.tv_sec ||
+           (st.st_ctim.tv_sec == start->st_ctim.tv_sec && st.st_ctim.tv_nsec >= start->st_ctim.tv_nsec);
 }
 
 static void closure(Map *kept, const char *capture, const char *root, char *const *tops, int ntops,
@@ -515,6 +526,9 @@ int main(int argc, char **argv)
     char *temp = realpath(getenv("TMPDIR") && *getenv("TMPDIR") ? getenv("TMPDIR") : "/tmp", NULL);
     char *here = realpath(cwd, NULL);
     const char *temp_dir = temp ? temp : "/tmp", *here_dir = here ? here : cwd;
+    struct stat begun;
+    const char *marker = getenv("CTRL_CAPTURE_START");
+    const struct stat *start = marker != NULL && stat(marker, &begun) == 0 ? &begun : NULL;
     Map kept = {0};
     Buf r = {0};
     int any_cxx = 0;
@@ -537,7 +551,7 @@ int main(int argc, char **argv)
         char *data = NULL;
         if (!strcmp(langs[i], "c++")) {
             any_cxx = 1;
-            if (strcmp(full, "-") && regular(full) && !own(full, root, temp_dir, here_dir)) {
+            if (strcmp(full, "-") && regular(full) && !own(full, root, temp_dir, here_dir, start)) {
                 /* an installed tool's own source (a runtime it compiles into the build): not the builder's */
                 snprintf(hex, sizeof hex, "installed");
             } else if (strcmp(full, "-") && regular(full) && (data = slurp(full, &len)) != NULL) {
@@ -574,7 +588,7 @@ int main(int argc, char **argv)
             full = joined(cwd, forced[i], 1);
         size_t len = 0;
         char *data = NULL;
-        if (any_cxx && regular(full) && outside_root(full, root) && own(full, root, temp_dir, here_dir) &&
+        if (any_cxx && regular(full) && outside_root(full, root) && own(full, root, temp_dir, here_dir, start) &&
             (data = slurp(full, &len)) != NULL) {
             add(&kept, capture, full, data, len);
             free(data);

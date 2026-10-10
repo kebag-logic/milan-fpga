@@ -203,6 +203,9 @@ def installed(capture: Path) -> dict[str, str]:
     bin_dir, hook = capture / "bin", capture / "hook"
     for part in (bin_dir, hook, capture / "text"):
         part.mkdir(parents=True, exist_ok=True)
+    # the capture's start: a file whose inode changed since was written by a run of the capture (ctrl_shim's own)
+    if not (capture / "start").is_file():
+        (capture / "start").write_text(f"{time.time_ns()}\n", encoding="utf-8")
     search = path_without(bin_dir)
     env = {**os.environ, "PATH": search}
     rv32 = rv32_compiler()
@@ -240,6 +243,7 @@ def installed(capture: Path) -> dict[str, str]:
             env[var] = str(wrapper(bin_dir, name, real, capture))
     (hook / "sitecustomize.py").write_text(HOOK, encoding="utf-8")
     env.update({"PATH": os.pathsep.join([str(bin_dir), search]), "CTRL_CAPTURE_DIR": str(capture),
+                "CTRL_CAPTURE_START": str(capture / "start"),
                 "CTRL_CAPTURE_BIN": str(bin_dir), "CTRL_CAPTURE_ROOT": str(ROOT), "CTRL_CAPTURE_FROM": "",
                 "PYTHONPATH": os.pathsep.join(p for p in (str(hook), os.environ.get("PYTHONPATH", "")) if p)})
     return env
