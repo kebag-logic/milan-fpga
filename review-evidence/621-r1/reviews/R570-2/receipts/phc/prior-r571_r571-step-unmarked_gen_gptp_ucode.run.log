@@ -1,0 +1,36 @@
+STEP cycle=20000936 ns=1000001000
+STEP cycle=48800866 ns=10000000
+ARM forward drops=0 outage_ns=0 exchanges=4 last_req=73600205
+STEP cycle=80800866 ns=-10000000
+ARM backward drops=0 outage_ns=0 exchanges=4 last_req=105600205
+STEP cycle=113601263 ns=10000000
+LOSS cycle=113607459 delay=5000500 since_step_ns=774500 unanswered=0
+RETURN outage_ns=2000020125
+ARM t1 before forward step drops=1 outage_ns=2000020125 exchanges=4 last_req=137600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=145601263 ns=-10000000
+LOSS cycle=145607455 delay=-4999500 since_step_ns=774000 unanswered=0
+RETURN outage_ns=2000020625
+ARM t1 before backward step drops=1 outage_ns=2000020625 exchanges=4 last_req=169600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=177607663 ns=10000000
+LOSS cycle=185611106 delay=-3466 since_step_ns=1000430375 unanswered=0
+RETURN outage_ns=2000001750
+ARM response before step drops=1 outage_ns=2000001750 exchanges=4 last_req=201600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=209610063 ns=-10000000
+LOSS cycle=217620616 delay=4545 since_step_ns=1001319125 unanswered=0
+RETURN outage_ns=2000001250
+ARM deferred t1 after step drops=1 outage_ns=2000001250 exchanges=4 last_req=233600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=353601263 ns=10000000
+LOSS cycle=353607459 delay=5000500 since_step_ns=774500 unanswered=0
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=0
+  [FAIL] liveness: no invalid link-delay publication got=3 exp=0
+  [FAIL] asCapable falls at the fourth unanswered request after a crossing exchange got=0 exp=4
+== phc_step: checks: 55   failures: 10 ==
+RESULT: FAIL

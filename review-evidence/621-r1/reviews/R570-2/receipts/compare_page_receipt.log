@@ -1,0 +1,44 @@
+EQUAL date: page='2026-10-09' receipt='2026-10-09'
+EQUAL ruling: page='https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382' receipt='https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382'
+EQUAL measured commit: page='034e2e30f225f3fcd755cac8ad01c60dda5b366a' receipt='034e2e30f225f3fcd755cac8ad01c60dda5b366a'
+EQUAL measured tree: page='a5d1a1b02212c04de89292893fcf022b39620848' receipt='a5d1a1b02212c04de89292893fcf022b39620848'
+EQUAL receipt tree is the measured commit tree: page='a5d1a1b02212c04de89292893fcf022b39620848' receipt='a5d1a1b02212c04de89292893fcf022b39620848'
+EQUAL firmware sha256: page='a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3' receipt='a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3'
+EQUAL protocol pin: page='2ad2f845dd583f8310075fa2380cb60a04fd091a' receipt='2ad2f845dd583f8310075fa2380cb60a04fd091a'
+EQUAL gptp pin: page='7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9' receipt='7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9'
+EQUAL receipt gptp pin is the measured commit gitlink: page='7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9' receipt='7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9'
+EQUAL receipt protocol pin is the measured commit gitlink: page='2ad2f845dd583f8310075fa2380cb60a04fd091a' receipt='2ad2f845dd583f8310075fa2380cb60a04fd091a'
+EQUAL s18 worst 8x8: page='13.86318' receipt='13.86318'
+EQUAL s18 floor ratio: page='3.5345x' receipt='3.5345x'
+EQUAL s18 margin to 24.5: page='10.63682' receipt='10.63682'
+EQUAL s18 1x1 maximum: page=('3.96728', '12.3510x') receipt=('3.96728', '12.3510x')
+EQUAL s18 capture count: page='96' receipt='96'
+EQUAL table row count: page=6 receipt=6
+EQUAL row 1x1 50 ON: page=('3.96022', '3.96728', '12.3510x') receipt=('3.96022', '3.96728', '12.3510x')
+EQUAL row 1x1 50 ON arm summary: page=('3.96022', '3.96728') receipt=('3.96022', '3.96728')
+EQUAL row 1x1 50 OFF: page=('3.90676', '3.91182', '12.5261x') receipt=('3.90676', '3.91182', '12.5261x')
+EQUAL row 1x1 50 OFF arm summary: page=('3.90676', '3.91182') receipt=('3.90676', '3.91182')
+EQUAL row 8x8 50 ON: page=('13.84682', '13.86318', '3.5345x') receipt=('13.84682', '13.86318', '3.5345x')
+EQUAL row 8x8 50 ON arm summary: page=('13.84682', '13.86318') receipt=('13.84682', '13.86318')
+EQUAL row 8x8 50 OFF: page=('13.68947', '13.69390', '3.5782x') receipt=('13.68947', '13.69390', '3.5782x')
+EQUAL row 8x8 50 OFF arm summary: page=('13.68947', '13.69390') receipt=('13.68947', '13.69390')
+EQUAL row 8x8 100 ON: page=('10.41821', '10.42973', '4.6981x') receipt=('10.41821', '10.42973', '4.6981x')
+EQUAL row 8x8 100 ON arm summary: page=('10.41821', '10.42973') receipt=('10.41821', '10.42973')
+EQUAL row 8x8 100 OFF: page=('10.41356', '10.41566', '4.7045x') receipt=('10.41356', '10.41566', '4.7045x')
+EQUAL row 8x8 100 OFF arm summary: page=('10.41356', '10.41566') receipt=('10.41356', '10.41566')
+EQUAL census 8x8: page=('13,210', '164') receipt=('13,210', '164')
+EQUAL census 1x1: page=('3,290', '54') receipt=('3,290', '54')
+EQUAL limits worst 8x8: page='13.86318' receipt='13.86318'
+EQUAL limits bytes/records: page=('13,210', '164') receipt=('13,210', '164')
+EQUAL limits floor ratio: page='3.5345x' receipt='3.5345x'
+EQUAL limits margin: page='10.63682' receipt='10.63682'
+EQUAL limits 1x1 maximum: page=('3.96728', '12.3510x') receipt=('3.96728', '12.3510x')
+EQUAL stale token absent: a2f1734283f367d0d522c8c7cda09b79aff60d06: page=0 receipt=0
+EQUAL stale token absent: c28595df81fb96ae7cb554216c76a23917105169: page=0 receipt=0
+EQUAL stale token absent: b2db3a970cedbbff2f8ba813acb96122c442bc58: page=0 receipt=0
+EQUAL stale token absent: 13.86484: page=0 receipt=0
+EQUAL stale token absent: 3.5341x: page=0 receipt=0
+EQUAL stale token absent: 10.63516: page=0 receipt=0
+EQUAL stale token absent: 13.84836: page=0 receipt=0
+EQUAL stale token absent: 13.67682: page=0 receipt=0
+RESULT: ALL EQUAL

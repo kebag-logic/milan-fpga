@@ -1,0 +1,30 @@
+CONTROL receipt-opt-out: production bound applied despite a control field
+none                   real-receipt                 ACCEPTED
+none                   gate-control                 ACCEPTED
+none                   plant mutation=byte-only     REFUSED: worst measured copy exceeds half the 49 ms hold floor
+none                   plant mutation=skip-copy     REFUSED: worst measured copy exceeds half the 49 ms hold floor
+none                   plant mutation=no-traffic    REFUSED: worst measured copy exceeds half the 49 ms hold floor
+none                   plant mutation=anything      REFUSED: worst measured copy exceeds half the 49 ms hold floor
+none                   plant mutation=None          REFUSED: worst measured copy exceeds half the 49 ms hold floor
+callsite-raw-arm       real-receipt                 ACCEPTED
+callsite-raw-arm       gate-control                 REFUSED: receipt arm escaped the production timing bound
+callsite-raw-arm       plant mutation=byte-only     ACCEPTED
+callsite-raw-arm       plant mutation=skip-copy     ACCEPTED
+callsite-raw-arm       plant mutation=no-traffic    ACCEPTED
+callsite-raw-arm       plant mutation=anything      ACCEPTED
+callsite-raw-arm       plant mutation=None          REFUSED: worst measured copy exceeds half the 49 ms hold floor
+spec-keeps-mutation    real-receipt                 ACCEPTED
+spec-keeps-mutation    gate-control                 REFUSED: receipt arm escaped the production timing bound
+spec-keeps-mutation    plant mutation=byte-only     ACCEPTED
+spec-keeps-mutation    plant mutation=skip-copy     ACCEPTED
+spec-keeps-mutation    plant mutation=no-traffic    ACCEPTED
+spec-keeps-mutation    plant mutation=anything      ACCEPTED
+spec-keeps-mutation    plant mutation=None          REFUSED: worst measured copy exceeds half the 49 ms hold floor
+spec-whole-arm         real-receipt                 ACCEPTED
+spec-whole-arm         gate-control                 REFUSED: receipt arm escaped the production timing bound
+spec-whole-arm         plant mutation=byte-only     ACCEPTED
+spec-whole-arm         plant mutation=skip-copy     ACCEPTED
+spec-whole-arm         plant mutation=no-traffic    ACCEPTED
+spec-whole-arm         plant mutation=anything      ACCEPTED
+spec-whole-arm         plant mutation=None          REFUSED: worst measured copy exceeds half the 49 ms hold floor
+PROBE VERDICT: EXPECTED

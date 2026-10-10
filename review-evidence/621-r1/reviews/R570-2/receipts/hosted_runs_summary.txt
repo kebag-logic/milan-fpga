@@ -1,0 +1,37 @@
+RUN docs head=d96b4a8471028d3dfd370ce61dbe05ca9957320a completed/success
+  JOB docs-check: completed/success
+  JOB wire-accountability: completed/success
+  JOB docs-check-no-git: completed/success
+RUN rtl-fast head=d96b4a8471028d3dfd370ce61dbe05ca9957320a completed/success
+  JOB changes: completed/success
+  JOB bdd-conformance: completed/success
+  JOB verilator-lint: completed/success
+  JOB firmware-unit: completed/success
+  JOB yosys-elaboration: completed/success
+  JOB rtl-fast: completed/success
+RUN elaborate head=d96b4a8471028d3dfd370ce61dbe05ca9957320a completed/success
+  JOB elaborate: completed/success
+RUN rtl-full head=d96b4a8471028d3dfd370ce61dbe05ca9957320a in_progress/
+  JOB full-ci-gate: completed/success
+  JOB Verilator shard 1/5: in_progress/
+  JOB Verilator shard 0/5: completed/success
+  JOB Verilator shard 2/5: in_progress/
+  JOB Yosys shard 3/4: completed/success
+  JOB Yosys shard 2/4: completed/success
+  JOB Yosys shard 0/4: completed/success
+  JOB Yosys shard 1/4: completed/success
+  JOB Verilator shard 3/5: completed/success
+  JOB Verilator shard 4/5: in_progress/
+  JOB Physical gPTP (nightly and manual): completed/skipped
+RUN rtl-full head=d96b4a8471028d3dfd370ce61dbe05ca9957320a in_progress/
+  JOB full-ci-gate: completed/success
+  JOB Verilator shard 1/5: in_progress/
+  JOB Verilator shard 0/5: completed/success
+  JOB Verilator shard 2/5: completed/success
+  JOB Yosys shard 3/4: completed/success
+  JOB Yosys shard 2/4: completed/success
+  JOB Yosys shard 0/4: completed/success
+  JOB Yosys shard 1/4: completed/success
+  JOB Verilator shard 3/5: completed/success
+  JOB Verilator shard 4/5: in_progress/
+  JOB Physical gPTP (nightly and manual): completed/skipped

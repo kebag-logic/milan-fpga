@@ -1,0 +1,30 @@
+STEP cycle=20000936 ns=1000001000
+STEP cycle=48800866 ns=10000000
+ARM forward drops=0 outage_ns=0 exchanges=4 last_req=73600205
+STEP cycle=80800866 ns=-10000000
+ARM backward drops=0 outage_ns=0 exchanges=4 last_req=105600205
+STEP cycle=113601263 ns=10000000
+ARM t1 before forward step drops=0 outage_ns=0 exchanges=4 last_req=137600205
+STEP cycle=145601263 ns=-10000000
+ARM t1 before backward step drops=0 outage_ns=0 exchanges=4 last_req=169600205
+STEP cycle=177607663 ns=10000000
+ARM response before step drops=0 outage_ns=0 exchanges=4 last_req=201600205
+STEP cycle=209610063 ns=-10000000
+ARM deferred t1 after step drops=0 outage_ns=0 exchanges=4 last_req=233600205
+  [FAIL] missing peer still clears asCapable      got=4 exp=0
+STEP cycle=353601263 ns=10000000
+ARM liveness drops=0 unanswered=5 unanswered_at_drop=0
+  [FAIL] liveness: asCapable falls once while the peer is silent got=0 exp=1
+  [FAIL] asCapable falls at the fourth unanswered request after a crossing exchange got=0 exp=4
+== phc_step: checks: 55   failures: 3 ==
+RESULT: FAIL
+Traceback (most recent call last):
+  File "<CHECKOUT>/tb/verilator/gptp_plane/phc_step.py", line 113, in <module>
+    main()
+    ~~~~^^
+  File "<CHECKOUT>/tb/verilator/gptp_plane/phc_step.py", line 106, in main
+    run(args.work.resolve(), args.generator.resolve(), args.mutants)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<CHECKOUT>/tb/verilator/gptp_plane/phc_step.py", line 90, in run
+    raise RuntimeError("clean step regression failed")
+RuntimeError: clean step regression failed
