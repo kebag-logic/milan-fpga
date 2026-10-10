@@ -25,7 +25,7 @@ is an integration obligation, not a target-time result established here.
 - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, MAAP, ACMP, the app, the MMIO platform, the host model, the tests.
 - **[The ACMP module](#the-acmp-module)** -- The core, its mailbox adapter with the ADP channel's tap, and the binding owner on the saved-state store; per-interface keying, the response before its notification, the adp filter's bound-talker term, TMR_NO_RESP from the accepted send, and the boot order.
 - **[The composition](#the-composition)** -- ADP, ACMP and MAAP in one app: the attach order, the channels the open enables, the timer slots, the refusals and the pass bound.
-- **[The host test](#the-host-test)** -- The sixteen arms and lwSRP's, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
+- **[The host test](#the-host-test)** -- The seventeen arms and lwSRP's, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
 - **[Run](#run)** -- The four invocations and what each needs.
 - **[Linked size](#linked-size)** -- The composed app linked with the pinned SDK and no library, audited as RV32I, at the shipping and the largest shape, against the block-RAM budget and dev.
 
@@ -195,9 +195,9 @@ against the two modules' own).
 
 The driver compiles the firmware for the host exactly as the target
 compiles it (`-std=c11 -Wall -Wextra -Werror -pedantic`), into a temporary
-directory, and runs these arms. Every arm but `rv32` is a GoogleTest binary
-graded by the tally it prints; the harness, its mocks, the port from the
-hand-rolled checks and the coverage ratchet are described in
+directory, and runs these arms. Every arm but `rv32` and `srpcmp` is a
+GoogleTest binary graded by the tally it prints; the harness, its mocks, the
+port from the hand-rolled checks and the coverage ratchet are described in
 [the harness page](../gtest/README.md).
 
 | Arm | Source | What it shows |
@@ -216,6 +216,7 @@ hand-rolled checks and the coverage ratchet are described in
 | `maap`, `maap_if2`, `maap_debug` | `test_maap.cpp`, `test_maap_mbx.cpp`, `test_maap_debug.cpp` | Annex B, stream CSR output, H-MAAP at one/two interfaces, and synchronous reentry refusal |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
 | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+| `srpcmp` | [`srp_wire_compare.py`](test/srp_wire_compare.py) | the comparator the placement switch compares the two placements' SRP frames with (#665, the ruling of comment 6088423771): its own self-test, five controls and 18 planted wire and comparison defects each caught |
 
 The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,
 debug, shape and processor-wire arms at one and two interfaces.

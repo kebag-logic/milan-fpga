@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 import sys
@@ -409,6 +410,28 @@ def arm_lwsrp(tree: Tree, lwsrp: Path) -> Outcome:
         theirs.append(obj)
     outcome = execute("lwsrp", link(tree, "lwsrp_port", ours + test + theirs))
     return Outcome("lwsrp", outcome.rc, f"  lwSRP at {head}\n{outcome.log}")
+
+
+#: The SRP comparator the placement switch compares the two placements' frames with (#665,
+#: ruling 6088423771 keeps it as that switch's infrastructure); run here so it cannot rot first.
+SRP_COMPARE = HERE / "srp_wire_compare.py"
+
+
+def arm_srpcmp() -> Outcome:
+    """The SRP comparator's own self-test: its controls, and every planted wire and comparison defect caught."""
+    res = run([sys.executable, "-I", "-B", str(SRP_COMPARE), "--self-test"])
+    if res.returncode != 0:
+        return Outcome("srpcmp", res.returncode, f"{res.stdout}{res.stderr}")
+    try:
+        controls = json.loads(res.stdout)["controls"]
+        plants = [p["plant"] for p in controls.pop("plants")]
+    except (ValueError, KeyError, TypeError) as exc:
+        return Outcome("srpcmp", 1, f"  the self-test's report does not read as its controls and plants: {exc}")
+    failed = sorted(k for k, v in controls.items() if v != "PASS")
+    log = (f"  {SRP_COMPARE.name} --self-test: controls {', '.join(sorted(controls))}"
+           f"{'; FAILED ' + ', '.join(failed) if failed else ' PASS'}\n"
+           f"  {len(plants)} planted defects caught: {', '.join(plants)}")
+    return Outcome("srpcmp", 1 if failed or not plants else 0, log)
 
 
 # ---- the verdict -------------------------------------------------------------------------

@@ -65,10 +65,14 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
            with its src/ unmodified, or the arm refuses.
   srp      per-interface MSRP/MVRP, static entity shapes, service latency,
-           debug reentry guards and processor-derived wire stimuli.
+           debug reentry guards and processor-derived wire stimuli;
+  srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
+           decoder and transmit-opportunity comparator the placement switch
+           compares the two placements' SRP frames with (#665, ruling
+           6088423771), its controls and every planted defect caught.
 
-Every arm but rv32 and entity's header generation is a GoogleTest binary
-(sw/firmware/gtest/README.md), graded by the tally it prints.
+Every arm but rv32, srpcmp and entity's header generation is a GoogleTest
+binary (sw/firmware/gtest/README.md), graded by the tally it prints.
 
 --self-test then plants each defect of ctrl_mutants.py into a COPY of the
 firmware tree and requires the named GoogleTest test of the named arm to
@@ -178,7 +182,8 @@ def main(argv: list[str] | None = None) -> int:
                         ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
                         ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
-                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
+                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
+                        ctrl_arms.arm_srpcmp()]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
                 for i in (1, 2):
