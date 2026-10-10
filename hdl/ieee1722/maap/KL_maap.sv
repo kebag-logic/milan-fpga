@@ -143,10 +143,39 @@ module KL_maap #(
   //! The all-zero seed takes a nonzero fallback to avoid the fixed point.
   logic [31:0]  lfsr_r;
   logic         rng_seeded_r;           //! first enable follows MAC programming
-  wire  [31:0]  lfsr_next_w = {lfsr_r[30:0],
-                               lfsr_r[31] ^ lfsr_r[21] ^ lfsr_r[1] ^ lfsr_r[0]};
+  function automatic [31:0] lfsr_step(input [31:0] s);
+    lfsr_step = {s[30:0], s[31] ^ s[21] ^ s[1] ^ s[0]};
+  endfunction
+  wire  [31:0]  lfsr_next_w = lfsr_step(lfsr_r);
   wire  [31:0]  mac_seed_w  = station_mac_i[31:0] + realtime_ns_i;
   wire  [31:0]  enable_seed_w = (mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w;
+  //! #696: the first Begin! draws from the generator one step past the seed,
+  //! like the firmware core, and never from the raw seed bits.
+  wire  [31:0]  seed_next_w = lfsr_step(enable_seed_w);
+
+  //! Draw folds (#696). Fold bit i is the parity of a 32-bit generator state
+  //! under row i (row 0 in the low 32 bits). Two seeds 2^i apart (adjacent
+  //! MACs, or MACs one bit apart, at an equal clock) give offset words whose
+  //! blocks of up to 8 addresses stay disjoint through rand_offset, and
+  //! different probe draws. Seed bits 16..31 map one-to-one onto the offset
+  //! word. The 22 rows are independent, so the first offset and the first
+  //! probe interval are too.
+  localparam logic [16*32-1:0] OFFSET_FOLD_C = {  //! rows 15..0
+    32'h0100_0410, 32'h0002_0104, 32'h0210_0008, 32'h0004_4800,
+    32'h1000_0084, 32'h0820_0000, 32'h0011_1000, 32'h2000_8001,
+    32'h8080_8000, 32'h8008_0040, 32'h4800_2000, 32'h0400_0220,
+    32'h1008_0002, 32'h0810_0040, 32'h1040_0000, 32'h0000_0081
+  };
+  localparam logic [6*32-1:0] PROBE_FOLD_C = {  //! rows 5..0
+    32'h1011_2104, 32'h804A_4200, 32'h4900_8050,
+    32'h0284_1420, 32'h0000_0409, 32'h2420_0880
+  };
+  function automatic [15:0] offset_fold(input [31:0] s);
+    for (int i = 0; i < 16; i++) offset_fold[i] = ^(s & OFFSET_FOLD_C[32*i +: 32]);
+  endfunction
+  function automatic [5:0] probe_fold(input [31:0] s);
+    for (int i = 0; i < 6; i++) probe_fold[i] = ^(s & PROBE_FOLD_C[32*i +: 32]);
+  endfunction
 
   // ---- claim state ----------------------------------------------------------
   logic [15:0]  offset_r;
@@ -168,8 +197,9 @@ module KL_maap #(
     rand_offset = o;
   endfunction
 
-  //! probe interval: 518 + lfsr[5:0] ms; announce: 30488 + lfsr[9:0] ms
-  wire [15:0] probe_iv_w    = 16'(PROBE_MIN_MS_C)    + {10'd0, lfsr_r[5:0]};
+  //! probe interval: 518 + the probe fold of the next state ms (at the first
+  //! PROBE, the seed one step on); announce: 30488 + lfsr[9:0] ms
+  wire [15:0] probe_iv_w    = 16'(PROBE_MIN_MS_C)    + {10'd0, probe_fold(lfsr_next_w)};
   wire [15:0] announce_iv_w = 16'(ANNOUNCE_MIN_MS_C) + {6'd0, lfsr_r[9:0]};
 
   // ---- RX parse (untagged control AVTPDU, aligned lanes) --------------------
@@ -302,10 +332,11 @@ module KL_maap #(
   wire seed_in_pool_w = (seed_offset_i < POOL_SIZE_C)
                          && (seed_end_w <= {1'b0, POOL_SIZE_C});
   //! generate_address for Begin!: use a valid provisioning seed once (note a).
-  //! An invalid seed falls back to the normal bounded random draw.
+  //! An invalid seed falls back to the normal bounded random draw. The first
+  //! Begin! folds the stepped seed; later ones read the running generator.
   wire [15:0] new_off_w = seed_valid_i && !seed_used_r && seed_in_pool_w
                           ? seed_offset_i : rand_offset(rng_seeded_r ? lfsr_next_w[15:0]
-                                                                    : enable_seed_w[15:0], count_i);
+                                                                    : offset_fold(seed_next_w), count_i);
 
   always_ff @(posedge clk_i) begin : maap_sm
     if (!rst_n) begin

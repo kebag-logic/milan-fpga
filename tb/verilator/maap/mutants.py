@@ -9,7 +9,9 @@ for every station MAC), item 3 B.3.2 Table B.7 notes b and d (ANNOUNCE
 conflict detection), item 4 Table B.7 (four PROBEs, the first at once, the
 ANNOUNCE at once). Item 0 marks a supporting change that grades no item's
 own clause (frame integrity on the wire, the DEFEND overlap, this station's
-empty range); it does not count toward the item guard. Each mutant is
+empty range); it does not count toward the item guard. The #696 items M1 to
+M8 carry their own mutants, named by item; DATAPATH_MUTANTS run the real
+CSR-to-MAAP path. Each mutant is
 an exact source replacement whose anchor must occur exactly once, applied to
 a scratch copy: no checkout file is edited. A mutant counts as killed only
 when its build succeeds, the harness exits 1, and the named check is among
@@ -32,17 +34,24 @@ RESTART_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at 
                  "            state_r      <= PROBE_S;\n            if (restart_w)")
 CELL = "((state_r == PROBE_S) || !mac_lower_w)"
 SEED = "(mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w"
+#: the first Begin! draw; R558-6's p7 restores the pre-#696 expression
+FIRST_DRAW = ("rand_offset(rng_seeded_r ? lfsr_next_w[15:0]\n"
+              "                                                                    "
+              ": offset_fold(seed_next_w), count_i)")
+PRE_696_FIRST_DRAW = "rand_offset(lfsr_next_w[15:0], count_i)"
+FIRST_FOLD = "offset_fold(seed_next_w), count_i)"
+PROBE_DRAW = "{10'd0, probe_fold(lfsr_next_w)}"
 SUPPORTING = 0
 
 #: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
 MUTANTS = (
     ("m3_short_period", "M3",
-     "{lfsr_r[30:0],\n                               lfsr_r[31] ^ lfsr_r[21] ^ lfsr_r[1] ^ lfsr_r[0]}",
-     "{16'd0, lfsr_r[14:0], lfsr_r[15] ^ lfsr_r[14] ^ lfsr_r[12] ^ lfsr_r[3]}",
+     "lfsr_step = {s[30:0], s[31] ^ s[21] ^ s[1] ^ s[0]};",
+     "lfsr_step = {16'd0, s[14:0], s[15] ^ s[14] ^ s[12] ^ s[3]};",
      "M3 B.3.6.1 generator period is 2^32-1"),
     ("m3_trap_outside_basis", "M3",
-     "lfsr_next_w = {lfsr_r[30:0],",
-     "lfsr_next_w = (lfsr_r == 32'h12345678) ? 32'd0 : {lfsr_r[30:0],",
+     "lfsr_next_w = lfsr_step(lfsr_r);",
+     "lfsr_next_w = (lfsr_r == 32'h12345678) ? 32'd0 : lfsr_step(lfsr_r);",
      "M3 B.3.6.1 generator period is 2^32-1"),
     ("m3_ignores_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
      "station_mac_i[31:0]", "M3 B.3.6.1 first enable seeds MAC plus clock"),
@@ -50,6 +59,18 @@ MUTANTS = (
      "station_mac_i[31:0] ^ realtime_ns_i", "M3 B.3.6.1 first enable seeds MAC plus clock"),
     ("m3_reseeds_after_release", "M3", "enable_i && !rng_seeded_r", "enable_i",
      "M3 Release/Begin retains the generator sequence"),
+    ("m3_first_offset_ignores_clock", "M3", FIRST_FOLD,
+     "offset_fold(lfsr_step(station_mac_i[31:0])), count_i)",
+     "M3 B.3.6.1 different clocks claim different first offsets"),
+    ("m4_first_offset_ignores_seed", "M4", FIRST_DRAW, PRE_696_FIRST_DRAW,
+     "M4 B.3.6.1 adjacent MACs claim disjoint first blocks"),
+    ("m4_first_offset_raw_seed_bits", "M4", FIRST_FOLD, "enable_seed_w[15:0], count_i)",
+     "M4 B.3.6.1 adjacent MACs claim disjoint first blocks"),
+    ("m4_first_offset_drops_seed_high_half", "M4", FIRST_FOLD,
+     "offset_fold({16'd0, seed_next_w[15:0]}), count_i)",
+     "M4 B.3.6.1 MACs differing in bits 16..31 claim disjoint first blocks"),
+    ("m4_first_interval_raw_seed_bits", "M4", PROBE_DRAW, "{10'd0, lfsr_r[5:0]}",
+     "M4 B.3.4 first probe interval differs across MACs"),
     ("m6_overwrite_active_response", "M6",
      "&& !(tx_busy_r && tx_msg_r == MSG_DEFEND_C)", "",
      "M6 occupied response buffer preserves active DEFEND"),
@@ -96,7 +117,7 @@ MUTANTS = (
      "B.2.1 DEFEND DA latched at send"),
     ("every_frame_to_the_prober", 1, "(tx_msg_r == MSG_DEFEND_C) ? tx_dst_r",
      "1'b1 ? tx_dst_r", "B.2.1 PROBE DA multicast (Begin! 1)"),
-    ("probe_draw_7_bits", 2, "{10'd0, lfsr_r[5:0]}", "{9'd0, lfsr_r[6:0]}",
+    ("probe_draw_7_bits", 2, PROBE_DRAW, "{9'd0, lfsr_r[0], probe_fold(lfsr_next_w)}",
      "B.3.4.2 probe T < 600 ms (campaign)"),
     ("probe_base_500", 2, "PROBE_MIN_MS_C    = 518;", "PROBE_MIN_MS_C    = 500;",
      "B.3.4.2 probe T > 500 ms (campaign)"),
@@ -145,6 +166,22 @@ MUTANTS = (
      "PROBE mid-frame: frame on the wire byte-identical"),
     ("own_empty_range_conflicts", SUPPORTING, " && (count_i != 8'd0)", "",
      "note b: this station's empty range never conflicts"),
+)
+
+#: (name, anchor, replacement, the integration check that must fail)
+DATAPATH_MUTANTS = (
+    ("m4_reset_time_sampling", "      lfsr_r       <= 32'hACE1;\n      rng_seeded_r <= 1'b0;",
+     "      lfsr_r       <= enable_seed_w;\n      rng_seeded_r <= 1'b1;",
+     "M4 datapath: programmed MAC changes probe intervals"),
+    ("m5_datapath_ignores_link", "else if (restart_w || port_operational_p)", "else if (restart_w)",
+     "M5 datapath: link return starts four fresh PROBEs"),
+    ("m3_datapath_ignores_clock", "station_mac_i[31:0] + realtime_ns_i", "station_mac_i[31:0]",
+     "M3 datapath: real-time clock changes probe intervals"),
+    ("m4_datapath_first_offset_ignores_seed", FIRST_DRAW, PRE_696_FIRST_DRAW,
+     "M4 datapath: adjacent MACs claim disjoint first blocks"),
+    ("m3_datapath_first_offset_ignores_clock", FIRST_FOLD,
+     "offset_fold(lfsr_step(station_mac_i[31:0])), count_i)",
+     "M3 datapath: real-time clock changes the first offset"),
 )
 
 
@@ -207,31 +244,12 @@ def main() -> int:
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
         results.append(run_case(work, "m4_datapath_clean", source, None, True))
-        anchor = "      lfsr_r       <= 32'hACE1;\n      rng_seeded_r <= 1'b0;"
-        replacement = "      lfsr_r       <= enable_seed_w;\n      rng_seeded_r <= 1'b1;"
-        if source.count(anchor) != 1:
-            print("[ESCAPED] M4: expected exactly one reset-seed anchor")
-            results.append(False)
-        else:
-            results.append(run_case(
-                work, "m4_reset_time_sampling", source.replace(anchor, replacement),
-                "M4 datapath: programmed MAC changes probe intervals", True))
-        anchor = "else if (restart_w || port_operational_p)"
-        if source.count(anchor) != 1:
-            print("[ESCAPED] M5: expected exactly one link-return anchor")
-            results.append(False)
-        else:
-            results.append(run_case(
-                work, "m5_datapath_ignores_link", source.replace(anchor, "else if (restart_w)"),
-                "M5 datapath: link return starts four fresh PROBEs", True))
-        anchor = "station_mac_i[31:0] + realtime_ns_i"
-        if source.count(anchor) != 1:
-            print("[ESCAPED] M3: expected exactly one clock-seed anchor")
-            results.append(False)
-        else:
-            results.append(run_case(
-                work, "m3_datapath_ignores_clock", source.replace(anchor, "station_mac_i[31:0]"),
-                "M3 datapath: real-time clock changes probe intervals", True))
+        for name, anchor, replacement, failure in DATAPATH_MUTANTS:
+            if source.count(anchor) != 1:
+                print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
+                results.append(False)
+                continue
+            results.append(run_case(work, name, source.replace(anchor, replacement), failure, True))
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
     return 1 if failures else 0

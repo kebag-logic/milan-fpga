@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // #696 M4: equal reset/write/enable timing, different programmed MACs.
-// Observe complete frames at the real datapath MAC output (B.3.4 NOTE).
+// Observe complete frames at the real datapath MAC output (B.3.4 NOTE):
+// the PROBE intervals and the first PROBE's requested range (B.3.6.1).
 #include "Vmilan_datapath.h"
 #include "../../common/verilator_harness.hpp"
 #include <array>
@@ -57,12 +58,16 @@ class SeedHarness {
         return reclaims && starts.size()==before+4 && frames_ok;
     }
 
+    // requested_start of the first PROBE, -1 before it is seen
+    long first_offset() const { return first_start; }
+
  private:
     const milan::tb::Model<Vmilan_datapath> model;
     Vmilan_datapath* dut = model.get();
     unsigned now = 0;
     unsigned announces = 0;
     unsigned start = 0;
+    long first_start = -1;
     bool frames_ok = true;
     std::vector<unsigned char> frame;
     std::vector<unsigned> starts;
@@ -85,6 +90,7 @@ class SeedHarness {
                 if (frame.size() >= 16 && frame[14] == 0xfe && frame[15] == 1) {
                     frames_ok &= frame.size() == 60 && frame[17] == 16;
                     starts.push_back(start);
+                    if (first_start < 0) first_start = (frame[30] << 8) | frame[31];
                 }
                 if (frame.size()==60 && frame[14]==0xfe && frame[15]==3)
                     ++announces;
@@ -123,11 +129,13 @@ class SeedHarness {
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     std::array<std::vector<unsigned>, 2> intervals;
+    std::array<long, 2> offsets{};
     bool link_ok=true;
     for (unsigned i = 0; i < intervals.size(); ++i) {
         SeedHarness station;
         intervals[i] = station.intervals(i + 1);
-        std::printf("station %u probe intervals:", i);
+        offsets[i] = station.first_offset();
+        std::printf("station %u first offset 0x%04lx, probe intervals:", i, offsets[i]);
         for (unsigned value : intervals[i]) std::printf(" %u", value);
         std::puts("");
         link_ok &= station.link_return();
@@ -142,13 +150,21 @@ int main(int argc, char** argv) {
                 different ? "ok" : "FAIL");
     std::printf("[%s] M5 datapath: link return starts four fresh PROBEs\n",
                 link_ok ? "ok" : "FAIL");
+    // MACs 02:00:00:00:00:01 and :02 are adjacent: their 8-address first
+    // blocks must share no address (Table B.7 note b).
+    const bool blocks_apart = offsets[0] >= 0 && offsets[1] >= 0
+        && (offsets[0] >= offsets[1] + 8 || offsets[1] >= offsets[0] + 8);
+    std::printf("[%s] M4 datapath: adjacent MACs claim disjoint first blocks\n",
+                blocks_apart ? "ok" : "FAIL");
     // Delay by whole scaled milliseconds: the timer divider phase stays
     // identical, while the real PHC advances before the first enable.
     std::array<std::vector<unsigned>,2> clock_intervals;
+    std::array<long,2> clock_offsets{};
     for (unsigned i=0;i<clock_intervals.size();++i) {
         SeedHarness station;
         clock_intervals[i]=station.intervals(1,(i+1)*1000);
-        std::printf("clock trial %u probe intervals:",i);
+        clock_offsets[i]=station.first_offset();
+        std::printf("clock trial %u first offset 0x%04lx, probe intervals:",i,clock_offsets[i]);
         for (unsigned value : clock_intervals[i]) std::printf(" %u",value);
         std::puts("");
     }
@@ -162,7 +178,11 @@ int main(int argc, char** argv) {
         for (unsigned value : trial) clock_ok &= value>5000 && value<6000;
     std::printf("[%s] M3 datapath: real-time clock changes probe intervals\n",
                 clock_ok ? "ok" : "FAIL");
-    const unsigned failures=(!different)+(!link_ok)+(!clock_ok);
-    std::printf("MAAP integration: 3 checks, %u failures\n", failures);
+    const bool clock_offset_ok = clock_offsets[0] >= 0 && clock_offsets[1] >= 0
+        && clock_offsets[0] != clock_offsets[1];
+    std::printf("[%s] M3 datapath: real-time clock changes the first offset\n",
+                clock_offset_ok ? "ok" : "FAIL");
+    const unsigned failures=(!different)+(!link_ok)+(!blocks_apart)+(!clock_ok)+(!clock_offset_ok);
+    std::printf("MAAP integration: 5 checks, %u failures\n", failures);
     return failures ? 1 : 0;
 }

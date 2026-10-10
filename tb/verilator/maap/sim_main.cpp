@@ -9,7 +9,8 @@
 // for a station MAC whose MAC-plus-clock seed is zero as well), item 3
 // B.3.2 Table B.7 notes b and d (ANNOUNCE conflict detection), item 4 Table
 // B.7 ReserveAddress!/probetimer!/probeCount! (four PROBEs, the first at
-// once). #696 also grades the DEFEND requested-range echo (B.3.6.6).
+// once). #696 also grades the DEFEND requested-range echo (B.3.6.6) and the
+// first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1).
 // Scaled clock: CLK_FREQ_HZ_P=10000 -> 1 ms = 10 cycles.
 #include "VKL_maap.h"
 #include "VKL_maap___024root.h"
@@ -46,7 +47,7 @@ constexpr int kSettleCyc = 50;
 constexpr uint16_t kMaxOffset = 0xFDF8;
 constexpr uint16_t kCount = 8;
 constexpr uint64_t kMaapDst = 0x91E0F000FF00ULL;     // Table B.10
-// Keep the direct first-enable seed away from pool edges for range fixtures.
+// Its first Begin! offset at clock 0 leaves room for the range fixtures.
 constexpr uint64_t kStationMac = 0x020000001001ULL;  // reversed: 01:10:..:02
 // compare_MAC operands (B.3.6.4 compares octet-reversed MACs). kPeerAbove
 // reverses to BB:AA:99:88:77:66, above this station, so compare_MAC is TRUE
@@ -86,6 +87,20 @@ struct Frame {
         for (int k = 0; k < n; k++) v = (v << 8) | b[pos + k];
         return v;
     }
+};
+
+//! What one station claimed at its first Begin!.
+struct FirstClaim {
+    long start = -1;     // the first PROBE's requested_start, -1 if none
+    long interval = -1;  // first PROBE to second PROBE, cycles, -1 if unmeasured
+};
+
+//! Two equally timed stations: a MAC and a clock each.
+struct StationPair {
+    uint64_t mac_a;
+    uint64_t mac_b;
+    uint32_t clock_a;
+    uint32_t clock_b;
 };
 
 //! What one ReserveAddress! walk put on the wire.
@@ -203,6 +218,11 @@ class MaapHarness {
     void supplied_seed_bounds();
     void truncated_pdus_have_no_effect();
     void generator_period_and_seed();
+    FirstClaim first_claim(uint64_t mac, uint32_t clock, bool interval);
+    bool claims_disjoint(const std::vector<StationPair>& pairs);
+    bool claims_differ(const std::vector<StationPair>& pairs);
+    bool intervals_differ(const std::vector<StationPair>& pairs);
+    void first_claims_of_equally_timed_stations();
     using GeneratorMap = std::array<uint32_t, 32>;
     static uint32_t apply_generator_map(const GeneratorMap& map, uint32_t state);
     static uint32_t jump_generator(GeneratorMap map, uint32_t state, uint64_t steps);
@@ -953,6 +973,109 @@ void MaapHarness::generator_period_and_seed() {
     ck("M3 Release/Begin retains the generator sequence",continuous,1);
 }
 
+// One station from reset. Every station resets, samples its MAC and clock
+// and enables on the same cycles, so only the MAC and the clock separate
+// equally timed stations (B.3.4 NOTE).
+FirstClaim MaapHarness::first_claim(uint64_t mac, uint32_t clock, bool interval){
+    dut->enable_i=0; dut->rst_n=0; cyc(6);
+    dut->station_mac_i=mac; dut->realtime_ns_i=clock;
+    dut->count_i=kCount; dut->seed_valid_i=0; dut->port_operational_i=1;
+    dut->m_axis_tready=1; dut->rx_tvalid_i=0;
+    dut->rst_n=1; cyc(3);
+    frames.clear(); cur=Frame{}; seen=0;
+    dut->enable_i=1;
+    FirstClaim claim;
+    Frame probe;
+    if(!next(probe,kProbeBudgetCyc) || !frame_is(probe,1)) return claim;
+    claim.start=static_cast<long>(probe.at(30,2));
+    Frame retransmission;
+    if(interval && next(retransmission,kProbeBudgetCyc) && frame_is(retransmission,1))
+        claim.interval=retransmission.start-probe.start;
+    return claim;
+}
+
+// Table B.7 note b: two blocks of kCount addresses conflict when they share one.
+bool MaapHarness::claims_disjoint(const std::vector<StationPair>& pairs){
+    bool disjoint=true;
+    for(const auto& p : pairs){
+        const FirstClaim a=first_claim(p.mac_a,p.clock_a,false);
+        const FirstClaim b=first_claim(p.mac_b,p.clock_b,false);
+        const bool apart=a.start>=0 && b.start>=0
+                         && (a.start>=b.start+kCount || b.start>=a.start+kCount);
+        if(!apart)
+            printf("  [i]    %012llx clock %08x -> 0x%04lx; %012llx clock %08x -> 0x%04lx\n",
+                   static_cast<unsigned long long>(p.mac_a),p.clock_a,a.start,
+                   static_cast<unsigned long long>(p.mac_b),p.clock_b,b.start);
+        disjoint &= apart;
+    }
+    return disjoint;
+}
+
+bool MaapHarness::claims_differ(const std::vector<StationPair>& pairs){
+    bool differ=true;
+    for(const auto& p : pairs){
+        const FirstClaim a=first_claim(p.mac_a,p.clock_a,false);
+        const FirstClaim b=first_claim(p.mac_b,p.clock_b,false);
+        differ &= a.start>=0 && b.start>=0 && a.start!=b.start;
+    }
+    return differ;
+}
+
+bool MaapHarness::intervals_differ(const std::vector<StationPair>& pairs){
+    bool differ=true;
+    for(const auto& p : pairs){
+        const FirstClaim a=first_claim(p.mac_a,p.clock_a,true);
+        const FirstClaim b=first_claim(p.mac_b,p.clock_b,true);
+        differ &= a.interval>=0 && b.interval>=0 && a.interval!=b.interval;
+    }
+    return differ;
+}
+
+// #696 M4 (B.3.4 NOTE, B.3.6.1): the station MAC and the real-time clock must
+// separate the first claims of equally timed stations. For every carry run
+// i..j of the seed, one pair of seeds 2^i apart whose sum flips exactly bits
+// i..j; each pair has its own common clock, and the MACs carry the rest of
+// the seeds. i = 0 gives adjacent MACs, i >= 16 MACs that differ only in
+// bits 16..31. The fixed pairs are R558-6's.
+void MaapHarness::first_claims_of_equally_timed_stations(){
+    printf("\n[12] #696 M4: first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1)\n");
+    constexpr uint64_t kMacBase=0x020000000000ULL;
+    std::vector<StationPair> adjacent{{0x020000000001ULL,0x020000000002ULL,0,0}};
+    std::vector<StationPair> high{{0x020000000001ULL,0x020000010001ULL,0,0},
+                                  {0x0200000a1234ULL,0x0200005b1234ULL,7,7},
+                                  {0x020011001234ULL,0x020022001234ULL,0,0}};
+    std::vector<StationPair> low;
+    std::vector<StationPair> timers(high);
+    timers.push_back(adjacent.front());
+    uint32_t sample=0x2545f491u;
+    for(unsigned i=0;i<32;++i)
+        for(unsigned j=i;j<32;++j){
+            sample=sample*1664525u+1013904223u;
+            const uint32_t ones=static_cast<uint32_t>((uint64_t{1}<<j)-(uint64_t{1}<<i));
+            const uint32_t seed=(sample|ones)&~(uint32_t{1}<<j);
+            const uint32_t clock=sample*2654435761u;
+            const StationPair p{kMacBase|static_cast<uint32_t>(seed-clock),
+                                kMacBase|static_cast<uint32_t>(seed-clock+(uint32_t{1}<<i)),
+                                clock,clock};
+            (i==0 ? adjacent : i>=16 ? high : low).push_back(p);
+            if(i==0 || (i>=16 && j==i)) timers.push_back(p);
+        }
+    std::vector<StationPair> clocks;
+    for(unsigned k=0;k<32;++k){
+        sample=sample*1664525u+1013904223u;
+        clocks.push_back({kStationMac,kStationMac,sample,sample+(uint32_t{1}<<k)});
+    }
+    clocks.push_back({kStationMac,kStationMac,0,17});
+    clocks.push_back({kStationMac,kStationMac,0x01020304u,0xffff1234u});
+    printf("  [i]    %zu adjacent, %zu bits 16..31, %zu 2^i (1..15), %zu clock, %zu interval pairs\n",
+           adjacent.size(),high.size(),low.size(),clocks.size(),timers.size());
+    ck("M4 B.3.6.1 adjacent MACs claim disjoint first blocks",claims_disjoint(adjacent),1);
+    ck("M4 B.3.6.1 MACs differing in bits 16..31 claim disjoint first blocks",claims_disjoint(high),1);
+    ck("M4 B.3.6.1 MACs 2^i apart claim disjoint first blocks",claims_disjoint(low),1);
+    ck("M3 B.3.6.1 different clocks claim different first offsets",claims_differ(clocks),1);
+    ck("M4 B.3.4 first probe interval differs across MACs",intervals_differ(timers),1);
+}
+
 int MaapHarness::run(){
     bring_up_idle();
     check_reset_idle();
@@ -975,6 +1098,7 @@ int MaapHarness::run(){
     supplied_seed_bounds();
     truncated_pdus_have_no_effect();
     generator_period_and_seed();
+    first_claims_of_equally_timed_stations();
 
     printf("\n======================================================================\n");
     printf("KL_maap: %ld checks, %ld failures\n", checks, fails);
