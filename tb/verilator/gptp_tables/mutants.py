@@ -8,7 +8,10 @@ lane M7 moved five of the fabric gPTP plane's tables into another storage
 form; for each one this driver plants three defects of the kinds a storage
 conversion can introduce - a wrong depth, a wrong read latency and an index
 alias - one at a time, and requires the table's OWN named lockstep check to
-fail. A control that leaves that check green is a finding about the bench.
+fail. Two more aim at what those three leave unexercised: the result
+queue's write index, which only a queue holding two results exposes, and
+the transmit lane decode at the counts no traffic reaches. A control that
+leaves its check green is a finding about the bench.
 
 Every control edits private copies of exactly the files the build reads
 (`make print-inputs`), verified against their committed bytes and pinned
@@ -47,6 +50,7 @@ TX = "tx_fifo lockstep"
 LED = "ledger lockstep"
 RES = "results lockstep"
 TMR = "timer lockstep"
+DEC = "tx_fifo decode"
 
 #: (name, file, old text, new text, the named check this must break)
 MUTATIONS = [
@@ -79,6 +83,12 @@ MUTATIONS = [
      "  localparam int unsigned CNT_W_C  = 4;",
      "  localparam int unsigned CNT_W_C  = 3;",
      TX),
+    #: odd counts decode one lane short: the engine's frames end in two,
+    #: four or eight lanes, so only the directed decode check sees it
+    ("tx_fifo_decode_odd_counts", SHADOW,
+     "      txf_keep_w[i] = (CNT_W_C'(i) < txf_cnt_w);",
+     "      txf_keep_w[i] = (CNT_W_C'(i) < {txf_cnt_w[CNT_W_C-1:1], 1'b0});",
+     DEC),
     # ---- the egress ledger's RAM fields ------------------------------------
     #: The engine's per-class claims keep a few entries outstanding, so a
     #: power-of-two short table aliases harmlessly; one entry short of the
@@ -110,7 +120,7 @@ MUTATIONS = [
      "  assign led_head_tag_w  = led_tag_r [{1'b0, led_head_r[PTR_W_C-2:0]}];",
      LED),
     # ---- the egress result queue -------------------------------------------
-    #: the queue holds a result or two at a time: one entry short, as above
+    #: the queue holds a few results at a time: one entry short, as above
     ("results_wrong_depth", RET,
      "logic [63:0] res_ns_r   [0:TXTS_CAP_N_P-1];",
      "logic [63:0] res_ns_r   [0:TXTS_CAP_N_P-2];",
@@ -124,6 +134,12 @@ MUTATIONS = [
     ("results_index_alias", RET,
      "  assign txts_ns_o    = res_ns_r  [res_head_r];",
      "  assign txts_ns_o    = res_ns_r  [{1'b0, res_head_r[PTR_W_C-2:0]}];",
+     RES),
+    #: written at the head, a result lands on the one still waiting: only
+    #: the slow-engine phase keeps a result waiting while the next is written
+    ("results_write_index", RET,
+     "      res_ns_r  [res_tail_w] <= res_ns_w;",
+     "      res_ns_r  [res_head_r] <= res_ns_w;",
      RES),
     # ---- the engine timer's deadlines --------------------------------------
     ("timer_wrong_depth", TIMER,

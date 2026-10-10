@@ -7,9 +7,21 @@
 // The wrapper runs the real plane and, beside it, each table it moved in the
 // storage form it had before; it counts every cycle in which a table's
 // consumer would have seen something else. This harness only has to make
-// those comparisons mean something: drive enough of every kind of traffic
-// that each table is written, read, filled, wrapped and reset, then require
-// zero mismatches AND the coverage that makes zero informative.
+// those comparisons mean something: drive enough traffic that each table is
+// written, read and reset in traffic, at every index its use reaches, then
+// require zero mismatches AND the coverage that makes zero informative. How
+// full each table gets is what its use allows, and no more:
+//   rx_fifo  full: bursts overflow it, and its pointers wrap.
+//   tx_fifo  27 of 256 beats: admission bounds it to a few frames. Its
+//            pointers wrap, and every lane count 0..8 is driven through
+//            its decode directly, because the engine's frames end in two,
+//            four or eight lanes.
+//   ledger   3 of 8 entries: the engine keeps few frames outstanding. Every
+//            entry is the head in turn, so its index wraps.
+//   results  3 of 8 entries, in the slow-engine phase only: without it the
+//            engine takes each result as soon as its dispatch is free, and
+//            this stimulus never queues two. Every entry is the head in turn.
+//   timer    slots 0 to 5 of 8: the microcode arms no others.
 //
 // Two sources share the tap. A PEER answers each of the engine's Pdelay_Req
 // frames, timed from the engine's own accepted egress result so the measured
@@ -20,7 +32,8 @@
 // the peer, a pseudo-random MIX from a fixed seed: every message type,
 // malformed, foreign-EtherType, runt and oversize frames, corrupted byte
 // enables, back-to-back bursts that overflow the tap FIFO, held launch
-// records, and warm resets in the middle of traffic.
+// records, a slow-engine phase in which the result face is held off so
+// results queue, and warm resets in the middle of traffic.
 
 #include <cstdint>
 #include <cstdio>
@@ -94,6 +107,7 @@ class TablesHarness {
  public:
   int run() {
     dut->cnt_clr_i = 1;
+    decode_check();
     reset(kResetTicks);
     //! A cold engine initialises in its first timer handler, 1200 ms after
     //! reset; until then every receive handler drops its frame unread. Run
@@ -104,6 +118,7 @@ class TablesHarness {
     //! No better master for longer than the announce receipt timeout: the
     //! engine becomes grandmaster with its lane stalled for long stretches.
     traffic(9000000, Mode::stall);
+    traffic(3000000, Mode::slow);
     //! A warm reset keeps the engine's initialised scratch: handlers run at
     //! once, so the reset lands in the middle of live table traffic.
     warm_reset_in_traffic();
@@ -118,7 +133,7 @@ class TablesHarness {
   }
 
  private:
-  enum class Mode { mixed, burst, stall, held };
+  enum class Mode { mixed, burst, stall, held, slow };
 
   const milan::tb::Model<Vgptp_tables_wrap> model_;
   Vgptp_tables_wrap* dut = model_.get();
@@ -138,9 +153,15 @@ class TablesHarness {
   bool tx_level = true;
   uint32_t tx_left = 0;
   uint32_t held_left = 0;
+  //! the result face's schedule in `slow`: held off, or free, for a while
+  bool slow_level = false;
+  uint32_t slow_left = 0;
   uint64_t frames_mixed = 0;
   uint64_t frames_peer = 0;
   uint64_t pdelay_answered = 0;
+  //! the directed decode check: counts driven, as a set, and wrong decodes
+  uint32_t dec_counts = 0;
+  uint32_t dec_wrong = 0;
 
   uint32_t draw(uint32_t lo, uint32_t hi) {
     return std::uniform_int_distribution<uint32_t>(lo, hi)(rng);
@@ -400,10 +421,44 @@ class TablesHarness {
         dut->rechold_en_i = 0;
         dut->rechold_release_i = 1;
       }
+      dut->res_slow_i = (mode == Mode::slow) && slow_engine();
       tick(burst || !chance(15), tx_ready(mode));
     }
     dut->rechold_en_i = 0;
     dut->rechold_release_i = 1;
+    dut->res_slow_i = 0;
+  }
+
+  //! The engine as a slow consumer of its egress results: the result face
+  //! transfers nothing for a drawn stretch, then is free for another. The
+  //! engine alone takes each result as soon as its dispatch is free, so
+  //! without this phase the stimulus never queues two results.
+  bool slow_engine() {
+    if (slow_left == 0) {
+      slow_level = !slow_level;
+      slow_left = slow_level ? draw(500, 20000) : draw(200, 3000);
+    }
+    slow_left--;
+    return slow_level;
+  }
+
+  //! The engine's frames end in two, four or eight lanes, so traffic never
+  //! takes transmit lane counts 1, 3, 5, 6 or 7 through the decode. Drive
+  //! every count 0..8 into the plane's own decode, with the plane in reset,
+  //! and compare it with what the old gearbox stored for a beat of that
+  //! many lanes: lanes 0 to count-1. Count 0 is a never-written FIFO word.
+  void decode_check() {
+    dut->rst_n = 0;
+    for (int i = 0; i < kResetTicks; i++) tick(true, true);
+    for (uint32_t n = 0; n <= kLaneBytes; n++) {
+      dut->kdec_en_i = 1;
+      dut->kdec_cnt_i = static_cast<uint8_t>(n);
+      dut->eval();
+      if (dut->tx_tkeep_o != static_cast<uint8_t>((1u << n) - 1u)) dec_wrong++;
+      dec_counts |= 1u << n;
+    }
+    dut->kdec_en_i = 0;
+    dut->eval();
   }
 
   //! A reset in the middle of a frame, with frames queued on both sides.
@@ -436,10 +491,12 @@ class TablesHarness {
                 dut->rx_hiwater_o);
     std::printf("tx_fifo: %u frames, counts 0x%03x, %u stalled cycles, %u beats deep\n",
                 dut->tx_frames_o, dut->tx_counts_o, dut->tx_stall_o, dut->tx_hiwater_o);
-    std::printf("ledger: %u compared, heads 0x%02x, %u deep\n",
-                dut->led_cmp_o, dut->led_heads_o, dut->led_maxn_o);
-    std::printf("results: %u compared, heads 0x%02x, %u deep\n",
-                dut->res_cmp_o, dut->res_heads_o, dut->res_maxn_o);
+    std::printf("tx_fifo decode: counts 0x%03x driven, %u decoded wrong\n",
+                dec_counts, dec_wrong);
+    std::printf("ledger: %u compared, heads 0x%02x, tags 0x%x, %u deep\n",
+                dut->led_cmp_o, dut->led_heads_o, dut->led_tags_o, dut->led_maxn_o);
+    std::printf("results: %u compared, heads 0x%02x, %u deep, %u written behind a waiting result\n",
+                dut->res_cmp_o, dut->res_heads_o, dut->res_maxn_o, dut->res_behind_o);
     std::printf("timer: %u compared, slots 0x%02x\n", dut->tmr_cmp_o, dut->tmr_slots_o);
     std::printf("plane: flags 0x%x, %u programs run, %u tap drops, %u parser drops, "
                 "%u event drops, %u lost results, %u barriers\n",
@@ -453,6 +510,7 @@ class TablesHarness {
     check.dec("ledger lockstep: mismatching cycles", dut->led_mm_o, 0);
     check.dec("results lockstep: mismatching cycles", dut->res_mm_o, 0);
     check.dec("timer lockstep: mismatching cycles", dut->tmr_mm_o, 0);
+    check.dec("tx_fifo decode: counts that decode to other enables", dec_wrong, 0);
 
     // ...and what makes each zero mean something
     check.that("rx_fifo coverage: frames committed", dut->rx_good_o >= 1000);
@@ -461,6 +519,7 @@ class TablesHarness {
     check.dec("rx_fifo coverage: every highest lane delivered", dut->rx_tops_o, 0xFF);
     check.that("rx_fifo coverage: filled past half its depth", dut->rx_hiwater_o >= 128);
     check.that("tx_fifo coverage: frames transmitted", dut->tx_frames_o >= 200);
+    check.dec("tx_fifo coverage: decode driven with counts 0 to 8", dec_counts, 0x1FF);
     //! the engine's frames end in two, four or eight lanes
     check.dec("tx_fifo coverage: lane counts 2, 4 and 8", dut->tx_counts_o, 0x114);
     check.that("tx_fifo coverage: stalled with a beat waiting", dut->tx_stall_o >= 10000);
@@ -472,6 +531,8 @@ class TablesHarness {
     check.that("ledger coverage: three or more entries outstanding", dut->led_maxn_o >= 3);
     check.that("results coverage: head compared", dut->res_cmp_o >= 100);
     check.dec("results coverage: every entry was the head", dut->res_heads_o, 0xFF);
+    //! with one result waiting, the queue's tail is never its head
+    check.that("results coverage: two or more results outstanding", dut->res_maxn_o >= 2);
     check.that("timer coverage: armed sweeps compared", dut->tmr_cmp_o >= 1000);
     //! slots 0-3 as a master, 4 and 5 as a synchronised slave
     check.dec("timer coverage: slots 0 to 5", dut->tmr_slots_o, 0x3F);

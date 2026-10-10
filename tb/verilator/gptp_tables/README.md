@@ -19,26 +19,66 @@ compared every cycle with what the table's consumer receives.
 | `timer` | the engine timer's deadlines in distributed RAM | reset-cleared registers | the sweep's deadline distance for an armed slot |
 
 Each table counts its mismatches and the coverage that makes a zero count
-informative, and the harness grades both. The stimulus is reproducible from a
-fixed seed. A peer answers each of the engine's Pdelay requests, timed from
-the engine's own accepted egress result, so the measured link delay is
-600 ns. In most phases the peer is a better master, and the engine follows it
-as a synchronised slave; in the stall phase the peer stops announcing, so the
-engine becomes grandmaster. Around the peer runs a mix of every message type,
-malformed, foreign, runt and oversize frames, and corrupted byte enables. The
-mix also has bursts that overflow the tap FIFO, long transmit stalls, held
-launch records, and warm resets in the middle of traffic.
+informative, and the harness grades both. Every table is written, read and
+reset in traffic, at every index its use reaches. How full it gets is what
+that use allows:
+
+| Table | Reached | Why no further |
+|---|---|---|
+| `rx_fifo` | full: bursts overflow it; its pointers wrap | - |
+| `tx_fifo` | 27 of 256 beats; its pointers wrap; every lane count 0 to 8 through the decode | admission bounds it to a few frames; the engine's frames end in two, four or eight lanes, so the other counts are driven directly |
+| `ledger` | 3 of 8 entries; every entry is the head in turn | the engine keeps few frames outstanding |
+| `results` | 3 of 8 entries, in the slow-engine phase only; every entry is the head in turn | without that phase the engine takes each result as soon as its dispatch is free, and this stimulus never queues two |
+| `timer` | slots 0 to 5 of 8 | the microcode arms no other slot |
+
+The stimulus is reproducible from a fixed seed. A peer answers each of the
+engine's Pdelay requests, timed from the engine's own accepted egress result,
+so the measured link delay is 600 ns. In most phases the peer is a better
+master, and the engine follows it as a synchronised slave; in the stall phase
+the peer stops announcing, so the engine becomes grandmaster. Around the peer
+runs a mix of every message type, malformed, foreign, runt and oversize
+frames, and corrupted byte enables. The mix also has bursts that overflow the
+tap FIFO, long transmit stalls, held launch records, and warm resets in the
+middle of traffic.
+
+Two test-only forces in the wrapper reach what the traffic does not. In the
+slow-engine phase the result face's handshake is held off on both sides for
+drawn stretches, so the engine sees no offer and the queue sees no ready.
+Results then wait in the queue, and a result is written behind one still
+waiting to be taken. Before the traffic starts, with the plane in reset, the
+transmit FIFO's lane count is forced to each value 0 to 8. The plane's own
+decode must give lanes 0 to count-1, which is what the old gearbox stored.
+Count 0 is a never-written FIFO word. `waivers.vlt` scopes the lint waiver
+these forces need to the three nets they drive.
+
+Two limits of the evidence:
+
+- The ledger's tag column is one-valued. `KL_gptp_txticket` tags every frame
+  long enough to carry its sequenceId, and every frame the engine emits is
+  that long, so every reachable entry holds tag 1. The run prints the tag
+  values it compared (`tags 0x2`). A tag stuck at 0 is caught; a tag stuck
+  at 1 cannot be seen here or in the plane.
+- Coverage is graded over the whole run, not per reset segment. The plane's
+  transmit FIFO can pop under the departure fence, which can wedge the plane
+  after a warm reset ([#714](https://github.com/kebag-logic/milan-fpga/issues/714)).
+  Whether a run reaches it depends on timing. At this seed the plane stays
+  live after both warm resets, but a regression that silenced it after a
+  reset would still leave every check green. Per-segment coverage follows
+  the fix of #714.
 
 `mutants.py` plants three defects in each table: a wrong depth, a wrong read
-latency and an index alias. It edits private copies of the inputs `make
-print-inputs` names, with the slice suite's input copier, and requires each
-table's own named lockstep check to fail. Each wrong depth is one the table's
-reachable use exposes. The tap FIFO is halved and the timer loses its upper
+latency and an index alias. Two more aim at what those leave unexercised. The
+result queue written at its head instead of its tail must fail `results
+lockstep`, which needs a result waiting while the next is written. Odd lane
+counts decoded one lane short must fail `tx_fifo decode`. The driver edits
+private copies of the inputs `make print-inputs` names, with the slice suite's
+input copier, and requires each control's own named check to fail. Each wrong
+depth is one the table's reachable use exposes. The tap FIFO is halved and the timer loses its upper
 half. The transmit FIFO keeps 16 of its 256 beats: admission bounds it to
 a few frames, so only a shallower FIFO is observable, and the resource gate
 prices a deeper one. The ledger and result queue are one entry short, because
-the engine keeps only a few entries outstanding and a power-of-two-short table
-would alias harmlessly.
+they hold only a few entries at a time and a power-of-two-short table would
+alias harmlessly.
 
 ```sh
 git submodule update --init third_party/verilog-axis gptp-processor   # once

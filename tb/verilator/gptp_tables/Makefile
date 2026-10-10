@@ -25,7 +25,8 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          -Wno-PINCONNECTEMPTY -Wno-PINMISSING \
          -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=$(ENGINE_CLK_HZ) \
          -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
-SRCS = gptp_tables_wrap.sv \
+SRCS = waivers.vlt \
+       gptp_tables_wrap.sv \
        $(SLICE_DIR)/gptp_shadow_wrap.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv \

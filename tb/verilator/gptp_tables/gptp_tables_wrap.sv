@@ -29,6 +29,9 @@
 //
 //                Each table counts its mismatches and the coverage that
 //                makes a zero count mean something; the harness grades both.
+//                Two test-only forces reach what traffic does not: a slow
+//                engine that lets results queue, and every transmit lane
+//                count driven through the plane's decode.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -57,6 +60,13 @@ module gptp_tables_wrap #(
     input  wire        rechold_en_i,
     input  wire  [3:0] rechold_type_i,
     input  wire        rechold_release_i,
+    //! test-only slow engine: while set, the result face transfers nothing
+    input  wire        res_slow_i,
+
+    //! the directed decode check: while set, the transmit FIFO's lane count
+    //! is forced to kdec_cnt_i, so tx_tkeep_o is the plane's decode of it
+    input  wire        kdec_en_i,
+    input  wire  [3:0] kdec_cnt_i,
 
     output wire [31:0] pub_flags_o,
     //! what the harness's peer needs: the plane's PHC and the egress result
@@ -93,10 +103,12 @@ module gptp_tables_wrap #(
     output logic [31:0] tx_hiwater_o,   //! deepest occupancy, beats
     output logic [31:0] led_cmp_o,      //! cycles the ledger head was compared
     output logic  [7:0] led_heads_o,    //! head entries compared, as a set
+    output logic  [1:0] led_tags_o,     //! head tag values compared, as a set
     output logic  [4:0] led_maxn_o,     //! deepest ledger occupancy
     output logic [31:0] res_cmp_o,      //! cycles a result head was compared
     output logic  [7:0] res_heads_o,    //! head entries compared, as a set
     output logic  [4:0] res_maxn_o,     //! deepest result occupancy
+    output logic [31:0] res_behind_o,   //! results written behind a waiting one
     output logic [31:0] tmr_cmp_o,      //! armed sweep reads compared
     output logic  [7:0] tmr_slots_o     //! slots compared, as a set
 );
@@ -155,6 +167,34 @@ module gptp_tables_wrap #(
   //! the plane's reset: the slice bench resets the plane with its own rst_n
   logic run_w;
   assign run_w = rst_n;
+
+  //! TEST-ONLY SLOW ENGINE. The engine takes a result as soon as its
+  //! dispatch is free, and its admission keeps only a few frames
+  //! outstanding, so under this bench's traffic alone the result queue
+  //! holds one result at most and a write at the wrong index is not seen.
+  //! While the harness raises res_slow_i, the result face's handshake is
+  //! held off on BOTH sides: the engine sees no offer and the queue sees no
+  //! ready, so no transfer happens on either side and the results wait in
+  //! the queue, as they would behind an engine that stayed busy. Nothing
+  //! is fabricated: every result is the queue's own, offered later. The
+  //! queue's valid/ready contract allows ready low for any length of time.
+  always_comb begin : result_slow
+    if (res_slow_i) begin
+      force u_bench.u_shadow.eng_txts_valid_w = 1'b0;
+      force u_bench.u_shadow.eng_txts_ready_w = 1'b0;
+    end else begin
+      release u_bench.u_shadow.eng_txts_valid_w;
+      release u_bench.u_shadow.eng_txts_ready_w;
+    end
+  end : result_slow
+
+  //! No traffic reaches every lane count: the engine's frames end in two,
+  //! four or eight lanes. The harness drives each count 0..8 through the
+  //! plane's own decode here, with the plane held in reset.
+  always_comb begin : decode_force
+    if (kdec_en_i) force u_bench.u_shadow.txf_cnt_w = kdec_cnt_i;
+    else           release u_bench.u_shadow.txf_cnt_w;
+  end : decode_force
 
   // ======================================================================= //
   //  rx_fifo: the tap FIFO as it was, with eight tkeep bits                 //
@@ -413,8 +453,8 @@ module gptp_tables_wrap #(
       rx_good_o <= '0; rx_ovf_o <= '0; rx_bad_o <= '0; rx_tops_o <= '0;
       rx_hiwater_o <= '0; tx_frames_o <= '0; tx_counts_o <= '0;
       tx_stall_o <= '0; tx_hiwater_o <= '0;
-      led_cmp_o <= '0; led_heads_o <= '0; led_maxn_o <= '0;
-      res_cmp_o <= '0; res_heads_o <= '0; res_maxn_o <= '0;
+      led_cmp_o <= '0; led_heads_o <= '0; led_tags_o <= '0; led_maxn_o <= '0;
+      res_cmp_o <= '0; res_heads_o <= '0; res_maxn_o <= '0; res_behind_o <= '0;
       tmr_cmp_o <= '0; tmr_slots_o <= '0;
     end else if (run_w) begin
       if (rx_bad_cyc_w)   rx_mm_o   <= rx_mm_o + 32'd1;
@@ -441,6 +481,7 @@ module gptp_tables_wrap #(
       if (led_on_w) begin
         led_cmp_o <= led_cmp_o + 32'd1;
         led_heads_o[rl_head_w] <= 1'b1;
+        led_tags_o[rl_tag_r[rl_head_w]] <= 1'b1;
       end
       if (rl_n_w > led_maxn_o) led_maxn_o <= rl_n_w;
       if (res_on_w) begin
@@ -448,6 +489,10 @@ module gptp_tables_wrap #(
         res_heads_o[rq_head_w] <= 1'b1;
       end
       if (rq_n_w > res_maxn_o) res_maxn_o <= rq_n_w;
+      //! the queue's tail is past its head: a write at the wrong index
+      //! lands on a result still waiting to be taken
+      if (u_bench.u_shadow.u_txret.push_res_w && (rq_n_w != 5'd0))
+        res_behind_o <= res_behind_o + 32'd1;
       if (tmr_on_w) begin
         tmr_cmp_o <= tmr_cmp_o + 32'd1;
         tmr_slots_o[tm_slot_w] <= 1'b1;
