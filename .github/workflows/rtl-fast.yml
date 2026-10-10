@@ -359,6 +359,7 @@ jobs:
 
       - name: Put Verilator on PATH and prove the version
         run: |
+          set -euo pipefail
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
           /opt/verilator/bin/verilator --version
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"

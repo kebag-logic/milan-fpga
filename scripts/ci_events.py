@@ -566,9 +566,9 @@ ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove 
 ENV_FILE_WRITERS[(ELABORATE, "elaborate", "Put Verilator on PATH and prove the version")] = \
     ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
 #: #697: the fast job that judges the TSN stack boundary over the Verilator builders' compiles puts the same
-#: pinned Verilator on PATH as the exhaustive shard that owns the mailbox bench, by the same script.
+#: pinned Verilator on PATH by the physical job's script, whose pipefail keeps the version assertion's verdict.
 ENV_FILE_WRITERS[(RTL_FAST, "firmware-verilator", "Put Verilator on PATH and prove the version")] = \
-    ENV_FILE_WRITERS[(RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")]
+    ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
 
 #: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
 #: ([R3] round 9): `ref:` or `repository:` on an unpinned carrier's checkout
