@@ -728,6 +728,60 @@ TEST_F(AcmpMailbox, B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream) {
     }
 }
 
+// A bound or started move of a sink with no settled stream publishes
+// SID_VALID clear, though SID_LO and SID_HI still hold the stream an earlier
+// binding settled on (an unbind clears SID_VALID and leaves them): the
+// datapath takes no stream_id for a sink that settled on none (#665,
+// comment 6095903333).
+TEST_F(AcmpMailbox, B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream) {
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        const std::uint32_t entry = binding_reg(i, k) - MBX_PUB_SINK_REG_BINDING;
+        const std::uint32_t valid = 1u << MBX_BINDING_SID_VALID_LSB;
+        const std::uint32_t* words = model.pub[i] + (MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u;
+        // every write to the sink's entry is BINDING with SID_VALID clear, and there is one
+        auto binding_only = [&] {
+            bool ok = false;
+            for (const auto& w : pub_writes) {
+                if (w.first >= entry && w.first < entry + MBX_PUB_SINK_STRIDE) {
+                    if (w.first != binding_reg(i, k) || (w.second & valid) != 0u) {
+                        return false;
+                    }
+                    ok = true;
+                }
+            }
+            return ok;
+        };
+        bind(k);
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_EQ(pub_view(i).sid[k], kSid);
+        ASSERT_TRUE(offer(command(spec::MSG_UNBIND_RX_COMMAND, k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_TRUE(!pub_view(i).bound[k] && pub_view(i).sid[k] == 0u);
+        ASSERT_EQ((std::uint64_t{words[MBX_PUB_SINK_REG_SID_HI / 4u]} << 32) | words[MBX_PUB_SINK_REG_SID_LO / 4u], kSid)
+            << on_if(i, "B13 the unbind leaves the settled stream_id in SID_LO and SID_HI");
+        pub_writes.clear();
+        mbx_host_trace(trace_writes, nullptr);
+        bind(k);
+        mbx_host_trace(nullptr, nullptr);
+        EXPECT_TRUE(binding_only())
+            << on_if(i, "B13 a BIND_RX of a sink with no settled stream writes only BINDING, SID_VALID clear");
+        EXPECT_TRUE(pub_view(i).bound[k] && pub_view(i).sid[k] == 0u)
+            << on_if(i, "B13 the re-bound sink carries no stream_id to the datapath");
+        for (bool start : {false, true}) {
+            pub_writes.clear();
+            mbx_host_trace(trace_writes, nullptr);
+            ASSERT_TRUE(acmp_set_started(core(), k, start));
+            mbx_host_trace(nullptr, nullptr);
+            EXPECT_TRUE(binding_only() && pub_view(i).started[k] == start)
+                << on_if(i, "B13 a started move with no settled stream writes only BINDING, SID_VALID clear");
+            EXPECT_EQ(pub_view(i).sid[k], 0u) << on_if(i, "B13 the started move carries no stream_id to the datapath");
+        }
+    }
+}
+
 // ---- C: the service cost of every path (H-ACMP, H-DISC) -----------------------------------
 
 TEST_F(AcmpMailbox, C0ToC4CommandsAreAnsweredInThePassThatTakesThem) {

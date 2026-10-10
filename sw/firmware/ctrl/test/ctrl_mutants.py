@@ -489,6 +489,7 @@ ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; 
 ACMP_REBIND = "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;"
 A31S = "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
 B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"
+B13 = "AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream"
 ACMP_TRANSMIT = "\tpublish(a);\n\tif (a->owed_count == 0u && p_send(a, interface, frame)) {\n\t\treturn SENT;\n\t}"
 ACMP_PUB_STREAM = "uint64_t stream = settled ? s->stream.stream_id : 0u;"
 MAAP_GATE = "\t(void)mbx_pub_da_gate(interface, valid ? (uint32_t)((1u << count) - 1u) : 0u);\n"
@@ -615,6 +616,13 @@ MUTANTS += (
            "(void)mbx_pub_sink_binding(interface, sink, bound, started, stream_id != 0u);",
            "(void)mbx_pub_sink_binding(interface, sink, bound, started, false);",
            "acmp", B12, "B12 that write is BINDING, with SID_VALID kept and STARTED moved"),
+    # round 5 (#665, comment 6095903333): the other polarity, SID_VALID set by
+    # a move with no stream, over the stream an unbind left in SID_LO/SID_HI
+    Mutant("pub-acmp-adapter-sid-valid-always", "acmp/acmp_mbx.c",
+           "(void)mbx_pub_sink_binding(interface, sink, bound, started, stream_id != 0u);",
+           "(void)mbx_pub_sink_binding(interface, sink, bound, started, true);",
+           "acmp", B13, "B13 the re-bound sink carries no stream_id to the datapath",
+           (("acmpif2", B13, "B13 the re-bound sink carries no stream_id to the datapath"),)),
     # MAAP: the DA gate published after the allocation is reported, skipped,
     # one source short, held open while the range is invalid, past the block
     Mutant("pub-maap-gate-after-the-report", "maap/maap_mbx.c", MAAP_GATE + MAAP_REPORT,
