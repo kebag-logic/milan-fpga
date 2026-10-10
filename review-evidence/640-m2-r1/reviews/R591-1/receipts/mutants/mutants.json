@@ -1,0 +1,191 @@
+[
+ {
+  "probe": "reapply-half-depth",
+  "rc": 1,
+  "failed_verdicts": [
+   "csr_ar storage",
+   "csr_aw storage",
+   "csr_b storage",
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_r storage",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "csr_w storage",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_rx storage",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset",
+   "mac_tx storage"
+  ],
+  "expected_failures": {
+   "mac_tx": "depth",
+   "mac_rx": "depth",
+   "csr_w": "depth",
+   "csr_r": "depth"
+  },
+  "outcome": "DETECTED"
+ },
+ {
+  "probe": "reapply-read-ahead",
+  "rc": 1,
+  "failed_verdicts": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected_failures": {
+   "mac_tx": "order",
+   "mac_rx": "order",
+   "csr_w": "order",
+   "csr_r": "order"
+  },
+  "outcome": "DETECTED"
+ },
+ {
+  "probe": "framing-above-payload-swapped",
+  "rc": 1,
+  "failed_verdicts": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected_failures": {
+   "mac_tx": "lockstep",
+   "mac_rx": "lockstep",
+   "csr_w": "lockstep",
+   "csr_r": "lockstep"
+  },
+  "outcome": "DETECTED"
+ },
+ {
+  "probe": "read-port-in-write-domain",
+  "rc": 1,
+  "failed_verdicts": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected_failures": {
+   "mac_tx": "lockstep",
+   "mac_rx": "lockstep",
+   "csr_w": "lockstep",
+   "csr_r": "lockstep"
+  },
+  "outcome": "DETECTED"
+ },
+ {
+  "probe": "mac-reset-datapath-side-only",
+  "rc": 1,
+  "failed_verdicts": [
+   "mac_rx lockstep",
+   "mac_rx reset",
+   "mac_tx lockstep",
+   "mac_tx reset"
+  ],
+  "expected_failures": {
+   "mac_tx": "reset",
+   "mac_rx": "reset"
+  },
+  "outcome": "DETECTED"
+ },
+ {
+  "probe": "framing-write-enable-dropped",
+  "rc": 1,
+  "failed_verdicts": [
+   "csr_r depth",
+   "csr_r lockstep",
+   "csr_r order",
+   "csr_r reset",
+   "csr_w depth",
+   "csr_w lockstep",
+   "csr_w order",
+   "csr_w reset",
+   "mac_rx depth",
+   "mac_rx lockstep",
+   "mac_rx order",
+   "mac_rx reset",
+   "mac_tx depth",
+   "mac_tx lockstep",
+   "mac_tx order",
+   "mac_tx reset"
+  ],
+  "expected_failures": {
+   "mac_tx": "lockstep",
+   "mac_rx": "lockstep",
+   "csr_w": "lockstep",
+   "csr_r": "lockstep"
+  },
+  "outcome": "DETECTED"
+ },
+ {
+  "probe": "csr-aw-converted-too",
+  "rc": 1,
+  "failed_verdicts": [
+   "csr_ar storage",
+   "csr_aw storage",
+   "csr_b storage",
+   "csr_r storage",
+   "csr_w storage"
+  ],
+  "expected_failures": {
+   "csr_aw": "storage"
+  },
+  "outcome": "DETECTED"
+ },
+ {
+  "probe": "milanmac-call-site-removed",
+  "rc": 0,
+  "failed_verdicts": [],
+  "expected_failures": null,
+  "outcome": "SURVIVED (expected: coverage limit)"
+ }
+]

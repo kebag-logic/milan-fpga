@@ -1,0 +1,9 @@
+reapply-half-depth: rc 1 -> DETECTED; fails: csr_ar storage, csr_aw storage, csr_b storage, csr_r depth, csr_r lockstep, csr_r order, csr_r reset, csr_r storage, csr_w depth, csr_w lockstep, csr_w order, csr_w reset, csr_w storage, mac_rx depth, mac_rx lockstep, mac_rx order, mac_rx reset, mac_rx storage, mac_tx depth, mac_tx lockstep, mac_tx order, mac_tx reset, mac_tx storage
+reapply-read-ahead: rc 1 -> DETECTED; fails: csr_r depth, csr_r lockstep, csr_r order, csr_r reset, csr_w depth, csr_w lockstep, csr_w order, csr_w reset, mac_rx depth, mac_rx lockstep, mac_rx order, mac_rx reset, mac_tx depth, mac_tx lockstep, mac_tx order, mac_tx reset
+framing-above-payload-swapped: rc 1 -> DETECTED; fails: csr_r depth, csr_r lockstep, csr_r order, csr_r reset, csr_w depth, csr_w lockstep, csr_w order, csr_w reset, mac_rx depth, mac_rx lockstep, mac_rx order, mac_rx reset, mac_tx depth, mac_tx lockstep, mac_tx order, mac_tx reset
+read-port-in-write-domain: rc 1 -> DETECTED; fails: csr_r depth, csr_r lockstep, csr_r order, csr_r reset, csr_w depth, csr_w lockstep, csr_w order, csr_w reset, mac_rx depth, mac_rx lockstep, mac_rx order, mac_rx reset, mac_tx depth, mac_tx lockstep, mac_tx order, mac_tx reset
+mac-reset-datapath-side-only: rc 1 -> DETECTED; fails: mac_rx lockstep, mac_rx reset, mac_tx lockstep, mac_tx reset
+framing-write-enable-dropped: rc 1 -> DETECTED; fails: csr_r depth, csr_r lockstep, csr_r order, csr_r reset, csr_w depth, csr_w lockstep, csr_w order, csr_w reset, mac_rx depth, mac_rx lockstep, mac_rx order, mac_rx reset, mac_tx depth, mac_tx lockstep, mac_tx order, mac_tx reset
+csr-aw-converted-too: rc 1 -> DETECTED; fails: csr_ar storage, csr_aw storage, csr_b storage, csr_r storage, csr_w storage
+milanmac-call-site-removed: rc 0 -> SURVIVED (expected: coverage limit); fails: nothing
+RESULT: PASS (0 probe(s) not as expected)

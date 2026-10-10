@@ -1,0 +1,575 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sat Oct 10 14:19:34 2026
+# Process ID         : 2310110
+# Current directory  : $PACKET/scratch/vivado
+# Command line       : vivado -mode batch -nojournal -log $PACKET/receipts/ooc/vivado_ooc.log -source $PACKET/scripts/r591_ooc.tcl -tclargs $PACKET/receipts/ooc
+# Log file           : $PACKET/receipts/ooc/vivado_ooc.log
+# Journal file       : 
+# Running On         : <host>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.346 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 83822 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $PACKET/scripts/r591_ooc.tcl
+# set out [lindex $argv 0]
+# foreach variant {base tree} {
+#     read_verilog $out/harness_$variant.v
+#     synth_design -mode out_of_context -top r591_crossings -part xc7a100tfgg484-2 \
+#         -directive AreaOptimized_high
+#     report_utilization -file $out/util_$variant.rpt
+#     set fh [open $out/cells_$variant.tsv w]
+#     puts $fh "cell\tref\tRAM_MODE\tWRITE_MODE_A\tWRITE_MODE_B\tDOA_REG\tDOB_REG\tREAD_WIDTH_A\tWRITE_WIDTH_B"
+#     foreach c [lsort [get_cells -hierarchical -filter {REF_NAME =~ RAMB* || REF_NAME =~ RAM32* || REF_NAME =~ RAM64* || REF_NAME =~ RAM128* || REF_NAME =~ SRL*}]] {
+#         set r [get_property REF_NAME $c]
+#         if {[string match RAMB* $r]} {
+#             puts $fh "$c\t$r\t[get_property RAM_MODE $c]\t[get_property WRITE_MODE_A $c]\t[get_property WRITE_MODE_B $c]\t[get_property DOA_REG $c]\t[get_property DOB_REG $c]\t[get_property READ_WIDTH_A $c]\t[get_property WRITE_WIDTH_B $c]"
+#         } else {
+#             puts $fh "$c\t$r\t-\t-\t-\t-\t-\t-\t-"
+#         }
+#     }
+#     close $fh
+#     close_design
+# }
+Command: synth_design -mode out_of_context -top r591_crossings -part xc7a100tfgg484-2 -directive AreaOptimized_high
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 2310386
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2206.711 ; gain = 206.250 ; free physical = 15003 ; free virtual = 79372
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'r591_crossings' [$PACKET/receipts/ooc/harness_base.v:2]
+INFO: [Synth 8-6155] done synthesizing module 'r591_crossings' (0#1) [$PACKET/receipts/ooc/harness_base.v:2]
+WARNING: [Synth 8-6014] Unused sequential element memadr_reg was removed.  [$PACKET/receipts/ooc/harness_base.v:1157]
+WARNING: [Synth 8-6014] Unused sequential element memadr_2_reg was removed.  [$PACKET/receipts/ooc/harness_base.v:1173]
+WARNING: [Synth 8-6014] Unused sequential element memadr_4_reg was removed.  [$PACKET/receipts/ooc/harness_base.v:1189]
+WARNING: [Synth 8-6014] Unused sequential element memadr_6_reg was removed.  [$PACKET/receipts/ooc/harness_base.v:1205]
+WARNING: [Synth 8-6014] Unused sequential element memadr_8_reg was removed.  [$PACKET/receipts/ooc/harness_base.v:1221]
+WARNING: [Synth 8-6014] Unused sequential element memadr_10_reg was removed.  [$PACKET/receipts/ooc/harness_base.v:1237]
+WARNING: [Synth 8-6014] Unused sequential element memadr_12_reg was removed.  [$PACKET/receipts/ooc/harness_base.v:1253]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2289.648 ; gain = 289.188 ; free physical = 14568 ; free virtual = 79018
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2304.492 ; gain = 304.031 ; free physical = 14645 ; free virtual = 79139
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2304.492 ; gain = 304.031 ; free physical = 14625 ; free virtual = 79129
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2313.398 ; gain = 312.938 ; free physical = 14498 ; free virtual = 79066
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input    5 Bit       Adders := 8     
+	   2 Input    3 Bit       Adders := 20    
++---XORs : 
+	   2 Input      5 Bit         XORs := 4     
+	   2 Input      3 Bit         XORs := 10    
++---Registers : 
+	               74 Bit    Registers := 2     
+	                5 Bit    Registers := 16    
+	                3 Bit    Registers := 40    
+	                2 Bit    Registers := 5     
+	                1 Bit    Registers := 2     
++---RAMs : 
+	               1K Bit	(16 X 74 bit)          RAMs := 2     
+	              152 Bit	(4 X 38 bit)          RAMs := 1     
+	              148 Bit	(4 X 37 bit)          RAMs := 2     
+	              144 Bit	(4 X 36 bit)          RAMs := 1     
+	               16 Bit	(4 X 4 bit)          RAMs := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 2479.289 ; gain = 478.828 ; free physical = 15928 ; free virtual = 79739
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name    | RTL Object    | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|r591_crossings | storage_reg   | 16 x 74(NO_CHANGE)     | W |   | 16 x 74(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
+|r591_crossings | storage_1_reg | 16 x 74(NO_CHANGE)     | W |   | 16 x 74(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++---------------+---------------+-----------+----------------------+-------------+
+|Module Name    | RTL Object    | Inference | Size (Depth x Width) | Primitives  | 
++---------------+---------------+-----------+----------------------+-------------+
+|r591_crossings | storage_4_reg | Implied   | 4 x 4                | RAM32M x 1  | 
+|r591_crossings | storage_6_reg | Implied   | 4 x 36               | RAM32M x 6  | 
+|r591_crossings | storage_2_reg | Implied   | 4 x 37               | RAM32M x 7  | 
+|r591_crossings | storage_3_reg | Implied   | 4 x 38               | RAM32M x 7  | 
+|r591_crossings | storage_5_reg | Implied   | 4 x 37               | RAM32M x 7  | 
++---------------+---------------+-----------+----------------------+-------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2479.289 ; gain = 478.828 ; free physical = 15928 ; free virtual = 79739
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name    | RTL Object    | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|r591_crossings | storage_reg   | 16 x 74(NO_CHANGE)     | W |   | 16 x 74(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
+|r591_crossings | storage_1_reg | 16 x 74(NO_CHANGE)     | W |   | 16 x 74(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++---------------+---------------+-----------+----------------------+-------------+
+|Module Name    | RTL Object    | Inference | Size (Depth x Width) | Primitives  | 
++---------------+---------------+-----------+----------------------+-------------+
+|r591_crossings | storage_4_reg | Implied   | 4 x 4                | RAM32M x 1  | 
+|r591_crossings | storage_6_reg | Implied   | 4 x 36               | RAM32M x 6  | 
+|r591_crossings | storage_2_reg | Implied   | 4 x 37               | RAM32M x 7  | 
+|r591_crossings | storage_3_reg | Implied   | 4 x 38               | RAM32M x 7  | 
+|r591_crossings | storage_5_reg | Implied   | 4 x 37               | RAM32M x 7  | 
++---------------+---------------+-----------+----------------------+-------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance storage_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance storage_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance storage_1_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance storage_1_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2479.289 ; gain = 478.828 ; free physical = 15926 ; free virtual = 79737
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.102 ; gain = 662.641 ; free physical = 15414 ; free virtual = 79228
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.102 ; gain = 662.641 ; free physical = 15414 ; free virtual = 79228
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.102 ; gain = 662.641 ; free physical = 15414 ; free virtual = 79228
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2663.102 ; gain = 662.641 ; free physical = 15414 ; free virtual = 79228
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2666.070 ; gain = 665.609 ; free physical = 15410 ; free virtual = 79224
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2666.070 ; gain = 665.609 ; free physical = 15410 ; free virtual = 79224
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |LUT2     |    11|
+|2     |LUT3     |    26|
+|3     |LUT4     |    34|
+|4     |LUT5     |    30|
+|5     |LUT6     |    16|
+|6     |RAM32M   |    25|
+|7     |RAM32X1D |     4|
+|8     |RAMB18E1 |     2|
+|9     |RAMB36E1 |     2|
+|10    |FDRE     |   206|
++------+---------+------+
+
+Report Instance Areas: 
++------+---------+-------+------+
+|      |Instance |Module |Cells |
++------+---------+-------+------+
+|1     |top      |       |   356|
++------+---------+-------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2666.070 ; gain = 665.609 ; free physical = 15410 ; free virtual = 79224
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 7 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2666.070 ; gain = 665.609 ; free physical = 15412 ; free virtual = 79225
+Synthesis Optimization Complete : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2666.078 ; gain = 665.609 ; free physical = 15408 ; free virtual = 79221
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2678.945 ; gain = 0.000 ; free physical = 15551 ; free virtual = 79364
+INFO: [Netlist 29-17] Analyzing 33 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3013.621 ; gain = 0.000 ; free physical = 15472 ; free virtual = 79286
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 29 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 25 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 4 instances
+
+Synth Design complete | Checksum: 64519e0e
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+19 Infos, 7 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:17 ; elapsed = 00:00:16 . Memory (MB): peak = 3016.590 ; gain = 1016.129 ; free physical = 15483 ; free virtual = 79296
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2238.629; main = 2238.629; forked = 346.316
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3544.711; main = 3016.594; forked = 1032.418
+Command: synth_design -mode out_of_context -top r591_crossings -part xc7a100tfgg484-2 -directive AreaOptimized_high
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14410 ; free virtual = 78415
+---------------------------------------------------------------------------------
+CRITICAL WARNING: [Synth 8-9873] overwriting previous definition of module 'r591_crossings' [$PACKET/receipts/ooc/harness_tree.v:1407]
+INFO: [Synth 8-13127] previous definition of module 'r591_crossings' is here [$PACKET/receipts/ooc/harness_base.v:1263]
+INFO: [Synth 8-6157] synthesizing module 'r591_crossings' [$PACKET/receipts/ooc/harness_tree.v:2]
+INFO: [Synth 8-6155] done synthesizing module 'r591_crossings' (0#1) [$PACKET/receipts/ooc/harness_tree.v:2]
+WARNING: [Synth 8-6014] Unused sequential element memadr_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1237]
+WARNING: [Synth 8-6014] Unused sequential element memadr_2_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1253]
+WARNING: [Synth 8-6014] Unused sequential element memadr_4_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1269]
+WARNING: [Synth 8-6014] Unused sequential element memadr_6_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1285]
+WARNING: [Synth 8-6014] Unused sequential element memadr_8_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1301]
+WARNING: [Synth 8-6014] Unused sequential element memadr_10_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1317]
+WARNING: [Synth 8-6014] Unused sequential element memadr_12_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1333]
+WARNING: [Synth 8-6014] Unused sequential element memadr_14_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1349]
+WARNING: [Synth 8-6014] Unused sequential element memadr_16_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1365]
+WARNING: [Synth 8-6014] Unused sequential element memadr_18_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1381]
+WARNING: [Synth 8-6014] Unused sequential element memadr_20_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1397]
+WARNING: [Synth 8-6014] Unused sequential element memadr_3_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1257]
+WARNING: [Synth 8-6014] Unused sequential element memadr_7_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1289]
+WARNING: [Synth 8-6014] Unused sequential element memadr_17_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1369]
+WARNING: [Synth 8-6014] Unused sequential element memadr_21_reg was removed.  [$PACKET/receipts/ooc/harness_tree.v:1401]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14593 ; free virtual = 78598
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14580 ; free virtual = 78585
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14575 ; free virtual = 78581
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14547 ; free virtual = 78553
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input    5 Bit       Adders := 8     
+	   2 Input    3 Bit       Adders := 20    
++---XORs : 
+	   2 Input      5 Bit         XORs := 4     
+	   2 Input      3 Bit         XORs := 10    
++---Registers : 
+	               72 Bit    Registers := 2     
+	                5 Bit    Registers := 16    
+	                3 Bit    Registers := 40    
+	                2 Bit    Registers := 7     
+	                1 Bit    Registers := 2     
++---RAMs : 
+	               1K Bit	(16 X 72 bit)          RAMs := 2     
+	              148 Bit	(4 X 37 bit)          RAMs := 2     
+	              144 Bit	(4 X 36 bit)          RAMs := 1     
+	              136 Bit	(4 X 34 bit)          RAMs := 1     
+	               16 Bit	(4 X 4 bit)          RAMs := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-6849] Infeasible attribute ram_style = "block" set for RAM "r591_crossings/storage_9_reg",trying to implement using LUTRAM
+WARNING: [Synth 8-6849] Infeasible attribute ram_style = "block" set for RAM "r591_crossings/storage_9_reg",trying to implement using LUTRAM
+WARNING: [Synth 8-6849] Infeasible attribute ram_style = "block" set for RAM "r591_crossings/storage_9_reg",trying to implement using LUTRAM
+WARNING: [Synth 8-6849] Infeasible attribute ram_style = "block" set for RAM "r591_crossings/storage_9_reg",trying to implement using LUTRAM
+WARNING: [Synth 8-6849] Infeasible attribute ram_style = "block" set for RAM "r591_crossings/storage_7_reg",trying to implement using LUTRAM
+WARNING: [Synth 8-6849] Infeasible attribute ram_style = "block" set for RAM "r591_crossings/storage_7_reg",trying to implement using LUTRAM
+WARNING: [Synth 8-6849] Infeasible attribute ram_style = "block" set for RAM "r591_crossings/storage_7_reg",trying to implement using LUTRAM
+WARNING: [Synth 8-6849] Infeasible attribute ram_style = "block" set for RAM "r591_crossings/storage_7_reg",trying to implement using LUTRAM
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:07 ; elapsed = 00:00:08 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14518 ; free virtual = 78524
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name    | RTL Object    | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|r591_crossings | storage_reg   | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|r591_crossings | storage_2_reg | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++---------------+----------------+----------------+----------------------+---------------+
+|Module Name    | RTL Object     | Inference      | Size (Depth x Width) | Primitives    | 
++---------------+----------------+----------------+----------------------+---------------+
+|r591_crossings | storage_5_reg  | Implied        | 4 x 4                | RAM32M x 1    | 
+|r591_crossings | storage_9_reg  | Implied        | 4 x 34               | RAM32M x 6    | 
+|r591_crossings | storage_10_reg | User Attribute | 4 x 2                | RAM16X1D x 2  | 
+|r591_crossings | storage_4_reg  | Implied        | 4 x 37               | RAM32M x 7    | 
+|r591_crossings | storage_7_reg  | Implied        | 4 x 36               | RAM32M x 6    | 
+|r591_crossings | storage_8_reg  | User Attribute | 4 x 2                | RAM16X1D x 2  | 
+|r591_crossings | storage_6_reg  | Implied        | 4 x 37               | RAM32M x 7    | 
+|r591_crossings | storage_1_reg  | User Attribute | 16 x 2               | RAM16X1D x 2  | 
+|r591_crossings | storage_3_reg  | User Attribute | 16 x 2               | RAM16X1D x 2  | 
++---------------+----------------+----------------+----------------------+---------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:07 ; elapsed = 00:00:08 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14482 ; free virtual = 78488
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name    | RTL Object    | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|r591_crossings | storage_reg   | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|r591_crossings | storage_2_reg | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
++---------------+---------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++---------------+----------------+----------------+----------------------+---------------+
+|Module Name    | RTL Object     | Inference      | Size (Depth x Width) | Primitives    | 
++---------------+----------------+----------------+----------------------+---------------+
+|r591_crossings | storage_5_reg  | Implied        | 4 x 4                | RAM32M x 1    | 
+|r591_crossings | storage_9_reg  | Implied        | 4 x 34               | RAM32M x 6    | 
+|r591_crossings | storage_10_reg | User Attribute | 4 x 2                | RAM16X1D x 2  | 
+|r591_crossings | storage_4_reg  | Implied        | 4 x 37               | RAM32M x 7    | 
+|r591_crossings | storage_7_reg  | Implied        | 4 x 36               | RAM32M x 6    | 
+|r591_crossings | storage_8_reg  | User Attribute | 4 x 2                | RAM16X1D x 2  | 
+|r591_crossings | storage_6_reg  | Implied        | 4 x 37               | RAM32M x 7    | 
+|r591_crossings | storage_1_reg  | User Attribute | 16 x 2               | RAM16X1D x 2  | 
+|r591_crossings | storage_3_reg  | User Attribute | 16 x 2               | RAM16X1D x 2  | 
++---------------+----------------+----------------+----------------------+---------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance storage_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance storage_2_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:07 ; elapsed = 00:00:08 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14492 ; free virtual = 78497
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14484 ; free virtual = 78490
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14480 ; free virtual = 78486
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14476 ; free virtual = 78481
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14476 ; free virtual = 78481
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14476 ; free virtual = 78481
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14476 ; free virtual = 78481
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |LUT2     |    11|
+|2     |LUT3     |    22|
+|3     |LUT4     |    34|
+|4     |LUT5     |    28|
+|5     |LUT6     |    22|
+|6     |RAM16X1D |     8|
+|7     |RAM32M   |    25|
+|8     |RAM32X1D |     2|
+|9     |RAMB36E1 |     2|
+|10    |FDRE     |   210|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14476 ; free virtual = 78481
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 1 critical warnings and 23 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14463 ; free virtual = 78469
+Synthesis Optimization Complete : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3024.629 ; gain = 8.004 ; free physical = 14464 ; free virtual = 78470
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3024.629 ; gain = 0.000 ; free physical = 14459 ; free virtual = 78465
+INFO: [Netlist 29-17] Analyzing 37 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3024.629 ; gain = 0.000 ; free physical = 14604 ; free virtual = 78610
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 35 instances were transformed.
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 8 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 25 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 2 instances
+
+Synth Design complete | Checksum: b8a42311
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+36 Infos, 30 Warnings, 1 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:17 ; elapsed = 00:00:15 . Memory (MB): peak = 3031.531 ; gain = 14.941 ; free physical = 14500 ; free virtual = 78507
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2402.738; main = 2253.394; forked = 346.129
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4057.016; main = 3031.535; forked = 1032.418
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 10 14:20:10 2026...

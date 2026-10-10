@@ -1,0 +1,133 @@
+test_retained_cdc_storage: the retained crossings keep their function (#640 M2)
+  [ok  ] csr_ar depth: 10/22: took 4 of 4 with the reader stalled
+  [ok  ] csr_ar depth: 14/6: took 4 of 4 with the reader stalled
+VERDICT csr_ar depth PASS
+  [ok  ] csr_ar lockstep: 10/22: every edge equal
+  [ok  ] csr_ar lockstep: 14/6: every edge equal
+VERDICT csr_ar lockstep PASS
+  [ok  ] csr_ar order: 10/22: 247 random beats
+  [ok  ] csr_ar order: 14/6: 247 random beats
+VERDICT csr_ar order PASS
+  [ok  ] csr_ar reset: 10/22: 0 beat(s) after the reset, exact after: True, full depth after: True, exact through a MAC reinit: True
+  [ok  ] csr_ar reset: 14/6: 0 beat(s) after the reset, exact after: True, full depth after: True, exact through a MAC reinit: True
+VERDICT csr_ar reset PASS
+  [FAIL] csr_ar storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+  [FAIL] csr_ar storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+VERDICT csr_ar storage FAIL
+  [ok  ] csr_aw depth: 10/22: took 4 of 4 with the reader stalled
+  [ok  ] csr_aw depth: 14/6: took 4 of 4 with the reader stalled
+VERDICT csr_aw depth PASS
+  [ok  ] csr_aw lockstep: 10/22: every edge equal
+  [ok  ] csr_aw lockstep: 14/6: every edge equal
+VERDICT csr_aw lockstep PASS
+  [ok  ] csr_aw order: 10/22: 227 random beats
+  [ok  ] csr_aw order: 14/6: 232 random beats
+VERDICT csr_aw order PASS
+  [ok  ] csr_aw reset: 10/22: 0 beat(s) after the reset, exact after: True, full depth after: True, exact through a MAC reinit: True
+  [ok  ] csr_aw reset: 14/6: 0 beat(s) after the reset, exact after: True, full depth after: True, exact through a MAC reinit: True
+VERDICT csr_aw reset PASS
+  [FAIL] csr_aw storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+  [FAIL] csr_aw storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+VERDICT csr_aw storage FAIL
+  [ok  ] csr_b depth: 10/22: took 4 of 4 with the reader stalled
+  [ok  ] csr_b depth: 14/6: took 4 of 4 with the reader stalled
+VERDICT csr_b depth PASS
+  [ok  ] csr_b lockstep: 10/22: every edge equal
+  [ok  ] csr_b lockstep: 14/6: every edge equal
+VERDICT csr_b lockstep PASS
+  [ok  ] csr_b order: 10/22: 231 random beats
+  [ok  ] csr_b order: 14/6: 248 random beats
+VERDICT csr_b order PASS
+  [ok  ] csr_b reset: 10/22: 0 beat(s) after the reset, exact after: True, full depth after: True, exact through a MAC reinit: True
+  [ok  ] csr_b reset: 14/6: 0 beat(s) after the reset, exact after: True, full depth after: True, exact through a MAC reinit: True
+VERDICT csr_b reset PASS
+  [FAIL] csr_b storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+  [FAIL] csr_b storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+VERDICT csr_b storage FAIL
+  [FAIL] csr_r depth: 10/22: took 4 of 4 with the reader stalled
+  [FAIL] csr_r depth: 14/6: took 4 of 4 with the reader stalled
+VERDICT csr_r depth FAIL
+  [FAIL] csr_r lockstep: 10/22: source beat differs at t=44.5; source beat differs at t=63.6; source beat differs at t=64.5
+  [FAIL] csr_r lockstep: 14/6: source beat differs at t=3.0; source beat differs at t=4.0; source beat differs at t=5.0
+VERDICT csr_r lockstep FAIL
+  [FAIL] csr_r order: 10/22: 220 random beats
+  [FAIL] csr_r order: 14/6: 253 random beats
+VERDICT csr_r order FAIL
+  [FAIL] csr_r reset: 10/22: 0 beat(s) after the reset, exact after: False, full depth after: False, exact through a MAC reinit: False
+  [FAIL] csr_r reset: 14/6: 0 beat(s) after the reset, exact after: False, full depth after: False, exact through a MAC reinit: False
+VERDICT csr_r reset FAIL
+  [FAIL] csr_r storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+  [FAIL] csr_r storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+VERDICT csr_r storage FAIL
+  [FAIL] csr_w depth: 10/22: took 4 of 4 with the reader stalled
+  [FAIL] csr_w depth: 14/6: took 4 of 4 with the reader stalled
+VERDICT csr_w depth FAIL
+  [FAIL] csr_w lockstep: 10/22: source beat differs at t=4.0; source beat differs at t=5.0; source beat differs at t=6.0
+  [FAIL] csr_w lockstep: 14/6: source beat differs at t=8.6; source beat differs at t=21.4; source beat differs at t=90.4
+VERDICT csr_w lockstep FAIL
+  [FAIL] csr_w order: 10/22: 244 random beats
+  [FAIL] csr_w order: 14/6: 234 random beats
+VERDICT csr_w order FAIL
+  [FAIL] csr_w reset: 10/22: 0 beat(s) after the reset, exact after: False, full depth after: False, exact through a MAC reinit: False
+  [FAIL] csr_w reset: 14/6: 0 beat(s) after the reset, exact after: False, full depth after: False, exact through a MAC reinit: False
+VERDICT csr_w reset FAIL
+  [FAIL] csr_w storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+  [FAIL] csr_w storage: [(2, 2, 'distributed'), (2, 2, 'distributed'), (4, 4, None), (34, 2, 'block'), (36, 2, 'block'), (37, 4, None), (37, 4, None)]
+VERDICT csr_w storage FAIL
+  [FAIL] mac_rx depth: 10/22: took 17 of 17 with the reader stalled
+  [FAIL] mac_rx depth: 14/6: took 17 of 17 with the reader stalled
+VERDICT mac_rx depth FAIL
+  [FAIL] mac_rx lockstep: 10/22: source beat differs at t=7.0; source beat differs at t=8.0; source beat differs at t=9.0
+  [FAIL] mac_rx lockstep: 14/6: source beat differs at t=521.1; source beat differs at t=521.6; source beat differs at t=522.0
+VERDICT mac_rx lockstep FAIL
+  [FAIL] mac_rx order: 10/22: 256 random beats
+  [ok  ] mac_rx order: 14/6: 237 random beats
+VERDICT mac_rx order FAIL
+  [FAIL] mac_rx reset: 10/22: 0 beat(s) after the reset, exact after: False, full depth after: False
+  [FAIL] mac_rx reset: 14/6: 0 beat(s) after the reset, exact after: True, full depth after: False
+VERDICT mac_rx reset FAIL
+  [FAIL] mac_rx storage: [(2, 8, 'distributed'), (72, 8, 'block')]
+  [FAIL] mac_rx storage: [(2, 8, 'distributed'), (72, 8, 'block')]
+VERDICT mac_rx storage FAIL
+  [FAIL] mac_tx depth: 10/22: took 17 of 17 with the reader stalled
+  [FAIL] mac_tx depth: 14/6: took 17 of 17 with the reader stalled
+VERDICT mac_tx depth FAIL
+  [FAIL] mac_tx lockstep: 10/22: source beat differs at t=520.9; source beat differs at t=521.4; source beat differs at t=521.8
+  [FAIL] mac_tx lockstep: 14/6: source beat differs at t=12.0; source beat differs at t=13.0; source beat differs at t=14.0
+VERDICT mac_tx lockstep FAIL
+  [ok  ] mac_tx order: 10/22: 233 random beats
+  [FAIL] mac_tx order: 14/6: 243 random beats
+VERDICT mac_tx order FAIL
+  [FAIL] mac_tx reset: 10/22: 0 beat(s) after the reset, exact after: True, full depth after: False
+  [FAIL] mac_tx reset: 14/6: 0 beat(s) after the reset, exact after: False, full depth after: False
+VERDICT mac_tx reset FAIL
+  [FAIL] mac_tx storage: [(2, 8, 'distributed'), (72, 8, 'block')]
+  [FAIL] mac_tx storage: [(2, 8, 'distributed'), (72, 8, 'block')]
+VERDICT mac_tx storage FAIL
+test_retained_cdc_storage: 23 failure(s)
+RESULT: FAIL
+
+--- stderr ---
+FAIL: csr_ar storage
+FAIL: csr_aw storage
+FAIL: csr_b storage
+FAIL: csr_r depth
+FAIL: csr_r lockstep
+FAIL: csr_r order
+FAIL: csr_r reset
+FAIL: csr_r storage
+FAIL: csr_w depth
+FAIL: csr_w lockstep
+FAIL: csr_w order
+FAIL: csr_w reset
+FAIL: csr_w storage
+FAIL: mac_rx depth
+FAIL: mac_rx lockstep
+FAIL: mac_rx order
+FAIL: mac_rx reset
+FAIL: mac_rx storage
+FAIL: mac_tx depth
+FAIL: mac_tx lockstep
+FAIL: mac_tx order
+FAIL: mac_tx reset
+FAIL: mac_tx storage
