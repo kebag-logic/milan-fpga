@@ -235,9 +235,11 @@ module KL_gptp_shadow #(
   //! (512 x 72) instead of a RAMB36 plus a RAMB18 (issue #640, lane M7).
   //! RX keeps the HIGHEST enabled lane, the only thing the byte serializer
   //! ever reads from tkeep. TX keeps the beat's lane COUNT, 0..KEEP_W_C: the
-  //! gearbox only ever builds contiguous enables from lane 0, and count 0 is
-  //! the all-clear tkeep an empty FIFO output presents. Both FIFOs keep their
-  //! depth in beats, so the frame and overflow arithmetic is unchanged.
+  //! gearbox only ever builds contiguous enables from lane 0, and a
+  //! never-written FIFO word holds count 0, which decodes to the all-clear
+  //! tkeep; any other word decodes to exactly the mask the eight-bit FIFO
+  //! stored. Both FIFOs keep their depth in beats, so the frame and overflow
+  //! arithmetic is unchanged.
   localparam int unsigned LANE_W_C = 3;  //! ser_idx_r's width
   localparam int unsigned CNT_W_C  = 4;
   localparam int unsigned RX_FIFO_BEATS_C = RX_FIFO_BYTES_P / KEEP_W_C;
@@ -253,10 +255,10 @@ module KL_gptp_shadow #(
   localparam int unsigned DP_TICK_NS_C =
       (PHC_TICK_NS_P != 0) ? PHC_TICK_NS_P : 1_000_000_000 / CLK_HZ_P;
 
-  //! Beats the plane's transmit FIFO holds. The pinned `axis_fifo` takes
-  //! DEPTH in OCTETS when KEEP_ENABLE is set - `ADDR_WIDTH =
-  //! $clog2(DEPTH/KEEP_WIDTH)` - and rounds the beat count up to a power of
-  //! two, so this is the exact capacity and not an estimate.
+  //! Beats the plane's transmit FIFO holds. The pinned `axis_fifo` with
+  //! KEEP_ENABLE=0 takes DEPTH in beats (`ADDR_WIDTH = $clog2(DEPTH)`) and
+  //! rounds it up to a power of two, so this is the exact capacity and not
+  //! an estimate.
   localparam int unsigned TXF_BEATS_C =
       2 ** $clog2(TX_FIFO_BYTES_P / KEEP_W_C);
   //! the largest plane frame, in beats: the donor's own transmit slot size
@@ -873,8 +875,9 @@ module KL_gptp_shadow #(
     .pause_ack          ()
   );
 
-  //! tkeep from the lane count: lanes below the count are enabled, so an
-  //! empty FIFO's zero count presents the all-clear tkeep it always did
+  //! tkeep from the lane count: lanes below the count are enabled, so every
+  //! stored word, including a stale one an idle FIFO presents, decodes to
+  //! the mask the eight-bit FIFO held
   logic [KEEP_W_C-1:0] txf_keep_w;
   always_comb begin : tx_keep_decode
     for (int unsigned i = 0; i < KEEP_W_C; i++)

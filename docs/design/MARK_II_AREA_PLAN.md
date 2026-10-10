@@ -687,7 +687,8 @@ A block-RAM bank on the two freed RAMB18 was routed first, at `ba350298`.
 Its read result must merge with the state port's register.
 That merge fans out into three micro-CPU consumers.
 Placed, the engine level gained 165 logic LUTs for 86 LUTRAM sites freed.
-The remaining tables read two ports at once, write two at once, or read in parallel.
+The remaining tables were not converted: `rf_r` reads three ports at once, `ann_ctx_r` is written with the bank, `scratch_r` would need the bank's output merge, `evq_pd_ctx_r` is read 144 bits whole, and `evq_r` and the TX slot already sit at their primitive's depth.
+`tsf_r` (32 x 64, one write, one read) could take the two freed RAMB18 for at most 44 LUTRAM sites, at the cost of a one-cycle lag on its debug output; that option is left to a manager decision.
 
 Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrated-measurements) with the gate's flow identity:
 
