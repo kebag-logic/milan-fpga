@@ -19,11 +19,29 @@ under one the run leaves out, PART_OF), or be listed in OUTSIDE with the reason
 its compiles, if any, are none of the firmware's. Any other refuses the gate
 by name, and so does a compiler a builder runs by a path that is no wrapper.
 
-THE BUILD MODES: every -D and -U flag of every recorded invocation, exactly as
-the compiler was given it, whatever wrote it: a mode with each value the
-builds gave it. A macro the C implementation reserves (C11 7.1.3) is not a
-mode. The image's stream counts are their own dimension (image_dim); a
-recorded value of theirs that no shipped shape gives refuses the gate.
+THE BUILD MODES: the macros of every recorded invocation as the compiler's own
+expansion of it reports them (ctrl_expand, THE EXPANSION), never as a reader
+parses its arguments: each macro its translation unit has defined when its
+source begins, other than by the C library's headers or a generated header
+a dimension models, with its value (the driver's built-ins, the command line
+in any spelling, a file of the checkout read first), and each the command
+line or such a file leaves undefined, or the same driver predefines with no
+argument and the invocation does not. A macro the C implementation reserves
+(C11 7.1.3) is not a mode. The image's stream counts are their own dimension
+(image_dim); a recorded value of theirs that no shipped shape gives refuses
+the gate.
+
+THE FILES READ FIRST: every file the expansion read before its source
+(-include, -imacros, in any spelling, and what those include). The
+implementation's (a file the baseline reads, or one in a directory it
+searches) and a generated header a dimension models by content (a shipped
+config's SRP shape header, a mailbox contract variant) are modeled. A file of
+the checkout outside the stack is judged as a firmware unit, and a stack
+public header is one; any other (a file of the stack that is not public, a
+file outside the checkout) refuses the gate by name, and so does a file of
+the checkout read first into a compile of the stack's own sources. An
+invocation the compiler could not expand, or whose expansion is none
+(ctrl_expand.refusal), refuses the gate by name.
 
 THE SHAPES: every shipped config (configs/*.yaml), each a shape the image
 builders take. For each, the image builder's own ctrl_image.shape_build writes
@@ -36,11 +54,12 @@ THE MAILBOX CONTRACT: the tracked one, and the variant its generator writes
 (gen_mailbox.py --variant-interfaces) for every interface count it admits,
 counting up from one until it refuses.
 
-THE C++ SOURCES: the source of every recorded C++ invocation, as the compiler
-read it: the trees' file where it is one, else the text the capture kept, with
-the directories that invocation searched and the headers outside the checkout
-the capture kept beside it. A C++ compile of a source that was no file, or of
-its standard input, refuses the gate by name.
+THE C++ SOURCES: the source of every invocation whose expansion compiles it as
+C++, as the compiler read it: the trees' file where it is one, else the text
+the capture kept, with the directories that invocation's expansion searched
+and the headers outside the checkout the capture kept beside it; and every
+file of the checkout it read first. A C++ compile of a source that was no
+file, or of its standard input, refuses the gate by name.
 
 Each way a builder varies a unit's build is a dimension (Dim): its
 alternatives, the one the search holds it at, and what in a preprocessing
@@ -50,6 +69,7 @@ shows that the unit depends on it.
 from __future__ import annotations
 
 import atexit
+import hashlib
 import itertools
 import os
 import re
@@ -63,8 +83,9 @@ from functools import cached_property, lru_cache
 from pathlib import Path
 
 import ctrl_image
-from ctrl_build import CTRL, HERE, ROOT, Refusal
-from ctrl_capture import Capture
+from ctrl_build import CTRL, HERE, ROOT, STACK, STACK_INCLUDE, Refusal
+from ctrl_capture import Capture, Expansion, Invocation
+from ctrl_expand import BUILTIN, COMMAND_LINE
 from srp_arms import DEFAULT_ENTITY
 
 sys.path.insert(0, str(ROOT / "sw/builder"))
@@ -72,7 +93,8 @@ from endstation_builder import ConfigError  # noqa: E402
 
 #: The boundary gate's own modules: never a builder.
 GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_capture.py", "ctrl_configs.py", "ctrl_pin.py",
-                                          "ctrl_plants.py", "ctrl_shim.py", "ctrl_runs.py"))
+                                          "ctrl_plants.py", "ctrl_shim.py", "ctrl_expand.py",
+                                          "ctrl_runs.py"))
 #: The shipped configs: each a shape the image builders take (ctrl_image.py --shape, ctrl_srp_image.py --config).
 CONFIGS = ROOT / "configs"
 #: The mailbox contract's generator, which writes the contract for another interface count.
@@ -86,6 +108,9 @@ FORCED = "srp_entity_gen.h"
 BUILDER_NAMES = ("sw/firmware/ctrl", "ctrl_build")
 #: A -D or -U flag, its macro's name in group 1 (a function-like macro's parameters after it).
 FLAG = re.compile(r"-[DU]([A-Za-z_]\w*)(?:\([^)]*\))?(?:=.*)?", re.S)
+#: What a file an expansion read first is (read_first, kind_of).
+IMPLEMENTATION, TOOL, MODELED, OWN = "the compiler's own", "an installed tool's", "a header a dimension models", \
+    "the builders'"
 #: The digest the recorder gives an installed tool's own C++ source, which is not followed (ctrl_shim.RECORDER).
 INSTALLED = "installed"
 #: A macro name the C implementation reserves (C11 7.1.3): never a firmware mode.
@@ -108,7 +133,7 @@ class Builder:
 
 #: The known set: every builder of the firmware that compiles. The hosted firmware-unit job runs the first four
 #: under the capture (rtl-fast.yml); the gate runs the stack's gate and the image builders itself on every run
-#: (ctrl_runs.OWNED); the last three need Verilator, which the hosted job has none of.
+#: (ctrl_runs.owned); the last three need Verilator, which the hosted job has none of.
 BUILDERS = (
     Builder("sw/firmware/gtest/fw_rv32_selftest.py",
             (("{python}", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"),)),
@@ -261,10 +286,12 @@ def left_out(without: frozenset[str]) -> list[Builder]:
     return [b for b in BUILDERS if b.needs and b.needs in without]
 
 
-def held(capture: Capture, without: frozenset[str], planted: dict[Path, str] | None = None) -> None:
+def held(capture: Capture, without: frozenset[str], planted: dict[Path, str] | None = None,
+         trees: tuple[Path, Path] = (CTRL, STACK)) -> None:
     """Refuse, by name, a known builder the capture holds no invocation of, a builder found by text that compiled
-    nothing in it and is none of BUILDERS, PART_OF or OUTSIDE, and a compiler a builder ran by a path that is no
-    wrapper."""
+    nothing in it and is none of BUILDERS, PART_OF or OUTSIDE, a compiler a builder ran by a path that is no
+    wrapper, and an invocation whose expansion is none or reads a file first that is not modeled (expanded; a
+    file of the trees judged, the ctrl tree's and the stack's, is the checkout's)."""
     out = {b.path for b in left_out(without)}
     known = {b.path for b in BUILDERS}
     reasons = [f"the capture holds no invocation of {b.path}, a builder of the firmware that compiles"
@@ -279,6 +306,9 @@ def held(capture: Capture, without: frozenset[str], planted: dict[Path, str] | N
         reasons.append(f"{', '.join(bypass['from']) or 'a builder'} ran {bypass['bypass']}, a compiler the capture "
                        "does not wrap, so it records none of that compiler's invocations")
     reasons += [reason for leaf in capture.leaves for reason in once("unkept", leaf, unkept)]
+    where = places(trees)
+    reasons += [reason for leaf in capture.leaves for reason in
+                once(f"expanded {where}", leaf, lambda c: expanded(c, where))]
     if reasons:
         raise Refusal("; ".join(dict.fromkeys(reasons)))
 
@@ -306,6 +336,122 @@ def once(kind: str, capture: Capture, read: Callable[[Capture], object]) -> obje
     return known[1]
 
 
+def command(inv: Invocation) -> str:
+    """An invocation, named: who ran it and how (its arguments cut short)."""
+    words = " ".join([inv.tool, *inv.args])
+    return f"{', '.join(sorted(inv.builders)) or 'a builder'} ran {words[:200]}{' ...' if len(words) > 200 else ''}"
+
+
+@lru_cache(maxsize=None)
+def modeled() -> frozenset[str]:
+    """The digests of the generated headers a dimension models when a build reads one first: every shipped
+    config's SRP shape header (the forced dimension, at each shape) and every mailbox contract variant."""
+    found = variants()
+    headers = [gen / FORCED for gen, _ in found.shapes.values()] + list(found.contracts.values())
+    return frozenset(hashlib.sha256(h.read_bytes()).hexdigest() for h in headers if h.is_file())
+
+
+def expansions(inv: Invocation) -> list[Expansion]:
+    """An invocation's expansion, then those of the compiles that made each precompiled header it read first."""
+    return [inv.expansion, *inv.first] if inv.expansion is not None else []
+
+
+def read_first(inv: Invocation) -> list[tuple[str, str]]:
+    """Every file an invocation read before its source, resolved, with what it is: the implementation's (its
+    baseline read it, or it lies in a directory its baseline searches), an installed tool's (as the recorder
+    judges a C++ source), a header a dimension models (by content), or the builders' own. A precompiled header's
+    header and what it read are read first by every compile that reads the precompiled header."""
+    return once_read_first(tuple(expansions(inv)))
+
+
+@lru_cache(maxsize=None)
+def once_read_first(made: tuple[Expansion, ...]) -> list[tuple[str, str]]:
+    """read_first of a tuple of expansions, made once."""
+    own = frozenset().union(*(b.own for e in made for _, b in e.baseline))
+    found: dict[str, str] = {}
+    for exp in made:
+        for _, where, digest, tool in (*exp.entered, *(exp.mains if exp is not made[0] else ())):
+            if where in own or any(where.startswith(d.rstrip("/") + "/") for d in own):
+                found[where] = IMPLEMENTATION
+            else:
+                found[where] = TOOL if tool else MODELED if digest in modeled() else OWN
+    return list(found.items())
+
+
+def places(trees: tuple[Path, Path]) -> tuple[tuple[Path, ...], tuple[Path, ...]]:
+    """The checkout's places for the trees judged (the ctrl tree's and the stack's, the checkout's or copies):
+    every root of the checkout, and every stack."""
+    ctrl, stack = (t.resolve() for t in trees)
+    return tuple(dict.fromkeys((ROOT.resolve(), ctrl, stack))), tuple(dict.fromkeys((STACK.resolve(), stack)))
+
+
+def kind_of(where: str, places_of: tuple[tuple[Path, ...], tuple[Path, ...]]) -> str:
+    """Where a file read first lies: "public" (a stack's public header), "stack" (another file of a stack),
+    "checkout" (another file of the checkout, tracked, or of the trees judged), or "outside" (a build's own)."""
+    path, (tops, stacks) = Path(where), places_of
+    for stack in stacks:
+        if path.is_relative_to(stack):
+            return "public" if path.is_relative_to(stack / STACK_INCLUDE) else "stack"
+    return "checkout" if any(path.is_relative_to(top) for top in tops) and tracked(path) else "outside"
+
+
+def expanded(capture: Capture, where_of: tuple[tuple[Path, ...], tuple[Path, ...]]) -> list[str]:
+    """Each invocation the capture could not have expanded, whose expansion is none, or whose expansion read a file
+    first that is neither the implementation's, nor modeled, nor a file of the checkout outside the stack (or a
+    public header of it) read into a compile that is not of the stack's own sources."""
+    stacks = where_of[1]
+    reasons = []
+    for inv in capture.invocations:
+        made = inv.expansion
+        if inv.failed or made is not None and made.error:
+            reasons.append(f"{command(inv)}, which the compiler could not expand: {inv.failed or made.error}")
+            continue
+        if made is None:
+            continue
+        ours = [(where, kind_of(where, where_of)) for where, what in read_first(inv) if what == OWN]
+        inputs = [Path(path) for path, _, _ in inv.sources if path != "-"]
+        stack_own = any(path.is_relative_to(s) for path in inputs for s in stacks)
+        for where, kind in ours:
+            if kind == "stack":
+                reasons.append(f"{command(inv)}, which reads {where} first, a file of the stack that is not one of "
+                               "its public headers")
+            elif kind != "public" and stack_own:
+                reasons.append(f"{command(inv)}, which reads {where} first into a compile of the stack's own "
+                               "sources: not one of the stack's public headers")
+    return reasons
+
+
+def read_first_units(capture: Capture, trees: tuple[Path, Path]) -> list[Path]:
+    """The files of the checkout outside the stack that an invocation read first: each judged as a firmware unit."""
+    where_of = places(trees)
+    found: dict[Path, None] = {}
+    for leaf in capture.leaves:
+        for inv in once("by expansions", leaf, lambda c: list({(i.expansion.digest, *(e.digest for e in i.first)): i
+                                                               for i in c.invocations
+                                                               if i.expansion is not None}.values())):
+            for where, what in read_first(inv):
+                if what == OWN and kind_of(where, where_of) == "checkout" and tracked(Path(where)):
+                    found[Path(where)] = None
+    return list(found)
+
+
+def tracked(path: Path) -> bool:
+    """Whether a file is one the checkout tracks, or one of a copy of the trees a control judges (outside the
+    checkout): a build's own file under the checkout (a generated header in an object directory) is not."""
+    if not path.is_relative_to(ROOT.resolve()):
+        return path.is_file()
+    return path.relative_to(ROOT.resolve()).as_posix() in tracked_files()
+
+
+@lru_cache(maxsize=None)
+def tracked_files() -> frozenset[str]:
+    """Every file the checkout tracks, its submodules' included, listed once per run."""
+    res = run(["git", "-C", str(ROOT), "ls-files", "-z", "--recurse-submodules"])
+    if res.returncode:
+        raise Refusal(f"cannot list the checkout's files: {res.stderr.strip()}")
+    return frozenset(name for name in res.stdout.split("\0") if name)
+
+
 # ---- the build modes ------------------------------------------------------------------------
 
 
@@ -322,24 +468,68 @@ def derive(capture: Capture) -> dict[str, tuple[str, ...]]:
     return once("joined modes", capture, joined)
 
 
+def rendered(name: str, params: str, value: str | None) -> str:
+    """A macro's state as the flag that gives it: -DNAME when it is 1, -DNAME(params)=value, or -UNAME."""
+    if value is None:
+        return f"-U{name}"
+    return f"-D{name}" if not params and value == "1" else f"-D{name}{params}={value}"
+
+
+def flags_of(inv: Invocation) -> tuple[str, ...]:
+    """The build modes an invocation's expansion reports (THE BUILD MODES): for each unit (its own, and those of
+    the compiles that made each precompiled header it read first), every macro defined when its source begins,
+    as a flag, but those the implementation's files, an installed tool's or a modeled header last set; every one
+    the command line or a file of the builders' own last undefined; and every one the baseline predefines that it
+    lacks. Reserved names are left to the callers."""
+    return once_flags(tuple(expansions(inv)))
+
+
+@lru_cache(maxsize=None)
+def once_flags(made: tuple[Expansion, ...]) -> tuple[str, ...]:
+    """flags_of of a tuple of expansions, made once."""
+    ours = {where for where, what in once_read_first(made) if what == OWN}
+    flags: dict[str, None] = {}
+    for exp in made:
+        printed = {name: where for name, where, _, _ in (*exp.entered, *exp.mains)}
+        flags.update(dict.fromkeys(unit_flags(exp, printed, ours)))
+    return tuple(flags)
+
+
+def unit_flags(made: Expansion, printed: dict[str, str], ours: set[str]) -> list[str]:
+    """The flags of one expansion's units (once_flags), its files read by the name they were printed at."""
+    flags: dict[str, None] = {}
+    for unit in made.units:
+        table: dict[str, tuple[str, str | None]] = {n: (p, v) for n, p, v in unit.builtins}
+        last = dict.fromkeys(table, BUILTIN)
+        for where, name, params, value in unit.ops:
+            table[name], last[name] = (params, value), where
+        for name, where in last.items():
+            if where in (BUILTIN, *COMMAND_LINE) or printed.get(where) in ours:
+                flags[rendered(name, *table[name])] = None
+        base = made.base(unit.language)
+        for name, _, _ in base.builtins if base else ():
+            if table.get(name, ("", None))[1] is None:
+                flags[f"-U{name}"] = None
+    return list(flags)
+
+
 def modes_of(capture: Capture) -> dict[str, tuple[str, ...]]:
     """The build modes of one capture part."""
     image = image_dim()
-    given = {f for _, flags in image.alternatives for f in flags}
+    given = {state(f) for _, flags in image.alternatives for f in flags}
     found: dict[str, dict[str, None]] = {}
-    for inv in capture.invocations:
-        for flag in inv.flags:
-            if (m := FLAG.fullmatch(flag)) is None:
-                raise Refusal(f"{', '.join(sorted(inv.builders)) or 'a builder'} compiled with {flag!r}, a -D or -U "
-                              "flag whose macro the boundary cannot name")
-            if RESERVED.match(m[1]):
+    for inv in {(i.expansion.digest, *(e.digest for e in i.first)): i for i in capture.invocations
+                if i.expansion is not None and not i.expansion.error and not i.failed}.values():
+        for flag in flags_of(inv):
+            name = FLAG.fullmatch(flag)[1]
+            if RESERVED.match(name):
                 continue
-            if m[1] in image.macros:
-                if flag not in given:
-                    raise Refusal(f"{', '.join(sorted(inv.builders)) or 'a builder'} compiled with {flag}, a stream "
-                                  "count no shipped shape gives (ctrl_image.shape_build)")
+            if name in image.macros:
+                if state(flag) not in given:
+                    raise Refusal(f"{command(inv)}, which compiles with {flag}, a stream count no shipped shape "
+                                  "gives (ctrl_image.shape_build)")
                 continue
-            found.setdefault(m[1], {})[flag] = None
+            found.setdefault(name, {})[flag] = None
     return {name: tuple(flags) for name, flags in sorted(found.items())}
 
 
@@ -552,15 +742,15 @@ def sources_of(capture: Capture) -> dict[tuple[str, str], tuple[dict[str, None],
     kept beside it."""
     found: dict[tuple[str, str], tuple[dict[str, None], dict[str, str]]] = {}
     for inv in capture.invocations:
-        if not any(lang == "c++" for _, lang, _ in inv.sources):
+        if not any(lang == "c++" for _, lang, _ in inv.sources) or inv.expansion is None:
             continue
         kept = dict(inv.kept)
         starts = [(path, digest) for path, lang, digest in inv.sources
                   if lang == "c++" and digest and digest != INSTALLED]
-        forced = [(f, kept.get(f, "")) for f in inv.forced if f in kept or Path(f).is_relative_to(ROOT)]
+        forced = [(where, "") for where, what in read_first(inv) if what == OWN]
         for key in [*starts, *forced]:
             dirs, beside = found.setdefault(key, ({}, {}))
-            dirs.update(dict.fromkeys(inv.dirs))
+            dirs.update(dict.fromkeys(d for e in expansions(inv) for d in e.dirs))
             beside.update(kept)
     return found
 

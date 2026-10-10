@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""ctrl_shim.py - the recorder every compiler of a capture runs, and how a compiler's arguments read (#697).
+"""ctrl_shim.py - the recorder every compiler of a capture runs (#697).
 
 THE RECORDER. ctrl_capture.py compiles RECORDER, with the real C compiler,
 into the capture's bin/, and puts a wrapper there for every compiler name
@@ -9,103 +9,52 @@ and versioned names) that runs
 
     <recorder> <capture> <name> <real compiler> <argument>...
 
-It appends one record to <capture>/records.jsonl and then executes the real
-compiler with the same arguments, so what it compiles and writes is what it
-would have without the capture. A record holds the name the compiler was
-called by, the real compiler, the arguments, the working directory, every
-source with its language as parse() reads it (and, for C++, the digest of its
-text), the files it reads first (-include, -imacros) as the compiler finds
-them, the builder files on the Python stack of the process that started it
-(CTRL_CAPTURE_FROM, set by ctrl_capture's audit hook), the builder file of the
-command the capture ran it under (CTRL_CAPTURE_RUN, set by ctrl_capture.run),
-and the digest of the map of texts kept beside it. The text of every C++
-source, of a file a C++ compile reads first outside the checkout, and of every
-header outside the checkout a C++ source reaches in a builder's own
-directories (the temporary directory, the compile's, the source's) by its
-#include lines read as text in every branch, is kept under <capture>/text/ by
-its SHA-256, so a source a builder writes and deletes is still read. A C++
-source outside the checkout, the temporary directory and the compile's that
-was there before the capture began (its inode changed earlier than the
-capture's start marker's, CTRL_CAPTURE_START) is an installed tool's own
-(Verilator's runtime, which its builds compile): its digest is recorded as
-"installed", and nothing of it is kept or followed. A file a builder writes or
-copies anywhere is its own. It is C so that a compile costs the capture about
-a millisecond.
+It has the real compiler expand the invocation (THE EXPANSION), appends one
+record to <capture>/records.jsonl, and then executes the real compiler with
+the same arguments, so what it compiles and writes is what it would have
+without the capture. A record holds the name the compiler was called by, the
+real compiler, the arguments, the working directory, every input with the
+language the compiler's expansion gave it (and, for C++, the digest of its
+text), the digest of the expansion's report, the builder files on the Python
+stack of the process that started it (CTRL_CAPTURE_FROM, set by ctrl_capture's
+audit hook), the builder file of the command the capture ran it under
+(CTRL_CAPTURE_RUN, set by ctrl_capture.run), and the digest of the map of
+texts kept beside it. The text of every C++ source, and of every header
+outside the checkout a C++ source reaches in a builder's own directories (the
+temporary directory, the compile's, the source's) by its #include lines read
+as text in every branch against the directories the compiler reported, is
+kept under <capture>/text/ by its SHA-256, so a source a builder writes and
+deletes is still read. A C++ source outside the checkout, the temporary
+directory and the compile's that was there before the capture began (its
+inode changed earlier than the capture's start marker's, CTRL_CAPTURE_START)
+is an installed tool's own (Verilator's runtime, which its builds compile):
+its digest is recorded as "installed", and nothing of it is kept or followed.
+A file a builder writes or copies anywhere is its own. It is C so that a
+compile costs the capture about a millisecond.
 
 A record that cannot be written stops the compile (exit 2, the reason on
-standard error): a capture never misses an invocation silently.
+standard error), and so does a C++ source that reaches more headers than one
+compile keeps (CLOSURE): a capture never misses an invocation, or a header,
+silently.
 
-THE ARGUMENTS. parse() reads an invocation's arguments as the recorder does:
-the capture's reader takes the -D and -U flags and the directories searched
-from it.
+THE EXPANSION (ctrl_expand.py). Before it records, the recorder has the real
+compiler expand the invocation: the expansion's arguments are the
+invocation's, each input it takes for a source or a linker input replaced by
+an empty stand-in of the same suffix (<capture>/expand/in/<n><suffix>), the
+output and dependency options dropped, and -E -dD -v -fpch-preprocess added;
+a compile whose output is a precompiled header (.gch) keeps its real inputs.
+It reuses an expansion from <capture>/expand/ for the same expansion
+arguments, directory, environment and compiler while every file and
+directory it reported is unchanged, and only when every argument is one of
+the plain forms (PLAIN in RECORDER) and none holds a response file (@);
+otherwise it runs ctrl_expand.py's helper (CTRL_CAPTURE_EXPAND), which runs
+the compiler, keeps its report and writes the entry the recorder reads back.
 """
-
-from __future__ import annotations
-
-import re
-
-#: Options whose value is the next argument (GCC's and Clang's drivers), when not joined to it.
-SEPARATE = frozenset("""-o -x -I -D -U -include -imacros -isystem -iquote -idirafter -iprefix -iwithprefix
-    -iwithprefixbefore -isysroot --sysroot -MF -MT -MQ -L -l -T -Xlinker -Xassembler -Xpreprocessor -Xclang
-    -aux-info -dumpbase -dumpdir -wrapper -arch -target --target -e -u -z --param -A -B -G -imultilib
-    -iframework""".split())
-#: The options that name a directory searched for headers, and those that name a file read first.
-DIRS = ("-I", "-iquote", "-isystem", "-idirafter")
-FORCED = ("-include", "-imacros")
-#: A source's language from its suffix, as the driver reads it.
-SUFFIX = {".c": "c", ".i": "c", ".h": "c", ".cc": "c++", ".cp": "c++", ".cxx": "c++", ".cpp": "c++",
-          ".CPP": "c++", ".c++": "c++", ".C": "c++", ".ii": "c++", ".hh": "c++", ".hpp": "c++", ".hxx": "c++",
-          ".H": "c++", ".tcc": "c++", ".s": "assembler", ".S": "assembler", ".sx": "assembler"}
-#: The -x languages that are C or C++.
-LANGUAGES = {"c": "c", "c-header": "c", "cpp-output": "c", "c++": "c++", "c++-header": "c++",
-             "c++-cpp-output": "c++", "objective-c": "c", "objective-c++": "c++"}
-#: A driver that compiles a C source as C++.
-CXX_DRIVER = re.compile(r"(?:^|[-/])(?:g\+\+|c\+\+|clang\+\+)(?:-[\d.]+)?$")
-
-
-def parse(name: str, args: list[str]) -> dict:
-    """What one invocation's arguments say: each source with its language (C or C++ only; anything else is
-    `other`), its -D and -U flags in order (joined), the directories it searches, the files it reads first.
-    RECORDER reads them alike."""
-    sources, flags, dirs, forced = [], [], [], []
-    language = None
-    cxx = bool(CXX_DRIVER.search(name))
-    at = 0
-    while at < len(args):
-        arg = args[at]
-        value = args[at + 1] if at + 1 < len(args) else ""
-        if arg in SEPARATE:
-            if arg in ("-D", "-U"):
-                flags.append(arg + value)
-            elif arg in DIRS:
-                dirs.append([arg, value])
-            elif arg in FORCED:
-                forced.append(value)
-            elif arg == "-x":
-                language = None if value == "none" else value
-            at += 2
-            continue
-        if arg.startswith(("-D", "-U")):
-            flags.append(arg)
-        elif arg.startswith(DIRS):
-            option = next(o for o in sorted(DIRS, key=len, reverse=True) if arg.startswith(o))
-            dirs.append([option, arg[len(option):]])
-        elif arg.startswith("-x") and len(arg) > 2:
-            language = None if arg[2:] == "none" else arg[2:]
-        elif arg == "-" or not arg.startswith("-"):
-            name = arg.rpartition("/")[2]
-            suffix = name[name.rfind("."):] if name.rfind(".") > 0 else ""
-            lang = LANGUAGES.get(language, "other") if language else SUFFIX.get(suffix, "other")
-            if cxx and lang == "c" and not language and suffix != ".i":
-                lang = "c++"
-            sources.append([arg, lang])
-        at += 1
-    return {"sources": sources, "flags": flags, "dirs": dirs, "forced": forced}
-
 
 #: The recorder (see THE RECORDER), C11 and POSIX.
 RECORDER = r'''/* ctrl_shim.py's recorder (#697): <recorder> <capture> <name> <real> <argument>... */
 #define _GNU_SOURCE
+#include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <stdint.h>
@@ -113,13 +62,16 @@ RECORDER = r'''/* ctrl_shim.py's recorder (#697): <recorder> <capture> <name> <r
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
-#define CLOSURE 256 /* how many headers one compile keeps beside its sources */
+#define CLOSURE 1024 /* how many headers one compile keeps beside its sources; more refuses the compile */
+
+extern char **environ;
 
 typedef struct { char *data; size_t len, cap; } Buf;
 typedef struct { char *path; char hex[65]; } Kept;
-typedef struct { Kept items[CLOSURE + 64]; int count; } Map;
+typedef struct { Kept items[CLOSURE]; int count; } Map;
 
 static void fail(const char *what, const char *detail)
 {
@@ -293,24 +245,40 @@ static int has(const Map *m, const char *path)
 
 static void add(Map *m, const char *capture, const char *path, const char *data, size_t len)
 {
-    if (has(m, path) || m->count >= (int)(sizeof m->items / sizeof m->items[0]))
+    if (has(m, path))
         return;
+    if (m->count >= CLOSURE)
+        fail("a C++ source reaches more headers than the capture keeps for one compile:", path);
     m->items[m->count].path = strdup(path);
     keep(capture, data, len, m->items[m->count].hex);
     m->count++;
 }
 
-/* ---- the arguments, as ctrl_shim.parse reads them ---- */
+/* ---- the arguments: which are inputs, which are outputs, which leave an expansion reusable ---- */
 
+/* Options whose value is the next argument (GCC's and Clang's drivers), when not joined to it. */
 static const char *const SEPARATE[] = {"-o", "-x", "-I", "-D", "-U", "-include", "-imacros", "-isystem",
     "-iquote", "-idirafter", "-iprefix", "-iwithprefix", "-iwithprefixbefore", "-isysroot", "--sysroot", "-MF",
-    "-MT", "-MQ", "-L", "-l", "-T", "-Xlinker", "-Xassembler", "-Xpreprocessor", "-Xclang", "-aux-info",
-    "-dumpbase", "-dumpdir", "-wrapper", "-arch", "-target", "--target", "-e", "-u", "-z", "--param", "-A", "-B",
-    "-G", "-imultilib", "-iframework", NULL};
-static const char *const DIRS[] = {"-idirafter", "-isystem", "-iquote", "-I", NULL}; /* longest first */
-static const char *const CXX_SUFFIXES[] = {".cc", ".cp", ".cxx", ".cpp", ".CPP", ".c++", ".C", ".ii", ".hh",
-                                           ".hpp", ".hxx", ".H", ".tcc", NULL};
-static const char *const ASM_SUFFIXES[] = {".s", ".S", ".sx", NULL};
+    "-MT", "-MQ", "-MJ", "-L", "-l", "-T", "-Xlinker", "-Xassembler", "-Xpreprocessor", "-Xclang", "-aux-info",
+    "-dumpbase", "-dumpbase-ext", "-dumpdir", "-wrapper", "-arch", "-target", "--target", "-e", "-u", "-z",
+    "--param", "-A", "-B", "-G", "-imultilib", "-iframework", "--define-macro", "--undefine-macro",
+    "--include-directory", "--include-directory-after", "--include-prefix", "--include-with-prefix",
+    "--include-with-prefix-after", "--include-with-prefix-before", "--include", "--imacros", "--language",
+    "--output", "--assert", "--dumpbase", "--dumpdir", "--for-linker", "--force-link", "--library-directory",
+    "--prefix", "--specs", "-isystem-after", "-cxx-isystem", "-iwithsysroot", "-include-pch", "-ivfsoverlay",
+    "-working-directory", "-resource-dir", "-gcc-toolchain", "-mllvm", NULL};
+/* Of those, the outputs: dropped from an expansion with their value. */
+static const char *const OUTPUTS[] = {"-o", "--output", "-MF", "-MT", "-MQ", "-MJ", NULL};
+/* Output and dependency options with no value, dropped from an expansion. */
+static const char *const FORMATS[] = {"-M", "-MM", "-MD", "-MMD", "-MP", "-MG", "-P", NULL};
+/* The plain forms: an argument of one of these kinds reads no file the expansion does not report. */
+static const char *const PLAIN_PREFIX[] = {"-D", "-U", "-I", "-iquote", "-isystem", "-idirafter", "-include",
+    "-imacros", "-std=", "-O", "-W", "-f", "-m", "-g", "-x", "-l", "-L", "--sysroot", "-isysroot", "-print-",
+    "-dump", "--param", NULL};
+static const char *const PLAIN[] = {"-c", "-S", "-E", "-v", "-w", "-H", "-C", "-CC", "-pipe", "-pthread",
+    "-pedantic", "-pedantic-errors", "--coverage", "-shared", "-static", "-pie", "-no-pie", "-rdynamic",
+    "-nostdlib", "-nostartfiles", "-nodefaultlibs", "-nostdinc", "-nostdinc++", "-undef", "-ansi", "-p", "-pg",
+    "-s", "--version", "-Xlinker", "-Xassembler", NULL};
 
 static int one_of(const char *s, const char *const *list)
 {
@@ -320,55 +288,242 @@ static int one_of(const char *s, const char *const *list)
     return 0;
 }
 
-/* A C++ driver's name: g++, c++ or clang++, after a start, a '-' or a '/', and before an optional -<version>. */
-static int cxx_driver(const char *name)
+static int prefixed(const char *s, const char *const *list)
 {
-    static const char *const drivers[] = {"clang++", "g++", "c++", NULL};
-    for (const char *p = name; *p; p++) {
-        if (p != name && p[-1] != '-' && p[-1] != '/')
-            continue;
-        for (int i = 0; drivers[i] != NULL; i++) {
-            size_t n = strlen(drivers[i]);
-            if (strncmp(p, drivers[i], n) != 0)
-                continue;
-            const char *q = p + n;
-            if (*q == '\0')
-                return 1;
-            if (*q == '-' && q[1] != '\0' && strspn(q + 1, "0123456789.") == strlen(q + 1))
-                return 1;
-        }
-    }
+    for (int i = 0; list[i] != NULL; i++)
+        if (strncmp(s, list[i], strlen(list[i])) == 0)
+            return 1;
     return 0;
 }
 
-/* A path's suffix, as parse() reads it: from the last '.' of its last part, unless that '.' begins it. */
+/* An output or format option with its value joined (-ofile, --output=file, -MFfile), or a -d letters option. */
+static int output(const char *arg)
+{
+    if (one_of(arg, FORMATS))
+        return 1;
+    if (arg[1] == 'o' && arg[2] != '\0' && strncmp(arg, "-objc", 5) != 0 && strncmp(arg, "-object", 7) != 0)
+        return 1;
+    if (!strncmp(arg, "--output=", 9))
+        return 1;
+    if ((!strncmp(arg, "-MF", 3) || !strncmp(arg, "-MT", 3) || !strncmp(arg, "-MQ", 3) || !strncmp(arg, "-MJ", 3))
+        && arg[3] != '\0')
+        return 1;
+    if (arg[1] == 'd' && arg[2] >= 'A' && arg[2] <= 'Z' && strspn(arg + 2, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") ==
+        strlen(arg + 2))
+        return 1;
+    return 0;
+}
+
+static int plain(const char *arg)
+{
+    if (strchr(arg, '@') != NULL || !strncmp(arg, "-fplugin", 8))
+        return 0;
+    return one_of(arg, PLAIN) || prefixed(arg, PLAIN_PREFIX);
+}
+
+/* A path's suffix: from the last '.' of its last part, unless that '.' begins it; "" when it holds more than
+ * letters, digits, '+' and '_' (a stand-in's name). */
 static const char *suffix_of(const char *path)
 {
     const char *base = strrchr(path, '/');
     base = base ? base + 1 : path;
     const char *dot = strrchr(base, '.');
-    return dot != NULL && dot != base ? dot : "";
+    if (dot == NULL || dot == base)
+        return "";
+    for (const char *p = dot + 1; *p; p++)
+        if (!(*p == '+' || *p == '_' || (*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'z') ||
+              (*p >= 'A' && *p <= 'Z')))
+            return "";
+    return dot;
 }
 
-static const char *language(const char *given, const char *arg, int cxx)
+/* An output, as a later compile names it: its directory resolved (it exists when the compile runs), then its name. */
+static char *produced(const char *cwd, const char *out)
 {
-    if (given != NULL) {
-        if (!strcmp(given, "c") || !strcmp(given, "c-header") || !strcmp(given, "cpp-output") ||
-            !strcmp(given, "objective-c"))
-            return "c";
-        if (!strcmp(given, "c++") || !strcmp(given, "c++-header") || !strcmp(given, "c++-cpp-output") ||
-            !strcmp(given, "objective-c++"))
-            return "c++";
-        return "other";
+    char *path = joined(cwd, out, 0), *slash = strrchr(path, '/'), *dir = NULL, *full = NULL;
+    if (slash == NULL || slash == path)
+        return path;
+    *slash = '\0';
+    dir = realpath(path, NULL);
+    if (dir == NULL) {
+        *slash = '/';
+        return path;
     }
-    const char *s = suffix_of(arg);
-    if (one_of(s, CXX_SUFFIXES))
-        return "c++";
-    if (!strcmp(s, ".c") || !strcmp(s, ".h"))
-        return cxx ? "c++" : "c";
-    if (!strcmp(s, ".i"))
-        return "c";
-    return one_of(s, ASM_SUFFIXES) ? "assembler" : "other";
+    if (asprintf(&full, "%s/%s", dir, slash + 1) < 0)
+        fail("out of memory", NULL);
+    free(dir);
+    free(path);
+    return full;
+}
+
+/* The empty stand-in of input `n`, of its suffix, made once per capture and read-only, so a compiler that would
+ * write its output there (a positional output) fails instead. */
+static char *stand_in(const char *capture, int n, const char *arg)
+{
+    char *path = NULL;
+    if (asprintf(&path, "%s/expand/in/%d%s", capture, n, suffix_of(arg)) < 0)
+        fail("out of memory", NULL);
+    int fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0444);
+    if (fd >= 0)
+        close(fd);
+    else if (errno != EEXIST)
+        fail("cannot make a stand-in at", path);
+    return path;
+}
+
+/* ---- the expansion's entry: what the helper found, and whether it still holds ---- */
+
+typedef struct {
+    char report[65];
+    int rc, fresh, valid;
+    const char **lang;
+    char **dirs;
+    int ndirs;
+    char error[400];
+} Entry;
+
+static int64_t nanos(struct timespec t) { return (int64_t)t.tv_sec * 1000000000 + t.tv_nsec; }
+
+/* One "file <dev> <ino> <size> <mtime ns> <ctime ns> <path>" line: whether that file is unchanged. */
+static int unchanged(const char *line)
+{
+    unsigned long long dev, ino;
+    long long size, mtime, ctime;
+    int at = 0;
+    struct stat st;
+    if (sscanf(line, "%llu %llu %lld %lld %lld %n", &dev, &ino, &size, &mtime, &ctime, &at) != 5 || at == 0)
+        return 0;
+    return stat(line + at, &st) == 0 && (unsigned long long)st.st_dev == dev &&
+           (unsigned long long)st.st_ino == ino && (long long)st.st_size == size && nanos(st.st_mtim) == mtime &&
+           nanos(st.st_ctim) == ctime;
+}
+
+/* The entry at `path`, read for `ninputs` inputs; `valid` when every file and directory it reported holds and it
+ * may be reused (a fresh one only right after the helper wrote it). */
+static void load(const char *path, int ninputs, int accept_fresh, Entry *e)
+{
+    size_t len = 0;
+    char *data = slurp(path, &len);
+    memset(e, 0, sizeof *e);
+    e->lang = calloc((size_t)ninputs + 1, sizeof *e->lang);
+    if (data == NULL || e->lang == NULL)
+        return;
+    int holds = 1, count = 0;
+    for (char *line = data; line != NULL && *line; ) {
+        char *end = strchr(line, '\n');
+        if (end != NULL)
+            *end = '\0';
+        count++;
+        struct stat st;
+        if (!strncmp(line, "report ", 7))
+            snprintf(e->report, sizeof e->report, "%s", line + 7);
+        else if (!strncmp(line, "rc ", 3))
+            e->rc = atoi(line + 3);
+        else if (!strncmp(line, "lang ", 5)) {
+            int k = atoi(line + 5);
+            char *l = strchr(line + 5, ' ');
+            if (k >= 0 && k < ninputs && l != NULL)
+                e->lang[k] = strdup(l + 1);
+        } else if (!strncmp(line, "dir ", 4)) {
+            char **more = realloc(e->dirs, (size_t)(e->ndirs + 1) * sizeof *more);
+            if (more == NULL)
+                fail("out of memory", NULL);
+            e->dirs = more;
+            e->dirs[e->ndirs++] = strdup(line + 4);
+            holds &= stat(line + 4, &st) == 0 && S_ISDIR(st.st_mode);
+        } else if (!strncmp(line, "nodir ", 6))
+            holds &= stat(line + 6, &st) != 0;
+        else if (!strncmp(line, "file ", 5))
+            holds &= unchanged(line + 5);
+        else if (!strcmp(line, "fresh"))
+            e->fresh = 1;
+        else if (!strncmp(line, "error ", 6))
+            snprintf(e->error, sizeof e->error, "%s", line + 6);
+        line = end != NULL ? end + 1 : NULL;
+    }
+    free(data);
+    e->valid = count > 0 && holds && (!e->fresh || accept_fresh) && (e->report[0] != '\0' || e->error[0] != '\0');
+}
+
+static int by_text(const void *a, const void *b) { return strcmp(*(char *const *)a, *(char *const *)b); }
+
+/* The expansion's cache key: the compiler (and its file), the directory, the expansion's arguments and the
+ * environment (but the capture's own attribution, which no compiler reads). */
+static void cache_key(const char *real, const char *cwd, char **exp, int nexp, char hex[65])
+{
+    Buf b = {0};
+    struct stat st;
+    char line[160];
+    if (stat(real, &st) != 0)
+        memset(&st, 0, sizeof st);
+    text(&b, "ctrl-expand 1\n");
+    text(&b, real);
+    snprintf(line, sizeof line, "\n%llu %llu %lld %lld\n", (unsigned long long)st.st_dev,
+             (unsigned long long)st.st_ino, (long long)st.st_size, (long long)nanos(st.st_mtim));
+    text(&b, line);
+    text(&b, cwd);
+    for (int i = 0; i < nexp; i++) {
+        put(&b, "", 1);
+        text(&b, exp[i]);
+    }
+    int nenv = 0;
+    while (environ[nenv] != NULL)
+        nenv++;
+    char **env = calloc((size_t)nenv + 1, sizeof *env);
+    if (env == NULL)
+        fail("out of memory", NULL);
+    memcpy(env, environ, (size_t)nenv * sizeof *env);
+    qsort(env, (size_t)nenv, sizeof *env, by_text);
+    text(&b, "\nenv");
+    for (int i = 0; i < nenv; i++) {
+        if (!strncmp(env[i], "CTRL_CAPTURE_FROM=", 18) || !strncmp(env[i], "CTRL_CAPTURE_RUN=", 17))
+            continue;
+        put(&b, "", 1);
+        text(&b, env[i]);
+    }
+    sha256((const unsigned char *)b.data, b.len, hex);
+    free(env);
+    free(b.data);
+}
+
+/* Run the helper (ctrl_expand.py expand) for this expansion; it writes the entry at `path`. `real` lists the inputs
+ * the expansion keeps as they are (a precompiled header's), as "<index>=<argument>". */
+static void helper(const char *capture, const char *path, int fresh, int stdin_k, char **real, int nreal, char **exp,
+                   int nexp)
+{
+    const char *python = getenv("CTRL_CAPTURE_PYTHON"), *shim = getenv("CTRL_CAPTURE_EXPAND");
+    if (python == NULL || shim == NULL)
+        return;
+    char index[16];
+    snprintf(index, sizeof index, "%d", stdin_k);
+    char **argv = calloc((size_t)(nexp + nreal) + 12, sizeof *argv);
+    if (argv == NULL)
+        fail("out of memory", NULL);
+    const char *head[] = {python, "-I", "-S", shim, "expand", capture, path, fresh ? "fresh" : "reuse", index};
+    int n = 0;
+    for (size_t i = 0; i < sizeof head / sizeof head[0]; i++)
+        argv[n++] = (char *)head[i];
+    for (int i = 0; i < nreal; i++)
+        argv[n++] = real[i];
+    argv[n++] = "--";
+    for (int i = 0; i < nexp; i++)
+        argv[n++] = exp[i];
+    pid_t pid = fork();
+    if (pid == 0) {
+        int null = open("/dev/null", O_RDWR);
+        if (null >= 0) {
+            dup2(null, 0);
+            dup2(null, 1);
+            dup2(null, 2);
+        }
+        execv(python, argv);
+        _exit(127);
+    }
+    int status = 0;
+    if (pid > 0)
+        while (waitpid(pid, &status, 0) < 0 && errno == EINTR)
+            ;
+    free(argv);
 }
 
 /* ---- the headers a C++ source reaches outside the checkout ---- */
@@ -393,14 +548,14 @@ static int own(const char *path, const char *root, const char *temp, const char 
 static void closure(Map *kept, const char *capture, const char *root, char *const *tops, int ntops,
                     const char *source, char *data, size_t len, char **dirs, int ndirs)
 {
-    char *queue_path[CLOSURE + 8];
-    char *queue_data[CLOSURE + 8];
-    size_t queue_len[CLOSURE + 8];
+    char *queue_path[CLOSURE + 1];
+    char *queue_data[CLOSURE + 1];
+    size_t queue_len[CLOSURE + 1];
     int queued = 0;
     queue_path[queued] = strdup(source);
     queue_data[queued] = data;
     queue_len[queued++] = len;
-    while (queued > 0 && kept->count < CLOSURE) {
+    while (queued > 0) {
         queued--;
         char *path = queue_path[queued], *body = queue_data[queued];
         size_t n = queue_len[queued];
@@ -448,14 +603,12 @@ static void closure(Map *kept, const char *capture, const char *root, char *cons
                                     continue;
                                 }
                                 add(kept, capture, hit, hit_data, hit_len);
-                                if (queued < CLOSURE + 8) {
-                                    queue_path[queued] = hit;
-                                    queue_data[queued] = hit_data;
-                                    queue_len[queued++] = hit_len;
-                                } else {
-                                    free(hit);
-                                    free(hit_data);
-                                }
+                                if (queued >= CLOSURE)
+                                    fail("a C++ source reaches more headers than the capture keeps for one compile:",
+                                         source);
+                                queue_path[queued] = hit;
+                                queue_data[queued] = hit_data;
+                                queue_len[queued++] = hit_len;
                                 break;
                             }
                         }
@@ -481,48 +634,83 @@ int main(int argc, char **argv)
     const char *capture = argv[1], *name = argv[2], *real = argv[3];
     const char *root = getenv("CTRL_CAPTURE_ROOT") ? getenv("CTRL_CAPTURE_ROOT") : "/";
     char **args = argv + 4;
-    int nargs = argc - 4, cxx = cxx_driver(name);
+    int nargs = argc - 4;
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof cwd) == NULL)
         fail("cannot read the working directory", NULL);
-    char **dirs = calloc((size_t)nargs + 1, sizeof *dirs), **forced = calloc((size_t)nargs + 1, sizeof *forced);
-    char **sources = calloc((size_t)nargs + 1, sizeof *sources);
-    const char **langs = calloc((size_t)nargs + 1, sizeof *langs);
-    int ndirs = 0, nforced = 0, nsources = 0;
-    if (dirs == NULL || forced == NULL || sources == NULL || langs == NULL)
-        fail("out of memory", NULL);
-    const char *given = NULL;
+    /* the output (-o), resolved as far as it exists: a precompiled header's maker (a .gch, or one in a .gch
+     * directory, as GCC finds one) is expanded over its real inputs, which later compiles read first */
+    const char *out = "";
     for (int at = 0; at < nargs; at++) {
-        const char *arg = args[at], *value = at + 1 < nargs ? args[at + 1] : "";
+        if ((!strcmp(args[at], "-o") || !strcmp(args[at], "--output")) && at + 1 < nargs)
+            out = args[++at];
+        else if (args[at][0] == '-' && args[at][1] == 'o' && args[at][2] != '\0' && output(args[at]))
+            out = args[at] + 2;
+        else if (!strncmp(args[at], "--output=", 9))
+            out = args[at] + 9;
+        else if (one_of(args[at], SEPARATE))
+            at++;
+    }
+    char *output_path = *out ? produced(cwd, out) : strdup("");
+    size_t out_len = strlen(output_path);
+    int pch = (out_len > 4 && !strcmp(output_path + out_len - 4, ".gch")) || strstr(output_path, ".gch/") != NULL;
+    /* the expansion's arguments: each input its stand-in (or itself, for a precompiled header's maker), the
+     * outputs dropped, then -E -dD -v -fpch-preprocess */
+    char **exp = calloc((size_t)nargs + 8, sizeof *exp), **inputs = calloc((size_t)nargs + 1, sizeof *inputs);
+    char **kept_real = calloc((size_t)nargs + 1, sizeof *kept_real);
+    if (exp == NULL || inputs == NULL || kept_real == NULL)
+        fail("out of memory", NULL);
+    int nexp = 0, ninputs = 0, nreal = 0, stdin_k = -1, reusable = !pch, files = 0;
+    exp[nexp++] = (char *)real;
+    for (int at = 0; at < nargs; at++) {
+        char *arg = args[at], *value = at + 1 < nargs ? args[at + 1] : "";
+        files |= arg[0] == '@';
         if (one_of(arg, SEPARATE)) {
-            if (one_of(arg, DIRS))
-                dirs[ndirs++] = joined(cwd, value, 1);
-            else if (!strcmp(arg, "-include") || !strcmp(arg, "-imacros"))
-                forced[nforced++] = (char *)value;
-            else if (!strcmp(arg, "-x"))
-                given = strcmp(value, "none") ? value : NULL;
+            if (!one_of(arg, OUTPUTS)) {
+                exp[nexp++] = arg;
+                exp[nexp++] = value;
+                reusable &= plain(arg) && strchr(value, '@') == NULL;
+            }
             at++;
             continue;
         }
-        if (!strncmp(arg, "-D", 2) || !strncmp(arg, "-U", 2))
+        if (arg[0] == '-' && arg[1] != '\0' && output(arg))
             continue;
-        int dir = 0;
-        for (int k = 0; DIRS[k] != NULL && !dir; k++)
-            if (!strncmp(arg, DIRS[k], strlen(DIRS[k]))) {
-                dirs[ndirs++] = joined(cwd, arg + strlen(DIRS[k]), 1);
-                dir = 1;
-            }
-        if (dir)
-            continue;
-        if (!strncmp(arg, "-x", 2) && arg[2] != '\0') {
-            given = strcmp(arg + 2, "none") ? arg + 2 : NULL;
-            continue;
-        }
-        if (!strcmp(arg, "-") || arg[0] != '-') {
-            sources[nsources] = (char *)arg;
-            langs[nsources++] = language(given, arg, cxx);
+        if (!strcmp(arg, "-")) {
+            stdin_k = ninputs;
+            inputs[ninputs++] = arg;
+            exp[nexp++] = arg;
+        } else if (arg[0] == '-' || arg[0] == '@') {
+            exp[nexp++] = arg;
+            reusable &= plain(arg);
+        } else if (pch) {
+            if (asprintf(&kept_real[nreal++], "%d=%s", ninputs, arg) < 0)
+                fail("out of memory", NULL);
+            exp[nexp++] = arg;
+            inputs[ninputs++] = arg;
+        } else {
+            exp[nexp++] = stand_in(capture, ninputs, arg);
+            inputs[ninputs++] = arg;
         }
     }
+    exp[nexp++] = "-E";
+    exp[nexp++] = "-dD";
+    exp[nexp++] = "-v";
+    exp[nexp++] = "-fpch-preprocess";
+    /* an invocation that names no input and no response file compiles nothing (--version, -print-*): no expansion */
+    int expanded = ninputs > 0 || files;
+    char key[65], *entry = NULL;
+    cache_key(real, cwd, exp, nexp, key);
+    if (asprintf(&entry, reusable ? "%s/expand/%s" : "%s/expand/%s.%ld", capture, key, (long)getpid()) < 0)
+        fail("out of memory", NULL);
+    Entry e;
+    load(entry, ninputs, 0, &e);
+    if (expanded && !e.valid) {
+        helper(capture, entry, !reusable, stdin_k, kept_real, nreal, exp, nexp);
+        load(entry, ninputs, 1, &e);
+    }
+    if (!reusable)
+        unlink(entry);
     char *temp = realpath(getenv("TMPDIR") && *getenv("TMPDIR") ? getenv("TMPDIR") : "/tmp", NULL);
     char *here = realpath(cwd, NULL);
     const char *temp_dir = temp ? temp : "/tmp", *here_dir = here ? here : cwd;
@@ -531,7 +719,6 @@ int main(int argc, char **argv)
     const struct stat *start = marker != NULL && stat(marker, &begun) == 0 ? &begun : NULL;
     Map kept = {0};
     Buf r = {0};
-    int any_cxx = 0;
     text(&r, "{\"tool\": ");
     quoted(&r, name);
     text(&r, ", \"real\": ");
@@ -544,13 +731,13 @@ int main(int argc, char **argv)
     text(&r, "], \"cwd\": ");
     quoted(&r, cwd);
     text(&r, ", \"sources\": [");
-    for (int i = 0; i < nsources; i++) {
-        char *full = strcmp(sources[i], "-") ? joined(cwd, sources[i], 1) : strdup("-");
+    for (int i = 0; i < ninputs; i++) {
+        char *full = strcmp(inputs[i], "-") ? joined(cwd, inputs[i], 1) : strdup("-");
+        const char *lang = e.valid && e.lang[i] != NULL ? e.lang[i] : "other";
         char hex[65] = "";
         size_t len = 0;
         char *data = NULL;
-        if (!strcmp(langs[i], "c++")) {
-            any_cxx = 1;
+        if (!strcmp(lang, "c++")) {
             if (strcmp(full, "-") && regular(full) && !own(full, root, temp_dir, here_dir, start)) {
                 /* an installed tool's own source (a runtime it compiles into the build): not the builder's */
                 snprintf(hex, sizeof hex, "installed");
@@ -560,7 +747,7 @@ int main(int argc, char **argv)
                 if (slash != NULL)
                     *slash = '\0';
                 char *tops[3] = {(char *)temp_dir, (char *)here_dir, dir};
-                closure(&kept, capture, root, tops, 3, full, data, len, dirs, ndirs);
+                closure(&kept, capture, root, tops, 3, full, data, len, e.dirs, e.ndirs);
                 free(dir);
                 free(data);
             }
@@ -568,36 +755,19 @@ int main(int argc, char **argv)
         text(&r, i ? ", [" : "[");
         quoted(&r, full);
         text(&r, ", ");
-        quoted(&r, langs[i]);
+        quoted(&r, lang);
         text(&r, ", ");
         quoted(&r, hex);
         text(&r, "]");
         free(full);
     }
-    text(&r, "], \"forced\": [");
-    for (int i = 0; i < nforced; i++) {
-        char *full = NULL;
-        for (int b = -1; b < ndirs && full == NULL; b++) {
-            char *hit = joined(b < 0 ? cwd : dirs[b], forced[i], 1);
-            if (regular(hit))
-                full = hit;
-            else
-                free(hit);
-        }
-        if (full == NULL)
-            full = joined(cwd, forced[i], 1);
-        size_t len = 0;
-        char *data = NULL;
-        if (any_cxx && regular(full) && outside_root(full, root) && own(full, root, temp_dir, here_dir, start) &&
-            (data = slurp(full, &len)) != NULL) {
-            add(&kept, capture, full, data, len);
-            free(data);
-        }
-        text(&r, i ? ", " : "");
-        quoted(&r, full);
-        free(full);
-    }
-    text(&r, "], \"kept\": ");
+    text(&r, "], \"output\": ");
+    quoted(&r, output_path);
+    text(&r, expanded ? ", \"expanded\": true, \"expansion\": " : ", \"expanded\": false, \"expansion\": ");
+    quoted(&r, e.valid ? e.report : "");
+    text(&r, ", \"expand_error\": ");
+    quoted(&r, e.valid || !expanded ? e.error : "the capture's expansion helper wrote no entry it could read back");
+    text(&r, ", \"kept\": ");
     if (kept.count > 0) {
         Buf map = {0};
         char hex[65];

@@ -20,21 +20,31 @@ STANDALONE, when the gate is given no capture: every other builder of
 ctrl_configs.BUILDERS, by its own commands, from the checkout's root, but the
 ones needing what the run says it has none of. Each must exit 0: a builder
 that fails may have compiled less than it does.
+
+THE STACK'S GATE (stack_gate) and THE CONTROLS' BUILDERS (planted_run,
+control_capture): the stack's own gate's CMake build runs under the capture
+too, and a control's planted builder runs through a capture of its own,
+joined to the run's for that control alone.
 """
 
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 from pathlib import Path
 
 import ctrl_capture
 import ctrl_image
-from ctrl_build import HERE, ROOT, Refusal
-from ctrl_configs import BUILDERS, CONFIGS, left_out
+from ctrl_build import HERE, ROOT, STACK, Refusal
+from ctrl_capture import Capture
+from ctrl_configs import BUILDERS, CONFIGS, left_out, run
+from ctrl_pin import named_compilers
+from ctrl_plants import Plant
 
 #: The image builders the gate runs on every run, and the archive a runtime-less link names.
 ABSENT = "absent-runtime"
@@ -148,3 +158,65 @@ def verilator_of() -> str | None:
     given = os.environ.get("VERILATOR")
     return given if given else next((str(p / "verilator") for p in map(Path, os.environ.get("PATH", "").split(":"))
                                      if (p / "verilator").is_file()), None)
+
+
+def stack_gate(selftest: bool, work: Path, capture: Path | None) -> tuple[list[str], list[str]]:
+    """The stack's own boundary gate (and its self-test), from the submodule, its CMake builds under the capture
+    where one is given: what it said, and its refusal as a finding."""
+    gate = STACK / "scripts/check_boundary.py"
+    for tool in ("cmake", "clang", "gcc", "nm"):
+        if shutil.which(tool) is None:
+            raise Refusal(f"the stack's gate needs {tool}")
+    work.mkdir(parents=True, exist_ok=True)
+    argv = [sys.executable, "-I", str(gate), "--work", str(work), "--jobs", "4"]
+    argv = [*argv, "--selftest"] if selftest else argv
+    res = run(argv, cwd=work) if capture is None else \
+        ctrl_capture.run(capture, argv, cwd=work, capture_output=True, text=True, env_extra={"LC_ALL": "C"})
+    lines = [f"    {line}" for line in (res.stdout + res.stderr).strip().splitlines()]
+    return lines, [] if res.returncode == 0 else [f"the stack's own gate {gate.relative_to(ROOT)} refused: "
+                                                  f"exit {res.returncode}"]
+
+
+def planted_run(plant: Plant, trees: object, work: Path, capture: Path) -> list[dict]:
+    """A plant's builder, run through `capture` in a directory of its own beside the copies of `trees` (its ctrl
+    tree and stack), its files beside it there before the capture began (a tick of the file clock earlier); a
+    planted Makefile's compilers named by a path, as bypass records (ctrl_pin.named_compilers)."""
+    where = (work / "builder").resolve()
+    shutil.rmtree(where, ignore_errors=True)
+    where.mkdir(parents=True)
+    (where / "planted.c").write_text("", encoding="utf-8")
+    for name, text in plant.beside:
+        (where / name).parent.mkdir(parents=True, exist_ok=True)
+        (where / name).write_text(text, encoding="utf-8")
+    if plant.beside:
+        time.sleep(0.05)
+    builder = where / ("planted.mk" if plant.make else "planted_builder.py")
+    builder.write_text(plant.run, encoding="utf-8")
+    argv = ["make", "-f", str(builder), "planted"] if plant.make else [sys.executable, str(builder)]
+    given = {"PLANT_CTRL": str(trees.ctrl), "PLANT_STACK": str(trees.stack), "PLANT_WORK": str(where),
+             "PLANT_GCC": shutil.which("gcc") or "gcc"}
+    ctrl_capture.run(capture, argv, cwd=where, capture_output=True, text=True, env_extra=given)
+    return named_compilers(builder, {**ctrl_capture.install(capture), **given}) if plant.make else []
+
+
+def control_capture(plant: Plant, trees: object, base: Capture, work: Path) -> Capture:
+    """The capture a control is judged against: the base the controls share, altered as the plant says, or with
+    what its planted builder compiled, run through the capture beside the copies (a shared one ran before the
+    base: its invocations are the base's)."""
+    if plant.alter == "missing":
+        return ctrl_capture.load(work / "no-capture")
+    if plant.alter == "empty":
+        (work / "empty").mkdir(parents=True, exist_ok=True)
+        for name in ("records.jsonl", "manifest.jsonl"):
+            (work / "empty" / name).write_text("", encoding="utf-8")
+        return ctrl_capture.load(work / "empty")
+    if plant.alter.startswith("drop "):
+        lost = plant.alter.removeprefix("drop ")
+        return replace(base, invocations=tuple(inv for inv in base.invocations if lost not in inv.builders),
+                       parts=())
+    if not plant.run or plant.shared:
+        return base
+    capture = (work / "capture").resolve()
+    shutil.rmtree(capture, ignore_errors=True)
+    named = planted_run(plant, trees, work, capture)
+    return base + ctrl_capture.load(capture, required=False) + Capture((), (), (), tuple(named))

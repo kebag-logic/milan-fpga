@@ -9,7 +9,9 @@ C++ compiler name the PATH holds (gcc, g++, cc, c++, cpp, clang, clang++, and
 their prefixed and versioned names), one for the RV32 compiler (MILAN_RV32_CC
 names it, its sibling tools beside it), and one for CC and CXX where they are
 set. Each wrapper runs the recorder (ctrl_shim.RECORDER, compiled into DIR/bin
-with the real C compiler), which records the invocation and then runs the real
+with the real C compiler), which has the real compiler expand the invocation
+(ctrl_expand, THE EXPANSION: its own report of the macros, the directories and
+the files read first its arguments give), records it, and then runs the real
 compiler with the same arguments, so every object, binary and image is what it
 would be without the capture. Python processes it starts load an audit hook
 (DIR/hook/sitecustomize.py) that names, for every process they start, the
@@ -20,6 +22,7 @@ each command, its directory and its exit status. The exit status is the
 command's.
 
 THE READER. load(DIR) gives every invocation the capture holds, each with the
+compiler's own expansion of it (Expansion, read from the kept report) and the
 builders it came from: the checkout's files on the Python stack of the process
 that ran the compiler, and the script or Makefile of the command the capture
 ran (CTRL_CAPTURE_RUN, which run() sets and every process below inherits).
@@ -45,6 +48,7 @@ from dataclasses import dataclass
 from functools import cached_property, lru_cache
 from pathlib import Path
 
+import ctrl_expand
 import ctrl_shim
 
 HERE = Path(__file__).resolve().parent
@@ -201,7 +205,7 @@ def install(capture: Path) -> dict[str, str]:
 def installed(capture: Path) -> dict[str, str]:
     """The capture's wrappers (a sibling of the RV32 compiler that is no compiler, linked as it is) and hook."""
     bin_dir, hook = capture / "bin", capture / "hook"
-    for part in (bin_dir, hook, capture / "text"):
+    for part in (bin_dir, hook, capture / "text", capture / "expand" / "in"):
         part.mkdir(parents=True, exist_ok=True)
     # the capture's start: a file whose inode changed since was written by a run of the capture (ctrl_shim's own)
     if not (capture / "start").is_file():
@@ -243,7 +247,8 @@ def installed(capture: Path) -> dict[str, str]:
             env[var] = str(wrapper(bin_dir, name, real, capture))
     (hook / "sitecustomize.py").write_text(HOOK, encoding="utf-8")
     env.update({"PATH": os.pathsep.join([str(bin_dir), search]), "CTRL_CAPTURE_DIR": str(capture),
-                "CTRL_CAPTURE_START": str(capture / "start"),
+                "CTRL_CAPTURE_START": str(capture / "start"), "CTRL_CAPTURE_PYTHON": sys.executable,
+                "CTRL_CAPTURE_EXPAND": str(HERE / "ctrl_expand.py"),
                 "CTRL_CAPTURE_BIN": str(bin_dir), "CTRL_CAPTURE_ROOT": str(ROOT), "CTRL_CAPTURE_FROM": "",
                 "PYTHONPATH": os.pathsep.join(p for p in (str(hook), os.environ.get("PYTHONPATH", "")) if p)})
     return env
@@ -268,18 +273,51 @@ def run(capture: Path, argv: list[str], cwd: Path | None = None, env_extra: dict
 
 
 @dataclass(frozen=True)
+class Baseline:
+    """The same driver's expansion with no argument, in one language: what the implementation predefines (name,
+    parameters, replacement), and the files it reads and the directories it searches on its own (resolved)."""
+
+    builtins: tuple[tuple[str, str, str], ...]
+    own: frozenset[str]
+
+
+@dataclass(frozen=True)
+class Expansion:
+    """The compiler's own expansion of one invocation (ctrl_expand, THE EXPANSION): why it is no expansion ("" when
+    it is one), its translation units, every directory it searched (resolved, the baseline's left out), every file
+    it entered and every real input it read (a precompiled header's maker's), each as printed with its resolved
+    path, digest and whether it is an installed tool's, every precompiled header it read first (as printed, and
+    resolved), and the baseline of each of its languages."""
+
+    digest: str
+    error: str
+    units: tuple[ctrl_expand.Unit, ...]
+    dirs: tuple[str, ...]
+    entered: tuple[tuple[str, str, str, bool], ...]
+    mains: tuple[tuple[str, str, str, bool], ...]
+    pch: tuple[tuple[str, str], ...]
+    baseline: tuple[tuple[str, Baseline], ...]
+
+    def base(self, language: str) -> Baseline | None:
+        """The baseline in a language."""
+        return dict(self.baseline).get(language)
+
+
+@dataclass(frozen=True)
 class Invocation:
-    """One recorded compile: the name it was called by, its arguments and directory, each source with its
-    language and digest, its -D and -U flags, the directories it searches, the files it reads first, the texts
-    the capture kept for it (path to digest), and the checkout's builder files it came from."""
+    """One recorded compile: the name it was called by, its arguments and directory, each input with the language
+    the compiler's expansion gave it and its digest, the compiler's expansion of it (None when it names no input,
+    which compiles nothing, or, with `failed` saying why, when the capture could not have it made), the
+    expansions of the compiles that made each precompiled header it read first, the texts the capture kept for it
+    (path to digest), and the checkout's builder files it came from."""
 
     tool: str
     args: tuple[str, ...]
     cwd: str
     sources: tuple[tuple[str, str, str], ...]
-    flags: tuple[str, ...]
-    dirs: tuple[str, ...]
-    forced: tuple[str, ...]
+    expansion: Expansion | None
+    failed: str
+    first: tuple[Expansion, ...]
     kept: tuple[tuple[str, str], ...]
     builders: frozenset[str]
 
@@ -360,17 +398,52 @@ def resolved(cwd: str, name: str) -> str:
     return str((Path(cwd) / name).resolve())
 
 
-def invocation(raw: dict, kept: Callable[[str], object]) -> Invocation:
+def baseline(report: dict) -> Baseline:
+    """A baseline report, read: its first unit's built-ins, and every file it entered and directory it searched."""
+    seen = ctrl_expand.read(report["out"], report["err"])
+    cwd = report["cwd"]
+    own = {found[0] for found in report["entered"].values()}
+    own |= {resolved(cwd, d) for d in (*seen.quote, *seen.bracket)}
+    return Baseline(seen.units[0].builtins if seen.units else (), frozenset(own))
+
+
+def expansion(digest: str, text: Callable[[str], str]) -> Expansion:
+    """An expansion's kept report, read (`text` reads a kept text): its units, the directories it searched but the
+    baseline's, the files it entered, its baselines, and ctrl_expand.refusal's reason when it is no expansion."""
+    report = json.loads(text(digest))
+    seen = ctrl_expand.read(report["out"], report["err"])
+    bases = {language: baseline(json.loads(text(d))) for language, d in sorted(report["baseline"].items())}
+    own = frozenset().union(*(b.own for b in bases.values())) if bases else frozenset()
+    dirs = tuple(d for d in dict.fromkeys(resolved(report["cwd"], d) for d in (*seen.quote, *seen.bracket))
+                 if d not in own)
+    entered = tuple((printed, *found) for printed, found in sorted(report["entered"].items()))
+    mains = tuple((printed, *found) for printed, found in sorted(report["mains"].items()))
+    return Expansion(digest, ctrl_expand.refusal(report, seen), seen.units, dirs, entered, mains,
+                     tuple(sorted(report["pch"].items())), tuple(bases.items()))
+
+
+def invocation(raw: dict, kept: Callable[[str], object], expanded: Callable[[str], Expansion],
+               made_by: dict[str, Expansion]) -> Invocation:
     """One record, read: its builders are the Python stack's that started it and the builder file of the command
-    the capture ran (THE CAPTURE); the headers kept beside it are a kept text (`kept` reads one)."""
+    the capture ran (THE CAPTURE); the headers kept beside it are a kept text (`kept` reads one), and so is the
+    report of the compiler's expansion of it (`expanded` reads one). Each precompiled header it read first is
+    the expansion of the compile the capture holds that made it (`made_by`, by output, the records before it)."""
     builders = set(json.loads(raw.get("from") or "[]")) | set(json.loads(raw.get("run") or "[]"))
-    cwd = raw["cwd"]
-    seen = ctrl_shim.parse(raw["tool"], raw["args"])
-    dirs = tuple(dict.fromkeys(resolved(cwd, d) for _, d in seen["dirs"]))
     beside = kept(raw["kept"]) if raw["kept"] else {}
-    return Invocation(raw["tool"], tuple(raw["args"]), cwd, tuple(tuple(s) for s in raw["sources"]),
-                      tuple(seen["flags"]), dirs, tuple(raw["forced"]), tuple(sorted(beside.items())),
-                      frozenset(builders))
+    made = expanded(raw["expansion"]) if raw["expansion"] else None
+    # an invocation naming no input compiles nothing, and the recorder expands nothing of it
+    failed = raw["expand_error"] or ("" if made is not None or not raw["expanded"] else
+                                     "the recorder holds no expansion of it")
+    first = []
+    for _, where in made.pch if made is not None else ():
+        if where not in made_by:
+            failed = failed or f"it reads the precompiled header {where} first, which no compile the capture holds made"
+        else:
+            first.append(made_by[where])
+    if made is not None and raw.get("output"):
+        made_by[raw["output"]] = made
+    return Invocation(raw["tool"], tuple(raw["args"]), raw["cwd"], tuple(tuple(s) for s in raw["sources"]), made,
+                      failed, tuple(first), tuple(sorted(beside.items())), frozenset(builders))
 
 
 def load(where: Path, required: bool = True) -> Capture:
@@ -386,14 +459,20 @@ def load(where: Path, required: bool = True) -> Capture:
         """A kept map, read once."""
         return json.loads((where / "text" / digest).read_text(encoding="utf-8"))
 
+    @lru_cache(maxsize=None)
+    def expanded(digest: str) -> Expansion:
+        """A kept expansion report, read once."""
+        return expansion(digest, lambda d: (where / "text" / d).read_text(encoding="utf-8"))
+
     lines = records.read_text(encoding="utf-8").splitlines() if records.is_file() else []
+    made_by: dict[str, Expansion] = {}
     for number, line in enumerate(lines, 1):
         try:
             raw = json.loads(line)
             if "bypass" in raw:
                 bypassed.append({**raw, "from": json.loads(raw.get("from") or "[]")})
             else:
-                invocations.append(invocation(raw, kept))
+                invocations.append(invocation(raw, kept, expanded, made_by))
         except (OSError, ValueError, KeyError, TypeError) as exc:
             raise CaptureError(f"the capture at {where} has an unreadable record, line {number}: {exc}") from exc
     commands = tuple(json.loads(line) for line in manifest.read_text(encoding="utf-8").splitlines() if line)

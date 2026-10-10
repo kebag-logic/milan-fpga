@@ -357,9 +357,53 @@ PLANTS = (
     Plant("a builder compiles a stream count no shipped shape gives", "ctrl", "", "", "",
           "-DIMAGE_SINKS=99u, a stream count no shipped shape gives",
           run=PY + 'cc("cc", "-DIMAGE_SINKS=99u", "-c", "planted.c", "-o", "planted.o")\n'),
-    Plant("a builder compiles with a flag whose macro has no name", "ctrl", "", "", "",
-          "'-D=1', a -D or -U flag whose macro the boundary cannot name",
+    Plant("a builder compiles with a flag the compiler cannot expand (a macro with no name)", "ctrl", "", "", "",
+          "ran cc -D=1 -c planted.c -o planted.o, which the compiler could not expand",
           run=PY + 'cc("cc", "-D=1", "-c", "planted.c", "-o", "planted.o")\n'),
+    # R584-5-F1, R585-5-F1: each spelling the reviewers used, as the compiler's own expansion reads it.
+    under_mode("-Wp, passes a mode to the preprocessor", "CTRL_R6_WP", "-DCTRL_R6_WP",
+               PY + 'cc("cc", "-Wp,-DCTRL_R6_WP", "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("-Xpreprocessor passes a mode", "CTRL_R6_XP", "-DCTRL_R6_XP",
+               PY + 'cc("cc", "-Xpreprocessor", "-DCTRL_R6_XP", "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("--define-macro= defines a mode", "CTRL_R6_LONG", "-DCTRL_R6_LONG",
+               PY + 'cc("cc", "--define-macro=CTRL_R6_LONG", "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("--define-macro and a separate name define a mode", "CTRL_R6_LONG2", "-DCTRL_R6_LONG2",
+               PY + 'cc("cc", "--define-macro", "CTRL_R6_LONG2", "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("a response file holds a mode", "CTRL_R6_RSP", "-DCTRL_R6_RSP",
+               PY + 'from pathlib import Path\nPath(WORK, "planted.rsp").write_text("-DCTRL_R6_RSP\\n")\n'
+                    'cc("cc", "@planted.rsp", "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("-imacros of a header the builder writes defines a mode", "CTRL_R6_IMACROS", "-DCTRL_R6_IMACROS",
+               PY + 'from pathlib import Path\nPath(WORK, "modes.h").write_text("#define CTRL_R6_IMACROS 1\\n")\n'
+                    'cc("cc", "-imacros", "modes.h", "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("a precompiled header the builder makes defines a mode", "CTRL_R6_PCH", "-DCTRL_R6_PCH",
+               PY + 'from pathlib import Path\nPath(WORK, "modes.h").write_text("#define CTRL_R6_PCH 1\\n")\n'
+                    'cc("cc", "-x", "c-header", "modes.h", "-o", "modes.h.gch")\n'
+                    'Path(WORK, "modes.h").write_text("#error only the precompiled header defines the mode\\n")\n'
+                    'cc("cc", "-include", "modes.h", "-c", "planted.c", "-o", "planted.o")\n'),
+    through_source("--include-directory names where the C++ source's header is",
+                   PY + 'from pathlib import Path\nPath(WORK, "inc").mkdir()\n'
+                        'Path(WORK, "inc", "gen.hpp").write_text(\'#include "adp_r5.h"\\n\')\n'
+                        'Path(WORK, "planted.cpp").write_text(\'#include "gen.hpp"\\n\')\n'
+                        'cc("c++", "-fsyntax-only", "--include-directory", WORK + "/inc", "-I" + CTRL + "/adp", '
+                        '"planted.cpp")\n', probe=False),
+    Plant("a response file names the source", "ctrl", "", "", "",
+          "an input it names where the recorder did not see it (a response file's)",
+          run=PY + 'from pathlib import Path\nPath(WORK, "planted.rsp").write_text("-DCTRL_R6_HIDDEN planted.c\\n")\n'
+                   'cc("cc", "@planted.rsp", "-c")\n'),
+    Plant("a response file names the output", "ctrl", "", "", "",
+          "its expansion went to an output the recorder did not see (a response file's)",
+          run=PY + 'from pathlib import Path\nPath(WORK, "planted.rsp").write_text("-DCTRL_R6_OUT -o planted.o\\n")\n'
+                   'cc("cc", "@planted.rsp", "-c", "planted.c")\n'),
+    Plant("a builder reads first a precompiled header whose making the recorder cannot see", "ctrl", "", "", "",
+          "which no compile the capture holds made",
+          run=PY + 'from pathlib import Path\nPath(WORK, "modes.h").write_text("#define CTRL_R6_UNSEEN 1\\n")\n'
+                   'Path(WORK, "out.rsp").write_text("-o modes.h.gch\\n")\n'
+                   'cc("cc", "-x", "c-header", "modes.h", "@out.rsp")\n'
+                   'cc("cc", "-include", "modes.h", "-c", "planted.c", "-o", "planted.o")\n'),
+    Plant("a builder reads first a stack source", "ctrl", "", "", "",
+          "tsn-c-stack/src/adp.c first, a file of the stack that is not one of its public headers",
+          run=PY + 'cc("cc", "-include", STACK + "/src/adp.c", "-I" + STACK + "/include", "-c", "planted.c", "-o", '
+                   '"planted.o")\n'),
     Plant("pass: the firmware includes a public header", "ctrl", "port/ctrl_debug.c", "#include \"ctrl_debug.h\"\n",
           "#include \"ctrl_debug.h\"\n#include \"wire.h\"\n", ""),
     Plant("pass: the stack includes only its own header and the C library", "stack", "src/maap.c",
