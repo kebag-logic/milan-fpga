@@ -12,8 +12,9 @@
 #                    of which must redden the check it names (mutants.py --quick)
 #   make census    - the publication census over milan_datapath as the pinned
 #                    sv2v and Yosys elaborate it (both on PATH, or named by
-#                    $SV2V and $YOSYS), and its planted defects; CI runs it in
-#                    rtl-fast's yosys-elaboration job, so it is not in `make`
+#                    $SV2V and $YOSYS) in every shape the builder builds, its
+#                    planted defects and each rule removed; CI runs it in
+#                    rtl-fast's publication-census job, so it is not in `make`
 #   make mutants   - every planted RTL defect, after both positive controls
 #   make clean     - remove build artifacts
 #
@@ -59,13 +60,14 @@ AR     ?= ar
 .PHONY: all census run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags clean
 all: run-wb run-axil run-cosim run-if2 mutants-quick
 
-# The publication census (#665, comments 6092086337, 6094461419 and
-# 6097292237): the block must carry every value the split datapath consumes,
-# so the datapath's reads are counted from the netlist the pinned sv2v and
-# Yosys elaborate, never from a list, and a value the census cannot place
-# fails. It elaborates the datapath, every other module (the processor
-# wrapper among them) a blackbox, reads the section headings of the wrapper's
-# port list, and simulates nothing.
+# The publication census (#665, comments 6092086337, 6094461419, 6097292237
+# and 6100024293): the block must carry every value the split datapath
+# consumes, so the datapath's reads are counted from the netlist the pinned
+# sv2v and Yosys elaborate in every shape the builder builds, never from a
+# list, and a value the census cannot place fails. It elaborates the
+# datapath, every other module (the processor wrapper among them) a blackbox,
+# reads the section headings of the wrapper's port list, and simulates
+# nothing.
 # traceability-text-input: milan_datapath.sv
 # traceability-text-input: KL_pp_shadow.sv
 census:
