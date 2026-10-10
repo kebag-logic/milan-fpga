@@ -68,8 +68,10 @@ pull-request update and on every push to `dev`. It produces one stable
   It runs each preprocessing once per run and reuses it wherever it would read the same, so its controls share one prepared base.
   A control that must be refused stops at its finding, and the stack's own gate runs beside the controls.
   A unit's configurations go to four compilers at once, the hosted runner's CPU count.
-  Pinned to four CPUs of a loaded host (load average 25), the step took 75 s; before this, it took 807 s there.
-  Its hosted run then passed 12 minutes and the job its 45 (job 114173809799), so a local figure stands in for a hosted one.
+  Pinned to four CPUs of a host at load average 23, three runs took 74 to 82 s, against 807 s before.
+  The worst leaves 218 s of the 300 s budget, a 73% margin.
+  Before this, the hosted step passed 12 minutes and the job its 45 (job 114173809799).
+  The pinned host was no faster than that hosted runner, so its figure stands in until a hosted run.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
