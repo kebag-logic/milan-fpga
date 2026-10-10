@@ -158,10 +158,13 @@ capacity and M8 counting, and any further change needs its own decision.
   M3 now supplies the 2^32 - 1 period and MAC-plus-clock seed.
   At the M3 step (lane head `39571196`, before the dev merge), the 1x1 recipe measures `g_maap.maap_engine` at 441 LUT / 340 FF.
   Against `6aa25dec` (439 LUT / 280 FF), growth is +2 LUT / +60 FF.
-  At the merge result `0df48637`, whose MAAP and datapath sources this change merges, it measures 445 LUT / 340 FF.
+  At the merge result `0df48637`, before the first-draw folds, it measures 445 LUT / 340 FF.
   That is +6 LUT / +60 FF against `6aa25dec`.
   Dev `8b61b709` alone measures 443 LUT / 280 FF, so the lane's share is +2 LUT / +60 FF.
+  The first-draw folds (#696 M4) add logic only: at lane head `bee1b0d7` it measures 490 LUT / 340 FF.
+  That is +45 LUT / +0 FF against `0df48637` and +51 LUT / +60 FF against `6aa25dec`.
   This fits the +60 / +60 ceiling and uses its full FF allowance.
+  In the [routed image](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696-first-draw) the engine uses 468 LUT / 339 FF.
   The pool mapping remains a separate deviation; full B.3.6.1 conformance is not claimed.
 - One shared response buffer covers a PROBE during PROBE/ANNOUNCE transmission (#696 M6).
   Its destination, requested range and overlap remain until transmission completes.
