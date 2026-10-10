@@ -49,29 +49,33 @@ WHAT IT GRADES, per shipped shape, all on bytes:
      re-stage), walked over every boot read of either slot, with one slot
      valid and the other blank at sequence 1, 0x5A5A5, 0x80000000 and
      0xFFFFFFFF or both valid across 0x5A5A5 and the wrap to 0, both ways
-     round, is followed by a change, its commit and a clean reboot. The boot
-     line names each slot as its bytes read or UNREAD and offers the newer
-     slot it accepts, the window is that slot's container byte for byte, and
+     round, on the cold boot or on a writer restart without a fabric reset
+     (the re-attach path, `writer_restart.py`), is followed by a change, its
+     commit and a clean reboot. The boot line names each slot as its bytes
+     read or UNREAD and offers the newer slot it accepts, the window is that
+     slot's container byte for byte (a restart leaves it as it was), and
      every saved record and the change survive, or the writer was HELD,
-     persisted nothing and said so; one faulty read never holds, a fault
-     lasting the whole boot always does, no boot opens more reads than the
-     bound, and the console names the hold only when there is one;
+     persisted nothing and said so; one faulty read never holds, a slot left
+     unread always does, a fault lasting the whole boot opens exactly the
+     reads the per-slot bound allows, no boot opens more than the bound, and
+     the console names the hold only when there is one;
  14. a cleanly read but refused slot names no generation: with no slot
      accepted, the first commit is at sequence 1.
 
-NEGATIVE CONTROLS. `--self-test` plants fourteen writer defects into a copy
+NEGATIVE CONTROLS. `--self-test` plants sixteen writer defects into a copy
 of the firmware, one at a time, and requires the suite to redden on each:
 the ascending-id check removed, the heartbeat dropped from the erase poll
 loop, the read-back verify skipped, the erased-record rule accepting a header
-alone, a word copy crossing into an open neighbour, and nine #671 defects
+alone, a word copy crossing into an open neighbour, and eleven #671 defects
 (`read_fault_cases.READ_FAULT_MUTATIONS`), each planted into the first shape
 and both product shapes and caught there by its own named finding: the hold
 removed (the restart at sequence 0), the read retry unbounded, a generation
 taken from a refused slot, two reads compared by verdict instead of by
 bytes, a refusal digest over the header alone, the window filled by a fresh
-read, an unread pick offering nothing, an unread pick not marked UNREAD,
-and a re-stage taking any sequence. A control that stays green is reported
-as the finding it is.
+read, an unread pick offering nothing, an unread pick not marked UNREAD, a
+re-stage taking any sequence, the hold removed from the re-attach path
+alone, and a judgement taking four reads. A control that stays green is
+reported as the finding it is.
 
 Usage:
     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
@@ -113,9 +117,11 @@ from nvm_shape import (binding_base, build, firmware_constants,  # noqa: E402
 from check_nvm_record_space import expected_payloads          # noqa: E402
 from flash_map import literal                                  # noqa: E402
 from boot_policy import fabric_constants                       # noqa: E402
-from read_fault_cases import (BOOT_READ_BOUND, BOTH_VALID_SEQS,  # noqa: E402
-                              FAULT_SEQS, HELD_LINE, READ_FAULT_MUTATIONS,
-                              UNREAD_RE, FaultCase, fault_cases, judged, offer)
+from read_fault_cases import (BOTH_VALID_SEQS, FAULT_SEQS, HELD_LINE,  # noqa: E402
+                              PRODUCT_SHAPES, READ_FAULT_MUTATIONS, RETIRE_CAUSES,
+                              UNREAD_RE, FaultCase, fault_cases, line_findings,
+                              read_findings, restart_findings)
+from writer_restart import host_restart                        # noqa: E402
 
 FIRMWARE = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
 HARNESS = HERE / "nvm_host.c"
@@ -159,21 +165,6 @@ MUTATIONS = {
         "\t\t\t\treturn VD_REC;\n",
         ""),
 }
-
-#: the product shapes, which the #671 controls are planted into besides the
-#: first shape
-PRODUCT_SHAPES = ("endstation_ax7101_1x1_tdm8", "endstation_ax7101_8x8")
-#: check 13's boots that retire the writer for a cause of their own: the cause,
-#: the harness options, the boot's line for it, and what `milan_nvm` reports
-RETIRE_CAUSES = (
-    ("the backend's contract", ("--boot-backend", "contract"),
-     "does not carry saved-state contract 3", "writer disabled"),
-    ("no accepted load", ("--boot-backend", "over"),
-     "no window load was accepted in this boot", "writer retired"),
-    ("a window gone live", ("--boot-backend", "live"),
-     "the window went live without a validated load", "writer retired"),
-    ("refused loads", ("--refuse-loads", "4"),
-     "refused 4 window loads; the window is not validated", "writer retired"))
 
 
 @dataclass
@@ -244,11 +235,12 @@ def constants_header(shape: Shape, donor: Donor,
 
 
 def compile_bench(work: Path, firmware_text: str, header: str) -> Path:
-    """Build the harness and the (fence-blanked) firmware into `work`."""
+    """Build the harness and the (fence-blanked) firmware, with the writer's
+    CPU-only reset appended (`writer_restart.host_restart`), into `work`."""
     (work / "generated").mkdir(parents=True, exist_ok=True)
     (work / "generated/soc.h").write_text(header)
     fw = work / "milan_baremetal.c"
-    fw.write_text(FENCE_RE.sub("(void)0;", firmware_text))
+    fw.write_text(FENCE_RE.sub("(void)0;", firmware_text) + host_restart(firmware_text))
     common = ["gcc", "-std=gnu11", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
               f"-I{work}", f"-I{STUBS}"]
     host_defs = [f"-DNVM_HOST_JOURNAL_OFFSET=0x{JOURNAL:x}u",
@@ -291,11 +283,13 @@ def run(bench: Bench, *args: str) -> tuple[str, dict[str, int], re.Match | None]
     if r.returncode:
         raise SystemExit(f"harness failed ({r.returncode}): {' '.join(args)}\n"
                          f"{r.stdout}\n{r.stderr}")
-    summary = {}
-    for line in SUMMARY_RE.findall(r.stdout):
-        if line.startswith("hb="):
-            summary = {k: int(v) for k, v in (kv.split("=") for kv in line.split())}
-    return r.stdout, summary, BOOT_RE.search(r.stdout)
+    return r.stdout, host_state(r.stdout), BOOT_RE.search(r.stdout)
+
+
+def host_state(text: str) -> dict[str, int]:
+    """The last HOST summary in a transcript, field by field."""
+    lines = [x for x in SUMMARY_RE.findall(text) if x.startswith("hb=")]
+    return {k: int(v) for k, v in (kv.split("=") for kv in lines[-1].split())} if lines else {}
 
 
 def slot_file(bench: Bench, name: str, blob: bytes) -> str:
@@ -670,18 +664,15 @@ def boot_findings(bench: Bench, case: FaultCase, boot: re.Match, unread: int,
     its bytes read, or UNREAD; the offer the slots its line accepts make; and
     a window holding that offer's container byte for byte, or the blank
     image when there is none."""
-    f = judged(case, boot, unread)
-    want, got = offer(boot), (boot.group(5), int(boot.group(6)))
-    if got != want:
-        f.append(f"{case.name}: by the slots its boot line accepts the offer is {want[0]} seq "
-                 f"{want[1]:#x}, yet the boot offered {got[0]} seq {got[1]:#x}: {boot.group(0)}")
-    image = slots[got[0]][:bench.img_len] if got[0] in slots else \
+    f = line_findings(case, boot, unread)
+    got = boot.group(5)
+    image = slots[got][:bench.img_len] if got in slots else \
         bench.assemble(bench.erased_frames(), 0)
     window = ddr.read_bytes()[:bench.img_len]
     if window != image:
         vd = bench.verdict(window)
         f.append(f"{case.name}: the window holds another valid container than the one the boot "
-                 f"offered ({got[0]}), at seq {struct.unpack_from('<I', window, 8)[0]:#x}"
+                 f"offered ({got}), at seq {struct.unpack_from('<I', window, 8)[0]:#x}"
                  if vd == VD_OK else
                  f"{case.name}: the window the boot loaded is not the container it judged: it "
                  f"reads {VERDICT_NAME[vd]}")
@@ -724,31 +715,47 @@ def reboot_findings(bench: Bench, fr: FaultRun, name: str, held: bool, w: Path) 
     return f
 
 
+def grade_restart_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path,
+                       tail: tuple[str, ...]) -> list[str]:
+    """One check-13 case on a writer restart: a clean cold boot, the fault
+    armed for the restart's own reads, the restart with the fabric kept,
+    then `tail` (a change, the debounce, the slots dumped) and the clean
+    reboot. A re-attach never reloads the window."""
+    out, s, _ = run(bench, "--slot-a", str(w / "rf_a.bin"), "--slot-b", str(w / "rf_b.bin"), "--boot",
+                    "--idle-ms", "100", "--dump-ddr", str(w / "rf_ddr0.bin"), *case.fault, "--restart",
+                    "--dump-ddr", str(w / "rf_ddr_r.bin"), *tail)
+    restart = out.split("HOST restarting\n", 1)[1].split("HOST restarted\n", 1)[0]
+    f, held = restart_findings(case, restart, BOOT_RE.search(restart), host_state(restart), s)
+    if (w / "rf_ddr_r.bin").read_bytes() != (w / "rf_ddr0.bin").read_bytes():
+        f.append(f"{case.name}: the writer restart reloaded the window it re-attached to")
+    return f + reboot_findings(bench, fr, case.name, held, w)
+
+
 def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path) -> list[str]:
-    """One check-13 case, its files in `w`: the faulty boot, a real change,
-    the debounce commit, then the clean reboot."""
+    """One check-13 case, its files in `w`: the faulty boot (or restart), a
+    real change, the debounce commit, then the clean reboot."""
     newer = fr.containers[(case.seq, False)]
     other = fr.containers[(case.seq, True)] if case.older else b"\xff" * SLOT
     slots = {case.valid.upper(): newer, case.other.upper(): other}
     (w / "rf_a.bin").write_bytes(slots["A"])
     (w / "rf_b.bin").write_bytes(slots["B"])
+    tail = ("--change", f"{fr.off}:{fr.changes[0].hex()}", "--idle-ms", "3000" if case.restart else "1500",
+            "--dump-slot-a", str(w / "rf_a1.bin"), "--dump-slot-b", str(w / "rf_b1.bin"))
+    if case.restart:
+        return grade_restart_case(bench, fr, case, w, tail)
     out, s, boot = run(bench, "--slot-a", str(w / "rf_a.bin"), "--slot-b", str(w / "rf_b.bin"),
-                       *case.fault, "--boot", "--dump-ddr", str(w / "rf_ddr0.bin"),
-                       "--change", f"{fr.off}:{fr.changes[0].hex()}", "--idle-ms", "1500",
-                       "--dump-slot-a", str(w / "rf_a1.bin"), "--dump-slot-b", str(w / "rf_b1.bin"))
+                       *case.fault, "--boot", "--dump-ddr", str(w / "rf_ddr0.bin"), *tail)
     name = case.name
-    if s.get("boot_reads", 0) > BOOT_READ_BOUND:
-        return [f"{name}: the boot read the flash {s.get('boot_reads')} times, "
-                f"over the bound of {BOOT_READ_BOUND}"]
+    f = read_findings(case, s.get("boot_reads", 0))
     if boot is None:
-        return [f"{name}: the faulty boot printed no boot line"]
+        return f + [f"{name}: the faulty boot printed no boot line"]
     tally = UNREAD_RE.search(out)
     unread = int(tally.group(2)) if tally else 0
     held = HELD_LINE in out
-    f = boot_findings(bench, case, boot, unread, slots, w / "rf_ddr0.bin")
+    f += boot_findings(bench, case, boot, unread, slots, w / "rf_ddr0.bin")
     if case.count == 1 and held:
         f.append(f"{name}: one faulty read held the writer; the bound must resolve it")
-    if (case.skip, case.count) == (0, 64) and not held:
+    if (unread or (case.skip, case.count) == (0, 64)) and not held:
         f.append(f"{name}: a slot no read returned twice did not hold the writer")
     if held:
         _check(f, s.get("erases") == 0 and s.get("programs") == 0 and

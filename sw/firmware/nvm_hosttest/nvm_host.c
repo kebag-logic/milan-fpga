@@ -65,6 +65,10 @@ extern cmd_handler const nvm_host_cmd_milan_utc;
 void set_idle_hook(void (*fptr)(void));
 void command_dispatch_hook(void);
 void bios_dispatch_hook_required(void);
+/* The writer's CPU-only reset, which writer_restart.py appends to the host
+ * build: every writer static back to its initial value, then nvm_boot()
+ * again, with the fabric, the backend and the media kept. */
+void nvm_host_writer_restart(void);
 
 /* The host replaces the BIOS, including its patch-0006 link marker. */
 void bios_dispatch_hook_required(void)
@@ -161,9 +165,11 @@ struct flash_model {
 /* A planted read fault (#671). The firmware reads a slot through the
  * memory-mapped window, a pointer load that always returns bytes, so a media
  * fault can only return wrong bytes. Every read the firmware opens through
- * the mapping (one evaluation of SPIFLASH_BASE) is counted from power-on:
- * the first SKIP are clean, the next COUNT are answered from a view whose
- * bytes of one slot are wrong, and the rest are clean again. A fault either
+ * the mapping (one evaluation of SPIFLASH_BASE) is counted from the read the
+ * fault is armed at, power-on for a fault given before --boot, so one given
+ * after it can aim at a writer restart's reads: the first SKIP are clean,
+ * the next COUNT are answered from a view whose bytes of one slot are wrong,
+ * and the rest are clean again. A fault either
  * XORs one byte of the slot with a different value on every faulty read
  * (BASE, BASE + 1, ... over 1 to 255, so no two faulty reads agree), reads
  * every byte of the slot as 0xFF, the same on every faulty read, or reads the
@@ -198,6 +204,7 @@ static uint8_t flash_view[NVM_HOST_FLASH_BYTES];
 static int view_loaded;
 static unsigned int reads;
 static unsigned int boot_reads;
+static unsigned int restart_reads;
 static uint32_t csr[CSR_WORDS];
 static uint32_t shadow[CSR_WORDS];
 static uint32_t pp_ctrl;
@@ -584,6 +591,13 @@ static void arm_read_fault(const char *spec, enum read_fault_mode mode)
 	rf.base = bytewise ? (unsigned int)v[3] : 8u;
 }
 
+/* A fault counts its SKIP from the read it is armed at. */
+static void arm_from_here(const char *spec, enum read_fault_mode mode)
+{
+	arm_read_fault(spec, mode);
+	rf.skip += reads;
+}
+
 /* ---- the LiteSPI command master and the N25Q behind it ----------------- */
 /* TX always ready; RX ready exactly while an unread response byte waits,
  * which is what lets the firmware's FIFO drain loop terminate. */
@@ -784,7 +798,7 @@ static void summary(void)
 	       "seq=%u base_ok=%d img_len=%u losses=%u arms=%u reloads=%u "
 	       "ld_acc=%d ld_pend=%d rl_ref=%d unres=%d ack_ref=%d arm_ref=%d "
 	       "cap_id=%u walks=%u enable_first=%d closed=%d reads=%u boot_reads=%u "
-	       "faulty_reads=%u now_ms=%llu\n",
+	       "restart_reads=%u faulty_reads=%u now_ms=%llu\n",
 	       be.hb_count, be.ack_count, be.start_count, fl.erases, fl.programs,
 	       (unsigned long long)(be.max_hb_gap_ns / 1000000ull), fl.pagewrap,
 	       be.backed, be.dirty, be.stale, be.img_valid, be.verdict, walk.blank,
@@ -792,7 +806,7 @@ static void summary(void)
 	       be.arm_count, be.reload_count, be.ld_acc, be.ld_pend, be.rl_ref,
 	       be.unres, be.ack_ref, be.arm_ref, be.cap_id,
 	       walk.starts, walk.enable_first, walk.closed, reads, boot_reads,
-	       rf.hits, (unsigned long long)(now_ns / 1000000ull));
+	       restart_reads, rf.hits, (unsigned long long)(now_ns / 1000000ull));
 }
 
 static void boot(void)
@@ -832,11 +846,11 @@ int main(int argc, char **argv)
 		else if (strcmp(a, "--slot-b") == 0 && v)
 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET + 0x10000u, 0x10000u);
 		else if (strcmp(a, "--read-fault") == 0 && v)
-			arm_read_fault(v, RF_XOR);
+			arm_from_here(v, RF_XOR);
 		else if (strcmp(a, "--read-ff") == 0 && v)
-			arm_read_fault(v, RF_FF);
+			arm_from_here(v, RF_FF);
 		else if (strcmp(a, "--read-other") == 0 && v)
-			arm_read_fault(v, RF_OTHER);
+			arm_from_here(v, RF_OTHER);
 		else if (strcmp(a, "--erase-ms") == 0 && v)
 			fl.erase_ns = MS(strtoul(v, NULL, 0));
 		else if (strcmp(a, "--walk-closed") == 0) {
@@ -883,6 +897,18 @@ int main(int argc, char **argv)
 				return 2;
 			be.ownership[rid / 32u] |= 1u << (rid % 32u);
 			be.unres = 1;
+		} else if (strcmp(a, "--restart") == 0) {
+			/* a CPU-only reset: the state the restart meets, then
+			 * the writer's boot again on the fabric it left */
+			unsigned int from = reads;
+
+			printf("HOST restarting\n");
+			summary();
+			nvm_host_writer_restart();
+			settle();
+			restart_reads = reads - from;
+			printf("HOST restarted\n");
+			takes = 0;
 		} else if (strcmp(a, "--change") == 0 && v)
 			apply_change(v);
 		else if (strcmp(a, "--dirty") == 0) {
