@@ -1619,14 +1619,15 @@ derives 3336 bytes at 1x1 and 13256 at 8x8.
 Timing. MEASURED on 2026-10-10 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) requires this remeasurement.
-The #671 boot read-fault rule changes the product firmware.
-The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required the previous one.
+The [#671 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6100704879) requires this remeasurement.
+Its console report of the writer's hold changes the product firmware again.
+The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) required the previous one, for the boot read-fault rule.
+The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required the one before.
 The CLOCK_SOURCE NAME records #629 adds grew the census.
-The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required the one before.
-Measured commit: `7b714334959106ee57ee0eef62835057567a066b`.
-Measured tree: `a90192e89c00ea1984074b10362fbeb4c09fb969`.
-Firmware SHA-256: `3b9468eebfba2cda8a6958c500086d26819cd52b4b504169cffbb60c579e6de6`.
+The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required an earlier one.
+Measured commit: `49d28e5a53ea0b666608ce796fdc8cb812ff9406`.
+Measured tree: `891f5d324fbc6379d07725eb346c7792e571baa9`.
+Firmware SHA-256: `33eaa0c332f04587c9fddc7129895e3a9edf7a3e76dbf75f9cd43bd1b31955b2`.
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
@@ -1643,11 +1644,11 @@ The acceptance limit is therefore 24.5 ms, half that floor.
 **The worst 8x8 measurement is 13.86328 ms.**
 Its floor ratio is 3.5345x.
 The margin to 24.5 ms is 10.63672 ms.
-The previous receipt measured 13.86484 ms, at the same census.
+The previous receipt measured 13.86328 ms, at the same census.
 The census before #629 measured 13.23352 ms.
 The historical pre-word-copy maximum was 24.30246 ms, at that census.
 The word-copy remedy gained 11.06894 ms of margin there.
-The firmware changed in its boot path only; `nvm_capture()`, the hold and the census are unchanged.
+The firmware changed in its boot path and its console report of the hold only; `nvm_capture()`, the hold and the census are unchanged.
 The census is 164 records and 13,210 bytes at 8x8, 54 and 3,290 at 1x1.
 The receipt binds the new firmware and the unchanged census.
 
