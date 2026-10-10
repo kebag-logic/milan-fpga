@@ -58,10 +58,16 @@
 // rate, no pause beyond four of its intervals, counting the silence from its
 // last PDU to the end of the graded window.
 //
-// Usage: Vmilan_dp_gmstep <aem image> [feed delay]. The optional feed delay
-// (fabric cycles, default 0) idles before the peer's media feed starts, which
-// moves the accept phase against the media tick; a correct datapath passes at
-// every delay. Exit 0 only when every check passes.
+// Issue #621: after the GM change a further phase steps the grandmaster by
+// +10 ms and -10 ms under CRF and then INTERNAL selection, and grades
+// asCapable, the published link delay, tu, the public counters and media
+// continuity across several Pdelay intervals of each step.
+//
+// Usage: Vmilan_dp_gmstep <aem image> [feed delay] [--no-small-steps]. The
+// optional feed delay (fabric cycles, default 0) idles before the peer's
+// media feed starts, which moves the accept phase against the media tick; a
+// correct datapath passes at every delay. --no-small-steps leaves the #621
+// phase out, and nothing else. Exit 0 only when every check passes.
 
 #include "../../common/verilator_harness.hpp"
 #include "../../common/gptp_launch_observer.hpp"
@@ -260,8 +266,8 @@ struct AxiFires {
 
 class GmStepHarness {
  public:
-    GmStepHarness(std::vector<uint8_t> image, uint64_t feed_delay)
-        : descriptor_(std::move(image)), feed_delay_(feed_delay) {
+    GmStepHarness(std::vector<uint8_t> image, uint64_t feed_delay, bool small_steps)
+        : descriptor_(std::move(image)), feed_delay_(feed_delay), small_steps_(small_steps) {
         check_.echo_passes();
     }
     int run();
@@ -272,6 +278,7 @@ class GmStepHarness {
     milan::tb::Checker check_{"gmstep"};
     std::vector<uint8_t> descriptor_;
     uint64_t feed_delay_ = 0;                  //! idle before the media feed
+    bool small_steps_ = true;                  //! run the #621 phase
     milan::tb::GptpLaunchObserver observer_{kPhcTickNs};
     uint64_t cyc_ = 0;
     uint64_t phc_prev_ = 0;
@@ -1274,7 +1281,8 @@ int GmStepHarness::run() {
         provision_media();
         baseline();
         change_grandmaster();
-        check_small_grandmaster_steps();
+        if (small_steps_) check_small_grandmaster_steps();
+        else printf("gmstep: the #621 small-step phase is left out (--no-small-steps)\n");
         check_crf_restart();
         check_slew_connection();
         check_coincident_restart();
@@ -1291,28 +1299,34 @@ int GmStepHarness::run() {
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     setvbuf(stdout, nullptr, _IOLBF, 0);
-    if (argc != 2 && argc != 3) {
-        fprintf(stderr, "usage: %s <aem image> [feed delay cycles]\n", argv[0]);
+    std::vector<std::string> args(argv + 1, argv + argc);
+    const auto skip = std::find(args.begin(), args.end(), "--no-small-steps");
+    const bool small_steps = skip == args.end();
+    if (!small_steps) args.erase(skip);
+    const bool option = std::any_of(args.begin(), args.end(),
+                                    [](const std::string& a) { return a.rfind("--", 0) == 0; });
+    if (args.empty() || args.size() > 2 || option) {
+        fprintf(stderr, "usage: %s <aem image> [feed delay cycles] [--no-small-steps]\n", argv[0]);
         return 2;
     }
     uint64_t feed_delay = 0;
-    if (argc == 3) {
-        const std::string text = argv[2];
+    if (args.size() == 2) {
+        const std::string& text = args[1];
         if (text.empty() || text.find_first_not_of("0123456789") != std::string::npos
                 || text.size() > 6) {
-            fprintf(stderr, "gmstep: the feed delay %s is not a cycle count below 10^6\n", argv[2]);
+            fprintf(stderr, "gmstep: the feed delay %s is not a cycle count below 10^6\n", text.c_str());
             return 2;
         }
         feed_delay = std::stoull(text);
     }
-    std::ifstream file(argv[1], std::ios::binary);
+    std::ifstream file(args[0], std::ios::binary);
     std::vector<uint8_t> image{std::istreambuf_iterator<char>(file),
                                std::istreambuf_iterator<char>()};
     if (image.empty()) {
-        fprintf(stderr, "gmstep: the AEM image %s is missing or empty\n", argv[1]);
+        fprintf(stderr, "gmstep: the AEM image %s is missing or empty\n", args[0].c_str());
         return 2;
     }
     printf("gmstep: feed delay %llu cycles\n", static_cast<unsigned long long>(feed_delay));
-    GmStepHarness harness(std::move(image), feed_delay);
+    GmStepHarness harness(std::move(image), feed_delay, small_steps);
     return harness.run();
 }
