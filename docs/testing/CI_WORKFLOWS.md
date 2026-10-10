@@ -74,8 +74,9 @@ pull-request update and on every push to `dev`. It produces one stable
   A unit's configurations go to four compilers at once, the hosted runner's CPU count.
   The capture's recorder is compiled C, so it adds a millisecond or two to each of the job's 23,000 compiles.
   Before the capture, the hosted step took 93 s at `e07b3054` (job 114206016568).
-  With it, pinned to four CPUs of a host at load average 24 to 39, the step took 106 to 116 s; the worst leaves 184 s of the 300 s budget, a 61% margin.
-  At `e07b3054` the same pinned host took 74 to 86 s against the hosted 93 s, so its figure stands in until a hosted run.
+  With it, on four otherwise idle CPUs of a shared host, the step took 101 to 106 s at `93540c3a`, where `e07b3054`'s took 80 to 82 s on the same CPUs.
+  Scaled to the hosted 93 s, the worst is about 124 s, which leaves 176 s of the 300 s budget, a 59% margin, until a hosted run measures it.
+  The slowest local run, on four CPUs that other jobs were using too, took 215 s and left 85 s.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
