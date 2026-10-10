@@ -139,6 +139,15 @@ The elaboration smoke proves that the integration-heavy source lists lower and
 resolve. It does not replace generic synthesis and must not be reported as a
 portability pass.
 
+The same job then runs the mailbox publication census
+(`sw/mailbox/publication_census.py --check --selftest --jobs 4`, #665). It
+elaborates `milan_datapath` with the job's pinned sv2v and Yosys and the
+recipe `syn/yosys/run.sh --emit milan_datapath` prints, and follows every
+class-D value the datapath reads through the netlist. Its self-test
+elaborates one planted copy per defect, four at a time. The mailbox suite's
+`make census` runs it locally; the suite's default `make` does not, because
+the Verilator worker that owns that suite has no Yosys.
+
 ## Exhaustive validation
 
 [The exhaustive RTL workflow](../../.github/workflows/rtl.yml) runs when:

@@ -3,19 +3,17 @@
 #
 # Verilator verification of the packet-mailbox fabric skeleton (KL_mbx and
 # its leaves, #665 lane F0), through BOTH bus adapters.
-#   make           - the publication census (every occurrence of a wire the
-#                    processor wrapper's class-D ports drive, in
-#                    milan_datapath.sv, accounted for: its declaration, the
-#                    wrapper's connection, or a read mapped to a block field or
-#                    a ruled exclusion; any other occurrence fails, and its
-#                    planted defects are refused), then
-#                    the RTL checks through KL_mbx_wb, then through KL_mbx_axil,
+#   make           - the RTL checks through KL_mbx_wb, then through KL_mbx_axil,
 #                    then the firmware co-simulation over the real RTL, then the
 #                    same checks on a two-interface variant of the contract
 #                    through both adapters and on the host model (run-if2), then
 #                    six planted RTL defects (one per leaf, one in the
 #                    filter's tuple and one in the publication block), each
 #                    of which must redden the check it names (mutants.py --quick)
+#   make census    - the publication census over milan_datapath as the pinned
+#                    sv2v and Yosys elaborate it (both on PATH, or named by
+#                    $SV2V and $YOSYS), and its planted defects; CI runs it in
+#                    rtl-fast's yosys-elaboration job, so it is not in `make`
 #   make mutants   - every planted RTL defect, after both positive controls
 #   make clean     - remove build artifacts
 #
@@ -24,6 +22,8 @@
 
 VERILATOR ?= verilator
 VBUILD_JOBS ?= 0
+# Elaborations the census's self-test runs at once.
+CENSUS_JOBS ?= 2
 ROOT      := ../../..
 RTL_DIR   ?= $(ROOT)/hdl/milan/mailbox
 TOP        = tb_mbx_top
@@ -57,17 +57,19 @@ CC     ?= cc
 AR     ?= ar
 
 .PHONY: all census run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags clean
-all: census run-wb run-axil run-cosim run-if2 mutants-quick
+all: run-wb run-axil run-cosim run-if2 mutants-quick
 
-# The publication census (#665, comments 6092086337 and 6094461419): the block
-# must carry every value the split datapath consumes, so the datapath's reads
-# are counted from the source, never from a list, and an occurrence the census
-# cannot account for fails. It reads the datapath, the processor wrapper's port
-# list and the files the datapath includes as text, and simulates none of them.
+# The publication census (#665, comments 6092086337, 6094461419 and
+# 6097292237): the block must carry every value the split datapath consumes,
+# so the datapath's reads are counted from the netlist the pinned sv2v and
+# Yosys elaborate, never from a list, and a value the census cannot place
+# fails. It elaborates the datapath, every other module (the processor
+# wrapper among them) a blackbox, reads the section headings of the wrapper's
+# port list, and simulates nothing.
 # traceability-text-input: milan_datapath.sv
 # traceability-text-input: KL_pp_shadow.sv
 census:
-	python3 -B $(ROOT)/sw/mailbox/publication_census.py --check --selftest
+	python3 -B $(ROOT)/sw/mailbox/publication_census.py --check --selftest --jobs $(CENSUS_JOBS)
 
 run-wb:
 	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_wb $(RTL) sim_main.cpp -o Vmbx_wb

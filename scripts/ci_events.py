@@ -2316,6 +2316,12 @@ RTL_STEP_LISTS = {
              'syn/yosys/run.sh --mode elaborate --no-structural --top milan_datapath --top '
              'KL_pp_shadow --top KL_gptp_shadow',
          )},
+        {"name": "Run the publication census on the elaborated datapath",
+         "run": (
+             'set -euo pipefail',
+             'python3 -m pip install --quiet pyyaml',
+             'python3 sw/mailbox/publication_census.py --check --selftest --jobs 4',
+         )},
         {"name": "Prove the OOC read sets come from run.sh and refuse a bad "
                  "one",
          "run": (
