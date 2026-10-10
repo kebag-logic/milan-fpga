@@ -1216,43 +1216,67 @@ module KL_chan_map_capture #(
   wire [12:0] ent_l_w = map_r[{slot_r, 1'b0}];   //! even channel 2p
   wire [12:0] ent_r_w = map_r[{slot_r, 1'b1}];   //! odd channel 2p+1
 
-  //! per-channel resolver: entry {en, half, src, idxh, idx} -> the 24-bit
-  //! sample of ITS mono cluster (the selected half of the source pair).
-  //! An entry naming a stream/pair the build does not keep resolves to
-  //! silence (the §5 "illegal encoding behaves as disabled" rule); the
-  //! TONE bucket carries the same value on both halves by construction.
-  function automatic logic [23:0] resolve_ch(input logic [12:0] e);
-    logic        en_f;
+  //! THE SOURCE TABLE (#640 M6): every mono cluster a channel can carry,
+  //! as one flat table of 24-bit samples - 0 silence, 1/2 the I2S pair's
+  //! L/R, 3 the tone, then each TDM walk pair's L/R, then each LOOP hold
+  //! pair's L/R. A channel entry decodes to ONE binary index into it, and
+  //! the channel reads that row: a single indexed read per channel, where
+  //! the earlier per-channel resolver selected a source bucket, then a pair
+  //! inside it, then a half - three nested multiplexers per channel.
+  localparam int unsigned CAND_TDM_C  = 4;                     //! first TDM row
+  localparam int unsigned CAND_LOOP_C = CAND_TDM_C + 2 * N_TDM_PAIRS_C;
+  localparam int unsigned N_CAND_C    = CAND_LOOP_C + 2 * LB_PAIRS_C;
+  localparam int unsigned CANDW_C     = $clog2(N_CAND_C);
+  logic [23:0] cand_w [N_CAND_C];
+  always_comb begin : source_table
+    cand_w[0] = 24'd0;
+    {cand_w[1], cand_w[2]} = i2s_hold_r;
+    cand_w[3] = tone_smp_i;
+    for (int p = 0; p < int'(N_TDM_PAIRS_C); p++)
+      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_walk_r[p];
+    for (int q = 0; q < int'(LB_PAIRS_C); q++)
+      {cand_w[CAND_LOOP_C + 2*q], cand_w[CAND_LOOP_C + 2*q + 1]} = lb_hold_r[q];
+  end : source_table
+
+  //! per-channel decode: entry {en, half, src, idxh, idx} -> the row of
+  //! ITS mono cluster (the selected half of the source pair). An entry
+  //! naming a stream/pair the build does not keep resolves to silence (the
+  //! §5 "illegal encoding behaves as disabled" rule); the TONE bucket
+  //! carries the same value on both halves by construction, so it is one
+  //! row.
+  function automatic logic [CANDW_C-1:0] source_row(input logic [12:0] e);
     logic        half_f;
-    logic [2:0]  src_f;
     logic [3:0]  idxh_f, idx_f;
-    logic [47:0] pair_f;
     logic        lbok_f;
     begin
-      en_f = e[12]; half_f = e[11]; src_f = e[10:8];
-      idxh_f = e[7:4]; idx_f = e[3:0];
+      half_f = e[11]; idxh_f = e[7:4]; idx_f = e[3:0];
       lbok_f = (32'(idxh_f) < N_LB_STREAMS_P) && (32'(idx_f) < LB_PPS_C);
-      unique case (en_f ? src_f : 3'd0)
-        SRC_I2S_C : pair_f = i2s_hold_r;
-        SRC_TDM_C : pair_f = (32'(idx_f) < N_TDM_PAIRS_C)
-                               ? tdm_walk_r[idx_f[TDMPW_C-1:0]] : 48'd0;
-        SRC_TONE_C: pair_f = {tone_smp_i, tone_smp_i};
-        SRC_LOOP_C: pair_f = lbok_f
-                               ? lb_hold_r[LBPW_C'(32'(idxh_f) * LB_PPS_C
-                                                   + 32'(idx_f))]
-                               : 48'd0;
-        default   : pair_f = 48'd0;
+      unique case (e[12] ? e[10:8] : 3'd0)
+        SRC_I2S_C : source_row = CANDW_C'(1 + 32'(half_f));
+        SRC_TDM_C : source_row = (32'(idx_f) < N_TDM_PAIRS_C)
+                                 ? CANDW_C'(CAND_TDM_C + 2 * 32'(idx_f)
+                                            + 32'(half_f))
+                                 : '0;
+        SRC_TONE_C: source_row = CANDW_C'(3);
+        SRC_LOOP_C: source_row = lbok_f
+                                 ? CANDW_C'(CAND_LOOP_C
+                                            + 2 * (32'(idxh_f) * LB_PPS_C
+                                                   + 32'(idx_f))
+                                            + 32'(half_f))
+                                 : '0;
+        default   : source_row = '0;
       endcase
-      resolve_ch = half_f ? pair_f[23:0] : pair_f[47:24];
     end
   endfunction
 
   //! An UNMAPPED channel resolves to DIGITAL SILENCE rather than dropping
   //! out of the walk (Milan v1.2 5.3.9.1 lets a channel be "not mapped";
-  //! 5.3.7.3 still owes the stream its packets). The resolver gates on the
+  //! 5.3.7.3 still owes the stream its packets). The decode gates on the
   //! entry's own enable, so the FSM below stays branch-free.
-  wire [23:0] out_l_w = resolve_ch(ent_l_w);
-  wire [23:0] out_r_w = resolve_ch(ent_r_w);
+  wire [CANDW_C-1:0] row_l_w = source_row(ent_l_w);
+  wire [CANDW_C-1:0] row_r_w = source_row(ent_r_w);
+  wire [23:0] out_l_w = (32'(row_l_w) < N_CAND_C) ? cand_w[row_l_w] : 24'd0;
+  wire [23:0] out_r_w = (32'(row_r_w) < N_CAND_C) ? cand_w[row_r_w] : 24'd0;
 
   // ---------------------------------------------------------------------- //
   // Emit walk FSM (pre-walk pop, then the slot walk)                        //
