@@ -539,11 +539,12 @@ uintptr_t nvm_host_flash_base(void)
 /* --read-fault SLOT:OFF:SKIP:COUNT[:BASE] and --read-ff SLOT:SKIP:COUNT */
 static void arm_read_fault(const char *spec, int all_ff)
 {
-	unsigned long v[4] = {0, 0, 0, 8};
+	unsigned long v[4] = {0};
 	unsigned int n = 0;
 	const char *p = spec + 1;
 	char *end = NULL;
 
+	v[3] = 8;    /* the first faulty read's XOR, unless BASE is given */
 	if ((spec[0] != 'a' && spec[0] != 'b') || spec[1] != ':') {
 		fprintf(stderr, "HOST: a read fault names slot a or b\n");
 		exit(2);
