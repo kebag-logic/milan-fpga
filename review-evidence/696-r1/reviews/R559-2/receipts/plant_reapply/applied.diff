@@ -1,0 +1,4 @@
+157c157
+<   wire port_operational_p = port_operational_i && !port_operational_r;
+---
+>   wire port_operational_p = !port_operational_i && port_operational_r;

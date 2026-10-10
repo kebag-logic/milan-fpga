@@ -1,0 +1,18 @@
+clean: rc 0; failures=0; M5 checks failed=[]
+p1_both_edges: rc 1; failures=3; M5 checks failed=['M5 B.3.5.9 link return restarts PROBE', 'M5 B.3.5.9 link return revokes and reprobes', 'M5 B.3.5.9 link loss is no event; return reprobes']
+    [FAIL] M5 B.3.5.9 link return restarts PROBE        got=0 exp=1
+    [FAIL] M5 B.3.5.9 link return revokes and reprobes  got=0 exp=1
+    [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+p2_idle_while_down: rc 1; failures=1; M5 checks failed=['M5 B.3.5.9 link loss is no event; return reprobes']
+    [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+p3_timer_frozen_while_down: rc 1; failures=1; M5 checks failed=['M5 B.3.5.9 link loss is no event; return reprobes']
+    [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+p4_no_return_event: rc 1; failures=4; M5 checks failed=['M5 B.3.5.9 link return restarts PROBE', 'M5 B.3.5.9 link return revokes and reprobes', 'M5 B.3.5.9 link loss is no event; return reprobes']
+    [FAIL] M6 pending response cancelled with allocation got=0 exp=1
+    [FAIL] M5 B.3.5.9 link return restarts PROBE        got=0 exp=1
+    [FAIL] M5 B.3.5.9 link return revokes and reprobes  got=0 exp=1
+    [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+p5_return_counts_conflict: rc 1; failures=3; M5 checks failed=['M5 B.3.5.9 link return restarts PROBE', 'M5 B.3.5.9 link return revokes and reprobes', 'M5 B.3.5.9 link loss is no event; return reprobes']
+    [FAIL] M5 B.3.5.9 link return restarts PROBE        got=0 exp=1
+    [FAIL] M5 B.3.5.9 link return revokes and reprobes  got=0 exp=1
+    [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
