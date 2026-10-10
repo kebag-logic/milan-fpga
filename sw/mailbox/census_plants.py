@@ -1,18 +1,22 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""census_plants.py - the defects publication_census.py --selftest plants, each refused by its own words.
+"""census_plants.py - the defects publication_census.py --selftest elaborates, each refused by its own words.
 
-Each plant edits a copy of one source the census reads: the datapath, the
-processor wrapper, or the first copy of a file the datapath includes. Every
-edit's old text must occur exactly once, so a plant whose fixture moved fails
-the self-test instead of passing it unplanted. The reviewers' probes are
-R582-2's census_probes.py and R583-2's census_escape_probe.py (#665,
-comment 6094461419), and R582-3's and R583-3's census_cone_probe.py (#665,
-comment 6095903333), reproduced here form for form.
+Each plant edits a copy of one source the census elaborates: the datapath,
+the processor wrapper, or the first copy of a file the datapath includes.
+Every edit's old text must occur exactly once, so a plant whose fixture moved
+fails the self-test instead of passing it unplanted. The reviewers' probes of
+#665 are reproduced form for form: R582-2's census_probes.py and R583-2's
+census_escape_probe.py (comment 6094461419), R582-3's and R583-3's
+census_cone_probe.py (comment 6095903333), R582-4's census_block_probe.py and
+R583-4's r583_4_census_probes.py (comment 6097292237), each escaping form
+beside its plain-assign control.
 
-A plant's words are one string, or several that one finding must all carry:
-a cone plant is refused by its read's row and by the occurrence that reaches
-the wire.
+A plant that instantiates a probe module defines it after the datapath's
+``endmodule``, so the elaborator knows its ports: an input of any module is
+the wire. A plant's words are one string, or several one finding must carry:
+a cone plant is refused by its read's row and the port it reaches, a form the
+front end or the elaborator refuses by that tool's words.
 """
 
 from __future__ import annotations
@@ -20,28 +24,50 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
-#: The class-D wire every probe reads, and the sites the plants anchor on.
+#: The class-D wire every first-hop probe reads, and the sites the plants anchor on.
 WIRE = "pp_cd_srp_over_limit_w"
+WIRE_DECL = "  wire                       pp_cd_srp_over_limit_w;"
 CRF_STAT = "    crft_stat_c[4]     = 1'b0;"
 CRF_DECL = "  wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &"
 VLAN_EN = "    .vlan_en_i  (crft_class_a_w),"
 OVER_LIMIT = "      .srp_over_limit_o        (pp_cd_srp_over_limit_w),\n"
+CLASS_A_PRIO = "      .srp_class_a_prio_o      (pp_cd_srp_class_a_prio_w),"
 DOMAIN_CHANGE = ".srp_domain_change_o     (pp_cd_srp_domain_change_w),"
+TLK_GATE = "    .i_tlk_gate_v         (8'(aaf_stream_en_w)),"
+MAAP_INTERNAL = "      .cfg_maap_internal_i     (1'b0),"
 STARTED_ACCEPT = ("  wire [ACMP_SINKS_C-1:0] acmpl_stopped_v_w = acmpl_bound_v_w\n"
                   "                                              & ~{};")
+#: The datapath's last line: probe modules are defined after it.
+TAIL = "\n`default_nettype wire\n"
 #: The wrapper's port list: a class-D output, one moved out of the face, and the next section.
 SHADOW_OVER_LIMIT = ("    output logic                         srp_over_limit_o,        "
                      "//! a source was refused against the port ceiling\n")
 SHADOW_EID = ("    output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,        "
               "//! per-sink bound talker entity_id\n")
 SHADOW_OBSERVABILITY = "    //! ---- observability ----\n"
-#: The included file the include plant writes into.
+#: The included files the include plants write into: one the module body
+#: includes, one included before the module.
 SHAPE_INCLUDE = "gen/adp_shape_defaults.svh"
+#: The datapath's include of it; milan_csr includes the same file, so a plant guards its text to the datapath.
+SHAPE_LINE = '  `include "gen/adp_shape_defaults.svh"'
+EVENTS_INCLUDE = "ethernet_events.svh"
 
-
-def unaccounted(line: str) -> str:
-    """The words refusing an occurrence of WIRE on the planted line that starts with `line`."""
-    return f"unaccounted occurrence of {WIRE} at `{line}"
+#: The status and answer-face consumers the cone plants route, and the row each read is keyed by.
+TALKER_DECLARED = "lwsrp_talker_declared"
+GSI_TKDCL = "gsi_tkdcl_w"
+RES_ACTIVE = "lwsrp_res_active"
+ROW = {TALKER_DECLARED: ("pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared:", "status"),
+       GSI_TKDCL: ("pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w:", "processor"),
+       RES_ACTIVE: ("pp_cd_srp_active_w -> lwsrp_res_active:", "status")}
+#: R583-3's sink: another module's input port, which is the wire.
+SINK = "  KL_probe_sink u_probe_sink (.a_i(probe_q));\n"
+#: The probe modules, defined after the datapath.
+SINK_MOD = "module KL_probe_sink (input logic [1:0] a_i, input logic [1:0] a_o);\nendmodule\n"
+BUF_MOD = "module KL_probe_buf (input logic [1:0] a, output logic y_o);\n  assign y_o = |a;\nendmodule\n"
+#: The words of a form the front end refuses, and of one the elaborator refuses.
+SV2V = "the front end (sv2v) refused the datapath"
+YOSYS = "the elaborator (Yosys) refused the datapath"
+OPENER = "an escaped name holds a comment opener"
 
 
 @dataclass(frozen=True)
@@ -49,31 +75,14 @@ class Plant:
     """One planted defect: the source it edits, its (old, new) edits, the words its finding must carry."""
 
     what: str
-    where: str                              # "datapath", "wrapper" or "include"
+    where: str                              # "datapath", "wrapper" or an included file's name
     edits: tuple[tuple[str, str], ...]
     word: str | tuple[str, ...]
 
 
-def routed(decl: str) -> tuple[tuple[str, str], ...]:
-    """R583-2's probe shape: decl placed before the CRF talker's C-TAG enable,
-    and probe_w ANDed into that talker's vlan_en_i, which is on the wire."""
-    return ((CRF_DECL, decl + CRF_DECL), (VLAN_EN, "    .vlan_en_i  (crft_class_a_w & ~probe_w),"))
-
-
-def anchored(decl: str) -> tuple[tuple[str, str], ...]:
-    """R583-3's probe shape: decl placed before the CRF talker's C-TAG enable, routed nowhere else."""
-    return ((CRF_DECL, decl + CRF_DECL),)
-
-
-#: The status and answer-face consumers the cone plants route, and the row each read is keyed by.
-TALKER_DECLARED = "lwsrp_talker_declared"
-GSI_TKDCL = "gsi_tkdcl_w"
-RES_ACTIVE = "lwsrp_res_active"
-ROW = {TALKER_DECLARED: ("pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared (line", "status"),
-       GSI_TKDCL: ("pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w (line", "processor"),
-       RES_ACTIVE: ("pp_cd_srp_active_w -> lwsrp_res_active (line", "status")}
-#: R583-3's sink: another module's input port, which is the wire.
-SINK = "  KL_probe_sink u_probe_sink (.a_i(probe_q));\n"
+def unmapped(consumer: str, wire: str = WIRE) -> str:
+    """The words refusing a read of wire into consumer that no row names."""
+    return f"unmapped read: {wire} -> {consumer} reaches"
 
 
 def reaches(sig: str, end: str) -> tuple[str, str, str]:
@@ -82,38 +91,21 @@ def reaches(sig: str, end: str) -> tuple[str, str, str]:
     return row, f"counted as {kind}, but it reaches the wire at", end
 
 
-def unclassified(line: str) -> str:
-    """The end an occurrence the census cannot classify reaches, on the planted line starting with `line`."""
-    return f"`{line}"
+def modules(*text: str) -> tuple[str, str]:
+    """The edit defining probe modules after the datapath."""
+    return TAIL, TAIL + "".join(text)
 
 
-def cone_plants(sig: str) -> list[Plant]:
-    """R582-3's part 1 forms, each routing sig onto the CRF talker's
-    vlan_en_i, and R583-3's event control and _o-named input port, for one
-    status or answer-face consumer."""
-    return [
-        Plant(f"R582-3: {sig} routed to the wire by a plain assign (its control)", "datapath",
-              routed(f"  wire probe_w;\n  assign probe_w = {sig}[0];\n"), reaches(sig, "crf_tx.vlan_en_i")),
-        Plant(f"R582-3: {sig} routed to the wire by a positional port", "datapath",
-              routed(f"  wire probe_w;\n  KL_probe_buf u_probe_pos ({sig}, probe_w);\n"),
-              reaches(sig, unclassified(f"KL_probe_buf u_probe_pos ({sig}, probe_w);"))),
-        Plant(f"R582-3: {sig} routed to the wire by an implicit .name port", "datapath",
-              routed(f"  wire probe_w;\n  KL_probe_buf u_probe_dot (.{sig}, .y_o(probe_w));\n"),
-              reaches(sig, unclassified(f"KL_probe_buf u_probe_dot (.{sig}, .y_o(probe_w));"))),
-        Plant(f"R582-3: {sig} routed to the wire by a case item label", "datapath",
-              routed("  logic probe_w;\n  always_comb begin\n    probe_w = 1'b0;\n    unique case (1'b1)\n"
-                     f"      {sig}[0]: probe_w = 1'b1;\n      default: probe_w = 1'b0;\n    endcase\n  end\n"),
-              reaches(sig, unclassified(f"{sig}[0]: probe_w = 1'b1;"))),
-        Plant(f"R582-3: {sig} routed to the wire by a function body's return", "datapath",
-              routed(f"  function automatic logic probe_f();\n    return {sig}[0];\n  endfunction\n"
-                     "  wire probe_w;\n  assign probe_w = probe_f();\n"),
-              reaches(sig, unclassified(f"return {sig}[0];"))),
-        Plant(f"R583-3: {sig} as a register's event control", "datapath",
-              anchored(f"  logic probe_q;\n  always_ff @(posedge {sig}) probe_q <= 1'b1;\n" + SINK),
-              reaches(sig, unclassified(f"always_ff @(posedge {sig}) probe_q <= 1'b1;"))),
-        Plant(f"R583-3: {sig} on an input port whose name ends in _o", "datapath",
-              anchored(f"  KL_probe_sink u_probe_sink (.a_o({sig}));\n"), reaches(sig, "u_probe_sink.a_o")),
-    ]
+def routed(decl: str, *mods: str) -> tuple[tuple[str, str], ...]:
+    """R583-2's probe shape: decl placed before the CRF talker's C-TAG enable,
+    and probe_w ANDed into that talker's vlan_en_i, which is on the wire."""
+    return ((CRF_DECL, decl + CRF_DECL), (VLAN_EN, "    .vlan_en_i  (crft_class_a_w & ~probe_w),"),
+            *((modules(*mods),) if mods else ()))
+
+
+def anchored(decl: str, *mods: str) -> tuple[tuple[str, str], ...]:
+    """R583-3's probe shape: decl placed before the CRF talker's C-TAG enable, a probe module's input its sink."""
+    return ((CRF_DECL, decl + CRF_DECL), modules(SINK_MOD, *mods))
 
 
 def on_crf(decl: str, term: str) -> tuple[tuple[str, str], ...]:
@@ -121,135 +113,278 @@ def on_crf(decl: str, term: str) -> tuple[tuple[str, str], ...]:
     return ((CRF_DECL, decl + CRF_DECL.replace("=", f"= {term} &", 1)),)
 
 
+def dot_mod(port: str) -> str:
+    """A probe module with an input named port, for an implicit .name connection."""
+    return f"module KL_probe_dot (input logic [1:0] {port}, output logic y_o);\nendmodule\n"
+
+
+def cone_plants(sig: str) -> list[Plant]:
+    """R582-3's part 1 forms, each routing sig onto the CRF talker's vlan_en_i,
+    and R583-3's event control and _o-named input port, for one status or
+    answer-face consumer."""
+    return [
+        Plant(f"R582-3: {sig} routed to the wire by a plain assign (its control)", "datapath",
+              routed(f"  wire probe_w;\n  assign probe_w = |{sig};\n"), reaches(sig, "crf_tx.vlan_en_i")),
+        Plant(f"R582-3: {sig} routed to the wire by a positional port", "datapath",
+              routed(f"  wire probe_w;\n  KL_probe_buf u_probe_pos ({sig}, probe_w);\n", BUF_MOD),
+              reaches(sig, "u_probe_pos.a")),
+        Plant(f"R582-3: {sig} routed to the wire by an implicit .name port", "datapath",
+              routed(f"  wire probe_w;\n  KL_probe_dot u_probe_dot (.{sig}, .y_o(probe_w));\n", dot_mod(sig)),
+              reaches(sig, f"u_probe_dot.{sig}")),
+        Plant(f"R582-3: {sig} routed to the wire by a case item label", "datapath",
+              routed("  logic probe_w;\n  always_comb begin\n    probe_w = 1'b0;\n    unique case (1'b1)\n"
+                     f"      {sig}[0]: probe_w = 1'b1;\n      default: probe_w = 1'b0;\n    endcase\n  end\n"),
+              reaches(sig, "crf_tx.vlan_en_i")),
+        Plant(f"R582-3: {sig} routed to the wire by a function body's return", "datapath",
+              routed(f"  function automatic logic probe_f();\n    return |{sig};\n  endfunction\n"
+                     "  wire probe_w;\n  assign probe_w = probe_f();\n"),
+              reaches(sig, "crf_tx.vlan_en_i")),
+        Plant(f"R583-3: {sig} as a register's event control", "datapath",
+              anchored(f"  logic probe_q;\n  always_ff @(posedge {sig}[0]) probe_q <= 1'b1;\n" + SINK),
+              reaches(sig, "u_probe_sink.a_i")),
+        Plant(f"R583-3: {sig} on an input port whose name ends in _o", "datapath",
+              anchored(f"  KL_probe_sink u_probe_sink (.a_o({sig}));\n"), reaches(sig, "u_probe_sink.a_o")),
+    ]
+
+
+def block_plants(sig: str) -> list[Plant]:
+    """R582-4's procedural-block forms (E1 to E6) and their controls, each driving
+    probe_q from sig into a probe module's input."""
+    d = "  logic [1:0] probe_a, probe_q;\n"
+    sink = reaches(sig, "u_probe_sink.a_i")
+    return [
+        Plant(f"R582-4: {sig}, always_ff begin, an if-begin block (its control)", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) begin if ({sig} != '0) begin probe_a <= '1; probe_q <= '1; end "
+            "end\n" + SINK), sink),
+        Plant(f"R582-4 E1: {sig}, always_ff with no begin after the event control", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) if ({sig} != '0) begin probe_a <= '1; probe_q <= '1; end\n"
+            + SINK), sink),
+        Plant(f"R582-4 E2: {sig}, always_ff with no begin, if/else", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) if ({sig} != '0) probe_a <= '1; else probe_q <= '1;\n" + SINK),
+            sink),
+        Plant(f"R582-4 E3: {sig}, always_comb with no begin, case", "datapath", anchored(
+            d + f"  always_comb case ({sig}) '0: probe_a = '1; default: probe_q = '1; endcase\n" + SINK), sink),
+        Plant(f"R582-4 E4: {sig}, an event control qualified by iff", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk iff (axis_resetn)) begin if ({sig} != '0) begin probe_a <= '1; "
+            "probe_q <= '1; end end\n" + SINK), (SV2V, "iff")),
+        Plant(f"R582-4: {sig}, a plain blocking assignment (its control)", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) begin probe_a <= '0; probe_q = {sig}; end\n" + SINK), sink),
+        Plant(f"R582-4 E5: {sig}, a compound assignment |=", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) begin probe_a <= '0; probe_q |= {sig}; end\n" + SINK), sink),
+        Plant(f"R582-4: {sig}, alias with the consumer on the right (its control)", "datapath", anchored(
+            f"  wire [1:0] probe_q;\n  alias probe_q = {sig};\n" + SINK), (SV2V, "Parse error")),
+        Plant(f"R582-4 E6: {sig}, alias with the consumer on the left", "datapath", anchored(
+            f"  wire [1:0] probe_q;\n  alias {sig} = probe_q;\n" + SINK), (SV2V, "Parse error")),
+    ]
+
+
+def beginless_plants(sig: str) -> list[Plant]:
+    """R583-4's F1 forms: a procedural block with no outer begin, or an event
+    control nesting parentheses, its else branch's register on a probe input."""
+    d = "  logic probe_a, probe_q;\n"
+    sink = reaches(sig, "u_probe_sink.a_i")
+    return [
+        Plant(f"R583-4: {sig}, begin-less always_ff, if/else", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) if ({sig}[0]) probe_a <= 1'b0; else probe_q <= 1'b1;\n" + SINK),
+            sink),
+        Plant(f"R583-4: {sig}, begin-less always_ff, if/else with begin/end branches", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) if ({sig}[0]) begin probe_a <= 1'b0; end\n"
+            "  else begin probe_q <= 1'b1; end\n" + SINK), sink),
+        Plant(f"R583-4: {sig}, begin-less always_ff, a case's default item", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) case ({sig}[0]) 1'b1: probe_a <= 1'b0; "
+            "default: probe_q <= 1'b1; endcase\n" + SINK), sink),
+        Plant(f"R583-4: {sig}, an event control nesting parentheses", "datapath", anchored(
+            d + "  always_ff @(posedge axis_clk or negedge (axis_resetn)) begin\n"
+            f"    if (!axis_resetn) probe_q <= 1'b0;\n    else if ({sig}[0]) probe_a <= 1'b0;\n"
+            "    else probe_q <= 1'b1;\n  end\n" + SINK), sink),
+        Plant(f"R583-4: {sig}, the same if/else inside begin/end (its control)", "datapath", anchored(
+            d + f"  always_ff @(posedge axis_clk) begin\n    if ({sig}[0]) probe_a <= 1'b0;\n"
+            "    else probe_q <= 1'b1;\n  end\n" + SINK), sink),
+    ]
+
+
 PLANTS = (
-    # ---- the census's own defects (round 3) ---------------------------------
+    # ---- the census's own defects ------------------------------------------
     Plant("an unmapped read on the wire", "datapath",
           (("(|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);",
             f"(|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]) & ~{WIRE};"),),
-          f"unmapped read: {WIRE} -> crft_class_a_w"),
+          unmapped("crft_class_a_w")),
     Plant("an unmapped read in a declaration's initialiser", "datapath",
           ((CRF_DECL, "  wire planted_w = |pp_cd_srp_granted_slope_bps_w;\n"
                       + CRF_DECL.replace("=", "= planted_w &", 1)),),
-          "unmapped read: pp_cd_srp_granted_slope_bps_w -> planted_w"),
+          unmapped("planted_w", "pp_cd_srp_granted_slope_bps_w")),
     Plant("an unmapped read in an always block's condition", "datapath",
           ((CRF_STAT, CRF_STAT + "\n    if (pp_cd_srp_lstn_decl_state_w[0]) crft_stat_c[4] = 1'b1;"),),
-          "unmapped read: pp_cd_srp_lstn_decl_state_w -> crft_stat_c"),
+          unmapped("crft_stat_c", "pp_cd_srp_lstn_decl_state_w")),
     Plant("a status read on the wire", "datapath",
           ((VLAN_EN, "    .vlan_en_i  (lwsrp_talker_declared),"),),
-          "counted as status, but it reaches the wire"),
+          reaches(TALKER_DECLARED, "crf_tx.vlan_en_i")),
     Plant("a GET_STREAM_INFO read on the wire", "datapath",
           ((VLAN_EN, "    .vlan_en_i  (gsi_tkdcl_w[0]),"),),
-          "counted as processor, but it reaches the wire"),
+          reaches(GSI_TKDCL, "crf_tx.vlan_en_i")),
     Plant("the started level dropped from the accept", "datapath",
           ((STARTED_ACCEPT.format("pp_aecp_strm_started_w"), STARTED_ACCEPT.format("pp_cd_acmp_bound_w")),),
-          "unmapped read: pp_cd_acmp_bound_w -> acmpl_stopped_v_w"),
+          unmapped("acmpl_stopped_v_w", "pp_cd_acmp_bound_w")),
     # ---- R582-2's probes ----------------------------------------------------
     Plant("R582-2: a class-D output wired off the pp_cd_ prefix and read on the wire", "datapath",
           ((DOMAIN_CHANGE, ".srp_domain_change_o     (probe_dom_chg_w),"),
            *on_crf("  wire probe_dom_chg_w;\n", "~probe_dom_chg_w")),
-          "unmapped read: probe_dom_chg_w -> crft_class_a_w"),
+          unmapped("crft_class_a_w", "probe_dom_chg_w")),
     Plant("R582-2: an alias wire read on the wire", "datapath",
-          on_crf(f"  wire probe_alias_w = {WIRE};\n", "~probe_alias_w"),
-          f"unmapped read: {WIRE} -> probe_alias_w"),
+          on_crf(f"  wire probe_alias_w = {WIRE};\n", "~probe_alias_w"), unmapped("probe_alias_w")),
     Plant("R582-2: a case selector in an always block", "datapath",
           ((CRF_STAT, CRF_STAT + f"\n    case ({WIRE}) 1'b1: crft_stat_c[4] = 1'b1; "
                                  "default: crft_stat_c[4] = 1'b0; endcase"),),
-          f"unmapped read: {WIRE} -> crft_stat_c"),
+          unmapped("crft_stat_c")),
     Plant("R582-2: a case item label in an always block", "datapath",
           ((CRF_STAT, CRF_STAT + f"\n    case (1'b1) {WIRE}: crft_stat_c[4] = 1'b1; "
                                  "default: crft_stat_c[4] = 1'b0; endcase"),),
-          unaccounted(f"case (1'b1) {WIRE}: crft_stat_c[4] = 1'b1;")),
+          unmapped("crft_stat_c")),
     Plant("R582-2: a function body called on the wire", "datapath",
           on_crf(f"  function automatic logic probe_f();\n    probe_f = {WIRE};\n  endfunction\n", "~probe_f()"),
-          f"unmapped read: {WIRE} -> probe_f"),
+          unmapped("crft_class_a_w")),
     # ---- R583-2's probes ----------------------------------------------------
     Plant("R583-2: a plain assign on the wire (its control)", "datapath",
-          routed(f"  wire probe_w;\n  assign probe_w = {WIRE};\n"),
-          f"unmapped read: {WIRE} -> probe_w"),
+          routed(f"  wire probe_w;\n  assign probe_w = {WIRE};\n"), unmapped("probe_w")),
     Plant("R583-2: a case item label in an always_comb", "datapath",
           routed("  logic probe_w;\n  always_comb begin\n    probe_w = 1'b0;\n    unique case (1'b1)\n"
                  f"      {WIRE}: probe_w = 1'b1;\n      default: probe_w = 1'b0;\n    endcase\n  end\n"),
-          unaccounted(f"{WIRE}: probe_w = 1'b1;")),
+          unmapped("probe_w")),
     Plant("R583-2: a positional port connection", "datapath",
-          routed(f"  wire probe_w;\n  KL_probe_buf u_probe_pos ({WIRE}, probe_w);\n"),
-          unaccounted(f"KL_probe_buf u_probe_pos ({WIRE}, probe_w);")),
+          routed(f"  wire probe_w;\n  KL_probe_buf u_probe_pos ({WIRE}, probe_w);\n", BUF_MOD),
+          unmapped("u_probe_pos.a")),
     Plant("R583-2: an implicit .name port connection", "datapath",
-          routed(f"  wire probe_w;\n  KL_probe_buf u_probe_dot (.{WIRE}, .y_o(probe_w));\n"),
-          unaccounted(f"KL_probe_buf u_probe_dot (.{WIRE}, .y_o(probe_w));")),
+          routed(f"  wire probe_w;\n  KL_probe_dot u_probe_dot (.{WIRE}, .y_o(probe_w));\n", dot_mod(WIRE)),
+          unmapped(f"u_probe_dot.{WIRE}")),
     Plant("R583-2: a function body's return", "datapath",
           routed(f"  function automatic logic probe_f();\n    return {WIRE};\n  endfunction\n"
                  "  wire probe_w;\n  assign probe_w = probe_f();\n"),
-          unaccounted(f"return {WIRE};")),
-    # ---- the cone, fail closed: R582-3's and R583-3's probes (round 5) ------
+          unmapped("probe_w")),
+    # ---- the cone: R582-3's and R583-3's probes ----------------------------
     *cone_plants(TALKER_DECLARED),
     *cone_plants(GSI_TKDCL),
     Plant("R582-3 part 2: a positional port naming a status consumer, its output unused", "datapath",
-          anchored(f"  wire probe_w;\n  KL_probe_buf u_probe_pos ({TALKER_DECLARED}, probe_w);\n"),
-          reaches(TALKER_DECLARED, unclassified(f"KL_probe_buf u_probe_pos ({TALKER_DECLARED}, probe_w);"))),
+          anchored(f"  wire probe_w;\n  KL_probe_buf u_probe_pos ({TALKER_DECLARED}, probe_w);\n", BUF_MOD),
+          reaches(TALKER_DECLARED, "u_probe_pos.a")),
     Plant("R583-3: a plain assign from the status consumer (its control)", "datapath",
           anchored(f"  wire probe_q;\n  assign probe_q = {RES_ACTIVE};\n" + SINK),
           reaches(RES_ACTIVE, "u_probe_sink.a_i")),
     Plant("R583-3: a case item label naming the status consumer", "datapath",
           anchored("  logic probe_q;\n  always_comb begin\n    case (1'b1)\n"
                    f"      {RES_ACTIVE}: probe_q = 1'b1;\n      default: probe_q = 1'b0;\n    endcase\n  end\n" + SINK),
-          reaches(RES_ACTIVE, unclassified(f"{RES_ACTIVE}: probe_q = 1'b1;"))),
+          reaches(RES_ACTIVE, "u_probe_sink.a_i")),
     Plant("R583-3: a function body returning the status consumer", "datapath",
           anchored(f"  function automatic logic probe_f(input logic x);\n    return {RES_ACTIVE};\n  endfunction\n"
                    "  wire probe_q = probe_f(1'b0);\n" + SINK),
-          reaches(RES_ACTIVE, unclassified(f"return {RES_ACTIVE};"))),
+          reaches(RES_ACTIVE, "u_probe_sink.a_i")),
     Plant("R583-3: the status consumer as a register's event control", "datapath",
           anchored(f"  logic probe_q;\n  always_ff @(posedge {RES_ACTIVE}) probe_q <= 1'b1;\n" + SINK),
-          reaches(RES_ACTIVE, unclassified(f"always_ff @(posedge {RES_ACTIVE}) probe_q <= 1'b1;"))),
+          reaches(RES_ACTIVE, "u_probe_sink.a_i")),
     Plant("R583-3: the status consumer on an input port whose name ends in _o", "datapath",
-          anchored(f"  logic probe_q;\n  KL_probe_sink u_probe_sink (.a_o({RES_ACTIVE}));\n"),
-          reaches(RES_ACTIVE, "u_probe_sink.a_o")),
-    # ---- the cone, fail closed: further forms ------------------------------
+          anchored(f"  KL_probe_sink u_probe_sink (.a_o({RES_ACTIVE}));\n"), reaches(RES_ACTIVE, "u_probe_sink.a_o")),
+    # ---- the cone: further forms (round 5) ---------------------------------
     Plant("a relational <= in a case item label", "datapath",
           routed("  logic probe_w;\n  always_comb begin\n    probe_w = 1'b0;\n    case (1'b1)\n"
                  f"      {TALKER_DECLARED} <= 1'b0: probe_w = 1'b1;\n      default: probe_w = 1'b0;\n    endcase\n"
                  "  end\n"),
-          reaches(TALKER_DECLARED, unclassified(f"{TALKER_DECLARED} <= 1'b0: probe_w = 1'b1;"))),
+          reaches(TALKER_DECLARED, "crf_tx.vlan_en_i")),
     Plant("a function's output argument", "datapath",
           routed("  function automatic logic probe_f(input logic a, output logic b);\n    b = a;\n    return 1'b0;\n"
                  "  endfunction\n  logic probe_w, probe_d;\n"
                  f"  always_comb probe_d = probe_f({TALKER_DECLARED}, probe_w);\n"),
-          reaches(TALKER_DECLARED, unclassified(f"always_comb probe_d = probe_f({TALKER_DECLARED}, probe_w);"))),
+          reaches(TALKER_DECLARED, "crf_tx.vlan_en_i")),
     Plant("a task's output argument", "datapath",
           routed("  task automatic probe_t(input logic a, output logic b);\n    b = a;\n  endtask\n"
                  f"  logic probe_w;\n  always_comb probe_t({TALKER_DECLARED}, probe_w);\n"),
-          reaches(TALKER_DECLARED, unclassified(f"always_comb probe_t({TALKER_DECLARED}, probe_w);"))),
-    Plant("a macro call's argument, the macro defined outside the datapath", "datapath",
-          anchored(f"  wire probe_d;\n  assign probe_d = `PROBE_M({TALKER_DECLARED});\n"),
-          reaches(TALKER_DECLARED, unclassified(f"assign probe_d = `PROBE_M({TALKER_DECLARED});"))),
+          reaches(TALKER_DECLARED, "crf_tx.vlan_en_i")),
+    Plant("a macro call's argument, the macro defined in an included file", SHAPE_INCLUDE,
+          (("", "\n`define PROBE_M(x) (x)\n"),
+           *anchored(f"  wire probe_q;\n  assign probe_q = `PROBE_M({TALKER_DECLARED});\n" + SINK)),
+          reaches(TALKER_DECLARED, "u_probe_sink.a_i")),
     Plant("the second assignment of a continuous assign list", "datapath",
-          routed(f"  logic probe_a, probe_w;\n  assign probe_a = 1'b0, probe_w = {TALKER_DECLARED}[0];\n"),
+          routed(f"  logic probe_a, probe_w;\n  assign probe_a = 1'b0, probe_w = {TALKER_DECLARED};\n"),
           reaches(TALKER_DECLARED, "crf_tx.vlan_en_i")),
-    Plant("a read in a block that also drives another target", "datapath",
-          routed(f"  logic probe_a, probe_w;\n  always_comb begin\n    probe_a = {TALKER_DECLARED}[0];\n"
-                 "    probe_w = 1'b0;\n  end\n"),
+    Plant("a read carried to another target of its block", "datapath",
+          routed(f"  logic probe_a, probe_w;\n  always_comb begin\n    probe_a = {TALKER_DECLARED};\n"
+                 "    probe_w = probe_a;\n  end\n"),
           reaches(TALKER_DECLARED, "crf_tx.vlan_en_i")),
-    Plant("a member named like the status consumer", "datapath",
-          routed(f"  wire probe_w;\n  assign probe_w = probe_s.{TALKER_DECLARED};\n"),
-          reaches(TALKER_DECLARED, unclassified(f"assign probe_w = probe_s.{TALKER_DECLARED};"))),
+    Plant("a struct member carrying the status consumer", "datapath",
+          routed(f"  typedef struct packed {{ logic {TALKER_DECLARED}; }} probe_t;\n  probe_t probe_s;\n"
+                 f"  assign probe_s.{TALKER_DECLARED} = {TALKER_DECLARED};\n"
+                 f"  wire probe_w;\n  assign probe_w = probe_s.{TALKER_DECLARED};\n"),
+          reaches(TALKER_DECLARED, "crf_tx.vlan_en_i")),
+    Plant("a status consumer written into a memory and read out of it", "datapath",
+          anchored("  logic [1:0] probe_m [0:3];\n  logic [1:0] probe_i;\n  always_ff @(posedge axis_clk) begin\n"
+                   f"    probe_i <= probe_i + 2'd1;\n    probe_m[probe_i] <= {{1'b0, {TALKER_DECLARED}}};\n  end\n"
+                   "  wire [1:0] probe_q = probe_m[probe_i];\n" + SINK),
+          reaches(TALKER_DECLARED, "u_probe_sink.a_i")),
+    Plant("a status consumer printed", "datapath",
+          anchored(f"  always_ff @(posedge axis_clk) $display(\"%b\", {TALKER_DECLARED});\n"),
+          reaches(TALKER_DECLARED, "which has no output")),
     Plant("a CSR block input outside the read-back face", "datapath",
-          anchored(f"  milan_csr u_probe_csr (.i_probe({TALKER_DECLARED}));\n"),
-          reaches(TALKER_DECLARED, "u_probe_csr.i_probe")),
+          ((TLK_GATE, f"    .i_tlk_gate_v         (8'(aaf_stream_en_w) | 8'({TALKER_DECLARED})),"),),
+          reaches(TALKER_DECLARED, "csr.i_tlk_gate_v")),
+    Plant("a read-back port of another milan_csr cell", "datapath",
+          anchored(f"  milan_csr u_probe_csr (.i_lwsrp_status({TALKER_DECLARED}));\n"),
+          reaches(TALKER_DECLARED, "u_probe_csr.i_lwsrp_status")),
     Plant("a wrapper input outside its answer face", "datapath",
-          ((OVER_LIMIT, OVER_LIMIT + f"      .cfg_probe_i             ({TALKER_DECLARED}),\n"),),
-          reaches(TALKER_DECLARED, "pp_shadow.cfg_probe_i")),
+          ((MAAP_INTERNAL, f"      .cfg_maap_internal_i     ({TALKER_DECLARED}),"),),
+          reaches(TALKER_DECLARED, "pp_shadow.cfg_maap_internal_i")),
+    # ---- the procedural block: R582-4's and R583-4's probes ---------------
+    *block_plants(TALKER_DECLARED),
+    *block_plants(GSI_TKDCL),
+    *beginless_plants(TALKER_DECLARED),
+    *beginless_plants(GSI_TKDCL),
+    # ---- the first hop: R583-4's probes -----------------------------------
+    Plant("R583-4: a token-paste macro defined in an included file", EVENTS_INCLUDE,
+          (("", "\n`define PROBE_CD(n) pp_cd_``n``_w\n"),
+           *routed("  wire probe_w;\n  assign probe_w = `PROBE_CD(srp_over_limit);\n")),
+          unmapped("probe_w")),
+    Plant("R583-4: the token-paste macro defined in the datapath (its control)", "datapath",
+          routed("  `define PROBE_CD(n) pp_cd_``n``_w\n  wire probe_w;\n"
+                 "  assign probe_w = `PROBE_CD(srp_over_limit);\n"),
+          unmapped("probe_w")),
+    Plant("R583-4: a macro in an included file holding a hierarchical reference into the wrapper", EVENTS_INCLUDE,
+          (("", "\n`define PROBE_H pp_shadow.srp_over_limit_o\n"),
+           *routed("  wire probe_w;\n  assign probe_w = `PROBE_H;\n")),
+          (YOSYS, "pp_shadow.srp_over_limit_o")),
+    Plant("R583-4: a hierarchical reference into the wrapper (its control)", "datapath",
+          routed("  wire probe_w;\n  assign probe_w = pp_shadow.srp_over_limit_o;\n"),
+          (YOSYS, "pp_shadow.srp_over_limit_o")),
+    Plant("R583-4: an escaped name holding // hides a read", "datapath",
+          ((CRF_DECL, "  wire \\probe//w ;\n  assign \\probe//w = " + WIRE + ";\n" + CRF_DECL),
+           (VLAN_EN, "    .vlan_en_i  (crft_class_a_w & ~\\probe//w\n               ),")),
+          (OPENER, "\\probe//")),
+    Plant("an escaped name holding // drops a declaration's initialiser without an error", "datapath",
+          ((CRF_DECL, "  wire \\probe//w = " + WIRE + "\n  ;\n" + CRF_DECL),),
+          (OPENER, "\\probe//")),
+    Plant("an escaped name holding /*", "datapath",
+          ((CRF_DECL, "  wire \\probe/*w ;\n" + CRF_DECL),), (OPENER, "\\probe/*")),
+    Plant("R583-4: escaped names holding a double quote around a read", "datapath",
+          ((CRF_DECL, "  wire \\probe\"a ;\n  wire probe_w;\n  assign probe_w = " + WIRE + ";\n"
+            "  wire \\probe\"b ;\n" + CRF_DECL),
+           (VLAN_EN, "    .vlan_en_i  (crft_class_a_w & ~probe_w),")),
+          unmapped("probe_w")),
+    Plant("R583-4: a second driver as the population net's declaration initialiser", "datapath",
+          ((WIRE_DECL, f"  wire                       {WIRE} = 1'b0;"),),
+          f"{WIRE} is driven by"),
+    Plant("R583-4: a second driver as a continuous assign (its control)", "datapath",
+          ((CRF_DECL, f"  assign {WIRE} = 1'b0;\n" + CRF_DECL),),
+          f"{WIRE} is driven by"),
     # ---- the wrapper's class-D face -----------------------------------------
     Plant("a class-D port left unconnected", "datapath",
           ((OVER_LIMIT, "      .srp_over_limit_o        (),\n"),),
-          "class-D port srp_over_limit_o is left unconnected"),
+          "class-D port srp_over_limit_o is not connected"),
     Plant("a class-D port the instance omits", "datapath",
           ((OVER_LIMIT, ""),),
           "class-D port srp_over_limit_o is not connected"),
-    Plant("a class-D port connected to an expression", "datapath",
-          ((OVER_LIMIT, f"      .srp_over_limit_o        ({WIRE}[0]),\n"),),
-          "class-D port srp_over_limit_o is connected to an expression"),
-    Plant("a class-D port connected by an implicit .name", "datapath",
+    Plant("a class-D port driving more than one net", "datapath",
+          ((CLASS_A_PRIO, "      .srp_class_a_prio_o      ({probe_p_w, pp_cd_srp_class_a_prio_w[1:0]}),"),
+           (CRF_DECL, "  wire probe_p_w;\n" + CRF_DECL)),
+          "class-D port srp_class_a_prio_o drives pp_cd_srp_class_a_prio_w, probe_p_w, not one whole named net"),
+    Plant("a class-D port connected by an implicit .name, no net of its name", "datapath",
           ((OVER_LIMIT, "      .srp_over_limit_o,\n"),),
-          "the wrapper instance connects `.srp_over_limit_o`, which is not a named port connection"),
+          (SV2V, 'implicit declaration of "srp_over_limit_o"')),
     Plant("a class-D output the census does not list", "wrapper",
           ((SHADOW_OVER_LIMIT, SHADOW_OVER_LIMIT + "    output logic                         srp_probe_level_o,\n"),),
           "the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list"),
@@ -259,47 +394,43 @@ PLANTS = (
     Plant("a class-D output moved out of the face", "wrapper",
           ((SHADOW_EID, ""), (SHADOW_OBSERVABILITY, SHADOW_OBSERVABILITY + SHADOW_EID)),
           "CLASS_D_PORTS lists acmp_bound_eid_o, which the wrapper's class-D face does not declare"),
-    # ---- the forms refused outright -----------------------------------------
+    # ---- forms the text census refused outright, now elaborated ------------
     Plant("a wildcard port connection", "datapath",
-          routed("  wire probe_w;\n  KL_probe_buf u_probe_all (.*);\n"),
-          "a wildcard port connection (.*)"),
-    Plant("a hierarchical reference into the wrapper", "datapath",
-          routed("  wire probe_w;\n  assign probe_w = pp_shadow.srp_over_limit_o;\n"),
-          "a hierarchical reference into pp_shadow"),
+          routed("  wire probe_w;\n  KL_probe_all u_probe_all (.*);\n",
+                 f"module KL_probe_all (input logic {WIRE}, output logic probe_w);\nendmodule\n"),
+          unmapped(f"u_probe_all.{WIRE}")),
     Plant("a hierarchical reference into the CSR block", "datapath",
-          routed("  wire probe_w;\n  assign probe_w = csr.i_lwsrp_status[0];\n"),
-          "a hierarchical reference into csr"),
+          routed("  wire probe_w;\n  assign probe_w = csr.i_lwsrp_status[0];\n"), (YOSYS, "csr.i_lwsrp_status")),
     Plant("a hierarchical reference through a generate scope", "datapath",
-          routed("  wire probe_w;\n  assign probe_w = g_probe[0].csr.i_lwsrp_status[0];\n"),
-          "a hierarchical reference into csr"),
-    Plant("a macro token paste", "datapath",
-          routed("  `define PROBE_CD(n) pp_cd_``n``_w\n"
-                 "  wire probe_w;\n  assign probe_w = `PROBE_CD(srp_over_limit);\n"),
-          "a macro token paste"),
-    Plant("a second driver", "datapath",
-          ((CRF_DECL, f"  assign {WIRE} = 1'b0;\n" + CRF_DECL),),
-          unaccounted(f"assign {WIRE} = 1'b0;")),
-    Plant("an included file naming a class-D wire", "include",
-          ((SHAPE_INCLUDE, f"\n  wire probe_inc_w = {WIRE};\n"),),
-          f"an included file names class-D wire {WIRE}"),
-    Plant("an include the census cannot find", "datapath",
+          routed("  wire probe_w;\n  assign probe_w = g_probe[0].csr.i_lwsrp_status[0];\n"), YOSYS),
+    Plant("a read written in an included file", SHAPE_INCLUDE,
+          (("", f"\n`ifdef PROBE_IN_DATAPATH\n  wire probe_inc_w = {WIRE};\n`endif\n"),
+           (SHAPE_LINE, f"`define PROBE_IN_DATAPATH\n{SHAPE_LINE}\n`undef PROBE_IN_DATAPATH"),
+           *routed("  wire probe_w = probe_inc_w;\n")),
+          unmapped("probe_inc_w")),
+    Plant("an include the front end cannot find", "datapath",
           ((CRF_DECL, '  `include "probe_missing.svh"\n' + CRF_DECL),),
-          "the datapath includes probe_missing.svh, which the census cannot find"),
+          (SV2V, "probe_missing.svh")),
 )
 
 
 def apply(src: Any, plant: Plant) -> Any:
-    """A copy of the census's Sources with the plant's edits made, or a string saying why they cannot be."""
-    if plant.where == "include":
-        rel, line = plant.edits[0]
-        copies = src.included.get(rel, ())
+    """A copy of the census's Sources with the plant's edits made, or a string
+    saying why they cannot be. An edit whose old text is empty appends to an
+    included file; the plant's other edits go to the datapath."""
+    if plant.where in ("datapath", "wrapper"):
+        out, edits = src, plant.edits
+    else:
+        copies = src.included.get(plant.where, ())
         if not copies:
-            return f"the datapath includes no {rel} to plant into"
+            return f"the datapath includes no {plant.where} to plant into"
         (path, text), *rest = copies
-        return replace(src, included={**src.included, rel: ((path, text + line), *rest)})
-    text = getattr(src, plant.where)
-    for old, new in plant.edits:
+        out = replace(src, included={**src.included, plant.where: ((path, text + plant.edits[0][1]), *rest)})
+        edits = plant.edits[1:]
+    where = plant.where if plant.where == "wrapper" else "datapath"
+    text = getattr(out, where)
+    for old, new in edits:
         if text.count(old) != 1:
-            return f"its fixture occurs {text.count(old)} times in the {plant.where}"
+            return f"its fixture occurs {text.count(old)} times in the {where}"
         text = text.replace(old, new, 1)
-    return replace(src, **{plant.where: text})
+    return replace(out, **{where: text})
