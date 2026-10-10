@@ -1,0 +1,57 @@
+2026-10-10T18:42:57.5842892Z Cache hit for: yosys-v0.66-Linux
+2026-10-10T18:42:58.9554257Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+2026-10-10T18:42:58.9589369Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+2026-10-10T18:42:59.6608423Z sv2v v0.0.12
+2026-10-10T18:43:01.4541331Z publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+2026-10-10T18:44:46.3205765Z shape recipe: 62697 cells, 1187 named nets; 39 read(s), 4 unread net(s); the module's defaults
+2026-10-10T18:44:46.3207543Z shape endstation_arty_4x4: 134973 cells, 1218 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 TALKER_WIRE_CHANS_P=4
+2026-10-10T18:44:46.3209864Z shape endstation_arty_8ch: 166705 cells, 1218 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 TALKER_WIRE_CHANS_P=8
+2026-10-10T18:44:46.3211689Z shape endstation_arty_current: 62697 cells, 1187 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_SLOTS_P=0 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=1340080128 PP_RESP_BASE_P=1341124608
+2026-10-10T18:44:46.3213869Z shape endstation_ax7101_1x1_tdm8: 66810 cells, 1192 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_MASTER_P=1 AUDIO_IF_RENDER_SLOTS_P=8 AUDIO_IF_SLOTS_P=8 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LOOPBACK_P=1 LPF_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 TALKER_WIRE_CHANS_P=8
+2026-10-10T18:44:46.3217172Z shape endstation_ax7101_8x8: 306475 cells, 1237 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=98304000 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=32 DPROBES_P=0 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LPF_P=0 LTAP_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=8 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 TALKER_WIRE_CHANS_P=8
+2026-10-10T18:44:46.3218806Z == publication census: 6 shape(s), checks: 234   failures: 0 ==
+2026-10-10T18:44:46.3219739Z 25 class-D net(s) from the wrapper cell's ports, 4 unread; 39 read(s) of 21 class-D net(s) in each shape; RESULT: PASS
+2026-10-10T18:44:46.3220561Z publication census: 6 shape(s) elaborated and classified in 105 s at --jobs 4
+2026-10-10T18:45:52.6716238Z [ok] planted R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+2026-10-10T18:46:10.5472391Z [ok] planted R583-5 S2: a read inside a generate loop with no iteration at one stream: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_v reaches the wire; name its block field or its ruled exclusion)
+2026-10-10T18:46:10.5516111Z [ok] planted R583-5 S3: a read inside a generate branch only LOOPBACK_P != 0 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+2026-10-10T18:46:10.5517916Z [ok] planted R582-5 arm B: a read inside if (N_STREAMS > 1) begin ... end: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+2026-10-10T18:46:45.1823630Z [ok] planted R582-5 arm E: a status consumer added to the g_aaf_stream_en loop's gate: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at aaf_packetizer.stream_en_i; chan_map_capture.map_wr_addr_i; chan_map_capture.map_wr_data_i; chan_map_capture.map_wr_en_i; chan_map_render.map_wr_addr_i; chan_map_render.map_wr_data_i; chan_map_render.map_wr_en_i; csr.i_tlk_gate_v; media_clock_restart.streaming_i; pp_shadow.amap_data_i; pp_shadow.amap_edit_data_i; pp_shadow.amap_live_wr_i; talker_diag.streaming_i)
+2026-10-10T18:55:53.4796130Z [ok] planted R583-5 R1: a status consumer driven to a new datapath output: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at the datapath output probe_o)
+2026-10-10T18:55:56.3296144Z [ok] planted R583-5 R2: a status consumer ORed into the answer face's change strobe: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the processor wrapper)
+2026-10-10T18:56:53.6309593Z [ok] planted an sv2v other than the pinned release: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.13` and `Yosys 0.66`: set SV2V and YOSYS to the pinned tools)
+2026-10-10T18:56:53.6313554Z [ok] planted a Yosys other than the pinned version: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.12` and `Yosys 0.67`: set SV2V and YOSYS to the pinned tools)
+2026-10-10T18:56:53.6625219Z selftest: 0 of 120 arm(s) failed; 120 arm(s) and their rules' removals in 727 s at --jobs 4
+2026-10-10T18:56:53.6626564Z [ok] rule shapes: removed, it lets through every one of its 2 arm(s), e.g. R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds
+2026-10-10T18:56:53.6627564Z [ok] rule shape-params: removed, it lets through every one of its 3 arm(s), e.g. R583-5 S2: a read inside a generate loop with no iteration at one stream
+2026-10-10T18:56:53.6628287Z [ok] rule shape-header: removed, it lets through every one of its 1 arm(s), e.g. a read inside a generate branch only a multi-stream shape's header builds
+2026-10-10T18:56:53.6629410Z [ok] rule same-across-shapes: removed, it lets through every one of its 1 arm(s), e.g. a field read that reaches CSR read-back only in the multi-stream shapes
+2026-10-10T18:56:53.6630084Z [ok] rule pins: removed, it lets through every one of its 2 arm(s), e.g. an sv2v other than the pinned release
+2026-10-10T18:56:53.6630826Z [ok] rule opener-guard: removed, it lets through every one of its 3 arm(s), e.g. R583-4: an escaped name holding // hides a read
+2026-10-10T18:56:53.6631790Z [ok] rule keep-names: removed, it lets through every one of its 1 arm(s), e.g. positive control, the tracked sources
+2026-10-10T18:56:53.6632627Z [ok] rule one-wrapper: removed, it lets through every one of its 1 arm(s), e.g. the wrapper's cell renamed
+2026-10-10T18:56:53.6633303Z [ok] rule csr-cell: removed, it lets through every one of its 1 arm(s), e.g. the CSR block's cell renamed
+2026-10-10T18:56:53.6633821Z [ok] rule face-listed: removed, it lets through every one of its 2 arm(s), e.g. a class-D output the census does not list
+2026-10-10T18:56:53.6634805Z [ok] rule face-declared: removed, it lets through every one of its 1 arm(s), e.g. a class-D output moved out of the face
+2026-10-10T18:56:53.6635691Z [ok] rule face-placed: removed, it lets through every one of its 1 arm(s), e.g. a class-D output named again in a block comment of the port list
+2026-10-10T18:56:53.6636268Z [ok] rule started-port: removed, it lets through every one of its 1 arm(s), e.g. the started level's port renamed
+2026-10-10T18:56:53.6637028Z [ok] rule port-connected: removed, it lets through every one of its 2 arm(s), e.g. a class-D port left unconnected
+2026-10-10T18:56:53.6637893Z [ok] rule port-one-net: removed, it lets through every one of its 1 arm(s), e.g. a class-D port driving more than one net
+2026-10-10T18:56:53.6638638Z [ok] rule ports-distinct: removed, it lets through every one of its 1 arm(s), e.g. two class-D ports driving one net
+2026-10-10T18:56:53.6639514Z [ok] rule sole-driver: removed, it lets through every one of its 2 arm(s), e.g. R583-4: a second driver as the population net's declaration initialiser
+2026-10-10T18:56:53.6640424Z [ok] rule two-drivers: removed, it lets through every one of its 1 arm(s), e.g. a second driver of a net outside the population
+2026-10-10T18:56:53.6641000Z [ok] rule every-input: removed, it lets through every one of its 4 arm(s), e.g. an unmapped read in an always block's condition
+2026-10-10T18:56:53.6641812Z [ok] rule memory: removed, it lets through every one of its 1 arm(s), e.g. a status consumer written into a memory and read out of it
+2026-10-10T18:56:53.6642429Z [ok] rule output-is-wire: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R1: a status consumer driven to a new datapath output
+2026-10-10T18:56:53.6643221Z [ok] rule no-output-end: removed, it lets through every one of its 1 arm(s), e.g. a status consumer printed
+2026-10-10T18:56:53.6643755Z [ok] rule terminal-cell: removed, it lets through every one of its 1 arm(s), e.g. a read-back port of another milan_csr cell
+2026-10-10T18:56:53.6644315Z [ok] rule csr-readback: removed, it lets through every one of its 1 arm(s), e.g. a CSR block input outside the read-back face
+2026-10-10T18:56:53.6645367Z [ok] rule processor-face: removed, it lets through every one of its 1 arm(s), e.g. a wrapper input outside its answer face
+2026-10-10T18:56:53.6646065Z [ok] rule unmapped: removed, it lets through every one of its 15 arm(s), e.g. an unmapped read on the wire
+2026-10-10T18:56:53.6646717Z [ok] rule unknown-field: removed, it lets through every one of its 1 arm(s), e.g. a field the contract lacks
+2026-10-10T18:56:53.6647565Z [ok] rule field-on-wire: removed, it lets through every one of its 1 arm(s), e.g. a field read whose only wire is cut
+2026-10-10T18:56:53.6648296Z [ok] rule off-wire: removed, it lets through every one of its 51 arm(s), e.g. a status read on the wire
+2026-10-10T18:56:53.6648887Z [ok] rule status-not-processor: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R2: a status consumer ORed into the answer face's change strobe
+2026-10-10T18:56:53.6649669Z [ok] rule stale-row: removed, it lets through every one of its 1 arm(s), e.g. a stale row
+2026-10-10T18:56:53.6650000Z mutations: 0 of 31 rule(s) no arm proves
+2026-10-10T18:56:53.7808915Z Cache hit occurred on the primary key yosys-v0.66-Linux, not saving cache.

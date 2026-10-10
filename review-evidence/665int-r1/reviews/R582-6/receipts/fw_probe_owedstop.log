@@ -1,0 +1,55 @@
+edit applied: sw/firmware/ctrl/srp/srp_mbx.c
+[FAIL] arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8
+    <scratch-clone-2>/sw/firmware/ctrl/test/srp_mbx.cpp:101: Failure
+    [FAIL] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported: PUB LICENCE clears source 0's bit before the revocation is reported
+    [  FAILED  ] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported (0 ms)
+    [ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+    [       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+    [ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+    [       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (0 ms)
+    [  FAILED  ] 1 test, listed below:
+    [  FAILED  ] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported
+    1 FAILED TEST
+[ok] arm srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_app-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_walk-if1-endstation_ax7101_1x1_tdm8
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[FAIL] arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8
+    <scratch-clone-2>/sw/firmware/ctrl/test/srp_mbx.cpp:101: Failure
+    [FAIL] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported: PUB LICENCE clears source 0's bit before the revocation is reported
+    <scratch-clone-2>/sw/firmware/ctrl/test/srp_mbx.cpp:101: Failure
+    [FAIL] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported: PUB LICENCE clears source 0's bit before the revocation is reported
+    [  FAILED  ] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported (0 ms)
+    [ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+    [       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+    [ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+    [       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (12 ms)
+    [  FAILED  ] 1 test, listed below:
+    [  FAILED  ] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported
+    1 FAILED TEST
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] arm srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] arm srp-srp_app-if2-endstation_ax7101_1x1_tdm8
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/fwout-owedstop/build/checkout/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+restored: sw/firmware/ctrl/srp/srp_mbx.c
+fw_probe: FAIL

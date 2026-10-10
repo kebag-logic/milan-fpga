@@ -1,0 +1,7 @@
+2026-10-10T18:39:19.7030173Z ##[group]Run python3 sw/firmware/gtest/tally_selftest.py
+2026-10-10T18:42:48.0641712Z [ok] arm srpcmp
+2026-10-10T18:52:38.3371986Z mutants: 506 of 506 caught
+2026-10-10T19:02:39.7768622Z test_ctrl_firmware: PASS
+2026-10-10T19:02:39.8048795Z ##[group]Run python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+2026-10-10T19:06:42.0554239Z test_ctrl_firmware coverage run: PASS
+2026-10-10T19:06:42.0569143Z firmware coverage: PASS (30 files)

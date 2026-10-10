@@ -1,0 +1,31 @@
+### python3 sw/mailbox/gen_mailbox.py --check
+gen_mailbox: 0 finding(s)
+rc=0
+### python3 sw/mailbox/gen_mailbox.py --crosscheck
+gen_mailbox: 0 finding(s)
+rc=0
+### python3 sw/mailbox/gen_mailbox.py --selftest
+[ok] variant of 2 interfaces: generated outputs cross-check clean
+[ok] variant of 4 interfaces: refused (interface 2 GM_LO at 0x60 collides or leaves the register space)
+selftest: 0 arm(s) failed
+rc=0
+### python3 scripts/ci_events.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1821 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+### python3 scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+### python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 7/7
+traceability matrix up to date (77 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+### python3 scripts/check_em_dash.py --base 554e61d299ef7ddb5aca6fb9ce0e6a6cd076d8cb
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### git diff --check 554e61d299ef7ddb5aca6fb9ce0e6a6cd076d8cb HEAD
+rc=0
+check_em_dash: 0 finding(s) over 679 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [554e61d2..HEAD]
+rc=0

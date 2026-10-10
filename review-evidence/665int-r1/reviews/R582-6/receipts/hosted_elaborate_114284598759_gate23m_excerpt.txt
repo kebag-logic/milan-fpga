@@ -1,0 +1,12 @@
+2026-10-10T18:39:09.9990076Z ##[group]Run python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+2026-10-10T18:39:09.9990671Z ^[[36;1mpython3 sw/builder/test_builder.py --require-elaboration --require-rv32^[[0m
+2026-10-10T18:58:10.8597259Z   [gate 23m] 5 real milan_soc.py elaborations in 4 s: for every config the integer parameters Instance("milan_datapath") receives are exactly eb.datapath_params(), the shapes the publication census elaborates; every other keyword is a ROM image path
+2026-10-10T18:58:10.8599009Z   [gate 23m mutation] 3/3 cuts rejected in 3 s, each naming its keyword: a binding dropped to 0, a value one short, and a keyword the builder does not state
+2026-10-10T18:58:19.9437536Z   [gate 23g classifier] 8/8 shaped results and 4/4 --require-elaboration verdicts graded as [R0] on PR #188 requires: a synthetic recorded Arty error and scopt's own refusal of an --l2-* argument are the only skip shapes, a stale #184 row and every other failure fail, and the toolchain skip fails --require-elaboration
+2026-10-10T18:59:57.6651800Z 4 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+2026-10-10T18:59:57.6653082Z   - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+2026-10-10T18:59:57.6654933Z   - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 54 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run
+2026-10-10T18:59:57.6656609Z   - [gate 11] real report not on disk (<home-path>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+2026-10-10T18:59:57.6657982Z   - [gate 38] no Verilator on this runner, so KL_nvm_backend was not elaborated at 128 and 129 names: the builder's boundary was not compared with the RTL guard's
+2026-10-10T18:59:57.6658838Z ALL GATES PASS EXCEPT 4 NOT RUN
+2026-10-10T18:59:57.6659976Z --require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 4 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
