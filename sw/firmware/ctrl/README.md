@@ -77,14 +77,28 @@ Its callback and timing obligations are in its
 [`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions.
 It preprocesses the stack's sources and headers with this firmware's own host and RV32 flags.
 Every dependency must be a stack public header or a C library header.
-It preprocesses every firmware source, header and image source with the stack's other directories searched last.
+It preprocesses the stack's tests as C++, as the arms compile them.
+They may reach anything of the stack and the host's libraries, and nothing else of this repository.
+It preprocesses every firmware source, header and image source, on the host and for RV32, with the stack's other directories searched last.
 A dependency on the stack outside `include/` is refused.
 So is a file under `sw/firmware` named as a stack source or header.
+Every unit is judged in every configuration the firmware builds.
+The build modes are read from the builders' own `-D` and `-U` flags (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests' and the SRP builds' switches), never listed in the gate.
+The compiler reports the macros each unit tests (`-dU`), and the gate tries every combination of their modes.
+A finding names the mode flags of the smallest configuration that reaches it.
 It also runs the stack's own boundary gate.
-Every gate that builds the stack first refuses a submodule off its gitlink.
-It refuses one with edited sources, headers or tests too.
-`--selftest` plants 13 defects, each refused by name, and two passing controls.
-Four pin controls follow: a clean clone passes; an edited source, an edited test and another revision are refused.
+`--selftest` plants 25 defects, each refused by name, and three passing controls.
+
+Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
+The submodule must be at its gitlink.
+Every file of its sources, headers, tests, examples, scripts and CMake files must hash to the gitlink's tree, and no other file may be there.
+The hashes are read from the files, never from the index, so an edit hidden from `git status` is refused too.
+The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP differential in both modes, the mailbox bench ([`tb/verilator/mbx`](../../../tb/verilator/mbx)) and both image fixtures with the submodule as their stack.
+Twelve pin controls follow the boundary controls.
+A clean clone passes the check.
+An edited source, test, script or CMake file is refused, and so are an edit hidden by `assume-unchanged`, an added header and another revision.
+The mailbox bench passes the clean clone.
+The bench and both modes of the MAAP differential refuse an edited clone before building it.
 
 Its tests run two ways.
 The gate [below](#the-host-test) builds the stack's own core tests into the
@@ -389,7 +403,7 @@ Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the
 `acmpnvm` arm also runs the builder for its shape, as lane F1's gate does).
 RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
 Both firmware gates require RV32 in `firmware-unit`.
-The boundary gate also needs CMake and Clang for the stack's own gate.
+The boundary gate also needs GoogleTest's headers for the stack's tests, and CMake and Clang for the stack's own gate.
 Freestanding declarations avoid the SDK's hosted C headers.
 GCC supplies its own freestanding integer and varargs headers.
 `MILAN_RV32_CC` selects an explicit compiler for local validation.

@@ -284,10 +284,12 @@ jobs:
           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
           python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
 
-      # #697: the TSN stack's boundary from both sides: the cores include only
-      # their own headers and the C library under the firmware's own flags, the
-      # firmware reaches only the stack's public headers, and the stack's own
-      # gate (its CMake build with gcc and clang) runs; planted controls first.
+      # #697: the TSN stack's boundary from both sides, in every configuration
+      # the firmware's builders compile: the cores include only their own
+      # headers and the C library, the stack's tests reach nothing of this
+      # repository, the firmware reaches only the stack's public headers, and
+      # the stack's own gate (its CMake build with gcc and clang) runs; planted
+      # and pin controls first.
       - name: Hold the TSN stack boundary in both directions
         run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
 
