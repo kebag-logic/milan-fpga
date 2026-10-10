@@ -328,18 +328,26 @@ module KL_gptp_txret #(
   // ======================================================================= //
   //  Declarations (Vivado's front end refuses a use above a declaration)    //
   // ======================================================================= //
-  logic  [3:0] led_type_r [0:TXTS_CAP_N_P-1];
-  logic [15:0] led_seq_r  [0:TXTS_CAP_N_P-1];
-  logic        led_tag_r  [0:TXTS_CAP_N_P-1];
+  //! The ledger's tag fields and the result queue are distributed RAM
+  //! (issue #640, lane M7): each is written only at its tail and read only
+  //! at its head, combinationally, as the flip-flop arrays were. Neither is
+  //! cleared by reset, because no reader samples an entry that was not
+  //! written after the reset: the ledger is read only while it holds an
+  //! entry, and the engine takes a result only on an accepted valid/ready
+  //! beat. `led_live_r` stays in flip-flops: a barrier clears every entry
+  //! in one cycle.
+  (* ram_style = "distributed" *) logic  [3:0] led_type_r [0:TXTS_CAP_N_P-1];
+  (* ram_style = "distributed" *) logic [15:0] led_seq_r  [0:TXTS_CAP_N_P-1];
+  (* ram_style = "distributed" *) logic        led_tag_r  [0:TXTS_CAP_N_P-1];
   logic        led_live_r [0:TXTS_CAP_N_P-1];
   logic [PTR_W_C-1:0] led_head_r;
   logic [OCC_W_C-1:0] n_led_r;
 
-  logic [63:0] res_ns_r   [0:TXTS_CAP_N_P-1];
-  logic [15:0] res_seq_r  [0:TXTS_CAP_N_P-1];
-  logic  [3:0] res_type_r [0:TXTS_CAP_N_P-1];
-  logic        res_ok_r   [0:TXTS_CAP_N_P-1];
-  logic [TXTS_GEN_W_P-1:0] res_gen_r [0:TXTS_CAP_N_P-1];
+  (* ram_style = "distributed" *) logic [63:0] res_ns_r   [0:TXTS_CAP_N_P-1];
+  (* ram_style = "distributed" *) logic [15:0] res_seq_r  [0:TXTS_CAP_N_P-1];
+  (* ram_style = "distributed" *) logic  [3:0] res_type_r [0:TXTS_CAP_N_P-1];
+  (* ram_style = "distributed" *) logic        res_ok_r   [0:TXTS_CAP_N_P-1];
+  (* ram_style = "distributed" *) logic [TXTS_GEN_W_P-1:0] res_gen_r [0:TXTS_CAP_N_P-1];
   logic [PTR_W_C-1:0] res_head_r;
   logic [OCC_W_C-1:0] n_res_r;
 
@@ -615,16 +623,26 @@ module KL_gptp_txret #(
   // ======================================================================= //
 
 
+  //! The RAM fields take the same writes the flip-flop arrays took, outside
+  //! reset: one entry per admitted frame at the ledger tail, and one result
+  //! per resolution at the queue tail.
+  logic led_we_w;
+  assign led_we_w = alloc_i && (n_led_r != OCC_W_C'(TXTS_CAP_N_P));
+
+  always_ff @(posedge clk_i) begin : ledger_ram
+    if (rst_n && led_we_w) begin
+      led_type_r[led_tail_w] <= alloc_type_i;
+      led_seq_r [led_tail_w] <= alloc_seq_i;
+      led_tag_r [led_tail_w] <= alloc_tagged_i;
+    end
+  end : ledger_ram
+
   always_ff @(posedge clk_i) begin : ledger
     if (!rst_n) begin
       led_head_r <= '0;
       n_led_r    <= OCC_W_C'(0);
-      for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) begin
-        led_type_r[li] <= 4'd0;
-        led_seq_r [li] <= 16'd0;
-        led_tag_r [li] <= 1'b0;
+      for (int unsigned li = 0; li < TXTS_CAP_N_P; li++)
         led_live_r[li] <= 1'b0;
-      end
     end else begin
       //! CANCELLATION MARKS. A barrier clears the `live` flag of every
       //! entry that ALREADY EXISTS and removes none of them, so each
@@ -641,12 +659,7 @@ module KL_gptp_txret #(
       //! is that frame's own. Written after the cancellation above so a
       //! frame admitted in the same cycle as a barrier is the new epoch's,
       //! not the old one's.
-      if (alloc_i && (n_led_r != OCC_W_C'(TXTS_CAP_N_P))) begin
-        led_type_r[led_tail_w] <= alloc_type_i;
-        led_seq_r [led_tail_w] <= alloc_seq_i;
-        led_tag_r [led_tail_w] <= alloc_tagged_i;
-        led_live_r[led_tail_w] <= 1'b1;
-      end
+      if (led_we_w) led_live_r[led_tail_w] <= 1'b1;
 
       //! resolution consumes the head, whichever kind it was
       if (resolve_w || pre_resolve_w) begin
@@ -676,25 +689,21 @@ module KL_gptp_txret #(
   // ======================================================================= //
   assign res_accept_o = txts_valid_o & txts_ready_i;
 
+  always_ff @(posedge clk_i) begin : result_ram
+    if (rst_n && push_res_w) begin
+      res_ns_r  [res_tail_w] <= res_ns_w;
+      res_seq_r [res_tail_w] <= led_seq_r [led_head_r];
+      res_type_r[res_tail_w] <= led_type_r[led_head_r];
+      res_ok_r  [res_tail_w] <= res_ok_w;
+      res_gen_r [res_tail_w] <= gen_r;
+    end
+  end : result_ram
+
   always_ff @(posedge clk_i) begin : result_queue
     if (!rst_n) begin
       res_head_r <= '0;
       n_res_r    <= OCC_W_C'(0);
-      for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) begin
-        res_ns_r  [li] <= 64'd0;
-        res_seq_r [li] <= 16'd0;
-        res_type_r[li] <= 4'd0;
-        res_ok_r  [li] <= 1'b0;
-        res_gen_r [li] <= '0;
-      end
     end else begin
-      if (push_res_w) begin
-        res_ns_r  [res_tail_w] <= res_ns_w;
-        res_seq_r [res_tail_w] <= led_seq_r [led_head_r];
-        res_type_r[res_tail_w] <= led_type_r[led_head_r];
-        res_ok_r  [res_tail_w] <= res_ok_w;
-        res_gen_r [res_tail_w] <= gen_r;
-      end
       if (res_accept_o) begin
         res_head_r <= (res_head_r == PTR_W_C'(TXTS_CAP_N_P - 1))
                       ? PTR_W_C'(0) : res_head_r + PTR_W_C'(1);
