@@ -1,0 +1,84 @@
+[ok] boundary control pass: the copies as they are, the base the controls share: passes
+[ok] boundary control stack source includes the mailbox HAL: host: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control stack source includes the register-map contract: host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+[ok] boundary control stack source includes the composition: host: the stack's src/maap.c includes sw/firmware/ctrl/app/ctrl_app.h
+[ok] boundary control stack source includes the store's port: host: the stack's src/maap.c includes sw/firmware/ctrl_nvm/nvm_state.h
+[ok] boundary control stack source includes the loop through a macro: host: the stack's src/adp.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+[ok] boundary control stack public header includes the platform's header: host: the stack's include/wire.h includes sw/firmware/ctrl/port/ctrl_debug.h
+[ok] boundary control stack source includes a header nobody supplies: host: the stack's src/adp.c does not preprocess with the firmware's flags: image_layout.h: No such file or directory
+[ok] boundary control stack source includes an OS header: host: the stack's src/adp.c includes /usr/include/bits/confname.h
+[ok] boundary control firmware reaches a stack example's header: firmware: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ok] boundary control firmware header reaches a stack source by a relative path: firmware: app/ctrl_app.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[ok] boundary control image source reaches a stack test's header: firmware: test/rv32_image/image_main.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control a copy of the stack's wire.h in the firmware: firmware: ctrl/mbx/wire.h has the name of the stack's wire.h
+[ok] boundary control a copy of the stack's adp.c in the firmware: firmware: ctrl/adp/adp.c has the name of the stack's adp.c
+[ok] boundary control stack source includes the mailbox HAL under the re-entry assertion: host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control stack source includes the platform's header in a debug build: host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h
+[ok] boundary control stack source includes the contract in a debug build with the re-entry assertion: host [-DCTRL_REENTRY_ASSERT -UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+[ok] boundary control firmware adapter reaches a stack test's fake under the re-entry assertion: firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control firmware adapter reaches the stack's test fake by its checkout path under the re-entry assertion: firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes third_party/tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control firmware tests a mode by its value: firmware [-DCTRL_REENTRY_ASSERT]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[ok] boundary control the SRP image's composition reaches a stack source: firmware [-DCTRL_IMAGE_SRP]: test/ctrl_image.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+[ok] boundary control a stack test includes the mailbox HAL: tests: the stack's tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a stack test includes the firmware's harness: tests: the stack's tests/test_adp.cpp includes sw/firmware/gtest/fw_gtest.hpp
+[ok] boundary control a stack test includes the platform's pool in its release build: tests [-DADP_TEST_RELEASE]: the stack's tests/test_adp_reentry.cpp includes sw/firmware/ctrl/port/ctrl_pool.h
+[ok] boundary control a stack public header includes the mailbox HAL for C++ only: tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a mode an arm writes is explored without being named here: host [-DCTRL_PLANTED_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a mode an AECP arm writes is explored without being named here: host [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a mode written in a new builder nobody lists is explored: host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+[ok] boundary control stack source includes the AECP core's header: host: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h
+[ok] boundary control a stack test includes the AECP adapter: tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/aecp/aecp_mbx.h
+[ok] boundary control the AECP core reaches a stack source: firmware: aecp/aecp.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+[ok] boundary control the AECP application bridge reaches a stack example's header: firmware: app/ctrl_app_aecp.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ok] boundary control the AECP image's SRP composition reaches a stack source: firmware [-DCTRL_IMAGE_SRP]: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[ok] boundary control a copy of the stack's acmp.h in the AECP directory: firmware: ctrl/aecp/acmp.h has the name of the stack's acmp.h
+[ok] boundary control the image reaches a stack example's header under a shape's stream count: firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ok] boundary control a firmware header reaches a stack test's fake in C++ only: firmware c++: acmp/acmp_mbx.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control the AECP image reaches a stack source at a shape its generated header gives many maps: firmware [shape=endstation_ax7101_8x8]: test/ctrl_aecp_image.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+[ok] boundary control an adapter reaches a stack source where the SRP shape header is force-included: firmware [-include srp_entity_gen.h]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[ok] boundary control an adapter reaches a stack source on the two-interface contract: firmware [interfaces=2]: adp/adp_mbx.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers
+[ok] boundary control an adapter reaches a stack source where a build leaves lwSRP's profile undefined: firmware: acmp/acmp_mbx.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+[ok] boundary control the AECP core tests a value only its arms compute: firmware [-DAECP_TEST_INTERFACES]: aecp/aecp.c tests AECP_TEST_INTERFACES, a value sw/firmware/ctrl/test/aecp_arms.py computes at run time, which the boundary has none of
+[ok] boundary control a mode an arm writes as two arguments is explored: host [-DCTRL_SPLIT_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control a mode a new Makefile writes as two words is explored: host [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+[ok] boundary control a header only the MAAP differential's C++ source reaches includes a stack test's fake in C++ only: firmware c++: maap/maap_r584.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control a builder names a C++ source that is no file: firmware c++: sw/firmware/ctrl/test/planted_arms.py names planted_r4.cpp, a C++ source that resolves to no file
+[ok] boundary control a builder computes a C++ source's name: firmware c++: sw/firmware/ctrl/test/planted_arms.py computes the name of a C++ source, STEM + '.cpp', which the boundary cannot follow
+[ok] boundary control a C++ source a builder writes reaches a header that includes a stack example in C++ only: firmware c++: adp/adp_r4.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ok] boundary control a name NOT_SOURCES lists is followed once it is a file: firmware c++: maap/maap_r4.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control NOT_SOURCES lists a name its builder no longer holds: firmware c++: NOT_SOURCES lists tests/t.cpp for sw/firmware/gtest/fw_coverage_selftest.py, which no longer names it
+[ok] boundary control a builder joins -D to a macro it computes: REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py writes '-D', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+[ok] boundary control a builder formats a -D flag's macro: REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py writes '-D%s', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+[ok] boundary control a builder joins a value to a -D flag: REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py writes '-DCTRL_R4_VALUE=', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+[ok] boundary control a builder's f-string computes a -D flag's macro name: REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py computes a -D or -U flag's macro: the boundary cannot read it
+[ok] boundary control a builder writes a bare -D alone: REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py writes '-D', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+[ok] boundary control a Makefile computes a -D flag's macro: REFUSED: the builder sw/firmware/ctrl/test/planted.mk writes '-D$(MODE)', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+[ok] boundary control a Makefile computes a -D flag's value: REFUSED: the builder sw/firmware/ctrl/test/planted.mk writes '-DCTRL_R4_MAKE=$(VALUE)', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+[ok] boundary control a Makefile prefixes -D to the macros it lists: REFUSED: the builder sw/firmware/ctrl/test/planted.mk writes '-D,$(MODES))', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+[ok] boundary control pass: the firmware includes a public header: passes
+[ok] boundary control pass: the stack includes only its own header and the C library: passes
+[ok] boundary control pass: a stack test reaches the stack's example: passes
+memo: 0 misbehaved; 7700 run, 36412 reused
+	Command being timed: "python3 -I $REVIEWS/697c-r584-4-packet/scripts/memo_soundness.py $REVIEWS/r584-4-697c memo 4 $REVIEWS/697c-r584-4-packet/scratch/memo_on.json"
+	User time (seconds): 136.87
+	System time (seconds): 77.05
+	Percent of CPU this job got: 212%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:40.81
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 379620
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 31
+	Minor (reclaiming a frame) page faults: 7914740
+	Voluntary context switches: 665263
+	Involuntary context switches: 265298
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 208
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1,0 +1,19 @@
+CAUGHT   A1-r584-3-replant: rc 1: [FAIL] firmware c++: maap/maap_r584.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+CAUGHT   A2-r584-3-replant-angle: rc 1: [FAIL] firmware c++: maap/maap_r584.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+CAUGHT   A3-r584-3-replant-two-deep: rc 1: [FAIL] firmware c++: maap/maap_r584.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+CAUGHT   B0-control-literal-cpp-name: rc 1: [FAIL] firmware c++: adp/adp_r584.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+ESCAPED  B1-makefile-wildcard-cpp: rc 0: ctrl_boundary: PASS
+CAUGHT   B2-python-glob-cpp: rc 1: [FAIL] firmware c++: sw/firmware/ctrl/test/planted_r584.py names probe_r584/*.cpp, a C++ source that resolves to no file
+ESCAPED  B3-python-suffix-compare: rc 0: ctrl_boundary: PASS
+CAUGHT   C0-control-written-literal: rc 1: [FAIL] firmware c++: adp/adp_r584.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+ESCAPED  C1-written-fstring-include: rc 0: ctrl_boundary: PASS
+ESCAPED  C2-written-format-include: rc 0: ctrl_boundary: PASS
+ESCAPED  C3-written-copied-template: rc 0: ctrl_boundary: PASS
+CAUGHT   D0-control-literal-mode: rc 1: [FAIL] firmware [-DCTRL_R584_PAT]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+ESCAPED  D1-makefile-patsubst: rc 0: ctrl_boundary: PASS
+ESCAPED  D2-makefile-foreach: rc 0: ctrl_boundary: PASS
+ESCAPED  D3-python-shell-string: rc 0: ctrl_boundary: PASS
+CAUGHT   D4-python-bare-then-ifexp: rc 2: REFUSED: the builder sw/firmware/ctrl/test/planted_r584.py writes -D before a macro it computes: the boundary cannot read it
+CAUGHT   D5-python-format-flag: rc 2: REFUSED: the builder sw/firmware/ctrl/test/planted_r584.py writes '-D{}', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+CAUGHT   D6-makefile-bare-then-variable: rc 2: REFUSED: the builder sw/firmware/ctrl/test/planted_r584.mk writes '-D$(M)', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+ESCAPED  D7-python-shlex-joined-string: rc 0: ctrl_boundary: PASS
