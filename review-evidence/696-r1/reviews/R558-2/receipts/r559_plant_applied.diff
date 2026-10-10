@@ -1,0 +1,13 @@
+diff --git a/hdl/ieee1722/maap/KL_maap.sv b/hdl/ieee1722/maap/KL_maap.sv
+index 3f4ea7952..10c90c64d 100644
+--- a/hdl/ieee1722/maap/KL_maap.sv
++++ b/hdl/ieee1722/maap/KL_maap.sv
+@@ -154,7 +154,7 @@ module KL_maap #(
+   logic [15:0]  timer_ms_r;              //! counts down to the next TX event
+   logic         seed_used_r;
+   logic         port_operational_r;
+-  wire port_operational_p = port_operational_i && !port_operational_r;
++  wire port_operational_p = !port_operational_i && port_operational_r;
+   assign offset_o = offset_r;
+   assign addr_o   = {POOL_BASE_HI_C, offset_r};
+   assign addr_valid_o = (state_r == ANNOUNCE_S);
