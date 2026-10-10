@@ -180,7 +180,7 @@ SOURCE_TOKENS = {
         #: character-identical term, so either could go while the other kept
         #: a one-line token matching.
         "assign res_ok_w = resolve_w & led_live_r[led_head_r] & "
-        "led_tag_r[led_head_r] &\n"
+        "led_head_tag_w &\n"
         "                    ~cap_abort_r & cap_elig_r &\n"
         "                    (cap_delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P));",
         "assign push_res_w = resolve_w | pre_resolve_w;",

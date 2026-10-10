@@ -342,6 +342,13 @@ module KL_gptp_txret #(
   logic        led_live_r [0:TXTS_CAP_N_P-1];
   logic [PTR_W_C-1:0] led_head_r;
   logic [OCC_W_C-1:0] n_led_r;
+  //! the RAM fields' one read port: the head entry
+  logic  [3:0] led_head_type_w;
+  logic [15:0] led_head_seq_w;
+  logic        led_head_tag_w;
+  assign led_head_type_w = led_type_r[led_head_r];
+  assign led_head_seq_w  = led_seq_r [led_head_r];
+  assign led_head_tag_w  = led_tag_r [led_head_r];
 
   (* ram_style = "distributed" *) logic [63:0] res_ns_r   [0:TXTS_CAP_N_P-1];
   (* ram_style = "distributed" *) logic [15:0] res_seq_r  [0:TXTS_CAP_N_P-1];
@@ -530,8 +537,8 @@ module KL_gptp_txret #(
   assign have_entry_w = (n_led_r != OCC_W_C'(0));
   assign departed_w   = (n_dep_i != '0);
   assign tag_ok_w     = cap_abort_r
-                     || ((cap_type_r == led_type_r[led_head_r]) &&
-                         (cap_seq_r  == led_seq_r [led_head_r]));
+                     || ((cap_type_r == led_head_type_w) &&
+                         (cap_seq_r  == led_head_seq_w));
 
   logic frame_rec_w, echo_rec_w;
   assign frame_rec_w = cap_v_r & ~cap_kind_r;
@@ -580,14 +587,14 @@ module KL_gptp_txret #(
   //! The head entry's outcome. Only a live, tagged entry whose record
   //! carries the expected cycle distance can produce a measurement; every
   //! other path delivers an explicit loss and is counted.
-  assign res_ok_w = resolve_w & led_live_r[led_head_r] & led_tag_r[led_head_r] &
+  assign res_ok_w = resolve_w & led_live_r[led_head_r] & led_head_tag_w &
                     ~cap_abort_r & cap_elig_r &
                     (cap_delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P));
   //! a result refused ONLY because the trajectory was outside the model:
   //! the frame was whole and it was this entry's, and it still gets an
   //! explicit loss rather than a plausible wrong time
   logic phc_lost_w;
-  assign phc_lost_w = resolve_w & led_live_r[led_head_r] & led_tag_r[led_head_r] &
+  assign phc_lost_w = resolve_w & led_live_r[led_head_r] & led_head_tag_w &
                       ~cap_abort_r & ~cap_elig_r &
                       (cap_delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P));
   //! modular by construction: the PHC wraps and a launch a few hundred
@@ -692,8 +699,8 @@ module KL_gptp_txret #(
   always_ff @(posedge clk_i) begin : result_ram
     if (rst_n && push_res_w) begin
       res_ns_r  [res_tail_w] <= res_ns_w;
-      res_seq_r [res_tail_w] <= led_seq_r [led_head_r];
-      res_type_r[res_tail_w] <= led_type_r[led_head_r];
+      res_seq_r [res_tail_w] <= led_head_seq_w;
+      res_type_r[res_tail_w] <= led_head_type_w;
       res_ok_r  [res_tail_w] <= res_ok_w;
       res_gen_r [res_tail_w] <= gen_r;
     end
