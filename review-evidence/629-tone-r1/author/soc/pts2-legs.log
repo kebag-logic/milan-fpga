@@ -1,0 +1,96 @@
+### 2026-10-10T13:31:03.417Z stop to-host 1723
+### cmd: S=$(tdm8-uac2.sh status); echo "$S" | sed -n '/bridge/,/PCM/p'; A=$(tr '\0' ' ' < /proc/1723/cmdline); echo "1723: $A"; if echo "$S" | grep -q 'to-host: running (pid 1723)' && [ "$A" = 'alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z ' ]; then kill 1723; echo KILLED; else echo MISMATCH_NOT_KILLED; fi; sleep 2; ls -d /proc/1723 2>&1; for s in /proc/asound/card*/pcm*/sub0/status; do echo "$s: $(head -1 $s)"; done; sleep 3; cat /proc/uptime; tdm8-uac2.sh status | sed -n '/bridge/,$p'; cat /run/tdm8/to-host.pid; ps -o pid,args | grep [a]lsaloop; echo UDC=$(cat /sys/class/udc/*/state); echo BAD=$(dmesg | grep -ciE 'self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; grep dma-controller /proc/interrupts; dmesg | tail -2
+--- bridge ---
+from-host: DEAD
+to-host: running (pid 1723)
+--- PCM state ---
+1723: alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+KILLED
+ls: /proc/1723: No such file or directory
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+350242.16 1245769.99
+--- bridge ---
+from-host: DEAD
+to-host: DEAD
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+closed
+== /proc/asound/card0/pcm0p/sub0/status
+closed
+== /proc/asound/card1/pcm0c/sub0/status
+closed
+== /proc/asound/card1/pcm0p/sub0/status
+closed
+1723
+ 1792 bash -c S=$(tdm8-uac2.sh status); echo "$S" | sed -n '/bridge/,/PCM/p'; A=$(tr '\0' ' ' < /proc/1723/cmdline); echo "1723: $A"; if echo "$S" | grep -q 'to-host: running (pid 1723)' && [ "$A" = 'alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z ' ]; then kill 1723; echo KILLED; else echo MISMATCH_NOT_KILLED; fi; sleep 2; ls -d /proc/1723 2>&1; for s in /proc/asound/card*/pcm*/sub0/status; do echo "$s: $(head -1 $s)"; done; sleep 3; cat /proc/uptime; tdm8-uac2.sh status | sed -n '/bridge/,$p'; cat /run/tdm8/to-host.pid; ps -o pid,args | grep [a]lsaloop; echo UDC=$(cat /sys/class/udc/*/state); echo BAD=$(dmesg | grep -ciE 'self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; grep dma-controller /proc/interrupts; dmesg | tail -2
+UDC=configured
+BAD=3
+0
+ 95:    1032280          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:        562          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   87257592          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:    2183430          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+[241367.244702] dwc3 31000000.usb: remote wakeup not configured
+[245956.856668] dwc3 31000000.usb: remote wakeup not configured
+### rc=0 2026-10-10T13:31:09.081Z
+### 2026-10-10T13:31:40.466Z start to-host 
+### cmd: ps -o pid,args | grep [a]lsaloop; for s in /proc/asound/card*/pcm*/sub0/status; do echo "$s: $(head -1 $s)"; done; if tdm8-uac2.sh status | grep -q 'to-host: running'; then echo LEG_PRESENT_NOT_STARTED; else cd /; setsid nohup alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z >/dev/null 2>&1 </dev/null & echo $! > /run/tdm8/to-host.pid; echo STARTED; fi; sleep 3; cat /proc/uptime; tdm8-uac2.sh status | sed -n '/bridge/,$p'; cat /run/tdm8/to-host.pid; ps -o pid,args | grep [a]lsaloop; echo UDC=$(cat /sys/class/udc/*/state); echo BAD=$(dmesg | grep -ciE 'self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; grep dma-controller /proc/interrupts; dmesg | tail -2
+ 1916 bash -c ps -o pid,args | grep [a]lsaloop; for s in /proc/asound/card*/pcm*/sub0/status; do echo "$s: $(head -1 $s)"; done; if tdm8-uac2.sh status | grep -q 'to-host: running'; then echo LEG_PRESENT_NOT_STARTED; else cd /; setsid nohup alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z >/dev/null 2>&1 </dev/null & echo $! > /run/tdm8/to-host.pid; echo STARTED; fi; sleep 3; cat /proc/uptime; tdm8-uac2.sh status | sed -n '/bridge/,$p'; cat /run/tdm8/to-host.pid; ps -o pid,args | grep [a]lsaloop; echo UDC=$(cat /sys/class/udc/*/state); echo BAD=$(dmesg | grep -ciE 'self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; grep dma-controller /proc/interrupts; dmesg | tail -2
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+STARTED
+350277.14 1245904.45
+--- bridge ---
+from-host: DEAD
+to-host: running (pid 1948)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 1948
+trigger_time: 350277.131004915
+tstamp      : 0.000000000
+delay       : 1347
+avail       : 1344
+avail_max   : 1539
+-----
+hw_ptr      : 7428
+appl_ptr    : 6080
+== /proc/asound/card0/pcm0p/sub0/status
+closed
+== /proc/asound/card1/pcm0c/sub0/status
+closed
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 1948
+trigger_time: 350274.152107030
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 1152
+-----
+hw_ptr      : 0
+appl_ptr    : 1536
+1948
+ 1916 bash -c ps -o pid,args | grep [a]lsaloop; for s in /proc/asound/card*/pcm*/sub0/status; do echo "$s: $(head -1 $s)"; done; if tdm8-uac2.sh status | grep -q 'to-host: running'; then echo LEG_PRESENT_NOT_STARTED; else cd /; setsid nohup alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z >/dev/null 2>&1 </dev/null & echo $! > /run/tdm8/to-host.pid; echo STARTED; fi; sleep 3; cat /proc/uptime; tdm8-uac2.sh status | sed -n '/bridge/,$p'; cat /run/tdm8/to-host.pid; ps -o pid,args | grep [a]lsaloop; echo UDC=$(cat /sys/class/udc/*/state); echo BAD=$(dmesg | grep -ciE 'self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; grep dma-controller /proc/interrupts; dmesg | tail -2
+ 1948 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+UDC=configured
+BAD=3
+0
+ 95:    1032656          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:        564          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   87258628          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:    2183450          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+[241367.244702] dwc3 31000000.usb: remote wakeup not configured
+[245956.856668] dwc3 31000000.usb: remote wakeup not configured
+### rc=0 2026-10-10T13:31:44.046Z

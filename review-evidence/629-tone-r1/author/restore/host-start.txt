@@ -1,0 +1,33 @@
+ 0 [Intel          ]: HDA-Intel - HDA Intel
+                      HDA Intel at 0x82440000 irq 338
+ 1 [<external-capture-card>     ]: USB-Audio - <external-capture-device>
+                      <external-capture-device> at <usb-pos>, high speed
+ 2 [UAC2           ]: USB-Audio - <soc-usb-function>
+                      Kebag-Logic <soc-usb-function> at <usb-pos>, high speed
+ 3 [bridge         ]: USB-Audio - <other-device>
+                      <other-device> at <usb-pos>, high spe
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+/proc/asound/card2/pcm0c/sub0/status: closed
+/proc/asound/card2/pcm0p/sub0/status: closed
+/proc/asound/card3/pcm0c/sub0/status: closed
+/proc/asound/card3/pcm0p/sub0/status: closed
+lo               UNKNOWN        <mac> <LOOPBACK,UP,LOWER_UP> 
+<host-if>           UP             <mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+<host-if>           UP             <mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+<host-if>    UNKNOWN        <mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+<host-if>          DOWN           <mac> <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+<host-if>  UP             <mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+<host-if>  UP             <mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+<host-if>@if2  UP             <mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+lo               UNKNOWN        127.0.0.1/8 
+<host-if>           UP             <host-addr>/24 
+<host-if>    UNKNOWN        <board-link-host>/24 
+<host-if>          DOWN           <host-addr>/16 
+<host-if>  UP             <host-addr>/16 
+total 0
+lrwxrwxrwx 1 root root 13 Oct  9 18:37 <serial-adapter> -> ../../ttyUSB1
+lrwxrwxrwx 1 root root 13 Oct  9 10:33 <serial-adapter> -> ../../ttyUSB0
+lrwxrwxrwx 1 root root 13 Oct  9 10:33 <serial-adapter> -> ../../ttyUSB2
