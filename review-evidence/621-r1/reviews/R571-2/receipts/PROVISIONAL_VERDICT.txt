@@ -1,0 +1,6 @@
+Provisional verdict and ledger, written 2026-10-10 before reading any prior review findings or other reviewer reports.
+[R571] NEGATIVE - exact head d96b4a8471028d3dfd370ce61dbe05ca9957320a
+F1 MINOR Tests: the step regression never checks that a crossing request whose exchange does NOT complete earns no liveness credit; mutant credit_on_step passes all 55 checks; a one-line harness variant rejects it (got=5 exp=4).
+RES-1 RESIDUE: the two liveness plants yield byte-identical generator text (sha256 b7aef03b...); "five planted-defect controls" / "two deletions" do not say so.
+RES-2 RESIDUE: SAVED_STATE_SNAPSHOT_OWNERSHIP.md "Capture-SoC RTL and 8x8 configuration changes on dev moved the figures" - the configuration change moved only config_sha256.
+Ledger: Conformance CLEAN; RTL CLEAN; Robustness CLEAN; Tests UNCLEAN (F1); Docs CLEAN (residues only).

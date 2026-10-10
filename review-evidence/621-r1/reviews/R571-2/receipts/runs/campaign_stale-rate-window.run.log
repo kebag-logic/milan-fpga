@@ -1,0 +1,42 @@
+STEP cycle=20000936 ns=1000001000
+STEP cycle=48800866 ns=10000000
+LOSS cycle=49607606 delay=-3466 since_step_ns=100842500 unanswered=0
+RETURN outage_ns=2000001750
+ARM forward drops=1 outage_ns=2000001750 exchanges=4 last_req=73600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=80800866 ns=-10000000
+LOSS cycle=81607610 delay=4545 since_step_ns=100843000 unanswered=0
+RETURN outage_ns=2000001250
+ARM backward drops=1 outage_ns=2000001250 exchanges=4 last_req=105600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=113601263 ns=10000000
+LOSS cycle=121607606 delay=-1493 since_step_ns=1000792875 unanswered=0
+RETURN outage_ns=2000001750
+ARM t1 before forward step drops=1 outage_ns=2000001750 exchanges=4 last_req=137600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=145601263 ns=-10000000
+LOSS cycle=153607610 delay=2512 since_step_ns=1000793375 unanswered=0
+RETURN outage_ns=2000001250
+ARM t1 before backward step drops=1 outage_ns=2000001250 exchanges=4 last_req=169600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=177607663 ns=10000000
+LOSS cycle=185611106 delay=-1493 since_step_ns=1000430375 unanswered=0
+RETURN outage_ns=2000001750
+ARM response before step drops=1 outage_ns=2000001750 exchanges=4 last_req=201600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=209610063 ns=-10000000
+LOSS cycle=217620616 delay=2512 since_step_ns=1001319125 unanswered=0
+RETURN outage_ns=2000001250
+ARM deferred t1 after step drops=1 outage_ns=2000001250 exchanges=4 last_req=233600205
+  [FAIL] asCapable never falls after step         got=1 exp=0
+  [FAIL] no invalid link-delay publication        got=2 exp=0
+STEP cycle=353601263 ns=10000000
+LOSS cycle=393600103 delay=500 since_step_ns=4999855000 unanswered=4
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=4
+== phc_step: checks: 55   failures: 12 ==
+RESULT: FAIL

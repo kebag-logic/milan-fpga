@@ -1,0 +1,22 @@
+STEP cycle=20000936 ns=1000001000
+STEP cycle=48800866 ns=10000000
+ARM forward drops=0 outage_ns=0 exchanges=4 last_req=73600204
+STEP cycle=80800866 ns=-10000000
+ARM backward drops=0 outage_ns=0 exchanges=4 last_req=105600204
+STEP cycle=113601262 ns=10000000
+ARM t1 before forward step drops=0 outage_ns=0 exchanges=4 last_req=137600204
+STEP cycle=145601262 ns=-10000000
+ARM t1 before backward step drops=0 outage_ns=0 exchanges=4 last_req=169600204
+STEP cycle=177607662 ns=10000000
+ARM response before step drops=0 outage_ns=0 exchanges=4 last_req=201600204
+STEP cycle=209610062 ns=-10000000
+ARM deferred t1 after step drops=0 outage_ns=0 exchanges=4 last_req=233600204
+  [FAIL] real excessive delay still clears asCapable got=4 exp=0
+  [FAIL] liveness: answered exchanges requalify after silence got=0 exp=4
+ARM liveness drops=0 unanswered=5 unanswered_at_drop=0
+  [FAIL] liveness: one grandmaster-driven step    got=0 exp=1
+  [FAIL] liveness: step falls between returned t1 and response
+  [FAIL] liveness: asCapable falls once while the peer is silent got=0 exp=1
+  [FAIL] asCapable falls at the fourth unanswered request after a crossing exchange got=0 exp=4
+== phc_step: checks: 55   failures: 6 ==
+RESULT: FAIL

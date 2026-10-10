@@ -1,0 +1,11 @@
+--- $REVIEWS/r571-2-621/gptp-processor/hdl/ucode/gen_gptp_ucode.py	2026-10-10 12:16:44.530181367 +0200
++++ variants/gen_third.py	2026-10-10 12:19:15.402607622 +0200
+@@ -1488,7 +1488,7 @@
+     p.emit("WRST", ra=RB, imm=RG_SCR | S_PDLOST, fmt=FMT_Q)
+     # 802.1AS-2011 11.2.12.4: the verdict falls when the count EXCEEDS
+     # allowedLostResponses -- at the fourth, not the third
+-    p.emit("CMP", ra=RB, rb=0, fmt=FMT_D, imm=LOST_N_C + 1)
++    p.emit("CMP", ra=RB, rb=0, fmt=FMT_D, imm=LOST_N_C)
+     p.emit("BRS", cnd=BRS_LT, label="pd_go")
+     p.emit("WRST", ra=0, imm=RG_SCR | S_PDOK, fmt=FMT_Q)
+     e_flags(p, andm=FL_PRESENT_C | FL_AMGM_C | FL_SYNCOK_C)

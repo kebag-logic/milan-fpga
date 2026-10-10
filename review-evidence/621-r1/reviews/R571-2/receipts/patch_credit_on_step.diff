@@ -1,0 +1,15 @@
+--- $REVIEWS/r571-2-621/gptp-processor/hdl/ucode/gen_gptp_ucode.py	2026-10-10 12:16:44.530181367 +0200
++++ unans/gen_credit_on_step.py	2026-10-10 12:32:33.159861643 +0200
+@@ -1294,7 +1294,11 @@
+     _tmr_slot_dispatch(p)
+     _tmr_init_once(p, mac, seq_seed, sync_seq_seed)
+     _tmr_cadence_gate(p)
+-    _tmr_cease_rule(p)
++    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)
++    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=0)
++    p.emit("BRS", cnd=BRS_Z, label="r571_skip")
++    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)
++    p.label("r571_skip")
+     p.emit("WRST", ra=0, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)
+     p.emit("BR", label=LB["PDREQ"])
+     return p

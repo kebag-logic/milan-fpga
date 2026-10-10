@@ -1,0 +1,24 @@
+== nocease_real rc=0
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=4
+== phc_step: checks: 55   failures: 0 ==
+RESULT: PASS
+== credit_on_step_real rc=0
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=4
+== phc_step: checks: 55   failures: 0 ==
+RESULT: PASS
+== clean_variant rc=1
+ARM liveness drops=1 unanswered=6 unanswered_at_drop=4
+  [FAIL] liveness: step falls between returned t1 and response
+== phc_step: checks: 55   failures: 1 ==
+RESULT: FAIL
+== nocease_variant rc=1
+ARM liveness drops=1 unanswered=6 unanswered_at_drop=4
+  [FAIL] liveness: step falls between returned t1 and response
+== phc_step: checks: 55   failures: 1 ==
+RESULT: FAIL
+== credit_on_step_variant rc=1
+ARM liveness drops=1 unanswered=6 unanswered_at_drop=5
+  [FAIL] liveness: step falls between returned t1 and response
+  [FAIL] asCapable falls at the fourth unanswered request after a crossing exchange got=5 exp=4
+== phc_step: checks: 55   failures: 2 ==
+RESULT: FAIL

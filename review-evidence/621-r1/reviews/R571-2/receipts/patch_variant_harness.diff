@@ -1,0 +1,11 @@
+--- $REVIEWS/r571-2-621/tb/verilator/gptp_plane/sim_phc_step.cpp	2026-10-10 12:16:44.378154951 +0200
++++ unans/root/tb/verilator/gptp_plane/sim_phc_step.cpp	2026-10-10 12:32:33.189106498 +0200
+@@ -180,7 +180,7 @@
+     if (monitor_ && !probe_request_) {
+       probe_request_ = tx_cycle_; probe_seq_ = seq;
+     }
+-    if (silent_after_probe_ && seq != probe_seq_) { ++unanswered_; return; }
++    if (silent_after_probe_) { ++unanswered_; return; }
+     if (!answer_) return;
+     const uint64_t t2 = tx_cycle_ * kTickNs + kPeerEpochNs + link_ns_;
+     const uint64_t t3 = t2 + kTurnNs;
