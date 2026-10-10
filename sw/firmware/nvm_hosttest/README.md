@@ -8,8 +8,8 @@ every shipped shape passed and every planted defect reddened.
 
 - **[What it drives](#what-it-drives)** -- the shipping firmware translation unit, compiled unchanged against stub headers
 - **[The model](#the-model)** -- the CSR face, the flash, the LiteSPI master and the clock, in `nvm_host.c`
-- **[What is graded](#what-is-graded)** -- thirteen checks per shape, all on bytes
-- **[The nine negative controls](#the-nine-negative-controls)** -- writer defects planted into a copy, each of which must be caught
+- **[What is graded](#what-is-graded)** -- fourteen checks per shape, all on bytes
+- **[The negative controls](#the-negative-controls)** -- fourteen writer defects planted into a copy, each of which must be caught
 - **[Every boot path starts the restore walk](#every-boot-path-starts-the-restore-walk)** -- five boot paths per shape and two planted boot defects
 - **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- the board
 
@@ -47,8 +47,9 @@ overlay.
   firmware opens through it is counted from power-on, and a planted read
   fault answers a window of those reads from a copy whose bytes of one slot
   are wrong: one byte XORed with a different value on every faulty read
-  (`--read-fault SLOT:OFF:SKIP:COUNT[:BASE]`), or every byte of the slot
-  read as `0xFF` (`--read-ff SLOT:SKIP:COUNT`). The first SKIP reads are
+  (`--read-fault SLOT:OFF:SKIP:COUNT[:BASE]`), every byte of the slot read
+  as `0xFF` (`--read-ff SLOT:SKIP:COUNT`), or the slot read as the other
+  slot's bytes (`--read-other SLOT:SKIP:COUNT`). The first SKIP reads are
   clean and the next COUNT are faulty. The memory-mapped read always returns
   bytes, so wrong bytes are the only media fault the shipping read path can
   meet ([#671](https://github.com/kebag-logic/milan-fpga/issues/671));
@@ -86,28 +87,45 @@ the harness through boot, idle time and console commands, and compares bytes:
 10. `milan_nvm wipe` erases both slots;
 11. an open record beside an unaligned closed predecessor retains its golden
     staged bytes while the predecessor's change commits byte-identically;
-12. a boot read fault leaves the authority unknown
+12. a rejected shape or identity at startup never heartbeats under
+    console input;
+13. a boot read fault leaves the authority unknown
     ([#671](https://github.com/kebag-logic/milan-fpga/issues/671)). One slot
     holds a valid container and the other is blank, both ways round, at
     sequence 1, 0x5A5A5, 0x80000000 and 0xFFFFFFFF. A read fault on the
-    valid slot (its magic byte or its sequence word), on the blank slot, or
-    an all-`0xFF` read is walked over every boot read: SKIP 0 to 5, COUNT 1
-    to 3, and one window covering the whole boot. Each case makes a real
-    change, lets the debounce commit it and boots again clean. The change
-    survives that reboot, or the faulty boot HELD the writer. A held writer
-    erased, programmed and acknowledged nothing, never heartbeated, named
-    the unread slot, and the clean reboot restores the saved value; that
-    case then runs on through a change, its commit and another clean
-    reboot. One faulty read never holds the writer, a slot faulted for the
-    whole boot always does, no boot opens more than 13 reads (the AEM image
-    and three judgements and three re-stages per slot), and a held writer
-    refuses `milan_nvm commit` and reports the hold on `milan_nvm`;
-13. a slot whose bytes read cleanly but fail validation (a foreign entity,
+    valid slot (its magic byte or its sequence word, and a byte of its
+    record area, which only the CRC over every byte read refuses) or on the
+    blank slot is walked over every boot read: SKIP 0 to 5, COUNT 1 to 3,
+    and one window covering the whole boot. A single all-`0xFF` read of the
+    valid slot is walked over SKIP 0 to 5. Both slots also hold valid
+    containers, both ways round, the newer at 0x5A5A5 or at 0 (the wrap,
+    the older at 0xFFFFFFFF), differing in two names: a fault on the newer
+    slot (its magic byte or a record-area byte) is walked over the same
+    windows, the older is faulted for the whole boot, and the newer's
+    re-stage reads are answered with the older's container (`--read-other`,
+    COUNT 1 to 3). Each case makes a real change, lets the debounce commit
+    it and boots again clean. The faulty boot's line names each slot as its
+    bytes read, or UNREAD (`VD_LEN`, its bit in `unread=`), and offers the
+    newer slot it accepts, and its window holds that slot's container byte
+    for byte, or the blank image when none is offered. Every saved record
+    and the change survive the reboot, or the faulty boot HELD the writer. A
+    held writer erased, programmed and acknowledged nothing, never
+    heartbeated, named the unread slot, and the clean reboot restores every
+    saved record; that case then runs on through a change, its commit and
+    another clean reboot. One faulty read never holds the writer, a slot
+    faulted for the whole boot always does, and no boot opens more than 13
+    reads (the AEM image and three judgements and three re-stages per
+    slot). A held writer refuses `milan_nvm commit` and reports the hold on
+    `milan_nvm`; an explicit `milan_nvm wipe` still erases both slots, as
+    for a retired writer; and a writer that retires at boot with a slot
+    unread (four refused window loads) names the retire, not the slot. The
+    cases run on `--jobs` threads, every CPU by default;
+14. a slot whose bytes read cleanly but fail validation (a foreign entity,
     a bad CRC) names no generation: with the other slot blank, no slot is
     offered, the boot line reports sequence 0, and the first commit is at
     sequence 1.
 
-## The nine negative controls
+## The negative controls
 
 `--self-test` plants each defect into a copy of the firmware, rebuilds the
 harness and requires the suite to redden:
@@ -120,9 +138,15 @@ harness and requires the suite to redden:
 | `erased_header_only` | an erased header is accepted over a live payload | verdict parity on the torn erased span |
 | `edge_cross` | a word copy crosses an unaligned record edge | the open neighbour's poisoned live bytes must never replace its staged bytes |
 
-Those five are graded by checks 1 to 11. Four #671 defects are graded by
-checks 12 and 13, and each must be caught by a finding carrying its own
-words:
+Those five are graded by checks 1 to 12. Nine #671 defects are graded by
+checks 13 and 14. Each is planted into the first shape and into both
+product shapes (`endstation_ax7101_1x1_tdm8`, `endstation_ax7101_8x8`), and
+must be caught on every one by a finding carrying its own words. Check 14
+runs first, and check 13 stops at the first such finding, so a control's
+other findings are not counted; that keeps `--self-test` inside the ten
+minutes the builder gate gives it. The `r_` controls and
+`restage_fail_not_unread` are the plants of PR #715's first reviews, under
+their names:
 
 | control | the defect | the finding that must catch it |
 |---|---|---|
@@ -130,6 +154,11 @@ words:
 | `unbounded_retry` | the read of a slot has no bound | "over the bound" |
 | `generation_from_refused_slot` | a refused slot's header sequence continues the generation | "generation was taken from a refused slot" |
 | `verdict_only_agreement` | two refused reads agree by verdict, not by bytes (R501-3's probe on #665) | "was lost on the clean reboot" |
+| `r_digest_header_only` | a refusal's digest covers the 40 header bytes, so two reads whose record areas differ agree | "on reads that returned different bytes" |
+| `r_fill_from_flash` | the window is filled by a fresh read of the slot, as before #671, not from the judged stage | "is not the container it judged" |
+| `r_restage_fail_offers_none` | a pick that never reads back offers nothing, not the other slot | "yet the boot offered" |
+| `restage_fail_not_unread` | a pick that never reads back is not marked UNREAD, so the writer goes live | "yet the boot line does not name it unread" |
+| `r_restage_any_seq` | the re-stage takes any VD_OK read, whatever sequence it names | "another valid container than the one the boot offered" |
 
 The self-test also invokes the PHY host checks.
 Their IEEE-timed peer catches missing publication, deferred recovery and
@@ -174,8 +203,14 @@ only when two reads of a slot return different bytes. A fault that returns
 the same wrong bytes on two reads is a refusal of those bytes by the rule,
 and a slot read as all `0xFF` twice is blank. Either can still let the next
 commit restart the sequence below a container a later clean boot prefers.
-Check 12 walks faults that differ from read to read, and single all-`0xFF`
-reads, and no others.
+Check 13 walks faults that differ from read to read, single all-`0xFF`
+reads, and the other slot's container on a re-stage read, and no others. A
+judgement read answered with the other slot's valid container is an address
+fault no rule over the bytes can see, because a container does not name its
+slot: with both slots valid, the boot can then offer the older one and live,
+and the next commit overwrites the newer container with the older one's
+records. The re-stage's sequence check refuses that fault on the picked
+slot only.
 
 Console tests reject shape and identity mismatches on every shape.
 Every Milan command and empty input keep `hb=0 backed=0 stale=0`.

@@ -165,13 +165,20 @@ struct flash_model {
  * the first SKIP are clean, the next COUNT are answered from a view whose
  * bytes of one slot are wrong, and the rest are clean again. A fault either
  * XORs one byte of the slot with a different value on every faulty read
- * (BASE, BASE + 1, ... over 1 to 255, so no two faulty reads agree), or reads
- * every byte of the slot as 0xFF, the same on every faulty read. */
+ * (BASE, BASE + 1, ... over 1 to 255, so no two faulty reads agree), reads
+ * every byte of the slot as 0xFF, the same on every faulty read, or reads the
+ * slot as the other slot's bytes. That last one is an address fault: a valid
+ * container does not name its slot, so no rule over the bytes sees it on a
+ * judgement read, and the re-stage refuses it only by the sequence it was
+ * picked by. */
+enum read_fault_mode { RF_XOR, RF_FF, RF_OTHER };
+
 struct read_fault {
 	int armed;
 	uint32_t slot;          /* the slot's flash offset */
-	uint32_t off;           /* the byte inside it, in XOR mode */
-	int all_ff;
+	uint32_t other;         /* the other slot's, in RF_OTHER mode */
+	uint32_t off;           /* the byte inside it, in RF_XOR mode */
+	enum read_fault_mode mode;
 	unsigned int skip;
 	unsigned int count;
 	unsigned int base;
@@ -527,8 +534,10 @@ uintptr_t nvm_host_flash_base(void)
 		memcpy(flash_view + NVM_HOST_JOURNAL_OFFSET,
 		       nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x20000u);
 	view_loaded = 1;
-	if (rf.all_ff)
+	if (rf.mode == RF_FF)
 		memset(flash_view + rf.slot, 0xff, 0x10000u);
+	else if (rf.mode == RF_OTHER)
+		memcpy(flash_view + rf.slot, nvm_host_flash + rf.other, 0x10000u);
 	else
 		flash_view[rf.slot + rf.off] ^=
 			(uint8_t)((rf.base - 1u + (k - rf.skip)) % 255u + 1u);
@@ -536,13 +545,15 @@ uintptr_t nvm_host_flash_base(void)
 	return (uintptr_t)flash_view;
 }
 
-/* --read-fault SLOT:OFF:SKIP:COUNT[:BASE] and --read-ff SLOT:SKIP:COUNT */
-static void arm_read_fault(const char *spec, int all_ff)
+/* --read-fault SLOT:OFF:SKIP:COUNT[:BASE], --read-ff SLOT:SKIP:COUNT and
+ * --read-other SLOT:SKIP:COUNT */
+static void arm_read_fault(const char *spec, enum read_fault_mode mode)
 {
 	unsigned long v[4] = {0};
 	unsigned int n = 0;
 	const char *p = spec + 1;
 	char *end = NULL;
+	int bytewise = mode == RF_XOR;
 
 	v[3] = 8;    /* the first faulty read's XOR, unless BASE is given */
 	if ((spec[0] != 'a' && spec[0] != 'b') || spec[1] != ':') {
@@ -553,18 +564,19 @@ static void arm_read_fault(const char *spec, int all_ff)
 		v[n++] = strtoul(p + 1, &end, 0);
 		p = end;
 	}
-	if (*p != '\0' || n < (all_ff ? 2u : 3u) ||
-	    (!all_ff && (v[0] >= 0x10000u || v[3] < 1u || v[3] > 255u))) {
+	if (*p != '\0' || n < (bytewise ? 3u : 2u) ||
+	    (bytewise && (v[0] >= 0x10000u || v[3] < 1u || v[3] > 255u))) {
 		fprintf(stderr, "HOST: bad read fault %s\n", spec);
 		exit(2);
 	}
 	rf.armed = 1;
 	rf.slot = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0x10000u : 0u);
-	rf.all_ff = all_ff;
-	rf.off = all_ff ? 0u : (uint32_t)v[0];
-	rf.skip = (unsigned int)(all_ff ? v[0] : v[1]);
-	rf.count = (unsigned int)(all_ff ? v[1] : v[2]);
-	rf.base = all_ff ? 8u : (unsigned int)v[3];
+	rf.other = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0u : 0x10000u);
+	rf.mode = mode;
+	rf.off = bytewise ? (uint32_t)v[0] : 0u;
+	rf.skip = (unsigned int)(bytewise ? v[1] : v[0]);
+	rf.count = (unsigned int)(bytewise ? v[2] : v[1]);
+	rf.base = bytewise ? (unsigned int)v[3] : 8u;
 }
 
 /* ---- the LiteSPI command master and the N25Q behind it ----------------- */
@@ -815,9 +827,11 @@ int main(int argc, char **argv)
 		else if (strcmp(a, "--slot-b") == 0 && v)
 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET + 0x10000u, 0x10000u);
 		else if (strcmp(a, "--read-fault") == 0 && v)
-			arm_read_fault(v, 0);
+			arm_read_fault(v, RF_XOR);
 		else if (strcmp(a, "--read-ff") == 0 && v)
-			arm_read_fault(v, 1);
+			arm_read_fault(v, RF_FF);
+		else if (strcmp(a, "--read-other") == 0 && v)
+			arm_read_fault(v, RF_OTHER);
 		else if (strcmp(a, "--erase-ms") == 0 && v)
 			fl.erase_ns = MS(strtoul(v, NULL, 0));
 		else if (strcmp(a, "--walk-closed") == 0) {
