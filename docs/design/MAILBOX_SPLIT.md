@@ -565,7 +565,7 @@ A change of a sink's Table 5.22 items is reported through the env's
 `changed` port only after the response of the command that caused it has
 been taken by the transmit ring (#653). A response that finds no room is
 owed, in order (at most eight frames), and its change waits with it. The
-AECP notification that will key on that port lands in F5. Every port call is
+F5 application bridge queues the corresponding AECP notification from that port. Every port call is
 bracketed by a flag, and an entry while it is set does nothing but count
 (#678); the host tests' build also reports it to the test.
 
