@@ -1463,7 +1463,10 @@ module milan_csr #(
   localparam logic [1:0] SK_ZERO_C   = 2'd0;  //! reads 0 (reset, out-of-range SNAP)
   localparam logic [1:0] SK_RAW_C    = 2'd1;  //! reads the stored word
   localparam logic [1:0] SK_POISON_C = 2'd2;  //! reads 0xDEADDEAD (talker: no Table 7-157 block)
-  logic [1:0]  snap_kind_r [1:10];
+  //! [1..10] are the CNT words' kinds; [0] and [11] (STATE, PDUS) carry no
+  //! kind and hold SK_ZERO_C from reset, so the array spans the same twelve
+  //! words as snap_shadow_r and no element of it is undriven
+  logic [1:0]  snap_kind_r [0:11];
   //! snap_busy_r is declared with the early block above wr_fire (#193)
   logic [2:0]  snap_st_r;                //! 0 idle,1 done-pulse,2 wait-free,3 arm,4 fetch
   logic        snap_dir_r;
@@ -2921,7 +2924,7 @@ module milan_csr #(
       snap_wi_r   <= 4'd0; snap_cyc_r <= 2'd0; snap_word_r <= 5'd0;
       snap_req_r  <= 1'b0; snap_rden_r <= 1'b0; snap_m8_r <= 32'h0;
       for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h0;
-      for (int w = 1; w < 11; w++) snap_kind_r[w] <= SK_ZERO_C;
+      for (int w = 0; w < 12; w++) snap_kind_r[w] <= SK_ZERO_C;
     end else begin
       unique case (snap_st_r)
         SN_IDLE_C: if (snap_go_w) begin
