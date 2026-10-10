@@ -1,0 +1,13 @@
+== publication census: checks: 39   failures: 0 ==
+39 read(s) of 21 class-D wire(s); RESULT: PASS
+[ok] positive control, the tracked datapath: 0 finding(s)
+[ok] negative control, a class-D wire named in a comment: 0 finding(s)
+[ok] planted an unmapped read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w (line 5678) reaches the wire; name its block field or its ruled exclusion)
+[ok] planted an unmapped read in a declaration's initialiser: refused (unmapped read: pp_cd_srp_granted_slope_bps_w -> planted_w (line 5677) reaches the wire; name its block field or its ruled exclusion)
+[ok] planted an unmapped read in an always block's condition: refused (unmapped read: pp_cd_srp_lstn_decl_state_w -> crft_stat_c (line 5719) reaches csr; name its block field or its ruled exclusion)
+[ok] planted a status read on the wire: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared (line 7333): counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a GET_STREAM_INFO read on the wire: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w (line 4920): counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted the started level dropped from the accept: refused (unmapped read: pp_cd_acmp_bound_w -> acmpl_stopped_v_w (line 5376) reaches the wire; name its block field or its ruled exclusion)
+[ok] planted a field the contract lacks: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w (line 5678): the census names TALKER_DECL.DECLARE, which the publication block does not define)
+[ok] planted a stale row: refused (stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w into lwsrp_idle_slope)
+selftest: 0 arm(s) failed
