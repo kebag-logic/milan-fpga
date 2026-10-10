@@ -25,6 +25,7 @@ import shutil
 import tempfile
 
 import pp_resource_gate as gate
+from pp_placement_selftest import hierarchy_fixture
 
 
 FIGURES = {"LUT": 1000, "FF": 2000, "SLICE": 400, "BRAM_TILE": 4.5, "RAMB36": 4, "RAMB18": 1, "DSP": 2}
@@ -79,8 +80,7 @@ def write_reports(folder: Path, kind: str) -> None:
         "    -------      -------  ---------------------  -------------------      -------      -------\n"
         "      0.500        0.000                      0                   10        0.100        0.000\n")
     prefix = ["alinx_ax7101", "milan_datapath", "pp_shadow"] if kind == "route" else ["KL_pp_shadow"]
-    lines = [f"| {'  ' * depth}{name} | m{depth} | {900 - depth} | {900 - depth} | 0 | 0 | 50 | 1 | 0 | 0 |"
-             for depth, name in enumerate(prefix + ["u_pp", "u_srp"])]
+    lines = hierarchy_fixture(kind, prefix)
     (folder / "baseline_hierarchy.rpt").write_text("\n".join(lines) + "\n")
     cells = "/".join(prefix[1:] + ["u_pp", "u_srp"])
     (folder / "baseline_cells.tsv").write_text(
@@ -303,7 +303,7 @@ ROUTE_ARMS = (
      ((HIERARCHY, TOP_ROW, TOP_ROW[:-3] + "\uff10 |"),), 2, "not a row of counts"),
     ("hierarchy count past the bound", ((HIERARCHY, "| m0 | 900 |", f"| m0 | {BOUND} |"),), 2,
      "hierarchy count of 'alinx_ax7101' is not a whole number of 1 to 15 ASCII digits"),
-    ("hierarchy row without counts", ((HIERARCHY, "| m4 | 896 |", "| m4 | n/a |"),), 2, "not a row of counts"),
+    ("hierarchy row without counts", ((HIERARCHY, "| 896 | 896 |", "| n/a | 896 |"),), 2, "not a row of counts"),
     ("wrapper source read from too near the root",
      ((FLOW, "/hdl/milan/KL_pp_shadow.sv}\n", "/hdl/milan/KL_pp_shadow.sv}\nread_verilog {/milan/KL_pp_shadow.sv}\n"),),
      2, "read source is missing: /milan/KL_pp_shadow.sv"),

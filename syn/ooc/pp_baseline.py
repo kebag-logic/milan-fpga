@@ -15,7 +15,12 @@ import io
 import json
 from pathlib import Path
 import re
+import sys
 import tempfile
+
+# Checkpoint-report recipes also load this module by absolute filename.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import pp_placement
 
 
 ROM_ERROR = "set_msg_config -id {Synth 8-4445} -new_severity ERROR\n"
@@ -146,7 +151,7 @@ def package_number(source: str, name: str) -> int:
     return int(hits[0])
 
 
-def inventory(gateware: Path, source: str) -> list[dict]:
+def inventory(gateware: Path, source: str, placement: str = "all-fabric") -> list[dict]:
     """Bind control ROMs and generated firmware/memory inputs to their bytes."""
     verilog = (gateware / "alinx_ax7101.v").read_text()
     inputs = []
@@ -171,6 +176,10 @@ def inventory(gateware: Path, source: str) -> list[dict]:
             ("PP_UCODE_HEX_P", "ucpu_pkg.sv", "UPC_W_C", "UCODE_W_C"),
             ("GPTP_UCODE_HEX_P", "gptp_ucpu_pkg.sv", "UPC_W_C", "UCODE_W_C")):
         matches = re.findall(r"\." + parameter + r'\s*\("([^"\n]+)"\)', verilog)
+        removed = (placement == "full-split" and parameter.startswith("PP_")) or (
+            placement == "f0-f4" and parameter == "PP_TROM_HEX_P")
+        if removed and not matches:
+            continue
         packages = [path for path in files if path.name == package]
         if len(matches) != 1 or len(packages) != 1:
             raise ValueError(f"ambiguous image or geometry source: {parameter}")
@@ -244,6 +253,26 @@ def prepare(gateware: Path, output: Path, log: Path | None,
                   + REPORTS + "\nwrite_checkpoint -force baseline_synth.dcp\n")
         target = output / "baseline_ooc.tcl"
     target.write_text(script + SCOPE_TIMING + "\nquit\n")
+    print(target)
+
+
+def prepare_split(gateware: Path, synthesis_only: bool, placement: str) -> None:
+    """Measure an existing split export, checking topology before implementation."""
+    source = (gateware / "alinx_ax7101.tcl").read_text()
+    prefix, rest = split_once(source, "# Add constraints")
+    marker = "# Add pre-optimize commands" if synthesis_only else "# Bitstream generation"
+    endpoint, _ = split_once(rest, marker)
+    script = pp_placement.MARKER + placement + "\n" + prefix + ROM_ERROR + "# Add constraints" + endpoint
+    commands = re.findall(r"^synth_design [^\n]+\n", script, re.M)
+    if len(commands) != 1:
+        raise ValueError("selected placement requires exactly one synthesis command")
+    script = script.replace(commands[0], commands[0] + pp_placement.census_tcl(placement))
+    script += pp_placement.census_tcl(placement, report=True) + REPORTS
+    script += pp_placement.scope_timing_tcl() + "\nquit\n"
+    images = inventory(gateware, source, placement)
+    (gateware / "baseline_images.json").write_text(json.dumps(images, indent=2) + "\n")
+    target = gateware / "baseline_integrated.tcl"
+    target.write_text(script)
     print(target)
 
 
@@ -530,6 +559,8 @@ def export_selftest() -> None:
         export_inventory_selftest(gateware, source, verilog)
         export_endpoint_selftest(gateware, standalone, log, source)
         clock_selftest(gateware, standalone, log)
+        from pp_placement_selftest import recipe_selftest
+        recipe_selftest(gateware, standalone, log, source, verilog)
         # Use an existing directory: no test output can be left in the tree.
         # With the guard removed, prepare() reaches its directory mismatch;
         # that ValueError must not count as the expected argparse refusal.
@@ -551,6 +582,8 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("gateware", type=Path, nargs="?")
     parser.add_argument("--selftest", action="store_true")
+    parser.add_argument("--placement", choices=pp_placement.PLACEMENTS, default="all-fabric",
+                        help="measure an already integrated selected image; does not change build switches")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--integrated-log", type=Path,
                         help="derive standalone parameters from this synthesis log")
@@ -576,8 +609,13 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("--synthesis-only and --attribution-only require the integrated endpoint")
     if args.integrated_clock and not args.integrated_log:
         parser.error("--integrated-clock requires the standalone endpoint")
-    prepare(gateware, output, args.integrated_log, args.synthesis_only,
-            args.attribution_only, args.integrated_clock)
+    if args.placement != "all-fabric":
+        if args.integrated_log or args.attribution_only or output != gateware:
+            parser.error("selected split placement requires an integrated endpoint without wrapper attribution")
+        prepare_split(gateware, args.synthesis_only, args.placement)
+    else:
+        prepare(gateware, output, args.integrated_log, args.synthesis_only,
+                args.attribution_only, args.integrated_clock)
     if args.single_thread_synthesis:
         script = output / ("baseline_ooc.tcl" if args.integrated_log else "baseline_integrated.tcl")
         script.write_text("set_param synth.maxThreads 1\n" + script.read_text())
