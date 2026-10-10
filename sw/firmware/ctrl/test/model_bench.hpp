@@ -76,7 +76,7 @@ class ModelBench {
         PubView out;
         out.da_gate = v.da_gate;
         out.licence = v.licence;
-        out.idle_slope = v.idle_slope;
+        out.idle_slope_bps = v.idle_slope_bps;
         out.vid = v.vid;
         out.priority = v.priority;
         out.adopted = v.adopted ? 1u : 0u;

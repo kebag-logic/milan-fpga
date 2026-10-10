@@ -179,7 +179,7 @@ class Bench {
         PubView v;
         v.da_gate = static_cast<std::uint32_t>(slice(dut_->pub_da_gate_o, MBX_N_PUB_SOURCES * iface, MBX_N_PUB_SOURCES));
         v.licence = static_cast<std::uint32_t>(slice(dut_->pub_licence_o, MBX_N_PUB_SOURCES * iface, MBX_N_PUB_SOURCES));
-        v.idle_slope = static_cast<std::uint32_t>(
+        v.idle_slope_bps = static_cast<std::uint32_t>(
             slice(dut_->pub_idle_slope_bps_o, MBX_IDLE_SLOPE_BPS_WIDTH * iface, MBX_IDLE_SLOPE_BPS_WIDTH));
         v.vid = static_cast<std::uint32_t>(slice(dut_->pub_dom_vid_o, MBX_SR_DOMAIN_VID_WIDTH * iface,
                                                  MBX_SR_DOMAIN_VID_WIDTH));

@@ -122,13 +122,13 @@ TEST_F(Srp, PubLicenceIsSetAndClearedBeforeEachChangeIsReported) {
 TEST_F(Srp, PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits) {
     settle();
     for (unsigned i=0;i<MBX_N_IF;++i) {
-        EXPECT_EQ(pub_of(model,i).idle_slope,kAdmittedBps) << "PUB IDLE_SLOPE is the admitted bandwidth from startup";
+        EXPECT_EQ(pub_of(model,i).idle_slope_bps,kAdmittedBps) << "PUB IDLE_SLOPE is the admitted bandwidth from startup";
     }
     const unsigned last=MBX_N_IF-1u;
     // a value the firmware did not write, then a link restart: the slope is
     // published again before the restart's first declaration leaves
     mbx_model_write(&model,MBX_PUB_BASE+MBX_PUB_STRIDE*last+MBX_PUB_REG_IDLE_SLOPE,0u,0xFu);
-    ASSERT_EQ(pub_of(model,last).idle_slope,0u);
+    ASSERT_EQ(pub_of(model,last).idle_slope_bps,0u);
     commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
     const uint32_t first=model.tx_sent;
     mbx_model_set_link(&model,last,false); settle(); mbx_model_set_link(&model,last,true); settle();
@@ -139,7 +139,7 @@ TEST_F(Srp, PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits) {
         const auto *f=mbx_model_tx_frame(&model,c.frame);
         if (c.frame<first || f==nullptr || f->interface!=last) continue;
         ++left;
-        EXPECT_EQ(c.pub[last].idle_slope,kAdmittedBps)
+        EXPECT_EQ(c.pub[last].idle_slope_bps,kAdmittedBps)
             << "PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again";
     }
     EXPECT_GT(left,0u) << "PUB the restarted interface declared again";

@@ -671,7 +671,7 @@ void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mb
 	uint32_t domain = w[MBX_PUB_REG_SR_DOMAIN / 4u];
 	out->da_gate = mbx_field(w[MBX_PUB_REG_DA_GATE / 4u], MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH);
 	out->licence = mbx_field(w[MBX_PUB_REG_LICENCE / 4u], MBX_LICENCE_ACTIVE_LSB, MBX_LICENCE_ACTIVE_WIDTH);
-	out->idle_slope = mbx_field(w[MBX_PUB_REG_IDLE_SLOPE / 4u], MBX_IDLE_SLOPE_BPS_LSB, MBX_IDLE_SLOPE_BPS_WIDTH);
+	out->idle_slope_bps = mbx_field(w[MBX_PUB_REG_IDLE_SLOPE / 4u], MBX_IDLE_SLOPE_BPS_LSB, MBX_IDLE_SLOPE_BPS_WIDTH);
 	out->vid = (uint16_t)mbx_field(domain, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH);
 	out->priority = (uint8_t)mbx_field(domain, MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH);
 	out->adopted = mbx_field(domain, MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH) != 0u;

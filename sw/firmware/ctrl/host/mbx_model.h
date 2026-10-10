@@ -165,7 +165,7 @@ const struct mbx_model_tmr_op *mbx_model_tmr_op(const struct mbx_model *m, uint3
 struct mbx_model_pub {
 	uint32_t da_gate;                               // DA_GATE.OPEN, bit s source s
 	uint32_t licence;                               // LICENCE.ACTIVE, bit s source s
-	uint32_t idle_slope;                            // IDLE_SLOPE.BPS
+	uint32_t idle_slope_bps;                        // IDLE_SLOPE.BPS
 	uint16_t vid;                                   // SR_DOMAIN.VID
 	uint8_t priority;                               // SR_DOMAIN.PRIORITY
 	bool adopted;                                   // SR_DOMAIN.ADOPTED

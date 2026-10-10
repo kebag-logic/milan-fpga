@@ -1787,7 +1787,7 @@ void Suite<Bench, Check>::check_pub_outputs() {
             sid = sid && v.sid.at(k) == want;
         }
         fields = fields && v.da_gate == ((0x0101u * (t + 1u)) & 0xFFFFu) &&
-                 v.licence == ((0x0202u * (t + 3u)) & 0xFFFFu) && v.idle_slope == 0x01000193u * (t + 5u) &&
+                 v.licence == ((0x0202u * (t + 3u)) & 0xFFFFu) && v.idle_slope_bps == 0x01000193u * (t + 5u) &&
                  v.vid == field(dom, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) &&
                  v.priority == field(dom, MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH) &&
                  v.adopted == field(dom, MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH) &&

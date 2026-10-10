@@ -28,7 +28,7 @@ struct TxFrame {
 struct PubView {
     std::uint32_t da_gate = 0;       //!< DA_GATE.OPEN, bit s source s
     std::uint32_t licence = 0;       //!< LICENCE.ACTIVE, bit s source s
-    std::uint32_t idle_slope = 0;    //!< IDLE_SLOPE.BPS
+    std::uint32_t idle_slope_bps = 0;  //!< IDLE_SLOPE.BPS
     std::uint32_t vid = 0;           //!< SR_DOMAIN.VID
     std::uint32_t priority = 0;      //!< SR_DOMAIN.PRIORITY
     std::uint32_t adopted = 0;       //!< SR_DOMAIN.ADOPTED
@@ -37,8 +37,9 @@ struct PubView {
 };
 
 inline bool same_pub(const PubView& a, const PubView& b) {
-    return a.da_gate == b.da_gate && a.licence == b.licence && a.idle_slope == b.idle_slope && a.vid == b.vid &&
-           a.priority == b.priority && a.adopted == b.adopted && a.bound == b.bound && a.sid == b.sid;
+    return a.da_gate == b.da_gate && a.licence == b.licence && a.idle_slope_bps == b.idle_slope_bps &&
+           a.vid == b.vid && a.priority == b.priority && a.adopted == b.adopted && a.bound == b.bound &&
+           a.sid == b.sid;
 }
 
 constexpr std::uint16_t kEtherAvtp = 0x22F0;   // IEEE 1722-2016 Table 5
