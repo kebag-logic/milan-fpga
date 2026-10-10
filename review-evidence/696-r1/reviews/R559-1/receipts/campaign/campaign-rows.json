@@ -1,0 +1,454 @@
+[
+ {
+  "name": "clean",
+  "expected": null,
+  "integration": false,
+  "passed": true,
+  "output": "[ok] clean: rc=0\n"
+ },
+ {
+  "name": "m3_short_period",
+  "expected": "M3 B.3.6.1 generator period is 2^32-1",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m3_short_period: rc=1\n  named rejection: M3 B.3.6.1 generator period is 2^32-1\n"
+ },
+ {
+  "name": "m3_trap_outside_basis",
+  "expected": "M3 B.3.6.1 generator period is 2^32-1",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m3_trap_outside_basis: rc=1\n  named rejection: M3 B.3.6.1 generator period is 2^32-1\n"
+ },
+ {
+  "name": "m3_ignores_clock",
+  "expected": "M3 B.3.6.1 first enable seeds MAC plus clock",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m3_ignores_clock: rc=1\n  named rejection: M3 B.3.6.1 first enable seeds MAC plus clock\n"
+ },
+ {
+  "name": "m3_xors_clock",
+  "expected": "M3 B.3.6.1 first enable seeds MAC plus clock",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m3_xors_clock: rc=1\n  named rejection: M3 B.3.6.1 first enable seeds MAC plus clock\n"
+ },
+ {
+  "name": "m3_reseeds_after_release",
+  "expected": "M3 Release/Begin retains the generator sequence",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m3_reseeds_after_release: rc=1\n  named rejection: M3 Release/Begin retains the generator sequence\n"
+ },
+ {
+  "name": "m6_overwrite_active_response",
+  "expected": "M6 occupied response buffer preserves active DEFEND",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m6_overwrite_active_response: rc=1\n  named rejection: M6 occupied response buffer preserves active DEFEND\n"
+ },
+ {
+  "name": "m6_replace_pending_response",
+  "expected": "M6 pending response preserves prober and requested range",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m6_replace_pending_response: rc=1\n  named rejection: M6 pending response preserves prober and requested range\n"
+ },
+ {
+  "name": "m6_pending_survives_release",
+  "expected": "M6 pending response cancelled with allocation",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m6_pending_survives_release: rc=1\n  named rejection: M6 pending response cancelled with allocation\n"
+ },
+ {
+  "name": "m6_drop_busy_probe",
+  "expected": "M6 busy PROBE gets DEFEND after wire is free",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m6_drop_busy_probe: rc=1\n  named rejection: M6 busy PROBE gets DEFEND after wire is free\n"
+ },
+ {
+  "name": "m6_pending_source_not_saved",
+  "expected": "M6 pending response preserves prober and requested range",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m6_pending_source_not_saved: rc=1\n  named rejection: M6 pending response preserves prober and requested range\n"
+ },
+ {
+  "name": "m5_ignore_link_return",
+  "expected": "M5 B.3.5.9 link return revokes and reprobes",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m5_ignore_link_return: rc=1\n  named rejection: M5 B.3.5.9 link return revokes and reprobes\n"
+ },
+ {
+  "name": "m5_level_restarts",
+  "expected": "M5 B.3.5.9 link return restarts PROBE",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m5_level_restarts: rc=1\n  named rejection: M5 B.3.5.9 link return restarts PROBE\n"
+ },
+ {
+  "name": "m1_probe_no_compare",
+  "expected": "M1 rProbe/PROBE lower MAC keeps range",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m1_probe_no_compare: rc=1\n  named rejection: M1 rProbe/PROBE lower MAC keeps range\n"
+ },
+ {
+  "name": "m1_defend_no_compare",
+  "expected": "M1 rDefend/DEFEND lower MAC keeps range",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m1_defend_no_compare: rc=1\n  named rejection: M1 rDefend/DEFEND lower MAC keeps range\n"
+ },
+ {
+  "name": "m8_early_last_accepted",
+  "expected": "M8 B.2 truncated PROBE-state input has no effect",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m8_early_last_accepted: rc=1\n  named rejection: M8 B.2 truncated PROBE-state input has no effect\n"
+ },
+ {
+  "name": "m8_missing_bytes_accepted",
+  "expected": "M8 B.2 truncated DEFEND-state input has no effect",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m8_missing_bytes_accepted: rc=1\n  named rejection: M8 B.2 truncated DEFEND-state input has no effect\n"
+ },
+ {
+  "name": "m7_accept_invalid_seed",
+  "expected": "M7 Table B.9 invalid supplied range refused",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m7_accept_invalid_seed: rc=1\n  named rejection: M7 Table B.9 invalid supplied range refused\n"
+ },
+ {
+  "name": "m7_reject_valid_boundary",
+  "expected": "M7 Table B.9 valid supplied boundary retained",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m7_reject_valid_boundary: rc=1\n  named rejection: M7 Table B.9 valid supplied boundary retained\n"
+ },
+ {
+  "name": "m2_own_requested_start",
+  "expected": "M2 B.3.6.6 requested start echoes PROBE",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m2_own_requested_start: rc=1\n  named rejection: M2 B.3.6.6 requested start echoes PROBE\n"
+ },
+ {
+  "name": "m2_own_requested_count",
+  "expected": "M2 B.3.6.6 requested count echoes all 16 bits",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] m2_own_requested_count: rc=1\n  named rejection: M2 B.3.6.6 requested count echoes all 16 bits\n"
+ },
+ {
+  "name": "cdl_28",
+  "expected": "B.2.1 cdl 16 (Begin! PROBE 1)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] cdl_28: rc=1\n  named rejection: B.2.1 cdl 16 (Begin! PROBE 1)\n"
+ },
+ {
+  "name": "defend_to_multicast",
+  "expected": "B.2.1 DEFEND DA = PROBE source (above)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] defend_to_multicast: rc=1\n  named rejection: B.2.1 DEFEND DA = PROBE source (above)\n"
+ },
+ {
+  "name": "defend_destination_not_latched",
+  "expected": "B.2.1 DEFEND DA latched at send",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] defend_destination_not_latched: rc=1\n  named rejection: B.2.1 DEFEND DA latched at send\n"
+ },
+ {
+  "name": "every_frame_to_the_prober",
+  "expected": "B.2.1 PROBE DA multicast (Begin! 1)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] every_frame_to_the_prober: rc=1\n  named rejection: B.2.1 PROBE DA multicast (Begin! 1)\n"
+ },
+ {
+  "name": "probe_draw_7_bits",
+  "expected": "B.3.4.2 probe T < 600 ms (campaign)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] probe_draw_7_bits: rc=1\n  named rejection: B.3.4.2 probe T < 600 ms (campaign)\n"
+ },
+ {
+  "name": "probe_base_500",
+  "expected": "B.3.4.2 probe T > 500 ms (campaign)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] probe_base_500: rc=1\n  named rejection: B.3.4.2 probe T > 500 ms (campaign)\n"
+ },
+ {
+  "name": "announce_base_3s",
+  "expected": "B.3.4.1 announce T > 30 s",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] announce_base_3s: rc=1\n  named rejection: B.3.4.1 announce T > 30 s\n"
+ },
+ {
+  "name": "announce_draw_11_bits",
+  "expected": "B.3.4.1 announce T < 32 s",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] announce_draw_11_bits: rc=1\n  named rejection: B.3.4.1 announce T < 32 s\n"
+ },
+ {
+  "name": "announce_not_randomized",
+  "expected": "B.3.4.1 announce T randomized",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] announce_not_randomized: rc=1\n  named rejection: B.3.4.1 announce T randomized\n"
+ },
+ {
+  "name": "zero_seed_freezes_the_probe_draw",
+  "expected": "B.3.4.2 probe T randomized (zero-seed MAC)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] zero_seed_freezes_the_probe_draw: rc=1\n  named rejection: B.3.4.2 probe T randomized (zero-seed MAC)\n"
+ },
+ {
+  "name": "zero_seed_freezes_the_announce_draw",
+  "expected": "B.3.4.1 announce T randomized (zero-seed MAC)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] zero_seed_freezes_the_announce_draw: rc=1\n  named rejection: B.3.4.1 announce T randomized (zero-seed MAC)\n"
+ },
+ {
+  "name": "announce_judged_on_conflict_fields",
+  "expected": "B.2.7 ANNOUNCE conflict_* is not its range",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] announce_judged_on_conflict_fields: rc=1\n  named rejection: B.2.7 ANNOUNCE conflict_* is not its range\n"
+ },
+ {
+  "name": "inclusive_range_end",
+  "expected": "note b adjacent above: no conflict",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] inclusive_range_end: rc=1\n  named rejection: note b adjacent above: no conflict\n"
+ },
+ {
+  "name": "inclusive_range_start",
+  "expected": "note b adjacent below: no conflict",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] inclusive_range_start: rc=1\n  named rejection: note b adjacent below: no conflict\n"
+ },
+ {
+  "name": "empty_range_conflicts",
+  "expected": "note b empty range: no conflict",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] empty_range_conflicts: rc=1\n  named rejection: note b empty range: no conflict\n"
+ },
+ {
+  "name": "no_compare_mac",
+  "expected": "T.B7 note d: lower MAC keeps range",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] no_compare_mac: rc=1\n  named rejection: T.B7 note d: lower MAC keeps range\n"
+ },
+ {
+  "name": "compare_mac_while_probing",
+  "expected": "T.B7 rAnnounce!/PROBE: no compare_MAC",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] compare_mac_while_probing: rc=1\n  named rejection: T.B7 rAnnounce!/PROBE: no compare_MAC\n"
+ },
+ {
+  "name": "compare_mac_unreversed",
+  "expected": "T.B7 rAnnounce!/DEFEND: re-address",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] compare_mac_unreversed: rc=1\n  named rejection: T.B7 rAnnounce!/DEFEND: re-address\n"
+ },
+ {
+  "name": "three_probes",
+  "expected": "T.B7 Begin!: four PROBEs before ANNOUNCE",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] three_probes: rc=1\n  named rejection: T.B7 Begin!: four PROBEs before ANNOUNCE\n"
+ },
+ {
+  "name": "first_probe_after_a_timer",
+  "expected": "T.B7 Begin!: first PROBE at once",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] first_probe_after_a_timer: rc=1\n  named rejection: T.B7 Begin!: first PROBE at once\n"
+ },
+ {
+  "name": "restart_probe_after_a_timer",
+  "expected": "T.B7 Restart!: first PROBE at once",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] restart_probe_after_a_timer: rc=1\n  named rejection: T.B7 Restart!: first PROBE at once\n"
+ },
+ {
+  "name": "announce_after_a_timer",
+  "expected": "T.B7 probeCount!: ANNOUNCE at once (Begin!)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] announce_after_a_timer: rc=1\n  named rejection: T.B7 probeCount!: ANNOUNCE at once (Begin!)\n"
+ },
+ {
+  "name": "restart_rewrites_the_frame_on_the_wire",
+  "expected": "frame on the wire keeps its offset",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] restart_rewrites_the_frame_on_the_wire: rc=1\n  named rejection: frame on the wire keeps its offset\n"
+ },
+ {
+  "name": "overlap_count_to_our_end",
+  "expected": "B.2.8 conflict_count = overlap (below)",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] overlap_count_to_our_end: rc=1\n  named rejection: B.2.8 conflict_count = overlap (below)\n"
+ },
+ {
+  "name": "defend_rewrites_the_frame_on_the_wire",
+  "expected": "PROBE mid-frame: frame on the wire byte-identical",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] defend_rewrites_the_frame_on_the_wire: rc=1\n  named rejection: PROBE mid-frame: frame on the wire byte-identical\n"
+ },
+ {
+  "name": "own_empty_range_conflicts",
+  "expected": "note b: this station's empty range never conflicts",
+  "integration": false,
+  "passed": true,
+  "output": "[ok] own_empty_range_conflicts: rc=1\n  named rejection: note b: this station's empty range never conflicts\n"
+ },
+ {
+  "name": "m4_datapath_clean",
+  "expected": null,
+  "integration": true,
+  "passed": true,
+  "output": "[ok] m4_datapath_clean: rc=0\n"
+ },
+ {
+  "name": "m4_reset_time_sampling",
+  "expected": "M4 datapath: programmed MAC changes probe intervals",
+  "integration": true,
+  "passed": true,
+  "output": "[ok] m4_reset_time_sampling: rc=1\n  named rejection: M4 datapath: programmed MAC changes probe intervals\n"
+ },
+ {
+  "name": "m5_datapath_ignores_link",
+  "expected": "M5 datapath: link return starts four fresh PROBEs",
+  "integration": true,
+  "passed": true,
+  "output": "[ok] m5_datapath_ignores_link: rc=1\n  named rejection: M5 datapath: link return starts four fresh PROBEs\n"
+ },
+ {
+  "name": "m3_datapath_ignores_clock",
+  "expected": "M3 datapath: real-time clock changes probe intervals",
+  "integration": true,
+  "passed": true,
+  "output": "[ok] m3_datapath_ignores_clock: rc=1\n  named rejection: M3 datapath: real-time clock changes probe intervals\n"
+ },
+ {
+  "name": "r_equal_mac_counts_as_lower",
+  "expected": "M1 rProbe/PROBE higher or equal MAC yields | M1 rDefend/DEFEND higher or equal MAC yields",
+  "integration": false,
+  "passed": true,
+  "killed_by": [
+   "M1 rProbe/PROBE higher or equal MAC yields",
+   "M1 rDefend/DEFEND higher or equal MAC yields"
+  ],
+  "output": "rc=1\n  [FAIL] M1 rProbe/PROBE higher or equal MAC yields   got=0 exp=1\n  [FAIL] M1 rDefend/DEFEND higher or equal MAC yields got=0 exp=1\nKL_maap: 171 checks, 2 failures"
+ },
+ {
+  "name": "r_truncation_not_accumulated",
+  "expected": "M8 B.2 truncated PROBE-state input has no effect | M8 B.2 truncated DEFEND-state input has no effect",
+  "integration": false,
+  "passed": true,
+  "killed_by": [
+   "M8 B.2 truncated PROBE-state input has no effect",
+   "M8 B.2 truncated DEFEND-state input has no effect"
+  ],
+  "output": "rc=1\n  [FAIL] M8 B.2 truncated PROBE-state input has no effect got=0 exp=1\n  [FAIL] M8 B.2 truncated DEFEND-state input has no effect got=0 exp=1\nKL_maap: 171 checks, 2 failures"
+ },
+ {
+  "name": "r_conflict_count_low_byte_only",
+  "expected": "M8 B.2 truncated PROBE-state input has no effect | M8 B.2 truncated DEFEND-state input has no effect",
+  "integration": false,
+  "passed": true,
+  "killed_by": [
+   "M8 B.2 truncated PROBE-state input has no effect",
+   "M8 B.2 truncated DEFEND-state input has no effect"
+  ],
+  "output": "rc=1\n  [FAIL] M8 B.2 truncated PROBE-state input has no effect got=0 exp=1\n  [FAIL] M8 B.2 truncated DEFEND-state input has no effect got=0 exp=1\nKL_maap: 171 checks, 2 failures"
+ },
+ {
+  "name": "r_pending_not_cleared_on_send",
+  "expected": "M6 pending response sent exactly once",
+  "integration": false,
+  "passed": true,
+  "killed_by": [
+   "M6 pending response sent exactly once"
+  ],
+  "output": "rc=1\n  [FAIL] B.2.1 DEFEND DA = PROBE source (below)       got=0 exp=1\n  [FAIL] B.2.7 conflict_start = overlap (below)       got=160395285237765 exp=160395285237761\n  [FAIL] B.2.1 DEFEND DA latched at send              got=0 exp=1\n  [FAIL] B.2.7 one-address overlap start              got=4101 exp=4104\n  [FAIL] M2 B.3.6.6 requested count echoes all 16 bits got=8 exp=4660\n  [FAIL] M2 requested start held under backpressure   got=4101 exp=4104\n  [FAIL] B.2.8 one-address overlap count              got=4 exp=1\n  [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1\n  [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1\n  [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1\n  [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1\n  [FAIL] note b: no DEFEND for non-conflicting PROBEs got=9 exp=0\n  [FAIL] non-conflicting PROBEs leave defends unchanged got=17 exp=7\n  [FAIL] B.2.1 ANNOUNCE DA multicast after DEFEND     got=0 exp=1\n  [FAIL] T.B7 Restart!: first PROBE at once           got=0 exp=1\n  [FAIL] Restart! PROBE carries the new range         got=0 exp=1\n  [FAIL] M6 pending response sent exactly once        got=7 exp=2\n  [FAIL] PROBE mid-frame: deferred DEFEND counted     got=65 exp=59\n  [FAIL] PROBE mid-frame: frame on the wire byte-identical got=0 exp=1\n  [FAIL] M6 pending response sent exactly once        got=6 exp=2\n  [FAIL] PROBE mid-frame: deferred DEFEND counted     got=71 exp=66\n  [FAIL] PROBE mid-frame: frame on the wire byte-identical got=0 exp=1\n  [FAIL] M6 pending response sent exactly once        got=5 exp=2\n  [FAIL] PROBE mid-frame: deferred DEFEND counted     got=77 exp=72\n  [FAIL] frame on the wire keeps its offset           got=0 exp=1\n  [FAIL] then the new range's PROBE                   got=0 exp=1\nKL_maap: 171 checks, 26 failures"
+ },
+ {
+  "name": "r_seed_from_mac_high_bits",
+  "expected": "M3 B.3.6.1 first enable seeds MAC plus clock",
+  "integration": false,
+  "passed": true,
+  "killed_by": [
+   "M3 B.3.6.1 first enable seeds MAC plus clock"
+  ],
+  "output": "rc=1\n  [FAIL] offset leaves room for the range cases       got=0 exp=1\n  [FAIL] below: DEFEND emitted promptly               got=0 exp=1\n  [FAIL] defends = 3                                  got=2 exp=3\n  [FAIL] M3 B.3.6.1 first enable seeds MAC plus clock got=0 exp=1\nKL_maap: 166 checks, 4 failures"
+ },
+ {
+  "name": "r_count_echo_low_byte",
+  "expected": "M2 B.3.6.6 requested count echoes all 16 bits",
+  "integration": false,
+  "passed": true,
+  "killed_by": [
+   "M2 B.3.6.6 requested count echoes all 16 bits"
+  ],
+  "output": "rc=1\n  [FAIL] M2 B.3.6.6 requested count echoes all 16 bits got=52 exp=4660\n  [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1\n  [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1\n  [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1\n  [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1\n  [FAIL] M6 pending response preserves prober and requested range got=0 exp=1\n  [FAIL] M6 pending response preserves prober and requested range got=0 exp=1\n  [FAIL] M6 pending response preserves prober and requested range got=0 exp=1\nKL_maap: 171 checks, 8 failures"
+ },
+ {
+  "name": "r_restart_on_link_loss",
+  "expected": "M5 B.3.5.9 link return restarts PROBE | M5 B.3.5.9 link return revokes and reprobes",
+  "integration": false,
+  "passed": false,
+  "killed_by": [],
+  "output": "rc=0\nKL_maap: 171 checks, 0 failures"
+ },
+ {
+  "name": "r_seed_end_ignores_count",
+  "expected": "M7 Table B.9 invalid supplied range refused",
+  "integration": false,
+  "passed": true,
+  "killed_by": [
+   "M7 Table B.9 invalid supplied range refused"
+  ],
+  "output": "rc=1\n  [FAIL] M7 Table B.9 invalid supplied range refused  got=0 exp=1\nKL_maap: 171 checks, 1 failures"
+ },
+ {
+  "name": "r_dp_link_tied_high",
+  "expected": "M5 datapath: link return starts four fresh PROBEs",
+  "integration": true,
+  "passed": false,
+  "output": "BUILD FAILED\ngit ls-files failed in <packet>/scratch/dp_r_dp_link_tied_high/protocol-processor/hdl: fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\nMakefile:153: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.\nintegration.mk:10: *** datapath source derivation failed.  Stop.\nmake: *** [Makefile:29: integration-build] Error 2\n"
+ },
+ {
+  "name": "r_dp_clock_tied_zero",
+  "expected": "M3 datapath: real-time clock changes probe intervals",
+  "integration": true,
+  "passed": false,
+  "output": "BUILD FAILED\ngit ls-files failed in <packet>/scratch/dp_r_dp_clock_tied_zero/protocol-processor/hdl: fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\nMakefile:153: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.\nintegration.mk:10: *** datapath source derivation failed.  Stop.\nmake: *** [Makefile:29: integration-build] Error 2\n"
+ }
+]
