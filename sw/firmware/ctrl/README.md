@@ -81,7 +81,10 @@ It preprocesses every firmware source, header and image source with the stack's 
 A dependency on the stack outside `include/` is refused.
 So is a file under `sw/firmware` named as a stack source or header.
 It also runs the stack's own boundary gate.
+Every gate that builds the stack first refuses a submodule off its gitlink.
+It refuses one with edited sources, headers or tests too.
 `--selftest` plants 13 defects, each refused by name, and two passing controls.
+Four pin controls follow: a clean clone passes; an edited source, an edited test and another revision are refused.
 
 Its tests run two ways.
 The gate [below](#the-host-test) builds the stack's own core tests into the
