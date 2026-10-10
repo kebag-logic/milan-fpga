@@ -3,19 +3,20 @@
 """ctrl_plants.py - the boundary gate's planted controls (#697).
 
 ctrl_boundary.py --selftest judges a copy of the ctrl tree and of the stack
-with each plant written into it, and of a builder's text where a plant gives
-one: each refused by the finding (or the refusal) it names, or passing. The
-base the controls share is the copies as they are. This module is one of the
-gate's own, never a builder (ctrl_configs.GATE): its plants' flags are no
-build's.
+with each plant written into it: each refused by the finding (or the refusal)
+it names, or passing. The base the controls share is the copies as they are,
+judged against the run's capture. A control with a planted builder runs that
+builder through the capture (ctrl_capture.run), in a directory of its own
+holding an empty planted.c, with PLANT_CTRL, PLANT_STACK and PLANT_WORK naming
+the copies and that directory (PLANT_GCC the real gcc); what it compiled joins the run's capture for
+that control alone. Whatever form the builder writes a flag or a source's name
+in, the boundary judges the invocation the compiler was given. This module is
+one of the gate's own, never a builder (ctrl_configs.GATE).
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
-
-from ctrl_build import HERE, Refusal
 
 
 @dataclass(frozen=True)
@@ -23,10 +24,12 @@ class Plant:
     """One control: written into the stack's copy or the ctrl tree's copy, side by side, so a relative path
     from one reaches the other (a "+" file is written whole as a new file; no file, none), with `extra` edits
     of the same kind in the same copy; refused by a finding (or a refusal) holding `needle`, or passing when
-    `needle` is "". `words` are a builder's arguments (flags, or a source's name), planted into a copy of the
-    text of `builder` (a file of test/, or one relative to it; a new one when it holds none; a Makefile's
-    recipe when it is one), which the boundary must then read without being told; `raw` is text added to that
-    copy as it is, and `swap` an (old, new) edit of it."""
+    `needle` is "". `run` is a planted builder's text, a Makefile when `make` (run as `make -f`) and Python
+    otherwise, run through the capture with `beside` written next to it; one that only compiles a mode
+    (`shared`) runs once, before the base, and what it compiled joins the base every control shares, which must
+    still pass. `texts` are builder texts the checkout is read as holding (a path from the gate's directory, and
+    its text), never run; `alter` changes the capture the control is judged against: "missing", "empty", or
+    "drop " and a builder whose invocations it loses."""
 
     name: str
     side: str
@@ -34,17 +37,51 @@ class Plant:
     old: str
     new: str
     needle: str
-    words: tuple[str, ...] = ()
-    builder: str = "ctrl_arms.py"
-    raw: str = ""
-    swap: tuple[str, str] | tuple[()] = ()
+    run: str = ""
+    make: bool = False
+    beside: tuple[tuple[str, str], ...] = ()
+    texts: tuple[tuple[str, str], ...] = ()
+    alter: str = ""
     extra: tuple[tuple[str, str, str], ...] = ()
+    shared: bool = False
 
 
-#: A builder the checkout does not hold: it names the firmware's shared builder, as every builder does.
-NEW_BUILDER = '"""A builder of the firmware that nobody lists."""\nfrom ctrl_build import Tree\n'
-#: A Makefile builder the checkout does not hold, of the firmware's tree.
-NEW_MAKEFILE = "# A builder of sw/firmware/ctrl that nobody lists.\n"
+#: A planted Python builder's head: the copies and its own directory, and the compiler runs it makes there.
+PY = ('import os, subprocess\nCTRL, STACK, WORK = os.environ["PLANT_CTRL"], os.environ["PLANT_STACK"], '
+      'os.environ["PLANT_WORK"]\n\n\ndef cc(*words, shell=False):\n'
+      '    subprocess.run(words[0] if shell else list(words), cwd=WORK, shell=shell, check=False,\n'
+      '                   capture_output=True)\n\n\n')
+#: The firmware adapter a mode's control reaches a stack example's header from, under that mode.
+ANCHOR = '#include "adp_mbx.h"\n'
+#: The C++ source a computed-name control compiles, in the ctrl tree's copy, and the header it reaches.
+PROBE = "test/probe_r5/bench.cpp"
+CXX_HEADER = "#ifdef __cplusplus\n#include \"adp_port.h\"\n#endif\n"
+CXX_NEEDLE = ("firmware c++: adp/adp_r5.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public "
+              "headers")
+
+
+def under_mode(name: str, macro: str, label: str, run: str, make: bool = False, test: str = "") -> Plant:
+    """A control whose planted builder compiles with a mode, in some form: the firmware's ADP adapter reaches a
+    stack example's header only under it (or when its value, `test`, holds), so the finding names the mode as
+    the compiler was given it, `label`."""
+    return Plant(name, "ctrl", "adp/adp_mbx.c", ANCHOR,
+                 ANCHOR + (f"#if {test}\n" if test else f"#ifdef {macro}\n") + '#include "adp_port.h"\n#endif\n',
+                 f"firmware [{label}]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the "
+                 "stack's public headers", run=run, make=make, shared=True)
+
+
+def through_source(name: str, run: str, make: bool = False, probe: bool = True,
+                   beside: tuple[tuple[str, str], ...] = ()) -> Plant:
+    """A control whose planted builder compiles a C++ source it computes the name of, or writes: a new firmware
+    header reached only from that source includes a stack example's header in C++ only."""
+    extra = (("+" + PROBE, "", '#include "adp_r5.h"\n'),) if probe else ()
+    return Plant(name, "ctrl", "+adp/adp_r5.h", "", CXX_HEADER, CXX_NEEDLE, run=run, make=make, beside=beside,
+                 extra=extra)
+
+
+def makefile(recipe: str, head: str = "") -> str:
+    """A planted Makefile: its variables, then one target whose recipe is `recipe`."""
+    return f"{head}planted:\n\t{recipe}\n"
 
 
 PLANTS = (
@@ -121,18 +158,18 @@ PLANTS = (
     Plant("a stack public header includes the mailbox HAL for C++ only", "stack", "include/acmp.h",
           "#ifdef __cplusplus\nextern \"C\" {\n", "#ifdef __cplusplus\n#include \"mbx_hal.h\"\nextern \"C\" {\n",
           "tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h"),
-    Plant("a mode an arm writes is explored without being named here", "stack", "src/adp.c", "#include <assert.h>\n",
-          "#include <assert.h>\n#ifdef CTRL_PLANTED_MODE\n#include \"mbx_hal.h\"\n#endif\n",
+    Plant("a mode a builder compiles with is explored without being named here", "stack", "src/adp.c",
+          "#include <assert.h>\n", "#include <assert.h>\n#ifdef CTRL_PLANTED_MODE\n#include \"mbx_hal.h\"\n#endif\n",
           "host [-DCTRL_PLANTED_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
-          ("-DCTRL_PLANTED_MODE",)),
+          run=PY + 'cc("cc", "-DCTRL_PLANTED_MODE", "-c", "planted.c", "-o", "planted.o")\n', shared=True),
     Plant("a mode an AECP arm writes is explored without being named here", "stack", "src/acmp.c",
           "#include \"acmp.h\"\n", "#include \"acmp.h\"\n#ifdef AECP_TEST_APP\n#include \"mbx_hal.h\"\n#endif\n",
           "host [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"),
-    Plant("a mode written in a new builder nobody lists is explored", "stack", "src/maap.c",
+    Plant("a mode a new builder nobody lists compiles with is explored", "stack", "src/maap.c",
           "#include \"maap.h\"\n",
           "#include \"maap.h\"\n#ifdef CTRL_PLANTED_BUILDER\n#include \"ctrl_loop.h\"\n#endif\n",
           "host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
-          ("-DCTRL_PLANTED_BUILDER",), "planted_arms.py"),
+          run=PY + 'cc("gcc", "-DCTRL_PLANTED_BUILDER", "-c", "planted.c", "-o", "planted.o")\n', shared=True),
     Plant("stack source includes the AECP core's header", "stack", "src/adp.c", "#include <assert.h>\n",
           "#include <assert.h>\n#include \"aecp.h\"\n", "the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h"),
     Plant("a stack test includes the AECP adapter", "stack", "tests/test_adp.cpp", "#include \"adp.h\"\n",
@@ -177,92 +214,144 @@ PLANTS = (
           "acmp/acmp_mbx.c", "#include \"acmp_mbx.h\"\n",
           "#include \"acmp_mbx.h\"\n#ifndef LWSRP_MILAN\n#include \"../../tsn-c-stack/src/acmp.c\"\n#endif\n",
           "firmware: acmp/acmp_mbx.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers"),
-    Plant("the AECP core tests a value only its arms compute", "ctrl", "aecp/aecp.c",
-          "#include \"aecp_internal.h\"\n", "#include \"aecp_internal.h\"\n#if AECP_TEST_INTERFACES > 1\n#endif\n",
-          "aecp/aecp.c tests AECP_TEST_INTERFACES, a value sw/firmware/ctrl/test/aecp_arms.py computes at run time"),
-    Plant("a mode an arm writes as two arguments is explored", "stack", "src/adp.c", "#include <assert.h>\n",
+    Plant("the AECP core reaches a stack source at a value only its arms compile with", "ctrl", "aecp/aecp.c",
+          "#include \"aecp_internal.h\"\n",
+          "#include \"aecp_internal.h\"\n#if AECP_TEST_INTERFACES > 1\n#include \"../../tsn-c-stack/src/acmp.c\"\n"
+          "#endif\n",
+          "firmware [-DAECP_TEST_INTERFACES=2]: aecp/aecp.c includes tsn-c-stack/src/acmp.c, not one of the stack's "
+          "public headers"),
+    Plant("a mode a builder writes as two arguments is explored", "stack", "src/adp.c", "#include <assert.h>\n",
           "#include <assert.h>\n#ifdef CTRL_SPLIT_MODE\n#include \"mbx_hal.h\"\n#endif\n",
           "host [-DCTRL_SPLIT_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
-          ("-D", "CTRL_SPLIT_MODE")),
+          run=PY + 'cc("cc", "-D", "CTRL_SPLIT_MODE", "-c", "planted.c", "-o", "planted.o")\n', shared=True),
     Plant("a mode a new Makefile writes as two words is explored", "stack", "src/maap.c", "#include \"maap.h\"\n",
           "#include \"maap.h\"\n#ifdef CTRL_SPLIT_MAKE\n#include \"ctrl_loop.h\"\n#endif\n",
           "host [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
-          ("-D", "CTRL_SPLIT_MAKE"), "planted.mk"),
+          run=makefile("cc -D CTRL_SPLIT_MAKE -c planted.c -o planted.o"), make=True, shared=True),
     Plant("a header only the MAAP differential's C++ source reaches includes a stack test's fake in C++ only",
           "ctrl", "+maap/maap_r584.h", "", "#ifdef __cplusplus\n#include \"acmp_fake.hpp\"\n#endif\n",
           "firmware c++: maap/maap_r584.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public "
           "headers",
+          run=PY + 'cc("c++", "-std=c++17", "-fsyntax-only", "-I" + CTRL + "/maap", "-I" + STACK + "/include",\n'
+                   '   CTRL + "/test/test_maap_differential.cpp")\n',
           extra=(("test/test_maap_differential.cpp", "#include \"maap.h\"\n",
                   "#include \"maap.h\"\n#include \"maap_r584.h\"\n"),)),
-    Plant("a builder names a C++ source that is no file", "ctrl", "", "", "",
-          "firmware c++: sw/firmware/ctrl/test/planted_arms.py names planted_r4.cpp, a C++ source that resolves to "
-          "no file", ("planted_r4.cpp",), "planted_arms.py"),
-    Plant("a builder computes a C++ source's name", "ctrl", "", "", "",
-          "firmware c++: sw/firmware/ctrl/test/planted_arms.py computes the name of a C++ source",
-          builder="planted_arms.py", raw='STEM = "planted_r4"\nPLANTED = STEM + ".cpp"\n'),
-    Plant("a C++ source a builder writes reaches a header that includes a stack example in C++ only", "ctrl",
-          "+adp/adp_r4.h", "", "#ifdef __cplusplus\n#include \"adp_port.h\"\n#endif\n",
-          "firmware c++: adp/adp_r4.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public "
-          "headers", builder="planted_arms.py",
-          raw='from pathlib import Path\nPath("planted_r4.cpp").write_text("#include \\"adp_r4.h\\"\\n")\n'),
-    Plant("a name NOT_SOURCES lists is followed once it is a file", "ctrl", "+test/t.cpp", "",
-          "#include \"maap_r4.h\"\n",
-          "firmware c++: maap/maap_r4.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public "
-          "headers", extra=(("+maap/maap_r4.h", "", "#ifdef __cplusplus\n#include \"acmp_fake.hpp\"\n#endif\n"),)),
-    Plant("NOT_SOURCES lists a name its builder no longer holds", "ctrl", "", "", "",
-          "firmware c++: NOT_SOURCES lists tests/t.cpp for sw/firmware/gtest/fw_coverage_selftest.py, which no "
-          "longer names it", builder="../../gtest/fw_coverage_selftest.py", swap=('"tests/t.cpp", ', "")),
-    Plant("a builder joins -D to a macro it computes", "stack", "", "", "",
-          "the builder sw/firmware/ctrl/test/planted_arms.py writes '-D', a -D or -U flag the boundary cannot read",
-          builder="planted_arms.py", raw='MODE = "CTRL_R4_JOINED"\nPLANTED = ["-D" + MODE]\n'),
-    Plant("a builder formats a -D flag's macro", "stack", "", "", "",
-          "the builder sw/firmware/ctrl/test/planted_arms.py writes '-D%s', a -D or -U flag the boundary cannot "
-          "read", builder="planted_arms.py", raw='PLANTED = ["-D%s" % "CTRL_R4_FORMAT"]\n'),
-    Plant("a builder joins a value to a -D flag", "stack", "", "", "",
-          "the builder sw/firmware/ctrl/test/planted_arms.py writes '-DCTRL_R4_VALUE=', a -D or -U flag the "
-          "boundary cannot read", builder="planted_arms.py", raw='N = 2\nPLANTED = ["-DCTRL_R4_VALUE=" + str(N)]\n'),
-    Plant("a builder's f-string computes a -D flag's macro name", "stack", "", "", "",
-          "the builder sw/firmware/ctrl/test/planted_arms.py computes a -D or -U flag's macro",
-          builder="planted_arms.py", raw='SUFFIX = "MODE"\nPLANTED = [f"-DCTRL_R4_{SUFFIX}"]\n'),
-    Plant("a builder writes a bare -D alone", "stack", "", "", "",
-          "the builder sw/firmware/ctrl/test/planted_arms.py writes '-D', a -D or -U flag the boundary cannot read",
-          builder="planted_arms.py", raw='NAMES = ["CTRL_R4_BARE"]\nPLANTED = ["cc", "-D"] + NAMES\n'),
-    Plant("a Makefile computes a -D flag's macro", "stack", "", "", "",
-          "the builder sw/firmware/ctrl/test/planted.mk writes '-D$(MODE)', a -D or -U flag the boundary cannot read",
-          builder="planted.mk", raw="planted:\n\tcc -D$(MODE) -c planted.c\n"),
-    Plant("a Makefile computes a -D flag's value", "stack", "", "", "",
-          "the builder sw/firmware/ctrl/test/planted.mk writes '-DCTRL_R4_MAKE=$(VALUE)', a -D or -U flag the "
-          "boundary cannot read", builder="planted.mk", raw="planted:\n\tcc -DCTRL_R4_MAKE=$(VALUE) -c planted.c\n"),
-    Plant("a Makefile prefixes -D to the macros it lists", "stack", "", "", "",
-          "the builder sw/firmware/ctrl/test/planted.mk writes '-D,$(MODES))', a -D or -U flag the boundary cannot "
-          "read", builder="planted.mk", raw="planted:\n\tcc $(addprefix -D,$(MODES)) -c planted.c\n"),
+    # R584-4-F2, R585-4-F1, R584-3-S1 and round 4's: each form a builder writes a mode in.
+    under_mode("a Makefile's patsubst writes a mode", "CTRL_R5_PATSUBST", "-DCTRL_R5_PATSUBST",
+               makefile("cc $(patsubst %,-D%,$(MODES)) -c planted.c -o planted.o", "MODES := CTRL_R5_PATSUBST\n"),
+               True),
+    under_mode("a Makefile's foreach writes a mode", "CTRL_R5_FOREACH", "-DCTRL_R5_FOREACH",
+               makefile("cc $(foreach m,CTRL_R5_FOREACH,-D$(m)) -c planted.c -o planted.o"), True),
+    under_mode("a Makefile appends a mode with no space", "CTRL_R5_APPEND", "-DCTRL_R5_APPEND",
+               makefile("cc $(CFLAGS) -c planted.c -o planted.o", "CFLAGS+=-DCTRL_R5_APPEND\n"), True),
+    under_mode("a Makefile writes a mode's name after a bare -D", "CTRL_R5_SPACED", "-DCTRL_R5_SPACED",
+               makefile("cc -D $(M) -c planted.c -o planted.o", "M := CTRL_R5_SPACED\n"), True),
+    under_mode("a Makefile computes a mode's name", "CTRL_R4_MAKE", "-DCTRL_R4_MAKE",
+               makefile("cc -D$(MODE) -c planted.c -o planted.o", "MODE := CTRL_R4_MAKE\n"), True),
+    under_mode("a Makefile computes a mode's value", "CTRL_R4_MAKE_VALUE", "-DCTRL_R4_MAKE_VALUE=2",
+               makefile("cc -DCTRL_R4_MAKE_VALUE=$(VALUE) -c planted.c -o planted.o", "VALUE := 2\n"), True,
+               "CTRL_R4_MAKE_VALUE > 1"),
+    under_mode("a Makefile prefixes -D to the modes it lists", "CTRL_R4_ADDPREFIX", "-DCTRL_R4_ADDPREFIX",
+               makefile("cc $(addprefix -D,$(MODES)) -c planted.c -o planted.o", "MODES := CTRL_R4_ADDPREFIX\n"),
+               True),
+    under_mode("an f-string writes a mode after other text", "CTRL_R5_FSTRING", "-DCTRL_R5_FSTRING",
+               PY + 'CC = "cc"\ncc(f"{CC} -DCTRL_R5_FSTRING -c planted.c -o planted.o", shell=True)\n'),
+    under_mode("a multi-word literal holds a mode", "CTRL_R5_SPLIT", "-DCTRL_R5_SPLIT",
+               PY + 'cc("cc", *"-O2 -DCTRL_R5_SPLIT".split(), "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("a shell command's literal holds a mode", "CTRL_R5_SHELL", "-DCTRL_R5_SHELL",
+               PY + 'cc("cc -DCTRL_R5_SHELL -c planted.c -o planted.o", shell=True)\n'),
+    under_mode("shlex splits a mode out of a literal", "CTRL_R5_SHLEX", "-DCTRL_R5_SHLEX",
+               PY + 'import shlex\ncc("cc", *shlex.split("-O2 -DCTRL_R5_SHLEX"), "-c", "planted.c", "-o", '
+                    '"planted.o")\n'),
+    under_mode("a bare -D takes a mode a conditional chooses", "CTRL_R5_CHOSEN", "-DCTRL_R5_CHOSEN",
+               PY + 'X = True\ncc("cc", "-D", "CTRL_R5_CHOSEN" if X else "CTRL_R5_OTHER", "-c", "planted.c", "-o", '
+                    '"planted.o")\n'),
+    under_mode("str.format writes a mode", "CTRL_R5_FORMAT", "-DCTRL_R5_FORMAT",
+               PY + 'cc("cc", "-D{}".format("CTRL_R5_FORMAT"), "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("a builder joins -D to a mode it computes", "CTRL_R4_JOINED", "-DCTRL_R4_JOINED",
+               PY + 'MODE = "CTRL_R4_JOINED"\ncc("cc", "-D" + MODE, "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("a builder formats a mode with %", "CTRL_R4_PERCENT", "-DCTRL_R4_PERCENT",
+               PY + 'cc("cc", "-D%s" % "CTRL_R4_PERCENT", "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("a builder joins a value to a mode", "CTRL_R4_VALUE", "-DCTRL_R4_VALUE=2",
+               PY + 'N = 2\ncc("cc", "-DCTRL_R4_VALUE=" + str(N), "-c", "planted.c", "-o", "planted.o")\n',
+               test="CTRL_R4_VALUE > 1"),
+    under_mode("an f-string computes a mode's name", "CTRL_R4_MODE", "-DCTRL_R4_MODE",
+               PY + 'SUFFIX = "MODE"\ncc("cc", f"-DCTRL_R4_{SUFFIX}", "-c", "planted.c", "-o", "planted.o")\n'),
+    under_mode("a bare -D takes the modes a list holds", "CTRL_R4_BARE", "-DCTRL_R4_BARE",
+               PY + 'NAMES = ["CTRL_R4_BARE"]\ncc(*["cc", "-D"] + NAMES, "-c", "planted.c", "-o", "planted.o")\n'),
+    # R584-4-F1: each way a builder computes a C++ source's name, or writes the source.
+    through_source("a Makefile's wildcard names the C++ source",
+                   makefile("c++ -fsyntax-only -I$(PLANT_CTRL)/adp $(SRCS)",
+                            "SRCS := $(wildcard $(PLANT_CTRL)/test/probe_r5/*.cpp)\n"), True),
+    through_source("a builder joins a C++ source's name",
+                   PY + 'STEM = "bench"\ncc("c++", "-fsyntax-only", CTRL + "/test/probe_r5/" + STEM + ".cpp")\n'),
+    through_source("a glob names the C++ source",
+                   PY + 'import glob\ncc("c++", "-fsyntax-only", *glob.glob(CTRL + "/test/probe_r5/*.cpp"))\n'),
+    through_source("an iterdir names the C++ source",
+                   PY + 'from pathlib import Path\n'
+                        'cc("c++", "-fsyntax-only", *[str(p) for p in Path(CTRL, "test/probe_r5").iterdir() '
+                        'if p.suffix == ".cpp"])\n'),
+    through_source("a builder writes the C++ source from a literal",
+                   PY + 'from pathlib import Path\nPath(WORK, "planted.cpp").write_text(\'#include "adp_r5.h"\\n\')\n'
+                        'cc("c++", "-fsyntax-only", "-I" + CTRL + "/adp", "planted.cpp")\n', probe=False),
+    through_source("a builder writes the C++ source's include from an f-string",
+                   PY + 'from pathlib import Path\nHDR = "adp_r5.h"\n'
+                        'Path(WORK, "planted.cpp").write_text(f\'#include "{HDR}"\\n\')\n'
+                        'cc("c++", "-fsyntax-only", "-I" + CTRL + "/adp", "planted.cpp")\n', probe=False),
+    through_source("a builder writes the C++ source from a template it formats",
+                   PY + 'from pathlib import Path\nTEMPLATE = \'#include "{}"\\n\'\n'
+                        'Path(WORK, "planted.cpp").write_text(TEMPLATE.format("adp_r5.h"))\n'
+                        'cc("c++", "-fsyntax-only", "-I" + CTRL + "/adp", "planted.cpp")\n', probe=False),
+    through_source("a builder copies the C++ source from a template file",
+                   PY + 'import shutil\nshutil.copy(os.path.join(WORK, "template.txt"), os.path.join(WORK, '
+                        '"planted.cpp"))\ncc("c++", "-fsyntax-only", "-I" + CTRL + "/adp", "planted.cpp")\n',
+                   probe=False, beside=(("template.txt", '#include "adp_r5.h"\n'),)),
+    through_source("a written C++ source reaches the header through a header it writes beside it",
+                   PY + 'from pathlib import Path\nPath(WORK, "gen.hpp").write_text(\'#include "adp_r5.h"\\n\')\n'
+                        'Path(WORK, "planted.cpp").write_text(\'#include "gen.hpp"\\n\')\n'
+                        'cc("c++", "-fsyntax-only", "-I" + CTRL + "/adp", "planted.cpp")\n', probe=False),
+    Plant("a builder compiles a C++ source that is no file", "ctrl", "", "", "",
+          "compiled C++ from ", run=PY + 'cc("c++", "-fsyntax-only", "planted_r5_absent.cpp")\n'),
+    Plant("a builder compiles C++ from its standard input", "ctrl", "", "", "",
+          "compiled C++ from its standard input",
+          run=PY + 'subprocess.run(["c++", "-x", "c++", "-fsyntax-only", "-"], cwd=WORK, input=b"int x;\\n", '
+                   'check=False, capture_output=True)\n'),
+    # Fail closed: what the capture must hold, and what it must not miss.
+    Plant("the capture is missing", "ctrl", "", "", "", "no capture at ", alter="missing"),
+    Plant("the capture is empty", "ctrl", "", "", "", "is empty: it records no compiler invocation",
+          alter="empty"),
+    Plant("the capture holds nothing of a known builder", "ctrl", "", "", "",
+          "the capture holds no invocation of sw/firmware/ctrl/test/test_ctrl_firmware.py",
+          alter="drop sw/firmware/ctrl/test/test_ctrl_firmware.py"),
+    Plant("a builder runs a compiler by its own path", "ctrl", "", "", "",
+          "a compiler the capture does not wrap",
+          run=PY + 'import shutil\nREAL = shutil.which("gcc", path=os.pathsep.join(os.environ["PATH"].split('
+                   'os.pathsep)[1:]))\ncc(REAL, "-c", "planted.c", "-o", "planted.o")\n'),
+    Plant("a Makefile runs a compiler by its own path", "ctrl", "", "", "",
+          "a compiler the capture does not wrap", run=makefile("$(PLANT_GCC) -c planted.c -o planted.o"), make=True),
+    Plant("a builder runs a compiler on a PATH of its own", "ctrl", "", "", "",
+          "a compiler the capture does not wrap",
+          run=PY + 'subprocess.run(["gcc", "-c", "planted.c", "-o", "planted.o"], cwd=WORK, check=False, '
+                   'env={"PATH": "/usr/bin:/bin"}, capture_output=True)\n'),
+    Plant("a builder of the firmware that no capture holds", "ctrl", "", "", "",
+          "sw/firmware/ctrl/test/planted_unrun.py names the firmware's tree, compiled nothing in the capture",
+          texts=(("planted_unrun.py", '"""A builder of sw/firmware/ctrl that nothing runs."""\n'),)),
+    Plant("a builder compiles a stream count no shipped shape gives", "ctrl", "", "", "",
+          "-DIMAGE_SINKS=99u, a stream count no shipped shape gives",
+          run=PY + 'cc("cc", "-DIMAGE_SINKS=99u", "-c", "planted.c", "-o", "planted.o")\n'),
+    Plant("a builder compiles with a flag whose macro has no name", "ctrl", "", "", "",
+          "'-D=1', a -D or -U flag whose macro the boundary cannot name",
+          run=PY + 'cc("cc", "-D=1", "-c", "planted.c", "-o", "planted.o")\n'),
     Plant("pass: the firmware includes a public header", "ctrl", "port/ctrl_debug.c", "#include \"ctrl_debug.h\"\n",
           "#include \"ctrl_debug.h\"\n#include \"wire.h\"\n", ""),
     Plant("pass: the stack includes only its own header and the C library", "stack", "src/maap.c",
           "#include \"maap.h\"\n", "#include \"maap.h\"\n#include \"wire.h\"\n#include <stdint.h>\n", ""),
     Plant("pass: a stack test reaches the stack's example", "stack", "tests/test_maap_debug.cpp",
           "#include \"maap.h\"\n", "#include \"maap.h\"\n#include \"adp_port.h\"\n", ""),
+    Plant("pass: a builder compiles a mode no unit tests", "ctrl", "", "", "", "",
+          run=PY + 'cc("cc", "-DCTRL_R5_UNTESTED", "-c", "planted.c", "-o", "planted.o")\n', shared=True),
 )
 
 
 #: The base every control shares: the copies as they are, judged first, which must pass.
 BASE = Plant("pass: the copies as they are, the base the controls share", "ctrl", "", "", "", "")
-
-
-def builder_plant(plant: Plant) -> dict[Path, str] | None:
-    """The builder text a plant is written into: a Python builder's tuple of arguments, or a Makefile recipe's
-    words; then its raw text, after its swap."""
-    if not (plant.words or plant.raw or plant.swap):
-        return None
-    builder = (HERE / plant.builder).resolve()
-    text = builder.read_text(encoding="utf-8") if builder.exists() else \
-        NEW_BUILDER if builder.suffix == ".py" else NEW_MAKEFILE
-    if plant.swap:
-        old, new = plant.swap
-        if text.count(old) != 1:
-            raise Refusal(f"control {plant.name!r}: its builder anchor occurs {text.count(old)} times")
-        text = text.replace(old, new)
-    if plant.words:
-        text += f"\nPLANTED = {plant.words!r}\n" if builder.suffix == ".py" else \
-            f"\nplanted:\n\tcc {' '.join(plant.words)} -c planted.c\n"
-    return {builder: text + plant.raw}

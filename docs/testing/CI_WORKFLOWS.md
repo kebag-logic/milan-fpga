@@ -54,9 +54,13 @@ pull-request update and on every push to `dev`. It produces one stable
   These builds report objects and frames, not linked-image bounds.
   F4 initializes the public lwSRP submodule at its exact pin.
   The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
-  Its boundary step holds both directions with planted controls.
-  It judges each unit as the firmware's builders compile it, read from them: as C, and as C++ where a builder's C++ source reaches it.
-  Its configurations are the builders' modes, every shipped config's shape and generated headers, the image's stream counts and both mailbox contracts.
+  Its firmware steps run under one capture (`ctrl_capture.py`): a recording wrapper on `PATH` for every compiler records each invocation and runs the real compiler unchanged.
+  The boundary step runs last, judges that capture, and holds both directions with planted controls.
+  It judges each unit in every configuration the capture recorded its builders compiling: as C, and as C++ where a recorded C++ compile reaches it.
+  Its configurations are every recorded `-D` and `-U` flag, every shipped config's shape and generated headers, the image's stream counts and both mailbox contracts.
+  It refuses a missing or empty capture, and a known builder the capture holds nothing of, by name.
+  It runs the stack's own gate and the image builders under the capture itself.
+  The builders that need Verilator, which this job has none of, are named and left out (`--without verilator`).
   The cores include only their own headers and the C library.
   The stack's tests reach nothing of this repository outside the submodule.
   The firmware reaches only the stack's public headers.
@@ -66,12 +70,12 @@ pull-request update and on every push to `dev`. It produces one stable
   Every mailbox bench target that reaches the stack refuses a poisoned one on the pin check.
   The boundary step's budget is 5 of the job's 45 minutes, its self-test included.
   It runs each preprocessing once per run and reuses it wherever it would read the same, so its controls share one prepared base.
-  A control that must be refused stops at its finding, and the stack's own gate runs beside the controls.
+  A control that must be refused stops at its finding, and the stack's own self-test runs beside the controls.
   A unit's configurations go to four compilers at once, the hosted runner's CPU count.
-  Pinned to four CPUs of a host at load average 23, three runs took 74 to 82 s, against 807 s before.
-  The worst leaves 218 s of the 300 s budget, a 73% margin.
-  Before this, the hosted step passed 12 minutes and the job its 45 (job 114173809799).
-  The pinned host was no faster than that hosted runner, so its figure stands in until a hosted run.
+  The capture's recorder is compiled C, so it adds a millisecond or two to each of the job's 23,000 compiles.
+  Before the capture, the hosted step took 93 s at `e07b3054` (job 114206016568).
+  With it, pinned to four CPUs of a host at load average 24 to 39, the step took 106 to 116 s; the worst leaves 184 s of the 300 s budget, a 61% margin.
+  At `e07b3054` the same pinned host took 74 to 86 s against the hosted 93 s, so its figure stands in until a hosted run.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.

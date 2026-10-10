@@ -1,27 +1,29 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""ctrl_configs.py - the configurations the firmware's builders compile it in, read from the builders (#697).
+"""ctrl_configs.py - the configurations the firmware's builders compile it in, as their compilers were run (#697).
 
 The boundary gate (ctrl_boundary.py) judges each unit in every configuration
-its builders compile it in; this module reads them, and lists none of them.
+its builders compile it in; this module reads them from a capture of the
+builders' compiler invocations (ctrl_capture.py), and lists none of them.
 
-THE BUILDERS: every Python module and Makefile of the checkout, tracked or new
-and not ignored, that names the firmware's tree (sw/firmware/ctrl, or its
-shared builder ctrl_build), the gate's own modules excepted.
+THE BUILDERS. BUILDERS is the known set: every builder of the firmware that
+compiles, each with the commands that run it when the gate makes the capture
+itself. A capture judged must hold an invocation of each, unless the run says
+it has none of what that builder needs (--without verilator); each one left
+out is named on every run. The builders are found by text as well, as a
+cross-check that cannot pass on its own: every Python module and Makefile of
+the checkout, tracked or new and not ignored, that names the firmware's tree
+(sw/firmware/ctrl, or its shared builder ctrl_build), the gate's own modules
+excepted, must have compiled in the capture, be one of BUILDERS (or run only
+under one the run leaves out, PART_OF), or be listed in OUTSIDE with the reason
+its compiles, if any, are none of the firmware's. Any other refuses the gate
+by name, and so does a compiler a builder runs by a path that is no wrapper.
 
-THE BUILD MODES: every -D or -U flag a builder writes, as one argument
-("-DNAME", "-UNAME=1") or as two ("-D", "NAME": adjacent in a list, a tuple
-or a call's arguments, or two words of a Makefile recipe). A macro the C
-implementation reserves (C11 7.1.3) is not a mode.
-
-THE VALUES: a flag a builder computes at run time (an f-string, or a bare -D
-or -U followed by one) names a macro whose value only the build knows: the
-macro is the f-string's literal up to its "=". A flag whose macro is computed
-too, which no reader could name, refuses the gate, and so does every other
--D or -U a builder writes that is neither a literal nor an f-string (a
-literal joined to a value by +, % or str.format, a bare one alone or before a
-name it computes, one make computes: -D$(NAME), -DNAME=$(VALUE) or
-$(addprefix -D,...)): each by name.
+THE BUILD MODES: every -D and -U flag of every recorded invocation, exactly as
+the compiler was given it, whatever wrote it: a mode with each value the
+builds gave it. A macro the C implementation reserves (C11 7.1.3) is not a
+mode. The image's stream counts are their own dimension (image_dim); a
+recorded value of theirs that no shipped shape gives refuses the gate.
 
 THE SHAPES: every shipped config (configs/*.yaml), each a shape the image
 builders take. For each, the image builder's own ctrl_image.shape_build writes
@@ -34,17 +36,11 @@ THE MAILBOX CONTRACT: the tracked one, and the variant its generator writes
 (gen_mailbox.py --variant-interfaces) for every interface count it admits,
 counting up from one until it refuses.
 
-THE C++ SOURCES: every C++ source a builder names, a test or a bench. A name
-resolves beside the builder, among the firmware's tests, in the firmware's
-tree, in the stack, in the protocol processor, from the checkout's root, and
-in every directory of the checkout the builder names; every file it resolves
-to is a source. A name the builder writes itself (write_text, write_bytes,
-touch, open for writing, a copy's destination) is generated: it is followed
-through the text the builder writes it from, its own literals. A name that
-resolves to no file and that the builder does not write fails the gate by
-name, and so does a name the builder computes, unless NOT_SOURCES lists it:
-a path a self-test writes into a planted report, never a file; each of those
-is checked to be held by its builder, unresolved and unwritten.
+THE C++ SOURCES: the source of every recorded C++ invocation, as the compiler
+read it: the trees' file where it is one, else the text the capture kept, with
+the directories that invocation searched and the headers outside the checkout
+the capture kept beside it. A C++ compile of a source that was no file, or of
+its standard input, refuses the gate by name.
 
 Each way a builder varies a unit's build is a dimension (Dim): its
 alternatives, the one the search holds it at, and what in a preprocessing
@@ -53,7 +49,6 @@ shows that the unit depends on it.
 
 from __future__ import annotations
 
-import ast
 import atexit
 import itertools
 import os
@@ -68,14 +63,16 @@ from functools import cached_property, lru_cache
 from pathlib import Path
 
 import ctrl_image
-from ctrl_build import CTRL, HERE, PP, ROOT, STACK, STACK_PREFIX, Refusal
+from ctrl_build import CTRL, HERE, ROOT, Refusal
+from ctrl_capture import Capture
 from srp_arms import DEFAULT_ENTITY
 
 sys.path.insert(0, str(ROOT / "sw/builder"))
 from endstation_builder import ConfigError  # noqa: E402
 
 #: The boundary gate's own modules: never a builder.
-GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_configs.py", "ctrl_pin.py", "ctrl_plants.py"))
+GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_capture.py", "ctrl_configs.py", "ctrl_pin.py",
+                                          "ctrl_plants.py", "ctrl_shim.py", "ctrl_runs.py"))
 #: The shipped configs: each a shape the image builders take (ctrl_image.py --shape, ctrl_srp_image.py --config).
 CONFIGS = ROOT / "configs"
 #: The mailbox contract's generator, which writes the contract for another interface count.
@@ -85,34 +82,76 @@ CONTRACT = "mbx_contract.h"
 #: The SRP adapter's generated shape header, which the SRP builds force-include and the others do not.
 FORCED = "srp_entity_gen.h"
 #: What a builder of the firmware names: its tree, or the shared builder the arms, campaigns and fixtures
-#: are written on. Every -D or -U flag written in a builder is a build mode the boundary is judged in.
+#: are written on.
 BUILDER_NAMES = ("sw/firmware/ctrl", "ctrl_build")
-#: A -D or -U flag, its macro's name in group 1.
-FLAG = re.compile(r"-[DU]([A-Za-z_]\w*)(?:=.*)?", re.S)
-#: A flag written as two arguments: the bare -D or -U, then its macro (and value).
-BARE = ("-D", "-U")
-MACRO = re.compile(r"[A-Za-z_]\w*(?:=.*)?", re.S)
-#: The macro a flag computed at run time names, read from its literal start: the name, then the "=" its
-#: computed value follows.
-COMPUTED = re.compile(r"([A-Za-z_]\w*)=")
+#: A -D or -U flag, its macro's name in group 1 (a function-like macro's parameters after it).
+FLAG = re.compile(r"-[DU]([A-Za-z_]\w*)(?:\([^)]*\))?(?:=.*)?", re.S)
 #: A macro name the C implementation reserves (C11 7.1.3): never a firmware mode.
 RESERVED = re.compile(r"_[A-Z_]")
 #: A #define line, read as text: its macro and its definition.
 DEFINE = re.compile(r"^\s*#\s*define\s+([A-Za-z_]\w*)(.*)$", re.M)
-#: The suffixes of a C++ source.
-CXX_SUFFIXES = (".cpp", ".cc", ".cxx")
-#: The calls that write the file their receiver names (a Path's), and the shutil calls whose second argument is
-#: the file they write.
-WRITES = frozenset({"write_text", "write_bytes", "touch"})
-COPIES = frozenset({"copy", "copy2", "copyfile", "move"})
-#: The C++ names a builder holds that are no source it builds from: a path a self-test writes into a planted
-#: report, never a file. Each is checked: its builder holds it, it resolves to no file, and the builder does not
-#: write it; a file at its name would be followed like any other.
-NOT_SOURCES = {
-    ("sw/firmware/gtest/fw_coverage_selftest.py", "sw/firmware/ctrl/test/t.cpp"):
-        "a firmware test's path in a planted coverage report",
-    ("sw/firmware/gtest/fw_coverage_selftest.py", "tests/t.cpp"):
-        "a stack test's path in a planted coverage report",
+
+
+@dataclass(frozen=True)
+class Builder:
+    """One builder of the firmware that compiles: its file (a script, or a Makefile), from the checkout's root;
+    the commands that run it when the gate makes the capture itself, from the root ({python} the interpreter,
+    {work} a directory of the run's own, {verilator} the Verilator); and what it needs that a run may have none
+    of ("verilator")."""
+
+    path: str
+    runs: tuple[tuple[str, ...], ...]
+    needs: str = ""
+
+
+#: The known set: every builder of the firmware that compiles. The hosted firmware-unit job runs the first four
+#: under the capture (rtl-fast.yml); the gate runs the stack's gate and the image builders itself on every run
+#: (ctrl_runs.OWNED); the last three need Verilator, which the hosted job has none of.
+BUILDERS = (
+    Builder("sw/firmware/gtest/fw_rv32_selftest.py",
+            (("{python}", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"),)),
+    Builder("sw/firmware/ctrl/test/test_ctrl_firmware.py",
+            (("{python}", "sw/firmware/ctrl/test/test_ctrl_firmware.py", "--require-rv32", "--self-test", "--jobs",
+              "4"),)),
+    Builder("sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+            (("{python}", "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py", "--require-rv32", "--jobs", "4"),)),
+    Builder("sw/firmware/gtest/fw_coverage.py",
+            (("{python}", "sw/firmware/gtest/fw_coverage.py", "--selftest"),
+             ("{python}", "sw/firmware/gtest/fw_coverage.py", "--check", "--jobs", "4"))),
+    Builder("third_party/tsn-c-stack/scripts/check_boundary.py", ()),
+    Builder("sw/firmware/ctrl/test/ctrl_image.py", ()),
+    Builder("sw/firmware/ctrl/test/ctrl_srp_image.py", ()),
+    Builder("sw/firmware/ctrl/test/ctrl_image_selftest.py", ()),
+    Builder("tb/verilator/mbx/Makefile",
+            (("make", "-C", "tb/verilator/mbx", "VERILATOR={verilator}", "VBUILD_JOBS=4"),), "verilator"),
+    Builder("sw/firmware/ctrl/test/maap_differential.py",
+            (("{python}", "sw/firmware/ctrl/test/maap_differential.py", "--self-test"),), "verilator"),
+    Builder("sw/firmware/ctrl/test/aecp_wire.py",
+            (("{python}", "sw/firmware/ctrl/test/aecp_wire.py", "--reference", "protocol-processor", "--interfaces",
+              "1", "--output", "{work}/aecp-wire", "--verilator", "{verilator}"),), "verilator"),
+)
+#: What a run may say it has none of: each builder that needs it is left out of the capture, and named.
+NEEDS = {"verilator": "Verilator"}
+#: The builders found by text that run only under another builder: left out where that one is.
+PART_OF = {"tb/verilator/mbx/mutants.py": "tb/verilator/mbx/Makefile"}
+#: The builders found by text whose compiles, if any, are none of the firmware's, each with the reason.
+OUTSIDE = {
+    "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
+    "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
+    "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
+    "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
+    "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
+    "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
+                                                "test_ctrl_nvm.py compiles; it compiles nothing",
+    "sw/firmware/ctrl/test/ctrl_reuse.py": "cuts the processor's sources into fragments the arms compile; it "
+                                           "compiles nothing",
+    "sw/firmware/ctrl/test/srp_reuse.py": "cuts the processor's SRP sources into fragments the SRP arms compile; it "
+                                          "compiles nothing",
+    "sw/firmware/ctrl/test/ctrl_image_runtime.py": "compiles the bare-metal runtime from picolibc's and "
+                                                   "compiler-rt's sources outside the checkout, no firmware or stack "
+                                                   "source, its macros all reserved names",
+    "sw/mailbox/gen_mailbox.py": "writes the mailbox contract; it compiles nothing",
+    "sw/mailbox/mailbox_emit.py": "writes the mailbox contract's text; it compiles nothing",
 }
 
 
@@ -155,12 +194,11 @@ class Dim:
 
 @dataclass(frozen=True)
 class Space:
-    """What one side's units are explored over: the builders' modes, the dimensions the builders vary that side
-    along, and the values builders compute that the boundary has none of, each with its builder."""
+    """What one side's units are explored over: the builders' modes and the dimensions the builders vary that
+    side along."""
 
     modes: dict[str, tuple[str, ...]]
     dims: dict[str, Dim]
-    values: dict[str, str]
 
 
 def run(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -174,83 +212,7 @@ def rel(path: Path) -> str:
     return path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path)
 
 
-def literal_start(node: ast.JoinedStr) -> str:
-    """The literal text an f-string starts with."""
-    first = node.values[0] if node.values else None
-    return first.value if isinstance(first, ast.Constant) and isinstance(first.value, str) else ""
-
-
-def computed_macro(path: Path, start: str) -> str:
-    """The macro of a flag a builder computes, from its literal start; a macro it computes too is refused."""
-    if m := COMPUTED.match(start):
-        return m[1]
-    raise Refusal(f"the builder {rel(path)} computes a -D or -U flag's macro: the boundary cannot read it")
-
-
-def unreadable(path: Path, flag: str) -> Refusal:
-    """The refusal of a -D or -U a builder writes in a form the boundary cannot read."""
-    return Refusal(f"the builder {rel(path)} writes {flag!r}, a -D or -U flag the boundary cannot read (it reads "
-                   "a literal flag, or an f-string that computes only the value)")
-
-
-def joined(node: ast.AST, parent: dict[int, ast.AST]) -> bool:
-    """Whether a literal is one a builder computes a string from: the left of + or %, or str.format's receiver."""
-    up = parent.get(id(node))
-    return (isinstance(up, ast.BinOp) and isinstance(up.op, (ast.Add, ast.Mod)) and up.left is node) or \
-        (isinstance(up, ast.Attribute) and up.attr == "format")
-
-
-def python_flags(path: Path, text: str) -> tuple[list[str], list[str]]:
-    """A Python builder's flags (a string literal that is one, or a bare -D or -U followed, in a list, a tuple or
-    a call's arguments, by a literal macro) and the macros of the flags it computes (an f-string, or a bare -D
-    or -U followed by one). Any other literal starting -D or -U, a literal joined to a value among them, is
-    refused by name."""
-    tree = ast.parse(text)
-    parts = {id(part) for node in ast.walk(tree) if isinstance(node, ast.JoinedStr) for part in node.values}
-    parent = {id(child): node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
-    flags, values, paired = [], [], set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.JoinedStr) and literal_start(node)[:2] in BARE:
-            values.append(computed_macro(path, literal_start(node)[2:]))
-        sequence = node.elts if isinstance(node, (ast.List, ast.Tuple, ast.Set)) else \
-            node.args if isinstance(node, ast.Call) else []
-        for bare, then in zip(sequence, sequence[1:]):
-            if not (isinstance(bare, ast.Constant) and bare.value in BARE):
-                continue
-            paired.add(id(bare))
-            if isinstance(then, ast.Constant) and isinstance(then.value, str) and MACRO.fullmatch(then.value):
-                flags.append(bare.value + then.value)
-            elif isinstance(then, ast.JoinedStr):
-                values.append(computed_macro(path, literal_start(then)))
-            else:
-                raise Refusal(f"the builder {rel(path)} writes {bare.value} before a macro it computes: the "
-                              "boundary cannot read it")
-    for node in ast.walk(tree):
-        if not (isinstance(node, ast.Constant) and isinstance(node.value, str) and node.value[:2] in BARE) or \
-                id(node) in parts or id(node) in paired:
-            continue
-        if FLAG.fullmatch(node.value) and not joined(node, parent):
-            flags.append(node.value)
-        else:
-            raise unreadable(path, node.value)
-    return flags, values
-
-
-def makefile_flags(path: Path, text: str) -> list[str]:
-    """A Makefile's flags: the words of its logical lines (comments aside) that are one, or a bare -D or -U
-    followed by a macro. Any other word starting -D or -U, or a flag make computes ($ in it), is refused by
-    name."""
-    flags = []
-    for line in text.replace("\\\n", " ").splitlines():
-        words = [word.strip("\"'") for word in line.split("#", 1)[0].split()]
-        for at, word in enumerate(words):
-            if word[:2] not in BARE:
-                continue
-            flag = word + words[at + 1] if word in BARE and at + 1 < len(words) else word
-            if not FLAG.fullmatch(flag) or "$" in flag:
-                raise unreadable(path, flag)
-            flags.append(flag)
-    return flags
+# ---- the builders ---------------------------------------------------------------------------
 
 
 @lru_cache(maxsize=None)
@@ -265,7 +227,7 @@ def candidates() -> list[Path]:
 
 def builder(path: Path, text: str) -> bool:
     """Whether a file is one of the firmware's builders: it names the firmware's tree, and it is not one of the
-    boundary gate's own modules (its controls' modes and its exploration's flags are not a builder's)."""
+    boundary gate's own modules (its controls' builders are not the checkout's)."""
     return path.resolve() not in GATE and any(n in text for n in BUILDER_NAMES)
 
 
@@ -287,39 +249,96 @@ def builder_texts(planted: dict[Path, str] | None = None) -> dict[Path, str]:
     return dict(sorted(texts.items()))
 
 
-@lru_cache(maxsize=None)
-def builder_flags(path: Path, text: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    """One builder's flags and the macros of the flags it computes, read once per text."""
-    try:
-        flags, values = python_flags(path, text) if path.suffix == ".py" else (makefile_flags(path, text), [])
-    except SyntaxError as exc:
-        raise Refusal(f"the builder {rel(path)} does not parse: {exc}") from exc
-    return tuple(flags), tuple(values)
-
-
-def derive(planted: dict[Path, str] | None = None) -> tuple[dict[str, tuple[str, ...]], dict[str, str]]:
-    """Every macro the builders set or clear, with each flag they write for it; and every macro whose value a
-    builder computes, with the first builder that does. A reserved name is the C implementation's."""
-    found: dict[str, dict[str, None]] = {}
-    computed: dict[str, str] = {}
-    for path, text in builder_texts(planted).items():
-        flags, values = builder_flags(path, text)
-        for flag in flags:
-            if not RESERVED.match(name := FLAG.fullmatch(flag)[1]):
-                found.setdefault(name, {})[flag] = None
-        for name in values:
-            computed.setdefault(name, rel(path))
-    return {name: tuple(flags) for name, flags in sorted(found.items())}, dict(sorted(computed.items()))
-
-
-def modes(planted: dict[Path, str] | None = None) -> dict[str, tuple[str, ...]]:
-    """Every macro the builders set or clear, with each flag they write for it."""
-    return derive(planted)[0]
-
-
 def makefiles() -> list[Path]:
     """The Makefiles among the builders."""
     return [path for path in builder_texts() if path.suffix != ".py"]
+
+
+def left_out(without: frozenset[str]) -> list[Builder]:
+    """The known builders a run leaves out: those needing what it says it has none of."""
+    return [b for b in BUILDERS if b.needs and b.needs in without]
+
+
+def held(capture: Capture, without: frozenset[str], planted: dict[Path, str] | None = None) -> None:
+    """Refuse, by name, a known builder the capture holds no invocation of, a builder found by text that compiled
+    nothing in it and is none of BUILDERS, PART_OF or OUTSIDE, and a compiler a builder ran by a path that is no
+    wrapper."""
+    out = {b.path for b in left_out(without)}
+    known = {b.path for b in BUILDERS}
+    reasons = [f"the capture holds no invocation of {b.path}, a builder of the firmware that compiles"
+               for b in BUILDERS if b.path not in out and b.path not in capture.builders]
+    for path in builder_texts(planted):
+        name = rel(path)
+        if name in capture.builders or name in known or name in OUTSIDE or PART_OF.get(name) in out:
+            continue
+        reasons.append(f"{name} names the firmware's tree, compiled nothing in the capture, and is neither a known "
+                       "builder (ctrl_configs.BUILDERS) nor one whose compiles are none of the firmware's (OUTSIDE)")
+    for bypass in capture.bypassed:
+        reasons.append(f"{', '.join(bypass['from']) or 'a builder'} ran {bypass['bypass']}, a compiler the capture "
+                       "does not wrap, so it records none of that compiler's invocations")
+    reasons += [reason for leaf in capture.leaves for reason in once("unkept", leaf, unkept)]
+    if reasons:
+        raise Refusal("; ".join(dict.fromkeys(reasons)))
+
+
+def unkept(capture: Capture) -> list[str]:
+    """Each C++ compile of a source the capture could not keep: one that was no file, or standard input."""
+    reasons = []
+    for inv in capture.invocations:
+        for path, lang, digest in inv.sources:
+            if lang == "c++" and not digest:
+                where = "its standard input" if path == "-" else f"{path}, which was no file when it ran"
+                reasons.append(f"{', '.join(sorted(inv.builders)) or 'a builder'} compiled C++ from {where}")
+    return reasons
+
+
+#: What is read from each capture, once per capture: a control's capture is joined from the run's and its own.
+READ: dict[tuple[str, int], tuple[Capture, object]] = {}
+
+
+def once(kind: str, capture: Capture, read: Callable[[Capture], object]) -> object:
+    """What `read` gives for a capture, read once (by kind and identity)."""
+    known = READ.get((kind, id(capture)))
+    if known is None or known[0] is not capture:
+        READ[(kind, id(capture))] = known = (capture, read(capture))
+    return known[1]
+
+
+# ---- the build modes ------------------------------------------------------------------------
+
+
+def derive(capture: Capture) -> dict[str, tuple[str, ...]]:
+    """Every macro the recorded invocations set or clear, with each flag they give it (but the image's stream
+    counts, a dimension of their own); a reserved name is the C implementation's. Read once per capture part."""
+    def joined(whole: Capture) -> dict[str, tuple[str, ...]]:
+        """The modes of each part, in order."""
+        found: dict[str, dict[str, None]] = {}
+        for leaf in whole.leaves:
+            for name, flags in once("modes", leaf, modes_of).items():
+                found.setdefault(name, {}).update(dict.fromkeys(flags))
+        return {name: tuple(flags) for name, flags in sorted(found.items())}
+    return once("joined modes", capture, joined)
+
+
+def modes_of(capture: Capture) -> dict[str, tuple[str, ...]]:
+    """The build modes of one capture part."""
+    image = image_dim()
+    given = {f for _, flags in image.alternatives for f in flags}
+    found: dict[str, dict[str, None]] = {}
+    for inv in capture.invocations:
+        for flag in inv.flags:
+            if (m := FLAG.fullmatch(flag)) is None:
+                raise Refusal(f"{', '.join(sorted(inv.builders)) or 'a builder'} compiled with {flag!r}, a -D or -U "
+                              "flag whose macro the boundary cannot name")
+            if RESERVED.match(m[1]):
+                continue
+            if m[1] in image.macros:
+                if flag not in given:
+                    raise Refusal(f"{', '.join(sorted(inv.builders)) or 'a builder'} compiled with {flag}, a stream "
+                                  "count no shipped shape gives (ctrl_image.shape_build)")
+                continue
+            found.setdefault(m[1], {})[flag] = None
+    return {name: tuple(flags) for name, flags in sorted(found.items())}
 
 
 @dataclass(frozen=True)
@@ -382,6 +401,7 @@ def varying(tables: list[dict[str, str]]) -> frozenset[str]:
     return frozenset(n for n in set().union(*tables) if len({t.get(n) for t in tables}) > 1)
 
 
+@lru_cache(maxsize=None)
 def shape_dim() -> Dim:
     """The shapes: each shipped config's generated headers, searched first for a quoted include as the image
     builder puts them; the arms' default config is the unit's default build."""
@@ -396,6 +416,7 @@ def shape_dim() -> Dim:
     return Dim(alternatives, 0, varying(tables), reads)
 
 
+@lru_cache(maxsize=None)
 def forced_dim() -> Dim:
     """The SRP adapter's shape header: left out, as most builds compile, or force-included, as the SRP builds
     compile every unit. Its own include guard shows a dependence only where it is left out."""
@@ -406,6 +427,7 @@ def forced_dim() -> Dim:
                base_only=frozenset(guard))
 
 
+@lru_cache(maxsize=None)
 def contract_dim() -> Dim:
     """The mailbox contract: the tracked one, or a variant force-included ahead of it, as the two-interface
     builds compile the firmware (the variant's include guard keeps the tracked one out)."""
@@ -417,6 +439,7 @@ def contract_dim() -> Dim:
     return Dim(alternatives, 0, varying(tables), frozenset({CONTRACT}) if differ else frozenset())
 
 
+@lru_cache(maxsize=None)
 def image_dim() -> Dim:
     """The image's stream counts: undefined, as every builder but the image's compiles, or a shape's, as
     ctrl_image.shape_build gives them."""
@@ -425,20 +448,14 @@ def image_dim() -> Dim:
     return Dim((("", ()), *((" ".join(flags), flags) for flags in counts)), 1, names)
 
 
-def spaces(universe: dict[str, tuple[str, ...]], computed: dict[str, str]) -> dict[str, Space]:
-    """What each side is explored over. A value the builders compute that the image's are not is a dimension of
-    its own, defined or not, so that a unit testing it is seen to, and refused."""
-    image = image_dim()
-    unknown = {name: where for name, where in computed.items() if name not in image.macros}
-    guards = {f"<value {name}>": Dim((("", ()), (f"-D{name}", (f"-D{name}",))), 1, frozenset({name}))
-              for name in unknown}
-    shape, forced, contract = shape_dim(), forced_dim(), contract_dim()
-    return {"stack": Space(universe, {"<shape>": shape, "<forced>": forced, "<image>": image, **guards}, unknown),
-            "tests": Space(universe, guards, unknown),
+def spaces(universe: dict[str, tuple[str, ...]]) -> dict[str, Space]:
+    """What each side is explored over."""
+    image, shape, forced, contract = image_dim(), shape_dim(), forced_dim(), contract_dim()
+    return {"stack": Space(universe, {"<shape>": shape, "<forced>": forced, "<image>": image}),
+            "tests": Space(universe, {}),
             "firmware": Space(universe, {"<shape>": shape, "<contract>": contract, "<forced>": forced,
-                                         "<image>": image, **guards}, unknown),
-            "c++": Space(universe, {"<shape>": shape, "<contract>": contract, "<forced>": forced, **guards},
-                         unknown)}
+                                         "<image>": image}),
+            "c++": Space(universe, {"<shape>": shape, "<contract>": contract, "<forced>": forced})}
 
 
 def state(flag: str | None) -> tuple[str, ...]:
@@ -455,8 +472,8 @@ def default(argv: list[str], name: str) -> tuple[str, ...]:
 
 def mode_dims(argv: list[str], universe: dict[str, tuple[str, ...]]) -> dict[str, Dim]:
     """Each build mode as a dimension: the unit's own state of its macro, then every other one a builder
-    writes (an -U first, so a mode's value replaces the default's without a redefinition warning); held defined
-    until the unit is seen to test it."""
+    compiled with (an -U first, so a mode's value replaces the default's without a redefinition warning); held
+    defined until the unit is seen to test it."""
     dims = {}
     for name, flags in universe.items():
         base = default(argv, name)
@@ -468,149 +485,100 @@ def mode_dims(argv: list[str], universe: dict[str, tuple[str, ...]]) -> dict[str
     return dims
 
 
-@dataclass(frozen=True)
-class Sources:
-    """The C++ sources the builders name: the files each resolves to; for each name a builder writes itself, the
-    text it writes it from (its literals); the names that are no source (NOT_SOURCES); and every name that
-    resolves to nothing, or that a builder computes, as a finding."""
-
-    files: tuple[Path, ...]
-    written: dict[str, str]
-    data: tuple[str, ...]
-    findings: tuple[str, ...]
-
-
-def write_target(call: ast.Call) -> ast.AST | None:
-    """The expression naming the file a call writes: a Path's write_text, write_bytes or touch receiver, a
-    shutil copy's destination, or what open opens for writing (its mode holds w, a, x or +)."""
-    func = call.func
-    if isinstance(func, ast.Attribute) and func.attr in WRITES:
-        return func.value
-    if isinstance(func, ast.Attribute) and func.attr in COPIES and len(call.args) > 1:
-        return call.args[1]
-    builtin = isinstance(func, ast.Name) and func.id == "open"
-    if not (builtin or isinstance(func, ast.Attribute) and func.attr == "open"):
-        return None
-    modes = [*call.args[1 if builtin else 0:], *(k.value for k in call.keywords if k.arg == "mode")]
-    if not any(isinstance(m, ast.Constant) and isinstance(m.value, str) and set(m.value) & set("wax+")
-               for m in modes):
-        return None
-    return (call.args[0] if call.args else None) if builtin else func.value
+# ---- the C++ sources ------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
-class Names:
-    """What one builder's text names: its C++ names (a literal ending in a C++ suffix; a bare suffix is none),
-    the names it computes, the names it writes itself, the checkout's directories it names, and its literals."""
+class CxxSource:
+    """The source of recorded C++ invocations: where the compiler read it, the text the capture kept of it, the
+    directories those invocations searched, and the headers outside the checkout kept beside it."""
 
-    names: tuple[str, ...]
-    computed: tuple[str, ...]
-    written: frozenset[str]
+    path: Path
+    digest: str
     dirs: tuple[Path, ...]
-    literals: str
+    kept: tuple[tuple[str, str], ...]
 
 
-def python_names(text: str) -> tuple[list[str], list[str], set[str], list[str]]:
-    """A Python builder's C++ names, the names it computes (an f-string ending in a C++ suffix, a suffix a value
-    is joined to, or with_suffix's), the names it writes itself, and every other one-word literal."""
-    tree = ast.parse(text)
-    parts = {id(part) for node in ast.walk(tree) if isinstance(node, ast.JoinedStr) for part in node.values}
-    parent = {id(child): node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
-    names, computed, written, literals = [], [], set(), []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.JoinedStr):
-            tail = node.values[-1] if node.values else None
-            if isinstance(tail, ast.Constant) and isinstance(tail.value, str) and tail.value.endswith(CXX_SUFFIXES):
-                computed.append(ast.unparse(node))
+@dataclass(frozen=True)
+class CxxIndex:
+    """The C++ sources of a capture; every directory its C++ invocations searched, and those that were
+    directories when it was read; the headers it kept beside them, with their texts; and each kept header by every
+    name it can be reached at under a searched one."""
+
+    sources: tuple[CxxSource, ...]
+    dirs: tuple[Path, ...]
+    present: tuple[Path, ...]
+    kept: dict[Path, str]
+    reached: dict[str, tuple[Path, ...]]
+
+
+def cxx_index(capture: Capture) -> CxxIndex:
+    """A capture's C++ index (CxxIndex), made once."""
+    return once("index", capture, indexed)
+
+
+def indexed(capture: Capture) -> CxxIndex:
+    """The C++ index of cxx_index."""
+    sources = tuple(cxx_sources(capture))
+    dirs = tuple(dict.fromkeys(d for source in sources for d in source.dirs))
+    kept = {Path(p): digest for source in sources for p, digest in source.kept}
+    searched = set(dirs)
+    reached: dict[str, list[Path]] = {}
+    for path in kept:
+        for up in path.parents:
+            if up in searched:
+                reached.setdefault(path.relative_to(up).as_posix(), []).append(path)
+    return CxxIndex(sources, dirs, tuple(d for d in dirs if d.is_dir()), kept,
+                    {name: tuple(paths) for name, paths in reached.items()})
+
+
+def cxx_sources(capture: Capture) -> list[CxxSource]:
+    """Every source a recorded invocation compiled as C++, and every file such an invocation read first
+    (-include), once per path and text; read once per capture part."""
+    found: dict[tuple[str, str], tuple[dict[str, None], dict[str, str]]] = {}
+    for leaf in capture.leaves:
+        for key, (dirs, kept) in once("sources", leaf, sources_of).items():
+            held_dirs, held_kept = found.setdefault(key, ({}, {}))
+            held_dirs.update(dirs)
+            held_kept.update(kept)
+    return [CxxSource(Path(path), digest, tuple(Path(d) for d in dirs), tuple(sorted(kept.items())))
+            for (path, digest), (dirs, kept) in sorted(found.items())]
+
+
+def sources_of(capture: Capture) -> dict[tuple[str, str], tuple[dict[str, None], dict[str, str]]]:
+    """The C++ sources of one capture part: each (path, digest) with the directories searched and the headers
+    kept beside it."""
+    found: dict[tuple[str, str], tuple[dict[str, None], dict[str, str]]] = {}
+    for inv in capture.invocations:
+        if not any(lang == "c++" for _, lang, _ in inv.sources):
             continue
-        if isinstance(node, ast.Call) and (target := write_target(node)) is not None:
-            written |= {n.value for n in ast.walk(target) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
-        if not (isinstance(node, ast.Constant) and isinstance(node.value, str)) or id(node) in parts:
-            continue
-        up = parent.get(id(node))
-        if node.value.endswith(CXX_SUFFIXES) and not node.value.split()[1:]:
-            if not node.value.rsplit("/", 1)[-1].startswith("."):
-                names.append(node.value)
-            elif isinstance(up, ast.BinOp) and isinstance(up.op, (ast.Add, ast.Mod)) and up.right is node or \
-                    isinstance(up, ast.Call) and isinstance(up.func, ast.Attribute) and up.func.attr == "with_suffix":
-                computed.append(ast.unparse(up))
-        elif node.value and not node.value.split()[1:]:
-            literals.append(node.value)
-    return names, computed, written, literals
+        kept = dict(inv.kept)
+        starts = [(path, digest) for path, lang, digest in inv.sources if lang == "c++" and digest]
+        for key in [*starts, *((f, kept.get(f, "")) for f in inv.forced)]:
+            dirs, beside = found.setdefault(key, ({}, {}))
+            dirs.update(dict.fromkeys(inv.dirs))
+            beside.update(kept)
+    return found
 
 
-def makefile_names(text: str) -> tuple[list[str], list[str], list[str]]:
-    """A Makefile's C++ names (a word ending in a C++ suffix), the ones make computes (a variable or a pattern in
-    it), and every other word."""
-    words = [w.strip("\"'") for ln in text.replace("\\\n", " ").splitlines() for w in ln.split("#", 1)[0].split()]
-    cxx = [w for w in words if w.endswith(CXX_SUFFIXES) and not w.rsplit("/", 1)[-1].startswith(".")]
-    return ([w for w in cxx if "$" not in w and "%" not in w], [w for w in cxx if "$" in w or "%" in w],
-            [w for w in words if not w.endswith(CXX_SUFFIXES)])
-
-
-def joins(name: str, bases: list[Path]) -> list[Path]:
-    """A name joined to each base (to the stack's root without its tsn-c-stack/ prefix)."""
-    return [STACK / name.removeprefix(STACK_PREFIX) if base == STACK else base / name for base in bases]
-
-
-@lru_cache(maxsize=None)
-def names_of(path: Path, text: str) -> Names:
-    """What a builder names, read once per text: a directory is a literal (or a Makefile word) that, joined
-    beside the builder, to the firmware's tests or tree, the stack, the checkout's root or the protocol
-    processor, is a directory of the checkout."""
-    if path.suffix == ".py":
-        names, computed, written, words = python_names(text)
-        literals = "\n".join(n.value for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Constant) and
-                              isinstance(n.value, str))
-    else:
-        (names, computed, words), written, literals = makefile_names(text), set(), ""
-    bases = [path.parent, HERE, CTRL, STACK, ROOT, PP]
-    dirs = {hit.resolve(): None for word in dict.fromkeys(words) if word not in (".", "..") and word[:1] != "-"
-            for hit in joins(word, bases) if hit.is_dir() and hit.resolve().is_relative_to(ROOT)}
-    return Names(tuple(dict.fromkeys(names)), tuple(dict.fromkeys(computed)), frozenset(written), tuple(dirs),
-                 literals)
-
-
-def cxx_sources(planted: dict[Path, str] | None = None, view: Callable[[Path], Path] | None = None) -> Sources:
-    """Every C++ source a builder names (named_sources); the checkout's, as its builders are, gathered once."""
-    return checkout_sources() if planted is None and view is None else named_sources(planted, view)
-
-
-@lru_cache(maxsize=None)
-def checkout_sources() -> Sources:
-    """Every C++ source the checkout's builders name, in the checkout."""
-    return named_sources()
-
-
-def named_sources(planted: dict[Path, str] | None = None, view: Callable[[Path], Path] | None = None) -> Sources:
-    """Every C++ source a builder names (a string literal of a Python builder, or a word of a Makefile, ending in
-    a C++ suffix), wherever it is found: beside the builder, among the firmware's tests, in the firmware's tree,
-    in the stack (named under tsn-c-stack/ or not), in the protocol processor, from the checkout's root, or in a
-    directory of the checkout the builder names; each as `view` gives the checkout's file (the ctrl tree and
-    the stack being judged, which may be planted copies). A name the builder writes is followed through its
-    literals; a name that is none of these, or that it computes, is a finding unless NOT_SOURCES lists it."""
-    view = view or (lambda path: path)
-    files: dict[Path, None] = {}
-    written: dict[str, str] = {}
-    data, findings = [], []
-    texts = builder_texts(planted)
-    for where, name in NOT_SOURCES:
-        if ROOT / where not in texts or name not in names_of(ROOT / where, texts[ROOT / where]).names:
-            findings.append(f"firmware c++: NOT_SOURCES lists {name} for {where}, which no longer names it")
-    for path, text in texts.items():
-        held = names_of(path, text)
-        bases = [path.parent, HERE, CTRL, STACK, ROOT, PP, *held.dirs]
-        for name in held.names:
-            hits = [hit for join in joins(name, bases) if (hit := view(join.resolve())).is_file()]
-            files.update(dict.fromkeys(hits))
-            if hits:
-                continue
-            if name in held.written:
-                written[f"{rel(path)} writes {name}"] = held.literals
-            elif (rel(path), name) in NOT_SOURCES:
-                data.append(f"{name} ({rel(path)}: {NOT_SOURCES[rel(path), name]})")
-            else:
-                findings.append(f"firmware c++: {rel(path)} names {name}, a C++ source that resolves to no file")
-        findings += [f"firmware c++: {rel(path)} computes the name of a C++ source, {name}, which the boundary "
-                     "cannot follow" for name in held.computed]
-    return Sources(tuple(files), written, tuple(data), tuple(findings))
+def configurations(universe: dict[str, tuple[str, ...]], capture: Capture, without: frozenset[str],
+                   ran: list[str]) -> None:
+    """What the configurations are drawn from: the capture's invocations, and the builders' generators."""
+    found = variants()
+    image = image_dim()
+    known = [b.path for b in BUILDERS if b.path in capture.builders]
+    print(f"capture: {len(capture.invocations)} compiler invocations from {len(capture.commands)} builder runs; "
+          f"every known builder held: {', '.join(known)}")
+    for b in left_out(without):
+        print(f"  LEFT OUT: {b.path}, which needs {NEEDS[b.needs]}, which this run has none of (--without {b.needs})")
+    print("\n".join(ran))
+    print("build modes, from the recorded invocations: " +
+          "; ".join(f"{name} ({' '.join(flags)})" for name, flags in universe.items()))
+    print(f"shapes, the shipped configs: {', '.join(found.shapes)} (default {DEFAULT_ENTITY.stem}); the image's "
+          f"stream counts (ctrl_image.shape_build): {'; '.join(w for w, _ in image.alternatives[1:])}; mailbox "
+          f"contracts: the tracked one and {', '.join(f'{n} interfaces' for n in found.contracts) or 'no variant'}")
+    sources = cxx_sources(capture)
+    inside = [s for s in sources if s.path.is_relative_to(ROOT)]
+    print(f"C++ sources the recorded invocations compile, and the files they read first: "
+          f"{len({s.path for s in sources})} ({len({s.path for s in inside})} in the checkout, the rest as the "
+          "capture kept them)", flush=True)

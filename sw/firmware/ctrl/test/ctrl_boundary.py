@@ -36,32 +36,38 @@ for, the stack's own.
 
 AS ITS BUILDERS COMPILE IT. Each unit is judged in the language and in every
 configuration its builders compile it in, and nothing about either is listed
-here: both are read from the builders. The builders are found, never listed:
-every Python module and Makefile of the checkout, tracked or new, that names
-the firmware's tree (sw/firmware/ctrl, or its shared builder ctrl_build), this
-gate excepted.
+here or read from a builder's text: both are taken from the builders' compiler
+invocations as they ran (ctrl_capture.py: every C and C++ compiler, the RV32
+one, the Verilator builds' and the stack's CMake build's, through a recording
+wrapper on PATH that runs the real compiler unchanged). The capture is given
+(--capture, as the hosted firmware-unit job makes it around its firmware
+steps), or, without one, made here by running every known builder
+(ctrl_configs.BUILDERS) under it. Either way the stack's own gate and the
+image builders run under it here (ctrl_runs.py). A missing or empty capture,
+a known builder it holds no invocation of, a builder found by text that
+compiled nothing in it and is listed nowhere, and a compiler a builder runs by
+a path no wrapper stands on (one a Python builder starts, which the capture's
+audit hook sees, or one a Makefile builder's recipe names, read from make's
+own dry run under the capture's PATH) all refuse the gate by name; --without
+verilator leaves out the builders that need Verilator, each named on the run.
 - Language. Every firmware unit is judged as C, as every builder compiles the
   firmware's sources and their headers with them. A firmware unit is judged
   as C++ too, with the arms' test flags and include path (the stack's tests/
-  on it), when a C++ source a builder names (a test, a bench) reaches it:
-  every #include line is followed as text, in every branch alike, and one
-  whose operand a macro computes, which text cannot follow, is refused. A
-  name resolves beside its builder, in the firmware's tree, its tests, the
-  stack, the protocol processor, the checkout's root, or a directory of the
-  checkout the builder names, in the trees judged; one the builder writes
-  itself is followed through the builder's literals; one that resolves to no
-  file, or that the builder computes, is refused by name (ctrl_configs).
-- Build modes: every -D or -U flag written in a builder, as one argument or
-  as two (-D NAME, -U NAME). A macro the C implementation reserves (C11 7.1.3,
-  a leading underscore and a capital or a second underscore, as the runtime's
-  builder sets for Picolibc and compiler-rt) is not a firmware mode.
-- Values: a flag a builder computes at run time is a value, not a mode. The
-  image's stream counts are taken at every shipped config (configs/*.yaml,
-  each a shape the image builders take) from the image builder's own
-  ctrl_image.shape_build. A unit that tests any other computed value is
-  refused: the boundary has none of its values. A value is an f-string, its
-  macro the literal before its "="; any other -D or -U a builder writes that
-  is neither a literal nor an f-string refuses the gate by name.
+  on it), when a recorded C++ invocation reaches it: its source (the trees'
+  file, or the text the capture kept of one the builder wrote) and every file
+  it read first, every #include line followed as text in every branch alike,
+  against the directories that invocation searched and every directory a
+  builder searches, in the trees judged, and through the headers outside the
+  checkout the capture kept beside it; one whose operand a macro computes,
+  which text cannot follow, is refused.
+- Build modes: every -D and -U flag of every recorded invocation, exactly as
+  the compiler was given it, with each value the builds gave it. A macro the
+  C implementation reserves (C11 7.1.3, a leading underscore and a capital or
+  a second underscore, as the runtime's builder sets for Picolibc and
+  compiler-rt) is not a firmware mode. The image's stream counts are taken at
+  every shipped config (configs/*.yaml, each a shape the image builders take)
+  from the image builder's own ctrl_image.shape_build; a recorded one that no
+  shipped shape gives refuses the gate.
 - Shapes: the headers the builders generate for each shipped config, written
   by the builders' own generators (every entity generator, */*_entity.py, and
   the store's headers from ctrl_image.shape_build); and the SRP adapter's
@@ -107,20 +113,21 @@ as a prerequisite, read from make's own dry run.
 --selftest first judges unplanted copies of the two trees, the base every
 control shares, which must pass; then plants defects in the copies, each of
 which must be refused by name (a control stops at the finding it names), and
-controls each of which must pass; then the pin controls (ctrl_pin.pin_controls:
-the check on edited clones, the gates that build the stack on an edited clone,
+controls each of which must pass; a control's planted builder runs through
+the capture, and what it compiled joins the run's capture for that control
+alone (ctrl_plants.py). Then the pin controls (ctrl_pin.pin_controls: the
+check on edited clones, the gates that build the stack on an edited clone,
 and every Makefile target that reaches the stack run for real on a poisoned
-one). The stack gate (and its own self-test) runs beside them throughout.
---require-rv32 refuses, rather than skips, the RV32 arm when no RV32 compiler
-is found.
+one). --require-rv32 refuses, rather than skips, the RV32 arm when no RV32
+compiler is found.
 
 Usage:
-    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture DIR --without verilator
 
 Exit 0 = both sides hold; 1 = a finding or a control that misbehaved; 2 =
-refused (no compiler, GoogleTest, cmake or clang, or the stack's gate could
-not run).
+refused (no compiler, GoogleTest, cmake or clang, the stack's gate could not
+run, or the capture is missing, empty or incomplete).
 """
 
 from __future__ import annotations
@@ -132,6 +139,7 @@ import os
 import re
 import shlex
 import shutil
+import stat
 import sys
 import tempfile
 import threading
@@ -144,15 +152,17 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / "gtest"))
 
+import ctrl_capture  # noqa: E402
 import fw_gtest  # noqa: E402
 import fw_rv32  # noqa: E402
 from ctrl_build import (C_FLAGS, CTRL, HARNESS, NVM_DIR, ROOT, RV32_FLAGS, STACK, STACK_INCLUDE,  # noqa: E402
                         STACK_PARTS, TB_COMMON, Refusal, Tree, includes, stack_pin)
-# modes stays importable from here: a caller judges in the modes a planted builder gives (judge's universe).
-from ctrl_configs import (DEFAULT_ENTITY, FLAG, FORCED, Read, Space, cxx_sources, derive, image_dim,  # noqa: E402
-                          makefiles, mode_dims, modes, run, spaces, variants)
-from ctrl_pin import makefile_findings, pin_controls  # noqa: E402
-from ctrl_plants import BASE, PLANTS, Plant, builder_plant  # noqa: E402
+from ctrl_capture import Capture, CaptureError  # noqa: E402
+from ctrl_configs import (FLAG, FORCED, NEEDS, Read, Space, configurations, cxx_index, derive, held,  # noqa: E402
+                          makefiles, mode_dims, run, spaces, variants)
+from ctrl_pin import makefile_findings, named_compilers, pin_controls  # noqa: E402
+from ctrl_plants import BASE, PLANTS, Plant  # noqa: E402
+from ctrl_runs import captures, owned  # noqa: E402
 
 #: The C library's headers (ISO C11, 7.1.2): what the stack may include beside its own.
 C_HEADERS = ("assert complex ctype errno fenv float inttypes iso646 limits locale math stdalign stdarg stdatomic "
@@ -504,15 +514,10 @@ def smallest(found: dict[tuple[str, str], list[str]]) -> list[str]:
             f"{core}" for (side, core), labels in found.items()]
 
 
-def common(found: dict[tuple[str, str], list[str]], side: str, name: str, seen: list[Seen], space: Space) -> None:
-    """The findings every side shares: a unit that stops on an #error in every configuration, and one whose
-    reads a value a builder computes decides, which the boundary has none of."""
+def common(found: dict[tuple[str, str], list[str]], side: str, name: str, seen: list[Seen]) -> None:
+    """The finding every side shares: a unit that stops on an #error in every configuration."""
     if seen and all(s.read.stopped for s in seen):
         found.setdefault((side, f"{name} stops on an #error in every configuration: {seen[0].read.error}"), [])
-    for s in seen:
-        for macro in sorted(s.read.tested & space.values.keys()):
-            found.setdefault((side, f"{name} tests {macro}, a value {space.values[macro]} computes at run time, "
-                                    "which the boundary has none of"), []).append(s.label)
 
 
 # ---- the firmware's tree, as its builders give it -------------------------------------------
@@ -592,7 +597,7 @@ def stack_side(trees: Trees, compiler: list[str], label: str, space: Space, work
             for dep in sorted(s.read.deps - allowed):
                 if not within(dep, public):
                     found.setdefault((label, f"the stack's {name} includes {where(dep, trees)}"), []).append(s.label)
-        common(found, label, f"the stack's {name}", seen, space)
+        common(found, label, f"the stack's {name}", seen)
     return smallest(found)
 
 
@@ -620,7 +625,7 @@ def tests_side(trees: Trees, space: Space, work: Path) -> list[str]:
                 if not within(dep, stack) and (within(dep, ctrl) or within(dep, root)):
                     found.setdefault(("tests", f"the stack's {name} includes {where(dep, trees)}"),
                                      []).append(s.label)
-        common(found, "tests", f"the stack's {name}", seen, space)
+        common(found, "tests", f"the stack's {name}", seen)
     return smallest(found)
 
 
@@ -656,37 +661,58 @@ def operands(text: str) -> tuple[str, ...]:
     return tuple(INCLUDE.findall(text))
 
 
-def cxx_units(trees: Trees, work: Path, planted: dict[Path, str] | None = None) -> tuple[list[Path], list[str]]:
-    """The firmware units a C++ source a builder names reaches, every #include line followed as text in every
-    branch, against every directory a builder searches, in the trees judged; a source a builder writes itself
-    followed through the builder's literals; and as findings, an #include whose operand a macro computes,
-    which text cannot follow, and every C++ name of a builder that resolves to no file or that it computes."""
+def cxx_units(trees: Trees, work: Path, capture: Capture) -> tuple[list[Path], list[str]]:
+    """The firmware units a recorded C++ invocation reaches (ctrl_configs.cxx_sources): its source, the trees'
+    file where it is one and else the text the capture kept, and every file it read first; every #include line
+    followed as text in every branch, against the including file's directory, every directory a recorded C++
+    invocation searched that is one, and every directory a builder searches, in the trees judged; and through
+    the headers outside the checkout the capture kept, by the name they were reached at. As findings, an
+    #include whose operand a macro computes, which text cannot follow."""
     moved = view(trees) or (lambda path: path)
-    sources = cxx_sources(planted, view(trees))
+    index = cxx_index(capture)
     shapes = [gen for gen, _ in variants().shapes.values()]
     dirs = [Path(f[2:]) for f in search(trees, work)] + [trees.stack / d for d in (STACK_INCLUDE, *STACK_PRIVATE)]
     dirs += [NVM_DIR / d for d in ("host", "plat", "host/stubs", "test", "test/rv32")]
     dirs += [LWSRP / "include", LWSRP, HARNESS, moved(HERE), TB_COMMON, *shapes]
+    searched = list(dict.fromkeys(str(d) for d in [*dirs, *map(moved, index.present)]))
     roots = [r.resolve() for r in (ROOT, trees.ctrl, trees.stack, *shapes)]
-    queue, read, findings = list(sources.files), set(), list(sources.findings)
-    texts = [(None, text) for text in sources.written.values()]
-    while queue or texts:
-        path, text = texts.pop() if texts else (queue.pop(), None)
+    kept, reached = index.kept, index.reached
+    queue = [(moved(source.path), source.digest) for source in index.sources]
+    read: set[Path] = set()
+    findings: list[str] = []
+    looked: dict[str, Path | None] = {}
+
+    def hit(candidate: str) -> Path | None:
+        """A file a name reaches in a directory, in the trees judged and inside the roots; looked up once."""
+        if candidate not in looked:
+            try:
+                regular = stat.S_ISREG(os.stat(candidate).st_mode)
+            except OSError:
+                regular = False
+            found = moved(Path(candidate).resolve()) if regular else None
+            looked[candidate] = found if found is not None and any(found.is_relative_to(r) for r in roots) else None
+        return looked[candidate]
+
+    while queue:
+        path, digest = queue.pop()
         if path in read:
             continue
-        if path is not None:
-            read.add(path)
+        read.add(path)
+        if (not digest or any(within(resolved(str(path)), r) for r in roots[:3])) and path.is_file():
             text = path.read_text(encoding="utf-8", errors="replace")
+        elif digest:
+            text = capture.text(digest)
+        else:
+            continue
         for operand in operands(text):
             if operand[:1] not in ('"', "<"):
-                findings.append(f"firmware c++: {where(path, trees) if path else 'a source a builder writes'} "
-                                f"includes {operand}, which text cannot follow")
+                findings.append(f"firmware c++: {where(path, trees)} includes {operand}, which text cannot follow")
                 continue
             name = operand[1:].split('"' if operand[0] == '"' else ">", 1)[0]
-            for base in ([path.parent] if path and operand[0] == '"' else []) + dirs:
-                if (base / name).is_file() and \
-                        any((hit := moved((base / name).resolve())).is_relative_to(r) for r in roots):
-                    queue.append(hit)
+            queue += [(found, "") for base in ([str(path.parent)] if operand[0] == '"' else []) + searched
+                      if (found := hit(f"{base}/{name}")) is not None]
+            beside = [(path.parent / name).resolve()] if operand[0] == '"' else []
+            queue += [(held_at, kept[held_at]) for held_at in (*beside, *reached.get(name, ())) if held_at in kept]
     ctrl = trees.ctrl.resolve()
     units = {trees.ctrl / path.relative_to(ctrl): None for path in read
              if path.is_relative_to(ctrl) and len(part := path.relative_to(ctrl).parts) > 1 and
@@ -717,7 +743,7 @@ def firmware_side(trees: Trees, compiler: list[str], label: str, space: Space, w
                 if any(within(dep, stack) and not within(dep, public) for stack, public in stacks.items()):
                     found.setdefault((label, f"{name} includes {where(dep, trees)}, not one of the stack's public "
                                              "headers"), []).append(s.label)
-        common(found, label, name, seen, space)
+        common(found, label, name, seen)
     return smallest(found)
 
 
@@ -729,18 +755,19 @@ def shadows(trees: Trees, firmware: Path) -> list[str]:
             for root in roots for p in sorted(root.rglob("*")) if p.is_file() and p.name in names]
 
 
-def judge(trees: Trees, rv32: str | None, work: Path, universe: dict[str, tuple[str, ...]] | None = None,
-          computed: dict[str, str] | None = None, control: Plant | None = None) -> list[str]:
-    """Every finding on both sides of the boundary for these trees, in every configuration and language, as the
-    builders compile them (with a `control`'s builder text replacing or adding one's), or in `universe`'s modes
-    and with `computed`'s values where given; each side judged at once, reusing the run's preprocessings. A
-    control that must be refused is judged until the finding it names is found."""
-    planted, needle = (builder_plant(control), control.needle) if control else (None, "")
-    derived = derive(planted)
-    each = spaces(derived[0] if universe is None else universe, derived[1] if computed is None else computed)
+def judge(trees: Trees, rv32: str | None, work: Path, capture: Capture, control: Plant | None = None,
+          without: frozenset[str] = frozenset()) -> list[str]:
+    """Every finding on both sides of the boundary for these trees, in every configuration and language the
+    capture's invocations compile them in; each side judged at once, reusing the run's preprocessings. The
+    capture must hold every known builder's invocations but those `without` leaves out (ctrl_configs.held,
+    with a `control`'s builder texts added to the checkout's). A control that must be refused is judged until
+    the finding it names is found."""
+    texts, needle = ({HERE / name: text for name, text in control.texts}, control.needle) if control else (None, "")
+    held(capture, without, texts)
+    each = spaces(derive(capture))
     trees = replace(trees, memo=MEMO.judgement(trees))
     names = shadows(trees, ROOT / "sw/firmware")
-    cxx, unfollowed = cxx_units(trees, work / "firmware-cxx", planted)
+    cxx, unfollowed = cxx_units(trees, work / "firmware-cxx", capture)
     if needle and any(needle in f for f in names + unfollowed):
         return unfollowed + names
     cross = [rv32, *RV32_FLAGS, *fw_rv32.includes(rv32)] if rv32 is not None else None
@@ -771,15 +798,17 @@ def judge(trees: Trees, rv32: str | None, work: Path, universe: dict[str, tuple[
     return [f for at in sorted(found) for f in found[at]]
 
 
-def stack_gate(selftest: bool, work: Path) -> tuple[list[str], list[str]]:
-    """The stack's own boundary gate (and its self-test), from the submodule: what it said, and its refusal as a
-    finding."""
+def stack_gate(selftest: bool, work: Path, capture: Path | None) -> tuple[list[str], list[str]]:
+    """The stack's own boundary gate (and its self-test), from the submodule, its CMake builds under the capture
+    where one is given: what it said, and its refusal as a finding."""
     for tool in ("cmake", "clang", "gcc", "nm"):
         if shutil.which(tool) is None:
             raise Refusal(f"the stack's gate needs {tool}")
     work.mkdir(parents=True, exist_ok=True)
     argv = [sys.executable, "-I", str(STACK_GATE), "--work", str(work), "--jobs", "4"]
-    res = run([*argv, "--selftest"] if selftest else argv, cwd=work)
+    argv = [*argv, "--selftest"] if selftest else argv
+    res = run(argv, cwd=work) if capture is None else \
+        ctrl_capture.run(capture, argv, cwd=work, capture_output=True, text=True, env_extra={"LC_ALL": "C"})
     lines = [f"    {line}" for line in (res.stdout + res.stderr).strip().splitlines()]
     return lines, [] if res.returncode == 0 else [f"the stack's own gate {STACK_GATE.relative_to(ROOT)} refused: "
                                                   f"exit {res.returncode}"]
@@ -804,6 +833,7 @@ def planted(plant: Plant, work: Path) -> Trees:
             target = root / file[1:]
             if target.exists():
                 raise Refusal(f"control {plant.name!r}: {file[1:]} exists already")
+            target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(new, encoding="utf-8")
             continue
         target = root / file
@@ -814,15 +844,64 @@ def planted(plant: Plant, work: Path) -> Trees:
     return trees
 
 
-def controls(rv32: str | None, work: Path) -> int:
-    """The base the controls share passing, every plant refused by the finding it names (judged until it is
-    found), every pass control passing; the misbehaving count."""
+def planted_run(plant: Plant, trees: Trees, work: Path, capture: Path) -> list[dict]:
+    """A plant's builder, run through `capture` in a directory of its own beside the copies; a planted Makefile's
+    compilers named by a path, as bypass records (ctrl_pin.named_compilers)."""
+    where = (work / "builder").resolve()
+    shutil.rmtree(where, ignore_errors=True)
+    where.mkdir(parents=True)
+    (where / "planted.c").write_text("", encoding="utf-8")
+    for name, text in plant.beside:
+        (where / name).write_text(text, encoding="utf-8")
+    builder = where / ("planted.mk" if plant.make else "planted_builder.py")
+    builder.write_text(plant.run, encoding="utf-8")
+    argv = ["make", "-f", str(builder), "planted"] if plant.make else [sys.executable, str(builder)]
+    given = {"PLANT_CTRL": str(trees.ctrl), "PLANT_STACK": str(trees.stack), "PLANT_WORK": str(where),
+             "PLANT_GCC": shutil.which("gcc") or "gcc"}
+    ctrl_capture.run(capture, argv, cwd=where, capture_output=True, text=True, env_extra=given)
+    return named_compilers(builder, {**ctrl_capture.install(capture), **given}) if plant.make else []
+
+
+def control_capture(plant: Plant, trees: Trees, base: Capture, work: Path) -> Capture:
+    """The capture a control is judged against: the base the controls share, altered as the plant says, or with
+    what its planted builder compiled, run through the capture beside the copies (a shared one ran before the
+    base: its invocations are the base's)."""
+    if plant.alter == "missing":
+        return ctrl_capture.load(work / "no-capture")
+    if plant.alter == "empty":
+        (work / "empty").mkdir(parents=True, exist_ok=True)
+        for name in ("records.jsonl", "manifest.jsonl"):
+            (work / "empty" / name).write_text("", encoding="utf-8")
+        return ctrl_capture.load(work / "empty")
+    if plant.alter.startswith("drop "):
+        lost = plant.alter.removeprefix("drop ")
+        return replace(base, invocations=tuple(inv for inv in base.invocations if lost not in inv.builders),
+                       parts=())
+    if not plant.run or plant.shared:
+        return base
+    capture = (work / "capture").resolve()
+    shutil.rmtree(capture, ignore_errors=True)
+    named = planted_run(plant, trees, work, capture)
+    return base + ctrl_capture.load(capture, required=False) + Capture((), (), (), tuple(named))
+
+
+def controls(rv32: str | None, work: Path, run: Capture, without: frozenset[str]) -> int:
+    """The base the controls share passing (the run's capture, with what every shared planted builder compiled),
+    every plant refused by the finding it names (judged until it is found), every pass control passing; the
+    misbehaving count."""
+    shared = (work / "shared-capture").resolve()
+    with ThreadPoolExecutor(max_workers=JOBS, thread_name_prefix="ctrl-boundary-plant") as runner:
+        runs = [runner.submit(planted_run, plant, Trees(CTRL, STACK), work / "shared" / str(at), shared)
+                for at, plant in enumerate(PLANTS) if plant.shared]
+        named = [record for done in runs for record in done.result()]
+    base = (run + ctrl_capture.load(shared) if shared.is_dir() else run) + Capture((), (), (), tuple(named))
     bad = 0
     for plant in (BASE, *PLANTS):
         trees = planted(plant, work / "plants")
         try:
-            findings = judge(trees, rv32, work / "plants-build", control=plant)
-        except Refusal as exc:
+            capture = control_capture(plant, trees, base, work / "plant-run")
+            findings = judge(trees, rv32, work / "plants-build", capture, control=plant, without=without)
+        except (Refusal, CaptureError) as exc:
             findings = [f"REFUSED: {exc}"]
         shutil.rmtree(work / "plants-build", ignore_errors=True)
         ok = (not findings) if not plant.needle else any(plant.needle in f for f in findings)
@@ -833,30 +912,19 @@ def controls(rv32: str | None, work: Path) -> int:
     return bad
 
 
-def configurations(universe: dict[str, tuple[str, ...]], computed: dict[str, str]) -> None:
-    """What the configurations are drawn from, as read from the builders."""
-    found = variants()
-    image = image_dim()
-    print("build modes read from the builders: " +
-          "; ".join(f"{name} ({' '.join(flags)})" for name, flags in universe.items()))
-    print(f"shapes, the shipped configs: {', '.join(found.shapes)} (default {DEFAULT_ENTITY.stem}); the image's "
-          f"stream counts (ctrl_image.shape_build): {'; '.join(w for w, _ in image.alternatives[1:])}; mailbox "
-          f"contracts: the tracked one and {', '.join(f'{n} interfaces' for n in found.contracts) or 'no variant'}")
-    print("values the builders compute, which no judged unit may test: " +
-          "; ".join(f"{name} ({where})" for name, where in computed.items() if name not in image.macros))
-    sources = cxx_sources()
-    print(f"C++ sources the builders name: {len(sources.files)} files; written by a builder: "
-          f"{', '.join(sources.written) or 'none'}; named, but no source (NOT_SOURCES): "
-          f"{'; '.join(sources.data) or 'none'}")
-
-
 def main(argv: list[str] | None = None) -> int:
     """Hold both sides and every Makefile builder's pin prerequisites, with the stack's own gate beside them; with
     --selftest, the controls first."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--selftest", action="store_true", help="also plant every control and require its verdict")
     ap.add_argument("--require-rv32", action="store_true", help="refuse, not skip, without an RV32 compiler")
+    ap.add_argument("--capture", type=Path, action="append",
+                    help="a capture of the builders' invocations (ctrl_capture.py), repeatable; without one, the "
+                         "gate runs every known builder under its own")
+    ap.add_argument("--without", action="append", choices=sorted(NEEDS), default=[],
+                    help="leave out the builders that need this, which the run has none of (each is named)")
     args = ap.parse_args(argv)
+    without = frozenset(args.without)
     rv32 = fw_rv32.compiler()
     if rv32 is None and args.require_rv32:
         print("REFUSED: no RV32 compiler (the pinned SDK's riscv32-linux-gcc or MILAN_RV32_CC)")
@@ -864,40 +932,53 @@ def main(argv: list[str] | None = None) -> int:
     if rv32 is None:
         print("  SKIPPED: the RV32 arm, no RV32 compiler; --require-rv32 refuses instead")
     try:
-        universe, computed = derive()
-        configurations(universe, computed)
         with tempfile.TemporaryDirectory(prefix="ctrl-boundary-") as tmp, ThreadPoolExecutor(1) as beside:
             work = Path(tmp)
             print(f"tsn-c-stack at {stack_pin()}", flush=True)
-            own = beside.submit(stack_gate, args.selftest, work / "stack-gate")
+            mine = work / "capture"
+            build = beside.submit(stack_gate, False, work / "stack-gate-build", mine)
+            given = captures(args.capture, work, without)
+            ran = owned(mine, work / "images")
+            said, refused = build.result()
+            # the stack's own self-test runs beside the controls; its build is the one the capture holds
+            own = beside.submit(stack_gate, True, work / "stack-gate", None) if args.selftest else None
+            env = ctrl_capture.install(mine)
+            named = [record for makefile in makefiles() for record in named_compilers(makefile, env)]
+            capture = sum(given[1:], given[0]) + ctrl_capture.load(mine) + Capture((), (), (), tuple(named))
+            held(capture, without)
+            universe = derive(capture)
+            configurations(universe, capture, without, ran)
             bad = pins = 0
             if args.selftest:
-                bad = controls(rv32, work / "controls")
+                bad = controls(rv32, work / "controls", capture, without)
                 print(f"boundary controls: {MEMO.total('ran')} preprocessings run, {MEMO.total('reused')} reused",
                       flush=True)
                 (work / "pins").mkdir()
                 misbehaved, pins = pin_controls(work / "pins", makefiles())
                 bad += misbehaved
             PREPROCESSED.clear()
-            findings = judge(Trees(CTRL, STACK), rv32, work / "checkout")
+            findings = judge(Trees(CTRL, STACK), rv32, work / "checkout", capture, without=without)
             runs, checkout = sum(PREPROCESSED), MEMO.made[-1].counts
-            cxx = len(cxx_units(Trees(CTRL, STACK), work / "count")[0])
+            cxx = len(cxx_units(Trees(CTRL, STACK), work / "count", capture)[0])
             findings += makefile_findings(makefiles(), work / "makefiles")
-            said, refused = own.result()
+            if own is not None:
+                said, tested = own.result()
+                refused += tested
             print("\n".join(said), flush=True)
             findings += refused
-    except Refusal as exc:
+    except (Refusal, CaptureError) as exc:
         print(f"REFUSED: {exc}")
         return 2
     for finding in findings:
         print(f"  [FAIL] {finding}")
     found = variants()
+    tested = f", {1 + len(PLANTS)} boundary and {pins} pin controls, {bad} misbehaved" if args.selftest else ""
     print(f"ctrl_boundary: {len(firmware_units(Trees(CTRL, STACK)))} firmware units ({cxx} also as C++) and the "
           f"stack's sources, headers and tests, host{' and RV32' if rv32 else ''}, in every configuration of "
-          f"{len(universe)} build modes, {len(found.shapes)} shapes and {1 + len(found.contracts)} mailbox "
-          f"contracts ({runs} configurations, {checkout['ran']} preprocessed), and every Makefile builder's pin "
-          f"prerequisites; {len(findings)} finding(s)"
-          f"{f', {1 + len(PLANTS)} boundary and {pins} pin controls, {bad} misbehaved' if args.selftest else ''}")
+          f"{len(universe)} build modes from {len(capture.invocations)} recorded invocations, "
+          f"{len(found.shapes)} shapes and {1 + len(found.contracts)} mailbox contracts ({runs} configurations, "
+          f"{checkout['ran']} preprocessed), and every Makefile builder's pin prerequisites; {len(findings)} "
+          f"finding(s){tested}")
     print(f"ctrl_boundary: {'FAIL' if findings or bad else 'PASS'}")
     return 1 if findings or bad else 0
 

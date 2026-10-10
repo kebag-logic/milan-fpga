@@ -87,21 +87,29 @@ The firmware's units are those of every directory here but `host/` and `test/`, 
 Their include path is every firmware directory, a shape's generated headers, and the stack's other directories last.
 A dependency on the stack outside `include/` is refused.
 So is a file under `sw/firmware` named as a stack source or header.
-Every unit is judged as its builders compile it, and nothing about that is listed here or in the gate: [`ctrl_configs.py`](test/ctrl_configs.py) reads it from the builders.
-The builders are found, never listed: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
+Every unit is judged as its builders compile it, and nothing about that is listed here or read from a builder's text: it is read from the builders' compiler invocations as they ran.
+[`ctrl_capture.py`](test/ctrl_capture.py) runs a builder with a recording wrapper first on `PATH` for every C and C++ compiler name, for the RV32 compiler (`MILAN_RV32_CC`), and for `CC` and `CXX` where they are set.
+The wrapper's recorder ([`ctrl_shim.py`](test/ctrl_shim.py), compiled into the capture when it starts) records each invocation and then runs the real compiler with the same arguments, so every object, binary and image is what it would be without it.
+It keeps the text of every C++ source, and of every header outside the checkout that a C++ source reaches in a builder's own directories, so a source a builder writes and deletes is still read.
+Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
+The hosted `firmware-unit` job runs its firmware steps under one capture, and the boundary step judges it (`--capture`).
+Run without one, the gate first runs every known builder under a capture of its own.
+Either way it runs the stack's own gate and the image builders under the capture itself ([`ctrl_runs.py`](test/ctrl_runs.py)).
+`ctrl_srp_image.py` compiles every object there and stops at its link, which needs runtime archives built from sources outside the checkout.
+[`ctrl_configs.py`](test/ctrl_configs.py) lists the known builders that compile (`BUILDERS`).
+A missing or empty capture refuses the gate by name.
+So does a known builder the capture holds no invocation of, and a C++ compile of a source that was no file or of standard input.
+So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
+`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; the hosted job has no Verilator.
+The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
+Each must have compiled in the capture, be a known builder, or be listed in `OUTSIDE` with the reason its compiles are none of the firmware's.
 Every unit is judged as C.
-A firmware header that a C++ source a builder names reaches (a test or a bench, every `#include` followed as text) is judged as C++ too, with the arms' test include path.
-A C++ name resolves beside its builder, in this tree or its tests, the stack, the protocol processor, the checkout's root, or a directory of the checkout the builder names.
-A C++ source the builder writes itself is followed through the builder's own literals.
-A C++ name that resolves to no file, or that the builder computes, fails the gate by name.
-`NOT_SOURCES` lists the two paths a coverage self-test writes into a planted report, which are no files; each is checked to be held by its builder, unresolved and unwritten.
-The builders' own `-D` and `-U` flags, as one argument or as two, are the build modes (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches).
+A firmware unit that a recorded C++ compile reaches is judged as C++ too, with the arms' test include path.
+That compile's source is read as the trees hold it, or as the capture kept it, and every `#include` is followed as text in every branch.
+The build modes are every `-D` and `-U` flag of every recorded invocation, exactly as the compiler was given it, with each value the builds gave it (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches, the arms' interface counts).
+So a mode is judged whatever form its builder writes it in: a literal, an f-string, a joined or formatted string, a split command line, `$(patsubst ...)`, `$(foreach ...)`, `VAR+=-D...` or `$(addprefix -D,...)`.
 A macro name the C implementation reserves is not a mode.
-A flag a builder computes at run time, an f-string, is a value, whose macro is the f-string's literal before its `=`.
-Any other `-D` or `-U` a builder writes that is neither a literal nor an f-string refuses the gate by name.
-Examples are `"-D" + NAME`, `"-DNAME=" + value`, `"-D%s" % NAME`, a bare `-D` alone, `-D$(NAME)`, `-DNAME=$(VALUE)` and `$(addprefix -D,...)`.
-The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config.
-A unit that tests any other computed value is refused, since the gate has none of its values.
+The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config; a recorded one that no shipped config gives refuses the gate.
 Every shipped config (`configs/*.yaml`) is a shape, with the headers the builders' own generators write for it.
 Those come through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-unit` has it, and refuses without it.
 The SRP shape header is force-included, as the SRP builds compile every unit, or left out, as the others do.
@@ -114,7 +122,10 @@ A finding names the smallest configuration that reaches it, beyond the unit's de
 It also runs the stack's own boundary gate, beside the rest.
 It runs each preprocessing once per run and reuses it where it would read the same: the same unit and arguments, every file it read unchanged, and no file added or removed that it could look up by name.
 `--selftest` first judges unplanted copies of both trees, the base every control shares, which must pass.
-It then plants 56 defects, each refused by name, and three passing controls.
+A control's planted builder runs through the capture, and what it compiled joins the run's capture for that control.
+One that only compiles a mode runs once, before the base, and its invocations join the base every control shares.
+It then plants 80 defects, each refused by name, and four passing controls.
+Among them is each form a builder can write a mode or a C++ source's name in, and each way the capture can be missing, empty or incomplete.
 A control that must be refused stops at the finding it names.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
@@ -431,7 +442,11 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice 1/6
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture <capture> --without verilator
 ```
+
+The first runs every known builder under a capture of its own first (Verilator from `VERILATOR` or `PATH`).
+The second judges a capture made as the `firmware-unit` job makes it: each of its firmware commands run as `ctrl_capture.py --out <capture> -- <command>` (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
 
 Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the
 `acmpnvm` arm also runs the builder for its shape, as lane F1's gate does).

@@ -41,6 +41,7 @@ import sys
 from pathlib import Path
 
 from ctrl_build import HERE, PP, ROOT, STACK, Refusal, stack_gitlink, stack_pin
+from ctrl_capture import COMPILER
 
 #: A target make's database does not hold: asked for so make prints the database and runs nothing.
 NO_GOAL = "ctrl-pin-no-such-goal"
@@ -79,16 +80,16 @@ def run(argv: list[str], cwd: Path | None = None, env: dict[str, str] | None = N
     return res.returncode, res.stdout
 
 
-def make(makefile: Path, *args: str, timeout: int | None = None) -> tuple[int, str]:
+def make(makefile: Path, *args: str, timeout: int | None = None, env: dict[str, str] | None = None) -> tuple[int, str]:
     """make on one Makefile, in its directory."""
     return run(["make", "--no-print-directory", "-C", str(makefile.parent), "-f", makefile.name, *args],
-               timeout=timeout)
+               env=env, timeout=timeout)
 
 
-def targets(makefile: Path, overrides: list[str]) -> dict[str, frozenset[str]]:
+def targets(makefile: Path, overrides: list[str], env: dict[str, str] | None = None) -> dict[str, frozenset[str]]:
     """Every target the Makefile defines, special and pattern ones aside, with all its prerequisites (normal
     and order-only), from make's own database."""
-    _, out = make(makefile, "-p", "-n", "-q", "-R", *overrides, NO_GOAL)
+    _, out = make(makefile, "-p", "-n", "-q", "-R", *overrides, NO_GOAL, env=env)
     files = out.partition("\n# Files\n")[2].partition("\n# files hash-table stats")[0]
     if not files:
         raise Refusal(f"make printed no database for {makefile.relative_to(ROOT)}")
@@ -104,10 +105,11 @@ def targets(makefile: Path, overrides: list[str]) -> dict[str, frozenset[str]]:
     return found
 
 
-def recipes(makefile: Path, target: str, overrides: list[str]) -> dict[str, list[str]]:
+def recipes(makefile: Path, target: str, overrides: list[str],
+            env: dict[str, str] | None = None) -> dict[str, list[str]]:
     """Each target make's dry run of `target` would build (it and its prerequisites, every one remade), with the
     command lines of its own recipe."""
-    _, out = make(makefile, "-n", "-B", "--trace", *overrides, target)
+    _, out = make(makefile, "-n", "-B", "--trace", *overrides, target, env=env)
     own: dict[str, list[str]] = {}
     current = None
     for line in out.splitlines():
@@ -141,6 +143,25 @@ def stack_targets(makefile: Path, stack: Path) -> tuple[list[str], list[str], li
                 findings[f"{where}: {target} builds against tsn-c-stack without the pin check "
                          f"({', '.join(sorted(pins)) or 'none'}) as a prerequisite"] = None
     return reaching, sorted(pins), list(findings)
+
+
+def named_compilers(makefile: Path, env: dict[str, str]) -> list[dict]:
+    """Each compiler a Makefile's recipes run by a path no capture wrapper stands on (`env`'s CTRL_CAPTURE_BIN),
+    read from make's own dry run of every target under the capture's environment: a bypass record of each, as
+    the capture's audit hook writes one for a Python builder."""
+    wrappers = Path(env["CTRL_CAPTURE_BIN"]).resolve()
+    where = makefile.relative_to(ROOT).as_posix() if makefile.is_relative_to(ROOT) else makefile.name
+    found = {}
+    for target in targets(makefile, [], env):
+        for own, lines in recipes(makefile, target, [], env).items():
+            for line in lines:
+                for word in re.split(r"[\s;&|()`]+", line):
+                    word = word.strip("'\"")
+                    if "/" in word and COMPILER.match(word.rpartition("/")[2]) and \
+                            (makefile.parent / word).resolve().parent != wrappers:
+                        found[(word, line)] = {"bypass": word, "args": [line], "cwd": str(makefile.parent),
+                                               "from": [f"{where} (target {own})"]}
+    return list(found.values())
 
 
 def makefile_findings(makefiles: list[Path], work: Path) -> list[str]:

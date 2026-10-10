@@ -278,30 +278,36 @@ jobs:
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
 
+      # #697: each firmware step runs under ctrl_capture.py, which records
+      # every compiler invocation its builders make (a wrapper on PATH runs
+      # the real compiler unchanged) into one capture the boundary judges.
       - name: Run the control-plane firmware suites and RV32 builds
         run: |
           set -euo pipefail
-          python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
-          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
-
-      # #697: the TSN stack's boundary from both sides, each unit judged as the
-      # firmware's builders compile it (language, modes, shapes, contracts):
-      # the cores include only their own headers and the C library, the
-      # stack's tests reach nothing of this repository, the firmware reaches
-      # only the stack's public headers, every Makefile target that builds the
-      # stack is pinned, and the stack's own gate (its CMake build with gcc and
-      # clang) runs; planted and pin controls first.
-      - name: Hold the TSN stack boundary in both directions
-        run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+          python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+          python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
 
       - name: Run the saved-state store suites and its RV32 build
-        run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+        run: python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
 
       - name: Hold the firmware coverage ratchet
         run: |
           set -euo pipefail
-          python3 sw/firmware/gtest/fw_coverage.py --selftest
-          python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
+          python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/gtest/fw_coverage.py --selftest
+          python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
+
+      # #697: the TSN stack's boundary from both sides, each unit judged in
+      # every configuration the capture of the steps above recorded its
+      # builders compiling it in (language, modes), and at every shape and
+      # contract: the cores include only their own headers and the C library,
+      # the stack's tests reach nothing of this repository, the firmware
+      # reaches only the stack's public headers, every Makefile target that
+      # builds the stack is pinned, and the stack's own gate (its CMake build
+      # with gcc and clang) and the image builders run under the capture here;
+      # planted and pin controls first. This job has no Verilator, so the
+      # builders that need it are named and left out (--without verilator).
+      - name: Hold the TSN stack boundary in both directions
+        run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture "$RUNNER_TEMP/ctrl-capture" --without verilator
 
   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
   # deliberate docs-only result; failures and cancellations remain failures.

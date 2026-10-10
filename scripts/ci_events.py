@@ -706,6 +706,8 @@ BUILDER_RUNS = {
         "python3 sw/builder/test_builder.py --require-elaboration --require-rv32",
     ),
 }
+#: #697: the firmware-unit job's firmware steps run under the capture of their compiler invocations.
+CAPTURE = 'python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- '
 #: #504: reviewed cache inputs and unconditional verification on hits and misses.
 RV32_CACHE_WITH = {
     "path": "~/br-milan-rv32/host",
@@ -2368,26 +2370,29 @@ RTL_STEP_LISTS = {
          "with": RV32_CACHE_WITH},
         {"name": "Install and verify the pinned RV32 SDK",
          "run": RV32_INSTALL},
+        # #697: each firmware step under the capture of its compiler invocations the boundary judges.
         {"name": "Run the control-plane firmware suites and RV32 builds",
          "run": (
              'set -euo pipefail',
-             'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
-         )},
-        # #697: the TSN stack's boundary from both sides, its controls and the stack's own gate.
-        {"name": "Hold the TSN stack boundary in both directions",
-         "run": (
-             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest',
+             CAPTURE + 'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
+             CAPTURE + 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
          )},
         {"name": "Run the saved-state store suites and its RV32 build",
          "run": (
-             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
+             CAPTURE + 'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
          )},
         {"name": "Hold the firmware coverage ratchet",
          "run": (
              'set -euo pipefail',
-             'python3 sw/firmware/gtest/fw_coverage.py --selftest',
-             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"',
+             CAPTURE + 'python3 sw/firmware/gtest/fw_coverage.py --selftest',
+             CAPTURE + 'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"',
+         )},
+        # #697: the TSN stack's boundary from both sides, judged against that capture, its controls and the
+        # stack's own gate; the job has no Verilator, so the builders needing it are named and left out.
+        {"name": "Hold the TSN stack boundary in both directions",
+         "run": (
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture '
+             '"$RUNNER_TEMP/ctrl-capture" --without verilator',
          )},
     ),
 }
