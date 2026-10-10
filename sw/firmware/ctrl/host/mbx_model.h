@@ -159,9 +159,9 @@ const struct mbx_model_tx *mbx_model_tx_frame(const struct mbx_model *m, uint32_
 // The k-th TMR_CMD since reset, or NULL if it is no longer held.
 const struct mbx_model_tmr_op *mbx_model_tmr_op(const struct mbx_model *m, uint32_t k);
 
-// What the publication block drives into interface `interface`'s datapath,
-// as KL_mbx's pub_*_o ports carry it: every field, and each sink's stream_id
-// only while its SID_VALID is set. All zero for an interface the build lacks.
+// What interface `interface`'s datapath takes from KL_mbx's pub_*_o ports:
+// every field, and each sink's stream_id only while its SID_VALID is set.
+// All zero for an interface the build lacks.
 struct mbx_model_pub {
 	uint32_t da_gate;                               // DA_GATE.OPEN, bit s source s
 	uint32_t licence;                               // LICENCE.ACTIVE, bit s source s

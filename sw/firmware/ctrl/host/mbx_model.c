@@ -24,7 +24,7 @@
 //   KL_mbx      the register file, the GM_LO snapshot, the sticky ERR, the
 //               refusal of a partial write, the interrupt levels, the
 //               publication block (its fields masked, a hole reading 0 and
-//               taking no write, the stream_id driven only while SID_VALID).
+//               taking no write, the stream_id taken only while SID_VALID).
 
 #include "mbx_model.h"
 
