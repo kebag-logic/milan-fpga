@@ -33,7 +33,7 @@ documentation comments).
 
 ## Contents
 
-- **[Annex B contract](#annex-b-contract)** -- The wire bytes, the Table B.7 walk, the timer draws and the conflict cells as IEEE 1722-2016 Annex B defines them and `KL_maap` implements them since #686, clause by clause. Also the deviations that remain outside #686's items, and the reference-implementation contract it replaced.
+- **[Annex B contract](#annex-b-contract)** -- The wire bytes, the Table B.7 walk, the timer draws and the conflict cells as IEEE 1722-2016 Annex B defines them and `KL_maap` implements them since #686, clause by clause. Also the remaining deviations, and the reference-implementation contract it replaced.
 - **[Fabric integration](#fabric-integration)** -- Where `KL_maap` attaches (RX monitor tap on subtype 0xFE; TX as the second leg of the ONE control-lane merge), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP`; note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
 - **[The block ⇄ per-source bridge (KL_pp_maap_shim)](#the-block--per-source-bridge-kl_pp_maap_shim)** -- How one block claim answers N per-source ALLOC_DA requests, why `s` gets `base + s`, why a refusal is a state and not an error, and why RELEASE frees nothing.
 - **[Open decisions](#open-decisions)** -- Both are now SETTLED, and the load-bearing one settled itself structurally: AAF admission ANDs the DA because the declaration cannot exist without it.
@@ -106,6 +106,8 @@ ANNOUNCE = DEFEND.
   It draws a fresh range and sends four PROBEs.
   The event does not increment the conflict counter.
   A steady operational level causes no repeated restart.
+  Table B.3 defines no event for leaving the operational state.
+  A falling level therefore leaves the walk in progress running until the return.
   The datapath supplies its existing synchronous `eff_link_w` level.
 
 **Conflict detection (B.3.2, Table B.7 note b).**
@@ -132,14 +134,17 @@ action (note d). One decision is taken per cycle, in priority order: disable,
 Restart!, sDefend, then the timer's own send. A send deferred by any of them
 happens on a later cycle.
 
-**Remaining deviations outside #686's items.** These are recorded here and
-not changed by #686; each needs its own decision.
+**Remaining deviations.** These are recorded here; #696 rulings settled M6
+capacity and M8 counting, and any further change needs its own decision.
 
 - B.3.6.1 requires uniform address selection.
   Folding and clipping the generator's low 16 bits into the pool remains biased.
   M3 now supplies the 2^32 - 1 period and MAC-plus-clock seed.
-  Its 1x1 recipe measures `g_maap.maap_engine` at 441 LUT / 340 FF.
+  At the M3 step (lane head `39571196`, before the dev merge), the 1x1 recipe measures `g_maap.maap_engine` at 441 LUT / 340 FF.
   Against `6aa25dec` (439 LUT / 280 FF), growth is +2 LUT / +60 FF.
+  At the merge result `0df48637`, whose MAAP and datapath sources this change merges, it measures 445 LUT / 340 FF.
+  That is +6 LUT / +60 FF against `6aa25dec`.
+  Dev `8b61b709` alone measures 443 LUT / 280 FF, so the lane's share is +2 LUT / +60 FF.
   This fits the +60 / +60 ceiling and uses its full FF allowance.
   The pool mapping remains a separate deviation; full B.3.6.1 conformance is not claimed.
 - One shared response buffer covers a PROBE during PROBE/ANNOUNCE transmission (#696 M6).
@@ -219,11 +224,12 @@ compared ranges with inclusive ends.
   the four-PROBE walk at Begin! and Restart!, the DEFEND destination, every
   conflict cell above with its note b range edges, a conflicting PROBE
   parsed while an ANNOUNCE is part-way out on the wire, and strict B.3.4
-  intervals over 150 walks and 24 announcements. A zero-seed station MAC
-  (`02:00:00:00:AC:E1`) must also draw more than one distinct probe and
-  announce interval. Its `mutants.py` plants at least one defect per #686
-  item and requires the named check to fail. The coverage gate is 95 %,
-  like avtp_rxmon.
+  intervals over 150 walks and 24 announcements. A station MAC whose seed
+  with clock 0 is zero (`02:00:00:00:00:00`) must also draw more than one
+  distinct probe and announce interval. A link outage longer than a whole
+  walk must leave that walk running, and only the return may restart it.
+  Its `mutants.py` plants at least one defect per #686 item and requires
+  the named check to fail. The coverage gate is 95 %, like avtp_rxmon.
 
 ## The block ⇄ per-source bridge (`KL_pp_maap_shim`)
 
