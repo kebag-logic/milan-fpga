@@ -76,7 +76,8 @@ def sensitivity(out: Path) -> int:
             raise ValueError(f"{name}: differential fixture is not unique")
         source.write_text(original.replace(old, new), encoding="utf-8")
         outcome = differential(out / name / "build", copy, source if is_rtl else None)
-        needle = "MAC/phase sampling reaches the parent's highest draws" if is_rtl else ""
+        # The draw-coverage check: either end ("lowest draws" or "highest draws").
+        needle = "MAC/phase sampling reaches the parent's " if is_rtl else ""
         ok = caught(test, needle, outcome)
         print(f"[{'ok' if ok else 'ESCAPED'}] differential mutant {name}: {test}", flush=True)
         escaped += not ok
