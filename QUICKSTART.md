@@ -154,6 +154,13 @@ Measured here, cold build on a desktop x86-64:
 | `csr` | the AXI4-Lite register ABI — the executable form of [the register map](docs/reference/REGISTER_MAP.md); three executables | ~18 s |
 | `milan_dp` | whole-datapath integration: CPU reads `ID="MILN"`, frame in to frame out byte-exact, plus protocol and counter paths | rerun locally; the suite has grown beyond the original timing sample |
 
+The `mbx` suite links the firmware cores from a submodule.
+Initialise it before running everything:
+
+```sh
+git submodule update --init third_party/tsn-c-stack
+```
+
 Run everything (never hand-list suites — the glob is the contract):
 
 ```sh

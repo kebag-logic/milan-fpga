@@ -381,12 +381,14 @@ Two board rules that go with it:
   can verify, and the gates that prove pins refuse it. Initialise the pinned
   submodules instead, as the next rule says.
 - **A fresh worktree inherits no submodules, and the honest local bar needs
-  three of them.** `git worktree add` does not initialise submodules, so before
+  four of them.** `git worktree add` does not initialise submodules, so before
   any local gate run, in one command:
-  `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`.
-  These three are what the Verilator suites, the Yosys gate and
+  `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack`.
+  The first three are what the Verilator suites, the Yosys gate and
   [`scripts/lint_rtl.py`](scripts/lint_rtl.py) read, and are exactly what CI
-  initialises. Two of them, the processor pair, are also what
+  initialises for them. The fourth holds the firmware's ADP, ACMP and MAAP
+  cores, which the `mbx` suite's co-simulation links (#697); CI's Verilator
+  shards initialise it too. Two of them, the processor pair, are also what
   [`scripts/xvlog_gate.py`](scripts/xvlog_gate.py) analyses, and it refuses the
   same way -- but against the **gitlink** and then against the pinned **bytes**,
   so a standalone clone dropped at the path, a checkout moved off the pin, and a
