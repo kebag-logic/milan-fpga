@@ -1,0 +1,18 @@
+LOCK_REQUEST 2026-10-10T06:08:53.338Z
+LOCK 2026-10-10T06:08:53.346Z
+{"role":"dut","what":"set-clock","response":{"cmd":"SET_CLOCK_SOURCE","seq":32505,"status":"SUCCESS","cdl":20,"rtt_ms":0.107,"payload":"0024000000000000"},"t":1791612534.521132}
+{"role":"dut","what":"clock","response":{"cmd":"GET_CLOCK_SOURCE","seq":32506,"status":"SUCCESS","cdl":20,"rtt_ms":0.075,"payload":"0024000000000000"},"t":1791612534.521255}
+{"role":"dut","what":"state-5-1","response":{"status":0,"stream_id":"<peer-mac>4000","controller":"<controller-host-id>","talker":"<peer-eid>","listener":"020000fffe000001","talker_uid":2,"listener_uid":1,"dmac":"91e0f0001711","conn_count":1,"flags":"0x0002","vlan":2},"t":1791612534.521332}
+{"role":"dut","what":"acmp-8","response":{"status":0,"stream_id":"0000000000000000","controller":"<controller-host-id>","talker":"<peer-eid>","listener":"020000fffe000001","talker_uid":2,"listener_uid":1,"dmac":"000000000000","conn_count":0,"flags":"0x0000","vlan":0},"t":1791612534.521402}
+{"role":"dut","what":"state-5-1","response":{"status":0,"stream_id":"0000000000000000","controller":"<controller-host-id>","talker":"0000000000000000","listener":"020000fffe000001","talker_uid":0,"listener_uid":1,"dmac":"000000000000","conn_count":0,"flags":"0x0000","vlan":0},"t":1791612534.521476}
+{"role":"dut","what":"state-5-1","response":{"status":0,"stream_id":"0000000000000000","controller":"<controller-host-id>","talker":"0000000000000000","listener":"020000fffe000001","talker_uid":0,"listener_uid":1,"dmac":"000000000000","conn_count":0,"flags":"0x0000","vlan":0},"t":1791612534.521537}
+{"role":"peer","what":"state-5-8","response":{"status":0,"stream_id":"0200000000010001","controller":"<controller-host-id>","talker":"020000fffe000001","listener":"<peer-eid>","talker_uid":1,"listener_uid":8,"dmac":"91e0f000dd86","conn_count":1,"flags":"0x0082","vlan":2},"t":1791612534.521693}
+{"role":"peer","what":"set-clock","response":{"cmd":"SET_CLOCK_SOURCE","seq":32512,"status":"SUCCESS","cdl":20,"rtt_ms":0.198,"payload":"0024000000010000"},"t":1791612534.521914}
+{"role":"peer","what":"clock","response":{"cmd":"GET_CLOCK_SOURCE","seq":32513,"status":"SUCCESS","cdl":20,"rtt_ms":7.76,"payload":"0024000000015868"},"t":1791612534.529698}
+{"role":"peer","what":"clock","response":{"cmd":"GET_CLOCK_SOURCE","seq":32514,"status":"SUCCESS","cdl":20,"rtt_ms":1.138,"payload":"0024000000015868"},"t":1791612534.530864}
+{"role":"dut","what":"clock","response":{"cmd":"GET_CLOCK_SOURCE","seq":32515,"status":"SUCCESS","cdl":20,"rtt_ms":0.067,"payload":"0024000000000000"},"t":1791612534.530957}
+{"role":"dut","what":"state-5-1","response":{"status":0,"stream_id":"0000000000000000","controller":"<controller-host-id>","talker":"0000000000000000","listener":"020000fffe000001","talker_uid":0,"listener_uid":1,"dmac":"000000000000","conn_count":0,"flags":"0x0000","vlan":0},"t":1791612534.531027}
+{"kind":"restore-compare","as_found":{"peer_clock":1,"dut_clock":0,"pair0":{"conn_count":1,"talker_uid":1,"flags":"0x0082","talker_is_dut":true},"pair1_conn":0},"final":{"peer_clock":1,"dut_clock":0,"pair0":{"conn_count":1,"talker_uid":1,"flags":"0x0082"},"pair1_conn":0},"t":1791612534.531044}
+ACTION_RC=0
+UNLOCK 2026-10-10T06:08:53.717Z
+LOCK_RC=0 2026-10-10T06:08:53.719Z

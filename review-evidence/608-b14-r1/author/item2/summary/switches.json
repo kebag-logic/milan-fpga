@@ -1,0 +1,4731 @@
+[
+ {
+  "run": "cyc01",
+  "tag": "c01-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.705,
+   7.205
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.801,
+  "hold_end_s": 67.247,
+  "slip_lb_before": [
+   12,
+   0
+  ],
+  "slip_lb_boundary": [
+   18,
+   0
+  ],
+  "slip_lb_end": [
+   18,
+   0
+  ],
+  "slip_lb_transient_dups": 6,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 1.953,
+    "lb": [
+     14,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 5.704,
+    "lb": [
+     16,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 6.705,
+    "lb": [
+     18,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   0,
+   0
+  ],
+  "converged_zero_polls_s": [
+   0.132
+  ],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 134,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 550000,
+    "FRAMES_RX": 550000
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 550000,
+    "FRAMES_RX": 551991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 69
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 550004
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34375
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464247,
+    "FRAMES_RX": 464247
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464247,
+    "FRAMES_RX": 463992
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464252
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29015
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 159207,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.155,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124989,
+     125013
+    ]
+   },
+   "peer-crf": {
+    "pdus": 9951,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.029,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000009,
+     2000033
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 159208,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.014915
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.126,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 9950,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.015506
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c01-aaf.pcap",
+    "bytes": 75071906,
+    "sha256": "994f3194eb84d6eb6214f84fed4d9381b842180892e99469d8b52816e40573d3",
+    "summary": [
+     "338353 packets captured",
+     "338385 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc01",
+  "tag": "c01-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.832,
+   3.333
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.929,
+  "hold_end_s": 48.409,
+  "slip_lb_before": [
+   18,
+   0
+  ],
+  "slip_lb_boundary": [
+   18,
+   0
+  ],
+  "slip_lb_end": [
+   18,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   0,
+   0
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -5.9375,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 400696,
+    "FRAMES_RX": 400696
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 400695,
+    "FRAMES_RX": 399993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 400697
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 25044
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344736,
+    "FRAMES_RX": 344736
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344736,
+    "FRAMES_RX": 343994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344740
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21546
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160006,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.154,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124990,
+     125013
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.006,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000010,
+     2000033
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160006,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.039986
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.041452
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c01-crf.pcap",
+    "bytes": 75448852,
+    "sha256": "5a624340a813c4114ebdad3fbe5bb0a71705c0125692775660361d9ebbe2ea9b",
+    "summary": [
+     "340054 packets captured",
+     "340088 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc01",
+  "tag": "c01-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.253
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.428,
+  "slip_lb_before": [
+   18,
+   0
+  ],
+  "slip_lb_boundary": [
+   18,
+   0
+  ],
+  "slip_lb_end": [
+   18,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   0,
+   0
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 31,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 107423,
+    "FRAMES_RX": 107423
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 107422,
+    "FRAMES_RX": 103998
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 13
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 107421
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6713
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc01",
+  "tag": "c02-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.513,
+   7.013
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.609,
+  "hold_end_s": 67.31,
+  "slip_lb_before": [
+   20,
+   0
+  ],
+  "slip_lb_boundary": [
+   24,
+   0
+  ],
+  "slip_lb_end": [
+   24,
+   0
+  ],
+  "slip_lb_transient_dups": 4,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 3.51,
+    "lb": [
+     22,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 8.515,
+    "lb": [
+     24,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   0,
+   0
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -5.9375,
+  "polls": 133,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 550457,
+    "FRAMES_RX": 550457
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 550458,
+    "FRAMES_RX": 551991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 69
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 550458
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34404
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464720,
+    "FRAMES_RX": 464720
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464721,
+    "FRAMES_RX": 463992
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464724
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29045
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160008,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.154,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124989,
+     125012
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.027,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000010,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160010,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.081416
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.081882
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c02-aaf.pcap",
+    "bytes": 75450052,
+    "sha256": "b14b04ca83cd2865f4f03b01fd2c07ccecaf7dfc4b4b030872437c7763eca035",
+    "summary": [
+     "340058 packets captured",
+     "340087 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc01",
+  "tag": "c02-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.709,
+   3.209
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.805,
+  "hold_end_s": 48.501,
+  "slip_lb_before": [
+   24,
+   0
+  ],
+  "slip_lb_boundary": [
+   24,
+   0
+  ],
+  "slip_lb_end": [
+   24,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   0,
+   0
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 400629,
+    "FRAMES_RX": 400629
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 400628,
+    "FRAMES_RX": 399993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 400628
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 25039
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344679,
+    "FRAMES_RX": 344679
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344679,
+    "FRAMES_RX": 343994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344677
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21542
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160008,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124989,
+     125011
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.006,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000009,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.067434
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.127,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.067775
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c02-crf.pcap",
+    "bytes": 75449672,
+    "sha256": "3dd3581c3564c96e9952097510bb1238384158965d2618cf5796cf66e6886d34",
+    "summary": [
+     "340056 packets captured",
+     "340086 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc01",
+  "tag": "c02-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.121
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.231,
+  "slip_lb_before": [
+   24,
+   0
+  ],
+  "slip_lb_boundary": [
+   24,
+   0
+  ],
+  "slip_lb_end": [
+   24,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   0,
+   0
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 31,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 105860,
+    "FRAMES_RX": 105860
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 105858,
+    "FRAMES_RX": 103998
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 13
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 105844
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6615
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc03",
+  "tag": "c03-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.619,
+   7.119
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.715,
+  "hold_end_s": 67.288,
+  "slip_lb_before": [
+   60,
+   0
+  ],
+  "slip_lb_boundary": [
+   64,
+   0
+  ],
+  "slip_lb_end": [
+   64,
+   0
+  ],
+  "slip_lb_transient_dups": 4,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 3.589,
+    "lb": [
+     62,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 8.633,
+    "lb": [
+     64,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   4,
+   4
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 133,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 550969,
+    "FRAMES_RX": 550969
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 550968,
+    "FRAMES_RX": 551991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 69
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 550968
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34436
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464563,
+    "FRAMES_RX": 464563
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464562,
+    "FRAMES_RX": 463993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464560
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29035
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124988,
+     125012
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.028,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.08395
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.085166
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c03-aaf.pcap",
+    "bytes": 75449858,
+    "sha256": "337c76af31a9d4597e3ceda1496af2517a3bda43b504995b555309645f819030",
+    "summary": [
+     "340057 packets captured",
+     "340086 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc03",
+  "tag": "c03-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.895,
+   3.402
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.998,
+  "hold_end_s": 48.451,
+  "slip_lb_before": [
+   64,
+   0
+  ],
+  "slip_lb_boundary": [
+   64,
+   0
+  ],
+  "slip_lb_end": [
+   64,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   4,
+   4
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 399859,
+    "FRAMES_RX": 399859
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 399858,
+    "FRAMES_RX": 399994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 399856
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 24991
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344304,
+    "FRAMES_RX": 344304
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344303,
+    "FRAMES_RX": 343995
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344304
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21519
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.154,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124987,
+     125011
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.006,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000031
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.10106
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.126,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.10115
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c03-crf.pcap",
+    "bytes": 75449966,
+    "sha256": "c87c26b40195d7b6e8fe7f1bcf5e4d2f093a87c332bdcf97b7411c1941675f39",
+    "summary": [
+     "340058 packets captured",
+     "340087 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc03",
+  "tag": "c03-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.298
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.431,
+  "slip_lb_before": [
+   64,
+   0
+  ],
+  "slip_lb_boundary": [
+   64,
+   0
+  ],
+  "slip_lb_end": [
+   64,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   4,
+   4
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 31,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 14
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 14
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 107427,
+    "FRAMES_RX": 107427
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 107427,
+    "FRAMES_RX": 111998
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 14
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 107431
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6715
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc03",
+  "tag": "c04-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.593,
+   7.098
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.694,
+  "hold_end_s": 67.295,
+  "slip_lb_before": [
+   64,
+   0
+  ],
+  "slip_lb_boundary": [
+   70,
+   0
+  ],
+  "slip_lb_end": [
+   70,
+   0
+  ],
+  "slip_lb_transient_dups": 6,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 0.534,
+    "lb": [
+     66,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 2.559,
+    "lb": [
+     68,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 6.592,
+    "lb": [
+     70,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   4,
+   4
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -5.9375,
+  "polls": 133,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 550134,
+    "FRAMES_RX": 550134
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 550134,
+    "FRAMES_RX": 551991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 69
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 550133
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34384
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 59
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 59
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464608,
+    "FRAMES_RX": 464608
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464608,
+    "FRAMES_RX": 471992
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 59
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464605
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29038
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124988,
+     125012
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.007,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000009,
+     2000033
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.057308
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.126,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.057523
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c04-aaf.pcap",
+    "bytes": 75450096,
+    "sha256": "6ed61851bbf00615b7a6ad1e8509c1c2f61cdd229d29c4a186ba770b4df2bb78",
+    "summary": [
+     "340059 packets captured",
+     "340088 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc03",
+  "tag": "c04-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.846,
+   3.346
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.942,
+  "hold_end_s": 48.471,
+  "slip_lb_before": [
+   70,
+   0
+  ],
+  "slip_lb_boundary": [
+   70,
+   0
+  ],
+  "slip_lb_end": [
+   70,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   4,
+   4
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -5.9375,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 49
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 49
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 399387,
+    "FRAMES_RX": 399387
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 399387,
+    "FRAMES_RX": 391994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 49
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 399390
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 24962
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344462,
+    "FRAMES_RX": 344462
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344462,
+    "FRAMES_RX": 343995
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344463
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21529
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.154,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124988,
+     125011
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.005,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000031
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160008,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.101405
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.129,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.101495
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.001,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c04-crf.pcap",
+    "bytes": 75449716,
+    "sha256": "96321c3f7b76f6ce3f3d41ccb9a6617c3288d3025884dabb79df824465c68305",
+    "summary": [
+     "340057 packets captured",
+     "340086 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc03",
+  "tag": "c04-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.25
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.427,
+  "slip_lb_before": [
+   70,
+   0
+  ],
+  "slip_lb_boundary": [
+   70,
+   0
+  ],
+  "slip_lb_end": [
+   70,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   4,
+   4
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 31,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 14
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 14
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 107406,
+    "FRAMES_RX": 107406
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 107407,
+    "FRAMES_RX": 111998
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 14
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 107408
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6713
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc05",
+  "tag": "c05-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.223,
+   6.726
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.322,
+  "hold_end_s": 66.906,
+  "slip_lb_before": [
+   90,
+   0
+  ],
+  "slip_lb_boundary": [
+   94,
+   0
+  ],
+  "slip_lb_end": [
+   94,
+   0
+  ],
+  "slip_lb_transient_dups": 4,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 4.201,
+    "lb": [
+     92,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 7.23,
+    "lb": [
+     94,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   6,
+   6
+  ],
+  "converged_zero_polls_s": [
+   0.159
+  ],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 133,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 68
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 68
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 546884,
+    "FRAMES_RX": 546884
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 546884,
+    "FRAMES_RX": 543991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 68
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 546885
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34180
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464728,
+    "FRAMES_RX": 464728
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464728,
+    "FRAMES_RX": 463992
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464729
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29045
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 159167,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124992,
+     125012
+    ]
+   },
+   "peer-crf": {
+    "pdus": 9948,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.027,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000012,
+     2000033
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 159167,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.02254
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.127,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 9948,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.023131
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c05-aaf.pcap",
+    "bytes": 75052644,
+    "sha256": "87f30c38a9c81257c0dad759fa0378181c44c324fb3459d2e9c211aa38103290",
+    "summary": [
+     "338266 packets captured",
+     "338384 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc05",
+  "tag": "c05-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.838,
+   3.352
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.948,
+  "hold_end_s": 48.438,
+  "slip_lb_before": [
+   94,
+   0
+  ],
+  "slip_lb_boundary": [
+   94,
+   0
+  ],
+  "slip_lb_end": [
+   94,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   6,
+   6
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 399096,
+    "FRAMES_RX": 399096
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 399096,
+    "FRAMES_RX": 399993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 399095
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 24944
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344202,
+    "FRAMES_RX": 344202
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344202,
+    "FRAMES_RX": 343994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344202
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21513
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160008,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124992,
+     125012
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.005,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000012,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160007,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.074322
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.075037
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c05-crf.pcap",
+    "bytes": 75449020,
+    "sha256": "361c29bc0b97f5444d7fbd56359eee6cdc79b72d244712e3b6a20fb164889dab",
+    "summary": [
+     "340053 packets captured",
+     "340084 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc05",
+  "tag": "c05-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.276
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.427,
+  "slip_lb_before": [
+   94,
+   0
+  ],
+  "slip_lb_boundary": [
+   94,
+   0
+  ],
+  "slip_lb_end": [
+   96,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 2,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 15.399,
+    "lb": [
+     96,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": true
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   6,
+   6
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 31,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 14
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 14
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 107408,
+    "FRAMES_RX": 107408
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 107407,
+    "FRAMES_RX": 111998
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 14
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 107406
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6713
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc05",
+  "tag": "c06-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.568,
+   7.069
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.665,
+  "hold_end_s": 67.226,
+  "slip_lb_before": [
+   98,
+   0
+  ],
+  "slip_lb_boundary": [
+   100,
+   0
+  ],
+  "slip_lb_end": [
+   100,
+   0
+  ],
+  "slip_lb_transient_dups": 2,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 2.538,
+    "lb": [
+     100,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   7,
+   7
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 133,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 68
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 68
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 549555,
+    "FRAMES_RX": 549555
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 549555,
+    "FRAMES_RX": 543991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 68
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 549553
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34347
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464072,
+    "FRAMES_RX": 464072
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464072,
+    "FRAMES_RX": 463993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464072
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29005
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 159208,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.155,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124991,
+     125011
+    ]
+   },
+   "peer-crf": {
+    "pdus": 9950,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.026,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000012,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 159208,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.010709
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 9950,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.011424
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c06-aaf.pcap",
+    "bytes": 75072200,
+    "sha256": "57532b675a60823bb8d1081b7ebd4f437dadcabb813a08ba2d8009750d0ec7b9",
+    "summary": [
+     "338355 packets captured",
+     "338387 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc05",
+  "tag": "c06-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.872,
+   3.388
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.984,
+  "hold_end_s": 48.409,
+  "slip_lb_before": [
+   100,
+   0
+  ],
+  "slip_lb_boundary": [
+   100,
+   0
+  ],
+  "slip_lb_end": [
+   100,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   7,
+   7
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -5.9375,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 399690,
+    "FRAMES_RX": 399690
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 399690,
+    "FRAMES_RX": 399994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 399687
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 24980
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344771,
+    "FRAMES_RX": 344771
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344772,
+    "FRAMES_RX": 343995
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344772
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21548
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160008,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124990,
+     125012
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.026,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000012,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.08606
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.0874
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c06-crf.pcap",
+    "bytes": 75449694,
+    "sha256": "2ecc60d6713a35ba484cb12e89adc725dfa3e2f740a8cba1a66b2389f02ef669",
+    "summary": [
+     "340056 packets captured",
+     "340087 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc05",
+  "tag": "c06-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.287
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.425,
+  "slip_lb_before": [
+   100,
+   0
+  ],
+  "slip_lb_boundary": [
+   100,
+   0
+  ],
+  "slip_lb_end": [
+   102,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 2,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 15.419,
+    "lb": [
+     102,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": true
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   7,
+   7
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 31,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 14
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 14
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 107389,
+    "FRAMES_RX": 107389
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 107389,
+    "FRAMES_RX": 111999
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 14
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 107391
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6712
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc07",
+  "tag": "c07-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.712,
+   7.212
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.808,
+  "hold_end_s": 67.42,
+  "slip_lb_before": [
+   108,
+   0
+  ],
+  "slip_lb_boundary": [
+   112,
+   0
+  ],
+  "slip_lb_end": [
+   112,
+   0
+  ],
+  "slip_lb_transient_dups": 4,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 1.956,
+    "lb": [
+     110,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 4.694,
+    "lb": [
+     112,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   8,
+   8
+  ],
+  "converged_zero_polls_s": [
+   0.167
+  ],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 134,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 550933,
+    "FRAMES_RX": 550933
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 550933,
+    "FRAMES_RX": 551991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 69
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 550932
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34433
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464052,
+    "FRAMES_RX": 464052
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464052,
+    "FRAMES_RX": 463992
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464052
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29003
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 158966,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124991,
+     125013
+    ]
+   },
+   "peer-crf": {
+    "pdus": 9936,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.007,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000012,
+     2000034
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 158966,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.019633
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.13,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 9936,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.020349
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c07-aaf.pcap",
+    "bytes": 74958254,
+    "sha256": "5a4265def4d6ad6a8002eeffb6d02177a6cfde83862012953624d693b9e0afce",
+    "summary": [
+     "337842 packets captured",
+     "338388 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc07",
+  "tag": "c07-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.754,
+   3.255
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.851,
+  "hold_end_s": 48.463,
+  "slip_lb_before": [
+   112,
+   0
+  ],
+  "slip_lb_boundary": [
+   112,
+   0
+  ],
+  "slip_lb_end": [
+   112,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   8,
+   8
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 399298,
+    "FRAMES_RX": 399298
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 399298,
+    "FRAMES_RX": 399993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 399298
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 24956
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344418,
+    "FRAMES_RX": 344418
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344418,
+    "FRAMES_RX": 343994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344418
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21526
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160008,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124992,
+     125012
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.027,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000012,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160009,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.08531
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.127,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.086275
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c07-crf.pcap",
+    "bytes": 75449758,
+    "sha256": "94096e589d9c79b1a8c5f274196a781a54af3cda0e12db2188acfdb6138acb98",
+    "summary": [
+     "340057 packets captured",
+     "340087 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc07",
+  "tag": "c07-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.104
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.222,
+  "slip_lb_before": [
+   112,
+   0
+  ],
+  "slip_lb_boundary": [
+   112,
+   0
+  ],
+  "slip_lb_end": [
+   112,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   8,
+   8
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 30,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 105772,
+    "FRAMES_RX": 105772
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 105770,
+    "FRAMES_RX": 103998
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 13
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 105770
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6611
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc07",
+  "tag": "c08-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.625,
+   7.126
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.722,
+  "hold_end_s": 67.224,
+  "slip_lb_before": [
+   114,
+   0
+  ],
+  "slip_lb_boundary": [
+   118,
+   0
+  ],
+  "slip_lb_end": [
+   118,
+   0
+  ],
+  "slip_lb_transient_dups": 4,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 1.944,
+    "lb": [
+     116,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 4.624,
+    "lb": [
+     118,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   8,
+   8
+  ],
+  "converged_zero_polls_s": [
+   0.101
+  ],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 134,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 549314,
+    "FRAMES_RX": 549314
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 549314,
+    "FRAMES_RX": 551991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 69
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 549313
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34332
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464060,
+    "FRAMES_RX": 464060
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464060,
+    "FRAMES_RX": 463993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464057
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29003
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 159208,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124991,
+     125011
+    ]
+   },
+   "peer-crf": {
+    "pdus": 9951,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.005,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000011,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 159209,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.012665
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 9951,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.012631
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c08-aaf.pcap",
+    "bytes": 75072688,
+    "sha256": "35e37f7592b63e2a57e91fba8e65921e7fe75220d12153df96d191095d2bf7a9",
+    "summary": [
+     "338358 packets captured",
+     "338388 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc07",
+  "tag": "c08-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.868,
+   3.369
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.965,
+  "hold_end_s": 48.42,
+  "slip_lb_before": [
+   118,
+   0
+  ],
+  "slip_lb_boundary": [
+   118,
+   0
+  ],
+  "slip_lb_end": [
+   118,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   8,
+   8
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 398834,
+    "FRAMES_RX": 398834
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 398833,
+    "FRAMES_RX": 399994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 398833
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 24927
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344057,
+    "FRAMES_RX": 344057
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344056,
+    "FRAMES_RX": 343995
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344054
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21503
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160007,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.157,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124993,
+     125011
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.027,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000014,
+     2000032
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160007,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.067434
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.126,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.06865
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c08-crf.pcap",
+    "bytes": 75449180,
+    "sha256": "28df2f480db4833bbdeb69aef22630577231bd23b02d812ea287cfda22c70e7b",
+    "summary": [
+     "340055 packets captured",
+     "340088 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc07",
+  "tag": "c08-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.222
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.426,
+  "slip_lb_before": [
+   118,
+   0
+  ],
+  "slip_lb_boundary": [
+   118,
+   0
+  ],
+  "slip_lb_end": [
+   118,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   8,
+   8
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 31,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 107396,
+    "FRAMES_RX": 107396
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 107393,
+    "FRAMES_RX": 103998
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 13
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 107391
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6712
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc09",
+  "tag": "c09-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.21,
+   6.715
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.311,
+  "hold_end_s": 66.843,
+  "slip_lb_before": [
+   126,
+   0
+  ],
+  "slip_lb_boundary": [
+   130,
+   0
+  ],
+  "slip_lb_end": [
+   130,
+   0
+  ],
+  "slip_lb_transient_dups": 4,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 0.671,
+    "lb": [
+     128,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 3.694,
+    "lb": [
+     130,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   9,
+   9
+  ],
+  "converged_zero_polls_s": [
+   0.17
+  ],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0,
+  "polls": 133,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 546402,
+    "FRAMES_RX": 546402
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 546401,
+    "FRAMES_RX": 551991
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 69
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 546402
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34150
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464231,
+    "FRAMES_RX": 464231
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464231,
+    "FRAMES_RX": 463993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464232
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29015
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160007,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.157,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124990,
+     125010
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.027,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000010,
+     2000030
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160006,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.036528
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.037243
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c09-aaf.pcap",
+    "bytes": 75449038,
+    "sha256": "0681f6efff1d2c2a65db27831b7055df7b9370b61d738417b6de1ccce925215d",
+    "summary": [
+     "340055 packets captured",
+     "340090 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc09",
+  "tag": "c09-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.792,
+   3.292
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.888,
+  "hold_end_s": 48.499,
+  "slip_lb_before": [
+   130,
+   0
+  ],
+  "slip_lb_boundary": [
+   130,
+   0
+  ],
+  "slip_lb_end": [
+   130,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   9,
+   9
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -5.9375,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 399631,
+    "FRAMES_RX": 399631
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 399631,
+    "FRAMES_RX": 399993
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 399631
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 24977
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344703,
+    "FRAMES_RX": 344703
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344703,
+    "FRAMES_RX": 343994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344703
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21544
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160007,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.159,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124993,
+     125013
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.027,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000014,
+     2000034
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160006,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.031122
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.031213
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c09-crf.pcap",
+    "bytes": 75449060,
+    "sha256": "5eb6f5cd2daa74d8ac898fcfa78b9cd66c545dfe115ac4a2398995b1b41c475b",
+    "summary": [
+     "340055 packets captured",
+     "340089 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc09",
+  "tag": "c09-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.541
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.622,
+  "slip_lb_before": [
+   130,
+   0
+  ],
+  "slip_lb_boundary": [
+   130,
+   0
+  ],
+  "slip_lb_end": [
+   132,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 2,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 15.578,
+    "lb": [
+     132,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": true
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   9,
+   9
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 31,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 108969,
+    "FRAMES_RX": 108969
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 108969,
+    "FRAMES_RX": 103998
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 13
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 108969
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6810
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ },
+ {
+  "run": "cyc09",
+  "tag": "c10-aaf",
+  "to_source": 2,
+  "set_status": "SUCCESS",
+  "readback": 2,
+  "locked_s": [
+   6.557,
+   7.057
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 11.653,
+  "hold_end_s": 67.277,
+  "slip_lb_before": [
+   132,
+   0
+  ],
+  "slip_lb_boundary": [
+   136,
+   0
+  ],
+  "slip_lb_end": [
+   136,
+   0
+  ],
+  "slip_lb_transient_dups": 4,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [
+   {
+    "s_hi": 0.529,
+    "lb": [
+     134,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   },
+   {
+    "s_hi": 4.555,
+    "lb": [
+     136,
+     0
+    ],
+    "near_boundary": false,
+    "after_boundary": false
+   }
+  ],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   9,
+   9
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -6.0625,
+  "polls": 133,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 69
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 549690,
+    "FRAMES_RX": 549690
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 549690,
+    "FRAMES_RX": 551990
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 69
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 549690
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 34356
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 58
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 58
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 464484,
+    "FRAMES_RX": 464484
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 464484,
+    "FRAMES_RX": 463992
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 58
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 464482
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 29030
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 160008,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.155,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124989,
+     125015
+    ]
+   },
+   "peer-crf": {
+    "pdus": 10001,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.005,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000009,
+     2000036
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 160008,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.089012
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.127,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 10000,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.089602
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c10-aaf.pcap",
+    "bytes": 75449812,
+    "sha256": "03f2e3091d657497fcac2e41b36b3b2a250167368b465c706f44ca90110291aa",
+    "summary": [
+     "340058 packets captured",
+     "340090 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc09",
+  "tag": "c10-crf",
+  "to_source": 1,
+  "set_status": "SUCCESS",
+  "readback": 1,
+  "locked_s": [
+   2.737,
+   3.242
+  ],
+  "idle_s": null,
+  "settle_boundary_s": 7.838,
+  "hold_end_s": 48.482,
+  "slip_lb_before": [
+   136,
+   0
+  ],
+  "slip_lb_boundary": [
+   136,
+   0
+  ],
+  "slip_lb_end": [
+   136,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   9,
+   9
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "LOCKED",
+  "trim_end_ppm": -5.9375,
+  "polls": 96,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 1
+   },
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 50
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 399498,
+    "FRAMES_RX": 399498
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 399499,
+    "FRAMES_RX": 399994
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 50
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 399500
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 24969
+   }
+  },
+  "counters_locked_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "FRAMES_TX": 43
+   },
+   "dut-0x0006-1": {
+    "FRAMES_TX": 43
+   },
+   "peer-0x0005-0": {
+    "TIMESTAMP_VALID": 344536,
+    "FRAMES_RX": 344536
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 344536,
+    "FRAMES_RX": 343995
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 43
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 344534
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 21533
+   }
+  },
+  "tap": {
+   "peer-aaf": {
+    "pdus": 159865,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.156,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124990,
+     125009
+    ]
+   },
+   "peer-crf": {
+    "pdus": 9992,
+    "seq_gaps": 0,
+    "mr_toggles_s": [],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.029,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000010,
+     2000030
+    ]
+   },
+   "dut-aaf": {
+    "pdus": 159864,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.018479
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 0.125,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     124999,
+     125020
+    ]
+   },
+   "dut-crf": {
+    "pdus": 9991,
+    "seq_gaps": 0,
+    "mr_toggles_s": [
+     3.019569
+    ],
+    "tv0": 0,
+    "tu1": 0,
+    "max_gap_ms": 2.0,
+    "ts_steps_off_mode_gt_1us": 0,
+    "ts_step_range_ns": [
+     2000008,
+     2000030
+    ]
+   },
+   "capture": {
+    "file": "608-b14-sw-c10-crf.pcap",
+    "bytes": 75382210,
+    "sha256": "2779016f825489078b92ff28ff7c32cfd34a4c976a800219abbb60d39ef16991",
+    "summary": [
+     "339754 packets captured",
+     "340091 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   }
+  }
+ },
+ {
+  "run": "cyc09",
+  "tag": "c10-int",
+  "to_source": 0,
+  "set_status": "SUCCESS",
+  "readback": 0,
+  "locked_s": null,
+  "idle_s": [
+   0.0,
+   0.13
+  ],
+  "settle_boundary_s": 0.5,
+  "hold_end_s": 15.224,
+  "slip_lb_before": [
+   136,
+   0
+  ],
+  "slip_lb_boundary": [
+   136,
+   0
+  ],
+  "slip_lb_end": [
+   136,
+   0
+  ],
+  "slip_lb_transient_dups": 0,
+  "slip_lb_after_dups": 0,
+  "slip_lb_after_skips": 0,
+  "slip_lb_steps": [],
+  "slip_tdm_before_end": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "rails_before_end": [
+   9,
+   9
+  ],
+  "converged_zero_polls_s": [],
+  "meter_restarts_before_end": [
+   0,
+   0
+  ],
+  "servo_end": "IDLE",
+  "trim_end_ppm": 0.0,
+  "polls": 30,
+  "bad_polls": 0,
+  "counters_before_to_end": {
+   "dut-0x0024-0": {},
+   "dut-0x0006-0": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "dut-0x0006-1": {
+    "MEDIA_RESET": 1,
+    "FRAMES_TX": 13
+   },
+   "peer-0x0005-0": {
+    "MEDIA_RESET": 1,
+    "TIMESTAMP_VALID": 105790,
+    "FRAMES_RX": 105790
+   },
+   "dut-0x0005-0": {
+    "TIMESTAMP_VALID": 105789,
+    "FRAMES_RX": 103999
+   },
+   "dut-0x0005-1": {
+    "FRAMES_RX": 13
+   },
+   "dut-0x0009-0": {},
+   "peer-0x0006-0": {
+    "FRAMES_TX": 105787
+   },
+   "peer-0x0006-2": {
+    "FRAMES_TX": 6611
+   }
+  },
+  "counters_locked_to_end": null,
+  "tap": {}
+ }
+]

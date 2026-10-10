@@ -1,0 +1,10 @@
+HEAD 647ea0fbd8cefd488f7ad2c5d4f827c759a15fd6
+gate-1 rc=0 :: md-python scripts/docs_check.py
+gate-2 rc=0 :: md-python scripts/check_doc_style.py
+gate-3 rc=0 :: md-python scripts/gen_toc.py --check
+gate-4 rc=0 :: md-python scripts/check_em_dash.py --base 5603c353
+gate-5 rc=0 :: md-python scripts/check_doc_paths.py
+gate-6a rc=0 :: md-python scripts/check_baremetal_only.py --check
+gate-6b rc=0 :: md-python scripts/check_baremetal_only.py --selftest
+gate-7 rc=0 :: git diff --check 5603c353 HEAD
+gate-8 rc=0 :: md-python scripts/gen_toc.py --verify-anchors

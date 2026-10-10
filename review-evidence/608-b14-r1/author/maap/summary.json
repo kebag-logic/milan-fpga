@@ -1,0 +1,97 @@
+{
+ "captures": 121,
+ "pdus": 879,
+ "duplicates_dropped": 0,
+ "covered_s": 6780.901,
+ "span_s": 7217.257,
+ "by_sender": {
+  "port3/02:00:00:00:00:01": {
+   "pdus": 220,
+   "types": {
+    "PROBE": 0,
+    "DEFEND": 0,
+    "ANNOUNCE": 220
+   },
+   "ranges": [
+    [
+     "91:e0:f0:00:dd:85",
+     2
+    ]
+   ],
+   "dsts": [
+    "91:e0:f0:00:ff:00"
+   ],
+   "announce_interval_s": {
+    "n": 127,
+    "min": 30.505,
+    "max": 31.405,
+    "mean": 31.004
+   },
+   "first_t": 1791613394.136471,
+   "last_t": 1791620581.78785
+  },
+  "port2/<peer-mac>": {
+   "pdus": 440,
+   "types": {
+    "PROBE": 0,
+    "DEFEND": 0,
+    "ANNOUNCE": 440
+   },
+   "ranges": [
+    [
+     "91:e0:f0:00:17:11",
+     1
+    ],
+    [
+     "91:e0:f0:00:85:22",
+     1
+    ]
+   ],
+   "dsts": [
+    "91:e0:f0:00:ff:00"
+   ],
+   "announce_interval_s": {
+    "n": 254,
+    "min": 30.005,
+    "max": 32.005,
+    "mean": 30.936
+   },
+   "first_t": 1791613397.336851,
+   "last_t": 1791620582.687912
+  },
+  "port2/<third-station-mac>": {
+   "pdus": 219,
+   "types": {
+    "PROBE": 0,
+    "DEFEND": 0,
+    "ANNOUNCE": 219
+   },
+   "ranges": [
+    [
+     "91:e0:f0:00:2f:2b",
+     2
+    ]
+   ],
+   "dsts": [
+    "91:e0:f0:00:ff:00"
+   ],
+   "announce_interval_s": {
+    "n": 125,
+    "min": 30.005,
+    "max": 32.005,
+    "mean": 31.031
+   },
+   "first_t": 1791613405.638617,
+   "last_t": 1791620596.190835
+  }
+ },
+ "overlaps": [],
+ "non_announce": [],
+ "console_maap_words_distinct": [
+  [
+   "00000201",
+   "0000dd85",
+   "00000006"
+  ]
+ ]
+}

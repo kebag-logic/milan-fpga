@@ -1,0 +1,5 @@
+104816 bash -c pgrep -af tcpdump; ls /tmp/*.pcap /tmp/608-b14* 2>&1; rm -f /tmp/608-b14-capture.py; echo RM_RC=$?; ls /tmp/608-b14* 2>&1
+ls: cannot access '/tmp/*.pcap': No such file or directory
+/tmp/608-b14-capture.py
+RM_RC=0
+ls: cannot access '/tmp/608-b14*': No such file or directory

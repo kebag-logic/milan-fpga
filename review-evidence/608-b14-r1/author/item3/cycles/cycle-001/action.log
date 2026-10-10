@@ -1,0 +1,14 @@
+LOCK_REQUEST 2026-10-10T05:49:08.222Z
+LOCK 2026-10-10T05:49:08.228Z
+{"t": 1791611348.64173, "kind": "controller", "action": "snapshot", "rc": 0}
+{"t": 1791611353.8676574, "kind": "controller", "action": "cycle", "rc": 0}
+{"t": 1791611357.4901867, "kind": "controller", "action": "snapshot", "rc": 0}
+{"t": 1791611357.5236452, "kind": "complete", "name": "cycle-001", "mode": "cycle", "stream_id": "0200000000010001", "status": "PASS", "seq": 30308, "response_ns": 4813723914, "first_avtp_ns": 4858093671, "latency_s": 0.044369757, "disconnect_response_ns": 2805637752, "connect_command_ns": 4805924678, "disconnect_hold_s": 2.000286926, "hold_pdus_live": 0, "capture_span_s": 7.998194143, "capture_rc": 137, "errors": []}
+Traceback (most recent call last):
+  File "<packet>/tools/cyc608_b14.py", line 325, in <module>
+    assert result["capture_rc"] == 0, result
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'name': 'cycle-001', 'mode': 'cycle', 'stream_id': '0200000000010001', 'status': 'PASS', 'seq': 30308, 'response_ns': 4813723914, 'first_avtp_ns': 4858093671, 'latency_s': 0.044369757, 'disconnect_response_ns': 2805637752, 'connect_command_ns': 4805924678, 'disconnect_hold_s': 2.000286926, 'hold_pdus_live': 0, 'capture_span_s': 7.998194143, 'capture_rc': 137, 'errors': []}
+ACTION_RC=1
+UNLOCK 2026-10-10T05:49:17.551Z
+LOCK_RC=0 2026-10-10T05:49:17.554Z

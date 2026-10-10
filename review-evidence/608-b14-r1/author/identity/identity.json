@@ -1,0 +1,50 @@
+{
+  "utc_lock": "2026-10-10T04:54:38.543Z/04:54:47.713Z",
+  "observed": {
+    "entity_id": "020000fffe000001",
+    "entity_name": "Milan FPGA 1x1 TDM8",
+    "firmware_version": "2.96.0",
+    "serial_number": "<device-serial>"
+  },
+  "expected": {
+    "entity_id": "020000fffe000001",
+    "entity_name": "Milan FPGA 1x1 TDM8",
+    "firmware_version": "2.96.0",
+    "serial_number": "<device-serial>"
+  },
+  "matches": {
+    "entity_id": true,
+    "entity_name": true,
+    "firmware_version": true,
+    "serial_number": true
+  },
+  "console": {
+    "csr_id": "4d494c4e",
+    "version": "00020060",
+    "aem_crc": {
+      "crc 0x01400000 7512": "5ba355eb",
+      "crc 0x7f700000 7512": "5ba355eb"
+    }
+  },
+  "console_matches": {
+    "csr_id": true,
+    "version": true,
+    "aem_crc_qspi": true,
+    "aem_crc_ram": true
+  },
+  "gptp_health": {
+    "sync": 1,
+    "ascapable": 1,
+    "tu": 0
+  },
+  "entity_model_id": "001bc5c1935893e1",
+  "current_configuration": 0,
+  "clock_domain_0_source": 0,
+  "flash_record": {
+    "file": "build-5603c353/flash.log",
+    "flash_rc": 0,
+    "boot_line": "CSR ID=4d494c4e VERSION=00020060; AEM 7512 B, CRC 5ba355eb"
+  },
+  "probe_sha256": "172836966609645d6e12adf19a8341a145a4dadc51edb81c6d29a23aae1fd75a",
+  "result": "PASS"
+}

@@ -1,0 +1,62 @@
+{
+  "checks": [
+    {
+      "utc": "2026-10-09T19:28:42Z",
+      "target": "controller host",
+      "check": "ssh ConnectTimeout=10 BatchMode",
+      "rc": 255,
+      "result": "No route to host"
+    },
+    {
+      "utc": "2026-10-09T19:28:49Z",
+      "target": "controller host",
+      "check": "ping -c 3",
+      "rc": 1,
+      "result": "Destination Host Unreachable; neighbour entry FAILED"
+    },
+    {
+      "utc": "2026-10-09T19:29:01Z",
+      "target": "tap host",
+      "check": "ssh; uptime; both tap interfaces; sudo -n true",
+      "rc": 0,
+      "result": "up 12 min; both tap interfaces UP LOWER_UP; non-interactive privilege OK"
+    },
+    {
+      "utc": "2026-10-09T19:29:01Z",
+      "target": "this host",
+      "check": "serial adapters and audio cards present",
+      "rc": 0,
+      "result": "DUT console, board console and JTAG adapter present; board audio card and external audio card present"
+    },
+    {
+      "utc": "2026-10-09T19:31:07Z",
+      "target": "VM network",
+      "check": "ping sweep of the /24",
+      "rc": 0,
+      "result": "answering: this host, the tap host (two addresses, one MAC), the gateway; controller address absent"
+    },
+    {
+      "utc": "2026-10-09T19:31:18Z",
+      "target": "controller host",
+      "check": "ssh every 20 s until 19:40:18Z",
+      "rc": 124,
+      "result": "never answered"
+    },
+    {
+      "utc": "2026-10-09T19:40:39Z",
+      "target": "controller host",
+      "check": "ssh every 20 s until 19:49:59Z",
+      "rc": 124,
+      "result": "never answered"
+    },
+    {
+      "utc": "2026-10-09T19:50:20Z",
+      "target": "bench lock",
+      "check": "flock -n on the bench lock running only `true`",
+      "rc": 0,
+      "result": "lock free; held only while `true` ran; nothing touched under it"
+    }
+  ],
+  "bench_lock_taken": "only the one non-blocking probe above",
+  "bench_state_changes": []
+}

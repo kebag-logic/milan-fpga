@@ -1,0 +1,271 @@
+{
+ "cycles": 101,
+ "graded": 100,
+ "graded_range": [
+  "cycle-002",
+  "cycle-101"
+ ],
+ "stop_608": {
+  "PASS": 100
+ },
+ "restart_75": {
+  "PASS": 100
+ },
+ "registrar_at_lv": {
+  "UNDETERMINED": 100
+ },
+ "start_stop_delta": {
+  "[1, 1]": 100
+ },
+ "pdus_after_lv_plus_period": {
+  "0": 100
+ },
+ "settled_pdus": {
+  "0": 100
+ },
+ "lv_after_disconnect_s": {
+  "n": 100,
+  "min": 0.00834986,
+  "median": 0.0088800775,
+  "max": 0.095701216
+ },
+ "last_pdu_after_lv_s": {
+  "n": 100,
+  "min": -0.001993429,
+  "median": -0.0010308305000000001,
+  "max": -4.112e-06
+ },
+ "last_pdu_after_disconnect_s": {
+  "n": 100,
+  "min": 0.006539895,
+  "median": 0.007899047499999999,
+  "max": 0.094792758
+ },
+ "restart_s": {
+  "n": 100,
+  "min": 0.010406265,
+  "median": 0.0119716575,
+  "max": 0.125908283
+ },
+ "bridge_ready_after_response_s": {
+  "n": 100,
+  "min": 0.01025768,
+  "median": 0.01065849,
+  "max": 0.124872249
+ },
+ "hold_pdus": {
+  "n": 100,
+  "min": 4,
+  "median": 4.0,
+  "max": 48
+ },
+ "leaveall_pdus_by_sender": {
+  "bridge": 97
+ },
+ "msrp_pdus_by_sender": {
+  "DUT": 1979,
+  "bridge": 586
+ },
+ "capture_s_total": 894.005,
+ "malformed_msrp": 0,
+ "hold_profiles": [
+  {
+   "cycles": 86,
+   "events": [
+    [
+     "DUT",
+     "Domain",
+     "JoinIn"
+    ],
+    [
+     "DUT",
+     "TalkerAdvertise",
+     "JoinMt"
+    ],
+    [
+     "bridge",
+     "Listener",
+     "Lv"
+    ]
+   ]
+  },
+  {
+   "cycles": 11,
+   "events": [
+    [
+     "DUT",
+     "Domain",
+     "JoinIn"
+    ],
+    [
+     "DUT",
+     "TalkerAdvertise",
+     "JoinMt"
+    ],
+    [
+     "bridge",
+     "Domain",
+     "JoinMt"
+    ],
+    [
+     "bridge",
+     "Domain",
+     "LeaveAll"
+    ],
+    [
+     "bridge",
+     "Listener",
+     "LeaveAll"
+    ],
+    [
+     "bridge",
+     "Listener",
+     "Lv"
+    ],
+    [
+     "bridge",
+     "TalkerAdvertise",
+     "LeaveAll"
+    ],
+    [
+     "bridge",
+     "TalkerAdvertise",
+     "Mt"
+    ],
+    [
+     "bridge",
+     "TalkerFailed",
+     "LeaveAll"
+    ]
+   ]
+  },
+  {
+   "cycles": 2,
+   "events": [
+    [
+     "DUT",
+     "Domain",
+     "JoinIn"
+    ],
+    [
+     "DUT",
+     "TalkerAdvertise",
+     "Lv"
+    ],
+    [
+     "bridge",
+     "Listener",
+     "Lv"
+    ],
+    [
+     "bridge",
+     "TalkerAdvertise",
+     "Mt"
+    ]
+   ]
+  },
+  {
+   "cycles": 1,
+   "events": [
+    [
+     "DUT",
+     "Domain",
+     "JoinIn"
+    ],
+    [
+     "DUT",
+     "TalkerAdvertise",
+     "JoinMt"
+    ],
+    [
+     "bridge",
+     "Domain",
+     "JoinMt"
+    ],
+    [
+     "bridge",
+     "Domain",
+     "LeaveAll"
+    ],
+    [
+     "bridge",
+     "Listener",
+     "LeaveAll"
+    ],
+    [
+     "bridge",
+     "Listener",
+     "Lv"
+    ],
+    [
+     "bridge",
+     "TalkerAdvertise",
+     "LeaveAll"
+    ],
+    [
+     "bridge",
+     "TalkerFailed",
+     "LeaveAll"
+    ]
+   ]
+  }
+ ],
+ "pilot": [
+  {
+   "cycle": "cycle-001",
+   "graded": false,
+   "capture_rc": 137,
+   "lock": [
+    "2026-10-10T05:49:08.228Z",
+    "2026-10-10T05:49:17.551Z"
+   ],
+   "stop_608": "PASS",
+   "registrar_at_lv": "IN",
+   "lv_after_disconnect_s": 0.008506477,
+   "last_pdu_after_lv_s": -8.9976e-05,
+   "last_pdu_after_disconnect_s": 0.008416501,
+   "pdus_after_lv_plus_period": 0,
+   "hold_pdus": 5,
+   "settled_pdus": 0,
+   "start_stop_delta": [
+    1,
+    1
+   ],
+   "restart_75": "PASS",
+   "restart_s": 0.044369757,
+   "bridge_ready_after_response_s": 0.04396398,
+   "dut_ta_lv_in_hold": 1,
+   "msrp_hold_profile": [
+    [
+     "DUT",
+     "Domain",
+     "JoinIn"
+    ],
+    [
+     "DUT",
+     "TalkerAdvertise",
+     "Lv"
+    ],
+    [
+     "bridge",
+     "Listener",
+     "Lv"
+    ],
+    [
+     "bridge",
+     "TalkerAdvertise",
+     "Mt"
+    ]
+   ],
+   "leaveall_pdus_by_sender": {
+    "bridge": 1
+   },
+   "msrp_pdus_by_sender": {
+    "DUT": 21,
+    "bridge": 7
+   },
+   "span_s": 7.998194143,
+   "malformed": 0
+  }
+ ]
+}
