@@ -1,0 +1,4 @@
+XPLANT endstation_ax7101_8x8 restage_fail_not_unread: checks 13/14 give 2 finding(s)
+XPLANT   slot B valid at seq 0x5a5a5, --read-fault b:11:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243
+XPLANT   slot B valid at seq 0x80000000, --read-fault b:11:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243
+XPLANT endstation_ax7101_8x8 restage_fail_not_unread: restage-only fault a:0:4:3 -> held=False erases=1 acks=1 | Milan NVM: slot A VD_LEN seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_LEN) | after reboot: changed record survived=True, other saved records kept 0/163

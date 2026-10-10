@@ -1,0 +1,8 @@
+PLANT endstation_ax7101_8x8 restart_at_zero: CAUGHT named=10 total=27 words='was lost on the clean reboot'
+PLANT   first: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+PLANT endstation_ax7101_8x8 unbounded_retry: CAUGHT named=10 total=11 words='over the bound'
+PLANT   first: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the boot read the flash 68 times, over the bound of 13
+PLANT endstation_ax7101_8x8 generation_from_refused_slot: CAUGHT named=8 total=8 words='generation was taken from a refused slot'
+PLANT   first: slot A refused (foreign entity): a generation was taken from a refused slot: the boot line reports Milan NVM: slot A VD_ENT seq 370085, slot B VD_BLANK seq 4294967295; offered - seq 4294967295 (VD_ENT)
+PLANT endstation_ax7101_8x8 verdict_only_agreement: CAUGHT named=12 total=29 words='was lost on the clean reboot'
+PLANT   first: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243

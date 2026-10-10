@@ -1,0 +1,6 @@
+BASE endstation_ax7101_8x8 grade_read_faults: 61 finding(s), 36 'lost on the clean reboot'
+BASE   e.g. slot A valid at seq 0x1, --read-fault a:0:1:3:8: the change was neither committed nor refused: {'hb': 7, 'acks': 0, 'starts': 1, 'erases': 1, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 1, 'valid': 1, 'verdict': 11, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 0
+BASE   e.g. slot A valid at seq 0x1, --read-fault a:0:1:3:8: the clean reboot did not offer a slot: Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK)
+BASE   e.g. slot A valid at seq 0x1, --read-fault a:0:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+BASE   e.g. slot A valid at seq 0x1, --read-fault a:11:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243
+BASE endstation_ax7101_8x8 grade_refused_generation: 0 finding(s), 0 'lost on the clean reboot'
