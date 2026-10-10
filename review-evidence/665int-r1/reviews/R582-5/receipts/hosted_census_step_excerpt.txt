@@ -1,0 +1,30 @@
+# rtl-fast run 38059340686, job 114234325390 (yosys-elaboration), pull_request merge ref 0e50c0e40c2de84ed63e496d6d777041c392dbc7 = 0a8f700f merged into dev e8454e27
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2273475Z RESULT: PASS
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2275688Z structural checks: skipped in this worker
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2394547Z ##[group]Run set -euo pipefail
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2394874Z ^[[36;1mset -euo pipefail^[[0m
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2395162Z ^[[36;1mpython3 -m pip install --quiet pyyaml^[[0m
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2395610Z ^[[36;1mpython3 sw/mailbox/publication_census.py --check --selftest --jobs 4^[[0m
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2458548Z shell: /usr/bin/bash -e {0}
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2458800Z env:
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2459000Z   VERILATOR_VERSION: v5.050
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2459242Z   YOSYS_VERSION: v0.66
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:25:45.2459462Z ##[endgroup]
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:26:47.6923928Z publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:26:47.6924947Z == publication census: checks: 39   failures: 0 ==
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:26:47.6925792Z 25 class-D net(s) from the wrapper cell's ports, 4 unread; netlist: 62697 cells, 1187 named nets
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:26:47.6926683Z 39 read(s) of 21 class-D net(s); RESULT: PASS
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:26:47.6927373Z publication census: elaborated and classified in 36 s
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:26:47.6928261Z [ok] positive control, the tracked sources: 0 finding(s)
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:26:47.6929009Z [ok] negative control, a class-D wire named in a comment: 0 finding(s)
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:35:52.4285769Z [ok] planted a field the contract lacks: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: the census names TALKER_DECL.DECLARE, which the publication block
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:35:53.1896711Z [ok] planted a stale row: refused (stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w into lwsrp_idle_slope)
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:35:53.2082490Z selftest: 0 of 102 arm(s) failed; 102 elaborations in 569 s at --jobs 4
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:35:53.2402535Z ##[group]Run set -euo pipefail
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:35:53.2402887Z ^[[36;1mset -euo pipefail^[[0m
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:46:36.2633689Z ##[endgroup]
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:47:29.0463035Z ROM cache controls: OK (3 images, 2 modes, 2 selected tops, head/seed, generation and schema refusals)
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:47:29.0464106Z cache selftest: OK (unit self-test + 5 original live arms on cdc_pulse + ROM controls)
+yosys-elaboration	UNKNOWN STEP	2026-10-10T14:47:29.0639214Z Post job cleanup.
+# job started 2026-10-10T14:22:54Z completed 2026-10-10T14:47:30Z (24 min 36 s); timeout-minutes: 30
+# census step 14:25:45.24 -> 14:35:53.24 (10 min 08 s)

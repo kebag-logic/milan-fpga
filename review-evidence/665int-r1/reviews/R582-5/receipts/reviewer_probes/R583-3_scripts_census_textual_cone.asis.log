@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "$REVIEWS/665int-r582-5-packet/scripts/run_reviewer_probe.py", line 71, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/665int-r582-5-packet/scripts/run_reviewer_probe.py", line 65, in main
+    runpy.run_path(str(probe), run_name="__main__")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "$REVIEWS/665int-r582-5-packet/scratch/evidence/R583-3_scripts_census_textual_cone.py", line 116, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/665int-r582-5-packet/scratch/evidence/R583-3_scripts_census_textual_cone.py", line 31, in main
+    net = pc.netlist(src.datapath)
+          ^^^^^^^^^^
+AttributeError: module 'publication_census' has no attribute 'netlist'. Did you mean: 'Netlist'?

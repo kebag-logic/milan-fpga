@@ -1,0 +1,6 @@
+ARM A control: plain assign, default parameters: REFUSED (1 finding(s); reads=40)
+    unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion
+ARM B generate branch on N_STREAMS > 1, default parameters (as CI runs): ACCEPTED (0 finding(s); reads=39)
+ARM C the same copy at the arty 4x4 shape (N_STREAMS = 4, its header and builder parameters): REFUSED (1 finding(s); reads=40)
+    unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion
+SUMMARY control_refused=True generate_default_refused=False generate_arty4x4_refused=True

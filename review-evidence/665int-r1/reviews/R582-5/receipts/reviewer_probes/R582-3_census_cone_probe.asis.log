@@ -1,0 +1,32 @@
+control: tracked head -> 0 finding(s)
+[REFUSED] status consumer lwsrp_talker_declared routed to vlan_en_i by plain assign (control): pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i
+Traceback (most recent call last):
+  File "$REVIEWS/r582-5-665int/sw/mailbox/census_elab.py", line 368, in elaborate
+    run([tool("yosys"), "-q", "-p", "; ".join(script)], WORK.path(), "the elaborator (Yosys) refused the datapath")
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r582-5-665int/sw/mailbox/census_elab.py", line 128, in run
+    raise CensusError(f"{what}: {' '.join(why.group().split()) if why else f'exit {done.returncode}'}")
+census_elab.CensusError: the elaborator (Yosys) refused the datapath: ERROR: Module `\KL_probe_buf' referenced in module `\milan_datapath' in cell `\u_probe_pos' is not part of the design.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$REVIEWS/665int-r582-5-packet/scripts/run_reviewer_probe.py", line 71, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/665int-r582-5-packet/scripts/run_reviewer_probe.py", line 65, in main
+    runpy.run_path(str(probe), run_name="__main__")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "$REVIEWS/665int-r582-5-packet/scratch/evidence/R582-3_census_cone_probe.py", line 62, in <module>
+    got, _ = pc.findings(replace(src, datapath=routed(decl)), pc.CENSUS, known)
+             ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r582-5-665int/sw/mailbox/publication_census.py", line 493, in findings
+    sv = survey(src)
+  File "$REVIEWS/r582-5-665int/sw/mailbox/publication_census.py", line 463, in survey
+    net = elaborate(overlay(src))
+  File "$REVIEWS/r582-5-665int/sw/mailbox/census_elab.py", line 372, in elaborate
+    raise CensusError(str(exc).replace(f"{arm / 'tree'}/", "").replace(f"{arm}/", "")) from exc
+census_elab.CensusError: the elaborator (Yosys) refused the datapath: ERROR: Module `\KL_probe_buf' referenced in module `\milan_datapath' in cell `\u_probe_pos' is not part of the design.

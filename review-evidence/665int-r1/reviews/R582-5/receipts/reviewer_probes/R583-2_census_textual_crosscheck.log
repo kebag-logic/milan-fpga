@@ -1,0 +1,41 @@
+{'declaration': 25, 'wrapper output': 25, 'census read': 0} census lines 0
+unaccounted occurrences: 39
+  line 1765: wire [11:0] acmpl_vlan_w = pp_cd_acmp_bound_vlan_w[11:0];
+  line 3088: assign adp_available_index = pp_cd_adp_avail_index_w;
+  line 4901: gsi_prio_snap_r   <= pp_cd_srp_class_a_prio_w;
+  line 4902: gsi_vid_snap_r    <= pp_cd_srp_class_a_vid_w;
+  line 4912: wire        gsi_bnd_w  = gsi_in_w && pp_cd_acmp_bound_w[gsi_six_w];
+  line 4913: wire [63:0] gsi_sid_w  = pp_cd_acmp_bound_sid_w[64*gsi_six_w +: 64];
+  line 4915: wire [1:0]  gsi_tkreg_w = pp_cd_srp_tk_reg_state_w[2*gsi_six_w +: 2];
+  line 4918: wire        gsi_decl_w  = gsi_out_w && pp_cd_acmp_declaring_w[gsi_oix_w];
+  line 4919: wire [1:0]  gsi_lreg_w  = pp_cd_srp_lstn_reg_state_w[2*gsi_oix_w +: 2];
+  line 4920: wire [1:0]  gsi_tkdcl_w = pp_cd_srp_tk_decl_state_w[2*gsi_oix_w +: 2];
+  line 4952: gsi_bnd_w && !pp_aecp_strm_started_w[gsi_six_w],
+  line 5158: ? pp_cd_srp_acc_latency_w[32*gsi_six_w +: 32]
+  line 5166: ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
+  line 5171: ? pp_cd_srp_src_fail_code_w[8*gsi_oix_w +: 8]
+  line 5177: ? pp_cd_srp_src_fail_bridge_w[64*gsi_oix_w +: 64]
+  line 5180: ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
+  line 5182: ? {4'd0, pp_cd_srp_class_a_vid_w}
+  line 5335: assign acmp_talker_active_v = pp_cd_acmp_declaring_w;
+  line 5349: assign acmpl_bound_v_w = pp_cd_acmp_bound_w;
+  line 5376: & ~pp_aecp_strm_started_w;
+  line 5399: assign acmpl_sid_v_w   = pp_cd_acmp_bound_sid_w;
+  line 5678: (|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);
+  line 7265: assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] &
+  line 7266: pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
+  line 7273: assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
+  line 7274: assign lwsrp_idle_slope  = pp_cd_srp_sum_slope_bps_w;
+  line 7277: assign lwsrp_adopt_valid = pp_cd_srp_domain_adopted_w;
+  line 7278: assign lwsrp_op_prio     = {5'd0, pp_cd_srp_class_a_prio_w};
+  line 7279: assign lwsrp_op_vid      = pp_cd_srp_class_a_vid_w;
+  line 7280: assign lwsrp_domain_ok   = pp_cd_srp_domain_adopted_w;
+  line 7281: assign lwsrp_over_limit  = pp_cd_srp_over_limit_w;
+  line 7282: assign lwsrp_res_active  = |pp_cd_srp_active_w;
+  line 7284: assign lwsrp_tfail_code   = pp_cd_srp_src_fail_code_w[7:0];
+  line 7285: assign lwsrp_tfail_valid  = |pp_cd_srp_src_fail_code_w[7:0];
+  line 7304: assign lwsrp_ta_registered = (pp_cd_srp_tk_reg_state_w[1:0] ==
+  line 7306: assign lwsrp_ta_failed     = |pp_cd_srp_snk_fail_code_w[7:0];
+  line 7307: assign lwsrp_ta_fail_code  = pp_cd_srp_snk_fail_code_w[7:0];
+  line 7327: wire [1:0]  lwsrp_lstn_reg0_w = pp_cd_srp_lstn_reg_state_w[1:0];
+  line 7333: assign lwsrp_talker_declared= |pp_cd_srp_tk_decl_state_w;

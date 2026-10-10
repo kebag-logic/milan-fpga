@@ -1,0 +1,43 @@
+shape=endstation_ax7101_8x8 params={'MILAN_CLK_FREQ_HZ': '50_000_000', 'N_STREAMS': '8', 'AUDIO_IF_SLOTS_P': '32', 'AUDIO_IF_MASTER_P': '1', 'AUDIO_IF_CLK_HZ_P': '98_304_000', 'TALKER_WIRE_CHANS_P': '8', 'LTAP_P': '0', 'I2SPB_P': '0', 'LPF_P': '0', 'DPROBES_P': '0', 'GPTP_INGRESS_LAT_NS_P': '656', 'GPTP_EGRESS_LAT_NS_P': '219'}
+population=25 unread=4 reads=39 netlist=306475 cells, 1237 named nets
+READ pp_aecp_strm_started_w -> acmpl_stopped_v_w ends=wire row=field
+READ pp_aecp_strm_started_w -> gsi_flags_w ends=processor row=processor
+READ pp_cd_acmp_bound_dmac_w -> gsi_ans_raw_w ends=processor row=processor
+READ pp_cd_acmp_bound_sid_w -> acmpl_sid_v_w ends=wire row=field
+READ pp_cd_acmp_bound_sid_w -> gsi_sid_w ends=processor row=processor
+READ pp_cd_acmp_bound_vlan_w -> acmpl_vlan_w ends=csr row=status
+READ pp_cd_acmp_bound_vlan_w -> gsi_ans_raw_w ends=processor row=processor
+READ pp_cd_acmp_bound_w -> acmpl_bound_v_w ends=csr,wire row=field
+READ pp_cd_acmp_bound_w -> gsi_bnd_w ends=processor row=processor
+READ pp_cd_acmp_declaring_w -> acmp_talker_active_v ends=processor,wire row=field
+READ pp_cd_acmp_declaring_w -> gsi_decl_w ends=processor row=processor
+READ pp_cd_adp_avail_index_w -> adp_available_index ends=csr row=status
+READ pp_cd_srp_acc_latency_w -> gsi_ans_raw_w ends=processor row=processor
+READ pp_cd_srp_active_w -> lwsrp_res_active ends=csr row=status
+READ pp_cd_srp_active_w -> lwsrp_stream_gate ends=csr,processor,wire row=field
+READ pp_cd_srp_class_a_prio_w -> gsi_prio_snap_r ends=processor row=processor
+READ pp_cd_srp_class_a_prio_w -> lwsrp_op_prio ends=csr,wire row=field
+READ pp_cd_srp_class_a_vid_w -> gsi_ans_raw_w ends=processor row=processor
+READ pp_cd_srp_class_a_vid_w -> gsi_vid_snap_r ends=processor row=processor
+READ pp_cd_srp_class_a_vid_w -> lwsrp_op_vid ends=csr,wire row=field
+READ pp_cd_srp_domain_adopted_w -> lwsrp_adopt_valid ends=csr,wire row=field
+READ pp_cd_srp_domain_adopted_w -> lwsrp_domain_ok ends=csr row=status
+READ pp_cd_srp_lstn_reg_state_w -> gsi_lreg_w ends=processor row=processor
+READ pp_cd_srp_lstn_reg_state_w -> lwsrp_lstn_reg0_w ends=csr row=status
+READ pp_cd_srp_over_limit_w -> lwsrp_over_limit ends=csr row=status
+READ pp_cd_srp_snk_fail_code_w -> lwsrp_ta_fail_code ends=csr row=status
+READ pp_cd_srp_snk_fail_code_w -> lwsrp_ta_failed ends=csr row=status
+READ pp_cd_srp_sr_admitted_w -> lwsrp_slope_en ends=csr row=status
+READ pp_cd_srp_sr_admitted_w -> lwsrp_stream_gate ends=csr,processor,wire row=field
+READ pp_cd_srp_src_fail_bridge_w -> gsi_ans_raw_w ends=processor row=processor
+READ pp_cd_srp_src_fail_code_w -> gsi_ans_raw_w ends=processor row=processor
+READ pp_cd_srp_src_fail_code_w -> lwsrp_tfail_code ends=csr row=status
+READ pp_cd_srp_src_fail_code_w -> lwsrp_tfail_valid ends=csr row=status
+READ pp_cd_srp_sum_slope_bps_w -> lwsrp_idle_slope ends=csr row=status
+READ pp_cd_srp_tk_decl_state_w -> crft_class_a_w ends=csr,wire row=field
+READ pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w ends=processor row=processor
+READ pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared ends=csr row=status
+READ pp_cd_srp_tk_reg_state_w -> gsi_tkreg_w ends=processor row=processor
+READ pp_cd_srp_tk_reg_state_w -> lwsrp_ta_registered ends=csr row=status
+RESULT PASS findings=0
+rc=0
