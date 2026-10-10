@@ -1,0 +1,518 @@
+< │    ├── [BB:OBUFDS]
+< │    ├── [BB:OSERDESE2]
+> │    ├── [BB:OBUFDS]
+> │    ├── [BB:OSERDESE2]
+> ├── [BB:IBUFDS]
+> ├── [BB:IOBUF]
+> ├── [BB:ODDR]
+> ├── [BB:IDDR]
+> ├── [BB:FDCE]
+> ├── [BB:FDCE]
+< ├── [BB:IOBUF]
+< ├── [BB:FDPE]
+< ├── [BB:ODDR]
+< ├── [BB:IDDR]
+< ├── [BB:FDCE]
+< ├── [BB:FDCE]
+< └── [BB:IBUFDS]
+> └── [BB:FDPE]
+> wire    [3:0] milansoc_array_read_memoryN_adr;
+> wire   [71:0] milansoc_array_read_memoryN_dat_r;
+> wire    [3:0] milansoc_array_read_memoryN_adr;
+> wire    [1:0] milansoc_array_read_memoryN_dat_r;
+> wire    [3:0] milansoc_array_read_memoryN_adr;
+> wire   [71:0] milansoc_array_read_memoryN_dat_r;
+> wire    [3:0] milansoc_array_read_memoryN_adr;
+> wire    [1:0] milansoc_array_read_memoryN_dat_r;
+> wire    [3:0] milansoc_array_write_memoryN_adr;
+> wire   [71:0] milansoc_array_write_memoryN_dat_r;
+> wire   [71:0] milansoc_array_write_memoryN_dat_w;
+> wire          milansoc_array_write_memoryN_we;
+> wire    [3:0] milansoc_array_write_memoryN_adr;
+> wire    [1:0] milansoc_array_write_memoryN_dat_r;
+> wire    [1:0] milansoc_array_write_memoryN_dat_w;
+> wire          milansoc_array_write_memoryN_we;
+> wire    [3:0] milansoc_array_write_memoryN_adr;
+> wire   [71:0] milansoc_array_write_memoryN_dat_r;
+> wire   [71:0] milansoc_array_write_memoryN_dat_w;
+> wire          milansoc_array_write_memoryN_we;
+> wire    [3:0] milansoc_array_write_memoryN_adr;
+> wire    [1:0] milansoc_array_write_memoryN_dat_r;
+> wire    [1:0] milansoc_array_write_memoryN_dat_w;
+> wire          milansoc_array_write_memoryN_we;
+> wire    [1:0] milansoc_milannic_array_read_memoryN_adr;
+> wire   [35:0] milansoc_milannic_array_read_memoryN_dat_r;
+> wire    [1:0] milansoc_milannic_array_read_memoryN_adr;
+> wire    [1:0] milansoc_milannic_array_read_memoryN_dat_r;
+> wire    [1:0] milansoc_milannic_array_read_memoryN_adr;
+> wire   [33:0] milansoc_milannic_array_read_memoryN_dat_r;
+> wire    [1:0] milansoc_milannic_array_read_memoryN_adr;
+> wire    [1:0] milansoc_milannic_array_read_memoryN_dat_r;
+> wire    [1:0] milansoc_milannic_array_write_memoryN_adr;
+> wire   [35:0] milansoc_milannic_array_write_memoryN_dat_r;
+> wire   [35:0] milansoc_milannic_array_write_memoryN_dat_w;
+> wire          milansoc_milannic_array_write_memoryN_we;
+> wire    [1:0] milansoc_milannic_array_write_memoryN_adr;
+> wire    [1:0] milansoc_milannic_array_write_memoryN_dat_r;
+> wire    [1:0] milansoc_milannic_array_write_memoryN_dat_w;
+> wire          milansoc_milannic_array_write_memoryN_we;
+> wire    [1:0] milansoc_milannic_array_write_memoryN_adr;
+> wire   [33:0] milansoc_milannic_array_write_memoryN_dat_r;
+> wire   [33:0] milansoc_milannic_array_write_memoryN_dat_w;
+> wire          milansoc_milannic_array_write_memoryN_we;
+> wire    [1:0] milansoc_milannic_array_write_memoryN_adr;
+> wire    [1:0] milansoc_milannic_array_write_memoryN_dat_r;
+> wire    [1:0] milansoc_milannic_array_write_memoryN_dat_w;
+> wire          milansoc_milannic_array_write_memoryN_we;
+< wire   [35:0] milansoc_milannic_r_cdc_cdc_wrport_dat_r;
+< wire   [37:0] milansoc_milannic_w_cdc_cdc_wrport_dat_r;
+< wire   [73:0] milansoc_rx_dp_cdc_wrport_dat_r;
+< wire   [73:0] milansoc_tx_dp_cdc_wrport_dat_r;
+> assign milansoc_array_write_memoryN_adr = milansoc_tx_dp_cdc_wrport_adr;
+> assign milansoc_array_write_memoryN_we = milansoc_tx_dp_cdc_wrport_we;
+> assign milansoc_array_write_memoryN_dat_w = milansoc_tx_dp_cdc_wrport_dat_w[71:0];
+> assign milansoc_array_read_memoryN_adr = milansoc_tx_dp_cdc_rdport_adr;
+> assign milansoc_array_write_memoryN_adr = milansoc_tx_dp_cdc_wrport_adr;
+> assign milansoc_array_write_memoryN_we = milansoc_tx_dp_cdc_wrport_we;
+> assign milansoc_array_write_memoryN_dat_w = milansoc_tx_dp_cdc_wrport_dat_w[73:72];
+> assign milansoc_array_read_memoryN_adr = milansoc_tx_dp_cdc_rdport_adr;
+> assign milansoc_tx_dp_cdc_rdport_dat_r = {milansoc_array_read_memoryN_dat_r, milansoc_array_read_memoryN_dat_r};
+> assign milansoc_array_write_memoryN_adr = milansoc_rx_dp_cdc_wrport_adr;
+> assign milansoc_array_write_memoryN_we = milansoc_rx_dp_cdc_wrport_we;
+> assign milansoc_array_write_memoryN_dat_w = milansoc_rx_dp_cdc_wrport_dat_w[71:0];
+> assign milansoc_array_read_memoryN_adr = milansoc_rx_dp_cdc_rdport_adr;
+> assign milansoc_array_write_memoryN_adr = milansoc_rx_dp_cdc_wrport_adr;
+> assign milansoc_array_write_memoryN_we = milansoc_rx_dp_cdc_wrport_we;
+> assign milansoc_array_write_memoryN_dat_w = milansoc_rx_dp_cdc_wrport_dat_w[73:72];
+> assign milansoc_array_read_memoryN_adr = milansoc_rx_dp_cdc_rdport_adr;
+> assign milansoc_rx_dp_cdc_rdport_dat_r = {milansoc_array_read_memoryN_dat_r, milansoc_array_read_memoryN_dat_r};
+> assign milansoc_milannic_array_write_memoryN_adr = milansoc_milannic_w_cdc_cdc_wrport_adr;
+> assign milansoc_milannic_array_write_memoryN_we = milansoc_milannic_w_cdc_cdc_wrport_we;
+> assign milansoc_milannic_array_write_memoryN_dat_w = milansoc_milannic_w_cdc_cdc_wrport_dat_w[35:0];
+> assign milansoc_milannic_array_read_memoryN_adr = milansoc_milannic_w_cdc_cdc_rdport_adr;
+> assign milansoc_milannic_array_write_memoryN_adr = milansoc_milannic_w_cdc_cdc_wrport_adr;
+> assign milansoc_milannic_array_write_memoryN_we = milansoc_milannic_w_cdc_cdc_wrport_we;
+> assign milansoc_milannic_array_write_memoryN_dat_w = milansoc_milannic_w_cdc_cdc_wrport_dat_w[37:36];
+> assign milansoc_milannic_array_read_memoryN_adr = milansoc_milannic_w_cdc_cdc_rdport_adr;
+> assign milansoc_milannic_w_cdc_cdc_rdport_dat_r = {milansoc_milannic_array_read_memoryN_dat_r, milansoc_milannic_array_read_memoryN_dat_r};
+> assign milansoc_milannic_array_write_memoryN_adr = milansoc_milannic_r_cdc_cdc_wrport_adr;
+> assign milansoc_milannic_array_write_memoryN_we = milansoc_milannic_r_cdc_cdc_wrport_we;
+> assign milansoc_milannic_array_write_memoryN_dat_w = milansoc_milannic_r_cdc_cdc_wrport_dat_w[33:0];
+> assign milansoc_milannic_array_read_memoryN_adr = milansoc_milannic_r_cdc_cdc_rdport_adr;
+> assign milansoc_milannic_array_write_memoryN_adr = milansoc_milannic_r_cdc_cdc_wrport_adr;
+> assign milansoc_milannic_array_write_memoryN_we = milansoc_milannic_r_cdc_cdc_wrport_we;
+> assign milansoc_milannic_array_write_memoryN_dat_w = milansoc_milannic_r_cdc_cdc_wrport_dat_w[35:34];
+> assign milansoc_milannic_array_read_memoryN_adr = milansoc_milannic_r_cdc_cdc_rdport_adr;
+> assign milansoc_milannic_r_cdc_cdc_rdport_dat_r = {milansoc_milannic_array_read_memoryN_dat_r, milansoc_milannic_array_read_memoryN_dat_r};
+> (* ram_style = "block" *)
+> //------------------------------------------------------------------------------
+> // Memory storage_N: 16-words x 72-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+> // Port 1 | Read: Sync  | Write: ---- | 
+> reg [71:0] storage_N[0:15];
+> reg [71:0] storage_N_dat0;
+> reg [71:0] storage_N_dat1;
+> always @(posedge macdp_clk) begin
+> 	if (milansoc_array_write_memoryN_we)
+> 		storage_N[milansoc_array_write_memoryN_adr] <= milansoc_array_write_memoryN_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_array_write_memoryN_adr];
+> end
+> always @(posedge macsys_clk) begin
+> 	storage_N_dat1 <= storage_N[milansoc_array_read_memoryN_adr];
+> end
+> assign milansoc_array_write_memoryN_dat_r = storage_N_dat0;
+> assign milansoc_array_read_memoryN_dat_r = storage_N_dat1;
+> 
+> 
+> (* ram_style = "distributed" *)
+< // Memory storage_N: 16-words x 74-bit
+> // Memory storage_N: 16-words x 2-bit
+< reg [73:0] storage_N[0:15];
+< reg [73:0] storage_N_dat0;
+< reg [73:0] storage_N_dat1;
+> reg [1:0] storage_N[0:15];
+> reg [1:0] storage_N_dat0;
+> reg [1:0] storage_N_dat1;
+< 	if (milansoc_tx_dp_cdc_wrport_we)
+< 		storage_N[milansoc_tx_dp_cdc_wrport_adr] <= milansoc_tx_dp_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_tx_dp_cdc_wrport_adr];
+> 	if (milansoc_array_write_memoryN_we)
+> 		storage_N[milansoc_array_write_memoryN_adr] <= milansoc_array_write_memoryN_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_array_write_memoryN_adr];
+> end
+> always @(posedge macsys_clk) begin
+> 	storage_N_dat1 <= storage_N[milansoc_array_read_memoryN_adr];
+> assign milansoc_array_write_memoryN_dat_r = storage_N_dat0;
+> assign milansoc_array_read_memoryN_dat_r = storage_N_dat1;
+> 
+> 
+> (* ram_style = "block" *)
+> //------------------------------------------------------------------------------
+> // Memory storage_N: 16-words x 72-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+> // Port 1 | Read: Sync  | Write: ---- | 
+> reg [71:0] storage_N[0:15];
+> reg [71:0] storage_N_dat0;
+> reg [71:0] storage_N_dat1;
+< 	storage_N_dat1 <= storage_N[milansoc_tx_dp_cdc_rdport_adr];
+> 	if (milansoc_array_write_memoryN_we)
+> 		storage_N[milansoc_array_write_memoryN_adr] <= milansoc_array_write_memoryN_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_array_write_memoryN_adr];
+< assign milansoc_tx_dp_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_tx_dp_cdc_rdport_dat_r = storage_N_dat1;
+> always @(posedge macdp_clk) begin
+> 	storage_N_dat1 <= storage_N[milansoc_array_read_memoryN_adr];
+> end
+> assign milansoc_array_write_memoryN_dat_r = storage_N_dat0;
+> assign milansoc_array_read_memoryN_dat_r = storage_N_dat1;
+> (* ram_style = "distributed" *)
+< // Memory storage_N: 16-words x 74-bit
+> // Memory storage_N: 16-words x 2-bit
+< reg [73:0] storage_N[0:15];
+< reg [73:0] storage_N_dat0;
+< reg [73:0] storage_N_dat1;
+> reg [1:0] storage_N[0:15];
+> reg [1:0] storage_N_dat0;
+> reg [1:0] storage_N_dat1;
+< 	if (milansoc_rx_dp_cdc_wrport_we)
+< 		storage_N[milansoc_rx_dp_cdc_wrport_adr] <= milansoc_rx_dp_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_rx_dp_cdc_wrport_adr];
+> 	if (milansoc_array_write_memoryN_we)
+> 		storage_N[milansoc_array_write_memoryN_adr] <= milansoc_array_write_memoryN_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_array_write_memoryN_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_rx_dp_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_array_read_memoryN_adr];
+< assign milansoc_rx_dp_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_rx_dp_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_array_write_memoryN_dat_r = storage_N_dat0;
+> assign milansoc_array_read_memoryN_dat_r = storage_N_dat1;
+< // Memory storage_N: 4-words x 37-bit
+> // Memory storage_N: 4-words x 37-bit
+< reg [36:0] storage_N[0:3];
+< reg [36:0] storage_N_dat0;
+< reg [36:0] storage_N_dat1;
+> reg [36:0] storage_N[0:3];
+> reg [36:0] storage_N_dat0;
+> reg [36:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_aw_cdc_cdc_wrport_adr] <= milansoc_milannic_aw_cdc_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_aw_cdc_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_aw_cdc_cdc_wrport_adr] <= milansoc_milannic_aw_cdc_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_aw_cdc_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_aw_cdc_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_aw_cdc_cdc_rdport_adr];
+< assign milansoc_milannic_aw_cdc_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_aw_cdc_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_aw_cdc_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_aw_cdc_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 4-words x 38-bit
+> // Memory storage_N: 4-words x 4-bit
+< reg [37:0] storage_N[0:3];
+< reg [37:0] storage_N_dat0;
+< reg [37:0] storage_N_dat1;
+< always @(posedge sys_clk) begin
+< 	if (milansoc_milannic_w_cdc_cdc_wrport_we)
+< 		storage_N[milansoc_milannic_w_cdc_cdc_wrport_adr] <= milansoc_milannic_w_cdc_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_w_cdc_cdc_wrport_adr];
+< end
+> reg [3:0] storage_N[0:3];
+> reg [3:0] storage_N_dat0;
+> reg [3:0] storage_N_dat1;
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_w_cdc_cdc_rdport_adr];
+> 	if (milansoc_milannic_b_cdc_cdc_wrport_we)
+> 		storage_N[milansoc_milannic_b_cdc_cdc_wrport_adr] <= milansoc_milannic_b_cdc_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_b_cdc_cdc_wrport_adr];
+> end
+> always @(posedge sys_clk) begin
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_b_cdc_cdc_rdport_adr];
+< assign milansoc_milannic_w_cdc_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_w_cdc_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_b_cdc_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_b_cdc_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 4-words x 4-bit
+> // Memory storage_N: 4-words x 37-bit
+< reg [3:0] storage_N[0:3];
+< reg [3:0] storage_N_dat0;
+< reg [3:0] storage_N_dat1;
+> reg [36:0] storage_N[0:3];
+> reg [36:0] storage_N_dat0;
+> reg [36:0] storage_N_dat1;
+> always @(posedge sys_clk) begin
+> 	if (milansoc_milannic_ar_cdc_cdc_wrport_we)
+> 		storage_N[milansoc_milannic_ar_cdc_cdc_wrport_adr] <= milansoc_milannic_ar_cdc_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_ar_cdc_cdc_wrport_adr];
+> end
+< 	if (milansoc_milannic_b_cdc_cdc_wrport_we)
+< 		storage_N[milansoc_milannic_b_cdc_cdc_wrport_adr] <= milansoc_milannic_b_cdc_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_b_cdc_cdc_wrport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_ar_cdc_cdc_rdport_adr];
+> assign milansoc_milannic_ar_cdc_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_ar_cdc_cdc_rdport_dat_r = storage_N_dat1;
+> 
+> 
+> (* ram_style = "block" *)
+> //------------------------------------------------------------------------------
+> // Memory storage_N: 4-words x 36-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+> // Port 1 | Read: Sync  | Write: ---- | 
+> reg [35:0] storage_N[0:3];
+> reg [35:0] storage_N_dat0;
+> reg [35:0] storage_N_dat1;
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_b_cdc_cdc_rdport_adr];
+> 	if (milansoc_milannic_array_write_memoryN_we)
+> 		storage_N[milansoc_milannic_array_write_memoryN_adr] <= milansoc_milannic_array_write_memoryN_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_array_write_memoryN_adr];
+> end
+> always @(posedge milan_clk) begin
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_array_read_memoryN_adr];
+< assign milansoc_milannic_b_cdc_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_b_cdc_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_array_write_memoryN_dat_r = storage_N_dat0;
+> assign milansoc_milannic_array_read_memoryN_dat_r = storage_N_dat1;
+> (* ram_style = "distributed" *)
+< // Memory storage_N: 4-words x 37-bit
+> // Memory storage_N: 4-words x 2-bit
+< reg [36:0] storage_N[0:3];
+< reg [36:0] storage_N_dat0;
+< reg [36:0] storage_N_dat1;
+> reg [1:0] storage_N[0:3];
+> reg [1:0] storage_N_dat0;
+> reg [1:0] storage_N_dat1;
+< 	if (milansoc_milannic_ar_cdc_cdc_wrport_we)
+< 		storage_N[milansoc_milannic_ar_cdc_cdc_wrport_adr] <= milansoc_milannic_ar_cdc_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_ar_cdc_cdc_wrport_adr];
+> 	if (milansoc_milannic_array_write_memoryN_we)
+> 		storage_N[milansoc_milannic_array_write_memoryN_adr] <= milansoc_milannic_array_write_memoryN_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_array_write_memoryN_adr];
+> end
+> always @(posedge milan_clk) begin
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_array_read_memoryN_adr];
+> assign milansoc_milannic_array_write_memoryN_dat_r = storage_N_dat0;
+> assign milansoc_milannic_array_read_memoryN_dat_r = storage_N_dat1;
+> 
+> 
+> (* ram_style = "block" *)
+> //------------------------------------------------------------------------------
+> // Memory storage_N: 4-words x 34-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+> // Port 1 | Read: Sync  | Write: ---- | 
+> reg [33:0] storage_N[0:3];
+> reg [33:0] storage_N_dat0;
+> reg [33:0] storage_N_dat1;
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_ar_cdc_cdc_rdport_adr];
+> 	if (milansoc_milannic_array_write_memoryN_we)
+> 		storage_N[milansoc_milannic_array_write_memoryN_adr] <= milansoc_milannic_array_write_memoryN_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_array_write_memoryN_adr];
+> end
+> always @(posedge sys_clk) begin
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_array_read_memoryN_adr];
+< assign milansoc_milannic_ar_cdc_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_ar_cdc_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_array_write_memoryN_dat_r = storage_N_dat0;
+> assign milansoc_milannic_array_read_memoryN_dat_r = storage_N_dat1;
+> (* ram_style = "distributed" *)
+< // Memory storage_N: 4-words x 36-bit
+> // Memory storage_N: 4-words x 2-bit
+< reg [35:0] storage_N[0:3];
+< reg [35:0] storage_N_dat0;
+< reg [35:0] storage_N_dat1;
+> reg [1:0] storage_N[0:3];
+> reg [1:0] storage_N_dat0;
+> reg [1:0] storage_N_dat1;
+< 	if (milansoc_milannic_r_cdc_cdc_wrport_we)
+< 		storage_N[milansoc_milannic_r_cdc_cdc_wrport_adr] <= milansoc_milannic_r_cdc_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_r_cdc_cdc_wrport_adr];
+> 	if (milansoc_milannic_array_write_memoryN_we)
+> 		storage_N[milansoc_milannic_array_write_memoryN_adr] <= milansoc_milannic_array_write_memoryN_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_array_write_memoryN_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_r_cdc_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_array_read_memoryN_adr];
+< assign milansoc_milannic_r_cdc_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_r_cdc_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_array_write_memoryN_dat_r = storage_N_dat0;
+> assign milansoc_milannic_array_read_memoryN_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 43-bit
+> // Memory storage_N: 16-words x 43-bit
+< reg [42:0] storage_N[0:15];
+< reg [42:0] storage_N_dat0;
+< reg [42:0] storage_N_dat1;
+> reg [42:0] storage_N[0:15];
+> reg [42:0] storage_N_dat0;
+> reg [42:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_d_req_cdc_wrport_adr] <= milansoc_milannic_d_req_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_d_req_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_d_req_cdc_wrport_adr] <= milansoc_milannic_d_req_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_d_req_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_d_req_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_d_req_cdc_rdport_adr];
+< assign milansoc_milannic_d_req_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_d_req_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_d_req_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_d_req_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 68-bit
+> // Memory storage_N: 16-words x 68-bit
+< reg [67:0] storage_N[0:15];
+< reg [67:0] storage_N_dat0;
+< reg [67:0] storage_N_dat1;
+> reg [67:0] storage_N[0:15];
+> reg [67:0] storage_N_dat0;
+> reg [67:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_d_rsp_cdc_wrport_adr] <= milansoc_milannic_d_rsp_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_d_rsp_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_d_rsp_cdc_wrport_adr] <= milansoc_milannic_d_rsp_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_d_rsp_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_d_rsp_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_d_rsp_cdc_rdport_adr];
+< assign milansoc_milannic_d_rsp_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_d_rsp_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_d_rsp_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_d_rsp_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 43-bit
+> // Memory storage_N: 16-words x 43-bit
+< reg [42:0] storage_N[0:15];
+< reg [42:0] storage_N_dat0;
+< reg [42:0] storage_N_dat1;
+> reg [42:0] storage_N[0:15];
+> reg [42:0] storage_N_dat0;
+> reg [42:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_r_req_cdc_wrport_adr] <= milansoc_milannic_r_req_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_r_req_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_r_req_cdc_wrport_adr] <= milansoc_milannic_r_req_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_r_req_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_r_req_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_r_req_cdc_rdport_adr];
+< assign milansoc_milannic_r_req_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_r_req_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_r_req_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_r_req_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 68-bit
+> // Memory storage_N: 16-words x 68-bit
+< reg [67:0] storage_N[0:15];
+< reg [67:0] storage_N_dat0;
+< reg [67:0] storage_N_dat1;
+> reg [67:0] storage_N[0:15];
+> reg [67:0] storage_N_dat0;
+> reg [67:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_r_rsp_cdc_wrport_adr] <= milansoc_milannic_r_rsp_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_r_rsp_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_r_rsp_cdc_wrport_adr] <= milansoc_milannic_r_rsp_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_r_rsp_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_r_rsp_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_r_rsp_cdc_rdport_adr];
+< assign milansoc_milannic_r_rsp_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_r_rsp_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_r_rsp_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_r_rsp_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 106-bit
+> // Memory storage_N: 16-words x 106-bit
+< reg [105:0] storage_N[0:15];
+< reg [105:0] storage_N_dat0;
+< reg [105:0] storage_N_dat1;
+> reg [105:0] storage_N[0:15];
+> reg [105:0] storage_N_dat0;
+> reg [105:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_r_wr_cdc_wrport_adr] <= milansoc_milannic_r_wr_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_r_wr_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_r_wr_cdc_wrport_adr] <= milansoc_milannic_r_wr_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_r_wr_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_r_wr_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_r_wr_cdc_rdport_adr];
+< assign milansoc_milannic_r_wr_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_r_wr_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_r_wr_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_r_wr_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 3-bit
+> // Memory storage_N: 16-words x 3-bit
+< reg [2:0] storage_N[0:15];
+< reg [2:0] storage_N_dat0;
+< reg [2:0] storage_N_dat1;
+> reg [2:0] storage_N[0:15];
+> reg [2:0] storage_N_dat0;
+> reg [2:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_r_wd_cdc_wrport_adr] <= milansoc_milannic_r_wd_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_r_wd_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_r_wd_cdc_wrport_adr] <= milansoc_milannic_r_wd_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_r_wd_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_r_wd_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_r_wd_cdc_rdport_adr];
+< assign milansoc_milannic_r_wd_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_r_wd_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_r_wd_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_r_wd_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 43-bit
+> // Memory storage_N: 16-words x 43-bit
+< reg [42:0] storage_N[0:15];
+< reg [42:0] storage_N_dat0;
+< reg [42:0] storage_N_dat1;
+> reg [42:0] storage_N[0:15];
+> reg [42:0] storage_N_dat0;
+> reg [42:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_n_req_cdc_wrport_adr] <= milansoc_milannic_n_req_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_n_req_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_n_req_cdc_wrport_adr] <= milansoc_milannic_n_req_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_n_req_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_n_req_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_n_req_cdc_rdport_adr];
+< assign milansoc_milannic_n_req_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_n_req_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_n_req_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_n_req_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 68-bit
+> // Memory storage_N: 16-words x 68-bit
+< reg [67:0] storage_N[0:15];
+< reg [67:0] storage_N_dat0;
+< reg [67:0] storage_N_dat1;
+> reg [67:0] storage_N[0:15];
+> reg [67:0] storage_N_dat0;
+> reg [67:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_n_rsp_cdc_wrport_adr] <= milansoc_milannic_n_rsp_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_n_rsp_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_n_rsp_cdc_wrport_adr] <= milansoc_milannic_n_rsp_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_n_rsp_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_n_rsp_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_n_rsp_cdc_rdport_adr];
+< assign milansoc_milannic_n_rsp_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_n_rsp_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_n_rsp_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_n_rsp_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 106-bit
+> // Memory storage_N: 16-words x 106-bit
+< reg [105:0] storage_N[0:15];
+< reg [105:0] storage_N_dat0;
+< reg [105:0] storage_N_dat1;
+> reg [105:0] storage_N[0:15];
+> reg [105:0] storage_N_dat0;
+> reg [105:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_n_wr_cdc_wrport_adr] <= milansoc_milannic_n_wr_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_n_wr_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_n_wr_cdc_wrport_adr] <= milansoc_milannic_n_wr_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_n_wr_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_n_wr_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_n_wr_cdc_rdport_adr];
+< assign milansoc_milannic_n_wr_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_n_wr_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_n_wr_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_n_wr_cdc_rdport_dat_r = storage_N_dat1;
+< // Memory storage_N: 16-words x 3-bit
+> // Memory storage_N: 16-words x 3-bit
+< reg [2:0] storage_N[0:15];
+< reg [2:0] storage_N_dat0;
+< reg [2:0] storage_N_dat1;
+> reg [2:0] storage_N[0:15];
+> reg [2:0] storage_N_dat0;
+> reg [2:0] storage_N_dat1;
+< 		storage_N[milansoc_milannic_n_wd_cdc_wrport_adr] <= milansoc_milannic_n_wd_cdc_wrport_dat_w;
+< 	storage_N_dat0 <= storage_N[milansoc_milannic_n_wd_cdc_wrport_adr];
+> 		storage_N[milansoc_milannic_n_wd_cdc_wrport_adr] <= milansoc_milannic_n_wd_cdc_wrport_dat_w;
+> 	storage_N_dat0 <= storage_N[milansoc_milannic_n_wd_cdc_wrport_adr];
+< 	storage_N_dat1 <= storage_N[milansoc_milannic_n_wd_cdc_rdport_adr];
+> 	storage_N_dat1 <= storage_N[milansoc_milannic_n_wd_cdc_rdport_adr];
+< assign milansoc_milannic_n_wd_cdc_wrport_dat_r = storage_N_dat0;
+< assign milansoc_milannic_n_wd_cdc_rdport_dat_r = storage_N_dat1;
+> assign milansoc_milannic_n_wd_cdc_wrport_dat_r = storage_N_dat0;
+> assign milansoc_milannic_n_wd_cdc_rdport_dat_r = storage_N_dat1;
+< //  Auto-Generated by LiteX on 2026-10-10 14:04:02.
+> //  Auto-Generated by LiteX on 2026-10-10 14:03:14.

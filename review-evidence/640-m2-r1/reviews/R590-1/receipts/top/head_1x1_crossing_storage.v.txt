@@ -1,0 +1,152 @@
+(* ram_style = "block" *)
+//------------------------------------------------------------------------------
+// Memory storage_N: 16-words x 72-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [71:0] storage_N[0:15];
+reg [71:0] storage_N_dat0;
+reg [71:0] storage_N_dat1;
+always @(posedge macdp_clk) begin
+	if (milansoc_array_write_memory0_we)
+		storage_N[milansoc_array_write_memory0_adr] <= milansoc_array_write_memory0_dat_w;
+	storage_N_dat0 <= storage_N[milansoc_array_write_memory0_adr];
+end
+always @(posedge macsys_clk) begin
+	storage_N_dat1 <= storage_N[milansoc_array_read_memory0_adr];
+end
+assign milansoc_array_write_memory0_dat_r = storage_N_dat0;
+assign milansoc_array_read_memory0_dat_r = storage_N_dat1;
+(* ram_style = "distributed" *)
+//------------------------------------------------------------------------------
+// Memory storage_N: 16-words x 2-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [1:0] storage_N[0:15];
+reg [1:0] storage_N_dat0;
+reg [1:0] storage_N_dat1;
+always @(posedge macdp_clk) begin
+	if (milansoc_array_write_memory1_we)
+		storage_N[milansoc_array_write_memory1_adr] <= milansoc_array_write_memory1_dat_w;
+	storage_N_dat0 <= storage_N[milansoc_array_write_memory1_adr];
+end
+always @(posedge macsys_clk) begin
+	storage_N_dat1 <= storage_N[milansoc_array_read_memory1_adr];
+end
+assign milansoc_array_write_memory1_dat_r = storage_N_dat0;
+assign milansoc_array_read_memory1_dat_r = storage_N_dat1;
+(* ram_style = "block" *)
+//------------------------------------------------------------------------------
+// Memory storage_N: 16-words x 72-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [71:0] storage_N[0:15];
+reg [71:0] storage_N_dat0;
+reg [71:0] storage_N_dat1;
+always @(posedge macsys_clk) begin
+	if (milansoc_array_write_memory2_we)
+		storage_N[milansoc_array_write_memory2_adr] <= milansoc_array_write_memory2_dat_w;
+	storage_N_dat0 <= storage_N[milansoc_array_write_memory2_adr];
+end
+always @(posedge macdp_clk) begin
+	storage_N_dat1 <= storage_N[milansoc_array_read_memory2_adr];
+end
+assign milansoc_array_write_memory2_dat_r = storage_N_dat0;
+assign milansoc_array_read_memory2_dat_r = storage_N_dat1;
+(* ram_style = "distributed" *)
+//------------------------------------------------------------------------------
+// Memory storage_N: 16-words x 2-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [1:0] storage_N[0:15];
+reg [1:0] storage_N_dat0;
+reg [1:0] storage_N_dat1;
+always @(posedge macsys_clk) begin
+	if (milansoc_array_write_memory3_we)
+		storage_N[milansoc_array_write_memory3_adr] <= milansoc_array_write_memory3_dat_w;
+	storage_N_dat0 <= storage_N[milansoc_array_write_memory3_adr];
+end
+always @(posedge macdp_clk) begin
+	storage_N_dat1 <= storage_N[milansoc_array_read_memory3_adr];
+end
+assign milansoc_array_write_memory3_dat_r = storage_N_dat0;
+assign milansoc_array_read_memory3_dat_r = storage_N_dat1;
+(* ram_style = "block" *)
+//------------------------------------------------------------------------------
+// Memory storage_N: 4-words x 36-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [35:0] storage_N[0:3];
+reg [35:0] storage_N_dat0;
+reg [35:0] storage_N_dat1;
+always @(posedge sys_clk) begin
+	if (milansoc_milannic_array_write_memory0_we)
+		storage_N[milansoc_milannic_array_write_memory0_adr] <= milansoc_milannic_array_write_memory0_dat_w;
+	storage_N_dat0 <= storage_N[milansoc_milannic_array_write_memory0_adr];
+end
+always @(posedge milan_clk) begin
+	storage_N_dat1 <= storage_N[milansoc_milannic_array_read_memory0_adr];
+end
+assign milansoc_milannic_array_write_memory0_dat_r = storage_N_dat0;
+assign milansoc_milannic_array_read_memory0_dat_r = storage_N_dat1;
+(* ram_style = "distributed" *)
+//------------------------------------------------------------------------------
+// Memory storage_N: 4-words x 2-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [1:0] storage_N[0:3];
+reg [1:0] storage_N_dat0;
+reg [1:0] storage_N_dat1;
+always @(posedge sys_clk) begin
+	if (milansoc_milannic_array_write_memory1_we)
+		storage_N[milansoc_milannic_array_write_memory1_adr] <= milansoc_milannic_array_write_memory1_dat_w;
+	storage_N_dat0 <= storage_N[milansoc_milannic_array_write_memory1_adr];
+end
+always @(posedge milan_clk) begin
+	storage_N_dat1 <= storage_N[milansoc_milannic_array_read_memory1_adr];
+end
+assign milansoc_milannic_array_write_memory1_dat_r = storage_N_dat0;
+assign milansoc_milannic_array_read_memory1_dat_r = storage_N_dat1;
+(* ram_style = "block" *)
+//------------------------------------------------------------------------------
+// Memory storage_N: 4-words x 34-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [33:0] storage_N[0:3];
+reg [33:0] storage_N_dat0;
+reg [33:0] storage_N_dat1;
+always @(posedge milan_clk) begin
+	if (milansoc_milannic_array_write_memory2_we)
+		storage_N[milansoc_milannic_array_write_memory2_adr] <= milansoc_milannic_array_write_memory2_dat_w;
+	storage_N_dat0 <= storage_N[milansoc_milannic_array_write_memory2_adr];
+end
+always @(posedge sys_clk) begin
+	storage_N_dat1 <= storage_N[milansoc_milannic_array_read_memory2_adr];
+end
+assign milansoc_milannic_array_write_memory2_dat_r = storage_N_dat0;
+assign milansoc_milannic_array_read_memory2_dat_r = storage_N_dat1;
+(* ram_style = "distributed" *)
+//------------------------------------------------------------------------------
+// Memory storage_N: 4-words x 2-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [1:0] storage_N[0:3];
+reg [1:0] storage_N_dat0;
+reg [1:0] storage_N_dat1;
+always @(posedge milan_clk) begin
+	if (milansoc_milannic_array_write_memory3_we)
+		storage_N[milansoc_milannic_array_write_memory3_adr] <= milansoc_milannic_array_write_memory3_dat_w;
+	storage_N_dat0 <= storage_N[milansoc_milannic_array_write_memory3_adr];
+end
+always @(posedge sys_clk) begin
+	storage_N_dat1 <= storage_N[milansoc_milannic_array_read_memory3_adr];
+end
+assign milansoc_milannic_array_write_memory3_dat_r = storage_N_dat0;
+assign milansoc_milannic_array_read_memory3_dat_r = storage_N_dat1;

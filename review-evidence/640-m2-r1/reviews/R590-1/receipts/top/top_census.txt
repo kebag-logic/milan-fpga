@@ -1,0 +1,10 @@
+crossing storage blocks (ram_style arrays) 1x1 vs 8x8 at head: IDENTICAL
+memory census lines base/head: 42/46
+ram_style attributes base/head: 0/8
+base==head alinx_ax7101_rom.init
+base==head alinx_ax7101_sram.init
+base==head alinx_ax7101_mem.init
+base==head alinx_ax7101.xdc
+export rc base/head/head-8x8: rc=0 / rc=0 / rc=0
+reviewer top sizes base/head: 1763151 / 1772376; author receipts base/head: 1763079 / 1772379
+(base_r - base_a) - (head_r - head_a) = 75 = 3 embedded checkout paths x 25-character path-length difference between the reviewer's two trees
