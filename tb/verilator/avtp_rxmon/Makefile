@@ -62,9 +62,9 @@ run:
 	python3 lockstep_mutants.py
 lockstep-build:
 	$(VERILATOR) $(LSFLAGS) --Mdir $(LS_MDIR)1 -GN_LISTENERS_P=1 \
-	  -CFLAGS -DN_TB=1 $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
+	  -CFLAGS "-DN_TB=1 -Wall -Wextra" $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
 	$(VERILATOR) $(LSFLAGS) --Mdir $(LS_MDIR)8 -GN_LISTENERS_P=8 \
-	  -CFLAGS -DN_TB=8 $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
+	  -CFLAGS "-DN_TB=8 -Wall -Wextra" $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
 lockstep: lockstep-build
 	./$(LS_MDIR)1/Vavtp_rxmon_lockstep
 	./$(LS_MDIR)8/Vavtp_rxmon_lockstep

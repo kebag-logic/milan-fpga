@@ -44,9 +44,9 @@ LS_FLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module chmap_lockstep_w
 	  -Wno-UNUSEDPARAM -Wno-DECLFILENAME -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 lockstep-build:
 	$(VERILATOR) $(LS_FLAGS) --Mdir $(LS_MDIR)1 -GN_SLOTS_P=4 -GN_LB_STREAMS_P=1 \
-	  -CFLAGS "-DSLOTS_TB=4 -DNLB_TB=1" $(LS_SRCS) sim_lockstep.cpp -o Vchmap_lockstep
+	  -CFLAGS "-DSLOTS_TB=4 -DNLB_TB=1 -Wall -Wextra" $(LS_SRCS) sim_lockstep.cpp -o Vchmap_lockstep
 	$(VERILATOR) $(LS_FLAGS) --Mdir $(LS_MDIR)8 -GN_SLOTS_P=32 -GN_LB_STREAMS_P=8 \
-	  -CFLAGS "-DSLOTS_TB=32 -DNLB_TB=8" $(LS_SRCS) sim_lockstep.cpp -o Vchmap_lockstep
+	  -CFLAGS "-DSLOTS_TB=32 -DNLB_TB=8 -Wall -Wextra" $(LS_SRCS) sim_lockstep.cpp -o Vchmap_lockstep
 lockstep: lockstep-build
 	./$(LS_MDIR)1/Vchmap_lockstep
 	./$(LS_MDIR)8/Vchmap_lockstep

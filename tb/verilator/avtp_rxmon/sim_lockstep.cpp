@@ -56,8 +56,14 @@ constexpr int kUnlockCycles = 1000;
 constexpr uint64_t kFmt = 0x0205022002006000ULL;
 constexpr uint64_t kSid0 = 0x020000FFFE010000ULL;
 //! LCTX words and the monitor's counter columns
-constexpr int kWFmtLo = 2, kWFmtHi = 3, kWDepkt = 11, kWCnt0 = 16;
-constexpr int kColMl = 0, kColMu = 1, kColSi = 2, kColFrx = 9;
+constexpr int kWFmtLo = 2;
+constexpr int kWFmtHi = 3;
+constexpr int kWDepkt = 11;
+constexpr int kWCnt0 = 16;
+constexpr int kColMl = 0;
+constexpr int kColMu = 1;
+constexpr int kColSi = 2;
+constexpr int kColFrx = 9;
 constexpr int kCols = 12;
 constexpr int kLctxTimeout = 256;
 
@@ -337,7 +343,8 @@ void Lockstep::h2_update_colliding_with_read() {
     //! read is re-evaluated in every cycle, the write cycle included
     const uint32_t before = gc_read(s, kColSi);
     c_.hex("[H2] the held read starts at the seed", before, 0x0000FFFFu);
-    uint32_t moves = 0, last = before;
+    uint32_t moves = 0;
+    uint32_t last = before;
     uint64_t window_bad = 0;
     seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
     pdu(s, seq_[s]);
@@ -453,9 +460,15 @@ void Lockstep::soak(uint64_t seed, int n) {
         lctx_write(s, kWFmtLo, static_cast<uint32_t>(kFmt));
         lctx_write(s, kWFmtHi, static_cast<uint32_t>(kFmt >> 32));
     }
-    int wr_left = 0, rd_left = 0;
+    int wr_left = 0;
+    int rd_left = 0;
     //! what the soak exercised, so a vacuous run cannot pass
-    uint64_t accepts = 0, dirties = 0, writes = 0, reads = 0, resets = 0, live_reads = 0;
+    uint64_t accepts = 0;
+    uint64_t dirties = 0;
+    uint64_t writes = 0;
+    uint64_t reads = 0;
+    uint64_t resets = 0;
+    uint64_t live_reads = 0;
     for (int i = 0; i < n; i++) {
         if (r.chance(4000)) {
             reset(1 + static_cast<int>(r.below(3)));

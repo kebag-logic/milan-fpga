@@ -43,8 +43,12 @@ constexpr int kTdmPairs = 4;
 constexpr int kGap = 24;
 //! one walk: 1 + the pre-walk + every slot's step and gap
 constexpr int kWalk = 1 + (kNlb * 4 + 1) + kSlots * (kGap + 2);
-constexpr uint32_t kSrcZero = 0, kSrcI2s = 1, kSrcTdm = 2, kSrcRes = 3, kSrcTone = 4,
-                   kSrcLoop = 5;
+constexpr uint32_t kSrcZero = 0;
+constexpr uint32_t kSrcI2s = 1;
+constexpr uint32_t kSrcTdm = 2;
+constexpr uint32_t kSrcRes = 3;
+constexpr uint32_t kSrcTone = 4;
+constexpr uint32_t kSrcLoop = 5;
 
 uint32_t entry(bool en, int half, uint32_t src, int idxh, int idx) {
     return (en ? 1u << 12 : 0u) | (static_cast<uint32_t>(half) << 11) | (src << 8) |
@@ -75,7 +79,8 @@ struct Rng {
 
 struct Inject {
     int slot;
-    uint32_t l, r;
+    uint32_t l;
+    uint32_t r;
 };
 
 class Lockstep {
@@ -229,7 +234,8 @@ void Lockstep::st_source_table() {
         cases.push_back({entry(true, 0, kSrcTdm, 0, p), 0x300000u | static_cast<uint32_t>(p << 8) | 0x0Au});
         cases.push_back({entry(true, 1, kSrcTdm, 5, p), 0x400000u | static_cast<uint32_t>(p << 8) | 0x0Bu});
     }
-    uint64_t wrong = 0, seen = 0;
+    uint64_t wrong = 0;
+    uint64_t seen = 0;
     for (size_t base = 0; base < cases.size(); base += 2 * kSlots) {
         for (int k = 0; k < 2 * kSlots; k++)
             map_write(k, cases[(base + static_cast<size_t>(k)) % cases.size()].e);
@@ -283,7 +289,8 @@ void Lockstep::sk_replay(int chans, const char* name) {
         }
     }
     //! judge the replay: walk w carries event w on every mapped pair
-    uint64_t wrong = 0, walks = 0;
+    uint64_t wrong = 0;
+    uint64_t walks = 0;
     for (size_t i = 0; i + static_cast<size_t>(kSlots) <= got.size(); i += static_cast<size_t>(kSlots)) {
         const int e = static_cast<int>(walks++);
         for (int p = 0; p < pairs; p++) {
@@ -305,8 +312,15 @@ void Lockstep::soak(uint64_t seed, int n) {
     std::printf("[SO] random soak, seed %llu, %d cycles\n", static_cast<unsigned long long>(seed), n);
     Rng r(seed);
     reset();
-    int beats_left = 0, beat_gap = 0, stream = 0;
-    uint64_t pairs = 0, beats = 0, skips = 0, flushes = 0, ticks = 0, resets = 0;
+    int beats_left = 0;
+    int beat_gap = 0;
+    int stream = 0;
+    uint64_t pairs = 0;
+    uint64_t beats = 0;
+    uint64_t skips = 0;
+    uint64_t flushes = 0;
+    uint64_t ticks = 0;
+    uint64_t resets = 0;
     for (int i = 0; i < n; i++) {
         if (r.chance(20000)) {
             reset();
